@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<digester-rules>
+
+	<pattern value="CommandList">
+		<pattern value="Command">
+		   	<object-create-rule classname="org.paxle.data.db.impl.Command" />
+		   	<set-next-rule methodname="addCommand" />			
+		   	
+		   	<call-method-rule pattern="location" methodname="setLocation" paramcount="0" />
+		</pattern>
+	</pattern>
+	
+</digester-rules>

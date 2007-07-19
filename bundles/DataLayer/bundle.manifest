@@ -1,5 +1,9 @@
 Manifest-Version: 1.0
 Bundle-Name: DataLayer
+Bundle-ClassPath: ., libs/commons-beanutils.jar, libs/commons-collecti
+ ons.jar, libs/commons-digester.jar, libs/commons-logging.jar, libs/sa
+ x2.jar, libs/saxpath.jar, libs/xerces.jar, libs/xml-apis.jar, libs/xm
+ lParserAPIs.jar
 Bundle-Activator: org.paxle.data.db.impl.Activator
 Import-Package: org.osgi.framework, org.paxle.core.data, org.paxle.cor
  e.queue, org.paxle.core.doc

@@ -3,21 +3,12 @@
 	<classpathentry excluding="**/.svn/**|**/CVS/**" including="**/*.java" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.EXECUTION_ENVIRONMENT_CONTAINER"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
-		<attributes>
-			<attribute name="org.osgi.framework" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/osgi/framework/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
-		<attributes>
-			<attribute name="bundle-name" value="Core"/>
-			<attribute name="org.paxle.core.data" value="0.0.0"/>
-			<attribute name="org.paxle.core.queue" value="0.0.0"/>
-			<attribute name="org.paxle.core.doc" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/queue/"/>
@@ -25,5 +16,14 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
+	<classpathentry kind="lib" path="libs/commons-beanutils.jar"/>
+	<classpathentry kind="lib" path="libs/commons-collections.jar"/>
+	<classpathentry kind="lib" path="libs/commons-digester.jar"/>
+	<classpathentry kind="lib" path="libs/commons-logging.jar"/>
+	<classpathentry kind="lib" path="libs/sax2.jar"/>
+	<classpathentry kind="lib" path="libs/saxpath.jar"/>
+	<classpathentry kind="lib" path="libs/xerces.jar"/>
+	<classpathentry kind="lib" path="libs/xml-apis.jar"/>
+	<classpathentry kind="lib" path="libs/xmlParserAPIs.jar"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<CommandList xmlns="http://www.paxle.net/command/ns/0">
+	<Command>
+		<location>http://www.test.at/</location>
+	</Command>
+</CommandList>
