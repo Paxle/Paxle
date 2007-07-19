@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn/**|**/CVS/**" including="**/*.java" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.EXECUTION_ENVIRONMENT_CONTAINER"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
+		<attributes>
+			<attribute name="org.osgi.framework" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/osgi/framework/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
+		<attributes>
+			<attribute name="bundle-name" value="Core"/>
+			<attribute name="org.paxle.core" value="0.0.0"/>
+			<attribute name="org.paxle.core.queue" value="0.0.0"/>
+			<attribute name="org.paxle.core.threading" value="0.0.0"/>
+			<attribute name="org.paxle.core.data" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/data/"/>
+			<accessrule kind="accessible" pattern="org/paxle/core/threading/"/>
+			<accessrule kind="accessible" pattern="org/paxle/core/queue/"/>
+			<accessrule kind="accessible" pattern="org/paxle/core/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="output" path="out"/>
+</classpath>
