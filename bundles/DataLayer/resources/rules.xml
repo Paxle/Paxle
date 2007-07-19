@@ -3,7 +3,7 @@
 
 	<pattern value="CommandList">
 		<pattern value="Command">
-		   	<object-create-rule classname="org.paxle.data.db.impl.Command" />
+		   	<object-create-rule classname="org.paxle.core.queue.Command" />
 		   	<set-next-rule methodname="addCommand" />			
 		   	
 		   	<call-method-rule pattern="location" methodname="setLocation" paramcount="0" />

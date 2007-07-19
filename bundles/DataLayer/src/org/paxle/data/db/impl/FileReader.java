@@ -7,6 +7,7 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.xmlrules.DigesterLoader;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
+import org.paxle.core.queue.Command;
 
 public class FileReader extends Thread implements IDataProvider {
 	private InputStream sourceFile = null;
@@ -41,6 +42,10 @@ public class FileReader extends Thread implements IDataProvider {
 		}		
 	}
 	
+	/**
+	 * Parsing the {@link InputStream} using Apache Disgester 
+	 * @param inputStream the input-stream to read
+	 */
     private void parse(InputStream inputStream) {
         if (inputStream == null) 
             throw new NullPointerException("The inpustream is null");

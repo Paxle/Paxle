@@ -16,7 +16,7 @@ public class CrawlerDocument implements ICrawlerDocument {
 	private Date lastModDate = null;
 	private String etag;
 		
-	void setLocation(String location) {
+	public void setLocation(String location) {
 		this.location = location;
 	}
 

@@ -34,6 +34,7 @@ public class Activator implements BundleActivator {
 			if(http != null) {				
 				// registering the servlet which will be accessible using 
 				http.registerServlet("/status", new StatusView(manager), null, null);
+				http.registerServlet("/crawler", new CrawlerView(manager), null, null);
 			}
 		}		
 	}

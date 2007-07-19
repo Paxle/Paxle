@@ -1,0 +1,10 @@
+<html>
+<body>
+	<h1>Welcome to Paxle!</h1>
+	<form action="/crawler" method="post">
+	Crawl URL: <input type="text" name="startURL"><input type="submit" value="Send">
+	 </form>
+	
+	
+</body>
+<html>	

@@ -8,9 +8,8 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core;version=0.0.0">
 		<accessrules>
-			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/queue/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/data/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
