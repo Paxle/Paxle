@@ -13,13 +13,22 @@ public class Activator implements BundleActivator {
 		 * Register Services provided by this bundle
 		 * ========================================================== */
 		// this pipe connects the Crawler-Outqueue with the Parser-InQueue
-		DataPipe pipe = new DataPipe();
-		Hashtable<String,String> props = new Hashtable<String, String>();
-		props.put(IDataConsumer.PROP_DATACONSUMER_ID, "org.paxle.crawler.source");
-		props.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.parser.sink");
+		DataPipe crawlerToparserPipe = new DataPipe();
+		Hashtable<String,String> crawlerToparserPipeProps = new Hashtable<String, String>();
+		crawlerToparserPipeProps.put(IDataConsumer.PROP_DATACONSUMER_ID, "org.paxle.crawler.source");
+		crawlerToparserPipeProps.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.parser.sink");
 		
-		context.registerService(IDataProvider.class.getName(), pipe, props);
-		context.registerService(IDataConsumer.class.getName(), pipe, props);
+		context.registerService(IDataProvider.class.getName(), crawlerToparserPipe, crawlerToparserPipeProps);
+		context.registerService(IDataConsumer.class.getName(), crawlerToparserPipe, crawlerToparserPipeProps);
+		
+		// another pipe to connect the Parser-OutQueue with the Indexer-InQueu
+		DataPipe parserToIndexerPipe = new DataPipe();
+		Hashtable<String,String> parserToIndexerPipeProps = new Hashtable<String, String>();
+		parserToIndexerPipeProps.put(IDataConsumer.PROP_DATACONSUMER_ID, "org.paxle.parser.source");
+		parserToIndexerPipeProps.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.indexer.sink");
+		
+		context.registerService(IDataProvider.class.getName(), parserToIndexerPipe, parserToIndexerPipeProps);
+		context.registerService(IDataConsumer.class.getName(), parserToIndexerPipe, parserToIndexerPipeProps);				
 	}
 
 	public void stop(BundleContext context) throws Exception {
