@@ -1,0 +1,35 @@
+<html>
+<body>
+	<h1>Welcome to Paxle!</h1>
+	#set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
+	#if($subCrawlerManager)
+		<h2>Installed Crawlers:</h2>	
+		$subCrawlerManager.getSubCrawlers().size() crawler(s) found:<br />
+		
+		<table border="1">
+			<tr><th>Protocol</th></tr>
+			#foreach($subCrawler in $subCrawlerManager.getSubCrawlers())
+			<tr>		
+				<td>$subCrawler.getProtocol()</td>
+			</tr>
+			#end
+		</table>
+	#end
+	
+	#set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
+	#if($subParserManager)
+		<h2>Installed Parsers:</h2>	
+		$subParserManager.getSubParsers().size() parser(s) found:<br />
+		
+		<table border="1">
+			<tr><th>MimeTypes</th></tr>
+			#foreach($subParser in $subParserManager.getSubParsers())
+			<tr>		
+				<td>$subCrawler.getMimeTypes()</td>
+			</tr>
+			#end
+		</table>
+	#end	
+	
+</body>
+<html>

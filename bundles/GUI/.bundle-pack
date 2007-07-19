@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundlejar>
+<resource dst="" pattern=".*\.class" src="/GUI/out" type="0"/>
+<resource dst="libs/velocity-dep-1.5.jar" src="/GUI/libs/velocity-dep-1.5.jar" type="1"/>
+<resource dst="resources" src="/GUI/resources" type="2"/>
+</bundlejar>
