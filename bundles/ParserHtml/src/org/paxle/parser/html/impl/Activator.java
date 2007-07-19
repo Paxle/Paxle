@@ -29,7 +29,7 @@ public class Activator implements BundleActivator {
 				sb.append(';');
 		}
 		props.put(ISubParser.PROP_MIMETYPES, sb.toString());
-		bc.registerService(IHtmlParser.class.getName(), hp, props);
+		bc.registerService(ISubParser.class.getName(), hp, props);
 	}
 	
 	/* (non-Javadoc)
