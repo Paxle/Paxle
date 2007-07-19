@@ -3,11 +3,25 @@
 	<classpathentry excluding="**/.svn/**|**/CVS/**" including="**/*.java" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.EXECUTION_ENVIRONMENT_CONTAINER"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
+		<attributes>
+			<attribute name="org.osgi.framework" value="0.0.0"/>
+		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/osgi/framework/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/htmllexer.jar"/>
 	<classpathentry kind="lib" path="libs/htmlparser.jar"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.parser">
+		<attributes>
+			<attribute name="bundle-name" value="ParserCore"/>
+			<attribute name="org.paxle.parser" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/parser/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="out"/>
 </classpath>

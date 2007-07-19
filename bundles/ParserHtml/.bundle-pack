@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bundlejar>
+<resource dst="" pattern=".*\.class" src="/ParserHtml/out" type="0"/>
+<resource dst="libs/htmllexer.jar" src="/ParserHtml/libs/htmllexer.jar" type="1"/>
+<resource dst="libs/htmlparser.jar" src="/ParserHtml/libs/htmlparser.jar" type="1"/>
+</bundlejar>
