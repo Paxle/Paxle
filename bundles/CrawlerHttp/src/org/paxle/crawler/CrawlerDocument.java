@@ -1,11 +1,11 @@
-package org.paxle.crawler.http.impl;
+package org.paxle.crawler;
 
 import java.io.File;
 import java.util.Date;
 
 import org.paxle.core.doc.ICrawlerDocument;
 
-public class HttpCrawlerDocument implements ICrawlerDocument {
+public class CrawlerDocument implements ICrawlerDocument {
 	private ICrawlerDocument.Status status = null;
 	private String location = null;
 	private String mimeType = null;
@@ -24,7 +24,7 @@ public class HttpCrawlerDocument implements ICrawlerDocument {
 		return this.location;
 	}
 
-	void setCharset(String charset) {
+	public void setCharset(String charset) {
 		this.charset = charset;
 	}
 	
@@ -36,7 +36,7 @@ public class HttpCrawlerDocument implements ICrawlerDocument {
 		return (this.content == null) ? 0 : this.content.length();
 	}
 	
-	void setContent(File content) {
+	public void setContent(File content) {
 		this.content = content;
 	}
 
@@ -44,7 +44,7 @@ public class HttpCrawlerDocument implements ICrawlerDocument {
 		return this.content;
 	}
 
-	void setMimeType(String mimeType) {
+	public void setMimeType(String mimeType) {
 		this.mimeType = mimeType;
 	}
 	
@@ -52,7 +52,7 @@ public class HttpCrawlerDocument implements ICrawlerDocument {
 		return this.mimeType;
 	}
 
-	void setStatus(Status status) {
+	public void setStatus(Status status) {
 		this.status = status;
 	}
 	
@@ -60,7 +60,7 @@ public class HttpCrawlerDocument implements ICrawlerDocument {
 		return this.status;
 	}
 	
-	void setLanguages(String[] languages) {
+	public void setLanguages(String[] languages) {
 		this.languages = languages;
 	}
 	

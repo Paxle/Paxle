@@ -1,6 +1,5 @@
 package org.paxle.data.db.impl;
 
-import java.net.URL;
 import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;

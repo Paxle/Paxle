@@ -28,8 +28,11 @@ public class CrawlerWorker extends AWorker {
 
 			// get a sub-crawler that is capable to handle the specified protocol
 			String protocol = url.getProtocol();
+			System.out.println("Fetching crawler for protocol: " + protocol);
+			
 			ISubCrawler crawler = this.subCrawlerManager.getSubCrawler(protocol);
 			if (crawler == null) {
+				System.out.println("No crawler for protocol '" + protocol + "' found.");
 				command.setResult(ICommand.Result.Failure, "No crawler for protocol '" + protocol + "' found.");
 				return;
 			}			

@@ -16,6 +16,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.crawler.CrawlerDocument;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.http.IHttpCrawler;
 
@@ -43,8 +44,9 @@ public class HttpCrawler implements IHttpCrawler {
 	
 	public ICrawlerDocument request(String requestUrl) {
 		if (requestUrl == null) throw new NullPointerException("URL was null");
-
-		HttpCrawlerDocument doc = new HttpCrawlerDocument();
+		System.out.println("Crawling URL: " + requestUrl);
+		
+		CrawlerDocument doc = new CrawlerDocument();
 		
 		HttpMethod method = null;
 		try {
@@ -136,6 +138,7 @@ public class HttpCrawler implements IHttpCrawler {
 		} finally {
 			if (method != null) method.releaseConnection();
 		}
+		System.out.println("Crawling of URL '" + requestUrl + "' finished.");
 
 		return doc;
 	}

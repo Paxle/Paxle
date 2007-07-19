@@ -1,6 +1,5 @@
 package org.paxle.data.db.impl;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -34,7 +33,9 @@ public class FileReader extends Thread implements IDataProvider {
 				while (this.sink == null) this.wait();
 			}
 
+			System.out.println("Start reading commands from inputstream ...");
 			this.parse(this.sourceFile);
+			System.out.println("Reading commands from inputstream finished");
 		} catch (Exception e) {
 			e.getStackTrace();
 		}		
@@ -52,8 +53,7 @@ public class FileReader extends Thread implements IDataProvider {
             digester.setUseContextClassLoader(true);
             
             digester.push(this);
-            digester.parse(inputStream);
-            System.out.println("Done");            
+            digester.parse(inputStream);       
             
         } catch (Exception e) {
             e.printStackTrace();
