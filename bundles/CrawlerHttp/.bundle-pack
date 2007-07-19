@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundlejar>
+<resource dst="" pattern=".*\.class" src="/CrawlerHttp/out" type="0"/>
+<resource dst="libs/commons-codec-1.3.jar" src="/CrawlerHttp/libs/commons-codec-1.3.jar" type="1"/>
+<resource dst="libs/commons-httpclient-3.0.1.jar" src="/CrawlerHttp/libs/commons-httpclient-3.0.1.jar" type="1"/>
+</bundlejar>
