@@ -1,0 +1,164 @@
+package org.paxle.parser;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+
+public final class ParserDocument {
+	
+	private final Set<ParserDocument> subDocs = new HashSet<ParserDocument>();
+	private final String location;
+	private final Collection<String> headlines = new LinkedList<String>();
+	private final Collection<String> keywords = new LinkedList<String>();
+	private final Map<String,String> links = new HashMap<String,String>();
+	private final Map<String,String> images = new HashMap<String,String>();
+	private final Set<String> languages = new HashSet<String>();
+	private final StringBuilder text = new StringBuilder();
+	private String author;
+	private Date lastChanged;
+	private String summary;
+	private String title;
+	
+	public ParserDocument(String location) {
+		this.location = location;
+	}
+	
+	public void addHeadline(String headline) {
+		this.headlines.add(headline);
+	}
+	
+	public void addKeyword(String keyword) {
+		this.keywords.add(keyword);
+	}
+	
+	public void addLanguage(String lang) {
+		this.languages.add(lang);
+	}
+	
+	public void addReference(String ref, String name) {
+		this.links.put(ref, name);
+	}
+	
+	public void addReferenceImage(String ref, String name) {
+		this.images.put(ref, name);
+	}
+	
+	public ParserDocument addSubDocument(String location) {
+		final ParserDocument doc = new ParserDocument(location);
+		this.subDocs.add(doc);
+		return doc;
+	}
+	
+	public void addText(CharSequence text) {
+		this.text.append(text);
+	}
+	
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+	
+	public void setLanguages(String[] langs) {
+		this.languages.clear();
+		this.languages.addAll(Arrays.asList(langs));
+	}
+	
+	public void setLastChanged(Date date) {
+		this.lastChanged = date;
+	}
+	
+	public void setSummary(String summary) {
+		this.summary = summary;
+	}
+	
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+	
+	public Collection<String> getHeadlines() {
+		return this.headlines;
+	}
+	
+	public Map<String,String> getImages() {
+		return this.images;
+	}
+	
+	public Collection<String> getKeywords() {
+		return this.keywords;
+	}
+	
+	public Set<String> getLanguages() {
+		return this.languages;
+	}
+	
+	public Date getLastChanged() {
+		return this.lastChanged;
+	}
+	
+	public Map<String,String> getLinks() {
+		return this.links;
+	}
+	
+	public String getLocation() {
+		return this.location;
+	}
+	
+	// don't manipulate the sub-docs
+	public Set<ParserDocument> getSubDocs() {
+		return new HashSet<ParserDocument>(this.subDocs);
+	}
+	
+	public String getSummary() {
+		return this.summary;
+	}
+	
+	public StringBuilder getText() {
+		return this.text;
+	}
+	
+	public String getTitle() {
+		return this.title;
+	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder(100 + this.text.length());
+		sb.append("Location: ").append(this.location).append('\n');
+		sb.append("Title: ").append(title).append('\n');
+		sb.append("Author: ").append(author).append('\n');
+		sb.append("last changed: ").append(lastChanged).append('\n');
+		sb.append("Summary: ").append(summary).append('\n');
+		print(sb, this.languages, "Languages");
+		print(sb, this.headlines, "Headlines");
+		print(sb, this.keywords, "Keywords");
+		print(sb, this.images, "Images");
+		print(sb, this.links, "Links");
+		sb.append("Text:").append('\n').append(this.text);
+		return sb.toString();
+	}
+	
+	private static void print(StringBuilder sb, Map<String,String> map, String name) {
+		Iterator<Map.Entry<String,String>> it = map.entrySet().iterator();
+		sb.append(name).append(":").append('\n');
+		while (it.hasNext()) {
+			Map.Entry<String,String> e = it.next();
+			sb.append(" * ").append(e.getKey()).append(" -> ").append(e.getValue()).append('\n');
+		}
+	}
+	
+	private static void print(StringBuilder sb, Collection<String> col, String name) {
+		sb.append(name).append(": ").append('\n');
+		Iterator<String> it = col.iterator();
+		while (it.hasNext())
+			sb.append(" * ").append(it.next()).append('\n');
+	}
+}
