@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-Version: 1.0.0
+Bundle-Name: htmlParser
+Bundle-ManifestVersion: 2
+Bundle-Activator: org.paxle.parser.html.impl.Activator
+Import-Package: org.osgi.framework, org.paxle.parser
+Bundle-SymbolicName: htmlParser
+Export-Package: org.paxle.parser.html
+Bundle-ClassPath: ., libs/htmllexer.jar, libs/htmlparser.jar
+
