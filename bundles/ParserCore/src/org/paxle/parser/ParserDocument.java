@@ -26,6 +26,7 @@ public final class ParserDocument implements IParserDocument {
 	private Date lastChanged;
 	private String summary;
 	private String title;
+	private Status status;
 	
 	public ParserDocument(String location) {
 		this.location = location;
@@ -201,6 +202,22 @@ public final class ParserDocument implements IParserDocument {
 	 */
 	public String getTitle() {
 		return this.title;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.core.doc.IParserDocument#getStatus()
+	 */
+	public Status getStatus() {
+		return this.status;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.core.doc.IParserDocument#setStatus(org.paxle.core.doc.IParserDocument.Status)
+	 */
+	public void setStatus(Status status) {
+		this.status = status;
 	}
 	
 	/* (non-Javadoc)
