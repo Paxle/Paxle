@@ -4,7 +4,7 @@ Bundle-ClassPath: ., libs/commons-httpclient-3.0.1.jar, libs/commons-c
  odec-1.3.jar
 Bundle-Activator: org.paxle.crawler.http.impl.Activator
 Import-Package: org.osgi.framework, org.paxle.crawler, org.paxle.core.
- doc
+ doc, org.apache.commons.logging
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.crawler.http
 Export-Package: org.paxle.crawler.http
