@@ -13,6 +13,7 @@ import org.htmlparser.lexer.Lexer;
 import org.htmlparser.lexer.Page;
 import org.htmlparser.lexer.Source;
 
+import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserDocument;
 import org.paxle.parser.ParserTools;
 import org.paxle.parser.ParserException;
@@ -53,7 +54,7 @@ public class HtmlParser implements IHtmlParser {
 		return MIME_TYPES;
 	}
 	
-	public ParserDocument parse(String location, String charset, File content) throws ParserException {
+	public IParserDocument parse(String location, String charset, File content) throws ParserException {
 		try {
 			final Source source = new InputStreamSource(ParserTools.getInputStream(content));
 			if (charset != null)
@@ -63,7 +64,7 @@ public class HtmlParser implements IHtmlParser {
 			final Parser parser = new Parser(new Lexer(page));
 			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
 			
-			final ParserDocument doc = new ParserDocument(location);
+			final IParserDocument doc = new ParserDocument(location);
 			final NodeCollector nc = new NodeCollector(doc, NodeCollector.Debug.LOW);
 			parser.visitAllNodesWith(nc);
 			source.close();

@@ -10,7 +10,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-public final class ParserDocument {
+import org.paxle.core.doc.IParserDocument;
+
+public final class ParserDocument implements IParserDocument {
 	
 	private final Set<ParserDocument> subDocs = new HashSet<ParserDocument>();
 	private final String location;
@@ -29,106 +31,181 @@ public final class ParserDocument {
 		this.location = location;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#addHeadline(java.lang.String)
+	 */
 	public void addHeadline(String headline) {
 		this.headlines.add(headline);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#addKeyword(java.lang.String)
+	 */
 	public void addKeyword(String keyword) {
 		this.keywords.add(keyword);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#addLanguage(java.lang.String)
+	 */
 	public void addLanguage(String lang) {
 		this.languages.add(lang);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#addReference(java.lang.String, java.lang.String)
+	 */
 	public void addReference(String ref, String name) {
 		this.links.put(ref, name);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#addReferenceImage(java.lang.String, java.lang.String)
+	 */
 	public void addReferenceImage(String ref, String name) {
 		this.images.put(ref, name);
 	}
 	
-	public ParserDocument addSubDocument(String location) {
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#addSubDocument(java.lang.String)
+	 */
+	public IParserDocument addSubDocument(String location) {
 		final ParserDocument doc = new ParserDocument(location);
 		this.subDocs.add(doc);
 		return doc;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#addText(java.lang.CharSequence)
+	 */
 	public void addText(CharSequence text) {
 		this.text.append(text);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#setAuthor(java.lang.String)
+	 */
 	public void setAuthor(String author) {
 		this.author = author;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#setLanguages(java.lang.String[])
+	 */
 	public void setLanguages(String[] langs) {
 		this.languages.clear();
 		this.languages.addAll(Arrays.asList(langs));
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#setLastChanged(java.util.Date)
+	 */
 	public void setLastChanged(Date date) {
 		this.lastChanged = date;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#setSummary(java.lang.String)
+	 */
 	public void setSummary(String summary) {
 		this.summary = summary;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#setTitle(java.lang.String)
+	 */
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#getAuthor()
+	 */
 	public String getAuthor() {
 		return author;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#getHeadlines()
+	 */
 	public Collection<String> getHeadlines() {
 		return this.headlines;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#getImages()
+	 */
 	public Map<String,String> getImages() {
 		return this.images;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#getKeywords()
+	 */
 	public Collection<String> getKeywords() {
 		return this.keywords;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#getLanguages()
+	 */
 	public Set<String> getLanguages() {
 		return this.languages;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#getLastChanged()
+	 */
 	public Date getLastChanged() {
 		return this.lastChanged;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#getLinks()
+	 */
 	public Map<String,String> getLinks() {
 		return this.links;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#getLocation()
+	 */
 	public String getLocation() {
 		return this.location;
 	}
 	
 	// don't manipulate the sub-docs
-	public Set<ParserDocument> getSubDocs() {
-		return new HashSet<ParserDocument>(this.subDocs);
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#getSubDocs()
+	 */
+	public Set<IParserDocument> getSubDocs() {
+		return new HashSet<IParserDocument>(this.subDocs);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#getSummary()
+	 */
 	public String getSummary() {
 		return this.summary;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#getText()
+	 */
 	public StringBuilder getText() {
 		return this.text;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#getTitle()
+	 */
 	public String getTitle() {
 		return this.title;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.parser.IParserDocument#toString()
+	 */
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder(100 + this.text.length());

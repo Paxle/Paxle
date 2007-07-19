@@ -1,5 +1,7 @@
 package org.paxle.crawler;
 
+import org.paxle.core.doc.ICrawlerDocument;
+
 
 /**
  * The interface that must be implemented by all sub-crawlers

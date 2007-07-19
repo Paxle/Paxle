@@ -1,6 +1,7 @@
-package org.paxle.crawler;
+package org.paxle.core.doc;
 
 import java.io.File;
+import java.util.Date;
 
 
 public interface ICrawlerDocument {
@@ -16,4 +17,7 @@ public interface ICrawlerDocument {
 	public String getMimeType();
 	public long getSize();
 	public File getContent();
+	public String[] getLanguages();
+	public Date getCrawlerDate();
+	public Date getLastModDate();
 }

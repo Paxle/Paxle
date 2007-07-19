@@ -3,10 +3,10 @@ package org.paxle.crawler.http.impl;
 import java.io.File;
 import java.util.Date;
 
-import org.paxle.crawler.ICrawlerDocument;
+import org.paxle.core.doc.ICrawlerDocument;
 
 public class HttpCrawlerDocument implements ICrawlerDocument {
-	private Status status = null;
+	private ICrawlerDocument.Status status = null;
 	private String location = null;
 	private String mimeType = null;
 	private String charset = null;

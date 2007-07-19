@@ -2,9 +2,9 @@ package org.paxle.crawler.impl;
 
 import java.net.URL;
 
+import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
-import org.paxle.crawler.ICrawlerDocument;
 import org.paxle.crawler.ISubCrawler;
 
 
@@ -20,34 +20,35 @@ public class CrawlerWorker extends AWorker {
 	}
 
 	@Override
-	protected void execute(ICommand cmd) {
+	protected void execute(ICommand command) {
 		try {
 			// get the URL to crawl
-			String urlString = cmd.getLocation();
+			String urlString = command.getLocation();
 			URL url = new URL(urlString);
 
 			// get a sub-crawler that is capable to handle the specified protocol
 			String protocol = url.getProtocol();
 			ISubCrawler crawler = this.subCrawlerManager.getSubCrawler(protocol);
 			if (crawler == null) {
-				// URL not crawlable
-				// TODO: set an errorstatus in the command object
+				command.setResult(ICommand.Result.Failure, "No crawler for protocol '" + protocol + "' found.");
 				return;
 			}			
 			
 			// pass the URL to the cralwer
-			ICrawlerDocument resource = crawler.request(urlString);
-			if (resource == null) {
+			ICrawlerDocument crawlerDoc = crawler.request(urlString);
+			if (crawlerDoc == null) {
 				// TODO: set the statuscode accordingly
+			} else if (crawlerDoc.getStatus() != ICrawlerDocument.Status.OK) {
+				
 			}
 			
 			// TODO: mimetype detection
+			// resource.getMimeType()
+			command.setCrawlerDocument(crawlerDoc);
 			
-			// TODO: copy data to ICommand
 			
 		} catch (Exception e) {
-			// TODO: set error-code to ICommand
-			e.printStackTrace();
+			command.setResult(ICommand.Result.Failure, "Unexpected error while crawling the resource");
 		}
 	}
 }

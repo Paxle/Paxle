@@ -18,8 +18,10 @@
 			<attribute name="org.paxle.core.queue" value="0.0.0"/>
 			<attribute name="org.paxle.core.threading" value="0.0.0"/>
 			<attribute name="org.paxle.core.data" value="0.0.0"/>
+			<attribute name="org.paxle.core.doc" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/data/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/threading/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/queue/"/>

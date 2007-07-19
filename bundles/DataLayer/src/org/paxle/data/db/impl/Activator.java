@@ -28,7 +28,13 @@ public class Activator implements BundleActivator {
 		parserToIndexerPipeProps.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.indexer.sink");
 		
 		context.registerService(IDataProvider.class.getName(), parserToIndexerPipe, parserToIndexerPipeProps);
-		context.registerService(IDataConsumer.class.getName(), parserToIndexerPipe, parserToIndexerPipeProps);				
+		context.registerService(IDataConsumer.class.getName(), parserToIndexerPipe, parserToIndexerPipeProps);
+		
+		
+		/*
+		 * TODO: just for debugging
+		 */
+		//mwComponent.getDataSink().putData(new Command("http://www.test.at"));
 	}
 
 	public void stop(BundleContext context) throws Exception {

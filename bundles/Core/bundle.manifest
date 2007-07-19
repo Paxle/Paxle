@@ -7,7 +7,8 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.core
 Bundle-Version: 1.0.0
 Export-Package: org.paxle.core.queue, org.paxle.core.threading, org.pa
- xle.core, org.paxle.core.filter, org.paxle.core.data
+ xle.core, org.paxle.core.filter, org.paxle.core.data, org.paxle.core.
+ doc
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
  
 

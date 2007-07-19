@@ -19,7 +19,7 @@ import org.htmlparser.tags.StyleTag;
 import org.htmlparser.tags.TitleTag;
 import org.htmlparser.visitors.NodeVisitor;
 
-import org.paxle.parser.ParserDocument;
+import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.html.impl.tags.AddressTag;
 import org.paxle.parser.html.impl.tags.MetaTagManager;
 
@@ -36,11 +36,11 @@ public class NodeCollector extends NodeVisitor {
 	
 	private final Collection<Exception> exceptions = new LinkedList<Exception>();
 	private final MetaTagManager mtm = new MetaTagManager();
-	private final ParserDocument doc;
+	private final IParserDocument doc;
 	private final Debug debug;
 	private boolean noParse = false;
 	
-	public NodeCollector(final ParserDocument doc, final Debug debug) {
+	public NodeCollector(final IParserDocument doc, final Debug debug) {
 		super(true, true);
 		this.doc = doc;
 		this.debug = debug;
