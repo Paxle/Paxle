@@ -25,7 +25,12 @@
 			<tr><th>MimeTypes</th></tr>
 			#foreach($subParser in $subParserManager.getSubParsers())
 			<tr>		
-				<td>$subCrawler.getMimeTypes()</td>
+				#set($mimeTypes = $subParser.getMimeTypes())
+				<td>$mimeTypes.size() types: 
+					#foreach($mimeType in $mimeTypes) 
+						$mimeType 
+					#end
+				</td>
 			</tr>
 			#end
 		</table>
