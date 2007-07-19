@@ -118,7 +118,7 @@ public class HttpCrawler implements IHttpCrawler {
 			// ETAG
 			Header etageHeader = method.getResponseHeader("ETag");
 			if (etageHeader != null) {
-				String etag = contentLanguageHeader.getValue();
+				String etag = etageHeader.getValue();
 				doc.setLanguages(etag);
 			}			
 			
