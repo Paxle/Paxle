@@ -26,7 +26,7 @@ public class P7zipParser implements I7zipParser {
             archive.Open(new RAFInStream(content));
         } catch (IOException e) { throw new ParserException("error opening 7zip archive", e); }
         
-        final ParserDocument doc = new ParserDocument(location);
+        final ParserDocument doc = new ParserDocument();
         final SZParserExtractCallback aec = new SZParserExtractCallback(doc, archive);
         try {
             archive.Extract(null, -1, 0, aec);

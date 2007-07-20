@@ -215,7 +215,6 @@ public final class ParserDocument implements IParserDocument {
 	 * Lists the contents of this document in the following format using line-feeds (ASCII 10 or
 	 * <code>\n</code>) for line breaks:
 	 * <pre>
-	 *   Location: &lt;Location&gt;
 	 *   Title: &lt;Title&gt;
 	 *   Author: &lt;Author&gt;
 	 *   last changed: &lt;Last modified&gt;
@@ -249,7 +248,6 @@ public final class ParserDocument implements IParserDocument {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder(100 + this.text.length());
-		sb.append("Location: ").append(this.location).append('\n');
 		sb.append("Title: ").append(title).append('\n');
 		sb.append("Author: ").append(author).append('\n');
 		sb.append("last changed: ").append(lastChanged.toString()).append('\n');

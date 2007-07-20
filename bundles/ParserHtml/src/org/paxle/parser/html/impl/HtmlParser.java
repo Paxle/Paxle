@@ -48,7 +48,7 @@ public class HtmlParser implements IHtmlParser {
 			final Parser parser = new Parser(new Lexer(page));
 			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
 			
-			final IParserDocument doc = new ParserDocument(location);
+			final IParserDocument doc = new ParserDocument();
 			final NodeCollector nc = new NodeCollector(doc, NodeCollector.Debug.LOW);
 			parser.visitAllNodesWith(nc);
 			source.close();

@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ClassPath: ., libs/J7Zip.jar
+Bundle-Version: 1.0.0
+Bundle-Name: Parser7zip
+Bundle-Activator: org.paxle.parser.sevenzip.impl.Activator
+Bundle-ManifestVersion: 2
+Bundle-Description: Paxle 7zip Parser-Bundle
+Bundle-SymbolicName: org.paxle.parser.sevenzip
+Import-Package: org.osgi.framework, org.paxle.parser, org.paxle.core.d
+ oc
+Export-Package: org.paxle.parser.sevenzip
+
