@@ -85,9 +85,9 @@ public class NodeCollector extends NodeVisitor {
 			while ((n = n.getParent()) != null)
 				System.err.println("parent is: " + n.getClass().getName());
 			//System.err.println();
-		} else {*/
+		} else */
 		if (!this.noParse) {
-			final String txt = whitespace2Space(HtmlTools.deReplaceHTML(string.getText()));
+			final String txt = HtmlTools.deReplaceHTML(string.getText());
 			if (txt.length() > 0)
 				this.doc.addText(txt);
 		}
@@ -132,25 +132,25 @@ public class NodeCollector extends NodeVisitor {
 	}
 	
 	private void process(TitleTag tag) {
-		this.doc.setTitle(whitespace2Space(HtmlTools.deReplaceHTML(tag.getTitle())));
+		this.doc.setTitle(HtmlTools.deReplaceHTML(tag.getTitle()));
 	}
 	
 	private void process(ParagraphTag tag) {
-		this.doc.addText(whitespace2Space(HtmlTools.deReplaceHTML(tag.getText())));
+		this.doc.addText(HtmlTools.deReplaceHTML(tag.getText()));
 	}
 	
 	private void process(LinkTag tag) {
 		this.doc.addReference(
 				HtmlTools.deReplaceHTML(tag.getLink().trim()),
-				whitespace2Space(HtmlTools.deReplaceHTML(tag.getLinkText())));
+				HtmlTools.deReplaceHTML(tag.getLinkText()));
 	}
 	
 	private void process(HeadingTag tag) {
-		this.doc.addHeadline(whitespace2Space(HtmlTools.deReplaceHTML(tag.toPlainTextString())));
+		this.doc.addHeadline(HtmlTools.deReplaceHTML(tag.toPlainTextString()));
 	}
 	
 	private void process(AddressTag tag) {
-		this.doc.setAuthor(whitespace2Space(HtmlTools.deReplaceHTML(tag.toPlainTextString())));
+		this.doc.setAuthor(HtmlTools.deReplaceHTML(tag.toPlainTextString()));
 	}
 	
 	private void process(Html tag) {
@@ -165,12 +165,6 @@ public class NodeCollector extends NodeVisitor {
 	private void process(ImageTag tag) {
 		this.doc.addReferenceImage(
 				HtmlTools.deReplaceHTML(tag.getImageURL()),
-				whitespace2Space(HtmlTools.deReplaceHTML(tag.getAttribute("alt"))));
-	}
-	
-	@Deprecated
-	private static String whitespace2Space(String text) {
-		if (text == null) return null;
-		return text.replaceAll("\\s", " ").trim();
+				HtmlTools.deReplaceHTML(tag.getAttribute("alt")));
 	}
 }

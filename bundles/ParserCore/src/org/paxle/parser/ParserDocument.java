@@ -33,14 +33,14 @@ public final class ParserDocument implements IParserDocument {
 	 * @see org.paxle.parser.IParserDocument#addHeadline(java.lang.String)
 	 */
 	public void addHeadline(String headline) {
-		this.headlines.add(headline);
+		this.headlines.add(ParserTools.whitespaces2Space(headline));
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#addKeyword(java.lang.String)
 	 */
 	public void addKeyword(String keyword) {
-		this.keywords.add(keyword);
+		this.keywords.add(ParserTools.whitespaces2Space(keyword));
 	}
 	
 	/* (non-Javadoc)
@@ -54,35 +54,35 @@ public final class ParserDocument implements IParserDocument {
 	 * @see org.paxle.parser.IParserDocument#addReference(java.lang.String, java.lang.String)
 	 */
 	public void addReference(String ref, String name) {
-		this.links.put(ref, name);
+		this.links.put(ParserTools.whitespaces2Space(ref), ParserTools.whitespaces2Space(name));
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#addReferenceImage(java.lang.String, java.lang.String)
 	 */
 	public void addReferenceImage(String ref, String name) {
-		this.images.put(ref, name);
+		this.images.put(ParserTools.whitespaces2Space(ref), ParserTools.whitespaces2Space(name));
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#addSubDocument(java.lang.String)
 	 */
 	public void addSubDocument(String location, IParserDocument pdoc) {
-		this.subDocs.put(location, pdoc);
+		this.subDocs.put(ParserTools.whitespaces2Space(location), pdoc);
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#addText(java.lang.CharSequence)
 	 */
 	public void addText(CharSequence text) {
-		this.text.append(text);
+		this.text.append(ParserTools.whitespaces2Space(text.toString()));
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#setAuthor(java.lang.String)
 	 */
 	public void setAuthor(String author) {
-		this.author = author;
+		this.author = ParserTools.whitespaces2Space(author);
 	}
 	
 	/* (non-Javadoc)
@@ -104,14 +104,14 @@ public final class ParserDocument implements IParserDocument {
 	 * @see org.paxle.parser.IParserDocument#setSummary(java.lang.String)
 	 */
 	public void setSummary(String summary) {
-		this.summary = summary;
+		this.summary = ParserTools.whitespaces2Space(summary);
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#setTitle(java.lang.String)
 	 */
 	public void setTitle(String title) {
-		this.title = title;
+		this.title = ParserTools.whitespaces2Space(title);
 	}
 
 	/* (non-Javadoc)

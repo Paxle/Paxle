@@ -40,7 +40,7 @@ public class SubdocOutputStream extends OutputStream {
 		try {
 			this.pdoc.addSubDocument(this.loc, ParserTools.parseSubDoc(this.of));
 		} catch (ParserException e) {
-			throw new IOException("error parsing inner file '" + this.loc + "', saved in '" + this.of, e);
+			throw new IOException("error parsing inner file '" + this.loc + "', saved in '" + this.of + "'", e);
 		}*/
 	}
 	
