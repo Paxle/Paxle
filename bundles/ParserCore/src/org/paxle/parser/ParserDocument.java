@@ -14,8 +14,7 @@ import org.paxle.core.doc.IParserDocument;
 
 public final class ParserDocument implements IParserDocument {
 	
-	private final Set<ParserDocument> subDocs = new HashSet<ParserDocument>();
-	private final String location;
+	private final Map<String,IParserDocument> subDocs = new HashMap<String,IParserDocument>();
 	private final Collection<String> headlines = new LinkedList<String>();
 	private final Collection<String> keywords = new LinkedList<String>();
 	private final Map<String,String> links = new HashMap<String,String>();
@@ -28,9 +27,7 @@ public final class ParserDocument implements IParserDocument {
 	private String title;
 	private Status status;
 	
-	public ParserDocument(String location) {
-		this.location = location;
-	}
+	public ParserDocument() {  }
 	
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#addHeadline(java.lang.String)
@@ -70,10 +67,8 @@ public final class ParserDocument implements IParserDocument {
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#addSubDocument(java.lang.String)
 	 */
-	public IParserDocument addSubDocument(String location) {
-		final ParserDocument doc = new ParserDocument(location);
-		this.subDocs.add(doc);
-		return doc;
+	public void addSubDocument(String location, IParserDocument pdoc) {
+		this.subDocs.put(location, pdoc);
 	}
 	
 	/* (non-Javadoc)
@@ -168,19 +163,12 @@ public final class ParserDocument implements IParserDocument {
 		return this.links;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.paxle.parser.IParserDocument#getLocation()
-	 */
-	public String getLocation() {
-		return this.location;
-	}
-	
 	// don't manipulate the sub-docs
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#getSubDocs()
 	 */
-	public Set<IParserDocument> getSubDocs() {
-		return new HashSet<IParserDocument>(this.subDocs);
+	public Map<String,IParserDocument> getSubDocs() {
+		return this.subDocs;
 	}
 	
 	/* (non-Javadoc)
@@ -223,13 +211,48 @@ public final class ParserDocument implements IParserDocument {
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#toString()
 	 */
+	/**
+	 * Lists the contents of this document in the following format using line-feeds (ASCII 10 or
+	 * <code>\n</code>) for line breaks:
+	 * <pre>
+	 *   Location: &lt;Location&gt;
+	 *   Title: &lt;Title&gt;
+	 *   Author: &lt;Author&gt;
+	 *   last changed: &lt;Last modified&gt;
+	 *   Summary: &lt;Summary&gt;
+	 *   Languages:
+	 *    * &lt;Language 1&gt;
+	 *    * &lt;Language 2&gt;
+	 *    ...
+	 *   Headlines:
+	 *    * &lt;Headline 1&gt;
+	 *    * &lt;Headline 2&gt;
+	 *    ...
+	 *   Keywords:
+	 *    * &lt;Keyword 1&gt;
+	 *    * &lt;Keyword 2&gt;
+	 *    ...
+	 *   Images:
+	 *    * &lt;Reference 1&gt; -&gt; &lt;Label 1&gt;
+	 *    * &lt;Reference 2&gt; -&gt; &lt;Label 2&gt;
+	 *    ...
+	 *   Links:
+	 *    * &lt;Reference 1&gt; -&gt; &lt;Label 1&gt;
+	 *    * &lt;Reference 2&gt; -&gt; &lt;Label 2&gt;
+	 *    ...
+	 *   Text:
+	 *   &lt;Text&gt;
+	 * </pre>
+	 * @see java.util.Date#toString() for the format of the <code>&lt;Last modified&gt;</code>-string
+	 * @return a debugging-friendly expression of everything this document knows in the above format
+	 */
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder(100 + this.text.length());
 		sb.append("Location: ").append(this.location).append('\n');
 		sb.append("Title: ").append(title).append('\n');
 		sb.append("Author: ").append(author).append('\n');
-		sb.append("last changed: ").append(lastChanged).append('\n');
+		sb.append("last changed: ").append(lastChanged.toString()).append('\n');
 		sb.append("Summary: ").append(summary).append('\n');
 		print(sb, this.languages, "Languages");
 		print(sb, this.headlines, "Headlines");

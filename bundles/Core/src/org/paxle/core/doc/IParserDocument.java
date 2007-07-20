@@ -66,10 +66,8 @@ public interface IParserDocument {
 	 *  
 	 * @param  location the (absolute if possible) location or path identifying the sub-document
 	 *         within the container
-	 * @return the newly created sub-document which itself is a child of this document. Any further
-	 *         actions are not to be taken in order to link documents to another
 	 */
-	public abstract IParserDocument addSubDocument(String location);
+	public abstract void addSubDocument(String location, IParserDocument pdoc);
 
 	/**
 	 * Append (parts of) the extracted text. The single words will be findable after indexing
@@ -158,11 +156,6 @@ public interface IParserDocument {
 	 *         (maybe non-existant) name or label
 	 */
 	public abstract Map<String, String> getLinks();
-
-	/**
-	 * @return this resource's location, where and how to retrieve it as URI 
-	 */
-	public abstract String getLocation();
 	
 	/**
 	 * @see #setStatus(org.paxle.core.doc.IParserDocument.Status)
@@ -172,12 +165,12 @@ public interface IParserDocument {
 
 	/**
 	 * @see #addSubDocument(String) for a more detailed description of what sub-documents are
-	 * @return a collection referencing all sub-documents of this document. Note that the
-	 *         returned {@link Set} is not the internal set of this document and adding/removal
-	 *         operations won't have an effect on this object
+	 * @return a collection referencing all sub-documents of this document, mapping their
+	 *         respective locations to the parsed sub-document. Note that the returned {@link Map}
+	 *         is the internal map of this document and adding/removal operations directly affect
+	 *         this object
 	 */
-	// don't manipulate the sub-docs
-	public abstract Set<IParserDocument> getSubDocs();
+	public abstract Map<String,IParserDocument> getSubDocs();
 
 	/**
 	 * @see #setSummary(String)
