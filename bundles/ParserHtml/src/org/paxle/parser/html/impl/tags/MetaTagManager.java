@@ -143,16 +143,13 @@ public class MetaTagManager {
 	
 	private static Names getName(String attr) {
 		if (attr == null) return null;
-		final Names[] names = Names.values();
-		Names n = null;
-		for (int i=0; i<names.length && n == null; i++) {
-			n = names[i];
+		for (final Names n : Names.values()) {
 			String ns = n.toString().replace('_', '.').toUpperCase();
 			if (n.isPrefixed())
 				ns = n.getPrefix() + "." + ns;
-			if (!attr.toUpperCase().matches(ns))
-				n = null;
+			if (attr.toUpperCase().matches(ns))
+				return n;
 		}
-		return n;
+		return null;
 	}
 }

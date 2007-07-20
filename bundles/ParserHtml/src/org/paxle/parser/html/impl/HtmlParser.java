@@ -17,6 +17,17 @@ import org.paxle.parser.ParserTools;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.html.IHtmlParser;
 
+/**
+ * Parses (X)HTML-pages using the html parser from
+ * <a href="http://htmlparser.sf.net">http://htmlparser.sf.net</a>.
+ * <p>
+ *  It uses a kind of iterator with callback to walk through the node-tree of
+ *  the HTML page, extracting information whereever supported and putting it
+ *  into the {@link ParserDocument}.
+ * </p>
+ * @see org.htmlparser.Parser#visitAllNodesWith(org.htmlparser.visitors.NodeVisitor) for the iterator
+ * @see org.paxle.parser.html.impl.NodeCollector for the callback
+ */
 public class HtmlParser implements IHtmlParser {
 	
 	private static final List<String> MIME_TYPES = Arrays.asList(
@@ -49,7 +60,7 @@ public class HtmlParser implements IHtmlParser {
 			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
 			
 			final IParserDocument doc = new ParserDocument();
-			final NodeCollector nc = new NodeCollector(doc, NodeCollector.Debug.LOW);
+			final NodeCollector nc = new NodeCollector(doc, NodeCollector.Debug.NONE);
 			parser.visitAllNodesWith(nc);
 			source.close();
 			return doc;

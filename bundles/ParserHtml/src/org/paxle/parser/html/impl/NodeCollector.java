@@ -23,12 +23,29 @@ import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.html.impl.tags.AddressTag;
 import org.paxle.parser.html.impl.tags.MetaTagManager;
 
+/**
+ * This class provides the callback for the HTML parser's node-iterator.
+ * <p>
+ *  Everytime the parser encounters a new HTML-tag, the {@link #visitTag(Tag)}-method
+ *  is called which then cares about extracting all relevant information from the tag.
+ * </p>
+ * @see #visitTag(Tag) for a list of tags supported by the {@link NodeCollector}
+ * @see #postProcessMeta() for a list of supported META-tag-properties
+ */
 public class NodeCollector extends NodeVisitor {
 	
 	public static enum Debug {
 		NONE, LOW, HIGH
 	}
 	
+	/**
+	 * The node factory used by the underlying HTML parser to determine the type of a node and
+	 * to create the corresponding {@link org.htmlparser.Tag} objects.
+	 * <p>Tags additionally used by this implementation besides the inbuilt ones:</p>
+	 * <ul>
+	 *  <li>{@link org.paxle.parser.html.impl.tags.AddressTag}</li>
+	 * </ul>
+	 */
 	public static final PrototypicalNodeFactory NODE_FACTORY = new PrototypicalNodeFactory();
 	static {
 		NODE_FACTORY.registerTag(new AddressTag());
@@ -46,7 +63,23 @@ public class NodeCollector extends NodeVisitor {
 		this.debug = debug;
 	}
 	
-	public void postProcessMeta() {
+	/**
+	 * This method is called when the parsing of the whole document is finished, because
+	 * then all used META-tags in the HTML-document are collected, which eases processing
+	 * of several META-tags which basically have the same meaning.
+	 * <p>The following META-tags are used currently:</p>
+	 * <dl>
+	 *  <dt>The document's language:</dt>
+	 *  <dd>{@link MetaTagManager.Names#Content_Language}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Language}</dd>
+	 *  <dt>The document's author:</dt>
+	 *  <dd>{@link MetaTagManager.Names#Author}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Creator}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Contributor}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Publisher}</dd>
+	 * </dl>
+	 */
+	private void postProcessMeta() {
 		final String lngs = this.mtm.getCombined(
 				MetaTagManager.Names.Content_Language,
 				MetaTagManager.Names.Language);
@@ -98,6 +131,26 @@ public class NodeCollector extends NodeVisitor {
 		postProcessMeta();
 	}
 	
+	/**
+	 * Each newly discovered {@link Tag} in the HTML's tree causes this method to be called,
+	 * which determines the type of the tag and if supported, does one of the following:
+	 * <ul>
+	 *  <li>
+	 *   {@link AddressTag}, {@link HeadingTag}, {@link Html}-tag, {@link ImageTag},
+	 *   {@link LinkTag}, {@link ParagraphTag}, {@link TitleTag} -&gt; the corresponding
+	 *   {@link #process()}-method is called
+	 *  </li>
+	 *  <li>
+	 *   {@link JspTag}, {@link ScriptTag}, {@link StyleTag} -&gt; the "don't parse the next
+	 *   {@link Text}-node"-flag is set (which will be reset on identification of the next
+	 *   end-tag)
+	 *  </li>
+	 *  <li>
+	 *   {@link MetaTag} -&gt; the tag is added to the {@link MetaTagManager} for later
+	 *   processing
+	 *  </li>
+	 * </ul>
+	 */
 	@Override
 	public void visitTag(Tag tag) {
 		if (this.debug == Debug.HIGH)
