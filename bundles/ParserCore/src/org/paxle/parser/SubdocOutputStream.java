@@ -30,7 +30,7 @@ public class SubdocOutputStream extends OutputStream {
 	public SubdocOutputStream(IParserDocument pdoc, String location) throws IOException {
 		this.pdoc = pdoc;
 		this.loc = location;
-		this.of = File.createTempFile("", ""); // ParserTools.createTempFile(location, SubdocOutputStream.class);
+		this.of = ParserTools.createTempFile(location, SubdocOutputStream.class);
 		this.fos = new FileOutputStream(this.of);
 	}
 	

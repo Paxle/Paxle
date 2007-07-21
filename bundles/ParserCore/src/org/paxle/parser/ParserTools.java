@@ -55,9 +55,12 @@ public class ParserTools {
 		return null;
 	}
 	
+	public static final int DEFAULT_BUFFER_SIZE = 1024;
+	
 	/**
 	 * Copies all data from the given {@link InputStream} to the given {@link OutputStream}
 	 * using a buffer of 1024 bytes size.
+	 * <p><i>Note: this method does neither close the supplied InputStream nor the OutputStream.</i></p>
 	 * 
 	 * @see InputStream#read(byte[], int, int)
 	 * @see OutputStream#write(byte[], int, int)
@@ -66,19 +69,45 @@ public class ParserTools {
 	 * @return the number of copied bytes
 	 * @throws <b>IOException</b> if an I/O-error occures
 	 */
-	public static int copy(InputStream is, OutputStream os) throws IOException {
-		final byte[] buf = new byte[1024];
-		int rn, rt = 0;
-		while ((rn = is.read(buf, 0, 1024)) > -1) {
-			os.write(buf, 0, rn);
-			rt += rn;
-		}
-		return rt;
+	public static long copy(InputStream is, OutputStream os) throws IOException {
+		return copy(is, os, -1);
 	}
 	
-	/*
-	public static File createTempFile(String location, Class clazz) {
-		
+	public static long copy(InputStream is, OutputStream os, long bytes) throws IOException {
+        final byte[] buf = new byte[DEFAULT_BUFFER_SIZE];                
+        int cs = (int)((bytes > 0 && bytes < DEFAULT_BUFFER_SIZE) ? bytes : DEFAULT_BUFFER_SIZE);
+        
+        int rn;
+        long rt = 0;
+        while ((rn = is.read(buf, 0, cs)) > 0) {
+            os.write(buf, 0, rn);
+            rt += rn;
+            
+            if (bytes > 0) {
+                cs = (int)Math.min(bytes - rt, DEFAULT_BUFFER_SIZE);
+                if (cs == 0)
+                	break;
+            }
+        }
+        os.flush();
+        return rt;
 	}
-	*/
+	
+	// from YaCy: de.anomic.plasma.parser.AbstractParser
+	public static File createTempFile(String name, Class clazz) throws IOException {
+        String parserClassName = clazz.getSimpleName();
+                    
+        // getting the file extension
+        int idx = name.lastIndexOf("/");
+        String fileName = (idx != -1) ? name.substring(idx+1) : name;        
+        
+        idx = fileName.lastIndexOf(".");
+        String fileExt = (idx > -1) ? fileName.substring(idx+1) : "";
+        
+        // creates the temp file
+        File tempFile = File.createTempFile(
+        		parserClassName + "_" + ((idx > -1) ? fileName.substring(0, idx) : fileName),
+        		(fileExt.length() > 0) ? "." + fileExt : fileExt);
+        return tempFile;
+	}
 }
