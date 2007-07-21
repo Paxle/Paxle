@@ -8,5 +8,5 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.crawler
 Bundle-Version: 1.0.0
 Export-Package: org.paxle.crawler
-Bundle-Description: Paxle Core Crawler
+Bundle-Description: Paxle Core Crawler Bundle
 
