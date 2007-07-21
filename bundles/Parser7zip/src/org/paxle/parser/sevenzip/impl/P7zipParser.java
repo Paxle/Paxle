@@ -32,8 +32,8 @@ public class P7zipParser implements I7zipParser {
             archive.Extract(null, -1, 0, aec);
             return doc;
         } catch (IOException e) {
-            throw new ParserException("error processing 7zip archive at internal file: "
-            		+ aec.getCurrentFilePath(), e);
+        	throw new ParserException("error processing 7zip archive at internal file: "
+        			+ aec.getCurrentFilePath(), e);
         } finally {
         	try { archive.close(); } catch (IOException e) {  }
         }

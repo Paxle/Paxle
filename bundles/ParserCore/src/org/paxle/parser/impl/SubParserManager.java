@@ -2,6 +2,7 @@ package org.paxle.parser.impl;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.osgi.framework.ServiceReference;
 import org.paxle.parser.ISubParser;
@@ -13,7 +14,7 @@ public class SubParserManager implements ISubParserManager {
 	 * A {@link HashMap} containing the protocol that is supported by the sub-crawler as key and
 	 * the {@link ServiceReference} as value.
 	 */
-	private HashMap<String, ISubParser> subParserList = new HashMap<String, ISubParser>();		
+	private HashMap<String, ISubParser> subParserList = new HashMap<String, ISubParser>();
 	
 	/**
 	 * Adds a newly detected {@link ISubParser} to the {@link Activator#subParserList subparser-list}
@@ -23,7 +24,7 @@ public class SubParserManager implements ISubParserManager {
 	public void addSubParser(String mimeTypes, ISubParser subParser) {
 		for (String mimeType : mimeTypes.split(";")) {
 			this.subParserList.put(mimeType, subParser);					
-		}					
+		}
 		System.out.println("Parser for mimetypes '" + mimeTypes + "' was installed.");
 	}
 	
@@ -61,6 +62,6 @@ public class SubParserManager implements ISubParserManager {
 	 * @see ISubParserManager#getSubParsers()
 	 */
 	public Collection<ISubParser> getSubParsers() {
-		return this.subParserList.values();
-	}	
+		return new HashSet<ISubParser>(this.subParserList.values());
+	}
 }

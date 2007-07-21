@@ -1,7 +1,5 @@
 package org.paxle.crawler.impl;
 
-import java.io.InputStream;
-import java.util.Date;
 import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
@@ -12,7 +10,6 @@ import org.paxle.core.IMWComponentManager;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.filter.IFilter;
-import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;

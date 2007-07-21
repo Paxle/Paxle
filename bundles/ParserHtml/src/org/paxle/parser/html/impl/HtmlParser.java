@@ -2,6 +2,9 @@
 package org.paxle.parser.html.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,11 +12,9 @@ import org.htmlparser.Parser;
 import org.htmlparser.lexer.InputStreamSource;
 import org.htmlparser.lexer.Lexer;
 import org.htmlparser.lexer.Page;
-import org.htmlparser.lexer.Source;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserDocument;
-import org.paxle.parser.ParserTools;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.html.IHtmlParser;
 
@@ -49,12 +50,11 @@ public class HtmlParser implements IHtmlParser {
 		return MIME_TYPES;
 	}
 	
-	public IParserDocument parse(String location, String charset, File content) throws ParserException {
+	public IParserDocument parse(String location, String charset, File content) throws ParserException,
+			UnsupportedEncodingException, IOException {
+		final FileInputStream fis = new FileInputStream(content);
 		try {
-			final Source source = new InputStreamSource(ParserTools.getInputStream(content));
-			if (charset != null)
-				source.setEncoding(charset);
-			final Page page = new Page(source);
+			final Page page = new Page(new InputStreamSource(fis, charset));
 			page.setUrl(location);
 			final Parser parser = new Parser(new Lexer(page));
 			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
@@ -62,12 +62,12 @@ public class HtmlParser implements IHtmlParser {
 			final IParserDocument doc = new ParserDocument();
 			final NodeCollector nc = new NodeCollector(doc, NodeCollector.Debug.NONE);
 			parser.visitAllNodesWith(nc);
-			source.close();
+			page.close();
 			return doc;
-		} catch (final RuntimeException e) {
-			throw e;
-		} catch (final Exception e) {
-			throw new ParserException("error parsing document " + location, e);
+		} catch (org.htmlparser.util.ParserException e) {
+			throw new ParserException("error parsing HTML nodes-tree", e);
+		} finally {
+			fis.close();
 		}
 	}
 }

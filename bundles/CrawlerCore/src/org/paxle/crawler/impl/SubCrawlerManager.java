@@ -2,6 +2,7 @@ package org.paxle.crawler.impl;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.osgi.framework.ServiceReference;
 import org.paxle.crawler.ISubCrawler;
@@ -37,7 +38,8 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 	 * Getting a {@link ISubCrawler} which is capable to handle
 	 * the given network-protocol
 	 * @param protocol
-	 * @return
+	 * @return the requested sub-crawler or <code>null</code> if no crawler for
+	 *         the specified protocol is available
 	 */
 	public ISubCrawler getSubCrawler(String protocol) {
 		return this.subCrawlerList.get(protocol);
@@ -54,9 +56,9 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 	}
 
 	/**
-	 * @see ISubCrawlerManager#getSubCrawlers()t
+	 * @see ISubCrawlerManager#getSubCrawlers()
 	 */
 	public Collection<ISubCrawler> getSubCrawlers() {
-		return subCrawlerList.values();
+		return new HashSet<ISubCrawler>(subCrawlerList.values());
 	}
 }

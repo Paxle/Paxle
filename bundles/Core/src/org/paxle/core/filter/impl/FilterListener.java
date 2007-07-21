@@ -18,7 +18,7 @@ public class FilterListener implements ServiceListener {
 	public static String FILTER = "(objectClass=" + IFilter.class.getName () +")";	
 	
 	/**
-	 * A class to manage {@link IFilter filters0
+	 * A class to manage {@link IFilter filters}
 	 */
 	private FilterManager filterManager = null;
 	

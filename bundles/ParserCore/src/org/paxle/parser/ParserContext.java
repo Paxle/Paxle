@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.paxle.parser.impl.SubParserManager;
 
 public class ParserContext {
-    private static ThreadLocal<ParserContext> context = new ThreadLocal<ParserContext>();
+    private static final ThreadLocal<ParserContext> context = new ThreadLocal<ParserContext>();
 	
     private SubParserManager subParserManager = null;
     private HashMap<String, Object> bag = new HashMap<String, Object>();

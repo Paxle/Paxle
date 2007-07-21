@@ -4,7 +4,6 @@ import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
-import org.paxle.parser.ParserException;
 
 public class ParserWorker extends AWorker {
 
@@ -33,18 +32,21 @@ public class ParserWorker extends AWorker {
 		ISubParser parser = this.subParserManager.getSubParser(mimeType);
 		if (parser == null) {
 			// document not parsable
-			// TODO: set an errorstatus in the command object
+			cmd.setResult(ICommand.Result.Failure, "No parser for MIME type '" + mimeType + "' found");
 			return;
 		}
 		
 		try {
-			parser.parse(cmd.getLocation(), 
-						 cmd.getCrawlerDocument().getCharset(), 
-						 cmd.getCrawlerDocument().getContent());
-		} catch (ParserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			cmd.setParserDocument(parser.parse(
+					cmd.getLocation(), 
+					cmd.getCrawlerDocument().getCharset(), 
+					cmd.getCrawlerDocument().getContent()));
+		} catch (Exception e) {
+			cmd.setResult(ICommand.Result.Failure, e.getMessage());
+			return;
 		}
+		
+		cmd.setResult(ICommand.Result.Passed);
 	}
 	
 	@Override

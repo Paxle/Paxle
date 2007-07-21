@@ -1,6 +1,8 @@
 package org.paxle.parser;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.paxle.core.doc.IParserDocument;
@@ -24,6 +26,10 @@ public interface ISubParser {
 	 * @return an {@link IParserDocument} containing all information that could be gathered
 	 *         from the resource
 	 * @throws <b>ParserException</b> if something goes wrong
+	 * @throws <b>UnsupportedEncodingException</b> if the previously detected character set
+	 *         doesn't match the file
+	 * @throws <b>IOException</b> if an I/O-error occures during reading <code>content</content>
 	 */
-	public IParserDocument parse(String location, String charset, File content) throws ParserException;
+	public IParserDocument parse(String location, String charset, File content)
+			throws ParserException, UnsupportedEncodingException, IOException;
 }
