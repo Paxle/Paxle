@@ -8,4 +8,10 @@ public interface ISubParserManager {
 	 * @return a collection of all currently registered sub-parsers
 	 */
 	public Collection<ISubParser> getSubParsers();
+	
+	/**
+	 * @return a collection of mime-types supported by the registered
+	 * 		   sub-parsers.
+	 */
+	public Collection<String> getMimeTypes();
 }

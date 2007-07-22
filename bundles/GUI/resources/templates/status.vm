@@ -19,18 +19,14 @@
 	#set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
 	#if($subParserManager)
 		<h2>Installed Parsers:</h2>	
-		$subParserManager.getSubParsers().size() parser(s) found:<br />
+		#set($mimeTypes = $subParserManager.getMimeTypes())
+		#set($parsers = $subParserManager.getSubParsers())		
+		<b>$parsers.size()</b> parser(s) installed supporting <b>$mimeTypes.size()</b> mime-types.
 		
 		<table border="1">
 			<tr><th>MimeTypes</th></tr>
-			#foreach($subParser in $subParserManager.getSubParsers())
-			<tr>		
-				#set($mimeTypes = $subParser.getMimeTypes())
-				<td>$mimeTypes.size() types: 
-					#foreach($mimeType in $mimeTypes) 
-						$mimeType 
-					#end
-				</td>
+			#foreach($mimeType in $mimeTypes)
+			<tr><td>$mimeType</td>
 			</tr>
 			#end
 		</table>
