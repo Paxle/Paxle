@@ -1,12 +1,12 @@
 Manifest-Version: 1.0
-Bundle-Version: 1.0.0
 Bundle-Name: ParserBzip2
-Bundle-ManifestVersion: 2
-Bundle-Activator: org.paxle.parser.bzip2.impl.Activator
 Bundle-Description: Paxle Bzip2 Parser Bundle
+Bundle-ClassPath: ., libs/bzip2.jar
+Bundle-Activator: org.paxle.parser.bzip2.impl.Activator
 Import-Package: org.osgi.framework, org.paxle.core.doc, org.paxle.pars
  er
+Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.parser.bzip2
 Export-Package: org.apache.tools.bzip2
-Bundle-ClassPath: ., libs/bzip2.jar
+Bundle-Version: 1.0.0
 
