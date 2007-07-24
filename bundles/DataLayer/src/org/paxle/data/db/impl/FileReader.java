@@ -1,13 +1,13 @@
 package org.paxle.data.db.impl;
 
 import java.io.InputStream;
-import java.net.URL;
 
-import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.xmlrules.DigesterLoader;
+import org.exolab.castor.mapping.Mapping;
+import org.exolab.castor.xml.Unmarshaller;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.queue.Command;
+import org.xml.sax.InputSource;
 
 public class FileReader extends Thread implements IDataProvider {
 	private InputStream sourceFile = null;
@@ -43,7 +43,7 @@ public class FileReader extends Thread implements IDataProvider {
 	}
 	
 	/**
-	 * Parsing the {@link InputStream} using Apache Disgester 
+	 * Parsing the {@link InputStream} using Apache Castor
 	 * @param inputStream the input-stream to read
 	 */
     private void parse(InputStream inputStream) {
@@ -51,15 +51,16 @@ public class FileReader extends Thread implements IDataProvider {
             throw new NullPointerException("The inpustream is null");
         
         try {           
-            URL rules = this.getClass().getResource("/resources/rules.xml");
-            Digester digester = DigesterLoader.createDigester(rules);
-            digester.setNamespaceAware(false);
-            digester.setValidating(false);
-            digester.setUseContextClassLoader(true);
-            
-            digester.push(this);
-            digester.parse(inputStream);       
-            
+    		Mapping mapping = new Mapping();
+    		mapping.loadMapping(this.getClass().getResource("/resources/castor/mapping_command.xml"));        	
+        	
+			Unmarshaller unmarshaller = new Unmarshaller(Command.class);
+			unmarshaller.setMapping(mapping);
+			Command command = (Command) unmarshaller.unmarshal(new InputSource(inputStream));
+						
+			// TODO: support for multiple commands required
+			
+            this.addCommand(command);
         } catch (Exception e) {
             e.printStackTrace();
         }    

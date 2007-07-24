@@ -49,7 +49,6 @@ public class CrawlerWorker extends AWorker {
 			// resource.getMimeType()
 			command.setCrawlerDocument(crawlerDoc);
 			
-			
 		} catch (Exception e) {
 			command.setResult(ICommand.Result.Failure, "Unexpected error while crawling the resource");
 		}

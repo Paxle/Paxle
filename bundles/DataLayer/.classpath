@@ -8,21 +8,47 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core;version=0.0.0">
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/queue/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/data/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/commons-beanutils.jar"/>
-	<classpathentry kind="lib" path="libs/commons-collections.jar"/>
-	<classpathentry kind="lib" path="libs/commons-digester.jar"/>
-	<classpathentry kind="lib" path="libs/commons-logging.jar"/>
-	<classpathentry kind="lib" path="libs/sax2.jar"/>
-	<classpathentry kind="lib" path="libs/saxpath.jar"/>
 	<classpathentry kind="lib" path="libs/xerces.jar"/>
 	<classpathentry kind="lib" path="libs/xml-apis.jar"/>
 	<classpathentry kind="lib" path="libs/xmlParserAPIs.jar"/>
+	<classpathentry kind="lib" path="libs/castor-1.1.2.1-xml.jar"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
+		<attributes>
+			<attribute name="bundle-name" value="Commons-Logging"/>
+			<attribute name="org.apache.commons.logging" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.crawler">
+		<attributes>
+			<attribute name="bundle-name" value="CrawlerCore"/>
+			<attribute name="org.paxle.crawler" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/crawler/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.parser">
+		<attributes>
+			<attribute name="bundle-name" value="ParserCore"/>
+			<attribute name="org.paxle.parser" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/parser/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="out"/>
 </classpath>
