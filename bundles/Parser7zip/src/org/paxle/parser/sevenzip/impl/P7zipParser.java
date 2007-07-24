@@ -2,6 +2,7 @@ package org.paxle.parser.sevenzip.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,22 +21,16 @@ public class P7zipParser implements I7zipParser {
 		return MimeTypes;
 	}
 	
-	public IParserDocument parse(String location, String charset, File content) throws ParserException {
+	public IParserDocument parse(String location, String charset, File content) throws
+		ParserException, UnsupportedEncodingException, IOException {
 		final Handler archive = new Handler();
-        try {
-            archive.Open(new RAFInStream(content));
-        } catch (IOException e) { throw new ParserException("error opening 7zip archive", e); }
-        
-        final ParserDocument doc = new ParserDocument();
-        final SZParserExtractCallback aec = new SZParserExtractCallback(doc, archive);
-        try {
-            archive.Extract(null, -1, 0, aec);
-            return doc;
-        } catch (IOException e) {
-        	throw new ParserException("error processing 7zip archive at internal file: "
-        			+ aec.getCurrentFilePath(), e);
-        } finally {
-        	try { archive.close(); } catch (IOException e) {  }
-        }
+		archive.Open(new RAFInStream(content));
+		
+		final ParserDocument doc = new ParserDocument();
+		final SZParserExtractCallback aec = new SZParserExtractCallback(doc, archive);
+		try {
+			archive.Extract(null, -1, 0, aec);
+		} finally { archive.close(); }
+		return doc;
 	}
 }

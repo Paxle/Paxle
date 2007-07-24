@@ -28,7 +28,7 @@ public interface ISubParser {
 	 * @throws <b>ParserException</b> if something goes wrong
 	 * @throws <b>UnsupportedEncodingException</b> if the previously detected character set
 	 *         doesn't match the file
-	 * @throws <b>IOException</b> if an I/O-error occures during reading <code>content</content>
+	 * @throws <b>IOException</b> if an I/O-error occures during reading <code>content</code>
 	 */
 	public IParserDocument parse(String location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException;

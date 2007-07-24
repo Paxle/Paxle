@@ -11,7 +11,7 @@ import SevenZip.IInStream;
  */
 public class RAFInStream extends IInStream {
 	
-	RandomAccessFile _file;
+	private final RandomAccessFile _file;
 	
 	public RAFInStream(File file) throws IOException {
 		this._file = new RandomAccessFile(file, "r");
@@ -44,6 +44,5 @@ public class RAFInStream extends IInStream {
 	
 	public void close() throws IOException {
 		_file.close();
-		_file = null;
 	}
 }

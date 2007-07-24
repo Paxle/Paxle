@@ -21,6 +21,7 @@ public class SZParserExtractCallback implements IArchiveExtractCallback {
 	private final IParserDocument pdoc;
 	private final IInArchive handler;
 	private String current = null;
+	private OutputStream os = null;
 	
 	public SZParserExtractCallback(IParserDocument pdoc, IInArchive handler) {
 		this.pdoc = pdoc;
@@ -34,7 +35,7 @@ public class SZParserExtractCallback implements IArchiveExtractCallback {
 	public int GetStream(int index, OutputStream[] oss, int askExtractMode) throws IOException {
 		SevenZipEntry item = this.handler.getEntry(index);
 		this.current = item.getName();
-		oss[0] = (item.isDirectory()) ? null : new SubdocOutputStream(this.pdoc, this.current);
+		this.os = oss[0] = (item.isDirectory()) ? null : new SubdocOutputStream(this.pdoc, this.current);
 		return 0;
 	}
 	
@@ -43,6 +44,9 @@ public class SZParserExtractCallback implements IArchiveExtractCallback {
 	}
 	
 	public int SetOperationResult(int arg0) throws IOException {
+		if (this.os != null)
+			this.os.close();
+		
 		if (arg0 != IInArchive.NExtract_NOperationResult_kOK) {
 			switch(arg0) {
 				case IInArchive.NExtract_NOperationResult_kUnSupportedMethod:
