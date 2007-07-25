@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:tns="http://www.paxle.org/v1/CommandList/"
+	xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.paxle.org/v1/CommandList/" 
+	xmlns:Q1="http://www.paxle.org/v1/Command/">
+    <import schemaLocation="Command.xsd" namespace="http://www.paxle.org/v1/Command/"></import>
+	
+	<element name="CommandList" type="tns:CommandListType"></element>
+
+	<complexType name="CommandListType">
+		<sequence>
+			<element name="Command" type="Q1:CommandType" maxOccurs="unbounded" minOccurs="0"></element>
+		</sequence>
+	</complexType>
+</schema>

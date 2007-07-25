@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:tns="http://www.paxle.org/v1/Command/"
+	xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.paxle.org/v1/Command/" 
+	xmlns:CD="http://www.paxle.org/v1/CrawlerDocument/"
+	xmlns:PD="http://www.paxle.org/v1/ParserDocument/">
+	<import schemaLocation="CrawlerDocument.xsd" namespace="http://www.paxle.org/v1/CrawlerDocument/" />
+	<import schemaLocation="ParserDocument.xsd" namespace="http://www.paxle.org/v1/ParserDocument/" />
+	
+	<element name="Command" type="tns:CommandType" />
+
+	<complexType name="CommandType">
+		<sequence>
+			<element name="Location" type="string" maxOccurs="1" minOccurs="1" />
+			<element name="CrawlerDocument" type="CD:CrawlerDocumentType"/>
+			<element name="ParserDocument" type="PD:ParserDocumentType"/>
+		</sequence>
+	</complexType>
+</schema>

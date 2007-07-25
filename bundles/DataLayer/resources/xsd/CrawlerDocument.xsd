@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:tns="http://www.paxle.org/v1/CrawlerDocument/" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.paxle.org/v1/CrawlerDocument/">
+    <element name="CrawlerDocument" type="tns:CrawlerDocumentType"></element>
+    
+    <complexType name="CrawlerDocumentType">
+    	<sequence>
+            <element name="Status" type="string"></element>
+            <element name="Location" type="string" maxOccurs="1"
+    			minOccurs="0">
+    		</element>
+    		<element name="MimeType" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="Charset" type="string"></element>
+    		<element name="Content" type="string"></element>
+    		<element name="CrawlerDate" type="dateTime"></element>
+    		<element name="LastModDate" type="dateTime"></element>
+    	</sequence>
+    </complexType>
+</schema>
