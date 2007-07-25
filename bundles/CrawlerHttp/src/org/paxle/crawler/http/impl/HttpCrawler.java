@@ -24,9 +24,6 @@ import org.paxle.crawler.http.IHttpCrawler;
  * TODO: configure the connection pool properly
  * TODO: set redirection follow, etc....
  * 
- * TODO: get language header
- * TODO: get ETAG
- * TODO: get lastMod-Date  
  */
 public class HttpCrawler implements IHttpCrawler {
 	public static final String PROTOCOL = "http";

@@ -4,13 +4,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import org.exolab.castor.mapping.Mapping;
+import org.exolab.castor.xml.UnmarshalListener;
 import org.exolab.castor.xml.Unmarshaller;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.queue.ICommand;
 import org.xml.sax.InputSource;
 
-public class CommandReader extends Thread implements IDataProvider {
+public class CommandReader extends Thread implements IDataProvider, UnmarshalListener {
 	private InputStream sourceFile = null;
 	private IDataSink sink = null;
 	
@@ -56,17 +57,33 @@ public class CommandReader extends Thread implements IDataProvider {
     		mapping.loadMapping(this.getClass().getResource("/resources/castor/mapping_command.xml"));        	
         	
 			Unmarshaller unmarshaller = new Unmarshaller(ArrayList.class);
+			unmarshaller.setUnmarshalListener(this);
 			unmarshaller.setMapping(mapping);
-			ArrayList commands = (ArrayList) unmarshaller.unmarshal(new InputSource(inputStream));
-			for (ICommand command : (ArrayList<ICommand>)commands) {
-				this.addCommand(command);
-			}
+			unmarshaller.unmarshal(new InputSource(inputStream));
         } catch (Exception e) {
             e.printStackTrace();
         }    
     }	
-    
-    public void addCommand(ICommand nextCommand) throws Exception {
-    	this.sink.putData(nextCommand);
-    }
+
+	public void attributesProcessed(Object object) {
+		// nothing todo here
+	}
+
+	public void fieldAdded(String fieldName, Object parent, Object child) {
+		// nothing todo here
+	}
+
+	public void initialized(Object object) {
+		// nothing todo here
+	}
+
+	public void unmarshalled(Object object) {
+		if (object instanceof ICommand) {
+			try {
+				this.sink.putData((ICommand)object);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }

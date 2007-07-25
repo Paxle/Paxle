@@ -3,5 +3,9 @@
 	<Command>
 		<Location>http://www.test.at/</Location>
 	</Command>
+	
+	<Command>
+		<Location>http://this.is.not.a.test.at/</Location>
+	</Command>
 </CommandList>
 
