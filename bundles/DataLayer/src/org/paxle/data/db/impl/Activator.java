@@ -31,7 +31,7 @@ public class Activator implements BundleActivator {
 		context.registerService(IDataConsumer.class.getName(), parserToIndexerPipe, parserToIndexerPipeProps);
 		
 		// fill the crawler queue with URLs
-		FileReader fileReader = new FileReader("/resources/data.xml");
+		CommandReader fileReader = new CommandReader("/resources/data.xml");
 		Hashtable<String,String> readerProps = new Hashtable<String, String>();
 		readerProps.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.crawler.sink");
 		context.registerService(IDataProvider.class.getName(), fileReader, readerProps);

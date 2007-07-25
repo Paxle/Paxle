@@ -7,15 +7,14 @@ import org.exolab.castor.mapping.Mapping;
 import org.exolab.castor.xml.Unmarshaller;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
-import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 import org.xml.sax.InputSource;
 
-public class FileReader extends Thread implements IDataProvider {
+public class CommandReader extends Thread implements IDataProvider {
 	private InputStream sourceFile = null;
 	private IDataSink sink = null;
 	
-	public FileReader(String name) {
+	public CommandReader(String name) {
 		this.sourceFile = this.getClass().getResourceAsStream(name);
 		this.start();
 	}
@@ -37,7 +36,7 @@ public class FileReader extends Thread implements IDataProvider {
 			}
 
 			System.out.println("Start reading commands from inputstream ...");
-			this.parse(this.sourceFile);
+			this.unmarshall(this.sourceFile);
 			System.out.println("Reading commands from inputstream finished");
 		} catch (Exception e) {
 			e.getStackTrace();
@@ -48,7 +47,7 @@ public class FileReader extends Thread implements IDataProvider {
 	 * Parsing the {@link InputStream} using Apache Castor
 	 * @param inputStream the input-stream to read
 	 */
-    private void parse(InputStream inputStream) {
+    private void unmarshall(InputStream inputStream) {
         if (inputStream == null) 
             throw new NullPointerException("The inpustream is null");
         
