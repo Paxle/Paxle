@@ -18,7 +18,15 @@ public class WorkerFactory implements IWorkerFactory<IWorker> {
 	/**
 	 * Creates a new {@link CrawlerWorker} by order of the worker-pool
 	 */
-	public IWorker makeObject() throws Exception {
+	public IWorker createWorker() throws Exception {
 		return new CrawlerWorker(subCrawlerManager);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see IWorkerFactory#initWorker(IWorker)
+	 */
+	public void initWorker(IWorker worker) {
+		// nothing special todo here
 	}
 }

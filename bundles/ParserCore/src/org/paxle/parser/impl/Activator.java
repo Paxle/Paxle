@@ -35,19 +35,28 @@ public class Activator implements BundleActivator {
 	public static SubParserManager subParserManager = null;
 	
 	/**
+	 * A worker-factory to create new parser-worker threads
+	 */
+	private static IWorkerFactory<IWorker> workerFactory = null;
+	
+	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext context) throws Exception {
 		bc = context;
-		subParserManager = new SubParserManager();		
+		subParserManager = new SubParserManager();	
+		workerFactory = new WorkerFactory(subParserManager);
 		
 		/* ==========================================================
 		 * Register Service Listeners
 		 * ========================================================== */		
 		// registering a service listener to notice if a new sub-parser
 		// was (un)deployed
-		bc.addServiceListener(new SubParserListener(subParserManager,bc),SubParserListener.FILTER);		
+		bc.addServiceListener(new SubParserListener(subParserManager,bc),SubParserListener.FILTER);	
+		
+		// a listener for the mimetype detector
+		bc.addServiceListener(new MimeTypeListener((WorkerFactory)workerFactory,bc),MimeTypeListener.FILTER);
 		
 		/* ==========================================================
 		 * Get services provided by other bundles
@@ -57,8 +66,7 @@ public class Activator implements BundleActivator {
 
 		if (reference != null) {
 			// getting the service class instance
-			IMWComponentManager componentFactory = (IMWComponentManager)bc.getService(reference);
-			IWorkerFactory<IWorker> workerFactory = new WorkerFactory(subParserManager);
+			IMWComponentManager componentFactory = (IMWComponentManager)bc.getService(reference);			
 			mwComponent = componentFactory.createComponent(workerFactory, 5);
 		}			
 		
@@ -97,5 +105,6 @@ public class Activator implements BundleActivator {
 		// cleanup
 		bc = null;
 		subParserManager = null;
+		workerFactory = null;
 	}
 }

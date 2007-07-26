@@ -19,7 +19,7 @@
 	<classpathentry kind="lib" path="libs/xerces.jar"/>
 	<classpathentry kind="lib" path="libs/xml-apis.jar"/>
 	<classpathentry kind="lib" path="libs/xmlParserAPIs.jar"/>
-	<classpathentry kind="lib" path="libs/castor-1.1.2.1-xml.jar"/>
+	<classpathentry kind="lib" path="libs/castor-1.1.2.1-xml.jar" sourcepath="/home/theli/workspace/Libs/castor-1.1.2.1-src.zip"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
 		<attributes>
 			<attribute name="bundle-name" value="Commons-Logging"/>

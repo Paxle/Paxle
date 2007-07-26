@@ -1,26 +1,21 @@
 package org.paxle.data.db.impl;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Writer;
-import java.util.ArrayList;
 
 import org.exolab.castor.mapping.Mapping;
 import org.exolab.castor.xml.Marshaller;
-import org.exolab.castor.xml.Unmarshaller;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.queue.ICommand;
-import org.xml.sax.InputSource;
 
 public class CommandWriter extends Thread implements IDataConsumer {
 
 	private File targetFile = null;
 	private IDataSource source = null;
+	
+	public CommandWriter() { }
 	
 	public CommandWriter(File targetFile) {
 		this.targetFile = targetFile;

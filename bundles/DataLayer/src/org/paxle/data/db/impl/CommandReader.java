@@ -1,6 +1,8 @@
 package org.paxle.data.db.impl;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 
 import org.exolab.castor.mapping.Mapping;
@@ -9,14 +11,15 @@ import org.exolab.castor.xml.Unmarshaller;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.queue.ICommand;
-import org.xml.sax.InputSource;
 
 public class CommandReader extends Thread implements IDataProvider, UnmarshalListener {
-	private InputStream sourceFile = null;
+	private InputStream inputStream = null;
 	private IDataSink sink = null;
 	
-	public CommandReader(String name) {
-		this.sourceFile = this.getClass().getResourceAsStream(name);
+	public CommandReader() {}
+	
+	public CommandReader(InputStream inputStream) {
+		this.inputStream = inputStream;
 		this.start();
 	}
 	
@@ -29,6 +32,7 @@ public class CommandReader extends Thread implements IDataProvider, UnmarshalLis
 	
 	@Override
 	public void run() {
+		Reader reader = null;
 		try {
 			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 			
@@ -36,21 +40,23 @@ public class CommandReader extends Thread implements IDataProvider, UnmarshalLis
 				while (this.sink == null) this.wait();
 			}
 
-			System.out.println("Start reading commands from inputstream ...");
-			this.unmarshall(this.sourceFile);
+			System.out.println("Start reading commands from inputstream ...");	
+			reader = new InputStreamReader(this.inputStream);	
+			this.unmarshall(reader);
 			System.out.println("Reading commands from inputstream finished");
 		} catch (Exception e) {
 			e.getStackTrace();
-		}		
+		} finally {
+			if (reader != null) try { reader.close(); } catch (Exception e) {/*ignore this*/}
+		}
 	}
 	
 	/**
 	 * Parsing the {@link InputStream} using Apache Castor
 	 * @param inputStream the input-stream to read
 	 */
-    private void unmarshall(InputStream inputStream) {
-        if (inputStream == null) 
-            throw new NullPointerException("The inpustream is null");
+    private void unmarshall(Reader reader) {
+        if (reader == null) throw new NullPointerException("The reader is null");
         
         try {           
     		Mapping mapping = new Mapping();
@@ -59,7 +65,8 @@ public class CommandReader extends Thread implements IDataProvider, UnmarshalLis
 			Unmarshaller unmarshaller = new Unmarshaller(ArrayList.class);
 			unmarshaller.setUnmarshalListener(this);
 			unmarshaller.setMapping(mapping);
-			unmarshaller.unmarshal(new InputSource(inputStream));
+			unmarshaller.setProperty("org.exolab.castor.parser.namespaces", "true");
+			unmarshaller.unmarshal(reader);
         } catch (Exception e) {
             e.printStackTrace();
         }    

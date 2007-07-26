@@ -1,5 +1,7 @@
 package org.paxle.parser.impl;
 
+import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 import org.paxle.parser.ISubParser;
@@ -12,13 +14,18 @@ public class ParserWorker extends AWorker {
 	 */
 	private SubParserManager subParserManager = null;
 	
+	/**
+	 * A class to detect mimetypes
+	 */
+	IMimeTypeDetector mimeTypeDetector = null;
+	
 	public ParserWorker(SubParserManager subParserManager) {
 		this.subParserManager = subParserManager;
 	}
 	
 	protected void initParserContext() {
 		// init the parser context object
-		ParserContext parserContext = new ParserContext(subParserManager);
+		ParserContext parserContext = new ParserContext(this.subParserManager, this.mimeTypeDetector);
 		ParserContext.setCurrentContext(parserContext);		
 	}
 	
@@ -37,10 +44,12 @@ public class ParserWorker extends AWorker {
 		}
 		
 		try {
-			cmd.setParserDocument(parser.parse(
+			IParserDocument parserdoc = parser.parse(
 					cmd.getLocation(), 
 					cmd.getCrawlerDocument().getCharset(), 
-					cmd.getCrawlerDocument().getContent()));
+					cmd.getCrawlerDocument().getContent());
+			
+			cmd.setParserDocument(parserdoc);
 		} catch (Exception e) {
 			cmd.setResult(ICommand.Result.Failure, e.getMessage());
 			return;

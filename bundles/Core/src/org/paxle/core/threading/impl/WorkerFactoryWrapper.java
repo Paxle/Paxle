@@ -29,7 +29,7 @@ public class WorkerFactoryWrapper implements PoolableObjectFactory {
 	}
 	
 	public void activateObject(Object obj) throws Exception {
-		// nothing todo here
+		this.factory.initWorker((IWorker)obj);
 	}
 
 	public void destroyObject(Object obj) throws Exception {
@@ -37,7 +37,7 @@ public class WorkerFactoryWrapper implements PoolableObjectFactory {
 	}
 
 	public Object makeObject() throws Exception {
-		IWorker newWorker = this.factory.makeObject();	
+		IWorker newWorker = this.factory.createWorker();	
 		
 		// setting some dependencies
 		newWorker.setOutQueue(this.outQueue);
