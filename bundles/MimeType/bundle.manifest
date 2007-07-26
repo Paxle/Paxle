@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-Name: MimeTypeDetection
+Bundle-ClassPath: ., libs/jakarta-oro-2.0.7.jar, libs/jmimemagic-0.1.0
+ .jar, libs/log4j-1.2.9.jar, libs/xerces.jar, libs/xml-apis.jar, libs/
+ xmlParserAPIs.jar
+Bundle-Activator: org.paxle.mimetype.impl.Activator
+Import-Package: org.osgi.framework, org.paxle.core.mimetype, org.apach
+ e.commons.logging
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.paxle.mimetype
+Export-Package: org.paxle.mimetype
+Bundle-Version: 1.0.0
+

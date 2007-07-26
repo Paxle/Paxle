@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundlejar>
+<resource dst="" pattern=".*\.class" src="/MimeTypeDetection/out" type="0"/>
+<resource dst="libs/jakarta-oro-2.0.7.jar" src="/MimeType/libs/jakarta-oro-2.0.7.jar" type="1"/>
+<resource dst="libs/jmimemagic-0.1.0.jar" src="/MimeType/libs/jmimemagic-0.1.0.jar" type="1"/>
+<resource dst="libs/log4j-1.2.9.jar" src="/MimeType/libs/log4j-1.2.9.jar" type="1"/>
+<resource dst="libs/xerces.jar" src="/MimeType/libs/xerces.jar" type="1"/>
+<resource dst="libs/xml-apis.jar" src="/MimeType/libs/xml-apis.jar" type="1"/>
+<resource dst="libs/xmlParserAPIs.jar" src="/MimeType/libs/xmlParserAPIs.jar" type="1"/>
+</bundlejar>
