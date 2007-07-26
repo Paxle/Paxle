@@ -7,4 +7,4 @@ Import-Package: org.osgi.framework, org.osgi.service.http, javax.servl
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.gui
 Bundle-Version: 1.0.0
-
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

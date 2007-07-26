@@ -9,4 +9,4 @@ Import-Package: org.osgi.framework, org.paxle.core.data, org.paxle.cor
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: DataLayer
 Bundle-Version: 1.0.0
-
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

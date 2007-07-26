@@ -9,4 +9,4 @@ Export-Package: org.paxle.parser.html
 Bundle-ClassPath: ., libs/htmllexer.jar, libs/htmlparser.jar
 Bundle-ManifestVersion: 2
 Bundle-Description: Paxle HTML Parser Bundle
-
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
