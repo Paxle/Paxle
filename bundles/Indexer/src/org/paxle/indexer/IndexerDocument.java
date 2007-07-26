@@ -15,7 +15,6 @@ public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexe
 		super.put(key, value);
 	}
 	
-	@Override
 	// the type of the value can only be Type (or the value is null) as the method above is the only
 	// one adding key/value-pairs to the underlying HashMap
 	// this has to be made sure by any possible sub-classes as well

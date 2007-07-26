@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.core.doc.IIndexerDocument.Language;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 
@@ -34,16 +33,16 @@ public class IndexerWorker extends AWorker {
 		cmd.setIndexerDocument(idoc);
 	}
 	
-	private static Language[] toLanguages(Set<String> langs) {
-		final Set<Language> result = new HashSet<Language>();
+	private static IIndexerDocument.Language[] toLanguages(Set<String> langs) {
+		final Set<IIndexerDocument.Language> result = new HashSet<IIndexerDocument.Language>();
 		final Iterator<String> it = langs.iterator();
 		while (it.hasNext()) {
 			final String lng = it.next();
 			if (lng.length() < 2)
 				continue;
 			if (lng.length() == 2 || lng.charAt(2) == '.')
-				result.add(Language.valueOf(lng.substring(0, 2).toLowerCase()));
+				result.add(IIndexerDocument.Language.valueOf(lng.substring(0, 2).toLowerCase()));
 		}
-		return result.toArray(new Language[result.size()]);
+		return result.toArray(new IIndexerDocument.Language[result.size()]);
 	}
 }
