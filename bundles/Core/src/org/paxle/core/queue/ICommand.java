@@ -26,7 +26,15 @@ public interface ICommand {
 		Passed,
 		Rejected,
 		Failure
-	}
+	}	
+	
+	/* TODO: reference a document containing metadata about the overall job
+	 * - job ID
+	 * - start location
+	 * - constraints such as
+     *   - reg.exp. filters, depth restriction, etc
+	 */	
+	
 	public Result getResult();
 	public String getResultText();
 	public void setResult(Result result);
