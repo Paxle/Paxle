@@ -1,5 +1,5 @@
 package org.paxle.core.queue;
 
-public interface IOutputQueue {
-	public void enqueue(ICommand command) throws InterruptedException;
+public interface IOutputQueue<Data> {
+	public void enqueue(Data command) throws InterruptedException;
 }

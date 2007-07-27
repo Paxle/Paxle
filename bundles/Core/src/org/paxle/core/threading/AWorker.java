@@ -18,23 +18,23 @@ import org.paxle.core.threading.IWorker;
  * {@link ICommand commands} are assigned to this component by a {@link IMaster master}-thread.
  * 
  */
-public abstract class AWorker extends Thread implements IWorker {
+public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
 
     /**
      * The crawler thread pool
      */
-    private IPool myPool = null;
+    private IPool<Data> myPool = null;
     
     /**
      * The output-queue where the modified command should
      * be enqueued.
      */
-    private IOutputQueue outQueue = null;
+    private IOutputQueue<Data> outQueue = null;
         
     /**
      * The next {@link ICommand command} that must be processed by the worker  
      */
-    private ICommand command = null;    
+    private Data command = null;    
 	
     /**
      * if <code>true</code> the worker was destroyed using {@link IPool#invalidateWorker(IWorker)}
@@ -59,14 +59,14 @@ public abstract class AWorker extends Thread implements IWorker {
     /**
      * Setter methods to set the pool
      */
-    public void setPool(IPool pool) {
+    public void setPool(IPool<Data> pool) {
     	this.myPool = pool;
     }
     
     /**
      * Setter method to set the output-queue
      */
-    public void setOutQueue(IOutputQueue outQueue) {
+    public void setOutQueue(IOutputQueue<Data> outQueue) {
     	this.outQueue = outQueue;
     }
     
@@ -120,7 +120,7 @@ public abstract class AWorker extends Thread implements IWorker {
     /**
      * @see IWorker#assign(ICommand)
      */
-    public void assign(ICommand cmd) {
+    public void assign(Data cmd) {
         synchronized (this) {
 
             this.command = cmd;
@@ -149,7 +149,7 @@ public abstract class AWorker extends Thread implements IWorker {
      * and contains all operations needed for command processing
      * @param cmd the command to execute
      */
-    protected abstract void execute(ICommand cmd);
+    protected abstract void execute(Data cmd);
     
     /**
      * @see IWorker#terminate()

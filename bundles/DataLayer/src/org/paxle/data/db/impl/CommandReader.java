@@ -12,7 +12,7 @@ import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.queue.ICommand;
 
-public class CommandReader extends Thread implements IDataProvider, UnmarshalListener {
+public class CommandReader extends Thread implements IDataProvider<ICommand>, UnmarshalListener {
 	/**
 	 * An {@link InputStream} to read the XML
 	 */
@@ -21,7 +21,7 @@ public class CommandReader extends Thread implements IDataProvider, UnmarshalLis
 	/**
 	 * A {@link IDataSink data-sink} to write the unmarshalled XML out
 	 */
-	private IDataSink sink = null;
+	private IDataSink<ICommand> sink = null;
 	
 	public CommandReader() {}
 	
@@ -33,7 +33,7 @@ public class CommandReader extends Thread implements IDataProvider, UnmarshalLis
 	/**
 	 * @see IDataProvider#setDataSink(IDataSink)
 	 */
-	public void setDataSink(IDataSink dataSink) {
+	public void setDataSink(IDataSink<ICommand> dataSink) {
 		if (dataSink == null) throw new NullPointerException("The data-sink is null-");
 		if (this.sink != null) throw new IllegalStateException("The data-sink was already set.");
 		this.sink = dataSink;

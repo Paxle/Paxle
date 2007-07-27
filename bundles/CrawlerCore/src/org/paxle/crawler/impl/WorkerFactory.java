@@ -3,7 +3,7 @@ package org.paxle.crawler.impl;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 
-public class WorkerFactory implements IWorkerFactory<IWorker> {
+public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 	
 	private SubCrawlerManager subCrawlerManager = null;
 	
@@ -18,7 +18,7 @@ public class WorkerFactory implements IWorkerFactory<IWorker> {
 	/**
 	 * Creates a new {@link CrawlerWorker} by order of the worker-pool
 	 */
-	public IWorker createWorker() throws Exception {
+	public CrawlerWorker createWorker() throws Exception {
 		return new CrawlerWorker(subCrawlerManager);
 	}
 
@@ -26,7 +26,7 @@ public class WorkerFactory implements IWorkerFactory<IWorker> {
 	 * {@inheritDoc}
 	 * @see IWorkerFactory#initWorker(IWorker)
 	 */
-	public void initWorker(IWorker worker) {
+	public void initWorker(CrawlerWorker worker) {
 		// nothing special todo here
 	}
 }

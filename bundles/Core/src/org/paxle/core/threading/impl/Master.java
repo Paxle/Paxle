@@ -7,10 +7,10 @@ import org.paxle.core.threading.IPool;
 import org.paxle.core.threading.IWorker;
 
 
-public class Master extends Thread implements IMaster {
+public class Master<Data> extends Thread implements IMaster {
 	
-	protected IPool pool = null;
-	protected IInputQueue inQueue = null;
+	protected IPool<Data> pool = null;
+	protected IInputQueue<Data> inQueue = null;
 	protected boolean stopped = false;
 	protected boolean paused = false;
 	
@@ -18,7 +18,7 @@ public class Master extends Thread implements IMaster {
 	 * @param threadPool the thread pool containing {@link IWorker worker-threads}
 	 * @param commandQueue the queue containing {@link ICommand commands} to process
 	 */
-	public Master(IPool threadPool, IInputQueue commandQueue) {		
+	public Master(IPool<Data> threadPool, IInputQueue<Data> commandQueue) {		
 		this.pool = threadPool;
 		this.inQueue = commandQueue;
 		this.setName("Master");
@@ -35,10 +35,10 @@ public class Master extends Thread implements IMaster {
 				}
             	
                 // getting a new command from the queue
-                ICommand command = this.inQueue.dequeue();
+                Data command = this.inQueue.dequeue();
 
                 // getting a free worker from pool
-                IWorker worker = this.pool.getWorker();
+                IWorker<Data> worker = this.pool.getWorker();
 
                 // assign the command to the worker
                 worker.assign(command);

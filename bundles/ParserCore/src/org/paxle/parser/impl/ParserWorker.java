@@ -7,7 +7,7 @@ import org.paxle.core.threading.AWorker;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 
-public class ParserWorker extends AWorker {
+public class ParserWorker extends AWorker<ICommand> {
 
 	/**
 	 * A class to manage {@link ISubParser sub-parsers}

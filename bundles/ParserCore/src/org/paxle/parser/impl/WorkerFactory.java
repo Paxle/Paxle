@@ -4,7 +4,7 @@ import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 
-public class WorkerFactory implements IWorkerFactory<IWorker> {
+public class WorkerFactory implements IWorkerFactory<ParserWorker> {
 	
 	private SubParserManager subParserManager = null;
 	private IMimeTypeDetector mimeTypeDetector = null; 
@@ -21,7 +21,7 @@ public class WorkerFactory implements IWorkerFactory<IWorker> {
 	 * {@inheritDoc}
 	 * @see IWorkerFactory#createWorker()
 	 */
-	public IWorker createWorker() throws Exception {
+	public ParserWorker createWorker() throws Exception {
 		return new ParserWorker(this.subParserManager);
 	}
 
@@ -29,7 +29,7 @@ public class WorkerFactory implements IWorkerFactory<IWorker> {
 	 * {@inheritDoc}
 	 * @see IWorkerFactory#initWorker(IWorker)
 	 */		
-	public void initWorker(IWorker worker) {
-		((ParserWorker)worker).mimeTypeDetector = this.mimeTypeDetector;
+	public void initWorker(ParserWorker worker) {
+		worker.mimeTypeDetector = this.mimeTypeDetector;
 	}
 }

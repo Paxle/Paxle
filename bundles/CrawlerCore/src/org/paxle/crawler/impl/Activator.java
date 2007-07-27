@@ -5,13 +5,14 @@ import java.util.Hashtable;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentManager;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
-import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.ISubCrawlerManager;
@@ -27,7 +28,7 @@ public class Activator implements BundleActivator {
 	 * A reference to the {@link IMWComponent master-worker-component} used
 	 * by this bundle.
 	 */
-	public static IMWComponent mwComponent;
+	public static IMWComponent<ICommand> mwComponent;
 	
 	/**
 	 * A component to manage {@link ISubCrawler sub-crawlers}
@@ -57,8 +58,8 @@ public class Activator implements BundleActivator {
 		if (reference != null) {
 			// getting the service class instance
 			IMWComponentManager componentFactory = (IMWComponentManager)bc.getService(reference);
-			IWorkerFactory<IWorker> workerFactory = new WorkerFactory(subCrawlerManager);
-			mwComponent = componentFactory.createComponent(workerFactory, 5);
+			IWorkerFactory<CrawlerWorker> workerFactory = new WorkerFactory(subCrawlerManager);
+			mwComponent = componentFactory.createComponent(workerFactory, 5, ICommand.class);
 		}		
 		
 		/* ==========================================================

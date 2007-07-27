@@ -48,8 +48,8 @@ public class CachedWriter extends Writer {
 		}
 	}
 	
-	public CachedWriter(int maxSize, File file) throws IOException {
-		this.maxSize = maxSize;
+	public CachedWriter(File file) throws IOException {
+		this.maxSize = -1;
 		final RAFOutStream rafos = new RAFOutStream(file);
 		rafos.seekAbsolute(file.length());
 		this.writer = new OutputStreamWriter(rafos);

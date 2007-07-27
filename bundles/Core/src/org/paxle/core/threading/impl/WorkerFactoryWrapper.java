@@ -11,25 +11,25 @@ import org.paxle.core.threading.IWorkerFactory;
  * Wraps a {@link IWorkerFactory} into a {@link PoolableObjectFactory}
  * which is required by Apache commons pool. 
  */
-public class WorkerFactoryWrapper implements PoolableObjectFactory {
+public class WorkerFactoryWrapper<Data,E extends IWorker<Data>> implements PoolableObjectFactory {
 	private IPool pool = null;
-	private IWorkerFactory factory = null;
-	private IOutputQueue outQueue = null;
+	private IWorkerFactory<E> factory = null;
+	private IOutputQueue<Data> outQueue = null;
 	
 	public void setPool(IPool pool) {
 		this.pool = pool;
 	}
 	
-	public void setFactory(IWorkerFactory factory) {
+	public void setFactory(IWorkerFactory<E> factory) {
 		this.factory = factory;
 	}
 	
-	public void setOutQueue(IOutputQueue outQueue) {
+	public void setOutQueue(IOutputQueue<Data> outQueue) {
 		this.outQueue = outQueue;
 	}
 	
 	public void activateObject(Object obj) throws Exception {
-		this.factory.initWorker((IWorker)obj);
+		this.factory.initWorker((E)obj);
 	}
 
 	public void destroyObject(Object obj) throws Exception {
@@ -37,7 +37,7 @@ public class WorkerFactoryWrapper implements PoolableObjectFactory {
 	}
 
 	public Object makeObject() throws Exception {
-		IWorker newWorker = this.factory.createWorker();	
+		E newWorker = this.factory.createWorker();	
 		
 		// setting some dependencies
 		newWorker.setOutQueue(this.outQueue);

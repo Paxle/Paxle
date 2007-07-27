@@ -122,7 +122,7 @@ public final class ParserDocument implements IParserDocument {
 	}
 	
 	public void setText(File file) throws IOException {
-		this.text = new CachedWriter(MAX_TEXT_SIZE_RAM, file);
+		this.text = new CachedWriter(file);
 	}
 	
 	public void setText(CachedWriter resource) {

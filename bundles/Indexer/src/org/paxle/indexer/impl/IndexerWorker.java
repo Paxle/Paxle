@@ -12,7 +12,7 @@ import org.paxle.core.threading.AWorker;
 
 import org.paxle.indexer.IndexerDocument;
 
-public class IndexerWorker extends AWorker {
+public class IndexerWorker extends AWorker<ICommand> {
 	
 	@Override
 	protected void execute(ICommand cmd) {

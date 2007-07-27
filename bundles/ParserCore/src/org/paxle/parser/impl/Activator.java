@@ -10,8 +10,8 @@ import org.paxle.core.IMWComponentManager;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
-import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ISubParserManager;
@@ -27,7 +27,7 @@ public class Activator implements BundleActivator {
 	 * A reference to the {@link IMWComponent master-worker-component} used
 	 * by this bundle.
 	 */
-	public static IMWComponent mwComponent;	
+	public static IMWComponent<ICommand> mwComponent;	
 	
 	/**
 	 * A class to manage {@link ISubParser sub-parsers}
@@ -37,7 +37,7 @@ public class Activator implements BundleActivator {
 	/**
 	 * A worker-factory to create new parser-worker threads
 	 */
-	private static IWorkerFactory<IWorker> workerFactory = null;
+	private static IWorkerFactory<ParserWorker> workerFactory = null;
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
@@ -67,7 +67,7 @@ public class Activator implements BundleActivator {
 		if (reference != null) {
 			// getting the service class instance
 			IMWComponentManager componentFactory = (IMWComponentManager)bc.getService(reference);			
-			mwComponent = componentFactory.createComponent(workerFactory, 5);
+			mwComponent = componentFactory.createComponent(workerFactory, 5, ICommand.class);
 		}			
 		
 		/* ==========================================================

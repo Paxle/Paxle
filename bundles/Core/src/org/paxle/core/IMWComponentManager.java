@@ -14,5 +14,8 @@ public interface IMWComponentManager {
 	 * @param queueBufferSize
 	 * @return a new {@link IMWComponent master-worker-component}
 	 */
-	public IMWComponent createComponent(IWorkerFactory<IWorker> workerFactory, int queueBufferSize);
+	public <Data,W extends IWorker<Data>> IMWComponent<Data> createComponent(
+			IWorkerFactory<W> workerFactory,
+			int queueBufferSize,
+			Class<Data> clazz);
 }

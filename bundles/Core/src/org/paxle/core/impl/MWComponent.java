@@ -11,14 +11,13 @@ import org.paxle.core.threading.IPool;
 /**
  * @see IMWComponent
  */
-public class MWComponent implements IMWComponent {
+public class MWComponent<Data> implements IMWComponent<Data> {
 	private IMaster master;
-	private IPool pool;
-	private InputQueue inQueue;
-	private OutputQueue outQueue;
+	private IPool<Data> pool;
+	private InputQueue<Data> inQueue;
+	private OutputQueue<Data> outQueue;
 	
-	
-	public MWComponent(IMaster master, IPool pool, InputQueue inQueue, OutputQueue outQueue) {
+	public MWComponent(IMaster master, IPool<Data> pool, InputQueue<Data> inQueue, OutputQueue<Data> outQueue) {
 		if (master == null) throw new NullPointerException("The master thread is null.");
 		if (pool == null) throw new NullPointerException("The thread-pool is null");
 		if (inQueue == null) throw new NullPointerException("The input-queue is null");
@@ -33,7 +32,7 @@ public class MWComponent implements IMWComponent {
 	 * {@inheritDoc}
 	 * @see IMWComponent#getDataSink()
 	 */
-	public IDataSink getDataSink() {
+	public IDataSink<Data> getDataSink() {
 		return this.inQueue;
 	}
 
@@ -41,7 +40,7 @@ public class MWComponent implements IMWComponent {
 	 * {@inheritDoc}
 	 * @see IMWComponent#getDataSource()
 	 */
-	public IDataSource getDataSource() {
+	public IDataSource<Data> getDataSource() {
 		return this.outQueue;
 	}	
 
@@ -57,7 +56,7 @@ public class MWComponent implements IMWComponent {
 	 * {@inheritDoc}
 	 * @see IMWComponent#getPool()
 	 */
-	public IPool getPool() {
+	public IPool<Data> getPool() {
 		return this.pool;
 	}
 

@@ -6,7 +6,7 @@ import org.paxle.core.threading.IPool;
 import org.paxle.core.threading.IWorker;
 
 
-public class Pool extends GenericObjectPool implements IPool {
+public class Pool<Data> extends GenericObjectPool implements IPool<Data> {
 
 	public Pool(PoolableObjectFactory factory) {
 		super(factory);
@@ -17,15 +17,15 @@ public class Pool extends GenericObjectPool implements IPool {
 	 * @see GenericObjectPool#borrowObject()
 	 */
 	@SuppressWarnings("unchecked")
-	public IWorker getWorker() throws Exception {
-		return (IWorker) super.borrowObject();
+	public IWorker<Data> getWorker() throws Exception {
+		return (IWorker<Data>) super.borrowObject();
 	}
 
 	/**
 	 * @see IPool#returnWorker(IWorker)
 	 * @see GenericObjectPool#returnObject(Object)
 	 */
-	public void returnWorker(IWorker worker) {
+	public void returnWorker(IWorker<Data> worker) {
 		try {
 			super.returnObject(worker);
 		} catch (Exception e) {
@@ -37,7 +37,7 @@ public class Pool extends GenericObjectPool implements IPool {
 	 * @see IPool#invalidateWorker(IWorker)
 	 * @see GenericObjectPool#invalidateObject(Object)
 	 */
-	public void invalidateWorker(IWorker worker) {
+	public void invalidateWorker(IWorker<Data> worker) {
 		try {
 			super.invalidateObject(worker);
 		} catch (Exception e) {

@@ -7,8 +7,7 @@ import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 import org.paxle.crawler.ISubCrawler;
 
-
-public class CrawlerWorker extends AWorker {
+public class CrawlerWorker extends AWorker<ICommand> {
 	
 	/**
 	 * A class to manage {@link ISubCrawler sub-crawlers}

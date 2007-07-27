@@ -19,7 +19,7 @@ import org.paxle.core.threading.IWorker;
  * 	<li>an {@link IDataSource data-source} to read data from the internal {@link IOutputQueue}</li>
  * </ul>
  */
-public interface IMWComponent {
+public interface IMWComponent<Data> {
 	public static final String COMPONENT_ID = "component.ID";
 	
 	/**
@@ -30,21 +30,21 @@ public interface IMWComponent {
 	/**
 	 * @return the {@link IWorker worker-thread}-{@link IPool pool} of the component
 	 */
-	public IPool getPool();
+	public IPool<Data> getPool();
 
 	/**
 	 * This function returns a {@link IDataSink data-sink} that can be used to 
 	 * write {@link ICommand commands} into the input-queue of the  Master/Worker Component.
 	 * @return the data-sink associated with the Master/Worker
 	 */
-	public IDataSink getDataSink();
+	public IDataSink<Data> getDataSink();
 	
 	/**
 	 * This function returns a {@link IDataSource data-source} that can be used to 
 	 * read {@link ICommand commands} from the output-queue of the  Master/Worker Component.
 	 * @return the data-source associated with the Master/Worker
 	 */
-	public IDataSource getDataSource();
+	public IDataSource<Data> getDataSource();
 	
 	/**
 	 * Function to terminate the component. Calling this function results in:

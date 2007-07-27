@@ -3,9 +3,9 @@ package org.paxle.indexer.impl;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 
-public class WorkerFactory implements IWorkerFactory<IWorker> {
+public class WorkerFactory implements IWorkerFactory<IndexerWorker> {
 	
-	public IWorker createWorker() throws Exception {
+	public IndexerWorker createWorker() throws Exception {
 		return new IndexerWorker();
 	}
 
@@ -13,7 +13,7 @@ public class WorkerFactory implements IWorkerFactory<IWorker> {
 	 * {@inheritDoc}
 	 * @see IWorkerFactory#initWorker(IWorker)
 	 */		
-	public void initWorker(IWorker worker) {
+	public void initWorker(IndexerWorker worker) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -9,10 +9,10 @@ import org.paxle.core.data.IDataSource;
  * This pipe acts as {@link IDataConsumer data-consumer} and {@link IDataProvider data-provider}
  * and just copies data from a {@link IDataSource data-source} to a {@link IDataSink data-sink}
  */
-public class DataPipe extends Thread implements IDataProvider, IDataConsumer {
+public class DataPipe<Data> extends Thread implements IDataProvider<Data>, IDataConsumer<Data> {
 	
-	private IDataSink sink = null;
-	private IDataSource source = null;
+	private IDataSink<Data> sink = null;
+	private IDataSource<Data> source = null;
 	
 	public DataPipe() {
 		this.start();
@@ -21,7 +21,7 @@ public class DataPipe extends Thread implements IDataProvider, IDataConsumer {
 	/**
 	 * @see IDataProvider#setDataSink(IDataSink)
 	 */
-	public synchronized void setDataSink(IDataSink dataSink) {
+	public synchronized void setDataSink(IDataSink<Data> dataSink) {
 		if (dataSink == null) throw new NullPointerException("The data-sink is null-");
 		if (this.sink != null) throw new IllegalStateException("The data-sink was already set.");
 		this.sink = dataSink;
@@ -31,7 +31,7 @@ public class DataPipe extends Thread implements IDataProvider, IDataConsumer {
 	/**
 	 * @see IDataConsumer#setDataSource(IDataSource)
 	 */
-	public synchronized void setDataSource(IDataSource dataSource) {
+	public synchronized void setDataSource(IDataSource<Data> dataSource) {
 		if (dataSource == null) throw new NullPointerException("The data-source is null.");
 		if (this.source != null) throw new IllegalStateException("The data-source was already set.");
 		this.source = dataSource;
@@ -49,7 +49,7 @@ public class DataPipe extends Thread implements IDataProvider, IDataConsumer {
 			}
 			
 			while (true) {
-				Object data = this.source.getData();
+				Data data = this.source.getData();
 				this.sink.putData(data);
 			}
 		} catch (Exception e) {
