@@ -9,9 +9,19 @@
 	#set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
 	#if($subCrawlerManager)
 		<h2>Crawler:</h2>
-		// TODO: print out the crawler status
+		#set($crawlers = $manager.getServices("org.paxle.core.IMWComponent","(component.type=org.paxle.crawler)"))
+		#if ($crawlers)
+			#foreach($crawler in $crawlers)
+				The crawler is 
+				#if($crawler.isPaused() == true)
+					<b><font color="red">paused</font></b>
+				#else 
+					<b><font color="green">running</font></b>
+				#end.
+			#end
+		#end
 	
-		<h3>Installed Crawlers:</h3>	
+		<h3>Supported Protocols:</h3>	
 		$subCrawlerManager.getSubCrawlers().size() crawler(s) found:<br />
 		
 		<table border="1">
