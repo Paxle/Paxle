@@ -10,12 +10,15 @@ import org.paxle.parser.ISubParser;
 import org.paxle.parser.html.IHtmlParser;
 
 public class Activator implements BundleActivator {
-	
+	/**
+	 * A reference to the {@link BundleContext bundle-context}
+	 */	
 	public static BundleContext bc;
 	
-	/* (non-Javadoc)
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-	 */
+	/**
+	 * This function is called by the osgi-framework to start the bundle.
+	 * @see BundleActivator#start(BundleContext) 
+	 */	
 	public void start(BundleContext context) throws Exception {
 		bc = context;
 		IHtmlParser hp = new HtmlParser();
@@ -29,12 +32,13 @@ public class Activator implements BundleActivator {
 				sb.append(';');
 		}
 		props.put(ISubParser.PROP_MIMETYPES, sb.toString());
-		bc.registerService(ISubParser.class.getName(), hp, props);
+		bc.registerService(new String[]{ISubParser.class.getName(),IHtmlParser.class.getName()}, hp, props);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
+	/**
+	 * This function is called by the osgi-framework to stop the bundle.
+	 * @see BundleActivator#stop(BundleContext)
+	 */	
 	public void stop(BundleContext context) throws Exception {
 		bc = null;
 	}

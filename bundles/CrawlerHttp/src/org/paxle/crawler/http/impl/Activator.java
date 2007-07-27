@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.crawler.ISubCrawler;
+import org.paxle.crawler.http.IHttpCrawler;
 
 public class Activator implements BundleActivator {
 
@@ -24,7 +25,7 @@ public class Activator implements BundleActivator {
 		HttpCrawler crawler = new HttpCrawler();
 		Hashtable<String,String> props = new Hashtable<String, String>();
 		props.put(ISubCrawler.PROP_PROTOCOL, crawler.getProtocol());	  
-		bc.registerService(ISubCrawler.class.getName(), crawler, props);
+		bc.registerService(new String[]{ISubCrawler.class.getName(),IHttpCrawler.class.getName()}, crawler, props);
 	}
 
 	/**
