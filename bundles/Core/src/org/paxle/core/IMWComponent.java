@@ -2,6 +2,7 @@ package org.paxle.core;
 
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
+import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.IInputQueue;
 import org.paxle.core.queue.IOutputQueue;
 import org.paxle.core.threading.IMaster;
@@ -29,8 +30,18 @@ public interface IMWComponent {
 	 */
 	public IPool getPool();
 
+	/**
+	 * This function returns a {@link IDataSink data-sink} that can be used to 
+	 * write {@link ICommand commands} into the input-queue of the  Master/Worker Component.
+	 * @return the data-sink associated with the Master/Worker
+	 */
 	public IDataSink getDataSink();
 	
+	/**
+	 * This function returns a {@link IDataSource data-source} that can be used to 
+	 * read {@link ICommand commands} from the output-queue of the  Master/Worker Component.
+	 * @return the data-source associated with the Master/Worker
+	 */
 	public IDataSource getDataSource();
 	
 	/**
@@ -43,4 +54,22 @@ public interface IMWComponent {
 	 * </ul>
 	 */
 	public void terminate();
+	
+	/**
+	 * This function calls the {@link IMaster#isPaused()} method
+	 * @return <code>true</code> if the Master/Worker Component was paused.
+	 */
+	public boolean isPaused();
+	
+	/**
+	 * Function to pause the Master/Worker Component.
+	 * This function calls the {@link IMaster#pauseMaster()} method.
+	 */
+	public void pause();
+	
+	/**
+	 * Function to resume the Master/Worker Component.
+	 * This function calls the {@link IMaster#resumeMaster()} method.
+	 */	
+	public void resume();
 }

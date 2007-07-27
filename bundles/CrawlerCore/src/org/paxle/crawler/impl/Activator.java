@@ -64,6 +64,11 @@ public class Activator implements BundleActivator {
 		/* ==========================================================
 		 * Register Services provided by this bundle
 		 * ========================================================== */
+		// register crawler
+//		Hashtable<String, String> crawlerProps = new Hashtable<String, String>();
+//		crawlerProps.put("component.type", "crawler");
+//		bc.registerService(IMWComponent.class.getName(), mwComponent, crawlerProps);
+		
 		// register the SubCrawler-Manager as service
 		bc.registerService(ISubCrawlerManager.class.getName(), subCrawlerManager, null);
 		

@@ -30,6 +30,7 @@ public class MWComponent implements IMWComponent {
 	}
 
 	/**
+	 * {@inheritDoc}
 	 * @see IMWComponent#getDataSink()
 	 */
 	public IDataSink getDataSink() {
@@ -37,6 +38,7 @@ public class MWComponent implements IMWComponent {
 	}
 
 	/**
+	 * {@inheritDoc}
 	 * @see IMWComponent#getDataSource()
 	 */
 	public IDataSource getDataSource() {
@@ -44,26 +46,53 @@ public class MWComponent implements IMWComponent {
 	}	
 
 	/**
-	 * {@link IMWComponent#getMaster()}
+	 * {@inheritDoc}
+	 * @see IMWComponent#getMaster()
 	 */
 	public IMaster getMaster() {
 		return this.master;
 	}
 	
 	/**
-	 * {@link IMWComponent#getPool()}
+	 * {@inheritDoc}
+	 * @see IMWComponent#getPool()
 	 */
 	public IPool getPool() {
 		return this.pool;
 	}
 
 	/**
-	 * {@link IMWComponent#terminate()}
+	 * {@inheritDoc}
+	 * @see IMWComponent#terminate()
 	 */
 	public void terminate() {
 		// terminating the master-thread (this automatically closes the worker-pool)
 		this.master.terminate();
 		
 		// TODO: closing the queues
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see IMWComponent#isPaused()
+	 */
+	public boolean isPaused() {
+		return this.master.isPaused();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see IMWComponent#pause()
+	 */	
+	public void pause(){
+		this.master.pauseMaster();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see IMWComponent#resume()
+	 */	
+	public void resume() {
+		this.master.resumeMaster();
 	}
 }

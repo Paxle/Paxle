@@ -8,7 +8,10 @@
 	
 	#set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
 	#if($subCrawlerManager)
-		<h2>Installed Crawlers:</h2>	
+		<h2>Crawler:</h2>
+		// TODO: print out the crawler status
+	
+		<h3>Installed Crawlers:</h3>	
 		$subCrawlerManager.getSubCrawlers().size() crawler(s) found:<br />
 		
 		<table border="1">
@@ -23,7 +26,7 @@
 	
 	#set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
 	#if($subParserManager)
-		<h2>Installed Parsers:</h2>	
+		<h3>Installed Parsers:</h3>	
 		#set($mimeTypes = $subParserManager.getMimeTypes())
 		#set($parsers = $subParserManager.getSubParsers())		
 		<b>$parsers.size()</b> parser(s) installed supporting <b>$mimeTypes.size()</b> mime-types.
