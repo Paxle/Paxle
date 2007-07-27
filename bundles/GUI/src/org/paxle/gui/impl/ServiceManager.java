@@ -1,6 +1,8 @@
 package org.paxle.gui.impl;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
@@ -9,6 +11,13 @@ public class ServiceManager {
 	
 	public ServiceManager(BundleContext context) {
 		this.context = context;
+	}
+	
+	public void shutdownFramework() throws BundleException {
+		Bundle framework = this.context.getBundle(0);
+		if (framework != null) {
+			framework.stop();
+		}
 	}
 
 	public Object getService(String serviceName) {

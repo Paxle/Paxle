@@ -1,6 +1,11 @@
 <html>
 <body>
 	<h1>Welcome to Paxle!</h1>
+	
+	<form>
+		<input type="submit" name="shutdown" value="Shutdown" />	
+	</form>
+	
 	#set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
 	#if($subCrawlerManager)
 		<h2>Installed Crawlers:</h2>	

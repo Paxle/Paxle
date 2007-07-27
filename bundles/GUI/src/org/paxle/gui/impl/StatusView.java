@@ -23,6 +23,10 @@ public class StatusView extends VelocityServlet {
         Template template = null;
 
         try {
+        	if (request.getParameter("shutdown") != null) {
+        		this.manager.shutdownFramework();
+        	}
+        	
         	/*
         	 * Setting template parameters
         	 */
