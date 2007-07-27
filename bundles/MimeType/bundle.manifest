@@ -10,4 +10,5 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.mimetype
 Export-Package: org.paxle.mimetype
 Bundle-Version: 1.0.0
+Bundle-ContactAddress: http://www.paxle.net/
 

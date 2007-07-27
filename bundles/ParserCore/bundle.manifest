@@ -10,3 +10,4 @@ Bundle-Version: 1.0.0
 Export-Package: org.paxle.parser
 Bundle-Description: Paxle Core-Parser Bundle
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ContactAddress: http://www.paxle.net/
