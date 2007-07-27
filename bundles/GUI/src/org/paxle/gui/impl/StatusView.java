@@ -6,10 +6,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.Template;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
-import org.apache.velocity.servlet.VelocityServlet;
+import org.apache.velocity.tools.view.servlet.VelocityViewServlet;
 
 
-public class StatusView extends VelocityServlet {
+public class StatusView extends VelocityViewServlet {
 	private ServiceManager manager = null;
 	
 	public StatusView(ServiceManager manager) {

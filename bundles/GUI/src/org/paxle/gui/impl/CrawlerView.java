@@ -6,12 +6,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.Template;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
-import org.apache.velocity.servlet.VelocityServlet;
+import org.apache.velocity.tools.view.servlet.VelocityViewServlet;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.queue.Command;
 
 
-public class CrawlerView extends VelocityServlet {
+public class CrawlerView extends VelocityViewServlet {
 	private ServiceManager manager = null;
 	
 	public CrawlerView(ServiceManager manager) {

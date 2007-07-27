@@ -10,21 +10,12 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/velocity-dep-1.5.jar" sourcepath="/home/theli/workspace/Libs/velocity-1.5.zip"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.http">
-		<attributes>
-			<attribute name="bundle-name" value="HTTP-Server"/>
-			<attribute name="org.osgi.service.http" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/osgi/service/http/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.jsdk-LIB">
-		<attributes>
-			<attribute name="bundle-name" value="JSDK-LIB"/>
-			<attribute name="javax.servlet.http" value="0.0.0"/>
-			<attribute name="javax.servlet" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="javax/servlet/"/>
 			<accessrule kind="accessible" pattern="javax/servlet/http/"/>
@@ -32,16 +23,19 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
-		<attributes>
-			<attribute name="bundle-name" value="Core"/>
-			<attribute name="org.paxle.core.data" value="0.0.0"/>
-			<attribute name="org.paxle.core.queue" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/paxle/core/queue/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/data/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="libs/velocity-tools-view-1.3.jar"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/commons-digester-1.8.jar"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>
