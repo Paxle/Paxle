@@ -21,6 +21,17 @@ public class P7zipParser implements I7zipParser {
 		return MimeTypes;
 	}
 	
+	/*
+	public long Seek(long offset, int seekOrigin) throws IOException {
+		if (seekOrigin == STREAM_SEEK_SET) {
+			_file.seek(offset);
+		} else if (seekOrigin == STREAM_SEEK_CUR) {
+			_file.seek(offset + _file.getFilePointer());
+		}
+		return _file.getFilePointer();
+	}
+	 */
+	
 	public IParserDocument parse(String location, String charset, File content) throws
 		ParserException, UnsupportedEncodingException, IOException {
 		final Handler archive = new Handler();

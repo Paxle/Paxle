@@ -1,15 +1,13 @@
-package org.paxle.parser.sevenzip.impl;
+package org.paxle.parser.iotools;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 
-import SevenZip.IInStream;
+import org.paxle.parser.iotools.Seekable;
 
-/**
- * @see SevenZip.MyRandomAccessFile
- */
-public class RAFInStream extends IInStream {
+public class RAFInStream extends InputStream implements Seekable {
 	
 	private final RandomAccessFile _file;
 	
@@ -21,13 +19,14 @@ public class RAFInStream extends IInStream {
 		_file = new RandomAccessFile(filename, "r");
 	}
 	
-	public long Seek(long offset, int seekOrigin) throws IOException {
-		if (seekOrigin == STREAM_SEEK_SET) {
-			_file.seek(offset);
-		} else if (seekOrigin == STREAM_SEEK_CUR) {
-			_file.seek(offset + _file.getFilePointer());
-		}
-		return _file.getFilePointer();
+	public long seekAbsolute(long pos) throws IOException {
+		this._file.seek(pos);
+		return this._file.getFilePointer();
+	}
+	
+	public long seekRelative(long pos) throws IOException {
+		this._file.seek(this._file.getFilePointer() + pos);
+		return this._file.getFilePointer();
 	}
 	
 	public int read() throws IOException {

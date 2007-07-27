@@ -1,12 +1,17 @@
-package org.paxle.parser;
+package org.paxle.parser.iotools;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.nio.CharBuffer;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.parser.ISubParser;
+import org.paxle.parser.ParserContext;
+import org.paxle.parser.ParserException;
 
 public class ParserTools {
 	
@@ -55,7 +60,31 @@ public class ParserTools {
 		return null;
 	}
 	
-	public static final int DEFAULT_BUFFER_SIZE = 1024;
+	public static final int DEFAULT_BUFFER_SIZE_BYTES = 1024;
+	public static final int DEFAULT_BUFFER_SIZE_CHARS = DEFAULT_BUFFER_SIZE_BYTES / 2;
+	
+	public static long copy(Reader in, Appendable out) throws IOException {
+		return copy(in, out, -1);
+	}
+	
+	public static long copy(Reader in, Appendable out, long bytes) throws IOException {
+        final char[] buf = new char[DEFAULT_BUFFER_SIZE_CHARS];                
+        int cs = (int)((bytes > 0 && bytes < (DEFAULT_BUFFER_SIZE_CHARS)) ? bytes : (DEFAULT_BUFFER_SIZE_CHARS));
+        
+        int rn;
+        long rt = 0;
+        while ((rn = in.read(buf, 0, cs)) > 0) {
+            out.append(CharBuffer.wrap(buf, 0, rn));
+            rt += rn;
+            
+            if (bytes > 0) {
+                cs = (int)Math.min(bytes - rt, DEFAULT_BUFFER_SIZE_CHARS);
+                if (cs == 0)
+                	break;
+            }
+        }
+        return rt;
+	}
 	
 	/**
 	 * Copies all data from the given {@link InputStream} to the given {@link OutputStream}
@@ -74,8 +103,8 @@ public class ParserTools {
 	}
 	
 	public static long copy(InputStream is, OutputStream os, long bytes) throws IOException {
-        final byte[] buf = new byte[DEFAULT_BUFFER_SIZE];                
-        int cs = (int)((bytes > 0 && bytes < DEFAULT_BUFFER_SIZE) ? bytes : DEFAULT_BUFFER_SIZE);
+        final byte[] buf = new byte[DEFAULT_BUFFER_SIZE_BYTES];                
+        int cs = (int)((bytes > 0 && bytes < DEFAULT_BUFFER_SIZE_BYTES) ? bytes : DEFAULT_BUFFER_SIZE_BYTES);
         
         int rn;
         long rt = 0;
@@ -84,7 +113,7 @@ public class ParserTools {
             rt += rn;
             
             if (bytes > 0) {
-                cs = (int)Math.min(bytes - rt, DEFAULT_BUFFER_SIZE);
+                cs = (int)Math.min(bytes - rt, DEFAULT_BUFFER_SIZE_BYTES);
                 if (cs == 0)
                 	break;
             }

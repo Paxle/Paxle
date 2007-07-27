@@ -1,5 +1,8 @@
 package org.paxle.core.doc;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -74,7 +77,7 @@ public interface IParserDocument {
 	 * @param text the text of the document as {@link String} in Java's default character encoding,
 	 *        Unicode
 	 */
-	public abstract void addText(CharSequence text);
+	public abstract void addText(CharSequence text) throws IOException;
 
 	/**
 	 * The author(s) of the document respectively it's content. Multiple authors have to be
@@ -105,6 +108,8 @@ public interface IParserDocument {
 	 * @param summary a short summary of what this documents deals with
 	 */
 	public abstract void setSummary(String summary);
+	
+	public abstract void setText(File file) throws IOException;
 
 	/**
 	 * @param title the title of the document
@@ -182,7 +187,11 @@ public interface IParserDocument {
 	 * @see #addText(CharSequence)
 	 * @return the whole (readable) text of this document as Unicode-sequence 
 	 */
-	public abstract CharSequence getText();
+	public abstract Reader getTextAsReader() throws IOException;
+	
+	public abstract File getTextAsFile() throws IOException;
+	
+	public abstract File getTextAsFile(File file) throws IOException;
 
 	/**
 	 * @see #setTitle(String)

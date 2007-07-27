@@ -1,23 +1,24 @@
 package org.paxle.core.doc;
 
+import java.io.Reader;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
 public interface IIndexerDocument {
 	
-	public static final Field<CharSequence> TEXT          = new Field<CharSequence> (true,  false);
-	public static final Field<String>       TITLE         = new Field<String>       (true,  true);
-	public static final Field<String>       AUTHOR        = new Field<String>       (true,  true);
-	public static final Field<Date>         LAST_MODIFIED = new Field<Date>	        (true,  true);
-	public static final Field<Date>         LAST_CRAWLED  = new Field<Date>	        (false, true);
-	public static final Field<byte[]>       MD5           = new Field<byte[]>       (false, true);
-	public static final Field<String[]>     KEYWORDS      = new Field<String[]>     (true,  true);
-	public static final Field<Language[]>   LANGUAGES     = new Field<Language[]>   (true,  true);
-	public static final Field<String>       SUMMARY       = new Field<String>       (true,  true);
-	public static final Field<String>       LOCATION      = new Field<String>       (false, true);
-	public static final Field<Long>         SIZE          = new Field<Long>	        (false, true);
-	public static final Field<Topic[]>      TOPICS        = new Field<Topic[]>      (true,  true);
+	public static final Field<Reader>       TEXT          = new Field<Reader>       (true,  false, "Text",         Reader.class);
+	public static final Field<String>       TITLE         = new Field<String>       (true,  true,  "Title",        String.class);
+	public static final Field<String>       AUTHOR        = new Field<String>       (true,  true,  "Author",       String.class);
+	public static final Field<Date>         LAST_MODIFIED = new Field<Date>	        (true,  true,  "LastModified", Date.class);
+	public static final Field<Date>         LAST_CRAWLED  = new Field<Date>	        (false, true,  "LastCrawled",  Date.class);
+	public static final Field<byte[]>       MD5           = new Field<byte[]>       (false, true,  "MD5",          byte[].class);
+	public static final Field<String[]>     KEYWORDS      = new Field<String[]>     (true,  true,  "Keywords",     String[].class);
+	public static final Field<Language[]>   LANGUAGES     = new Field<Language[]>   (true,  true,  "Languages",    Language[].class);
+	public static final Field<String>       SUMMARY       = new Field<String>       (true,  true,  "Summary",      String.class);
+	public static final Field<String>       LOCATION      = new Field<String>       (false, true,  "Location",     String.class);
+	public static final Field<Long>         SIZE          = new Field<Long>	        (false, true,  "Size",         Long.class);
+	public static final Field<Topic[]>      TOPICS        = new Field<Topic[]>      (true,  true,  "Topics",       Topic[].class);
 	
 	public <Type> void set(Field<Type> prop, Type data);
 	public <Type> Type get(Field<Type> prop);

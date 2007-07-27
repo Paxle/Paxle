@@ -1,5 +1,6 @@
 package org.paxle.parser.html.impl;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -121,8 +122,11 @@ public class NodeCollector extends NodeVisitor {
 		} else */
 		if (!this.noParse) {
 			final String txt = HtmlTools.deReplaceHTML(string.getText());
-			if (txt.length() > 0)
+			if (txt.length() > 0) try {
 				this.doc.addText(txt);
+			} catch (IOException e) {
+				this.exceptions.add(e);
+			}
 		}
 	}
 	
@@ -188,7 +192,7 @@ public class NodeCollector extends NodeVisitor {
 		this.doc.setTitle(HtmlTools.deReplaceHTML(tag.getTitle()));
 	}
 	
-	private void process(ParagraphTag tag) {
+	private void process(ParagraphTag tag) throws IOException {
 		this.doc.addText(HtmlTools.deReplaceHTML(tag.getText()));
 	}
 	

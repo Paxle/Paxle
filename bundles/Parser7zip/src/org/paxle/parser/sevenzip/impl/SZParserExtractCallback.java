@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.parser.SubdocOutputStream;
+import org.paxle.parser.iotools.SubdocOutputStream;
 
 import SevenZip.Archive.IArchiveExtractCallback;
 import SevenZip.Archive.IInArchive;

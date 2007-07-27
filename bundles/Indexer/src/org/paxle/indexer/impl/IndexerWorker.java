@@ -1,5 +1,6 @@
 package org.paxle.indexer.impl;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,20 +18,23 @@ public class IndexerWorker extends AWorker {
 	protected void execute(ICommand cmd) {
 		final IIndexerDocument idoc = new IndexerDocument();
 		final Collection<String> kw = cmd.getParserDocument().getKeywords();
+		try {
+			idoc.set(IIndexerDocument.AUTHOR, 			cmd.getParserDocument().getAuthor());
+			idoc.set(IIndexerDocument.KEYWORDS, 		kw.toArray(new String[kw.size()]));
+			idoc.set(IIndexerDocument.LANGUAGES, 		toLanguages(cmd.getParserDocument().getLanguages()));
+			idoc.set(IIndexerDocument.LAST_CRAWLED, 	cmd.getCrawlerDocument().getCrawlerDate());
+			idoc.set(IIndexerDocument.LAST_MODIFIED, 	cmd.getCrawlerDocument().getLastModDate());
+			idoc.set(IIndexerDocument.LOCATION, 		cmd.getLocation());
+			idoc.set(IIndexerDocument.SIZE, 			cmd.getCrawlerDocument().getSize());
+			idoc.set(IIndexerDocument.SUMMARY, 			cmd.getParserDocument().getSummary());
+			idoc.set(IIndexerDocument.TEXT, 			cmd.getParserDocument().getTextAsReader());
+			idoc.set(IIndexerDocument.TITLE, 			cmd.getParserDocument().getTitle());
+			// IIndexerDocument.TOPICS
 		
-		idoc.set(IIndexerDocument.AUTHOR, 			cmd.getParserDocument().getAuthor());
-		idoc.set(IIndexerDocument.KEYWORDS, 		kw.toArray(new String[kw.size()]));
-		idoc.set(IIndexerDocument.LANGUAGES, 		toLanguages(cmd.getParserDocument().getLanguages()));
-		idoc.set(IIndexerDocument.LAST_CRAWLED, 	cmd.getCrawlerDocument().getCrawlerDate());
-		idoc.set(IIndexerDocument.LAST_MODIFIED, 	cmd.getCrawlerDocument().getLastModDate());
-		idoc.set(IIndexerDocument.LOCATION, 		cmd.getLocation());
-		idoc.set(IIndexerDocument.SIZE, 			cmd.getCrawlerDocument().getSize());
-		idoc.set(IIndexerDocument.SUMMARY, 			cmd.getParserDocument().getSummary());
-		idoc.set(IIndexerDocument.TEXT, 			cmd.getParserDocument().getText());
-		idoc.set(IIndexerDocument.TITLE, 			cmd.getParserDocument().getTitle());
-		// IIndexerDocument.TOPICS
-		
-		cmd.setIndexerDocument(idoc);
+			cmd.setIndexerDocument(idoc);
+		} catch (IOException e) {
+			cmd.setResult(ICommand.Result.Failure, e.getMessage());
+		}
 	}
 	
 	private static IIndexerDocument.Language[] toLanguages(Set<String> langs) {

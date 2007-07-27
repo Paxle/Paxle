@@ -1,5 +1,8 @@
 package org.paxle.parser;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -12,7 +15,12 @@ import java.util.Set;
 
 import org.paxle.core.doc.IParserDocument;
 
+import org.paxle.parser.iotools.CachedWriter;
+import org.paxle.parser.iotools.ParserTools;
+
 public final class ParserDocument implements IParserDocument {
+	
+	private static final int MAX_TEXT_SIZE_RAM = 4 * 1024 * 1024; // 4 MB
 	
 	private final Map<String,IParserDocument> subDocs = new HashMap<String,IParserDocument>();
 	private final Collection<String> headlines = new LinkedList<String>();
@@ -20,14 +28,20 @@ public final class ParserDocument implements IParserDocument {
 	private final Map<String,String> links = new HashMap<String,String>();
 	private final Map<String,String> images = new HashMap<String,String>();
 	private final Set<String> languages = new HashSet<String>();
-	private final StringBuilder text = new StringBuilder();
+	private CachedWriter text;
 	private String author;
 	private Date lastChanged;
 	private String summary;
 	private String title;
 	private Status status;
 	
-	public ParserDocument() {  }
+	public ParserDocument() {
+		this.text = new CachedWriter(MAX_TEXT_SIZE_RAM);
+	}
+	
+	public ParserDocument(int initialTextSize) throws IOException {
+		this.text = new CachedWriter(MAX_TEXT_SIZE_RAM, initialTextSize);
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#addHeadline(java.lang.String)
@@ -74,8 +88,8 @@ public final class ParserDocument implements IParserDocument {
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#addText(java.lang.CharSequence)
 	 */
-	public void addText(CharSequence text) {
-		this.text.append(ParserTools.whitespaces2Space(text.toString()));
+	public void addText(CharSequence text) throws IOException {
+		this.text.append(text.toString());
 	}
 	
 	/* (non-Javadoc)
@@ -105,6 +119,14 @@ public final class ParserDocument implements IParserDocument {
 	 */
 	public void setSummary(String summary) {
 		this.summary = ParserTools.whitespaces2Space(summary);
+	}
+	
+	public void setText(File file) throws IOException {
+		this.text = new CachedWriter(MAX_TEXT_SIZE_RAM, file);
+	}
+	
+	public void setText(CachedWriter resource) {
+		this.text = resource;
 	}
 	
 	/* (non-Javadoc)
@@ -181,8 +203,8 @@ public final class ParserDocument implements IParserDocument {
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#getText()
 	 */
-	public StringBuilder getText() {
-		return this.text;
+	public Reader getTextAsReader() throws IOException {
+		return this.text.toReader();
 	}
 	
 	/* (non-Javadoc)
@@ -190,6 +212,22 @@ public final class ParserDocument implements IParserDocument {
 	 */
 	public String getTitle() {
 		return this.title;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.core.doc.IParserDocument#getTextAsFile()
+	 */
+	public File getTextAsFile() throws IOException {
+		return this.text.toFile(null);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.core.doc.IParserDocument#getTextAsFile(java.io.File)
+	 */
+	public File getTextAsFile(File file) throws IOException {
+		return this.text.toFile(file);
 	}
 	
 	/*
@@ -247,7 +285,7 @@ public final class ParserDocument implements IParserDocument {
 	 */
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder(100 + this.text.length());
+		final StringBuilder sb = new StringBuilder(100 + Math.max((int)this.text.length(), 0));
 		sb.append("Title: ").append(title).append('\n');
 		sb.append("Author: ").append(author).append('\n');
 		sb.append("last changed: ").append(lastChanged.toString()).append('\n');

@@ -11,8 +11,8 @@ import java.util.zip.GZIPInputStream;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.ParserTools;
 import org.paxle.parser.gzip.IGzipParser;
+import org.paxle.parser.iotools.ParserTools;
 
 public class GzipParser implements IGzipParser {
 	

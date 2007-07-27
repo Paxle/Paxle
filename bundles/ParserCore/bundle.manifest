@@ -7,7 +7,7 @@ Import-Package: org.osgi.framework, org.paxle.core, org.paxle.core.que
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.parser
 Bundle-Version: 1.0.0
-Export-Package: org.paxle.parser
+Export-Package: org.paxle.parser, org.paxle.parser.iotools
 Bundle-Description: Paxle Core-Parser Bundle
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ContactAddress: http://www.paxle.net/

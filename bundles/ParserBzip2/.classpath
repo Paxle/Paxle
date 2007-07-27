@@ -22,8 +22,10 @@
 		<attributes>
 			<attribute name="bundle-name" value="ParserCore"/>
 			<attribute name="org.paxle.parser" value="0.0.0"/>
+			<attribute name="org.paxle.parser.iotools" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/parser/iotools/"/>
 			<accessrule kind="accessible" pattern="org/paxle/parser/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>

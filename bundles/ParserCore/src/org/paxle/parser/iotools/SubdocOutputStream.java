@@ -1,5 +1,5 @@
 
-package org.paxle.parser;
+package org.paxle.parser.iotools;
 
 import java.io.File;
 import java.io.FileOutputStream;
