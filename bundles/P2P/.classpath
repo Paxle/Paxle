@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn/**|**/CVS/**" including="**/*.java" kind="src" path="src"/>
+	<classpathentry kind="src" path="gisp/src"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.EXECUTION_ENVIRONMENT_CONTAINER"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/osgi/framework/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="gisp/lib/dom4j.jar"/>
+	<classpathentry kind="lib" path="gisp/lib/junit.jar"/>
+	<classpathentry kind="lib" path="gisp/lib/jxta.jar"/>
+	<classpathentry kind="lib" path="gisp/lib/log4j.jar"/>
+	<classpathentry kind="output" path="out"/>
+</classpath>

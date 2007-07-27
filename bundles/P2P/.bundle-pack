@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<bundlejar>
+  <resource src="/P2P/out" type="0" dst="" pattern=".*\.class"/>
+  <resource src="/P2P/gisp/lib/dom4j.jar" type="1" dst="gisp/lib/dom4j.jar"/>
+  <resource src="/P2P/gisp/lib/junit.jar" type="1" dst="gisp/lib/junit.jar"/>
+  <resource src="/P2P/gisp/lib/jxta.jar" type="1" dst="gisp/lib/jxta.jar"/>
+  <resource src="/P2P/gisp/lib/log4j.jar" type="1" dst="gisp/lib/log4j.jar"/>
+</bundlejar>

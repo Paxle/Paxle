@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: build.xml,v 1.13 2004/09/02 05:23:37 daishi Exp $ -->
+
+<project name="gisp" basedir="." default="test">
+
+  <!-- set global properties for this build -->
+  <property name="src" value="src" />
+  <property name="build" value="build" />
+
+  <path id="classpath.compile">
+    <pathelement location="lib/dom4j.jar" />
+    <pathelement location="platform/binding/java/lib/log4j.jar" />
+    <pathelement location="platform/binding/java/tools/junit.jar" />
+    <pathelement location="platform/binding/java/dist/jxta.jar" />
+  </path>
+
+  <path id="classpath.compile.kaffe">
+    <path refid="classpath.compile" />
+    <pathelement location="/usr/local/kaffe/jre/lib/rt.jar" />
+  </path>
+
+  <path id="classpath.run">
+    <path refid="classpath.compile" />
+    <pathelement location="build/gisp.jar" />
+    <pathelement location="." />
+  </path>
+
+  <path id="classpath.run.kaffe">
+    <path refid="classpath.compile.kaffe" />
+    <pathelement location="build/gisp-kaffe.jar" />
+    <pathelement location="." />
+  </path>
+
+  <target name="compile">
+    <mkdir dir="${build}" />
+    <javac classpathref="classpath.compile"
+           srcdir="${src}"
+           destdir="${build}"
+           debug="on"
+           deprecation="on"
+           optimize="on"
+           source="1.4">
+    </javac>	   
+  </target>
+
+  <target name="jar" depends="compile">
+    <jar basedir="${build}" jarfile="${build}/gisp.jar">
+      <exclude name="*.jar" />
+      <exclude name="javadoc/**" />
+      <exclude name="kaffe/**" />
+      <exclude name="src.kaffe/**" />
+    </jar>
+  </target>
+
+  <target name="test" depends="jar">
+    <junit>
+      <classpath refid="classpath.run" />
+      <formatter type="plain" usefile="no" />
+      <batchtest>
+        <fileset dir="${build}">
+          <include name="**/*Test.class" />
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="run.simulator" depends="jar">
+    <java classname="com.axlight.jnushare.gisp.GSimulator" fork="yes">
+      <jvmarg value="-ea" />
+      <jvmarg value="-Xmx200m" />
+      <arg value="scenario3" />
+      <classpath refid="classpath.run" />
+    </java>
+  </target>
+
+  <target name="javadoc">
+    <mkdir dir="${build}/javadoc" />
+    <javadoc sourcepath="${src}"
+             classpathref="classpath.compile" 
+             destdir="${build}/javadoc" 
+             header="${header}" 
+             source="1.4"
+             packagenames="com.axlight.jnushare.gisp.*">
+      <link href="http://java.sun.com/j2se/1.4.1/docs/api/" />
+      <link href="http://www.dom4j.org/javadoc/" />
+    </javadoc>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build}"/>
+  </target>
+
+  <target name="compile.kaffe">
+    <mkdir dir="${build}/kaffe" />
+    <mkdir dir="${build}/src.kaffe" />
+
+    <copy todir="${build}/src.kaffe">
+      <fileset dir="${src}">
+        <include name="**/*.java" />
+      </fileset>
+    </copy>
+
+    <replaceregexp byline="true">
+      <regexp pattern="assert" />
+      <substitution expression="//assert" />
+      <fileset dir="${build}/src.kaffe">
+        <include name="**/*.java" />
+      </fileset>
+    </replaceregexp>
+    <replaceregexp byline="true">
+      <regexp pattern="WeakHashMap" />
+      <substitution expression="HashMap" />
+      <fileset dir="${build}/src.kaffe">
+        <include name="**/*.java" />
+      </fileset>
+    </replaceregexp>
+
+    <javac executable="/usr/local/kaffe/bin/javac"
+           fork="yes"
+           classpathref="classpath.compile.kaffe"
+           srcdir="${build}/src.kaffe"
+           sourcepath=""
+           destdir="${build}/kaffe">
+    </javac>	   
+  </target>
+
+  <target name="jar.kaffe" depends="compile.kaffe">
+    <jar basedir="${build}/kaffe" jarfile="${build}/gisp-kaffe.jar">
+    </jar>
+  </target>
+
+  <target name="run.simulator.kaffe" depends="jar.kaffe">
+    <java classname="com.axlight.jnushare.gisp.GSimulator" fork="yes"
+          jvm="/usr/local/kaffe/bin/java">
+<!--  <jvmarg value="-ss64m" />-->
+<!--  <jvmarg value="-mx200m" />-->
+      <classpath refid="classpath.run.kaffe" />
+    </java>
+  </target>
+
+</project>

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-Name: P2P
+Import-Package: org.osgi.framework
+Bundle-Version: 1.0.0
+Bundle-Activator: P2P.Activator
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: P2P
+Bundle-ClassPath: ., gisp/lib/dom4j.jar, gisp/lib/junit.jar, gisp/lib/jx
+ ta.jar, gisp/lib/log4j.jar
+
