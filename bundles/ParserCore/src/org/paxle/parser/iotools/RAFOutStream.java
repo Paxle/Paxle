@@ -12,11 +12,11 @@ public class RAFOutStream extends OutputStream implements Seekable {
 	private final RandomAccessFile _file;
 	
 	public RAFOutStream(File file) throws IOException {
-		this._file = new RandomAccessFile(file, "r");
+		this._file = new RandomAccessFile(file, "rws");
 	}
 	
 	public RAFOutStream(String filename) throws IOException {
-		_file = new RandomAccessFile(filename, "r");
+		_file = new RandomAccessFile(filename, "rws");
 	}
 	
 	public long seekAbsolute(long pos) throws IOException {

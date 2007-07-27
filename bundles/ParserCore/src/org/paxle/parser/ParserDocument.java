@@ -246,6 +246,14 @@ public final class ParserDocument implements IParserDocument {
 		this.status = status;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.io.Closeable#close()
+	 */
+	public void close() throws IOException {
+		this.text.close();
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.paxle.parser.IParserDocument#toString()
 	 */

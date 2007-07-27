@@ -1,5 +1,6 @@
 package org.paxle.core.doc;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -8,7 +9,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-public interface IParserDocument {
+public interface IParserDocument extends Closeable {
 	
 	public static enum Status {
 		/** Parsing finished without major errors so that the resulting document is usable. */
@@ -203,4 +204,6 @@ public interface IParserDocument {
 	 * @return a debugging-friendly expression of everything this document knows 
 	 */
 	public abstract String toString();
+	
+	public abstract void close() throws IOException;
 }

@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.CharBuffer;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -47,8 +48,16 @@ public class ParserTools {
 	 */
 	public static IParserDocument parse(String location, File content)
 			throws ParserException, IOException {
-		final String mimeType = null; // TODO: retrieve MIME type of file
+		final IMimeTypeDetector mtd = ParserContext.getCurrentContext().getMimeTypeDetector();
+		final String mimeType;
+		try {
+			mimeType = mtd.getMimeType(content);
+		} catch (Exception e) {
+			throw new ParserException("error detecting MIME type of file " + content, e);
+		}
+		
 		final String charset = null; // TODO: retrieve character set of file
+		
 		final ISubParser sp = ParserContext.getCurrentContext().getParser(mimeType);
 		try {
 			return sp.parse(location, charset, content);

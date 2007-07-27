@@ -1,5 +1,7 @@
 package org.paxle.core.queue;
 
+import java.io.IOException;
+
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
@@ -27,7 +29,8 @@ public class Command implements ICommand {
 		return this.parserDoc;
 	}
 
-	public void setParserDocument(IParserDocument parserDoc) {
+	public void setParserDocument(IParserDocument parserDoc) throws IOException {
+		parserDoc.close();
 		this.parserDoc = parserDoc;
 	}
 

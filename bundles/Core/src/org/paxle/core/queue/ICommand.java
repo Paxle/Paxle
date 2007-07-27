@@ -1,5 +1,7 @@
 package org.paxle.core.queue;
 
+import java.io.IOException;
+
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
@@ -47,7 +49,7 @@ public interface ICommand {
 	public void setCrawlerDocument(ICrawlerDocument crawlerDoc);
 	
 	public IParserDocument getParserDocument();
-	public void setParserDocument(IParserDocument parserDoc);
+	public void setParserDocument(IParserDocument parserDoc) throws IOException;
 	
 	public IIndexerDocument getIndexerDocument();
 	public void setIndexerDocument(IIndexerDocument indexerDoc);

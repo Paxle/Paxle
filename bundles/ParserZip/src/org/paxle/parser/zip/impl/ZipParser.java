@@ -12,8 +12,8 @@ import java.util.zip.ZipInputStream;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserDocument;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.ParserTools;
-import org.paxle.parser.SubdocOutputStream;
+import org.paxle.parser.iotools.ParserTools;
+import org.paxle.parser.iotools.SubdocOutputStream;
 import org.paxle.parser.zip.IZipParser;
 
 public class ZipParser implements IZipParser {
