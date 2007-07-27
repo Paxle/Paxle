@@ -73,6 +73,11 @@ public class Activator implements BundleActivator {
 		/* ==========================================================
 		 * Register Services provided by this bundle
 		 * ========================================================== */
+		// register parser
+		Hashtable<String, String> parserProps = new Hashtable<String, String>();
+		parserProps.put(IMWComponent.COMPONENT_ID, bc.getBundle().getSymbolicName());
+		bc.registerService(IMWComponent.class.getName(), mwComponent, parserProps);		
+		
 		// register the SubParser-Manager as service
 		bc.registerService(ISubParserManager.class.getName(), subParserManager, null);		
 		

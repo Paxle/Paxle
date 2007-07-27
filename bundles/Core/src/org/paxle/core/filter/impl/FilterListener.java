@@ -1,6 +1,7 @@
 package org.paxle.core.filter.impl;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
@@ -15,7 +16,7 @@ public class FilterListener implements ServiceListener {
 	/**
 	 * A LDAP styled expression used for the {@link IFilter filter}-listener
 	 */
-	public static String FILTER = "(objectClass=" + IFilter.class.getName () +")";	
+	public static String FILTER = "(" + Constants.OBJECTCLASS + "=" + IFilter.class.getName () +")";	
 	
 	/**
 	 * A class to manage {@link IFilter filters}

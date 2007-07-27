@@ -9,7 +9,7 @@
 	#set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
 	#if($subCrawlerManager)
 		<h2>Crawler:</h2>
-		#set($crawlers = $manager.getServices("org.paxle.core.IMWComponent","(component.type=org.paxle.crawler)"))
+		#set($crawlers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
 		#if ($crawlers)
 			#foreach($crawler in $crawlers)
 				The crawler is 

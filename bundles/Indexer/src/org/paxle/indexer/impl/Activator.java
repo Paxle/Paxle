@@ -50,6 +50,10 @@ public class Activator implements BundleActivator {
 		/* ==========================================================
 		 * Register Services provided by this bundle
 		 * ========================================================== */				
+		// register indexer
+		Hashtable<String, String> parserProps = new Hashtable<String, String>();
+		parserProps.put(IMWComponent.COMPONENT_ID, bc.getBundle().getSymbolicName());
+		bc.registerService(IMWComponent.class.getName(), mwComponent, parserProps);				
 		
 		// publish data-sink
 		Hashtable<String,String> dataSinkProps = new Hashtable<String, String>();

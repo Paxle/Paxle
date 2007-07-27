@@ -20,6 +20,8 @@ import org.paxle.core.threading.IWorker;
  * </ul>
  */
 public interface IMWComponent {
+	public static final String COMPONENT_ID = "component.ID";
+	
 	/**
 	 * @return the {@link IMaster master-thread} of the component
 	 */
