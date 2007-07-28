@@ -43,4 +43,12 @@ public class ServiceManager {
 		
 		return services;
 	}
+    
+    public Bundle[] getBundles() {
+        return this.context.getBundles();
+    }
+
+    public Bundle getBundle(long bundleID) {
+        return this.context.getBundle(bundleID);
+    }
 }
