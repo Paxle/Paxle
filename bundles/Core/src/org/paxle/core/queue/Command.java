@@ -1,6 +1,8 @@
 package org.paxle.core.queue;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IIndexerDocument;
@@ -15,7 +17,7 @@ public class Command implements ICommand {
 	
 	private ICrawlerDocument crawlerDoc = null;
 	private IParserDocument parserDoc = null;
-	private IIndexerDocument indexerDoc = null;
+	private List<IIndexerDocument> indexerDocs = new LinkedList<IIndexerDocument>();
 
 	public ICrawlerDocument getCrawlerDocument() {
 		return this.crawlerDoc;
@@ -34,13 +36,13 @@ public class Command implements ICommand {
 		this.parserDoc = parserDoc;
 	}
 
-	public IIndexerDocument getIndexerDocument() {
-		return this.indexerDoc;
+	public IIndexerDocument[] getIndexerDocuments() {
+		return this.indexerDocs.toArray(new IIndexerDocument[this.indexerDocs.size()]);
 	}	
 	
 	
-	public void setIndexerDocument(IIndexerDocument indexerDoc) {
-		this.indexerDoc = indexerDoc;
+	public void addIndexerDocument(IIndexerDocument indexerDoc) {
+		this.indexerDocs.add(indexerDoc);
 	}
 	
 

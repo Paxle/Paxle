@@ -10,6 +10,9 @@ import org.apache.velocity.tools.view.servlet.VelocityViewServlet;
 
 
 public class StatusView extends VelocityViewServlet {
+	
+	private static final long serialVersionUID = 1L;
+	
 	private ServiceManager manager = null;
 	
 	public StatusView(ServiceManager manager) {

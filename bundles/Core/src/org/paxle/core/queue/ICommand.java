@@ -51,8 +51,8 @@ public interface ICommand {
 	public IParserDocument getParserDocument();
 	public void setParserDocument(IParserDocument parserDoc) throws IOException;
 	
-	public IIndexerDocument getIndexerDocument();
-	public void setIndexerDocument(IIndexerDocument indexerDoc);
+	public IIndexerDocument[] getIndexerDocuments();
+	public void addIndexerDocument(IIndexerDocument indexerDoc);
 	
 //	/* =======================================================
 //	 * Crawler-related information
