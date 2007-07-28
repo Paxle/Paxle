@@ -25,6 +25,8 @@ public class StatusView extends VelocityViewServlet {
         try {
         	if (request.getParameter("shutdown") != null) {
         		this.manager.shutdownFramework();
+        	} else if (request.getParameter("restart") != null) {
+        		this.manager.restartFramework();
         	}
         	
         	/*

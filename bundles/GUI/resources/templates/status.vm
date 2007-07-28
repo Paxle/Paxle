@@ -4,6 +4,7 @@
 	
 	<form>
 		<input type="submit" name="shutdown" value="Shutdown" />	
+		<input type="submit" name="restart" value="Restart" />
 	</form>
 	
 	#set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
@@ -36,7 +37,20 @@
 	
 	#set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
 	#if($subParserManager)
-		<h3>Installed Parsers:</h3>	
+		<h2>Crawler:</h2>
+		#set($parsers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))	
+		#if ($parsers)
+			#foreach($parser in $parsers)
+				The parser is 
+				#if($parser.isPaused() == true)
+					<b><font color="red">paused</font></b>
+				#else 
+					<b><font color="green">running</font></b>
+				#end.
+			#end
+		#end
+	
+		<h3>Supported mimetypes:</h3>	
 		#set($mimeTypes = $subParserManager.getMimeTypes())
 		#set($parsers = $subParserManager.getSubParsers())		
 		<b>$parsers.size()</b> parser(s) installed supporting <b>$mimeTypes.size()</b> mime-types.

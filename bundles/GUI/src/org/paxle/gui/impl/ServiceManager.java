@@ -19,6 +19,13 @@ public class ServiceManager {
 			framework.stop();
 		}
 	}
+	
+	public void restartFramework() throws BundleException {
+		Bundle framework = this.context.getBundle(0);
+		if (framework != null) {
+			framework.update();
+		}		
+	}
 
 	public Object getService(String serviceName) {
 		ServiceReference reference = this.context.getServiceReference(serviceName);
