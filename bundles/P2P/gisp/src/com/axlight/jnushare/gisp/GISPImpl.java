@@ -393,9 +393,9 @@ public final class GISPImpl extends GISPXML implements Module, EndpointListener{
 			seedAddressListSize = seedAddressList.size();
 		    }
 		    
-		    Enumeration enum = null;
+		    Enumeration enum1 = null;
 		    try{
-			enum = discovery.getLocalAdvertisements
+			enum1 = discovery.getLocalAdvertisements
 			    (DiscoveryService.ADV, "Name", serviceName);
 		    }catch(IOException e){
 			LOG.warn("IOException while getting local adv");
@@ -403,9 +403,9 @@ public final class GISPImpl extends GISPXML implements Module, EndpointListener{
 		    }
 		    
 		    int localAdvCount = 0;
-		    if(enum != null && enum.hasMoreElements()){
-			while(enum.hasMoreElements()){
-			    Object element = enum.nextElement();
+		    if(enum1 != null && enum1.hasMoreElements()){
+			while(enum1.hasMoreElements()){
+			    Object element = enum1.nextElement();
 			    if(element instanceof ModuleSpecAdvertisement){
 				ModuleSpecAdvertisement adv =
 				    (ModuleSpecAdvertisement)element;
