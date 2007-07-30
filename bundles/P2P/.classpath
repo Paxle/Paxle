@@ -9,9 +9,13 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="gisp/lib/dom4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="gisp/lib/dom4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="gisp/lib/jxta.jar" sourcepath="/home/theli/workspace/Libs/jxta-src-2.5_rc1.zip"/>
+	<classpathentry exported="true" kind="lib" path="gisp/lib/log4j.jar"/>
 	<classpathentry kind="lib" path="gisp/lib/junit.jar"/>
-	<classpathentry kind="lib" path="gisp/lib/jxta.jar"/>
-	<classpathentry kind="lib" path="gisp/lib/log4j.jar"/>
+	<classpathentry kind="lib" path="libs/bcprov-jdk15-132.jar"/>
+	<classpathentry kind="lib" path="libs/xerces.jar"/>
+	<classpathentry kind="lib" path="libs/xml-apis.jar"/>
+	<classpathentry kind="lib" path="libs/xmlParserAPIs.jar"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>
