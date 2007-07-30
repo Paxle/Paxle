@@ -17,5 +17,28 @@
 	<classpathentry kind="lib" path="libs/xerces.jar"/>
 	<classpathentry kind="lib" path="libs/xml-apis.jar"/>
 	<classpathentry kind="lib" path="libs/xmlParserAPIs.jar"/>
+	<classpathentry kind="lib" path="/GUI/libs/velocity-dep-1.5.jar" sourcepath="/home/theli/workspace/Libs/velocity-1.5.zip"/>
+	<classpathentry kind="lib" path="/GUI/libs/velocity-tools-view-1.3.jar"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.jsdk-LIB;version=0.0.0">
+		<attributes>
+			<attribute name="bundle-name" value="JSDK-LIB"/>
+			<attribute name="javax.servlet.http" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="javax/servlet/http/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.http">
+		<attributes>
+			<attribute name="bundle-name" value="HTTP-Server"/>
+			<attribute name="org.osgi.service.http" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/osgi/service/http/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="src" path="/GUI"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>

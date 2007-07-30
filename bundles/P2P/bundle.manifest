@@ -1,13 +1,15 @@
 Manifest-Version: 1.0
 Bundle-Name: P2P
-Bundle-ClassPath: ., gisp/lib/dom4j.jar, gisp/lib/jxta.jar, gisp/lib/l
- og4j.jar, gisp/lib/junit.jar, libs/bcprov-jdk15-132.jar, libs/xerces.
- jar, libs/xml-apis.jar, libs/xmlParserAPIs.jar
-Bundle-Activator: org.paxle.p2p.Activator
-Import-Package: org.osgi.framework
-Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-SymbolicName: P2P
+Bundle-ManifestVersion: 2
+Bundle-Activator: org.paxle.p2p.impl.Activator
+Bundle-ClassPath: ., gisp/lib/dom4j.jar, gisp/lib/jxta.jar, gisp/lib/log
+ 4j.jar, gisp/lib/junit.jar, libs/bcprov-jdk15-132.jar, libs/xerces.jar,
+  libs/xml-apis.jar, libs/xmlParserAPIs.jar
 Bundle-Version: 1.0.0
 DynamicImport-Package: sun.*, org.xml.sax.*, javax.security.*
+Import-Package: org.osgi.framework, javax.servlet.http, javax.naming, 
+ org.apache.velocity, org.apache.velocity.app, org.apache.velocity.too
+ ls.view.servlet, org.osgi.service.http, org.paxle.gui.impl
 

@@ -1,4 +1,4 @@
-package org.paxle.p2p;
+package org.paxle.p2p.impl;
 /*
  * Created on Fri Jul 27 18:27:15 GMT+02:00 2007
  */
@@ -6,7 +6,6 @@ package org.paxle.p2p;
 import java.io.File;
 
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.platform.NetworkManager;
 
 import org.osgi.framework.BundleActivator;
@@ -26,7 +25,6 @@ public class Activator implements BundleActivator {
   public void start(BundleContext context) throws Exception {
 //	  //EXAMPLE FROM: https://gisp.dev.java.net/
 //	  PeerGroup group = PeerGroupFactory.newNetPeerGroup();
-
 	  NetworkManager manager = null;
       try {
           manager = new NetworkManager(NetworkManager.ConfigMode.EDGE, "DiscoveryServer"
