@@ -9,7 +9,8 @@ Bundle-ClassPath: ., gisp/lib/dom4j.jar, gisp/lib/jxta.jar, gisp/lib/log
   libs/xml-apis.jar, libs/xmlParserAPIs.jar
 Bundle-Version: 1.0.0
 DynamicImport-Package: sun.*, org.xml.sax.*, javax.security.*
-Import-Package: org.osgi.framework, javax.servlet.http, javax.naming, 
- org.apache.velocity, org.apache.velocity.app, org.apache.velocity.too
- ls.view.servlet, org.osgi.service.http, org.paxle.gui.impl
+Import-Package: org.osgi.framework, javax.servlet.http, org.apache.vel
+ ocity, org.apache.velocity.app, org.apache.velocity.tools.view.servle
+ t, org.osgi.service.http, org.apache.velocity.context
+Export-Package: org.paxle.p2p, org.paxle.p2p.impl
 
