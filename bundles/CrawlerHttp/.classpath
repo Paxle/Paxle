@@ -14,27 +14,14 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/commons-httpclient-3.0.1.jar" sourcepath="/home/theli/workspace/Libs/commons-httpclient-3.0.1-src.zip"/>
-	<classpathentry kind="lib" path="libs/commons-codec-1.3.jar"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
-		<attributes>
-			<attribute name="bundle-name" value="Core"/>
-			<attribute name="org.paxle.core.doc" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
-		<attributes>
-			<attribute name="bundle-name" value="Commons-Logging"/>
-			<attribute name="org.apache.commons.logging" value="0.0.0"/>
-		</attributes>
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
-			<accessrule kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
+	<classpathentry kind="lib" path="/HttpTools/libs/commons-codec-1.3.jar"/>
+	<classpathentry kind="lib" path="/HttpTools/libs/commons-httpclient-3.0.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/HttpTools"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>

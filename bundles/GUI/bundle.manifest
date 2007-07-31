@@ -1,42 +1,45 @@
 Manifest-Version: 1.0
 Bundle-Name: GUI
-Bundle-ClassPath: ., libs/velocity-dep-1.5.jar, libs/commons-digester-
- 1.8.jar, libs/velocity-tools-view-1.3.jar
-Bundle-Activator: org.paxle.gui.impl.Activator
-Import-Package: org.osgi.framework, org.osgi.service.http, javax.servl
- et.http, javax.servlet, org.paxle.core.data, org.paxle.core.queue, or
- g.apache.commons.logging
-Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-SymbolicName: org.paxle.gui
+Bundle-ManifestVersion: 2
+Bundle-Activator: org.paxle.gui.impl.Activator
+Bundle-ClassPath: .
 Bundle-Version: 1.0.0
+Import-Package: org.osgi.framework, org.osgi.service.http, javax.servl
+ et.http, javax.servlet, org.paxle.core.data, org.paxle.core.queue, or
+ g.apache.commons.logging, org.apache.axis, org.apache.axis.client, or
+ g.apache.axis.configuration, org.apache.axis.description, org.apache.
+ axis.encoding, org.apache.axis.enum, org.apache.axis.soap, org.apache
+ .axis.types, org.apache.axis.utils, org.apache.axis.wsdl, org.apache.
+ commons.collections, org.apache.commons.collections.iterators, org.ap
+ ache.commons.collections.map, org.apache.commons.digester, org.apache
+ .commons.digester.parser, org.apache.commons.digester.plugins, org.ap
+ ache.commons.digester.plugins.strategies, org.apache.commons.digester
+ .substitution, org.apache.commons.digester.xmlrules, org.apache.commo
+ ns.lang, org.apache.commons.lang.builder, org.apache.commons.lang.enu
+ m, org.apache.commons.lang.enums, org.apache.commons.lang.exception, 
+ org.apache.commons.lang.math, org.apache.commons.lang.mutable, org.ap
+ ache.commons.lang.time, org.apache.crimson.jaxp, org.apache.oro.io, o
+ rg.apache.oro.text, org.apache.oro.text.awk, org.apache.oro.text.perl
+ , org.apache.oro.text.regex, org.apache.oro.util, org.apache.velocity
+ , org.apache.velocity.anakia, org.apache.velocity.app, org.apache.vel
+ ocity.app.event, org.apache.velocity.app.event.implement, org.apache.
+ velocity.app.tools, org.apache.velocity.context, org.apache.velocity.
+ convert, org.apache.velocity.exception, org.apache.velocity.io, org.a
+ pache.velocity.runtime, org.apache.velocity.runtime.defaults, org.apa
+ che.velocity.runtime.directive, org.apache.velocity.runtime.log, org.
+ apache.velocity.runtime.parser, org.apache.velocity.runtime.parser.no
+ de, org.apache.velocity.runtime.resource, org.apache.velocity.runtime
+ .resource.loader, org.apache.velocity.runtime.resource.util, org.apac
+ he.velocity.runtime.visitor, org.apache.velocity.servlet, org.apache.
+ velocity.texen, org.apache.velocity.texen.ant, org.apache.velocity.te
+ xen.defaults, org.apache.velocity.texen.util, org.apache.velocity.too
+ ls.generic, org.apache.velocity.tools.generic.log, org.apache.velocit
+ y.tools.view, org.apache.velocity.tools.view.context, org.apache.velo
+ city.tools.view.i18n, org.apache.velocity.tools.view.servlet, org.apa
+ che.velocity.tools.view.tools, org.apache.velocity.util, org.apache.v
+ elocity.util.introspection
+Export-Package: org.paxle.gui.impl
 Bundle-ContactAddress: http://www.paxle.net/
-Export-Package: org.paxle.gui.impl, org.apache.commons.collections, or
- g.apache.commons.collections.iterators, org.apache.commons.collection
- s.map, org.apache.commons.digester, org.apache.commons.digester.parse
- r, org.apache.commons.digester.plugins, org.apache.commons.digester.p
- lugins.strategies, org.apache.commons.digester.substitution, org.apac
- he.commons.digester.xmlrules, org.apache.commons.lang, org.apache.com
- mons.lang.builder, org.apache.commons.lang.enum, org.apache.commons.l
- ang.enums, org.apache.commons.lang.exception, org.apache.commons.lang
- .math, org.apache.commons.lang.mutable, org.apache.commons.lang.time,
-  org.apache.oro.io, org.apache.oro.text, org.apache.oro.text.awk, org
- .apache.oro.text.perl, org.apache.oro.text.regex, org.apache.oro.util
- , org.apache.velocity, org.apache.velocity.anakia, org.apache.velocit
- y.app, org.apache.velocity.app.event, org.apache.velocity.app.event.i
- mplement, org.apache.velocity.app.tools, org.apache.velocity.context,
-  org.apache.velocity.convert, org.apache.velocity.exception, org.apac
- he.velocity.io, org.apache.velocity.runtime, org.apache.velocity.runt
- ime.defaults, org.apache.velocity.runtime.directive, org.apache.veloc
- ity.runtime.log, org.apache.velocity.runtime.parser, org.apache.veloc
- ity.runtime.parser.node, org.apache.velocity.runtime.resource, org.ap
- ache.velocity.runtime.resource.loader, org.apache.velocity.runtime.re
- source.util, org.apache.velocity.runtime.visitor, org.apache.velocity
- .servlet, org.apache.velocity.texen, org.apache.velocity.texen.ant, o
- rg.apache.velocity.texen.defaults, org.apache.velocity.texen.util, or
- g.apache.velocity.tools.generic, org.apache.velocity.tools.generic.lo
- g, org.apache.velocity.tools.view, org.apache.velocity.tools.view.con
- text, org.apache.velocity.tools.view.i18n, org.apache.velocity.tools.
- view.servlet, org.apache.velocity.tools.view.tools, org.apache.veloci
- ty.util, org.apache.velocity.util.introspection
 

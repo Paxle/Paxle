@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <bundlejar>
-<resource dst="" pattern=".*\.class" src="/GUI/out" type="0"/>
-<resource dst="libs/commons-digester-1.8.jar" src="/GUI/libs/commons-digester-1.8.jar" type="1"/>
-<resource dst="libs/velocity-dep-1.5.jar" src="/GUI/libs/velocity-dep-1.5.jar" type="1"/>
-<resource dst="libs/velocity-tools-view-1.3.jar" src="/GUI/libs/velocity-tools-view-1.3.jar" type="1"/>
-<resource dst="resources" src="/GUI/resources" type="2"/>
+  <resource src="/GUI/out" type="0" dst="" pattern=".*\.class"/>
+  <resource src="/GUI/resources" type="2" dst="resources"/>
 </bundlejar>
