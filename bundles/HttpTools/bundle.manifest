@@ -1,0 +1,37 @@
+Manifest-Version: 1.0
+Bundle-Description: Http Libs and Tools for Paxle
+Bundle-Name: HttpTools
+Export-Package: org.apache.commons.collections, org.apache.commons.colle
+ ctions.iterators, org.apache.commons.collections.map, org.apache.common
+ s.digester, org.apache.commons.digester.parser, org.apache.commons.dige
+ ster.plugins, org.apache.commons.digester.plugins.strategies, org.apach
+ e.commons.digester.substitution, org.apache.commons.digester.xmlrules, 
+ org.apache.commons.lang, org.apache.commons.lang.builder, org.apache.co
+ mmons.lang.enum, org.apache.commons.lang.enums, org.apache.commons.lang
+ .exception, org.apache.commons.lang.math, org.apache.commons.lang.mutab
+ le, org.apache.commons.lang.time, org.apache.oro.io, org.apache.oro.tex
+ t, org.apache.oro.text.awk, org.apache.oro.text.perl, org.apache.oro.te
+ xt.regex, org.apache.oro.util, org.apache.velocity, org.apache.velocity
+ .anakia, org.apache.velocity.app, org.apache.velocity.app.event, org.ap
+ ache.velocity.app.event.implement, org.apache.velocity.app.tools, org.a
+ pache.velocity.context, org.apache.velocity.convert, org.apache.velocit
+ y.exception, org.apache.velocity.io, org.apache.velocity.runtime, org.a
+ pache.velocity.runtime.defaults, org.apache.velocity.runtime.directive,
+  org.apache.velocity.runtime.log, org.apache.velocity.runtime.parser, o
+ rg.apache.velocity.runtime.parser.node, org.apache.velocity.runtime.res
+ ource, org.apache.velocity.runtime.resource.loader, org.apache.velocity
+ .runtime.resource.util, org.apache.velocity.runtime.visitor, org.apache
+ .velocity.servlet, org.apache.velocity.texen, org.apache.velocity.texen
+ .ant, org.apache.velocity.texen.defaults, org.apache.velocity.texen.uti
+ l, org.apache.velocity.tools.generic, org.apache.velocity.tools.generic
+ .log, org.apache.velocity.tools.view, org.apache.velocity.tools.view.co
+ ntext, org.apache.velocity.tools.view.i18n, org.apache.velocity.tools.v
+ iew.servlet, org.apache.velocity.tools.view.tools, org.apache.velocity.
+ util, org.apache.velocity.util.introspection
+Bundle-Version: 1.0.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: HttpTools
+Bundle-ClassPath: ., libs/commons-digester-1.8.jar, libs/velocity-dep-1.
+ 5.jar, libs/velocity-tools-view-1.3.jar, libs/commons-codec-1.3.jar, li
+ bs/commons-httpclient-3.0.1.jar
+

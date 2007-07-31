@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<bundlejar>
+  <resource src="/HttpTools/out" type="0" dst="" pattern=".*\.class"/>
+  <resource src="/HttpTools/libs/commons-codec-1.3.jar" type="1" dst="libs/commons-codec-1.3.jar"/>
+  <resource src="/HttpTools/libs/commons-digester-1.8.jar" type="1" dst="libs/commons-digester-1.8.jar"/>
+  <resource src="/HttpTools/libs/commons-httpclient-3.0.1.jar" type="1" dst="libs/commons-httpclient-3.0.1.jar"/>
+  <resource src="/HttpTools/libs/velocity-dep-1.5.jar" type="1" dst="libs/velocity-dep-1.5.jar"/>
+  <resource src="/HttpTools/libs/velocity-tools-view-1.3.jar" type="1" dst="libs/velocity-tools-view-1.3.jar"/>
+</bundlejar>
