@@ -7,10 +7,32 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
+	<classpathentry kind="lib" path="libs/commons-codec-1.3.jar"/>
 	<classpathentry kind="lib" path="libs/commons-digester-1.8.jar"/>
+	<classpathentry kind="lib" path="libs/commons-httpclient-3.0.1.jar"/>
 	<classpathentry kind="lib" path="libs/velocity-dep-1.5.jar"/>
 	<classpathentry kind="lib" path="libs/velocity-tools-view-1.3.jar"/>
-	<classpathentry kind="lib" path="libs/commons-codec-1.3.jar"/>
-	<classpathentry kind="lib" path="libs/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
+		<attributes>
+			<attribute name="bundle-name" value="Commons-Logging"/>
+			<attribute name="org.apache.commons.logging" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.jsdk-LIB">
+		<attributes>
+			<attribute name="bundle-name" value="JSDK-LIB"/>
+			<attribute name="javax.servlet" value="0.0.0"/>
+			<attribute name="javax.servlet.http" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="javax/servlet/http/"/>
+			<accessrule kind="accessible" pattern="javax/servlet/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="out"/>
 </classpath>
