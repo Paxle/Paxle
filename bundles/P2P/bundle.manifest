@@ -11,6 +11,7 @@ Bundle-Version: 1.0.0
 DynamicImport-Package: sun.*, org.xml.sax.*, javax.security.*
 Import-Package: org.osgi.framework, javax.servlet.http, org.apache.vel
  ocity, org.apache.velocity.app, org.apache.velocity.tools.view.servle
- t, org.osgi.service.http, org.apache.velocity.context
-Export-Package: org.paxle.p2p, org.paxle.p2p.impl 
+ t, org.osgi.service.http, org.apache.velocity.context, org.apache.com
+ mons.httpclient, org.apache.commons.httpclient.methods, javax.servlet
+Export-Package: org.paxle.p2p
 
