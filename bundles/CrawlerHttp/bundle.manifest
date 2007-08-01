@@ -9,7 +9,44 @@ Bundle-Version: 1.0.0
 Bundle-Description: Paxle HTTP Crawler
 Import-Package: org.osgi.framework, org.paxle.crawler, org.paxle.core.
  doc, org.apache.commons.httpclient, org.apache.commons.httpclient.met
- hods, org.apache.commons.httpclient.util
+ hods, org.apache.commons.httpclient.util, org.apache.axis, org.apache
+ .axis.client, org.apache.axis.configuration, org.apache.axis.descript
+ ion, org.apache.axis.encoding, org.apache.axis.enum, org.apache.axis.
+ soap, org.apache.axis.types, org.apache.axis.utils, org.apache.axis.w
+ sdl, org.apache.commons.codec, org.apache.commons.codec.binary, org.a
+ pache.commons.codec.digest, org.apache.commons.codec.language, org.ap
+ ache.commons.codec.net, org.apache.commons.collections, org.apache.co
+ mmons.collections.iterators, org.apache.commons.collections.map, org.
+ apache.commons.digester, org.apache.commons.digester.parser, org.apac
+ he.commons.digester.plugins, org.apache.commons.digester.plugins.stra
+ tegies, org.apache.commons.digester.substitution, org.apache.commons.
+ digester.xmlrules, org.apache.commons.httpclient.auth, org.apache.com
+ mons.httpclient.cookie, org.apache.commons.httpclient.methods.multipa
+ rt, org.apache.commons.httpclient.params, org.apache.commons.httpclie
+ nt.protocol, org.apache.commons.lang, org.apache.commons.lang.builder
+ , org.apache.commons.lang.enum, org.apache.commons.lang.enums, org.ap
+ ache.commons.lang.exception, org.apache.commons.lang.math, org.apache
+ .commons.lang.mutable, org.apache.commons.lang.time, org.apache.commo
+ ns.logging, org.apache.crimson.jaxp, org.apache.oro.io, org.apache.or
+ o.text, org.apache.oro.text.awk, org.apache.oro.text.perl, org.apache
+ .oro.text.regex, org.apache.oro.util, org.apache.velocity, org.apache
+ .velocity.anakia, org.apache.velocity.app, org.apache.velocity.app.ev
+ ent, org.apache.velocity.app.event.implement, org.apache.velocity.app
+ .tools, org.apache.velocity.context, org.apache.velocity.convert, org
+ .apache.velocity.exception, org.apache.velocity.io, org.apache.veloci
+ ty.runtime, org.apache.velocity.runtime.defaults, org.apache.velocity
+ .runtime.directive, org.apache.velocity.runtime.log, org.apache.veloc
+ ity.runtime.parser, org.apache.velocity.runtime.parser.node, org.apac
+ he.velocity.runtime.resource, org.apache.velocity.runtime.resource.lo
+ ader, org.apache.velocity.runtime.resource.util, org.apache.velocity.
+ runtime.visitor, org.apache.velocity.servlet, org.apache.velocity.tex
+ en, org.apache.velocity.texen.ant, org.apache.velocity.texen.defaults
+ , org.apache.velocity.texen.util, org.apache.velocity.tools.generic, 
+ org.apache.velocity.tools.generic.log, org.apache.velocity.tools.view
+ , org.apache.velocity.tools.view.context, org.apache.velocity.tools.v
+ iew.i18n, org.apache.velocity.tools.view.servlet, org.apache.velocity
+ .tools.view.tools, org.apache.velocity.util, org.apache.velocity.util
+ .introspection
 Export-Package: org.paxle.crawler.http
 Bundle-ContactAddress: http://www.paxle.net/
 

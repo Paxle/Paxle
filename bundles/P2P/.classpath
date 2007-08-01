@@ -32,5 +32,35 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/HttpTools"/>
 	<classpathentry kind="lib" path="/HttpTools/libs/velocity-dep-1.5.jar"/>
 	<classpathentry kind="lib" path="/HttpTools/libs/velocity-tools-view-1.3.jar"/>
+	<classpathentry kind="lib" path="/HttpTools/libs/commons-codec-1.3.jar"/>
+	<classpathentry kind="lib" path="/HttpTools/libs/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.axis-osgi">
+		<attributes>
+			<attribute name="bundle-name" value="axis-osgi"/>
+			<attribute name="org.apache.axis" value="0.0.0"/>
+			<attribute name="org.apache.axis.client" value="0.0.0"/>
+			<attribute name="org.apache.axis.configuration" value="0.0.0"/>
+			<attribute name="org.apache.axis.description" value="0.0.0"/>
+			<attribute name="org.apache.axis.encoding" value="0.0.0"/>
+			<attribute name="org.apache.axis.enum" value="0.0.0"/>
+			<attribute name="org.apache.axis.soap" value="0.0.0"/>
+			<attribute name="org.apache.axis.types" value="0.0.0"/>
+			<attribute name="org.apache.axis.utils" value="0.0.0"/>
+			<attribute name="org.apache.axis.wsdl" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/apache/axis/wsdl/"/>
+			<accessrule kind="accessible" pattern="org/apache/axis/utils/"/>
+			<accessrule kind="accessible" pattern="org/apache/axis/types/"/>
+			<accessrule kind="accessible" pattern="org/apache/axis/soap/"/>
+			<accessrule kind="accessible" pattern="org/apache/axis/enum/"/>
+			<accessrule kind="accessible" pattern="org/apache/axis/encoding/"/>
+			<accessrule kind="accessible" pattern="org/apache/axis/description/"/>
+			<accessrule kind="accessible" pattern="org/apache/axis/configuration/"/>
+			<accessrule kind="accessible" pattern="org/apache/axis/client/"/>
+			<accessrule kind="accessible" pattern="org/apache/axis/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="out"/>
 </classpath>

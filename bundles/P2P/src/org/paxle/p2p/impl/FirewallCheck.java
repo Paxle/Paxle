@@ -1,6 +1,12 @@
 package org.paxle.p2p.impl;
 
 
+import java.io.IOException;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
@@ -50,7 +56,16 @@ public class FirewallCheck implements IFirewallCheck {
 		//TODO: if there is no peer (or we have no p2p implemented yet), ping webservice,
 		//TODO: which should pong us on /paxle/firewallcheck
 		this.timeout=System.currentTimeMillis()/1000 +timeout;
-		this.firewalled=CHECKING;
+		//this.firewalled=CHECKING;
+		HttpMethod method=new GetMethod("http://test.laxu.de/firewallcheck.php?port=8080");
+		HttpClient client=new HttpClient();
+		try {
+			int status = client.executeMethod(method);
+		} catch (HttpException e) {
+			firewalled=NOT_TESTED;
+		} catch (IOException e) {
+			firewalled=NOT_TESTED;
+		}
 	}
 
 }

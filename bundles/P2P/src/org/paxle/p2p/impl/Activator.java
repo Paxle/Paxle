@@ -7,6 +7,7 @@ import java.io.File;
 
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.NetworkManager;
+import net.jxta.platform.NetworkManager.ConfigMode;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -25,11 +26,20 @@ public class Activator implements BundleActivator {
   public void start(BundleContext context) throws Exception {
 //	  //EXAMPLE FROM: https://gisp.dev.java.net/
 //	  PeerGroup group = PeerGroupFactory.newNetPeerGroup();
+	  
+	  FirewallCheck check=new FirewallCheck(context);
+	  check.startFirewallCheck(10);
+	  Thread.sleep(1000*10);
+	  ConfigMode mode=NetworkManager.ConfigMode.EDGE; //failsafe
+	  if(check.getStatus()==FirewallCheck.NOT_FIREWALLED){
+		  mode=NetworkManager.ConfigMode.RENDEZVOUS_RELAY;
+		  System.out.println("great, we are not firewalled! RENDEZVOUS_RELAY mode!");
+	  }
+	  
 	  NetworkManager manager = null;
       try {
-          manager = new NetworkManager(NetworkManager.ConfigMode.EDGE, "DiscoveryServer"
-                  ,
-                  new File(new File(".cache"), "DiscoveryServer").toURI());
+          manager = new NetworkManager(mode, "DiscoveryServer",
+        		  new File(new File(".cache"), "DiscoveryServer").toURI());
           manager.startNetwork();
       } catch (Exception e) {
           e.printStackTrace();
