@@ -11,43 +11,6 @@ Bundle-Version: 1.0.0
 DynamicImport-Package: sun.*, org.xml.sax.*, javax.security.*
 Import-Package: org.osgi.framework, javax.servlet.http, org.apache.vel
  ocity, org.apache.velocity.app, org.apache.velocity.tools.view.servle
- t, org.osgi.service.http, org.apache.velocity.context, org.apache.com
- mons.httpclient, org.apache.commons.httpclient.methods, org.apache.ax
- is, org.apache.axis.client, org.apache.axis.configuration, org.apache
- .axis.description, org.apache.axis.encoding, org.apache.axis.enum, or
- g.apache.axis.soap, org.apache.axis.types, org.apache.axis.utils, org
- .apache.axis.wsdl, org.apache.commons.collections, org.apache.commons
- .collections.iterators, org.apache.commons.collections.map, org.apach
- e.commons.digester, org.apache.commons.digester.parser, org.apache.co
- mmons.digester.plugins, org.apache.commons.digester.plugins.strategie
- s, org.apache.commons.digester.substitution, org.apache.commons.diges
- ter.xmlrules, org.apache.commons.lang, org.apache.commons.lang.builde
- r, org.apache.commons.lang.enum, org.apache.commons.lang.enums, org.a
- pache.commons.lang.exception, org.apache.commons.lang.math, org.apach
- e.commons.lang.mutable, org.apache.commons.lang.time, org.apache.comm
- ons.logging, org.apache.crimson.jaxp, org.apache.oro.io, org.apache.o
- ro.text, org.apache.oro.text.awk, org.apache.oro.text.perl, org.apach
- e.oro.text.regex, org.apache.oro.util, org.apache.velocity.anakia, or
- g.apache.velocity.app.event, org.apache.velocity.app.event.implement,
-  org.apache.velocity.app.tools, org.apache.velocity.convert, org.apac
- he.velocity.exception, org.apache.velocity.io, org.apache.velocity.ru
- ntime, org.apache.velocity.runtime.defaults, org.apache.velocity.runt
- ime.directive, org.apache.velocity.runtime.log, org.apache.velocity.r
- untime.parser, org.apache.velocity.runtime.parser.node, org.apache.ve
- locity.runtime.resource, org.apache.velocity.runtime.resource.loader,
-  org.apache.velocity.runtime.resource.util, org.apache.velocity.runti
- me.visitor, org.apache.velocity.servlet, org.apache.velocity.texen, o
- rg.apache.velocity.texen.ant, org.apache.velocity.texen.defaults, org
- .apache.velocity.texen.util, org.apache.velocity.tools.generic, org.a
- pache.velocity.tools.generic.log, org.apache.velocity.tools.view, org
- .apache.velocity.tools.view.context, org.apache.velocity.tools.view.i
- 18n, org.apache.velocity.tools.view.tools, org.apache.velocity.util, 
- org.apache.velocity.util.introspection, org.apache.commons.codec, org
- .apache.commons.codec.binary, org.apache.commons.codec.digest, org.ap
- ache.commons.codec.language, org.apache.commons.codec.net, org.apache
- .commons.httpclient.auth, org.apache.commons.httpclient.cookie, org.a
- pache.commons.httpclient.methods.multipart, org.apache.commons.httpcl
- ient.params, org.apache.commons.httpclient.protocol, org.apache.commo
- ns.httpclient.util
-Export-Package: org.paxle.p2p, org.paxle.p2p.impl
+ t, org.osgi.service.http, org.apache.velocity.context
+Export-Package: org.paxle.p2p, org.paxle.p2p.impl 
 
