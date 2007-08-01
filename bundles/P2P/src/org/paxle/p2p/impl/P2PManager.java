@@ -3,20 +3,21 @@ package org.paxle.p2p.impl;
 import java.io.File;
 import java.io.IOException;
 
-import org.paxle.p2p.IP2PManager;
-
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.NetworkManager;
 import net.jxta.platform.NetworkManager.ConfigMode;
 
+import org.paxle.p2p.IP2PManager;
+
 import com.axlight.jnushare.gisp.GISPImpl;
-import com.axlight.jnushare.gisp.ResultListener;
 
 public class P2PManager implements IP2PManager {
 	private NetworkManager manager = null;
 	private PeerGroup group = null;
+	private GISPImpl gisp = null;
 	
 	public void init() {
+		// init JXTA
 		try {
 			manager = new NetworkManager(
 					// the network mode
@@ -31,26 +32,31 @@ public class P2PManager implements IP2PManager {
 		}
 		this.group = manager.getNetPeerGroup();
 
-		GISPImpl gisp = new GISPImpl();
+		// init GISP
+		gisp = new GISPImpl();
 		gisp.init(group, null, null);
 		gisp.startApp(null);
 
-
-		gisp.insert("tag1", "this is a string");
-
-		gisp.query("tag1", new ResultListener(){
-			public void stringResult(String data){
-				System.out.println("Got result: " + data);
-			}
-			public void xmlResult(byte[] data){
-			}
-			public void queryExpired(){
-			}
-		});		
+//		gisp.insert("tag1", "this is a string");
+//		gisp.query("tag1", new ResultListener(){
+//			public void stringResult(String data){
+//				System.out.println("Got result: " + data);
+//			}
+//			public void xmlResult(byte[] data){
+//			}
+//			public void queryExpired(){
+//			}
+//		});		
 	}
 	
 	public void stop() {
-		// TODO: shutdown P2P network
+		// TODO: close pipes
+		
+		// stop gisp
+		gisp.stopApp();
+		
+		// stop network
+		manager.stopNetwork();
 	}
 	
 	public void setMode(ConfigMode mode) {

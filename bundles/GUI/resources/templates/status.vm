@@ -37,7 +37,7 @@
 	
 	#set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
 	#if($subParserManager)
-		<h2>Crawler:</h2>
+		<h2>Parser:</h2>
 		#set($parsers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))	
 		#if ($parsers)
 			#foreach($parser in $parsers)
