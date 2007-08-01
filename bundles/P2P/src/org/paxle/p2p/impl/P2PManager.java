@@ -3,6 +3,8 @@ package org.paxle.p2p.impl;
 import java.io.File;
 import java.io.IOException;
 
+import org.paxle.p2p.IP2PManager;
+
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.NetworkManager;
 import net.jxta.platform.NetworkManager.ConfigMode;
@@ -10,20 +12,24 @@ import net.jxta.platform.NetworkManager.ConfigMode;
 import com.axlight.jnushare.gisp.GISPImpl;
 import com.axlight.jnushare.gisp.ResultListener;
 
-public class P2PManager {
-	private NetworkManager manager = null;	
+public class P2PManager implements IP2PManager {
+	private NetworkManager manager = null;
+	private PeerGroup group = null;
 	
 	public void init() {
 		try {
-			manager = new NetworkManager(NetworkManager.ConfigMode.EDGE, "DiscoveryServer",
+			manager = new NetworkManager(
+					// the network mode
+					NetworkManager.ConfigMode.EDGE,
+					// the peer name
+					"DiscoveryServer",
 					new File(new File(".cache"), "DiscoveryServer").toURI());
 			manager.startNetwork();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-		PeerGroup group = manager.getNetPeerGroup();	  
-
+		this.group = manager.getNetPeerGroup();
 
 		GISPImpl gisp = new GISPImpl();
 		gisp.init(group, null, null);
@@ -56,4 +62,21 @@ public class P2PManager {
 			e.printStackTrace();
 		}
 	}
+
+	public String getPeerID() {
+		return this.manager.getPeerID().toString();
+	}
+	
+	public String getPeerName() {
+		return this.group.getPeerName();
+	}
+		
+	public String getGroupID() {
+		return this.group.getPeerGroupID().toString();
+	}
+	
+	public String getGroupName() {
+		return this.group.getPeerGroupName();
+	}
+	
 }

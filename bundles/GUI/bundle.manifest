@@ -9,6 +9,6 @@ Bundle-Version: 1.0.0
 Import-Package: org.osgi.framework, org.osgi.service.http, javax.servl
  et.http, org.paxle.core.data, org.paxle.core.queue, org.apache.veloci
  ty, org.apache.velocity.app, org.apache.velocity.context, org.apache.
- velocity.tools.view.servlet, javax.servlet
+ velocity.tools.view.servlet, javax.servlet, org.paxle.p2p
 Bundle-ContactAddress: http://www.paxle.net/
 

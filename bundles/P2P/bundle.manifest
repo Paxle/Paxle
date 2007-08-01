@@ -4,9 +4,9 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-SymbolicName: P2P
 Bundle-ManifestVersion: 2
 Bundle-Activator: org.paxle.p2p.impl.Activator
-Bundle-ClassPath: ., gisp/lib/dom4j.jar, gisp/lib/jxta.jar, gisp/lib/log
- 4j.jar, gisp/lib/junit.jar, libs/bcprov-jdk15-132.jar, libs/xerces.jar,
-  libs/xml-apis.jar, libs/xmlParserAPIs.jar
+Bundle-ClassPath: ., gisp/lib/dom4j.jar, gisp/lib/jxta.jar, gisp/lib/l
+ og4j.jar, gisp/lib/junit.jar, libs/bcprov-jdk15-132.jar, libs/xerces.
+ jar, libs/xml-apis.jar, libs/xmlParserAPIs.jar
 Bundle-Version: 1.0.0
 DynamicImport-Package: sun.*, org.xml.sax.*, javax.security.*
 Import-Package: org.osgi.framework, javax.servlet.http, org.apache.vel

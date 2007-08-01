@@ -64,5 +64,18 @@
 		</table>
 	#end	
 	
+	
+	#set($p2pManager = $manager.getService("org.paxle.p2p.IP2PManager"))
+	#if($p2pManager)
+		<h2>P2P-Manager:</h2>
+		<table>
+			<tr><td>Peer ID:</td><td>$p2pManager.getPeerID()</td></tr>
+			<tr><td>Peer Name:</td><td>$p2pManager.getPeerName()</td></tr>
+			<tr><td>Group ID:</td><td>$p2pManager.getGroupID()</td></tr>
+			<tr><td>Group Name:</td><td>$p2pManager.getGroupName()</td></tr>			
+		</table>
+	#end
+	
+	
 </body>
 </html>

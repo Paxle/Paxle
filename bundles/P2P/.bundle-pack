@@ -9,4 +9,5 @@
 <resource dst="libs/xerces.jar" src="/P2P/libs/xerces.jar" type="1"/>
 <resource dst="libs/xml-apis.jar" src="/P2P/libs/xml-apis.jar" type="1"/>
 <resource dst="libs/xmlParserAPIs.jar" src="/P2P/libs/xmlParserAPIs.jar" type="1"/>
+<resource dst="resources" src="/P2P/resources" type="2"/>
 </bundlejar>

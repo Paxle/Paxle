@@ -23,7 +23,7 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/HttpTools"/>
 	<classpathentry kind="lib" path="/HttpTools/libs/commons-digester-1.8.jar"/>
-	<classpathentry kind="lib" path="/HttpTools/libs/velocity-dep-1.5.jar"/>
+	<classpathentry kind="lib" path="/HttpTools/libs/velocity-dep-1.5.jar" sourcepath="/home/theli/workspace/Libs/velocity-1.5.zip"/>
 	<classpathentry kind="lib" path="/HttpTools/libs/velocity-tools-view-1.3.jar"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.jsdk-LIB">
 		<attributes>
@@ -34,6 +34,16 @@
 		<accessrules>
 			<accessrule kind="accessible" pattern="javax/servlet/"/>
 			<accessrule kind="accessible" pattern="javax/servlet/http/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/P2P">
+		<attributes>
+			<attribute name="bundle-name" value="P2P"/>
+			<attribute name="org.paxle.p2p" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/p2p/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
