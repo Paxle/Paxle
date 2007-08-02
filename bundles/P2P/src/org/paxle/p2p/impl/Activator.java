@@ -45,11 +45,12 @@ public class Activator implements BundleActivator {
 		// register the P2P-manager as a osgi service
 		bc.registerService(IP2PManager.class.getName(), p2pManager, null);		
 		
+		// init passive firewall check (hit on /paxle/firewallcheck means: not firewalled)
+		initFirewallCheckPassive();
+		
 		// init active firewall check
 		this.initFirewallCheckActive();
 		
-		// init passive firewall check
-		//initFirewallCheckPassive();
 	}
 
 	/**
@@ -65,7 +66,7 @@ public class Activator implements BundleActivator {
 	}
 	
 	private void initFirewallCheckActive() {
-		new FirewallCheck(p2pManager);
+		new PingFirewallcheckService("http://test.laxu.de/firewallcheck.php?port=8080");
 	}
 	
 	private void initFirewallCheckPassive() {
