@@ -1,6 +1,7 @@
 package org.paxle.p2p.impl;
 
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -58,4 +59,12 @@ public class P2PTools {
         // Use lower case to avoid any locale conversion inconsistencies
         return IDFactory.newPeerGroupID(PeerGroupID.defaultNetPeerGroupID, hash(groupName.toLowerCase()));
     }    
+    
+	public static String getComputerName() {
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (Exception e) {
+			return "unknown";
+		}
+	}    
 }

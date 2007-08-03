@@ -2,12 +2,20 @@ package org.paxle.p2p.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import net.jxta.credential.AuthenticationCredential;
+import net.jxta.credential.Credential;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredTextDocument;
+import net.jxta.membership.Authenticator;
+import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.NetworkManager;
@@ -33,7 +41,7 @@ public class P2PManager implements IP2PManager {
 					// the network mode
 					NetworkManager.ConfigMode.EDGE,
 					// the peer name
-					"DiscoveryServer",
+					P2PTools.getComputerName(),
 					new File(new File(".cache"), "DiscoveryServer").toURI());
 			manager.startNetwork();
 		} catch (Exception e) {
@@ -41,12 +49,16 @@ public class P2PManager implements IP2PManager {
 			System.exit(-1);
 		}
 		
+		// create our Paxle peer group
 		try {
 			this.group = this.createPeerGroup();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} //manager.getNetPeerGroup();
+		} 
+		
+		// join the group
+		this.joinGroup(this.group);
 
 		// init GISP
 		gisp = new GISPImpl();
@@ -138,6 +150,46 @@ public class P2PManager implements IP2PManager {
         return pg;
 	}
 	
+	private void joinGroup(PeerGroup grp)  {
+		System.out.println("Joining peer group...");
+        
+		StructuredDocument creds = null;
+        
+		try {
+			// Generate the credentials for the Peer Group
+			AuthenticationCredential authCred = new AuthenticationCredential( grp, null, creds );
+            
+			// Get the MembershipService from the peer group
+			MembershipService membership = grp.getMembershipService();
+            
+			// Get the Authenticator from the Authentication creds
+			Authenticator auth = membership.apply( authCred );
+            
+			// Check if everything is okay to join the group
+			if (auth.isReadyForJoin()) {
+				Credential myCred = membership.join(auth);
+
+				System.out.println("Successfully joined group " + grp.getPeerGroupName());
+                
+				// display the credential as a plain text document.
+				System.out.println("\nCredential: ");
+				StructuredTextDocument doc = (StructuredTextDocument)
+					myCred.getDocument(new MimeMediaType("text/plain"));
+                
+				StringWriter out = new StringWriter();
+				doc.sendToWriter(out);
+				System.out.println(out.toString());
+				out.close();
+			} else {
+				System.out.println("Failure: unable to join group");
+			}
+		} catch (Exception e) {
+			System.out.println("Failure in authentication.");
+			e.printStackTrace();
+		}
+	}
+	
+	
 	public void stop() {
 		// TODO: close pipes
 		
@@ -159,7 +211,7 @@ public class P2PManager implements IP2PManager {
 	}
 
 	public String getPeerID() {
-		return this.manager.getPeerID().toString();
+		return this.manager.getPeerID().getUniqueValue().toString();
 	}
 	
 	public String getPeerName() {
@@ -167,7 +219,7 @@ public class P2PManager implements IP2PManager {
 	}
 		
 	public String getGroupID() {
-		return this.group.getPeerGroupID().toString();
+		return this.group.getPeerGroupID().getUniqueValue().toString();
 	}
 	
 	public String getGroupName() {
