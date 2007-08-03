@@ -4,23 +4,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
-import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
-import org.apache.velocity.tools.view.servlet.VelocityViewServlet;
 
 
-public class StatusView extends VelocityViewServlet {
+public class StatusView extends AServlet {
 	
-	private static final long serialVersionUID = 1L;
-	
-	private ServiceManager manager = null;
-    private VelocityEngine velocity = null;
-	
-	public StatusView(ServiceManager manager, VelocityEngine velocity) {
-		this.manager = manager;
-        this.velocity = velocity;
+	public StatusView(ServiceManager manager) {
+		super(manager);
 	}
-	
+
     public Template handleRequest( HttpServletRequest request,
                                    HttpServletResponse response,
                                    Context context ) {
@@ -37,9 +29,8 @@ public class StatusView extends VelocityViewServlet {
         	/*
         	 * Setting template parameters
         	 */
-            context.put("manager", this.manager);     
-            
-            template = this.velocity.getTemplate("/resources/templates/status.vm");
+            context.put("manager", this.manager);                 
+            template = this.getTemplate("/resources/templates/status.vm");
         } catch( Exception e ) {
         	e.printStackTrace();
         } catch (Error e) {

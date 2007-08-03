@@ -1,5 +1,6 @@
 package org.paxle.gui.impl;
 
+import java.util.Hashtable;
 import java.util.Properties;
 
 import org.apache.velocity.app.VelocityEngine;
@@ -21,27 +22,21 @@ public class Activator implements BundleActivator {
 		bc = context;		
 		manager = new ServiceManager(bc);
 		
-		// initialize Velocity
-		// ATTENTION: it's important to do this before registering the servlet!
-		// Otherwise velocity is initialized with default properties and will
-		// not be able to load templates that are embedded in our jar file		
-		Properties velocityConfig = new Properties();
-		velocityConfig.load(Activator.class.getResourceAsStream("/resources/velocity.properties"));
-		velocityConfig.setProperty("jar.resource.loader.path", "jar:" + context.getBundle().getLocation());		
-		velocity = new VelocityEngine();
-		velocity.init(velocityConfig);		
-		
 		// getting a reference to the osgi http service
 		ServiceReference sr = bc.getServiceReference(HttpService.class.getName());
 		if(sr != null) {
 			// getting the http service
 			http = (HttpService)bc.getService(sr);
 			if(http != null) {				
+				Hashtable<String, String> props = new Hashtable<String, String>();
+				props.put("org.apache.velocity.properties", "/resources/velocity.properties");
+				props.put("bundle.location",context.getBundle().getLocation());
+				
 				// registering the servlet which will be accessible using 
-				http.registerServlet("/status", new StatusView(manager, velocity), null, null);
-                http.registerServlet("/crawler", new CrawlerView(manager, velocity), null, null);
-                http.registerServlet("/bundle", new BundleView(manager, velocity), null, null);
-                http.registerServlet("/log", new LogView(manager, velocity), null, null);
+				http.registerServlet("/status", new StatusView(manager), props, null);
+                http.registerServlet("/crawler", new CrawlerView(manager), props, null);
+                http.registerServlet("/bundle", new BundleView(manager), props, null);
+                http.registerServlet("/log", new LogView(manager), props, null);
 			}
 		}		
 	}

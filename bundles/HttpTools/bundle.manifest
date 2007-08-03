@@ -30,7 +30,8 @@ Export-Package: org.apache.commons.httpclient, org.apache.commons.http
  ols.view, org.apache.velocity.tools.view.context, org.apache.velocity
  .tools.view.i18n, org.apache.velocity.tools.view.servlet, org.apache.
  velocity.tools.view.tools, org.apache.velocity.util, org.apache.veloc
- ity.util.introspection
+ ity.util.introspection, org.apache.commons.collections, org.apache.co
+ mmons.collections.iterators, org.apache.commons.collections.map
 Bundle-Version: 1.0.0
 DynamicImport-Package: *
 

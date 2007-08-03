@@ -1,0 +1,31 @@
+package org.paxle.gui.impl;
+
+import java.io.IOException;
+
+import javax.servlet.ServletConfig;
+
+import org.apache.commons.collections.ExtendedProperties;
+import org.apache.velocity.tools.view.servlet.VelocityLayoutServlet;
+
+public class AServlet extends VelocityLayoutServlet {
+	
+	/**
+	 * Manager class to access other components registered via OSGi
+	 */
+	protected ServiceManager manager = null;
+	
+	public AServlet(ServiceManager manager) {
+		this.manager = manager;
+	}
+	
+	/**
+	 * This function is required to set the velocity jar-resource-loader path to the bundle location
+	 * Don't remove this!
+	 */
+	@Override
+	protected ExtendedProperties loadConfiguration(ServletConfig config) throws IOException {
+		ExtendedProperties props = super.loadConfiguration(config);
+		props.addProperty("jar.resource.loader.path", "jar:" + config.getInitParameter("bundle.location"));
+		return props;
+	}
+}

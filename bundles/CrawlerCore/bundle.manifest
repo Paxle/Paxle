@@ -12,3 +12,4 @@ Bundle-Description: Paxle Core Crawler Bundle
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ContactAddress: http://www.paxle.net/
 DynamicImport-Package: sun.reflect
+

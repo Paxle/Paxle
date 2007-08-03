@@ -24,7 +24,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/HttpTools"/>
 	<classpathentry kind="lib" path="/HttpTools/libs/commons-digester-1.8.jar"/>
 	<classpathentry kind="lib" path="/HttpTools/libs/velocity-dep-1.5.jar" sourcepath="/home/theli/workspace/Libs/velocity-1.5.zip"/>
-	<classpathentry kind="lib" path="/HttpTools/libs/velocity-tools-view-1.3.jar"/>
+	<classpathentry kind="lib" path="/HttpTools/libs/velocity-tools-view-1.3.jar" sourcepath="/home/theli/workspace/Libs/velocity-tools-1.3-src.zip"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.jsdk-LIB">
 		<attributes>
 			<attribute name="bundle-name" value="JSDK-LIB"/>

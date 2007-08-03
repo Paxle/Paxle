@@ -31,11 +31,11 @@ public class CrawlerWorker extends AWorker<ICommand> {
 
 			// get a sub-crawler that is capable to handle the specified protocol
 			String protocol = url.getProtocol();
-			this.logger.warn("Fetching crawler for protocol: " + protocol);
+			this.logger.info("Fetching crawler for protocol: " + protocol);
 			
 			ISubCrawler crawler = this.subCrawlerManager.getSubCrawler(protocol);
 			if (crawler == null) {
-				System.out.println("No crawler for protocol '" + protocol + "' found.");
+				this.logger.warn("No crawler for protocol '" + protocol + "' found.");
 				command.setResult(ICommand.Result.Failure, "No crawler for protocol '" + protocol + "' found.");
 				return;
 			}			
