@@ -4,19 +4,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
+import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.view.servlet.VelocityViewServlet;
+import org.osgi.service.log.LogService;
+import org.paxle.core.data.IDataSink;
+import org.paxle.core.queue.Command;
 
 
-public class StatusView extends VelocityViewServlet {
-	
-	private static final long serialVersionUID = 1L;
-	
+public class LogView extends VelocityViewServlet {
 	private ServiceManager manager = null;
     private VelocityEngine velocity = null;
 	
-	public StatusView(ServiceManager manager, VelocityEngine velocity) {
+	public LogView(ServiceManager manager, VelocityEngine velocity) {
 		this.manager = manager;
         this.velocity = velocity;
 	}
@@ -28,22 +29,18 @@ public class StatusView extends VelocityViewServlet {
         Template template = null;
 
         try {
-        	if (request.getParameter("shutdown") != null) {
-        		this.manager.shutdownFramework();
-        	} else if (request.getParameter("restart") != null) {
-        		this.manager.restartFramework();
-        	}
-        	
         	/*
         	 * Setting template parameters
-        	 */
+        	 */        	        	
             context.put("manager", this.manager);     
+            context.put("LEVEL_ERROR",Integer.toString(LogService.LOG_ERROR));
+            context.put("LEVEL_WARNING",Integer.toString(LogService.LOG_WARNING));
+            context.put("LEVEL_INFO",Integer.toString(LogService.LOG_INFO));
+            context.put("LEVEL_DEBUG",Integer.toString(LogService.LOG_DEBUG));
             
-            template = this.velocity.getTemplate("/resources/templates/status.vm");
+            template = this.velocity.getTemplate("/resources/templates/LogView.vm");
         } catch( Exception e ) {
-        	e.printStackTrace();
-        } catch (Error e) {
-        	e.printStackTrace();
+          System.err.println("Exception caught: " + e.getMessage());
         }
 
         return template;

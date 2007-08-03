@@ -1,9 +1,7 @@
 package org.paxle.gui.impl;
 
-import java.net.URL;
 import java.util.Properties;
 
-import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -18,6 +16,8 @@ public class Activator implements BundleActivator {
 	private static VelocityEngine velocity = null;
 
 	public void start(BundleContext context) throws Exception {
+		Class class1 = Class.forName("sun.reflect.MethodAccessorImpl");
+		
 		bc = context;		
 		manager = new ServiceManager(bc);
 		
@@ -41,6 +41,7 @@ public class Activator implements BundleActivator {
 				http.registerServlet("/status", new StatusView(manager, velocity), null, null);
                 http.registerServlet("/crawler", new CrawlerView(manager, velocity), null, null);
                 http.registerServlet("/bundle", new BundleView(manager, velocity), null, null);
+                http.registerServlet("/log", new LogView(manager, velocity), null, null);
 			}
 		}		
 	}

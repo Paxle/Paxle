@@ -5,5 +5,6 @@
 <resource dst="libs/commons-digester-1.8.jar" src="/HttpTools/libs/commons-digester-1.8.jar" type="1"/>
 <resource dst="libs/commons-httpclient-3.0.1.jar" src="/HttpTools/libs/commons-httpclient-3.0.1.jar" type="1"/>
 <resource dst="libs/velocity-dep-1.5.jar" src="/HttpTools/libs/velocity-dep-1.5.jar" type="1"/>
+<resource dst="libs/velocity-tools-generic-1.3.jar" src="/HttpTools/libs/velocity-tools-generic-1.3.jar" type="1"/>
 <resource dst="libs/velocity-tools-view-1.3.jar" src="/HttpTools/libs/velocity-tools-view-1.3.jar" type="1"/>
 </bundlejar>

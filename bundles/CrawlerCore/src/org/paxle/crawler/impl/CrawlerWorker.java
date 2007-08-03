@@ -2,12 +2,16 @@ package org.paxle.crawler.impl;
 
 import java.net.URL;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 import org.paxle.crawler.ISubCrawler;
 
 public class CrawlerWorker extends AWorker<ICommand> {
+	
+	protected Log logger = LogFactory.getLog(CrawlerWorker.class);
 	
 	/**
 	 * A class to manage {@link ISubCrawler sub-crawlers}
@@ -27,7 +31,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 
 			// get a sub-crawler that is capable to handle the specified protocol
 			String protocol = url.getProtocol();
-			System.out.println("Fetching crawler for protocol: " + protocol);
+			this.logger.warn("Fetching crawler for protocol: " + protocol);
 			
 			ISubCrawler crawler = this.subCrawlerManager.getSubCrawler(protocol);
 			if (crawler == null) {
