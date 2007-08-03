@@ -2,15 +2,18 @@ package org.paxle.p2p.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import net.jxta.discovery.DiscoveryService;
+import net.jxta.document.Advertisement;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.NetworkManager;
 import net.jxta.platform.NetworkManager.ConfigMode;
 import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 
 import org.paxle.p2p.IP2PManager;
@@ -60,6 +63,27 @@ public class P2PManager implements IP2PManager {
 //			public void queryExpired(){
 //			}
 //		});		
+	}
+	
+	public String[] getPeerList() {
+		List<String> peers = new ArrayList<String>();
+		
+		try {
+			// obtain the the discovery service
+			DiscoveryService discoSvc = this.group.getDiscoveryService();
+			Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, null, null);
+			while (advs.hasMoreElements()) {
+				Advertisement adv=advs.nextElement();
+				if (adv instanceof PeerAdvertisement) {
+					PeerAdvertisement peerAdv = (PeerAdvertisement) adv;
+					peers.add(peerAdv.getName());
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return peers.toArray(new String[peers.size()]);
 	}
 	
 	private PeerGroupID createGroupID(String groupName) {

@@ -11,3 +11,4 @@ Export-Package: org.paxle.parser, org.paxle.parser.iotools
 Bundle-Description: Paxle Core-Parser Bundle
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ContactAddress: http://www.paxle.net/
+DynamicImport-Package: sun.reflect

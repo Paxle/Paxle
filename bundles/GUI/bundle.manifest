@@ -11,4 +11,5 @@ Import-Package: org.osgi.framework, org.osgi.service.http, javax.servl
  ty, org.apache.velocity.app, org.apache.velocity.context, org.apache.
  velocity.tools.view.servlet, javax.servlet, org.paxle.p2p
 Bundle-ContactAddress: http://www.paxle.net/
+DynamicImport-Package: *
 

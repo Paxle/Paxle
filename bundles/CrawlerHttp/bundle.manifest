@@ -12,5 +12,6 @@ Import-Package: org.osgi.framework, org.paxle.crawler, org.paxle.core.
  hods, org.apache.commons.httpclient.util
 Export-Package: org.paxle.crawler.http
 Bundle-ContactAddress: http://www.paxle.net/
+DynamicImport-Package: sun.reflect
 
 

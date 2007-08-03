@@ -11,3 +11,4 @@ Export-Package: org.paxle.core.queue, org.paxle.core.threading, org.pa
  doc, org.paxle.core.mimetype
 Bundle-Version: 1.0.0
 Bundle-ContactAddress: http://www.paxle.net/
+DynamicImport-Package: sun.reflect

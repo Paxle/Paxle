@@ -74,8 +74,15 @@
 			<tr><td>Group ID:</td><td>$p2pManager.getGroupID()</td></tr>
 			<tr><td>Group Name:</td><td>$p2pManager.getGroupName()</td></tr>			
 		</table>
-	#end
-	
+		
+		<h3>Known Peers</h3>
+		<table>
+		#set($peers = $p2pManager.getPeerList())
+		#foreach($peer in $peers)		
+			<tr><td>$peer</td></tr>
+		#end
+		</table>
+	#end	
 	
 </body>
 </html>

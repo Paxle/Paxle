@@ -8,7 +8,8 @@ Bundle-ClassPath: ., gisp/lib/dom4j.jar, gisp/lib/jxta.jar, gisp/lib/l
  og4j.jar, gisp/lib/junit.jar, libs/bcprov-jdk15-132.jar, libs/xerces.
  jar, libs/xml-apis.jar, libs/xmlParserAPIs.jar
 Bundle-Version: 1.0.0
-DynamicImport-Package: sun.*, org.xml.sax.*, javax.security.*
+DynamicImport-Package: sun.*, org.xml.sax.*, javax.security.*, sun.ref
+ lect
 Import-Package: org.osgi.framework, javax.servlet.http, org.apache.vel
  ocity, org.apache.velocity.app, org.apache.velocity.tools.view.servle
  t, org.osgi.service.http, org.apache.velocity.context, org.apache.com
