@@ -1,7 +1,6 @@
 package org.paxle.gui.impl;
 
 import java.util.Hashtable;
-import java.util.Properties;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.osgi.framework.BundleActivator;
@@ -14,11 +13,8 @@ public class Activator implements BundleActivator {
 	private static BundleContext bc;
 	private static HttpService http;
 	private static ServiceManager manager = null;
-	private static VelocityEngine velocity = null;
 
-	public void start(BundleContext context) throws Exception {
-		Class class1 = Class.forName("sun.reflect.MethodAccessorImpl");
-		
+	public void start(BundleContext context) throws Exception {		
 		bc = context;		
 		manager = new ServiceManager(bc);
 		
@@ -44,12 +40,14 @@ public class Activator implements BundleActivator {
 
 	public void stop(BundleContext context) throws Exception {
 		// unregister servlet
-		http.unregister("/status");		
+		http.unregister("/status");
+		http.unregister("/crawler");	
+		http.unregister("/bundle");
+		http.unregister("/log");
 		
 		// cleanup
 		manager = null;
 		http = null;
 		bc = null;
-		velocity = null;
 	}
 }
