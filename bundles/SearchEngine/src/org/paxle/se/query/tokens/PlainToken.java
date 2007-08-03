@@ -10,7 +10,7 @@ public class PlainToken implements IToken {
 		this.str = str;
 	}
 	
-	public String getString() {
+	public final String getString() {
 		return this.str;
 	}
 	

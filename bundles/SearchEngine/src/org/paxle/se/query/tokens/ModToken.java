@@ -16,6 +16,10 @@ public class ModToken implements IToken {
 		return this.token;
 	}
 	
+	public String getMod() {
+		return this.mod;
+	}
+	
 	public String getString() {
 		return this.mod + ':' + this.token.getString();
 	}

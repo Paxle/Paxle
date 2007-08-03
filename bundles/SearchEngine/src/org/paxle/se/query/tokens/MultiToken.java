@@ -5,12 +5,13 @@ import java.util.LinkedList;
 import org.paxle.se.query.IParentToken;
 import org.paxle.se.query.IToken;
 
-public class MultiToken extends PlainToken implements IParentToken {
+public class MultiToken implements IParentToken {
 	
 	protected final LinkedList<IToken> children = new LinkedList<IToken>();
+	protected final String str;
 	
 	public MultiToken(String name) {
-		super(name);
+		this.str = name;
 	}
 	
 	public void addToken(IToken child) {
@@ -22,8 +23,12 @@ public class MultiToken extends PlainToken implements IParentToken {
 		return this.children.toArray(new IToken[this.children.size()]);
 	}
 	
+	public final String getString() {
+		return "(" + getClass().getSimpleName() + ") '" + this.str + "'";
+	}
+	
 	public String toString() {
-		final StringBuilder sb = new StringBuilder(super.str);
+		final StringBuilder sb = new StringBuilder(this.str);
 		sb.append(" { ");
 		if (this.children.size() > 0) {
 			for (IToken t : this.children)

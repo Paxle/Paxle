@@ -10,6 +10,12 @@ import org.paxle.se.query.tokens.OrOperator;
 import org.paxle.se.query.tokens.PlainToken;
 import org.paxle.se.query.tokens.QuoteToken;
 
+/**
+ * This class provides a method to parse a paxle-query string as entered by a
+ * user into an abstract token-tree.
+ * 
+ * @see #parse(String)
+ */
 public class PaxleQueryParser {
 	
 	/**
@@ -26,28 +32,59 @@ public class PaxleQueryParser {
 		final LinkedList<String> tokens = new LinkedList<String>();
 		query = query.trim();
 		/* last will be set to the position in query of the end the currently processed term
-		 * loff is the position in query of the end of the last found term
-		 * t is a temporary variable for the last = [...]-statement in the middle of the loop */
-		int last = -1, loff, t;
+		 * loff is the position in query of the end of the last found term */
+		int last = -1, loff;
+		String text = null;
 		while (last < query.length()) {
 			loff = last + 1;
-			char first = 0;
 			/* eat up spaces to next term */
-			while (loff < query.length() && (first = query.charAt(loff)) == ' ')
+			while (loff < query.length() && query.charAt(loff) == ' ')
 				loff++;
 			
 			/* set last to the end of the next term (if it starts with a brace or quotation-mark, the
 			 * position is the closing brace respective quotation-mark) */
-			last = (first == '(' && (t = findMatching(query, loff)) > -1 ||
-					(loff + 1 < query.length() && first == '"' && (t = findMatching(query, loff + 1)) > -1)
-			) ? t + 1 : ((t = query.indexOf(' ', loff)) > -1) ? t : query.length();
+			last = findTokenEnd(query, loff);
 			
 			/* add the term to the found terms list */
-			final String text = query.substring(loff, last).trim();
+			text = query.substring(loff, last).trim();
 			if (text.length() > 0)
 				tokens.add(text);
 		}
 		return tokens.toArray(new String[tokens.size()]);
+	}
+	
+	/**
+	 * Searches for the end of the next token. This method is able to recognize the
+	 * following kinds of tokens:
+	 * <ul>
+	 *   <li>Mod-tokens: <code>prefix:token</code></li>
+	 *   <li>Quote-tokens: <code>"[...]"</code>, may include whitespaces</li>
+	 *   <li>Multi-tokens: <code>([...])</code>, may include whitespaces</li>
+	 *   <li>"normal" tokens not including any whitespaces</li>
+	 * </ul>
+	 * 
+	 * @param  query the string to search
+	 * @param  loff the start position in <code>query</code>
+	 * @return the position of the end of the found token in <code>query</code> plus
+	 *         <code>1</code> or the value of <code>query.length()</code> if the token
+	 *         does not end correctly
+	 */
+	private static int findTokenEnd(String query, int loff) {
+		int t, tt, c = 0;
+		int tloff = loff;
+		do {
+			char first = query.charAt(tloff);
+			t = (first == '(' && (t = findMatching(query, tloff)) > -1 ||
+					(tloff + 1 < query.length() && first == '"' && (t = findMatching(query, tloff + 1)) > -1)
+			) ? t + 1 : ((t = query.indexOf(' ', tloff)) > -1) ? t : query.length();
+			
+			if ((tt = query.indexOf(':', tloff)) < t && tt > -1) {
+				tloff = tt + 1;
+			} else {
+				break;
+			}
+		} while (c++ < 1);
+		return t;
 	}
 	
 	/**
@@ -119,6 +156,12 @@ public class PaxleQueryParser {
 		return orts.toArray(new String[orts.size()][]);
 	}
 	
+	private final ITokenFactory factory;
+	
+	public PaxleQueryParser(ITokenFactory factory) {
+		this.factory = factory;
+	}
+	
 	/**
 	 * Splits the given query-{@link String} into top-level tokens and processes these
 	 * tokens regarding the connection operator. This method recurses indirectly if a
@@ -132,7 +175,7 @@ public class PaxleQueryParser {
 	 * @param  query the paxle-query to process
 	 * @return an {@link IToken} containing all found tokens in <code>query</code>.
 	 */
-	public static IToken parse(String query) {
+	public IToken parse(String query) {
 		final String[] rts = lex(query);
 		if (rts.length == 0) return null;
 		if (rts.length == 1) {
@@ -144,7 +187,7 @@ public class PaxleQueryParser {
 			} else if (aots.length == 1) {
 				return and(aots[0]);
 			} else {
-				final Operator or = new OrOperator();
+				final Operator or = this.factory.createOrOperator();
 				for (String[] andts : aots)
 					or.addToken(and(andts));
 				return or;
@@ -162,13 +205,13 @@ public class PaxleQueryParser {
 	 * @return the resulting {@link IToken} or <code>null</code> if <code>tokens</code> is empty
 	 *         or contains only one invalid token.
 	 */
-	private static IToken and(String[] tokens) {
+	private IToken and(String[] tokens) {
 		if (tokens.length == 0) {
 			return null;
 		} else if (tokens.length == 1) {
 			return toToken(tokens[0]);
 		} else {
-			final AndOperator and = new AndOperator();
+			final Operator and = this.factory.createAndOperator();
 			for (final String t : tokens)
 				and.addToken(parse(t));
 			return and;
@@ -200,13 +243,19 @@ public class PaxleQueryParser {
 	 * @param  str the {@link String} to parse into a token
 	 * @return the {@link IToken} <code>str</code> has matched the conditions for
 	 */
-	private static IToken toToken(String str) {
+	private IToken toToken(String str) {
 		if (str.length() > 1) {
 			final char first = str.charAt(0);
 			final char last = str.charAt(str.length() - 1);
 			if (first == '"' && last == '"') {
 				final String cnt = str.substring(1, str.length() - 1).trim();
-				return (cnt.length() > 0) ? new QuoteToken(cnt) : null;
+				if (cnt.length() == 0) {
+					return null;
+				} else if (cnt.indexOf(' ') == -1) {
+					return this.factory.toPlainToken(cnt);
+				} else {
+					return this.factory.toQuoteToken(cnt);
+				}
 			} else if (first == '(' && last == ')') {
 				return parse(str.substring(1, str.length() - 1));
 			}
@@ -218,35 +267,63 @@ public class PaxleQueryParser {
 		if (colon > 0 && colon < str.length() - 1) {
 			final IToken pt = toToken(str.substring(colon + 1));
 			if (pt instanceof PlainToken) {
-				return new ModToken((PlainToken)pt, str.substring(0, colon));
+				return this.factory.toModToken((PlainToken)pt, str.substring(0, colon));
 			} else {
-				return new PlainToken(str);
+				return this.factory.toPlainToken(str);
 			}
 		} else if (str.equalsIgnoreCase("and") || str.equalsIgnoreCase("or")) {
 			return null;
 		} else {
-			return new PlainToken(str);
+			return this.factory.toPlainToken(str);
 		}
 	}
 	
+	
 	public static void main(String[] args) {
-		final String sb = "author:dies (ist or hat or \"denkt sich\" and so) ein text mit (\"leeren zeichen\" or title:leerzeichen) \"ne?!  \"";
-		//                 012345678901234567890123456 78901234567 8901234567890123 4567890 123456789012345 678901234567890123456789 0123456 7
-		//                 0         1         2          3          4         5          6          7          8         9          0
+		final String sb = "author:\"dies hier\" (ist or hat or \"denkt sich\" and so) ein text mit (\"leeren zeichen\" or title:leerzeichen) \"ne?!  \"";
+		//                 0123456 7890123456 78901234567890123 45678901234 567890123456789012345678 9012345 6789012 34567890123456789 012345 6789013 4
+		//                 0          1          2         3          4          5         6          7          8          9          0          1
 		//System.out.println(findMatching(sb, 24));
 		//System.out.println(findMatching(sb, 6));
-		System.out.println(parse(sb));
+		
+		PaxleQueryParser pqp = new PaxleQueryParser(new ITokenFactory() {
+			
+			public Operator createAndOperator() {
+				return new AndOperator();
+			}
+			
+			public Operator createOrOperator() {
+				return new OrOperator();
+			}
+			
+			public ModToken toModToken(PlainToken token, String mod) {
+				return new ModToken(token, mod);
+			}
+			
+			public PlainToken toPlainToken(String str) {
+				return new PlainToken(str);
+			}
+			
+			public QuoteToken toQuoteToken(String str) {
+				return new QuoteToken(str);
+			}
+		});
+		
+		
+		System.out.println(pqp.parse(sb));
+		
 		/*
 		String[] ss = lex(sb);
 		int c = 0;
 		for (String s : ss) {
-			Token t = toToken(s);
-			System.out.println(c++ + ": " + t.toString());
-		}*/
-		
+			//IToken t = pqp.toToken(s);
+			System.out.println(c++ + ": " + s);
+		}
+		*/
 		//PaxleQueryParser pqp = new PaxleQueryParser(new TF());
 		//final Expression sse = pqp.parse(sb);
 		
 		//System.out.println(sse.toString());
 	}
+	
 }
