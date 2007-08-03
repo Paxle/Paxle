@@ -33,7 +33,7 @@ public class CommandReader extends Thread implements IDataProvider<ICommand>, Un
 	/**
 	 * @see IDataProvider#setDataSink(IDataSink)
 	 */
-	public void setDataSink(IDataSink<ICommand> dataSink) {
+	public synchronized void setDataSink(IDataSink<ICommand> dataSink) {
 		if (dataSink == null) throw new NullPointerException("The data-sink is null-");
 		if (this.sink != null) throw new IllegalStateException("The data-sink was already set.");
 		this.sink = dataSink;
