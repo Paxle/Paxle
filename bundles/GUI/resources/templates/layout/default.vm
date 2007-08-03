@@ -1,0 +1,12 @@
+#parse( '/resources/templates/layout/header.vm' )
+
+<table cellpadding="10">
+<tr>
+  <!-- left nav -->
+  <td bgcolor="#99CCFF" valign="top" >
+    #parse( '/resources/templates/layout/menu.vm' )
+  </td>
+  <td>$screen_content</td>
+</tr>
+</table>
+#parse( '/resources/templates/layout/footer.vm' )

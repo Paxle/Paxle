@@ -1,92 +1,89 @@
-<html>
-<body>
-	<h1>Welcome to Paxle!</h1>
-	
-	<form>
-		<input type="submit" name="shutdown" value="Shutdown" />	
-		<input type="submit" name="restart" value="Restart" />
-	</form>
-	<hr />
-	
-	#set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
-	#if($subCrawlerManager)
-		<h2>Crawler:</h2>
-		#set($crawlers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
-		#if ($crawlers)
-			#foreach($crawler in $crawlers)
-				The crawler is 
-				#if($crawler.isPaused() == true)
-					<b><font color="red">paused</font></b>
-				#else 
-					<b><font color="green">running</font></b>
-				#end.
-			#end
+## Set the page title
+#set( $page_title = "Paxle Status Page" )
+
+## the regular content
+<form>
+	<input type="submit" name="shutdown" value="Shutdown" />	
+	<input type="submit" name="restart" value="Restart" />
+</form>
+<hr />
+
+#set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
+#if($subCrawlerManager)
+	<h2>Crawler:</h2>
+	#set($crawlers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
+	#if ($crawlers)
+		#foreach($crawler in $crawlers)
+			The crawler is 
+			#if($crawler.isPaused() == true)
+				<b><font color="red">paused</font></b>
+			#else 
+				<b><font color="green">running</font></b>
+			#end.
 		#end
-	
-		<h3>Supported Protocols:</h3>	
-		$subCrawlerManager.getSubCrawlers().size() crawler(s) found:<br />
-		
-		<table border="1">
-			<tr><th>Protocol</th></tr>
-			#foreach($subCrawler in $subCrawlerManager.getSubCrawlers())
-			<tr>		
-				<td>$subCrawler.getProtocol()</td>
-			</tr>
-			#end
-		</table>
-		<hr />
 	#end
+
+	<h3>Supported Protocols:</h3>	
+	$subCrawlerManager.getSubCrawlers().size() crawler(s) found:<br />
 	
-	#set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
-	#if($subParserManager)
-		<h2>Parser:</h2>
-		#set($parsers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))	
-		#if ($parsers)
-			#foreach($parser in $parsers)
-				The parser is 
-				#if($parser.isPaused() == true)
-					<b><font color="red">paused</font></b>
-				#else 
-					<b><font color="green">running</font></b>
-				#end.
-			#end
+	<table border="1">
+		<tr><th>Protocol</th></tr>
+		#foreach($subCrawler in $subCrawlerManager.getSubCrawlers())
+		<tr>		
+			<td>$subCrawler.getProtocol()</td>
+		</tr>
 		#end
-	
-		<h3>Supported mimetypes:</h3>	
-		#set($mimeTypes = $subParserManager.getMimeTypes())
-		#set($parsers = $subParserManager.getSubParsers())		
-		<b>$parsers.size()</b> parser(s) installed supporting <b>$mimeTypes.size()</b> mime-types.
-		
-		<table border="1">
-			<tr><th>MimeTypes</th></tr>
-			#foreach($mimeType in $mimeTypes)
-			<tr><td>$mimeType</td>
-			</tr>
-			#end
-		</table>
-		<hr />
-	#end	
-	
-	
-	#set($p2pManager = $manager.getService("org.paxle.p2p.IP2PManager"))
-	#if($p2pManager)
-		<h2>P2P-Manager:</h2>
-		<table>
-			<tr><td>Peer ID:</td><td>$p2pManager.getPeerID()</td></tr>
-			<tr><td>Peer Name:</td><td>$p2pManager.getPeerName()</td></tr>
-			<tr><td>Group ID:</td><td>$p2pManager.getGroupID()</td></tr>
-			<tr><td>Group Name:</td><td>$p2pManager.getGroupName()</td></tr>			
-		</table>
-		
-		<h3>Known Peers</h3>
-		<table>
-		#set($peers = $p2pManager.getPeerList())
-		#foreach($peer in $peers)		
-			<tr><td>$peer</td></tr>
+	</table>
+	<hr />
+#end
+
+#set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
+#if($subParserManager)
+	<h2>Parser:</h2>
+	#set($parsers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))	
+	#if ($parsers)
+		#foreach($parser in $parsers)
+			The parser is 
+			#if($parser.isPaused() == true)
+				<b><font color="red">paused</font></b>
+			#else 
+				<b><font color="green">running</font></b>
+			#end.
 		#end
-		</table>
-		<hr />
-	#end	
+	#end
+
+	<h3>Supported mimetypes:</h3>	
+	#set($mimeTypes = $subParserManager.getMimeTypes())
+	#set($parsers = $subParserManager.getSubParsers())		
+	<b>$parsers.size()</b> parser(s) installed supporting <b>$mimeTypes.size()</b> mime-types.
 	
-</body>
-</html>
+	<table border="1">
+		<tr><th>MimeTypes</th></tr>
+		#foreach($mimeType in $mimeTypes)
+		<tr><td>$mimeType</td>
+		</tr>
+		#end
+	</table>
+	<hr />
+#end	
+
+	
+#set($p2pManager = $manager.getService("org.paxle.p2p.IP2PManager"))
+#if($p2pManager)
+	<h2>P2P-Manager:</h2>
+	<table>
+		<tr><td>Peer ID:</td><td>$p2pManager.getPeerID()</td></tr>
+		<tr><td>Peer Name:</td><td>$p2pManager.getPeerName()</td></tr>
+		<tr><td>Group ID:</td><td>$p2pManager.getGroupID()</td></tr>
+		<tr><td>Group Name:</td><td>$p2pManager.getGroupName()</td></tr>			
+	</table>
+	
+	<h3>Known Peers</h3>
+	<table>
+	#set($peers = $p2pManager.getPeerList())
+	#foreach($peer in $peers)		
+		<tr><td>$peer</td></tr>
+	#end
+	</table>
+	<hr />
+#end	

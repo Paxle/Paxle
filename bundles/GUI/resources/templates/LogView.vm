@@ -1,33 +1,32 @@
-<html>
-<body>
-	<h1>View Log:</h1>
-	#set($logReader = $manager.getService("org.osgi.service.log.LogReaderService"))
-	#if($logReader)
-		<table border="1">
-		#foreach($logEntry in $logReader.getLog())
-			#set($level = $logEntry.getLevel())			
-			
-			<tr><td>
-			#if($level == $LEVEL_ERROR)E
-			#elseif($level == $LEVEL_WARNING)W
-			#elseif($level == $LEVEL_INFO)I
-			#elseif($level == $LEVEL_DEBUG)D
-			#end
-			</td>
-			<td>$logEntry.getTime()</td>
-			<td>$logEntry.getMessage()</td>
-			<td>
-			#set($exception = $logEntry.getException())
-			#if($exception)
-				$exception
-			#end
-			</td>
-			</tr>
+## Set the page title
+#set( $page_title = "Log View" )
+
+## the regular content
+<h1>View Log:</h1>
+#set($logReader = $manager.getService("org.osgi.service.log.LogReaderService"))
+#if($logReader)
+	<table border="1">
+	#foreach($logEntry in $logReader.getLog())
+		#set($level = $logEntry.getLevel())			
+		
+		<tr><td>
+		#if($level == $LEVEL_ERROR)E
+		#elseif($level == $LEVEL_WARNING)W
+		#elseif($level == $LEVEL_INFO)I
+		#elseif($level == $LEVEL_DEBUG)D
 		#end
-		</table>
-	#else
-		<font color="red">No LogReaderService found</font>
+		</td>
+		<td>$logEntry.getTime()</td>
+		<td>$logEntry.getMessage()</td>
+		<td>
+		#set($exception = $logEntry.getException())
+		#if($exception)
+			$exception
+		#end
+		</td>
+		</tr>
 	#end
-	
-</body>
-</html>
+	</table>
+#else
+	<font color="red">No LogReaderService found</font>
+#end

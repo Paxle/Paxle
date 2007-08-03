@@ -1,44 +1,37 @@
-<html>
-	<head>
-		<title >
-			Bundle Controlpage
-		</title>
-	</head>
-	<body >
-		<h1 >
-			Bundle Controlpage
-		</h1>
-		<table>
-			<tr >
-				<th >
-					Bundle ID
-				</th>
-				<th >
-					Bundlename
-				</th>
-				<th >
-					Update
-				</th>
+## Set the page title
+#set( $page_title = "Bundle Controlpage" )
+
+## the regular content
+<h1>Bundle Controlpage</h1>
+<table>
+	<tr >
+		<th >
+			Bundle ID
+		</th>
+		<th >
+			Bundlename
+		</th>
+		<th >
+			Update
+		</th>
+	</tr>
+	#set($bundleList = $manager.getBundles())
+	#if($bundleList)
+		#foreach($bundle in $bundleList)
+			<tr>
+				<td >
+					$bundle.getBundleId()
+				</td>
+				<td >
+					$bundle.getSymbolicName()
+				</td>
+				<td >
+					<form >
+						<input type="hidden" name="bundleID" value="$bundle.getBundleId()" />
+						<input type="submit" name="update" value="Update" />
+					</form>
+				</td>
 			</tr>
-			#set($bundleList = $manager.getBundles())
-			#if($bundleList)
-				#foreach($bundle in $bundleList)
-					<tr>
-						<td >
-							$bundle.getBundleId()
-						</td>
-						<td >
-							$bundle.getSymbolicName()
-						</td>
-						<td >
-							<form >
-								<input type="hidden" name="bundleID" value="$bundle.getBundleId()" />
-								<input type="submit" name="update" value="Update" />
-							</form>
-						</td>
-					</tr>
-				#end
-			#end
-		</table>
-	</body>
-</html>
+		#end
+	#end
+</table>

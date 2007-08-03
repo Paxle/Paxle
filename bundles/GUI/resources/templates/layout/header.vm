@@ -1,0 +1,5 @@
+<html>
+<head>
+  <title>#if( $page_title ) - $page_title#end</title>
+</head>
+<body>
