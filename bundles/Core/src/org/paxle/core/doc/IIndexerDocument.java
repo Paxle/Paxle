@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
-public interface IIndexerDocument {
+public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	
 	public static final Field<String>       AUTHOR        = new Field<String>       (true,  true,  "Author",       String.class);
 	public static final Field<String>       INTERNAL_NAME = new Field<String>       (true,  true,  "InternalName", String.class);

@@ -30,6 +30,10 @@ public final class Field<Type> implements Comparable<Field<?>> {
 		return this.name.compareTo(o.name);
 	}
 	
+	public final String getName() {
+		return this.name;
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Field) {
