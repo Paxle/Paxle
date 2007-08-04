@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.paxle.se.query.IToken;
 import org.paxle.se.query.ITokenFactory;
 import org.paxle.se.query.tokens.ModToken;
+import org.paxle.se.query.tokens.NotToken;
 import org.paxle.se.query.tokens.Operator;
 import org.paxle.se.query.tokens.PlainToken;
 import org.paxle.se.query.tokens.QuoteToken;
@@ -50,6 +51,10 @@ public class LuceneTokenFactory implements ITokenFactory {
 	
 	public ModToken toModToken(PlainToken token, String mod) {
 		return new ModToken(token, escape(mod));
+	}
+	
+	public NotToken toNotToken(IToken token) {
+		return new NotToken(token);
 	}
 	
 	public PlainToken toPlainToken(String str) {

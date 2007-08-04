@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.paxle.se.query.tokens.AndOperator;
 import org.paxle.se.query.tokens.ModToken;
+import org.paxle.se.query.tokens.NotToken;
 import org.paxle.se.query.tokens.Operator;
 import org.paxle.se.query.tokens.OrOperator;
 import org.paxle.se.query.tokens.PlainToken;
@@ -70,14 +71,18 @@ public class PaxleQueryParser {
 	 */
 	private static int findTokenEnd(String query, int loff) {
 		int t = -1, tt;
-		for (int c=0; c<2; c++) {
+		for (int c=0; c<5; c++) {
 			char first = query.charAt(loff);
 			t = (first == '(' && (t = findMatching(query, loff)) > -1 ||
 					(loff + 1 < query.length() && first == '"' && (t = findMatching(query, loff + 1)) > -1)
 			) ? t + 1 : ((t = query.indexOf(' ', loff)) > -1) ? t : query.length();
 			
-			if ((tt = query.indexOf(':', loff)) < t && tt > -1) {
+			tt = query.indexOf(':', loff);
+			first = query.charAt(loff);
+			if (tt < t && tt > -1) {
 				loff = tt + 1;
+			} else if (first == '-' || first == '+') {
+				loff++;
 			} else {
 				break;
 			}
@@ -245,7 +250,16 @@ public class PaxleQueryParser {
 		if (str.length() > 1) {
 			final char first = str.charAt(0);
 			final char last = str.charAt(str.length() - 1);
-			if (first == '"' && last == '"') {
+			if (first == '-') {
+				final IToken pt = toToken(str.substring(1));
+				if (pt == null) {
+					return null;
+				} else {
+					return this.factory.toNotToken(pt);
+				}
+			} else if (first == '+') {
+				return toToken(str.substring(1));
+			} else if (first == '"' && last == '"') {
 				final String cnt = str.substring(1, str.length() - 1).trim();
 				if (cnt.length() == 0) {
 					return null;
@@ -278,7 +292,7 @@ public class PaxleQueryParser {
 	
 	
 	public static void main(String[] args) {
-		final String sb = "author:(\"dies hier\") (ist or hat or \"denkt sich\" and so) ein text mit (\"leeren zeichen\" or title:leerzeichen) \"ne?!  \"";
+		final String sb = "blubb -\"bla blubb\" +author:\"dies hier\" (ist or hat or \"denkt sich\" and so) ein text -mit (\"leeren zeichen\" or title:leerzeichen) \"ne?!  \"";
 		//                 01234567 8901234567 890123456789012345 67890123456 789012345678901234567890 123456789012345 678901234567890123456789 0123456 7
 		//                 0          1          2         3          4          5         6         7          8          9         0          1
 		//System.out.println(findMatching(sb, 24));
@@ -296,6 +310,10 @@ public class PaxleQueryParser {
 			
 			public ModToken toModToken(PlainToken token, String mod) {
 				return new ModToken(token, mod);
+			}
+			
+			public NotToken toNotToken(IToken token) {
+				return new NotToken(token);
 			}
 			
 			public PlainToken toPlainToken(String str) {
