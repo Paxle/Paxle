@@ -34,7 +34,6 @@ public class PaxleQueryParser {
 		/* last will be set to the position in query of the end the currently processed term
 		 * loff is the position in query of the end of the last found term */
 		int last = -1, loff;
-		String text = null;
 		while (last < query.length()) {
 			loff = last + 1;
 			/* eat up spaces to next term */
@@ -46,7 +45,7 @@ public class PaxleQueryParser {
 			last = findTokenEnd(query, loff);
 			
 			/* add the term to the found terms list */
-			text = query.substring(loff, last).trim();
+			final String text = query.substring(loff, last).trim();
 			if (text.length() > 0)
 				tokens.add(text);
 		}
@@ -70,20 +69,19 @@ public class PaxleQueryParser {
 	 *         does not end correctly
 	 */
 	private static int findTokenEnd(String query, int loff) {
-		int t, tt, c = 0;
-		int tloff = loff;
-		do {
-			char first = query.charAt(tloff);
-			t = (first == '(' && (t = findMatching(query, tloff)) > -1 ||
-					(tloff + 1 < query.length() && first == '"' && (t = findMatching(query, tloff + 1)) > -1)
-			) ? t + 1 : ((t = query.indexOf(' ', tloff)) > -1) ? t : query.length();
+		int t = -1, tt;
+		for (int c=0; c<2; c++) {
+			char first = query.charAt(loff);
+			t = (first == '(' && (t = findMatching(query, loff)) > -1 ||
+					(loff + 1 < query.length() && first == '"' && (t = findMatching(query, loff + 1)) > -1)
+			) ? t + 1 : ((t = query.indexOf(' ', loff)) > -1) ? t : query.length();
 			
-			if ((tt = query.indexOf(':', tloff)) < t && tt > -1) {
-				tloff = tt + 1;
+			if ((tt = query.indexOf(':', loff)) < t && tt > -1) {
+				loff = tt + 1;
 			} else {
 				break;
 			}
-		} while (c++ < 1);
+		}
 		return t;
 	}
 	
@@ -280,13 +278,13 @@ public class PaxleQueryParser {
 	
 	
 	public static void main(String[] args) {
-		final String sb = "author:\"dies hier\" (ist or hat or \"denkt sich\" and so) ein text mit (\"leeren zeichen\" or title:leerzeichen) \"ne?!  \"";
-		//                 0123456 7890123456 78901234567890123 45678901234 567890123456789012345678 9012345 6789012 34567890123456789 012345 6789013 4
-		//                 0          1          2         3          4          5         6          7          8          9          0          1
+		final String sb = "author:(\"dies hier\") (ist or hat or \"denkt sich\" and so) ein text mit (\"leeren zeichen\" or title:leerzeichen) \"ne?!  \"";
+		//                 01234567 8901234567 890123456789012345 67890123456 789012345678901234567890 123456789012345 678901234567890123456789 0123456 7
+		//                 0          1          2         3          4          5         6         7          8          9         0          1
 		//System.out.println(findMatching(sb, 24));
 		//System.out.println(findMatching(sb, 6));
 		
-		PaxleQueryParser pqp = new PaxleQueryParser(new ITokenFactory() {
+		final PaxleQueryParser pqp = new PaxleQueryParser(new ITokenFactory() {
 			
 			public Operator createAndOperator() {
 				return new AndOperator();
