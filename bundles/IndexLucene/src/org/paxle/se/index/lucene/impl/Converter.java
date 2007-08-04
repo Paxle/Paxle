@@ -4,13 +4,19 @@ import java.io.IOException;
 import java.io.Reader;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Fieldable;
+import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.se.index.lucene.IndexerDocument;
 
 public class Converter {
 	
@@ -40,7 +46,21 @@ public class Converter {
 		}
 	}
 	
-	public static Field any2field(org.paxle.core.doc.Field<?> field, Object data) {
+	private static final Hashtable<String,org.paxle.core.doc.Field<?>> fieldMap =
+		new Hashtable<String,org.paxle.core.doc.Field<?>>();
+	
+	public static Document iindexerDoc2LuceneDoc(IIndexerDocument document) {
+		final Document doc = new Document();
+		for (final Map.Entry<org.paxle.core.doc.Field<?>,Object> entry : document) {
+			fieldMap.put(entry.getKey().getName(), entry.getKey());
+			doc.add(any2field(entry.getKey(), entry.getValue()));
+		}
+		return doc;
+	}
+	
+	private static Fieldable any2field(org.paxle.core.doc.Field<?> field, Object data) {
+		fieldMap.put(field.getName(), field);
+		
 		if (String.class.isAssignableFrom(field.getType())) {
 			return string2field(field, (String)data);
 			
@@ -65,7 +85,7 @@ public class Converter {
 		}
 	}
 	
-	public static Field string2field(org.paxle.core.doc.Field<?> field, String data) {
+	private static Fieldable string2field(org.paxle.core.doc.Field<?> field, String data) {
 		/* ===========================================================
 		 * Strings
 		 * - may be stored (if so, then compressed)
@@ -80,7 +100,7 @@ public class Converter {
 				Field.TermVector.WITH_POSITIONS);
 	}
 	
-	public static Field array2field(org.paxle.core.doc.Field<?> field, Object[] data) {
+	private static Fieldable array2field(org.paxle.core.doc.Field<?> field, Object[] data) {
 		/* ===========================================================
 		 * Arrays
 		 * - is not stored
@@ -90,7 +110,7 @@ public class Converter {
 		return new Field(field.getName(), new ArrayTokenStream(data));
 	}
 	
-	public static Field number2field(org.paxle.core.doc.Field<?> field, Number data) {
+	private static Fieldable number2field(org.paxle.core.doc.Field<?> field, Number data) {
 		/* ===========================================================
 		 * Numbers
 		 * - may be stored (if so, not compressed)
@@ -120,7 +140,7 @@ public class Converter {
 		}
 	}
 	
-	public static Field date2field(org.paxle.core.doc.Field<?> field, Date data) {
+	private static Fieldable date2field(org.paxle.core.doc.Field<?> field, Date data) {
 		/* ===========================================================
 		 * Dates
 		 * - may be stored (if so, then not compressed)
@@ -134,7 +154,7 @@ public class Converter {
 				index(field));
 	}
 	
-	public static Field reader2field(org.paxle.core.doc.Field<?> field, Reader data) {
+	private static Fieldable reader2field(org.paxle.core.doc.Field<?> field, Reader data) {
 		/* ===========================================================
 		 * Readers
 		 * - not stored
@@ -147,7 +167,7 @@ public class Converter {
 				Field.TermVector.WITH_POSITIONS);
 	}
 	
-	public static Field byteArray2field(org.paxle.core.doc.Field<?> field, byte[] data) {
+	private static Fieldable byteArray2field(org.paxle.core.doc.Field<?> field, byte[] data) {
 		/* ===========================================================
 		 * byte[]-arrays
 		 * - is stored (not compressed)
@@ -159,11 +179,11 @@ public class Converter {
 				store(field, false));
 	}
 	
-	public static Field.Index index(org.paxle.core.doc.Field<?> field) {
+	private static Field.Index index(org.paxle.core.doc.Field<?> field) {
 		return (field.isIndex()) ? Field.Index.TOKENIZED : Field.Index.NO;
 	}
 	
-	public static Field.Store store(org.paxle.core.doc.Field<?> field, boolean compress) {
+	private static Field.Store store(org.paxle.core.doc.Field<?> field, boolean compress) {
 		return (field.isSavePlain()) ? (compress) ? Field.Store.COMPRESS : Field.Store.YES : Field.Store.NO;
 	}
 	
@@ -171,30 +191,38 @@ public class Converter {
 	/* ========================================================================== */
 	/* ========================================================================== */
 	
-	public static <E> E field2any(Document doc, org.paxle.core.doc.Field<E> field) throws ParseException, IOException {
-		if (!field.isSavePlain())
-			throw new IllegalArgumentException("the field " + field + " has not been stored plainly, can't retrieve data");
-		final Field lf = doc.getField(field.getName());
-		if (lf == null)
-			return null;
-
-		if (String.class.isAssignableFrom(field.getType())) {
-			return field.getType().cast(field2string(lf, field));
+	public static IIndexerDocument luceneDoc2IIndexerDoc(Document ldoc) throws ParseException, IOException {
+		final IndexerDocument doc = new IndexerDocument();
+		final Iterator it = ldoc.getFields().iterator();
+		while (it.hasNext()) {
+			final Fieldable field = (Fieldable)it.next();
+			if (!field.isStored())
+				continue;
+			final org.paxle.core.doc.Field<?> pfield = fieldMap.get(field.name());
+			if (pfield != null)
+				doc.put(pfield, field2any(field, pfield));
+		}
+		return doc;
+	}
+	
+	private static <E> E field2any(Fieldable lfield, org.paxle.core.doc.Field<E> pfield) throws ParseException, IOException {
+		if (String.class.isAssignableFrom(pfield.getType())) {
+			return pfield.getType().cast(field2string(lfield, pfield));
 			
-		} else if (Reader.class.isAssignableFrom(field.getType())) {
-			return field.getType().cast(field2reader(lf, field));
+		} else if (Reader.class.isAssignableFrom(pfield.getType())) {
+			return pfield.getType().cast(field2reader(lfield, pfield));
 			
-		} else if (Date.class.isAssignableFrom(field.getType())) {
-			return field.getType().cast(field2date(lf, field));
+		} else if (Date.class.isAssignableFrom(pfield.getType())) {
+			return pfield.getType().cast(field2date(lfield, pfield));
 			
-		} else if (Number.class.isAssignableFrom(field.getType())) {
-			return field.getType().cast(field2number(lf, field));
+		} else if (Number.class.isAssignableFrom(pfield.getType())) {
+			return pfield.getType().cast(field2number(lfield, pfield));
 			
-		} else if (byte[].class.isAssignableFrom(field.getType()) && field.isSavePlain()) {
-			return field.getType().cast(field2byteArray(lf, field));
+		} else if (byte[].class.isAssignableFrom(pfield.getType()) && pfield.isSavePlain()) {
+			return pfield.getType().cast(field2byteArray(lfield, pfield));
 			
-		} else if (field.getType().isArray()) {
-			return field.getType().cast(field2array(lf, field));
+		} else if (pfield.getType().isArray()) {
+			return pfield.getType().cast(field2array(lfield, pfield));
 			
 		} else {
 			// TODO
@@ -202,19 +230,19 @@ public class Converter {
 		}
 	}
 	
-	public static String field2string(Field lfield, org.paxle.core.doc.Field<?> pfield) {
+	private static String field2string(Fieldable lfield, org.paxle.core.doc.Field<?> pfield) {
 		return lfield.stringValue();
 	}
 	
-	public static Reader field2reader(Field lfield, org.paxle.core.doc.Field<?> pfield) {
+	private static Reader field2reader(Fieldable lfield, org.paxle.core.doc.Field<?> pfield) {
 		return lfield.readerValue();
 	}
 	
-	public static Date field2date(Field lfield, org.paxle.core.doc.Field<?> pfield) throws ParseException {
+	private static Date field2date(Fieldable lfield, org.paxle.core.doc.Field<?> pfield) throws ParseException {
 		return DateTools.stringToDate(lfield.stringValue());
 	}
 	
-	public static Number field2number(Field lfield, org.paxle.core.doc.Field<?> pfield) {
+	private static Number field2number(Fieldable lfield, org.paxle.core.doc.Field<?> pfield) {
 		final long num;
 		if (pfield.isIndex()) {
 			num = PaxleNumberTools.stringToLong(lfield.stringValue());
@@ -231,11 +259,11 @@ public class Converter {
 		}
 	}
 	
-	public static byte[] field2byteArray(Field lfield, org.paxle.core.doc.Field<?> pfield) {
+	private static byte[] field2byteArray(Fieldable lfield, org.paxle.core.doc.Field<?> pfield) {
 		return lfield.binaryValue();
 	}
 	
-	public static Object[] field2array(Field lfield, org.paxle.core.doc.Field<?> pfield) throws IOException {
+	private static Object[] field2array(Fieldable lfield, org.paxle.core.doc.Field<?> pfield) throws IOException {
 		final LinkedList<Object> r = new LinkedList<Object>();
 		final TokenStream ts = lfield.tokenStreamValue();
 		Token token;

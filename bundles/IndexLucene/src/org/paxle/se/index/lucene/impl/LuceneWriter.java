@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexDeletionPolicy;
 import org.apache.lucene.index.IndexWriter;
@@ -109,12 +108,8 @@ public class LuceneWriter extends IndexWriter implements ILuceneWriter {
 	}
 	
 	public void write(IIndexerDocument document) throws IOException, IndexException {
-		final Document doc = new Document();
-		for (final Map.Entry<org.paxle.core.doc.Field<?>,Object> entry : document)
-			doc.add(Converter.any2field(entry.getKey(), entry.getValue()));
-		
 		try {
-			super.addDocument(doc);
+			super.addDocument(Converter.iindexerDoc2LuceneDoc(document));
 		} catch (CorruptIndexException e) {
 			throw new IndexException("error adding lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
 		} finally {
