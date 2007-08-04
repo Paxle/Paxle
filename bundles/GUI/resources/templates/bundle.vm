@@ -4,33 +4,32 @@
 ## the regular content
 <h1>Bundle Controlpage</h1>
 <table>
-	<tr >
-		<th >
-			Bundle ID
-		</th>
-		<th >
-			Bundlename
-		</th>
-		<th >
-			Update
-		</th>
+	<tr>
+		<th>ID</th>
+		<th>Name</th>
+		<th>State</th>
+		<th>Start</th>
+		<th>Stop</th>
+		<th>Update</th>
 	</tr>
-	#set($bundleList = $manager.getBundles())
-	#if($bundleList)
-		#foreach($bundle in $bundleList)
+	#if($bundles)
+		#foreach($entry in $bundles.entrySet())
 			<tr>
-				<td >
-					$bundle.getBundleId()
-				</td>
-				<td >
-					$bundle.getSymbolicName()
-				</td>
-				<td >
-					<form >
-						<input type="hidden" name="bundleID" value="$bundle.getBundleId()" />
+				<td>$entry.key</td>
+				<td>$entry.value.symbolicName</td>
+				<td>$states.get($entry.value.state)</td>
+				<td align="center"><form>
+						<input type="hidden" name="bundleID" value="$entry.key" />
+						<input type="submit" name="start" value="Start" />
+				</form></td>
+				<td align="center"><form>
+						<input type="hidden" name="bundleID" value="$entry.key" />
+						<input type="submit" name="stop" value="Stop" />
+				</form></td>
+				<td align="center"><form>
+						<input type="hidden" name="bundleID" value="$entry.key" />
 						<input type="submit" name="update" value="Update" />
-					</form>
-				</td>
+				</form></td>
 			</tr>
 		#end
 	#end
