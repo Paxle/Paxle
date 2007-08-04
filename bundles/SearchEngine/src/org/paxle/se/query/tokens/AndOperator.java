@@ -8,7 +8,6 @@ public class AndOperator extends Operator implements IParentToken {
 		super("and");
 	}
 	
-	@Override
 	public int getMinMatchCount() {
 		return super.children.size();
 	}

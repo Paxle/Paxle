@@ -4,8 +4,8 @@ import org.paxle.se.query.IToken;
 
 public class ModToken implements IToken {
 	
-	private final IToken token;
-	private final String mod; 
+	protected final IToken token;
+	protected final String mod; 
 	
 	public ModToken(PlainToken token, String mod) {
 		this.token = token;

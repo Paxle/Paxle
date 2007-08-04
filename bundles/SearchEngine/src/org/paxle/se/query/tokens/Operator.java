@@ -7,6 +7,4 @@ public abstract class Operator extends MultiToken implements IParentToken {
 	public Operator(String name) {
 		super(name);
 	}
-	
-	public abstract int getMinMatchCount();
 }

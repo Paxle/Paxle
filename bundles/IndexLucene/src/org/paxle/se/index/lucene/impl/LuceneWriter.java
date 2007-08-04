@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexDeletionPolicy;
@@ -18,6 +19,11 @@ import org.paxle.se.IndexException;
 import org.paxle.se.index.lucene.ILuceneWriter;
 
 public class LuceneWriter extends IndexWriter implements ILuceneWriter {
+	
+	public static LuceneWriter createWriter(String dbpath) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
+		return new LuceneWriter(dbpath, new StandardAnalyzer());
+	}
 	
 	/** @see IndexWriter#IndexWriter(String, Analyzer) */
 	public LuceneWriter(String arg0, Analyzer arg1) throws CorruptIndexException,

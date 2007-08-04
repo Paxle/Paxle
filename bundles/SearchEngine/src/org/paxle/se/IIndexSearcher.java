@@ -7,5 +7,7 @@ import org.paxle.se.query.IToken;
 
 public interface IIndexSearcher {
 	
+	public static final String QUERY_TOKEN_FACTORY = "query.token.factory";
+	
 	public IIndexerDocument[] search(IToken searchToken) throws IOException, IndexException;
 }

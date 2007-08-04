@@ -8,7 +8,6 @@ public class OrOperator extends Operator implements IParentToken {
 		super("or");
 	}
 	
-	@Override
 	public int getMinMatchCount() {
 		return 1;
 	}

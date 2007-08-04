@@ -23,7 +23,7 @@ public class MultiToken implements IParentToken {
 		return this.children.toArray(new IToken[this.children.size()]);
 	}
 	
-	public final String getString() {
+	public String getString() {
 		return "(" + getClass().getSimpleName() + ") '" + this.str + "'";
 	}
 	
