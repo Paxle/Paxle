@@ -46,6 +46,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 					pdoce.getKey(),
 					pdoce.getValue()));
 		} catch (IOException e) { /* we ignore these as we deal "only" with sub-docs */ }
+		cmd.setResult(ICommand.Result.Passed);
 	}
 	
 	private static IIndexerDocument generateIIndexerDoc(
