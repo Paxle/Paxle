@@ -14,6 +14,6 @@ Import-Package: org.osgi.framework, org.paxle.core.doc, org.paxle.se.q
  pecification-version=2.2.0, org.apache.lucene.queryParser;specificati
  on-version=2.2.0, org.apache.lucene.search;specification-version=2.2.
  0, org.apache.lucene.store;specification-version=2.2.0, org.paxle.cor
- e.queue
+ e.queue, org.apache.commons.logging
 Bundle-SymbolicName: org.paxle.se.index.lucene
 

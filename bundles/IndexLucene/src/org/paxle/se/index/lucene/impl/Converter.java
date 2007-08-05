@@ -98,7 +98,7 @@ public class Converter {
 				data,
 				store(field, true),
 				index(field),
-				Field.TermVector.WITH_POSITIONS);
+				termVector(field, TV_POSITIONS));
 	}
 	
 	private static Fieldable array2field(org.paxle.core.doc.Field<?> field, Object[] data) {
@@ -165,7 +165,7 @@ public class Converter {
 		return new Field(
 				field.getName(),
 				data,
-				Field.TermVector.WITH_POSITIONS);
+				termVector(field, TV_POSITIONS));
 	}
 	
 	private static Fieldable byteArray2field(org.paxle.core.doc.Field<?> field, byte[] data) {
@@ -186,6 +186,18 @@ public class Converter {
 	
 	private static Field.Store store(org.paxle.core.doc.Field<?> field, boolean compress) {
 		return (field.isSavePlain()) ? (compress) ? Field.Store.COMPRESS : Field.Store.YES : Field.Store.NO;
+	}
+	
+	private static final int TV_POSITIONS = 1;
+	private static final int TV_OFFSETS = 2;
+	
+	private static Field.TermVector termVector(org.paxle.core.doc.Field<?> field, int options) {
+		return (field.isIndex()) ? (
+				((options & (TV_OFFSETS | TV_POSITIONS)) == 0) ? (
+						((options & TV_OFFSETS) != 0) ? Field.TermVector.WITH_OFFSETS :
+						((options & TV_POSITIONS) != 0) ? Field.TermVector.WITH_POSITIONS : Field.TermVector.NO
+				) : Field.TermVector.WITH_POSITIONS_OFFSETS
+		) : Field.TermVector.NO;
 	}
 	
 	/* ========================================================================== */

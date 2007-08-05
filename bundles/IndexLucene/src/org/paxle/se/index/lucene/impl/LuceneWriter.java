@@ -1,25 +1,26 @@
 package org.paxle.se.index.lucene.impl;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.lucene.analysis.Analyzer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.IndexDeletionPolicy;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
+
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataSource;
+import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.queue.ICommand;
 import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneWriter;
 
-public class LuceneWriter extends IndexWriter implements ILuceneWriter, IDataConsumer<ICommand>, Runnable {
+public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer<ICommand> {
+	
 	/**
 	 * A {@link IDataSource data-source} to read {@link ICommand commands}
 	 */
@@ -28,111 +29,27 @@ public class LuceneWriter extends IndexWriter implements ILuceneWriter, IDataCon
 	/**
 	 * The writer thread
 	 */
-	private Thread writerThread = null;
+	private final IndexWriter writer;
 	
-	public static LuceneWriter createWriter(String dbpath) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
-		return new LuceneWriter(dbpath, new StandardAnalyzer());
-	}
-	
-	/** @see IndexWriter#IndexWriter(String, Analyzer) */
-	public LuceneWriter(String arg0, Analyzer arg1) throws CorruptIndexException,
-			LockObtainFailedException,
-			IOException {
-		super(arg0, arg1);
-	}
-	
-	/** @see IndexWriter#IndexWriter(File, Analyzer) */
-	public LuceneWriter(File arg0, Analyzer arg1) throws CorruptIndexException,
-			LockObtainFailedException,
-			IOException {
-		super(arg0, arg1);
-	}
-	
-	/** @see IndexWriter#IndexWriter(Directory, Analyzer) */
-	public LuceneWriter(Directory arg0, Analyzer arg1) throws CorruptIndexException,
-			LockObtainFailedException,
-			IOException {
-		super(arg0, arg1);
-	}
-	
-	/** @see IndexWriter#IndexWriter(String, Analyzer, boolean) */
-	public LuceneWriter(String arg0, Analyzer arg1, boolean arg2) throws CorruptIndexException,
-			LockObtainFailedException,
-			IOException {
-		super(arg0, arg1, arg2);
-	}
-	
-	/** @see IndexWriter#IndexWriter(File, Analyzer, boolean) */
-	public LuceneWriter(File arg0, Analyzer arg1, boolean arg2) throws CorruptIndexException,
-			LockObtainFailedException,
-			IOException {
-		super(arg0, arg1, arg2);
-	}
-	
-	/** @see IndexWriter#IndexWriter(Directory, Analyzer, boolean) */
-	public LuceneWriter(Directory arg0, Analyzer arg1, boolean arg2) throws CorruptIndexException,
-			LockObtainFailedException,
-			IOException {
-		super(arg0, arg1, arg2);
-	}
-	
-	/** @see IndexWriter#IndexWriter(Directory, boolean, Analyzer) */
-	public LuceneWriter(Directory arg0, boolean arg1, Analyzer arg2) throws CorruptIndexException,
-			LockObtainFailedException,
-			IOException {
-		super(arg0, arg1, arg2);
-	}
-	
-	/** @see IndexWriter#IndexWriter(Directory, boolean, Analyzer, boolean) */
-	public LuceneWriter(
-			Directory arg0,
-			boolean arg1,
-			Analyzer arg2,
-			boolean arg3) throws CorruptIndexException,
-			LockObtainFailedException,
-			IOException {
-		super(arg0, arg1, arg2, arg3);
-	}
-	
-	/** @see IndexWriter#IndexWriter(Directory, boolean, Analyzer, IndexDeletionPolicy) */
-	public LuceneWriter(
-			Directory arg0,
-			boolean arg1,
-			Analyzer arg2,
-			IndexDeletionPolicy arg3) throws CorruptIndexException,
-			LockObtainFailedException,
-			IOException {
-		super(arg0, arg1, arg2, arg3);
-	}
-	
-	/** @see IndexWriter#IndexWriter(Directory, boolean, Analyzer, boolean, IndexDeletionPolicy) */
-	public LuceneWriter(
-			Directory arg0,
-			boolean arg1,
-			Analyzer arg2,
-			boolean arg3,
-			IndexDeletionPolicy arg4) throws CorruptIndexException,
-			LockObtainFailedException,
-			IOException {
-		super(arg0, arg1, arg2, arg3, arg4);
-	}
-	
-	public synchronized void write(IIndexerDocument document) throws IOException, IndexException {
-		try {
-			super.addDocument(Converter.iindexerDoc2LuceneDoc(document));
-		} catch (CorruptIndexException e) {
-			throw new IndexException("error adding lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
-		} finally {
-			// close everything now
-			for (final Map.Entry<org.paxle.core.doc.Field<?>,Object> entry : document)
-				if (Closeable.class.isAssignableFrom(entry.getKey().getType()))
-					((Closeable)entry.getValue()).close();
-		}
-	}
-
 	/**
-	 * @see IDataConsumer#setDataSource(IDataSource)
+	 * The local logger
+	 */
+	private final Log logger = LogFactory.getLog(LuceneWriter.class);
+	
+	public LuceneWriter(IndexWriter writer) {
+		this.writer = writer;
+		this.start();
+		this.logger.info("Lucene writer has been started");
+	}
+	
+	static IndexWriter createWriter(String dbpath) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
+		return new IndexWriter(dbpath, new StandardAnalyzer());
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.core.data.IDataConsumer#setDataSource(org.paxle.core.data.IDataSource)
 	 */
 	public synchronized void setDataSource(IDataSource<ICommand> dataSource) {
 		if (dataSource == null) throw new NullPointerException("The data-source is null.");
@@ -140,32 +57,10 @@ public class LuceneWriter extends IndexWriter implements ILuceneWriter, IDataCon
 		this.source = dataSource;
 		this.notify();
 	}
-
-	/**
-	 * Function to start the writer thread
-	 */
-	public void start() {
-		if (this.writerThread != null) throw new IllegalStateException("Worker-thread already started");
-		
-		// wrap the writer into a thread
-		this.writerThread = new Thread(this);
-		
-		// start it
-		this.writerThread.start();
-	}
 	
-	/**
-	 * Function to stop the writer thread
-	 * @throws InterruptedException
-	 */
-	public void stop() throws InterruptedException {
-		if (this.writerThread == null) return;
-		this.writerThread.interrupt();
-		this.writerThread.join();
-	}
-	
-	/**
-	 * @see Runnable#run()
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Thread#run()
 	 */
 	public void run() {
 		try {
@@ -179,16 +74,42 @@ public class LuceneWriter extends IndexWriter implements ILuceneWriter, IDataCon
 				// fetch the next command from the data-source
 				ICommand command = this.source.getData();
 				
-				// TODO: errorhandling needed, check status
+				// check status
+				if (command.getResult() != ICommand.Result.Passed) {
+					throw new IllegalArgumentException(
+							"ICommand's status is '" + command.getResult() + "' instaed of 'passed': " + command.getResultText());
+				}
 				
 				// loop through the indexer docs
-				for (IIndexerDocument indexerDoc : command.getIndexerDocuments()) {
+				for (IIndexerDocument indexerDoc : command.getIndexerDocuments()) try {
 					// write indexer-doc to the index
 					this.write(indexerDoc);
+				} catch (IOException e) {
+					this.logger.error("Low-level I/O error occured during adding document to index", e);
+				} catch (IndexException e) {
+					this.logger.error("Error adding document to index", e);
 				}
 			}
 		} catch (Exception e) {
-			e.getStackTrace();
+			e.printStackTrace();
 		} 
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.se.index.IIndexWriter#write(org.paxle.core.doc.IIndexerDocument)
+	 */
+	public synchronized void write(IIndexerDocument document) throws IOException, IndexException {
+		this.logger.debug("Adding document to index: " + document.get(IIndexerDocument.LOCATION));
+		try {
+			this.writer.addDocument(Converter.iindexerDoc2LuceneDoc(document));
+		} catch (CorruptIndexException e) {
+			throw new IndexException("error adding lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
+		} finally {
+			// close everything now
+			for (final Map.Entry<Field<?>,Object> entry : document)
+				if (Closeable.class.isAssignableFrom(entry.getKey().getType()))
+					((Closeable)entry.getValue()).close();
+		}
 	}
 }
