@@ -2,6 +2,51 @@
 #set( $page_title = "Bundle Controlpage" )
 
 ## the regular content
+#if($bundle)
+<h1>Bundle Info</h1>
+<h2>Runtime Information</h2>
+<table>
+	<tr><td><b>ID</b><td>$bundle.BundleId</td></tr>
+	<tr><td><b>Location</b><td>$bundle.Location</td></tr>
+	<tr><td><b>State</b><td>$states.get($bundle.state)</td></tr>
+	<tr><td><b>Last Modified</b><td>$bundle.LastModified</td></tr>
+</table>
+
+<h2>Bundle Manifest</h2>
+<table>
+	#set($headers = $bundle.getHeaders())	
+	#foreach($name in $headers.keys())		
+		<tr>
+			<td valign="top"><b>$name</b></td>
+			<td>
+			#if($name == "Import-Package" || $name == "Export-Package")			
+				#foreach($package in $headers.get($name).split(","))
+					$package<br />
+				#end
+			#else
+				$headers.get($name)
+			#end
+			</td>
+		</tr>
+	#end
+</table>
+
+<h2>Exported Services</h2>
+<table>
+	#set($services = $bundle.getRegisteredServices())
+	#foreach($service in $services)
+		<tr>
+			<td valign="top"><b>$service.getProperty("service.id")</b></td>
+			<td>
+				#foreach($serviceClass in $service.getProperty("objectClass"))
+					$serviceClass<br />
+				#end
+			</td>
+		</tr>
+	#end	
+</table>
+
+#else
 <h1>Bundle Controlpage</h1>
 <table>
 	<tr>
@@ -15,7 +60,7 @@
 	#if($bundles)
 		#foreach($entry in $bundles.entrySet())
 			<tr>
-				<td>$entry.key</td>
+				<td><a href="?bundleID=$entry.key&details=">$entry.key</a></td>
 				<td>$entry.value.symbolicName</td>
 				<td>$states.get($entry.value.state)</td>
 				<td align="center"><form>
@@ -34,3 +79,4 @@
 		#end
 	#end
 </table>
+#end

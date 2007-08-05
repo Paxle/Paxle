@@ -46,6 +46,9 @@ public class BundleView extends AServlet {
             } else if (request.getParameter("stop") != null) {
                 Bundle bundle = this.manager.getBundle(Long.valueOf(request.getParameter("bundleID")));
                 bundle.stop();
+            } else if (request.getParameter("details") != null) {
+            	Bundle bundle = this.manager.getBundle(Long.valueOf(request.getParameter("bundleID")));
+            	context.put("bundle", bundle);
             }
             
             context.put("manager", this.manager);            
