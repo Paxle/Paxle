@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
@@ -26,10 +27,10 @@ public class DataListener implements ServiceListener {
 		DATACONSUMER_CLASS
 	}));
 	
-	public static String DATASOURCE_FILTER = "(objectClass=" + DATASOURCE_CLASS +")";
-	public static String DATASINK_FILTER = "(objectClass=" + DATASINK_CLASS +")";
-	public static String DATAPROVIDER_FILTER = "(objectClass=" + DATAPROVIDER_CLASS +")";
-	public static String DATACONSUMER_FILTER = "(objectClass=" + DATACONSUMER_CLASS +")";
+	public static String DATASOURCE_FILTER   = "(" + Constants.OBJECTCLASS + "=" + DATASOURCE_CLASS   +")";
+	public static String DATASINK_FILTER     = "(" + Constants.OBJECTCLASS + "=" + DATASINK_CLASS     +")";
+	public static String DATAPROVIDER_FILTER = "(" + Constants.OBJECTCLASS + "=" + DATAPROVIDER_CLASS +")";
+	public static String DATACONSUMER_FILTER = "(" + Constants.OBJECTCLASS + "=" + DATACONSUMER_CLASS +")";
 	public static String[] FILTERS = new String[]{
 		DATASOURCE_FILTER,
 		DATASINK_FILTER,
@@ -68,22 +69,29 @@ public class DataListener implements ServiceListener {
 	}
 	
 	public void serviceChanged(ServiceEvent event) {
+		// get the reference to the service 
 		ServiceReference reference = event.getServiceReference();
-		String interfaceName = ((String[])reference.getProperty("objectClass"))[0];
-		if (!CLASSES.contains(interfaceName)) return;
 		
-		String id = (String) reference.getProperty(interfaceName + ".id");
+		// get the names of the registered interfaces 
+		String[] interfaceNames = ((String[])reference.getProperty(Constants.OBJECTCLASS));
 		
-		int eventType = event.getType();
-		if (eventType == ServiceEvent.REGISTERED) {
-			// get the filter
-			Object service = this.context.getService(reference);
-			this.manager.add(id, interfaceName, service);
-		} else if (eventType == ServiceEvent.UNREGISTERING) {
-			this.manager.remove(id);
-		} else if (eventType == ServiceEvent.MODIFIED) {
+		// loop through the interfaces
+		for (String interfaceName : interfaceNames) {
+			if (!CLASSES.contains(interfaceName)) continue;
 
-		}	
+			String id = (String) reference.getProperty(interfaceName + ".id");
+
+			int eventType = event.getType();
+			if (eventType == ServiceEvent.REGISTERED) {
+				// get the filter
+				Object service = this.context.getService(reference);
+				this.manager.add(id, interfaceName, service);
+			} else if (eventType == ServiceEvent.UNREGISTERING) {
+				this.manager.remove(id);
+			} else if (eventType == ServiceEvent.MODIFIED) {
+
+			}	
+		}
 	}
 
 }
