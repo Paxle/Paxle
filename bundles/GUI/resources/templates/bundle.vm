@@ -39,14 +39,55 @@
 <h2>Exported Services</h2>
 <table>
 	#set($services = $bundle.getRegisteredServices())
+	<tr>
+		<th>Servicd ID</th>
+		<th>Object Classes</th>
+		<th>Properties</th>
+	</tr>
 	#foreach($service in $services)
 		<tr>
-			<td valign="top"><b>$service.getProperty("service.id")</b></td>
-			<td>
+			<td valign="top">$service.getProperty("service.id")</td>
+			<td valign="top">
 				#foreach($serviceClass in $service.getProperty("objectClass"))
 					$serviceClass<br />
 				#end
 			</td>
+			<td valign="top">
+				#foreach($propName in $service.getPropertyKeys())
+					#if($propName != "service.id" && $propName != "objectClass")
+						$propName=$service.getProperty($propName)<br />
+					#end
+				#end
+			</td>
+		</tr>
+	#end	
+</table>
+
+<h2>Imported Services</h2>
+<table>
+	#set($services = $bundle.getServicesInUse())
+	<tr>
+		<th>Bundle ID</th>
+		<th>Servicd ID</th>
+		<th>Object Classes</th>
+		<th>Properties</th>
+	</tr>	
+	#foreach($service in $services)
+		<tr>
+			<td valign="top"><a href="?bundleID=$service.Bundle.BundleId&details=">$service.Bundle.BundleId</a></td>
+			<td valign="top">$service.getProperty("service.id")</td>
+			<td valign="top">
+				#foreach($serviceClass in $service.getProperty("objectClass"))
+					$serviceClass<br />
+				#end
+			</td>
+			<td valign="top">
+				#foreach($propName in $service.getPropertyKeys())
+					#if($propName != "service.id" && $propName != "objectClass")
+						$propName=$service.getProperty($propName)<br />
+					#end
+				#end
+			</td>			
 		</tr>
 	#end	
 </table>
