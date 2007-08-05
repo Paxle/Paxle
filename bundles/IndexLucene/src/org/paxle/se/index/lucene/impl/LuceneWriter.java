@@ -134,7 +134,7 @@ public class LuceneWriter extends IndexWriter implements ILuceneWriter, IDataCon
 	/**
 	 * @see IDataConsumer#setDataSource(IDataSource)
 	 */
-	public void setDataSource(IDataSource<ICommand> dataSource) {
+	public synchronized void setDataSource(IDataSource<ICommand> dataSource) {
 		if (dataSource == null) throw new NullPointerException("The data-source is null.");
 		if (this.source != null) throw new IllegalStateException("The data-source was already set.");
 		this.source = dataSource;
