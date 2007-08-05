@@ -55,6 +55,7 @@ public class BundleView extends AServlet {
             context.put("states", states);
         } catch (Exception e) {
             System.err.println("Exception caught: " + e.getMessage());
+            e.printStackTrace();
         }
         
         return template;

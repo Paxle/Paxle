@@ -16,4 +16,5 @@ Import-Package: org.osgi.framework, org.paxle.core.doc, org.paxle.se.q
  0, org.apache.lucene.store;specification-version=2.2.0, org.paxle.cor
  e.queue, org.apache.commons.logging
 Bundle-SymbolicName: org.paxle.se.index.lucene
+DynamicImport-Package: sun.reflect
 

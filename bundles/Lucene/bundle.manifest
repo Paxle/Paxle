@@ -16,4 +16,5 @@ Export-Package: org.apache.lucene;specification-version=2.2.0, org.apa
  rch.spans;specification-version=2.2.0, org.apache.lucene.store;specif
  ication-version=2.2.0, org.apache.lucene.util;specification-version=2
  .2.0
+DynamicImport-Package: sun.reflect
 
