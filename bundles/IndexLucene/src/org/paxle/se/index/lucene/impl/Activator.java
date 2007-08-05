@@ -3,6 +3,9 @@ package org.paxle.se.index.lucene.impl;
 import java.io.File;
 import java.util.Hashtable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
 
 import org.osgi.framework.BundleActivator;
@@ -25,13 +28,19 @@ public class Activator implements BundleActivator {
 	
 	public void start(BundleContext context) throws Exception {
 		bc = context;
+		final Log logger = LogFactory.getLog(Activator.class);
 		
 		// check whether directory is locked from previous runs
-		
 		final File writeLock = new File(DB_PATH, "write.lock");
+		if (writeLock.exists()) {
+			logger.warn("Lucene index directory is locked, removing lock. " +
+					"Shutdown now if any other lucene-compatible application currently accesses the directory '" +
+					writeLock.getPath());
+			writeLock.delete();
+		}
 		writeLock.deleteOnExit();
 		
-		indexWriter = LuceneWriter.createWriter(DB_PATH);
+		indexWriter = new IndexWriter(DB_PATH, new StandardAnalyzer());
 		indexWriterThread = new LuceneWriter(indexWriter);
 		indexSearcher = new LuceneSearcher(DB_PATH);
 		tokenFactory = new LuceneTokenFactory();

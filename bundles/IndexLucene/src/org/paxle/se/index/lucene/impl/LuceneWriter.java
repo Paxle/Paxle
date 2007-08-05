@@ -6,10 +6,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.store.LockObtainFailedException;
 
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataSource;
@@ -42,11 +40,6 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 		this.logger.info("Lucene writer has been started");
 	}
 	
-	static IndexWriter createWriter(String dbpath) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
-		return new IndexWriter(dbpath, new StandardAnalyzer());
-	}
-	
 	/*
 	 * (non-Javadoc)
 	 * @see org.paxle.core.data.IDataConsumer#setDataSource(org.paxle.core.data.IDataSource)
@@ -76,8 +69,8 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 				
 				// check status
 				if (command.getResult() != ICommand.Result.Passed) {
-					throw new IllegalArgumentException(
-							"ICommand's status is '" + command.getResult() + "' instaed of 'passed': " + command.getResultText());
+					this.logger.warn("ICommand's status is '" + command.getResult() + "' instaed of 'passed': " + command.getResultText());
+					continue;
 				}
 				
 				// loop through the indexer docs
@@ -91,7 +84,7 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			this.logger.error("Internal error in lucene writer thread", e);
 		} 
 	}
 	
