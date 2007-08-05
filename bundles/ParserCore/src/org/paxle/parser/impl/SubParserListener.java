@@ -12,7 +12,7 @@ public class SubParserListener implements ServiceListener {
 	/**
 	 * A LDAP styled expression used for the service-listener
 	 */
-	public static String FILTER = "(& (objectClass=" + ISubParser.class.getName () +") "+
+	public static final String FILTER = "(& (objectClass=" + ISubParser.class.getName () + ") "+
 	 								 "(" + ISubParser.PROP_MIMETYPES + "=*))";	
 	
 	/**

@@ -7,5 +7,6 @@ Bundle-Description: Paxle Indexer Bundle
 Bundle-SymbolicName: org.paxle.indexer
 Import-Package: org.paxle.core.doc, org.paxle.core.threading, org.paxl
  e.core.queue, org.osgi.framework, org.paxle.core, org.paxle.core.data
+ , org.apache.commons.logging
 Bundle-ContactAddress: http://www.paxle.net/
 

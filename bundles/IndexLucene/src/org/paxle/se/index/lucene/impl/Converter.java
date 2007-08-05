@@ -15,6 +15,7 @@ import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
+
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.lucene.IndexerDocument;
 

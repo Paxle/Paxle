@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.queue.ICommand;
@@ -17,9 +19,12 @@ import org.paxle.indexer.IndexerDocument;
 
 public class IndexerWorker extends AWorker<ICommand> {
 	
+	private final Log logger = LogFactory.getLog(IndexerWorker.class);
+	
 	@Override
 	protected void execute(ICommand cmd) {
 		final IIndexerDocument idoc;
+		this.logger.info("Indexing of URL '" + cmd.getLocation() + "' (MIME type '" + cmd.getCrawlerDocument().getMimeType() + "')");
 		try {
 			// generate the "main" indexer document from the "main" parser document including the
 			// data from the command object
@@ -45,7 +50,10 @@ public class IndexerWorker extends AWorker<ICommand> {
 					cmd.getCrawlerDocument().getCrawlerDate(),
 					pdoce.getKey(),
 					pdoce.getValue()));
-		} catch (IOException e) { /* we ignore these as we deal "only" with sub-docs */ }
+		} catch (IOException e) {
+			this.logger.info("Unable to index the sub-document '" + pdoce.getKey() + "' of '" + cmd.getLocation() + "'", e);
+			/* we ignore these as we deal "only" with sub-docs */
+		}
 		cmd.setResult(ICommand.Result.Passed);
 	}
 	

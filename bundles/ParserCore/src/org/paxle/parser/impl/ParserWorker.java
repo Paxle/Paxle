@@ -1,5 +1,7 @@
 package org.paxle.parser.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.queue.ICommand;
@@ -18,6 +20,8 @@ public class ParserWorker extends AWorker<ICommand> {
 	 * A class to detect mimetypes
 	 */
 	IMimeTypeDetector mimeTypeDetector = null;
+	
+	private final Log logger = LogFactory.getLog(ParserWorker.class);
 	
 	public ParserWorker(SubParserManager subParserManager) {
 		this.subParserManager = subParserManager;
@@ -39,10 +43,13 @@ public class ParserWorker extends AWorker<ICommand> {
 		ISubParser parser = this.subParserManager.getSubParser(mimeType);
 		if (parser == null) {
 			// document not parsable
+			this.logger.error("Unable to parse " + cmd.getLocation() + ", no parser found for it's MIME type '" + mimeType + "'");
 			cmd.setResult(ICommand.Result.Failure, "No parser for MIME type '" + mimeType + "' found");
 			return;
 		}
 		
+		this.logger.info("Parsing of URL '" + cmd.getLocation() + "' (" + mimeType + ")");
+		final long time = System.currentTimeMillis();
 		try {
 			IParserDocument parserdoc = parser.parse(
 					cmd.getLocation(), 
@@ -51,10 +58,12 @@ public class ParserWorker extends AWorker<ICommand> {
 			
 			cmd.setParserDocument(parserdoc);
 		} catch (Exception e) {
+			this.logger.error("Error parsing " + cmd.getLocation(), e);
 			cmd.setResult(ICommand.Result.Failure, e.getMessage());
 			return;
 		}
 		
+		this.logger.info("Finished parsing of " + cmd.getLocation() + " in " + (System.currentTimeMillis() - time) + " ms");
 		cmd.setResult(ICommand.Result.Passed);
 	}
 	

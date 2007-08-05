@@ -1,4 +1,4 @@
-package org.paxle.se;
+package org.paxle.se.index;
 
 public interface IIndexModifier {
 	

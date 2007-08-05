@@ -8,16 +8,18 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core;version=0.0.0">
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/data/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.se">
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/se/index/"/>
+			<accessrule kind="accessible" pattern="org/paxle/se/query/tokens/"/>
 			<accessrule kind="accessible" pattern="org/paxle/se/query/"/>
-			<accessrule kind="accessible" pattern="org/paxle/se/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
@@ -28,12 +30,14 @@
 			<attribute name="org.apache.lucene.analysis.standard" value="2.2.0"/>
 			<attribute name="org.apache.lucene.document" value="2.2.0"/>
 			<attribute name="org.apache.lucene.index" value="2.2.0"/>
+			<attribute name="org.apache.lucene.queryParser" value="2.2.0"/>
 			<attribute name="org.apache.lucene.search" value="2.2.0"/>
 			<attribute name="org.apache.lucene.store" value="2.2.0"/>
 		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/apache/lucene/store/"/>
 			<accessrule kind="accessible" pattern="org/apache/lucene/search/"/>
+			<accessrule kind="accessible" pattern="org/apache/lucene/queryParser/"/>
 			<accessrule kind="accessible" pattern="org/apache/lucene/index/"/>
 			<accessrule kind="accessible" pattern="org/apache/lucene/document/"/>
 			<accessrule kind="accessible" pattern="org/apache/lucene/analysis/standard/"/>

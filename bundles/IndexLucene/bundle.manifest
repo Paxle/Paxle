@@ -6,12 +6,13 @@ Bundle-Name: Lucene
 Bundle-Activator: org.paxle.se.index.lucene.impl.Activator
 Bundle-ManifestVersion: 2
 Bundle-Description: Lucene Core Bundle for Paxle
-Import-Package: org.osgi.framework, org.paxle.core.doc, org.paxle.se, 
- org.paxle.se.query, org.apache.lucene.analysis;specification-version=
- 2.2.0, org.apache.lucene.analysis.standard;specification-version=2.2.
- 0, org.apache.lucene.document;specification-version=2.2.0, org.apache
- .lucene.index;specification-version=2.2.0, org.apache.lucene.search;s
- pecification-version=2.2.0, org.apache.lucene.store;specification-ver
- sion=2.2.0
+Import-Package: org.osgi.framework, org.paxle.core.doc, org.paxle.se.q
+ uery, org.paxle.se.query.tokens, org.paxle.core.data, org.paxle.se.in
+ dex, org.apache.lucene.analysis;specification-version=2.2.0, org.apac
+ he.lucene.analysis.standard;specification-version=2.2.0, org.apache.l
+ ucene.document;specification-version=2.2.0, org.apache.lucene.index;s
+ pecification-version=2.2.0, org.apache.lucene.queryParser;specificati
+ on-version=2.2.0, org.apache.lucene.search;specification-version=2.2.
+ 0, org.apache.lucene.store;specification-version=2.2.0
 Bundle-SymbolicName: org.paxle.se.index.lucene
 

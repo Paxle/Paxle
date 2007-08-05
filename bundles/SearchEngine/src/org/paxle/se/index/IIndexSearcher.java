@@ -1,4 +1,4 @@
-package org.paxle.se;
+package org.paxle.se.index;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -12,4 +12,6 @@ public interface IIndexSearcher {
 	public static final String QUERY_TOKEN_FACTORY = "query.token.factory";
 	
 	public IIndexerDocument[] search(IToken searchToken, int maxCount, Field<?> defaultField) throws IOException, IndexException, ParseException;
+	
+	public int getDocCount();
 }

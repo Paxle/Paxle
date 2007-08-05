@@ -86,4 +86,10 @@
 	#end
 	</table>
 	<hr />
-#end	
+#end
+
+#set($indexReader = $manager.getService("org.paxle.se.index.IIndexSearcher"))
+#if($indexReader)
+	<h2>Index</h2>
+	<p>Known documents: $indexReader.docCount</p>
+#end

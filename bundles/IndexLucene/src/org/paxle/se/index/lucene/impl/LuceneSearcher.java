@@ -15,7 +15,7 @@ import org.apache.lucene.store.Directory;
 
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.se.IndexException;
+import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneSearcher;
 import org.paxle.se.query.IToken;
 
@@ -60,5 +60,9 @@ public class LuceneSearcher extends IndexSearcher implements ILuceneSearcher {
 		for (int i=0; i<count; i++)
 			docs[i] = Converter.luceneDoc2IIndexerDoc(hits.doc(i));
 		return docs;
+	}
+	
+	public int getDocCount() {
+		return super.getIndexReader().numDocs();
 	}
 }

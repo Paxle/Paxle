@@ -14,7 +14,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
 
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.se.IndexException;
+import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneWriter;
 
 public class LuceneWriter extends IndexWriter implements ILuceneWriter {
@@ -107,7 +107,7 @@ public class LuceneWriter extends IndexWriter implements ILuceneWriter {
 		super(arg0, arg1, arg2, arg3, arg4);
 	}
 	
-	public void write(IIndexerDocument document) throws IOException, IndexException {
+	public synchronized void write(IIndexerDocument document) throws IOException, IndexException {
 		try {
 			super.addDocument(Converter.iindexerDoc2LuceneDoc(document));
 		} catch (CorruptIndexException e) {

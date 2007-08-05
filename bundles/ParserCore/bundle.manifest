@@ -3,7 +3,8 @@ Bundle-Name: ParserCore
 Bundle-Activator: org.paxle.parser.impl.Activator
 Import-Package: org.osgi.framework, org.paxle.core, org.paxle.core.que
  ue, org.paxle.core.threading, org.paxle.core.filter, org.paxle.core.d
- ata, org.paxle.core.doc, org.paxle.core.mimetype
+ ata, org.paxle.core.doc, org.paxle.core.mimetype, org.apache.commons.
+ logging, org.osgi.service.log
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.parser
 Bundle-Version: 1.0.0

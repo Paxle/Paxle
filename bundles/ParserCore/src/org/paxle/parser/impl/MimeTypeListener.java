@@ -11,7 +11,7 @@ public class MimeTypeListener implements ServiceListener {
 	/**
 	 * A LDAP styled expression used for the service-listener
 	 */
-	public static String FILTER = "(objectClass=" + IMimeTypeDetector.class.getName() +")";		
+	public static final String FILTER = "(objectClass=" + IMimeTypeDetector.class.getName() + ")";		
 	
 	/**
 	 * The {@link BundleContext osgi-bundle-context} of this bundle
