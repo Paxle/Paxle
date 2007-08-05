@@ -4,8 +4,7 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-
-import org.paxle.core.data.IDataSink;
+import org.paxle.core.data.IDataConsumer;
 import org.paxle.se.index.IIndexSearcher;
 import org.paxle.se.index.IIndexWriter;
 import org.paxle.se.query.ITokenFactory;
@@ -22,6 +21,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		bc = context;
 		indexWriter = LuceneWriter.createWriter(DB_PATH);
+		indexWriter.start();
 		indexSearcher = new LuceneSearcher(DB_PATH);
 		tokenFactory = new LuceneTokenFactory();
 		
@@ -30,11 +30,12 @@ public class Activator implements BundleActivator {
 		context.registerService(ITokenFactory.class.getName(), tokenFactory, new Hashtable<String,String>());
 		
 		final Hashtable<String,String> sinkp = new Hashtable<String,String>();
-		sinkp.put(IDataSink.PROP_DATASINK_ID, "org.paxle.se.index.sink");
-		context.registerService(IDataSink.class.getName(), indexWriter, sinkp);
+		sinkp.put(IDataConsumer.PROP_DATACONSUMER_ID, "org.paxle.se.index.source");
+		context.registerService(IDataConsumer.class.getName(), indexWriter, sinkp);
 	}
 	
 	public void stop(BundleContext context) throws Exception {
+		indexWriter.stop();
 		indexWriter.close();
 		indexSearcher.close();
 		indexWriter = null;

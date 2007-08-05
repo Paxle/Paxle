@@ -12,12 +12,23 @@ import org.apache.lucene.index.IndexDeletionPolicy;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
-
+import org.paxle.core.data.IDataConsumer;
+import org.paxle.core.data.IDataSource;
 import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.core.queue.ICommand;
 import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneWriter;
 
-public class LuceneWriter extends IndexWriter implements ILuceneWriter {
+public class LuceneWriter extends IndexWriter implements ILuceneWriter, IDataConsumer<ICommand>, Runnable {
+	/**
+	 * A {@link IDataSource data-source} to read {@link ICommand commands}
+	 */
+	private IDataSource<ICommand> source = null;
+	
+	/**
+	 * The writer thread
+	 */
+	private Thread writerThread = null;
 	
 	public static LuceneWriter createWriter(String dbpath) throws CorruptIndexException,
 			LockObtainFailedException, IOException {
@@ -118,5 +129,66 @@ public class LuceneWriter extends IndexWriter implements ILuceneWriter {
 				if (Closeable.class.isAssignableFrom(entry.getKey().getType()))
 					((Closeable)entry.getValue()).close();
 		}
+	}
+
+	/**
+	 * @see IDataConsumer#setDataSource(IDataSource)
+	 */
+	public void setDataSource(IDataSource<ICommand> dataSource) {
+		if (dataSource == null) throw new NullPointerException("The data-source is null.");
+		if (this.source != null) throw new IllegalStateException("The data-source was already set.");
+		this.source = dataSource;
+		this.notify();
+	}
+
+	/**
+	 * Function to start the writer thread
+	 */
+	public void start() {
+		if (this.writerThread != null) throw new IllegalStateException("Worker-thread already started");
+		
+		// wrap the writer into a thread
+		this.writerThread = new Thread(this);
+		
+		// start it
+		this.writerThread.start();
+	}
+	
+	/**
+	 * Function to stop the writer thread
+	 * @throws InterruptedException
+	 */
+	public void stop() throws InterruptedException {
+		if (this.writerThread == null) return;
+		this.writerThread.interrupt();
+		this.writerThread.join();
+	}
+	
+	/**
+	 * @see Runnable#run()
+	 */
+	public void run() {
+		try {
+			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+			
+			synchronized (this) {
+				while (this.source == null) this.wait();
+			}
+
+			while (!Thread.interrupted()) {
+				// fetch the next command from the data-source
+				ICommand command = this.source.getData();
+				
+				// TODO: errorhandling needed, check status
+				
+				// loop through the indexer docs
+				for (IIndexerDocument indexerDoc : command.getIndexerDocuments()) {
+					// write indexer-doc to the index
+					this.write(indexerDoc);
+				}
+			}
+		} catch (Exception e) {
+			e.getStackTrace();
+		} 
 	}
 }
