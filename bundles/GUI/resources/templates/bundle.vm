@@ -24,7 +24,12 @@
 					$package<br />
 				#end
 			#else
-				$headers.get($name)
+				#set($value = $headers.get($name))
+				#if($value.startsWith("http:") || $value.startsWith("https:"))
+					<a href="$value">$value</a>
+				#else
+					$value
+				#end				
 			#end
 			</td>
 		</tr>
