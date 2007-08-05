@@ -40,7 +40,7 @@ public class Activator implements BundleActivator {
 		
 		// init P2P manager
 		p2pManager = new P2PManager();
-		p2pManager.init();
+		p2pManager.init(context.getDataFile("p2pConfig"));
 		
 		// register the P2P-manager as a osgi service
 		bc.registerService(IP2PManager.class.getName(), p2pManager, null);		

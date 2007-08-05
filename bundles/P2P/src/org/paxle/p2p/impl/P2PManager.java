@@ -20,6 +20,7 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.XMLDocument;
+import net.jxta.id.IDFactory;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
@@ -30,9 +31,6 @@ import net.jxta.protocol.DiscoveryResponseMsg;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
-import net.jxta.rendezvous.RendezVousService;
-import net.jxta.rendezvous.RendezvousEvent;
-import net.jxta.rendezvous.RendezvousListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -69,7 +67,7 @@ public class P2PManager implements IP2PManager, DiscoveryListener {
 	/**
 	 * Connects to the jxta network
 	 */
-	public void init() {
+	public void init(File configPath) {
 		// init JXTA
 		try {
 			this.logger.info("Starting JXTA ....");
@@ -78,7 +76,7 @@ public class P2PManager implements IP2PManager, DiscoveryListener {
 					NetworkManager.ConfigMode.EDGE,
 					// the peer name
 					P2PTools.getComputerName(),
-					new File(new File(".cache"), "DiscoveryServer").toURI());			
+					configPath.toURI());			
 			manager.startNetwork();
 			//boolean connectedToRendezVous = manager.waitForRendezvousConnection(60000);
 			//this.logger.info("Peer " + (connectedToRendezVous?"":"not") + "connected to rendezvous");
@@ -101,6 +99,11 @@ public class P2PManager implements IP2PManager, DiscoveryListener {
 		gisp = new GISPImpl();
 		gisp.init(paxleGroup, null, null);
 		gisp.startApp(null);
+		
+		// Jxta Shell for debugging
+//		Shell shell = new Shell();
+//		shell.init(this.paxleGroup,null,null);
+//		shell.startApp(null);
 
 //		gisp.insert("tag1", "this is a string");
 //		gisp.query("tag1", new ResultListener(){
@@ -120,6 +123,7 @@ public class P2PManager implements IP2PManager, DiscoveryListener {
 		try {			
 			// obtain the the discovery service
 			DiscoveryService discoSvc = this.paxleGroup.getDiscoveryService();
+			discoSvc.getRemoteAdvertisements(null, DiscoveryService.PEER, null, null, 1000);
 			
 			Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, null, null);
 			while (advs.hasMoreElements()) {
@@ -156,12 +160,14 @@ public class P2PManager implements IP2PManager, DiscoveryListener {
 
         PeerGroup netGroup = null;
         PeerGroup paxleGroup = null;
+        ModuleImplAdvertisement implAdv = null;
         try {
             // create, and start the default jxta NetPeerGroup
         	netGroup = manager.getNetPeerGroup();
         	
             // create a new all purpose peergroup.
-            ModuleImplAdvertisement implAdv = netGroup.getAllPurposePeerGroupImplAdvertisement();
+            implAdv = netGroup.getAllPurposePeerGroupImplAdvertisement();
+            System.out.println("Spec-ID: " + implAdv.getModuleSpecID());
 
             // create the paxle group
             paxleGroup = netGroup.newGroup(
@@ -187,12 +193,12 @@ public class P2PManager implements IP2PManager, DiscoveryListener {
         }
 
         try {
-            // obtain the the discovery service
+            // obtain the the discovery service from the netgroup
         	DiscoveryService netGroupDiscovery = netGroup.getDiscoveryService();
-        	netGroupDiscovery.addDiscoveryListener(this);
         	
             // publish this advertisement
-            //(send out to other peers and rendezvous peer)
+        	netGroupDiscovery.publish(adv);
+        	netGroupDiscovery.remotePublish(implAdv); // do we need this?
             netGroupDiscovery.remotePublish(adv);
             System.out.println("Group published successfully.");
         } catch (Exception e) {
@@ -201,8 +207,7 @@ public class P2PManager implements IP2PManager, DiscoveryListener {
             throw e;
         }
         
-    	paxleGroup.getDiscoveryService().addDiscoveryListener(this);
-        
+    	paxleGroup.getDiscoveryService().addDiscoveryListener(this);        
         return paxleGroup;
 	}
 	
@@ -270,7 +275,7 @@ public class P2PManager implements IP2PManager, DiscoveryListener {
 	}
 
 	public String getPeerID() {
-		return this.manager.getPeerID().getUniqueValue().toString();
+		return this.paxleGroup.getPeerID().getUniqueValue().toString();
 	}
 	
 	public String getPeerName() {
@@ -299,7 +304,7 @@ public class P2PManager implements IP2PManager, DiscoveryListener {
 	               XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.
 	                  newStructuredDocument(MimeMediaType.XMLUTF8, stream);
 	               Advertisement adv = AdvertisementFactory.newAdvertisement(asDoc);
-	               this.logger.info( "Advertisement received:  " + adv.getAdvertisementType());
+	               this.logger.info( "Advertisement received:  " + adv.getAdvType());
 	            } catch (IOException e) {
 	            	this.logger.warn("Error in discoveryEvent: " + e);
 	            }

@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bundlejar>
 <resource dst="" pattern=".*\.class" src="/P2P/out" type="0"/>
+<resource dst="gisp/lib/bcprov-jdk14.jar" src="/P2P/gisp/lib/bcprov-jdk14.jar" type="1"/>
 <resource dst="gisp/lib/dom4j.jar" src="/P2P/gisp/lib/dom4j.jar" type="1"/>
+<resource dst="gisp/lib/javax.servlet.jar" src="/P2P/gisp/lib/javax.servlet.jar" type="1"/>
+<resource dst="gisp/lib/jdom.jar" src="/P2P/gisp/lib/jdom.jar" type="1"/>
 <resource dst="gisp/lib/junit.jar" src="/P2P/gisp/lib/junit.jar" type="1"/>
 <resource dst="gisp/lib/jxta.jar" src="/P2P/gisp/lib/jxta.jar" type="1"/>
+<resource dst="gisp/lib/jxtaext.jar" src="/P2P/gisp/lib/jxtaext.jar" type="1"/>
 <resource dst="gisp/lib/log4j.jar" src="/P2P/gisp/lib/log4j.jar" type="1"/>
+<resource dst="gisp/lib/org.mortbay.jetty.jar" src="/P2P/gisp/lib/org.mortbay.jetty.jar" type="1"/>
+<resource dst="gisp/lib/swixml.jar" src="/P2P/gisp/lib/swixml.jar" type="1"/>
 <resource dst="libs/bcprov-jdk15-132.jar" src="/P2P/libs/bcprov-jdk15-132.jar" type="1"/>
 <resource dst="libs/xerces.jar" src="/P2P/libs/xerces.jar" type="1"/>
 <resource dst="libs/xml-apis.jar" src="/P2P/libs/xml-apis.jar" type="1"/>
