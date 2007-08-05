@@ -121,22 +121,22 @@ public class SEWrapper implements ISearchEngine, Closeable {
 		}
 	}
 	
-	public void removeIModifier(IIndexModifier imodifier) {
+	public void removeIModifier() {
 		this.imodifier = null;
 		this.logger.info("Unregistered index modifier service");
 	}
 	
-	public void removeISearcher(IIndexSearcher isearcher) {
+	public void removeISearcher() {
 		this.isearcher = null;
 		this.logger.info("Unregistered index searcher service");
 	}
 	
-	public void removeIWriter(IIndexWriter iwriter) {
+	public void removeIWriter() {
 		this.iwriter = null;
 		this.logger.info("Unregistered index writer service");
 	}
 	
-	public void removeTokenFactory(ITokenFactory tfactory) {
+	public void removeTokenFactory() {
 		this.pqp = null;
 		this.logger.info("Unregistered token factory service");
 	}

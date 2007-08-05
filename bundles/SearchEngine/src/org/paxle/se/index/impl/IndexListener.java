@@ -1,8 +1,11 @@
 package org.paxle.se.index.impl;
 
+import java.util.Hashtable;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 
 import org.paxle.se.index.IIndexModifier;
 import org.paxle.se.index.IIndexSearcher;
@@ -17,6 +20,8 @@ public class IndexListener implements ServiceListener {
 			IIndexWriter.class.getName(),
 			ITokenFactory.class.getName());
 	
+	private final Hashtable<Long,Class<?>> interfaceMapping = new Hashtable<Long,Class<?>>();
+	
 	private final SEWrapper sewrapper;
 	private final BundleContext context;
 	
@@ -26,11 +31,10 @@ public class IndexListener implements ServiceListener {
 	}
 	
 	public void serviceChanged(ServiceEvent event) {
-		Object service = this.context.getService(event.getServiceReference());
-		
+		final ServiceReference ref = event.getServiceReference();
 		switch (event.getType()) {
-			case ServiceEvent.REGISTERED:    register(service); break;		// Service installed
-			case ServiceEvent.UNREGISTERING: unregister(service); break;	// Service uninstalled
+			case ServiceEvent.REGISTERED:    register(this.context.getService(ref)); break;		// Service installed
+			case ServiceEvent.UNREGISTERING: unregister(ref.getBundle().getBundleId()); break;	// Service uninstalled
 			case ServiceEvent.MODIFIED:      break; 						// Service properties changed
 		}
 	}
@@ -38,24 +42,31 @@ public class IndexListener implements ServiceListener {
 	private void register(Object service) {
 		if (service instanceof IIndexSearcher) {
 			this.sewrapper.addISearcher((IIndexSearcher)service);
-		} else if (service instanceof IIndexModifier) {
+		}
+		if (service instanceof IIndexModifier) {
 			this.sewrapper.addIModifier((IIndexModifier)service);
-		} else if (service instanceof IIndexWriter) {
+		}
+		if (service instanceof IIndexWriter) {
 			this.sewrapper.addIWriter((IIndexWriter)service);
-		} else if (service instanceof ITokenFactory) {
+		}
+		if (service instanceof ITokenFactory) {
 			this.sewrapper.addTokenFactory((ITokenFactory)service);
 		}
 	}
 	
-	private void unregister(Object service) {
-		if (service instanceof IIndexSearcher) {
-			this.sewrapper.removeISearcher((IIndexSearcher)service);
-		} else if (service instanceof IIndexModifier) {
-			this.sewrapper.removeIModifier((IIndexModifier)service);
-		} else if (service instanceof IIndexWriter) {
-			this.sewrapper.removeIWriter((IIndexWriter)service);
-		} else if (service instanceof ITokenFactory) {
-			this.sewrapper.removeTokenFactory((ITokenFactory)service);
+	private void unregister(long id) {
+		final Class<?> clazz = this.interfaceMapping.get(id);
+		if (IIndexSearcher.class.isAssignableFrom(clazz)) {
+			this.sewrapper.removeISearcher();
+		}
+		if (IIndexModifier.class.isAssignableFrom(clazz)) {
+			this.sewrapper.removeIModifier();
+		}
+		if (IIndexWriter.class.isAssignableFrom(clazz)) {
+			this.sewrapper.removeIWriter();
+		}
+		if (ITokenFactory.class.isAssignableFrom(clazz)) {
+			this.sewrapper.removeTokenFactory();
 		}
 	}
 }

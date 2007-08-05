@@ -85,6 +85,8 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 					this.logger.error("Error adding document to index", e);
 				}
 			}
+		} catch (InterruptedException e) {
+			this.logger.info("Lucene writer was interrupted, quitting...");
 		} catch (Exception e) {
 			this.logger.error("Internal error in lucene writer thread", e);
 		} 
