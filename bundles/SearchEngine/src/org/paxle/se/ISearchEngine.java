@@ -8,4 +8,6 @@ public interface ISearchEngine {
 	public abstract IIndexerDocument[] doSearch(String paxleQuery, int count) throws DBUnitializedException, IndexException;
 	
 	public abstract int getIndexedDocCount() throws DBUnitializedException, IndexException;
+	
+	public abstract boolean isKnown(String url) throws DBUnitializedException, IndexException;
 }

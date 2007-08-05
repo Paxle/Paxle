@@ -1,5 +1,7 @@
 package org.paxle.se.index;
 
-public interface IIndexModifier {
+import java.io.Closeable;
+
+public interface IIndexModifier extends Closeable {
 	
 }

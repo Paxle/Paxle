@@ -5,8 +5,6 @@ import java.util.Hashtable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.IndexWriter;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -18,10 +16,9 @@ import org.paxle.se.query.ITokenFactory;
 
 public class Activator implements BundleActivator {
 	
-	private static final String DB_PATH = "lucene-db";
+	private static final String DB_PATH = "lucene-db";	// TODO
 	
 	public static BundleContext bc = null;
-	public static IndexWriter indexWriter = null;
 	public static LuceneWriter indexWriterThread = null;
 	public static LuceneSearcher indexSearcher = null;
 	public static LuceneTokenFactory tokenFactory = null;
@@ -40,8 +37,7 @@ public class Activator implements BundleActivator {
 		}
 		writeLock.deleteOnExit();
 		
-		indexWriter = new IndexWriter(DB_PATH, new StandardAnalyzer());
-		indexWriterThread = new LuceneWriter(indexWriter);
+		indexWriterThread = new LuceneWriter(DB_PATH);
 		indexSearcher = new LuceneSearcher(DB_PATH);
 		tokenFactory = new LuceneTokenFactory();
 		
@@ -56,12 +52,9 @@ public class Activator implements BundleActivator {
 	}
 	 
 	public void stop(BundleContext context) throws Exception {
-		indexWriterThread.interrupt();
-		indexWriterThread.join();
-		indexWriterThread = null;
-		indexWriter.close();
-		indexWriter = null;
+		indexWriterThread.close();
 		indexSearcher.close();
+		indexWriterThread = null;
 		indexSearcher = null;
 		tokenFactory = null;
 		bc = null;

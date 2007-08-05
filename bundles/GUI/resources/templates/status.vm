@@ -88,8 +88,8 @@
 	<hr />
 #end
 
-#set($indexReader = $manager.getService("org.paxle.se.index.IIndexSearcher"))
-#if($indexReader)
+#set($se = $manager.getService("org.paxle.se.ISearchEngine"))
+#if($se)
 	<h2>Index</h2>
-	<p>Known documents: $indexReader.docCount</p>
+	<p>Known documents: $se.indexedDocCount</p>
 #end

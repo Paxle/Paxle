@@ -13,7 +13,7 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	public static final Field<Date>         LAST_CRAWLED  = new Field<Date>	        (false, true,  "LastCrawled",  Date.class);
 	public static final Field<Date>         LAST_MODIFIED = new Field<Date>	        (true,  true,  "LastModified", Date.class);
 	public static final Field<Language[]>   LANGUAGES     = new Field<Language[]>   (true,  true,  "Languages",    Language[].class);
-	public static final Field<String>       LOCATION      = new Field<String>       (false, true,  "Location",     String.class);
+	public static final Field<String>       LOCATION      = new Field<String>       (true,  true,  "Location",     String.class);
 	public static final Field<byte[]>       MD5           = new Field<byte[]>       (false, true,  "MD5",          byte[].class);
 	public static final Field<Long>         SIZE          = new Field<Long>	        (false, true,  "Size",         Long.class);
 	public static final Field<String>       SUMMARY       = new Field<String>       (true,  true,  "Summary",      String.class);

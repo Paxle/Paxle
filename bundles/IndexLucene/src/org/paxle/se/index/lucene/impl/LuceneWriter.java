@@ -6,8 +6,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.store.LockObtainFailedException;
 
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataSource;
@@ -34,8 +36,8 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	 */
 	private final Log logger = LogFactory.getLog(LuceneWriter.class);
 	
-	public LuceneWriter(IndexWriter writer) {
-		this.writer = writer;
+	public LuceneWriter(String dbpath) throws CorruptIndexException, LockObtainFailedException, IOException {
+		this.writer = new IndexWriter(dbpath, new StandardAnalyzer());
 		this.start();
 		this.logger.info("Lucene writer has been started");
 	}
@@ -104,5 +106,11 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 				if (Closeable.class.isAssignableFrom(entry.getKey().getType()))
 					((Closeable)entry.getValue()).close();
 		}
+	}
+	
+	public void close() throws IOException {
+		this.interrupt();
+		try { this.join(); } catch (InterruptedException e) { /* ignore this */ }
+		this.writer.close();
 	}
 }

@@ -20,9 +20,17 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 	
 	@Override
 	public void enqueue(Cmd command) throws InterruptedException {
-		// TODO Auto-generated method stub
+		switch (command.getResult()) {
+			case Failure:
+			case Rejected:
+		}
+		
 		filter(command);
-		super.enqueue(command);
+		switch (command.getResult()) {
+			case Failure:
+			case Passed:  super.enqueue(command); break;
+			case Rejected:
+		}
 	}
 	
 	private void filter(Cmd command) {
