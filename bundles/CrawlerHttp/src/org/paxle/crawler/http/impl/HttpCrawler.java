@@ -72,8 +72,14 @@ public class HttpCrawler implements IHttpCrawler {
 				
 				int idx = contentMimeType.indexOf(";");
 				if (idx != -1) {
-					contentCharset = contentMimeType.substring(idx+1);
+					contentCharset = contentMimeType.substring(idx+1).trim();
 					contentMimeType = contentMimeType.substring(0,idx);
+					
+					if (contentCharset.startsWith("charset=")) {
+						contentCharset = contentCharset.substring("charset=".length());
+					} else {
+						contentCharset = null;
+					}
 				}	
 				
 				doc.setMimeType(contentMimeType);
