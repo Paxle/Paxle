@@ -24,16 +24,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/Lucene">
-		<attributes>
-			<attribute name="bundle-name" value="Lucene"/>
-			<attribute name="org.apache.lucene.analysis" value="2.2.0"/>
-			<attribute name="org.apache.lucene.analysis.standard" value="2.2.0"/>
-			<attribute name="org.apache.lucene.document" value="2.2.0"/>
-			<attribute name="org.apache.lucene.index" value="2.2.0"/>
-			<attribute name="org.apache.lucene.queryParser" value="2.2.0"/>
-			<attribute name="org.apache.lucene.search" value="2.2.0"/>
-			<attribute name="org.apache.lucene.store" value="2.2.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/apache/lucene/store/"/>
 			<accessrule kind="accessible" pattern="org/apache/lucene/search/"/>
@@ -45,5 +35,6 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
+	<classpathentry kind="lib" path="/Lucene/libs/lucene-core-2.2.0.jar" sourcepath="/lucene-test/lucene-2.2.0/src/java"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>
