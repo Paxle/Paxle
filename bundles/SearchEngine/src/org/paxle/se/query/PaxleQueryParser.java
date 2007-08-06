@@ -71,7 +71,7 @@ public class PaxleQueryParser {
 	 */
 	private static int findTokenEnd(String query, int loff) {
 		int t = -1, tt;
-		for (int c=0; c<5; c++) {
+		for (int c=0; c<2; c++) {
 			char first = query.charAt(loff);
 			t = (first == '(' && (t = findMatching(query, loff)) > -1 ||
 					(loff + 1 < query.length() && first == '"' && (t = findMatching(query, loff + 1)) > -1)

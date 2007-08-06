@@ -12,11 +12,11 @@ import org.paxle.core.threading.IWorkerFactory;
  * which is required by Apache commons pool. 
  */
 public class WorkerFactoryWrapper<Data,E extends IWorker<Data>> implements PoolableObjectFactory {
-	private IPool pool = null;
+	private IPool<Data> pool = null;
 	private IWorkerFactory<E> factory = null;
 	private IOutputQueue<Data> outQueue = null;
 	
-	public void setPool(IPool pool) {
+	public void setPool(IPool<Data> pool) {
 		this.pool = pool;
 	}
 	

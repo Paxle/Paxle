@@ -27,7 +27,7 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	private IDataSource<ICommand> source = null;
 	
 	/**
-	 * The writer thread
+	 * The lucene index writer
 	 */
 	private final IndexWriter writer;
 	
