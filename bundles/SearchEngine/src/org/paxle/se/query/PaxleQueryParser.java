@@ -3,9 +3,11 @@ package org.paxle.se.query;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.paxle.se.query.impl.DebugTokenFactory;
 import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.query.tokens.ModToken;
-import org.paxle.se.query.tokens.Operator;
+import org.paxle.se.query.tokens.AndOperator;
+import org.paxle.se.query.tokens.OrOperator;
 import org.paxle.se.query.tokens.PlainToken;
 import org.paxle.se.query.tokens.QuoteToken;
 
@@ -157,7 +159,11 @@ public class PaxleQueryParser {
 		return orts.toArray(new String[orts.size()][]);
 	}
 	
-	private final ITokenFactory factory;
+	private ITokenFactory factory;
+	
+	public PaxleQueryParser() {
+		this.factory = null;
+	}
 	
 	public PaxleQueryParser(ITokenFactory factory) {
 		this.factory = factory;
@@ -167,12 +173,16 @@ public class PaxleQueryParser {
 		return this.factory;
 	}
 	
+	public void setTokenFactory(ITokenFactory factory) {
+		this.factory = factory;
+	}
+	
 	/**
 	 * Splits the given query-{@link String} into top-level tokens and processes these
 	 * tokens regarding the connection operator. This method recurses indirectly if a
 	 * token is a multi-token.
 	 * <p>
-	 * If the query consists only of one token, no {@link Operator}-token is returned
+	 * If the query consists only of one token, no operator-token is returned
 	 * but only this single token. If <code>query</code> doesn't contain a
 	 * <code>or</code>-token on the top-level, only an {@link AndOperator} is
 	 * returned.
@@ -192,7 +202,7 @@ public class PaxleQueryParser {
 			} else if (aots.length == 1) {
 				return and(aots[0]);
 			} else {
-				final Operator or = this.factory.createOrOperator();
+				final OrOperator or = this.factory.createOrOperator();
 				for (String[] andts : aots)
 					or.addToken(and(andts));
 				return or;
@@ -216,7 +226,7 @@ public class PaxleQueryParser {
 		} else if (tokens.length == 1) {
 			return toToken(tokens[0]);
 		} else {
-			final Operator and = this.factory.createAndOperator();
+			final AndOperator and = this.factory.createAndOperator();
 			for (final String t : tokens)
 				and.addToken(parse(t));
 			return and;
