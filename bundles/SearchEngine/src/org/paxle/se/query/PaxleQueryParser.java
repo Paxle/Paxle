@@ -3,11 +3,9 @@ package org.paxle.se.query;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.paxle.se.query.tokens.AndOperator;
+import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.query.tokens.ModToken;
-import org.paxle.se.query.tokens.NotToken;
 import org.paxle.se.query.tokens.Operator;
-import org.paxle.se.query.tokens.OrOperator;
 import org.paxle.se.query.tokens.PlainToken;
 import org.paxle.se.query.tokens.QuoteToken;
 
@@ -165,6 +163,10 @@ public class PaxleQueryParser {
 		this.factory = factory;
 	}
 	
+	public ITokenFactory getTokenFactory() {
+		return this.factory;
+	}
+	
 	/**
 	 * Splits the given query-{@link String} into top-level tokens and processes these
 	 * tokens regarding the connection operator. This method recurses indirectly if a
@@ -178,7 +180,7 @@ public class PaxleQueryParser {
 	 * @param  query the paxle-query to process
 	 * @return an {@link IToken} containing all found tokens in <code>query</code>.
 	 */
-	public IToken parse(String query) {
+	public AToken parse(String query) {
 		final String[] rts = lex(query);
 		if (rts.length == 0) return null;
 		if (rts.length == 1) {
@@ -208,7 +210,7 @@ public class PaxleQueryParser {
 	 * @return the resulting {@link IToken} or <code>null</code> if <code>tokens</code> is empty
 	 *         or contains only one invalid token.
 	 */
-	private IToken and(String[] tokens) {
+	private AToken and(String[] tokens) {
 		if (tokens.length == 0) {
 			return null;
 		} else if (tokens.length == 1) {
@@ -246,12 +248,12 @@ public class PaxleQueryParser {
 	 * @param  str the {@link String} to parse into a token
 	 * @return the {@link IToken} <code>str</code> has matched the conditions for
 	 */
-	private IToken toToken(String str) {
+	private AToken toToken(String str) {
 		if (str.length() > 1) {
 			final char first = str.charAt(0);
 			final char last = str.charAt(str.length() - 1);
 			if (first == '-') {
-				final IToken pt = toToken(str.substring(1));
+				final AToken pt = toToken(str.substring(1));
 				if (pt == null) {
 					return null;
 				} else {
@@ -277,9 +279,9 @@ public class PaxleQueryParser {
 		
 		final int colon = str.indexOf(':');
 		if (colon > 0 && colon < str.length() - 1) {
-			final IToken pt = toToken(str.substring(colon + 1));
+			final AToken pt = toToken(str.substring(colon + 1));
 			if (pt instanceof PlainToken) {
-				return this.factory.toModToken((PlainToken)pt, str.substring(0, colon));
+				return new ModToken((PlainToken)pt, str.substring(0, colon));
 			} else {
 				return this.factory.toPlainToken(str);
 			}
@@ -298,35 +300,9 @@ public class PaxleQueryParser {
 		//System.out.println(findMatching(sb, 24));
 		//System.out.println(findMatching(sb, 6));
 		
-		final PaxleQueryParser pqp = new PaxleQueryParser(new ITokenFactory() {
-			
-			public Operator createAndOperator() {
-				return new AndOperator();
-			}
-			
-			public Operator createOrOperator() {
-				return new OrOperator();
-			}
-			
-			public ModToken toModToken(PlainToken token, String mod) {
-				return new ModToken(token, mod);
-			}
-			
-			public NotToken toNotToken(IToken token) {
-				return new NotToken(token);
-			}
-			
-			public PlainToken toPlainToken(String str) {
-				return new PlainToken(str);
-			}
-			
-			public QuoteToken toQuoteToken(String str) {
-				return new QuoteToken(str);
-			}
-		});
+		final PaxleQueryParser pqp = new PaxleQueryParser(new DebugTokenFactory());
 		
-		
-		System.out.println(pqp.parse(sb));
+		System.out.println(pqp.parse(sb).getString());
 		
 		/*
 		String[] ss = lex(sb);

@@ -15,10 +15,11 @@ import org.paxle.se.index.IIndexModifier;
 import org.paxle.se.index.IIndexSearcher;
 import org.paxle.se.index.IIndexWriter;
 import org.paxle.se.index.IndexException;
-import org.paxle.se.query.IToken;
 import org.paxle.se.query.ITokenFactory;
 import org.paxle.se.query.PaxleQueryParser;
+import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.query.tokens.FieldToken;
+import org.paxle.se.query.tokens.QuoteToken;
 
 public class SEWrapper implements ISearchEngine, Closeable {
 	
@@ -38,7 +39,7 @@ public class SEWrapper implements ISearchEngine, Closeable {
 			throw new DBUnitializedException("IndexSearcher has not been initialized yet");
 		if (this.pqp == null)
 			throw new DBUnitializedException("Query Parser has not been initialized yet");
-		IToken stoken = this.pqp.parse(paxleQuery);
+		AToken stoken = this.pqp.parse(paxleQuery);
 		Field<?> stdField = IIndexerDocument.TEXT;
 		
 		// TODO: search plugins
@@ -60,7 +61,14 @@ public class SEWrapper implements ISearchEngine, Closeable {
 	}
 	
 	public boolean isKnown(String url) throws DBUnitializedException, IndexException {
-		final IIndexerDocument[] hits = search(new FieldToken(IIndexerDocument.LOCATION, url), 1, IIndexerDocument.LOCATION);
+		if (this.pqp == null)
+			throw new DBUnitializedException("token factory has not been initialized yet");
+		// the url should match exactly so we quote it
+		final QuoteToken urlToken = this.pqp.getTokenFactory().toQuoteToken(url);
+		// only check the LOCATION-field in the index for it
+		final FieldToken locationToken = this.pqp.getTokenFactory().toFieldToken(urlToken, IIndexerDocument.LOCATION);
+		// search for the new token in the index
+		final IIndexerDocument[] hits = search(locationToken, 1, IIndexerDocument.LOCATION);
 		return (hits != null && hits.length != 0);
 	}
 	
@@ -68,7 +76,7 @@ public class SEWrapper implements ISearchEngine, Closeable {
 	 * Internal methods
 	 * ================================================================== */
 	
-	private IIndexerDocument[] search(IToken token, int count, Field<?> stdField) throws DBUnitializedException, IndexException {
+	private IIndexerDocument[] search(AToken token, int count, Field<?> stdField) throws DBUnitializedException, IndexException {
 		if (this.isearcher == null)
 			throw new DBUnitializedException("IndexSearcher has not been initialized yet");
 		try {

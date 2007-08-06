@@ -1,10 +1,10 @@
 package org.paxle.se.query.tokens;
 
-import org.paxle.se.query.IParentToken;
-
-public abstract class Operator extends MultiToken implements IParentToken {
+public abstract class Operator extends MultiToken {
 	
 	public Operator(String name) {
 		super(name);
 	}
+	
+	public abstract int getMinMatchCount();
 }

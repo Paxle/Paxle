@@ -1,10 +1,8 @@
 package org.paxle.se.query.tokens;
 
-import org.paxle.se.query.IToken;
-
-public class ModToken implements IToken {
+public class ModToken extends AToken {
 	
-	protected final IToken token;
+	protected final AToken token;
 	protected final String mod; 
 	
 	public ModToken(PlainToken token, String mod) {
@@ -12,7 +10,7 @@ public class ModToken implements IToken {
 		this.mod = mod;
 	}
 	
-	public IToken getToken() {
+	public AToken getToken() {
 		return this.token;
 	}
 	
@@ -21,10 +19,7 @@ public class ModToken implements IToken {
 	}
 	
 	public String getString() {
-		return this.mod + ':' + this.token.getString();
-	}
-	
-	public String toString() {
-		return "(" + getClass().getSimpleName() + ") Mod: '" + this.mod + "' & " + this.token.toString();
+		//throw new RuntimeException("Not supported");
+		return "(" + getClass().getSimpleName() + ") Mod: '" + this.mod + "' & " + this.token.getString();
 	}
 }

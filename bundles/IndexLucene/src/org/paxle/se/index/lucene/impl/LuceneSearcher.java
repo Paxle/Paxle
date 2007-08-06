@@ -17,7 +17,7 @@ import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneSearcher;
-import org.paxle.se.query.IToken;
+import org.paxle.se.query.tokens.AToken;
 
 public class LuceneSearcher extends IndexSearcher implements ILuceneSearcher {
 	
@@ -38,7 +38,7 @@ public class LuceneSearcher extends IndexSearcher implements ILuceneSearcher {
 		super(r);
 	}
 	
-	public IIndexerDocument[] search(IToken searchToken, int maxCount, Field<?> defaultField) throws IOException,
+	public IIndexerDocument[] search(AToken searchToken, int maxCount, Field<?> defaultField) throws IOException,
 			IndexException, ParseException {
 		final String queryString = searchToken.getString();
 		final QueryParser queryParser = new QueryParser(defaultField.getName(), new StandardAnalyzer());

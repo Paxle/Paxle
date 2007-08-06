@@ -1,20 +1,14 @@
 package org.paxle.se.query.tokens;
 
-import org.paxle.se.query.IToken;
-
-public class NotToken implements IToken {
+public abstract class NotToken extends AToken {
 	
-	protected final IToken token;
+	protected final AToken token;
 	
-	public NotToken(IToken token) {
+	public NotToken(AToken token) {
 		this.token = token;
 	}
 	
-	public String getString() {
-		return '-' + this.token.getString();
-	}
-	
 	public String toString() {
-		return "(" + this.getClass().getSimpleName() + ") '" + this.token.toString() + "'";
+		return "(" + getClass().getSimpleName() + ") '" + this.token.toString() + "'";
 	}
 }

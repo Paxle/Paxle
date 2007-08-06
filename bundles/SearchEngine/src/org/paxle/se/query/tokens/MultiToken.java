@@ -1,40 +1,49 @@
 package org.paxle.se.query.tokens;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.paxle.se.query.IParentToken;
-import org.paxle.se.query.IToken;
-
-public class MultiToken implements IParentToken {
+public abstract class MultiToken extends AToken implements Iterable<AToken> {
 	
-	protected final LinkedList<IToken> children = new LinkedList<IToken>();
+	protected class MTIterator implements Iterator<AToken> {
+		
+		protected final Iterator<AToken> baseIt = MultiToken.this.children.iterator();
+		protected AToken current = null;
+		
+		public boolean hasNext() {
+			return this.baseIt.hasNext();
+		}
+		
+		public AToken next() {
+			this.current = this.baseIt.next();
+			return this.current;
+		}
+		
+		public void remove() {
+			this.current.setParent(null);
+			this.current = null;
+			this.baseIt.remove();
+		}
+	}
+	
+	protected final LinkedList<AToken> children = new LinkedList<AToken>();
 	protected final String str;
 	
 	public MultiToken(String name) {
 		this.str = name;
 	}
 	
-	public void addToken(IToken child) {
+	public void addToken(AToken child) {
 		if (child == null) return;
+		child.setParent(this);
 		this.children.add(child);
 	}
 	
-	public IToken[] children() {
-		return this.children.toArray(new IToken[this.children.size()]);
+	public AToken[] children() {
+		return this.children.toArray(new AToken[this.children.size()]);
 	}
 	
-	public String getString() {
-		return "(" + getClass().getSimpleName() + ") '" + this.str + "'";
-	}
-	
-	public String toString() {
-		final StringBuilder sb = new StringBuilder(this.str);
-		sb.append(" { ");
-		if (this.children.size() > 0) {
-			for (IToken t : this.children)
-				sb.append(t.toString()).append(", ");
-			sb.deleteCharAt(sb.length() - 2);
-		}
-		return sb.append("}").toString();
+	public Iterator<AToken> iterator() {
+		return new MTIterator();
 	}
 }

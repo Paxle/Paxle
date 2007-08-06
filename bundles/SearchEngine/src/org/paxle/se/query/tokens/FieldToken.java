@@ -1,19 +1,19 @@
 package org.paxle.se.query.tokens;
 
 import org.paxle.core.doc.Field;
-import org.paxle.se.query.IToken;
 
-public class FieldToken extends PlainToken implements IToken {
+public abstract class FieldToken extends AToken {
 	
 	protected final Field<?> field;
+	protected final AToken token;
 	
-	public FieldToken(Field<?> field, String text) {
-		super(text);
+	public FieldToken(AToken token, Field<?> field) {
+		this.token = token;
 		this.field = field;
 	}
 	
 	@Override
-	public String getString() {
-		return "(" + this.getClass().getSimpleName() + ") Field: " + this.field.getName() + " & " + super.getString();
+	public String toString() {
+		return "(" + this.getClass().getSimpleName() + ") Field: " + this.field.getName() + " & " + this.token.toString();
 	}
 }
