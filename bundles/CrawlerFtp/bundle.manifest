@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-Description: Paxle FTP Crawler
+Bundle-Name: CrawlerFtp
+Bundle-ClassPath: ., libs/commons-net-1.4.1.jar
+Bundle-Activator: org.paxle.crawler.ftp.impl.Activator
+Import-Package: org.osgi.framework, org.paxle.core.doc, org.paxle.craw
+ ler, org.apache.commons.logging
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.paxle.crawler.ftp
+Bundle-Version: 1.0.0
+
