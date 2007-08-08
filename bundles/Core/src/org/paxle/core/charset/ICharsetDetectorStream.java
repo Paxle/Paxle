@@ -1,4 +1,4 @@
-package org.paxle.charset;
+package org.paxle.core.charset;
 
 public interface ICharsetDetectorStream {
 	

@@ -56,7 +56,7 @@ public class Activator implements BundleActivator {
 		bc.addServiceListener(new SubParserListener(subParserManager,bc),SubParserListener.FILTER);	
 		
 		// a listener for the mimetype detector
-		bc.addServiceListener(new MimeTypeListener((WorkerFactory)workerFactory,bc),MimeTypeListener.FILTER);
+		bc.addServiceListener(new DetectorListener((WorkerFactory)workerFactory,bc),DetectorListener.FILTER);
 		
 		/* ==========================================================
 		 * Get services provided by other bundles

@@ -43,8 +43,7 @@ public class Command implements ICommand {
 	
 	public void addIndexerDocument(IIndexerDocument indexerDoc) {
 		this.indexerDocs.add(indexerDoc);
-	}
-	
+	}	
 
 	public Result getResult() {
 		return this.result;

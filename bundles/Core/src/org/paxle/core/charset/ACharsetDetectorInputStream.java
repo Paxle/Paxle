@@ -1,4 +1,4 @@
-package org.paxle.charset;
+package org.paxle.core.charset;
 
 import java.io.FilterInputStream;
 import java.io.InputStream;

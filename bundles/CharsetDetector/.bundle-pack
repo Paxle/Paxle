@@ -2,4 +2,5 @@
 <bundlejar>
 <resource dst="" pattern=".*\.class" src="/CharsetDetector/out" type="0"/>
 <resource dst="libs/chardet.jar" src="/CharsetDetector/libs/chardet.jar" type="1"/>
+<resource dst="/resources" src="/CharsetDetector/resources" type="2"/>
 </bundlejar>

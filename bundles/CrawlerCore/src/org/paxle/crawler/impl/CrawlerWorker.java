@@ -4,9 +4,11 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
+import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.ISubCrawler;
 
 public class CrawlerWorker extends AWorker<ICommand> {
@@ -17,13 +19,30 @@ public class CrawlerWorker extends AWorker<ICommand> {
 	 * A class to manage {@link ISubCrawler sub-crawlers}
 	 */
 	private SubCrawlerManager subCrawlerManager = null;
+		
+	/**
+	 * A class to detect charsets
+	 */
+	ICharsetDetector charsetDetector = null;	
 	
 	public CrawlerWorker(SubCrawlerManager subCrawlerManager) {
 		this.subCrawlerManager = subCrawlerManager;
 	}
+	
+	/**
+	 * Init the parser context
+	 */
+	protected void initCrawlerContext() {
+		// init the parser context object
+		CrawlerContext parserContext = new CrawlerContext(this.charsetDetector);
+		CrawlerContext.setCurrentContext(parserContext);		
+	}	
 
 	@Override
 	protected void execute(ICommand command) {
+		// init the parser context
+		this.initCrawlerContext();		
+		
 		try {
 			// get the URL to crawl
 			String urlString = command.getLocation();
@@ -55,5 +74,15 @@ public class CrawlerWorker extends AWorker<ICommand> {
 		} catch (Exception e) {
 			command.setResult(ICommand.Result.Failure, "Unexpected error while crawling the resource");
 		}
+	}
+	
+	@Override
+	protected void reset() {
+		// do some cleanup
+		CrawlerContext crawlerContext = CrawlerContext.getCurrentContext();
+		if (crawlerContext != null) crawlerContext.reset();
+		
+		// reset all from parent
+		super.reset();
 	}
 }

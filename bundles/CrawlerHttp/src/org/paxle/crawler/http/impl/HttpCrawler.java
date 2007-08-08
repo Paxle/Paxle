@@ -15,7 +15,12 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.charset.ICharsetDetectorStream;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerDocument;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.http.IHttpCrawler;
@@ -31,6 +36,7 @@ public class HttpCrawler implements IHttpCrawler {
 	private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
 	private static HttpClient httpClient = new HttpClient(connectionManager); 
 	
+	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
 	 * @see ISubCrawler#getProtocol()
@@ -65,10 +71,11 @@ public class HttpCrawler implements IHttpCrawler {
 			}
 			
 			// getting the mimetype and charset
+			String contentMimeType = null;
 			Header contentTypeHeader = method.getResponseHeader("Content-Type");
 			if (contentTypeHeader != null) {
 				String contentCharset = null;
-				String contentMimeType = contentTypeHeader.getValue();
+				contentMimeType = contentTypeHeader.getValue();
 				
 				int idx = contentMimeType.indexOf(";");
 				if (idx != -1) {
@@ -129,7 +136,40 @@ public class HttpCrawler implements IHttpCrawler {
 			
 			// getting the response body			
 			InputStream respBody = method.getResponseBodyAsStream();
+			
+			/* TODO: charset detection while writing to file
+			 * 1.) fetch a charset detector from CrawlerContext object
+			 * 2.) get a charset detector stream from charset-detector
+			 * 3.) copy data trough stream
+			 */
+			
+			// getting a charset-detector
+			CrawlerContext context = CrawlerContext.getCurrentContext();
+			ICharsetDetector charsetDetector = context.getCharsetDetector();
+			if (charsetDetector != null) {
+				/* 
+				 * Wrap the body-inputstream into a charset detector stream
+				 * if the mimetype of the resource is inspectable
+				 */
+				if (charsetDetector.isInspectable(contentMimeType)) {
+					respBody = charsetDetector.createInputStream(respBody);
+				}
+			} else {
+				this.logger.warn("No charset detector found. Skipping charset detection.");
+			}
+			
+			// copy the content to file
 			File content = createAndCopy(respBody);
+			
+			// determine if charset detection succeeded
+			if (respBody instanceof ICharsetDetectorStream) {
+				String newCharset = ((ICharsetDetectorStream)respBody).getCharset();
+				if (newCharset != null) {
+					this.logger.info(String.format("Charset '%s' detected for resource %s", newCharset, requestUrl));
+					doc.setCharset(newCharset);
+				}
+			}
+			
 			doc.setContent(content);
 			respBody.close();
 			

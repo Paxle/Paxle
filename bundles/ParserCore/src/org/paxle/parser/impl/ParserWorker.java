@@ -2,6 +2,7 @@ package org.paxle.parser.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.queue.ICommand;
@@ -21,15 +22,26 @@ public class ParserWorker extends AWorker<ICommand> {
 	 */
 	IMimeTypeDetector mimeTypeDetector = null;
 	
+	/**
+	 * A class to detect charsets
+	 */
+	ICharsetDetector charsetDetector = null;
+	
+	/**
+	 * A logger class 
+	 */
 	private final Log logger = LogFactory.getLog(ParserWorker.class);
 	
 	public ParserWorker(SubParserManager subParserManager) {
 		this.subParserManager = subParserManager;
 	}
 	
+	/**
+	 * Init the parser context
+	 */
 	protected void initParserContext() {
 		// init the parser context object
-		ParserContext parserContext = new ParserContext(this.subParserManager, this.mimeTypeDetector);
+		ParserContext parserContext = new ParserContext(this.subParserManager, this.mimeTypeDetector, this.charsetDetector);
 		ParserContext.setCurrentContext(parserContext);		
 	}
 	

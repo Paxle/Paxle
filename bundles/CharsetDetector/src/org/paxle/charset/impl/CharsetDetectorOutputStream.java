@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import org.mozilla.intl.chardet.nsDetector;
 import org.mozilla.intl.chardet.nsICharsetDetectionObserver;
 import org.mozilla.intl.chardet.nsPSMDetector;
-import org.paxle.charset.ACharsetDetectorOutputStream;
+import org.paxle.core.charset.ACharsetDetectorOutputStream;
 
 
 public class CharsetDetectorOutputStream extends ACharsetDetectorOutputStream implements nsICharsetDetectionObserver {

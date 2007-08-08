@@ -42,12 +42,16 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {		
 		bc = context;
 		subCrawlerManager = new SubCrawlerManager(); 
+		WorkerFactory workerFactory = new WorkerFactory(subCrawlerManager);
 		
 		/* ==========================================================
 		 * Register Service Listeners
 		 * ========================================================== */		
 		// registering a service listener to notice if a new sub-crawler was (un)deployed
-		bc.addServiceListener(new SubCrawlerListener(subCrawlerManager, bc),SubCrawlerListener.FILTER);		
+		bc.addServiceListener(new SubCrawlerListener(subCrawlerManager, bc),SubCrawlerListener.FILTER);
+		
+		// a listener for the mimetype detector
+		bc.addServiceListener(new DetectorListener((WorkerFactory)workerFactory,bc),DetectorListener.FILTER);		
 		
 		/* ==========================================================
 		 * Get services provided by other bundles
@@ -58,7 +62,6 @@ public class Activator implements BundleActivator {
 		if (reference != null) {
 			// getting the service class instance
 			IMWComponentManager componentFactory = (IMWComponentManager)bc.getService(reference);
-			IWorkerFactory<CrawlerWorker> workerFactory = new WorkerFactory(subCrawlerManager);
 			mwComponent = componentFactory.createComponent(workerFactory, 5, ICommand.class);
 		}		
 		

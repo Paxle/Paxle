@@ -8,7 +8,7 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-SymbolicName: org.paxle.core
 Export-Package: org.paxle.core.queue, org.paxle.core.threading, org.pa
  xle.core, org.paxle.core.filter, org.paxle.core.data, org.paxle.core.
- doc, org.paxle.core.mimetype
+ doc, org.paxle.core.mimetype, org.paxle.core.charset
 Bundle-Version: 1.0.0
 Bundle-ContactAddress: http://www.paxle.net/
 DynamicImport-Package: sun.reflect
