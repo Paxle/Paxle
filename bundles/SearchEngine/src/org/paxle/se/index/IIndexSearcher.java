@@ -1,18 +1,19 @@
 package org.paxle.se.index;
 
+import java.io.Closeable;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Iterator;
+import java.util.List;
 
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.se.query.tokens.AToken;
+import org.paxle.se.query.ITokenFactory;
+import org.paxle.se.search.ISearchProvider;
 
-public interface IIndexSearcher {
+public interface IIndexSearcher extends ISearchProvider, Closeable{
 	
-	public static final String QUERY_TOKEN_FACTORY = "query.token.factory";
-	
-	public IIndexerDocument[] search(AToken searchToken, int maxCount) throws IOException, IndexException, ParseException;
+	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException;
+	public ITokenFactory getTokenFactory();
 	
 	public int getDocCount();
 	
@@ -22,4 +23,6 @@ public interface IIndexSearcher {
 	public Iterator<IIndexerDocument> docIterator(String contains) throws IOException;
 	public Iterator<String> wordIterator() throws IOException;
 	public Iterator<String> wordIterator(String start) throws IOException;
+	
+	public void close() throws IOException;
 }

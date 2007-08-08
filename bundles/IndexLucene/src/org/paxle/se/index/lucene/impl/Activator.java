@@ -12,7 +12,6 @@ import org.osgi.framework.BundleContext;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.se.index.IIndexSearcher;
 import org.paxle.se.index.IIndexWriter;
-import org.paxle.se.query.ITokenFactory;
 
 public class Activator implements BundleActivator {
 	
@@ -39,11 +38,9 @@ public class Activator implements BundleActivator {
 		
 		indexWriterThread = new LuceneWriter(DB_PATH);
 		indexSearcher = new LuceneSearcher(DB_PATH);
-		tokenFactory = new LuceneTokenFactory();
 		
 		context.registerService(IIndexWriter.class.getName(), indexWriterThread, new Hashtable<String,String>());
 		context.registerService(IIndexSearcher.class.getName(), indexSearcher, new Hashtable<String,String>());
-		context.registerService(ITokenFactory.class.getName(), tokenFactory, new Hashtable<String,String>());
 		
 		// publish data source
 		final Hashtable<String,String> sinkp = new Hashtable<String,String>();
@@ -56,7 +53,6 @@ public class Activator implements BundleActivator {
 		indexSearcher.close();
 		indexWriterThread = null;
 		indexSearcher = null;
-		tokenFactory = null;
 		bc = null;
 	}
 }

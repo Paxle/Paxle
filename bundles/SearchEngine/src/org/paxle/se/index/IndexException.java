@@ -1,6 +1,8 @@
 package org.paxle.se.index;
 
-public class IndexException extends Exception {
+import java.io.IOException;
+
+public class IndexException extends IOException {
 	
 	private static final long serialVersionUID = 1L;
 	

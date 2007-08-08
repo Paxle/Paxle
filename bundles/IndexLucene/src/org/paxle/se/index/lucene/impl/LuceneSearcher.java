@@ -23,30 +23,29 @@ import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneSearcher;
 import org.paxle.se.query.ITokenFactory;
-import org.paxle.se.query.tokens.AToken;
 
 public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	
 	private final IndexSearcher searcher;
+	private final LuceneTokenFactory ltf;
 	
 	public LuceneSearcher(String path) throws IOException {
 		this.searcher = new IndexSearcher(path);
+		this.ltf = new LuceneTokenFactory();
 	}
 	
-	public void search(String request, List<IIndexerDocument> results, int maxCount) {
+	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException {
 		try {
 			final Hits hits = search(request);
 			final int count = Math.min(hits.length(), maxCount);
 			for (int i=0; i<count; i++)
 				results.add(Converter.luceneDoc2IIndexerDoc(hits.doc(i)));
-		} catch (IOException e) {
-		} catch (IndexException e) {
 		} catch (ParseException e) {
 		}
 	}
 	
 	public ITokenFactory getTokenFactory() {
-		return new LuceneTokenFactory();
+		return this.ltf;
 	}
 	
 	private Hits search(String queryString) throws IOException, ParseException, IndexException {
@@ -64,15 +63,6 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 		}
 		
 		return this.searcher.search(query/*, TODO */);
-	}
-	
-	public IIndexerDocument[] search(AToken searchToken, int maxCount) throws IOException, IndexException, ParseException {
-		final Hits hits = search(searchToken.getString());
-		int count = Math.min(hits.length(), maxCount);
-		final IIndexerDocument[] docs = new IIndexerDocument[count];
-		for (int i=0; i<count; i++)
-			docs[i] = Converter.luceneDoc2IIndexerDoc(hits.doc(i));
-		return docs;
 	}
 	
 	public int getDocCount() {
