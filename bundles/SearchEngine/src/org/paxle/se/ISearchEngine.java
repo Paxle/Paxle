@@ -1,13 +1,10 @@
 package org.paxle.se;
 
-import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.se.index.IndexException;
+import java.util.List;
+
+import org.paxle.se.search.ISearchResult;
 
 public interface ISearchEngine {
 	
-	public abstract IIndexerDocument[] doSearch(String paxleQuery, int count) throws DBUnitializedException, IndexException;
-	
-	public abstract int getIndexedDocCount() throws DBUnitializedException, IndexException;
-	
-	public abstract boolean isKnown(String url) throws DBUnitializedException, IndexException;
+	public abstract List<ISearchResult> doSearch(String paxleQuery, int count);
 }

@@ -21,7 +21,7 @@ import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.query.tokens.FieldToken;
 import org.paxle.se.query.tokens.QuoteToken;
 
-public class SEWrapper implements ISearchEngine, Closeable {
+public class SEWrapper implements Closeable {
 	
 	private final Log logger = LogFactory.getLog(ISearchEngine.class);
 	
@@ -80,7 +80,7 @@ public class SEWrapper implements ISearchEngine, Closeable {
 		if (this.isearcher == null)
 			throw new DBUnitializedException("IndexSearcher has not been initialized yet");
 		try {
-			return this.isearcher.search(token, count, stdField);
+			return this.isearcher.search(token, count);
 		} catch (IOException e) {
 			throw new IndexException("I/O error searching index", e);
 		} catch (ParseException e) {

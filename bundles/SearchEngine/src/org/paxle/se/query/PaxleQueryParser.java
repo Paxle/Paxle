@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.paxle.se.query.impl.DebugTokenFactory;
+import org.paxle.se.query.impl.DefaultMods;
 import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.query.tokens.ModToken;
 import org.paxle.se.query.tokens.AndOperator;
@@ -160,13 +161,11 @@ public class PaxleQueryParser {
 	}
 	
 	private ITokenFactory factory;
-	
-	public PaxleQueryParser() {
-		this.factory = null;
-	}
+	private IModTokenFactory modFactory;
 	
 	public PaxleQueryParser(ITokenFactory factory) {
-		this.factory = factory;
+		setTokenFactory(factory);
+		this.modFactory = (factory instanceof IModTokenFactory) ? (IModTokenFactory)factory : null;
 	}
 	
 	public ITokenFactory getTokenFactory() {
@@ -174,6 +173,8 @@ public class PaxleQueryParser {
 	}
 	
 	public void setTokenFactory(ITokenFactory factory) {
+		if (factory == null)
+			throw new NullPointerException("ITokenFactory is null");
 		this.factory = factory;
 	}
 	
@@ -191,6 +192,8 @@ public class PaxleQueryParser {
 	 * @return an {@link IToken} containing all found tokens in <code>query</code>.
 	 */
 	public AToken parse(String query) {
+		if (this.factory == null)
+			throw new IllegalStateException("ITokenFactory is null");
 		final String[] rts = lex(query);
 		if (rts.length == 0) return null;
 		if (rts.length == 1) {
@@ -290,8 +293,15 @@ public class PaxleQueryParser {
 		final int colon = str.indexOf(':');
 		if (colon > 0 && colon < str.length() - 1) {
 			final AToken pt = toToken(str.substring(colon + 1));
-			if (pt instanceof PlainToken) {
-				return new ModToken((PlainToken)pt, str.substring(0, colon));
+			final String mod = str.substring(0, colon);
+			if (pt instanceof PlainToken) {				// "supported" token behind ':', so we treat it as a modified token
+				if (DefaultMods.isModSupported(mod)) {
+					return DefaultMods.toToken(this.factory, (PlainToken)pt, mod);
+				} else if (this.modFactory != null && this.modFactory.isModSupported(mod)) {
+					return this.modFactory.toToken((PlainToken)pt, mod);
+				} else {								// later-on a plugin has to care about this one
+					return new ModToken((PlainToken)pt, mod);
+				}
 			} else {
 				return this.factory.toPlainToken(str);
 			}
@@ -301,7 +311,6 @@ public class PaxleQueryParser {
 			return this.factory.toPlainToken(str);
 		}
 	}
-	
 	
 	public static void main(String[] args) {
 		final String sb = "blubb -\"bla blubb\" +author:\"dies hier\" (ist or hat or \"denkt sich\" and so) ein text -mit (\"leeren zeichen\" or title:leerzeichen) \"ne?!  \"";
@@ -327,5 +336,4 @@ public class PaxleQueryParser {
 		
 		//System.out.println(sse.toString());
 	}
-	
 }

@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.paxle.se.search.ISearchProvider;
@@ -33,16 +34,20 @@ public class SearchProviderManager implements ISearchProviderManager {
 		
 		CompletionService<ISearchResult> execCompletionService = new ExecutorCompletionService<ISearchResult>(this.execService);
 		for (ISearchProvider searcher : this.providers) {
-			execCompletionService.submit(new SearchProviderCallable<ISearchResult>(searcher, searchRequest));
+			execCompletionService.submit(new SearchProviderCallable(searcher, searchRequest));
 		}
 		
 		int n = providers.size();
 		for (int i = 0; i < n; ++i) {
 			long start = System.currentTimeMillis();
-			ISearchResult r = execCompletionService.poll(timeout, TimeUnit.MILLISECONDS) .get();
 			
-			if (r != null) {
-				results.add(r);
+			final Future<ISearchResult> future = execCompletionService.poll(timeout, TimeUnit.MILLISECONDS);
+			if (future != null) {
+				ISearchResult r = future.get();
+				
+				if (r != null) {
+					results.add(r);
+				}
 			}
 			
 			long diff = System.currentTimeMillis() - start;

@@ -2,7 +2,7 @@ package org.paxle.se.query.tokens;
 
 public class ModToken extends AToken {
 	
-	protected final AToken token;
+	protected final PlainToken token;
 	protected final String mod; 
 	
 	public ModToken(PlainToken token, String mod) {
@@ -10,7 +10,7 @@ public class ModToken extends AToken {
 		this.mod = mod;
 	}
 	
-	public AToken getToken() {
+	public PlainToken getToken() {
 		return this.token;
 	}
 	

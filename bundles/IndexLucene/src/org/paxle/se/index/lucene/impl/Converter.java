@@ -59,7 +59,7 @@ public class Converter {
 		return doc;
 	}
 	
-	private static Fieldable any2field(org.paxle.core.doc.Field<?> field, Object data) {
+	public static Fieldable any2field(org.paxle.core.doc.Field<?> field, Object data) {
 		fieldMap.put(field.getName(), field);
 		
 		if (String.class.isAssignableFrom(field.getType())) {
@@ -218,7 +218,7 @@ public class Converter {
 		return doc;
 	}
 	
-	private static <E> E field2any(Fieldable lfield, org.paxle.core.doc.Field<E> pfield) throws ParseException, IOException {
+	public static <E> E field2any(Fieldable lfield, org.paxle.core.doc.Field<E> pfield) throws ParseException, IOException {
 		if (String.class.isAssignableFrom(pfield.getType())) {
 			return pfield.getType().cast(field2string(lfield, pfield));
 			
