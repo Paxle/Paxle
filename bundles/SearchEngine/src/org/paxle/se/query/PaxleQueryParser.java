@@ -1,5 +1,6 @@
 package org.paxle.se.query;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -160,22 +161,27 @@ public class PaxleQueryParser {
 		return orts.toArray(new String[orts.size()][]);
 	}
 	
-	private ITokenFactory factory;
-	private IModTokenFactory modFactory;
+	private final List<ITokenFactory> factories = new ArrayList<ITokenFactory>();
 	
-	public PaxleQueryParser(ITokenFactory factory) {
-		setTokenFactory(factory);
-		this.modFactory = (factory instanceof IModTokenFactory) ? (IModTokenFactory)factory : null;
+	public List<ITokenFactory> getTokenFactories() {
+		return this.factories;
 	}
 	
-	public ITokenFactory getTokenFactory() {
-		return this.factory;
-	}
-	
-	public void setTokenFactory(ITokenFactory factory) {
+	public void addTokenFactory(ITokenFactory factory) {
 		if (factory == null)
 			throw new NullPointerException("ITokenFactory is null");
-		this.factory = factory;
+		this.factories.add(factory);
+	}
+	
+	public void removeTokenFactory(int num) {
+		this.factories.remove(num);
+	}
+	
+	public List<AToken> parse(String query) {
+		final List<AToken> results = new ArrayList<AToken>(this.factories.size());
+		for (final ITokenFactory factory : this.factories)
+			results.add(parse(factory, query));
+		return results;
 	}
 	
 	/**
@@ -191,23 +197,23 @@ public class PaxleQueryParser {
 	 * @param  query the paxle-query to process
 	 * @return an {@link IToken} containing all found tokens in <code>query</code>.
 	 */
-	public AToken parse(String query) {
-		if (this.factory == null)
+	public static AToken parse(ITokenFactory factory, String query) {
+		if (factory == null)
 			throw new IllegalStateException("ITokenFactory is null");
 		final String[] rts = lex(query);
 		if (rts.length == 0) return null;
 		if (rts.length == 1) {
-			return toToken(rts[0]);
+			return toToken(factory, rts[0]);
 		} else {
 			final String[][] aots = categorizeAndOrTokens(rts);
 			if (aots.length == 0) {
 				return null;
 			} else if (aots.length == 1) {
-				return and(aots[0]);
+				return and(factory, aots[0]);
 			} else {
-				final OrOperator or = this.factory.createOrOperator();
+				final OrOperator or = factory.createOrOperator();
 				for (String[] andts : aots)
-					or.addToken(and(andts));
+					or.addToken(and(factory, andts));
 				return or;
 			}
 		}
@@ -223,15 +229,15 @@ public class PaxleQueryParser {
 	 * @return the resulting {@link IToken} or <code>null</code> if <code>tokens</code> is empty
 	 *         or contains only one invalid token.
 	 */
-	private AToken and(String[] tokens) {
+	private static AToken and(ITokenFactory factory, String[] tokens) {
 		if (tokens.length == 0) {
 			return null;
 		} else if (tokens.length == 1) {
-			return toToken(tokens[0]);
+			return toToken(factory, tokens[0]);
 		} else {
-			final AndOperator and = this.factory.createAndOperator();
+			final AndOperator and = factory.createAndOperator();
 			for (final String t : tokens)
-				and.addToken(parse(t));
+				and.addToken(parse(factory, t));
 			return and;
 		}
 	}
@@ -261,30 +267,30 @@ public class PaxleQueryParser {
 	 * @param  str the {@link String} to parse into a token
 	 * @return the {@link IToken} <code>str</code> has matched the conditions for
 	 */
-	private AToken toToken(String str) {
+	private static AToken toToken(ITokenFactory factory, String str) {
 		if (str.length() > 1) {
 			final char first = str.charAt(0);
 			final char last = str.charAt(str.length() - 1);
 			if (first == '-') {
-				final AToken pt = toToken(str.substring(1));
+				final AToken pt = toToken(factory, str.substring(1));
 				if (pt == null) {
 					return null;
 				} else {
-					return this.factory.toNotToken(pt);
+					return factory.toNotToken(pt);
 				}
 			} else if (first == '+') {
-				return toToken(str.substring(1));
+				return toToken(factory, str.substring(1));
 			} else if (first == '"' && last == '"') {
 				final String cnt = str.substring(1, str.length() - 1).trim();
 				if (cnt.length() == 0) {
 					return null;
 				} else if (cnt.indexOf(' ') == -1) {
-					return this.factory.toPlainToken(cnt);
+					return factory.toPlainToken(cnt);
 				} else {
-					return this.factory.toQuoteToken(cnt);
+					return factory.toQuoteToken(cnt);
 				}
 			} else if (first == '(' && last == ')') {
-				return parse(str.substring(1, str.length() - 1));
+				return parse(factory, str.substring(1, str.length() - 1));
 			}
 		} else {
 			return null;
@@ -292,23 +298,23 @@ public class PaxleQueryParser {
 		
 		final int colon = str.indexOf(':');
 		if (colon > 0 && colon < str.length() - 1) {
-			final AToken pt = toToken(str.substring(colon + 1));
+			final AToken pt = toToken(factory, str.substring(colon + 1));
 			final String mod = str.substring(0, colon);
 			if (pt instanceof PlainToken) {				// "supported" token behind ':', so we treat it as a modified token
 				if (DefaultMods.isModSupported(mod)) {
-					return DefaultMods.toToken(this.factory, (PlainToken)pt, mod);
-				} else if (this.modFactory != null && this.modFactory.isModSupported(mod)) {
-					return this.modFactory.toToken((PlainToken)pt, mod);
+					return DefaultMods.toToken(factory, (PlainToken)pt, mod);
+				} else if (factory instanceof IModTokenFactory && ((IModTokenFactory)factory).isModSupported(mod)) {
+					return ((IModTokenFactory)factory).toToken((PlainToken)pt, mod);
 				} else {								// later-on a plugin has to care about this one
 					return new ModToken((PlainToken)pt, mod);
 				}
 			} else {
-				return this.factory.toPlainToken(str);
+				return factory.toPlainToken(str);
 			}
 		} else if (str.equalsIgnoreCase("and") || str.equalsIgnoreCase("or")) {
 			return null;
 		} else {
-			return this.factory.toPlainToken(str);
+			return factory.toPlainToken(str);
 		}
 	}
 	
@@ -319,9 +325,7 @@ public class PaxleQueryParser {
 		//System.out.println(findMatching(sb, 24));
 		//System.out.println(findMatching(sb, 6));
 		
-		final PaxleQueryParser pqp = new PaxleQueryParser(new DebugTokenFactory());
-		
-		System.out.println(pqp.parse(sb).getString());
+		System.out.println(parse(new DebugTokenFactory(), sb).getString());
 		
 		/*
 		String[] ss = lex(sb);

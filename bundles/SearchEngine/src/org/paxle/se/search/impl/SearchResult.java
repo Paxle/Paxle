@@ -8,16 +8,22 @@ import org.paxle.se.search.ISearchResult;
 public class SearchResult implements ISearchResult {
 	
 	private final IIndexerDocument[] result;
+	private final long searchTime;
 	
-	public SearchResult(Collection<IIndexerDocument> results) {
-		this.result = results.toArray(new IIndexerDocument[results.size()]);
+	public SearchResult(Collection<IIndexerDocument> results, long searchTime) {
+		this(results.toArray(new IIndexerDocument[results.size()]), searchTime);
 	}
 	
-	public SearchResult(IIndexerDocument[] results) {
+	public SearchResult(IIndexerDocument[] results, long searchTime) {
 		this.result = results;
+		this.searchTime = searchTime;
 	}
 	
 	public IIndexerDocument[] getResult() {
 		return this.result;
+	}
+	
+	public long getSearchTime() {
+		return this.searchTime;
 	}
 }

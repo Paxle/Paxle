@@ -14,7 +14,7 @@ import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.Token;
-import org.apache.lucene.search.Hits;
+import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 
@@ -35,34 +35,45 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	}
 	
 	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException {
+		final QueryParser queryParser = new QueryParser("*", new StandardAnalyzer());
+		final Query query;
 		try {
-			final Hits hits = search(request);
-			final int count = Math.min(hits.length(), maxCount);
-			for (int i=0; i<count; i++)
-				results.add(Converter.luceneDoc2IIndexerDoc(hits.doc(i)));
-		} catch (ParseException e) {
+			query = queryParser.parse(request);
+		} catch (org.apache.lucene.queryParser.ParseException e) {
+			final Token token = e.currentToken;
+			throw new IndexException(
+					"error parsing query string '" + request + "' at '" + token.image + "', lines "
+					+ token.beginLine + "-" + token.endLine + ", columns "
+					+ token.beginColumn + "-" + token.endColumn, e);
+		}
+		this.searcher.search(query, new IIndexerDocHitCollector(results, maxCount));
+	}
+	
+	private class IIndexerDocHitCollector extends HitCollector {
+		
+		private final List<IIndexerDocument> results;
+		private final int max;
+		private int current = 0;
+		
+		public IIndexerDocHitCollector(List<IIndexerDocument> results, int max) {
+			this.results = results;
+			this.max = max;
+		}
+		
+		@Override
+		public void collect(int doc, float score) {
+			if (this.current++ < this.max) try {
+				this.results.add(Converter.luceneDoc2IIndexerDoc(LuceneSearcher.this.searcher.doc(doc)));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
 	public ITokenFactory getTokenFactory() {
 		return this.ltf;
-	}
-	
-	private Hits search(String queryString) throws IOException, ParseException, IndexException {
-		final QueryParser queryParser = new QueryParser("*", new StandardAnalyzer());
-		final Query query;
-		try {
-			query = queryParser.parse(queryString);
-		} catch (org.apache.lucene.queryParser.ParseException e) {
-			final Token token = e.currentToken;
-			throw new ParseException(
-					"error parsing query string '" + queryString + "' at lines "
-					+ token.beginLine + "-" + token.endLine + ", columns "
-					+ token.beginColumn + "-" + token.endColumn,
-					token.beginColumn);
-		}
-		
-		return this.searcher.search(query/*, TODO */);
 	}
 	
 	public int getDocCount() {
@@ -91,6 +102,14 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	
 	public Iterator<String> wordIterator(String start) throws IOException {
 		return new WordIterator(this.searcher.getIndexReader().terms(new Term("*", start)));
+	}
+	
+	public Iterator<String> wordIterator(Field<?> field) throws IOException {
+		return new FieldLimitedWordIterator(this.searcher.getIndexReader().terms(new Term(field.getName(), "")), field);
+	}
+	
+	public Iterator<String> wordIterator(String start, Field<?> field) throws IOException {
+		return new FieldLimitedWordIterator(this.searcher.getIndexReader().terms(new Term(field.getName(), start)), field);
 	}
 	
 	public void close() throws IOException {
@@ -178,19 +197,19 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	
 	private static class WordIterator implements Iterator<String> {
 		
-		private final TermEnum tenum;
-		private String current;
-		private String next;
+		protected final TermEnum tenum;
+		protected Term current;
+		protected Term next;
 		
 		public WordIterator(TermEnum tenum) {
 			this.tenum = tenum;
-			this.next = this.tenum.term().text();
+			this.next = this.tenum.term();
 		}
 		
-		private String next0() {
+		protected Term next0() {
 			try {
-				final String lnext = this.next;
-				this.next = (this.tenum.next()) ? this.tenum.term().text() : null;
+				final Term lnext = this.next;
+				this.next = (this.tenum.next()) ? this.tenum.term() : null;
 				return lnext;
 			} catch (IOException e) {
 				throw new RuntimeException("I/O error iterating through terms", e);
@@ -207,13 +226,32 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 				throw new NoSuchElementException();
 			} else {
 				this.next = next0();
-				return this.current;
+				return this.current.text();
 			}
 		}
 		
 		public void remove() {
 			// XXX: is urgently needed, but I don't know how to do currently
 			throw new UnsupportedOperationException();
+		}
+	}
+	
+	private static class FieldLimitedWordIterator extends WordIterator implements Iterator<String> {
+		
+		protected final Field<?> field;
+		
+		public FieldLimitedWordIterator(TermEnum tenum, Field<?> field) {
+			super(tenum);
+			this.field = field;
+		}
+		
+		@Override
+		protected Term next0() {
+			Term ret;
+			do {
+				ret = super.next0();
+			} while (super.next != null && !super.next.field().equals(this.field.getName()));
+			return ret;
 		}
 	}
 }

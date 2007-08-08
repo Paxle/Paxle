@@ -4,5 +4,5 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface ISearchProviderManager {
-	public List<ISearchResult> search(ISearchRequest searchRequest) throws InterruptedException, ExecutionException;
+	public List<ISearchResult> search(String paxleQuery, int maxResults, long timeout) throws InterruptedException, ExecutionException;
 }

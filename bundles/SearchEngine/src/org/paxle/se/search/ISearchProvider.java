@@ -8,6 +8,6 @@ import org.paxle.se.query.ITokenFactory;
 
 public interface ISearchProvider {
 	
-	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException;
+	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException, InterruptedException;
 	public ITokenFactory getTokenFactory();
 }

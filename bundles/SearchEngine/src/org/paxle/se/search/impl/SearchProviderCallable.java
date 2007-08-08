@@ -11,9 +11,9 @@ import org.paxle.se.search.ISearchResult;
 
 public class SearchProviderCallable implements Callable<ISearchResult> {
 	
-	private ISearchProvider provider = null;
-	private ISearchRequest searchRequest = null;
 	private final List<IIndexerDocument> results = new ArrayList<IIndexerDocument>();
+	private final ISearchProvider provider;
+	private final ISearchRequest searchRequest;
 	
 	public SearchProviderCallable(ISearchProvider provider, ISearchRequest searchRequest) {
 		this.provider = provider;
@@ -21,7 +21,10 @@ public class SearchProviderCallable implements Callable<ISearchResult> {
 	}
 	
 	public ISearchResult call() throws Exception {
-		this.provider.search(this.searchRequest.getSearchQuery().getString(), this.results, this.searchRequest.getMaxResultCount());
-		return new SearchResult(this.results);
+		final long start = System.currentTimeMillis();
+		try {
+			this.provider.search(this.searchRequest.getSearchQuery().getString(), this.results, this.searchRequest.getMaxResultCount());
+		} catch (InterruptedException e) { /* just fall through */ }
+		return new SearchResult(this.results, System.currentTimeMillis() - start);
 	}
 }

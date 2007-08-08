@@ -26,5 +26,4 @@ public class SearchRequest implements ISearchRequest {
 	public long getTimeout() {
 		return this.timeout;
 	}
-	
 }
