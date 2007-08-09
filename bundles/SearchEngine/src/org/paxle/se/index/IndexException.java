@@ -13,10 +13,11 @@ public class IndexException extends IOException {
 	}
 	
 	public IndexException(Throwable cause) {
-		super(cause);
+		super.initCause(cause);
 	}
 	
 	public IndexException(String message, Throwable cause) {
-		super(message, cause);
+		super(message);
+		super.initCause(cause);
 	}
 }

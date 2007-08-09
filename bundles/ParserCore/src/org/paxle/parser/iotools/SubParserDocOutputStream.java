@@ -21,7 +21,7 @@ public class SubParserDocOutputStream extends ParserDocOutputStream {
 		try {
 			this.pdoc.addSubDocument(this.location, super.parse(this.location));
 		} catch (ParserException e) {
-			throw new IOException("Error parsing file on close", e);
+			throw new IOException("Error parsing file on close");
 		}
 	}
 }
