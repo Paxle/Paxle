@@ -177,6 +177,10 @@ public class PaxleQueryParser {
 		this.factories.remove(num);
 	}
 	
+	public void clearTokenFactories() {
+		this.factories.clear();
+	}
+	
 	public List<AToken> parse(String query) {
 		final List<AToken> results = new ArrayList<AToken>(this.factories.size());
 		for (final ITokenFactory factory : this.factories)

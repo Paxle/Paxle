@@ -2,7 +2,6 @@ package org.paxle.parser.gzip.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -12,6 +11,7 @@ import java.util.zip.GZIPInputStream;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.gzip.IGzipParser;
+import org.paxle.parser.iotools.ParserDocOutputStream;
 import org.paxle.parser.iotools.ParserTools;
 
 public class GzipParser implements IGzipParser {
@@ -27,14 +27,13 @@ public class GzipParser implements IGzipParser {
 	public IParserDocument parse(String location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		final GZIPInputStream cfis = new GZIPInputStream(new FileInputStream(content));
-		final File uncompressed = ParserTools.createTempFile(location, GzipParser.class);
-		final FileOutputStream fos = new FileOutputStream(uncompressed);
+		final ParserDocOutputStream pdos = new ParserDocOutputStream();
 		try {
-			ParserTools.copy(cfis, fos);
+			ParserTools.copy(cfis, pdos);
 		} finally {
 			cfis.close();
-			fos.close();
+			pdos.close();
 		}
-		return ParserTools.parse(location, uncompressed);
+		return pdos.parse(location);
 	}
 }

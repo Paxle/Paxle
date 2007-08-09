@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.parser.iotools.SubdocOutputStream;
+import org.paxle.parser.iotools.ParserDocOutputStream;
+import org.paxle.parser.iotools.SubParserDocOutputStream;
 
 import SevenZip.Archive.IArchiveExtractCallback;
 import SevenZip.Archive.IInArchive;
@@ -12,7 +13,7 @@ import SevenZip.Archive.SevenZipEntry;
 
 /**
  * This class is the call-back for the 7zip-extraction routine. It provides an
- * {@link SubdocOutputStream} which takes the extracted data and parses it into
+ * {@link ParserDocOutputStream} which takes the extracted data and parses it into
  * a sub-document of the given parser document.
  * @see SevenZip.ArchiveExtractCallback
  */
@@ -35,7 +36,7 @@ public class SZParserExtractCallback implements IArchiveExtractCallback {
 	public int GetStream(int index, OutputStream[] oss, int askExtractMode) throws IOException {
 		SevenZipEntry item = this.handler.getEntry(index);
 		this.current = item.getName();
-		this.os = oss[0] = (item.isDirectory()) ? null : new SubdocOutputStream(this.pdoc, this.current);
+		this.os = oss[0] = (item.isDirectory()) ? null : new SubParserDocOutputStream(this.pdoc, this.current);
 		return 0;
 	}
 	

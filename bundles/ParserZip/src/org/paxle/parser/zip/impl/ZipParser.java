@@ -13,7 +13,7 @@ import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserDocument;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.iotools.ParserTools;
-import org.paxle.parser.iotools.SubdocOutputStream;
+import org.paxle.parser.iotools.SubParserDocOutputStream;
 import org.paxle.parser.zip.IZipParser;
 
 public class ZipParser implements IZipParser {
@@ -36,10 +36,16 @@ public class ZipParser implements IZipParser {
 		try {
 			while ((ze = zis.getNextEntry()) != null) {
 				if (ze.isDirectory()) continue;
-				final SubdocOutputStream sos = new SubdocOutputStream(pdoc, ze.getName());
+				final SubParserDocOutputStream sos = new SubParserDocOutputStream(pdoc, ze.getName());
 				try {
 					ParserTools.copy(zis, sos, ze.getSize());
-				} finally { sos.close(); }
+				} finally { try { sos.close(); } catch (IOException e) {
+					if (e.getCause() instanceof ParserException) {
+						throw (ParserException)e.getCause();
+					} else {
+						throw e;
+					}
+				} }
 			}
 		} finally { zis.close(); }
 		return pdoc;

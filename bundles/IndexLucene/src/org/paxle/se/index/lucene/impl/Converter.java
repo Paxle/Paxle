@@ -193,7 +193,7 @@ public class Converter {
 	
 	private static Field.TermVector termVector(org.paxle.core.doc.Field<?> field, int options) {
 		return (field.isIndex()) ? (
-				((options & (TV_OFFSETS | TV_POSITIONS)) == 0) ? (
+				((options & (TV_OFFSETS | TV_POSITIONS)) != (TV_OFFSETS | TV_POSITIONS)) ? (
 						((options & TV_OFFSETS) != 0) ? Field.TermVector.WITH_OFFSETS :
 						((options & TV_POSITIONS) != 0) ? Field.TermVector.WITH_POSITIONS : Field.TermVector.NO
 				) : Field.TermVector.WITH_POSITIONS_OFFSETS

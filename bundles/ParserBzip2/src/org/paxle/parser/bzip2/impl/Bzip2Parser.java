@@ -2,7 +2,6 @@ package org.paxle.parser.bzip2.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -12,8 +11,8 @@ import org.apache.tools.bzip2.CBZip2InputStream;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.bzip2.IBzip2Parser;
+import org.paxle.parser.iotools.ParserDocOutputStream;
 import org.paxle.parser.iotools.ParserTools;
-
 
 public class Bzip2Parser implements IBzip2Parser {
 	
@@ -37,15 +36,15 @@ public class Bzip2Parser implements IBzip2Parser {
 			throw new ParserException("file '" + content + "' is no valid BZip2-file");
 		
 		final CBZip2InputStream is = new CBZip2InputStream(fis);
-		final File uncompressed = ParserTools.createTempFile(location, Bzip2Parser.class);
-		final FileOutputStream fos = new FileOutputStream(uncompressed);
+		final ParserDocOutputStream pdos = new ParserDocOutputStream();
+		
 		try {
-			ParserTools.copy(is, fos);
+			ParserTools.copy(is, pdos);
 		} finally {
 			is.close();
-			fos.close();
+			pdos.close();
 		}
-		return ParserTools.parse(location, uncompressed);
+		return pdos.parse(location);
 	}
 	
 }

@@ -49,8 +49,7 @@ public class ParserTools {
 	 *         sub-parser was unable to parse the given resource
 	 * @throws <b>IOException</b> if an I/O-error occures during reading <code>content</code>
 	 */
-	public static IParserDocument parse(String location, File content)
-	throws ParserException, IOException {
+	public static IParserDocument parse(String location, String charset, File content) throws ParserException, IOException {
 		// retrieve MIME type detector and detect the MIME type of content
 		final IMimeTypeDetector mtd = ParserContext.getCurrentContext().getMimeTypeDetector();
 		if (mtd == null)
@@ -63,9 +62,10 @@ public class ParserTools {
 		} catch (Exception e) {
 			throw new ParserException("error detecting MIME type of file " + content, e);
 		}
-		
-		final String charset = null; // TODO: retrieve character set of file
-		
+		return parse(location, mimeType, charset, content);
+	}
+	
+	public static IParserDocument parse(String location, String mimeType, String charset, File content) throws ParserException, IOException {
 		// retrieve the sub-parser for the found MIME type, parse content and return the document
 		final ISubParser sp = ParserContext.getCurrentContext().getParser(mimeType);
 		if (sp == null)
