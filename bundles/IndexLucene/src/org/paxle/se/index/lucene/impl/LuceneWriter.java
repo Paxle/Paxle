@@ -83,7 +83,10 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 					this.logger.error("Error adding document to index", e);
 				} catch (IOException e) {
 					this.logger.error("Low-level I/O error occured during adding document to index", e);
-				}
+				} catch (Exception e) {
+					this.logger.error("Internal error processing the indexer document", e);
+					e.printStackTrace();
+				} 
 			}
 		} catch (InterruptedException e) {
 			this.logger.info("Lucene writer was interrupted, quitting...");

@@ -38,7 +38,8 @@ public class IndexerWorker extends AWorker<ICommand> {
 			return;
 		}
 		// XXX: what to take if both (pdoc and cdoc) contain a different value for last mod?
-		idoc.set(IIndexerDocument.LAST_MODIFIED, 	cmd.getCrawlerDocument().getLastModDate()); 
+		if (cmd.getCrawlerDocument().getLastModDate() != null)
+			idoc.set(IIndexerDocument.LAST_MODIFIED, 	cmd.getCrawlerDocument().getLastModDate()); 
 		idoc.set(IIndexerDocument.SIZE, 			cmd.getCrawlerDocument().getSize());
 		cmd.addIndexerDocument(idoc);
 		
@@ -73,7 +74,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 		 */
 		if (pdoc.getAuthor() != null)      idoc.set(IIndexerDocument.AUTHOR,        pdoc.getAuthor());
 		if (kw.size() > 0)                 idoc.set(IIndexerDocument.KEYWORDS,      kw.toArray(new String[kw.size()]));
-		                                   idoc.set(IIndexerDocument.LAST_CRAWLED,  lastCrawled);
+		                                   idoc.set(IIndexerDocument.LAST_CRAWLED,  (lastCrawled == null) ? new Date(System.currentTimeMillis()) : lastCrawled);
 		if (pdoc.getLastChanged() != null) idoc.set(IIndexerDocument.LAST_MODIFIED, pdoc.getLastChanged());
 		if (langs.size() > 0)              idoc.set(IIndexerDocument.LANGUAGES,     toLanguages(langs));
 		                                   idoc.set(IIndexerDocument.LOCATION,      location);

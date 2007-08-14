@@ -60,8 +60,6 @@ public class Converter {
 	}
 	
 	public static Fieldable any2field(org.paxle.core.doc.Field<?> field, Object data) {
-		fieldMap.put(field.getName(), field);
-		
 		if (String.class.isAssignableFrom(field.getType())) {
 			return string2field(field, (String)data);
 			

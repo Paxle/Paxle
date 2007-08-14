@@ -1,6 +1,8 @@
 package org.paxle.parser.iotools;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,6 +10,8 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.CharBuffer;
 
+import org.paxle.core.charset.ACharsetDetectorInputStream;
+import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.parser.ISubParser;
@@ -29,52 +33,125 @@ public class ParserTools {
 		return text.replaceAll("\\s", " ").trim();
 	}
 	
+	public static String getCharset(File file, String mimeType) throws IOException, ParserException {
+		final ParserContext context = ParserContext.getCurrentContext();
+		if (context == null)
+			throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
+		return getCharset(file, context.getCharsetDetector(), mimeType);
+	}
+	
+	public static String getCharset(File file, ICharsetDetector cd, String mimeType) throws IOException, ParserException {
+		if (cd == null)
+			throw new ParserException("no charset detector service available");
+		if (mimeType != null && !cd.isInspectable(mimeType))
+			throw new ParserException("MIME type '" + mimeType + "' cannot be processed by the charset detector");
+		
+		final ACharsetDetectorInputStream cdis = cd.createInputStream(new BufferedInputStream(new FileInputStream(file)));
+		try {
+			final byte[] buf = new byte[DEFAULT_BUFFER_SIZE_BYTES];
+			while (!cdis.charsetDetected() && cdis.read(buf) > -1);
+		} finally { cdis.close(); }
+		return cdis.getCharset();
+	}
+	
+	public static String getMimeType(File file) throws IOException, ParserException {
+		final ParserContext context = ParserContext.getCurrentContext();
+		if (context == null)
+			throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
+		return getMimeType(file, context.getMimeTypeDetector());
+	}
+	
+	public static String getMimeType(File file, IMimeTypeDetector mtd) throws IOException, ParserException {
+		if (mtd == null)
+			throw new ParserException("cannot determine the MIME type of " + file + " due to missing MIME type detector");
+		final String mimeType;
+		try {
+			mimeType = mtd.getMimeType(file);
+		} catch (Exception e) {
+			if (e instanceof RuntimeException)
+				throw (RuntimeException)e;
+			throw new ParserException("error detecting MIME type of file " + file, e);
+		}
+		return mimeType;
+	}
+	
 	/**
-	 * Determines the character set and MIME type of the given file and then calles
+	 * Determines the MIME type and character set of the given file and finally calles
 	 * the {@link ISubParser#parse(String, String, File)} of the found sub-parser.
 	 * <p>
 	 *  This method is intended for usage by archive parsers which have to handle
 	 *  multiple, possibly unknown internal files of archive containers.
 	 * </p>
 	 * 
+	 * @see #getMimeType(File)
+	 * @see #getCharset(File, String)
+	 * @see ParserContext#getCurrentContext()
 	 * @see ParserContext#getMimeTypeDetector()
+	 * @see ParserContext#getCharsetDetector()
 	 * @see ParserContext#getParser(String)
 	 * @see ISubParser#parse(String, String, File)
 	 * @param  location name or location of the resource within the container
 	 * @param  content {@link File} containing the raw content of the (uncompressed) file
-	 * @return a sub-{@link IParserDocument} to add to the main parser-doc as sub-document
-	 * @throws <b>ParserException</b> if no MIME type detector object could be retrieved from
-	 *         the {@link ParserContext}, if a MIME type detection error occured, if no
-	 *         sub-parser handling the detected MIME type could be found or if the selected
-	 *         sub-parser was unable to parse the given resource
+	 * @return the resulting {@link IParserDocument} (in case of an archive-parser to add to
+	 *         the main parser-doc as sub-document)
+	 * @throws <b>ParserException</b>:
+	 * <ul>
+	 *  <li>
+	 *   if no {@link ParserContext} is available because this method has not been called
+	 *   from the thread executing the {@link ISubParser}
+	 *  </li>
+	 *  <li>if no MIME type detector object could be retrieved from the {@link ParserContext}</li>
+	 *  <li>if a MIME type detection error occured</li>
+	 *  <li>if no sub-parser handling the detected MIME type could be found</li>
+	 *  <li>
+	 *   if the charset has been detected incorrectly and the selected {@link ISubParser} throwed
+	 *   an {@link UnsupportedEncodingException}
+	 *  </li>
+	 *  <li>if the selected {@link ISubParser} was unable to parse the given resource</li>
+	 * </ul>
 	 * @throws <b>IOException</b> if an I/O-error occures during reading <code>content</code>
 	 */
-	public static IParserDocument parse(String location, String charset, File content) throws ParserException, IOException {
-		// retrieve MIME type detector and detect the MIME type of content
-		final IMimeTypeDetector mtd = ParserContext.getCurrentContext().getMimeTypeDetector();
-		if (mtd == null)
-			throw new ParserException("cannot parse file " + content + " due to missing MIME type detector");
-		final String mimeType;
+	public static IParserDocument parse(String location, File content) throws ParserException, IOException {
+		final String mimeType = getMimeType(content);
+		if (mimeType == null)
+			throw new ParserException("detected MIME type of file " + content + " is null, cannot parse it");
+		
+		String charset;
 		try {
-			mimeType = mtd.getMimeType(content);
-			if (mimeType == null)
-				throw new Exception("detected MIME type is null");
-		} catch (Exception e) {
-			throw new ParserException("error detecting MIME type of file " + content, e);
+			charset = getCharset(content, mimeType);
+		} catch (ParserException e) {
+			/* the charset is not "that" important, many formats have pre-defined character sets or save
+			 * their charset information internally, so a non-detectable charset is not really bad. The
+			 * sub-parser will throw an exception if it needed a previously detected charset. */
+			charset = null;
 		}
+		
+		try {
+			return parse(location, mimeType, charset, content);
+		} catch (UnsupportedEncodingException e) {
+			throw new ParserException("Detected wrong charset '" + charset + "' for file: " + content, e);
+		}
+	}
+	
+	public static IParserDocument parse(String location, String charset, File content) throws ParserException, IOException,
+			UnsupportedEncodingException {
+		final String mimeType = getMimeType(content);
+		if (mimeType == null)
+			throw new ParserException("detected MIME type of file " + content + " is null, cannot parse it");
 		return parse(location, mimeType, charset, content);
 	}
 	
-	public static IParserDocument parse(String location, String mimeType, String charset, File content) throws ParserException, IOException {
+	public static IParserDocument parse(String location, String mimeType, String charset, File content) throws ParserException,
+			IOException, UnsupportedEncodingException {
 		// retrieve the sub-parser for the found MIME type, parse content and return the document
-		final ISubParser sp = ParserContext.getCurrentContext().getParser(mimeType);
+		final ParserContext context = ParserContext.getCurrentContext();
+		if (context == null)
+			throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
+		
+		final ISubParser sp = context.getParser(mimeType);
 		if (sp == null)
 			throw new ParserException("No parser found for MIME type '" + mimeType + "'");
-		try {
-			return sp.parse(location, charset, content);
-		} catch (UnsupportedEncodingException e) {
-			throw new ParserException("Detected wrong charset '" + charset + "' for file: " + content);
-		}
+		return sp.parse(location, charset, content);
 	}
 	
 	public static final int DEFAULT_BUFFER_SIZE_BYTES = 1024;
@@ -177,17 +254,17 @@ public class ParserTools {
 	
 	// from YaCy: de.anomic.plasma.parser.AbstractParser
 	public static File createTempFile(String name, Class clazz) throws IOException {
-		String parserClassName = clazz.getSimpleName();
+		final String parserClassName = clazz.getSimpleName();
 		
 		// getting the file extension
 		int idx = name.lastIndexOf("/");
-		String fileName = (idx != -1) ? name.substring(idx+1) : name;        
+		final String fileName = (idx != -1) ? name.substring(idx+1) : name;        
 		
 		idx = fileName.lastIndexOf(".");
-		String fileExt = (idx > -1) ? fileName.substring(idx+1) : "";
+		final String fileExt = (idx > -1) ? fileName.substring(idx+1) : "";
 		
 		// creates the temp file
-		File tempFile = File.createTempFile(
+		final File tempFile = File.createTempFile(
 				parserClassName + "_" + ((idx > -1) ? fileName.substring(0, idx) : fileName),
 				(fileExt.length() > 0) ? "." + fileExt : fileExt);
 		return tempFile;

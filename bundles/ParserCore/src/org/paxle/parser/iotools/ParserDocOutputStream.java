@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 import org.paxle.core.charset.ACharsetDetectorOutputStream;
 import org.paxle.core.charset.ICharsetDetector;
@@ -51,14 +52,21 @@ public class ParserDocOutputStream extends OutputStream {
 		this.os.close();
 	}
 	
-	public IParserDocument parse(String location) throws ParserException, IOException {
-		final String charset;
+	public String getCharset() {
 		if (this.os instanceof ACharsetDetectorOutputStream) {
-			charset = ((ACharsetDetectorOutputStream)this.os).getCharset();
+			return ((ACharsetDetectorOutputStream)this.os).getCharset();
 		} else {
-			charset = null;
+			return null;
 		}
-		return ParserTools.parse(location, charset, this.of);
+	}
+	
+	public IParserDocument parse(String location) throws ParserException, IOException {
+		final String charset = getCharset();
+		try {
+			return ParserTools.parse(location, charset, this.of);
+		} catch (UnsupportedEncodingException e) {
+			throw new ParserException("Error parsing file on close due to incorrectly detected charset '" + charset + "'", e);
+		}
 	}
 	
 	@Override
