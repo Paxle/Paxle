@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxle.se.index.IIndexSearcher;
 import org.paxle.se.query.PaxleQueryParser;
 import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchResultCollector;
@@ -48,13 +47,13 @@ public class SearchProviderManager implements ISearchProviderManager {
 	}
 	
 	public void shutdown() throws IOException {
+		this.logger.info("search provider manager is shutting down...");
+		this.logger.debug("waiting for searches to finish");
 		this.execService.shutdown();
-		for (ISearchProvider provider : this.providers) {
-			if (provider instanceof IIndexSearcher)
-				((IIndexSearcher)provider).close();
-		}
+		this.logger.debug("searches finished, cleaning up...");
 		this.providers.clear();
 		this.pqp.clearTokenFactories();
+		this.logger.info("shutdown complete");
 	}
 	
 	public List<ISearchResult> search(String paxleQuery, int maxResults, long timeout) throws InterruptedException, ExecutionException {
@@ -67,8 +66,6 @@ public class SearchProviderManager implements ISearchProviderManager {
 		final CompletionService<ISearchResult> execCompletionService = new ExecutorCompletionService<ISearchResult>(this.execService);
 		
 		final List<AToken> queries = this.pqp.parse(paxleQuery);
-		
-		// XXX: the "internal" search plugins should be applied here to the queries-list
 		
 		int n = providers.size();
 		for (int i=0; i<n; i++) {

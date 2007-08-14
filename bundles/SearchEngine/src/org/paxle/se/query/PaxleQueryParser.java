@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.paxle.se.query.impl.DebugTokenFactory;
 import org.paxle.se.query.impl.DefaultMods;
+import org.paxle.se.query.impl.InternalSearchPluginManager;
 import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.query.tokens.ModToken;
 import org.paxle.se.query.tokens.AndOperator;
@@ -20,6 +21,8 @@ import org.paxle.se.query.tokens.QuoteToken;
  * @see #parse(String)
  */
 public class PaxleQueryParser {
+	
+	public static InternalSearchPluginManager manager = null;
 	
 	/**
 	 * Splits the given query-term on the 'top level' into tokens. Top level means
@@ -75,16 +78,24 @@ public class PaxleQueryParser {
 		int t = -1, tt;
 		for (int c=0; c<2; c++) {
 			char first = query.charAt(loff);
+			if (first == '-' || first == '+')
+				loff++;
+			first = query.charAt(loff);
+			
+			/* set t to the end of the next token
+			 * specifically tests the following conditions:
+			 * - first is '(' -> t = position of closing paranthesis + 1
+			 * - first is '"' -> t = position of closing quotation mark + 1
+			 * - next whitespace exists -> t = position of next whitespace
+			 * - t = end of query */
 			t = (first == '(' && (t = findMatching(query, loff)) > -1 ||
 					(loff + 1 < query.length() && first == '"' && (t = findMatching(query, loff + 1)) > -1)
 			) ? t + 1 : ((t = query.indexOf(' ', loff)) > -1) ? t : query.length();
 			
 			tt = query.indexOf(':', loff);
-			first = query.charAt(loff);
 			if (tt < t && tt > -1) {
+				/* we have to look again for the end of the token beginning after ':' as it may be a token containing whitespace */
 				loff = tt + 1;
-			} else if (first == '-' || first == '+') {
-				loff++;
 			} else {
 				break;
 			}
@@ -155,7 +166,7 @@ public class PaxleQueryParser {
 				andts.add(t);
 			}
 		}
-		// add the last AND-sequence to the returned list
+		/* add the last AND-sequence to the returned list */
 		if (andts.size() > 0)
 			orts.add(andts.toArray(new String[andts.size()]));
 		return orts.toArray(new String[orts.size()][]);
@@ -237,6 +248,7 @@ public class PaxleQueryParser {
 		if (tokens.length == 0) {
 			return null;
 		} else if (tokens.length == 1) {
+			/* only one token so we don't need to create a multi-token here */
 			return toToken(factory, tokens[0]);
 		} else {
 			final AndOperator and = factory.createAndOperator();
@@ -273,9 +285,11 @@ public class PaxleQueryParser {
 	 */
 	private static AToken toToken(ITokenFactory factory, String str) {
 		if (str.length() > 1) {
+			/* queries or tokens with a length < 2 are not supported */
 			final char first = str.charAt(0);
 			final char last = str.charAt(str.length() - 1);
 			if (first == '-') {
+				/* the NOT operator */
 				final AToken pt = toToken(factory, str.substring(1));
 				if (pt == null) {
 					return null;
@@ -283,17 +297,21 @@ public class PaxleQueryParser {
 					return factory.toNotToken(pt);
 				}
 			} else if (first == '+') {
+				/* the AND operator, this is the default, so we parse the token again without '+' */
 				return toToken(factory, str.substring(1));
 			} else if (first == '"' && last == '"') {
+				/* a quote-token containing a string of plain text tokens which must occur in this order in the document */
 				final String cnt = str.substring(1, str.length() - 1).trim();
 				if (cnt.length() == 0) {
 					return null;
 				} else if (cnt.indexOf(' ') == -1) {
+					/* no whitespace, so we may also treat it like a plain-token */
 					return factory.toPlainToken(cnt);
 				} else {
 					return factory.toQuoteToken(cnt);
 				}
 			} else if (first == '(' && last == ')') {
+				/* will most-likely result in a multi-token */
 				return parse(factory, str.substring(1, str.length() - 1));
 			}
 		} else {
@@ -302,20 +320,34 @@ public class PaxleQueryParser {
 		
 		final int colon = str.indexOf(':');
 		if (colon > 0 && colon < str.length() - 1) {
+			/* this is a so-called 'mod-token', which includes a normal plain-token and some modifier
+			 * selecting where exactly to search for this token */
 			final AToken pt = toToken(factory, str.substring(colon + 1));
 			final String mod = str.substring(0, colon);
-			if (pt instanceof PlainToken) {				// "supported" token behind ':', so we treat it as a modified token
+			if (pt instanceof PlainToken) {
+				/* "supported" mod-token behind ':', so we treat it as a modified token which can be transformed into
+				 * "normal" tokens without deeper knowledge of the search provider's language used */
 				if (DefaultMods.isModSupported(mod)) {
+					/* this is a modifier designated by the paxle query language */
 					return DefaultMods.toToken(factory, (PlainToken)pt, mod);
-				} else if (factory instanceof IModTokenFactory && ((IModTokenFactory)factory).isModSupported(mod)) {
-					return ((IModTokenFactory)factory).toToken((PlainToken)pt, mod);
-				} else {								// later-on a plugin has to care about this one
-					return new ModToken((PlainToken)pt, mod);
+				} else if (manager != null && manager.isSupported(mod)) {
+					/* this is a modifier defined by an internal search plugin */
+					return manager.getTokenFactory(mod).toToken((PlainToken)pt, mod);
+				} else {
+					/* we return it as a plain token because there is no plugin around to handle this modifier */
+					// return new ModToken((PlainToken)pt, mod);
+					return factory.toPlainToken(str);
 				}
 			} else {
+				/* the user entered something like 'title:(this OR that)', so the part behind ':'
+				 * is not a plain-token but a multi-token, which is not supported by the paxle query parser atm.
+				 * because we would have to split the multi-token behind into multiple mod-tokens.
+				 * some db-backends don't support statements like WHERE 'title' = (`this` or `that`) */
 				return factory.toPlainToken(str);
 			}
 		} else if (str.equalsIgnoreCase("and") || str.equalsIgnoreCase("or")) {
+			/* operators in search queries with multiple tokens should have been removed already
+			 * if this is a search query with only a single token we can not do much with an operator ;) */
 			return null;
 		} else {
 			return factory.toPlainToken(str);

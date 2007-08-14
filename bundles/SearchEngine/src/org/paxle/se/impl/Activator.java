@@ -3,6 +3,9 @@ package org.paxle.se.impl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+import org.paxle.se.query.PaxleQueryParser;
+import org.paxle.se.query.impl.InternalSearchPluginListener;
+import org.paxle.se.query.impl.InternalSearchPluginManager;
 import org.paxle.se.search.ISearchProviderManager;
 import org.paxle.se.search.impl.SearchProviderListener;
 import org.paxle.se.search.impl.SearchProviderManager;
@@ -10,6 +13,9 @@ import org.paxle.se.search.impl.SearchProviderManager;
 public class Activator implements BundleActivator {
 	
 	public static BundleContext bc = null;
+	
+	public static InternalSearchPluginListener internalPluginListener = null;
+	public static InternalSearchPluginManager internalPluginManager = null;
 	
 	public static SearchProviderManager searchProviderManager = null;
 	public static SearchProviderListener searchProviderListener = null;
@@ -19,6 +25,12 @@ public class Activator implements BundleActivator {
 	 */
 	public void start(BundleContext context) throws Exception {
 		bc = context;
+		
+		internalPluginManager = new InternalSearchPluginManager();
+		PaxleQueryParser.manager = internalPluginManager;
+		
+		internalPluginListener = new InternalSearchPluginListener(internalPluginManager, bc);
+		bc.addServiceListener(internalPluginListener, InternalSearchPluginListener.FILTER);
 		
 		searchProviderManager = new SearchProviderManager();
 		bc.registerService(ISearchProviderManager.class.getName(), searchProviderManager, null);
@@ -31,8 +43,11 @@ public class Activator implements BundleActivator {
 	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext context) throws Exception {
+		bc.removeServiceListener(internalPluginListener);
 		bc.removeServiceListener(searchProviderListener);
 		searchProviderManager.shutdown();
+		internalPluginListener = null;
+		internalPluginManager = null;
 		searchProviderListener = null;
 		searchProviderManager = null;
 		bc = null;

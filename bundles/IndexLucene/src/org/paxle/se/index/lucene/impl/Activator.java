@@ -15,7 +15,9 @@ import org.paxle.se.index.IIndexWriter;
 
 public class Activator implements BundleActivator {
 	
-	private static final String DB_PATH = "lucene-db";	// TODO
+	public static final String CONF_INDEX_LUCENE_PATH_STR = "paxle.index.path";
+	
+	private static String DB_PATH = "lucene-db";
 	
 	public static BundleContext bc = null;
 	public static LuceneWriter indexWriterThread = null;
