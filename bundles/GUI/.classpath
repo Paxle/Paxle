@@ -55,8 +55,10 @@
 		<attributes>
 			<attribute name="bundle-name" value="Commons-Logging"/>
 			<attribute name="org.osgi.service.log" value="0.0.0"/>
+			<attribute name="org.apache.commons.logging" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
 			<accessrule kind="accessible" pattern="org/osgi/service/log/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
