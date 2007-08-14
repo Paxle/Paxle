@@ -10,6 +10,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 import org.paxle.core.data.IDataConsumer;
+import org.paxle.se.index.IIndexIteratable;
 import org.paxle.se.index.IIndexSearcher;
 import org.paxle.se.index.IIndexWriter;
 
@@ -43,6 +44,7 @@ public class Activator implements BundleActivator {
 		
 		context.registerService(IIndexWriter.class.getName(), indexWriterThread, new Hashtable<String,String>());
 		context.registerService(IIndexSearcher.class.getName(), indexSearcher, new Hashtable<String,String>());
+		context.registerService(IIndexIteratable.class.getName(), indexSearcher, new Hashtable<String,String>());
 		
 		// publish data source
 		final Hashtable<String,String> sinkp = new Hashtable<String,String>();

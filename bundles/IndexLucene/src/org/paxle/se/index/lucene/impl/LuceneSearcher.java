@@ -7,13 +7,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.queryParser.Token;
 import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -26,6 +27,7 @@ import org.paxle.se.query.ITokenFactory;
 
 public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	
+	private final Log logger = LogFactory.getLog(LuceneSearcher.class);
 	private final IndexSearcher searcher;
 	private final LuceneTokenFactory ltf;
 	
@@ -35,17 +37,14 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	}
 	
 	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException {
-		final QueryParser queryParser = new QueryParser("*", new StandardAnalyzer());
+		final QueryParser queryParser = new QueryParser(IIndexerDocument.TEXT.getName(), new StandardAnalyzer());
 		final Query query;
 		try {
 			query = queryParser.parse(request);
 		} catch (org.apache.lucene.queryParser.ParseException e) {
-			final Token token = e.currentToken;
-			throw new IndexException(
-					"error parsing query string '" + request + "' at '" + token.image + "', lines "
-					+ token.beginLine + "-" + token.endLine + ", columns "
-					+ token.beginColumn + "-" + token.endColumn, e);
+			throw new IndexException("error parsing query string '" + request + "'", e);
 		}
+		this.logger.debug("searching for query '" + query + "' (" + request + ")");
 		this.searcher.search(query, new IIndexerDocHitCollector(results, maxCount));
 	}
 	
@@ -62,6 +61,7 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 		
 		@Override
 		public void collect(int doc, float score) {
+			LuceneSearcher.this.logger.debug("collecting search result '" + doc + "', score: " + score + ", current: " + this.current + ", max: " + this.max);
 			if (this.current++ < this.max) try {
 				this.results.add(Converter.luceneDoc2IIndexerDoc(LuceneSearcher.this.searcher.doc(doc)));
 			} catch (ParseException e) {

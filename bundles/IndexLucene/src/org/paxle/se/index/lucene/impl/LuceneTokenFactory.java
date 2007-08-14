@@ -18,7 +18,8 @@ import org.paxle.se.query.tokens.QuoteToken;
 public class LuceneTokenFactory implements ITokenFactory {
 	
 	private static String getOperatorString(Collection<AToken> children, String str) {
-		final StringBuilder sb = new StringBuilder('(');
+		final StringBuilder sb = new StringBuilder();
+		sb.append('(');
 		final Iterator<AToken> it = children.iterator();
 		while (it.hasNext()) {
 			sb.append(it.next().getString());
@@ -68,7 +69,7 @@ public class LuceneTokenFactory implements ITokenFactory {
 		return new PlainToken(str) {
 			@Override
 			public String getString() {
-				return '+' + QueryParser.escape(super.str);
+				return QueryParser.escape(super.str);
 			}
 		};
 	}
