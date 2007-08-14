@@ -1,0 +1,25 @@
+## Set the page title
+#set( $page_title = "Paxle Search Page" )
+
+## the regular content
+<form >
+	<input type="text" name="query" />
+	<input type="submit" value="search now"/>
+</form>
+	
+#if($searchQuery)
+	<table >
+		<tr>
+			#set($Search = $manager.getService("org.paxle.se.search.ISearchProviderManager"))
+			#if($Search)
+				#foreach($searchResult in $Search.search($searchQuery, 10, 10000))
+					.
+					#foreach($result in $searchResult.getResult())
+						,
+						<td>$result.get($url)</td>
+					#end
+				#end
+			#end
+		</tr>
+	</table>
+#end

@@ -33,6 +33,10 @@ public class Activator implements BundleActivator {
                 http.registerServlet("/crawler", new CrawlerView(manager), props, null);
                 http.registerServlet("/bundle", new BundleView(manager), props, null);
                 http.registerServlet("/log", new LogView(manager), props, null);
+                http.registerServlet("/", new SearchView(manager), props, null);
+                http.registerServlet("/index.html", new SearchView(manager), props, null);
+                http.registerServlet("/search", new SearchView(manager), props, null);
+
 			}
 		}		
 	}
