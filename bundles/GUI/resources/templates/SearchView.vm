@@ -3,7 +3,7 @@
 
 ## the regular content
 <form >
-	<input type="text" name="query" />
+	<input type="text" name="query" #if($searchQuery) value="$searchQuery" #end/>
 	<input type="submit" value="search now"/>
 </form>
 	
@@ -16,7 +16,7 @@
 				#foreach($result in $searchResult.getResult())
 					<tr>
 						<td>
-							<a href="$result.get($fieldManager.get("Location"))">$result.get($fieldManager.get("Title"))</a><br />
+							<a href="$result.get($fieldManager.get("Location"))">$result.get($fieldManager.get("Title")) ($result.get($fieldManager.get("Location")))</a><br />
 							#if($result.get($fieldManager.get("Author")))
 								Author: $result.get($fieldManager.get("Author"))<br />
 							#end
@@ -25,6 +25,9 @@
 							#end
 							#if($result.get($fieldManager.get("LastModified")))
 								Last Modified: $result.get($fieldManager.get("LastModified"))<br />
+							#end
+							#if($result.get($fieldManager.get("Summary")))
+								Summary: $result.get($fieldManager.get("Summary"))<br />
 							#end
 						</td>
 					</tr>
