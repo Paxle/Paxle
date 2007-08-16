@@ -16,7 +16,15 @@
 					<tr>
 						<td>
 							<a href="$result.get($fields.get("URL"))">$result.get($fields.get("TITLE"))</a><br />
-							Last Crawled: $result.get($fields.get("LAST_CRAWLED"))
+							#if($result.get($fields.get("AUTHOR")))
+								Author: $result.get($fields.get("AUTHOR"))<br />
+							#end
+							#if($result.get($fields.get("LAST_CRAWLED")))
+								Last Crawled: $result.get($fields.get("LAST_CRAWLED"))<br />
+							#end
+							#if($result.get($fields.get("LAST_MODIFIED")))
+								Last Modified: $result.get($fields.get("LAST_MODIFIED"))<br />
+							#end
 						</td>
 					</tr>
 				#end

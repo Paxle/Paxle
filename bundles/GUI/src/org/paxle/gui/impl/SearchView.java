@@ -22,6 +22,8 @@ public class SearchView extends AServlet {
         fields.put("URL", IIndexerDocument.LOCATION);
         fields.put("TITLE", IIndexerDocument.TITLE);
         fields.put("LAST_CRAWLED", IIndexerDocument.LAST_CRAWLED);
+        fields.put("LAST_MODIFIED", IIndexerDocument.LAST_MODIFIED);
+        fields.put("AUTHOR", IIndexerDocument.AUTHOR);
     }
     
     public SearchView(ServiceManager manager) {
