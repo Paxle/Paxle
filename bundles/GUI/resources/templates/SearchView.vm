@@ -11,19 +11,20 @@
 	<table >
 		#set($Search = $manager.getService("org.paxle.se.search.ISearchProviderManager"))
 		#if($Search)
+			#set($fieldManager = $manager.getService("org.paxle.se.index.IFieldManager"))
 			#foreach($searchResult in $Search.search($searchQuery, 50, 10000))
 				#foreach($result in $searchResult.getResult())
 					<tr>
 						<td>
-							<a href="$result.get($fields.get("URL"))">$result.get($fields.get("TITLE"))</a><br />
-							#if($result.get($fields.get("AUTHOR")))
-								Author: $result.get($fields.get("AUTHOR"))<br />
+							<a href="$result.get($fieldManager.get("Location"))">$result.get($fieldManager.get("Title"))</a><br />
+							#if($result.get($fieldManager.get("Author")))
+								Author: $result.get($fieldManager.get("Author"))<br />
 							#end
-							#if($result.get($fields.get("LAST_CRAWLED")))
-								Last Crawled: $result.get($fields.get("LAST_CRAWLED"))<br />
+							#if($result.get($fieldManager.get("LastCrawled")))
+								Last Crawled: $result.get($fieldManager.get("LastCrawled"))<br />
 							#end
-							#if($result.get($fields.get("LAST_MODIFIED")))
-								Last Modified: $result.get($fields.get("LAST_MODIFIED"))<br />
+							#if($result.get($fieldManager.get("LastModified")))
+								Last Modified: $result.get($fieldManager.get("LastModified"))<br />
 							#end
 						</td>
 					</tr>
