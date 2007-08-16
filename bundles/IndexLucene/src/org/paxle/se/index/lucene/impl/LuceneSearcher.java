@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.index.IndexModifier;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
@@ -61,7 +62,7 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 		
 		@Override
 		public void collect(int doc, float score) {
-			LuceneSearcher.this.logger.debug("collecting search result '" + doc + "', score: " + score + ", current: " + this.current + ", max: " + this.max);
+			LuceneSearcher.this.logger.debug("collecting search result " + this.current + "/" + this.max + ", document id '" + doc + "', score: " + score);
 			if (this.current++ < this.max) try {
 				this.results.add(Converter.luceneDoc2IIndexerDoc(LuceneSearcher.this.searcher.doc(doc)));
 			} catch (ParseException e) {
@@ -100,8 +101,9 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 		return new WordIterator(this.searcher.getIndexReader().terms());
 	}
 	
+	/** @deprecated does not work correctly */
 	public Iterator<String> wordIterator(String start) throws IOException {
-		return new WordIterator(this.searcher.getIndexReader().terms(new Term("*", start)));
+		return new WordIterator(this.searcher.getIndexReader().terms(new Term(null, start)));
 	}
 	
 	public Iterator<String> wordIterator(Field<?> field) throws IOException {
@@ -114,6 +116,30 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	
 	public void close() throws IOException {
 		this.searcher.close();
+	}
+	
+	public static void main(String[] args) {
+		LuceneSearcher s = null;
+		try {
+			s = new LuceneSearcher("/home/kane/workspace/runtime-osgi/lucene-db");
+			int c = 0;
+			TermDocs td = s.searcher.getIndexReader().termDocs();
+			
+			for (int i=0; i<s.searcher.getIndexReader().numDocs(); i++)
+				Converter.luceneDoc2IIndexerDoc(s.searcher.getIndexReader().document(i));
+			
+			//while (td.next())
+			//	System.out.println(c++ + Integer.toString(td.doc()));
+			/*
+			final Iterator<IIndexerDocument> it = s.docIterator();
+			while (it.hasNext() && c < 5)
+				System.out.println(c++ + ": " + it.next().get(IIndexerDocument.TITLE));
+				*/
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try { if (s != null) s.close(); } catch (IOException e) { e.printStackTrace(); }
+		}
 	}
 	
 	private static class DocumentIterator implements Iterator<IIndexerDocument> {
@@ -130,7 +156,7 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 		public DocumentIterator(IndexReader reader, String word) throws IOException {
 			this.reader = reader;
 			this.tenum = (word == null) ? reader.termDocs() : reader.termDocs(new Term("*", word));
-			this.next = this.tenum.doc();
+			next0();
 		}
 		
 		private int next0() {
@@ -203,7 +229,7 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 		
 		public WordIterator(TermEnum tenum) {
 			this.tenum = tenum;
-			this.next = this.tenum.term();
+			next0();
 		}
 		
 		protected Term next0() {
@@ -225,8 +251,9 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 			if (this.current == null) {
 				throw new NoSuchElementException();
 			} else {
-				this.next = next0();
-				return this.current.text();
+				String text = this.current.text();
+				this.current = next0();
+				return text;
 			}
 		}
 		
@@ -238,7 +265,7 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	
 	private static class FieldLimitedWordIterator extends WordIterator implements Iterator<String> {
 		
-		protected final Field<?> field;
+		protected Field<?> field = null;
 		
 		public FieldLimitedWordIterator(TermEnum tenum, Field<?> field) {
 			super(tenum);
@@ -250,7 +277,7 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 			Term ret;
 			do {
 				ret = super.next0();
-			} while (super.next != null && !super.next.field().equals(this.field.getName()));
+			} while (this.field != null && ret != null && !this.field.getName().equals(ret.field()));
 			return ret;
 		}
 	}

@@ -5,7 +5,7 @@ Bundle-ManifestVersion: 2
 Bundle-Activator: org.paxle.se.impl.Activator
 Bundle-Description: Paxle Search Engine Bundle
 Import-Package: org.osgi.framework, org.paxle.core.doc, org.apache.com
- mons.logging
+ mons.logging, org.paxle.core.service
 Bundle-SymbolicName: org.paxle.se
 Export-Package: org.paxle.se.query, org.paxle.se.query.tokens, org.pax
  le.se.index, org.paxle.se.search

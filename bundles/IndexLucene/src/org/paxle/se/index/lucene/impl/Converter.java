@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -17,9 +16,12 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
 
 import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.se.index.IFieldManager;
 import org.paxle.se.index.lucene.IndexerDocument;
 
 public class Converter {
+	
+	static IFieldManager fieldManager = null;
 	
 	private static class ArrayTokenStream extends TokenStream {
 		
@@ -47,15 +49,10 @@ public class Converter {
 		}
 	}
 	
-	private static final Hashtable<String,org.paxle.core.doc.Field<?>> fieldMap =
-		new Hashtable<String,org.paxle.core.doc.Field<?>>();
-	
 	public static Document iindexerDoc2LuceneDoc(IIndexerDocument document) {
 		final Document doc = new Document();
-		for (final Map.Entry<org.paxle.core.doc.Field<?>,Object> entry : document) {
-			fieldMap.put(entry.getKey().getName(), entry.getKey());
+		for (final Map.Entry<org.paxle.core.doc.Field<?>,Object> entry : document)
 			doc.add(any2field(entry.getKey(), entry.getValue()));
-		}
 		return doc;
 	}
 	
@@ -209,7 +206,7 @@ public class Converter {
 			final Fieldable field = (Fieldable)it.next();
 			if (!field.isStored())
 				continue;
-			final org.paxle.core.doc.Field<?> pfield = fieldMap.get(field.name());
+			final org.paxle.core.doc.Field<?> pfield = fieldManager.get(field.name());
 			if (pfield != null)
 				doc.put(pfield, field2any(field, pfield));
 		}
