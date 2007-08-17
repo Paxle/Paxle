@@ -16,35 +16,30 @@
 
 package com.axlight.jnushare.gisp;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.Reader;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-import org.apache.log4j.Logger;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.DocumentException;
+import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
-import org.dom4j.io.OutputFormat;
 import org.dom4j.util.NodeComparator;
 
 /**
@@ -54,8 +49,8 @@ import org.dom4j.util.NodeComparator;
  */
 
 public abstract class GISPXML extends GISPCore{
-    private static final Logger LOG =
-	Logger.getLogger(GISPXML.class.getName());
+    private static final Log LOG =
+        LogFactory.getLog(GISPXML.class.getName());
 
     private static final Namespace GISPNS =
 	new Namespace("", "http://gisp.jxta.org/protocol/3.4/beta4");

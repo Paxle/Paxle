@@ -16,31 +16,30 @@
 
 package com.axlight.jnushare.gisp;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.io.IOException;
+import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.peergroup.PeerGroup;
+import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
+import net.jxta.endpoint.ByteArrayMessageElement;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.EndpointListener;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.discovery.DiscoveryService;
-import net.jxta.discovery.DiscoveryListener;
-import net.jxta.discovery.DiscoveryEvent;
+import net.jxta.id.ID;
+import net.jxta.id.IDFactory;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.Module;
+import net.jxta.platform.ModuleClassID;
 import net.jxta.protocol.ModuleSpecAdvertisement;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * GISP(Global Information Sharing Prolocol) Module for JXTA.
@@ -55,8 +54,8 @@ import net.jxta.protocol.ModuleSpecAdvertisement;
  */
 
 public final class GISPImpl extends GISPXML implements Module, EndpointListener{
-    private static final Logger LOG =
-	Logger.getLogger(GISPImpl.class.getName());
+    private static final Log LOG =
+        LogFactory.getLog(GISPImpl.class.getName());
 
     private static final String serviceName = "GISP-3.4";
 
@@ -76,20 +75,20 @@ public final class GISPImpl extends GISPXML implements Module, EndpointListener{
      * list of addressed for seed.
      * item = String (Address)
      */
-    private List seedAddressList = new ArrayList();
+    private List<String> seedAddressList = new ArrayList<String>();
     private Object lockForNewAddress = new Object();
     
     /**
      * receive message queue.
      * item = byte[] (Message)
      */
-    private List recvQueue = new ArrayList();
+    private List<Message> recvQueue = new ArrayList<Message>();
 
     /**
      * send message queue.
      * item = Object[] {byte[] (Message), String (Address)}
      */
-    private List sendQueue = new ArrayList();
+    private List<Object[]> sendQueue = new ArrayList<Object[]>();
 
     public GISPImpl(){
 	super();

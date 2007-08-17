@@ -16,27 +16,19 @@
 
 package com.axlight.jnushare.gisp;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.Comparator;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Reader;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.io.IOException;
-import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * GISP (Global Information Sharing Prolocol) Core.
@@ -45,8 +37,8 @@ import org.apache.log4j.Logger;
  */
 
 public abstract class GISPCore extends GISP implements GInfoManager.Initiator{
-    private static final Logger LOG =
-	Logger.getLogger(GISPCore.class.getName());
+    private static final Log LOG =
+        LogFactory.getLog(GISPCore.class.getName());
 
     private static GInfo.Comparator peerComparator = new GInfo.Comparator(){
 	    public boolean same(GInfo peer1, GInfo peer2){

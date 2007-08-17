@@ -19,9 +19,9 @@ package com.axlight.jnushare.gisp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.dom4j.Element;
 import org.dom4j.DocumentHelper;
@@ -38,8 +38,8 @@ import org.dom4j.DocumentHelper;
  */
 
 public class GInfoManagerMemory implements GInfoManager, Runnable{
-    private static final Logger LOG =
-	Logger.getLogger(GInfoManagerMemory.class.getName());
+    private static final Log LOG =
+        LogFactory.getLog(GInfoManagerMemory.class.getName());
     
     private List datahouse = new ArrayList();
     private Initiator initiator = null;

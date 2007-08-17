@@ -10,6 +10,8 @@ import org.apache.velocity.context.Context;
 
 public class SearchView extends AServlet {
 
+    private static final long serialVersionUID = 1L;
+    
     protected Log logger = LogFactory.getLog(SearchView.class);
     
     public SearchView(ServiceManager manager) {

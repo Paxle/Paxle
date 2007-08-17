@@ -16,7 +16,6 @@
 
 package com.axlight.jnushare.gisp;
 
-import java.io.UnsupportedEncodingException;
 
 /**
  *  Applications' interface to GISP functionality.

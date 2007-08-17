@@ -2,7 +2,6 @@ package org.paxle.gui.impl;
 
 import java.util.Hashtable;
 
-import org.apache.velocity.app.VelocityEngine;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
