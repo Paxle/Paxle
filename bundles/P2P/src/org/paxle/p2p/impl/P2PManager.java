@@ -20,7 +20,6 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.XMLDocument;
-import net.jxta.id.IDFactory;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
@@ -276,6 +275,10 @@ public class P2PManager implements IP2PManager, DiscoveryListener {
 
 	public String getPeerID() {
 		return this.paxleGroup.getPeerID().getUniqueValue().toString();
+	}
+	
+	public PeerGroup getPeerGroup() {
+		return this.paxleGroup;
 	}
 	
 	public String getPeerName() {
