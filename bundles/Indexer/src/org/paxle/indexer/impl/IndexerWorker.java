@@ -12,10 +12,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.IndexerDocument;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 
-import org.paxle.indexer.IndexerDocument;
 
 public class IndexerWorker extends AWorker<ICommand> {
 	

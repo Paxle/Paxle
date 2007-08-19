@@ -1,11 +1,9 @@
-package org.paxle.indexer;
+package org.paxle.core.doc;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.paxle.core.doc.Field;
-import org.paxle.core.doc.IIndexerDocument;
 
 public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexerDocument {
 	
