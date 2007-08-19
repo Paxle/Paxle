@@ -10,93 +10,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/jxtashell.jar"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/P2P">
-		<attributes>
-			<attribute name="bundle-name" value="P2P"/>
-			<attribute name="net.jxta" value="0.0.0"/>
-			<attribute name="net.jxta.access" value="0.0.0"/>
-			<attribute name="net.jxta.codat" value="0.0.0"/>
-			<attribute name="net.jxta.credential" value="0.0.0"/>
-			<attribute name="net.jxta.discovery" value="0.0.0"/>
-			<attribute name="net.jxta.document" value="0.0.0"/>
-			<attribute name="net.jxta.endpoint" value="0.0.0"/>
-			<attribute name="net.jxta.exception" value="0.0.0"/>
-			<attribute name="net.jxta.ext.config" value="0.0.0"/>
-			<attribute name="net.jxta.ext.config.optimizers" value="0.0.0"/>
-			<attribute name="net.jxta.ext.config.probes" value="0.0.0"/>
-			<attribute name="net.jxta.ext.config.resources" value="0.0.0"/>
-			<attribute name="net.jxta.ext.config.ui" value="0.0.0"/>
-			<attribute name="net.jxta.ext.config.ui.locale" value="0.0.0"/>
-			<attribute name="net.jxta.ext.config.ui.resource" value="0.0.0"/>
-			<attribute name="net.jxta.ext.config.validators" value="0.0.0"/>
-			<attribute name="net.jxta.ext.http" value="0.0.0"/>
-			<attribute name="net.jxta.id" value="0.0.0"/>
-			<attribute name="net.jxta.id.jxta" value="0.0.0"/>
-			<attribute name="net.jxta.impl" value="0.0.0"/>
-			<attribute name="net.jxta.impl.access" value="0.0.0"/>
-			<attribute name="net.jxta.impl.access.always" value="0.0.0"/>
-			<attribute name="net.jxta.impl.access.pse" value="0.0.0"/>
-			<attribute name="net.jxta.impl.access.simpleACL" value="0.0.0"/>
-			<attribute name="net.jxta.impl.cm" value="0.0.0"/>
-			<attribute name="net.jxta.impl.discovery" value="0.0.0"/>
-			<attribute name="net.jxta.impl.document" value="0.0.0"/>
-			<attribute name="net.jxta.impl.endpoint" value="0.0.0"/>
-			<attribute name="net.jxta.impl.endpoint.cbjx" value="0.0.0"/>
-			<attribute name="net.jxta.impl.endpoint.endpointMeter" value="0.0.0"/>
-			<attribute name="net.jxta.impl.endpoint.msgframing" value="0.0.0"/>
-			<attribute name="net.jxta.impl.endpoint.relay" value="0.0.0"/>
-			<attribute name="net.jxta.impl.endpoint.router" value="0.0.0"/>
-			<attribute name="net.jxta.impl.endpoint.servlethttp" value="0.0.0"/>
-			<attribute name="net.jxta.impl.endpoint.tcp" value="0.0.0"/>
-			<attribute name="net.jxta.impl.endpoint.tls" value="0.0.0"/>
-			<attribute name="net.jxta.impl.endpoint.transportMeter" value="0.0.0"/>
-			<attribute name="net.jxta.impl.id.binaryID" value="0.0.0"/>
-			<attribute name="net.jxta.impl.id.CBID" value="0.0.0"/>
-			<attribute name="net.jxta.impl.id.unknown" value="0.0.0"/>
-			<attribute name="net.jxta.impl.id.UUID" value="0.0.0"/>
-			<attribute name="net.jxta.impl.loader" value="0.0.0"/>
-			<attribute name="net.jxta.impl.membership" value="0.0.0"/>
-			<attribute name="net.jxta.impl.membership.none" value="0.0.0"/>
-			<attribute name="net.jxta.impl.membership.passwd" value="0.0.0"/>
-			<attribute name="net.jxta.impl.membership.pse" value="0.0.0"/>
-			<attribute name="net.jxta.impl.meter" value="0.0.0"/>
-			<attribute name="net.jxta.impl.peer" value="0.0.0"/>
-			<attribute name="net.jxta.impl.peergroup" value="0.0.0"/>
-			<attribute name="net.jxta.impl.pipe" value="0.0.0"/>
-			<attribute name="net.jxta.impl.protocol" value="0.0.0"/>
-			<attribute name="net.jxta.impl.proxy" value="0.0.0"/>
-			<attribute name="net.jxta.impl.rendezvous" value="0.0.0"/>
-			<attribute name="net.jxta.impl.rendezvous.adhoc" value="0.0.0"/>
-			<attribute name="net.jxta.impl.rendezvous.edge" value="0.0.0"/>
-			<attribute name="net.jxta.impl.rendezvous.limited" value="0.0.0"/>
-			<attribute name="net.jxta.impl.rendezvous.rdv" value="0.0.0"/>
-			<attribute name="net.jxta.impl.rendezvous.rendezvousMeter" value="0.0.0"/>
-			<attribute name="net.jxta.impl.rendezvous.rpv" value="0.0.0"/>
-			<attribute name="net.jxta.impl.resolver" value="0.0.0"/>
-			<attribute name="net.jxta.impl.resolver.resolverMeter" value="0.0.0"/>
-			<attribute name="net.jxta.impl.util" value="0.0.0"/>
-			<attribute name="net.jxta.impl.util.cm" value="0.0.0"/>
-			<attribute name="net.jxta.impl.util.pipe.reliable" value="0.0.0"/>
-			<attribute name="net.jxta.impl.xindice" value="0.0.0"/>
-			<attribute name="net.jxta.impl.xindice.core" value="0.0.0"/>
-			<attribute name="net.jxta.impl.xindice.core.data" value="0.0.0"/>
-			<attribute name="net.jxta.impl.xindice.core.filer" value="0.0.0"/>
-			<attribute name="net.jxta.impl.xindice.core.indexer" value="0.0.0"/>
-			<attribute name="net.jxta.impl.xindice.util" value="0.0.0"/>
-			<attribute name="net.jxta.logging" value="0.0.0"/>
-			<attribute name="net.jxta.membership" value="0.0.0"/>
-			<attribute name="net.jxta.meter" value="0.0.0"/>
-			<attribute name="net.jxta.peer" value="0.0.0"/>
-			<attribute name="net.jxta.peergroup" value="0.0.0"/>
-			<attribute name="net.jxta.pipe" value="0.0.0"/>
-			<attribute name="net.jxta.platform" value="0.0.0"/>
-			<attribute name="net.jxta.protocol" value="0.0.0"/>
-			<attribute name="net.jxta.rendezvous" value="0.0.0"/>
-			<attribute name="net.jxta.resolver" value="0.0.0"/>
-			<attribute name="net.jxta.service" value="0.0.0"/>
-			<attribute name="net.jxta.socket" value="0.0.0"/>
-			<attribute name="net.jxta.util" value="0.0.0"/>
-			<attribute name="net.jxta.util.documentSerializable" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="net/jxta/util/documentSerializable/"/>
 			<accessrule kind="accessible" pattern="net/jxta/util/"/>
@@ -185,5 +98,6 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
+	<classpathentry kind="lib" path="/P2P/gisp/lib/jxta.jar" sourcepath="/home/theli/workspace/Libs/jxta-src-2.5_rc1.zip"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>
