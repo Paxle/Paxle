@@ -19,7 +19,7 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	public static final Field<String>       SUMMARY       = new Field<String>       (true,  true,  "Summary",      String.class);
 	public static final Field<Reader>       TEXT          = new Field<Reader>       (true,  false, "Text",         Reader.class);
 	public static final Field<String>       TITLE         = new Field<String>       (true,  true,  "Title",        String.class);
-	public static final Field<Topic[]>      TOPICS        = new Field<Topic[]>      (true,  true,  "Topics",       Topic[].class);
+	public static final Field<IIndexerDocument.Topic[]>      TOPICS        = new Field<IIndexerDocument.Topic[]>      (true,  true,  "Topics",       Topic[].class);
 	
 	public <Type> void set(Field<Type> prop, Type data);
 	public <Type> Type get(Field<Type> prop);

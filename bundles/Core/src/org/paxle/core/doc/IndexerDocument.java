@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 
+
 public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexerDocument {
 	
 	private static final long serialVersionUID = 1L;

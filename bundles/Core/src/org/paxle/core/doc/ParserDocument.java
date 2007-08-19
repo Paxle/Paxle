@@ -32,7 +32,7 @@ public class ParserDocument implements IParserDocument {
 	protected Date lastChanged;
 	protected String summary;
 	protected String title;
-	protected Status status;
+	protected IParserDocument.Status status;
 	protected String statusText;
 	protected File content;
 	protected FileOutputStream contentOut = null;
@@ -289,7 +289,7 @@ public class ParserDocument implements IParserDocument {
 	 * {@inheritDoc}
 	 * @see org.paxle.core.doc.IParserDocument#getStatus()
 	 */
-	public Status getStatus() {
+	public IParserDocument.Status getStatus() {
 		return this.status;
 	}
 	
@@ -297,7 +297,7 @@ public class ParserDocument implements IParserDocument {
 	 * {@inheritDoc}
 	 * @see org.paxle.core.doc.IParserDocument#setStatus(org.paxle.core.doc.IParserDocument.Status)
 	 */
-	public void setStatus(Status status) {
+	public void setStatus(IParserDocument.Status status) {
 		this.status = status;
 	}
 	
@@ -309,7 +309,7 @@ public class ParserDocument implements IParserDocument {
 		this.statusText = statusText;
 	}
 	
-	public void setStatus(Status status, String statusText) {
+	public void setStatus(IParserDocument.Status status, String statusText) {
 		this.setStatus(status);
 		this.setStatusText(statusText);
 	}

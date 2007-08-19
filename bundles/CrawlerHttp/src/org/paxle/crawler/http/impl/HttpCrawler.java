@@ -21,7 +21,6 @@ import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.charset.ICharsetDetectorStream;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
-import org.paxle.core.doc.ICrawlerDocument.Status;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.http.IHttpCrawler;
@@ -86,9 +85,9 @@ public class HttpCrawler implements IHttpCrawler {
 			// check the response status code
 			if (statusCode != HttpStatus.SC_OK) {
 				if (statusCode == HttpStatus.SC_NOT_FOUND) {
-					doc.setStatus(Status.NOT_FOUND);
+					doc.setStatus(ICrawlerDocument.Status.NOT_FOUND);
 				} else {
-					doc.setStatus(Status.UNKNOWN_FAILURE,String.format("Server returned: %s", method.getStatusLine()));
+					doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,String.format("Server returned: %s", method.getStatusLine()));
 				}
 				
 				this.logger.warn(String.format("Crawling of URL '%' failed. Server returned: %s", requestUrl, method.getStatusLine()));
@@ -195,7 +194,7 @@ public class HttpCrawler implements IHttpCrawler {
 			doc.setContent(content);
 			respBody.close();
 			
-			doc.setStatus(Status.OK);			
+			doc.setStatus(ICrawlerDocument.Status.OK);			
 		} catch (Exception e) {
 			String errorMsg;
 			if (e instanceof HttpException) {
@@ -206,7 +205,7 @@ public class HttpCrawler implements IHttpCrawler {
 				errorMsg = "Unexpected exception: %s";
 			}
 			errorMsg = String.format(errorMsg, e.getMessage());
-			doc.setStatus(Status.UNKNOWN_FAILURE, errorMsg);
+			doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, errorMsg);
 		} finally {
 			if (method != null) method.releaseConnection();
 		}

@@ -4,7 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.IParserDocument.Status;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
@@ -69,7 +68,7 @@ public class ParserWorker extends AWorker<ICommand> {
 					cmd.getCrawlerDocument().getCharset(), 
 					cmd.getCrawlerDocument().getContent());
 			
-			parserdoc.setStatus(Status.OK);			
+			parserdoc.setStatus(IParserDocument.Status.OK);			
 			cmd.setParserDocument(parserdoc);
 		} catch (Exception e) {
 			this.logger.error("Error parsing " + cmd.getLocation(), e);			

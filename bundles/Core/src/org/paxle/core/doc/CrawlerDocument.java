@@ -74,11 +74,11 @@ public class CrawlerDocument implements ICrawlerDocument {
 		return this.mimeType;
 	}
 	
-	public Status getStatus() {
+	public ICrawlerDocument.Status getStatus() {
 		return this.status;
 	}
 
-	public void setStatus(Status status) {
+	public void setStatus(ICrawlerDocument.Status status) {
 		this.status = status;
 	}
 	
@@ -90,7 +90,7 @@ public class CrawlerDocument implements ICrawlerDocument {
 		this.statusText = statusText;
 	}
 	
-	public void setStatus(Status status, String statusText) {
+	public void setStatus(ICrawlerDocument.Status status, String statusText) {
 		this.setStatus(status);
 		this.setStatusText(statusText);
 	}

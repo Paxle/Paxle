@@ -16,8 +16,8 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
 
 import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.core.doc.IndexerDocument;
 import org.paxle.se.index.IFieldManager;
-import org.paxle.se.index.lucene.IndexerDocument;
 
 public class Converter {
 	

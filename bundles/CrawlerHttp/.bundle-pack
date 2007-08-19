@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <bundlejar>
-  <resource src="/CrawlerHttp/out" type="0" dst="" pattern=".*\.class"/>
+<resource dst="" pattern=".*\.class" src="/CrawlerHttp/out" type="0"/>
 </bundlejar>
