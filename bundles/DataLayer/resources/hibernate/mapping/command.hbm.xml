@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="org.paxle.core.queue.ICommand" table="Command" node="Command" lazy="false">
+        <id name="OID" column="id" node="@oid">
+            <generator class="native"/>          
+        </id>      
+        
+        <!-- the command processing result -->
+        <property name="result">
+			<type name="org.paxle.data.db.impl.EnumUserType">
+				<param name="enumClassName">org.paxle.core.queue.ICommand$Result</param>
+			</type>
+      	</property>
+      	<property name="resultText"/>        
+      	
+      	<!-- the resource location -->
+        <property name="location"/>
+        
+        <!-- the crawler document -->
+	    <many-to-one name="crawlerDocument" column="crawlerDocId" unique="true" cascade="all"/>
+	    
+	    <!-- the parser document -->
+	    <many-to-one name="parserDocument" column="parserDocId" unique="true" cascade="all"/>
+    </class>
+</hibernate-mapping>

@@ -1,12 +1,18 @@
-package org.paxle.crawler;
+package org.paxle.core.doc;
 
 import java.io.File;
 import java.util.Date;
 
-import org.paxle.core.doc.ICrawlerDocument;
+
 
 public class CrawlerDocument implements ICrawlerDocument {
+	/**
+	 * Primary key required by Object-EER mapping 
+	 */
+	private int _oid;
+	
 	private ICrawlerDocument.Status status = null;
+	private String statusText = null;
 	private String location = null;
 	private String mimeType = null;
 	private String charset = null;
@@ -15,7 +21,15 @@ public class CrawlerDocument implements ICrawlerDocument {
 	private Date crawlerDate = null;
 	private Date lastModDate = null;
 	private String etag;
-		
+
+    public int getOID(){ 
+    	return _oid; 
+    }
+
+    public void setOID(int OID){ 
+    	this._oid = OID; 
+    }		
+    
 	public void setLocation(String location) {
 		this.location = location;
 	}
@@ -43,6 +57,14 @@ public class CrawlerDocument implements ICrawlerDocument {
 	public File getContent() {
 		return this.content;
 	}
+	
+	public void setFileURI(String fileRef) {
+		if (fileRef != null) this.content = new File(fileRef);
+	}
+	
+	public String getFileURI() {
+		return (this.content == null)?null:this.content.toURI().toString();
+	}
 
 	public void setMimeType(String mimeType) {
 		this.mimeType = mimeType;
@@ -51,13 +73,26 @@ public class CrawlerDocument implements ICrawlerDocument {
 	public String getMimeType() {
 		return this.mimeType;
 	}
+	
+	public Status getStatus() {
+		return this.status;
+	}
 
 	public void setStatus(Status status) {
 		this.status = status;
 	}
 	
-	public Status getStatus() {
-		return this.status;
+	public String getStatusText() {
+		return this.statusText;
+	}
+	
+	public void setStatusText(String statusText) {
+		this.statusText = statusText;
+	}
+	
+	public void setStatus(Status status, String statusText) {
+		this.setStatus(status);
+		this.setStatusText(statusText);
 	}
 	
 	public void setLanguages(String[] languages) {
@@ -84,7 +119,7 @@ public class CrawlerDocument implements ICrawlerDocument {
 		return this.lastModDate;
 	}
 
-	public void setLanguages(String etag) {
+	public void setEtag(String etag) {
 		this.etag = etag;
 	}
 	

@@ -1,6 +1,8 @@
-package org.paxle.parser;
+package org.paxle.core.doc;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
@@ -13,93 +15,128 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import org.paxle.core.doc.IParserDocument;
+public class ParserDocument implements IParserDocument {
+	
+	/**
+	 * Primary key required by Object-EER mapping 
+	 */
+	protected int _oid;	
+	
+	protected Map<String,IParserDocument> subDocs = new HashMap<String,IParserDocument>();
+	protected Collection<String> headlines = new LinkedList<String>();
+	protected Collection<String> keywords = new LinkedList<String>();
+	protected Map<String,String> links = new HashMap<String,String>();
+	protected Map<String,String> images = new HashMap<String,String>();
+	protected Set<String> languages = new HashSet<String>();	
+	protected String author;
+	protected Date lastChanged;
+	protected String summary;
+	protected String title;
+	protected Status status;
+	protected String statusText;
+	protected File content;
+	protected FileOutputStream contentOut = null;
+	
+    public int getOID(){ 
+    	return _oid; 
+    }
 
-import org.paxle.parser.iotools.CachedWriter;
-import org.paxle.parser.iotools.ParserTools;
-
-public final class ParserDocument implements IParserDocument {
-	
-	private static final int MAX_TEXT_SIZE_RAM = 4 * 1024 * 1024; // 4 MB
-	
-	private final Map<String,IParserDocument> subDocs = new HashMap<String,IParserDocument>();
-	private final Collection<String> headlines = new LinkedList<String>();
-	private final Collection<String> keywords = new LinkedList<String>();
-	private final Map<String,String> links = new HashMap<String,String>();
-	private final Map<String,String> images = new HashMap<String,String>();
-	private final Set<String> languages = new HashSet<String>();
-	private CachedWriter text;
-	private String author;
-	private Date lastChanged;
-	private String summary;
-	private String title;
-	private Status status;
-	
-	public ParserDocument() {
-		this.text = new CachedWriter(MAX_TEXT_SIZE_RAM);
-	}
-	
-	public ParserDocument(int initialTextSize) throws IOException {
-		this.text = new CachedWriter(MAX_TEXT_SIZE_RAM, initialTextSize);
-	}
-	
-	/* (non-Javadoc)
+    public void setOID(int OID){ 
+    	this._oid = OID; 
+    }		
+		
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.parser.IParserDocument#getHeadlines()
+	 */
+	public Collection<String> getHeadlines() {
+		return this.headlines;
+	}    
+    
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#addHeadline(java.lang.String)
 	 */
 	public void addHeadline(String headline) {
-		this.headlines.add(ParserTools.whitespaces2Space(headline));
+		this.headlines.add(whitespaces2Space(headline));
 	}
 	
-	/* (non-Javadoc)
+	public void setHeadlines(Collection<String> headlines) {
+		this.headlines = headlines;
+	}
+	
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#addKeyword(java.lang.String)
 	 */
 	public void addKeyword(String keyword) {
-		this.keywords.add(ParserTools.whitespaces2Space(keyword));
+		this.keywords.add(whitespaces2Space(keyword));
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#addLanguage(java.lang.String)
 	 */
 	public void addLanguage(String lang) {
 		this.languages.add(lang);
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#addReference(java.lang.String, java.lang.String)
 	 */
 	public void addReference(String ref, String name) {
-		this.links.put(ParserTools.whitespaces2Space(ref), ParserTools.whitespaces2Space(name));
+		ref = whitespaces2Space(ref);
+		name = whitespaces2Space(name);
+		if (ref != null && ref.length() > 0) {
+			this.links.put(ref,name);
+		}
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#addReferenceImage(java.lang.String, java.lang.String)
 	 */
 	public void addReferenceImage(String ref, String name) {
-		this.images.put(ParserTools.whitespaces2Space(ref), ParserTools.whitespaces2Space(name));
+		ref = whitespaces2Space(ref);
+		name = whitespaces2Space(name);
+		if (ref != null && ref.length() > 0)  {
+			this.images.put(whitespaces2Space(ref), whitespaces2Space(name));
+		}
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#addSubDocument(java.lang.String)
 	 */
 	public void addSubDocument(String location, IParserDocument pdoc) {
-		this.subDocs.put(ParserTools.whitespaces2Space(location), pdoc);
+		this.subDocs.put(whitespaces2Space(location), pdoc);
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#addText(java.lang.CharSequence)
 	 */
 	public void addText(CharSequence text) throws IOException {
-		this.text.append(text.toString());
+		if (this.content == null) {
+			this.content = File.createTempFile("ParserDocument", "tmp");
+		}
+		if (this.contentOut == null) {
+			this.contentOut = new FileOutputStream(this.content);
+		}
+		this.contentOut.write(text.toString().getBytes("UTF-8"));
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#setAuthor(java.lang.String)
 	 */
 	public void setAuthor(String author) {
-		this.author = ParserTools.whitespaces2Space(author);
+		this.author = whitespaces2Space(author);
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#setLanguages(java.lang.String[])
 	 */
 	public void setLanguages(String[] langs) {
@@ -107,156 +144,186 @@ public final class ParserDocument implements IParserDocument {
 		this.languages.addAll(Arrays.asList(langs));
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#setLastChanged(java.util.Date)
 	 */
 	public void setLastChanged(Date date) {
 		this.lastChanged = date;
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#setSummary(java.lang.String)
 	 */
 	public void setSummary(String summary) {
-		this.summary = ParserTools.whitespaces2Space(summary);
+		this.summary = whitespaces2Space(summary);
 	}
 	
-	public void setText(File file) throws IOException {
-		this.text = new CachedWriter(file);
+	/**
+	 * {@inheritDoc}
+	 * @see IParserDocument#setTextFile(File)
+	 */
+	public void setTextFile(File file) throws IOException {
+		this.content = file;
 	}
 	
-	public void setText(CachedWriter resource) {
-		this.text = resource;
-	}
-	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#setTitle(java.lang.String)
 	 */
 	public void setTitle(String title) {
-		this.title = ParserTools.whitespaces2Space(title);
+		this.title = whitespaces2Space(title);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getAuthor()
 	 */
 	public String getAuthor() {
 		return author;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.paxle.parser.IParserDocument#getHeadlines()
-	 */
-	public Collection<String> getHeadlines() {
-		return this.headlines;
-	}
-	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getImages()
 	 */
 	public Map<String,String> getImages() {
 		return this.images;
 	}
 	
-	/* (non-Javadoc)
+	public void setImages(Map<String,String> images) {
+		this.images = images;
+	}
+	
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getKeywords()
 	 */
 	public Collection<String> getKeywords() {
 		return this.keywords;
 	}
 	
-	/* (non-Javadoc)
+	public void setKeywords(Collection<String> keywords) {
+		this.keywords = keywords;
+	}
+	
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getLanguages()
 	 */
 	public Set<String> getLanguages() {
 		return this.languages;
 	}
 	
-	/* (non-Javadoc)
+	public void setLanguages(Set<String> languages) {
+		this.languages = languages;
+	}
+	
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getLastChanged()
 	 */
 	public Date getLastChanged() {
 		return this.lastChanged;
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getLinks()
 	 */
 	public Map<String,String> getLinks() {
 		return this.links;
 	}
 	
+	public void setLinks(Map<String,String> links) {
+		this.links = links;
+	}
+	
 	// don't manipulate the sub-docs
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getSubDocs()
 	 */
 	public Map<String,IParserDocument> getSubDocs() {
 		return this.subDocs;
 	}
 	
-	/* (non-Javadoc)
+	public void setSubDocs(Map<String,IParserDocument> subDocs) {
+		this.subDocs = subDocs;
+	}
+	
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getSummary()
 	 */
 	public String getSummary() {
 		return this.summary;
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getText()
 	 */
 	public Reader getTextAsReader() throws IOException {
-		return this.text.toReader();
+		return (this.content == null) ? null : new FileReader(this.content);
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getTitle()
 	 */
 	public String getTitle() {
 		return this.title;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.paxle.core.doc.IParserDocument#getTextAsFile()
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.core.doc.IParserDocument#getTextFile()
 	 */
-	public File getTextAsFile() throws IOException {
-		return this.text.toFile(null);
+	public File getTextFile() throws IOException {
+		return this.content;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.paxle.core.doc.IParserDocument#getTextAsFile(java.io.File)
-	 */
-	public File getTextAsFile(File file) throws IOException {
-		return this.text.toFile(file);
-	}
-	
-	/*
-	 * (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.core.doc.IParserDocument#getStatus()
 	 */
 	public Status getStatus() {
 		return this.status;
 	}
 	
-	/*
-	 * (non-Javadoc)
+	/**
+	 * {@inheritDoc}
 	 * @see org.paxle.core.doc.IParserDocument#setStatus(org.paxle.core.doc.IParserDocument.Status)
 	 */
 	public void setStatus(Status status) {
 		this.status = status;
 	}
 	
-	/*
-	 * (non-Javadoc)
+	public String getStatusText() {
+		return this.statusText;
+	}
+	
+	public void setStatusText(String statusText) {
+		this.statusText = statusText;
+	}
+	
+	public void setStatus(Status status, String statusText) {
+		this.setStatus(status);
+		this.setStatusText(statusText);
+	}
+	
+	/**
+	 * {@inheritDoc}
 	 * @see java.io.Closeable#close()
 	 */
 	public void close() throws IOException {
-		this.text.close();
+		if (this.contentOut != null) {
+			this.contentOut.close();
+		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.paxle.parser.IParserDocument#toString()
-	 */
 	/**
 	 * Lists the contents of this document in the following format using line-feeds (ASCII 10 or
 	 * <code>\n</code>) for line breaks:
@@ -293,7 +360,7 @@ public final class ParserDocument implements IParserDocument {
 	 */
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder(100 + Math.max((int)this.text.length(), 0));
+		final StringBuilder sb = new StringBuilder(100);
 		sb.append("Title: ").append(title).append('\n');
 		sb.append("Author: ").append(author).append('\n');
 		sb.append("last changed: ").append(lastChanged.toString()).append('\n');
@@ -303,7 +370,7 @@ public final class ParserDocument implements IParserDocument {
 		print(sb, this.keywords, "Keywords");
 		print(sb, this.images, "Images");
 		print(sb, this.links, "Links");
-		sb.append("Text:").append('\n').append(this.text);
+//		sb.append("Text:").append('\n').append(this.text);
 		return sb.toString();
 	}
 	
@@ -322,4 +389,9 @@ public final class ParserDocument implements IParserDocument {
 		while (it.hasNext())
 			sb.append(" * ").append(it.next()).append('\n');
 	}
+	
+	private static String whitespaces2Space(String text) {
+		if (text == null) return null;
+		return text.replaceAll("\\s", " ").trim();
+	}	
 }

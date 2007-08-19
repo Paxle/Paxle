@@ -14,7 +14,7 @@ import org.htmlparser.lexer.Lexer;
 import org.htmlparser.lexer.Page;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.parser.ParserDocument;
+import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.html.IHtmlParser;
 
@@ -24,7 +24,7 @@ import org.paxle.parser.html.IHtmlParser;
  * <p>
  *  It uses a kind of iterator with callback to walk through the node-tree of
  *  the HTML page, extracting information whereever supported and putting it
- *  into the {@link ParserDocument}.
+ *  into the {@link CachedParserDocument}.
  * </p>
  * @see org.htmlparser.Parser#visitAllNodesWith(org.htmlparser.visitors.NodeVisitor) for the iterator
  * @see org.paxle.parser.html.impl.NodeCollector for the callback
@@ -50,6 +50,9 @@ public class HtmlParser implements IHtmlParser {
 		return MIME_TYPES;
 	}
 	
+	/**
+	 * TODO: the html parser seems not to extract the keywords
+	 */
 	public IParserDocument parse(String location, String charset, File content) throws ParserException,
 			UnsupportedEncodingException, IOException {
 		final FileInputStream fis = new FileInputStream(content);
@@ -59,10 +62,11 @@ public class HtmlParser implements IHtmlParser {
 			final Parser parser = new Parser(new Lexer(page));
 			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
 			
-			final IParserDocument doc = new ParserDocument();
+			final IParserDocument doc = new CachedParserDocument();
 			final NodeCollector nc = new NodeCollector(doc, NodeCollector.Debug.NONE);
 			parser.visitAllNodesWith(nc);
 			page.close();
+			
 			return doc;
 		} catch (org.htmlparser.util.ParserException e) {
 			throw new ParserException("error parsing HTML nodes-tree", e);

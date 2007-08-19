@@ -1,7 +1,19 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <bundlejar>
 <resource dst="" pattern=".*\.class" src="/DataLayer/out" type="0"/>
-<resource dst="libs/castor-1.1.2.1-xml.jar" src="/DataLayer/libs/castor-1.1.2.1-xml.jar" type="1"/>
+<resource dst="libs/antlr-2.7.6.jar" src="/DataLayer/libs/antlr-2.7.6.jar" type="1"/>
+<resource dst="libs/asm-attrs.jar" src="/DataLayer/libs/asm-attrs.jar" type="1"/>
+<resource dst="libs/asm.jar" src="/DataLayer/libs/asm.jar" type="1"/>
+<resource dst="libs/cglib-2.1.3.jar" src="/DataLayer/libs/cglib-2.1.3.jar" type="1"/>
+<resource dst="libs/commons-collections-2.1.1.jar" src="/DataLayer/libs/commons-collections-2.1.1.jar" type="1"/>
+<resource dst="libs/commons-logging-1.0.4.jar" src="/DataLayer/libs/commons-logging-1.0.4.jar" type="1"/>
+<resource dst="libs/derby-10.1.2.1.jar" src="/DataLayer/libs/derby-10.1.2.1.jar" type="1"/>
+<resource dst="libs/dom4j-1.6.1.jar" src="/DataLayer/libs/dom4j-1.6.1.jar" type="1"/>
+<resource dst="libs/hibernate3.jar" src="/DataLayer/libs/hibernate3.jar" type="1"/>
+<resource dst="libs/jta.jar" src="/DataLayer/libs/jta.jar" type="1"/>
+<resource dst="libs/log4j-1.2.11.jar" src="/DataLayer/libs/log4j-1.2.11.jar" type="1"/>
+<resource dst="libs/mysql-connector-java-5.0.5.jar" src="/DataLayer/libs/mysql-connector-java-5.0.5.jar" type="1"/>
+<resource dst="libs/pg74.213.jdbc3.jar" src="/DataLayer/libs/pg74.213.jdbc3.jar" type="1"/>
 <resource dst="libs/xerces.jar" src="/DataLayer/libs/xerces.jar" type="1"/>
 <resource dst="libs/xml-apis.jar" src="/DataLayer/libs/xml-apis.jar" type="1"/>
 <resource dst="libs/xmlParserAPIs.jar" src="/DataLayer/libs/xmlParserAPIs.jar" type="1"/>

@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="org.paxle.core.doc.IParserDocument" table="ParserDocument" lazy="false">
+        <id name="OID" column="id">
+            <generator class="native"/>
+        </id>
+        
+        <property name="status">
+			<type name="org.paxle.data.db.impl.EnumUserType">
+				<param name="enumClassName">org.paxle.core.doc.IParserDocument$Status</param>
+			</type>
+      	</property>
+      	<property name="statusText"/>
+      	
+        <property name="author"/>
+        <property name="lastChanged"/>
+        <property name="summary"/>
+        <property name="title"/>
+        <property name="textFile"/>          
+        
+        <!-- headlines -->
+     	<list name="headlines" table="ParserDocHeadlines" lazy="false">     		
+           	<key column="parserDocId"/>
+			<list-index column="headlineIdx"/>           	
+          	<element column="headline" type="string"/>
+     	</list>      
+     	
+     	<!-- resource keywords -->
+     	<list name="keywords" table="ParserDocKeywords" lazy="false">     		
+           	<key column="parserDocId"/>
+			<list-index column="keywordIdx"/>           	
+          	<element column="keyword" type="string"/>
+     	</list>    
+             
+        <!-- found links -->
+        <map name="links" table="ParserDocLinks" lazy="false">  
+        	<key column="parserDocId"/>  
+        	<index column="link" type="string"/>  
+        	<element column="text" type="string"/>  
+        </map>
+        
+        <!-- found images -->
+        <map name="images" table="ParserDocImages" lazy="false">  
+        	<key column="parserDocId"/>  
+        	<index column="link" type="string"/>  
+        	<element column="text" type="string"/>  
+        </map>           
+        
+        <!-- languages -->
+        <set name="languages" table="ParserDocLanguages" lazy="false">     		
+           	<key column="parserDocId"/>      	
+          	<element column="language" type="string"/>
+     	</set> 
+        
+        <!-- subdocuments -->
+        <map name="subDocs" lazy="false" cascade="all">  
+        	<key column="parentParserDocId"/>  
+        	<index column="location" type="string"/>
+    	    <one-to-many class="org.paxle.core.doc.IParserDocument"/>
+        </map>
+    </class>
+</hibernate-mapping>

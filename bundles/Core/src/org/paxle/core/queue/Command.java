@@ -10,6 +10,11 @@ import org.paxle.core.doc.IParserDocument;
 
 public class Command implements ICommand {
 	
+	/**
+	 * Primary key required by Object-EER mapping 
+	 */
+	private int _oid;
+	
 	private Result result = Result.Passed;
 	private String resultText = null;
 	
@@ -19,12 +24,27 @@ public class Command implements ICommand {
 	private IParserDocument parserDoc = null;
 	private List<IIndexerDocument> indexerDocs = new LinkedList<IIndexerDocument>();
 
+	public static Command createCommand(String location) {
+		Command cmd = new Command();
+		cmd.setLocation(location);
+		return cmd;
+	}
+
+    public int getOID(){ 
+    	return _oid; 
+    }
+
+    public void setOID(int OID){ 
+    	this._oid = OID; 
+    }	
+	
 	public ICrawlerDocument getCrawlerDocument() {
 		return this.crawlerDoc;
 	}
 
 	public void setCrawlerDocument(ICrawlerDocument crawlerDoc) {
 		this.crawlerDoc = crawlerDoc;
+//		if (this.crawlerDoc != null) this.crawlerDoc.setCommand(this);
 	}	
 
 	public IParserDocument getParserDocument() {
@@ -32,7 +52,7 @@ public class Command implements ICommand {
 	}
 
 	public void setParserDocument(IParserDocument parserDoc) throws IOException {
-		parserDoc.close();
+		if (parserDoc != null) parserDoc.close();
 		this.parserDoc = parserDoc;
 	}
 
@@ -52,14 +72,18 @@ public class Command implements ICommand {
 	public String getResultText() {
 		return this.resultText;
 	}
+	
+	public void setResultText(String description) {
+		this.resultText = description;
+	}
 
 	public void setResult(Result status) {
 		this.result = status;
 	}
 		
 	public void setResult(Result status, String description) {
-		this.result = status;
-		this.resultText = description;
+		this.setResult(status);
+		this.setResultText(description);
 	}
 
 	public String getLocation() {
@@ -68,5 +92,14 @@ public class Command implements ICommand {
 
 	public void setLocation(String location) {
 		this.location = location;
-	}	
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		
+		str.append(this.location);
+		
+		return str.toString();
+	}
 }

@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.parser.ParserDocument;
+import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.sevenzip.I7zipParser;
 
@@ -26,7 +26,7 @@ public class P7zipParser implements I7zipParser {
 		final Handler archive = new Handler();
 		archive.Open(new RAFInStream(content));
 		
-		final ParserDocument doc = new ParserDocument();
+		final CachedParserDocument doc = new CachedParserDocument();
 		final SZParserExtractCallback aec = new SZParserExtractCallback(doc, archive);
 		try {
 			archive.Extract(null, -1, 0, aec);

@@ -10,7 +10,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.parser.ParserDocument;
+import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.iotools.ParserTools;
 import org.paxle.parser.iotools.SubParserDocOutputStream;
@@ -30,7 +30,7 @@ public class ZipParser implements IZipParser {
 	
 	public IParserDocument parse(String location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException {
-		final IParserDocument pdoc = new ParserDocument();
+		final IParserDocument pdoc = new CachedParserDocument();
 		final ZipInputStream zis = new ZipInputStream(new FileInputStream(content));
 		ZipEntry ze;
 		try {

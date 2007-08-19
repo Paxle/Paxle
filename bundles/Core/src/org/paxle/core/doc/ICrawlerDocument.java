@@ -8,11 +8,17 @@ public interface ICrawlerDocument {
 	public static enum Status {
 		OK,
 		NOT_FOUND,
-		UNKNOWN_FAILURE
+		UNKNOWN_FAILURE		
 	}
+	
+    public int getOID(); 
+    public void setOID(int OID); 
 
 	public Status getStatus();
+	public String getStatusText();
+	public void setStatusText(String statusText);
 	public void setStatus(Status status);
+	public void setStatus(Status status, String statusText);
 	
 	public String getLocation();
 	public void setLocation(String location);
@@ -29,6 +35,7 @@ public interface ICrawlerDocument {
 	public void setContent(File content);
 	
 	public String[] getLanguages();	
+	public void setLanguages(String[] lang);
 	
 	public Date getCrawlerDate();
 	public void setCrawlerDate(Date crawlerDate);

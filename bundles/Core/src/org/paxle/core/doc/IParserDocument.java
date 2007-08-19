@@ -18,6 +18,9 @@ public interface IParserDocument extends Closeable {
 		FAILURE
 	}
 
+    public int getOID(); 
+    public void setOID(int OID); 
+	
 	/**
 	 * Headlines in a document define the scopes of it's content and are therefore important
 	 * to understand what it is dealing with. Furthermore headlines are marked specifically
@@ -28,6 +31,8 @@ public interface IParserDocument extends Closeable {
 	 */
 	public abstract void addHeadline(String headline);
 
+	public void setHeadlines(Collection<String> headlines);
+	
 	/**
 	 * A keyword outlines the document's content in one or more words.
 	 * 
@@ -102,6 +107,12 @@ public interface IParserDocument extends Closeable {
 	 */
 	public abstract void setStatus(Status status);
 	
+	public String getStatusText();
+	
+	public void setStatusText(String statusText);
+	
+	public void setStatus(Status status, String statusText);
+	
 	/**
 	 * Summary of this document's content which may be helpful either for snippets or for
 	 * categorizing the document
@@ -110,7 +121,7 @@ public interface IParserDocument extends Closeable {
 	 */
 	public abstract void setSummary(String summary);
 	
-	public abstract void setText(File file) throws IOException;
+	public abstract void setTextFile(File file) throws IOException;
 
 	/**
 	 * @param title the title of the document
@@ -137,17 +148,22 @@ public interface IParserDocument extends Closeable {
 	 */
 	public abstract Map<String, String> getImages();
 
+	public void setImages(Map<String,String> images);
+	
 	/**
 	 * @see #addKeyword(String)
 	 * @return a collection of all keywords describing this document
 	 */
 	public abstract Collection<String> getKeywords();
 
+	public void setKeywords(Collection<String> keywords);
+	
 	/**
 	 * @see #addLanguage(String)
 	 * @return a collection of all languages this document contains text in
 	 */
 	public abstract Set<String> getLanguages();
+	public void setLanguages(Set<String> languages);
 
 	/**
 	 * @see #setLastChanged(Date)
@@ -163,6 +179,8 @@ public interface IParserDocument extends Closeable {
 	 */
 	public abstract Map<String, String> getLinks();
 	
+	public void setLinks(Map<String,String> links);
+	
 	/**
 	 * @see #setStatus(org.paxle.core.doc.IParserDocument.Status)
 	 * @return the status of the parsing operation
@@ -177,6 +195,7 @@ public interface IParserDocument extends Closeable {
 	 *         this object
 	 */
 	public abstract Map<String,IParserDocument> getSubDocs();
+	public void setSubDocs(Map<String,IParserDocument> subDocs);
 
 	/**
 	 * @see #setSummary(String)
@@ -186,13 +205,11 @@ public interface IParserDocument extends Closeable {
 
 	/**
 	 * @see #addText(CharSequence)
-	 * @return the whole (readable) text of this document as Unicode-sequence 
+	 * @return the whole (readable) text of this document as Unicode-sequence or <code>null</code> if no content is available.
 	 */
 	public abstract Reader getTextAsReader() throws IOException;
 	
-	public abstract File getTextAsFile() throws IOException;
-	
-	public abstract File getTextAsFile(File file) throws IOException;
+	public abstract File getTextFile() throws IOException;
 
 	/**
 	 * @see #setTitle(String)

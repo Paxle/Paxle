@@ -16,10 +16,22 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
+	<classpathentry kind="lib" path="libs/derby-10.1.2.1.jar"/>
+	<classpathentry kind="lib" path="libs/antlr-2.7.6.jar"/>
+	<classpathentry kind="lib" path="libs/asm-attrs.jar"/>
+	<classpathentry kind="lib" path="libs/asm.jar"/>
+	<classpathentry kind="lib" path="libs/cglib-2.1.3.jar" sourcepath="/home/theli/workspace/Libs/cglib-src-2.2_beta1.jar"/>
+	<classpathentry kind="lib" path="libs/commons-collections-2.1.1.jar"/>
+	<classpathentry kind="lib" path="libs/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="lib" path="libs/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="libs/hibernate3.jar" sourcepath="/home/theli/workspace/Libs/hibernate-3.2.5.ga.zip"/>
+	<classpathentry kind="lib" path="libs/jta.jar"/>
+	<classpathentry kind="lib" path="libs/log4j-1.2.11.jar"/>
 	<classpathentry kind="lib" path="libs/xerces.jar"/>
 	<classpathentry kind="lib" path="libs/xml-apis.jar"/>
 	<classpathentry kind="lib" path="libs/xmlParserAPIs.jar"/>
-	<classpathentry kind="lib" path="libs/castor-1.1.2.1-xml.jar"/>
+	<classpathentry kind="lib" path="libs/pg74.213.jdbc3.jar"/>
+	<classpathentry kind="lib" path="libs/mysql-connector-java-5.0.5.jar"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>

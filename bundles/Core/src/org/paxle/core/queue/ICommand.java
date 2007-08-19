@@ -30,6 +30,10 @@ public interface ICommand {
 		Failure
 	}	
 	
+    public int getOID(); 
+
+    public void setOID(int OID); 
+	
 	/* TODO: reference a document containing metadata about the overall job
 	 * - job ID
 	 * - start location
@@ -39,6 +43,7 @@ public interface ICommand {
 	
 	public Result getResult();
 	public String getResultText();
+	public void setResultText(String description);
 	public void setResult(Result result);
 	public void setResult(Result result, String description);
 	

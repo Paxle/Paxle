@@ -19,9 +19,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.charset.ICharsetDetectorStream;
+import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.ICrawlerDocument.Status;
 import org.paxle.crawler.CrawlerContext;
-import org.paxle.crawler.CrawlerDocument;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.http.IHttpCrawler;
 
@@ -31,11 +32,30 @@ import org.paxle.crawler.http.IHttpCrawler;
  * 
  */
 public class HttpCrawler implements IHttpCrawler {
+	private static final String HTTPHEADER_ETAG = "ETag";
+	private static final String HTTPHEADER_LAST_MODIFIED = "Last-Modified";
+	private static final String HTTPHEADER_DATE = "Date";
+	private static final String HTTPHEADER_CONTENT_LANGUAGE = "Content-Language";
+	private static final String HTTPHEADER_CONTENT_TYPE = "Content-Type";
+
+	/**
+	 * The protocol supported by this crawler
+	 */
 	public static final String PROTOCOL = "http";
 	
+	/**
+	 * Connection manager used for http connection pooling
+	 */
 	private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
+	
+	/**
+	 * http client class
+	 */
 	private static HttpClient httpClient = new HttpClient(connectionManager); 
 	
+	/**
+	 * Logger class
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
@@ -47,7 +67,7 @@ public class HttpCrawler implements IHttpCrawler {
 	
 	public ICrawlerDocument request(String requestUrl) {
 		if (requestUrl == null) throw new NullPointerException("URL was null");
-		System.out.println("Crawling URL: " + requestUrl);
+		this.logger.info(String.format("Crawling URL '%s' ...",requestUrl));
 		
 		CrawlerDocument doc = new CrawlerDocument();
 		
@@ -63,16 +83,21 @@ public class HttpCrawler implements IHttpCrawler {
 			// send the request to the server
 			int statusCode = httpClient.executeMethod(method);
 			
-			// TODO: check the response status code
+			// check the response status code
 			if (statusCode != HttpStatus.SC_OK) {
-				// TODO: what todo here?
-				System.err.println("Method failed: " + method.getStatusLine());
-				return null;
+				if (statusCode == HttpStatus.SC_NOT_FOUND) {
+					doc.setStatus(Status.NOT_FOUND);
+				} else {
+					doc.setStatus(Status.UNKNOWN_FAILURE,String.format("Server returned: %s", method.getStatusLine()));
+				}
+				
+				this.logger.warn(String.format("Crawling of URL '%' failed. Server returned: %s", requestUrl, method.getStatusLine()));
+				return doc;
 			}
 			
 			// getting the mimetype and charset
 			String contentMimeType = null;
-			Header contentTypeHeader = method.getResponseHeader("Content-Type");
+			Header contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
 			if (contentTypeHeader != null) {
 				String contentCharset = null;
 				contentMimeType = contentTypeHeader.getValue();
@@ -94,17 +119,19 @@ public class HttpCrawler implements IHttpCrawler {
 			}
 			
 			// getting the document languages
-			Header contentLanguageHeader = method.getResponseHeader("Content-Language");
+			Header contentLanguageHeader = method.getResponseHeader(HTTPHEADER_CONTENT_LANGUAGE);
 			if (contentLanguageHeader != null) {
 				String contentLanguage = contentLanguageHeader.getValue();
 				String[] languages = contentLanguage.split(",");
 				doc.setLanguages(languages);
+			} else {
+				doc.setLanguages(new String[]{"de","en"});
 			}
 			
 			// crawling Date
 			Date crawlingDate = null;			
 			try {
-				Header crawlingDateHeader = method.getResponseHeader("Date");
+				Header crawlingDateHeader = method.getResponseHeader(HTTPHEADER_DATE);
 				if (crawlingDateHeader != null) {
 					String dateStr = crawlingDateHeader.getValue();
 					crawlingDate = DateUtil.parseDate(dateStr);
@@ -117,7 +144,7 @@ public class HttpCrawler implements IHttpCrawler {
 			// last mod date
 			Date lastModDate = null;			
 			try {
-				Header lastModDateHeader = method.getResponseHeader("Last-Modified");
+				Header lastModDateHeader = method.getResponseHeader(HTTPHEADER_LAST_MODIFIED);
 				if (lastModDateHeader != null) {
 					String dateStr = lastModDateHeader.getValue();
 					lastModDate = DateUtil.parseDate(dateStr);
@@ -128,20 +155,14 @@ public class HttpCrawler implements IHttpCrawler {
 			doc.setLastModDate(lastModDate);			
 			
 			// ETAG
-			Header etageHeader = method.getResponseHeader("ETag");
+			Header etageHeader = method.getResponseHeader(HTTPHEADER_ETAG);
 			if (etageHeader != null) {
 				String etag = etageHeader.getValue();
-				doc.setLanguages(etag);
+				doc.setEtag(etag);
 			}			
 			
 			// getting the response body			
 			InputStream respBody = method.getResponseBodyAsStream();
-			
-			/* TODO: charset detection while writing to file
-			 * 1.) fetch a charset detector from CrawlerContext object
-			 * 2.) get a charset detector stream from charset-detector
-			 * 3.) copy data trough stream
-			 */
 			
 			// getting a charset-detector
 			CrawlerContext context = CrawlerContext.getCurrentContext();
@@ -159,13 +180,14 @@ public class HttpCrawler implements IHttpCrawler {
 			}
 			
 			// copy the content to file
+			// TODO: add gzip/deflate support
 			File content = createAndCopy(respBody);
 			
 			// determine if charset detection succeeded
 			if (respBody instanceof ICharsetDetectorStream) {
 				String newCharset = ((ICharsetDetectorStream)respBody).getCharset();
 				if (newCharset != null) {
-					this.logger.info(String.format("Charset '%s' detected for resource %s", newCharset, requestUrl));
+					this.logger.info(String.format("Charset '%s' detected for URL %s", newCharset, requestUrl));
 					doc.setCharset(newCharset);
 				}
 			}
@@ -173,16 +195,23 @@ public class HttpCrawler implements IHttpCrawler {
 			doc.setContent(content);
 			respBody.close();
 			
-			// TODO: add gzip/deflate support
-		} catch (HttpException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			doc.setStatus(Status.OK);			
+		} catch (Exception e) {
+			String errorMsg;
+			if (e instanceof HttpException) {
+				errorMsg = "Unrecovered protocol exception: %s";
+			} else if (e instanceof IOException) {
+				errorMsg = "Transport exceptions: %s";
+			} else {
+				errorMsg = "Unexpected exception: %s";
+			}
+			errorMsg = String.format(errorMsg, e.getMessage());
+			doc.setStatus(Status.UNKNOWN_FAILURE, errorMsg);
 		} finally {
 			if (method != null) method.releaseConnection();
 		}
-		System.out.println("Crawling of URL '" + requestUrl + "' finished.");
-
+		this.logger.info(String.format("Crawling of URL '%s' finished.",requestUrl));
+		
 		return doc;
 	}
 	

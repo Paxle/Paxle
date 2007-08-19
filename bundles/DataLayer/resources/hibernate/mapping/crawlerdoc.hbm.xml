@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="org.paxle.core.doc.ICrawlerDocument" table="CrawlerDocument" lazy="false">
+        <id name="OID" column="id">
+            <generator class="native"/>
+        </id>
+        
+        <property name="status">
+			<type name="org.paxle.data.db.impl.EnumUserType">
+				<param name="enumClassName">org.paxle.core.doc.ICrawlerDocument$Status</param>
+			</type>
+      	</property>
+      	<property name="statusText"/>
+        <property name="location"/>
+        <property name="charset"/>         
+        <property name="mimeType"/>       
+        <property name="crawlerDate"/>
+        <property name="lastModDate"/>
+        <property name="languages"/>
+        <property name="content"/>
+        
+    </class>
+</hibernate-mapping>

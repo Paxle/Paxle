@@ -7,8 +7,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
+import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
-import org.paxle.crawler.CrawlerDocument;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.ftp.IFtpCrawler;
 

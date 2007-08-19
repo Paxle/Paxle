@@ -1,4 +1,4 @@
-package org.paxle.data.db.impl;
+package org.paxle.data.impl;
 
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
