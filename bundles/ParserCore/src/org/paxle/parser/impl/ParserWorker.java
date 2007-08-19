@@ -52,6 +52,13 @@ public class ParserWorker extends AWorker<ICommand> {
 		
 		// get a proper parser
 		String mimeType = cmd.getCrawlerDocument().getMimeType();
+		if (mimeType == null) {
+			// document not parsable
+			this.logger.error("Unable to parse " + cmd.getLocation() + ", no mimetype was specified");
+			cmd.setResult(ICommand.Result.Failure, "No mimetype was specified");
+			return;			
+		}
+		
 		ISubParser parser = this.subParserManager.getSubParser(mimeType);
 		if (parser == null) {
 			// document not parsable
