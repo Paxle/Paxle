@@ -70,19 +70,16 @@ public class CachedWriter extends Writer {
 		if (isFallback()) return;
 		if (file == null)
 			file = ParserTools.createTempFile("fallback", CachedWriter.class);
-		this.writer.flush();
-		this.writer.close();
+		close();
 		final CAOS caos = (CAOS)this.writer;
 		this.ffile = file;
 		this.writer = new FileWriter(file);
 		ParserTools.copy(new CharArrayReader(caos.getBuffer()), this.writer, this.written);
-		this.writer.flush();
-		this.writer.close();
-		caos.close();
 	}
 	
 	@Override
 	public void close() throws IOException {
+		flush();
 		this.writer.close();
 	}
 	
@@ -105,7 +102,7 @@ public class CachedWriter extends Writer {
 	
 	public File toFile(File file) throws IOException {
 		fallback(file);
-		this.writer.close();
+		close();
 		return this.ffile;
 	}
 	
