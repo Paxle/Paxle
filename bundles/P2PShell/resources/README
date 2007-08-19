@@ -1,0 +1,2 @@
+To get this bundle to work the following property must be set:
+org.osgi.framework.system.packages=javax.security.cert,sun.reflect,javax.swing.text,javax.swing

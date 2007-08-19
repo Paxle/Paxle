@@ -1,0 +1,3 @@
+-Dorg.osgi.framework.dir=/home/theli/workspace/runtime-osgi/fwdir
+-Dorg.osgi.framework.system.packages=javax.security.cert,sun.reflect,javax.swing.text,javax.swing
+-Dorg.osgi.service.http.port=8080

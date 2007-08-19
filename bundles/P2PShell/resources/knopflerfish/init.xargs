@@ -1,0 +1,20 @@
+-Dorg.osgi.framework.dir=/home/theli/workspace/runtime-osgi/fwdir
+-Dorg.osgi.framework.system.packages=javax.security.cert,sun.reflect,javax.swing.text,javax.swing
+-Dorg.osgi.service.http.port=8080
+-init 
+-initlevel 1
+-install file:/home/theli/knopflerfish/knopflerfish.org/osgi/jars/commons-logging/commons-logging_all-2.0.0.jar
+-install file:/home/theli/knopflerfish/knopflerfish.org/osgi/jars/cm/cm_all-2.0.0.jar
+-install file:/home/theli/knopflerfish/knopflerfish.org/osgi/jars/jsdk/jsdk-2.2.jar
+-install file:/home/theli/knopflerfish/knopflerfish.org/osgi/jars/http/http_all-2.0.0.jar
+-initlevel 2
+-install file:/home/theli/workspace/HttpTools/out/HttpTools-1.0.0.jar
+-install file:/home/theli/workspace/P2P/out/P2P-1.0.0.jar
+-install file:/home/theli/workspace/P2PShell/out/P2PShell-1.0.0.jar
+-startlevel 10
+-launch 
+-start file:/home/theli/knopflerfish/knopflerfish.org/osgi/jars/commons-logging/commons-logging_all-2.0.0.jar
+-start file:/home/theli/knopflerfish/knopflerfish.org/osgi/jars/cm/cm_all-2.0.0.jar
+-start file:/home/theli/knopflerfish/knopflerfish.org/osgi/jars/http/http_all-2.0.0.jar
+-start file:/home/theli/workspace/P2P/out/P2P-1.0.0.jar
+-start file:/home/theli/workspace/P2PShell/out/P2PShell-1.0.0.jar
