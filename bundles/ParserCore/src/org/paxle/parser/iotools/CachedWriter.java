@@ -76,6 +76,8 @@ public class CachedWriter extends Writer {
 		this.ffile = file;
 		this.writer = new FileWriter(file);
 		ParserTools.copy(new CharArrayReader(caos.getBuffer()), this.writer, this.written);
+		this.writer.flush();
+		this.writer.close();
 		caos.close();
 	}
 	
