@@ -107,7 +107,13 @@ public class HttpCrawler implements IHttpCrawler {
 					contentMimeType = contentMimeType.substring(0,idx);
 					
 					if (contentCharset.startsWith("charset=")) {
-						contentCharset = contentCharset.substring("charset=".length());
+						contentCharset = contentCharset.substring("charset=".length()).trim();
+						if (contentCharset.matches("^['\"].*")) {
+							contentCharset = contentCharset.substring(1);
+						}
+						if (contentCharset.matches(".*['\"]$")) {
+							contentCharset = contentCharset.substring(0,contentCharset.length()-1);							
+						}
 					} else {
 						contentCharset = null;
 					}
