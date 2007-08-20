@@ -25,20 +25,16 @@ public class CrawlerView extends AServlet {
         	if (request.getParameter("startURL") != null) {
         		Object[] sinks = this.manager.getServices(IDataSink.class.getName(), "(org.paxle.core.data.IDataSink.id=org.paxle.crawler.sink)");
         		if (sinks != null) {
-        			Command cmd = new Command();
-        			cmd.setLocation(request.getParameter("startURL"));
-        			((IDataSink)sinks[0]).putData(cmd);
+        			((IDataSink)sinks[0]).putData(Command.createCommand(request.getParameter("startURL")));
         		}
         	}
             else if (request.getParameter("startURL2") != null) {
                 Object[] sinks = this.manager.getServices(IDataSink.class.getName(), "(org.paxle.core.data.IDataSink.id=org.paxle.crawler.sink)");
                 if (sinks != null) {
-                    Command cmd = new Command();
                     String startURLs = request.getParameter("startURL2");
                     String [] URLs = startURLs.split("\r\n");
                     for (int i=0;i<URLs.length;i++) {
-                        cmd.setLocation(URLs[i]);
-                        ((IDataSink)sinks[0]).putData(cmd);
+                        ((IDataSink)sinks[0]).putData(Command.createCommand(URLs[i]));
                     }
                 }
             }
