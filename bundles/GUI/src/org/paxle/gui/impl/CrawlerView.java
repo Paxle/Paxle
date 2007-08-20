@@ -1,5 +1,8 @@
 package org.paxle.gui.impl;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -31,10 +34,10 @@ public class CrawlerView extends AServlet {
             else if (request.getParameter("startURL2") != null) {
                 Object[] sinks = this.manager.getServices(IDataSink.class.getName(), "(org.paxle.core.data.IDataSink.id=org.paxle.crawler.sink)");
                 if (sinks != null) {
-                    String startURLs = request.getParameter("startURL2");
-                    String [] URLs = startURLs.split("\r\n");
-                    for (int i=0;i<URLs.length;i++) {
-                        ((IDataSink)sinks[0]).putData(Command.createCommand(URLs[i]));
+                    BufferedReader startURLs = new BufferedReader(new StringReader(request.getParameter("startURL2")));
+                    String line;
+                    while ((line = startURLs.readLine()) != null) {
+                        ((IDataSink)sinks[0]).putData(Command.createCommand(line));
                     }
                 }
             }
