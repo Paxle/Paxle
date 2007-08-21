@@ -8,7 +8,7 @@ public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexe
 	
 	private static final long serialVersionUID = 1L;
 	
-	private Status status = null;
+	private IIndexerDocument.Status status = null;
 	private String statusText = null;
 	
 	public <Type> void set(Field<Type> key, Type value) {
@@ -31,7 +31,7 @@ public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexe
 		return super.entrySet().iterator();
 	}
 	
-	public Status getStatus() {
+	public IIndexerDocument.Status getStatus() {
 		return this.status;
 	}
 	
@@ -39,11 +39,11 @@ public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexe
 		return this.statusText;
 	}
 	
-	public void setStatus(Status status) {
+	public void setStatus(IIndexerDocument.Status status) {
 		this.status = status;
 	}
 	
-	public void setStatus(Status status, String text) {
+	public void setStatus(IIndexerDocument.Status status, String text) {
 		this.status = status;
 		this.statusText = text;
 	}

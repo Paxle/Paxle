@@ -27,10 +27,10 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	public Iterator<Field<?>> fieldIterator();
 	public Iterator<Map.Entry<Field<?>,Object>> iterator();
 	
-	public Status getStatus();
+	public IIndexerDocument.Status getStatus();
 	public String getStatusText();
-	public void setStatus(Status status);
-	public void setStatus(Status status, String text);
+	public void setStatus(IIndexerDocument.Status status);
+	public void setStatus(IIndexerDocument.Status status, String text);
 	public void setStatusText(String text);
 	
 	public static enum Status {
