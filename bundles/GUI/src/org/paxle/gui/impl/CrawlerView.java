@@ -1,6 +1,8 @@
 package org.paxle.gui.impl;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.PrintStream;
 import java.io.StringReader;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +30,8 @@ public class CrawlerView extends AServlet {
         	if (request.getParameter("startURL") != null) {
         		Object[] sinks = this.manager.getServices(IDataSink.class.getName(), "(org.paxle.core.data.IDataSink.id=org.paxle.crawler.sink)");
         		if (sinks != null) {
-        			((IDataSink)sinks[0]).putData(Command.createCommand(request.getParameter("startURL")));
+                    if (!request.getParameter("startURL").equals(""))
+                        ((IDataSink)sinks[0]).putData(Command.createCommand(request.getParameter("startURL")));
         		}
         	}
             else if (request.getParameter("startURL2") != null) {
@@ -37,6 +40,7 @@ public class CrawlerView extends AServlet {
                     BufferedReader startURLs = new BufferedReader(new StringReader(request.getParameter("startURL2")));
                     String line;
                     while ((line = startURLs.readLine()) != null) {
+                        if (line.equals("")) continue;
                         ((IDataSink)sinks[0]).putData(Command.createCommand(line));
                     }
                 }
@@ -49,6 +53,7 @@ public class CrawlerView extends AServlet {
             template = this.getTemplate("/resources/templates/crawler.vm");
         } catch( Exception e ) {
           System.err.println("Exception caught: " + e.getMessage());
+          e.printStackTrace();
         }
 
         return template;
