@@ -93,15 +93,15 @@ public class NodeCollector extends NodeVisitor {
 				MetaTagManager.Names.Contributor,
 				MetaTagManager.Names.Publisher);
 		if (author != null)
-			this.doc.setAuthor(HtmlTools.deReplaceHTML(author));
+			this.doc.setAuthor(HtmlTools.deReplaceHTML(author.trim()));
 		
-		final String keywords = this.mtm.getCombined(" ",
+		final String keywords = this.mtm.getCombined(",",
 				MetaTagManager.Names.Keywords);
 		if (keywords != null)
-			for (final String keyword : keywords.split(" "))
-				this.doc.addKeyword(keyword);
+			for (final String keyword : keywords.split(","))
+				this.doc.addKeyword(HtmlTools.deReplaceHTML(keyword.trim()));
 		
-		final String abstrcts = this.mtm.getCombined(",",
+		final String abstrcts = this.mtm.getCombined("##",
 				MetaTagManager.Names.Abstract,
 				MetaTagManager.Names.Description,
 				MetaTagManager.Names.Description_TableOfContents,
@@ -111,8 +111,8 @@ public class NodeCollector extends NodeVisitor {
 				MetaTagManager.Names.Title,
 				MetaTagManager.Names.Title_Alternative);
 		if (abstrcts != null)
-			for (final String abstrct : abstrcts.split(","))
-				this.doc.addHeadline(abstrct);
+			for (final String abstrct : abstrcts.split("##"))
+				this.doc.addHeadline(HtmlTools.deReplaceHTML(abstrct.trim()));
 	}
 	
 	public Collection<Exception> getExceptions() {
