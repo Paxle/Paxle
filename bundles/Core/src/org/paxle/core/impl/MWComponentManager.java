@@ -5,6 +5,8 @@ import java.util.Hashtable;
 import org.osgi.framework.Bundle;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentManager;
+import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.impl.FilteringOutputQueue;
 import org.paxle.core.queue.impl.InputQueue;
 import org.paxle.core.queue.impl.OutputQueue;
 import org.paxle.core.threading.IMaster;
@@ -45,45 +47,60 @@ public class MWComponentManager implements IMWComponentManager {
 	public <Data, W extends IWorker<Data>> IMWComponent<Data> createComponent(
 			IWorkerFactory<W> workerFactory,
 			int queueBufferSize,
-			Class<Data> clazz) {	
-		if (workerFactory == null) throw new NullPointerException("The worker-factory is null");
-		
+			Class<Data> clazz) {
 		//if (this.component != null) return this.component;
 		if (this.components.containsKey(clazz))
 			return (MWComponent<Data>)this.components.get(clazz);
+		
+		if (workerFactory == null) throw new NullPointerException("The worker-factory is null");
 
 		// creating the queues
 		InputQueue<Data> inQueue = new InputQueue<Data>(queueBufferSize);
-		OutputQueue<Data> outQueue = new OutputQueue<Data>(queueBufferSize);		
+		OutputQueue<Data> outQueue = new OutputQueue<Data>(queueBufferSize);
+		
+		return createComponent(workerFactory, inQueue, outQueue, clazz);
+	}
+	
+	public <Data extends ICommand,W extends IWorker<Data>> IMWComponent<Data> createCommandComponent(
+			IWorkerFactory<W> workerFactory,
+			int queueBufferSize,
+			Class<Data> clazz) {
+		if (this.components.containsKey(clazz))
+			return (MWComponent<Data>)this.components.get(clazz);
+		
+		if (workerFactory == null) throw new NullPointerException("The worker-factory is null");
+		
+		// creating the queues
+		InputQueue<Data> inQueue = new InputQueue<Data>(queueBufferSize);
+		FilteringOutputQueue<Data> outQueue = new FilteringOutputQueue<Data>(queueBufferSize);
 		
 		/* TODO: use bundle-specific informations to ...
 		 * 1.) plugin all queue-filters
-		 * 2.) connect the queues with data-providers and data-consumers
 		 */
 		
+		return createComponent(workerFactory, inQueue, outQueue, clazz);
+	}
+	
+	private <Data,W extends IWorker<Data>> IMWComponent<Data> createComponent(
+			IWorkerFactory<W> workerFactory,
+			InputQueue<Data> inQueue,
+			OutputQueue<Data> outQueue,
+			Class<Data> clazz) {
 		// wrap the IWorkerFactory into a PoolableObjectFactory
 		WorkerFactoryWrapper<Data,W> factoryWrapper = new WorkerFactoryWrapper<Data,W>();
-
+		
 		// create a new thread pool
 		IPool<Data> pool = new Pool<Data>(factoryWrapper);
-
+		
 		// init the factory wrapper
 		factoryWrapper.setPool(pool);
 		factoryWrapper.setFactory(workerFactory);
 		factoryWrapper.setOutQueue(outQueue);
-
+		
 		// create a master thread
 		IMaster master = new Master<Data>(pool, inQueue);
 		((Master)master).setName(this.bundle.getSymbolicName() + ".Master");
-
-// generate a dummy message
-//		try {
-//			((InputQueue)inQueue).put(new Command());
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
+		
 		// create the component and return it
 		MWComponent<Data> component = new MWComponent<Data>(master,pool,inQueue,outQueue);
 		this.components.put(clazz, component);

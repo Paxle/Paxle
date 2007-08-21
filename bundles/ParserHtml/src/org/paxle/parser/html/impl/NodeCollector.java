@@ -2,8 +2,8 @@ package org.paxle.parser.html.impl;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.LinkedList;
 
+import org.apache.commons.logging.Log;
 import org.htmlparser.Attribute;
 import org.htmlparser.PrototypicalNodeFactory;
 import org.htmlparser.Tag;
@@ -35,10 +35,6 @@ import org.paxle.parser.html.impl.tags.MetaTagManager;
  */
 public class NodeCollector extends NodeVisitor {
 	
-	public static enum Debug {
-		NONE, LOW, HIGH
-	}
-	
 	/**
 	 * The node factory used by the underlying HTML parser to determine the type of a node and
 	 * to create the corresponding {@link org.htmlparser.Tag} objects.
@@ -52,16 +48,15 @@ public class NodeCollector extends NodeVisitor {
 		NODE_FACTORY.registerTag(new AddressTag());
 	}
 	
-	private final Collection<Exception> exceptions = new LinkedList<Exception>();
 	private final MetaTagManager mtm = new MetaTagManager();
 	private final IParserDocument doc;
-	private final Debug debug;
+	private final Log logger;
 	private boolean noParse = false;
 	
-	public NodeCollector(final IParserDocument doc, final Debug debug) {
+	public NodeCollector(final IParserDocument doc, Log logger) {
 		super(true, true);
 		this.doc = doc;
-		this.debug = debug;
+		this.logger = logger;
 	}
 	
 	/**
@@ -78,30 +73,47 @@ public class NodeCollector extends NodeVisitor {
 	 *  <dd>{@link MetaTagManager.Names#Creator}</dd>
 	 *  <dd>{@link MetaTagManager.Names#Contributor}</dd>
 	 *  <dd>{@link MetaTagManager.Names#Publisher}</dd>
+	 *  <dt>The document's keywords:</dt>
+	 *  <dd>{@link MetaTagManager.Names#Keywords}}</dd>
+	 *  <dt>The document's abstract:</dt>
+	 *  <dd>{@link MetaTagManager.Names#Abstract}}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Description}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Description_Abstract}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Description_TableOfContents}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Page_Topic}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Subject}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Title}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Title_Alternative}</dd>
 	 * </dl>
 	 */
 	private void postProcessMeta() {
-		final String lngs = this.mtm.getCombined(
+		// Languages (mustn't contain any entities, so we don't dereplace any)
+		final Collection<String> lngs = this.mtm.get(
 				MetaTagManager.Names.Content_Language,
 				MetaTagManager.Names.Language);
-		if (lngs != null)
-			addLanguages(lngs.split(" "));
+		if (lngs.size() > 0)
+			addLanguages(lngs.toArray(new String[lngs.size()]));
 		
+		// Author(s)
+		// TODO: create possibility to set more than only one author
 		final String author = this.mtm.getCombined(
 				MetaTagManager.Names.Author,
 				MetaTagManager.Names.Creator,
 				MetaTagManager.Names.Contributor,
 				MetaTagManager.Names.Publisher);
 		if (author != null)
-			this.doc.setAuthor(HtmlTools.deReplaceHTML(author.trim()));
+			this.doc.setAuthor(HtmlTools.deReplaceHTML(author));
 		
-		final String keywords = this.mtm.getCombined(",",
+		// keywords (should be comma-separated)
+		final Collection<String> keywordStrings = this.mtm.get(
 				MetaTagManager.Names.Keywords);
-		if (keywords != null)
-			for (final String keyword : keywords.split(","))
-				this.doc.addKeyword(HtmlTools.deReplaceHTML(keyword.trim()));
+		if (keywordStrings != null && keywordStrings.size() > 0)
+			for (String keywordString : keywordStrings)
+				for (final String keyword : keywordString.split(","))
+					this.doc.addKeyword(HtmlTools.deReplaceHTML(keyword));
 		
-		final String abstrcts = this.mtm.getCombined("##",
+		// abstracts
+		final Collection<String> abstrcts = this.mtm.get(
 				MetaTagManager.Names.Abstract,
 				MetaTagManager.Names.Description,
 				MetaTagManager.Names.Description_TableOfContents,
@@ -110,13 +122,9 @@ public class NodeCollector extends NodeVisitor {
 				MetaTagManager.Names.Subject,
 				MetaTagManager.Names.Title,
 				MetaTagManager.Names.Title_Alternative);
-		if (abstrcts != null)
-			for (final String abstrct : abstrcts.split("##"))
-				this.doc.addHeadline(HtmlTools.deReplaceHTML(abstrct.trim()));
-	}
-	
-	public Collection<Exception> getExceptions() {
-		return this.exceptions;
+		if (abstrcts != null && abstrcts.size() > 0)
+			for (final String abstrct : abstrcts)
+				this.doc.addHeadline(HtmlTools.deReplaceHTML(abstrct));
 	}
 	
 	private void addLanguages(String... languages) {
@@ -144,7 +152,7 @@ public class NodeCollector extends NodeVisitor {
 			if (txt.length() > 0) try {
 				this.doc.addText(txt);
 			} catch (IOException e) {
-				this.exceptions.add(e);
+				this.logger.error("Error processing String-node: " + e.getMessage(), e);
 			}
 		}
 	}
@@ -176,10 +184,10 @@ public class NodeCollector extends NodeVisitor {
 	 */
 	@Override
 	public void visitTag(Tag tag) {
-		if (this.debug == Debug.HIGH)
-			printTagInfo(tag, true);
+		if (this.logger.isDebugEnabled())
+			this.logger.debug(getTagInfo(tag, true));
 		try {
-			if (tag instanceof AddressTag)			process((AddressTag)tag);
+			     if (tag instanceof AddressTag)		process((AddressTag)tag);
 			else if (tag instanceof HeadingTag)		process((HeadingTag)tag);
 			else if (tag instanceof Html)			process((Html)tag);
 			else if (tag instanceof ImageTag)		process((ImageTag)tag);
@@ -190,9 +198,16 @@ public class NodeCollector extends NodeVisitor {
 			else if (tag instanceof ScriptTag)		this.noParse = true;
 			else if (tag instanceof StyleTag)		this.noParse = true;
 			else if (tag instanceof TitleTag) 		process((TitleTag)tag);
-			else if (this.debug == Debug.LOW || this.debug == Debug.HIGH)
-				System.err.println("missed tag " + tag.getClass().getSimpleName() + ": " + tag.getText());
-		} catch (Exception e) { this.exceptions.add(e); }
+			else
+				this.logger.debug("missed named tag " + tag.getClass().getSimpleName() + " at line " + getLineNumber(tag));
+		} catch (Exception e) {
+			this.logger.error("Error processing named tag '" + tag.getRawTagName()
+					+ "' at line " + getLineNumber(tag) + ": " + e.getMessage(), e);
+		}
+	}
+	
+	private static int getLineNumber(Tag tag) {
+		return ((tag.isEndTag()) ? tag.getEndingLineNumber() : tag.getStartingLineNumber());
 	}
 	
 	@Override
@@ -200,11 +215,11 @@ public class NodeCollector extends NodeVisitor {
 		this.noParse = false;
 	}
 	
-	private static void printTagInfo(Tag tag, boolean start) {
-		System.err.println("found " + ((start) ? "start" : "end") + "-tag: " + tag.getTagName()
+	private static String getTagInfo(Tag tag, boolean start) {
+		return "found " + ((start) ? "start" : "end") + "-tag: " + tag.getTagName()
 				+ ((Attribute)tag.getAttributesEx().elementAt(0)).getName() + ", "
 				+ tag.getClass().getSimpleName()/* + " (assignable from "
-				+ clazz.getSimpleName() + ": " + clazz.isAssignableFrom(tag.getClass()) + ")"*/);
+				+ clazz.getSimpleName() + ": " + clazz.isAssignableFrom(tag.getClass()) + ")"*/;
 	}
 	
 	private void process(TitleTag tag) {

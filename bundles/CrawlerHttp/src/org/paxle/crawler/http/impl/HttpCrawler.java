@@ -87,10 +87,10 @@ public class HttpCrawler implements IHttpCrawler {
 				if (statusCode == HttpStatus.SC_NOT_FOUND) {
 					doc.setStatus(ICrawlerDocument.Status.NOT_FOUND);
 				} else {
-					doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,String.format("Server returned: %s", method.getStatusLine()));
+					doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, String.format("Server returned: %s", method.getStatusLine()));
 				}
 				
-				this.logger.warn(String.format("Crawling of URL '%' failed. Server returned: %s", requestUrl, method.getStatusLine()));
+				this.logger.warn(String.format("Crawling of URL '%s' failed. Server returned: %s", requestUrl, method.getStatusLine()));
 				return doc;
 			}
 			
@@ -212,6 +212,7 @@ public class HttpCrawler implements IHttpCrawler {
 			}
 			errorMsg = String.format(errorMsg, e.getMessage());
 			doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, errorMsg);
+			e.printStackTrace();
 		} finally {
 			if (method != null) method.releaseConnection();
 		}

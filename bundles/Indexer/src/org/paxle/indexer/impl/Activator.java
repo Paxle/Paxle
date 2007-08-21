@@ -44,7 +44,7 @@ public class Activator implements BundleActivator {
 			// getting the service class instance
 			IMWComponentManager componentFactory = (IMWComponentManager)bc.getService(reference);
 			IWorkerFactory<IndexerWorker> workerFactory = new WorkerFactory();
-			mwComponent = componentFactory.createComponent(workerFactory, 5, ICommand.class);
+			mwComponent = componentFactory.createCommandComponent(workerFactory, 5, ICommand.class);
 		}			
 		
 		/* ==========================================================

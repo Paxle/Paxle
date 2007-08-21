@@ -13,7 +13,6 @@ import org.paxle.core.data.IDataSource;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
-import org.paxle.core.threading.IWorkerFactory;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.ISubCrawlerManager;
 
@@ -62,8 +61,8 @@ public class Activator implements BundleActivator {
 		if (reference != null) {
 			// getting the service class instance
 			IMWComponentManager componentFactory = (IMWComponentManager)bc.getService(reference);
-			mwComponent = componentFactory.createComponent(workerFactory, 5, ICommand.class);
-		}		
+			mwComponent = componentFactory.createCommandComponent(workerFactory, 5, ICommand.class);
+		}
 		
 		/* ==========================================================
 		 * Register Services provided by this bundle
@@ -77,7 +76,13 @@ public class Activator implements BundleActivator {
 		bc.registerService(ISubCrawlerManager.class.getName(), subCrawlerManager, null);
 		
 		// register the protocol filter as service
-		// TODO: which properties should be set for the filter service?
+		/* TODO: which properties should be set for the filter service?
+		 *  - maybe set the filtering-output-queue(s) it shall be added to?
+		 *    Respectively the data-source, but this would require a special FilteringDataSource-class
+		 *    to avoid interferences between DataSource<Data> and DataSource<Data extends ICommand>.
+		 *    Another approach might be to remove the restriction for <Cmd extends ICommand> from the IFilter-class
+		 *    and to therefore enable filtering other than ICommand-data-types which might redundantise the
+		 *    FilteringOutputQueue but then we might create other problems concerning generics */
 		bc.registerService(IFilter.class.getName(), new ProtocolFilter(subCrawlerManager), null);
 		
 		// publish data-sink

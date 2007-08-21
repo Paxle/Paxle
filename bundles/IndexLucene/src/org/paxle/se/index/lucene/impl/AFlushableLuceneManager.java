@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -31,6 +33,7 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 	
 	protected final String path;
 	protected final IndexWriter writer;
+	protected final Log logger = LogFactory.getLog(AFlushableLuceneManager.class);
 	protected IndexReader reader;
 	
 	private boolean dirty = false;
@@ -50,6 +53,7 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 	}
 	
 	private void flush() throws IOException {
+		this.logger.debug("Flushing index writer and reopening index reader");
 		this.reader.close();
 		this.writer.flush();
 		this.reader = IndexReader.open(this.path);

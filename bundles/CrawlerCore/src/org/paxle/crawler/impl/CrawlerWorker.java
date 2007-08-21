@@ -80,6 +80,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 			
 		} catch (Exception e) {
 			command.setResult(ICommand.Result.Failure, "Unexpected error while crawling the resource");
+			e.printStackTrace();
 		}
 	}
 	

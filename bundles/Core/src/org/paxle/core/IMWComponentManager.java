@@ -1,5 +1,6 @@
 package org.paxle.core;
 
+import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 
@@ -15,6 +16,11 @@ public interface IMWComponentManager {
 	 * @return a new {@link IMWComponent master-worker-component}
 	 */
 	public <Data,W extends IWorker<Data>> IMWComponent<Data> createComponent(
+			IWorkerFactory<W> workerFactory,
+			int queueBufferSize,
+			Class<Data> clazz);
+	
+	public <Data extends ICommand,W extends IWorker<Data>> IMWComponent<Data> createCommandComponent(
 			IWorkerFactory<W> workerFactory,
 			int queueBufferSize,
 			Class<Data> clazz);

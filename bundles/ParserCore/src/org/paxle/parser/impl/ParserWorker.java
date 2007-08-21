@@ -87,7 +87,8 @@ public class ParserWorker extends AWorker<ICommand> {
 			parserdoc.setStatus(IParserDocument.Status.OK);			
 			cmd.setParserDocument(parserdoc);
 		} catch (Exception e) {
-			this.logger.error("Error parsing " + cmd.getLocation(), e);			
+			this.logger.error("Error parsing " + cmd.getLocation(), e);
+			e.printStackTrace();
 			cmd.setResult(ICommand.Result.Failure, e.getMessage());
 			return;
 		}

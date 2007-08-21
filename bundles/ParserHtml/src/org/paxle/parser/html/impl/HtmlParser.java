@@ -8,6 +8,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.htmlparser.Parser;
 import org.htmlparser.lexer.InputStreamSource;
 import org.htmlparser.lexer.Lexer;
@@ -37,6 +39,8 @@ public class HtmlParser implements IHtmlParser {
 			"application/xml",
 			"text/xml");
 	
+	private final Log logger = LogFactory.getLog(HtmlParser.class);
+	
 	public static void main(String[] args) {
 		final HtmlParser p = new HtmlParser();
 		final File dir = new File(args[0]);
@@ -63,7 +67,7 @@ public class HtmlParser implements IHtmlParser {
 			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
 			
 			final IParserDocument doc = new CachedParserDocument();
-			final NodeCollector nc = new NodeCollector(doc, NodeCollector.Debug.NONE);
+			final NodeCollector nc = new NodeCollector(doc, this.logger);
 			parser.visitAllNodesWith(nc);
 			page.close();
 			

@@ -1,6 +1,7 @@
 package org.paxle.parser.html.impl.tags;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -105,6 +106,16 @@ public class MetaTagManager {
 	
 	public Collection<String> get(Names n) {
 		return this.tags.get(n);
+	}
+	
+	public Collection<String> get(Names... names) {
+		final Collection<String> ret = new HashSet<String>();
+		for (final Names name : names) {
+			final Collection<String> col = get(name);
+			if (col != null && col.size() > 0)
+				ret.addAll(col);
+		}
+		return ret;
 	}
 	
 	public String getCombined(Names... names) {
