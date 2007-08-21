@@ -13,7 +13,7 @@ public interface IIndexSearcher extends ISearchProvider, Closeable {
 	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException, InterruptedException;
 	public ITokenFactory getTokenFactory();
 	
-	public int getDocCount();
+	public int getDocCount() throws IOException;
 	
 	public void close() throws IOException;
 }

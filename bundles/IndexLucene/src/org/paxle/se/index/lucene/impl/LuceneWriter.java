@@ -6,10 +6,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.store.LockObtainFailedException;
 
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataSource;
@@ -27,17 +25,14 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	private IDataSource<ICommand> source = null;
 	
 	/**
-	 * The lucene index writer
-	 */
-	private final IndexWriter writer;
-	
-	/**
 	 * The local logger
 	 */
 	private final Log logger = LogFactory.getLog(LuceneWriter.class);
 	
-	public LuceneWriter(String dbpath) throws CorruptIndexException, LockObtainFailedException, IOException {
-		this.writer = new IndexWriter(dbpath, new StandardAnalyzer());
+	private final AFlushableLuceneManager manager;
+	
+	public LuceneWriter(AFlushableLuceneManager manager) {
+		this.manager = manager;
 		this.start();
 		this.logger.info("Lucene writer has been started");
 	}
@@ -76,22 +71,32 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 				}
 				
 				// loop through the indexer docs
-				for (IIndexerDocument indexerDoc : command.getIndexerDocuments()) try {
-					// write indexer-doc to the index
-					this.write(indexerDoc);
-				} catch (IndexException e) {
-					this.logger.error("Error adding document to index", e);
-				} catch (IOException e) {
-					this.logger.error("Low-level I/O error occured during adding document to index", e);
-				} catch (Exception e) {
-					this.logger.error("Internal error processing the indexer document", e);
-					e.printStackTrace();
-				} 
+				for (IIndexerDocument indexerDoc : command.getIndexerDocuments()) {
+					if (indexerDoc.getStatus() == IIndexerDocument.Status.OK) try {
+						// write indexer-doc to the index
+						this.write(indexerDoc);
+					} catch (IndexException e) {
+						this.logger.error("Error adding document to index: " + e.getMessage(), e);
+						e.printStackTrace();
+						indexerDoc.setStatus(IIndexerDocument.Status.IndexError, e.getMessage());
+					} catch (IOException e) {
+						this.logger.error("Low-level I/O error occured during adding document to index: " + e.getMessage(), e);
+						e.printStackTrace();
+						indexerDoc.setStatus(IIndexerDocument.Status.IOError, e.getMessage());
+					} catch (Exception e) {
+						this.logger.error("Internal error processing the indexer document", e);
+						e.printStackTrace();
+						indexerDoc.setStatus(IIndexerDocument.Status.IndexError, "Unexpected runtime exception processing the indexer document: " + e.getMessage());
+					} else {
+						this.logger.warn("Won't add indexer document to index with status '" + indexerDoc.getStatus() + "' (" + indexerDoc.getStatusText() + ")");
+					}
+				}
 			}
 		} catch (InterruptedException e) {
 			this.logger.info("Lucene writer was interrupted, quitting...");
 		} catch (Exception e) {
 			this.logger.error("Internal error in lucene writer thread", e);
+			e.printStackTrace();
 		} 
 	}
 	
@@ -102,7 +107,8 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	public synchronized void write(IIndexerDocument document) throws IOException, IndexException {
 		this.logger.debug("Adding document to index: " + document.get(IIndexerDocument.LOCATION));
 		try {
-			this.writer.addDocument(Converter.iindexerDoc2LuceneDoc(document));
+			final Document doc = Converter.iindexerDoc2LuceneDoc(document);
+			this.manager.write(doc);
 		} catch (CorruptIndexException e) {
 			throw new IndexException("error adding lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
 		} finally {
@@ -116,6 +122,5 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	public void close() throws IOException {
 		this.interrupt();
 		try { this.join(); } catch (InterruptedException e) { /* ignore this */ }
-		this.writer.close();
 	}
 }

@@ -23,6 +23,7 @@ public class Activator implements BundleActivator {
 	private static String DB_PATH = "lucene-db";
 	
 	public static BundleContext bc = null;
+	public static AFlushableLuceneManager lmanager = null;
 	public static LuceneWriter indexWriterThread = null;
 	public static LuceneSearcher indexSearcher = null;
 	public static LuceneTokenFactory tokenFactory = null;
@@ -41,12 +42,13 @@ public class Activator implements BundleActivator {
 		}
 		writeLock.deleteOnExit();
 		
-		indexWriterThread = new LuceneWriter(DB_PATH);
-		indexSearcher = new LuceneSearcher(DB_PATH);
+		lmanager = new TimerLuceneManager(DB_PATH, 30000, 30000);
+		indexWriterThread = new LuceneWriter(lmanager);
+		indexSearcher = new LuceneSearcher(lmanager);
 		
 		context.registerService(IIndexWriter.class.getName(), indexWriterThread, new Hashtable<String,String>());
 		context.registerService(IIndexSearcher.class.getName(), indexSearcher, new Hashtable<String,String>());
-		context.registerService(IIndexIteratable.class.getName(), indexSearcher, new Hashtable<String,String>());
+		context.registerService(IIndexIteratable.class.getName(), lmanager, new Hashtable<String,String>());
 		
 		// publish data source
 		final Hashtable<String,String> sinkp = new Hashtable<String,String>();
@@ -57,6 +59,7 @@ public class Activator implements BundleActivator {
 	}
 	 
 	public void stop(BundleContext context) throws Exception {
+		lmanager.close();
 		indexWriterThread.close();
 		indexSearcher.close();
 		Converter.fieldManager = null;

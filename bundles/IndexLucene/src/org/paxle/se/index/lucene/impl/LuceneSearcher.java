@@ -3,24 +3,15 @@ package org.paxle.se.index.lucene.impl;
 import java.io.Closeable;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.IndexModifier;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermDocs;
-import org.apache.lucene.index.TermEnum;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.HitCollector;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 
-import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneSearcher;
@@ -29,12 +20,11 @@ import org.paxle.se.query.ITokenFactory;
 public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	
 	private final Log logger = LogFactory.getLog(LuceneSearcher.class);
-	private final IndexSearcher searcher;
-	private final LuceneTokenFactory ltf;
+	private final LuceneTokenFactory ltf = new LuceneTokenFactory();
+	private final AFlushableLuceneManager manager;
 	
-	public LuceneSearcher(String path) throws IOException {
-		this.searcher = new IndexSearcher(path);
-		this.ltf = new LuceneTokenFactory();
+	public LuceneSearcher(AFlushableLuceneManager manager) {
+		this.manager = manager;
 	}
 	
 	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException {
@@ -46,10 +36,10 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 			throw new IndexException("error parsing query string '" + request + "'", e);
 		}
 		this.logger.debug("searching for query '" + query + "' (" + request + ")");
-		this.searcher.search(query, new IIndexerDocHitCollector(results, maxCount));
+		this.manager.search(query, new IIndexerDocHitCollector(results, maxCount));
 	}
 	
-	private class IIndexerDocHitCollector extends HitCollector {
+	private class IIndexerDocHitCollector extends AHitCollector {
 		
 		private final List<IIndexerDocument> results;
 		private final int max;
@@ -64,221 +54,25 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 		public void collect(int doc, float score) {
 			LuceneSearcher.this.logger.debug("collecting search result " + this.current + "/" + this.max + ", document id '" + doc + "', score: " + score);
 			if (this.current++ < this.max) try {
-				this.results.add(Converter.luceneDoc2IIndexerDoc(LuceneSearcher.this.searcher.doc(doc)));
+				final Document rdoc = this.searcher.doc(doc);
+				this.results.add(Converter.luceneDoc2IIndexerDoc(rdoc));
 			} catch (ParseException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void close() throws IOException {
+		this.manager.close();
 	}
 	
 	public ITokenFactory getTokenFactory() {
 		return this.ltf;
 	}
 	
-	public int getDocCount() {
-		return this.searcher.getIndexReader().numDocs();
-	}
-	
-	public <E> Iterator<E> iterator(Field<E> field) throws IOException {
-		return new FieldIterator<E>(new DocumentIterator(this.searcher.getIndexReader()), field);
-	}
-	
-	public <E> Iterator<E> iterator(Field<E> field, String contains) throws IOException {
-		return new FieldIterator<E>(new DocumentIterator(this.searcher.getIndexReader(), contains), field);
-	}
-	
-	public Iterator<IIndexerDocument> docIterator() throws IOException {
-		return new DocumentIterator(this.searcher.getIndexReader());
-	}
-	
-	public Iterator<IIndexerDocument> docIterator(String contains) throws IOException {
-		return new DocumentIterator(this.searcher.getIndexReader(), contains);
-	}
-	
-	public Iterator<String> wordIterator() throws IOException {
-		return new WordIterator(this.searcher.getIndexReader().terms());
-	}
-	
-	/** @deprecated does not work correctly */
-	public Iterator<String> wordIterator(String start) throws IOException {
-		return new WordIterator(this.searcher.getIndexReader().terms(new Term(null, start)));
-	}
-	
-	public Iterator<String> wordIterator(Field<?> field) throws IOException {
-		return new FieldLimitedWordIterator(this.searcher.getIndexReader().terms(new Term(field.getName(), "")), field);
-	}
-	
-	public Iterator<String> wordIterator(String start, Field<?> field) throws IOException {
-		return new FieldLimitedWordIterator(this.searcher.getIndexReader().terms(new Term(field.getName(), start)), field);
-	}
-	
-	public void close() throws IOException {
-		this.searcher.close();
-	}
-	
-	public static void main(String[] args) {
-		LuceneSearcher s = null;
-		try {
-			s = new LuceneSearcher("/home/kane/workspace/runtime-osgi/lucene-db");
-			int c = 0;
-			TermDocs td = s.searcher.getIndexReader().termDocs();
-			
-			for (int i=0; i<s.searcher.getIndexReader().numDocs(); i++)
-				Converter.luceneDoc2IIndexerDoc(s.searcher.getIndexReader().document(i));
-			
-			//while (td.next())
-			//	System.out.println(c++ + Integer.toString(td.doc()));
-			/*
-			final Iterator<IIndexerDocument> it = s.docIterator();
-			while (it.hasNext() && c < 5)
-				System.out.println(c++ + ": " + it.next().get(IIndexerDocument.TITLE));
-				*/
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try { if (s != null) s.close(); } catch (IOException e) { e.printStackTrace(); }
-		}
-	}
-	
-	private static class DocumentIterator implements Iterator<IIndexerDocument> {
-		
-		private final IndexReader reader;
-		private final TermDocs tenum;
-		private int current = -1;
-		private int next;
-		
-		public DocumentIterator(IndexReader reader) throws IOException {
-			this(reader, null);
-		}
-		
-		public DocumentIterator(IndexReader reader, String word) throws IOException {
-			this.reader = reader;
-			this.tenum = (word == null) ? reader.termDocs() : reader.termDocs(new Term("*", word));
-			next0();
-		}
-		
-		private int next0() {
-			try {
-				final int lnext = this.next;
-				this.next = (this.tenum.next()) ? this.tenum.doc() : -1;
-				return lnext;
-			} catch (IOException e) {
-				throw new RuntimeException("I/O error iterating through terms", e);
-			}
-		}
-		
-		public boolean hasNext() {
-			return this.next >= 0;
-		}
-		
-		public IIndexerDocument next() {
-			this.current = this.next;
-			if (this.current < 0) {
-				throw new NoSuchElementException();
-			} else try {
-				this.next = next0();
-				return Converter.luceneDoc2IIndexerDoc(this.reader.document(this.current));
-			} catch (IOException e) {
-				throw new RuntimeException("I/O error iterating through documents", e);
-			} catch (ParseException e) {
-				throw new RuntimeException("Converter error iterating through documents", e);
-			}
-		}
-		
-		public void remove() {
-			try {
-				this.reader.deleteDocument(this.current);
-			} catch (IOException e) {
-				throw new RuntimeException("I/O error removing document", e);
-			}
-		}
-	}
-	
-	private static class FieldIterator<E> implements Iterator<E> {
-		
-		private final Field<E> field;
-		private final DocumentIterator it;
-		
-		public FieldIterator(DocumentIterator it, Field<E> field) {
-			this.field = field;
-			this.it = it;
-		}
-		
-		public boolean hasNext() {
-			return this.it.hasNext();
-		}
-		
-		public E next() {
-			return this.it.next().get(this.field);
-		}
-		
-		public void remove() {
-			// It is doable, but I'd have to rebuild the whole index-lucene bundle for it
-			// to get an reference to a currently active writer
-			throw new UnsupportedOperationException();
-		}
-	}
-	
-	private static class WordIterator implements Iterator<String> {
-		
-		protected final TermEnum tenum;
-		protected Term current;
-		protected Term next;
-		
-		public WordIterator(TermEnum tenum) {
-			this.tenum = tenum;
-			next0();
-		}
-		
-		protected Term next0() {
-			try {
-				final Term lnext = this.next;
-				this.next = (this.tenum.next()) ? this.tenum.term() : null;
-				return lnext;
-			} catch (IOException e) {
-				throw new RuntimeException("I/O error iterating through terms", e);
-			}
-		}
-		
-		public boolean hasNext() {
-			return this.next != null;
-		}
-		
-		public String next() {
-			this.current = this.next;
-			if (this.current == null) {
-				throw new NoSuchElementException();
-			} else {
-				String text = this.current.text();
-				this.current = next0();
-				return text;
-			}
-		}
-		
-		public void remove() {
-			// XXX: is urgently needed, but I don't know how to do currently
-			throw new UnsupportedOperationException();
-		}
-	}
-	
-	private static class FieldLimitedWordIterator extends WordIterator implements Iterator<String> {
-		
-		protected Field<?> field = null;
-		
-		public FieldLimitedWordIterator(TermEnum tenum, Field<?> field) {
-			super(tenum);
-			this.field = field;
-		}
-		
-		@Override
-		protected Term next0() {
-			Term ret;
-			do {
-				ret = super.next0();
-			} while (this.field != null && ret != null && !this.field.getName().equals(ret.field()));
-			return ret;
-		}
+	public int getDocCount() throws IOException {
+		return this.manager.getDocCount();
 	}
 }

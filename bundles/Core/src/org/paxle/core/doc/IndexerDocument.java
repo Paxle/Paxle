@@ -4,11 +4,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-
-
 public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexerDocument {
 	
 	private static final long serialVersionUID = 1L;
+	
+	private Status status = null;
+	private String statusText = null;
 	
 	public <Type> void set(Field<Type> key, Type value) {
 		super.put(key, value);
@@ -28,5 +29,26 @@ public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexe
 	
 	public Iterator<Map.Entry<Field<?>,Object>> iterator() {
 		return super.entrySet().iterator();
+	}
+	
+	public Status getStatus() {
+		return this.status;
+	}
+	
+	public String getStatusText() {
+		return this.statusText;
+	}
+	
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+	
+	public void setStatus(Status status, String text) {
+		this.status = status;
+		this.statusText = text;
+	}
+	
+	public void setStatusText(String text) {
+		this.statusText = text;
 	}
 }

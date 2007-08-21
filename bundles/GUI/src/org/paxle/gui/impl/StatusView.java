@@ -6,8 +6,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 
-
 public class StatusView extends AServlet {
+	
+	private static final long serialVersionUID = 1L;
 	
 	public StatusView(ServiceManager manager) {
 		super(manager);
@@ -24,13 +25,13 @@ public class StatusView extends AServlet {
         		this.manager.shutdownFramework();
         	} else if (request.getParameter("restart") != null) {
         		this.manager.restartFramework();
+        	} else {
+        	   	/*
+	        	 * Setting template parameters
+	        	 */
+	            context.put("manager", this.manager);                 
+	            template = this.getTemplate("/resources/templates/status.vm");
         	}
-        	
-        	/*
-        	 * Setting template parameters
-        	 */
-            context.put("manager", this.manager);                 
-            template = this.getTemplate("/resources/templates/status.vm");
         } catch( Exception e ) {
         	e.printStackTrace();
         } catch (Error e) {
