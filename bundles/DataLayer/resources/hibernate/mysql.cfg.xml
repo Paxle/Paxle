@@ -28,9 +28,5 @@
 
         <!-- Drop and re-create the database schema on startup -->
         <property name="hbm2ddl.auto">create</property>
-
-        <mapping resource="/resources/hibernate/mapping/command.hbm.xml"/>
-        <mapping resource="/resources/hibernate/mapping/crawlerdoc.hbm.xml"/>
-        <mapping resource="/resources/hibernate/mapping/parserdoc.hbm.xml"/>
     </session-factory>
 </hibernate-configuration>

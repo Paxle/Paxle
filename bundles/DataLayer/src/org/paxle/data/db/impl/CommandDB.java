@@ -55,7 +55,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 	 */
 	private SessionFactory sessionFactory;
 	
-	public CommandDB(URL configURL) {
+	public CommandDB(URL configURL, List<URL> mappings) {
 		try {
 			/* ===========================================================================
 			 * Init Hibernate
@@ -63,17 +63,27 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			try {
 	        	Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 				
-				// Create the SessionFactory from hibernate.cfg.xml
+				// Read the hibernate configuration from *.cfg.xml
 				Configuration config = new Configuration().configure(configURL);
+				
+				// register an interceptor (required to support our interface-based command model)
 				config.setInterceptor(new InterfaceInterceptor());
+				
+				// load the various mapping files
+				for (URL mapping : mappings) {
+					config.addURL(mapping);
+				}
+				
 				String[] sql = config.generateSchemaCreationScript(new org.hibernate.dialect.MySQLDialect());
+				
+				// create the session factory
 				sessionFactory = config.buildSessionFactory();
 			} catch (Throwable ex) {
 				// Make sure you log the exception, as it might be swallowed
 				this.logger.error("Initial SessionFactory creation failed.",ex);
 				throw new ExceptionInInitializerError(ex);
 			}
-		    
+		    			
 			System.out.println(this.size());
 			
 			/* ===========================================================================
@@ -171,7 +181,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 			result = (List<ICommand>) query.list();
-			// TODO: delete object
+			// TODO: delete object or mark as loaded
 			
 			transaction.commit();
 		} catch (HibernateException e) {

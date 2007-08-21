@@ -1,11 +1,16 @@
 package org.paxle.data.impl;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
+import org.paxle.data.db.impl.CommandDB;
 import org.paxle.data.txt.impl.TextCommandReader;
 
 public class Activator implements BundleActivator {
@@ -41,8 +46,13 @@ public class Activator implements BundleActivator {
 		 * Registering the CommandDB
 		 * TODO: not finished yet
 		 */
-//		URL config = context.getBundle().getResource("/resources/hibernate/derby.cfg.xml");
-//		CommandDB db = new CommandDB(config);
+		// getting the mapping files to use
+//		Enumeration<URL> mappingFileEnum = context.getBundle().findEntries("/resources/hibernate/mapping/", "*.hbm.xml", true);
+//		ArrayList<URL> mappings = Collections.list(mappingFileEnum);
+//		
+//		// getting the config file to use
+//		URL config = context.getBundle().getResource("/resources/hibernate/mysql.cfg.xml");
+//		CommandDB db = new CommandDB(config, mappings);
 //		
 //		final Hashtable<String,String> props = new Hashtable<String,String>();
 //		props.put(IDataConsumer.PROP_DATACONSUMER_ID, "org.paxle.parser.source");
@@ -60,6 +70,7 @@ public class Activator implements BundleActivator {
 	
 	private static void pipeConnect(String from, String to) {
 		final DataPipe pipe = new DataPipe();
+		pipe.setName(String.format("Datapipe: %s -> %s", from,to));
 		final Hashtable<String,String> props = new Hashtable<String,String>();
 		props.put(IDataConsumer.PROP_DATACONSUMER_ID, from);
 		props.put(IDataProvider.PROP_DATAPROVIDER_ID, to);
