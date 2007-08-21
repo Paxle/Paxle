@@ -3,6 +3,7 @@ package org.paxle.parser.impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.queue.ICommand;
@@ -47,6 +48,14 @@ public class ParserWorker extends AWorker<ICommand> {
 	
 	@Override
 	protected void execute(ICommand cmd) {
+		if (cmd.getCrawlerDocument().getStatus() != ICrawlerDocument.Status.OK) {
+			this.logger.warn("Won't parse crawler document " + cmd.getLocation() + " with status '" + cmd.getCrawlerDocument().getStatus() + "' (" + cmd.getCrawlerDocument().getStatusText() + ")");
+			return;
+		} else if (cmd.getResult() != ICommand.Result.Passed) {
+			this.logger.warn("Won't parse document " + cmd.getLocation() + " with result '" + cmd.getResult() + "' (" + cmd.getResultText() + ")");
+			return;
+		}
+		
 		// init the parser context
 		this.initParserContext();
 		

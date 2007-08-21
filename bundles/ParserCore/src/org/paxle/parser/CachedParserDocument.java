@@ -10,7 +10,7 @@ import org.paxle.parser.iotools.CachedWriter;
 
 public final class CachedParserDocument extends ParserDocument implements IParserDocument {
 	
-	private static final int MAX_TEXT_SIZE_RAM = 4 * 1024 * 1024; // 4 MB
+	private static final int MAX_TEXT_SIZE_RAM = 2 * 1024 * 1024; // 2 mio. characters == 4 MB
 	private CachedWriter text;
 	
 	public CachedParserDocument() {
@@ -41,7 +41,7 @@ public final class CachedParserDocument extends ParserDocument implements IParse
 	public Reader getTextAsReader() throws IOException {
 		return this.text.toReader();
 	}
-		
+	
 	@Override
 	public File getTextFile() throws IOException {
 		// we need to do this because hibernate seems to get the text-file twice

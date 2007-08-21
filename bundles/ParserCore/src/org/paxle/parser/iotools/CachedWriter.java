@@ -107,7 +107,7 @@ public class CachedWriter extends Writer {
 	}
 	
 	public Reader toReader() throws IOException {
-		this.writer.close();
+		close();
 		if (isFallback()) {
 			return new FileReader(this.ffile);
 		} else {
@@ -121,19 +121,26 @@ public class CachedWriter extends Writer {
 	
 	@Override
 	public String toString() {
+		try { close(); } catch (IOException e) {
+			throw new RuntimeException("error copying text data from stream to memory", e);
+		}
+		
 		final int size;
 		if (this.written > Integer.MAX_VALUE) {
 			throw new OutOfMemoryError("error allocating " + this.written + " chars of memory");
 		} else {
 			size = (int)this.written;
 		}
+		
 		final StringBuilder sb = new StringBuilder(size);
 		if (isFallback()) try {
-			ParserTools.copy(new FileReader(this.ffile), sb);
+			final Reader fr = new FileReader(this.ffile);
+			ParserTools.copy(fr, sb);
+			fr.close();
 		} catch (IOException e) {
 			throw new RuntimeException("error copying text data from stream to memory", e);
 		} else {
-			sb.append(((CAOS)this.writer).getBuffer(), 0, (int)this.written);
+			sb.append(((CAOS)this.writer).getBuffer(), 0, size);
 		}
 		return sb.toString();
 	}
