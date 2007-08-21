@@ -2,10 +2,14 @@
 #set( $page_title = "Paxle Search Page" )
 
 ## the regular content
+#if($manager.hasService("org.paxle.se.search.ISearchProviderManager"))
 <form >
 	<input type="text" name="query" #if($searchQuery) value="$searchQuery" #end/>
 	<input type="submit" value="search now"/>
 </form>
+#else
+	<font color="red"><b>Search Engine Bundle not installed</b></font>
+#end
 	
 #if($searchQuery)
 	<table >

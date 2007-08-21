@@ -32,6 +32,10 @@ public class ServiceManager {
 		return (reference == null) ? null : this.context.getService(reference);
 	}
 	
+	public boolean hasService(String serviceName) {
+		return this.context.getServiceReference(serviceName) != null;
+	}
+	
 	public Object[] getServices(String serviceName, String query) throws InvalidSyntaxException {
 		ServiceReference[] references = this.context.getServiceReferences(serviceName,query);
 		if (references == null) return null;
