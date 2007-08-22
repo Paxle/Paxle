@@ -46,13 +46,24 @@ public class Activator implements BundleActivator {
 		 * Registering the CommandDB
 		 * TODO: not finished yet
 		 */
-		// getting the mapping files to use
+		URL config = null;
+		
+		/* Getting the config file to use 
+		 * Note: we do not use class.getName() because the PreferencesSerivce  is declared as optional
+		 */
+//		String configStr = System.getProperty("org.paxle.data.db.impl.CommandDB");
+//		if (configStr != null) {
+//				config = new URL(configStr);
+//		} else {						
+//			config = context.getBundle().getResource("/resources/hibernate/derby.cfg.xml");
+//		}
+//		
+//		// getting the mapping files to use
 //		Enumeration<URL> mappingFileEnum = context.getBundle().findEntries("/resources/hibernate/mapping/", "*.hbm.xml", true);
 //		ArrayList<URL> mappings = Collections.list(mappingFileEnum);
 //		
-//		// getting the config file to use
-//		URL config = context.getBundle().getResource("/resources/hibernate/mysql.cfg.xml");
-//		CommandDB db = new CommandDB(config, mappings);
+//		// init command DB
+//		CommandDB db = new CommandDB(config, mappings);		
 //		
 //		final Hashtable<String,String> props = new Hashtable<String,String>();
 //		props.put(IDataConsumer.PROP_DATACONSUMER_ID, "org.paxle.parser.source");

@@ -56,6 +56,9 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 	private SessionFactory sessionFactory;
 	
 	public CommandDB(URL configURL, List<URL> mappings) {
+		if (configURL == null) throw new NullPointerException("The URL to the hibernate config file is null.");
+		if (mappings == null) throw new NullPointerException("The list of mapping files was null.");
+		
 		try {
 			/* ===========================================================================
 			 * Init Hibernate
@@ -64,6 +67,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 	        	Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 				
 				// Read the hibernate configuration from *.cfg.xml
+	        	this.logger.info(String.format("Loading DB configuration from URL '%s'.",configURL));
 				Configuration config = new Configuration().configure(configURL);
 				
 				// register an interceptor (required to support our interface-based command model)
@@ -71,6 +75,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 				
 				// load the various mapping files
 				for (URL mapping : mappings) {
+					this.logger.debug(String.format("Loading mapping file from URL '%s'.",mapping));
 					config.addURL(mapping);
 				}
 				
