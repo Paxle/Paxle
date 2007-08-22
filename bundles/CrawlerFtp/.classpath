@@ -8,32 +8,21 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/commons-net-1.4.1.jar"/>
+	<classpathentry kind="lib" path="libs/commons-net-1.4.1.jar" sourcepath="/home/theli/workspace/Libs/commons-net-1.4.1-src.zip"/>
+	<classpathentry kind="lib" path="libs/jakarta-oro-2.0.8.jar"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
-		<attributes>
-			<attribute name="bundle-name" value="Core"/>
-			<attribute name="org.paxle.core.doc" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.crawler">
-		<attributes>
-			<attribute name="bundle-name" value="CrawlerCore"/>
-			<attribute name="org.paxle.crawler" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/paxle/crawler/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
-		<attributes>
-			<attribute name="bundle-name" value="Commons-Logging"/>
-			<attribute name="org.apache.commons.logging" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
