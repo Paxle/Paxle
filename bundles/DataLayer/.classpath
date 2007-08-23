@@ -16,7 +16,6 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/derby-10.1.2.1.jar"/>
 	<classpathentry kind="lib" path="libs/antlr-2.7.6.jar"/>
 	<classpathentry kind="lib" path="libs/asm-attrs.jar"/>
 	<classpathentry kind="lib" path="libs/asm.jar"/>

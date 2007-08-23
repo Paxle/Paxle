@@ -6,7 +6,9 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.IndexerDocument;
 import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
@@ -19,6 +21,8 @@ public class InterfaceInterceptor extends EmptyInterceptor {
         	return ICrawlerDocument.class.getName();
         } else if (object instanceof IParserDocument) {
         	return IParserDocument.class.getName();
+        } else if (object instanceof IIndexerDocument) {
+        	return IIndexerDocument.class.getName();
         }
         return super.getEntityName(object);
     }
@@ -36,7 +40,11 @@ public class InterfaceInterceptor extends EmptyInterceptor {
         	IParserDocument parserDocument = new ParserDocument();
         	parserDocument.setOID((Integer)id);
         	return parserDocument;
-        }
+        } else if (entityName.equals(IIndexerDocument.class.getName())) {
+        	IIndexerDocument indexerDocument = new IndexerDocument();
+        	indexerDocument.setOID((Integer)id);
+        	return indexerDocument;
+        } 
         return super.instantiate(entityName, entityMode, id);
     }
 }
