@@ -1,6 +1,12 @@
 package org.paxle.core.doc;
 
-public final class Field<Type> implements Comparable<Field<?>> {
+import java.io.Serializable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
+public final class Field<Type> implements Comparable<Field<?>>, Serializable {
+	private static Pattern pattern = Pattern.compile("(\\w+)\\s\\(([^)]+)\\)(?:\\s(indexed))?(?:\\s(savedPlain))?");
 	
 	private final boolean index;
 	private final boolean savePlain;
@@ -12,6 +18,7 @@ public final class Field<Type> implements Comparable<Field<?>> {
 		this.savePlain = savePlain;
 		this.name = name;
 		this.clazz = clazz;
+		//if (!(this.clazz instanceof Serializable)) throw new IllegalArgumentException("Class must be serializable"); 
 	}
 	
 	public final boolean isIndex() {
@@ -26,12 +33,12 @@ public final class Field<Type> implements Comparable<Field<?>> {
 		return this.clazz;
 	}
 	
-	public int compareTo(Field<?> o) {
-		return this.name.compareTo(o.name);
-	}
-	
 	public final String getName() {
 		return this.name;
+	}
+	
+	public int compareTo(Field<?> o) {
+		return this.name.compareTo(o.name);
 	}
 	
 	@Override
@@ -56,5 +63,29 @@ public final class Field<Type> implements Comparable<Field<?>> {
 		if (this.savePlain)
 			sb.append(" savedPlain");
 		return sb.toString();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static Field valueOf(String value) {
+		Matcher m = pattern.matcher(value);
+		if (!m.matches()) throw new IllegalArgumentException();
+		
+		String name = m.group(1);
+		String clazzName = m.group(2);
+		boolean index = m.group(3) != null;
+		boolean savePlain = m.group(4) != null;
+		
+		try {
+			return new Field(
+					index,
+					savePlain,
+					name,
+					Thread.currentThread().getContextClassLoader().loadClass(clazzName)
+			);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 }
