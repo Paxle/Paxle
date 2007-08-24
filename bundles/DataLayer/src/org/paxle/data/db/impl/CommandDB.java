@@ -203,7 +203,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		try {
 			transaction = session.beginTransaction();
 			
-	        session.save(cmd);
+	        session.saveOrUpdate(cmd);	        
 	        
 			transaction.commit();
 		} catch (HibernateException e) {

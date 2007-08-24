@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="org.paxle.core.doc.IIndexerDocument" table="IndexerDocument" lazy="false">
+        <id name="OID" column="id">
+            <generator class="native"/>
+        </id>
+        
+        <property name="status">
+			<type name="org.paxle.data.db.impl.EnumUserType">
+				<param name="enumClassName">org.paxle.core.doc.IIndexerDocument$Status</param>
+			</type>
+      	</property>
+      	<property name="statusText"/>
+   	 	 
+<!-- 
+		<map name="fields" table="IndexerDocumentFields" lazy="false" cascade="all">
+    		<key column="indexerDocID" not-null="true"/>    		
+    		<map-key-many-to-many column="fieldType" class="org.paxle.core.doc.Field"/>
+    		<element column="fieldValue" type="serializable"/>
+		</map> 		
+ -->   	 	 	
+		
+       <map name="fields" table="IndexerDocumentFields" lazy="false" cascade="all">
+            <key column="indexerDocID" not-null="true"/>
+            <index column="fieldTyp" type="org.paxle.data.db.impl.FieldTypeUserType"/>
+            <element column="fieldValue" type="serializable"/>
+        </map>		
+		
+    </class>   
+
+<!--
+    <class name="org.paxle.core.doc.Field" table="IndexerDocumentFieldTypes">
+		<id name="name"/>
+		<property name="type" column="clazz"/>
+		<property name="index" column="isIndex"/>
+		<property name="savePlain" column="isSavePlain"/>
+    </class>       
+-->    
+</hibernate-mapping>
