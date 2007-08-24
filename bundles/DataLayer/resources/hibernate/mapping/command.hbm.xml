@@ -23,5 +23,11 @@
 	    
 	    <!-- the parser document -->
 	    <many-to-one name="parserDocument" column="parserDocId" unique="true" cascade="all"/>
+	    
+	    <array name="IndexerDocuments" cascade="all">
+      		<key column="commandId"/>
+      		<list-index column="indexerDocIdx"/>
+      		<one-to-many class="org.paxle.core.doc.IIndexerDocument"/>
+    	</array>
     </class>
 </hibernate-mapping>
