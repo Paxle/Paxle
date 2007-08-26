@@ -12,16 +12,24 @@ import org.paxle.core.doc.Field;
 
 public class FieldTypeUserType implements EnhancedUserType {
 
-	public Object fromXMLString(String xmlValue) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	private static final String[] PROP_NAMES = new String[] { 
+		"name", "clazz", "isIndex", "isSavePlain" 
+	};
 
-	public String toXMLString(Object value) {
-		// TODO Auto-generated method stub
-		return null;
+	private static final int[] PROP_TYPES = new int[] {
+		Types.VARCHAR, Types.VARCHAR, Types.BIT, Types.BIT
+	};
+
+	/**
+	 *  <column name="name"/>
+	 *	<column name="clazz"/>
+	 *	<column name="isIndex"/>
+	 *	<column name="isSavePlain"/>
+	 */
+	public int[] sqlTypes() {
+		return PROP_TYPES;
 	}	
-	
+
 	public String objectToSQLString(Object value) {
 		if (!(value instanceof Field)) throw new IllegalArgumentException();
 		return value.toString();
@@ -40,9 +48,9 @@ public class FieldTypeUserType implements EnhancedUserType {
 	}
 
 	public boolean equals(Object x, Object y) throws HibernateException {
-        if (x == y) return true; 
-        if ((x == null) || (y == null)) return false; 
-        return ((Field) x).equals((Field) y); 
+		if (x == y) return true; 
+		if ((x == null) || (y == null)) return false; 
+		return ((Field) x).equals((Field) y); 
 	}
 
 	public int hashCode(Object x) throws HibernateException {
@@ -53,16 +61,37 @@ public class FieldTypeUserType implements EnhancedUserType {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object nullSafeGet(ResultSet rs, String[] names, Object owner)throws HibernateException, SQLException {
-	      String name = rs.getString(names[0]);
-	      return rs.wasNull() ? null : Field.valueOf(name);
+		if (rs.wasNull()) return null;
+		String name = rs.getString(names[0]);
+		String clazz = rs.getString(names[1]);
+		boolean isIndex = rs.getBoolean(names[2]);
+		boolean sSavePlain = rs.getBoolean(names[3]);
+		
+		try {
+			return new Field(
+					isIndex,
+					sSavePlain,
+					name,
+					Thread.currentThread().getContextClassLoader().loadClass(clazz)
+			);
+		} catch (ClassNotFoundException e) {
+			throw new HibernateException(e);
+		}
 	}
 
 	public void nullSafeSet(PreparedStatement st, Object value, int index) throws HibernateException, SQLException {
 		if (value == null) {
-			st.setNull(index, Types.VARCHAR);
+			st.setNull(index+0, Types.VARCHAR);
+			st.setNull(index+1, Types.VARCHAR);
+			st.setNull(index+2, Types.BIT);
+			st.setNull(index+3, Types.BIT);
 		} else {
-			st.setString(index, ((Field) value).toString());
+			st.setString(index+0, ((Field) value).getName());
+			st.setString(index+1, ((Field) value).getType().getName());
+			st.setBoolean(index+2, ((Field) value).isIndex());
+			st.setBoolean(index+3, ((Field) value).isSavePlain());			
 		}
 	}
 
@@ -74,8 +103,13 @@ public class FieldTypeUserType implements EnhancedUserType {
 		return Field.class;
 	}
 
-	public int[] sqlTypes() {
-		return new int[] { Types.VARCHAR };
+	public Object fromXMLString(String xmlValue) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
+	public String toXMLString(Object value) {
+		// TODO Auto-generated method stub
+		return null;
+	}		
 }

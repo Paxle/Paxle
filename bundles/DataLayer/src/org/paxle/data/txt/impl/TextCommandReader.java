@@ -21,7 +21,8 @@ public class TextCommandReader extends ACommandReader {
         String line = null;
         while((line = bufferedReader.readLine())!=null) {
         	line = line.trim();
-        	if (line.startsWith("#")) continue;
+        	if (line.length() == 0) continue;
+        	else if (line.startsWith("#")) continue;
         	
         	Command cmd = Command.createCommand(line);
         	this.enqueue(cmd);
