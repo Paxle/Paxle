@@ -6,10 +6,23 @@ import java.util.Map;
 
 public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexerDocument {
 	
+	/**
+	 * Primary key required by Object-EER mapping 
+	 */
+	protected int _oid;
+	
 	private static final long serialVersionUID = 1L;
 	
 	private IIndexerDocument.Status status = null;
 	private String statusText = null;
+	
+	public int getOID() {
+		return this._oid;
+	}
+	
+	public void setOID(int OID) {
+		this._oid = OID;
+	}
 	
 	public <Type> void set(Field<Type> key, Type value) {
 		super.put(key, value);
