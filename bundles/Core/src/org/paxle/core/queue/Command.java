@@ -1,6 +1,7 @@
 package org.paxle.core.queue;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -58,8 +59,12 @@ public class Command implements ICommand {
 
 	public IIndexerDocument[] getIndexerDocuments() {
 		return this.indexerDocs.toArray(new IIndexerDocument[this.indexerDocs.size()]);
-	}	
+	}
 	
+	public void setIndexerDocuments(IIndexerDocument[] indexerDocs) {
+		this.indexerDocs.clear();
+		this.indexerDocs.addAll(Arrays.asList(indexerDocs));
+	}	
 	
 	public void addIndexerDocument(IIndexerDocument indexerDoc) {
 		this.indexerDocs.add(indexerDoc);

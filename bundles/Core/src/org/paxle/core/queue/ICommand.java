@@ -57,6 +57,7 @@ public interface ICommand {
 	public void setParserDocument(IParserDocument parserDoc) throws IOException;
 	
 	public IIndexerDocument[] getIndexerDocuments();
+	public void setIndexerDocuments(IIndexerDocument[] indexerDocs);
 	public void addIndexerDocument(IIndexerDocument indexerDoc);
 	
 //	/* =======================================================

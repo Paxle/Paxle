@@ -1,5 +1,8 @@
 package org.paxle.se.index.lucene.impl;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.text.ParseException;
@@ -62,7 +65,7 @@ public class Converter {
 			
 		} else if (Reader.class.isAssignableFrom(field.getType())) {
 			return reader2field(field, (Reader)data);
-			
+
 		} else if (Date.class.isAssignableFrom(field.getType())) {
 			return date2field(field, (Date)data);
 			
@@ -75,6 +78,14 @@ public class Converter {
 		} else if (field.getType().isArray()) {
 			return array2field(field, (Object[])data);
 			
+		} else if (File.class.isAssignableFrom(field.getType())) {
+			try {
+				return reader2field(field, new FileReader((File)data));
+			} catch (FileNotFoundException e) {
+				// TODO what to do in this situation?
+				e.printStackTrace();
+				return null;
+			}						
 		} else {
 			// TODO
 			return null;

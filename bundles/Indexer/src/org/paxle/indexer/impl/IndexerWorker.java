@@ -83,7 +83,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 			                                   idoc.set(IIndexerDocument.LOCATION,      location);
 			if (name != null)                  idoc.set(IIndexerDocument.INTERNAL_NAME, name);
 			if (pdoc.getSummary() != null)     idoc.set(IIndexerDocument.SUMMARY,       pdoc.getSummary());
-			                                   idoc.set(IIndexerDocument.TEXT,          pdoc.getTextAsReader());
+			                                   idoc.set(IIndexerDocument.TEXT,          pdoc.getTextFile());
 			if (pdoc.getTitle() != null)       idoc.set(IIndexerDocument.TITLE,         pdoc.getTitle());
 			// TODO: IIndexerDocument.TOPICS
 			

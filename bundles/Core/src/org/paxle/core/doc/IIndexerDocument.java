@@ -1,6 +1,6 @@
 package org.paxle.core.doc;
 
-import java.io.Reader;
+import java.io.File;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
@@ -17,15 +17,18 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	public static final Field<byte[]>                   MD5           = new Field<byte[]>                   (false, true,  "MD5",          byte[].class);
 	public static final Field<Long>                     SIZE          = new Field<Long>	                    (false, true,  "Size",         Long.class);
 	public static final Field<String>                   SUMMARY       = new Field<String>                   (true,  true,  "Summary",      String.class);
-	public static final Field<Reader>                   TEXT          = new Field<Reader>                   (true,  false, "Text",         Reader.class);
+	public static final Field<File>                     TEXT          = new Field<File>                     (true,  false, "Text",         File.class);
 	public static final Field<String>                   TITLE         = new Field<String>                   (true,  true,  "Title",        String.class);
 	public static final Field<IIndexerDocument.Topic[]> TOPICS        = new Field<IIndexerDocument.Topic[]> (true,  true,  "Topics",       Topic[].class);
-
+	
     public int getOID(); 
-    public void setOID(int OID); 
+    public void setOID(int OID);	
 	
 	public <Type> void set(Field<Type> prop, Type data);
 	public <Type> Type get(Field<Type> prop);
+	
+	public void setFields(Map<Field<?>, ?> fields);
+	public Map<Field<?>, ?> getFields();
 	
 	public Iterator<Field<?>> fieldIterator();
 	public Iterator<Map.Entry<Field<?>,Object>> iterator();

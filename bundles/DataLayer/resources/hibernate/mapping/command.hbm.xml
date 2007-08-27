@@ -8,23 +8,23 @@
         </id>      
         
         <!-- the command processing result -->
-        <property name="result">
+        <property name="result" node="Result/Code">
 			<type name="org.paxle.data.db.impl.EnumUserType">
 				<param name="enumClassName">org.paxle.core.queue.ICommand$Result</param>
 			</type>
       	</property>
-      	<property name="resultText"/>        
+      	<property name="resultText" node="Result/Text"/>        
       	
       	<!-- the resource location -->
-        <property name="location"/>
+    	<property name="location" node="Location"/>
         
         <!-- the crawler document -->
-	    <many-to-one name="crawlerDocument" column="crawlerDocId" unique="true" cascade="all"/>
+	    <many-to-one name="crawlerDocument" column="crawlerDocId" unique="true" cascade="all" embed-xml="true"/>
 	    
 	    <!-- the parser document -->
-	    <many-to-one name="parserDocument" column="parserDocId" unique="true" cascade="all"/>
+	    <many-to-one name="parserDocument" column="parserDocId" unique="true" cascade="all" embed-xml="true"/>
 	    
-	    <array name="IndexerDocuments" cascade="all">
+	    <array name="IndexerDocuments" cascade="all" embed-xml="true">
       		<key column="commandId"/>
       		<list-index column="indexerDocIdx"/>
       		<one-to-many class="org.paxle.core.doc.IIndexerDocument"/>

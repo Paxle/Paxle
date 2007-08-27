@@ -14,11 +14,12 @@ public final class Field<Type> implements Comparable<Field<?>>, Serializable {
 	private final String name;
 	
 	public Field(final boolean index, final boolean savePlain, String name, Class<Type> clazz) {
+		if (!(this.clazz instanceof Serializable)) throw new IllegalArgumentException("Class must be serializable");
+		if (name.length() > 80) throw new IllegalArgumentException("The name is too long. A maximum of 80 chars is allowed.");
 		this.index = index;
 		this.savePlain = savePlain;
 		this.name = name;
-		this.clazz = clazz;
-		//if (!(this.clazz instanceof Serializable)) throw new IllegalArgumentException("Class must be serializable"); 
+		this.clazz = clazz; 
 	}
 	
 	public final boolean isIndex() {

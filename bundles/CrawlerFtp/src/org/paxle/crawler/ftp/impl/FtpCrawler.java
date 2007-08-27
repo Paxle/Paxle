@@ -154,6 +154,7 @@ public class FtpCrawler implements IFtpCrawler {
 				// TODO: charset detection
 				// TODO: mimetype detection
 				// TODO: get file info: e.g. modification-date ...
+				// TODO: what if the file is a symlink?
 				
 				dataFile = createAndCopy(fileInputStream);
 				fileInputStream.close();	
@@ -202,6 +203,7 @@ public class FtpCrawler implements IFtpCrawler {
 	
 	public static void main(String[] args) {
 		FtpCrawler ftp = new FtpCrawler();
+		
 		ftp.request("ftp://anonymous:anonymous@ftp.tuwien.ac.at/api");
 		ftp.request("ftp://ftp.tuwien.ac.at/api/sane/README");
 	}
