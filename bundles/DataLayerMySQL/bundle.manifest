@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-Name: DataLayerMySQL
+Bundle-ClassPath: ., libs/mysql-connector-java-5.0.5.jar
+Bundle-ManifestVersion: 2
+Fragment-Host: org.paxle.data
+Bundle-SymbolicName: org.paxle.data.mysql
+Bundle-Version: 1.0.0
+
