@@ -26,6 +26,8 @@ public class IndexerDocument extends HashMap<Field<? extends Serializable>,Objec
     }			
 	
 	public <Type extends Serializable> void set(Field<Type> key, Type value) {
+		if (value == null)
+			throw new NullPointerException("Tried setting " + key.getName() + " to null");
 		super.put(key, value);
 	}
 	

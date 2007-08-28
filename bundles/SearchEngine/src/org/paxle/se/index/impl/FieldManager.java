@@ -16,6 +16,8 @@ public class FieldManager extends ASimpleManager<String,Field<?>> implements IFi
 		add(IIndexerDocument.LAST_MODIFIED);
 		add(IIndexerDocument.LOCATION);
 		add(IIndexerDocument.MD5);
+		add(IIndexerDocument.MIME_TYPE);
+		add(IIndexerDocument.PROTOCOL);
 		add(IIndexerDocument.SIZE);
 		add(IIndexerDocument.SUMMARY);
 		add(IIndexerDocument.TEXT);

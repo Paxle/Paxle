@@ -17,6 +17,8 @@ public class DefaultMods {
 		fieldMods.put("title", IIndexerDocument.TITLE);
 		fieldMods.put("author", IIndexerDocument.AUTHOR);
 		fieldMods.put("domain", IIndexerDocument.LOCATION);	// TODO
+		fieldMods.put("mimetype", IIndexerDocument.MIME_TYPE);
+		fieldMods.put("protocol", IIndexerDocument.PROTOCOL);
 	}
 	
 	public static boolean isModSupported(String mod) {
