@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
@@ -248,7 +249,7 @@ public class Converter {
 		return doc;
 	}
 	
-	public static <E> E field2any(Fieldable lfield, org.paxle.core.doc.Field<E> pfield) throws ParseException, IOException {
+	public static <E extends Serializable> E field2any(Fieldable lfield, org.paxle.core.doc.Field<E> pfield) throws ParseException, IOException {
 		if (String.class.isAssignableFrom(pfield.getType())) {
 			return pfield.getType().cast(field2string(lfield, pfield));
 			

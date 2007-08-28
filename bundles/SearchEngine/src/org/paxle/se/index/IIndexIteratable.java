@@ -1,6 +1,7 @@
 package org.paxle.se.index;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Iterator;
 
 import org.paxle.core.doc.Field;
@@ -18,7 +19,7 @@ public interface IIndexIteratable {
 	 * @return an {@link Iterator} over all documents limited specifically to the given field
 	 * @throws <b>IOException</b> if an IOException occurs
 	 */
-	public <E> Iterator<E> iterator(Field<E> field) throws IOException;
+	public <E extends Serializable> Iterator<E> iterator(Field<E> field) throws IOException;
 	
 	/**
 	 * Provides an {@link Iterator} iterating over all indexed documents, returning only those
@@ -32,7 +33,7 @@ public interface IIndexIteratable {
 	 *         specifically to the given field
 	 * @throws <b>IOException</b> if an IOException occurs
 	 */
-	public <E> Iterator<E> iterator(Field<E> field, String contains) throws IOException;
+	public <E extends Serializable> Iterator<E> iterator(Field<E> field, String contains) throws IOException;
 	
 	/**
 	 * Provides an {@link Iterator} iterating over all indexed documents, directly converting
@@ -81,7 +82,7 @@ public interface IIndexIteratable {
 	 * @return an {@link Iterator} over all words indexed for this {@link Field}
 	 * @throws <b>IOException</b> if an IOException occurs
 	 */
-	public Iterator<String> wordIterator(Field<?> field) throws IOException;
+	public Iterator<String> wordIterator(Field<? extends Serializable> field) throws IOException;
 	
 	/**
 	 * Provides an alphabetic {@link Iterator} iterating over the indexed words saved for the a given
@@ -94,5 +95,5 @@ public interface IIndexIteratable {
 	 *         <code>start</code>, each returned as {@link String}
 	 * @throws <b>IOException</b> if an IOException occurs
 	 */
-	public Iterator<String> wordIterator(String start, Field<?> field) throws IOException;
+	public Iterator<String> wordIterator(String start, Field<? extends Serializable> field) throws IOException;
 }

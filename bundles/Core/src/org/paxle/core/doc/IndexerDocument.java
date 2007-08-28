@@ -1,10 +1,11 @@
 package org.paxle.core.doc;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexerDocument {
+public class IndexerDocument extends HashMap<Field<? extends Serializable>,Object> implements IIndexerDocument {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -24,7 +25,7 @@ public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexe
     	this._oid = OID; 
     }			
 	
-	public <Type> void set(Field<Type> key, Type value) {
+	public <Type extends Serializable> void set(Field<Type> key, Type value) {
 		super.put(key, value);
 	}
 	
@@ -32,15 +33,15 @@ public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexe
 	// one adding key/value-pairs to the underlying HashMap
 	// this has to be made sure by any possible sub-classes as well
 	@SuppressWarnings("unchecked")
-	public <Type> Type get(Field<Type> prop) {
+	public <Type extends Serializable> Type get(Field<Type> prop) {
 		return (Type)super.get(prop);
 	}
 	
-	public Iterator<Field<?>> fieldIterator() {
+	public Iterator<Field<? extends Serializable>> fieldIterator() {
 		return super.keySet().iterator();
 	}
 	
-	public Iterator<Map.Entry<Field<?>,Object>> iterator() {
+	public Iterator<Map.Entry<Field<? extends Serializable>,Object>> iterator() {
 		return super.entrySet().iterator();
 	}
 	
@@ -65,11 +66,11 @@ public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexe
 		this.statusText = text;
 	}
 
-	public Map<Field<?>, ?> getFields() {
+	public Map<Field<? extends Serializable>, ?> getFields() {
 		return (Map<Field<?>, ?>) this.clone();
 	}
 
-	public void setFields(Map<Field<?>, ?> fields) {
+	public void setFields(Map<Field<? extends Serializable>, ?> fields) {
 		this.clear();
 		this.putAll(fields);
 	}

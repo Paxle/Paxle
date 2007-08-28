@@ -2,6 +2,7 @@
 package org.paxle.se.index.lucene.impl;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -137,12 +138,12 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 	 * ================================================================================ */
 	
 	/** @deprecated does not work correctly */
-	public synchronized <E> Iterator<E> iterator(Field<E> field) throws IOException {
+	public synchronized <E extends Serializable> Iterator<E> iterator(Field<E> field) throws IOException {
 		return new FieldIterator<E>(new DocumentIterator(), field);
 	}
 	
 	/** @deprecated does not work correctly */
-	public synchronized <E> Iterator<E> iterator(Field<E> field, String contains) throws IOException {
+	public synchronized <E extends Serializable> Iterator<E> iterator(Field<E> field, String contains) throws IOException {
 		return new FieldIterator<E>(new DocumentIterator(contains), field);
 	}
 	
@@ -165,11 +166,11 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 		return new WordIterator(this.reader.terms(new Term(null, start)));
 	}
 	
-	public synchronized Iterator<String> wordIterator(Field<?> field) throws IOException {
+	public synchronized Iterator<String> wordIterator(Field<? extends Serializable> field) throws IOException {
 		return new FieldLimitedWordIterator(this.reader.terms(new Term(field.getName(), "")), field);
 	}
 	
-	public synchronized Iterator<String> wordIterator(String start, Field<?> field) throws IOException {
+	public synchronized Iterator<String> wordIterator(String start, Field<? extends Serializable> field) throws IOException {
 		return new FieldLimitedWordIterator(this.reader.terms(new Term(field.getName(), start)), field);
 	}
 	
@@ -233,7 +234,7 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 		}
 	}
 	
-	private static class FieldIterator<E> implements Iterator<E> {
+	private static class FieldIterator<E extends Serializable> implements Iterator<E> {
 		
 		private final Field<E> field;
 		private final DocumentIterator it;

@@ -1,11 +1,12 @@
 package org.paxle.core.doc;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
-public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
+public interface IIndexerDocument extends Iterable<Map.Entry<Field<? extends Serializable>,Object>> {
 	
 	public static final Field<String>                   AUTHOR        = new Field<String>                   (true,  true,  "Author",       String.class);
 	public static final Field<String>                   INTERNAL_NAME = new Field<String>                   (true,  true,  "InternalName", String.class);
@@ -26,14 +27,14 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
     public int getOID(); 
     public void setOID(int OID);	
 	
-	public <Type> void set(Field<Type> prop, Type data);
-	public <Type> Type get(Field<Type> prop);
+	public <Type extends Serializable> void set(Field<Type> prop, Type data);
+	public <Type extends Serializable> Type get(Field<Type> prop);
 	
 	public void setFields(Map<Field<?>, ?> fields);
 	public Map<Field<?>, ?> getFields();
 	
-	public Iterator<Field<?>> fieldIterator();
-	public Iterator<Map.Entry<Field<?>,Object>> iterator();
+	public Iterator<Field<? extends Serializable>> fieldIterator();
+	public Iterator<Map.Entry<Field<? extends Serializable>,Object>> iterator();
 	
 	public IIndexerDocument.Status getStatus();
 	public String getStatusText();

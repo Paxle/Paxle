@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public final class Field<Type> implements Comparable<Field<?>>, Serializable {
+public final class Field<Type extends Serializable> implements Comparable<Field<?>>, Serializable {
 	private static Pattern pattern = Pattern.compile("(\\w+)\\s\\(([^)]+)\\)(?:\\s(indexed))?(?:\\s(savedPlain))?");
 	
 	private final boolean index;
