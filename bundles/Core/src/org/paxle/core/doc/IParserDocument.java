@@ -101,6 +101,8 @@ public interface IParserDocument extends Closeable {
 	 *        which is used persistently in Paxle
 	 */
 	public abstract void setLastChanged(Date date);
+	
+	public abstract void setMimeType(String mimeType);
 
 	/**
 	 * @param status the {@link Status result} of the parsing operation
@@ -180,6 +182,8 @@ public interface IParserDocument extends Closeable {
 	public abstract Map<String, String> getLinks();
 	
 	public void setLinks(Map<String,String> links);
+	
+	public String getMimeType();
 	
 	/**
 	 * @see #setStatus(org.paxle.core.doc.IParserDocument.Status)

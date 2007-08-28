@@ -17,8 +17,10 @@ import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.charset.ACharsetDetectorInputStream;
 import org.paxle.core.charset.ICharsetDetector;
-import org.paxle.core.charset.ICharsetDetectorStream;
+import org.paxle.core.crypt.md5.AMD5InputStream;
+import org.paxle.core.crypt.md5.IMD5;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.crawler.CrawlerContext;
@@ -169,19 +171,32 @@ public class HttpCrawler implements IHttpCrawler {
 			// getting the response body			
 			InputStream respBody = method.getResponseBodyAsStream();
 			
-			// getting a charset-detector
 			CrawlerContext context = CrawlerContext.getCurrentContext();
+			
+			// getting a charset-detector
 			ICharsetDetector charsetDetector = context.getCharsetDetector();
+			ACharsetDetectorInputStream chardetInstr = null;
 			if (charsetDetector != null) {
 				/* 
 				 * Wrap the body-inputstream into a charset detector stream
 				 * if the mimetype of the resource is inspectable
 				 */
 				if (charsetDetector.isInspectable(contentMimeType)) {
-					respBody = charsetDetector.createInputStream(respBody);
+					chardetInstr = charsetDetector.createInputStream(respBody);
+					respBody = chardetInstr;
 				}
 			} else {
 				this.logger.warn("No charset detector found. Skipping charset detection.");
+			}
+			
+			IMD5 md5 = context.getMD5();
+			AMD5InputStream md5Instr = null;
+			if (md5 != null) {
+				/* Wrap the body inputstream into a MD5 input stream */
+				md5Instr = md5.createInputStream(respBody);
+				respBody = md5Instr;
+			} else {
+				this.logger.warn("No MD5 utils found, skipping MD5 generation of content.");
 			}
 			
 			// copy the content to file
@@ -189,11 +204,24 @@ public class HttpCrawler implements IHttpCrawler {
 			File content = createAndCopy(respBody);
 			
 			// determine if charset detection succeeded
-			if (respBody instanceof ICharsetDetectorStream) {
-				String newCharset = ((ICharsetDetectorStream)respBody).getCharset();
+			if (chardetInstr != null) {
+				String newCharset = chardetInstr.getCharset();
 				if (newCharset != null) {
 					this.logger.info(String.format("Charset '%s' detected for URL %s", newCharset, requestUrl));
 					doc.setCharset(newCharset);
+				}
+			}
+			if (md5Instr != null) {
+				byte[] md5Sum = md5Instr.getHash();
+				if (md5Sum != null) {
+					final StringBuilder sb = new StringBuilder(32);
+					for (final byte mbyte : md5Sum) {
+						String hex = Integer.toHexString((byte)mbyte);
+						hex = (hex.length() == 0) ? "00" : (hex.length() == 1) ? ("0" + hex) : hex.substring(hex.length() - 2, hex.length());
+						sb.append(hex);
+					}
+					this.logger.info(String.format("MD5 sum '%s' computed for URL %s", sb.toString(), requestUrl));
+					doc.setMD5Sum(md5Sum);
 				}
 			}
 			

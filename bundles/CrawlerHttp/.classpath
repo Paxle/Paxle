@@ -18,8 +18,10 @@
 		<attributes>
 			<attribute name="org.paxle.core.charset" value="0.0.0"/>
 			<attribute name="org.paxle.core.doc" value="0.0.0"/>
+			<attribute name="org.paxle.core.crypt.md5" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/crypt/md5/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/charset/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>

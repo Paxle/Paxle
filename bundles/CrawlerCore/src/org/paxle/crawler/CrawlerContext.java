@@ -3,16 +3,18 @@ package org.paxle.crawler;
 import java.util.HashMap;
 
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.crypt.md5.IMD5;
 
 public class CrawlerContext {
     private static final ThreadLocal<CrawlerContext> context = new ThreadLocal<CrawlerContext>();
 	
     private ICharsetDetector charsetDetector = null;
     private HashMap<String, Object> bag = new HashMap<String, Object>();
-
+    private final IMD5 md5;
     
-    public CrawlerContext(ICharsetDetector charsetDetector) {
+    public CrawlerContext(ICharsetDetector charsetDetector, IMD5 md5) {
     	this.charsetDetector = charsetDetector;
+    	this.md5 = md5;
 	}
 
 	public static void setCurrentContext(CrawlerContext parserContext) {
@@ -29,7 +31,11 @@ public class CrawlerContext {
 	 */
 	public ICharsetDetector getCharsetDetector() {
 		return this.charsetDetector;
-	}	
+	}
+	
+	public IMD5 getMD5() {
+		return this.md5;
+	}
 	
 	/* ========================================================================
 	 * Function operating on the property bag

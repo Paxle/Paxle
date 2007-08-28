@@ -42,4 +42,7 @@ public interface ICrawlerDocument {
 	
 	public Date getLastModDate();
 	public void setLastModDate(Date lastModDate);
+	
+	public byte[] getMD5Sum();
+	public void setMD5Sum(byte[] md5Sum);
 }

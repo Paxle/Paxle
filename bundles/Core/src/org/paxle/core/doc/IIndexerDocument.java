@@ -15,6 +15,8 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	public static final Field<Language[]>               LANGUAGES     = new Field<Language[]>               (true,  true,  "Languages",    Language[].class);
 	public static final Field<String>                   LOCATION      = new Field<String>                   (true,  true,  "Location",     String.class);
 	public static final Field<byte[]>                   MD5           = new Field<byte[]>                   (false, true,  "MD5",          byte[].class);
+	public static final Field<String>                   MIME_TYPE     = new Field<String>                   (true,  false, "MimeType",     String.class);
+	public static final Field<String>                   PROTOCOL      = new Field<String>                   (true,  false, "Protocol",     String.class);
 	public static final Field<Long>                     SIZE          = new Field<Long>	                    (false, true,  "Size",         Long.class);
 	public static final Field<String>                   SUMMARY       = new Field<String>                   (true,  true,  "Summary",      String.class);
 	public static final Field<File>                     TEXT          = new Field<File>                     (true,  false, "Text",         File.class);

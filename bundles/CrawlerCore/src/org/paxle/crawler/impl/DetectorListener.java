@@ -9,20 +9,29 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.crypt.md5.IMD5;
 
 public class DetectorListener implements ServiceListener {
 
 	/**
 	 * The interfaces to listen for
 	 */
-	private static String[] INTERFACES = new String[]{
-		ICharsetDetector.class.getName()			
+	private static final String[] INTERFACES = new String[]{
+		ICharsetDetector.class.getName(),
+		IMD5.class.getName()
 	};
 	
 	/**
 	 * A LDAP styled expression used for the service-listener
 	 */
-	public static final String FILTER = String.format("(objectClass=%s)",INTERFACES[0]);
+	public static final String FILTER;
+	static {
+		final StringBuilder sb = new StringBuilder(25 * INTERFACES.length);
+		sb.append("(|");
+		for (final String intrface : INTERFACES)
+			sb.append('(').append(Constants.OBJECTCLASS).append('=').append(intrface).append(')');
+		FILTER = sb.append(')').toString();
+	}
 	
 	/**
 	 * The {@link BundleContext osgi-bundle-context} of this bundle
@@ -63,6 +72,8 @@ public class DetectorListener implements ServiceListener {
 			// pass it to the worker factory
 			if (interfaces.contains(ICharsetDetector.class.getName())) {
 				this.workerFactory.setCharsetDetector((ICharsetDetector) detector);
+			} else if (interfaces.contains(IMD5.class.getName())) {
+				this.workerFactory.setMD5((IMD5)detector);
 			}
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			this.context.ungetService(reference);

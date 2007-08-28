@@ -36,6 +36,7 @@ public class ParserDocument implements IParserDocument {
 	protected String statusText;
 	protected File content;
 	protected FileOutputStream contentOut = null;
+	protected String mimeType;
 	
     public int getOID(){ 
     	return _oid; 
@@ -152,6 +153,10 @@ public class ParserDocument implements IParserDocument {
 		this.lastChanged = date;
 	}
 	
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#setSummary(java.lang.String)
@@ -251,6 +256,10 @@ public class ParserDocument implements IParserDocument {
 	
 	public void setSubDocs(Map<String,IParserDocument> subDocs) {
 		this.subDocs = subDocs;
+	}
+	
+	public String getMimeType() {
+		return this.mimeType;
 	}
 	
 	/**

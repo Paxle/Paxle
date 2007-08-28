@@ -3,8 +3,6 @@ package org.paxle.core.doc;
 import java.io.File;
 import java.util.Date;
 
-
-
 public class CrawlerDocument implements ICrawlerDocument {
 	/**
 	 * Primary key required by Object-EER mapping 
@@ -21,6 +19,7 @@ public class CrawlerDocument implements ICrawlerDocument {
 	private Date crawlerDate = null;
 	private Date lastModDate = null;
 	private String etag;
+	private byte[] md5Sum = null;
 
     public int getOID(){ 
     	return _oid; 
@@ -125,5 +124,13 @@ public class CrawlerDocument implements ICrawlerDocument {
 	
 	public String getEtag() {
 		return this.etag;
+	}
+	
+	public byte[] getMD5Sum() {
+		return this.md5Sum;
+	}
+	
+	public void setMD5Sum(byte[] md5Sum) {
+		this.md5Sum = md5Sum;
 	}
 }

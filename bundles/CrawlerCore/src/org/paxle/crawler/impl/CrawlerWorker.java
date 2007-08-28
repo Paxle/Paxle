@@ -5,6 +5,7 @@ import java.net.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.crypt.md5.IMD5;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
@@ -23,7 +24,9 @@ public class CrawlerWorker extends AWorker<ICommand> {
 	/**
 	 * A class to detect charsets
 	 */
-	ICharsetDetector charsetDetector = null;	
+	ICharsetDetector charsetDetector = null;
+	
+	IMD5 md5 = null;
 	
 	public CrawlerWorker(SubCrawlerManager subCrawlerManager) {
 		this.subCrawlerManager = subCrawlerManager;
@@ -34,7 +37,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 	 */
 	protected void initCrawlerContext() {
 		// init the parser context object
-		CrawlerContext parserContext = new CrawlerContext(this.charsetDetector);
+		CrawlerContext parserContext = new CrawlerContext(this.charsetDetector, this.md5);
 		CrawlerContext.setCurrentContext(parserContext);		
 	}	
 
