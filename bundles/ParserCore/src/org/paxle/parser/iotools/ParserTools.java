@@ -151,7 +151,10 @@ public class ParserTools {
 		final ISubParser sp = context.getParser(mimeType);
 		if (sp == null)
 			throw new ParserException("No parser found for MIME type '" + mimeType + "'");
-		return sp.parse(location, charset, content);
+		final IParserDocument pdoc = sp.parse(location, charset, content);
+		if (pdoc.getMimeType() == null)
+			pdoc.setMimeType(mimeType);
+		return pdoc;
 	}
 	
 	public static final int DEFAULT_BUFFER_SIZE_BYTES = 1024;

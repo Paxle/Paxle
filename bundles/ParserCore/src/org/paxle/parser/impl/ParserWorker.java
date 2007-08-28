@@ -48,11 +48,11 @@ public class ParserWorker extends AWorker<ICommand> {
 	
 	@Override
 	protected void execute(ICommand cmd) {
-		if (cmd.getCrawlerDocument().getStatus() != ICrawlerDocument.Status.OK) {
-			this.logger.warn("Won't parse crawler document " + cmd.getLocation() + " with status '" + cmd.getCrawlerDocument().getStatus() + "' (" + cmd.getCrawlerDocument().getStatusText() + ")");
-			return;
-		} else if (cmd.getResult() != ICommand.Result.Passed) {
+		if (cmd.getResult() != ICommand.Result.Passed) {
 			this.logger.warn("Won't parse document " + cmd.getLocation() + " with result '" + cmd.getResult() + "' (" + cmd.getResultText() + ")");
+			return;
+		} else if (cmd.getCrawlerDocument().getStatus() != ICrawlerDocument.Status.OK) {
+			this.logger.warn("Won't parse crawler document " + cmd.getLocation() + " with status '" + cmd.getCrawlerDocument().getStatus() + "' (" + cmd.getCrawlerDocument().getStatusText() + ")");
 			return;
 		}
 		
@@ -83,7 +83,8 @@ public class ParserWorker extends AWorker<ICommand> {
 					cmd.getLocation(), 
 					cmd.getCrawlerDocument().getCharset(), 
 					cmd.getCrawlerDocument().getContent());
-			
+			if (parserdoc.getMimeType() == null)
+				parserdoc.setMimeType(mimeType);
 			parserdoc.setStatus(IParserDocument.Status.OK);			
 			cmd.setParserDocument(parserdoc);
 		} catch (Exception e) {

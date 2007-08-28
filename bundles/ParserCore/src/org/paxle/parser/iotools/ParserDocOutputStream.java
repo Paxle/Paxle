@@ -49,6 +49,7 @@ public class ParserDocOutputStream extends OutputStream {
 	
 	@Override
 	public void close() throws IOException {
+		this.os.flush();
 		this.os.close();
 	}
 	
@@ -61,6 +62,7 @@ public class ParserDocOutputStream extends OutputStream {
 	}
 	
 	public IParserDocument parse(String location) throws ParserException, IOException {
+		close();
 		final String charset = getCharset();
 		try {
 			return ParserTools.parse(location, charset, this.of);
