@@ -1,6 +1,7 @@
 package org.paxle.indexer.impl;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -76,12 +77,14 @@ public class IndexerWorker extends AWorker<ICommand> {
 			 *       ~~~~~~~~~~~~                           ~~~~~~~~~~                        ~~~~
 			 */
 			if (pdoc.getAuthor() != null)      idoc.set(IIndexerDocument.AUTHOR,        pdoc.getAuthor());
+			if (name != null)                  idoc.set(IIndexerDocument.INTERNAL_NAME, name);
 			if (kw.size() > 0)                 idoc.set(IIndexerDocument.KEYWORDS,      kw.toArray(new String[kw.size()]));
+			if (langs.size() > 0)              idoc.set(IIndexerDocument.LANGUAGES,     toLanguages(langs));
 			                                   idoc.set(IIndexerDocument.LAST_CRAWLED,  (lastCrawled == null) ? new Date(System.currentTimeMillis()) : lastCrawled);
 			if (pdoc.getLastChanged() != null) idoc.set(IIndexerDocument.LAST_MODIFIED, pdoc.getLastChanged());
-			if (langs.size() > 0)              idoc.set(IIndexerDocument.LANGUAGES,     toLanguages(langs));
 			                                   idoc.set(IIndexerDocument.LOCATION,      location);
-			if (name != null)                  idoc.set(IIndexerDocument.INTERNAL_NAME, name);
+		                                       idoc.set(IIndexerDocument.MIME_TYPE,     pdoc.getMimeType());
+			                                   idoc.set(IIndexerDocument.PROTOCOL,      new URL(location).getProtocol());
 			if (pdoc.getSummary() != null)     idoc.set(IIndexerDocument.SUMMARY,       pdoc.getSummary());
 			                                   idoc.set(IIndexerDocument.TEXT,          pdoc.getTextFile());
 			if (pdoc.getTitle() != null)       idoc.set(IIndexerDocument.TITLE,         pdoc.getTitle());
