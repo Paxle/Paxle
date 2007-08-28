@@ -54,8 +54,14 @@ public class Converter {
 	
 	public static Document iindexerDoc2LuceneDoc(IIndexerDocument document) {
 		final Document doc = new Document();
-		for (final Map.Entry<org.paxle.core.doc.Field<?>,Object> entry : document)
-			doc.add(any2field(entry.getKey(), entry.getValue()));
+		for (final Map.Entry<org.paxle.core.doc.Field<?>,Object> entry : document) {
+			Fieldable field = any2field(entry.getKey(), entry.getValue());
+			if (field == null) {
+				System.err.println("Found null-field: " + entry.getKey() + " / " + entry.getValue());
+			} else {
+				doc.add(field);
+			}
+		}
 		return doc;
 	}
 	
@@ -66,6 +72,9 @@ public class Converter {
 		} else if (Reader.class.isAssignableFrom(field.getType())) {
 			return reader2field(field, (Reader)data);
 
+		} else if (File.class.isAssignableFrom(field.getType())) {
+			return file2field(field, (File)data);
+			
 		} else if (Date.class.isAssignableFrom(field.getType())) {
 			return date2field(field, (Date)data);
 			
@@ -174,6 +183,21 @@ public class Converter {
 				termVector(field, TV_POSITIONS));
 	}
 	
+	private static Fieldable file2field(org.paxle.core.doc.Field<?> field, File data) {
+		/* ===========================================================
+		 * Files
+		 * - not stored
+		 * - indexed (tokenized using lucene's standard analyzer)
+		 * - position term vectors
+		 * =========================================================== */
+		try {
+			return reader2field(field, new FileReader(data));
+		} catch (FileNotFoundException e) {
+			System.err.println("File not found: " + data);
+			return null;
+		}
+	}
+	
 	private static Fieldable byteArray2field(org.paxle.core.doc.Field<?> field, byte[] data) {
 		/* ===========================================================
 		 * byte[]-arrays
@@ -231,6 +255,9 @@ public class Converter {
 		} else if (Reader.class.isAssignableFrom(pfield.getType())) {
 			return pfield.getType().cast(field2reader(lfield, pfield));
 			
+		} else if (File.class.isAssignableFrom(pfield.getType())) {
+			return pfield.getType().cast(field2file(lfield, pfield));
+			
 		} else if (Date.class.isAssignableFrom(pfield.getType())) {
 			return pfield.getType().cast(field2date(lfield, pfield));
 			
@@ -255,6 +282,11 @@ public class Converter {
 	
 	private static Reader field2reader(Fieldable lfield, org.paxle.core.doc.Field<?> pfield) {
 		return lfield.readerValue();
+	}
+	
+	private static File field2file(Fieldable lfield, org.paxle.core.doc.Field<?> pfield) throws IOException {
+		// TODO: create temp file, copy reader value into and return it
+		return null;
 	}
 	
 	private static Date field2date(Fieldable lfield, org.paxle.core.doc.Field<?> pfield) throws ParseException {

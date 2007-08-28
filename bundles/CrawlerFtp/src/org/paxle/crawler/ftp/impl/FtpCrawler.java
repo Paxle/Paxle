@@ -1,7 +1,5 @@
 package org.paxle.crawler.ftp.impl;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -10,10 +8,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPListParseEngine;
 import org.apache.commons.net.ftp.FTPReply;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.ftp.IFtpCrawler;
 
@@ -118,7 +116,6 @@ public class FtpCrawler implements IFtpCrawler {
 				}
 			}
 			
-			File dataFile = null;
 			if (file.length() == 0) {
 //				// TODO: directory listing
 				FTPFile[] files = client.listFiles(path);
@@ -151,18 +148,13 @@ public class FtpCrawler implements IFtpCrawler {
 					return crawlerDoc;
 				}
 				
-				// TODO: charset detection
-				// TODO: mimetype detection
-				// TODO: get file info: e.g. modification-date ...
-				// TODO: what if the file is a symlink?
+				// TODO: what if the file is a symlink?				
+				CrawlerTools.saveInto(crawlerDoc, fileInputStream);
+				fileInputStream.close();
 				
-				dataFile = createAndCopy(fileInputStream);
-				fileInputStream.close();	
-								
+				// TODO: get file info: e.g. modification-date ...
 				client.completePendingCommand();
 			}
-
-			crawlerDoc.setContent(dataFile);
 			
 			// logout from ftp server
 			client.logout();
@@ -176,29 +168,6 @@ public class FtpCrawler implements IFtpCrawler {
 		}		
 
 		return crawlerDoc;
-	}
-	
-	private File createAndCopy(InputStream respBody) throws IOException {
-		File temp = this.createTempFile();
-		FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(temp);
-            byte[] buffer = new byte[4096];
-            
-            int c; 
-            while ((c = respBody.read(buffer,0,buffer.length)) > 0) {
-            	fos.write(buffer, 0, c);
-            	fos.flush();
-            }
-            fos.flush();            
-        } finally {
-            if (fos != null) try {fos.close();} catch (Exception e) {}
-        }	
-        return temp;
-	}	
-	
-	private File createTempFile() throws IOException {
-		return File.createTempFile("ftpCrawler", "tmp");
 	}
 	
 	public static void main(String[] args) {
