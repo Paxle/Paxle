@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping>
+<hibernate-mapping default-lazy="false">
     <class name="org.paxle.core.doc.IIndexerDocument" table="IndexerDocument" lazy="false">
         <id name="OID" column="id">
             <generator class="native"/>
@@ -30,7 +30,7 @@
 				<column name="isIndex"/>
 				<column name="isSavePlain"/>
             </index>
-            <element column="fieldValue" type="serializable"/>
+            <element column="fieldValue" type="serializable" length="4096"/>
         </map>		
 		
     </class>   
