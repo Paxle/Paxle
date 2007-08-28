@@ -30,7 +30,7 @@
 				<column name="isIndex"/>
 				<column name="isSavePlain"/>
             </index>
-            <element column="fieldValue" type="serializable" length="4096"/>
+            <element column="fieldValue" type="org.paxle.data.db.impl.FieldValueUserType" length="4096"/>
         </map>		
 		
     </class>   
