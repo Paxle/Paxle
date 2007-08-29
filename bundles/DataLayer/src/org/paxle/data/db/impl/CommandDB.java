@@ -79,7 +79,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 					config.addURL(mapping);
 				}
 				
-				String[] sql = config.generateSchemaCreationScript(new org.hibernate.dialect.MySQLDialect());
+				String[] sql = config.generateSchemaCreationScript( new org.hibernate.dialect.MySQLDialect());
 				
 				// create the session factory
 				sessionFactory = config.buildSessionFactory();
@@ -153,7 +153,25 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 	}
 	
 	public boolean isKnown(String location) {
-		return false;
+		if (location == null || location.length() == 0) return false;
+		boolean known = false;
+		
+		Session session = sessionFactory.getCurrentSession();
+		Transaction transaction = null;
+		try {
+			transaction = session.beginTransaction();
+
+			Query query = session.createQuery("SELECT count(location) FROM ICommand as cmd WHERE location = ?").setString(0, location);
+			Long result = (Long) query.uniqueResult();
+			known = (result != null && result.longValue() > 0);
+			
+			transaction.commit();
+		} catch (HibernateException e) {
+			if (transaction != null && transaction.isActive()) transaction.rollback(); 
+			this.logger.error("Error while testing if location is known.",e);
+		}	
+
+		return known;
 	}
 
 	/**
@@ -166,7 +184,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			transaction = session.beginTransaction();	
 			Session dom4jSession = session.getSession(EntityMode.DOM4J);
 			
-			dom4jSession.saveOrUpdate("org.paxle.core.queue.ICommand", cmd);
+			dom4jSession.saveOrUpdate(cmd);
 
 			transaction.commit();
 		} catch (HibernateException e) {
@@ -182,7 +200,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		try {
 			transaction = session.beginTransaction();
 
-			Query query = session.createQuery("from ICommand");
+			Query query = session.createQuery("FROM ICommand as cmd" /* " WHERE cmd.result is null" */);
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 			result = (List<ICommand>) query.list();
@@ -269,6 +287,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 					commands = CommandDB.this.fetchNextCommands(0,1);
 					if (commands.size() > 0) {
 						for (ICommand command : commands) {
+//							System.out.println(CommandDB.this.isKnown(command.getLocation()));
 							CommandDB.this.sink.putData(command);
 //							commandToXML(command);
 						} 
@@ -309,6 +328,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 					if (command != null) {
 						// store data into db
 						CommandDB.this.storeCommand(command);
+//						CommandDB.this.commandToXML(command);
 						
 						// signal writer that a new URL is available
 						CommandDB.this.writerThread.signalNewDbData();
