@@ -47,7 +47,7 @@ public class GroupListener implements ServiceListener {
 			// get the detector service
 			PeerGroup paxleGroup = (PeerGroup) this.context.getService(reference);
 
-			shell = new Shell();
+			shell = new Shell(true);
 			shell.init(paxleGroup,null,null);
 			shell.startApp(null);			
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
