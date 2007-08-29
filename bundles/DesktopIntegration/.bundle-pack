@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bundlejar>
+<resource dst="" pattern=".*\.class" src="/JDIC/out" type="0"/>
+<resource dst="libs/jdic.jar" src="/DesktopIntegration/libs/jdic.jar" type="1"/>
+</bundlejar>

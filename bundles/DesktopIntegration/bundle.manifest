@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ClassPath: ., libs/jdic.jar
+Bundle-Version: 1.0.0
+Bundle-Name: JDIC
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.paxle.desktop
+Import-Package: org.osgi.framework, org.paxle.se.search, org.paxle.cor
+ e.data, org.paxle.core.queue, javax.swing, javax.swing.event
+DynamicImport-Package: sun.reflect, javax.swing, javax.swing.text, jav
+ ax.swing.event
+Bundle-Activator: org.paxle.desktop.impl.Activator
