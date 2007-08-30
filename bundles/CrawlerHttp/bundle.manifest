@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 Bundle-Name: CrawlerHttp
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-SymbolicName: org.paxle.crawler.http
 Bundle-ManifestVersion: 2
 Bundle-Activator: org.paxle.crawler.http.impl.Activator
@@ -9,8 +8,7 @@ Bundle-Version: 1.0.0
 Bundle-Description: Paxle HTTP Crawler
 Import-Package: org.osgi.framework, org.paxle.crawler, org.paxle.core.
  doc, org.apache.commons.httpclient, org.apache.commons.httpclient.met
- hods, org.apache.commons.httpclient.util, org.paxle.core.charset, org
- .apache.commons.logging, org.paxle.core.crypt.md5
+ hods, org.apache.commons.httpclient.util, org.apache.commons.logging
 Export-Package: org.paxle.crawler.http
 Bundle-ContactAddress: http://www.paxle.net/
 DynamicImport-Package: sun.reflect

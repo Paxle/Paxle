@@ -4,8 +4,8 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
-import org.paxle.core.crypt.md5.IMD5;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.queue.ICommand;
@@ -27,7 +27,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 	 */
 	ICharsetDetector charsetDetector = null;
 	
-	IMD5 md5 = null;
+	ICryptManager cryptManager = null;
 	
 	ITempFileManager tempFileManager = null;
 	
@@ -40,7 +40,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 	 */
 	protected void initCrawlerContext() {
 		// init the parser context object
-		CrawlerContext parserContext = new CrawlerContext(this.charsetDetector, this.md5, this.tempFileManager);
+		CrawlerContext parserContext = new CrawlerContext(this.charsetDetector, this.cryptManager, this.tempFileManager);
 		CrawlerContext.setCurrentContext(parserContext);		
 	}	
 

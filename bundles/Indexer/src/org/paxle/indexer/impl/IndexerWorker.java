@@ -24,7 +24,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 	@Override
 	protected void execute(ICommand cmd) {
 		if (cmd.getResult() != ICommand.Result.Passed) {
-			this.logger.warn("Won't parse document " + cmd.getLocation() + " with result '" + cmd.getResult() + "' (" + cmd.getResultText() + ")");
+			this.logger.warn("Won't index document " + cmd.getLocation() + " with result '" + cmd.getResult() + "' (" + cmd.getResultText() + ")");
 			return;
 		}
 		

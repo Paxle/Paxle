@@ -4,6 +4,6 @@ Bundle-Name: CryptUtils
 Bundle-ManifestVersion: 2
 Bundle-Activator: org.paxle.crypt.impl.Activator
 Bundle-Description: Paxle Crypt Utils Bundle
-Import-Package: org.osgi.framework, org.paxle.core.crypt.md5
+Import-Package: org.osgi.framework, org.paxle.core.crypt
 Bundle-SymbolicName: org.paxle.crypt
 

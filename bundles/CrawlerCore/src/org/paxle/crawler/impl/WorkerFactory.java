@@ -1,17 +1,17 @@
 package org.paxle.crawler.impl;
 
+import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
-import org.paxle.core.crypt.md5.IMD5;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 
 public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 	
-	private SubCrawlerManager subCrawlerManager = null;
+	private final SubCrawlerManager subCrawlerManager;
 	private ICharsetDetector charsetDetector = null;
-	private IMD5 md5 = null;
 	private ITempFileManager tempFileManager = null;
+	private ICryptManager cryptManager;
 	
 	/**
 	 * @param subCrawlerManager a reference to the {@link SubCrawlerManager subcrawler-manager} which should
@@ -29,12 +29,12 @@ public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 		this.charsetDetector = charsetDetector;
 	}
 	
-	public void setMD5(IMD5 md5) {
-		this.md5 = md5;
-	}
-	
 	public void setTempFileManager(ITempFileManager tempFileManager) {
 		this.tempFileManager = tempFileManager;
+	}
+	
+	public void setCryptManager(ICryptManager cryptManager) {
+		this.cryptManager = cryptManager;
 	}
 	
 	/**
@@ -50,7 +50,7 @@ public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 	 */
 	public void initWorker(CrawlerWorker worker) {
 		worker.charsetDetector = this.charsetDetector;
-		worker.md5 = this.md5;
+		worker.cryptManager = this.cryptManager;
 		worker.tempFileManager = this.tempFileManager;
 	}
 }

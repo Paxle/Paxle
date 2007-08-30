@@ -3,6 +3,7 @@ package org.paxle.core.impl;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.paxle.core.ICryptManager;
 import org.paxle.core.IMWComponentManager;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
@@ -42,6 +43,7 @@ public class Activator implements BundleActivator {
 	public static DataManager dataManager = null;
 	
 	public static TempFileManager tempFileManager = null;
+	public static CryptManager cryptManager = null;
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
@@ -52,6 +54,7 @@ public class Activator implements BundleActivator {
 		filterManager = new FilterManager();
 		dataManager = new DataManager();
 		tempFileManager = new TempFileManager();
+		cryptManager = new CryptManager();
 		
 		/* ==========================================================
 		 * Register Service Listeners
@@ -66,7 +69,10 @@ public class Activator implements BundleActivator {
 //		bc.addServiceListener(dataListener,DataListener.DATASINK_FILTER);
 //		bc.addServiceListener(dataListener,DataListener.DATAPROVIDER_FILTER);
 //		bc.addServiceListener(dataListener,DataListener.DATACONSUMER_FILTER);
-
+		
+		final CryptListener cryptListener = new CryptListener(bc, cryptManager);
+		bc.addServiceListener(cryptListener, CryptListener.FILTER);
+		
 		/* ==========================================================
 		 * Register Services
 		 * ========================================================== */		
@@ -77,6 +83,7 @@ public class Activator implements BundleActivator {
 		context.registerService(IFilterManager.class.getName(), filterManager, null);
 		
 		context.registerService(ITempFileManager.class.getName(), tempFileManager, null);
+		context.registerService(ICryptManager.class.getName(), cryptManager, null);
 	}
 
 	/**

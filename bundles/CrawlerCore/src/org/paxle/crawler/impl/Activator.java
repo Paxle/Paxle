@@ -40,7 +40,8 @@ public class Activator implements BundleActivator {
 	 */
 	public void start(BundleContext context) throws Exception {		
 		bc = context;
-		subCrawlerManager = new SubCrawlerManager(); 
+		subCrawlerManager = new SubCrawlerManager();
+		
 		WorkerFactory workerFactory = new WorkerFactory(subCrawlerManager);
 		
 		/* ==========================================================

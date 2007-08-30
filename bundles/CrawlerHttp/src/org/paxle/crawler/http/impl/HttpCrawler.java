@@ -1,9 +1,8 @@
 package org.paxle.crawler.http.impl;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.NoRouteToHostException;
 import java.util.Date;
 
 import org.apache.commons.httpclient.Header;
@@ -17,13 +16,8 @@ import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxle.core.charset.ACharsetDetectorInputStream;
-import org.paxle.core.charset.ICharsetDetector;
-import org.paxle.core.crypt.md5.AMD5InputStream;
-import org.paxle.core.crypt.md5.IMD5;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
-import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.http.IHttpCrawler;
@@ -177,7 +171,11 @@ public class HttpCrawler implements IHttpCrawler {
 			CrawlerTools.saveInto(doc, respBody);
 			respBody.close();
 			
-			doc.setStatus(ICrawlerDocument.Status.OK);			
+			doc.setStatus(ICrawlerDocument.Status.OK);
+			this.logger.info(String.format("Crawling of URL '%s' finished.", requestUrl));
+		} catch (NoRouteToHostException e) {
+			this.logger.error(String.format("Error crawling %s: %s", requestUrl, e.getMessage()));
+			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (Exception e) {
 			String errorMsg;
 			if (e instanceof HttpException) {
@@ -188,12 +186,12 @@ public class HttpCrawler implements IHttpCrawler {
 				errorMsg = "Unexpected exception: %s";
 			}
 			errorMsg = String.format(errorMsg, e.getMessage());
+			this.logger.error(String.format("Error crawling %s: %s", requestUrl, errorMsg));
 			doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, errorMsg);
 			e.printStackTrace();
 		} finally {
 			if (method != null) method.releaseConnection();
 		}
-		this.logger.info(String.format("Crawling of URL '%s' finished.",requestUrl));
 		
 		return doc;
 	}

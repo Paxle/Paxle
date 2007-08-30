@@ -8,8 +8,9 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
-import org.paxle.core.crypt.md5.IMD5;
+import org.paxle.core.io.temp.ITempFileManager;
 
 public class DetectorListener implements ServiceListener {
 
@@ -18,7 +19,8 @@ public class DetectorListener implements ServiceListener {
 	 */
 	private static final String[] INTERFACES = new String[]{
 		ICharsetDetector.class.getName(),
-		IMD5.class.getName()
+		ITempFileManager.class.getName(),
+		ICryptManager.class.getName()
 	};
 	
 	/**
@@ -72,8 +74,10 @@ public class DetectorListener implements ServiceListener {
 			// pass it to the worker factory
 			if (interfaces.contains(ICharsetDetector.class.getName())) {
 				this.workerFactory.setCharsetDetector((ICharsetDetector) detector);
-			} else if (interfaces.contains(IMD5.class.getName())) {
-				this.workerFactory.setMD5((IMD5)detector);
+			} else if (interfaces.contains(ITempFileManager.class.getName())) {
+				this.workerFactory.setTempFileManager((ITempFileManager)detector);
+			} else if (interfaces.contains(ICryptManager.class.getName())) {
+				this.workerFactory.setCryptManager((ICryptManager)detector);
 			}
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			this.context.ungetService(reference);

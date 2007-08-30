@@ -1,9 +1,12 @@
 
 package org.paxle.crypt.impl;
 
+import java.util.Hashtable;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.paxle.core.crypt.md5.IMD5;
+
+import org.paxle.core.crypt.ICrypt;
 
 public class Activator implements BundleActivator {
 	
@@ -14,7 +17,11 @@ public class Activator implements BundleActivator {
 	 */
 	public void start(BundleContext context) throws Exception {
 		bc = context;
-		bc.registerService(IMD5.class.getName(), new MD5(), null);
+		for (final Impls impl : Impls.values()) {
+			final Hashtable<String,String> props = new Hashtable<String,String>();
+			props.put(ICrypt.CRYPT_NAME_PROP, impl.name);
+			bc.registerService(ICrypt.class.getName(), impl, props);
+		}
 	}
 	
 	/* (non-Javadoc)

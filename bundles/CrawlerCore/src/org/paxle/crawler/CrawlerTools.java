@@ -9,8 +9,8 @@ import java.io.OutputStream;
 
 import org.paxle.core.charset.ACharsetDetectorOutputStream;
 import org.paxle.core.charset.ICharsetDetector;
-import org.paxle.core.crypt.md5.AMD5OutputStream;
-import org.paxle.core.crypt.md5.IMD5;
+import org.paxle.core.crypt.ACryptOutputStream;
+import org.paxle.core.crypt.ICrypt;
 import org.paxle.core.doc.ICrawlerDocument;
 
 public class CrawlerTools {
@@ -20,7 +20,7 @@ public class CrawlerTools {
 		final File file = context.getTempFileManager().createTempFile();
 		OutputStream os = new FileOutputStream(file);
 		ACharsetDetectorOutputStream chardetos = null;
-		AMD5OutputStream md5os = null;
+		ACryptOutputStream md5os = null;
 		
 		if (context != null) {
 			final ICharsetDetector chardet = context.getCharsetDetector();
@@ -29,7 +29,7 @@ public class CrawlerTools {
 				os = chardetos;
 			}
 			
-			final IMD5 md5 = context.getMD5();
+			final ICrypt md5 = context.getCryptManager().getCrypt("md5");
 			if (md5 != null) {
 				md5os = md5.createOutputStream(os);
 				os = md5os;

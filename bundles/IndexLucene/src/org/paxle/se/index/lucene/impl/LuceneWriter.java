@@ -66,7 +66,7 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 				
 				// check status
 				if (command.getResult() != ICommand.Result.Passed) {
-					this.logger.warn("ICommand's status is '" + command.getResult() + "' instaed of 'passed': " + command.getResultText());
+					this.logger.warn("Won't save document " + command.getLocation() + " with result '" + command.getResult() + "' (" + command.getResultText() + ")");
 					continue;
 				}
 				
