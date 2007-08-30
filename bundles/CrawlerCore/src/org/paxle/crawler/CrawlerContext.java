@@ -4,17 +4,20 @@ import java.util.HashMap;
 
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.crypt.md5.IMD5;
+import org.paxle.core.io.temp.ITempFileManager;
 
 public class CrawlerContext {
     private static final ThreadLocal<CrawlerContext> context = new ThreadLocal<CrawlerContext>();
 	
     private ICharsetDetector charsetDetector = null;
+    private ITempFileManager tempFileManager = null;
     private HashMap<String, Object> bag = new HashMap<String, Object>();
     private final IMD5 md5;
     
-    public CrawlerContext(ICharsetDetector charsetDetector, IMD5 md5) {
+    public CrawlerContext(ICharsetDetector charsetDetector, IMD5 md5, ITempFileManager tempFileManager) {
     	this.charsetDetector = charsetDetector;
     	this.md5 = md5;
+    	this.tempFileManager = tempFileManager;
 	}
 
 	public static void setCurrentContext(CrawlerContext parserContext) {
@@ -35,6 +38,10 @@ public class CrawlerContext {
 	
 	public IMD5 getMD5() {
 		return this.md5;
+	}
+	
+	public ITempFileManager getTempFileManager() {
+		return this.tempFileManager;
 	}
 	
 	/* ========================================================================

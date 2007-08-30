@@ -1,5 +1,6 @@
 package org.paxle.core.queue;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 import org.paxle.core.doc.ICrawlerDocument;
@@ -20,7 +21,7 @@ import org.paxle.core.doc.IParserDocument;
  * and enqueues the modified {@link ICommand command} in the {@link IOutputQueue output-queue}
  * where it is fetched by a data-consumer and written to disk or DB.
  */
-public interface ICommand {
+public interface ICommand extends Closeable {
 	/* =======================================================
 	 * General information
 	 * ======================================================= */
@@ -59,6 +60,9 @@ public interface ICommand {
 	public IIndexerDocument[] getIndexerDocuments();
 	public void setIndexerDocuments(IIndexerDocument[] indexerDocs);
 	public void addIndexerDocument(IIndexerDocument indexerDoc);
+	
+	// TODO: call this method after the ICommand passed through the whole processing
+	public void close() throws IOException;
 	
 //	/* =======================================================
 //	 * Crawler-related information

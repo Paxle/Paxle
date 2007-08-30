@@ -120,6 +120,7 @@ public class ParserDocument implements IParserDocument {
 	 */
 	public void addText(CharSequence text) throws IOException {
 		if (this.content == null) {
+			// TODO: switch to ITempFileManager
 			this.content = File.createTempFile("ParserDocument", "tmp");
 		}
 		if (this.contentOut == null) {
@@ -331,6 +332,7 @@ public class ParserDocument implements IParserDocument {
 		if (this.contentOut != null) {
 			this.contentOut.close();
 		}
+		// TODO: return this.content to the ITempFileManager
 	}
 	
 	/**

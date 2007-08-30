@@ -2,7 +2,9 @@ package org.paxle.parser.iotools;
 
 import java.io.IOException;
 
+import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.parser.ParserException;
 
 public class SubParserDocOutputStream extends ParserDocOutputStream {
@@ -10,7 +12,8 @@ public class SubParserDocOutputStream extends ParserDocOutputStream {
 	private final String location;
 	private final IParserDocument pdoc;
 	
-	public SubParserDocOutputStream(IParserDocument pdoc, String location) throws IOException {
+	public SubParserDocOutputStream(ITempFileManager tfm, ICharsetDetector cd, IParserDocument pdoc, String location) throws IOException {
+		super(tfm, cd);
 		this.location = location;
 		this.pdoc = pdoc;
 	}

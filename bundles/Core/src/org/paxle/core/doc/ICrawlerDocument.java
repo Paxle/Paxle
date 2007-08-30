@@ -1,10 +1,11 @@
 package org.paxle.core.doc;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
-
-public interface ICrawlerDocument {
+public interface ICrawlerDocument extends Closeable {
 	public static enum Status {
 		OK,
 		NOT_FOUND,
@@ -45,4 +46,6 @@ public interface ICrawlerDocument {
 	
 	public byte[] getMD5Sum();
 	public void setMD5Sum(byte[] md5Sum);
+	
+	public void close() throws IOException;
 }

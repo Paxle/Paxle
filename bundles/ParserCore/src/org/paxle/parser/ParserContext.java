@@ -3,21 +3,29 @@ package org.paxle.parser;
 import java.util.HashMap;
 
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
-import org.paxle.parser.impl.SubParserManager;
 
 public class ParserContext {
+	
     private static final ThreadLocal<ParserContext> context = new ThreadLocal<ParserContext>();
 	
-    private IMimeTypeDetector mimeTypeDetector = null;
-    private ICharsetDetector charsetDetector = null;
-    private SubParserManager subParserManager = null;
+    private final IMimeTypeDetector mimeTypeDetector;
+    private final ICharsetDetector charsetDetector;
+    private final ISubParserManager subParserManager;
+    private final ITempFileManager tempFileManager;
+    
     private HashMap<String, Object> bag = new HashMap<String, Object>();
     
-    public ParserContext(SubParserManager subParserManager, IMimeTypeDetector mimeTypeDetector, ICharsetDetector charsetDetector) {
+    public ParserContext(
+    		ISubParserManager subParserManager,
+    		IMimeTypeDetector mimeTypeDetector,
+    		ICharsetDetector charsetDetector,
+    		ITempFileManager tempFileManager) {
     	this.subParserManager = subParserManager;
     	this.mimeTypeDetector = mimeTypeDetector;
     	this.charsetDetector = charsetDetector;
+    	this.tempFileManager = tempFileManager;
 	}
     
     public static void setCurrentContext(ParserContext parserContext) {
@@ -50,6 +58,10 @@ public class ParserContext {
 	 */
 	public ICharsetDetector getCharsetDetector() {
 		return this.charsetDetector;
+	}
+	
+	public ITempFileManager getTempFileManager() {
+		return this.tempFileManager;
 	}
 	
 	/* ========================================================================

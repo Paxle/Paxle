@@ -11,6 +11,7 @@ import java.util.zip.ZipInputStream;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.CachedParserDocument;
+import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.iotools.ParserTools;
 import org.paxle.parser.iotools.SubParserDocOutputStream;
@@ -30,13 +31,15 @@ public class ZipParser implements IZipParser {
 	
 	public IParserDocument parse(String location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException {
-		final IParserDocument pdoc = new CachedParserDocument();
+		final ParserContext context = ParserContext.getCurrentContext();
+		final IParserDocument pdoc = new CachedParserDocument(context.getTempFileManager());
 		final ZipInputStream zis = new ZipInputStream(new FileInputStream(content));
 		ZipEntry ze;
 		try {
 			while ((ze = zis.getNextEntry()) != null) {
 				if (ze.isDirectory()) continue;
-				final SubParserDocOutputStream sos = new SubParserDocOutputStream(pdoc, ze.getName());
+				final SubParserDocOutputStream sos = new SubParserDocOutputStream(
+						context.getTempFileManager(), context.getCharsetDetector(), pdoc, ze.getName());
 				try {
 					ParserTools.copy(zis, sos, ze.getSize());
 				} finally { try { sos.close(); } catch (IOException e) {

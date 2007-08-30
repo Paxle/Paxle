@@ -9,7 +9,7 @@ Bundle-SymbolicName: org.paxle.core
 Export-Package: org.paxle.core.queue, org.paxle.core.threading, org.pa
  xle.core, org.paxle.core.filter, org.paxle.core.data, org.paxle.core.
  doc, org.paxle.core.mimetype, org.paxle.core.charset, org.paxle.core.
- service, org.paxle.core.crypt.md5
+ service, org.paxle.core.crypt.md5, org.paxle.core.io.temp
 Bundle-Version: 1.0.0
 Bundle-ContactAddress: http://www.paxle.net/
 DynamicImport-Package: sun.reflect

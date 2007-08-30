@@ -4,7 +4,8 @@ Bundle-Description: Paxle 7zip Parser-Bundle
 Bundle-ClassPath: ., libs/J7Zip.jar
 Bundle-Activator: org.paxle.parser.sevenzip.impl.Activator
 Import-Package: org.osgi.framework, org.paxle.parser, org.paxle.core.d
- oc, org.paxle.parser.iotools
+ oc, org.paxle.parser.iotools, org.paxle.core.io.temp, org.paxle.core.
+ charset
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.parser.sevenzip
 Export-Package: org.paxle.parser.sevenzip

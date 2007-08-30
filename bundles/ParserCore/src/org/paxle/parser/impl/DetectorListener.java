@@ -8,7 +8,9 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 
 public class DetectorListener implements ServiceListener {
@@ -18,15 +20,17 @@ public class DetectorListener implements ServiceListener {
 	 */
 	private static String[] INTERFACES = new String[]{
 		IMimeTypeDetector.class.getName(),
-		ICharsetDetector.class.getName()			
+		ICharsetDetector.class.getName(),
+		ITempFileManager.class.getName()
 	};
 	
 	/**
 	 * A LDAP styled expression used for the service-listener
 	 */
-	public static final String FILTER = String.format("(|(objectClass=%s)(objectClass=%s))", 
+	public static final String FILTER = String.format("(|(objectClass=%s)(objectClass=%s)(objectClass=%s))", 
 			INTERFACES[0],
-			INTERFACES[1]
+			INTERFACES[1],
+			INTERFACES[2]
 	);
 	
 	/**
@@ -70,13 +74,17 @@ public class DetectorListener implements ServiceListener {
 				this.workerFactory.setMimeTypeDetector((IMimeTypeDetector) detector);
 			} else if (interfaces.contains(ICharsetDetector.class.getName())) {
 				this.workerFactory.setCharsetDetector((ICharsetDetector) detector);
+			} else if (interfaces.contains(ITempFileManager.class.getName())) {
+				this.workerFactory.setTempFileManager((ITempFileManager)detector);
 			}
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			if (interfaces.contains(IMimeTypeDetector.class.getName())) {
 				this.workerFactory.setMimeTypeDetector(null);
 			} else if (interfaces.contains(ICharsetDetector.class.getName())) {
 				this.workerFactory.setCharsetDetector(null);
-			}						
+			} else if (interfaces.contains(ITempFileManager.class.getName())) {
+				this.workerFactory.setTempFileManager(null);
+			}
 			this.context.ungetService(reference);
 		} else if (eventType == ServiceEvent.MODIFIED) {
 			// service properties have changed

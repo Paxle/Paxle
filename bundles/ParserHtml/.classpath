@@ -12,7 +12,7 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/htmllexer.jar" sourcepath="/home/kane/workspace/HTMLParser-2.0-SNAPSHOT-bin/HTMLParser-2.0-SNAPSHOT/lexer/src/main/java"/>
-	<classpathentry kind="lib" path="libs/htmlparser.jar"/>
+	<classpathentry kind="lib" path="libs/htmlparser.jar" sourcepath="/home/kane/workspace/HTMLParser-2.0-SNAPSHOT-bin/HTMLParser-2.0-SNAPSHOT/parser/src/main/java"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.parser">
 		<attributes>
 			<attribute name="bundle-name" value="ParserCore"/>

@@ -10,7 +10,7 @@ import java.io.UnsupportedEncodingException;
 import org.paxle.core.charset.ACharsetDetectorOutputStream;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.parser.ParserContext;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.parser.ParserException;
 
 /**
@@ -26,14 +26,15 @@ import org.paxle.parser.ParserException;
  */
 public class ParserDocOutputStream extends OutputStream {
 	
+	private final ITempFileManager tfm;
 	private final OutputStream os;
 	private final File of;
 	
 	// TODO: cache file in ram
-	public ParserDocOutputStream() throws IOException {
-		this.of = ParserTools.createTempFile("parser-doc_tmp", ParserDocOutputStream.class);
+	public ParserDocOutputStream(ITempFileManager tfm, ICharsetDetector cd) throws IOException {
+		this.tfm = tfm;
+		this.of = tfm.createTempFile();
 		final FileOutputStream fos = new FileOutputStream(this.of);
-		final ICharsetDetector cd = ParserContext.getCurrentContext().getCharsetDetector();
 		this.os = (cd != null) ? cd.createOutputStream(fos) : fos;
 	}
 	
@@ -68,6 +69,8 @@ public class ParserDocOutputStream extends OutputStream {
 			return ParserTools.parse(location, charset, this.of);
 		} catch (UnsupportedEncodingException e) {
 			throw new ParserException("Error parsing file on close due to incorrectly detected charset '" + charset + "'", e);
+		} finally {
+			this.tfm.releaseTempFile(this.of);
 		}
 	}
 	

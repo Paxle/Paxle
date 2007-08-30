@@ -16,12 +16,12 @@ import org.paxle.core.doc.ICrawlerDocument;
 public class CrawlerTools {
 	
 	public static long saveInto(ICrawlerDocument doc, InputStream is) throws IOException {
-		final File file = createTempFile(doc.getLocation(), CrawlerTools.class);
+		final CrawlerContext context = CrawlerContext.getCurrentContext();
+		final File file = context.getTempFileManager().createTempFile();
 		OutputStream os = new FileOutputStream(file);
 		ACharsetDetectorOutputStream chardetos = null;
 		AMD5OutputStream md5os = null;
 		
-		final CrawlerContext context = CrawlerContext.getCurrentContext();
 		if (context != null) {
 			final ICharsetDetector chardet = context.getCharsetDetector();
 			if (chardet != null) {
@@ -109,24 +109,5 @@ public class CrawlerTools {
 		}
 		os.flush();
 		return rt;
-	}
-	
-	// from YaCy: de.anomic.plasma.parser.AbstractParser
-	public static File createTempFile(String name, Class clazz) throws IOException {
-		final String parserClassName = clazz.getSimpleName();
-		
-		if (name == null) name = CrawlerTools.class.getName();
-		// getting the file extension
-		int idx = name.lastIndexOf("/");
-		final String fileName = (idx != -1) ? name.substring(idx+1) : name;        
-		
-		idx = fileName.lastIndexOf(".");
-		final String fileExt = (idx > -1) ? fileName.substring(idx+1) : "";
-		
-		// creates the temp file
-		final File tempFile = File.createTempFile(
-				parserClassName + "_" + ((idx > -1) ? fileName.substring(0, idx) : fileName),
-				(fileExt.length() > 0) ? "." + fileExt : fileExt);
-		return tempFile;
 	}
 }

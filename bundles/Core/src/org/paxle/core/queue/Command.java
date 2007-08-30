@@ -99,6 +99,11 @@ public class Command implements ICommand {
 		this.location = location;
 	}
 	
+	public void close() throws IOException {
+		this.crawlerDoc.close();
+		this.parserDoc.close();
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();

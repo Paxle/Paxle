@@ -4,6 +4,8 @@ import java.util.Collection;
 
 public interface ISubParserManager {
 	
+	public ISubParser getSubParser(String mimeType);
+	
 	/**
 	 * @return a collection of all currently registered sub-parsers
 	 */

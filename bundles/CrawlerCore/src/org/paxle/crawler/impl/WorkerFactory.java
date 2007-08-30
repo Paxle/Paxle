@@ -2,6 +2,7 @@ package org.paxle.crawler.impl;
 
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.crypt.md5.IMD5;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 
@@ -10,6 +11,7 @@ public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 	private SubCrawlerManager subCrawlerManager = null;
 	private ICharsetDetector charsetDetector = null;
 	private IMD5 md5 = null;
+	private ITempFileManager tempFileManager = null;
 	
 	/**
 	 * @param subCrawlerManager a reference to the {@link SubCrawlerManager subcrawler-manager} which should
@@ -31,6 +33,10 @@ public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 		this.md5 = md5;
 	}
 	
+	public void setTempFileManager(ITempFileManager tempFileManager) {
+		this.tempFileManager = tempFileManager;
+	}
+	
 	/**
 	 * Creates a new {@link CrawlerWorker} by order of the worker-pool
 	 */
@@ -45,5 +51,6 @@ public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 	public void initWorker(CrawlerWorker worker) {
 		worker.charsetDetector = this.charsetDetector;
 		worker.md5 = this.md5;
+		worker.tempFileManager = this.tempFileManager;
 	}
 }

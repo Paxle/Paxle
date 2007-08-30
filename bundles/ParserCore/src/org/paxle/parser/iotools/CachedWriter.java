@@ -10,6 +10,8 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 
+import org.paxle.core.io.temp.ITempFileManager;
+
 
 public class CachedWriter extends Writer {
 	
@@ -29,19 +31,22 @@ public class CachedWriter extends Writer {
 	}
 	
 	private final int maxSize;
+	private final ITempFileManager tfm;
 	private Writer writer;
 	private long written = 0;
 	private File ffile = null;
 	
-	public CachedWriter(int maxSize) {
+	public CachedWriter(int maxSize, ITempFileManager tfm) {
 		this.maxSize = maxSize;
 		this.writer = new CAOS();
+		this.tfm = tfm;
 	}
 	
-	public CachedWriter(int maxSize, int initialSize) throws IOException {
+	public CachedWriter(int maxSize, int initialSize, ITempFileManager tfm) throws IOException {
 		this.maxSize = maxSize;
+		this.tfm = tfm;
 		if (initialSize > maxSize) {
-			this.ffile = ParserTools.createTempFile("fallback", CachedWriter.class);
+			this.ffile = tfm.createTempFile();
 			this.writer = new FileWriter(this.ffile);
 		} else {
 			this.writer = new CAOS(initialSize);
@@ -53,6 +58,7 @@ public class CachedWriter extends Writer {
 		final RAFOutStream rafos = new RAFOutStream(file);
 		rafos.seekAbsolute(file.length());
 		this.writer = new OutputStreamWriter(rafos);
+		this.tfm = null;
 	}
 	
 	private void checkSize(int additional) throws IOException {
@@ -69,7 +75,7 @@ public class CachedWriter extends Writer {
 	private void fallback(File file) throws IOException {
 		if (isFallback()) return;
 		if (file == null)
-			file = ParserTools.createTempFile("fallback", CachedWriter.class);
+			file = this.tfm.createTempFile();
 		close();
 		final CAOS caos = (CAOS)this.writer;
 		this.ffile = file;

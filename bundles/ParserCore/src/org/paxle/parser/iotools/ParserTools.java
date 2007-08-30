@@ -154,6 +154,7 @@ public class ParserTools {
 		final IParserDocument pdoc = sp.parse(location, charset, content);
 		if (pdoc.getMimeType() == null)
 			pdoc.setMimeType(mimeType);
+		
 		return pdoc;
 	}
 	
@@ -253,23 +254,5 @@ public class ParserTools {
 		}
 		os.flush();
 		return rt;
-	}
-	
-	// from YaCy: de.anomic.plasma.parser.AbstractParser
-	public static File createTempFile(String name, Class clazz) throws IOException {
-		final String parserClassName = clazz.getSimpleName();
-		
-		// getting the file extension
-		int idx = name.lastIndexOf("/");
-		final String fileName = (idx != -1) ? name.substring(idx+1) : name;        
-		
-		idx = fileName.lastIndexOf(".");
-		final String fileExt = (idx > -1) ? fileName.substring(idx+1) : "";
-		
-		// creates the temp file
-		final File tempFile = File.createTempFile(
-				parserClassName + "_" + ((idx > -1) ? fileName.substring(0, idx) : fileName),
-				(fileExt.length() > 0) ? "." + fileExt : fileExt);
-		return tempFile;
 	}
 }

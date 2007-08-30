@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.tools.bzip2.CBZip2InputStream;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.bzip2.IBzip2Parser;
 import org.paxle.parser.iotools.ParserDocOutputStream;
@@ -36,7 +37,8 @@ public class Bzip2Parser implements IBzip2Parser {
 			throw new ParserException("file '" + content + "' is no valid BZip2-file");
 		
 		final CBZip2InputStream is = new CBZip2InputStream(fis);
-		final ParserDocOutputStream pdos = new ParserDocOutputStream();
+		final ParserContext context = ParserContext.getCurrentContext();
+		final ParserDocOutputStream pdos = new ParserDocOutputStream(context.getTempFileManager(), context.getCharsetDetector());
 		
 		try {
 			ParserTools.copy(is, pdos);

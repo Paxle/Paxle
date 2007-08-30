@@ -1,6 +1,7 @@
 package org.paxle.core.doc;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 public class CrawlerDocument implements ICrawlerDocument {
@@ -132,5 +133,11 @@ public class CrawlerDocument implements ICrawlerDocument {
 	
 	public void setMD5Sum(byte[] md5Sum) {
 		this.md5Sum = md5Sum;
+	}
+	
+	public void close() throws IOException {
+		if (this.content != null) {
+			// TODO: return this.content to the ITempFileManager
+		}
 	}
 }

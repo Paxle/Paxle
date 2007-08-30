@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
@@ -28,6 +29,8 @@ public class ParserWorker extends AWorker<ICommand> {
 	 */
 	ICharsetDetector charsetDetector = null;
 	
+	ITempFileManager tempFileManager = null;
+	
 	/**
 	 * A logger class 
 	 */
@@ -42,7 +45,11 @@ public class ParserWorker extends AWorker<ICommand> {
 	 */
 	protected void initParserContext() {
 		// init the parser context object
-		ParserContext parserContext = new ParserContext(this.subParserManager, this.mimeTypeDetector, this.charsetDetector);
+		ParserContext parserContext = new ParserContext(
+				this.subParserManager,
+				this.mimeTypeDetector,
+				this.charsetDetector,
+				this.tempFileManager);
 		ParserContext.setCurrentContext(parserContext);		
 	}
 	
@@ -79,7 +86,7 @@ public class ParserWorker extends AWorker<ICommand> {
 		this.logger.info("Parsing of URL '" + cmd.getLocation() + "' (" + mimeType + ")");
 		final long time = System.currentTimeMillis();
 		try {
-			IParserDocument parserdoc = parser.parse(
+			final IParserDocument parserdoc = parser.parse(
 					cmd.getLocation(), 
 					cmd.getCrawlerDocument().getCharset(), 
 					cmd.getCrawlerDocument().getContent());

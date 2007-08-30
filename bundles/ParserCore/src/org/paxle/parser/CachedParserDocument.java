@@ -6,6 +6,7 @@ import java.io.Reader;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.parser.iotools.CachedWriter;
 
 public final class CachedParserDocument extends ParserDocument implements IParserDocument {
@@ -13,12 +14,12 @@ public final class CachedParserDocument extends ParserDocument implements IParse
 	private static final int MAX_TEXT_SIZE_RAM = 2 * 1024 * 1024; // 2 mio. characters == 4 MB
 	private CachedWriter text;
 	
-	public CachedParserDocument() {
-		this.text = new CachedWriter(MAX_TEXT_SIZE_RAM);
+	public CachedParserDocument(ITempFileManager tfm) {
+		this.text = new CachedWriter(MAX_TEXT_SIZE_RAM, tfm);
 	}
 	
-	public CachedParserDocument(int initialTextSize) throws IOException {
-		this.text = new CachedWriter(MAX_TEXT_SIZE_RAM, initialTextSize);
+	public CachedParserDocument(int initialTextSize, ITempFileManager tfm) throws IOException {
+		this.text = new CachedWriter(MAX_TEXT_SIZE_RAM, initialTextSize, tfm);
 	}
 	
 	@Override

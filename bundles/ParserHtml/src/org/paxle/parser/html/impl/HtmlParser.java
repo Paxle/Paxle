@@ -17,6 +17,7 @@ import org.htmlparser.lexer.Page;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.CachedParserDocument;
+import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.html.IHtmlParser;
 
@@ -66,7 +67,7 @@ public class HtmlParser implements IHtmlParser {
 			final Parser parser = new Parser(new Lexer(page));
 			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
 			
-			final IParserDocument doc = new CachedParserDocument();
+			final IParserDocument doc = new CachedParserDocument(ParserContext.getCurrentContext().getTempFileManager());
 			final NodeCollector nc = new NodeCollector(doc, this.logger);
 			parser.visitAllNodesWith(nc);
 			page.close();

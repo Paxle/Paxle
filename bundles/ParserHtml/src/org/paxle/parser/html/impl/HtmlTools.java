@@ -96,6 +96,7 @@ public class HtmlTools {
     //patterns that will be replaced. To add new codes or patterns, just put them at the end
     //of the list. Codes or patterns in this list can not be escaped with [= or <pre>
     public static final String[] htmlentities={
+    /*
         "\u005E","&#094;",  // Caret
 
         "\u0060","&#096;",  // Accent Grave `
@@ -133,7 +134,9 @@ public class HtmlTools {
         "\u009D","&#157;",
         "\u009E","&#158;",
         "\u009F","&#159;",
-
+	*/
+    	// named entities
+    	" "     ,"&nbsp;",     //space
         "\u00A1","&iexcl;",    //inverted (spanish) exclamation mark
         "\u00A2","&cent;",     //cent
         "\u00A3","&pound;",    //pound

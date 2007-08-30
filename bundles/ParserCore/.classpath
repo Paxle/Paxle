@@ -22,8 +22,10 @@
 			<attribute name="org.paxle.core.mimetype" value="0.0.0"/>
 			<attribute name="org.paxle.core.charset" value="0.0.0"/>
 			<attribute name="org.paxle.core.filter" value="0.0.0"/>
+			<attribute name="org.paxle.core.io.temp" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/io/temp/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/filter/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/charset/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/mimetype/"/>

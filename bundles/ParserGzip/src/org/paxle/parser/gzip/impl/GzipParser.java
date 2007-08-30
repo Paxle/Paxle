@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.gzip.IGzipParser;
 import org.paxle.parser.iotools.ParserDocOutputStream;
@@ -27,7 +28,8 @@ public class GzipParser implements IGzipParser {
 	public IParserDocument parse(String location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		final GZIPInputStream cfis = new GZIPInputStream(new FileInputStream(content));
-		final ParserDocOutputStream pdos = new ParserDocOutputStream();
+		final ParserContext context = ParserContext.getCurrentContext();
+		final ParserDocOutputStream pdos = new ParserDocOutputStream(context.getTempFileManager(), context.getCharsetDetector());
 		try {
 			ParserTools.copy(cfis, pdos);
 		} finally {
