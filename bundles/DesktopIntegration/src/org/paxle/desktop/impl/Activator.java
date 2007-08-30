@@ -1,8 +1,11 @@
 
 package org.paxle.desktop.impl;
 
+import java.net.URL;
+
 import javax.swing.ImageIcon;
 
+import org.jdesktop.jdic.init.JdicManager;
 import org.jdesktop.jdic.tray.SystemTray;
 import org.jdesktop.jdic.tray.TrayIcon;
 
@@ -22,7 +25,11 @@ public class Activator implements BundleActivator {
 		bc = context;
 		manager = new ServiceManager(bc);
 		
-		final TrayIcon trayIcon = new TrayIcon(new ImageIcon("resources/trayIcon.png"), "Paxle Tray");
+		JdicManager manager = JdicManager.getManager();
+		manager.initShareNative();
+			
+		ImageIcon img = new ImageIcon(context.getBundle().getResource("resources/trayIcon.png"));
+		final TrayIcon trayIcon = new TrayIcon(img, "Paxle Tray");
 		final SystemTray tray = SystemTray.getDefaultSystemTray();
 		tray.addTrayIcon(trayIcon);
 	}
