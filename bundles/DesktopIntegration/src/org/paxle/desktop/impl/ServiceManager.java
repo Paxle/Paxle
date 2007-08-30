@@ -59,11 +59,21 @@ public class ServiceManager {
 	}
 	
 	public boolean hasService(String name, String query) throws InvalidSyntaxException {
-		return this.context.getServiceReferences(name, query) != null;
+		try {
+			return this.context.getServiceReferences(name, query) != null;
+		} catch (Exception e) {
+			if (e instanceof InvalidSyntaxException)
+				throw (InvalidSyntaxException)e;
+			return false;
+		}
 	}
 	
 	public boolean hasService(String name) {
-		return this.context.getServiceReference(name) != null;
+		try {
+			return this.context.getServiceReference(name) != null;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 	
 	@SuppressWarnings("unchecked")

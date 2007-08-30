@@ -8,20 +8,28 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.se">
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/paxle/se/search/"/>
-			<accessrule kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
+	<classpathentry kind="lib" path="libs/jdic.jar" sourcepath="/home/kane/bin/jdic-0.9.3-src.zip"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
+		<attributes>
+			<attribute name="bundle-name" value="Core"/>
+			<attribute name="org.paxle.core.data" value="0.0.0"/>
+			<attribute name="org.paxle.core.queue" value="0.0.0"/>
+		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/paxle/core/queue/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/data/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/jdic.jar" sourcepath="/home/theli/workspace/Libs/jdic-0.9.3-src.zip"/>
-	<classpathentry kind="lib" path="libs/linux/jdic_stub.jar"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.se">
+		<attributes>
+			<attribute name="bundle-name" value="SearchEngine"/>
+			<attribute name="org.paxle.se.search" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/se/search/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="out"/>
 </classpath>

@@ -49,7 +49,7 @@ public class SystrayMenu extends JPopupMenu implements ActionListener {
 			if (browserPath == null)
 				return false;
 			try {
-				Runtime.getRuntime().exec(browserPath + " " + url);
+				Runtime.getRuntime().exec(browserPath + " \"" + url + "\"");
 			} catch (IOException e) {
 				return false;
 			}

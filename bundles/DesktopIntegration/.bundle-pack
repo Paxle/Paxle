@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <bundlejar>
 <resource dst="" pattern=".*\.class" src="/JDIC/out" type="0"/>
 <resource dst="libs/jdic.jar" src="/DesktopIntegration/libs/jdic.jar" type="1"/>
-<resource dst="libs/linux/jdic_stub.jar" src="/DesktopIntegration/libs/linux/jdic_stub.jar" type="1"/>
-<resource dst="linux" src="/DesktopIntegration/libs/linux" type="2"/>
 <resource dst="/resources/" src="/DesktopIntegration/resources" type="2"/>
 </bundlejar>
