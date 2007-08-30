@@ -6,13 +6,13 @@ import java.io.OutputStream;
 import org.paxle.core.crypt.ACryptInputStream;
 import org.paxle.core.crypt.ACryptOutputStream;
 import org.paxle.core.crypt.ICrypt;
-import org.paxle.crypt.impl.md5.MD5WrapperInstream;
+import org.paxle.crypt.impl.md5.MD5WrapperInStream;
 import org.paxle.crypt.impl.md5.MD5WrapperOutStream;
 
 public enum Impls implements ICrypt {
 	MD5("md5") {
 		public ACryptInputStream createInputStream(InputStream stream) {
-			return new MD5WrapperInstream(stream);
+			return new MD5WrapperInStream(stream);
 		}
 		
 		public ACryptOutputStream createOutputStream(OutputStream stream) {
