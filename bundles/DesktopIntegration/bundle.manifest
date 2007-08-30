@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-Name: DesktopIntegration
+Bundle-ClassPath: ., libs/jdic.jar
+Bundle-Activator: org.paxle.desktop.impl.Activator
+Import-Package: org.osgi.framework, org.paxle.core.data, org.paxle.se.
+ search, org.paxle.core.queue, javax.swing
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.paxle.desktop
+Bundle-Version: 1.0.0
+DynamicImport-Package: javax.swing, sun.awt, javax.swing.event, sun.aw
+ t.motif, sun.awt.X11, javax.swing.plaf.metal, javax.swing.plaf.basic
+Bundle-Description: Paxle Desktop Integration Bundle
+
