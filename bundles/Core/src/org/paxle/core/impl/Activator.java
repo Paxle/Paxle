@@ -42,7 +42,6 @@ public class Activator implements BundleActivator {
 	 */
 	public static DataManager dataManager = null;
 	
-	public static TempFileManager tempFileManager = null;
 	public static CryptManager cryptManager = null;
 	
 	/**
@@ -53,7 +52,7 @@ public class Activator implements BundleActivator {
 		bc = context;
 		filterManager = new FilterManager();
 		dataManager = new DataManager();
-		tempFileManager = new TempFileManager();
+		TempFileManager.init();
 		cryptManager = new CryptManager();
 		
 		/* ==========================================================
@@ -82,7 +81,7 @@ public class Activator implements BundleActivator {
 		// register the filter-manager as service
 		context.registerService(IFilterManager.class.getName(), filterManager, null);
 		
-		context.registerService(ITempFileManager.class.getName(), tempFileManager, null);
+		context.registerService(ITempFileManager.class.getName(), TempFileManager.getTempFileManager(), null);
 		context.registerService(ICryptManager.class.getName(), cryptManager, null);
 	}
 
@@ -92,7 +91,6 @@ public class Activator implements BundleActivator {
 	 */		
 	public void stop(BundleContext context) throws Exception {		
 		// cleanup
-		tempFileManager = null;
 		dataManager = null;
 		filterManager = null;
 		bc = null;

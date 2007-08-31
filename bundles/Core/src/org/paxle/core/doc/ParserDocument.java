@@ -1,8 +1,8 @@
 package org.paxle.core.doc;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
@@ -14,6 +14,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+
+import org.paxle.core.io.temp.impl.TempFileManager;
 
 public class ParserDocument implements IParserDocument {
 	
@@ -35,7 +37,7 @@ public class ParserDocument implements IParserDocument {
 	protected IParserDocument.Status status;
 	protected String statusText;
 	protected File content;
-	protected FileOutputStream contentOut = null;
+	protected FileWriter contentOut = null;
 	protected String mimeType;
 	
     public int getOID(){ 
@@ -120,13 +122,12 @@ public class ParserDocument implements IParserDocument {
 	 */
 	public void addText(CharSequence text) throws IOException {
 		if (this.content == null) {
-			// TODO: switch to ITempFileManager
-			this.content = File.createTempFile("ParserDocument", "tmp");
+			this.content = TempFileManager.getTempFileManager().createTempFile();
 		}
 		if (this.contentOut == null) {
-			this.contentOut = new FileOutputStream(this.content);
+			this.contentOut = new FileWriter(this.content);
 		}
-		this.contentOut.write(text.toString().getBytes("UTF-8"));
+		this.contentOut.write(text.toString());
 	}
 	
 	/**
@@ -276,6 +277,7 @@ public class ParserDocument implements IParserDocument {
 	 * @see org.paxle.parser.IParserDocument#getText()
 	 */
 	public Reader getTextAsReader() throws IOException {
+		close();
 		return (this.content == null) ? null : new FileReader(this.content);
 	}
 	
@@ -292,6 +294,7 @@ public class ParserDocument implements IParserDocument {
 	 * @see org.paxle.core.doc.IParserDocument#getTextFile()
 	 */
 	public File getTextFile() throws IOException {
+		close();
 		return this.content;
 	}
 	
@@ -332,7 +335,6 @@ public class ParserDocument implements IParserDocument {
 		if (this.contentOut != null) {
 			this.contentOut.close();
 		}
-		// TODO: return this.content to the ITempFileManager
 	}
 	
 	/**
