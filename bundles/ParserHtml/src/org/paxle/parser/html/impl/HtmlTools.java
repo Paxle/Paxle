@@ -89,6 +89,7 @@ public class HtmlTools {
 	// TODO: still fails at constructs like '&#x0301;e' - a possible representation of '&eacute;' respectively '&#233;'
 	// [FB]
     public static String deReplaceNumericEntities(String text) {
+    	if (text == null) return null;
     	final Matcher m = NumericEntityPattern.matcher(text);
     	final StringBuffer sb = new StringBuffer(text.length());
 		while (m.find()) {

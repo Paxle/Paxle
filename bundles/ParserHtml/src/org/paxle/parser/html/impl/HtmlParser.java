@@ -41,16 +41,27 @@ public class HtmlParser implements IHtmlParser {
 			"text/xml");
 	
 	private final Log logger = LogFactory.getLog(HtmlParser.class);
-	
+	/*
 	public static void main(String[] args) {
 		final HtmlParser p = new HtmlParser();
 		final File dir = new File(args[0]);
 		final String[] files = dir.list();
 		for (int i=0; i<files.length; i++) try {
-			System.out.println(p.parse(files[i], null, new File(dir, files[i])).toString());
+			ParserDocument doc = new ParserDocument();
+			Page page = new Page(new InputStreamSource(new FileInputStream(new File(dir, files[i]))));
+			page.setUrl("http://www.example.com/" + files[i]);
+			Parser parser = new Parser(new Lexer(page));
+			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
+			NodeCollector nc = new NodeCollector(doc, null);
+			System.out.println(files[i]);
+			parser.visitAllNodesWith(nc);
+			page.close();
+			System.out.println("-------------------------------------------------------------------------------------------");
+			System.out.println();
+			System.out.println(doc.toString());
 		} catch (final Exception e) { e.printStackTrace(); }
 	}
-	
+	*/
 	public List<String> getMimeTypes() {
 		return MIME_TYPES;
 	}

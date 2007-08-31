@@ -1,13 +1,16 @@
 package org.paxle.parser.html.impl;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
-import org.htmlparser.Attribute;
 import org.htmlparser.PrototypicalNodeFactory;
 import org.htmlparser.Tag;
 import org.htmlparser.Text;
+import org.htmlparser.tags.DoctypeTag;
 import org.htmlparser.tags.HeadingTag;
 import org.htmlparser.tags.Html;
 import org.htmlparser.tags.ImageTag;
@@ -17,11 +20,14 @@ import org.htmlparser.tags.MetaTag;
 import org.htmlparser.tags.ParagraphTag;
 import org.htmlparser.tags.ScriptTag;
 import org.htmlparser.tags.StyleTag;
+import org.htmlparser.tags.TableTag;
 import org.htmlparser.tags.TitleTag;
 import org.htmlparser.visitors.NodeVisitor;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.html.impl.tags.AddressTag;
+import org.paxle.parser.html.impl.tags.BoldTag;
+import org.paxle.parser.html.impl.tags.ItalicTag;
 import org.paxle.parser.html.impl.tags.MetaTagManager;
 
 /**
@@ -46,7 +52,15 @@ public class NodeCollector extends NodeVisitor {
 	public static final PrototypicalNodeFactory NODE_FACTORY = new PrototypicalNodeFactory();
 	static {
 		NODE_FACTORY.registerTag(new AddressTag());
+		NODE_FACTORY.registerTag(new BoldTag());
+		NODE_FACTORY.registerTag(new ItalicTag());
 	}
+	
+	private static final HashSet<String> DiscardedTags = new HashSet<String>(Arrays.asList(
+			"div", "tr", "td", "th", "li", "ul", "ol", "dt", "dd", "dl", "form", "input", "head",
+			"br", "option", "select", "link", "hr", "code", "pre", "sup", "small", "tt", "center",
+			"lh", "caption", "label", "span"
+	));
 	
 	private final MetaTagManager mtm = new MetaTagManager();
 	private final IParserDocument doc;
@@ -184,10 +198,12 @@ public class NodeCollector extends NodeVisitor {
 	 */
 	@Override
 	public void visitTag(Tag tag) {
-		if (this.logger.isDebugEnabled())
-			this.logger.debug(getTagInfo(tag, true));
 		try {
-			     if (tag instanceof AddressTag)		process((AddressTag)tag);
+			if (DiscardedTags.contains(tag.getRawTagName().toLowerCase())) {
+				this.doc.addText(HtmlTools.deReplaceHTML(tag.toPlainTextString()));
+				return;
+			} else if (tag instanceof AddressTag)	process((AddressTag)tag);
+			else if (tag instanceof DoctypeTag)     process((DoctypeTag)tag);
 			else if (tag instanceof HeadingTag)		process((HeadingTag)tag);
 			else if (tag instanceof Html)			process((Html)tag);
 			else if (tag instanceof ImageTag)		process((ImageTag)tag);
@@ -197,17 +213,14 @@ public class NodeCollector extends NodeVisitor {
 			else if (tag instanceof ParagraphTag)	process((ParagraphTag)tag);
 			else if (tag instanceof ScriptTag)		this.noParse = true;
 			else if (tag instanceof StyleTag)		this.noParse = true;
+			else if (tag instanceof TableTag)		process((TableTag)tag);
 			else if (tag instanceof TitleTag) 		process((TitleTag)tag);
-			else
-				this.logger.debug("missed named tag " + tag.getClass().getSimpleName() + " at line " + getLineNumber(tag));
+			else if (!tag.isEndTag())
+				this.logger.debug("missed named tag " + tag.getClass().getSimpleName() + " at line " + tag.getStartingLineNumber());
 		} catch (Exception e) {
 			this.logger.error("Error processing named tag '" + tag.getRawTagName()
-					+ "' at line " + getLineNumber(tag) + ": " + e.getMessage(), e);
+					+ "' at line " + tag.getStartingLineNumber() + ": " + e.getMessage(), e);
 		}
-	}
-	
-	private static int getLineNumber(Tag tag) {
-		return ((tag.isEndTag()) ? tag.getEndingLineNumber() : tag.getStartingLineNumber());
 	}
 	
 	@Override
@@ -215,11 +228,33 @@ public class NodeCollector extends NodeVisitor {
 		this.noParse = false;
 	}
 	
-	private static String getTagInfo(Tag tag, boolean start) {
-		return "found " + ((start) ? "start" : "end") + "-tag: " + tag.getTagName()
-				+ ((Attribute)tag.getAttributesEx().elementAt(0)).getName() + ", "
-				+ tag.getClass().getSimpleName()/* + " (assignable from "
-				+ clazz.getSimpleName() + ": " + clazz.isAssignableFrom(tag.getClass()) + ")"*/;
+	private void process(TableTag tag) {
+		final String summary = tag.getAttribute("summary");
+		if (summary != null)
+			this.doc.addKeyword(HtmlTools.deReplaceHTML(summary));
+	}
+	
+	private static final Pattern DoctypePattern = Pattern.compile(
+			"<!DOCTYPE" +
+			"\\s+(\\w+)" +				// the root node this DOCTYPE applies to [1]
+	// XXX: the lexer does not seem to be able to handle inline definitions, so we don't need to distinguish here,
+	// see http://sourceforge.net/tracker/index.php?func=detail&aid=1785668&group_id=24399&atid=381399
+	//		"(" +
+				"\\s+PUBLIC" +			// we can only access PUBLIC DOCTYPEs, so there is no need for matching SYSTEM
+				"\\s+\"([^\"]+)\"" +	// the formal public identifier of this DOCTYPE [2]
+				"\\s+\"([^\"]+)\"" +	// the URI of the DTD [3]
+	//		"|" +
+	//			"\\s+\\[([^\\]]*)\\]" +	// inline definitions
+	//		")" +
+			"\\s*>", Pattern.MULTILINE);
+	
+	private void process(DoctypeTag tag) {
+		/*
+		final Matcher m = DoctypePattern.matcher(tag.toHtml());
+		if (m.matches()) {
+			TODO: process entities
+		}
+		*/
 	}
 	
 	private void process(TitleTag tag) {
