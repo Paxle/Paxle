@@ -1,5 +1,8 @@
 package org.paxle.parser.html.impl;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /* From YaCy SVN 3802 */
 public class HtmlTools {
 
@@ -55,6 +58,7 @@ public class HtmlTools {
     }
     
     public static String deReplaceHTML(String text) {
+    	text = deReplaceNumericEntities(text);
         text = deReplaceHTMLEntities(text);
         text = deReplaceXMLEntities(text);
         return text;
@@ -79,6 +83,29 @@ public class HtmlTools {
         }
         return text;
     }
+    
+	private static final Pattern NumericEntityPattern = Pattern.compile("&#((\\d+)|(x)([0-9a-fA-F]{4}));");
+	
+	// TODO: still fails at constructs like '&#x0301;e' - a possible representation of '&eacute;' respectively '&#233;'
+	// [FB]
+    public static String deReplaceNumericEntities(String text) {
+    	final Matcher m = NumericEntityPattern.matcher(text);
+    	final StringBuffer sb = new StringBuffer(text.length());
+		while (m.find()) {
+			final String repl;
+			final int radix;
+			if (m.group(3) == null) {
+				radix = 10;
+				repl = m.group(2);
+			} else {
+				radix = 16;
+				repl = m.group(4);
+			}
+    		m.appendReplacement(sb, String.valueOf((char)Integer.parseInt(repl, radix)));
+    	}
+		m.appendTail(sb);
+		return sb.toString();
+    }
 
     //This array contains codes (see http://mindprod.com/jgloss/unicode.html for details) 
     //that will be replaced. To add new codes or patterns, just put them at the end
@@ -88,6 +115,7 @@ public class HtmlTools {
         // other replaced characters containing ampersands would get messed up.
         "\u0026","&amp;",      //ampersand
         "\"","&quot;",         //quotation mark
+        "'","&apos;",          //apostroph
         "\u003C","&lt;",       //less than
         "\u003E","&gt;",       //greater than
     };
@@ -96,45 +124,6 @@ public class HtmlTools {
     //patterns that will be replaced. To add new codes or patterns, just put them at the end
     //of the list. Codes or patterns in this list can not be escaped with [= or <pre>
     public static final String[] htmlentities={
-    /*
-        "\u005E","&#094;",  // Caret
-
-        "\u0060","&#096;",  // Accent Grave `
-        "\u007B","&#123;",  // {
-        "\u007C","&#124;",  // |
-        "\u007D","&#125;",  // }
-        "\u007E","&#126;",  // ~
-
-        "\u0082","&#130;",
-        "\u0083","&#131;",
-        "\u0084","&#132;",
-        "\u0085","&#133;",
-        "\u0086","&#134;",
-        "\u0087","&#135;",
-        "\u0088","&#136;",
-        "\u0089","&#137;",
-        "\u008A","&#138;",
-        "\u008B","&#139;",
-        "\u008C","&#140;",
-        "\u008D","&#141;",
-        "\u008E","&#142;",
-
-        "\u0091","&#145;",
-        "\u0092","&#146;",
-        "\u0093","&#147;",
-        "\u0094","&#148;",
-        "\u0095","&#149;",
-        "\u0096","&#150;",
-        "\u0097","&#151;",
-        "\u0098","&#152;",
-        "\u0099","&#153;",
-        "\u009A","&#154;",
-        "\u009B","&#155;",
-        "\u009C","&#156;",
-        "\u009D","&#157;",
-        "\u009E","&#158;",
-        "\u009F","&#159;",
-	*/
     	// named entities
     	" "     ,"&nbsp;",     //space
         "\u00A1","&iexcl;",    //inverted (spanish) exclamation mark
