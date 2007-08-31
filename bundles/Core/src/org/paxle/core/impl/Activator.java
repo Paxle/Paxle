@@ -15,7 +15,7 @@ import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
-import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.impl.TempFileManager;
 
 
@@ -43,6 +43,7 @@ public class Activator implements BundleActivator {
 	public static DataManager dataManager = null;
 	
 	public static CryptManager cryptManager = null;
+	public static TempFileManager tempFileManager = null;
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
@@ -52,7 +53,7 @@ public class Activator implements BundleActivator {
 		bc = context;
 		filterManager = new FilterManager();
 		dataManager = new DataManager();
-		TempFileManager.init();
+		tempFileManager = new TempFileManager();
 		cryptManager = new CryptManager();
 		
 		/* ==========================================================
@@ -81,16 +82,18 @@ public class Activator implements BundleActivator {
 		// register the filter-manager as service
 		context.registerService(IFilterManager.class.getName(), filterManager, null);
 		
-		context.registerService(ITempFileManager.class.getName(), TempFileManager.getTempFileManager(), null);
 		context.registerService(ICryptManager.class.getName(), cryptManager, null);
+		IOTools.setTempFileManager(tempFileManager);
 	}
 
 	/**
 	 * This function is called by the osgi-framework to stop the bundle.
 	 * @see BundleActivator#stop(BundleContext)
 	 */		
-	public void stop(BundleContext context) throws Exception {		
+	public void stop(BundleContext context) throws Exception {
+		IOTools.setTempFileManager(null);
 		// cleanup
+		tempFileManager = null;
 		dataManager = null;
 		filterManager = null;
 		bc = null;

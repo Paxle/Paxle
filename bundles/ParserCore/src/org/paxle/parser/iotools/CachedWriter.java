@@ -1,3 +1,4 @@
+
 package org.paxle.parser.iotools;
 
 import java.io.CharArrayReader;
@@ -10,8 +11,8 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 
+import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.ITempFileManager;
-
 
 public class CachedWriter extends Writer {
 	
@@ -80,7 +81,7 @@ public class CachedWriter extends Writer {
 		final CAOS caos = (CAOS)this.writer;
 		this.ffile = file;
 		this.writer = new FileWriter(file);
-		ParserTools.copy(new CharArrayReader(caos.getBuffer()), this.writer, this.written);
+		IOTools.copy(new CharArrayReader(caos.getBuffer()), this.writer, this.written);
 	}
 	
 	@Override
@@ -141,7 +142,7 @@ public class CachedWriter extends Writer {
 		final StringBuilder sb = new StringBuilder(size);
 		if (isFallback()) try {
 			final Reader fr = new FileReader(this.ffile);
-			ParserTools.copy(fr, sb);
+			IOTools.copy(fr, sb);
 			fr.close();
 		} catch (IOException e) {
 			throw new RuntimeException("error copying text data from stream to memory", e);

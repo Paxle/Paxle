@@ -9,16 +9,17 @@ import org.paxle.core.threading.IWorkerFactory;
 public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 	
 	private final SubCrawlerManager subCrawlerManager;
+	private final ITempFileManager tempFileManager;
 	private ICharsetDetector charsetDetector = null;
-	private ITempFileManager tempFileManager = null;
 	private ICryptManager cryptManager;
 	
 	/**
 	 * @param subCrawlerManager a reference to the {@link SubCrawlerManager subcrawler-manager} which should
 	 * be passed to a newly created {@link CrawlerWorker}.
 	 */
-	public WorkerFactory(SubCrawlerManager subCrawlerManager) {
+	public WorkerFactory(SubCrawlerManager subCrawlerManager, ITempFileManager tempFileManager) {
 		this.subCrawlerManager = subCrawlerManager;
+		this.tempFileManager = tempFileManager;
 	}
 	
 	/**
@@ -27,10 +28,6 @@ public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 	 */
 	public void setCharsetDetector(ICharsetDetector charsetDetector) {
 		this.charsetDetector = charsetDetector;
-	}
-	
-	public void setTempFileManager(ITempFileManager tempFileManager) {
-		this.tempFileManager = tempFileManager;
 	}
 	
 	public void setCryptManager(ICryptManager cryptManager) {

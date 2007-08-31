@@ -15,8 +15,10 @@
 		<attributes>
 			<attribute name="bundle-name" value="Core"/>
 			<attribute name="org.paxle.core.doc" value="0.0.0"/>
+			<attribute name="org.paxle.core.io" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/io/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>

@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.io.IOTools;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.gzip.IGzipParser;
 import org.paxle.parser.iotools.ParserDocOutputStream;
-import org.paxle.parser.iotools.ParserTools;
 
 public class GzipParser implements IGzipParser {
 	
@@ -31,7 +31,7 @@ public class GzipParser implements IGzipParser {
 		final ParserContext context = ParserContext.getCurrentContext();
 		final ParserDocOutputStream pdos = new ParserDocOutputStream(context.getTempFileManager(), context.getCharsetDetector());
 		try {
-			ParserTools.copy(cfis, pdos);
+			IOTools.copy(cfis, pdos);
 		} finally {
 			cfis.close();
 			pdos.close();

@@ -21,8 +21,10 @@
 			<attribute name="org.paxle.core.charset" value="0.0.0"/>
 			<attribute name="org.paxle.core.io.temp" value="0.0.0"/>
 			<attribute name="org.paxle.core.crypt" value="0.0.0"/>
+			<attribute name="org.paxle.core.io" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/io/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/crypt/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/io/temp/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/charset/"/>

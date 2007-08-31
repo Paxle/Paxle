@@ -8,17 +8,18 @@ import org.paxle.core.threading.IWorkerFactory;
 
 public class WorkerFactory implements IWorkerFactory<ParserWorker> {
 	
-	private SubParserManager subParserManager = null;
+	private final SubParserManager subParserManager;
+	private final ITempFileManager tempFileManager;
 	private IMimeTypeDetector mimeTypeDetector = null; 
 	private ICharsetDetector charsetDetector = null;
-	private ITempFileManager tempFileManager = null;
 	
 	/**
 	 * @param subParserManager the {@link SubParserManager} that should be passed 
 	 *        to the {@link ParserWorker worker-thread} on {@link #createWorker() worker-creation}
 	 */
-	public WorkerFactory(SubParserManager subParserManager) {
-		this.subParserManager = subParserManager;		
+	public WorkerFactory(SubParserManager subParserManager, ITempFileManager tempFileManager) {
+		this.subParserManager = subParserManager;
+		this.tempFileManager = tempFileManager;
 	}
 	
 	/**
@@ -35,10 +36,6 @@ public class WorkerFactory implements IWorkerFactory<ParserWorker> {
 	 */
 	public void setCharsetDetector(ICharsetDetector charsetDetector) {
 		this.charsetDetector = charsetDetector;
-	}
-	
-	public void setTempFileManager(ITempFileManager tempFileManager) {
-		this.tempFileManager = tempFileManager;
 	}
 	
 	/**

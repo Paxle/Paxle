@@ -10,10 +10,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.io.IOTools;
 import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.iotools.ParserTools;
 import org.paxle.parser.iotools.SubParserDocOutputStream;
 import org.paxle.parser.zip.IZipParser;
 
@@ -41,7 +41,7 @@ public class ZipParser implements IZipParser {
 				final SubParserDocOutputStream sos = new SubParserDocOutputStream(
 						context.getTempFileManager(), context.getCharsetDetector(), pdoc, ze.getName());
 				try {
-					ParserTools.copy(zis, sos, ze.getSize());
+					IOTools.copy(zis, sos, ze.getSize());
 				} finally { try { sos.close(); } catch (IOException e) {
 					if (e.getCause() instanceof ParserException) {
 						throw (ParserException)e.getCause();

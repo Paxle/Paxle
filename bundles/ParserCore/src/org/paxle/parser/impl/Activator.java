@@ -5,11 +5,13 @@ import java.util.Hashtable;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentManager;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.io.IOTools;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorkerFactory;
@@ -46,7 +48,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		bc = context;
 		subParserManager = new SubParserManager();	
-		workerFactory = new WorkerFactory(subParserManager);
+		workerFactory = new WorkerFactory(subParserManager, IOTools.getTempFileManager());
 		
 		/* ==========================================================
 		 * Register Service Listeners

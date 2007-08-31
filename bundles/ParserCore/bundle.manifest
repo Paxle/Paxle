@@ -4,7 +4,8 @@ Bundle-Activator: org.paxle.parser.impl.Activator
 Import-Package: org.osgi.framework, org.paxle.core, org.paxle.core.que
  ue, org.paxle.core.threading, org.paxle.core.filter, org.paxle.core.d
  ata, org.paxle.core.doc, org.paxle.core.mimetype, org.apache.commons.
- logging, org.paxle.core.charset, org.paxle.core.io.temp
+ logging, org.paxle.core.charset, org.paxle.core.io.temp, org.paxle.co
+ re.io
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.parser
 Bundle-Version: 1.0.0

@@ -74,16 +74,12 @@ public class DetectorListener implements ServiceListener {
 				this.workerFactory.setMimeTypeDetector((IMimeTypeDetector) detector);
 			} else if (interfaces.contains(ICharsetDetector.class.getName())) {
 				this.workerFactory.setCharsetDetector((ICharsetDetector) detector);
-			} else if (interfaces.contains(ITempFileManager.class.getName())) {
-				this.workerFactory.setTempFileManager((ITempFileManager)detector);
 			}
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			if (interfaces.contains(IMimeTypeDetector.class.getName())) {
 				this.workerFactory.setMimeTypeDetector(null);
 			} else if (interfaces.contains(ICharsetDetector.class.getName())) {
 				this.workerFactory.setCharsetDetector(null);
-			} else if (interfaces.contains(ITempFileManager.class.getName())) {
-				this.workerFactory.setTempFileManager(null);
 			}
 			this.context.ungetService(reference);
 		} else if (eventType == ServiceEvent.MODIFIED) {

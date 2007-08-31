@@ -15,7 +15,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import org.paxle.core.io.temp.impl.TempFileManager;
+import org.paxle.core.io.IOTools;
 
 public class ParserDocument implements IParserDocument {
 	
@@ -122,7 +122,7 @@ public class ParserDocument implements IParserDocument {
 	 */
 	public void addText(CharSequence text) throws IOException {
 		if (this.content == null) {
-			this.content = TempFileManager.getTempFileManager().createTempFile();
+			this.content = IOTools.getTempFileManager().createTempFile();
 		}
 		if (this.contentOut == null) {
 			this.contentOut = new FileWriter(this.content);

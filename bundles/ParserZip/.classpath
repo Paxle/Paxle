@@ -8,7 +8,11 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
+		<attributes>
+			<attribute name="org.paxle.core.io" value="0.0.0"/>
+		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/io/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>

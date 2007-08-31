@@ -11,23 +11,6 @@ import org.paxle.core.io.temp.ITempFileManager;
 
 public class TempFileManager implements ITempFileManager {
 	
-	private static TempFileManager tfm = null;
-	
-	public static void init(ITempDir defaultDir) {
-		tfm = new TempFileManager(defaultDir);
-	}
-	
-	public static void init() {
-		tfm = new TempFileManager();
-	}
-	
-	public static TempFileManager getTempFileManager() {
-		if (tfm == null) {
-			init();
-		}
-		return tfm;
-	}
-	
 	private final Hashtable<String,ITempDir> classMap = new Hashtable<String,ITempDir>();
 	private final Hashtable<File,ITempDir> fileMap = new Hashtable<File,ITempDir>();
 	private final ITempDir defaultDir;

@@ -4,7 +4,8 @@ Bundle-Activator: org.paxle.crawler.impl.Activator
 Import-Package: org.osgi.framework, org.paxle.core.queue, org.paxle.co
  re.threading, org.paxle.core, org.paxle.core.filter, org.paxle.core.d
  ata, org.paxle.core.doc, org.apache.commons.logging, org.paxle.core.c
- harset, org.paxle.core.io.temp, org.paxle.core.crypt
+ harset, org.paxle.core.io.temp, org.paxle.core.crypt, org.paxle.core.
+ io
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.crawler
 Bundle-Version: 1.0.0

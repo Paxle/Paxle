@@ -8,9 +8,9 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+
 import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
-import org.paxle.core.io.temp.ITempFileManager;
 
 public class DetectorListener implements ServiceListener {
 
@@ -19,7 +19,6 @@ public class DetectorListener implements ServiceListener {
 	 */
 	private static final String[] INTERFACES = new String[]{
 		ICharsetDetector.class.getName(),
-		ITempFileManager.class.getName(),
 		ICryptManager.class.getName()
 	};
 	
@@ -74,12 +73,15 @@ public class DetectorListener implements ServiceListener {
 			// pass it to the worker factory
 			if (interfaces.contains(ICharsetDetector.class.getName())) {
 				this.workerFactory.setCharsetDetector((ICharsetDetector) detector);
-			} else if (interfaces.contains(ITempFileManager.class.getName())) {
-				this.workerFactory.setTempFileManager((ITempFileManager)detector);
 			} else if (interfaces.contains(ICryptManager.class.getName())) {
 				this.workerFactory.setCryptManager((ICryptManager)detector);
 			}
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
+			if (interfaces.contains(ICharsetDetector.class.getName())) {
+				this.workerFactory.setCharsetDetector(null);
+			} else if (interfaces.contains(ICryptManager.class.getName())) {
+				this.workerFactory.setCryptManager(null);
+			}
 			this.context.ungetService(reference);
 		} else if (eventType == ServiceEvent.MODIFIED) {
 			// service properties have changed

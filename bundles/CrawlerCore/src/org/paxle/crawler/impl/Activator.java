@@ -11,6 +11,7 @@ import org.paxle.core.IMWComponentManager;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.io.IOTools;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
 import org.paxle.crawler.ISubCrawler;
@@ -42,7 +43,7 @@ public class Activator implements BundleActivator {
 		bc = context;
 		subCrawlerManager = new SubCrawlerManager();
 		
-		WorkerFactory workerFactory = new WorkerFactory(subCrawlerManager);
+		WorkerFactory workerFactory = new WorkerFactory(subCrawlerManager, IOTools.getTempFileManager());
 		
 		/* ==========================================================
 		 * Register Service Listeners
