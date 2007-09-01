@@ -27,8 +27,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import javax.swing.UIManager;
+
 import org.jdesktop.jdic.browser.internal.WebBrowserUtil;
 import org.paxle.desktop.impl.Activator;
+import org.paxle.desktop.impl.HelperClassLoader;
 
 /**
  * Initialization manager for JDIC to set the environment variables or
@@ -55,6 +58,8 @@ public class JdicManager {
 
 	/** The path for the JDIC native files (jdic.dll/libjdic.so, etc) */
 	String nativeLibPath = null;
+	
+	public File jdicStubJarFile = null;
 
 	/** Singleton instance of this class */
 	private static JdicManager sSingleton = null;
@@ -88,16 +93,23 @@ public class JdicManager {
 		// If the shared native file setting was already initialized,
 		// just return.
 		if (isShareNativeInitialized) {
+			System.out.println("JdicManager INIT");
 			return;
 		}
 
-		try {		
+		try {
 //				String runningURL = (new URL(JdicManager.class
 //						.getProtectionDomain().getCodeSource().getLocation(),
 //						".")).openConnection().getPermission().getName();//running url of current class
 //				String runningPath = (new File(runningURL)).getCanonicalPath();//running path of current class
 				String runningPath = Activator.libPath; //"/home/martin/workspace/TrayTest/resources/libs/";
-				nativeLibPath = caculateNativeLibPath(runningPath);
+				nativeLibPath = runningPath + File.separator + getPlatform() + File.separator + getArchitecture();
+				
+				String platformPath = runningPath + File.separator + getPlatform();
+				System.out.println("platformPath: " + platformPath);
+				this.jdicStubJarFile = new File(platformPath + File.separator + "jdic_stub.jar");
+				
+				// nativeLibPath = caculateNativeLibPath(runningPath);
 				// Add the binary path (including jdic.dll or libjdic.so) to
 				// "java.library.path", since we need to use the native methods
 				// in class InitUtility.
@@ -109,7 +121,7 @@ public class JdicManager {
 				fieldSysPath.setAccessible(true);
 				if (fieldSysPath != null) {
 					fieldSysPath.set(System.class.getClassLoader(), null);
-				}
+				}		
 		} catch (Throwable e) {
 			throw new JdicInitException(e);
 		}
@@ -138,12 +150,18 @@ public class JdicManager {
 					+ getArchitecture();
 			ClassLoader cl = getClass().getClassLoader();
 			if (!(cl instanceof URLClassLoader)) {
-				//not URLClassLoader,omit it,in case the stub jar has been
-				// set to claspath
-				String exceptionInfo = "We detect that you are not using java.net.URLClassLoader for cross platform versoin,you have to set jdic_stub.jar manually!";
-				WebBrowserUtil.error(exceptionInfo);
-				return architecturePath;//return the native lib path
-			}
+				ClassLoader parentCL = Thread.currentThread().getContextClassLoader();
+				cl = new URLClassLoader(new URL[]{}, parentCL);
+				
+				Thread.currentThread().setContextClassLoader(cl);
+				UIManager.getLookAndFeelDefaults().put("ClassLoader", cl);
+				
+//				//not URLClassLoader,omit it,in case the stub jar has been
+//				// set to claspath
+//				String exceptionInfo = "We detect that you are not using java.net.URLClassLoader for cross platform versoin,you have to set jdic_stub.jar manually!";
+//				WebBrowserUtil.error(exceptionInfo);
+//				return architecturePath;//return the native lib path
+			} 
 			//set stub jars to classpath
 			URLClassLoader urlCl = (URLClassLoader) cl;
 			try {
