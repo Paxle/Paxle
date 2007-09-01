@@ -10,7 +10,7 @@ import org.paxle.core.threading.IPool;
 import org.paxle.core.threading.IWorker;
 
 /**
- * A Master/Worker Component is created by a {@link IMWComponentManager factory} and
+ * A Master/Worker Component is created by a {@link IMWComponentFactory factory} and
  * consists of the following parts:
  * <ul>
  * 	<li>a {@link IMaster master-thread}</li>

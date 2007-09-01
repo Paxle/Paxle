@@ -7,7 +7,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import org.paxle.core.IMWComponent;
-import org.paxle.core.IMWComponentManager;
+import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.filter.IFilter;
@@ -64,38 +64,24 @@ public class Activator implements BundleActivator {
 		 * Get services provided by other bundles
 		 * ========================================================== */			
 		// getting a reference to the threadpack generator service
-		ServiceReference reference = bc.getServiceReference(IMWComponentManager.class.getName());
+		ServiceReference reference = bc.getServiceReference(IMWComponentFactory.class.getName());
 
 		if (reference != null) {
 			// getting the service class instance
-			IMWComponentManager componentFactory = (IMWComponentManager)bc.getService(reference);			
+			IMWComponentFactory componentFactory = (IMWComponentFactory)bc.getService(reference);			
 			mwComponent = componentFactory.createCommandComponent(workerFactory, 5, ICommand.class);
+			componentFactory.registerComponentServices(mwComponent, bc);
 		}			
 		
 		/* ==========================================================
 		 * Register Services provided by this bundle
-		 * ========================================================== */
-		// register parser
-		Hashtable<String, String> parserProps = new Hashtable<String, String>();
-		parserProps.put(IMWComponent.COMPONENT_ID, bc.getBundle().getSymbolicName());
-		bc.registerService(IMWComponent.class.getName(), mwComponent, parserProps);		
-		
+		 * ========================================================== */		
 		// register the SubParser-Manager as service
 		bc.registerService(ISubParserManager.class.getName(), subParserManager, null);		
 		
 		// register the MimeType filter as service
 		// TODO: which properties should be set for the filter service?
 		bc.registerService(IFilter.class.getName(), new MimeTypeFilter(subParserManager), null);				
-		
-		// publish data-sink
-		Hashtable<String,String> dataSinkProps = new Hashtable<String, String>();
-		dataSinkProps.put(IDataSink.PROP_DATASINK_ID, bc.getBundle().getSymbolicName() + ".sink");		
-		bc.registerService(IDataSink.class.getName(), mwComponent.getDataSink(), dataSinkProps);
-		
-		// publish data-source
-		Hashtable<String,String> dataSourceProps = new Hashtable<String, String>();
-		dataSourceProps.put(IDataSource.PROP_DATASOURCE_ID, bc.getBundle().getSymbolicName() + ".source");			
-		bc.registerService(IDataSource.class.getName(), mwComponent.getDataSource(), dataSourceProps);		
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package org.paxle.core;
 
+import org.osgi.framework.BundleContext;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
@@ -9,7 +10,7 @@ import org.paxle.core.threading.IWorkerFactory;
  * An instance of this interface is deployed as osgi service and can be used
  * by other bundles to create a new {@link IMWComponent master-worker-component}.
  */
-public interface IMWComponentManager {
+public interface IMWComponentFactory {
 	/**
 	 * @param workerFactory
 	 * @param queueBufferSize
@@ -24,4 +25,8 @@ public interface IMWComponentManager {
 			IWorkerFactory<W> workerFactory,
 			int queueBufferSize,
 			Class<Data> clazz);
+	
+	public void registerComponentServices(IMWComponent component, BundleContext bc);
+	public void registerComponentServices(String componentID, IMWComponent component, BundleContext bc);
+	public void unregisterComponentServices(String componentID, IMWComponent component, BundleContext bc);
 }

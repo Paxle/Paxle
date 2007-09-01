@@ -4,7 +4,7 @@ package org.paxle.core.impl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.core.ICryptManager;
-import org.paxle.core.IMWComponentManager;
+import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
@@ -77,7 +77,7 @@ public class Activator implements BundleActivator {
 		 * Register Services
 		 * ========================================================== */		
 		// register the master-worker-factory as a service
-		context.registerService(IMWComponentManager.class.getName(), new MWComponentFactory(), null);
+		context.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(), null);
 		
 		// register the filter-manager as service
 		context.registerService(IFilterManager.class.getName(), filterManager, null);
