@@ -3,16 +3,11 @@ package org.paxle.desktop.impl;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-
-import org.jdesktop.jdic.desktop.Desktop;
-import org.jdesktop.jdic.desktop.DesktopException;
 
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
@@ -41,22 +36,6 @@ public class SystrayMenu extends JPopupMenu implements ActionListener {
 		return item;
 	}
 	
-	private static boolean openBrowser(String url) throws MalformedURLException {
-		try {
-			Desktop.browse(new URL(url));
-		} catch (DesktopException e1) {
-			final String browserPath = System.getenv("BROWSER");
-			if (browserPath == null)
-				return false;
-			try {
-				Runtime.getRuntime().exec(browserPath + " \"" + url + "\"");
-			} catch (IOException e) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
 	private void add(JMenuItem... items) {
 		for (final JMenuItem item : items) {
 			if (item == null) {
@@ -72,7 +51,7 @@ public class SystrayMenu extends JPopupMenu implements ActionListener {
 		public void run() {
 			final String port = SystrayMenu.this.manager.getProperty("org.osgi.service.http.port");
 			if (port != null) try {
-				if (!SystrayMenu.openBrowser(String.format("http://localhost:%s/search?query=%s", port, super.data))) {
+				if (!DesktopInit.openBrowser(String.format("http://localhost:%s/search?query=%s", port, super.data))) {
 					// TODO: log error message: couldn't start browser
 				}
 			} catch (MalformedURLException e) {

@@ -1,9 +1,16 @@
 package org.paxle.desktop.impl;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import javax.swing.ImageIcon;
 
+import org.jdesktop.jdic.desktop.Desktop;
+import org.jdesktop.jdic.desktop.DesktopException;
 import org.jdesktop.jdic.tray.SystemTray;
 import org.jdesktop.jdic.tray.TrayIcon;
+
 import org.osgi.framework.BundleContext;
 
 public class DesktopInit {
@@ -33,6 +40,22 @@ public class DesktopInit {
 		}
 //			}
 //		});		
+	}
+	
+	public static boolean openBrowser(String url) throws MalformedURLException {
+		try {
+			Desktop.browse(new URL(url));
+		} catch (DesktopException e1) {
+			final String browserPath = System.getenv("BROWSER");
+			if (browserPath == null)
+				return false;
+			try {
+				Runtime.getRuntime().exec(browserPath + " \"" + url + "\"");
+			} catch (IOException e) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	public void shutdown() {
