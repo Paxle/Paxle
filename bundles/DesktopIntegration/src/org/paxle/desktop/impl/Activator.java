@@ -22,6 +22,7 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator implements BundleActivator {
 
+	public static String mode = null;
 	public static BundleContext bc = null;
 	public static ServiceManager manager = null;
 	public static String libPath = null;	
@@ -34,19 +35,32 @@ public class Activator implements BundleActivator {
 	public void start(final BundleContext context) throws Exception {
 		bc = context;
 
+		// check which java version we have
+		String version = System.getProperty("java.version");
+		if (version.length() >= 3) {
+			String v1 = version.substring(0,3);
+			if (v1.equals("1.6")) {
+				mode = "jse6";
+			} else {
+				mode = "jdic";
+			}
+		}
+		
 		// copy natives into bundle data folder
 		this.copyNatives(context);
 
 		JdicManager manager = JdicManager.getManager();
 		manager.initShareNative();
+		
+		URL[] helperClassloaderURLs = new URL[]{manager.jdicStubJarFile.toURL()};
 		if (helperClassloader == null) {
-			helperClassloader = new HelperClassLoader(new URL[]{manager.jdicStubJarFile.toURL()}, Activator.class.getClassLoader());
+			helperClassloader = new HelperClassLoader(helperClassloaderURLs, Activator.class.getClassLoader());
 		}
 
 		// display icon
 		Class init = helperClassloader.loadClass("org.paxle.desktop.impl.DesktopInit");
-		Constructor initC = init.getConstructor(new Class[]{BundleContext.class});
-		initObject = initC.newInstance(context);
+		Constructor initC = init.getConstructor(new Class[]{BundleContext.class, String.class});
+		initObject = initC.newInstance(context, mode);
 		initMethod = init.getMethod("init", (Class[])null);
 		shutdownMethod = init.getMethod("shutdown",(Class[])null);
 		initMethod.invoke(initObject, (Object[])null);

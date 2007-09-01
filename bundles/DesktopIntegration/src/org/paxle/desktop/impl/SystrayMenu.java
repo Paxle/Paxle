@@ -11,7 +11,6 @@ import javax.swing.JPopupMenu;
 
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
-
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
