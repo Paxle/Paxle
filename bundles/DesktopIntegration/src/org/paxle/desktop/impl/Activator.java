@@ -29,7 +29,7 @@ public class Activator implements BundleActivator {
 	public Method initMethod = null;
 	public Method shutdownMethod = null;
 	public Object initObject = null;
-	public HelperClassLoader helperClassloader = null;
+	public static HelperClassLoader helperClassloader = null;
 
 	public void start(final BundleContext context) throws Exception {
 		bc = context;
@@ -39,7 +39,9 @@ public class Activator implements BundleActivator {
 
 		JdicManager manager = JdicManager.getManager();
 		manager.initShareNative();
-		helperClassloader = new HelperClassLoader(new URL[]{manager.jdicStubJarFile.toURL()}, Activator.class.getClassLoader());
+		if (helperClassloader == null) {
+			helperClassloader = new HelperClassLoader(new URL[]{manager.jdicStubJarFile.toURL()}, Activator.class.getClassLoader());
+		}
 
 		// display icon
 		Class init = helperClassloader.loadClass("org.paxle.desktop.impl.DesktopInit");
@@ -56,7 +58,6 @@ public class Activator implements BundleActivator {
 		shutdownMethod = null;
 		initMethod = null;
 		initObject = null;
-		helperClassloader = null;
 		manager = null;
 		bc = null;
 	}

@@ -1,5 +1,7 @@
 package org.paxle.desktop.impl;
 
+import java.lang.reflect.Field;
+
 import javax.swing.ImageIcon;
 
 import org.jdesktop.jdic.tray.SystemTray;
@@ -38,6 +40,16 @@ public class DesktopInit {
 	public void shutdown() {
 		tray.removeTrayIcon(trayIcon);
 		trayIcon = null;
+		try {
+			Class trayService = this.getClass().getClassLoader().loadClass("org.jdesktop.jdic.tray.internal.impl.GnomeSystemTrayService");
+			Field thread = trayService.getDeclaredField("display_thread");
+			thread.setAccessible(true);			
+			Thread threadObj = (Thread) thread.get(null);
+			threadObj.interrupt();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		tray = null;
 		context = null;
 	}

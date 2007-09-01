@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Hashtable;
-import java.util.Vector;
 
 public class HelperClassLoader extends URLClassLoader {
 	private ClassLoader bundleClassloader = null;
@@ -14,13 +13,8 @@ public class HelperClassLoader extends URLClassLoader {
 		super(urls, null);
 		this.bundleClassloader = bundleClassloader;
 	}
-	
+
 	@Override
-	protected String findLibrary(String libname) {
-		// TODO Auto-generated method stub
-		return super.findLibrary(libname);
-	}
-	
 	public Class loadClass(String className) throws ClassNotFoundException {
 		Class cls = null;
 		byte[] classByte = null;
@@ -33,7 +27,8 @@ public class HelperClassLoader extends URLClassLoader {
 				classByte = loadClassData(bundleClassloader, className);
 			}
 
-			cls = defineClass(className, classByte, 0, classByte.length);
+			cls = defineClass(null, classByte, 0, classByte.length);
+			resolveClass(cls);
 			this.classCache.put(className,cls);
 		} else {
 			cls = this.bundleClassloader.loadClass(className);
@@ -60,9 +55,4 @@ public class HelperClassLoader extends URLClassLoader {
 		}
 		return data;
 	} 	
-	
-	@Override
-	public void finalize() throws Throwable {
-		super.finalize();
-	}
 }

@@ -31,7 +31,6 @@ import javax.swing.UIManager;
 
 import org.jdesktop.jdic.browser.internal.WebBrowserUtil;
 import org.paxle.desktop.impl.Activator;
-import org.paxle.desktop.impl.HelperClassLoader;
 
 /**
  * Initialization manager for JDIC to set the environment variables or
