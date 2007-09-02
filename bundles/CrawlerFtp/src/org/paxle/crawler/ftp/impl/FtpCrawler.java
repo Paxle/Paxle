@@ -3,12 +3,10 @@ package org.paxle.crawler.ftp.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPReply;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.crawler.CrawlerTools;
@@ -32,140 +30,39 @@ public class FtpCrawler implements IFtpCrawler {
 		this.logger.info(String.format("Crawling URL '%s' ...", requestUrl));		
 		
 		CrawlerDocument crawlerDoc = new CrawlerDocument();
-		FTPClient client = null;
+		crawlerDoc.setCrawlerDate(new Date());
+		
 		try {
-			URL url = new URL(requestUrl);
-			
-			int reply;
-			client = new FTPClient();
-			
-			/* =======================================================================
-			 * Connect to host
-			 * ======================================================================= */
-			client.connect(url.getHost());
-			reply = client.getReplyCode();
-			if(!FTPReply.isPositiveCompletion(reply)) {
-				client.disconnect();
-				String msg = String.format("FTP server '%s' refused connection. ReplyCode: %s",url.getHost(),client.getReplyString());
-				this.logger.warn(msg);
-				crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,msg);
-				return crawlerDoc;
-			} else {
-				this.logger.info(String.format("Connected to '%s'. ReplyCode: %s",url.getHost(),client.getReplyString()));
-			}
-			
-			/* =======================================================================
-			 * Login
-			 * ======================================================================= */
-			String userName = "anonymous", pwd = "anonymous";
-			String userInfo = url.getUserInfo();
-			if (userInfo != null) {
-				int idx = userInfo.indexOf(":");
-				if (idx != -1) {
-					userName = userInfo.substring(0,idx).trim();
-					pwd = userInfo.substring(idx+1).trim();
-				}
-			}
-			client.login(userName, pwd);
-			reply = client.getReplyCode();
-			if(!FTPReply.isPositiveCompletion(reply)) {
-				client.disconnect();
-				String msg = String.format("FTP server '%s' login failed. ReplyCode: %s",url.getHost(),client.getReplyString());
-				this.logger.warn(msg);
-				crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,msg);
-				return crawlerDoc;
-			} 
+			FtpUrlConnection ftpConnection = new FtpUrlConnection(new URL(requestUrl));
 
-			/* =======================================================================
-			 * Change directory
-			 * ======================================================================= */			
-			String longpath = url.getPath();
+			// connect to host
+			ftpConnection.connect();
 
-            String file = "", path;              
-            if (longpath.endsWith("/")) {
-                file = "";
-                path = longpath;
-            } else {
-                int pos = longpath.lastIndexOf("/");
-                if (pos == -1) {
-                    file = longpath;
-                    path = "/";
-                } else {            
-                    path = longpath.substring(0,pos+1);
-                    file = longpath.substring(pos+1);
-                }
-            }   
-			
-			client.changeWorkingDirectory(path);
-			reply = client.getReplyCode();
-			if(!FTPReply.isPositiveCompletion(reply)) {
-				client.disconnect();
-				String msg = String.format("FTP server '%s' change directory failed. ReplyCode: %s",url.getHost(),client.getReplyString());
-				this.logger.warn(msg);
-				crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,msg);
-				return crawlerDoc;
-			} 			
-			
-			// test if the specified file is also an directory
-			if (file.length() > 0) {
-				client.changeWorkingDirectory(file);
-				reply = client.getReplyCode();
-				if(FTPReply.isPositiveCompletion(reply)) {
-                    longpath += "/";
-                    file = "";
-				}
+			// get the modification date of the file
+			long modTimeStamp = ftpConnection.getLastModified();
+			if (modTimeStamp != 0) {
+				crawlerDoc.setLastModDate(new Date(modTimeStamp));
 			}
 			
-			if (file.length() == 0) {
-//				// TODO: directory listing
-				FTPFile[] files = client.listFiles(path);
-				for (FTPFile nextFile : files) {
-					System.out.println(nextFile);
-				}
-
-				// TODO: write the URLs into a file
-				// which format should we use?
-			} else {
-				// switching to binary file transfer
-				client.setFileType(FTPClient.BINARY_FILE_TYPE); 
-				reply = client.getReplyCode();
-				if(!FTPReply.isPositiveCompletion(reply)) {
-					client.disconnect();
-					String msg = String.format("FTP server '%s' changing transfer mode failed. ReplyCode: %s",url.getHost(),client.getReplyString());
-					this.logger.warn(msg);
-					crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,msg);
-					return crawlerDoc;
-				} 				
-				
-				// copy file
-				InputStream fileInputStream = client.retrieveFileStream(file);
-				reply = client.getReplyCode();
-				if(!FTPReply.isPositiveCompletion(reply)) {
-					client.disconnect();
-					String msg = String.format("FTP server '%s' file transfer failed. ReplyCode: %s",url.getHost(),client.getReplyString());
-					this.logger.warn(msg);
-					crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,msg);
-					return crawlerDoc;
-				}
-				
-				// TODO: what if the file is a symlink?				
-				CrawlerTools.saveInto(crawlerDoc, fileInputStream);
-				fileInputStream.close();
-				
-				// TODO: get file info: e.g. modification-date ...
-				client.completePendingCommand();
-			}
+			// get input stream
+			InputStream input = ftpConnection.getInputStream();
+							
+			// copy data into file
+			CrawlerTools.saveInto(crawlerDoc, input);
 			
-			// logout from ftp server
-			client.logout();
-			
+			// close connection
+			input.close();
+				
+			// finished
 			crawlerDoc.setStatus(ICrawlerDocument.Status.OK);
 		} catch(IOException e) {
-			crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, "Unexpected Exception: " + e.getMessage());
-			e.printStackTrace();
-		} finally {
-			if((client != null) && (client.isConnected())) { try { client.disconnect(); } catch(IOException ioe) {/* ignore this */}}
-		}		
+			if (e instanceof FtpConnectionException) {
+				crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, e.getMessage());
+			} else {
+				crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, "Unexpected Exception: " + e.getMessage());
+				e.printStackTrace();
+			}
+		} 		
 
 		return crawlerDoc;
 	}

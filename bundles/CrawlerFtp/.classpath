@@ -5,6 +5,7 @@
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/osgi/framework/"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/url/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
