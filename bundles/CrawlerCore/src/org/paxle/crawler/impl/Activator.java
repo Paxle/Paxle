@@ -1,5 +1,8 @@
 package org.paxle.crawler.impl;
 
+import java.util.HashMap;
+import java.util.Hashtable;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -77,14 +80,9 @@ public class Activator implements BundleActivator {
 		bc.registerService(ISubCrawlerManager.class.getName(), subCrawlerManager, null);
 		
 		// register the protocol filter as service
-		/* TODO: which properties should be set for the filter service?
-		 *  - maybe set the filtering-output-queue(s) it shall be added to?
-		 *    Respectively the data-source, but this would require a special FilteringDataSource-class
-		 *    to avoid interferences between DataSource<Data> and DataSource<Data extends ICommand>.
-		 *    Another approach might be to remove the restriction for <Cmd extends ICommand> from the IFilter-class
-		 *    and to therefore enable filtering other than ICommand-data-types which might redundantise the
-		 *    FilteringOutputQueue but then we might create other problems concerning generics */
-		bc.registerService(IFilter.class.getName(), new ProtocolFilter(subCrawlerManager), null);
+		Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
+		filterProps.put(IFilter.PROP_FILTER_TARGET_ID, new String[] {"org.paxle.crawler.in"});
+		bc.registerService(IFilter.class.getName(), new ProtocolFilter(subCrawlerManager), filterProps);
 	}
 
 	/**

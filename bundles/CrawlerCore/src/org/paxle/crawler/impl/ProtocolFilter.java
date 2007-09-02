@@ -1,5 +1,7 @@
 package org.paxle.crawler.impl;
 
+import java.net.URL;
+
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.queue.ICommand;
 import org.paxle.crawler.ISubCrawler;
@@ -11,24 +13,27 @@ import org.paxle.crawler.ISubCrawler;
 public class ProtocolFilter implements IFilter {
 
 	private SubCrawlerManager subCrawlerManager = null;
-	
+
 	public ProtocolFilter(SubCrawlerManager subCrawlerManager) {
 		this.subCrawlerManager = subCrawlerManager;
 	}
-	
+
 	/**
 	 * @see IFilter#filter(ICommand)
 	 */
 	public void filter(ICommand command) {
-		// TODO get the network protocol of the URL
-		String protocol = null;
-		
-		// check if the protocol is supported by one of the 
-		// available sub-crawlers
-		if (!this.subCrawlerManager.isSupported(protocol)) {
-			// TODO: set the statuscode of the command accordingly
-		}
+		try {
+			String location = command.getLocation();
+			String protocol = new URL(location).getProtocol();
 
+			// check if the protocol is supported by one of the 
+			// available sub-crawlers
+			if (!this.subCrawlerManager.isSupported(protocol)) {
+				command.setResult(ICommand.Result.Rejected, "Protocol not supported");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
