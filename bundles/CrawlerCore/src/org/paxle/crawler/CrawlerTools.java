@@ -12,6 +12,7 @@ import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.crypt.ACryptOutputStream;
 import org.paxle.core.crypt.ICrypt;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.mimetype.IMimeTypeDetector;
 
 public class CrawlerTools {
 	
@@ -55,6 +56,18 @@ public class CrawlerTools {
 			}
 			
 			// TODO: mimetype detection
+			if (doc.getMimeType() == null) {
+				IMimeTypeDetector mimeTypeDetector = context.getMimeTypeDetector();
+				if (mimeTypeDetector != null) {
+					String mimeType = null;
+					try {
+						mimeType = mimeTypeDetector.getMimeType(file);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					if (mimeType != null) doc.setMimeType(mimeType);
+				}
+			}
 			
 			doc.setContent(file);
 			return copied;

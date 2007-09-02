@@ -5,44 +5,48 @@ import java.util.HashMap;
 import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.core.mimetype.IMimeTypeDetector;
+import org.paxle.crawler.impl.CrawlerContextLocal;
 
 public class CrawlerContext {
     
-	private static final ThreadLocal<CrawlerContext> context = new ThreadLocal<CrawlerContext>();
-
-    private final HashMap<String, Object> bag = new HashMap<String, Object>();
-    private final ICharsetDetector charsetDetector;
-    private final ITempFileManager tempFileManager;
-    private final ICryptManager cryptManager;
+	private static CrawlerContextLocal context = null;
+    private final HashMap<String, Object> bag = new HashMap<String, Object>();   
     
-    public CrawlerContext(ICharsetDetector charsetDetector, ICryptManager cryptManager, ITempFileManager tempFileManager) {
-    	this.charsetDetector = charsetDetector;
-    	this.cryptManager = cryptManager;
-    	this.tempFileManager = tempFileManager;
+	public static void setThreadLocal(CrawlerContextLocal threadLocal) {
+		context = threadLocal;
 	}
-    
-	public static void setCurrentContext(CrawlerContext parserContext) {
-    	context.set(parserContext);
-    }    
     
 	public static CrawlerContext getCurrentContext() {
 		return context.get();		
 	}	
+	
+	public static void removeCurrentContext() {
+		context.remove();
+	}
 	
 	/**
 	 * @return a class that can be used to detect the charset of a resource
 	 * This reference may be <code>null</code> if no {@link ICharsetDetector charset-detector} is available.
 	 */
 	public ICharsetDetector getCharsetDetector() {
-		return this.charsetDetector;
+		return CrawlerContext.context.getCharsetDetector();
 	}
 	
 	public ICryptManager getCryptManager() {
-		return this.cryptManager;
+		return CrawlerContext.context.getCryptManager();
 	}
 	
 	public ITempFileManager getTempFileManager() {
-		return this.tempFileManager;
+		return CrawlerContext.context.getTempFileManager();
+	}
+	
+	/**
+	 * @return a class that can be used to detect the mime-type of a resource
+	 * This reference may be <code>null</code> if no {@link IMimeTypeDetector mimetype-detector} is available.
+	 */
+	public IMimeTypeDetector getMimeTypeDetector() {
+		return CrawlerContext.context.getMimeTypeDetector();
 	}
 	
 	/* ========================================================================

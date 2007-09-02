@@ -1,15 +1,10 @@
 package org.paxle.crawler.impl;
 
-import java.util.Hashtable;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
-import org.paxle.core.data.IDataSink;
-import org.paxle.core.data.IDataSource;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.queue.ICommand;
@@ -41,9 +36,16 @@ public class Activator implements BundleActivator {
 	 */
 	public void start(BundleContext context) throws Exception {		
 		bc = context;
+		
+		// init the subcrawl manager
 		subCrawlerManager = new SubCrawlerManager();
 		
-		WorkerFactory workerFactory = new WorkerFactory(subCrawlerManager, IOTools.getTempFileManager());
+		// init crawler context
+		CrawlerContextLocal crawlerLocal = new CrawlerContextLocal();		
+		crawlerLocal.setTempFileManager(IOTools.getTempFileManager());
+		
+		// init the thread factory
+		WorkerFactory workerFactory = new WorkerFactory(subCrawlerManager);
 		
 		/* ==========================================================
 		 * Register Service Listeners
@@ -52,7 +54,7 @@ public class Activator implements BundleActivator {
 		bc.addServiceListener(new SubCrawlerListener(subCrawlerManager, bc),SubCrawlerListener.FILTER);
 		
 		// a listener for the mimetype detector
-		bc.addServiceListener(new DetectorListener((WorkerFactory)workerFactory,bc),DetectorListener.FILTER);		
+		bc.addServiceListener(new DetectorListener(crawlerLocal,bc),DetectorListener.FILTER);		
 		
 		/* ==========================================================
 		 * Get services provided by other bundles

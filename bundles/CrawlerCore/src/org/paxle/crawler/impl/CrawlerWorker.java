@@ -4,10 +4,7 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxle.core.ICryptManager;
-import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.ICrawlerDocument;
-import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 import org.paxle.crawler.CrawlerContext;
@@ -22,27 +19,9 @@ public class CrawlerWorker extends AWorker<ICommand> {
 	 */
 	private SubCrawlerManager subCrawlerManager = null;
 		
-	/**
-	 * A class to detect charsets
-	 */
-	ICharsetDetector charsetDetector = null;
-	
-	ICryptManager cryptManager = null;
-	
-	ITempFileManager tempFileManager = null;
-	
 	public CrawlerWorker(SubCrawlerManager subCrawlerManager) {
 		this.subCrawlerManager = subCrawlerManager;
 	}
-	
-	/**
-	 * Init the parser context
-	 */
-	protected void initCrawlerContext() {
-		// init the parser context object
-		CrawlerContext parserContext = new CrawlerContext(this.charsetDetector, this.cryptManager, this.tempFileManager);
-		CrawlerContext.setCurrentContext(parserContext);		
-	}	
 
 	@Override
 	protected void execute(ICommand command) {
@@ -51,10 +30,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 		if (command.getResult() == ICommand.Result.Rejected) {
 			this.logger.warn("Won't fetch document '" + command.getLocation() + "' with status 'Rejected' (" + command.getResultText() + ")");
 			return;
-		}
-		
-		// init the parser context
-		this.initCrawlerContext();		
+		}		
 		
 		try {
 			// get the URL to crawl
@@ -80,8 +56,6 @@ public class CrawlerWorker extends AWorker<ICommand> {
 				command.setResult(ICommand.Result.Failure, crawlerDoc.getStatusText());
 			}
 			
-			// TODO: mimetype detection
-			// resource.getMimeType()
 			command.setCrawlerDocument(crawlerDoc);
 			
 		} catch (Exception e) {
@@ -93,8 +67,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 	@Override
 	protected void reset() {
 		// do some cleanup
-		CrawlerContext crawlerContext = CrawlerContext.getCurrentContext();
-		if (crawlerContext != null) crawlerContext.reset();
+		CrawlerContext.removeCurrentContext();
 		
 		// reset all from parent
 		super.reset();

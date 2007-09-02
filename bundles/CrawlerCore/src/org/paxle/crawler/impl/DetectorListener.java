@@ -11,6 +11,7 @@ import org.osgi.framework.ServiceReference;
 
 import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.mimetype.IMimeTypeDetector;
 
 public class DetectorListener implements ServiceListener {
 
@@ -19,7 +20,8 @@ public class DetectorListener implements ServiceListener {
 	 */
 	private static final String[] INTERFACES = new String[]{
 		ICharsetDetector.class.getName(),
-		ICryptManager.class.getName()
+		ICryptManager.class.getName(),
+		IMimeTypeDetector.class.getName()
 	};
 	
 	/**
@@ -39,10 +41,10 @@ public class DetectorListener implements ServiceListener {
 	 */	
 	private BundleContext context = null;	
 	
-	private WorkerFactory workerFactory = null;
-	
-	public DetectorListener(WorkerFactory workerFactory, BundleContext context) {
-		this.workerFactory = workerFactory;
+	private CrawlerContextLocal crawlerLocal = null;
+
+	public DetectorListener(CrawlerContextLocal crawlerLocal, BundleContext context) {
+		this.crawlerLocal = crawlerLocal;
 		this.context = context;		
 		
 		for (String interfaceName : INTERFACES) {
@@ -72,15 +74,19 @@ public class DetectorListener implements ServiceListener {
 
 			// pass it to the worker factory
 			if (interfaces.contains(ICharsetDetector.class.getName())) {
-				this.workerFactory.setCharsetDetector((ICharsetDetector) detector);
+				this.crawlerLocal.setCharsetDetector((ICharsetDetector) detector);
 			} else if (interfaces.contains(ICryptManager.class.getName())) {
-				this.workerFactory.setCryptManager((ICryptManager)detector);
+				this.crawlerLocal.setCryptManager((ICryptManager)detector);
+			} else if (interfaces.contains(IMimeTypeDetector.class.getName())) {
+				this.crawlerLocal.setMimeTypeDetector((IMimeTypeDetector)detector);
 			}
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			if (interfaces.contains(ICharsetDetector.class.getName())) {
-				this.workerFactory.setCharsetDetector(null);
+				this.crawlerLocal.setCharsetDetector(null);
 			} else if (interfaces.contains(ICryptManager.class.getName())) {
-				this.workerFactory.setCryptManager(null);
+				this.crawlerLocal.setCryptManager(null);
+			} else if (interfaces.contains(IMimeTypeDetector.class.getName())) {
+				this.crawlerLocal.setMimeTypeDetector(null);
 			}
 			this.context.ungetService(reference);
 		} else if (eventType == ServiceEvent.MODIFIED) {
