@@ -4,7 +4,6 @@ import java.awt.Image;
 import java.awt.PopupMenu;
 import java.awt.Toolkit;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -89,7 +88,7 @@ public class DesktopInit {
 		}	
 	}
 	
-	private static Class getClass(String mode, String clazzName) throws Exception {
+	private static Class<?> getClass(String mode, String clazzName) throws Exception {
 		String fullClazzName = CONSTANTS.get(mode + "." + clazzName);
 		return cl.loadClass(fullClazzName);
 	}

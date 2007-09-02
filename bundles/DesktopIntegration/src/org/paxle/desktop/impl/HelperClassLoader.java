@@ -1,9 +1,13 @@
 package org.paxle.desktop.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Hashtable;
+
+import org.paxle.core.io.IOTools;
 
 public class HelperClassLoader extends URLClassLoader {
 	private ClassLoader bundleClassloader = null;
@@ -15,18 +19,21 @@ public class HelperClassLoader extends URLClassLoader {
 	}
 
 	@Override
-	public Class loadClass(String className) throws ClassNotFoundException {
-		Class cls = null;
+	public Class<?> loadClass(String className) throws ClassNotFoundException {
+		Class<?> cls = null;
 		byte[] classByte = null;
-		if (className.startsWith("org.jdesktop.jdic") || className.equals("org.paxle.desktop.impl.DesktopInit")) {	
-			cls = (Class)this.classCache.get(className);
-			if(cls != null) return cls;
+		if (className.startsWith("org.jdesktop.jdic") || className.equals("org.paxle.desktop.impl.DesktopInit") ||
+				className.startsWith("org.paxle.desktop")) {	
+			cls = (Class<?>)this.classCache.get(className);
+			if (cls != null)
+				return cls;
 			
-			classByte = loadClassData(this,className);
-			if (classByte == null) {
+			try {
+				classByte = loadClassData(this,className);
+			} catch (ClassNotFoundException e) {
 				classByte = loadClassData(bundleClassloader, className);
 			}
-
+			
 			cls = defineClass(null, classByte, 0, classByte.length);
 			resolveClass(cls);
 			this.classCache.put(className,cls);
@@ -37,22 +44,17 @@ public class HelperClassLoader extends URLClassLoader {
 	}
 
 	private byte[] loadClassData(ClassLoader cl, String className) throws ClassNotFoundException {
-		byte[] data = new byte[0];
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
-			InputStream in = cl.getResourceAsStream(className.replace('.','/') + ".class");
-			if (in == null) return null;
-			
-			byte[] buf = new byte[100];
-			int i;
-			while((i = in.read(buf)) != -1) {
-				byte[] tmp = new byte[data.length + i];
-				System.arraycopy(data,0,tmp,0,data.length);
-				System.arraycopy(buf,0,tmp,data.length,i);
-				data = tmp;
-			}
+			final String classFile = className.replace('.', File.separatorChar) + ".class";
+			System.out.println("HelperClassLoader: Search for: " + classFile);
+			final InputStream in = cl.getResourceAsStream(classFile);
+			if (in == null)
+				throw new ClassNotFoundException(classFile);
+			IOTools.copy(in, baos);
 		} catch(Exception e) {
 			throw new ClassNotFoundException(className);
 		}
-		return data;
+		return baos.toByteArray();
 	} 	
 }

@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -14,6 +13,7 @@ import java.util.Enumeration;
 import org.jdesktop.jdic.init.JdicManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.paxle.core.io.IOTools;
 
 /**
  * To get this to work you need to set the variable
@@ -21,55 +21,92 @@ import org.osgi.framework.BundleContext;
  *
  */
 public class Activator implements BundleActivator {
-
-	public static String mode = null;
+	
+	public static final float NATIVE_JRE_SUPPORT = 1.6f;
+	
+	private enum Implementations {
+		jdic("org.paxle.desktop.backend.impl.jdic"),
+		jre6("org.paxle.desktop.backend.impl.jre6")
+		
+		;
+		
+		public final String packageName;
+		
+		private Implementations(String packageName) {
+			this.packageName = packageName;
+		}
+	}
+	
+	public static Implementations mode = null;
 	public static BundleContext bc = null;
 	public static ServiceManager manager = null;
-	public static String libPath = null;	
+	public static String libPath = null;
 	
 	public Method initMethod = null;
 	public Method shutdownMethod = null;
 	public Object initObject = null;
+	
+	public Object dibackend = null;
+	public Object trayIcon = null;
 	public static HelperClassLoader helperClassloader = null;
 
 	public void start(final BundleContext context) throws Exception {
 		bc = context;
-
+		
 		// check which java version we have
-		String version = System.getProperty("java.version");
-		if (version.length() >= 3) {
-			String v1 = version.substring(0,3);
-			if (v1.equals("1.6")) {
-				mode = "jse6";
-			} else {
-				mode = "jdic";
-			}
+		String version = "1.5"; //System.getProperty("java.version");
+		int dot1 = version.indexOf('.');
+		if (dot1 > -1) {
+			int dot2 = version.indexOf('.', dot1 + 1);
+			if (dot2 > -1)
+				version = version.substring(0, dot2);
 		}
+		mode = (Float.parseFloat(version) >= NATIVE_JRE_SUPPORT) ? Implementations.jre6 : Implementations.jdic;
 		
 		// copy natives into bundle data folder
 		this.copyNatives(context);
-
-		JdicManager manager = JdicManager.getManager();
+		
+		final JdicManager manager = JdicManager.getManager();
 		manager.initShareNative();
 		
-		URL[] helperClassloaderURLs = new URL[]{manager.jdicStubJarFile.toURL()};
 		if (helperClassloader == null) {
+			final URL[] helperClassloaderURLs = { manager.jdicStubJarFile.toURI().toURL() };
 			helperClassloader = new HelperClassLoader(helperClassloaderURLs, Activator.class.getClassLoader());
 		}
-
+		
 		// display icon
-		Class init = helperClassloader.loadClass("org.paxle.desktop.impl.DesktopInit");
-		Constructor initC = init.getConstructor(new Class[]{BundleContext.class, String.class});
-		initObject = initC.newInstance(context, mode);
-		initMethod = init.getMethod("init", (Class[])null);
-		shutdownMethod = init.getMethod("shutdown",(Class[])null);
-		initMethod.invoke(initObject, (Object[])null);
+		final boolean thelisMethod = false;
+		
+		if (thelisMethod) {
+			// use DesktopInit object
+			Class<?> init = helperClassloader.loadClass("org.paxle.desktop.impl.DesktopInit");
+			Constructor initC = init.getConstructor(BundleContext.class, String.class);
+			initObject = initC.newInstance(context, mode.toString());
+			initMethod = init.getMethod("init");
+			shutdownMethod = init.getMethod("shutdown");
+			initMethod.invoke(initObject);
+			
+		} else {
+			// use org.paxle.desktop.backend.*-tree and dialogues.Menu
+			this.dibackend = helperClassloader.loadClass(mode.packageName + ".DIBackend").newInstance();
+			final Class<?> smC = helperClassloader.loadClass("org.paxle.desktop.impl.ServiceManager");
+			final Object sm = smC.getConstructor(helperClassloader.loadClass("org.osgi.framework.BundleContext")).newInstance(context);
+			
+			final Class<?> menuC = helperClassloader.loadClass("org.paxle.desktop.impl.SystrayMenu2");
+			this.shutdownMethod = menuC.getMethod("shutdown");
+			this.initObject = menuC.getConstructor(smC,
+					helperClassloader.loadClass("org.paxle.desktop.backend.IDIBackend"),
+					helperClassloader.loadClass("java.net.URL")
+				).newInstance(sm, this.dibackend, context.getBundle().getResource("resources/trayIcon.png"));
+		}
 
 	}
-
+	
 	public void stop(BundleContext context) throws Exception {
-		shutdownMethod.invoke(initObject, (Object[])null);
-		shutdownMethod = null;
+		if (shutdownMethod != null) {
+			shutdownMethod.invoke(initObject);
+			shutdownMethod = null;
+		}
 		initMethod = null;
 		initObject = null;
 		manager = null;
@@ -100,17 +137,9 @@ public class Activator implements BundleActivator {
 				if (!parent.exists()) parent.mkdirs();
 
 				FileOutputStream out = new FileOutputStream(libFile);
-				copy(libIn,out);
-				out.flush();
+				IOTools.copy(libIn,out);
 				out.close();
 			}			
 		}		
 	}
-
-	static void copy( InputStream in, OutputStream out ) throws IOException { 
-		byte[] buffer = new byte[ 0xFFFF ]; 
-
-		for ( int len; (len = in.read(buffer)) != -1; ) 
-			out.write( buffer, 0, len ); 
-	} 
 }
