@@ -21,6 +21,7 @@ import org.paxle.core.threading.IWorker;
  */
 public interface IMWComponent<Data> {
 	public static final String COMPONENT_ID = "component.ID";
+	public static final String POSTFIX_SINK_ID = ".sink";
 	
 	/**
 	 * @return the {@link IMaster master-thread} of the component

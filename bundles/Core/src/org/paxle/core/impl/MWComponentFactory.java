@@ -8,7 +8,10 @@ import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
+import org.paxle.core.filter.IFilter;
+import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.impl.FilterInputQueue;
 import org.paxle.core.queue.impl.FilteringOutputQueue;
 import org.paxle.core.queue.impl.InputQueue;
 import org.paxle.core.queue.impl.OutputQueue;
@@ -74,7 +77,8 @@ public class MWComponentFactory implements IMWComponentFactory {
 		if (workerFactory == null) throw new NullPointerException("The worker-factory is null");
 		
 		// creating the queues
-		InputQueue<Data> inQueue = new InputQueue<Data>(queueBufferSize);
+		//InputQueue<Data> inQueue = new InputQueue<Data>(queueBufferSize);
+		FilterInputQueue<Data> inQueue = new FilterInputQueue<Data>(queueBufferSize);
 		FilteringOutputQueue<Data> outQueue = new FilteringOutputQueue<Data>(queueBufferSize);
 		
 		/* TODO: use bundle-specific informations to ...
@@ -131,9 +135,17 @@ public class MWComponentFactory implements IMWComponentFactory {
 		bc.registerService(IDataSource.class.getName(), component.getDataSource(), dataSourceProps);
 		
 		// register filter queues
-		if (component.getDataSource() instanceof FilteringOutputQueue) {
-			// TODO:
+		if (component.getDataSource() instanceof IFilterQueue) {
+			Hashtable<String,String> filterQueueProps = new Hashtable<String, String>();
+			filterQueueProps.put(IFilterQueue.PROP_FILTER_QUEUE_ID, componentID + ".out");			
+			bc.registerService(IFilterQueue.class.getName(), component.getDataSource(), filterQueueProps);			
 		}
+		
+		if (component.getDataSink() instanceof IFilterQueue) {
+			Hashtable<String,String> filterQueueProps = new Hashtable<String, String>();
+			filterQueueProps.put(IFilterQueue.PROP_FILTER_QUEUE_ID, componentID + ".out");			
+			bc.registerService(IFilterQueue.class.getName(), component.getDataSink(), filterQueueProps);			
+		}		
 	}
 
 	public void unregisterComponentServices(String componentID, IMWComponent component, BundleContext bc) {

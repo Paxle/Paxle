@@ -6,8 +6,7 @@ import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.queue.ICommand;
 
-public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd> implements IFilterQueue {
-	
+public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> implements IFilterQueue {
 	private static final long serialVersionUID = 1L;
 	
 	/**
@@ -15,12 +14,12 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 	 */
 	private ArrayList<IFilter<Cmd>> filterList = new ArrayList<IFilter<Cmd>>();
 	
-	public FilteringOutputQueue(int length) {
+	public FilterInputQueue(int length) {
 		super(length);
 	}
 	
 	@Override
-	public void enqueue(Cmd command) throws InterruptedException {
+	public void putData(Cmd command) throws InterruptedException {
 		switch (command.getResult()) {
 			case Failure:
 			case Rejected:
@@ -30,9 +29,9 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 		
 		switch (command.getResult()) {
 			case Failure:
-			case Passed:  super.enqueue(command); break;
+			case Passed:  super.putData(command); break;
 			case Rejected:
-		}
+		}		
 	}
 	
 	private void filter(Cmd command) {
@@ -45,5 +44,5 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 				e.printStackTrace();
 			}
 		}
-	}
+	}	
 }
