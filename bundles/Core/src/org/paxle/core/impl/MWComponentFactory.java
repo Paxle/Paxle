@@ -143,7 +143,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 		
 		if (component.getDataSink() instanceof IFilterQueue) {
 			Hashtable<String,String> filterQueueProps = new Hashtable<String, String>();
-			filterQueueProps.put(IFilterQueue.PROP_FILTER_QUEUE_ID, componentID + ".out");			
+			filterQueueProps.put(IFilterQueue.PROP_FILTER_QUEUE_ID, componentID + ".in");			
 			bc.registerService(IFilterQueue.class.getName(), component.getDataSink(), filterQueueProps);			
 		}		
 	}
