@@ -80,8 +80,9 @@ public class Activator implements BundleActivator {
 		bc.registerService(ISubParserManager.class.getName(), subParserManager, null);		
 		
 		// register the MimeType filter as service
-		// TODO: which properties should be set for the filter service?
-		bc.registerService(IFilter.class.getName(), new MimeTypeFilter(subParserManager), null);				
+		Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
+		filterProps.put(IFilter.PROP_FILTER_TARGET_ID, new String[]{"org.paxle.parser.in"});
+		bc.registerService(IFilter.class.getName(), new MimeTypeFilter(subParserManager), filterProps);				
 	}
 
 	/**

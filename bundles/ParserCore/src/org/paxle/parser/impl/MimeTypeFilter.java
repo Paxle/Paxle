@@ -16,13 +16,12 @@ public class MimeTypeFilter implements IFilter<ICommand> {
 	}
 
 	public void filter(ICommand command) {
-		// TODO: get the mimetype of the crawled resource
-		String mimeType = null;
+		String mimeType = command.getCrawlerDocument().getMimeType();
 		
 		// check if the mime-type is supported by one of the 
 		// available sub-parsers
 		if (!this.subParserManager.isSupported(mimeType)) {
-			// TODO: set the statuscode of the command accordingly
+			command.setResult(ICommand.Result.Rejected, "MimeType not supported");
 		}		
 		
 	}
