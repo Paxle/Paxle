@@ -4,6 +4,30 @@
   <title>#if( $page_title ) - $page_title#end</title>
   <link href="/style.css" rel="stylesheet" type="text/css" media="screen, projection" />
 </head>
-<body>
+<script type="text/javascript">
+	/* <![CDATA[ */
+	var cobj;
+	function fhide(id, n) {
+		var i, obj = document.getElementsByTagName('fieldset');
+		for(i = 0; i < obj.length; i++) {
+			if (obj[i].id.substring(0,1) == 'd') {
+				obj[i].style.display = 'none';
+			}
+		}
+		fanzeigen(n);
+	}
+
+	function fshow(n) {		
+		if(cobj != null) {
+			document.getElementById('d' + cobj).style.display = 'none';
+			document.getElementById('t' + cobj).style.backgroundColor = '#EEEEEE';
+		}
+		cobj = n;
+		document.getElementById('d' + n).style.display = '';
+		document.getElementById('t' + n).style.backgroundColor = '#FFFFFF';		
+	}
+	/* ]]> */
+</script>
+<body#if( $bodyonload ) onLoad="$bodyonload"#end>
 
 <h1 style="margin: 0; padding: 0.7em; background-color: black; color: white; font-size: 3em; text-align: center;">Paxle</h1>
