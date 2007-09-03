@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bundlejar>
+<resource dst="" pattern=".*\.class" src="/DIJdicBackend/out" type="0"/>
+<resource dst="libs/jdic.jar" src="/DIJdicBackend/libs/jdic.jar" type="1"/>
+<resource dst="/binaries/" src="/DIJdicBackend/binaries" type="2"/>
+</bundlejar>

@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-Name: DIJdicBackend
+Bundle-ClassPath: ., libs/jdic.jar
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.paxle.desktop.backend.impl.jdic
+Bundle-Version: 1.0.0
+Fragment-Host: org.paxle.desktop

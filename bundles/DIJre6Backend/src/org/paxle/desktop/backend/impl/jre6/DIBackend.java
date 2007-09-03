@@ -7,7 +7,6 @@ import javax.swing.ImageIcon;
 
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.backend.desktop.IDesktop;
-import org.paxle.desktop.backend.impl.jdic.SystemTray;
 import org.paxle.desktop.backend.tray.IMenuItem;
 import org.paxle.desktop.backend.tray.IPopupMenu;
 import org.paxle.desktop.backend.tray.ISystemTray;

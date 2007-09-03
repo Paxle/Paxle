@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-Version: 1.0.0
+Bundle-Name: DIJre6Backend
+Bundle-ManifestVersion: 2
+Bundle-Description: Paxle JRE 6 Desktop Integration Backend Bundle
+Bundle-SymbolicName: org.paxle.desktop.backend.impl.jre6
+Fragment-Host: org.paxle.desktop
+DynamicImport-Package: javax.swing, sun.awt, javax.swing.event, sun.aw
+ t.motif, sun.awt.X11, javax.swing.plaf.metal, javax.swing.plaf.basic

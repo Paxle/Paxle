@@ -18,7 +18,7 @@ import org.osgi.framework.BundleContext;
 public class DesktopInit {
 	private static String mode = "jdic";
 	private static final String MODE_JDIC = "jdic";
-	private static final String MODE_JDK6 = "jse6";
+	private static final String MODE_JDK6 = "jre6";
 	
 	private static final String SYSTRAY = "SystemTray";
 	private static final String DESKTOP = "Desktop";
