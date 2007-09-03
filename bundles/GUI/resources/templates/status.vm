@@ -1,16 +1,24 @@
 ## Set the page title
 #set( $page_title = "Paxle Status Page" )
 
+<ul>
+	<li><a href="#general" onClick="switchTab('general'); return false;">General</a></li>
+	
+</ul>
+
 ## the regular content
+<fieldset>
+<legend>General</legend>
 <form>
 	<input type="submit" name="shutdown" value="Shutdown" />	
 	<input type="submit" name="restart" value="Restart" />
 </form>
-<hr />
+</fieldset>
 
 #set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
 #if($subCrawlerManager)
-	<h2>Crawler:</h2>
+<fieldset>
+	<legend>Crawler:</legend>
 	#set($crawlers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
 	#if ($crawlers)
 		#foreach($crawler in $crawlers)
@@ -23,23 +31,22 @@
 		#end
 	#end
 
-	<h3>Supported Protocols:</h3>	
-	$subCrawlerManager.getSubCrawlers().size() crawler(s) found:<br />
-	
-	<table border="1">
-		<tr><th>Protocol</th></tr>
+
+		
+	$subCrawlerManager.getSubCrawlers().size() crawler(s) found, supporting following Protocols:<br />
+	<ul>
+		
 		#foreach($subCrawler in $subCrawlerManager.getSubCrawlers())
-		<tr>		
-			<td>$subCrawler.getProtocol()</td>
-		</tr>
+				<li>$subCrawler.getProtocol()</li>
 		#end
-	</table>
-	<hr />
+	</ul>
+</fieldset>
 #end
 
 #set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
 #if($subParserManager)
-	<h2>Parser:</h2>
+<fieldset>
+	<legend>Parser:</legend>
 	#set($parsers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))	
 	#if ($parsers)
 		#foreach($parser in $parsers)
@@ -56,40 +63,41 @@
 	#set($mimeTypes = $subParserManager.getMimeTypes())
 	#set($parsers = $subParserManager.getSubParsers())		
 	<b>$parsers.size()</b> parser(s) installed supporting <b>$mimeTypes.size()</b> mime-types.
-	
-	<table border="1">
-		<tr><th>MimeTypes</th></tr>
+	<ul>
 		#foreach($mimeType in $mimeTypes)
-		<tr><td>$mimeType</td>
-		</tr>
+		<li>$mimeType</li>
 		#end
-	</table>
-	<hr />
+	</ul>
+</fieldset>
 #end	
 
 	
 #set($p2pManager = $manager.getService("org.paxle.p2p.IP2PManager"))
 #if($p2pManager)
-	<h2>P2P-Manager:</h2>
+<fieldset>
+	<legend>P2P-Manager:</legend>
 	<table>
 		<tr><td>Peer ID:</td><td>$p2pManager.getPeerID()</td></tr>
 		<tr><td>Peer Name:</td><td>$p2pManager.getPeerName()</td></tr>
 		<tr><td>Group ID:</td><td>$p2pManager.getGroupID()</td></tr>
 		<tr><td>Group Name:</td><td>$p2pManager.getGroupName()</td></tr>			
 	</table>
-	
-	<h3>Known Peers</h3>
-	<table>
+</fieldset>
+<fieldset>
+	<legend>Known Peers</legend>
+	<ul>
 	#set($peers = $p2pManager.getPeerList())
 	#foreach($peer in $peers)		
-		<tr><td>$peer</td></tr>
+		<li>$peer</li>
 	#end
-	</table>
-	<hr />
+	</ul>
+</fieldset>
 #end
 
 #set($se = $manager.getService("org.paxle.se.index.IIndexSearcher"))
 #if($se)
-	<h2>Index</h2>
+<fieldset>
+	<legend>Index</legend>
 	<p>Known documents: $se.docCount</p>
+</fieldset>
 #end

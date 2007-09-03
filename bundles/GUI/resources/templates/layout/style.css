@@ -1,0 +1,63 @@
+html {
+	margin: 0;
+	padding: 0;
+	background-color: #F0F0F0;
+	color: #000000;
+}
+
+fieldset {
+	background-color: #FFFFFF;
+	color: #000000;
+}
+
+#nav {
+	width: 15em;
+	margin: 0;
+	padding: 2em 0 8em 0;
+	float: left;
+	list-style: none;
+	background-color: #9C0000;
+}
+
+#nav li {
+	margin: 0;
+	padding: 0;
+}
+
+#nav li a {
+	padding: 0.5em 0 0.5em 1em;
+	display: block;
+	color: #FFFFFF;
+	text-decoration: none;
+	white-space: nowrap;
+	font-size: 1.2em;
+}
+
+#nav li a:hover {
+	background-color: #000000;
+}
+
+#main {
+	margin: 1em 0 0 16em;
+}
+
+.box {
+	margin: 1em 0 0 0;
+	padding: 0.5em;
+	background-color: #FFFFFF;
+	color: #000000;
+	border-style: solid;
+}
+
+.error {
+	border-color: #FF0000;
+}
+.warning {
+	border-color: #FFFF00;
+}
+.debug {
+	border-color: #0000FF;
+}
+.info {
+	border-color: #00FF00;
+}

@@ -70,6 +70,8 @@ public class Activator implements BundleActivator {
                 http.registerServlet("/", new SearchView(manager), props, httpContext);
                 http.registerServlet("/index.html", new SearchView(manager), props, httpContext);
                 http.registerServlet("/search", new SearchView(manager), props, httpContext);
+                
+                http.registerResources("/style.css", "resources/templates/layout/style.css", httpContext);
 
 			}
 		}		

@@ -3,8 +3,8 @@
 
 ## the regular content
 #if($manager.hasService("org.paxle.se.search.ISearchProviderManager"))
-<form >
-	<input type="text" name="query" #if($searchQuery) value="$searchQuery" #end/>
+<form>
+	<input type="text" size="50" name="query" #if($searchQuery) value="$searchQuery" #end/>
 	<input type="submit" value="search now"/>
 </form>
 #else

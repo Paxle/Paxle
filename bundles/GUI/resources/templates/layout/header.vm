@@ -1,5 +1,7 @@
 <html>
 <head>
   <title>#if( $page_title ) - $page_title#end</title>
+  <link href="/style.css" rel="stylesheet" type="text/css" media="screen, projection" />
 </head>
 <body>
+<p style="margin: 0; padding: 0.7em; background-color: black; color: white; font-size: 3em; text-align: center;">Paxle</p>

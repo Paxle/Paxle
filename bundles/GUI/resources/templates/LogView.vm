@@ -5,28 +5,26 @@
 <h1>View Log:</h1>
 #set($logReader = $manager.getService("org.osgi.service.log.LogReaderService"))
 #if($logReader)
-	<table border="1">
+	<ol>
 	#foreach($logEntry in $logReader.getLog())
 		#set($level = $logEntry.getLevel())			
 		
-		<tr><td>
-		#if($level == $LEVEL_ERROR)E
-		#elseif($level == $LEVEL_WARNING)W
-		#elseif($level == $LEVEL_INFO)I
-		#elseif($level == $LEVEL_DEBUG)D
+		<li class="box 
+		#if($level == $LEVEL_ERROR)error
+		#elseif($level == $LEVEL_WARNING)warning
+		#elseif($level == $LEVEL_INFO)info
+		#elseif($level == $LEVEL_DEBUG)debug
 		#end
-		</td>
-		<td>$logEntry.getTime()</td>
-		<td>$logEntry.getMessage()</td>
-		<td>
+		">
+		<p>$logEntry.getTime()</p>
+		<p>$logEntry.getMessage()</p>
 		#set($exception = $logEntry.getException())
 		#if($exception)
-			$exception
+			<p>$exception</p>
 		#end
-		</td>
-		</tr>
+		</li>
 	#end
-	</table>
+	</ol>
 #else
-	<font color="red">No LogReaderService found</font>
+	<p class="box warning">No LogReaderService found</p>
 #end

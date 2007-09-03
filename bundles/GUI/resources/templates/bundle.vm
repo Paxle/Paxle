@@ -4,15 +4,17 @@
 ## the regular content
 #if($bundle)
 <h1>Bundle Info</h1>
-<h2>Runtime Information</h2>
+<fieldset>
+<legend>Runtime Information</legend>
 <table>
 	<tr><td><b>ID</b></td><td>$bundle.BundleId</td></tr>
 	<tr><td><b>Location</b></td><td>$bundle.Location</td></tr>
 	<tr><td><b>State</b></td><td>$states.get($bundle.state)</td></tr>
 	<tr><td><b>Last Modified</b></td><td>$bundle.LastModified</td></tr>
 </table>
-
-<h2>Bundle Manifest</h2>
+</fieldset>
+<fieldset>
+<legend>Bundle Manifest</legend>
 <table>
 	#set($headers = $bundle.getHeaders())	
 	#foreach($name in $headers.keys())		
@@ -35,8 +37,10 @@
 		</tr>
 	#end
 </table>
+</fieldset>
 
-<h2>Exported Services</h2>
+<fieldset>
+<legend>Exported Services</legend>
 <table>
 	#set($services = $bundle.getRegisteredServices())
 	<tr>
@@ -62,8 +66,10 @@
 		</tr>
 	#end	
 </table>
+</fieldset>
 
-<h2>Imported Services</h2>
+<fieldset>
+<legend>Imported Services</legend>
 <table>
 	#set($services = $bundle.getServicesInUse())
 	<tr>
@@ -91,6 +97,7 @@
 		</tr>
 	#end	
 </table>
+</fieldset>
 
 #else
 <h1>Bundle Controlpage</h1>
