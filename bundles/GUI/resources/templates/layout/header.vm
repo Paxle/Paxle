@@ -14,7 +14,7 @@
 				obj[i].style.display = 'none';
 			}
 		}
-		fanzeigen(n);
+		fshow(n);
 	}
 
 	function fshow(n) {		
