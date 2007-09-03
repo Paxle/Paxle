@@ -3,8 +3,12 @@
 
 ## the content
 <form action="/crawler" method="post">
-Crawl URL: <input type="text" name="startURL" /><input type="submit" value="Send" />
+	<label for="startURL">Crawl URL:</label><br /> 
+	<input type="text" id="startURL" name="startURL" /> <input type="submit" value="Send" />
 </form>
 <form action="/crawler" method="post">
-MassCrawl URL: <textarea cols="80" rows="15" name="startURL2"></textarea> <input type="submit" value="Send" />
+	<label for="startURL2">MassCrawl URL:</label><br /> 
+	<textarea cols="80" rows="15" name="startURL2" id="startURL2"></textarea>
+	<br />
+	<input type="submit" value="Send" />
 </form>
