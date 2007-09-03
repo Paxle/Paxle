@@ -1,19 +1,19 @@
 ## Set the page title
 #set( $page_title = "Paxle Status Page" )
 ## Activate onLoad
-#set ( $bodyonload = "fhide(null, null);" )
+#set ( $bodyonload = "fhide('general');" )
 
-<ul>
-	<li><a href="#general" onClick="fshow('general'); return false;" id="tgeneral">General</a></li>
-	<li><a href="#general" onClick="fshow('crawler'); return false;" id="tcrawler">Crawler</a></li>
-	<li><a href="#general" onClick="fshow('parser'); return false;" id="tparser">Parser</a></li>
-	<li><a href="#general" onClick="fshow('p2pmanager'); return false;" id="tp2pmanager">P2P-Manager</a></li>
-	<li><a href="#general" onClick="fshow('knownpeers'); return false;" id="tkownpeers">Known-Peers</a></li>
-	<li><a href="#general" onClick="fshow('index'); return false;" id="tindex">Index</a></li>
+<ul class="tabs">
+	<li><a href="#general" onclick="fshow('general'); return false;" id="tgeneral">General</a></li>
+	<li><a href="#general" onclick="fshow('crawler'); return false;" id="tcrawler">Crawler</a></li>
+	<li><a href="#general" onclick="fshow('parser'); return false;" id="tparser">Parser</a></li>
+	<li><a href="#general" onclick="fshow('p2pmanager'); return false;" id="tp2pmanager">P2P-Manager</a></li>
+	<li><a href="#general" onclick="fshow('knownpeers'); return false;" id="tknownpeers">Known-Peers</a></li>
+	<li><a href="#general" onclick="fshow('index'); return false;" id="tindex">Index</a></li>
 </ul>
 
 ## the regular content
-<fieldset id="dgerneral" style="display: '';">
+<fieldset id="dgeneral">
 <legend>General</legend>
 <form>
 	<input type="submit" name="shutdown" value="Shutdown" />	
@@ -23,7 +23,7 @@
 
 #set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
 #if($subCrawlerManager)
-<fieldset id="dcrawler" style="display: '';">
+<fieldset id="dcrawler">
 	<legend>Crawler:</legend>
 	#set($crawlers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
 	#if ($crawlers)
@@ -51,7 +51,7 @@
 
 #set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
 #if($subParserManager)
-<fieldset id="dparser" style="display: '';">
+<fieldset id="dparser">
 	<legend>Parser:</legend>
 	#set($parsers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))	
 	#if ($parsers)

@@ -7,7 +7,7 @@
 <script type="text/javascript">
 	/* <![CDATA[ */
 	var cobj;
-	function fhide(id, n) {
+	function fhide(n) {
 		var i, obj = document.getElementsByTagName('fieldset');
 		for(i = 0; i < obj.length; i++) {
 			if (obj[i].id.substring(0,1) == 'd') {
@@ -28,6 +28,6 @@
 	}
 	/* ]]> */
 </script>
-<body#if( $bodyonload ) onLoad="$bodyonload"#end>
+<body#if( $bodyonload ) onload="$bodyonload"#end>
 
 <h1 style="margin: 0; padding: 0.7em; background-color: black; color: white; font-size: 3em; text-align: center;">Paxle</h1>

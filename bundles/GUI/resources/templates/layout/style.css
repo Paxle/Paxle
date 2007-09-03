@@ -60,6 +60,18 @@ input:focus, textarea:focus {
 	border-style: solid;
 }
 
+.tabs {
+	margin: 0;
+	padding: 0;
+	float: left;
+	list-style: none;
+
+}
+
+.tabs li {
+	float: left;
+}
+
 .error {
 	border-color: #FF0000;
 }
