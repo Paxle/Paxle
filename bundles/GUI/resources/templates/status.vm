@@ -1,5 +1,7 @@
 ## Set the page title
 #set( $page_title = "Paxle Status Page" )
+## Activate onLoad
+#set ( $bodyonload = "fhide(null, null);" )
 
 <ul>
 	<li><a href="#general" onClick="switchTab('general'); return false;">General</a></li>
