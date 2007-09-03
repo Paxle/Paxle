@@ -4,12 +4,16 @@
 #set ( $bodyonload = "fhide(null, null);" )
 
 <ul>
-	<li><a href="#general" onClick="switchTab('general'); return false;">General</a></li>
-	
+	<li><a href="#general" onClick="fshow('general'); return false;" id="tgeneral">General</a></li>
+	<li><a href="#general" onClick="fshow('crawler'); return false;" id="tcrawler">Crawler</a></li>
+	<li><a href="#general" onClick="fshow('parser'); return false;" id="tparser">Parser</a></li>
+	<li><a href="#general" onClick="fshow('p2pmanager'); return false;" id="tp2pmanager">P2P-Manager</a></li>
+	<li><a href="#general" onClick="fshow('knownpeers'); return false;" id="tkownpeers">Known-Peers</a></li>
+	<li><a href="#general" onClick="fshow('index'); return false;" id="tindex">Index</a></li>
 </ul>
 
 ## the regular content
-<fieldset>
+<fieldset id="dgerneral" style="display: '';">
 <legend>General</legend>
 <form>
 	<input type="submit" name="shutdown" value="Shutdown" />	
@@ -19,7 +23,7 @@
 
 #set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
 #if($subCrawlerManager)
-<fieldset>
+<fieldset id="dcrawler" style="display: '';">
 	<legend>Crawler:</legend>
 	#set($crawlers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
 	#if ($crawlers)
@@ -47,7 +51,7 @@
 
 #set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
 #if($subParserManager)
-<fieldset>
+<fieldset id="dparser" style="display: '';">
 	<legend>Parser:</legend>
 	#set($parsers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))	
 	#if ($parsers)
@@ -76,7 +80,7 @@
 	
 #set($p2pManager = $manager.getService("org.paxle.p2p.IP2PManager"))
 #if($p2pManager)
-<fieldset>
+<fieldset id="dp2pmanager">
 	<legend>P2P-Manager:</legend>
 	<table>
 		<tr><td>Peer ID:</td><td>$p2pManager.getPeerID()</td></tr>
@@ -85,7 +89,7 @@
 		<tr><td>Group Name:</td><td>$p2pManager.getGroupName()</td></tr>			
 	</table>
 </fieldset>
-<fieldset>
+<fieldset id="dknownpeers">
 	<legend>Known Peers</legend>
 	<ul>
 	#set($peers = $p2pManager.getPeerList())
@@ -98,7 +102,7 @@
 
 #set($se = $manager.getService("org.paxle.se.index.IIndexSearcher"))
 #if($se)
-<fieldset>
+<fieldset id="dindex">
 	<legend>Index</legend>
 	<p>Known documents: $se.docCount</p>
 </fieldset>
