@@ -20,8 +20,8 @@ public class FilterListener implements ServiceListener {
 	 * The interfaces to listen for
 	 */
 	private static final HashSet<String> INTERFACES = new HashSet<String>(Arrays.asList(new String[]{	
-		IFilter.class.getName(),
-		IFilterQueue.class.getName()
+			IFilter.class.getName(),
+			IFilterQueue.class.getName()
 	}));	
 
 	/**
@@ -67,11 +67,11 @@ public class FilterListener implements ServiceListener {
 
 		// get the names of the registered interfaces 
 		String[] interfaceNames = ((String[])reference.getProperty(Constants.OBJECTCLASS));
-		
+
 		// loop through the interfaces
 		for (String interfaceName : interfaceNames) {
 			if (!INTERFACES.contains(interfaceName)) continue;
-			
+
 			if (interfaceName.equals(IFilter.class.getName())) 
 				this.handleFilter(reference, eventType);
 			else if (interfaceName.equals(IFilterQueue.class.getName())) 
@@ -83,30 +83,32 @@ public class FilterListener implements ServiceListener {
 		if (eventType == ServiceEvent.REGISTERED) {
 			// get the filter
 			IFilter filter = (IFilter) this.context.getService(reference);	
-			Object targetIDs = reference.getProperty(IFilter.PROP_FILTER_TARGET_ID);
-			
-			if (targetIDs instanceof String)  
-				this.filterManager.addFilter((String) targetIDs, filter);
-			else if (targetIDs instanceof String[]) 
-				this.filterManager.addFilter((String[]) targetIDs, filter);
-			else throw new IllegalArgumentException(IFilter.PROP_FILTER_TARGET_ID + " has wrong type.");
+			Object targets = reference.getProperty(IFilter.PROP_FILTER_TARGET);
 
-			
+			if (targets instanceof String)  
+				this.filterManager.addFilter(this.generateFilterMetadata((String) targets, filter));
+			else if (targets instanceof String[]) {
+				for (String target : (String[]) targets) {
+					this.filterManager.addFilter(this.generateFilterMetadata(target, filter));
+				}
+			} else throw new IllegalArgumentException(IFilter.PROP_FILTER_TARGET + " has wrong type.");
+
+
 			System.out.println("New filter '" + filter.getClass().getName() + "' registered.");			
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
-			// TODO: new filter was uninstalled
+			// TODO: filter was uninstalled
 			System.out.println("Filter unregistered.");
 		} else if (eventType == ServiceEvent.MODIFIED) {
 			// service properties have changed
 		}			
 	}
-	
+
 	private void handleFilterQueue(ServiceReference reference, int eventType) {
 		if (eventType == ServiceEvent.REGISTERED) {
 			// get the filter
 			IFilterQueue queue = (IFilterQueue) this.context.getService(reference);	
 			String queueID = (String) reference.getProperty(IFilterQueue.PROP_FILTER_QUEUE_ID);
-			
+
 			this.filterManager.addFilterQueue(queueID, queue);			
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			// TODO: new filter was uninstalled
@@ -114,5 +116,29 @@ public class FilterListener implements ServiceListener {
 		} else if (eventType == ServiceEvent.MODIFIED) {
 			// service properties have changed
 		}		
+	}
+
+	private FilterMetaData generateFilterMetadata(String target, IFilter filter) {
+		String[] params = target.split(";");
+		String targetID = params[0].trim();
+		int filterPos = 0;
+
+		if (params.length > 1) {
+			for (int i=1; i < params.length; i++) {
+				String param = params[i];
+				String[] paramParts = param.split("=");
+				if (paramParts[0].trim().equals("pos")) {
+					try {
+						filterPos = Integer.valueOf(paramParts[1].trim()).intValue();
+					} catch (NumberFormatException e) {/* ignore this */}
+				}
+			}
+		}
+
+		return new FilterMetaData(
+				filter,
+				targetID,
+				filterPos
+		);
 	}
 }

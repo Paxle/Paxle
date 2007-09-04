@@ -62,6 +62,6 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 	 * @see IFilterQueue#setFilters(List)
 	 */	
 	public void setFilters(final List<IFilter> filters) {
-		filterList = new ArrayList<IFilter>(filters);
+		filterList = filters;
 	}
 }

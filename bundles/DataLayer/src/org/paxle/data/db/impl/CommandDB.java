@@ -95,16 +95,17 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			 * Init Reader/Writer Threads
 			 * =========================================================================== */
 		    this.writerThread = new Writer();
-		    this.writerThread.start();
-		    
 		    this.readerThread = new Reader();
-		    this.readerThread.start();
-		    
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}	
+	
+	public void start() {		
+	    this.writerThread.start();
+	    this.readerThread.start();		
+	}
 	
 	/**
 	 * @see IDataConsumer#setDataSource(IDataSource)
@@ -193,14 +194,15 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		}	
 	}
 	
-	private synchronized List<ICommand> fetchNextCommands(int offset, int limit)  {		
+	private List<ICommand> fetchNextCommands(int offset, int limit)  {		
 		List<ICommand> result = null;
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
 		try {
 			transaction = session.beginTransaction();
 
-			Query query = session.createQuery("FROM ICommand as cmd" /* " WHERE cmd.result is null" */);
+			Query query = session.getNamedQuery("fromCrawlerQueue");
+//				session.createQuery("FROM ICommand as cmd LEFT JOIN cmd.IndexerDocuments as indexerDoc WHERE AND (indexerDoc is null)");
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 			result = (List<ICommand>) query.list();
@@ -215,7 +217,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		return result;
 	}
 	
-	private synchronized void storeCommand(ICommand cmd) {
+	public void storeCommand(ICommand cmd) {
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
 		try {
@@ -224,10 +226,33 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 	        session.saveOrUpdate(cmd);	        
 	        
 			transaction.commit();
+			
+			// signal writer that a new URL is available
+			this.writerThread.signalNewDbData();			
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
 			this.logger.error("Error while writing command to db",e);
 		}
+	}
+	
+	public void storeCommand(ICommand[] cmds) {
+		Session session = sessionFactory.getCurrentSession();
+		Transaction transaction = null;
+		try {
+			transaction = session.beginTransaction();
+			
+			for (ICommand cmd : cmds) {
+				session.saveOrUpdate(cmd);	
+			}
+	        
+			transaction.commit();
+			
+			// signal writer that a new URL is available
+			this.writerThread.signalNewDbData();			
+		} catch (HibernateException e) {
+			if (transaction != null && transaction.isActive()) transaction.rollback(); 
+			this.logger.error("Error while writing command to db",e);
+		}		
 	}
 	
 	/**
@@ -285,7 +310,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 				List<ICommand> commands = null;
 				while(!Thread.currentThread().isInterrupted()) {
 					commands = CommandDB.this.fetchNextCommands(0,1);
-					if (commands.size() > 0) {
+					if (commands != null && commands.size() > 0) {
 						for (ICommand command : commands) {
 //							System.out.println(CommandDB.this.isKnown(command.getLocation()));
 							CommandDB.this.sink.putData(command);
@@ -328,10 +353,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 					if (command != null) {
 						// store data into db
 						CommandDB.this.storeCommand(command);
-//						CommandDB.this.commandToXML(command);
-						
-						// signal writer that a new URL is available
-						CommandDB.this.writerThread.signalNewDbData();
+//						CommandDB.this.commandToXML(command);						
 					}
 				}				
 			} catch (Exception e) {

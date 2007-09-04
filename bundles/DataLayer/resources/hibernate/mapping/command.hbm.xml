@@ -31,7 +31,7 @@
     	</array>
     </class>
     
-    <query name="fromCrawlingQueue"><![CDATA[
+    <query name="fromCrawlerQueue"><![CDATA[
 		FROM ICommand as cmd
 	]]></query>
 
