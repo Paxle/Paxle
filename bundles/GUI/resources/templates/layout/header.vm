@@ -20,11 +20,12 @@
 	function fshow(n) {		
 		if(cobj != null) {
 			document.getElementById('d' + cobj).style.display = 'none';
-			document.getElementById('t' + cobj).style.backgroundColor = '#EEEEEE';
+			document.getElementById('t' + cobj).className = '';
 		}
 		cobj = n;
 		document.getElementById('d' + n).style.display = '';
-		document.getElementById('t' + n).style.backgroundColor = '#FFFFFF';		
+		document.getElementById('t' + n).className = 'active';		
+		return false;
 	}
 	/* ]]> */
 </script>

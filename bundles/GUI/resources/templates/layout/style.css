@@ -63,13 +63,24 @@ input:focus, textarea:focus {
 .tabs {
 	margin: 0;
 	padding: 0;
-	float: left;
 	list-style: none;
-
 }
 
 .tabs li {
 	float: left;
+}
+
+.tabs li a {
+    display: block;
+    padding: 4px;
+    background-color: #9C0000;
+    color:white;
+    text-decoration:none;
+}
+
+.tabs li a.active, .tabs li a:hover {
+    background-color: black;
+    padding-top: 8px;
 }
 
 .error {
