@@ -3,8 +3,22 @@
 
 ## the regular content
 #if($bundle)
+## Activate onload
+#set ( $bodyonload = "fhide('runtimeinformation');" )
 <h1>Bundle Info</h1>
-<fieldset>
+
+<ul class="tabs">
+	<li><a href="#druntimeinformation" onclick="fshow('runtimeinformation');" id="truntimeinformation">Runtime Information</a></li>
+	<li><a href="#dbundlemanifest" onclick="fshow('bundlemanifest');" id="tbundlemanifest">Bundle Manifest</a></li>
+	<li><a href="#dexportedservices" onclick="fshow('exportedservices');" id="texportedservices">Exported Services</a></li>
+	<li><a href="#dimportedservices" onclick="fshow('importedservices');" id="timportedservices">Imported Services</a></li>
+</ul>
+
+<br />
+<br />
+
+
+<fieldset id="druntimeinformation">
 <legend>Runtime Information</legend>
 <table>
 	<tr><td><b>ID</b></td><td>$bundle.BundleId</td></tr>
@@ -13,7 +27,8 @@
 	<tr><td><b>Last Modified</b></td><td>$bundle.LastModified</td></tr>
 </table>
 </fieldset>
-<fieldset>
+
+<fieldset id="dbundlemanifest">
 <legend>Bundle Manifest</legend>
 <table>
 	#set($headers = $bundle.getHeaders())	
@@ -39,7 +54,7 @@
 </table>
 </fieldset>
 
-<fieldset>
+<fieldset id="dexportedservices">
 <legend>Exported Services</legend>
 <table>
 	#set($services = $bundle.getRegisteredServices())
@@ -68,7 +83,7 @@
 </table>
 </fieldset>
 
-<fieldset>
+<fieldset id="dimportedservices">
 <legend>Imported Services</legend>
 <table>
 	#set($services = $bundle.getServicesInUse())
@@ -101,35 +116,22 @@
 
 #else
 <h1>Bundle Controlpage</h1>
-<table>
-	<tr>
-		<th>ID</th>
-		<th>Name</th>
-		<th>State</th>
-		<th>Start</th>
-		<th>Stop</th>
-		<th>Update</th>
-	</tr>
+<ul id="bundle">
 	#if($bundles)
 		#foreach($entry in $bundles.entrySet())
-			<tr>
-				<td><a href="?bundleID=$entry.key&details=">$entry.key</a></td>
-				<td>$entry.value.symbolicName</td>
-				<td>$states.get($entry.value.state)</td>
-				<td align="center"><form>
+			<li>
+				<form>
 						<input type="hidden" name="bundleID" value="$entry.key" />
 						<input type="submit" name="start" value="Start" />
-				</form></td>
-				<td align="center"><form>
-						<input type="hidden" name="bundleID" value="$entry.key" />
 						<input type="submit" name="stop" value="Stop" />
-				</form></td>
-				<td align="center"><form>
-						<input type="hidden" name="bundleID" value="$entry.key" />
 						<input type="submit" name="update" value="Update" />
-				</form></td>
-			</tr>
+				
+				<a class="$states.get($entry.value.state)" href="?bundleID=$entry.key&details=">
+				$entry.key - $entry.value.symbolicName</a>
+				</form>
+	
+			</li>
 		#end
 	#end
-</table>
+</ul>
 #end

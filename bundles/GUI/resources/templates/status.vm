@@ -1,21 +1,22 @@
 ## Set the page title
 #set( $page_title = "Paxle Status Page" )
-## Activate onLoad
+## Activate onload
 #set ( $bodyonload = "fhide('general');" )
 
 <ul class="tabs">
-	<li><a href="#dgeneral" onClick="fshow('general');" id="tgeneral">General</a></li>
-	<li><a href="#dcrawler" onClick="fshow('crawler');" id="tcrawler">Crawler</a></li>
-	<li><a href="#dparser" onClick="fshow('parser');" id="tparser">Parser</a></li>
-	<li><a href="#dp2pmanager" onClick="fshow('p2pmanager');" id="tp2pmanager">P2P-Manager</a></li>
-	<li><a href="#dknownpeers" onClick="fshow('knownpeers');" id="tknownpeers">Known-Peers</a></li>
-	<li><a href="#dindex" onClick="fshow('index');" id="tindex">Index</a></li>
+	<li><a href="#dgeneral" onclick="fshow('general');" id="tgeneral">General</a></li>
+	<li><a href="#dcrawler" onclick="fshow('crawler');" id="tcrawler">Crawler</a></li>
+	<li><a href="#dparser" onclick="fshow('parser');" id="tparser">Parser</a></li>
+	<li><a href="#dp2pmanager" onclick="fshow('p2pmanager');" id="tp2pmanager">P2P-Manager</a></li>
+	<li><a href="#dknownpeers" onclick="fshow('knownpeers');" id="tknownpeers">Known-Peers</a></li>
+	<li><a href="#dindex" onclick="fshow('index');" id="tindex">Index</a></li>
 </ul>
 
 <br />
+<br />
 
 ## the regular content
-<form>
+<form method="post">
 <fieldset id="dgeneral">
 <legend>General</legend>
 	<input type="submit" name="shutdown" value="Shutdown" />	
