@@ -345,7 +345,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			try {
 
 				synchronized (this) {
-					while (CommandDB.this.sink == null) this.wait();
+					while (CommandDB.this.source == null) this.wait();
 				}		
 				
 				while(!Thread.currentThread().isInterrupted()) {

@@ -24,19 +24,37 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		if (parserDoc == null) return;
 
 		// getting the link map
-		Map linkMap = parserDoc.getLinks();
+		this.extractLinks(parserDoc);
+	}
+	
+	private void extractLinks(IParserDocument parserDoc) {
+		if (parserDoc == null) return;
+		
+		// getting the link map
+		Map<String, String> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
-			for (String ref : (Set<String>) linkMap.keySet()) {
-				// do some url normalization here
-				// TODO: this should be done in another filter
-				int idx = ref.indexOf("#");
-				if (idx != -1) ref = ref.substring(0,idx);
-				
-				if (!db.isKnown(ref)) {
-					db.storeCommand(Command.createCommand(ref));
-				}
+			this.extractLinks(linkMap);
+		}
+		
+		Map<String,IParserDocument> subDocs = parserDoc.getSubDocs();
+		if (subDocs != null) {
+			for (IParserDocument subDoc : subDocs.values()) {
+				this.extractLinks(subDoc);
 			}
 		}
+	}
+	
+	private void extractLinks(Map<String, String> linkMap) {
+		for (String ref : (Set<String>) linkMap.keySet()) {
+			// do some url normalization here
+			// TODO: this should be done in another filter
+			int idx = ref.indexOf("#");
+			if (idx != -1) ref = ref.substring(0,idx);
+			
+			if (!db.isKnown(ref)) {
+				db.storeCommand(Command.createCommand(ref));
+			}
+		}		
 	}
 
 }
