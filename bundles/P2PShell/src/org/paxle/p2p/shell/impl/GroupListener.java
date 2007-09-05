@@ -7,7 +7,6 @@ import net.jxta.impl.shell.bin.Shell.Shell;
 import net.jxta.peergroup.PeerGroup;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
@@ -46,7 +45,9 @@ public class GroupListener implements ServiceListener {
 		if (eventType == ServiceEvent.REGISTERED) {			
 			// get the detector service
 			PeerGroup paxleGroup = (PeerGroup) this.context.getService(reference);
-
+			
+			//System.setProperty("SHELLNOWINDOW", "true");
+			
 			shell = new Shell(true);
 			shell.init(paxleGroup,null,null);
 			shell.startApp(null);			

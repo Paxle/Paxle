@@ -1,20 +1,26 @@
 package org.paxle.core.filter.impl;
 
-import org.paxle.core.filter.IFilter;
+import java.util.Properties;
 
-public class FilterMetaData implements Comparable<FilterMetaData> {
+import org.paxle.core.filter.IFilter;
+import org.paxle.core.filter.IFilterContext;
+
+
+public class FilterContext implements Comparable<FilterContext>, IFilterContext {
+	private Properties props = null;
 	private IFilter filterImpl = null;
 	private String targetID = null;
 	private int pos = 0;
 	
 	
-	public FilterMetaData(IFilter filterImpl, String targetID, int filterPos) {
+	public FilterContext(IFilter filterImpl, String targetID, int filterPos, Properties props) {
 		this.filterImpl = filterImpl;
 		this.targetID = targetID;
 		this.pos = filterPos;
+		this.props = props;
 	}
 	
-	public IFilter getFilterImpl() {
+	public IFilter getFilter() {
 		return this.filterImpl;
 	}
 	
@@ -26,7 +32,11 @@ public class FilterMetaData implements Comparable<FilterMetaData> {
 		return this.pos;
 	}
 
-	public int compareTo(FilterMetaData o) {
+	public Properties getFilterProperties() {
+		return (this.props==null)?new Properties():this.props;
+	}
+	
+	public int compareTo(FilterContext o) {
 		return Integer.valueOf(this.pos).compareTo(Integer.valueOf(o.pos));
 	}
 	
@@ -38,7 +48,8 @@ public class FilterMetaData implements Comparable<FilterMetaData> {
 			   .append(": ")
 			   .append("target=")
 			   .append(this.targetID)
-			   .append("[").append(this.pos).append("]");
+			   .append("[").append(this.pos).append("] ")
+			   .append(this.props.toString());
 		
 		return builder.toString();
 	}

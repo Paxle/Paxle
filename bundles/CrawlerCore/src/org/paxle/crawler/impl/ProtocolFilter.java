@@ -3,6 +3,7 @@ package org.paxle.crawler.impl;
 import java.net.URL;
 
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 import org.paxle.crawler.ISubCrawler;
 
@@ -21,7 +22,7 @@ public class ProtocolFilter implements IFilter {
 	/**
 	 * @see IFilter#filter(ICommand)
 	 */
-	public void filter(ICommand command) {
+	public void filter(ICommand command, IFilterContext context) {
 		try {
 			String location = command.getLocation();
 			String protocol = new URL(location).getProtocol();

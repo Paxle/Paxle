@@ -1,6 +1,7 @@
 package org.paxle.parser.impl;
 
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 import org.paxle.parser.ISubParser;
 
@@ -15,7 +16,7 @@ public class MimeTypeFilter implements IFilter<ICommand> {
 		this.subParserManager = subParserManager;
 	}
 
-	public void filter(ICommand command) {
+	public void filter(ICommand command, IFilterContext context) {
 		String mimeType = command.getCrawlerDocument().getMimeType();
 		
 		// check if the mime-type is supported by one of the 

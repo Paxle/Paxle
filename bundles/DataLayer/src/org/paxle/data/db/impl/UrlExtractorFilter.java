@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 
@@ -16,7 +17,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void filter(ICommand command) {
+	public void filter(ICommand command, IFilterContext context) {
 		if (command == null) return;
 
 		// getting the parser-doc

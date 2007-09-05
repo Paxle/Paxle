@@ -9,5 +9,5 @@ public interface IFilter<C extends ICommand> {
 	 */
 	public static final String PROP_FILTER_TARGET = "FilterTarget";
 	
-	public void filter(C command);
+	public void filter(C command, IFilterContext filterContext);
 }

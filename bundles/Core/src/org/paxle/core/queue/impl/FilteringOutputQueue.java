@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.queue.ICommand;
 
@@ -17,7 +18,7 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 	/**
 	 * A list containing all filters that are active for this output-queue
 	 */
-	private List<IFilter> filterList = null;
+	private List<IFilterContext> filterList = null;
 	
 	public FilteringOutputQueue(int length) {
 		super(length);
@@ -43,17 +44,20 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 		if (this.filterList == null) return;
 		
 		// post-process the command through filters
-		for (IFilter<Cmd> filter : this.filterList) {
+		for (IFilterContext filterContext : this.filterList) {
+			IFilter<ICommand> filter = null;
 			try {
+				filter = filterContext.getFilter();
+				
 				// process the command by the next filter
-				filter.filter(command);
+				filter.filter(command, filterContext);
 				if (command.getResult() == ICommand.Result.Rejected) {
 					this.logger.warn(String.format("Command for URL '%s' rejected by filter '%s'. Reason: '%s'",
 							command.getLocation(), filter.getClass().getName(), command.getResultText()
 					));
 				}
 			} catch (Exception e) {
-				this.logger.error(String.format("Filter '%s' terminated with exception.",filter.getClass().getName()),e);
+				this.logger.error(String.format("Filter '%s' terminated with exception.",(filter==null)?"unknown":filter.getClass().getName()),e);
 			}
 		}
 	}
@@ -61,7 +65,7 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 	/**
 	 * @see IFilterQueue#setFilters(List)
 	 */	
-	public void setFilters(final List<IFilter> filters) {
+	public void setFilters(List<IFilterContext> filters) {
 		filterList = filters;
 	}
 }

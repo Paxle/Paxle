@@ -2,6 +2,7 @@ package org.paxle.core.filter.impl;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Properties;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -118,7 +119,8 @@ public class FilterListener implements ServiceListener {
 		}		
 	}
 
-	private FilterMetaData generateFilterMetadata(String target, IFilter filter) {
+	private FilterContext generateFilterMetadata(String target, IFilter filter) {
+		Properties filterProps = new Properties();
 		String[] params = target.split(";");
 		String targetID = params[0].trim();
 		int filterPos = 0;
@@ -127,18 +129,24 @@ public class FilterListener implements ServiceListener {
 			for (int i=1; i < params.length; i++) {
 				String param = params[i];
 				String[] paramParts = param.split("=");
-				if (paramParts[0].trim().equals("pos")) {
+				String key = paramParts[0].trim();
+				String val = paramParts[1].trim();
+				
+				if (key.equals("pos")) {
 					try {
-						filterPos = Integer.valueOf(paramParts[1].trim()).intValue();
+						filterPos = Integer.valueOf(val).intValue();
 					} catch (NumberFormatException e) {/* ignore this */}
+				} else {
+					filterProps.setProperty(key, val);
 				}
 			}
 		}
 
-		return new FilterMetaData(
+		return new FilterContext(
 				filter,
 				targetID,
-				filterPos
+				filterPos,
+				filterProps
 		);
 	}
 }
