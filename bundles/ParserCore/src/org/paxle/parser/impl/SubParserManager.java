@@ -29,7 +29,7 @@ public class SubParserManager implements ISubParserManager {
 	
 	public void addSubParser(String[] mimeTypes, ISubParser subParser) {
 		for (String mimeType : mimeTypes) {
-			this.subParserList.put(mimeType, subParser);
+			this.subParserList.put(mimeType.trim(), subParser);
 			System.out.println("Parser for mimetypes '" + mimeType + "' was installed.");
 		}			
 	}
@@ -44,7 +44,7 @@ public class SubParserManager implements ISubParserManager {
 	
 	public void removeSubParser(String[] mimeTypes) {
 		for (String mimeType : mimeTypes) {			
-			this.subParserList.remove(mimeType);
+			this.subParserList.remove(mimeType.trim());
 			System.out.println("Parser for mimetypes '" + mimeType + "' was uninstalled.");
 		}			
 	}

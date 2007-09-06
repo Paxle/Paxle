@@ -8,10 +8,19 @@ import java.util.List;
 import org.paxle.core.doc.IParserDocument;
 
 public interface ISubParser {
+	/**
+	 * Specifies the mime-types supported by this parser. 
+	 * The value of this property can be passed as semicolon-separated string or as array of strings, e.g.:
+	 * <pre>
+	 * Hashtable<String,String[]> parserProperties = new Hashtable<String,String[]>();
+ 	 * List<String> mimeTypes = parser.getMimeTypes();
+	 * parserProperties.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
+	 * </pre> 
+	 */
 	public static final String PROP_MIMETYPES = "MimeTypes";
 
 	/**
-	 * @return a list of mime-types supported by this sub-parser
+	 * @return a list of mime-types supported by this sub-parser. 
 	 */
 	public List<String> getMimeTypes();
 	
