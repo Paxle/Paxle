@@ -22,7 +22,13 @@ public class Activator implements BundleActivator {
 		 * Register Services provided by this bundle
 		 * ========================================================== */
 		// register the SubParser-Manager as service
-		bc.registerService(IMimeTypeDetector.class.getName(), new MimeTypeDetector(), null);			
+		MimeTypeDetector detector = new MimeTypeDetector(null);
+		bc.registerService(IMimeTypeDetector.class.getName(), detector , null);
+		
+		/* ==========================================================
+		 * Register Service Listeners
+		 * ========================================================== */		
+		bc.addServiceListener(new DetectionHelperListener(detector,bc),DetectionHelperListener.FILTER);	
 	}
 
 	/**
