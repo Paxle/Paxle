@@ -24,10 +24,14 @@ public class SubParserManager implements ISubParserManager {
 	 * @param subParser the newly detected sub-parser
 	 */
 	public void addSubParser(String mimeTypes, ISubParser subParser) {
-		for (String mimeType : mimeTypes.split(";")) {
-			this.subParserList.put(mimeType, subParser);					
-		}
-		System.out.println("Parser for mimetypes '" + mimeTypes + "' was installed.");
+		this.addSubParser(mimeTypes.split(";|,"), subParser);
+	}
+	
+	public void addSubParser(String[] mimeTypes, ISubParser subParser) {
+		for (String mimeType : mimeTypes) {
+			this.subParserList.put(mimeType, subParser);
+			System.out.println("Parser for mimetypes '" + mimeType + "' was installed.");
+		}			
 	}
 	
 	/**
@@ -35,11 +39,15 @@ public class SubParserManager implements ISubParserManager {
 	 * @param mimeTypes a list of mimeTypes supported by the sub-parser
 	 */
 	public void removeSubParser(String mimeTypes) {
-		for (String mimeType : mimeTypes.split(";")) {			
-			this.subParserList.remove(mimeType);					
-		}
-		System.out.println("Parser for mimetypes '" + mimeTypes + "' was uninstalled.");
+		this.removeSubParser(mimeTypes.split(";|,"));
 	}	
+	
+	public void removeSubParser(String[] mimeTypes) {
+		for (String mimeType : mimeTypes) {			
+			this.subParserList.remove(mimeType);
+			System.out.println("Parser for mimetypes '" + mimeType + "' was uninstalled.");
+		}			
+	}
 	
 	/**
 	 * Getting a {@link ISubParser} which is capable to handle the given mime-type
