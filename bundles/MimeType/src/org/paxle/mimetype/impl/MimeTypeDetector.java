@@ -3,10 +3,9 @@ package org.paxle.mimetype.impl;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.sf.jmimemagic.Magic;
 import net.sf.jmimemagic.MagicMatch;
@@ -42,8 +41,15 @@ public class MimeTypeDetector implements IMimeTypeDetector {
 			magicParserField.setAccessible(true);
 			MagicParser magicParser = (MagicParser) magicParserField.get(null);
 			
-			// get the list of registered matchers
-			this.matcherList = (List<MagicMatcher>) magicParser.getMatchers();
+			/* Get the list of registered matchers, convert it into a synchronized list and
+			 * pass the syncronized list back to the magicParser.
+			 * 
+			 * This is required for syncronization.
+			 */ 
+			Field matchersField = MagicParser.class.getDeclaredField("matchers");
+			matchersField.setAccessible(true);
+			this.matcherList = new CopyOnWriteArrayList<MagicMatcher>((Collection<MagicMatcher>)matchersField.get(magicParser));
+			matchersField.set(magicParser, this.matcherList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
