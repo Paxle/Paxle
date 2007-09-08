@@ -50,7 +50,7 @@ public class Activator implements BundleActivator {
 		 */
 		URL config = null;
 
-		if (false) {
+		if (true) {
 			/* Getting the config file to use 
 			 * Note: we do not use class.getName() because the PreferencesSerivce  is declared as optional
 			 */
