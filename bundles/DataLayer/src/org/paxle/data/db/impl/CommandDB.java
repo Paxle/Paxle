@@ -206,7 +206,12 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 			result = (List<ICommand>) query.list();
-			// TODO: delete object or mark as loaded
+			
+			/* This is a q&d hack to avoid double loading of enqueued commands. */
+			for (ICommand cmd : (List<ICommand>) result) {
+				cmd.setResultText("Enqueued");
+				session.update(cmd);
+			}
 			
 			transaction.commit();
 		} catch (HibernateException e) {
