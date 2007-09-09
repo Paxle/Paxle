@@ -24,6 +24,10 @@ public class ProtocolFilter implements IFilter {
 	 */
 	public void filter(ICommand command, IFilterContext context) {
 		try {
+			// TODO: check mode parameter which specifies if
+			// a) the location should be checked
+			// b) the parsed refs should be checked
+			
 			String location = command.getLocation();
 			String protocol = new URL(location).getProtocol();
 

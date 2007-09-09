@@ -22,7 +22,7 @@ public class MimeTypeFilter implements IFilter<ICommand> {
 		// check if the mime-type is supported by one of the 
 		// available sub-parsers
 		if (!this.subParserManager.isSupported(mimeType)) {
-			command.setResult(ICommand.Result.Rejected, "MimeType not supported");
+			command.setResult(ICommand.Result.Rejected, String.format("MimeType '%s' not supported", mimeType));
 		}		
 		
 	}

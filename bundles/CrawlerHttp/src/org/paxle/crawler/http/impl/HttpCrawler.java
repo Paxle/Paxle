@@ -2,7 +2,9 @@ package org.paxle.crawler.http.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.NoRouteToHostException;
+import java.net.UnknownHostException;
 import java.util.Date;
 
 import org.apache.commons.httpclient.Header;
@@ -176,16 +178,23 @@ public class HttpCrawler implements IHttpCrawler {
 		} catch (NoRouteToHostException e) {
 			this.logger.error(String.format("Error crawling %s: %s", requestUrl, e.getMessage()));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
+		} catch (UnknownHostException e) {
+			this.logger.error(String.format("Error crawling %s: Unknown host.", requestUrl));
+			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());	
+		} catch (ConnectException e) {
+			this.logger.error(String.format("Error crawling %s: Unable to connect to host.", requestUrl));
+			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());				
 		} catch (Exception e) {
 			String errorMsg;
 			if (e instanceof HttpException) {
-				errorMsg = "Unrecovered protocol exception: %s";
+				errorMsg = "Unrecovered protocol exception: [%s] %s";
 			} else if (e instanceof IOException) {
-				errorMsg = "Transport exceptions: %s";
+				errorMsg = "Transport exceptions: [%s] %s";
 			} else {
-				errorMsg = "Unexpected exception: %s";
+				errorMsg = "Unexpected exception: [%s] %s";
 			}
-			errorMsg = String.format(errorMsg, e.getMessage());
+			errorMsg = String.format(errorMsg, e.getClass().getName(), e.getMessage());
+			
 			this.logger.error(String.format("Error crawling %s: %s", requestUrl, errorMsg));
 			doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, errorMsg);
 			e.printStackTrace();
