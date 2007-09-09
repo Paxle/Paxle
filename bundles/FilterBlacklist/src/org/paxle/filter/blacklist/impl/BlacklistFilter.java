@@ -68,16 +68,19 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
     private String isListed(String url) {
         lock.readLock().lock();
         String reason = null;
-        Iterator<Pattern> eter = blacklist.iterator();
-        while(eter.hasNext()) {
-            Pattern temp = eter.next();
-            Matcher m = temp.matcher(url);
-            if(m.matches()) {
-                reason = temp.pattern();
-                break;
+        try {
+            Iterator<Pattern> eter = blacklist.iterator();
+            while(eter.hasNext()) {
+                Pattern temp = eter.next();
+                Matcher m = temp.matcher(url);
+                if(m.matches()) {
+                    reason = temp.pattern();
+                    break;
+                }
             }
+        } finally {
+            lock.readLock().unlock();            
         }
-        lock.readLock().unlock();
         return reason;
     }
     
@@ -98,8 +101,9 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            lock.writeLock().unlock();
         }
-        lock.writeLock().unlock();
     }
     
     /**
