@@ -1,6 +1,3 @@
-/*
- * Created on Thu Sep 06 11:46:34 CEST 2007
- */
 package org.paxle.filter.blacklist.impl;
 
 import java.io.File;
