@@ -236,7 +236,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			this.writerThread.signalNewDbData();			
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-			this.logger.error("Error while writing command to db",e);
+			this.logger.error(String.format("Error while writing command with location '%s' to db.", cmd.getLocation()),e);
 		}
 	}
 	
@@ -256,7 +256,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			this.writerThread.signalNewDbData();			
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-			this.logger.error("Error while writing command to db",e);
+			this.logger.error("Error while writing command with location '%s' to db",e);
 		}		
 	}
 	
