@@ -1,6 +1,5 @@
 package org.paxle.crawler.impl;
 
-import java.util.HashMap;
 import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
@@ -81,7 +80,7 @@ public class Activator implements BundleActivator {
 		
 		// register the protocol filter as service
 		Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
-		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in"});
+		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in","org.paxle.parser.out"});
 		bc.registerService(IFilter.class.getName(), new ProtocolFilter(subCrawlerManager), filterProps);
 	}
 
