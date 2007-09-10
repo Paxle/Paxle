@@ -29,16 +29,20 @@ public class ProtocolFilter implements IFilter {
 			// b) the parsed refs should be checked
 			
 			String location = command.getLocation();
-			String protocol = new URL(location).getProtocol();
+			int idx = location.indexOf("://");
+			if (idx == -1) {
+				command.setResult(ICommand.Result.Rejected, "Malformed URL. No protocol was specified");
+				return;
+			}
+			String protocol = location.substring(0,idx);
 
 			// check if the protocol is supported by one of the 
 			// available sub-crawlers
 			if (!this.subCrawlerManager.isSupported(protocol)) {
-				command.setResult(ICommand.Result.Rejected, "Protocol not supported");
+				command.setResult(ICommand.Result.Rejected, String.format("Protocol '%s' not supported",protocol));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
 }
