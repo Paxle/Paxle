@@ -4,9 +4,12 @@ import java.util.Properties;
 
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
+import org.paxle.core.io.temp.ITempFileManager;
 
 
 public class FilterContext implements Comparable<FilterContext>, IFilterContext {
+	private ITempFileManager tempFileManager = null;
+	
 	private Properties props = null;
 	private IFilter filterImpl = null;
 	private String targetID = null;
@@ -34,6 +37,14 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 
 	public Properties getFilterProperties() {
 		return (this.props==null)?new Properties():this.props;
+	}
+	
+	public void setTempFileManager(ITempFileManager tempFileManager) {
+		this.tempFileManager = tempFileManager;
+	}
+	
+	public ITempFileManager getTempFileManager() {
+		return this.tempFileManager;
 	}
 	
 	public int compareTo(FilterContext o) {

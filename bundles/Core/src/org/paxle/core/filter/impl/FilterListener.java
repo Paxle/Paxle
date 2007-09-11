@@ -12,6 +12,7 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterQueue;
+import org.paxle.core.io.temp.ITempFileManager;
 
 /**
  * A class to listen for registered and unregistered {@link IFilter filters}.
@@ -45,9 +46,12 @@ public class FilterListener implements ServiceListener {
 	 * The {@link BundleContext osgi-bundle-context} of this bundle
 	 */
 	private BundleContext context = null;
+	
+	private ITempFileManager tempFileManager = null;
 
-	public FilterListener(FilterManager filterManager, BundleContext context) throws InvalidSyntaxException {
+	public FilterListener(FilterManager filterManager, ITempFileManager tempFileManager, BundleContext context) throws InvalidSyntaxException {
 		this.filterManager = filterManager;
+		this.tempFileManager = tempFileManager;
 		this.context = context;
 
 		ServiceReference[] services = context.getServiceReferences(null,FILTER);
@@ -142,11 +146,13 @@ public class FilterListener implements ServiceListener {
 			}
 		}
 
-		return new FilterContext(
+		FilterContext filterContext = new FilterContext(
 				filter,
 				targetID,
 				filterPos,
 				filterProps
 		);
+		filterContext.setTempFileManager(this.tempFileManager);
+		return filterContext;
 	}
 }

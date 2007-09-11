@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.paxle.mimetype.IDetectionHelper;
-
 import net.sf.jmimemagic.MagicMatch;
 import net.sf.jmimemagic.MagicMatcher;
 import net.sf.jmimemagic.UnsupportedTypeException;
+
+import org.paxle.mimetype.IDetectionHelper;
 
 public class Matcher extends MagicMatcher {
 	private IDetectionHelper helper = null;

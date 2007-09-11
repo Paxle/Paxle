@@ -60,7 +60,7 @@ public class Activator implements BundleActivator {
 		 * Register Service Listeners
 		 * ========================================================== */
 		// register the filter listener
-		bc.addServiceListener(new FilterListener(filterManager,bc),FilterListener.FILTER);		
+		bc.addServiceListener(new FilterListener(filterManager,tempFileManager,bc),FilterListener.FILTER);		
 		
 		// register a data-source/sink- and data-producer/consumer-listener
 		DataListener dataListener = new DataListener(dataManager,bc);
