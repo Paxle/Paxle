@@ -16,6 +16,15 @@ public class ReferenceNormalizationFilter implements IFilter {
 	}
 	
 	public String normalizeLocation(String location) {
+		// TODO: resolve backpath
+		
+		// TODO: undecode encoded chars
+		
+		// TODO: order dynamic parameters
+		
+		// TODO: what about hostnames / IP-adresses?
+		
+		
 		// TODO:
 		return location;
 	}

@@ -1,6 +1,5 @@
 package org.paxle.core.queue.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -56,7 +55,7 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 							command.getLocation(), filter.getClass().getName(), command.getResultText()
 					));
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				this.logger.error(String.format("Filter '%s' terminated with exception.",(filter==null)?"unknown":filter.getClass().getName()),e);
 			}
 		}
