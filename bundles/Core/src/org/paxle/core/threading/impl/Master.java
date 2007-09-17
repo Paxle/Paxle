@@ -87,6 +87,7 @@ public class Master<Data> extends Thread implements IMaster {
 	 */
 	public synchronized void resumeMaster() {
 		this.paused = false;
+		this.notifyAll();
 	}
 	
 	/**
