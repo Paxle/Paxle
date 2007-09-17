@@ -19,9 +19,14 @@ public class StatusView extends AServlet {
                                    Context context ) {
 
         Template template = null;
-
+        
+        if (request.getParameter("pauseCrawl") != null) {
+            context.put("doPause", true);
+        } else if (request.getParameter("resumeCrawl") != null) {
+            context.put("doResume", true);
+        }
         try {
-        	if (request.getParameter("shutdown") != null) {
+            if (request.getParameter("shutdown") != null) {
         		this.manager.shutdownFramework();
         	} else if (request.getParameter("restart") != null) {
         		this.manager.restartFramework();

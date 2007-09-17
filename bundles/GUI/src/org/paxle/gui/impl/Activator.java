@@ -1,10 +1,6 @@
 package org.paxle.gui.impl;
 
-import java.net.URL;
 import java.util.Hashtable;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

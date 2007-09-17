@@ -19,7 +19,7 @@
 <form method="post">
 <fieldset id="dgeneral">
 <legend>General</legend>
-	<input type="submit" name="shutdown" value="Shutdown" />	
+	<input type="submit" name="shutdown" value="Shutdown" />
 	<input type="submit" name="restart" value="Restart" />
 </fieldset>
 </form>
@@ -31,11 +31,22 @@
 	#set($crawlers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
 	#if ($crawlers)
 		#foreach($crawler in $crawlers)
+			#if($doPause == true)
+				$crawler.pause()
+			#elseif($doResume == true)
+				$crawler.resume()
+			#end
 			The crawler is 
 			#if($crawler.isPaused() == true)
-				<b><font color="red">paused</font></b>
+				<b><font color="red">paused</font></b><br/>
+				<form method="get">
+					<input type="submit" name="resumeCrawl" value="Resume" />
+				</form>
 			#else 
-				<b><font color="green">running</font></b>
+				<b><font color="green">running</font></b><br/>
+				<form method="get">
+					<input type="submit" name="pauseCrawl" value="Pause" />
+				</form>
 			#end.
 		#end
 	#end

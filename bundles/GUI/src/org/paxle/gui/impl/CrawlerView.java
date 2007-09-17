@@ -1,8 +1,6 @@
 package org.paxle.gui.impl;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.PrintStream;
 import java.io.StringReader;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,10 +11,11 @@ import org.apache.velocity.context.Context;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.queue.Command;
 
-
 public class CrawlerView extends AServlet {
 
-	public CrawlerView(ServiceManager manager) {
+    private static final long serialVersionUID = 1L;
+
+    public CrawlerView(ServiceManager manager) {
 		super(manager);
 	}		
 	

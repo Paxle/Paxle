@@ -9,7 +9,8 @@ import org.apache.velocity.tools.view.servlet.VelocityLayoutServlet;
 
 public class AServlet extends VelocityLayoutServlet {
 	
-	/**
+    private static final long serialVersionUID = 1L;
+    /**
 	 * Manager class to access other components registered via OSGi
 	 */
 	protected ServiceManager manager = null;

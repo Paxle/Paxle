@@ -7,10 +7,11 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.service.log.LogService;
 
-
 public class LogView extends AServlet {
-	
-	public LogView(ServiceManager manager) {
+
+    private static final long serialVersionUID = 1L;
+
+    public LogView(ServiceManager manager) {
 		super(manager);
 	}	
 	
