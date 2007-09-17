@@ -3,6 +3,8 @@ package org.paxle.data.db.impl;
 import java.net.URL;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -18,6 +20,7 @@ import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
+import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 
 public class CommandDB implements IDataProvider, IDataConsumer {
@@ -222,7 +225,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		return result;
 	}
 	
-	public void storeCommand(ICommand cmd) {
+	public synchronized void storeCommand(ICommand cmd) {
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
 		try {
@@ -240,14 +243,20 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		}
 	}
 	
-	public void storeCommand(ICommand[] cmds) {
+	public void storeUnknownLocations(List<String> locations) {
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
 		try {
 			transaction = session.beginTransaction();
 			
-			for (ICommand cmd : cmds) {
-				session.saveOrUpdate(cmd);	
+			// check which URLs are already known
+			Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",locations);
+			HashSet<String> knownLocations = new HashSet<String>(query.list());
+			
+			// add new commands into DB
+			for (String location: locations) {			
+				if (knownLocations.contains(location)) continue;
+				session.saveOrUpdate(Command.createCommand(location));	
 			}
 	        
 			transaction.commit();

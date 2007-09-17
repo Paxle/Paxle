@@ -1,5 +1,8 @@
 package org.paxle.data.db.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,16 +49,20 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 	}
 	
 	private void extractLinks(Map<String, String> linkMap) {
+		List<String> locations = new ArrayList<String>();
+		
 		for (String ref : (Set<String>) linkMap.keySet()) {
 			// do some url normalization here
 			// TODO: this should be done in another filter
 			int idx = ref.indexOf("#");
 			if (idx != -1) ref = ref.substring(0,idx);
 			
-			if (!db.isKnown(ref)) {
-				db.storeCommand(Command.createCommand(ref));
-			}
-		}		
+			// add command into list
+			locations.add(ref);
+		}
+
+		// store commands into DB
+		db.storeUnknownLocations(locations);
 	}
 
 }

@@ -38,12 +38,6 @@ public class Activator implements BundleActivator {
 		// another pipe to connect the Parser-OutQueue with the Indexer-InQueue
 		pipeConnect("org.paxle.parser.source", "org.paxle.indexer.sink");
 
-		// fill the crawler queue with URLs
-		TextCommandReader fileReader = new TextCommandReader(this.getClass().getResourceAsStream("/resources/data.txt"));
-		Hashtable<String,String> readerProps = new Hashtable<String, String>();
-		readerProps.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.crawler.sink");
-		context.registerService(IDataProvider.class.getName(), fileReader, readerProps);
-
 		/*
 		 * Registering the CommandDB
 		 * TODO: not finished yet
@@ -81,6 +75,12 @@ public class Activator implements BundleActivator {
 			// start the commandDB
 			db.start();
 		}
+		
+		// fill the crawler queue with URLs
+		TextCommandReader fileReader = new TextCommandReader(this.getClass().getResourceAsStream("/resources/data.txt"));
+		Hashtable<String,String> readerProps = new Hashtable<String, String>();
+		readerProps.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.crawler.sink");
+		context.registerService(IDataProvider.class.getName(), fileReader, readerProps);
 	}
 
 	/**
