@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundlejar>
+<resource dst="" pattern=".*\.class" src="/FilterRobotsTxt/out" type="0"/>
+<resource dst="libs/commons-cache.jar" src="/FilterRobotsTxt/libs/commons-cache.jar" type="1"/>
+</bundlejar>

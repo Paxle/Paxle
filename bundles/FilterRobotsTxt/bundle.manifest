@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-Name: FilterRobotsTxt
+Bundle-ClassPath: ., libs/commons-cache.jar
+Bundle-Activator: org.paxle.filter.robots.impl.Activator
+Import-Package: org.osgi.framework, org.paxle.core.filter, org.paxle.c
+ ore.queue, org.apache.commons.logging, org.paxle.core.doc
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.paxle.filter.robots
+Bundle-Version: 1.0.0
+DynamicImport-Package: sun.reflect
+
