@@ -54,9 +54,10 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
     }
 
     public void filter(ICommand command, IFilterContext filterContext) {
-        String reason = isListed(command.getLocation());
-        if(reason!=null) {
-            command.setResult(ICommand.Result.Rejected, "rejected by blacklistentry: " + reason);
+        FilterResult result = isListed(command.getLocation());
+        if(result.getStatus()==FilterResult.LOCATION_REJECTED) {
+            command.setResult(ICommand.Result.Rejected, "rejected by blacklistentry: " + result.getRejectPattern());
+            //System.out.println(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
         }
     }
     
@@ -65,23 +66,21 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
      * @param url URL to be checked against blacklist
      * @return returns a String containing the pattern which blacklists the url, returns null otherwise
      */
-    private String isListed(String url) {
+    private FilterResult isListed(String url) {
         lock.readLock().lock();
-        String reason = null;
         try {
             Iterator<Pattern> eter = blacklist.iterator();
             while(eter.hasNext()) {
                 Pattern temp = eter.next();
                 Matcher m = temp.matcher(url);
                 if(m.matches()) {
-                    reason = temp.pattern();
-                    break;
+                    return new FilterResult(FilterResult.LOCATION_REJECTED, temp.pattern());
                 }
             }
         } finally {
             lock.readLock().unlock();            
         }
-        return reason;
+        return new FilterResult(FilterResult.LOCATION_OKAY, null);
     }
     
     /**
@@ -115,6 +114,36 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
             FileUtils.touch(new File(blacklistDir, listName));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    
+    class FilterResult {
+        
+        final static int LOCATION_OKAY = 0;
+        final static int LOCATION_REJECTED = 1;
+        
+        private int status;
+        private String rejectPattern = null;
+        
+        FilterResult(int resultStatus, String pattern) {
+            setStatus(resultStatus);
+            setRejectPattern(pattern);
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public void setRejectPattern(String rejectPattern) {
+            this.rejectPattern = rejectPattern;
+        }
+
+        public String getRejectPattern() {
+            return rejectPattern;
         }
     }
 }
