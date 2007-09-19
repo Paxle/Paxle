@@ -7,21 +7,25 @@ import java.util.HashMap;
 import java.util.List;
 
 public class RobotsTxt implements Serializable {
+	public static final long DEFAULT_RELOAD_INTERVAL = 7*24*60*60*1000;
+	public static final long RELOAD_INTERVAL_ERROR = 1*24*60*60*1000;
 	
 	private boolean accessRestricted = false;
 	private String downloadStatus = "200 OK";
 	private String hostPort = null;
 	private Date loadedDate = null;
+	private long reloadInterval = DEFAULT_RELOAD_INTERVAL;	
 	private HashMap<String, RuleBlock> ruleBlockMap = new HashMap<String, RuleBlock>();
-	private List<RuleBlock> ruleBlocks = new ArrayList<RuleBlock>();	
+	private List<RuleBlock> ruleBlocks = new ArrayList<RuleBlock>();
 	
-	public RobotsTxt(String hostPort, Date loadedDate, String downloadStatus) {
-		this(hostPort,loadedDate,downloadStatus, false);
+	public RobotsTxt(String hostPort, long reloadInterval, String downloadStatus) {
+		this(hostPort, reloadInterval, downloadStatus, false);
 	}
 	
-	public RobotsTxt(String hostPort, Date loadedDate, String downloadStatus, boolean accessRestricted) {
+	public RobotsTxt(String hostPort, long realoadInterval, String downloadStatus, boolean accessRestricted) {
 		this.hostPort = hostPort;
-		this.loadedDate = loadedDate;
+		this.loadedDate = new Date();
+		this.reloadInterval = realoadInterval;
 		this.downloadStatus = downloadStatus;
 		this.accessRestricted = accessRestricted;
 	}
@@ -32,6 +36,10 @@ public class RobotsTxt implements Serializable {
 	
 	public Date getLoadedDate() {
 		return this.loadedDate;
+	}
+	
+	public long getReloadInterval() {
+		return this.reloadInterval;
 	}
 	
 	void addRuleBlock(RuleBlock ruleBlock) {

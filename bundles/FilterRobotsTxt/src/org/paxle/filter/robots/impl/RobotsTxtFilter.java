@@ -29,7 +29,7 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 
 			// test if the url is disallowed by robots.txt
 			if (this.robotsTxtManager.isDisallowed(location)) {
-				command.setResult(ICommand.Result.Rejected, "Location disallowed by robots.txt");
+				command.setResult(ICommand.Result.Rejected, "Access disallowed by robots.txt");
 				return;
 			}
 

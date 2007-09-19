@@ -16,7 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
-import java.util.Date;
+import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,11 +26,14 @@ import org.apache.commons.cache.GroupMap;
 import org.apache.commons.cache.MemoryStash;
 import org.apache.commons.cache.SimpleCache;
 import org.apache.commons.cache.StashPolicy;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class RobotsTxtManager {
 	private static final Pattern HOSTPORT_PATTERN = Pattern.compile("([^:]+)://([^/\\?#]+)(?=/|$|\\?|#)");
 	private static final Pattern PATH_PATTERN = Pattern.compile("((?<!:/)/(?!/).*$)");
 
+	private Log logger = LogFactory.getLog(this.getClass());
 	private Cache cache = null;
 	private File path = null;
 
@@ -69,30 +72,34 @@ public class RobotsTxtManager {
 		if ( connection instanceof HttpURLConnection) {
 			HttpURLConnection httpConnection = (HttpURLConnection) connection;
 
-			int code = httpConnection.getResponseCode();
-			statusLine = httpConnection.getHeaderField(0);
-			
-			if (code == 401 || code == 403) {
-				// access to the whole website is restricted
-				return new RobotsTxt(hostPort,new Date(), statusLine, true);
-			} else if (code == 404) {
-				// no robots.txt provided
-				return new RobotsTxt(hostPort,new Date(), statusLine);
-			} else if (code != 200) {
-				// the robots.txt seems not to be deliverable
-				return new RobotsTxt(hostPort,new Date(), statusLine);
-			}
-			
-			String mimeType = httpConnection.getContentType();
-			if (mimeType != null && !mimeType.startsWith("text/plain")) {
-				// the robots.txt seems not to be available
-				return new RobotsTxt(hostPort, new Date(), "Wrong mimeType " + mimeType);
+			try {
+				int code = httpConnection.getResponseCode();
+				statusLine = httpConnection.getHeaderField(0);
+
+				if (code == 401 || code == 403) {
+					// access to the whole website is restricted
+					return new RobotsTxt(hostPort,RobotsTxt.DEFAULT_RELOAD_INTERVAL, statusLine, true);
+				} else if (code == 404) {
+					// no robots.txt provided
+					return new RobotsTxt(hostPort,RobotsTxt.DEFAULT_RELOAD_INTERVAL, statusLine);
+				} else if (code != 200) {
+					// the robots.txt seems not to be deliverable
+					return new RobotsTxt(hostPort,RobotsTxt.DEFAULT_RELOAD_INTERVAL, statusLine);
+				}
+
+				String mimeType = httpConnection.getContentType();
+				if (mimeType != null && !mimeType.startsWith("text/plain")) {
+					// the robots.txt seems not to be available
+					return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_ERROR, "Wrong mimeType " + mimeType);
+				}
+			} catch (UnknownHostException e) {
+				return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_ERROR, "Unknown host");
 			}
 		}
 
 		InputStream inputStream = null;
 		try {
-			RobotsTxt robotsTxt = new RobotsTxt(hostPort, new Date(), statusLine);
+			RobotsTxt robotsTxt = new RobotsTxt(hostPort, RobotsTxt.DEFAULT_RELOAD_INTERVAL, statusLine);
 			return this.parseRobotsTxt(robotsTxt, connection.getInputStream());
 		} finally {
 			if (inputStream != null) try { inputStream.close(); } catch (Exception e) {/* ignore this */}
@@ -163,7 +170,12 @@ public class RobotsTxtManager {
 		return line;
 	}
 
-	public boolean isDisallowed(String location) {		
+	public boolean isDisallowed(String location) {	
+		if (!location.startsWith("http://") && !location.startsWith("https")) {
+			this.logger.info(String.format("Protocol of location '%s' not supported", location));
+			return Boolean.FALSE;
+		}
+		
 		// getting the host[:port] string 
 		String hostPort = this.getHostPort(location);
 
@@ -183,7 +195,7 @@ public class RobotsTxtManager {
 				}
 
 				// trying to download the robots.txt
-				if (robotsTxt == null) {				
+				if (robotsTxt == null || (System.currentTimeMillis() - robotsTxt.getLoadedDate().getTime() > robotsTxt.getReloadInterval())) {				
 					robotsTxt = this.parseRobotsTxt("http://" + hostPort + "/robots.txt");
 					this.cache.store(hostPort, robotsTxt, null, null);
 					this.storeRobotsTxt(robotsTxt);
@@ -218,22 +230,24 @@ public class RobotsTxtManager {
 
 	private RobotsTxt loadRobotsTxt(String hostPort) {
 		ObjectInputStream ois = null;
+		File robotsTxtFile = null;
 		try {
 			// getting the host:port string
 			hostPort = hostPort.replace(':', '_');			
 
 			// getting the file
-			File robotsTxtFile = new File(this.path,hostPort);
+			robotsTxtFile = new File(this.path,hostPort);
 			if (!robotsTxtFile.exists()) return null;
 
 			// loading object from file
 			ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(robotsTxtFile)));
 			RobotsTxt robotsTxt = (RobotsTxt) ois.readObject();
 			return robotsTxt;
-// TODO:			
-//		} catch (InvalidClassException e) {
-//			// just ignore this, class format has changed
-//			return null;
+
+		} catch (InvalidClassException e) {
+			// just ignore this, class format has changed
+			if (robotsTxtFile != null && robotsTxtFile.exists()) robotsTxtFile.delete();
+			return null;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
