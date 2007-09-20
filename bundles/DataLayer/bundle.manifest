@@ -15,6 +15,6 @@ Bundle-SymbolicName: org.paxle.data
 Bundle-Version: 1.0.0
 DynamicImport-Package: javax.naming, javax.naming.spi, sun.reflect, or
  g.xml.sax, org.xml.sax.helpers, org.xml.sax.ext, javax.naming.event, 
- javax.net.ssl
+ javax.net.ssl, javax.sql
 Bundle-ContactAddress: http://www.paxle.net/
 

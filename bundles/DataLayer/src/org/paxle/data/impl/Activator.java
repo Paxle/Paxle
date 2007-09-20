@@ -45,6 +45,8 @@ public class Activator implements BundleActivator {
 		URL config = null;
 
 		if (true) {
+			this.classLoaderCheck();
+			
 			/* Getting the config file to use 
 			 * Note: we do not use class.getName() because the PreferencesSerivce  is declared as optional
 			 */
@@ -91,6 +93,14 @@ public class Activator implements BundleActivator {
 		bc = null;
 	}
 
+	private void classLoaderCheck() throws ClassNotFoundException {
+		try {
+			this.getClass().getClassLoader().loadClass("javax.sql.DataSource");
+		} catch (ClassNotFoundException e) {
+			throw new ExceptionInInitializerError("Please export 'javax.sql' via org.osgi.framework.system.packages.");
+		}
+	}
+	
 	private static void pipeConnect(String from, String to) {
 		final DataPipe pipe = new DataPipe();
 		pipe.setName(String.format("Datapipe: %s -> %s", from,to));
