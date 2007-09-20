@@ -75,4 +75,9 @@ public interface IMWComponent<Data> {
 	 * This function calls the {@link IMaster#resumeMaster()} method.
 	 */	
 	public void resume();
+	
+	/**
+	 * @return the PPM of this component since startup
+	 */
+	public int getPPM();
 }

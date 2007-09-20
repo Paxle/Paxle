@@ -13,4 +13,9 @@ public interface IMaster {
 	public void resumeMaster();
 	
 	public boolean isPaused();
+	
+	/**
+	 * @return the PPM of this component since startup
+	 */
+	public int getPPM();
 }

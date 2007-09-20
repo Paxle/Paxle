@@ -9,10 +9,39 @@ import org.paxle.core.threading.IWorker;
 
 public class Master<Data> extends Thread implements IMaster {
 	
+	/**
+	 * A pool of {@link IWorker worker-threads}
+	 */
 	protected IPool<Data> pool = null;
+	
+	/**
+	 * An input-queue containing jobs to process 
+	 */
 	protected IInputQueue<Data> inQueue = null;
+	
+	/**
+	 * indicates if this thread was terminated
+	 * @see #terminate()
+	 */
 	protected boolean stopped = false;
+	
+	/**
+	 * indicates if this thread was paused
+	 * @see #pauseMaster()
+	 * @see #resumeMaster()
+	 * @see #isPaused()
+	 */
 	protected boolean paused = false;
+	
+	/**
+	 * total number of processed jobs
+	 */
+	protected int processedCount = 0;
+	
+	/**
+	 * timestamp when the master-thread was started
+	 */
+	protected long startTime = System.currentTimeMillis();
 	
 	/**
 	 * @param threadPool the thread pool containing {@link IWorker worker-threads}
@@ -42,6 +71,7 @@ public class Master<Data> extends Thread implements IMaster {
 
                 // assign the command to the worker
                 worker.assign(command);
+                this.processedCount++;
                 
             } catch (InterruptedException e) {
                 Thread.interrupted();
@@ -95,5 +125,14 @@ public class Master<Data> extends Thread implements IMaster {
 	 */
 	public boolean isPaused() {
 		return this.paused;
+	}
+	
+	/**
+	 * @see IMaster#getPPM()
+	 * TODO: better algorithm required here
+	 */
+	public int getPPM() {
+		long uptime = (System.currentTimeMillis() - this.startTime) / 1000;
+		return (int) (this.processedCount * 60 / Math.max(uptime, 1));
 	}
 }

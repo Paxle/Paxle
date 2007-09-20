@@ -47,12 +47,15 @@
 				<form method="get">
 					<input type="submit" name="pauseCrawl" value="Pause" />
 				</form>
-			#end.
+			#end
+			<p />
+			
+			Current PPM: $crawler.getPPM()
 		#end
 	#end
 
 
-		
+	<hr />		
 	$subCrawlerManager.getSubCrawlers().size() crawler(s) found, supporting following Protocols:<br />
 	<ul>
 		

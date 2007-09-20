@@ -94,4 +94,12 @@ public class MWComponent<Data> implements IMWComponent<Data> {
 	public void resume() {
 		this.master.resumeMaster();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see IMWComponent#getPPM()
+	 */
+	public int getPPM() {
+		return this.master.getPPM();
+	}
 }
