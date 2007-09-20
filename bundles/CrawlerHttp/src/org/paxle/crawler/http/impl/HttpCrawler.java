@@ -13,6 +13,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
@@ -76,6 +77,7 @@ public class HttpCrawler implements IHttpCrawler {
 		try {
 			// generate the request method
 			method = new GetMethod(requestUrl);
+	        method.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 
 			// TODO: set some additional http headers
 			//method.setRequestHeader("User-Agent","xxx");
