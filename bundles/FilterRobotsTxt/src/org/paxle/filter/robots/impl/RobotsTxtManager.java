@@ -12,7 +12,9 @@ import java.io.InputStreamReader;
 import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
@@ -131,9 +133,20 @@ public class RobotsTxtManager {
 					// the robots.txt seems not to be available
 					return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_ERROR, "Wrong mimeType " + mimeType);
 				}
-			} catch (UnknownHostException e) {
-				// host is unknown, create a dummy robots.txt
-				return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_ERROR, "Unknown host");
+			} catch (IOException e) {
+				long reloadInterval = RobotsTxt.RELOAD_INTERVAL_TEMP_ERROR;
+				String status = e.getMessage();
+				if (e instanceof UnknownHostException) {
+					reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
+					status = "Unknown host";
+				} else if (!(
+						e instanceof ConnectException ||
+						e instanceof SocketException
+				)){
+					e.printStackTrace();
+				}
+				
+				return new RobotsTxt(hostPort, reloadInterval, status);
 			}
 		}
 

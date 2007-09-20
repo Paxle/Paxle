@@ -9,6 +9,7 @@ import java.util.List;
 public class RobotsTxt implements Serializable {
 	public static final long RELOAD_INTERVAL_DEFAULT = 7*24*60*60*1000;
 	public static final long RELOAD_INTERVAL_ERROR = 1*24*60*60*1000;
+	public static final long RELOAD_INTERVAL_TEMP_ERROR = 1*60*60*1000;
 	
 	private boolean accessRestricted = false;
 	private String downloadStatus = "200 OK";
