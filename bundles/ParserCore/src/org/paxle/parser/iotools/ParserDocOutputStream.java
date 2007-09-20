@@ -1,6 +1,7 @@
 
 package org.paxle.parser.iotools;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class ParserDocOutputStream extends OutputStream {
 	public ParserDocOutputStream(ITempFileManager tfm, ICharsetDetector cd) throws IOException {
 		this.tfm = tfm;
 		this.of = tfm.createTempFile();
-		final FileOutputStream fos = new FileOutputStream(this.of);
+		final OutputStream fos = new BufferedOutputStream(new FileOutputStream(this.of));
 		this.os = (cd != null) ? cd.createOutputStream(fos) : fos;
 	}
 	

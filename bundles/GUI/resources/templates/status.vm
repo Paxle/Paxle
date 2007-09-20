@@ -36,7 +36,7 @@
 			#elseif($doResume && $doResume == true)
 				$crawler.resume()	
 			#elseif($doProcessNextCrawl && $doProcessNextCrawl == true)				
-				$crawler.processNext();		
+				$crawler.processNext()
 			#end
 			The crawler is 
 			#if($crawler.isPaused() == true)

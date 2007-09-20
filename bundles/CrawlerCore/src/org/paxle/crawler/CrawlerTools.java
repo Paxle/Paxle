@@ -1,6 +1,7 @@
 
 package org.paxle.crawler;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,7 +20,7 @@ public class CrawlerTools {
 	public static long saveInto(ICrawlerDocument doc, InputStream is) throws IOException {
 		final CrawlerContext context = CrawlerContext.getCurrentContext();
 		final File file = context.getTempFileManager().createTempFile();
-		OutputStream os = new FileOutputStream(file);
+		OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
 		ACharsetDetectorOutputStream chardetos = null;
 		ACryptOutputStream md5os = null;
 		

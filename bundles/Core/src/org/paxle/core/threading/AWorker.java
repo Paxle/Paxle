@@ -99,7 +99,10 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                     }
                 } else {
                     try {
-                        // executing the new Command
+                    	// set threadname
+                    	this.setName();
+                    	
+                    	// executing the new Command
                         execute(this.command);                        
                     } finally {
                         // write the modified command object to the out-queue
@@ -110,6 +113,9 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                         
                         // free memory
                         reset();
+                        
+                        // reset threadname
+                    	this.setName();                    	
                     }
                 }
             }
@@ -143,6 +149,13 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                 this.notifyAll();
             }
         }
+    }
+    
+    protected void setName() {
+    	String className = this.getClass().getName();    	
+    	int idx = className.lastIndexOf(".");
+    	if (idx != -1) className = className.substring(idx+1);
+    	this.setName(className + ((this.command == null)?"":"_"+this.command));
     }
     
     /**

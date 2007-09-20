@@ -189,7 +189,7 @@ public class HttpCrawler implements IHttpCrawler {
 		} catch (ConnectException e) {
 			this.logger.error(String.format("Error crawling %s: Unable to connect to host.", requestUrl));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());				
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String errorMsg;
 			if (e instanceof HttpException) {
 				errorMsg = "Unrecovered protocol exception: [%s] %s";
