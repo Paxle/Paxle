@@ -1,5 +1,7 @@
 package org.paxle.core.threading;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.IOutputQueue;
 import org.paxle.core.threading.IPool;
@@ -20,6 +22,8 @@ import org.paxle.core.threading.IWorker;
  */
 public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
 
+	private Log logger = LogFactory.getLog(this.getClass());
+	
     /**
      * The crawler thread pool
      */
@@ -111,6 +115,11 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
             }
         } catch (InterruptedException ex) {
             ex.printStackTrace();
+        } catch (Throwable ex) {
+        	this.logger.error(String.format("Unexpected '%s' while processing command '%s'."
+        			,ex.getClass().getName()
+        			,this.command
+        	),ex);
         } finally {
             if (this.myPool != null && !this.destroyed) 
                 this.myPool.invalidateWorker(this);
