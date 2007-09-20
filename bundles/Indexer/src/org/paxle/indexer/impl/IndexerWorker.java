@@ -27,38 +27,43 @@ public class IndexerWorker extends AWorker<ICommand> {
 			this.logger.warn("Won't index document " + cmd.getLocation() + " with result '" + cmd.getResult() + "' (" + cmd.getResultText() + ")");
 			return;
 		}
-		
-		final IIndexerDocument idoc;
-		this.logger.info("Indexing of URL '" + cmd.getLocation() + "' (MIME type '" + cmd.getCrawlerDocument().getMimeType() + "')");
-		// generate the "main" indexer document from the "main" parser document including the
-		// data from the command object
-		idoc = generateIIndexerDoc(
-				cmd.getLocation(),
-				cmd.getCrawlerDocument().getCrawlerDate(),
-				null,
-				cmd.getParserDocument());
-		if (idoc.getStatus() != IIndexerDocument.Status.OK) {
-			cmd.setResult(ICommand.Result.Failure, idoc.getStatusText());
-			return;
-		}
-		
-		// XXX: what to take if both (pdoc and cdoc) contain a different value for last mod?
-		if (cmd.getCrawlerDocument().getLastModDate() != null)
-			idoc.set(IIndexerDocument.LAST_MODIFIED, cmd.getCrawlerDocument().getLastModDate()); 
-		idoc.set(IIndexerDocument.SIZE, cmd.getCrawlerDocument().getSize());
-		idoc.setStatus(IIndexerDocument.Status.OK);
-		cmd.addIndexerDocument(idoc);
-		
-		// generate indexer docs from all parser-sub-documents and add them to the command
-		for (Map.Entry<String,IParserDocument> pdoce : cmd.getParserDocument().getSubDocs().entrySet()) {
-			// XXX: do sub-docs need a size-field, too?
-			cmd.addIndexerDocument(generateIIndexerDoc(
+
+		try {
+			final IIndexerDocument idoc;
+			this.logger.info("Indexing of URL '" + cmd.getLocation() + "' (MIME type '" + cmd.getCrawlerDocument().getMimeType() + "')");
+			// generate the "main" indexer document from the "main" parser document including the
+			// data from the command object
+			idoc = generateIIndexerDoc(
 					cmd.getLocation(),
 					cmd.getCrawlerDocument().getCrawlerDate(),
-					pdoce.getKey(),
-					pdoce.getValue()));
+					null,
+					cmd.getParserDocument());
+			if (idoc.getStatus() != IIndexerDocument.Status.OK) {
+				cmd.setResult(ICommand.Result.Failure, idoc.getStatusText());
+				return;
+			}
+
+			// XXX: what to take if both (pdoc and cdoc) contain a different value for last mod?
+			if (cmd.getCrawlerDocument().getLastModDate() != null)
+				idoc.set(IIndexerDocument.LAST_MODIFIED, cmd.getCrawlerDocument().getLastModDate()); 
+			idoc.set(IIndexerDocument.SIZE, cmd.getCrawlerDocument().getSize());
+			idoc.setStatus(IIndexerDocument.Status.OK);
+			cmd.addIndexerDocument(idoc);
+
+			// generate indexer docs from all parser-sub-documents and add them to the command
+			for (Map.Entry<String,IParserDocument> pdoce : cmd.getParserDocument().getSubDocs().entrySet()) {
+				// XXX: do sub-docs need a size-field, too?
+				cmd.addIndexerDocument(generateIIndexerDoc(
+						cmd.getLocation(),
+						cmd.getCrawlerDocument().getCrawlerDate(),
+						pdoce.getKey(),
+						pdoce.getValue()));
+			}
+			cmd.setResult(ICommand.Result.Passed);
+		} catch (Exception e) {
+			cmd.setResult(ICommand.Result.Failure, "Unexpected error while indexing the resource");
+			e.printStackTrace();
 		}
-		cmd.setResult(ICommand.Result.Passed);
 	}
 	
 	private IIndexerDocument generateIIndexerDoc(

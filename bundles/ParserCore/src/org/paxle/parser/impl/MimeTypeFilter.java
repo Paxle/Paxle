@@ -17,6 +17,9 @@ public class MimeTypeFilter implements IFilter<ICommand> {
 	}
 
 	public void filter(ICommand command, IFilterContext context) {
+		if (command.getCrawlerDocument() == null) return;
+		
+		// get the mimetype of the document
 		String mimeType = command.getCrawlerDocument().getMimeType();
 		
 		// check if the mime-type is supported by one of the 
