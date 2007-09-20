@@ -121,6 +121,13 @@ public class Master<Data> extends Thread implements IMaster {
 	}
 	
 	/**
+	 * @see IMaster#processNext()
+	 */
+	public synchronized void processNext() {
+		if (this.paused) this.notifyAll();
+	}
+	
+	/**
 	 * @see IMaster#isPaused()
 	 */
 	public boolean isPaused() {

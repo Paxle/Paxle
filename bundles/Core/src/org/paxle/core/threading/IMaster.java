@@ -18,4 +18,9 @@ public interface IMaster {
 	 * @return the PPM of this component since startup
 	 */
 	public int getPPM();
+	
+	/**
+	 * Process the next job in the queue if the componend was paused
+	 */
+	public void processNext();	
 }

@@ -102,4 +102,12 @@ public class MWComponent<Data> implements IMWComponent<Data> {
 	public int getPPM() {
 		return this.master.getPPM();
 	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see IMWComponent#getPPM()
+	 */	
+	public void processNext() {
+		this.master.processNext();
+	}
 }

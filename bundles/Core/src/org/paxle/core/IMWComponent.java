@@ -77,6 +77,11 @@ public interface IMWComponent<Data> {
 	public void resume();
 	
 	/**
+	 * Process the next job in the queue if the componend was paused
+	 */
+	public void processNext();
+	
+	/**
 	 * @return the PPM of this component since startup
 	 */
 	public int getPPM();

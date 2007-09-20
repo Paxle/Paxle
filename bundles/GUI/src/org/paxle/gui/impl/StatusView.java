@@ -24,6 +24,8 @@ public class StatusView extends AServlet {
             context.put("doPause", true);
         } else if (request.getParameter("resumeCrawl") != null) {
             context.put("doResume", true);
+        } else if (request.getParameter("processNextCrawl") != null) {
+        	context.put("doProcessNextCrawl", true);
         }
         try {
             if (request.getParameter("shutdown") != null) {

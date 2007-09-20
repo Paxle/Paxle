@@ -34,13 +34,16 @@
 			#if($doPause && $doPause == true)
 				$crawler.pause()
 			#elseif($doResume && $doResume == true)
-				$crawler.resume()
+				$crawler.resume()	
+			#elseif($doProcessNextCrawl && $doProcessNextCrawl == true)				
+				$crawler.processNext();		
 			#end
 			The crawler is 
 			#if($crawler.isPaused() == true)
 				<b><font color="red">paused</font></b><br/>
 				<form method="get">
 					<input type="submit" name="resumeCrawl" value="Resume" />
+					<input type="submit" name="processNextCrawl" value="Process Next" />
 				</form>
 			#else 
 				<b><font color="green">running</font></b><br/>

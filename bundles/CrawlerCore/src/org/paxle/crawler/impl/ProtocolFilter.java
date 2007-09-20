@@ -2,14 +2,12 @@ package org.paxle.crawler.impl;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
-import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 import org.paxle.crawler.ISubCrawler;
 
