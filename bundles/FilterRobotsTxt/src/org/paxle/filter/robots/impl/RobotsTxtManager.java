@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.cache.Cache;
 import org.apache.commons.cache.EvictionPolicy;
 import org.apache.commons.cache.GroupMap;
+import org.apache.commons.cache.LRUEvictionPolicy;
 import org.apache.commons.cache.MemoryStash;
 import org.apache.commons.cache.SimpleCache;
 import org.apache.commons.cache.StashPolicy;
@@ -30,19 +31,47 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class RobotsTxtManager {
+	private static final int CACHE_SIZE = 1000;
+	
+	/**
+	 * Regular expression pattern to extract the hostname:port portion of an URL
+	 */
 	private static final Pattern HOSTPORT_PATTERN = Pattern.compile("([^:]+)://([^/\\?#]+)(?=/|$|\\?|#)");
+	
+	/**
+	 * Regular expression to extract the path of an URL
+	 */
 	private static final Pattern PATH_PATTERN = Pattern.compile("((?<!:/)/(?!/).*$)");
 
+	/**
+	 * For logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
+	
+	/**
+	 * A cach to hold {@link RobotsTxt} objects in memory
+	 */
 	private Cache cache = null;
+	
+	/**
+	 * Path where {@link RobotsTxt} objects should be stored
+	 */
 	private File path = null;
 
+	/**
+	 * @param path the path where the {@link RobotsTxt} objects should be stored
+	 */
 	public RobotsTxtManager(File path) {
-		this.cache = new SimpleCache(new MemoryStash(1000), (EvictionPolicy)null, (StashPolicy)null, (GroupMap)null, (File)null);
+		LRUEvictionPolicy ep = new LRUEvictionPolicy();
+		this.cache = new SimpleCache(new MemoryStash(CACHE_SIZE), (EvictionPolicy)ep, (StashPolicy)null, (GroupMap)null, (File)null);
 		this.path = path;
 		if (!this.path.exists()) this.path.mkdirs();
 	}
 
+	/**
+	 * @param location the URL
+	 * @return the hostname:port part of the location
+	 */
 	private String getHostPort(String location) {
 		// getting the host:port string
 		Matcher matcher = HOSTPORT_PATTERN.matcher(location);
@@ -58,11 +87,21 @@ public class RobotsTxtManager {
 		return hostPort.intern();
 	}
 
+	/**
+	 * @param location the URL
+	 * @return the path of the location
+	 */
 	private String getPath(String location) {
 		Matcher matcher = PATH_PATTERN.matcher(location);
 		return (!matcher.find())? "" : matcher.group(1);
 	}
 
+	/**
+	 * Downloads a <i>robots.txt</i> file from the given url and parses it
+	 * @param robotsUrlStr the URL to the robots.txt
+	 * @return the parsed robots.txt file as a {@link RobotsTxt}-object
+	 * @throws IOException
+	 */
 	private RobotsTxt parseRobotsTxt(String robotsUrlStr) throws IOException {
 		String hostPort = this.getHostPort(robotsUrlStr);
 		URL robotsURL = new URL(robotsUrlStr);
@@ -78,13 +117,13 @@ public class RobotsTxtManager {
 
 				if (code == 401 || code == 403) {
 					// access to the whole website is restricted
-					return new RobotsTxt(hostPort,RobotsTxt.DEFAULT_RELOAD_INTERVAL, statusLine, true);
+					return new RobotsTxt(hostPort,RobotsTxt.RELOAD_INTERVAL_DEFAULT, statusLine, true);
 				} else if (code == 404) {
 					// no robots.txt provided
-					return new RobotsTxt(hostPort,RobotsTxt.DEFAULT_RELOAD_INTERVAL, statusLine);
+					return new RobotsTxt(hostPort,RobotsTxt.RELOAD_INTERVAL_DEFAULT, statusLine);
 				} else if (code != 200) {
 					// the robots.txt seems not to be deliverable
-					return new RobotsTxt(hostPort,RobotsTxt.DEFAULT_RELOAD_INTERVAL, statusLine);
+					return new RobotsTxt(hostPort,RobotsTxt.RELOAD_INTERVAL_DEFAULT, statusLine);
 				}
 
 				String mimeType = httpConnection.getContentType();
@@ -93,13 +132,14 @@ public class RobotsTxtManager {
 					return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_ERROR, "Wrong mimeType " + mimeType);
 				}
 			} catch (UnknownHostException e) {
+				// host is unknown, create a dummy robots.txt
 				return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_ERROR, "Unknown host");
 			}
 		}
 
 		InputStream inputStream = null;
 		try {
-			RobotsTxt robotsTxt = new RobotsTxt(hostPort, RobotsTxt.DEFAULT_RELOAD_INTERVAL, statusLine);
+			RobotsTxt robotsTxt = new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_DEFAULT, statusLine);
 			return this.parseRobotsTxt(robotsTxt, connection.getInputStream());
 		} finally {
 			if (inputStream != null) try { inputStream.close(); } catch (Exception e) {/* ignore this */}
@@ -107,6 +147,13 @@ public class RobotsTxtManager {
 
 	}
 
+	/**
+	 * Reads a <i>robots.txt</i> from stream and stores all parsed properties into a {@link RobotsTxt} object.
+	 * @param robotsTxt the {@link RobotsTxt} object that should be filled with the parsed properties
+	 * @param inputStream the {@link InputStream} to read the data 
+	 * @return the {@link RobotsTxt} object. 
+	 * @throws IOException
+	 */
 	private RobotsTxt parseRobotsTxt(RobotsTxt robotsTxt, InputStream inputStream) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));		
 		RuleBlock currentBlock = null;
@@ -114,8 +161,11 @@ public class RobotsTxtManager {
 		boolean inRuleBlock = false;
 		String line = null;
 		while ((line = reader.readLine()) != null) {
+			// trim and cutof comments
 			line = line.trim();
 			line = this.cutOfComments(line);
+			
+			// ignore empty lines
 			if (line.length() == 0) continue;
 
 			if (line.toLowerCase().startsWith("User-agent:".toLowerCase())) {
@@ -190,14 +240,14 @@ public class RobotsTxtManager {
 				if (robotsTxt == null) {
 					robotsTxt = this.loadRobotsTxt(hostPort);
 					if (robotsTxt != null) {
-						this.cache.store(hostPort, robotsTxt, null, null);
+						this.cache.store(hostPort, robotsTxt, robotsTxt.getExpirationDate().getTime(), null);
 					}
 				}
 
 				// trying to download the robots.txt
 				if (robotsTxt == null || (System.currentTimeMillis() - robotsTxt.getLoadedDate().getTime() > robotsTxt.getReloadInterval())) {				
 					robotsTxt = this.parseRobotsTxt("http://" + hostPort + "/robots.txt");
-					this.cache.store(hostPort, robotsTxt, null, null);
+					this.cache.store(hostPort, robotsTxt, robotsTxt.getExpirationDate().getTime(), null);
 					this.storeRobotsTxt(robotsTxt);
 				}
 			}

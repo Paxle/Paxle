@@ -7,14 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 
 public class RobotsTxt implements Serializable {
-	public static final long DEFAULT_RELOAD_INTERVAL = 7*24*60*60*1000;
+	public static final long RELOAD_INTERVAL_DEFAULT = 7*24*60*60*1000;
 	public static final long RELOAD_INTERVAL_ERROR = 1*24*60*60*1000;
 	
 	private boolean accessRestricted = false;
 	private String downloadStatus = "200 OK";
 	private String hostPort = null;
 	private Date loadedDate = null;
-	private long reloadInterval = DEFAULT_RELOAD_INTERVAL;	
+	private long reloadInterval = RELOAD_INTERVAL_DEFAULT;	
 	private HashMap<String, RuleBlock> ruleBlockMap = new HashMap<String, RuleBlock>();
 	private List<RuleBlock> ruleBlocks = new ArrayList<RuleBlock>();
 	
@@ -22,10 +22,10 @@ public class RobotsTxt implements Serializable {
 		this(hostPort, reloadInterval, downloadStatus, false);
 	}
 	
-	public RobotsTxt(String hostPort, long realoadInterval, String downloadStatus, boolean accessRestricted) {
+	public RobotsTxt(String hostPort, long reloadInterval, String downloadStatus, boolean accessRestricted) {
 		this.hostPort = hostPort;
 		this.loadedDate = new Date();
-		this.reloadInterval = realoadInterval;
+		this.reloadInterval = (reloadInterval < 0) ? RELOAD_INTERVAL_DEFAULT : reloadInterval;
 		this.downloadStatus = downloadStatus;
 		this.accessRestricted = accessRestricted;
 	}
@@ -36,6 +36,10 @@ public class RobotsTxt implements Serializable {
 	
 	public Date getLoadedDate() {
 		return this.loadedDate;
+	}
+	
+	public Date getExpirationDate() {
+		return new Date(this.loadedDate.getTime() + this.getReloadInterval());
 	}
 	
 	public long getReloadInterval() {
@@ -81,9 +85,10 @@ public class RobotsTxt implements Serializable {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 		
-		str.append("# Robots.txt of host: ").append(this.hostPort).append("\r\n")
-		   .append("# Downloaded date: ").append(this.loadedDate).append("\r\n")
-		   .append("# Download status: ").append(this.downloadStatus).append("\r\n")
+		str.append(String.format("# Robots.txt of host: %s \r\n",this.hostPort))
+		   .append(String.format("# Downloaded date: %s \r\n", this.loadedDate))
+		   .append(String.format("# Download status: %s \r\n", this.downloadStatus))
+		   .append(String.format("# Expiration date: %s \r\n", this.getExpirationDate()))
 		   .append("\r\n");
 		
 		if (this.accessRestricted) {
