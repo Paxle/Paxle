@@ -9,9 +9,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
-		<attributes>
-			<attribute name="org.paxle.core.filter" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/paxle/core/filter/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
@@ -33,6 +30,7 @@
 	<classpathentry kind="lib" path="libs/xerces.jar"/>
 	<classpathentry kind="lib" path="libs/xml-apis.jar"/>
 	<classpathentry kind="lib" path="libs/xmlParserAPIs.jar"/>
+	<classpathentry kind="lib" path="libs/commons-cache.jar"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>

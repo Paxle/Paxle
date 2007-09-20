@@ -5,6 +5,7 @@
 <resource dst="libs/asm-attrs.jar" src="/DataLayer/libs/asm-attrs.jar" type="1"/>
 <resource dst="libs/asm.jar" src="/DataLayer/libs/asm.jar" type="1"/>
 <resource dst="libs/cglib-2.1.3.jar" src="/DataLayer/libs/cglib-2.1.3.jar" type="1"/>
+<resource dst="libs/commons-cache.jar" src="/DataLayer/libs/commons-cache.jar" type="1"/>
 <resource dst="libs/commons-collections-2.1.1.jar" src="/DataLayer/libs/commons-collections-2.1.1.jar" type="1"/>
 <resource dst="libs/commons-logging-1.0.4.jar" src="/DataLayer/libs/commons-logging-1.0.4.jar" type="1"/>
 <resource dst="libs/dom4j-1.6.1.jar" src="/DataLayer/libs/dom4j-1.6.1.jar" type="1"/>

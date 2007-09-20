@@ -1,12 +1,20 @@
 package org.paxle.data.db.impl;
 
+import java.io.File;
 import java.net.URL;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.cache.Cache;
+import org.apache.commons.cache.EvictionPolicy;
+import org.apache.commons.cache.GroupMap;
+import org.apache.commons.cache.LRUEvictionPolicy;
+import org.apache.commons.cache.MemoryStash;
+import org.apache.commons.cache.SimpleCache;
+import org.apache.commons.cache.StashPolicy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.EntityMode;
@@ -26,6 +34,8 @@ import org.paxle.core.queue.ICommand;
 public class CommandDB implements IDataProvider, IDataConsumer {
 	private static final int MAX_IDLE_SLEEP = 60000;
 
+	private Cache urlExistsCache = null;
+	
 	/**
 	 * A {@link IDataSink data-sink} to write the loaded {@link ICommand commands} out
 	 */
@@ -99,6 +109,12 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			 * =========================================================================== */
 		    this.writerThread = new Writer();
 		    this.readerThread = new Reader();
+		    
+			/* ===========================================================================
+			 * Init Cache
+			 * =========================================================================== */		  
+		    LRUEvictionPolicy ep = new LRUEvictionPolicy();
+		    this.urlExistsCache = new SimpleCache(new MemoryStash(100000), (EvictionPolicy)ep, (StashPolicy) null, (GroupMap)null, (File)null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
@@ -214,6 +230,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			for (ICommand cmd : (List<ICommand>) result) {
 				cmd.setResultText("Enqueued");
 				session.update(cmd);
+				this.urlExistsCache.store(cmd.getLocation(), Boolean.TRUE, null, null);
 			}
 			
 			transaction.commit();
@@ -231,7 +248,8 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		try {
 			transaction = session.beginTransaction();
 			
-	        session.saveOrUpdate(cmd);	        
+	        session.saveOrUpdate(cmd);
+	        this.urlExistsCache.store(cmd.getLocation(), Boolean.TRUE, null, null);
 	        
 			transaction.commit();
 			
@@ -243,11 +261,21 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		}
 	}
 	
-	public void storeUnknownLocations(List<String> locations) {
+	void storeUnknownLocations(List<String> locations) {
+		if (locations == null || locations.size() == 0) return;
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
 		try {
 			transaction = session.beginTransaction();
+			
+			// check the cache for URL existance
+			Iterator<String> locationIterator = locations.iterator();
+			while (locationIterator.hasNext()) {
+				if (this.urlExistsCache.contains(locationIterator.next())) {
+					locationIterator.remove();
+				}
+			}
+			if (locations.size() == 0) return;
 			
 			// check which URLs are already known
 			Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",locations);
@@ -255,8 +283,12 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			
 			// add new commands into DB
 			for (String location: locations) {			
-				if (knownLocations.contains(location)) continue;
+				if (knownLocations.contains(location)) {
+					this.urlExistsCache.store(location, Boolean.TRUE, null, null);
+					continue;
+				}
 				session.saveOrUpdate(Command.createCommand(location));	
+				this.urlExistsCache.store(location, Boolean.TRUE, null, null);
 			}
 	        
 			transaction.commit();
