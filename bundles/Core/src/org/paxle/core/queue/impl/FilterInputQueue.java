@@ -55,8 +55,12 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 							command.getLocation(), filter.getClass().getName(), command.getResultText()
 					));
 				}				
-			} catch (Exception e) {
-				this.logger.error(String.format("Filter '%s' terminated with exception.",filter.getClass().getName()),e);
+			} catch (Throwable e) {
+				this.logger.error(String.format("Filter '%s' throwed an '%s' while processing '%s'.",
+						filter.getClass().getName(),
+						e.getClass().getName(),
+						command.getLocation()
+				),e);
 			}
 		}
 	}

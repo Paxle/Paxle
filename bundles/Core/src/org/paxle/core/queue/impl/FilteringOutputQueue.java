@@ -56,7 +56,11 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 					));
 				}
 			} catch (Throwable e) {
-				this.logger.error(String.format("Filter '%s' terminated with exception.",(filter==null)?"unknown":filter.getClass().getName()),e);
+				this.logger.error(String.format("Filter '%s' throwed an '%s' while processing '%s'.",
+						filter.getClass().getName(),
+						e.getClass().getName(),
+						command.getLocation()
+				),e);				
 			}
 		}
 	}
