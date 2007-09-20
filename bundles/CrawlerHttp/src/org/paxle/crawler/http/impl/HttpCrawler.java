@@ -45,6 +45,9 @@ public class HttpCrawler implements IHttpCrawler {
 	 * Connection manager used for http connection pooling
 	 */
 	private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
+	static {
+		connectionManager.getParams().setDefaultMaxConnectionsPerHost(10);
+	}
 	
 	/**
 	 * http client class
