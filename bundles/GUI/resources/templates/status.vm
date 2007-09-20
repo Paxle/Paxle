@@ -31,9 +31,9 @@
 	#set($crawlers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
 	#if ($crawlers)
 		#foreach($crawler in $crawlers)
-			#if($doPause == true)
+			#if($doPause && $doPause == true)
 				$crawler.pause()
-			#elseif($doResume == true)
+			#elseif($doResume && $doResume == true)
 				$crawler.resume()
 			#end
 			The crawler is 
