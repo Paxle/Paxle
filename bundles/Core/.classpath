@@ -8,7 +8,6 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/commons-pool-1.3.jar" sourcepath="/home/theli/workspace/Libs/commons-pool-1.3-src.zip"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
 		<attributes>
 			<attribute name="bundle-name" value="Commons-Logging"/>
@@ -19,5 +18,6 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
+	<classpathentry kind="lib" path="libs/commons-pool-1.3.jar"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>

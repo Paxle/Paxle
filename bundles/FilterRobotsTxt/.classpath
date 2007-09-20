@@ -25,6 +25,6 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/commons-cache.jar" sourcepath="/CommonsCache"/>
+	<classpathentry exported="true" kind="lib" path="libs/commons-cache.jar"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>

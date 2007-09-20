@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <bundlejar>
 <resource dst="" pattern=".*\.class" src="/DataLayerDerby/out" type="0"/>
 <resource dst="libs/derby-10.3.1.4.jar" src="/DataLayerDerby/libs/derby-10.3.1.4.jar" type="1"/>

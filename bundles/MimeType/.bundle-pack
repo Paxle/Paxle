@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <bundlejar>
 <resource dst="" pattern=".*\.class" src="/MimeTypeDetection/out" type="0"/>
 <resource dst="libs/jakarta-oro-2.0.7.jar" src="/MimeType/libs/jakarta-oro-2.0.7.jar" type="1"/>

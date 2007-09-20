@@ -1,14 +1,4 @@
 Manifest-Version: 1.0
-Bundle-Description: Http Libs and Tools for Paxle
-Bundle-Name: HttpTools
-Bundle-ClassPath: ., libs/commons-codec-1.3.jar, libs/commons-digester
- -1.8.jar, libs/commons-httpclient-3.0.1.jar, libs/velocity-dep-1.5.ja
- r, libs/velocity-tools-view-1.3.jar, libs/velocity-tools-generic-1.3.
- jar
-Import-Package: org.apache.commons.logging, javax.servlet, javax.servl
- et.http
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: HttpTools
 Export-Package: org.apache.commons.httpclient, org.apache.commons.http
  client.auth, org.apache.commons.httpclient.cookie, org.apache.commons
  .httpclient.methods, org.apache.commons.httpclient.methods.multipart,
@@ -32,6 +22,16 @@ Export-Package: org.apache.commons.httpclient, org.apache.commons.http
  velocity.tools.view.tools, org.apache.velocity.util, org.apache.veloc
  ity.util.introspection, org.apache.commons.collections, org.apache.co
  mmons.collections.iterators, org.apache.commons.collections.map
-Bundle-Version: 1.0.0
 DynamicImport-Package: *
+Bundle-ClassPath: ., libs/commons-codec-1.3.jar, libs/commons-digester
+ -1.8.jar, libs/commons-httpclient-3.0.1.jar, libs/velocity-dep-1.5.ja
+ r, libs/velocity-tools-view-1.3.jar, libs/velocity-tools-generic-1.3.
+ jar
+Bundle-Version: 1.0.0
+Bundle-Name: HttpTools
+Bundle-ManifestVersion: 2
+Bundle-Description: Http Libs and Tools for Paxle
+Import-Package: org.apache.commons.logging, javax.servlet, javax.servl
+ et.http
+Bundle-SymbolicName: HttpTools
 

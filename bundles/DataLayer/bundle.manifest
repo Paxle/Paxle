@@ -1,20 +1,20 @@
 Manifest-Version: 1.0
-Bundle-Name: DataLayer
-Bundle-ClassPath: ., libs/antlr-2.7.6.jar, libs/asm-attrs.jar, libs/as
- m.jar, libs/cglib-2.1.3.jar, libs/commons-collections-2.1.1.jar, libs
- /commons-logging-1.0.4.jar, libs/dom4j-1.6.1.jar, libs/hibernate3.jar
- , libs/jta.jar, libs/log4j-1.2.11.jar, libs/xerces.jar, libs/xml-apis
- .jar, libs/xmlParserAPIs.jar, libs/commons-cache.jar
-Bundle-Activator: org.paxle.data.impl.Activator
-Import-Package: org.osgi.framework, org.paxle.core.data, org.paxle.cor
- e.queue, org.paxle.core.doc, org.apache.commons.logging, org.paxle.co
- re.filter
-Bundle-ManifestVersion: 2
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Bundle-SymbolicName: org.paxle.data
-Bundle-Version: 1.0.0
-Bundle-ContactAddress: http://www.paxle.net/
 DynamicImport-Package: javax.naming, javax.naming.spi, sun.reflect, or
  g.xml.sax, org.xml.sax.helpers, org.xml.sax.ext, javax.naming.event, 
  javax.net.ssl, javax.sql
+Bundle-ClassPath: ., libs/antlr-2.7.6.jar, libs/asm.jar, libs/asm-attr
+ s.jar, libs/cglib-2.1.3.jar, libs/commons-cache.jar, libs/commons-col
+ lections-2.1.1.jar, libs/commons-logging-1.0.4.jar, libs/dom4j-1.6.1.
+ jar, libs/hibernate3.jar, libs/jta.jar, libs/log4j-1.2.11.jar, libs/x
+ erces.jar, libs/xml-apis.jar, libs/xmlParserAPIs.jar
+Bundle-ContactAddress: http://www.paxle.net/
+Bundle-Version: 1.0.0
+Bundle-Name: DataLayer
+Bundle-Activator: org.paxle.data.impl.Activator
+Bundle-ManifestVersion: 2
+Import-Package: org.osgi.framework, org.paxle.core.data, org.paxle.cor
+ e.queue, org.paxle.core.doc, org.apache.commons.logging, org.paxle.co
+ re.filter
+Bundle-SymbolicName: org.paxle.data
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 

@@ -1,16 +1,17 @@
 Manifest-Version: 1.0
-Bundle-Name: Core
-Bundle-ClassPath: ., libs/commons-pool-1.3.jar
-Bundle-Activator: org.paxle.core.impl.Activator
-Import-Package: org.osgi.framework, org.apache.commons.logging
-Bundle-ManifestVersion: 2
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Bundle-SymbolicName: org.paxle.core
 Export-Package: org.paxle.core.queue, org.paxle.core.threading, org.pa
  xle.core, org.paxle.core.filter, org.paxle.core.data, org.paxle.core.
  doc, org.paxle.core.mimetype, org.paxle.core.charset, org.paxle.core.
  service, org.paxle.core.io.temp, org.paxle.core.crypt, org.paxle.core
  .io
-Bundle-Version: 1.0.0
-Bundle-ContactAddress: http://www.paxle.net/
 DynamicImport-Package: sun.reflect
+Bundle-ClassPath: ., libs/commons-pool-1.3.jar
+Bundle-ContactAddress: http://www.paxle.net/
+Bundle-Version: 1.0.0
+Bundle-Name: Core
+Bundle-Activator: org.paxle.core.impl.Activator
+Bundle-ManifestVersion: 2
+Import-Package: org.osgi.framework, org.apache.commons.logging
+Bundle-SymbolicName: org.paxle.core
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+

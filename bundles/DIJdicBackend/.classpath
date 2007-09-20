@@ -9,5 +9,6 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/DesktopIntegration"/>
 	<classpathentry kind="lib" path="libs/jdic.jar"/>
+	<classpathentry kind="lib" path="binaries/libs/linux/jdic_stub.jar"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>

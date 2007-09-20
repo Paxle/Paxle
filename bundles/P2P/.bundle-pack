@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <bundlejar>
 <resource dst="" pattern=".*\.class" src="/P2P/out" type="0"/>
 <resource dst="gisp/lib/bcprov-jdk14.jar" src="/P2P/gisp/lib/bcprov-jdk14.jar" type="1"/>

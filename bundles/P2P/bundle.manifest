@@ -1,19 +1,4 @@
 Manifest-Version: 1.0
-Bundle-Name: P2P
-Bundle-ClassPath: ., gisp/lib/dom4j.jar, gisp/lib/jxta.jar, gisp/lib/l
- og4j.jar, gisp/lib/junit.jar, libs/bcprov-jdk15-132.jar, libs/xerces.
- jar, libs/xml-apis.jar, libs/xmlParserAPIs.jar, gisp/lib/bcprov-jdk14
- .jar, gisp/lib/javax.servlet.jar, gisp/lib/jdom.jar, gisp/lib/jxtaext
- .jar, gisp/lib/org.mortbay.jetty.jar, gisp/lib/swixml.jar
-Bundle-Activator: org.paxle.p2p.impl.Activator
-Import-Package: org.osgi.framework, javax.servlet.http, org.apache.vel
- ocity, org.apache.velocity.app, org.apache.velocity.tools.view.servle
- t, org.osgi.service.http, org.apache.velocity.context, org.apache.com
- mons.httpclient, org.apache.commons.httpclient.methods, javax.servlet
- , org.apache.commons.logging
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: P2P
 Export-Package: org.paxle.p2p, net.jxta, net.jxta.access, net.jxta.cod
  at, net.jxta.credential, net.jxta.discovery, net.jxta.document, net.j
  xta.endpoint, net.jxta.exception, net.jxta.ext.config, net.jxta.ext.c
@@ -46,7 +31,22 @@ Export-Package: org.paxle.p2p, net.jxta, net.jxta.access, net.jxta.cod
  rm, net.jxta.protocol, net.jxta.rendezvous, net.jxta.resolver, net.jx
  ta.service, net.jxta.socket, net.jxta.util, net.jxta.util.documentSer
  ializable
-Bundle-Version: 1.0.0
 DynamicImport-Package: sun.*, org.xml.sax.*, javax.security.*, sun.ref
  lect, javax.swing, javax.swing.text
+Bundle-ClassPath: ., gisp/lib/dom4j.jar, gisp/lib/jxta.jar, gisp/lib/l
+ og4j.jar, gisp/lib/junit.jar, libs/bcprov-jdk15-132.jar, libs/xerces.
+ jar, libs/xml-apis.jar, libs/xmlParserAPIs.jar, gisp/lib/bcprov-jdk14
+ .jar, gisp/lib/javax.servlet.jar, gisp/lib/jdom.jar, gisp/lib/jxtaext
+ .jar, gisp/lib/org.mortbay.jetty.jar, gisp/lib/swixml.jar
+Bundle-Version: 1.0.0
+Bundle-Name: P2P
+Bundle-Activator: org.paxle.p2p.impl.Activator
+Bundle-ManifestVersion: 2
+Import-Package: org.osgi.framework, javax.servlet.http, org.apache.vel
+ ocity, org.apache.velocity.app, org.apache.velocity.tools.view.servle
+ t, org.osgi.service.http, org.apache.velocity.context, org.apache.com
+ mons.httpclient, org.apache.commons.httpclient.methods, javax.servlet
+ , org.apache.commons.logging
+Bundle-SymbolicName: P2P
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 
