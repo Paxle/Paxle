@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <bundlejar>
 <resource dst="" pattern=".*\.class" src="/DataLayerPostgreSQL/out" type="0"/>
+<resource dst="libs/postgresql-8.2-506.jdbc3.jar" src="/DataLayerPostgreSQL/libs/postgresql-8.2-506.jdbc3.jar" type="1"/>
 <resource dst="/resources/" src="/DataLayerPostgreSQL/resources" type="2"/>
 </bundlejar>

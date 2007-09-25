@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <bundlejar>
 <resource dst="" pattern=".*\.class" src="/Parser7zip/out" type="0"/>
+<resource dst="libs/J7Zip.jar" src="/Parser7zip/libs/J7Zip.jar" type="1"/>
 </bundlejar>

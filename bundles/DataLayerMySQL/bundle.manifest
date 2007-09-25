@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Fragment-Host: org.paxle.data
-Bundle-ClassPath: .
+Bundle-ClassPath: ., libs/mysql-connector-java-5.0.5.jar
 Bundle-Version: 1.0.0
 Bundle-Name: DataLayerMySQL
 Bundle-ManifestVersion: 2

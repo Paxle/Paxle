@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <bundlejar>
 <resource dst="" pattern=".*\.class" src="/DataLayerMySQL/out" type="0"/>
+<resource dst="libs/mysql-connector-java-5.0.5.jar" src="/DataLayerMySQL/libs/mysql-connector-java-5.0.5.jar" type="1"/>
 <resource dst="/resources/" src="/DataLayerMySQL/resources" type="2"/>
 </bundlejar>
