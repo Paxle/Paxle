@@ -33,6 +33,7 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	
 	public LuceneWriter(AFlushableLuceneManager manager) {
 		this.manager = manager;
+		this.setName("LuceneWriter");
 		this.start();
 		this.logger.info("Lucene writer has been started");
 	}
