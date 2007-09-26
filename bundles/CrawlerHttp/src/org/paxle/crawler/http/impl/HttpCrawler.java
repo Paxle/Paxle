@@ -133,8 +133,6 @@ public class HttpCrawler implements IHttpCrawler {
 				String contentLanguage = contentLanguageHeader.getValue();
 				String[] languages = contentLanguage.split(",");
 				doc.setLanguages(languages);
-			} else {
-				doc.setLanguages(new String[]{"de","en"});
 			}
 			
 			// crawling Date
