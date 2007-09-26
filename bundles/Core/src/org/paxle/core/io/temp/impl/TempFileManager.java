@@ -38,7 +38,7 @@ public class TempFileManager implements ITempFileManager {
 		ITempDir dir = this.classMap.get(className);
 		if (dir == null)
 			dir = this.defaultDir;
-		final File ret = dir.createTempFile(className, "tmp");
+		final File ret = dir.createTempFile(className, ".tmp");
 		this.fileMap.put(ret, this.defaultDir);
 		return ret;
 	}
