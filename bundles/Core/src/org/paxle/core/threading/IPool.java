@@ -1,5 +1,7 @@
 package org.paxle.core.threading;
 
+import java.util.List;
+
 public interface IPool<Data> {
 
 	/**
@@ -15,7 +17,16 @@ public interface IPool<Data> {
 	 */
 	public void returnWorker(IWorker<Data> worker);
 	
+	/**
+	 * Notifies the pool that the {@link IWorker worker-thread} should not be used anymore
+	 * @param worker
+	 */
 	public void invalidateWorker(IWorker<Data> worker);
+	
+	/**
+	 * @return the list of active jobs currently processed by the workers of this pool 
+	 */
+	public List<Data> getActiveJobs();
 	
 	/**
 	 * Close the thread pool and interrupts all running threads 

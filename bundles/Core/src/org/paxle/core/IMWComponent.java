@@ -1,5 +1,7 @@
 package org.paxle.core;
 
+import java.util.List;
+
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.queue.ICommand;
@@ -85,4 +87,9 @@ public interface IMWComponent<Data> {
 	 * @return the PPM of this component since startup
 	 */
 	public int getPPM();
+	
+	/**
+	 * @return the list of active jobs currently processed by the workers of this pool 
+	 */
+	public List<Data> getActiveJobs();
 }

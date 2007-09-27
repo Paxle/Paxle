@@ -151,6 +151,10 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
         }
     }
     
+    public Data getAssigned() {
+    	return this.command;
+    }
+    
     protected void setName() {
     	String className = this.getClass().getName();    	
     	int idx = className.lastIndexOf(".");

@@ -13,6 +13,12 @@ public interface IWorker<Data> {
 	public void assign(Data cmd);
 	
 	/**
+	 * @return the command that was assigned by the {@link IMaster master-thread} to the worker
+	 * or <code>null</code> if nothing is assigned at the moment.
+	 */
+	public Data getAssigned();
+	
+	/**
 	 * Terminate the worker
 	 */
 	public void terminate();

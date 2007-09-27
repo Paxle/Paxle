@@ -8,7 +8,6 @@ import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
-import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.impl.FilterInputQueue;

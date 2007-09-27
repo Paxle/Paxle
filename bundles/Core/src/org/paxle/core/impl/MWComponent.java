@@ -1,5 +1,7 @@
 package org.paxle.core.impl;
 
+import java.util.List;
+
 import org.paxle.core.IMWComponent;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
@@ -109,5 +111,12 @@ public class MWComponent<Data> implements IMWComponent<Data> {
 	 */	
 	public void processNext() {
 		this.master.processNext();
+	}
+
+	/**
+	 * @see IMWComponent#getActiveJobs()
+	 */
+	public List<Data> getActiveJobs() {
+		return this.pool.getActiveJobs();
 	}
 }
