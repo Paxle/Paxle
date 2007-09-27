@@ -3,6 +3,7 @@ package org.paxle.p2p.impl;
  * Created on Fri Jul 27 18:27:15 GMT+02:00 2007
  */
 
+import java.io.File;
 import java.util.Properties;
 
 import net.jxta.peergroup.PeerGroup;
@@ -41,7 +42,7 @@ public class Activator implements BundleActivator {
 		
 		// init P2P manager
 		p2pManager = new P2PManager();
-		p2pManager.init(context.getDataFile("p2pConfig"));
+		p2pManager.init(new File("p2p"));
 		
 		// register the P2P-manager as a osgi service
 		bc.registerService(IP2PManager.class.getName(), p2pManager, null);		
