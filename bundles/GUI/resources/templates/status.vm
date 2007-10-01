@@ -1,7 +1,7 @@
 ## Set the page title
 #set( $page_title = "Paxle Status Page" )
 ## Activate onload
-#set ( $bodyonload = "fhide('general');" )
+#set ( $bodyonload = "initTabs('general');" )
 
 <ul class="tabs">
 	<li><a href="#dgeneral" onclick="fshow('general');" id="tgeneral">General</a></li>
@@ -11,9 +11,6 @@
 	<li><a href="#dknownpeers" onclick="fshow('knownpeers');" id="tknownpeers">Known-Peers</a></li>
 	<li><a href="#dindex" onclick="fshow('index');" id="tindex">Index</a></li>
 </ul>
-
-<br />
-<br />
 
 ## the regular content
 <form method="post">
@@ -126,4 +123,5 @@
 	<legend>Index</legend>
 	<p>Known documents: $se.docCount</p>
 </fieldset>
+
 #end

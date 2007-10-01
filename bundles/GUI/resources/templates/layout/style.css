@@ -8,6 +8,9 @@ html, body {
 fieldset {
 	background-color: #FFFFFF;
 	color: #000000;
+	border: 1px solid black;
+	margin: 0;
+	clear: left;
 }
 
 input, textarea {
@@ -25,7 +28,9 @@ input:focus, textarea:focus {
 	width: 12em;
 	margin: 0;
 	padding: 2em 0 8em 0;
-	float: left;
+    position: absolute;
+    top: 6em;
+    left: 0;
 	list-style: none;
 	background-color: #9C0000;
 }

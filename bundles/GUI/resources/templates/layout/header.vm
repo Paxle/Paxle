@@ -6,15 +6,29 @@
 </head>
 <script type="text/javascript">
 	/* <![CDATA[ */
+	function getHash(offset) {
+		var href = document.location.href;
+		var i = href.indexOf( "#" );
+		return i >= 0 ? href.substr( i + 1 + offset ) : null;
+	}
 	var cobj;
-	function fhide(n) {
+	function initTabs(d) {
 		var i, obj = document.getElementsByTagName('fieldset');
 		for(i = 0; i < obj.length; i++) {
 			if (obj[i].id.substring(0,1) == 'd') {
 				obj[i].style.display = 'none';
+				obj[i].getElementsByTagName('legend')[0].style.display = 'none';
 			}
 		}
-		fshow(n);
+		tab = getHash(1);
+		fshow(tab ? tab : d);
+		setInterval( function() {
+			var newTab = getHash(1);
+			if (newTab != tab) {
+				fshow(newTab ? newTab : d);
+				tab = newTab;
+			}
+		}, 200);
 	}
 
 	function fshow(n) {		
@@ -31,4 +45,4 @@
 </script>
 <body#if( $bodyonload ) onload="$bodyonload"#end>
 
-<h1 style="margin: 0; padding: 0.7em; background-color: black; color: white; font-size: 3em; text-align: center;">Paxle</h1>
+<h1 style="margin: 0; padding: 0; line-height: 2em; background-color: black; color: white; font-size: 3em; text-align: center;">Paxle</h1>
