@@ -77,15 +77,23 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 		jxtaHome = home.getCanonicalPath();
 		this.seedingURI = seedURI;
 		rand = new Random();
+		
+		this.configureJXTA();
+		try {
+			this.startJXTA();
+			this.createApplicationPeerGroup();
+		} catch(Throwable e) {
+			e.printStackTrace();
+			System.out.println("Exiting.");
+			System.exit(1);
+		}				
+		
 		this.start();
 	}
 	
 	@Override
 	public void run() {
-		this.configureJXTA();
 		try {
-			this.startJXTA();
-			this.createApplicationPeerGroup();
 			this.waitForRdv();
 			this.doSomething();
 			this.waitForQuit();
