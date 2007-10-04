@@ -47,7 +47,7 @@ public class Activator implements BundleActivator {
 		
 		// register the P2P-manager as a osgi service
 		bc.registerService(IP2PManager.class.getName(), p2pManager, null);		
-//		bc.registerService(PeerGroup.class.getName(), p2pManager.getPeerGroup(), null);
+		bc.registerService(PeerGroup.class.getName(), p2pManager.getPeerGroup(), null);
 		
 		// init passive firewall check (hit on /paxle/firewallcheck means: not firewalled)
 //		initFirewallCheckPassive();

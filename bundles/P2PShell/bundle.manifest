@@ -7,35 +7,31 @@ Bundle-Activator: org.paxle.p2p.shell.impl.Activator
 Bundle-ManifestVersion: 2
 Import-Package: org.osgi.framework, net.jxta, net.jxta.access, net.jxt
  a.codat, net.jxta.credential, net.jxta.discovery, net.jxta.document, 
- net.jxta.endpoint, net.jxta.exception, net.jxta.ext.config, net.jxta.
- ext.config.optimizers, net.jxta.ext.config.probes, net.jxta.ext.confi
- g.resources, net.jxta.ext.config.ui, net.jxta.ext.config.ui.locale, n
- et.jxta.ext.config.ui.resource, net.jxta.ext.config.validators, net.j
- xta.ext.http, net.jxta.id, net.jxta.id.jxta, net.jxta.impl, net.jxta.
- impl.access, net.jxta.impl.access.always, net.jxta.impl.access.pse, n
- et.jxta.impl.access.simpleACL, net.jxta.impl.cm, net.jxta.impl.discov
- ery, net.jxta.impl.document, net.jxta.impl.endpoint, net.jxta.impl.en
- dpoint.cbjx, net.jxta.impl.endpoint.endpointMeter, net.jxta.impl.endp
- oint.msgframing, net.jxta.impl.endpoint.relay, net.jxta.impl.endpoint
- .router, net.jxta.impl.endpoint.servlethttp, net.jxta.impl.endpoint.t
- cp, net.jxta.impl.endpoint.tls, net.jxta.impl.endpoint.transportMeter
- , net.jxta.impl.id.binaryID, net.jxta.impl.id.CBID, net.jxta.impl.id.
- unknown, net.jxta.impl.id.UUID, net.jxta.impl.loader, net.jxta.impl.m
- embership, net.jxta.impl.membership.none, net.jxta.impl.membership.pa
- sswd, net.jxta.impl.membership.pse, net.jxta.impl.meter, net.jxta.imp
- l.peer, net.jxta.impl.peergroup, net.jxta.impl.pipe, net.jxta.impl.pr
- otocol, net.jxta.impl.proxy, net.jxta.impl.rendezvous, net.jxta.impl.
- rendezvous.adhoc, net.jxta.impl.rendezvous.edge, net.jxta.impl.rendez
- vous.limited, net.jxta.impl.rendezvous.rdv, net.jxta.impl.rendezvous.
- rendezvousMeter, net.jxta.impl.rendezvous.rpv, net.jxta.impl.resolver
- , net.jxta.impl.resolver.resolverMeter, net.jxta.impl.util, net.jxta.
- impl.util.cm, net.jxta.impl.util.pipe.reliable, net.jxta.impl.xindice
- , net.jxta.impl.xindice.core, net.jxta.impl.xindice.core.data, net.jx
- ta.impl.xindice.core.filer, net.jxta.impl.xindice.core.indexer, net.j
- xta.impl.xindice.util, net.jxta.logging, net.jxta.membership, net.jxt
- a.meter, net.jxta.peer, net.jxta.peergroup, net.jxta.pipe, net.jxta.p
- latform, net.jxta.protocol, net.jxta.rendezvous, net.jxta.resolver, n
- et.jxta.service, net.jxta.socket, net.jxta.util, net.jxta.util.docume
- ntSerializable
+ net.jxta.endpoint, net.jxta.exception, net.jxta.id, net.jxta.id.jxta,
+  net.jxta.impl, net.jxta.impl.access, net.jxta.impl.access.always, ne
+ t.jxta.impl.access.pse, net.jxta.impl.access.simpleACL, net.jxta.impl
+ .cm, net.jxta.impl.discovery, net.jxta.impl.document, net.jxta.impl.e
+ ndpoint, net.jxta.impl.endpoint.cbjx, net.jxta.impl.endpoint.endpoint
+ Meter, net.jxta.impl.endpoint.mcast, net.jxta.impl.endpoint.msgframin
+ g, net.jxta.impl.endpoint.relay, net.jxta.impl.endpoint.router, net.j
+ xta.impl.endpoint.servlethttp, net.jxta.impl.endpoint.tcp, net.jxta.i
+ mpl.endpoint.tls, net.jxta.impl.endpoint.transportMeter, net.jxta.imp
+ l.id.binaryID, net.jxta.impl.id.CBID, net.jxta.impl.id.unknown, net.j
+ xta.impl.id.UUID, net.jxta.impl.loader, net.jxta.impl.membership, net
+ .jxta.impl.membership.none, net.jxta.impl.membership.passwd, net.jxta
+ .impl.membership.pse, net.jxta.impl.meter, net.jxta.impl.peer, net.jx
+ ta.impl.peergroup, net.jxta.impl.pipe, net.jxta.impl.protocol, net.jx
+ ta.impl.proxy, net.jxta.impl.rendezvous, net.jxta.impl.rendezvous.adh
+ oc, net.jxta.impl.rendezvous.edge, net.jxta.impl.rendezvous.limited, 
+ net.jxta.impl.rendezvous.rdv, net.jxta.impl.rendezvous.rendezvousMete
+ r, net.jxta.impl.rendezvous.rpv, net.jxta.impl.resolver, net.jxta.imp
+ l.resolver.resolverMeter, net.jxta.impl.util, net.jxta.impl.util.cm, 
+ net.jxta.impl.util.pipe.reliable, net.jxta.impl.xindice, net.jxta.imp
+ l.xindice.core, net.jxta.impl.xindice.core.data, net.jxta.impl.xindic
+ e.core.filer, net.jxta.impl.xindice.core.indexer, net.jxta.impl.xindi
+ ce.util, net.jxta.logging, net.jxta.membership, net.jxta.meter, net.j
+ xta.peer, net.jxta.peergroup, net.jxta.pipe, net.jxta.platform, net.j
+ xta.protocol, net.jxta.rendezvous, net.jxta.resolver, net.jxta.servic
+ e, net.jxta.socket, net.jxta.util, net.jxta.util.documentSerializable
 Bundle-SymbolicName: org.paxle.p2p.shell
 

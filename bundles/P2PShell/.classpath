@@ -8,9 +8,13 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/jxtashell.jar"/>
+	<classpathentry kind="lib" path="libs/jxtashell.jar" sourcepath="/home/theli/workspace/Libs/jxta-shell-src-2.5_rc1.zip"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/P2P">
+		<attributes>
+			<attribute name="net.jxta.impl.endpoint.mcast" value="0.0.0"/>
+		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="net/jxta/impl/endpoint/mcast/"/>
 			<accessrule kind="accessible" pattern="net/jxta/util/documentSerializable/"/>
 			<accessrule kind="accessible" pattern="net/jxta/util/"/>
 			<accessrule kind="accessible" pattern="net/jxta/socket/"/>
@@ -78,15 +82,6 @@
 			<accessrule kind="accessible" pattern="net/jxta/impl/"/>
 			<accessrule kind="accessible" pattern="net/jxta/id/jxta/"/>
 			<accessrule kind="accessible" pattern="net/jxta/id/"/>
-			<accessrule kind="accessible" pattern="net/jxta/ext/http/"/>
-			<accessrule kind="accessible" pattern="net/jxta/ext/config/validators/"/>
-			<accessrule kind="accessible" pattern="net/jxta/ext/config/ui/resource/"/>
-			<accessrule kind="accessible" pattern="net/jxta/ext/config/ui/locale/"/>
-			<accessrule kind="accessible" pattern="net/jxta/ext/config/ui/"/>
-			<accessrule kind="accessible" pattern="net/jxta/ext/config/resources/"/>
-			<accessrule kind="accessible" pattern="net/jxta/ext/config/probes/"/>
-			<accessrule kind="accessible" pattern="net/jxta/ext/config/optimizers/"/>
-			<accessrule kind="accessible" pattern="net/jxta/ext/config/"/>
 			<accessrule kind="accessible" pattern="net/jxta/exception/"/>
 			<accessrule kind="accessible" pattern="net/jxta/endpoint/"/>
 			<accessrule kind="accessible" pattern="net/jxta/document/"/>
