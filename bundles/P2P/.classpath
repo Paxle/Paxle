@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="**/.svn/**|**/CVS/**" including="**/*.java" kind="src" path="src"/>
-	<classpathentry kind="src" path="gisp/src"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.EXECUTION_ENVIRONMENT_CONTAINER"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
 		<accessrules>
@@ -26,25 +25,18 @@
 	<classpathentry kind="lib" path="/HttpTools/libs/velocity-dep-1.5.jar"/>
 	<classpathentry kind="lib" path="/HttpTools/libs/velocity-tools-view-1.3.jar"/>
 	<classpathentry kind="lib" path="/HttpTools/libs/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/bcprov-jdk14.jar"/>
+	<classpathentry kind="lib" path="libs/javax.servlet.jar"/>
+	<classpathentry kind="lib" path="libs/jxta.jar"/>
+	<classpathentry kind="lib" path="libs/org.mortbay.jetty.jar"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="gisp/lib/dom4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="gisp/lib/jxta.jar"/>
-	<classpathentry exported="true" kind="lib" path="gisp/lib/log4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="gisp/lib/junit.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/bcprov-jdk15-132.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/xerces.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/xml-apis.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/xmlParserAPIs.jar"/>
-	<classpathentry exported="true" kind="lib" path="gisp/lib/bcprov-jdk14.jar"/>
-	<classpathentry exported="true" kind="lib" path="gisp/lib/javax.servlet.jar"/>
-	<classpathentry exported="true" kind="lib" path="gisp/lib/jdom.jar"/>
-	<classpathentry exported="true" kind="lib" path="gisp/lib/jxtaext.jar"/>
-	<classpathentry exported="true" kind="lib" path="gisp/lib/org.mortbay.jetty.jar"/>
-	<classpathentry exported="true" kind="lib" path="gisp/lib/swixml.jar"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>

@@ -1,52 +1,46 @@
 Manifest-Version: 1.0
-Export-Package: org.paxle.p2p, net.jxta, net.jxta.access, net.jxta.cod
- at, net.jxta.credential, net.jxta.discovery, net.jxta.document, net.j
- xta.endpoint, net.jxta.exception, net.jxta.ext.config, net.jxta.ext.c
- onfig.optimizers, net.jxta.ext.config.probes, net.jxta.ext.config.res
- ources, net.jxta.ext.config.ui, net.jxta.ext.config.ui.locale, net.jx
- ta.ext.config.ui.resource, net.jxta.ext.config.validators, net.jxta.e
- xt.http, net.jxta.id, net.jxta.id.jxta, net.jxta.impl, net.jxta.impl.
- access, net.jxta.impl.access.always, net.jxta.impl.access.pse, net.jx
- ta.impl.access.simpleACL, net.jxta.impl.cm, net.jxta.impl.discovery, 
- net.jxta.impl.document, net.jxta.impl.endpoint, net.jxta.impl.endpoin
- t.cbjx, net.jxta.impl.endpoint.endpointMeter, net.jxta.impl.endpoint.
- msgframing, net.jxta.impl.endpoint.relay, net.jxta.impl.endpoint.rout
- er, net.jxta.impl.endpoint.servlethttp, net.jxta.impl.endpoint.tcp, n
- et.jxta.impl.endpoint.tls, net.jxta.impl.endpoint.transportMeter, net
- .jxta.impl.id.binaryID, net.jxta.impl.id.CBID, net.jxta.impl.id.unkno
- wn, net.jxta.impl.id.UUID, net.jxta.impl.loader, net.jxta.impl.member
- ship, net.jxta.impl.membership.none, net.jxta.impl.membership.passwd,
-  net.jxta.impl.membership.pse, net.jxta.impl.meter, net.jxta.impl.pee
- r, net.jxta.impl.peergroup, net.jxta.impl.pipe, net.jxta.impl.protoco
- l, net.jxta.impl.proxy, net.jxta.impl.rendezvous, net.jxta.impl.rende
- zvous.adhoc, net.jxta.impl.rendezvous.edge, net.jxta.impl.rendezvous.
- limited, net.jxta.impl.rendezvous.rdv, net.jxta.impl.rendezvous.rende
- zvousMeter, net.jxta.impl.rendezvous.rpv, net.jxta.impl.resolver, net
- .jxta.impl.resolver.resolverMeter, net.jxta.impl.util, net.jxta.impl.
- util.cm, net.jxta.impl.util.pipe.reliable, net.jxta.impl.xindice, net
- .jxta.impl.xindice.core, net.jxta.impl.xindice.core.data, net.jxta.im
- pl.xindice.core.filer, net.jxta.impl.xindice.core.indexer, net.jxta.i
- mpl.xindice.util, net.jxta.logging, net.jxta.membership, net.jxta.met
- er, net.jxta.peer, net.jxta.peergroup, net.jxta.pipe, net.jxta.platfo
- rm, net.jxta.protocol, net.jxta.rendezvous, net.jxta.resolver, net.jx
- ta.service, net.jxta.socket, net.jxta.util, net.jxta.util.documentSer
- ializable
-DynamicImport-Package: sun.*, org.xml.sax.*, javax.security.*, sun.ref
- lect, javax.swing, javax.swing.text
-Bundle-ClassPath: ., gisp/lib/dom4j.jar, gisp/lib/jxta.jar, gisp/lib/l
- og4j.jar, gisp/lib/junit.jar, libs/bcprov-jdk15-132.jar, libs/xerces.
- jar, libs/xml-apis.jar, libs/xmlParserAPIs.jar, gisp/lib/bcprov-jdk14
- .jar, gisp/lib/javax.servlet.jar, gisp/lib/jdom.jar, gisp/lib/jxtaext
- .jar, gisp/lib/org.mortbay.jetty.jar, gisp/lib/swixml.jar
-Bundle-Version: 1.0.0
 Bundle-Name: P2P
+Bundle-ClassPath: ., libs/bcprov-jdk14.jar, libs/javax.servlet.jar, li
+ bs/jxta.jar, libs/org.mortbay.jetty.jar, libs/xerces.jar, libs/xml-ap
+ is.jar, libs/xmlParserAPIs.jar
 Bundle-Activator: org.paxle.p2p.impl.Activator
-Bundle-ManifestVersion: 2
 Import-Package: org.osgi.framework, javax.servlet.http, org.apache.vel
  ocity, org.apache.velocity.app, org.apache.velocity.tools.view.servle
  t, org.osgi.service.http, org.apache.velocity.context, org.apache.com
  mons.httpclient, org.apache.commons.httpclient.methods, javax.servlet
  , org.apache.commons.logging
-Bundle-SymbolicName: P2P
+Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-SymbolicName: P2P
+Export-Package: org.paxle.p2p, net.jxta, net.jxta.access, net.jxta.cod
+ at, net.jxta.credential, net.jxta.discovery, net.jxta.document, net.j
+ xta.endpoint, net.jxta.exception, net.jxta.id, net.jxta.id.jxta, net.
+ jxta.impl, net.jxta.impl.access, net.jxta.impl.access.always, net.jxt
+ a.impl.access.pse, net.jxta.impl.access.simpleACL, net.jxta.impl.cm, 
+ net.jxta.impl.discovery, net.jxta.impl.document, net.jxta.impl.endpoi
+ nt, net.jxta.impl.endpoint.cbjx, net.jxta.impl.endpoint.endpointMeter
+ , net.jxta.impl.endpoint.msgframing, net.jxta.impl.endpoint.relay, ne
+ t.jxta.impl.endpoint.router, net.jxta.impl.endpoint.servlethttp, net.
+ jxta.impl.endpoint.tcp, net.jxta.impl.endpoint.tls, net.jxta.impl.end
+ point.transportMeter, net.jxta.impl.id.binaryID, net.jxta.impl.id.CBI
+ D, net.jxta.impl.id.unknown, net.jxta.impl.id.UUID, net.jxta.impl.loa
+ der, net.jxta.impl.membership, net.jxta.impl.membership.none, net.jxt
+ a.impl.membership.passwd, net.jxta.impl.membership.pse, net.jxta.impl
+ .meter, net.jxta.impl.peer, net.jxta.impl.peergroup, net.jxta.impl.pi
+ pe, net.jxta.impl.protocol, net.jxta.impl.proxy, net.jxta.impl.rendez
+ vous, net.jxta.impl.rendezvous.adhoc, net.jxta.impl.rendezvous.edge, 
+ net.jxta.impl.rendezvous.limited, net.jxta.impl.rendezvous.rdv, net.j
+ xta.impl.rendezvous.rendezvousMeter, net.jxta.impl.rendezvous.rpv, ne
+ t.jxta.impl.resolver, net.jxta.impl.resolver.resolverMeter, net.jxta.
+ impl.util, net.jxta.impl.util.cm, net.jxta.impl.util.pipe.reliable, n
+ et.jxta.impl.xindice, net.jxta.impl.xindice.core, net.jxta.impl.xindi
+ ce.core.data, net.jxta.impl.xindice.core.filer, net.jxta.impl.xindice
+ .core.indexer, net.jxta.impl.xindice.util, net.jxta.logging, net.jxta
+ .membership, net.jxta.meter, net.jxta.peer, net.jxta.peergroup, net.j
+ xta.pipe, net.jxta.platform, net.jxta.protocol, net.jxta.rendezvous, 
+ net.jxta.resolver, net.jxta.service, net.jxta.socket, net.jxta.util, 
+ net.jxta.util.documentSerializable
+Bundle-Version: 1.0.0
+DynamicImport-Package: sun.*, org.xml.sax.*, javax.security.*, sun.ref
+ lect, javax.swing, javax.swing.text, javax.crypto.spec, javax.crypto
 

@@ -4,6 +4,7 @@ package org.paxle.p2p.impl;
  */
 
 import java.io.File;
+import java.net.URL;
 import java.util.Properties;
 
 import net.jxta.peergroup.PeerGroup;
@@ -41,18 +42,18 @@ public class Activator implements BundleActivator {
 		bc = context;
 		
 		// init P2P manager
-		p2pManager = new P2PManager();
-		p2pManager.init(new File("p2p"));
+		URL seedURI = bc.getBundle().getResource("/resources/seeds.txt");
+		p2pManager = new P2PManager(new File("p2p"), seedURI.toURI());
 		
 		// register the P2P-manager as a osgi service
 		bc.registerService(IP2PManager.class.getName(), p2pManager, null);		
-		bc.registerService(PeerGroup.class.getName(), p2pManager.getPeerGroup(), null);
+//		bc.registerService(PeerGroup.class.getName(), p2pManager.getPeerGroup(), null);
 		
 		// init passive firewall check (hit on /paxle/firewallcheck means: not firewalled)
-		initFirewallCheckPassive();
+//		initFirewallCheckPassive();
 		
 		// init active firewall check
-		this.initFirewallCheckActive();
+//		this.initFirewallCheckActive();
 		
 	}
 
