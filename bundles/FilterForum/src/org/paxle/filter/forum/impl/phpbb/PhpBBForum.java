@@ -16,7 +16,8 @@ public class PhpBBForum extends AForum {
 				"posting.php",
 				"privmsg.php",
 				"ucp.php",
-				"viewonline.php"
+				"viewonline.php",
+				"search.php"
 		);
 		
 		/* ======================================================
@@ -26,7 +27,6 @@ public class PhpBBForum extends AForum {
 		this.addForumPage(new ForumPage("index.php", true));
 		this.addForumPage(new ForumPage("memberlist.php", true,arrayToMap("start")));			
 		this.addForumPage(new ForumPage("profile.php", true,arrayToMap("mode=viewprofile","u"),arrayToMap("mode")));
-		this.addForumPage(new ForumPage("search.php", true));
 		this.addForumPage(new ForumPage("viewforum.php", true,arrayToMap("f","start")));
 		this.addForumPage(new ForumPage("viewtopic.php", true,arrayToMap("t","start"), arrayToMap("p")));
 	}

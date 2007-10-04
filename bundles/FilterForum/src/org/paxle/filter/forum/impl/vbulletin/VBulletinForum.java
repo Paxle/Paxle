@@ -16,7 +16,7 @@ public class VBulletinForum extends AForum {
 				"printthread.php", 
 				"register.php",				
 				"search.php",   	// ignore print only pages (we crawl the full featured version)
-				"showpost.php", 	// ignore single posts (we are only interrested in whole threads)
+				"showpost.php", 	// ignore single posts (we are only interested in whole threads)
 				"sendmessage.php" 
 		);
 		

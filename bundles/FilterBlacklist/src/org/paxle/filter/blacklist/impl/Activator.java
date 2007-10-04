@@ -33,7 +33,6 @@ public class Activator implements BundleActivator {
         http = (HttpService) bc.getService(sr);
         if(http != null) {  
             http.registerServlet("/blacklist", new BlacklistServlet(), null, null);
- 
         }
 }
 
