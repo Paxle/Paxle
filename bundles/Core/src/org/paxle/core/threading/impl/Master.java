@@ -1,5 +1,8 @@
 package org.paxle.core.threading.impl;
 
+import java.util.LinkedList;
+import java.util.concurrent.Semaphore;
+
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.IInputQueue;
 import org.paxle.core.threading.IMaster;
@@ -8,6 +11,11 @@ import org.paxle.core.threading.IWorker;
 
 
 public class Master<Data> extends Thread implements IMaster {
+	
+	/**
+	 * Semaphore used for the PPM update and calculation
+	 */
+	protected Semaphore ppmsm = new Semaphore(1, true);
 	
 	/**
 	 * A pool of {@link IWorker worker-threads}
@@ -34,7 +42,7 @@ public class Master<Data> extends Thread implements IMaster {
 	protected boolean paused = false;
 	
 	/**
-	 * total number of processed jobs
+	 * total number of processed jobs since startup. Not used at the moment, if you want to use this, uncomment the appropriate line in run()
 	 */
 	protected int processedCount = 0;
 	
@@ -42,6 +50,12 @@ public class Master<Data> extends Thread implements IMaster {
 	 * timestamp when the master-thread was started
 	 */
 	protected long startTime = System.currentTimeMillis();
+	
+	/**
+	 * This list stores the number of elements processed since the last 
+	 * @see getCleanPPM()
+	 */
+	private LinkedList<Long> ppm = new LinkedList<Long>();
 	
 	/**
 	 * @param threadPool the thread pool containing {@link IWorker worker-threads}
@@ -71,8 +85,15 @@ public class Master<Data> extends Thread implements IMaster {
 
                 // assign the command to the worker
                 worker.assign(command);
-                this.processedCount++;
                 
+                //add the job to the total job-count and the PPM
+                //this.processedCount++; //commented out, because value is not used atm. Saves CPU time.
+                this.ppmsm.acquire();
+                this.ppm.addLast(System.currentTimeMillis());
+                this.ppmsm.release();
+                //Nobody should have more than 200 PPS, so we clean the DB if it gets to big after some time to save memory
+                if (this.ppm.size() > 12000) getCleanPPM();
+
             } catch (InterruptedException e) {
                 Thread.interrupted();
                 this.stopped = true;
@@ -135,11 +156,34 @@ public class Master<Data> extends Thread implements IMaster {
 	}
 	
 	/**
+	 * Cleans all entries from the PPM-DB that are older than 1 minute.
+	 * @return The number of files processed in the last minute
+	 */
+	private int getCleanPPM() {
+		//the timestamp 60 seconds ago
+		long maxage = System.currentTimeMillis();
+		maxage = maxage - 60000;
+		
+		try {
+			this.ppmsm.acquire();
+		} catch (InterruptedException e) {
+			//Should only occur on program shutdown
+		}
+		
+		while (this.ppm.size() > 0 && this.ppm.getFirst() < maxage) {
+			this.ppm.removeFirst();
+		}
+		
+		//store in special variable so the value is not altered after semaphore release 
+		int retval = this.ppm.size();
+		this.ppmsm.release();
+		return retval;
+	}
+	
+	/**
 	 * @see IMaster#getPPM()
-	 * TODO: better algorithm required here
 	 */
 	public int getPPM() {
-		long uptime = (System.currentTimeMillis() - this.startTime) / 1000;
-		return (int) (this.processedCount * 60 / Math.max(uptime, 1));
+		return (getCleanPPM());
 	}
 }
