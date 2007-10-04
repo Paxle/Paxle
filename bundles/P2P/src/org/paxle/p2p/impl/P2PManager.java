@@ -464,22 +464,22 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	 * ========================================================= */
 	
 	public String getPeerID() {
-		return ""; // this.paxleGroup.getPeerID().getUniqueValue().toString();
+		return this.appPeerGroup.getPeerID().getUniqueValue().toString();
 	}
 	
 	public PeerGroup getPeerGroup() {
-		return null; // this.paxleGroup;
+		return this.appPeerGroup;
 	}
 	
 	public String getPeerName() {
-		return ""; // this.paxleGroup.getPeerName();
+		return this.appPeerGroup.getPeerName();
 	}
 		
 	public String getGroupID() {
-		return ""; // this.paxleGroup.getPeerGroupID().getUniqueValue().toString();
+		return this.appPeerGroup.getPeerGroupID().getUniqueValue().toString();
 	}
 	
 	public String getGroupName() {
-		return ""; // this.paxleGroup.getPeerGroupName();
+		return this.appPeerGroup.getPeerGroupName();
 	}
 }
