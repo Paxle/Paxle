@@ -7,11 +7,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Random;
 
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.discovery.DiscoveryService;
+import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
@@ -36,6 +40,7 @@ import net.jxta.platform.NetworkConfigurator;
 import net.jxta.platform.NetworkManager.ConfigMode;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
@@ -185,7 +190,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	      configurator = new NetworkConfigurator();
 	      configurator.setHome(new File(jxtaHome));
 	      configurator.setPeerID(IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID));
-	      configurator.setName("My Peer Name");
+	      configurator.setName(P2PTools.getComputerName());
 	      configurator.setPrincipal("ofno");
 	      configurator.setPassword("consequence");
 	      configurator.setDescription("I am a P2P Peer.");
@@ -421,27 +426,27 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	   // ---------------------------------	
 	
 	public String[] getPeerList() {
-//		List<String> peers = new ArrayList<String>();
-//		
-//		try {			
-//			// obtain the the discovery service
-//			DiscoveryService discoSvc = this.paxleGroup.getDiscoveryService();
-//			discoSvc.getRemoteAdvertisements(null, DiscoveryService.PEER, null, null, 1000);
-//			
-//			Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, null, null);
-//			while (advs.hasMoreElements()) {
-//				Advertisement adv=advs.nextElement();
-//				if (adv instanceof PeerAdvertisement) {
-//					PeerAdvertisement peerAdv = (PeerAdvertisement) adv;
-//					peers.add(peerAdv.getName());
-//				}
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		
-//		return peers.toArray(new String[peers.size()]);
-		return new String[0];
+		List<String> peers = new ArrayList<String>();
+		
+		try {			
+			// obtain the the discovery service
+			DiscoveryService discoSvc = this.appPeerGroup.getDiscoveryService();
+			discoSvc.getRemoteAdvertisements(null, DiscoveryService.PEER, null, null, 1000);
+			
+			Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, null, null);
+			while (advs.hasMoreElements()) {
+				Advertisement adv=advs.nextElement();
+				if (adv instanceof PeerAdvertisement) {
+					PeerAdvertisement peerAdv = (PeerAdvertisement) adv;
+					peers.add(peerAdv.getName());
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return peers.toArray(new String[peers.size()]);
+//		return new String[0];
 	}	
 	
 	public void setMode(ConfigMode mode) {

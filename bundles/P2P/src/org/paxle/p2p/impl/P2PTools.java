@@ -62,7 +62,8 @@ public class P2PTools {
     
 	public static String getComputerName() {
 		try {
-			return InetAddress.getLocalHost().getHostName();
+			String hostname = InetAddress.getLocalHost().getHostName();
+			return hostname == null ? "unknown" : hostname;
 		} catch (Exception e) {
 			return "unknown";
 		}
