@@ -61,10 +61,10 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	/* ==============================================================
 	 * JXTA Application group constants
 	 * ============================================================== */
-    private static final String APPGRP_NAME = "MyAppGroup";
-    private static final String APPGRP_DESC = "MyAppGroup Description goes here";
-    private static final String APPGRP_GID =  "urn:jxta:uuid-79B6A084D3264DF8B641867D926C48D902";
-    private static final String APPGRP_SPECID = "urn:jxta:uuid-309B33F10EDF48738183E3777A7C3DE9C5BFE5794E974DD99AC7D409F5686F3306";
+    private static final String APPGRP_NAME = "Paxle Peer Group";
+    private static final String APPGRP_DESC = "Paxle Peer Group Description goes here";
+    private static final String APPGRP_GID =  "urn:jxta:uuid-A26A20420CC24B85AA07C805E83D497C02";
+    private static final String APPGRP_SPECID = "urn:jxta:uuid-B7EA1DAECC7740BF85E7A939E3441CF4BCCD1EDF355A4FC1BD47FBA5A8E5842A06";
     
 	private DiscoveryService netPGDiscoveryService;
 	private RendezVousService appPGRdvService;
