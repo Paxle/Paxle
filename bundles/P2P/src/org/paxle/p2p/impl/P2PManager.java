@@ -54,9 +54,9 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	/* ==============================================================
 	 * JXTA Netpeer group constants
 	 * ============================================================== */    
-	private static final String NETPG_GID="urn:jxta:uuid-8B33E028B054497B8BF9A446A224B1FF02";
-	private static final String NETPG_NAME="My NetPG";
-	private static final String NETPG_DESC="A Private Net Peer Group";
+	private static final String NETPG_GID = "urn:jxta:uuid-0345A1D0CDB24759854AC5FA4597B7B502";
+	private static final String NETPG_NAME = "Paxle NetPG";
+	private static final String NETPG_DESC = "A Private Paxle Net Peer Group";
 	
 	/* ==============================================================
 	 * JXTA Application group constants
@@ -125,14 +125,19 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 
 	      NetPeerGroupFactory factory=null;
 	      try {
-	         factory = new NetPeerGroupFactory(
-	            (ConfigParams)configurator.getPlatformConfig(),
-	            new File(jxtaHome).toURI(),
-	            IDFactory.fromURI(new URI(NETPG_GID)),
-	            NETPG_NAME,
-	            (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8,
-	                "desc", NETPG_NAME)
-	         );
+	    	  factory = new NetPeerGroupFactory(
+	    			  // net peer group configuration
+	    			  (ConfigParams)configurator.getPlatformConfig(),
+	    			  // persistent storage location
+	    			  new File(jxtaHome).toURI(),
+	    			  // group ID
+	    			  IDFactory.fromURI(new URI(NETPG_GID)),
+	    			  // group name
+	    			  NETPG_NAME,
+	    			  // group description
+	    			  (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8,
+	    					  "desc", NETPG_NAME)
+	    	  );
 	      }
 	      catch(URISyntaxException e) {
 	         e.printStackTrace();
