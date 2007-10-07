@@ -51,6 +51,21 @@ import org.paxle.p2p.IP2PManager;
 
 public class P2PManager extends Thread implements IP2PManager, RendezvousListener, PipeMsgListener {
 
+	/* ==============================================================
+	 * JXTA Netpeer group constants
+	 * ============================================================== */    
+	private static final String NETPG_GID="urn:jxta:uuid-8B33E028B054497B8BF9A446A224B1FF02";
+	private static final String NETPG_NAME="My NetPG";
+	private static final String NETPG_DESC="A Private Net Peer Group";
+	
+	/* ==============================================================
+	 * JXTA Application group constants
+	 * ============================================================== */
+    private static final String APPGRP_NAME = "MyAppGroup";
+    private static final String APPGRP_DESC = "MyAppGroup Description goes here";
+    private static final String APPGRP_GID =  "urn:jxta:uuid-79B6A084D3264DF8B641867D926C48D902";
+    private static final String APPGRP_SPECID = "urn:jxta:uuid-309B33F10EDF48738183E3777A7C3DE9C5BFE5794E974DD99AC7D409F5686F3306";
+    
 	private DiscoveryService netPGDiscoveryService;
 	private RendezVousService appPGRdvService;
 	private RendezVousService netPGRdvService;
@@ -61,9 +76,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	private PeerGroup appPeerGroup;
 	private Random rand;
 
-	private String NetPeerGroupID="urn:jxta:uuid-8B33E028B054497B8BF9A446A224B1FF02";
-	private String NetPeerGroupName="My NetPG";
-	private String NetPeerGroupDesc="A Private Net Peer Group";
+
 	private String jxtaHome;
 	private String rdvlock = new String("rocknroll");
 	private String exitlock = new String("jazz");
@@ -115,10 +128,10 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	         factory = new NetPeerGroupFactory(
 	            (ConfigParams)configurator.getPlatformConfig(),
 	            new File(jxtaHome).toURI(),
-	            IDFactory.fromURI(new URI(NetPeerGroupID)),
-	            NetPeerGroupName,
+	            IDFactory.fromURI(new URI(NETPG_GID)),
+	            NETPG_NAME,
 	            (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8,
-	                "desc", NetPeerGroupName)
+	                "desc", NETPG_NAME)
 	         );
 	      }
 	      catch(URISyntaxException e) {
@@ -138,19 +151,13 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 
 	   public void createApplicationPeerGroup() {
 
-	      // key parameters for the new "appPeerGroup"
-	      String name = "MyAppGroup";
-	      String desc = "MyAppGroup Description goes here";
-	      String gid =  "urn:jxta:uuid-79B6A084D3264DF8B641867D926C48D902";
-	      String specID = "urn:jxta:uuid-309B33F10EDF48738183E3777A7C3DE9C5BFE5794E974DD99AC7D409F5686F3306";
-
 	      //  create the new application group, and publish its various advertisements
 	      try {
 	         ModuleImplAdvertisement implAdv = netPeerGroup.getAllPurposePeerGroupImplAdvertisement();
-	         ModuleSpecID modSpecID = (ModuleSpecID )IDFactory.fromURI(new URI(specID));
+	         ModuleSpecID modSpecID = (ModuleSpecID )IDFactory.fromURI(new URI(APPGRP_SPECID));
 	         implAdv.setModuleSpecID(modSpecID);
-	         PeerGroupID groupID = (PeerGroupID )IDFactory.fromURI(new URI(gid));
-	         appPeerGroup = netPeerGroup.newGroup(groupID, implAdv, name, desc);
+	         PeerGroupID groupID = (PeerGroupID )IDFactory.fromURI(new URI(APPGRP_GID));
+	         appPeerGroup = netPeerGroup.newGroup(groupID, implAdv, APPGRP_NAME, APPGRP_DESC);
 	         PeerGroupAdvertisement pgadv = appPeerGroup.getPeerGroupAdvertisement();
 
 	         appPGRdvService = appPeerGroup.getRendezVousService();
