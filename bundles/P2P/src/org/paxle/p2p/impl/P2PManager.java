@@ -180,25 +180,25 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	         // TODO: we need a better solution here
 	         new Thread() {
 	        	 @Override
-	        	public void run() {
+	        	 public void run() {
 	        		 while (true) {
-	        		 try {
-						this.sleep(10000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					System.out.println("Publish adv.");
-					try {
-						appPeerGroup.getDiscoveryService().publish(appPeerGroup.getPeerAdvertisement());
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-//					appPeerGroup.getDiscoveryService().remotePublish(appPeerGroup.getPeerAdvertisement());
+	        			 try {
+	        				 this.sleep(10000);
+	        			 } catch (InterruptedException e) {
+	        				 // TODO Auto-generated catch block
+	        				 e.printStackTrace();
+	        			 }
+	        			 System.out.println("Publish adv.");
+//	        			 try {
+//	        			 	appPeerGroup.getDiscoveryService().publish(appPeerGroup.getPeerAdvertisement());
+//	        			 } catch (IOException e) {
+//	        			 // TODO Auto-generated catch block
+//	        			 e.printStackTrace();
+//	        			 }
+	        			 appPeerGroup.getDiscoveryService().remotePublish(appPeerGroup.getPeerAdvertisement());
 	        		 }
-	        	}
-	        	 
+	        	 }
+
 	         }.start();	   
 	         
 	         
