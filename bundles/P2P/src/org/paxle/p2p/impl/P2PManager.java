@@ -67,6 +67,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
     private static final String APPGRP_SPECID = "urn:jxta:uuid-B7EA1DAECC7740BF85E7A939E3441CF4BCCD1EDF355A4FC1BD47FBA5A8E5842A06";
     
 	private DiscoveryService netPGDiscoveryService;
+	private DiscoveryService appPGDiscoveryService;
 	private RendezVousService appPGRdvService;
 	private RendezVousService netPGRdvService;
 	private NetworkConfigurator configurator;
@@ -165,13 +166,16 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	         appPeerGroup = netPeerGroup.newGroup(groupID, implAdv, APPGRP_NAME, APPGRP_DESC);
 	         PeerGroupAdvertisement pgadv = appPeerGroup.getPeerGroupAdvertisement();
 
-	         appPGRdvService = appPeerGroup.getRendezVousService();
+	         appPGRdvService = appPeerGroup.getRendezVousService();	
+	         appPGDiscoveryService = appPeerGroup.getDiscoveryService();
 
 	         myPeerID = appPeerGroup.getPeerID().toString();
 
 	         netPGDiscoveryService.publish(implAdv);
 	         netPGDiscoveryService.remotePublish(null,implAdv);
 	         netPGDiscoveryService.remotePublish(null,pgadv);
+	         
+//	         appPGDiscoveryService.remotePublish(null, netPeerGroup.getPeerAdvertisement());
 	   
 	         // listen for app group rendezvous events
 	         appPeerGroup.getRendezVousService().addListener(this);
@@ -220,6 +224,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 //	      URI seedingURI = new File("seeds.txt").toURI();  
 	      configurator.addRdvSeedingURI(seedingURI);
 	      configurator.addRelaySeedingURI(seedingURI);
+//	      configurator.setMode(NetworkConfigurator.EDGE_NODE);
 	      configurator.setUseOnlyRelaySeeds(true);
 	      configurator.setUseOnlyRendezvousSeeds(true);
 
@@ -356,24 +361,28 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 
 	   private void sendToPeers() {
 	      try {
-	         String data = new Integer(rand.nextInt()).toString();
 	         Message msg = new Message();
 
 	         MessageElement fromElem = new ByteArrayMessageElement(
-	            "From", null, myPeerID.toString().getBytes("ISO-8859-1"), null
+	        		 "From", null, appPeerGroup.getPeerName().getBytes("ISO-8859-1"), null
 	         );
+	         
+	         MessageElement fromIDElem = new ByteArrayMessageElement(
+	 	            "FromID", null, this.myPeerID.getBytes("ISO-8859-1"), null
+	         );
+	         
 	         MessageElement msgElem = new ByteArrayMessageElement(
-	            "Msg", null, data.getBytes("ISO-8859-1"), null
+	        		 "Msg", null, (new Date()).toString().getBytes("ISO-8859-1"), null
 	         );
 
 	         msg.addMessageElement(fromElem);
+	         msg.addMessageElement(fromIDElem);
 	         msg.addMessageElement(msgElem);
 	         outputPipe.send(msg);
 	      }
 	      catch(IOException e) {
 	         e.printStackTrace();
 	      }
-
 	   }
 
 	   // ---------------------------------
@@ -401,17 +410,19 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	     try {
 	       Message msg = event.getMessage();
 	       byte[] msgBytes = msg.getMessageElement("Msg").getBytes(true);  
-	       byte[] fromBytes = msg.getMessageElement("From").getBytes(true);  
+	       byte[] fromBytes = msg.getMessageElement("From").getBytes(true);
+	       byte[] fromIDBytes = msg.getMessageElement("FromID").getBytes(true); 
 
-	       String fromPeerID = new String(fromBytes);
-	       if( fromPeerID.equals(myPeerID)) {
+	       String fromID = new String(fromIDBytes);
+	       String fromPeerName = new String(fromBytes);
+	       if(fromID.equals(this.myPeerID)) {
 	          System.out.print("(from self): ");
 	       }
 	       else {
 	          System.out.print("(from other): ");
 	       }
 	       System.out.print(new Date());
-	       System.out.println(" " + fromPeerID + " says " + new String(msgBytes));
+	       System.out.println(" " + fromPeerName + " says " + new String(msgBytes));
 	     }
 	     catch (Exception e) {
 	       e.printStackTrace();
@@ -453,7 +464,8 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 			DiscoveryService discoSvc = this.appPeerGroup.getDiscoveryService();
 			discoSvc.getRemoteAdvertisements(null, DiscoveryService.PEER, null, null, 1000);
 			
-			Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, null, null);
+			// Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, null, null);
+			Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, "Name", "*");
 			while (advs.hasMoreElements()) {
 				Advertisement adv=advs.nextElement();
 				if (adv instanceof PeerAdvertisement) {
