@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Random;
 
 import net.jxta.credential.AuthenticationCredential;
+import net.jxta.discovery.DiscoveryEvent;
+import net.jxta.discovery.DiscoveryListener;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -49,7 +51,7 @@ import net.jxta.rendezvous.RendezvousListener;
 
 import org.paxle.p2p.IP2PManager;
 
-public class P2PManager extends Thread implements IP2PManager, RendezvousListener, PipeMsgListener {
+public class P2PManager extends Thread implements IP2PManager, RendezvousListener, PipeMsgListener, DiscoveryListener {
 
 	/* ==============================================================
 	 * JXTA Netpeer group constants
@@ -175,8 +177,31 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	         netPGDiscoveryService.remotePublish(null,implAdv);
 	         netPGDiscoveryService.remotePublish(null,pgadv);
 	         
-//	         appPGDiscoveryService.remotePublish(null, netPeerGroup.getPeerAdvertisement());
-	   
+	         // TODO: we need a better solution here
+	         new Thread() {
+	        	 @Override
+	        	public void run() {
+	        		 while (true) {
+	        		 try {
+						this.sleep(10000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					System.out.println("Publish adv.");
+					try {
+						appPeerGroup.getDiscoveryService().publish(appPeerGroup.getPeerAdvertisement());
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+//					appPeerGroup.getDiscoveryService().remotePublish(appPeerGroup.getPeerAdvertisement());
+	        		 }
+	        	}
+	        	 
+	         }.start();	   
+	         
+	         
 	         // listen for app group rendezvous events
 	         appPeerGroup.getRendezVousService().addListener(this);
 	   
@@ -463,6 +488,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 			// obtain the the discovery service
 			DiscoveryService discoSvc = this.appPeerGroup.getDiscoveryService();
 			discoSvc.getRemoteAdvertisements(null, DiscoveryService.PEER, null, null, 1000);
+			discoSvc.addDiscoveryListener(this);
 			
 			// Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, null, null);
 			Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, "Name", "*");
@@ -513,5 +539,9 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	
 	public String getGroupName() {
 		return this.appPeerGroup.getPeerGroupName();
+	}
+
+	public void discoveryEvent(DiscoveryEvent event) {
+		System.out.println(event.toString());
 	}
 }
