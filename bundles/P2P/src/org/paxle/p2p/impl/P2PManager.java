@@ -466,10 +466,20 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	      }
 	   }
 
-	   // ---------------------------------	
-	
-	public String[] getPeerList() {
+	   // ---------------------------------		
+	public List<String> getPeerList() {
 		List<String> peers = new ArrayList<String>();
+
+		List<PeerAdvertisement> peerAdvs = this.getPeerAdvertisements();
+		for (PeerAdvertisement peerAdv : peerAdvs) {
+			peers.add(peerAdv.getName());
+		}
+		
+		return peers;
+	}	
+	
+	public List<PeerAdvertisement> getPeerAdvertisements() {
+		List<PeerAdvertisement> peerAdvs = new ArrayList<PeerAdvertisement>();
 		
 		try {			
 			// obtain the the discovery service
@@ -482,17 +492,15 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 			while (advs.hasMoreElements()) {
 				Advertisement adv=advs.nextElement();
 				if (adv instanceof PeerAdvertisement) {
-					PeerAdvertisement peerAdv = (PeerAdvertisement) adv;
-					peers.add(peerAdv.getName());
+					peerAdvs.add((PeerAdvertisement) adv);
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}		
 		
-		return peers.toArray(new String[peers.size()]);
-//		return new String[0];
-	}	
+		return peerAdvs;
+	}
 	
 	public void setMode(ConfigMode mode) {
 //		// change the config-mode

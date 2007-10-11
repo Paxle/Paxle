@@ -108,12 +108,13 @@
 </fieldset>
 <fieldset id="dknownpeers">
 	<legend>Known Peers</legend>
-	<ul>
-	#set($peers = $p2pManager.getPeerList())
+	<table>
+	<tr><th>Peer name</th><th>Peer ID</th></tr>
+	#set($peers = $p2pManager.getPeerAdvertisements())
 	#foreach($peer in $peers)		
-		<li>$peer</li>
+		<tr><td>$peer.getName()</td><td>$peer.getPeerID()</td></tr>
 	#end
-	</ul>
+	</table>
 </fieldset>
 #end
 
