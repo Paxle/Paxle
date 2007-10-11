@@ -53,6 +53,8 @@ import org.paxle.p2p.IP2PManager;
 
 public class P2PManager extends Thread implements IP2PManager, RendezvousListener, PipeMsgListener, DiscoveryListener {
 
+	private static final long PEER_ADV_EXPIRATION = 1000*60*15;
+	
 	/* ==============================================================
 	 * JXTA Netpeer group constants
 	 * ============================================================== */    
@@ -111,6 +113,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	public void run() {
 		try {
 			this.waitForRdv();
+			this.publishPeerAdv();
 			this.doSomething();
 			this.waitForQuit();
 		} catch(Throwable e) {
@@ -175,32 +178,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 
 	         netPGDiscoveryService.publish(implAdv);
 	         netPGDiscoveryService.remotePublish(null,implAdv);
-	         netPGDiscoveryService.remotePublish(null,pgadv);
-	         
-	         // TODO: we need a better solution here
-	         new Thread() {
-	        	 @Override
-	        	 public void run() {
-	        		 while (true) {
-	        			 try {
-	        				 this.sleep(10000);
-	        			 } catch (InterruptedException e) {
-	        				 // TODO Auto-generated catch block
-	        				 e.printStackTrace();
-	        			 }
-	        			 System.out.println("Publish adv.");
-//	        			 try {
-//	        			 	appPeerGroup.getDiscoveryService().publish(appPeerGroup.getPeerAdvertisement());
-//	        			 } catch (IOException e) {
-//	        			 // TODO Auto-generated catch block
-//	        			 e.printStackTrace();
-//	        			 }
-	        			 appPeerGroup.getDiscoveryService().remotePublish(appPeerGroup.getPeerAdvertisement());
-	        		 }
-	        	 }
-
-	         }.start();	   
-	         
+	         netPGDiscoveryService.remotePublish(null,pgadv);	         	         
 	         
 	         // listen for app group rendezvous events
 	         appPeerGroup.getRendezVousService().addListener(this);
@@ -227,6 +205,15 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 
 	   }
 
+	   public void publishPeerAdv() {
+		   try {
+			   appPeerGroup.getDiscoveryService().publish(appPeerGroup.getPeerAdvertisement());
+			   appPeerGroup.getDiscoveryService().remotePublish(appPeerGroup.getPeerAdvertisement());
+		   } catch (IOException e) {
+			   e.printStackTrace();
+		   }
+	   }
+	   
 	   // -----------------------------------
 
 	   private void stopit() {
