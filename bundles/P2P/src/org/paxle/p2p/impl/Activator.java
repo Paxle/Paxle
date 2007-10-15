@@ -16,6 +16,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.paxle.p2p.FirewallCheckViewServlet;
 import org.paxle.p2p.IP2PManager;
+import org.paxle.p2p.services.impl.SearchServiceServerImpl;
+import org.paxle.se.search.ISearchProviderManager;
 
 /**
  * ATTENTION: Set the property value of
@@ -55,6 +57,15 @@ public class Activator implements BundleActivator {
 		// init active firewall check
 //		this.initFirewallCheckActive();
 		
+		/*
+		 * Get the search provider.
+		 * ATTENTION: don't replace the string by ISearchProviderManager.class.getName(), otherwise the
+		 * 			  paxle search bundle is not optional. 
+		 */
+//		ServiceReference reference = bc.getServiceReference("org.paxle.se.search.ISearchProviderManager"); 
+//		if (reference != null) {			
+//			SearchServiceServerImpl searchServiceServer = new SearchServiceServerImpl(p2pManager,(ISearchProviderManager)bc.getService(reference));
+//		}
 	}
 
 	/**
@@ -64,15 +75,35 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 		// cleanup
 		bc = null;		
-		p2pManager.stop();
+		p2pManager.terminate();
 		p2pManager = null;
 		velocity = null;
 	}
 	
+	/**
+	 * TODO: replace this
+	 * 
+	 * To detect if a peer is capable to work as a relay peer can do the following
+	 * 1.) contact an already known relay peer
+	 * 2.) force the relay peer to open a plain tcp connection to the jxta port of our peer
+	 * If the peer is capable to accept connection from outside, the connection will be accepted, e.g.
+	 * <pre>
+	 * theli@theli:~/workspace/JxtaTest2$ telnet 192.168.0.93 9701
+	 * Trying 192.168.0.93...
+	 * Connected to 192.168.0.93.
+	 * Escape character is '^]'.
+	 * JXTAHELLO tcp://192.168.0.96:35381 tcp://192.168.0.93:9701 urn:jxta:uuid-59616261646162614E50472050325033E0BE60AC7C38466FB8EFCB6A4ED2230203 0 1.1
+	 * </pre>
+	 * 
+	 * @deprecated
+	 */
 	private void initFirewallCheckActive() {
 		new PingFirewallcheckService("http://test.laxu.de/firewallcheck.php?port=8080");
 	}
 	
+	/**
+	 * @deprecated not required anymore, see {@link #initFirewallCheckActive()}
+	 */
 	private void initFirewallCheckPassive() {
 		//getting a reference to the osgi http service
 		ServiceReference sr = bc.getServiceReference(HttpService.class.getName());

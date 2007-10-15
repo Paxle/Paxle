@@ -27,7 +27,7 @@
 	<classpathentry kind="lib" path="/HttpTools/libs/commons-httpclient-3.0.1.jar"/>
 	<classpathentry kind="lib" path="libs/bcprov-jdk14.jar"/>
 	<classpathentry kind="lib" path="libs/javax.servlet.jar"/>
-	<classpathentry kind="lib" path="libs/jxta.jar"/>
+	<classpathentry kind="lib" path="libs/jxta.jar" sourcepath="/home/theli/workspace/Libs/jxse-src-2.5_rc3.zip"/>
 	<classpathentry kind="lib" path="libs/org.mortbay.jetty.jar"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
 		<accessrules>
@@ -38,5 +38,15 @@
 	<classpathentry exported="true" kind="lib" path="libs/xerces.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/xml-apis.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/xmlParserAPIs.jar"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.se">
+		<attributes>
+			<attribute name="bundle-name" value="SearchEngine"/>
+			<attribute name="org.paxle.se.search" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/se/search/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="out"/>
 </classpath>

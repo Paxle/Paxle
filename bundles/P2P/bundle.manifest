@@ -8,7 +8,7 @@ Import-Package: org.osgi.framework, javax.servlet.http, org.apache.vel
  ocity, org.apache.velocity.app, org.apache.velocity.tools.view.servle
  t, org.osgi.service.http, org.apache.velocity.context, org.apache.com
  mons.httpclient, org.apache.commons.httpclient.methods, javax.servlet
- , org.apache.commons.logging
+ , org.apache.commons.logging, org.paxle.se.search;resolution:= optional
 Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-SymbolicName: P2P
