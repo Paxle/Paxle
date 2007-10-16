@@ -44,14 +44,14 @@ public class SearchServiceServerImpl extends AServiceServer {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected ModuleSpecAdvertisement createModSpecAdv(ModuleClassID mcID) {
+	protected ModuleSpecAdvertisement createModSpecAdv(ModuleClassID mcID, PipeAdvertisement pipeAdv) {
         ModuleSpecAdvertisement mdadv = (ModuleSpecAdvertisement) AdvertisementFactory.newAdvertisement(ModuleSpecAdvertisement.getAdvertisementType());
         mdadv.setName("JXTASPEC:Paxle:SearchService");
         mdadv.setVersion("Version 1.0");
         mdadv.setCreator("www.paxle.org");
         mdadv.setModuleSpecID(IDFactory.newModuleSpecID(mcID));
         mdadv.setSpecURI("http://wiki.paxle.net/dev/p2p/");			
-        mdadv.setPipeAdvertisement(this.createPipeAdvertisement());
+        mdadv.setPipeAdvertisement(pipeAdv);
         return mdadv;
 	}
 
@@ -74,12 +74,12 @@ public class SearchServiceServerImpl extends AServiceServer {
 	}
 
 	/**
-	 * Process the next incoming request
+	 * {@inheritDoc}
 	 */
 	@Override
-	protected void process(Message msg) {
+	protected void processRequest(Message reqMsg) {
 		try {
-			byte[] msgBytes = msg.getMessageElement("query").getBytes(true);
+			byte[] msgBytes = reqMsg.getMessageElement("query").getBytes(true);
 			String query = new String(msgBytes,"UTF-8");
 			System.out.println(String.format("Query: %s",query));
 			

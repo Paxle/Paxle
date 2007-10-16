@@ -1,6 +1,6 @@
 package org.paxle.p2p.services.impl;
 
-import net.jxta.protocol.PipeAdvertisement;
+import net.jxta.endpoint.Message;
 
 import org.paxle.p2p.impl.P2PManager;
 
@@ -13,11 +13,33 @@ abstract class AServiceClient extends AService {
 	protected AServiceClient(P2PManager p2pManager) {
 		super(p2pManager);
 	}
-
-	/**
-	 * Function to create the advertisement for the {@link #serviceInputPipe input-pipe} 
-	 * @return
-	 */
-	protected abstract PipeAdvertisement createPipeAdvertisement();
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void init() {
+		try {		
+			// wait for rendezvous connection
+			this.p2pManager.waitForRdv();
+			
+			// create a pipe advertisement
+			this.servicePipeAdv = this.createPipeAdvertisement();
+			
+			// create a new input pipe
+            this.serviceInputPipe = this.pgPipeService.createInputPipe(this.servicePipeAdv);			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void process(Message msg) {
+		this.processResponse(msg);
+	}
+	
+	protected abstract void processResponse(Message respMsg);
 }

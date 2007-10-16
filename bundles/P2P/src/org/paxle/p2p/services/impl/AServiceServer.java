@@ -10,31 +10,12 @@ import net.jxta.protocol.PipeAdvertisement;
 import org.paxle.p2p.impl.P2PManager;
 
 public abstract class AServiceServer extends AService implements Runnable {
-	/**
-	 * indicates if this thread was terminated
-	 * @see #terminate()
-	 */
-	protected boolean stopped = false;
-
-	/**
-	 * the service master thread
-	 * @see #run()
-	 */
-	protected Thread workerThread = null;
-
-	/**
-	 * a input-pipe to receive incoming requests
-	 */
-	private InputPipe serviceInputPipe;
 	
 	/**
 	 * @param p2pManager required to get jxta peer-group services (e.g. pipe- and discovery-service)
 	 */
 	protected AServiceServer(P2PManager p2pManager) {
-		super(p2pManager);
-		
-		this.workerThread = new Thread(this);
-		this.workerThread.start();
+		super(p2pManager);				
 	}
 	
 	/**
@@ -50,7 +31,8 @@ public abstract class AServiceServer extends AService implements Runnable {
 	 *  <li>wait for new incoming requests. See {@link #run()}
 	 * </ul>
 	 */
-	private void init() {
+	@Override
+	protected void init() {
 		try {		
 			// wait for rendezvous connection
 			this.p2pManager.waitForRdv();
@@ -60,7 +42,7 @@ public abstract class AServiceServer extends AService implements Runnable {
 			 * =============================================================== */
 			// create advertisement
 			ModuleClassAdvertisement mcadv = this.createModClassAdv();
-			this.workerThread.setName(mcadv.getName());
+			this.setName(mcadv.getName());
 
 			// publish advertisement
 			this.pgDiscoveryService.publish(mcadv);
@@ -68,9 +50,12 @@ public abstract class AServiceServer extends AService implements Runnable {
 			
 			/* ===============================================================
 			 * Create module spec advertisement 
-			 * =============================================================== */			
+			 * =============================================================== */
+			// create a new pipe-advertisement
+			this.servicePipeAdv = this.createPipeAdvertisement();
+			
 			// create advertisement
-            ModuleSpecAdvertisement mdadv = this.createModSpecAdv(mcadv.getModuleClassID());
+            ModuleSpecAdvertisement mdadv = this.createModSpecAdv(mcadv.getModuleClassID(), this.servicePipeAdv);
 			
             // publish it
             this.pgDiscoveryService.publish(mdadv);
@@ -86,8 +71,8 @@ public abstract class AServiceServer extends AService implements Runnable {
 	}
 
 	/**
-	 * Function to create the advertisement for the {@link #serviceInputPipe input-pipe} 
-	 * @return
+	 * Function to create the advertisement for a {@link #serviceInputPipe input-pipe} 
+	 * @return the advertisement for a {@link #serviceInputPipe input-pipe} 
 	 */
 	protected abstract PipeAdvertisement createPipeAdvertisement();
 	
@@ -101,48 +86,21 @@ public abstract class AServiceServer extends AService implements Runnable {
 	/**
 	 * Function to create the {@link ModuleSpecAdvertisement module-specification-advertisement} of this service
 	 * @param mcID the ID of the {@link ModuleClassAdvertisement module-class-advertisement}
+	 * @param pipeAdv the {@link PipeAdvertisement} that should be used for the {@link ModuleSpecAdvertisement module-specification-advertisement}
 	 * @return the {@link ModuleSpecAdvertisement module-specification-advertisement} of this service
 	 */
-	protected abstract ModuleSpecAdvertisement createModSpecAdv(ModuleClassID mcID);
+	protected abstract ModuleSpecAdvertisement createModSpecAdv(ModuleClassID mcID, PipeAdvertisement pipeAdv);
 	
 	/**
-	 * listening for new incoming requests
+	 * {@inheritDoc}
 	 */
-	public void run() {
-		// init server side of service
-		this.init();
-		
-		while (!this.stopped && !Thread.interrupted()) {
-            try {
-            	// fetch the next message
-            	Message nextMsg = serviceInputPipe.waitForMessage();
-            	System.out.println(nextMsg);
-
-            	// process message
-            	this.process(nextMsg);
-            } catch (InterruptedException e) {
-                Thread.interrupted();
-                this.stopped = true;
-            } catch (Exception e) {
-            	e.printStackTrace();
-            }
-        }
+	@Override
+	protected void process(Message msg) {
+		this.processRequest(msg);
 	}
 	
-	@Override
-	public void terminate() {
-		this.stopped = true;
-		this.workerThread.interrupt();
-		try {
-			this.workerThread.join(15000);
-		} catch (InterruptedException e) {
-			/* ignore this */
-		}		
-	};
-	
 	/**
-	 * Process a request message received via the {@link #serviceInputPipe input-pipe}
-	 * @param msg a request message received via the {@link #serviceInputPipe input-pipe}
+	 * Process the next incoming request
 	 */
-	protected abstract void process(Message msg);
+	protected abstract void processRequest(Message reqMsg);
 }
