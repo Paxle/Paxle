@@ -42,7 +42,7 @@ public abstract class AServiceServer extends AService implements Runnable {
 			 * =============================================================== */
 			// create advertisement
 			ModuleClassAdvertisement mcadv = this.createModClassAdv();
-			this.setName(mcadv.getName());
+			this.setName(mcadv.getName() + ":Server");
 
 			// publish advertisement
 			this.pgDiscoveryService.publish(mcadv);

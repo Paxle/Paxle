@@ -16,6 +16,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.paxle.p2p.FirewallCheckViewServlet;
 import org.paxle.p2p.IP2PManager;
+import org.paxle.p2p.services.impl.SearchServiceClientImpl;
 import org.paxle.p2p.services.impl.SearchServiceServerImpl;
 import org.paxle.se.search.ISearchProviderManager;
 
@@ -66,6 +67,26 @@ public class Activator implements BundleActivator {
 //		if (reference != null) {			
 //			SearchServiceServerImpl searchServiceServer = new SearchServiceServerImpl(p2pManager,(ISearchProviderManager)bc.getService(reference));
 //		}
+//		
+//		// just for testing
+//		new Thread() {
+//			@Override
+//			public void run() {
+//				SearchServiceClientImpl client = new SearchServiceClientImpl(p2pManager);
+//				
+////				try {
+////					Thread.sleep(60000);
+////				} catch (InterruptedException e) {
+////					// TODO Auto-generated catch block
+////					e.printStackTrace();
+////				}
+//				
+//				client.remoteSearch("test",100,6000);
+//			}
+//		}.start();
+		
+		
+		
 	}
 
 	/**

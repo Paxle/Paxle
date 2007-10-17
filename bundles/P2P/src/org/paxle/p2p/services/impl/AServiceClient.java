@@ -27,7 +27,9 @@ abstract class AServiceClient extends AService {
 			this.servicePipeAdv = this.createPipeAdvertisement();
 			
 			// create a new input pipe
-            this.serviceInputPipe = this.pgPipeService.createInputPipe(this.servicePipeAdv);			
+            this.serviceInputPipe = this.pgPipeService.createInputPipe(this.servicePipeAdv);
+            
+            // TODO: do we need to publish our pipe advertisement?
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -41,5 +43,9 @@ abstract class AServiceClient extends AService {
 		this.processResponse(msg);
 	}
 	
+	/**
+	 * Function to process the received response message.
+	 * @param respMsg the response message that was received
+	 */
 	protected abstract void processResponse(Message respMsg);
 }

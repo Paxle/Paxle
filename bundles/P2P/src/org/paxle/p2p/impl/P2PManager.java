@@ -373,6 +373,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	 */
 	public void waitForRdv() throws InterruptedException {
 		rdvLock.acquire();
+		rdvLock.release();
 	}
 
 	// ---------------------------------

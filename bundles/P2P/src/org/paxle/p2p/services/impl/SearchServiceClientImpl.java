@@ -1,14 +1,20 @@
 package org.paxle.p2p.services.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
 
 import org.paxle.p2p.impl.P2PManager;
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
+import net.jxta.endpoint.InputStreamMessageElement;
 import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.id.IDFactory;
 import net.jxta.pipe.OutputPipe;
@@ -19,10 +25,12 @@ import net.jxta.protocol.PipeAdvertisement;
 
 public class SearchServiceClientImpl extends AServiceClient {
 
+	private final HashMap<Integer, List<Message>> resultMap = new HashMap<Integer, List<Message>>();
+	
 	/**
 	 * {@inheritDoc}
 	 */
-	protected SearchServiceClientImpl(P2PManager p2pManager) {
+	public SearchServiceClientImpl(P2PManager p2pManager) {
 		super(p2pManager);
 	}
 
@@ -52,25 +60,77 @@ public class SearchServiceClientImpl extends AServiceClient {
 	 */
 	@Override
 	protected void processResponse(Message respMsg) {
-		// TODO Auto-generated method stub		
+		try {
+			// TODO Auto-generated method stub		
+
+			// TODO: extract the result
+			// getting the search query string
+			MessageElement query = respMsg.getMessageElement(SearchServiceServerImpl.REQ_ID);
+			Integer reqNr = Integer.valueOf(new String(query.getBytes(false),"UTF-8"));
+			System.out.println(String.format("ReqNr: %d",reqNr));	
+			
+			List<Message> resultList = null;
+			synchronized (this.resultMap) {				
+				if (!this.resultMap.containsKey(reqNr)) {
+					this.logger.warn("Unknown requestID: " + reqNr);
+					return;
+				} else {
+					resultList = this.resultMap.get(reqNr);
+				}
+			}
+			
+			synchronized (resultList) {
+				resultList.add(respMsg);
+			}
+
+			// insert it into the result queue
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * FIXME: just a test version of the service
 	 * @param query
 	 */
-	public void remoteSearch(String query) {
+	public void remoteSearch(String query, int maxResults, long timeout) {
 		try {
+			/* ================================================================
+			 * SEND REQUEST
+			 * ================================================================ */
 			// FIXME: move this string
 			String SERVICE_NAME = "JXTASPEC:*";
 			
 			// discover service
 			this.pgDiscoveryService.getRemoteAdvertisements(null, DiscoveryService.ADV, "Name",SERVICE_NAME ,10);
 
+			// build the request message
+            Message reqMsg = new Message();
+            reqMsg.addMessageElement(null, new StringMessageElement(SearchServiceServerImpl.REQ_QUERY, query, null));
+            reqMsg.addMessageElement(null, new StringMessageElement(SearchServiceServerImpl.REQ_MAX_RESULTS, Integer.toString(maxResults), null));
+            reqMsg.addMessageElement(null, new StringMessageElement(SearchServiceServerImpl.REQ_TIMEOUT, Long.toString(timeout), null));
+            
+			InputStreamMessageElement isme =
+				new InputStreamMessageElement(
+						SearchServiceServerImpl.REQ_PIPE_ADV,
+						new MimeMediaType("text", "xml"),
+						servicePipeAdv.getDocument(new MimeMediaType("text", "xml")).getStream(),
+						null);
+            
+            reqMsg.addMessageElement(null, isme, null);			
+            
+            // add entry into the resultMap
+            int reqNr = reqMsg.getMessageNumber();
+            synchronized (this.resultMap) {
+				this.resultMap.put(Integer.valueOf(reqNr), new ArrayList<Message>());
+			}
+            
 			// wait a few seconds
-			Thread.sleep(10000);
+            // TODO: change this
+			Thread.sleep(3000);
 			
 			// loop through the found advertisements
+			long reqStart = System.currentTimeMillis();
 			PipeAdvertisement otherPeerPipeAdv = null;
 			Enumeration<Advertisement> advs = this.pgDiscoveryService.getLocalAdvertisements(DiscoveryService.ADV, "Name", SERVICE_NAME);
 			while (advs.hasMoreElements()) {
@@ -78,19 +138,19 @@ public class SearchServiceClientImpl extends AServiceClient {
 				System.out.println(adv.toString());
 				if (adv instanceof ModuleSpecAdvertisement) {		
 					try {
-						// getting the pipe adv of the other peer
+						// FIXME: does not work! getting the pipe adv of the other peer
 						otherPeerPipeAdv = ((ModuleSpecAdvertisement)adv).getPipeAdvertisement();
+						if (otherPeerPipeAdv.getID().toString().equals(this.serviceInputPipe.getPipeID().toString())) {
+							this.logger.debug("Found our own pipe. Continue ...");
+//							break;
+						}
 
 						// create an output pipe to send the request
 						OutputPipe outputPipe = this.pgPipeService.createOutputPipe(otherPeerPipeAdv, 10000);
 						
-						// build the request message
-			            Message reqMsg = new Message();
-			            StringMessageElement sme = new StringMessageElement("query", query, null);
-			            reqMsg.addMessageElement(null, sme);
-
 			            // send the message to the service pipe
 			            outputPipe.send(reqMsg);
+			            outputPipe.close();
 						
 					} catch (IOException ioe) {
 						// unable to connect to the remote peer
@@ -98,6 +158,27 @@ public class SearchServiceClientImpl extends AServiceClient {
 					}
 				}
 			}
+			
+			
+			/* ================================================================
+			 * WAIT FOR RESPONSE
+			 * ================================================================ */
+			long timeToWait = Math.max(reqStart - System.currentTimeMillis(),1);
+			System.out.println("Waiting " + timeToWait + " ms for the result.");			
+			Thread.sleep(timeToWait);
+			
+			// Access result
+			List<Message> resultList = null;
+			synchronized (this.resultMap) {				
+				if (!this.resultMap.containsKey(reqNr)) {
+					this.logger.warn("Unknown requestID: " + reqNr);
+					return;
+				} else {
+					// remove the request from the result-list
+					resultList = this.resultMap.remove(reqNr);
+				}
+			}			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
