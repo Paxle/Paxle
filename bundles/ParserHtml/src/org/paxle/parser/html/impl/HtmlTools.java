@@ -90,6 +90,7 @@ public class HtmlTools {
 	// [FB]
     public static String deReplaceNumericEntities(String text) {
     	if (text == null) return null;
+    	if (text.length() == 0) return text;
     	final Matcher m = NumericEntityPattern.matcher(text);
     	final StringBuffer sb = new StringBuffer(text.length());
 		while (m.find()) {

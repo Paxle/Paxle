@@ -8,10 +8,10 @@ public class PaxleNumberTools extends NumberTools {
 		final int size = 8 - Long.numberOfLeadingZeros(num) / 8;
 		final byte[] buf = new byte[size];
 		int pos = 0;
-		do {
+		while (pos < size) {
 		    buf[pos++] = (byte)(num & 0xFF);
 		    num >>= 8;
-		} while (pos < size);
+		}
 		return buf;
 	}
 	
