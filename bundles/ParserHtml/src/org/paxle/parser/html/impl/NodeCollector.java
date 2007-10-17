@@ -22,6 +22,8 @@ import org.htmlparser.tags.ScriptTag;
 import org.htmlparser.tags.StyleTag;
 import org.htmlparser.tags.TableTag;
 import org.htmlparser.tags.TitleTag;
+import org.htmlparser.util.EncodingChangeException;
+import org.htmlparser.util.ParserException;
 import org.htmlparser.visitors.NodeVisitor;
 
 import org.paxle.core.doc.IParserDocument;
@@ -54,6 +56,16 @@ public class NodeCollector extends NodeVisitor {
 		NODE_FACTORY.registerTag(new AddressTag());
 		NODE_FACTORY.registerTag(new BoldTag());
 		NODE_FACTORY.registerTag(new ItalicTag());
+		NODE_FACTORY.registerTag(new MetaTag() {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public void doSemanticAction() throws ParserException {
+				try {
+					super.doSemanticAction();
+				} catch (EncodingChangeException e) { /* leave encoding as is */ }
+			}
+		});
 	}
 	
 	private static final HashSet<String> DiscardedTags = new HashSet<String>(Arrays.asList(
