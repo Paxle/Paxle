@@ -97,6 +97,11 @@ public class SearchServiceServerImpl extends AServiceServer {
 			 * Read the request
 			 * ================================================================ */
 			
+			// getting the request ID
+			MessageElement queryID = reqMsg.getMessageElement(REQ_ID);
+			int reqMsgNr = Integer.valueOf(new String(queryID.getBytes(false),"UTF-8")).intValue();
+			System.out.println(String.format("QueryID: %s",reqMsgNr));					
+			
 			// getting the search query string
 			MessageElement query = reqMsg.getMessageElement(REQ_QUERY);
 			String queryString = new String(query.getBytes(false),"UTF-8");
@@ -106,10 +111,7 @@ public class SearchServiceServerImpl extends AServiceServer {
 			MessageElement pipeAdv = reqMsg.getMessageElement(null, REQ_PIPE_ADV);
 		    PipeAdvertisement adv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(
 		    		(XMLDocument) StructuredDocumentFactory.newStructuredDocument(pipeAdv)
-		    );
-			
-		    // getting the request ID
-		    int reqMsgNr = reqMsg.getMessageNumber();
+		    );			
 		    
 			/* ================================================================
 			 * Process request
@@ -125,6 +127,7 @@ public class SearchServiceServerImpl extends AServiceServer {
             Message respMessage = new Message();
             respMessage.addMessageElement(null, new StringMessageElement(RESP_SIZE, Integer.toString(results.size()), null));
             respMessage.addMessageElement(null, new StringMessageElement(RESP_REQ_ID, Integer.toString(reqMsgNr), null));
+            // TODO: add the search result to the response message
             outputPipe.send(respMessage);
             
             // close pipe

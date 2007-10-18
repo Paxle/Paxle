@@ -93,6 +93,7 @@ public abstract class AServiceServer extends AService implements Runnable {
 	
 	/**
 	 * {@inheritDoc}
+	 * TODO: the requests are processes sequential. We need to span up multiple threads here ...
 	 */
 	@Override
 	protected void process(Message msg) {
@@ -103,4 +104,17 @@ public abstract class AServiceServer extends AService implements Runnable {
 	 * Process the next incoming request
 	 */
 	protected abstract void processRequest(Message reqMsg);
+	
+	protected void pauseService() {
+		// TODO close the input queue for a while?
+	}
+	
+	protected void resumeService() {
+		// TODO
+	}
+	
+	public boolean isPaused() {
+		// TODO
+		return false;
+	}
 }

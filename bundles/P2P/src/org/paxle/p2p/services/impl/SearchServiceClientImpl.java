@@ -101,26 +101,37 @@ public class SearchServiceClientImpl extends AServiceClient {
 			// FIXME: move this string
 			String SERVICE_NAME = "JXTASPEC:*";
 			
-			// discover service
+			/* ----------------------------------------------------------------
+			 * Discover Service
+			 * ---------------------------------------------------------------- */
 			this.pgDiscoveryService.getRemoteAdvertisements(null, DiscoveryService.ADV, "Name",SERVICE_NAME ,10);
 
-			// build the request message
+			/* ----------------------------------------------------------------
+			 * build the request message
+			 * ---------------------------------------------------------------- */
             Message reqMsg = new Message();
+            int reqNr = reqMsg.getMessageNumber();
+            
+            // a unique request ID
+            reqMsg.addMessageElement(null, new StringMessageElement(SearchServiceServerImpl.REQ_ID, Integer.toString(reqNr), null));
+            
+            // search parameters
             reqMsg.addMessageElement(null, new StringMessageElement(SearchServiceServerImpl.REQ_QUERY, query, null));
             reqMsg.addMessageElement(null, new StringMessageElement(SearchServiceServerImpl.REQ_MAX_RESULTS, Integer.toString(maxResults), null));
             reqMsg.addMessageElement(null, new StringMessageElement(SearchServiceServerImpl.REQ_TIMEOUT, Long.toString(timeout), null));
             
+            // the advertisement for our response pipe
 			InputStreamMessageElement isme =
 				new InputStreamMessageElement(
 						SearchServiceServerImpl.REQ_PIPE_ADV,
 						new MimeMediaType("text", "xml"),
 						servicePipeAdv.getDocument(new MimeMediaType("text", "xml")).getStream(),
-						null);
-            
+						null);            
             reqMsg.addMessageElement(null, isme, null);			
             
-            // add entry into the resultMap
-            int reqNr = reqMsg.getMessageNumber();
+			/* ----------------------------------------------------------------
+			 * add entry into the resultMap
+			 * ---------------------------------------------------------------- */            
             synchronized (this.resultMap) {
 				this.resultMap.put(Integer.valueOf(reqNr), new ArrayList<Message>());
 			}
@@ -129,7 +140,9 @@ public class SearchServiceClientImpl extends AServiceClient {
             // TODO: change this
 			Thread.sleep(3000);
 			
-			// loop through the found advertisements
+			/* ----------------------------------------------------------------
+			 * Connect to other peers
+			 * ---------------------------------------------------------------- */			
 			long reqStart = System.currentTimeMillis();
 			PipeAdvertisement otherPeerPipeAdv = null;
 			Enumeration<Advertisement> advs = this.pgDiscoveryService.getLocalAdvertisements(DiscoveryService.ADV, "Name", SERVICE_NAME);
