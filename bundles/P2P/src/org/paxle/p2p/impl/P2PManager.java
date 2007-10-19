@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 import net.jxta.credential.AuthenticationCredential;
@@ -30,7 +29,6 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.id.IDFactory;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
-import net.jxta.peer.PeerID;
 import net.jxta.peergroup.NetPeerGroupFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
@@ -601,6 +599,9 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 			DiscoveryService discoSvc = this.appPeerGroup.getDiscoveryService();
 			discoSvc.getRemoteAdvertisements(null, DiscoveryService.PEER, null, null, 1000);
 			discoSvc.addDiscoveryListener(this);
+			
+			// sleep for a moment
+			Thread.sleep(300);
 
 			// Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, null, null);
 			Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, "Name", "*");

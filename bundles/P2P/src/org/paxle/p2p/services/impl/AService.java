@@ -93,7 +93,11 @@ public abstract class AService extends Thread {
                 Thread.interrupted();
                 this.stopped = true;
             } catch (Exception e) {
-            	e.printStackTrace();
+            	this.logger.error(String.format("Unexpected %s while listening for new messages on pipe %s [%s]",
+            			e.getClass().getName(),
+            			this.serviceInputPipe.getName(),
+            			this.serviceInputPipe.getPipeID()
+            	),e);
             }
         }
 	}
@@ -110,6 +114,10 @@ public abstract class AService extends Thread {
 			/* ignore this */
 		}		
 	};	
+	
+	protected Message createMessage() {
+		return new Message();
+	}
 	
 	/**
 	 * This method is executed from within {@link #run()} and is used to init the service

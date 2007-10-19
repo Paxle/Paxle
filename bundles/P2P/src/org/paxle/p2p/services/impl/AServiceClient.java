@@ -1,11 +1,21 @@
 package org.paxle.p2p.services.impl;
 
+import java.io.IOException;
+
+import net.jxta.document.MimeMediaType;
+import net.jxta.endpoint.InputStreamMessageElement;
 import net.jxta.endpoint.Message;
+import net.jxta.endpoint.StringMessageElement;
 
 import org.paxle.p2p.impl.P2PManager;
 
 
-abstract class AServiceClient extends AService {
+public abstract class AServiceClient extends AService {
+	/* ===================================================================
+	 * Request message properties
+	 * =================================================================== */
+	public static final String REQ_ID = "reqID";
+	public static final String REQ_PIPE_ADV = "pipeAdv";
 
 	/**
 	 * @param p2pManager required to get jxta peer-group services (e.g. pipe- and discovery-service)
@@ -33,6 +43,39 @@ abstract class AServiceClient extends AService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	protected Message createMessage() {
+		return this.createRequestMessage();
+	}
+
+	/**
+	 * Create a new pipe message that can be used to send
+	 * a request to a remote peer
+	 * @return
+	 */
+	protected Message createRequestMessage() {
+		// create a new message
+		Message reqMsg = super.createMessage();
+		
+		// add the unique request message id 
+		int reqNr = reqMsg.getMessageNumber();
+		reqMsg.addMessageElement(null, new StringMessageElement(REQ_ID, Integer.toString(reqNr), null));
+		
+		// add the advertisement of the response queue
+		try {
+			InputStreamMessageElement isme = new InputStreamMessageElement(
+					REQ_PIPE_ADV,
+					new MimeMediaType("text", "xml"),
+					servicePipeAdv.getDocument(new MimeMediaType("text", "xml")).getStream(),
+					null);            
+			reqMsg.addMessageElement(null, isme, null);
+		} catch (IOException e) {
+			assert(true) : "Unexpected exception: " + e.getMessage();
+		}
+		
+		return reqMsg;
 	}
 	
 	/**

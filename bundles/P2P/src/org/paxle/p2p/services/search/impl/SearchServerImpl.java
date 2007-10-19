@@ -1,4 +1,4 @@
-package org.paxle.p2p.services.impl;
+package org.paxle.p2p.services.search.impl;
 
 import java.util.List;
 
@@ -18,16 +18,29 @@ import net.jxta.protocol.ModuleSpecAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
 import org.paxle.p2p.impl.P2PManager;
+import org.paxle.p2p.services.impl.AServiceServer;
 import org.paxle.se.search.ISearchProviderManager;
 import org.paxle.se.search.ISearchResult;
 
-public class SearchServiceServerImpl extends AServiceServer {
+public class SearchServerImpl extends AServiceServer {
+	/* ===================================================================
+	 * Service properties
+	 * =================================================================== */
+	public static final String SERVICE_MOD_CLASS_NAME = "JXTAMOD:Paxle:SearchService";
+	public static final String SERVICE_MOD_SPEC_NAME = "JXTASPEC:Paxle:SearchService";
+	
+	/* ===================================================================
+	 * Request message properties
+	 * =================================================================== */
 	public static final String REQ_ID = "reqID";
 	public static final String REQ_PIPE_ADV = "pipeAdv";
 	public static final String REQ_QUERY = "query";
 	public static final String REQ_MAX_RESULTS = "maxResults";
 	public static final String REQ_TIMEOUT = "timeout";
 	
+	/* ===================================================================
+	 * Response message properties
+	 * =================================================================== */	
 	public static final String RESP_SIZE = "size";
 	public static final String RESP_REQ_ID = REQ_ID;
 	
@@ -36,7 +49,7 @@ public class SearchServiceServerImpl extends AServiceServer {
 	 */
 	private ISearchProviderManager searchProviderManager = null;
 
-	public SearchServiceServerImpl(P2PManager p2pManager, ISearchProviderManager searchProviderManager) {
+	public SearchServerImpl(P2PManager p2pManager, ISearchProviderManager searchProviderManager) {
 		super(p2pManager);
 		this.searchProviderManager = searchProviderManager;
 	}
@@ -47,7 +60,7 @@ public class SearchServiceServerImpl extends AServiceServer {
 	@Override
 	protected ModuleClassAdvertisement createModClassAdv() {
 		ModuleClassAdvertisement mcadv = (ModuleClassAdvertisement) AdvertisementFactory.newAdvertisement(ModuleClassAdvertisement.getAdvertisementType());
-		mcadv.setName("JXTAMOD:Paxle:SearchService");
+		mcadv.setName(SERVICE_MOD_CLASS_NAME);
 		mcadv.setDescription("Paxle Remote Search Service");
 		ModuleClassID mcID = IDFactory.newModuleClassID();
 		mcadv.setModuleClassID(mcID);
@@ -60,7 +73,7 @@ public class SearchServiceServerImpl extends AServiceServer {
 	@Override
 	protected ModuleSpecAdvertisement createModSpecAdv(ModuleClassID mcID, PipeAdvertisement pipeAdv) {
         ModuleSpecAdvertisement mdadv = (ModuleSpecAdvertisement) AdvertisementFactory.newAdvertisement(ModuleSpecAdvertisement.getAdvertisementType());
-        mdadv.setName("JXTASPEC:Paxle:SearchService");
+        mdadv.setName(SERVICE_MOD_SPEC_NAME);
         mdadv.setVersion("Version 1.0");
         mdadv.setCreator("www.paxle.org");
         mdadv.setModuleSpecID(IDFactory.newModuleSpecID(mcID));

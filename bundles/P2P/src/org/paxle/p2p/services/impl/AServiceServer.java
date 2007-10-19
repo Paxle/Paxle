@@ -9,7 +9,7 @@ import net.jxta.protocol.PipeAdvertisement;
 
 import org.paxle.p2p.impl.P2PManager;
 
-public abstract class AServiceServer extends AService implements Runnable {
+public abstract class AServiceServer extends AService {
 	
 	/**
 	 * @param p2pManager required to get jxta peer-group services (e.g. pipe- and discovery-service)

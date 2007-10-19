@@ -1,4 +1,4 @@
-package org.paxle.p2p.services.impl;
+package org.paxle.p2p.services.search.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.paxle.p2p.impl.P2PManager;
+import org.paxle.p2p.services.impl.AServiceClient;
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -23,14 +24,17 @@ import net.jxta.pipe.PipeService;
 import net.jxta.protocol.ModuleSpecAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
-public class SearchServiceClientImpl extends AServiceClient {
+public class SearchClientImpl extends AServiceClient {
 
+	/**
+	 * A map to hold the received results
+	 */
 	private final HashMap<Integer, List<Message>> resultMap = new HashMap<Integer, List<Message>>();
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public SearchServiceClientImpl(P2PManager p2pManager) {
+	public SearchClientImpl(P2PManager p2pManager) {
 		super(p2pManager);
 	}
 
@@ -65,7 +69,7 @@ public class SearchServiceClientImpl extends AServiceClient {
 
 			// TODO: extract the result
 			// getting the search query string
-			MessageElement query = respMsg.getMessageElement(SearchServiceServerImpl.REQ_ID);
+			MessageElement query = respMsg.getMessageElement(SearchServerImpl.REQ_ID);
 			Integer reqNr = Integer.valueOf(new String(query.getBytes(false),"UTF-8"));
 			System.out.println(String.format("ReqNr: %d",reqNr));	
 			
@@ -88,6 +92,17 @@ public class SearchServiceClientImpl extends AServiceClient {
 			e.printStackTrace();
 		}
 	}
+	
+	protected Message createRequestMessage(String query, int maxResults, long timeout) {
+		Message reqMessage = super.createRequestMessage();
+		
+		// append the search parameters
+		reqMessage.addMessageElement(null, new StringMessageElement(SearchServerImpl.REQ_QUERY, query, null));
+		reqMessage.addMessageElement(null, new StringMessageElement(SearchServerImpl.REQ_MAX_RESULTS, Integer.toString(maxResults), null));
+		reqMessage.addMessageElement(null, new StringMessageElement(SearchServerImpl.REQ_TIMEOUT, Long.toString(timeout), null));
+		
+		return reqMessage;
+	}
 
 	/**
 	 * FIXME: just a test version of the service
@@ -104,30 +119,13 @@ public class SearchServiceClientImpl extends AServiceClient {
 			/* ----------------------------------------------------------------
 			 * Discover Service
 			 * ---------------------------------------------------------------- */
-			this.pgDiscoveryService.getRemoteAdvertisements(null, DiscoveryService.ADV, "Name",SERVICE_NAME ,10);
+			this.pgDiscoveryService.getRemoteAdvertisements(null, DiscoveryService.ADV, "Name", SERVICE_NAME ,10);
 
 			/* ----------------------------------------------------------------
 			 * build the request message
 			 * ---------------------------------------------------------------- */
-            Message reqMsg = new Message();
+            Message reqMsg = this.createRequestMessage(query, maxResults, timeout);
             int reqNr = reqMsg.getMessageNumber();
-            
-            // a unique request ID
-            reqMsg.addMessageElement(null, new StringMessageElement(SearchServiceServerImpl.REQ_ID, Integer.toString(reqNr), null));
-            
-            // search parameters
-            reqMsg.addMessageElement(null, new StringMessageElement(SearchServiceServerImpl.REQ_QUERY, query, null));
-            reqMsg.addMessageElement(null, new StringMessageElement(SearchServiceServerImpl.REQ_MAX_RESULTS, Integer.toString(maxResults), null));
-            reqMsg.addMessageElement(null, new StringMessageElement(SearchServiceServerImpl.REQ_TIMEOUT, Long.toString(timeout), null));
-            
-            // the advertisement for our response pipe
-			InputStreamMessageElement isme =
-				new InputStreamMessageElement(
-						SearchServiceServerImpl.REQ_PIPE_ADV,
-						new MimeMediaType("text", "xml"),
-						servicePipeAdv.getDocument(new MimeMediaType("text", "xml")).getStream(),
-						null);            
-            reqMsg.addMessageElement(null, isme, null);			
             
 			/* ----------------------------------------------------------------
 			 * add entry into the resultMap
