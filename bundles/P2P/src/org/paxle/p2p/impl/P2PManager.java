@@ -264,48 +264,53 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 		this.configurator = new NetworkConfigurator();
 		this.configurator.setHome(new File(jxtaHome));
 
-		// configure the unique ID of this peer
-		// FIXME: don't recreate this ID each time
-		this.configurator.setPeerID(IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID));
-
-		// the name of this peer and description
-		this.configurator.setName(P2PTools.getComputerName());
-		this.configurator.setDescription("I am a P2P Peer.");
-
-		// auth. info (do we realy need this?)
-		this.configurator.setPrincipal("ofno");
-		this.configurator.setPassword("consequence");
-
-		/*
-		 * Turn off mulitcast.
-		 * 
-		 * "Multicast should be used only if you know what you are doing. 
-		 *  Multicast on can make it look like your app is working when it isn't."
-		 *  See: http://wiki.java.net/bin/view/Jxta/NetworkBasics
-		 */
-		this.configurator.setUseMulticast(false);
-
-		// setting the rdvz/relay-peers for bootstrapping
-		this.configurator.addRdvSeedingURI(seedingURI);
-		this.configurator.addRelaySeedingURI(seedingURI);
-
-//		this.configurator.setMode(NetworkConfigurator.EDGE_NODE);
-
-		// only use peers specified in the SeedingURI as relay/rendezvous peer (don't change this!)
-		this.configurator.setUseOnlyRelaySeeds(true);
-		this.configurator.setUseOnlyRendezvousSeeds(true);
-
-		// edge peers do not need incoming requests
-		this.configurator.setTcpIncoming(false);
-
-		// save configuration to file
 		try {
-			this.configurator.save();
+			if (this.configurator.exists()) {
+				this.configurator.load();
+			} else {		
+				// configure the unique ID of this peer
+				// FIXME: don't recreate this ID each time
+				this.configurator.setPeerID(IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID));
+
+				// the name of this peer and description
+				this.configurator.setName(P2PTools.getComputerName());
+				this.configurator.setDescription("I am a P2P Peer.");
+
+				// auth. info (do we realy need this?)
+				this.configurator.setPrincipal("ofno");
+				this.configurator.setPassword("consequence");
+
+				/*
+				 * Turn off mulitcast.
+				 * 
+				 * "Multicast should be used only if you know what you are doing. 
+				 *  Multicast on can make it look like your app is working when it isn't."
+				 *  See: http://wiki.java.net/bin/view/Jxta/NetworkBasics
+				 */
+				this.configurator.setUseMulticast(false);
+
+				// setting the rdvz/relay-peers for bootstrapping
+				this.configurator.addRdvSeedingURI(seedingURI);
+				this.configurator.addRelaySeedingURI(seedingURI);
+
+//				this.configurator.setMode(NetworkConfigurator.EDGE_NODE);
+
+				// only use peers specified in the SeedingURI as relay/rendezvous peer (don't change this!)
+				this.configurator.setUseOnlyRelaySeeds(true);
+				this.configurator.setUseOnlyRendezvousSeeds(true);
+
+				// edge peers do not need incoming requests
+				this.configurator.setTcpIncoming(false);
+
+				// save configuration to file
+				this.configurator.save();
+
+				System.out.println("Platform configured and saved");
+			}
 		} catch(Throwable e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		System.out.println("Platform configured and saved");
 	}
 
 	// ---------------------------------
