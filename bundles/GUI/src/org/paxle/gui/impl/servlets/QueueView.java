@@ -33,7 +33,7 @@ public class QueueView extends AServlet {
         try {
             if (request.getParameter("queue") != null) {
             	String queueName = request.getParameter("queue");
-            	Object[] services = this.manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)");
+            	Object[] services = this.manager.getServices("org.paxle.core.IMWComponent","(component.ID="+queueName+")");
                 if (services.length == 1 && services[0] instanceof IMWComponent) {
                 	List<ICommand> activeJobs = ((IMWComponent<ICommand>)services[0]).getActiveJobs();
                 	context.put("activeJobs", activeJobs);
