@@ -47,8 +47,6 @@ public class CrawlerView extends AServlet {
         	/*
         	 * Setting template parameters
         	 */        	
-            context.put("manager", this.manager);     
-            
             template = this.getTemplate("/resources/templates/crawler.vm");
         } catch( Exception e ) {
           System.err.println("Exception caught: " + e.getMessage());

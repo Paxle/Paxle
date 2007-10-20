@@ -35,8 +35,7 @@ public class StatusView extends AServlet {
         	} else {
         	   	/*
 	        	 * Setting template parameters
-	        	 */
-	            context.put("manager", this.manager);                 
+	        	 */             
 	            template = this.getTemplate("/resources/templates/status.vm");
         	}
         } catch( Exception e ) {

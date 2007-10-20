@@ -37,7 +37,6 @@ public class QueueView extends AServlet {
                 	context.put("activeJobs", activeJobs);
                 }
             }
-            context.put("manager", this.manager);
             template = this.getTemplate("/resources/templates/QueueView.vm");
             
         } catch (Exception e) {

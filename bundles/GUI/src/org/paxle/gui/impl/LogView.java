@@ -24,8 +24,7 @@ public class LogView extends AServlet {
         try {
         	/*
         	 * Setting template parameters
-        	 */        	        	
-            context.put("manager", this.manager);     
+        	 */        	        	   
             context.put("LEVEL_ERROR",Integer.toString(LogService.LOG_ERROR));
             context.put("LEVEL_WARNING",Integer.toString(LogService.LOG_WARNING));
             context.put("LEVEL_INFO",Integer.toString(LogService.LOG_INFO));

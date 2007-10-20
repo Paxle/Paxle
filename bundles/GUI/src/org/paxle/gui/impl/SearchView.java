@@ -28,7 +28,6 @@ public class SearchView extends AServlet {
             if (request.getParameter("query") != null && !request.getParameter("query").equals("")) {
                 context.put("searchQuery", request.getParameter("query"));
             }
-            context.put("manager", this.manager);
             template = this.getTemplate("/resources/templates/SearchView.vm");
             
         } catch (Exception e) {

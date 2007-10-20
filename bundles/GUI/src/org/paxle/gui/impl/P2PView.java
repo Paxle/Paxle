@@ -24,7 +24,7 @@ public class P2PView extends AServlet {
     		/*
     		 * Setting template parameters
     		 */
-    		context.put("manager", this.manager);                 
+//    		context.put("manager", this.manager);                 
     		template = this.getTemplate("/resources/templates/p2p.vm");
     	} catch( Exception e ) {
     		e.printStackTrace();

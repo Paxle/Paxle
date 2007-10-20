@@ -3,8 +3,11 @@ package org.paxle.gui.impl;
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.ExtendedProperties;
+import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.view.servlet.VelocityLayoutServlet;
 
 public class AServlet extends VelocityLayoutServlet {
@@ -28,5 +31,15 @@ public class AServlet extends VelocityLayoutServlet {
 		ExtendedProperties props = super.loadConfiguration(config);
 		props.addProperty("jar.resource.loader.path", "jar:" + config.getInitParameter("bundle.location"));
 		return props;
+	}
+	
+	@Override
+	protected Context createContext(HttpServletRequest request, HttpServletResponse response) {
+		Context context = super.createContext(request, response);
+		
+		// adding service manager to context
+		context.put("manager", this.manager);
+		
+		return context;
 	}
 }
