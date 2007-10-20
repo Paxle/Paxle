@@ -1,7 +1,9 @@
-<li><a href="/search">Search</a></li>
-<li><a href="/status">Status</a></li>
-<li><a href="/p2p">P2P</a></li>
-<li><a href="/crawler">Crawler</a></li>
-<li><a href="/bundle">Bundles</a></li>
-<li><a href="/log">Logging</a></li>
-<li><a href="/queue">Queues</a></li>
+#set($menuManager = $manager.getService("org.paxle.gui.IMenuManager"))
+
+#if($menuManager)
+	#foreach($item in $menuManager.getMenuItemList())
+		<li><a href="$item.url">$item.name</a></li>
+	#end
+#else
+	<font color="red">MenuManager not found!</font>
+#end

@@ -1,4 +1,4 @@
-package org.paxle.gui.impl;
+package org.paxle.gui.impl.servlets;
 
 import java.util.List;
 
@@ -11,6 +11,8 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.queue.ICommand;
+import org.paxle.gui.AServlet;
+import org.paxle.gui.impl.ServiceManager;
 
 public class QueueView extends AServlet {
 

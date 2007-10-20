@@ -1,4 +1,4 @@
-package org.paxle.gui.impl;
+package org.paxle.gui.impl.servlets;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -10,6 +10,8 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.queue.Command;
+import org.paxle.gui.AServlet;
+import org.paxle.gui.impl.ServiceManager;
 
 public class CrawlerView extends AServlet {
 

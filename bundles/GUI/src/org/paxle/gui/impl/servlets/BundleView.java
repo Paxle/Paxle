@@ -1,4 +1,4 @@
-package org.paxle.gui.impl;
+package org.paxle.gui.impl.servlets;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,8 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 
 import org.osgi.framework.Bundle;
+import org.paxle.gui.AServlet;
+import org.paxle.gui.impl.ServiceManager;
 
 public class BundleView extends AServlet {
 	

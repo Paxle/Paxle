@@ -1,4 +1,4 @@
-package org.paxle.gui.impl;
+package org.paxle.gui;
 
 import java.io.IOException;
 
@@ -9,9 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.view.servlet.VelocityLayoutServlet;
+import org.paxle.gui.impl.ServiceManager;
 
-public class AServlet extends VelocityLayoutServlet {
-	
+public class AServlet extends VelocityLayoutServlet {	
     private static final long serialVersionUID = 1L;
     /**
 	 * Manager class to access other components registered via OSGi
