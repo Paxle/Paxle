@@ -1,10 +1,7 @@
 Manifest-Version: 1.0
-DynamicImport-Package: javax.swing, javax.swing.text
-Bundle-ClassPath: ., libs/jxtashell.jar
-Bundle-Version: 1.0.0
 Bundle-Name: P2PShell
+Bundle-ClassPath: ., libs/jxtashell.jar
 Bundle-Activator: org.paxle.p2p.shell.impl.Activator
-Bundle-ManifestVersion: 2
 Import-Package: org.osgi.framework, net.jxta, net.jxta.access, net.jxt
  a.codat, net.jxta.credential, net.jxta.discovery, net.jxta.document, 
  net.jxta.endpoint, net.jxta.exception, net.jxta.id, net.jxta.id.jxta,
@@ -33,5 +30,8 @@ Import-Package: org.osgi.framework, net.jxta, net.jxta.access, net.jxt
  xta.peer, net.jxta.peergroup, net.jxta.pipe, net.jxta.platform, net.j
  xta.protocol, net.jxta.rendezvous, net.jxta.resolver, net.jxta.servic
  e, net.jxta.socket, net.jxta.util, net.jxta.util.documentSerializable
+Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.p2p.shell
+Bundle-Version: 1.0.0
+DynamicImport-Package: javax.swing, javax.swing.text
 

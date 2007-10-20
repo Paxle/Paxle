@@ -57,10 +57,4 @@ public class GroupListener implements ServiceListener {
 			// service properties have changed
 		}	
 	}
-	
-	private HashSet<String> arrayToSet(String[] interfaces) {
-		HashSet<String> interfaceSet = new HashSet<String>();
-		interfaceSet.addAll(Arrays.asList(interfaces));
-		return interfaceSet;
-	}
 }

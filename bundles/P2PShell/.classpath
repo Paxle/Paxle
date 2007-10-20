@@ -10,9 +10,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/jxtashell.jar" sourcepath="/home/theli/workspace/Libs/jxta-shell-src-2.5_rc1.zip"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/P2P">
-		<attributes>
-			<attribute name="net.jxta.impl.endpoint.mcast" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="net/jxta/impl/endpoint/mcast/"/>
 			<accessrule kind="accessible" pattern="net/jxta/util/documentSerializable/"/>
@@ -93,6 +90,6 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="/P2P/gisp/lib/jxta.jar" sourcepath="/home/theli/workspace/Libs/jxta-src-2.5_rc1.zip"/>
+	<classpathentry kind="lib" path="/P2P/libs/jxta.jar" sourcepath="/home/theli/workspace/Libs/jxse-src-2.5_rc3.zip"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>
