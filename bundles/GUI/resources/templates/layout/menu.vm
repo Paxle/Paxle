@@ -1,5 +1,6 @@
 <li><a href="/search">Search</a></li>
 <li><a href="/status">Status</a></li>
+<li><a href="/p2p">P2P</a></li>
 <li><a href="/crawler">Crawler</a></li>
 <li><a href="/bundle">Bundles</a></li>
 <li><a href="/log">Logging</a></li>

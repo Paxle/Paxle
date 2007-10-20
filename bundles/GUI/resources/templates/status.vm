@@ -7,8 +7,6 @@
 	<li><a href="#dgeneral" onclick="fshow('general');" id="tgeneral">General</a></li>
 	<li><a href="#dcrawler" onclick="fshow('crawler');" id="tcrawler">Crawler</a></li>
 	<li><a href="#dparser" onclick="fshow('parser');" id="tparser">Parser</a></li>
-	<li><a href="#dp2pmanager" onclick="fshow('p2pmanager');" id="tp2pmanager">P2P-Manager</a></li>
-	<li><a href="#dknownpeers" onclick="fshow('knownpeers');" id="tknownpeers">Known-Peers</a></li>
 	<li><a href="#dindex" onclick="fshow('index');" id="tindex">Index</a></li>
 </ul>
 
@@ -63,7 +61,7 @@
 				<li>$subCrawler.getProtocol()</li>
 		#end
 	</ul>
-</fieldset>
+</fieldset>	
 #end
 
 #set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
@@ -94,35 +92,10 @@
 </fieldset>
 #end	
 
-	
-#set($p2pManager = $manager.getService("org.paxle.p2p.IP2PManager"))
-#if($p2pManager)
-<fieldset id="dp2pmanager">
-	<legend>P2P-Manager:</legend>
-	<table>
-		<tr><td>Peer ID:</td><td>$p2pManager.getPeerID()</td></tr>
-		<tr><td>Peer Name:</td><td>$p2pManager.getPeerName()</td></tr>
-		<tr><td>Group ID:</td><td>$p2pManager.getGroupID()</td></tr>
-		<tr><td>Group Name:</td><td>$p2pManager.getGroupName()</td></tr>			
-	</table>
-</fieldset>
-<fieldset id="dknownpeers">
-	<legend>Known Peers</legend>
-	<table>
-	<tr><th>Peer name</th><th>Peer ID</th></tr>
-	#set($peers = $p2pManager.getPeerAdvertisements())
-	#foreach($peer in $peers)		
-		<tr><td>$peer.getName()</td><td>$peer.getPeerID()</td></tr>
-	#end
-	</table>
-</fieldset>
-#end
-
 #set($se = $manager.getService("org.paxle.se.index.IIndexSearcher"))
 #if($se)
 <fieldset id="dindex">
 	<legend>Index</legend>
 	<p>Known documents: $se.docCount</p>
 </fieldset>
-
 #end

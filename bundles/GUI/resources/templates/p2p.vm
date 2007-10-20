@@ -1,0 +1,32 @@
+## Set the page title
+#set( $page_title = "Paxle Status Page" )
+## Activate onload
+#set ( $bodyonload = "initTabs('peerInfo');" )
+
+<ul class="tabs">
+	<li><a href="#dpeerInfo" onclick="fshow('peerInfo');" id="tpeerInfo">Peer Info</a></li>
+	<li><a href="#dpeerList" onclick="fshow('peerList');" id="tpeerList">Peer List</a></li>
+</ul>
+
+#set($p2pManager = $manager.getService("org.paxle.p2p.IP2PManager"))
+#if($p2pManager)
+<fieldset id="dpeerInfo">
+	<legend>P2P-Manager:</legend>
+	<table>
+		<tr><td>Peer ID:</td><td>$p2pManager.getPeerID()</td></tr>
+		<tr><td>Peer Name:</td><td>$p2pManager.getPeerName()</td></tr>
+		<tr><td>Group ID:</td><td>$p2pManager.getGroupID()</td></tr>
+		<tr><td>Group Name:</td><td>$p2pManager.getGroupName()</td></tr>			
+	</table>
+</fieldset>
+<fieldset id="dpeerList">
+	<legend>Known Peers</legend>
+	<table>
+	<tr><th>Peer name</th><th align="left">Peer ID</th></tr>
+	#set($peers = $p2pManager.getPeerAdvertisements())
+	#foreach($peer in $peers)		
+		<tr><td><tt>$peer.getName()</tt></td><td><tt>$peer.getPeerID()</tt></td></tr>
+	#end
+	</table>
+</fieldset>
+#end
