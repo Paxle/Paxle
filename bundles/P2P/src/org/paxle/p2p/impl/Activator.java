@@ -78,25 +78,25 @@ public class Activator implements BundleActivator {
 		
 //		
 //		// just for testing
-		new Thread() {
-			@Override
-			public void run() {
-				ServiceReference fieldManagerRef = bc.getServiceReference("org.paxle.se.index.IFieldManager"); 
-				if (fieldManagerRef != null) {
-					SearchClientImpl client = new SearchClientImpl(p2pManager,(IFieldManager)bc.getService(fieldManagerRef));				
-//					try {
-//					Thread.sleep(60000);
-//					} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
+//		new Thread() {
+//			@Override
+//			public void run() {
+//				ServiceReference fieldManagerRef = bc.getServiceReference("org.paxle.se.index.IFieldManager"); 
+//				if (fieldManagerRef != null) {
+//					SearchClientImpl client = new SearchClientImpl(p2pManager,(IFieldManager)bc.getService(fieldManagerRef));				
+////					try {
+////					Thread.sleep(60000);
+////					} catch (InterruptedException e) {
+////					// TODO Auto-generated catch block
+////					e.printStackTrace();
+////					}
+//
+//					while(true) {
+//						client.remoteSearch("test",100,6000);
 //					}
-
-					while(true) {
-						client.remoteSearch("test",100,6000);
-					}
-				}
-			}
-		}.start();
+//				}
+//			}
+//		}.start();
 		
 		
 		
