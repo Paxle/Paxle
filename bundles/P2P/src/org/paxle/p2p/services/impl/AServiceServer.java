@@ -1,6 +1,10 @@
 package org.paxle.p2p.services.impl;
 
+import java.io.UnsupportedEncodingException;
+
 import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.StringMessageElement;
 import net.jxta.pipe.InputPipe;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.protocol.ModuleClassAdvertisement;
@@ -8,8 +12,13 @@ import net.jxta.protocol.ModuleSpecAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
 import org.paxle.p2p.impl.P2PManager;
+import org.paxle.p2p.services.search.impl.SearchClientImpl;
 
 public abstract class AServiceServer extends AService {
+	/* ===================================================================
+	 * Default Response message properties
+	 * =================================================================== */	
+	public static final String RESP_REQ_ID = AServiceClient.REQ_ID;
 	
 	/**
 	 * @param p2pManager required to get jxta peer-group services (e.g. pipe- and discovery-service)
@@ -101,9 +110,32 @@ public abstract class AServiceServer extends AService {
 	}
 	
 	/**
-	 * Process the next incoming request
+	 * Process the next incoming request.
 	 */
 	protected abstract void processRequest(Message reqMsg);
+		
+	/**
+	 * Create a new pipe message that can be used to send
+	 * a response to a remote peer
+	 * @return
+	 */
+	protected Message createResponseMessage(Message reqMessage) {
+		// create an empty message
+		Message respMessage = this.createMessage();
+		
+		// getting the request ID
+		MessageElement queryID = reqMessage.getMessageElement(SearchClientImpl.REQ_ID);
+		String reqMsgNr = null;
+		try {
+			reqMsgNr = new String(queryID.getBytes(false),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			assert(true) : "Unexpected exception: " + e.getMessage();
+		}
+		
+		// add the request ID to the response message
+		respMessage.addMessageElement(null, new StringMessageElement(RESP_REQ_ID, reqMsgNr, null));
+		return respMessage;
+	}
 	
 	protected void pauseService() {
 		// TODO close the input queue for a while?

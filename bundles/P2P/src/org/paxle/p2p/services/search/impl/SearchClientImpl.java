@@ -2,18 +2,15 @@ package org.paxle.p2p.services.search.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-
-import org.paxle.p2p.impl.P2PManager;
-import org.paxle.p2p.services.impl.AServiceClient;
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.MimeMediaType;
-import net.jxta.endpoint.InputStreamMessageElement;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
@@ -24,18 +21,32 @@ import net.jxta.pipe.PipeService;
 import net.jxta.protocol.ModuleSpecAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
-public class SearchClientImpl extends AServiceClient {
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.core.doc.IndexerDocument;
+import org.paxle.p2p.impl.P2PManager;
+import org.paxle.p2p.services.impl.AServiceClient;
+import org.paxle.p2p.services.search.ISearchClient;
+import org.paxle.se.index.IFieldManager;
+import org.paxle.se.search.ISearchResult;
+
+public class SearchClientImpl extends AServiceClient implements ISearchClient {
 
 	/**
 	 * A map to hold the received results
 	 */
 	private final HashMap<Integer, List<Message>> resultMap = new HashMap<Integer, List<Message>>();
 	
+	private IFieldManager fieldManager = null;
+	
 	/**
 	 * {@inheritDoc}
 	 */
-	public SearchClientImpl(P2PManager p2pManager) {
+	public SearchClientImpl(P2PManager p2pManager, IFieldManager fieldManager) {
 		super(p2pManager);
+		this.fieldManager = fieldManager;
 	}
 
 	/**
@@ -69,7 +80,7 @@ public class SearchClientImpl extends AServiceClient {
 
 			// TODO: extract the result
 			// getting the search query string
-			MessageElement query = respMsg.getMessageElement(SearchServerImpl.REQ_ID);
+			MessageElement query = respMsg.getMessageElement(SearchServiceConstants.REQ_ID);
 			Integer reqNr = Integer.valueOf(new String(query.getBytes(false),"UTF-8"));
 			System.out.println(String.format("ReqNr: %d",reqNr));	
 			
@@ -97,53 +108,22 @@ public class SearchClientImpl extends AServiceClient {
 		Message reqMessage = super.createRequestMessage();
 		
 		// append the search parameters
-		reqMessage.addMessageElement(null, new StringMessageElement(SearchServerImpl.REQ_QUERY, query, null));
-		reqMessage.addMessageElement(null, new StringMessageElement(SearchServerImpl.REQ_MAX_RESULTS, Integer.toString(maxResults), null));
-		reqMessage.addMessageElement(null, new StringMessageElement(SearchServerImpl.REQ_TIMEOUT, Long.toString(timeout), null));
+		reqMessage.addMessageElement(null, new StringMessageElement(SearchServiceConstants.REQ_QUERY, query, null));
+		reqMessage.addMessageElement(null, new StringMessageElement(SearchServiceConstants.REQ_MAX_RESULTS, Integer.toString(maxResults), null));
+		reqMessage.addMessageElement(null, new StringMessageElement(SearchServiceConstants.REQ_TIMEOUT, Long.toString(timeout), null));
+		
+		// add entry into the resultMap
+        synchronized (this.resultMap) {
+			this.resultMap.put(reqMessage.getMessageNumber(), new ArrayList<Message>());
+		}
 		
 		return reqMessage;
 	}
-
-	/**
-	 * FIXME: just a test version of the service
-	 * @param query
-	 */
-	public void remoteSearch(String query, int maxResults, long timeout) {
-		try {
-			/* ================================================================
-			 * SEND REQUEST
-			 * ================================================================ */
-			// FIXME: move this string
-			String SERVICE_NAME = "JXTASPEC:*";
-			
-			/* ----------------------------------------------------------------
-			 * Discover Service
-			 * ---------------------------------------------------------------- */
-			this.pgDiscoveryService.getRemoteAdvertisements(null, DiscoveryService.ADV, "Name", SERVICE_NAME ,10);
-
-			/* ----------------------------------------------------------------
-			 * build the request message
-			 * ---------------------------------------------------------------- */
-            Message reqMsg = this.createRequestMessage(query, maxResults, timeout);
-            int reqNr = reqMsg.getMessageNumber();
-            
-			/* ----------------------------------------------------------------
-			 * add entry into the resultMap
-			 * ---------------------------------------------------------------- */            
-            synchronized (this.resultMap) {
-				this.resultMap.put(Integer.valueOf(reqNr), new ArrayList<Message>());
-			}
-            
-			// wait a few seconds
-            // TODO: change this
-			Thread.sleep(3000);
-			
-			/* ----------------------------------------------------------------
-			 * Connect to other peers
-			 * ---------------------------------------------------------------- */			
-			long reqStart = System.currentTimeMillis();
-			PipeAdvertisement otherPeerPipeAdv = null;
-			Enumeration<Advertisement> advs = this.pgDiscoveryService.getLocalAdvertisements(DiscoveryService.ADV, "Name", SERVICE_NAME);
+	
+	protected void sendRequestMessage(Message reqMessage) throws IOException {
+		PipeAdvertisement otherPeerPipeAdv = null;
+		Enumeration<Advertisement> advs = this.pgDiscoveryService.getLocalAdvertisements(DiscoveryService.ADV, "Name", SearchServiceConstants.SERVICE_MOD_SPEC_NAME);
+		if (advs != null) {
 			while (advs.hasMoreElements()) {
 				Advertisement adv = advs.nextElement();
 				System.out.println(adv.toString());
@@ -158,40 +138,123 @@ public class SearchClientImpl extends AServiceClient {
 
 						// create an output pipe to send the request
 						OutputPipe outputPipe = this.pgPipeService.createOutputPipe(otherPeerPipeAdv, 10000);
-						
-			            // send the message to the service pipe
-			            outputPipe.send(reqMsg);
-			            outputPipe.close();
-						
+
+						// send the message to the service pipe
+						boolean success = outputPipe.send(reqMessage);
+						if (!success) {
+							// TODO: what to do in this case. Just retry?
+						}			            
+						outputPipe.close();
+
 					} catch (IOException ioe) {
 						// unable to connect to the remote peer
 						this.pgDiscoveryService.flushAdvertisement(otherPeerPipeAdv);
 					}
 				}
 			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected List<ISearchResult> extractResult(Message reqMessage) {
+		List<Message> messageList = null;
+		synchronized (this.resultMap) {				
+			if (!this.resultMap.containsKey(reqMessage.getMessageNumber())) {
+				this.logger.warn("Unknown requestID: " + reqMessage.getMessageNumber());
+				messageList = Collections.EMPTY_LIST;
+			} else {
+				// remove the request from the result-list
+				messageList = this.resultMap.remove(reqMessage.getMessageNumber());
+			}
+		}	
+		
+		List<ISearchResult> resultList = new ArrayList<ISearchResult>();
+		for (Message msg : messageList) {
+			try {
+				MessageElement resultListElement = msg.getMessageElement(SearchServiceConstants.RESP_RESULT);			
+
+				SAXReader reader = new SAXReader();
+				Document xmlDoc = reader.read(resultListElement.getStream());
+				Element xmlRoot = xmlDoc.getRootElement();
+				
+		        // iterate through child elements of root
+		        for (Iterator<Element> i = xmlRoot.elementIterator(SearchServiceConstants.RESULT_ENTRY); i.hasNext(); ) {
+		            Element resultElement = (Element) i.next();
+		            List<IIndexerDocument> indexerDocs = new ArrayList<IIndexerDocument>();
+		            
+			        for (Iterator<Element> j = resultElement.elementIterator(SearchServiceConstants.RESULT_ENTRY_ITEM); j.hasNext(); ) {
+			        	Element resultItemElement = (Element) j.next();			        	
+			        	IndexerDocument indexerDoc = new IndexerDocument();
+			        	
+			        	for (Iterator<Element> k = resultItemElement.elementIterator(); k.hasNext(); ) {
+			        		Element resultItemFieldElement = (Element) k.next();
+			        		
+			        		String fieldName = resultItemFieldElement.getName();
+			        		String fieldValue = resultItemFieldElement.getText();
+			        		
+			        		final org.paxle.core.doc.Field<?> pfield = this.fieldManager.get(fieldName);
+			    			if (pfield != null) {			    				
+			    				indexerDoc.put(pfield, fieldValue);
+			    			}
+			        	}
+			        }
+			        
+		            RemoteSearchResult searchResult = new RemoteSearchResult(indexerDocs,-1); 
+		            resultList.add(searchResult);
+		        }
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return resultList;
+	}
+
+	/**
+	 * FIXME: just a test version of the service
+	 * @param query
+	 * @return 
+	 */
+	public List<ISearchResult> remoteSearch(String query, int maxResults, long timeout) {
+		try {
+			/* ================================================================
+			 * SEND REQUEST
+			 * ================================================================ */
+			
+			/* ----------------------------------------------------------------
+			 * Discover Service
+			 * ---------------------------------------------------------------- */
+			this.pgDiscoveryService.getRemoteAdvertisements(null, DiscoveryService.ADV, "Name", SearchServiceConstants.SERVICE_MOD_SPEC_NAME ,10);
+
+			/* ----------------------------------------------------------------
+			 * build the request message
+			 * ---------------------------------------------------------------- */
+            Message reqMessage = this.createRequestMessage(query, maxResults, timeout);
+                        
+			// wait a few seconds
+            // TODO: change this
+			Thread.sleep(3000);
+			
+			/* ----------------------------------------------------------------
+			 * Connect to other peers
+			 * ---------------------------------------------------------------- */			
+			long reqStart = System.currentTimeMillis();
+			this.sendRequestMessage(reqMessage);
 			
 			
 			/* ================================================================
 			 * WAIT FOR RESPONSE
 			 * ================================================================ */
-			long timeToWait = Math.max(reqStart - System.currentTimeMillis(),1);
+			long timeToWait = Math.max(timeout - (reqStart - System.currentTimeMillis()),1);
 			System.out.println("Waiting " + timeToWait + " ms for the result.");			
 			Thread.sleep(timeToWait);
 			
 			// Access result
-			List<Message> resultList = null;
-			synchronized (this.resultMap) {				
-				if (!this.resultMap.containsKey(reqNr)) {
-					this.logger.warn("Unknown requestID: " + reqNr);
-					return;
-				} else {
-					// remove the request from the result-list
-					resultList = this.resultMap.remove(reqNr);
-				}
-			}			
+			return this.extractResult(reqMessage);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 }

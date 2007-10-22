@@ -610,10 +610,12 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 
 			// Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, null, null);
 			Enumeration<Advertisement> advs = discoSvc.getLocalAdvertisements(DiscoveryService.PEER, "Name", "*");
-			while (advs.hasMoreElements()) {
-				Advertisement adv=advs.nextElement();
-				if (adv instanceof PeerAdvertisement) {
-					peerAdvs.add((PeerAdvertisement) adv);
+			if (advs != null) {
+				while (advs.hasMoreElements()) {
+					Advertisement adv=advs.nextElement();
+					if (adv instanceof PeerAdvertisement) {
+						peerAdvs.add((PeerAdvertisement) adv);
+					}
 				}
 			}
 		} catch (Exception e) {

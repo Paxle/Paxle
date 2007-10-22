@@ -29,6 +29,7 @@
 	<classpathentry kind="lib" path="libs/javax.servlet.jar"/>
 	<classpathentry kind="lib" path="libs/jxta.jar" sourcepath="/home/theli/workspace/Libs/jxse-src-2.5_rc3.zip"/>
 	<classpathentry kind="lib" path="libs/org.mortbay.jetty.jar"/>
+	<classpathentry kind="lib" path="libs/dom4j-1.6.1.jar"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
@@ -40,11 +41,17 @@
 	<classpathentry exported="true" kind="lib" path="libs/xmlParserAPIs.jar"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.se">
 		<attributes>
-			<attribute name="bundle-name" value="SearchEngine"/>
-			<attribute name="org.paxle.se.search" value="0.0.0"/>
+			<attribute name="org.paxle.se.index" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/se/index/"/>
 			<accessrule kind="accessible" pattern="org/paxle/se/search/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>

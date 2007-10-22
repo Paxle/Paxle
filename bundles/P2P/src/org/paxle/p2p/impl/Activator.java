@@ -18,6 +18,7 @@ import org.paxle.p2p.FirewallCheckViewServlet;
 import org.paxle.p2p.IP2PManager;
 import org.paxle.p2p.services.search.impl.SearchClientImpl;
 import org.paxle.p2p.services.search.impl.SearchServerImpl;
+import org.paxle.se.index.IFieldManager;
 import org.paxle.se.search.ISearchProviderManager;
 
 /**
@@ -63,10 +64,13 @@ public class Activator implements BundleActivator {
 		 * ATTENTION: don't replace the string by ISearchProviderManager.class.getName(), otherwise the
 		 * 			  paxle search bundle is not optional. 
 		 */
-		ServiceReference reference = bc.getServiceReference("org.paxle.se.search.ISearchProviderManager"); 
-		if (reference != null) {			
-			SearchServerImpl searchServiceServer = new SearchServerImpl(p2pManager,(ISearchProviderManager)bc.getService(reference));
+		ServiceReference searchProviderRef = bc.getServiceReference("org.paxle.se.search.ISearchProviderManager"); 
+		if (searchProviderRef != null) {			
+			SearchServerImpl searchServiceServer = new SearchServerImpl(p2pManager,(ISearchProviderManager)bc.getService(searchProviderRef));
 		}
+		
+//		context.getServiceReference(IFieldManager.class.getName())
+//		Converter.fieldManager = (IFieldManager)context.getService();
 		
 		/* ==========================================================
 		 * Register Services
@@ -74,21 +78,25 @@ public class Activator implements BundleActivator {
 		
 //		
 //		// just for testing
-//		new Thread() {
-//			@Override
-//			public void run() {
-//				SearchServiceClientImpl client = new SearchServiceClientImpl(p2pManager);
-//				
-////				try {
-////					Thread.sleep(60000);
-////				} catch (InterruptedException e) {
-////					// TODO Auto-generated catch block
-////					e.printStackTrace();
-////				}
-//				
-//				client.remoteSearch("test",100,6000);
-//			}
-//		}.start();
+		new Thread() {
+			@Override
+			public void run() {
+				ServiceReference fieldManagerRef = bc.getServiceReference("org.paxle.se.index.IFieldManager"); 
+				if (fieldManagerRef != null) {
+					SearchClientImpl client = new SearchClientImpl(p2pManager,(IFieldManager)bc.getService(fieldManagerRef));				
+//					try {
+//					Thread.sleep(60000);
+//					} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//					}
+
+					while(true) {
+						client.remoteSearch("test",100,6000);
+					}
+				}
+			}
+		}.start();
 		
 		
 		
