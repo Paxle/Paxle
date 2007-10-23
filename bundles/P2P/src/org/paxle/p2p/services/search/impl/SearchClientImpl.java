@@ -143,7 +143,9 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient {
 						boolean success = outputPipe.send(reqMessage);
 						if (!success) {
 							// TODO: what to do in this case. Just retry?
-						}			            
+						}			    
+						this.sentMsgCount++;
+						this.sentBytes += reqMessage.getByteLength();
 						outputPipe.close();
 
 					} catch (IOException ioe) {

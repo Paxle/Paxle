@@ -3,13 +3,9 @@ package org.paxle.p2p.services.search.impl;
 import java.util.List;
 
 import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.id.IDFactory;
-import net.jxta.pipe.OutputPipe;
 import net.jxta.pipe.PipeID;
 import net.jxta.pipe.PipeService;
 import net.jxta.platform.ModuleClassID;
@@ -20,6 +16,7 @@ import net.jxta.protocol.PipeAdvertisement;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.p2p.impl.P2PManager;
 import org.paxle.p2p.services.impl.AServiceServer;
@@ -87,21 +84,15 @@ public class SearchServerImpl extends AServiceServer {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void processRequest(Message reqMsg) {
+	protected void processRequest(Message reqMessage) {
 		try {
 			/* ================================================================
 			 * Read the request
 			 * ================================================================ */
 			// getting the search query string
-			String queryString = reqMsg.getMessageElement(SearchServiceConstants.REQ_QUERY).toString();
-			Integer queryMaxResults = Integer.valueOf(reqMsg.getMessageElement(SearchServiceConstants.REQ_MAX_RESULTS).toString());
-			Long queryTimeout = Long.valueOf(reqMsg.getMessageElement(SearchServiceConstants.REQ_TIMEOUT).toString());
-			
-			// getting the advertisement for the pipe where the response should be sent to
-			MessageElement pipeAdv = reqMsg.getMessageElement(null, SearchServiceConstants.REQ_PIPE_ADV);
-		    PipeAdvertisement adv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(
-		    		(XMLDocument) StructuredDocumentFactory.newStructuredDocument(pipeAdv)
-		    );			
+			String queryString = reqMessage.getMessageElement(SearchServiceConstants.REQ_QUERY).toString();
+			Integer queryMaxResults = Integer.valueOf(reqMessage.getMessageElement(SearchServiceConstants.REQ_MAX_RESULTS).toString());
+			Long queryTimeout = Long.valueOf(reqMessage.getMessageElement(SearchServiceConstants.REQ_TIMEOUT).toString());		
 		    
 			/* ================================================================
 			 * Process request
@@ -133,20 +124,13 @@ public class SearchServerImpl extends AServiceServer {
 			}
 			
 			// build the response message
-            Message respMessage = this.createResponseMessage(reqMsg);			
+            Message respMessage = this.createResponseMessage(reqMessage);			
 			respMessage.addMessageElement(null, new StringMessageElement(SearchServiceConstants.RESP_RESULT, xmlDoc.asXML(),null));
 			
 			/* ================================================================
 			 * Write response
 			 * ================================================================ */			
-			// create an output pipe to send the request
-			OutputPipe outputPipe = this.pgPipeService.createOutputPipe(adv, 10000l);
-			
-			// send the response back to the client
-            outputPipe.send(respMessage);
-            
-            // close pipe
-            outputPipe.close();			
+			this.sendResponseMessage(reqMessage, respMessage);	
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

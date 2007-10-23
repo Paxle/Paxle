@@ -1,11 +1,16 @@
 package org.paxle.p2p.services.impl;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.pipe.InputPipe;
+import net.jxta.pipe.OutputPipe;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.protocol.ModuleClassAdvertisement;
 import net.jxta.protocol.ModuleSpecAdvertisement;
@@ -13,6 +18,7 @@ import net.jxta.protocol.PipeAdvertisement;
 
 import org.paxle.p2p.impl.P2PManager;
 import org.paxle.p2p.services.search.impl.SearchClientImpl;
+import org.paxle.p2p.services.search.impl.SearchServiceConstants;
 
 public abstract class AServiceServer extends AService {
 	/* ===================================================================
@@ -135,6 +141,60 @@ public abstract class AServiceServer extends AService {
 		// add the request ID to the response message
 		respMessage.addMessageElement(null, new StringMessageElement(RESP_REQ_ID, reqMsgNr, null));
 		return respMessage;
+	}
+	
+	protected OutputPipe createResponsePipe(Message reqMessage) throws IOException {
+		return this.createResponsePipe(reqMessage, 10000l);
+	}
+		
+	protected OutputPipe createResponsePipe(Message reqMessage, long connectTimeout) throws IOException {
+		if (reqMessage == null) throw new NullPointerException("Request message is null");
+
+		// getting the advertisement for the pipe where the response should be sent to
+		MessageElement pipeAdv = reqMessage.getMessageElement(null, SearchServiceConstants.REQ_PIPE_ADV);
+		PipeAdvertisement adv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(
+				(XMLDocument) StructuredDocumentFactory.newStructuredDocument(pipeAdv)
+		);
+
+		// create an output pipe to send the request
+		return this.pgPipeService.createOutputPipe(adv, connectTimeout);
+	}
+	
+	/**
+	 * This function ...
+	 * <ul>
+	 * 	<li>extracts the {@link PipeAdvertisement advertisement} of the clients response queue from the request-message</li>
+	 * 	<li>creates a new {@link OutputPipe output-pipe} to the client</li>
+	 *  <li>sends the response-message</li>
+	 *  <li>closes the {@link OutputPipe output-pipe}</li>
+	 * </ul>
+	 * @param reqMessage
+	 * @param respMessage
+	 */
+	protected void sendResponseMessage(Message reqMessage, Message respMessage) {		
+		if (reqMessage == null) throw new NullPointerException("Request message is null");
+		if (respMessage == null) throw new NullPointerException("Response message is null");
+
+		OutputPipe outputPipe = null;
+		try {
+			// create an output pipe to send the request
+			outputPipe = this.createResponsePipe(reqMessage);
+
+			// send the response back to the client
+			boolean success = outputPipe.send(respMessage);
+			if (!success) {
+				throw new IOException("Unable to send response message.");
+			}			
+			this.sentMsgCount++;
+			this.sentBytes += respMessage.getByteLength();
+
+			// close pipe
+			outputPipe.close();		
+		} catch (IOException e) {
+			this.logger.warn(String.format("Error while sending a response-message for request %s.",
+					reqMessage.getMessageElement(SearchServiceConstants.REQ_ID)
+			),e);
+		}
 	}
 	
 	protected void pauseService() {

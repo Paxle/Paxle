@@ -10,8 +10,9 @@ import net.jxta.protocol.PipeAdvertisement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.p2p.impl.P2PManager;
+import org.paxle.p2p.services.IService;
 
-public abstract class AService extends Thread {
+public abstract class AService extends Thread implements IService {
 	protected Log logger = LogFactory.getLog(this.getClass().getName());
 	
 	/**
@@ -51,6 +52,22 @@ public abstract class AService extends Thread {
 	 */
 	protected InputPipe serviceInputPipe = null;	
 	
+	/**
+	 * The amount of messages received via the {@link #serviceInputPipe input-pipe}
+	 * @see #getReceivedMessageCount()
+	 */
+	protected long receivedMsgCount = 0;
+	
+	/**
+	 * The amount of bytes received via the {@link #serviceInputPipe input-pipe}
+	 * @see #getRecievedBytesCount()
+	 */
+	protected long receivedBytes = 0;
+	
+	protected long sentMsgCount = 0;
+	protected long sentBytes = 0;
+	
+	
 	protected AService(P2PManager p2pManager) {
 		if (p2pManager == null) throw new NullPointerException("P2PManager is null");
 		this.p2pManager = p2pManager;
@@ -85,6 +102,8 @@ public abstract class AService extends Thread {
             try {
             	// fetch the next message
             	Message nextMsg = serviceInputPipe.waitForMessage();
+            	this.receivedMsgCount++;
+            	this.receivedBytes += nextMsg.getByteLength();
             	System.out.println(nextMsg);
 
             	// process message
@@ -117,6 +136,22 @@ public abstract class AService extends Thread {
 	
 	protected Message createMessage() {
 		return new Message();
+	}
+	
+	public long getReceivedMessageCount() {
+		return this.receivedMsgCount;
+	}
+	
+	public long getRecievedBytesCount() {
+		return this.receivedBytes;
+	}
+	
+	public long getSentMessageCount() {
+		return this.sentMsgCount;
+	}
+	
+	public long getSentBytesCount() {
+		return this.sentBytes;
 	}
 	
 	/**
