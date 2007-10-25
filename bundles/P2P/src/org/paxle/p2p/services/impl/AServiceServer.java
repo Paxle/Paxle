@@ -17,10 +17,12 @@ import net.jxta.protocol.ModuleSpecAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
 import org.paxle.p2p.impl.P2PManager;
+import org.paxle.p2p.services.IService;
+import org.paxle.p2p.services.IServiceServer;
 import org.paxle.p2p.services.search.impl.SearchClientImpl;
 import org.paxle.p2p.services.search.impl.SearchServiceConstants;
 
-public abstract class AServiceServer extends AService {
+public abstract class AServiceServer extends AService implements IServiceServer {
 	/* ===================================================================
 	 * Default Response message properties
 	 * =================================================================== */	
@@ -38,12 +40,16 @@ public abstract class AServiceServer extends AService {
 	 * This function
 	 * <ul>
 	 * 	<li>waits for a rendezvous connection</li>
-	 *  <li>creates a {@link ModuleClassAdvertisement module-class-advertisement}. See {@link #createModClassAdv()}</li>
+	 *  <li>creates a {@link ModuleClassAdvertisement module-class-advertisement}. 
+	 *      See {@link #createModClassAdv()}</li>
 	 *  <li>publishes the {@link ModuleClassAdvertisement module-class-advertisement}</li>
-	 *  <li>creates a {@link ModuleSpecAdvertisement module-specification-advertisement}. See {@link #createModSpecAdv(ModuleClassID)}</li>
+	 *  <li>creates a {@link ModuleSpecAdvertisement module-specification-advertisement}. 
+	 *      See {@link #createModSpecAdv(ModuleClassID)}</li>
 	 *  <li>publishes the {@link ModuleSpecAdvertisement module-specification-advertisement}
-	 *  <li>creates a {@link InputPipe input-pipe}</li>
-	 *  <li>wait for new incoming requests. See {@link #run()}
+	 *  <li>creates a {@link InputPipe input-pipe}.
+	 *      See {@link #createPipeAdvertisement()}</li>
+	 *  <li>wait for new incoming requests. 
+	 *      See {@link #run()}
 	 * </ul>
 	 */
 	@Override
@@ -86,8 +92,8 @@ public abstract class AServiceServer extends AService {
 	}
 
 	/**
-	 * Function to create the advertisement for a {@link #serviceInputPipe input-pipe} 
-	 * @return the advertisement for a {@link #serviceInputPipe input-pipe} 
+	 * Function to create the advertisement for an {@link #serviceInputPipe input-pipe} 
+	 * @return the advertisement for an {@link #serviceInputPipe input-pipe} 
 	 */
 	protected abstract PipeAdvertisement createPipeAdvertisement();
 	
@@ -116,14 +122,19 @@ public abstract class AServiceServer extends AService {
 	}
 	
 	/**
-	 * Process the next incoming request.
+	 * Process the next incoming request. 
+	 * @see #process(Message)
 	 */
 	protected abstract void processRequest(Message reqMsg);
 		
 	/**
 	 * Create a new pipe message that can be used to send
 	 * a response to a remote peer
-	 * @return
+	 * @return a newly generated {@link Message response-message} containing
+	 * <ul>
+	 * 	<li>the {@link #REQ_ID request-id} of the received request message</li>
+	 *  <li>...</li>
+	 * </ul>
 	 */
 	protected Message createResponseMessage(Message reqMessage) {
 		// create an empty message
@@ -143,15 +154,32 @@ public abstract class AServiceServer extends AService {
 		return respMessage;
 	}
 	
+	/**
+	 * @param reqMessage the received request-message containing the {@link #REQ_PIPE_ADV pipe-advertisement} 
+	 *        required to create a new {@link OutputPipe}
+	 * @return the newly created {@link OutputPipe} to the remote peer, which has sent the request message
+	 * @throws IOException if the pipe could not be created successfully.
+	 * 
+	 * @see #createResponsePipe(Message, long)
+	 */
 	protected OutputPipe createResponsePipe(Message reqMessage) throws IOException {
 		return this.createResponsePipe(reqMessage, 10000l);
 	}
 		
+	/**
+	 * @param reqMessage the received request-message containing the {@link #REQ_PIPE_ADV pipe-advertisement} 
+	 *        required to create a new {@link OutputPipe}
+	 * @param connectTimeout the timeout to use (in milliseconds)
+	 * @return the newly created {@link OutputPipe} to the remote peer, which has sent the request message
+	 * @throws IOException if the pipe could not be created successfully.
+	 */
 	protected OutputPipe createResponsePipe(Message reqMessage, long connectTimeout) throws IOException {
 		if (reqMessage == null) throw new NullPointerException("Request message is null");
 
 		// getting the advertisement for the pipe where the response should be sent to
 		MessageElement pipeAdv = reqMessage.getMessageElement(null, SearchServiceConstants.REQ_PIPE_ADV);
+		if (pipeAdv == null) throw new IllegalArgumentException("The request message contains no pipe advertisement.");
+		
 		PipeAdvertisement adv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(
 				(XMLDocument) StructuredDocumentFactory.newStructuredDocument(pipeAdv)
 		);
@@ -163,13 +191,13 @@ public abstract class AServiceServer extends AService {
 	/**
 	 * This function ...
 	 * <ul>
-	 * 	<li>extracts the {@link PipeAdvertisement advertisement} of the clients response queue from the request-message</li>
-	 * 	<li>creates a new {@link OutputPipe output-pipe} to the client</li>
+	 * 	<li>creates a new {@link OutputPipe output-pipe} to the client. 
+	 *      See {@link #createResponsePipe(Message)}</li>
 	 *  <li>sends the response-message</li>
 	 *  <li>closes the {@link OutputPipe output-pipe}</li>
 	 * </ul>
-	 * @param reqMessage
-	 * @param respMessage
+	 * @param reqMessage the received request-message containing the pipe-advertisement of the senders response-queue
+	 * @param respMessage the response-message to send
 	 */
 	protected void sendResponseMessage(Message reqMessage, Message respMessage) {		
 		if (reqMessage == null) throw new NullPointerException("Request message is null");
@@ -195,18 +223,5 @@ public abstract class AServiceServer extends AService {
 					reqMessage.getMessageElement(SearchServiceConstants.REQ_ID)
 			),e);
 		}
-	}
-	
-	protected void pauseService() {
-		// TODO close the input queue for a while?
-	}
-	
-	protected void resumeService() {
-		// TODO
-	}
-	
-	public boolean isPaused() {
-		// TODO
-		return false;
 	}
 }

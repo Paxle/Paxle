@@ -8,4 +8,10 @@ public interface IService {
 	public long getSentMessageCount();
 	
 	public long getSentBytesCount();
+	
+	public void pauseService();
+	
+	public void resumeService();
+	
+	public boolean isPaused();
 }

@@ -64,7 +64,16 @@ public abstract class AService extends Thread implements IService {
 	 */
 	protected long receivedBytes = 0;
 	
+	/**
+	 * The amount of messages sent out to a remote peer
+	 * @see #getSentMessageCount()
+	 */
 	protected long sentMsgCount = 0;
+	
+	/**
+	 * The amount of bytes sent out to a remote peer
+	 * @see #getSentBytesCount()
+	 */
 	protected long sentBytes = 0;
 	
 	
@@ -170,5 +179,29 @@ public abstract class AService extends Thread implements IService {
 	 * Process a request message received via the {@link #serviceInputPipe input-pipe}
 	 * @param msg a request message received via the {@link #serviceInputPipe input-pipe}
 	 */
-	protected abstract void process(Message msg);	
+	protected abstract void process(Message msg);		
+	
+	/**
+	 * @see IService#pauseService()
+	 */
+	public void pauseService() {
+		// TODO close the input queue for a while?
+		throw new RuntimeException("Not implemented.");
+	}
+	
+	/**
+	 * @see IService#resumeService()
+	 */
+	public void resumeService() {
+		// TODO
+		throw new RuntimeException("Not implemented.");
+	}
+	
+	/**
+	 * @see IService#isPaused()
+	 */
+	public boolean isPaused() {
+		// TODO
+		throw new RuntimeException("Not implemented.");
+	}
 }

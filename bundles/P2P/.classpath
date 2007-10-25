@@ -42,8 +42,12 @@
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.se">
 		<attributes>
 			<attribute name="org.paxle.se.index" value="0.0.0"/>
+			<attribute name="org.paxle.se.query" value="0.0.0"/>
+			<attribute name="org.paxle.se.query.tokens" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/se/query/tokens/"/>
+			<accessrule kind="accessible" pattern="org/paxle/se/query/"/>
 			<accessrule kind="accessible" pattern="org/paxle/se/index/"/>
 			<accessrule kind="accessible" pattern="org/paxle/se/search/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>

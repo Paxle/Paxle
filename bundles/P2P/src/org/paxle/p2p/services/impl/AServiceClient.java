@@ -8,9 +8,10 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.StringMessageElement;
 
 import org.paxle.p2p.impl.P2PManager;
+import org.paxle.p2p.services.IServiceClient;
 
 
-public abstract class AServiceClient extends AService {
+public abstract class AServiceClient extends AService implements IServiceClient {
 	/* ===================================================================
 	 * Request message properties
 	 * =================================================================== */
@@ -53,7 +54,11 @@ public abstract class AServiceClient extends AService {
 	/**
 	 * Create a new pipe message that can be used to send
 	 * a request to a remote peer
-	 * @return
+	 * @return a newly generated {@link Message request-message} containing
+	 * <ul>
+	 * 	<li>a unique {@link #REQ_ID request-id}</li>
+	 *  <li>the {@link #REQ_PIPE_ADV pipe-advertisement} of the service {@link AService#serviceInputPipe input-pipe}</li>
+	 * </ul>
 	 */
 	protected Message createRequestMessage() {
 		// create a new message
@@ -89,6 +94,8 @@ public abstract class AServiceClient extends AService {
 	/**
 	 * Function to process the received response message.
 	 * @param respMsg the response message that was received
+	 * 
+	 * @see #process(Message)
 	 */
 	protected abstract void processResponse(Message respMsg);
 }
