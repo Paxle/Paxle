@@ -3,6 +3,22 @@
 ## Activate onload
 #set ( $bodyonload = "initTabs('general');" )
 
+## ---------------------------------------------------------------------------------------
+## Define some macros 
+#macro( filterlist $queues)
+	#if($queues)
+	   #foreach($queue in $queues)
+		$queue.getFilters().size() filter(s) found:<br />
+		<ul>
+			#foreach($filter in $queue.getFilters())
+				<li><tt>$filter.getFilter().getClass().getName()</tt></li>
+			#end
+		</ul>
+	   #end
+	#end
+#end
+## ---------------------------------------------------------------------------------------
+
 <ul class="tabs">
 	<li><a href="#dgeneral" onclick="fshow('general');" id="tgeneral">General</a></li>
 	<li><a href="#dcrawler" onclick="fshow('crawler');" id="tcrawler">Crawler</a></li>
@@ -54,13 +70,22 @@
 
 
 	<hr />		
+	<h3>Supported protocols:</h3>
 	$subCrawlerManager.getSubCrawlers().size() crawler(s) found, supporting following Protocols:<br />
 	<ul>
 		
 		#foreach($subCrawler in $subCrawlerManager.getSubCrawlers())
-				<li>$subCrawler.getProtocol()</li>
+				<li><tt>$subCrawler.getProtocol()</tt></li>
 		#end
 	</ul>
+	
+	<hr />
+	<h3>Deployed crawler input-queue filters:</h3>
+	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.crawler.in)"))
+
+	<hr />
+	<h3>Deployed crawler output-queue filters:</h3>
+	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.crawler.out)"))
 </fieldset>	
 #end
 
@@ -80,15 +105,24 @@
 		#end
 	#end
 
+	<hr />
 	<h3>Supported mimetypes:</h3>	
 	#set($mimeTypes = $subParserManager.getMimeTypes())
 	#set($parsers = $subParserManager.getSubParsers())		
 	<b>$parsers.size()</b> parser(s) installed supporting <b>$mimeTypes.size()</b> mime-types.
 	<ul>
 		#foreach($mimeType in $mimeTypes)
-		<li>$mimeType</li>
+		<li><tt>$mimeType</tt></li>
 		#end
 	</ul>
+	
+	<hr />
+	<h3>Deployed parser input-queue filters:</h3>
+	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.parser.in)"))
+	
+	<hr />
+	<h3>Deployed parser output-queue filters:</h3>
+	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.parser.out)"))	
 </fieldset>
 #end	
 
@@ -97,5 +131,13 @@
 <fieldset id="dindex">
 	<legend>Index</legend>
 	<p>Known documents: $se.docCount</p>
+	
+	<hr />
+	<h3>Deployed indexer input-queue filters:</h3>
+	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.indexer.in)"))	
+	
+	<hr />
+	<h3>Deployed indexer output-queue filters:</h3>
+	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.indexer.out)"))		
 </fieldset>
 #end

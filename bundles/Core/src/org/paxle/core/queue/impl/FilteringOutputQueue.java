@@ -1,5 +1,6 @@
 package org.paxle.core.queue.impl;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -70,5 +71,14 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 	 */	
 	public void setFilters(List<IFilterContext> filters) {
 		filterList = filters;
+	}
+	
+
+	/**
+	 * @see IFilterQueue#getFilters()
+	 */
+	@SuppressWarnings("unchecked")
+	public List<IFilterContext> getFilters() {
+		return (this.filterList==null)?Collections.EMPTY_LIST:this.filterList;
 	}
 }
