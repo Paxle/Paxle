@@ -10,9 +10,16 @@
 <br />
 <br />
 
-#set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
+<b>Active jobs:</b><br />
 #if($activeJobs)
 	#foreach($activeJob in $activeJobs)
 		$activeJob.getLocation()<br>
+	#end
+#end
+<hr />
+<b>Enqueued jobs:</b><br />
+#if($enqueuedJobs)
+	#foreach($enqueuedJob in $enqueuedJobs)
+		$enqueuedJob.getLocation()<br>
 	#end
 #end

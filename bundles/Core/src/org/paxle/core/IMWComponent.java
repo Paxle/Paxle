@@ -92,4 +92,9 @@ public interface IMWComponent<Data> {
 	 * @return the list of active jobs currently processed by the workers of this pool 
 	 */
 	public List<Data> getActiveJobs();
+	
+	/**
+	 * @return the list of currently enqueued jobs
+	 */
+	public List<Data> getEnqueuedJobs();
 }

@@ -1,5 +1,6 @@
 package org.paxle.core.impl;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.paxle.core.IMWComponent;
@@ -118,5 +119,13 @@ public class MWComponent<Data> implements IMWComponent<Data> {
 	 */
 	public List<Data> getActiveJobs() {
 		return this.pool.getActiveJobs();
+	}
+	
+	/**
+	 * @see IMWComponent#getEnqueuedJobs()
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Data> getEnqueuedJobs() {
+		return (List<Data>) Arrays.asList(this.inQueue.toArray());
 	}
 }

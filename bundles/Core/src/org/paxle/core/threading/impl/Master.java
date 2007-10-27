@@ -1,8 +1,5 @@
 package org.paxle.core.threading.impl;
 
-import java.util.LinkedList;
-import java.util.concurrent.Semaphore;
-
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.IInputQueue;
 import org.paxle.core.threading.IMaster;

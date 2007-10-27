@@ -37,6 +37,8 @@ public class QueueView extends AServlet {
                 if (services.length == 1 && services[0] instanceof IMWComponent) {
                 	List<ICommand> activeJobs = ((IMWComponent<ICommand>)services[0]).getActiveJobs();
                 	context.put("activeJobs", activeJobs);
+                	List<ICommand> enqueuedJobs = ((IMWComponent<ICommand>)services[0]).getEnqueuedJobs();
+                	context.put("enqueuedJobs", enqueuedJobs);
                 }
             }
             template = this.getTemplate("/resources/templates/QueueView.vm");
