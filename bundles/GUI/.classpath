@@ -55,8 +55,10 @@
 		<attributes>
 			<attribute name="bundle-name" value="P2P"/>
 			<attribute name="org.paxle.p2p" value="0.0.0"/>
+			<attribute name="org.paxle.p2p.services" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/p2p/services/"/>
 			<accessrule kind="accessible" pattern="org/paxle/p2p/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>

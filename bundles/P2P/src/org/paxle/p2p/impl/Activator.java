@@ -16,6 +16,10 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.paxle.p2p.FirewallCheckViewServlet;
 import org.paxle.p2p.IP2PManager;
+import org.paxle.p2p.services.IService;
+import org.paxle.p2p.services.IServiceClient;
+import org.paxle.p2p.services.IServiceServer;
+import org.paxle.p2p.services.search.ISearchClient;
 import org.paxle.p2p.services.search.impl.SearchClientImpl;
 import org.paxle.p2p.services.search.impl.SearchServerImpl;
 import org.paxle.se.index.IFieldManager;
@@ -67,11 +71,14 @@ public class Activator implements BundleActivator {
 		ServiceReference searchProviderRef = bc.getServiceReference("org.paxle.se.search.ISearchProviderManager"); 
 		if (searchProviderRef != null) {			
 			SearchServerImpl searchServiceServer = new SearchServerImpl(p2pManager,(ISearchProviderManager)bc.getService(searchProviderRef));
+			bc.registerService(new String[]{IService.class.getName(), IServiceServer.class.getName()}, searchServiceServer, null);
 		}
-		
-//		context.getServiceReference(IFieldManager.class.getName())
-//		Converter.fieldManager = (IFieldManager)context.getService();
-		
+		ServiceReference fieldManagerRef = bc.getServiceReference("org.paxle.se.index.IFieldManager"); 
+		if (fieldManagerRef != null) {
+			SearchClientImpl searchServiceClient = new SearchClientImpl(p2pManager,(IFieldManager)bc.getService(fieldManagerRef));
+			bc.registerService(new String[]{IService.class.getName(), IServiceClient.class.getName(),ISearchClient.class.getName()}, searchServiceClient, null);
+		}
+
 		/* ==========================================================
 		 * Register Services
 		 * ========================================================== */

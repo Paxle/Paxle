@@ -114,10 +114,14 @@ public class SearchServerImpl extends AServiceServer {
 							Element resultItemElement = resultElement.addElement(SearchServiceConstants.RESULT_ENTRY_ITEM);
 							
 							// TODO: what fields to transfer?
-							resultItemElement.addElement(IIndexerDocument.TITLE.getName())
-											 .addText(resultItem.get(IIndexerDocument.TITLE));
-							resultItemElement.addElement(IIndexerDocument.LOCATION.getName())
-											 .addText(resultItem.get(IIndexerDocument.LOCATION));
+							if (resultItem.get(IIndexerDocument.TITLE) != null) {
+								resultItemElement.addElement(IIndexerDocument.TITLE.getName())
+								.addText(resultItem.get(IIndexerDocument.TITLE));
+							}
+							if (IIndexerDocument.LOCATION.getName() != null) {
+								resultItemElement.addElement(IIndexerDocument.LOCATION.getName())
+								.addText(resultItem.get(IIndexerDocument.LOCATION));
+							}
 						}
 					}
 				}
@@ -134,5 +138,9 @@ public class SearchServerImpl extends AServiceServer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public String getServiceIdentifier() {
+		return SearchServiceConstants.SERVICE_MOD_SPEC_NAME;
 	}
 }

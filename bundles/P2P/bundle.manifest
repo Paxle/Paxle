@@ -10,7 +10,8 @@ Import-Package: org.osgi.framework, javax.servlet.http, org.apache.vel
  mons.httpclient, org.apache.commons.httpclient.methods, javax.servlet
  , org.apache.commons.logging, org.paxle.se.search;resolution:=optiona
  l, org.paxle.core.doc, org.paxle.se.index;resolution:=optional, org.p
- axle.se.query;resolution:=optional, org.paxle.se.query.tokens;resolution:=optional
+ axle.se.query;resolution:=optional, org.paxle.se.query.tokens;resolut
+ ion:=optional
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: P2P
@@ -41,7 +42,8 @@ Export-Package: org.paxle.p2p, net.jxta, net.jxta.access, net.jxta.cod
  .membership, net.jxta.meter, net.jxta.peer, net.jxta.peergroup, net.j
  xta.pipe, net.jxta.platform, net.jxta.protocol, net.jxta.rendezvous, 
  net.jxta.resolver, net.jxta.service, net.jxta.socket, net.jxta.util, 
- net.jxta.util.documentSerializable, net.jxta.impl.endpoint.mcast
+ net.jxta.util.documentSerializable, net.jxta.impl.endpoint.mcast, org
+ .paxle.p2p.services, org.paxle.p2p.services.search
 Bundle-Version: 1.0.0
 DynamicImport-Package: sun.*, org.xml.sax.*, javax.security.*, sun.ref
  lect, javax.swing, javax.swing.text, javax.crypto.spec, javax.crypto

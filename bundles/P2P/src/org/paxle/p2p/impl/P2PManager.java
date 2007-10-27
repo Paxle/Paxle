@@ -185,6 +185,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 			myPeerID = appPeerGroup.getPeerID().toString();
 
 			netPGDiscoveryService.publish(implAdv);
+			netPGDiscoveryService.publish(pgadv);
 			netPGDiscoveryService.remotePublish(null,implAdv);
 			netPGDiscoveryService.remotePublish(null,pgadv);	         	         
 

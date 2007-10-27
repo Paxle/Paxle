@@ -1,6 +1,8 @@
 package org.paxle.p2p.services;
 
 public interface IService {
+	public String getServiceIdentifier();
+	
 	public long getReceivedMessageCount();
 	
 	public long getRecievedBytesCount();

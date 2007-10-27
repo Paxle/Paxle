@@ -13,7 +13,7 @@ Import-Package: org.osgi.framework, org.osgi.service.http, javax.servl
  =optional, org.osgi.service.log, org.apache.commons.collections, org.
  paxle.se.search;resolution:=optional, org.paxle.se.query;resolution:=
  optional, org.paxle.core.doc, org.apache.commons.logging, org.paxle.c
- ore
+ ore, org.paxle.p2p.services;resolution:=optional
 Bundle-ContactAddress: http://www.paxle.net/
 DynamicImport-Package: sun.reflect
 

@@ -247,7 +247,7 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient {
 			/* ================================================================
 			 * WAIT FOR RESPONSE
 			 * ================================================================ */
-			long timeToWait = Math.max(timeout - (reqStart - System.currentTimeMillis()),1);
+			long timeToWait = Math.max(timeout - (System.currentTimeMillis() - reqStart),1);
 			System.out.println("Waiting " + timeToWait + " ms for the result.");			
 			Thread.sleep(timeToWait);
 			
@@ -258,5 +258,9 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public String getServiceIdentifier() {
+		return SearchServiceConstants.SERVICE_MOD_SPEC_NAME;
 	}
 }
