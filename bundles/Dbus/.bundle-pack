@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundlejar>
+<resource dst="" pattern=".*\.class" src="/dbusBundle/out" type="0"/>
+<resource dst="libs/dbus-2.3.1.jar" src="/dbus/libs/dbus-2.3.1.jar" type="1"/>
+<resource dst="libs/debug-enable-1.1.jar" src="/dbus/libs/debug-enable-1.1.jar" type="1"/>
+<resource dst="libs/hexdump-0.1.jar" src="/dbus/libs/hexdump-0.1.jar" type="1"/>
+<resource dst="libs/unix-0.2.jar" src="/dbus/libs/unix-0.2.jar" type="1"/>
+<resource dst="/" src="/dbusBundle/resources" type="2"/>
+</bundlejar>

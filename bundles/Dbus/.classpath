@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn/**|**/CVS/**" including="**/*.java" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.EXECUTION_ENVIRONMENT_CONTAINER"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/osgi/framework/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/dbus-2.3.1.jar" sourcepath="/home/theli/temp/dbus-java-2.3"/>
+	<classpathentry kind="lib" path="libs/hexdump-0.1.jar"/>
+	<classpathentry kind="lib" path="libs/unix-0.2.jar"/>
+	<classpathentry kind="lib" path="libs/debug-enable-1.1.jar"/>
+	<classpathentry kind="output" path="out"/>
+</classpath>
