@@ -38,9 +38,9 @@ public class Activator implements BundleActivator {
 			conn.addSigHandler(ScreenSaver.SessionIdleChanged.class, new ScreenSaverMonitor());
 			conn.addSigHandler(ScreenSaver.ActiveChanged.class, new ScreenSaverMonitor());  
 			
-			System.out.println(obj.GetSessionIdle());
-			obj.Lock();
-			System.err.println("fertig");
+//			System.out.println(obj.GetSessionIdle());
+//			obj.Lock();
+//			System.err.println("fertig");
 
 		} catch (DBusException De) {
 			De.printStackTrace();
