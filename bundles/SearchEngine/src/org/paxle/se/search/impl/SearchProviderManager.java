@@ -2,6 +2,7 @@ package org.paxle.se.search.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -15,11 +16,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.se.query.PaxleQueryParser;
 import org.paxle.se.query.tokens.AToken;
-import org.paxle.se.search.ISearchResultCollector;
 import org.paxle.se.search.ISearchProvider;
 import org.paxle.se.search.ISearchProviderManager;
 import org.paxle.se.search.ISearchRequest;
 import org.paxle.se.search.ISearchResult;
+import org.paxle.se.search.ISearchResultCollector;
 
 public class SearchProviderManager implements ISearchProviderManager {
 	
@@ -44,6 +45,13 @@ public class SearchProviderManager implements ISearchProviderManager {
 		final ISearchProvider provider = this.providers.remove(number);
 		this.logger.info("removed search provider: " + provider.getClass().getName());
 		this.pqp.removeTokenFactory(number);
+	}
+		
+	/**
+	 * @see ISearchProviderManager#getSearchProviders()
+	 */
+	public Collection<ISearchProvider> getSearchProviders() {
+		return new ArrayList<ISearchProvider>(this.providers);
 	}
 	
 	public void shutdown() throws IOException {
