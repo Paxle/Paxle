@@ -24,6 +24,7 @@
 	<li><a href="#dcrawler" onclick="fshow('crawler');" id="tcrawler">Crawler</a></li>
 	<li><a href="#dparser" onclick="fshow('parser');" id="tparser">Parser</a></li>
 	<li><a href="#dindex" onclick="fshow('index');" id="tindex">Index</a></li>
+	<li><a href="#dsearch" onclick="fshow('search');" id="tsearch">Search</a></li>
 </ul>
 
 ## the regular content
@@ -131,7 +132,7 @@
 <fieldset id="dindex">
 	<legend>Index</legend>
 	<p>Known documents: $se.docCount</p>
-	
+		
 	<hr />
 	<h3>Deployed indexer input-queue filters:</h3>
 	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.indexer.in)"))	
@@ -139,5 +140,20 @@
 	<hr />
 	<h3>Deployed indexer output-queue filters:</h3>
 	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.indexer.out)"))		
+</fieldset>
+#end
+
+#set($sp = $manager.getService("org.paxle.se.search.ISearchProviderManager"))
+#if($sp)
+<fieldset id="dsearch">
+	<legend>Search</legend>
+		
+	<h3>Installed Search Providers:</h3>
+	$sp.getSearchProviders().size() provider(s) found:<br />
+	<ul>		
+		#foreach($searchprovider in $sp.getSearchProviders())
+			<li><tt>$searchprovider.getClass().getName()</tt></li>
+		#end
+	</ul>		
 </fieldset>
 #end

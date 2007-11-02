@@ -18,9 +18,15 @@
 			#set($fieldManager = $manager.getService("org.paxle.se.index.IFieldManager"))
 			#foreach($searchResult in $Search.search($searchQuery, 50, 10000))
 				#foreach($result in $searchResult.getResult())
+					#if($result.get($fieldManager.get("Location")))
 					<tr>
 						<td>
-							<a href="$result.get($fieldManager.get("Location"))">$result.get($fieldManager.get("Title")) ($result.get($fieldManager.get("Location")))</a><br />
+							<a href="$result.get($fieldManager.get("Location"))">
+							#if($result.get($fieldManager.get("Title")))
+								$result.get($fieldManager.get("Title"))
+							#else
+								$result.get($fieldManager.get("Location"))
+							#end</a><br />
 							#if($result.get($fieldManager.get("Author")))
 								Author: $result.get($fieldManager.get("Author"))<br />
 							#end
@@ -35,6 +41,7 @@
 							#end
 						</td>
 					</tr>
+					#end
 				#end
 			#end
 		#end
