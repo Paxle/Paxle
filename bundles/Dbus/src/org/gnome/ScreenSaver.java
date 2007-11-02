@@ -1,5 +1,6 @@
 package org.gnome;
 
+import org.freedesktop.DBus;
 import org.freedesktop.dbus.DBusInterface;
 import org.freedesktop.dbus.DBusSignal;
 import org.freedesktop.dbus.exceptions.DBusException;
@@ -39,5 +40,6 @@ public interface ScreenSaver extends DBusInterface {
 	
 	public boolean GetSessionIdle();
 	
+	@DBus.Method.NoReply
 	public void Lock();
 }
