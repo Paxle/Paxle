@@ -2,10 +2,11 @@ Manifest-Version: 1.0
 Bundle-Name: dbusBundle
 Bundle-ClassPath: ., libs/hexdump-0.1.jar, libs/unix-0.2.jar, libs/deb
  ug-enable-1.1.jar, libs/dbus-2.3.1.jar
-Bundle-NativeCode: libunix-java.so; processor=i386 ; osname=Linux
 Bundle-Activator: org.paxle.dbus.impl.Activator
+Bundle-NativeCode: libunix-java.so; processor=i386 ; osname=Linux
 Import-Package: org.osgi.framework, org.paxle.core, org.apache.commons
- .logging
+ .logging, org.paxle.se.search, org.paxle.se.query, org.paxle.se.index
+ , org.paxle.core.doc, org.paxle.se.query.tokens
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.dbus
 Bundle-Version: 1.0.0

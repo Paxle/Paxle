@@ -1,9 +1,12 @@
 package org.paxle.dbus.impl;
 
 
+import java.util.Hashtable;
+
 import org.freedesktop.dbus.DBusConnection;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.paxle.se.search.ISearchProvider;
 
 /**
  * required dynamic imports
@@ -35,6 +38,11 @@ public class Activator implements BundleActivator {
 		 * ========================================================== */		
 		// registering a service listener to notice if a new sub-crawler was (un)deployed
 		bc.addServiceListener(new CrawlerListener(bc,new NetworkManagerMonitor()),CrawlerListener.FILTER);
+		
+		/* ==========================================================
+		 * Register Services
+		 * ========================================================== */	
+		bc.registerService(ISearchProvider.class.getName(), new TrackerSearchProvider(), new Hashtable<String,String>());
 	}
 
 	/**
