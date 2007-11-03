@@ -16,7 +16,6 @@ import net.jxta.protocol.PipeAdvertisement;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.p2p.impl.P2PManager;
 import org.paxle.p2p.services.impl.AServiceServer;

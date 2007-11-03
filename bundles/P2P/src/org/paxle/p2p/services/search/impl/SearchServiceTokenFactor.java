@@ -1,29 +1,36 @@
 package org.paxle.p2p.services.search.impl;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.paxle.core.doc.Field;
 import org.paxle.se.query.ITokenFactory;
 import org.paxle.se.query.tokens.AToken;
+import org.paxle.se.query.tokens.AndOperator;
 import org.paxle.se.query.tokens.FieldToken;
 import org.paxle.se.query.tokens.NotToken;
-import org.paxle.se.query.tokens.AndOperator;
 import org.paxle.se.query.tokens.OrOperator;
 import org.paxle.se.query.tokens.PlainToken;
 import org.paxle.se.query.tokens.QuoteToken;
 
-public class DummyTokenFactor implements ITokenFactory {
+public class SearchServiceTokenFactor implements ITokenFactory {
+	private static String getOperatorString(Collection<AToken> children, String str) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append('(');
+		final Iterator<AToken> it = children.iterator();
+		while (it.hasNext()) {
+			sb.append(it.next().getString());
+			if (it.hasNext())
+				sb.append(' ').append(str).append(' ');
+		}
+		return sb.append(')').toString();
+	}
 	
 	public AndOperator createAndOperator() {
 		return new AndOperator() {
 			@Override
 			public String getString() {
-				final StringBuilder sb = new StringBuilder();
-				sb.append('(').append(Character.toUpperCase(super.str.charAt(0))).append(super.str.substring(1)).append("Operator) { ");
-				if (this.children.size() > 0) {
-					for (AToken t : this.children)
-						sb.append(t.getString()).append(", ");
-					sb.deleteCharAt(sb.length() - 2);
-				}
-				return sb.append('}').toString();
+				return SearchServiceTokenFactor.getOperatorString(super.children, "AND");
 			}
 		};
 	}
@@ -32,14 +39,7 @@ public class DummyTokenFactor implements ITokenFactory {
 		return new OrOperator() {
 			@Override
 			public String getString() {
-				final StringBuilder sb = new StringBuilder();
-				sb.append('(').append(Character.toUpperCase(super.str.charAt(0))).append(super.str.substring(1)).append("Operator) { ");
-				if (this.children.size() > 0) {
-					for (AToken t : this.children)
-						sb.append(t.getString()).append(", ");
-					sb.deleteCharAt(sb.length() - 2);
-				}
-				return sb.append('}').toString();
+				return SearchServiceTokenFactor.getOperatorString(super.children, "OR");
 			}
 		};
 	}
@@ -48,7 +48,7 @@ public class DummyTokenFactor implements ITokenFactory {
 		return new FieldToken(token, field) {
 			@Override
 			public String getString() {
-				return "(FieldToken) [ Field: '" + super.field.getName() + "', " + super.token.getString() + "]";
+				return super.field.getName() + ':' + super.token.getString();
 			}
 		};
 	}
@@ -57,7 +57,7 @@ public class DummyTokenFactor implements ITokenFactory {
 		return new NotToken(token) {
 			@Override
 			public String getString() {
-				return "(NotToken) [" + this.token.getString() + "]";
+				return '-' + super.token.getString();
 			}
 		};
 	}
@@ -66,7 +66,7 @@ public class DummyTokenFactor implements ITokenFactory {
 		return new PlainToken(str) {
 			@Override
 			public String getString() {
-				return "(PlainToken) [" + super.str + "]";
+				return super.str;
 			}
 		};
 	}
@@ -75,7 +75,7 @@ public class DummyTokenFactor implements ITokenFactory {
 		return new QuoteToken(str) {
 			@Override
 			public String getString() {
-				return "(QuoteToken) [" + super.str + "]";
+				return '"' + super.str + '"';
 			}
 		};
 	}

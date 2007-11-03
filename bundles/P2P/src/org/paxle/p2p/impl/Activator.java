@@ -75,8 +75,18 @@ public class Activator implements BundleActivator {
 		}
 		ServiceReference fieldManagerRef = bc.getServiceReference("org.paxle.se.index.IFieldManager"); 
 		if (fieldManagerRef != null) {
+			// start a new search client
 			SearchClientImpl searchServiceClient = new SearchClientImpl(p2pManager,(IFieldManager)bc.getService(fieldManagerRef));
-			bc.registerService(new String[]{IService.class.getName(), IServiceClient.class.getName(),ISearchClient.class.getName()}, searchServiceClient, null);
+			
+			// register remote search service
+			bc.registerService(new String[]{
+					IService.class.getName(), 
+					IServiceClient.class.getName(),
+					ISearchClient.class.getName(),
+					"org.paxle.se.search.ISearchProvider"}, // ATTENTION: do not replace the string by class.getName()
+					searchServiceClient, 
+					null
+			);
 		}
 
 		/* ==========================================================

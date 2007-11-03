@@ -27,12 +27,15 @@ import org.dom4j.io.SAXReader;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IndexerDocument;
 import org.paxle.p2p.impl.P2PManager;
+import org.paxle.p2p.services.IService;
 import org.paxle.p2p.services.impl.AServiceClient;
 import org.paxle.p2p.services.search.ISearchClient;
 import org.paxle.se.index.IFieldManager;
+import org.paxle.se.query.ITokenFactory;
+import org.paxle.se.search.ISearchProvider;
 import org.paxle.se.search.ISearchResult;
 
-public class SearchClientImpl extends AServiceClient implements ISearchClient {
+public class SearchClientImpl extends AServiceClient implements ISearchClient, ISearchProvider {
 
 	/**
 	 * A map to hold the received results
@@ -260,7 +263,25 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient {
 		return null;
 	}
 
+	/**
+	 * @see IService#getServiceIdentifier()
+	 */
 	public String getServiceIdentifier() {
 		return SearchServiceConstants.SERVICE_MOD_SPEC_NAME;
+	}
+
+	/**
+	 * @see ISearchProvider#getTokenFactory()
+	 */
+	public ITokenFactory getTokenFactory() {
+		return new SearchServiceTokenFactor();
+	}
+
+	/**
+	 * @see ISearchProvider#search(String, List, int)
+	 */
+	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException, InterruptedException {
+		// TODO Auto-generated method stub
+		System.err.println("Needs to be implemented!");
 	}
 }
