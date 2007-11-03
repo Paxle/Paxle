@@ -23,6 +23,7 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<? extends Ser
 	public static final Field<File>                     TEXT          = new Field<File>                     (true,  false, "Text",         File.class);
 	public static final Field<String>                   TITLE         = new Field<String>                   (true,  true,  "Title",        String.class);
 	public static final Field<IIndexerDocument.Topic[]> TOPICS        = new Field<IIndexerDocument.Topic[]> (true,  true,  "Topics",       Topic[].class);
+	public static final Field<String>                   SNIPPET       = new Field<String>                   (true,  true,  "Snippet",      String.class);
 	
     public int getOID(); 
     public void setOID(int OID);	
