@@ -43,7 +43,9 @@ public class WorkerFactory implements IWorkerFactory<ParserWorker> {
 	 * @see IWorkerFactory#createWorker()
 	 */
 	public ParserWorker createWorker() throws Exception {
-		return new ParserWorker(this.subParserManager);
+	    ParserWorker parserWorker = new ParserWorker(this.subParserManager);
+	    parserWorker.setPriority(2);
+		return parserWorker;
 	}
 
 	/**

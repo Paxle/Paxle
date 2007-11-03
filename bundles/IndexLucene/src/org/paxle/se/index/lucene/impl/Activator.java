@@ -44,6 +44,7 @@ public class Activator implements BundleActivator {
 		
 		lmanager = new TimerLuceneManager(DB_PATH, 30000, 30000);
 		indexWriterThread = new LuceneWriter(lmanager);
+		indexWriterThread.setPriority(3);
 		indexSearcher = new LuceneSearcher(lmanager);
 		
 		context.registerService(IIndexWriter.class.getName(), indexWriterThread, new Hashtable<String,String>());
