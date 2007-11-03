@@ -39,6 +39,9 @@
 							#if($result.get($fieldManager.get("Summary")))
 								Summary: $result.get($fieldManager.get("Summary"))<br />
 							#end
+							#if($result.get($fieldManager.get("Snippet")))
+								Summary: $result.get($fieldManager.get("Snippet"))<br />
+							#end
 						</td>
 					</tr>
 					#end
