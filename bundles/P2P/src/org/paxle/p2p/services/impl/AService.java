@@ -104,6 +104,8 @@ public abstract class AService extends Thread implements IService {
 	 * Received messages are then passed to function {@link #process(Message)}.
 	 */
 	public void run() {
+		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+		
 		// init server side of service
 		this.init();
 		
@@ -144,7 +146,14 @@ public abstract class AService extends Thread implements IService {
 	};	
 	
 	protected Message createMessage() {
-		return new Message();
+		Message msg = new Message();
+		
+		/* TODO: add some data about the peer, e.g.
+		 * - version number
+		 * - peer ID?
+		 * - processing time?
+		 */
+		return msg;
 	}
 	
 	public long getReceivedMessageCount() {
