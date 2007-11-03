@@ -33,5 +33,5 @@ Import-Package: org.osgi.framework, net.jxta, net.jxta.access, net.jxt
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.p2p.shell
 Bundle-Version: 1.0.0
-DynamicImport-Package: javax.swing, javax.swing.text
+DynamicImport-Package: javax.swing, javax.swing.text, sun.reflect
 
