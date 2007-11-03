@@ -6,7 +6,7 @@
 <ul class="tabs">
 	<li><a href="#dpeerInfo" onclick="fshow('peerInfo');" id="tpeerInfo">Peer Info</a></li>
 	<li><a href="#dpeerList" onclick="fshow('peerList');" id="tpeerList">Peer List</a></li>
-	<li><a href="#dpeerServices" onclick="fshow('peerServices');" id="tpeerList">Peer Services</a></li>
+	<li><a href="#dpeerServices" onclick="fshow('peerServices');" id="tpeerServices">Peer Services</a></li>
 </ul>
 
 #set($p2pManager = $manager.getService("org.paxle.p2p.IP2PManager"))
