@@ -23,6 +23,7 @@ public class FieldManager extends ASimpleManager<String,Field<?>> implements IFi
 		add(IIndexerDocument.TEXT);
 		add(IIndexerDocument.TITLE);
 		add(IIndexerDocument.TOPICS);
+		add(IIndexerDocument.SNIPPET);
 	}
 	
 	void add(Field<?> field) {
