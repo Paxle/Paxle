@@ -44,13 +44,17 @@ public class SearchProviderListener implements ServiceListener {
 	
 	private void register(ServiceReference ref) {
 		final ISearchProvider provider = (ISearchProvider)this.context.getService(ref);
-		final int num = this.searchProviderManager.addProvider(provider);
-		this.referenceMap.put(ref, num);
+		Integer num = this.searchProviderManager.addProvider(provider);
+		if (num != null) {
+			this.referenceMap.put(ref, num);
+		}
 	}
 	
 	private void unregister(ServiceReference ref) {
-		final int num = this.referenceMap.get(ref);
-		this.searchProviderManager.removeProvider(num);
+		Integer num = this.referenceMap.get(ref);
+		if (num != null) {
+			this.searchProviderManager.removeProvider(num);
+		}
 	}
 
 	public void serviceChanged(ServiceEvent event) {

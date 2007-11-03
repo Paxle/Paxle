@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.se.query.ITokenFactory;
 import org.paxle.se.query.PaxleQueryParser;
 import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
@@ -33,12 +34,21 @@ public class SearchProviderManager implements ISearchProviderManager {
 		this.execService = Executors.newCachedThreadPool();
 	}
 	
-	int addProvider(ISearchProvider provider) {
+	Integer addProvider(ISearchProvider provider) {
 		final int ret = this.providers.size();
-		this.providers.add(provider);
-		this.logger.info("added search provider: " + provider.getClass().getName());
-		this.pqp.addTokenFactory(provider.getTokenFactory());
-		return ret;
+		
+		ITokenFactory tokenFactory = provider.getTokenFactory();
+		if (tokenFactory == null) {
+			this.logger.error(String.format("Search-provider '%s' does not provide a TokenFactory.",provider.getClass().getName()));
+			return null;
+		} else {
+			this.logger.info("added search provider: " + provider.getClass().getName());
+			this.providers.add(provider);
+			this.pqp.addTokenFactory(tokenFactory);
+			
+			// return provider number
+			return ret;
+		}
 	}
 	
 	void removeProvider(int number) {
