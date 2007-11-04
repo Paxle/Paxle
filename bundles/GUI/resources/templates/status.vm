@@ -87,6 +87,11 @@
 	<hr />
 	<h3>Deployed crawler output-queue filters:</h3>
 	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.crawler.out)"))
+</fieldset>
+#else
+<fieldset id="dcrawler">
+	<legend>Crawler:</legend>	
+	<font color="red">Crawler bundle not installed!</font>
 </fieldset>	
 #end
 
@@ -125,6 +130,11 @@
 	<h3>Deployed parser output-queue filters:</h3>
 	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.parser.out)"))	
 </fieldset>
+#else
+<fieldset id="dparser">
+	<legend>Parser:</legend>
+	<font color="red">Parser bundle not installed!</font>
+</fieldset>	
 #end	
 
 #set($se = $manager.getService("org.paxle.se.index.IIndexSearcher"))
@@ -141,6 +151,11 @@
 	<h3>Deployed indexer output-queue filters:</h3>
 	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.indexer.out)"))		
 </fieldset>
+#else
+<fieldset id="dindex">
+	<legend>Index</legend>
+	<font color="red">Indexer bundle not installed!</font>	
+</fieldset>	
 #end
 
 #set($sp = $manager.getService("org.paxle.se.search.ISearchProviderManager"))
@@ -156,4 +171,9 @@
 		#end
 	</ul>		
 </fieldset>
+#else
+<fieldset id="dsearch">
+	<legend>Search</legend>
+	<font color="red">Search-Engine bundle not installed!</font>	
+</fieldset>	
 #end
