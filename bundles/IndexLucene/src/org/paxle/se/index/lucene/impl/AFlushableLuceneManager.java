@@ -53,6 +53,25 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 		this(path, new IndexWriter(path, writeAnalyzer));
 	}
 	
+	/**
+	 * This function 
+	 * <ul>
+	 * 	<li>closes an old {@link IndexReader index-reader}</li>
+	 * 	<li>causes the {@link IndexWriter index-writer] to flush recently added data</li>
+	 * 	<li>creates a new {@link IndexReader index-reader}</li>
+	 * </ul>
+	 * 
+	 * Re-opening of the index-reader is required because the index-reader 
+	 * <i>"only searches the index as of the "point in time" that it was opened.
+	 * Any updates to the index, either added or deleted documents, will not 
+	 * be visible until the IndexReader is re-opened."</i><br />
+	 * See: 
+	 * <a href="http://wiki.apache.org/lucene-java/LuceneFAQ#head-6c56b0449d114826586940dcc6fe51582676a36e">
+	 * 	Lucene FAQ - Does Lucene allow searching and indexing simultaneously?
+	 * </a>
+	 * 
+	 * @throws IOException
+	 */
 	private void flush() throws IOException {
 		this.logger.debug("Flushing index writer and reopening index reader");
 		this.reader.close();
