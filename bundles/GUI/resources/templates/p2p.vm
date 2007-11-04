@@ -3,6 +3,33 @@
 ## Activate onload
 #set ( $bodyonload = "initTabs('peerInfo');" )
 
+## ---------------------------------------------------------------------------------------
+## Define some macros 
+#macro( serviceList $services)
+	<table>
+	<tr>
+		<th>Service ID</th>
+		<th>Received Messages</th>
+		<th>Received Bytes</th>
+		<th>Sent Messages</th>
+		<th>Sent Bytes</th>
+	</tr>
+	#if ($services)
+		#foreach($service in $services)
+		<tr>
+			<td>$service.getServiceIdentifier()</td>
+			<td>$service.getReceivedMessageCount()</td>
+			<td>$service.getRecievedBytesCount()</td>
+			<td>$service.getSentMessageCount()</td>
+			<td>$service.getSentBytesCount()</td>			
+		</tr>
+		#end
+	#end
+	</table>
+	
+#end
+## ---------------------------------------------------------------------------------------
+
 <ul class="tabs">
 	<li><a href="#dpeerInfo" onclick="fshow('peerInfo');" id="tpeerInfo">Peer Info</a></li>
 	<li><a href="#dpeerList" onclick="fshow('peerList');" id="tpeerList">Peer List</a></li>
@@ -31,27 +58,13 @@
 	</table>
 </fieldset>
 <fieldset id="dpeerServices">
-	<legend>P2P-Services - Server</legend>
-	#set($services = $manager.getServices(null,"(objectClass=org.paxle.p2p.services.IServiceServer)"))
-	<table>
-	<tr>
-		<th>Service ID</th>
-		<th>Received Messages</th>
-		<th>Received Bytes</th>
-		<th>Sent Messages</th>
-		<th>Sent Bytes</th>
-	</tr>
-	#if ($services)
-		#foreach($service in $services)
-		<tr>
-			<td>$service.getServiceIdentifier()</td>
-			<td>$service.getReceivedMessageCount()</td>
-			<td>$service.getRecievedBytesCount()</td>
-			<td>$service.getSentMessageCount()</td>
-			<td>$service.getSentBytesCount()</td>			
-		</tr>
-		#end
-	#end
-	</table>
+	<legend>P2P-Services</legend>
+	<h3>Servers:</h3>
+	#serviceList($manager.getServices(null,"(objectClass=org.paxle.p2p.services.IServiceServer)"))
+
+	<hr />
+	<h3>Clients:</h3>
+	#serviceList($manager.getServices(null,"(objectClass=org.paxle.p2p.services.IServiceClient)"))
+
 </fieldset>
 #end
