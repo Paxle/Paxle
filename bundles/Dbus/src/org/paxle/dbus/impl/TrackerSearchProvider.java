@@ -70,7 +70,7 @@ public class TrackerSearchProvider implements ISearchProvider {
 		return new TrackerTokenFactor();
 	}
 
-	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException, InterruptedException {	
+	public void search(String request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {	
 		try {
 			List<String> result = this.search.Text(searchID++, "Files", request, 0, maxCount);
 			if (result != null) {

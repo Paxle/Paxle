@@ -10,10 +10,20 @@ import org.paxle.se.search.ISearchProvider;
 
 public interface IIndexSearcher extends ISearchProvider, Closeable {
 	
-	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException, InterruptedException;
+	/**
+	 * @see ISearchProvider#search(String, List, int, long)
+	 */
+	public void search(String request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException;
+	
+	/**
+	 * @see ISearchProvider#getTokenFactory()
+	 */
 	public ITokenFactory getTokenFactory();
 	
 	public int getDocCount() throws IOException;
 	
+	/**
+	 * @see Closeable#close()
+	 */
 	public void close() throws IOException;
 }

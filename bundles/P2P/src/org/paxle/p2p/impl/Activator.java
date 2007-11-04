@@ -68,15 +68,20 @@ public class Activator implements BundleActivator {
 		 * ATTENTION: don't replace the string by ISearchProviderManager.class.getName(), otherwise the
 		 * 			  paxle search bundle is not optional. 
 		 */
-		ServiceReference searchProviderRef = bc.getServiceReference("org.paxle.se.search.ISearchProviderManager"); 
+		ServiceReference searchProviderRef = bc.getServiceReference("org.paxle.se.search.ISearchProviderManager");
+		SearchServerImpl searchServiceServer = null;
 		if (searchProviderRef != null) {			
-			SearchServerImpl searchServiceServer = new SearchServerImpl(p2pManager,(ISearchProviderManager)bc.getService(searchProviderRef));
+			searchServiceServer = new SearchServerImpl(p2pManager,(ISearchProviderManager)bc.getService(searchProviderRef));
 			bc.registerService(new String[]{IService.class.getName(), IServiceServer.class.getName()}, searchServiceServer, null);
 		}
 		ServiceReference fieldManagerRef = bc.getServiceReference("org.paxle.se.index.IFieldManager"); 
 		if (fieldManagerRef != null) {
 			// start a new search client
-			SearchClientImpl searchServiceClient = new SearchClientImpl(p2pManager,(IFieldManager)bc.getService(fieldManagerRef));
+			SearchClientImpl searchServiceClient = new SearchClientImpl(
+					p2pManager,
+					(IFieldManager)bc.getService(fieldManagerRef),
+					searchServiceServer
+			);
 			
 			// register remote search service
 			bc.registerService(new String[]{

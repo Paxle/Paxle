@@ -13,6 +13,12 @@ public final class Field<Type extends Serializable> implements Comparable<Field<
 	private final Class<Type> clazz;
 	private final String name;
 	
+	/**
+	 * @param index specifies that the value of the field is made <i>searchable</i>
+	 * @param savePlain specifies that the value of the field is <i>stored as-is</i> in the index
+	 * @param name the name of the field
+	 * @param clazz the field value type, which must be {@link Serializable serializable}
+	 */
 	public Field(final boolean index, final boolean savePlain, String name, Class<Type> clazz) {
 		if (!(clazz instanceof Serializable)) throw new IllegalArgumentException("Class must be serializable");
 		if (name.length() > 80) throw new IllegalArgumentException("The name is too long. A maximum of 80 chars is allowed.");

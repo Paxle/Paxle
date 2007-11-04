@@ -183,6 +183,9 @@ public abstract class AService extends Thread implements IService {
 	 */
 	protected abstract PipeAdvertisement createPipeAdvertisement();	
 	
+	public PipeAdvertisement getPipeAdvertisement() {
+		return this.servicePipeAdv;
+	}
 	
 	/**
 	 * Process a request message received via the {@link #serviceInputPipe input-pipe}

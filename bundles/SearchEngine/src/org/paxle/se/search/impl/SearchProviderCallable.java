@@ -19,6 +19,9 @@ public class SearchProviderCallable implements Callable<ISearchResult> {
 	private final ISearchRequest searchRequest;
 	
 	public SearchProviderCallable(ISearchProvider provider, ISearchRequest searchRequest) {
+		if (provider == null) throw new NullPointerException("Search provider was null.");
+		if (searchRequest == null) throw new NullPointerException("Search-request was null.");
+		
 		this.provider = provider;
 		this.searchRequest = searchRequest;
 		this.logger = LogFactory.getLog(getClass().getSimpleName() + "_" + provider.getClass().getSimpleName());
@@ -26,11 +29,25 @@ public class SearchProviderCallable implements Callable<ISearchResult> {
 	
 	public ISearchResult call() throws Exception {
 		final long start = System.currentTimeMillis();
+		String query = null;
 		try {
-			final String query = this.searchRequest.getSearchQuery().getString();
-			this.logger.info("starting search for '" + query + "' (" + this.searchRequest.getSearchQuery().toString() + ")");
-			this.provider.search(query, this.results, this.searchRequest.getMaxResultCount());
-		} catch (InterruptedException e) { /* just fall through */ }
+			query = this.searchRequest.getSearchQuery().getString();
+			this.logger.info("starting search for '" + query + "' (" + this.searchRequest.getSearchQuery().toString() + ")");			
+			this.provider.search(
+					query, 
+					this.results, 
+					this.searchRequest.getMaxResultCount(), 
+					this.searchRequest.getTimeout()
+			);
+		} catch (InterruptedException e) { 
+			/* just fall through */ 
+		} catch (Exception e) {
+			this.logger.error(String.format("Unexpected '%s' while performing a search for '%s' with provider '%s'.",
+					e.getClass().getName(),
+					query,
+					this.provider.getClass().getName()
+			),e);
+		}
 		return new SearchResult(this.results, System.currentTimeMillis() - start);
 	}
 }

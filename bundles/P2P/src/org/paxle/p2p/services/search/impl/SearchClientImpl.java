@@ -14,6 +14,7 @@ import net.jxta.document.AdvertisementFactory;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
+import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.pipe.OutputPipe;
 import net.jxta.pipe.PipeID;
@@ -33,7 +34,6 @@ import org.paxle.p2p.services.search.ISearchClient;
 import org.paxle.se.index.IFieldManager;
 import org.paxle.se.query.ITokenFactory;
 import org.paxle.se.search.ISearchProvider;
-import org.paxle.se.search.ISearchResult;
 
 public class SearchClientImpl extends AServiceClient implements ISearchClient, ISearchProvider {
 
@@ -44,12 +44,15 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 	
 	private IFieldManager fieldManager = null;
 	
+	private SearchServerImpl searchServiceServer = null;
+	
 	/**
 	 * {@inheritDoc}
 	 */
-	public SearchClientImpl(P2PManager p2pManager, IFieldManager fieldManager) {
+	public SearchClientImpl(P2PManager p2pManager, IFieldManager fieldManager, SearchServerImpl searchServiceServer) {
 		super(p2pManager);
 		this.fieldManager = fieldManager;
+		this.searchServiceServer = searchServiceServer;
 	}
 
 	/**
@@ -134,9 +137,13 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 					try {
 						// FIXME: does not work! getting the pipe adv of the other peer
 						otherPeerPipeAdv = ((ModuleSpecAdvertisement)adv).getPipeAdvertisement();
-						if (otherPeerPipeAdv.getID().toString().equals(this.serviceInputPipe.getPipeID().toString())) {
-							this.logger.debug("Found our own pipe. Continue ...");
-//							break;
+						if (this.searchServiceServer != null && this.searchServiceServer.getPipeAdvertisement() != null) {
+							ID otherPeerPipeID = otherPeerPipeAdv.getID();
+							ID ownPeerPipeID = this.searchServiceServer.getPipeAdvertisement().getPipeID();
+							if (otherPeerPipeID.equals(ownPeerPipeID)) {
+								this.logger.debug("Found our own peer. Skipping peer ...");
+								break;
+							}
 						}
 
 						// create an output pipe to send the request
@@ -161,7 +168,7 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected List<ISearchResult> extractResult(Message reqMessage) {
+	protected void extractResult(Message reqMessage, List<IIndexerDocument> results) {
 		List<Message> messageList = null;
 		synchronized (this.resultMap) {				
 			if (!this.resultMap.containsKey(reqMessage.getMessageNumber())) {
@@ -173,7 +180,6 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 			}
 		}	
 		
-		List<ISearchResult> resultList = new ArrayList<ISearchResult>();
 		for (Message msg : messageList) {
 			try {
 				MessageElement resultListElement = msg.getMessageElement(SearchServiceConstants.RESP_RESULT);			
@@ -185,7 +191,6 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 		        // iterate through child elements of root
 		        for (Iterator<Element> i = xmlRoot.elementIterator(SearchServiceConstants.RESULT_ENTRY); i.hasNext(); ) {
 		            Element resultElement = (Element) i.next();
-		            List<IIndexerDocument> indexerDocs = new ArrayList<IIndexerDocument>();
 		            
 			        for (Iterator<Element> j = resultElement.elementIterator(SearchServiceConstants.RESULT_ENTRY_ITEM); j.hasNext(); ) {
 			        	Element resultItemElement = (Element) j.next();			        	
@@ -202,25 +207,29 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 			    				indexerDoc.put(pfield, fieldValue);
 			    			}
 			        	}
+			        	
+			        	results.add(indexerDoc);
 			        }
-			        
-		            RemoteSearchResult searchResult = new RemoteSearchResult(indexerDocs,-1); 
-		            resultList.add(searchResult);
 		        }
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		
-		return resultList;
 	}
 
 	/**
-	 * FIXME: just a test version of the service
-	 * @param query
-	 * @return 
+	 * @see ISearchClient#remoteSearch(String, int, long)
 	 */
-	public List<ISearchResult> remoteSearch(String query, int maxResults, long timeout) {
+	public List<IIndexerDocument> remoteSearch(String query, int maxResults, long timeout) throws IOException, InterruptedException {
+		List<IIndexerDocument> results = new ArrayList<IIndexerDocument>();
+		this.search(query, results, maxResults, timeout);
+		return results;
+	}	
+
+	/**
+	 * @see ISearchProvider#search(String, List, int, long)
+	 */
+	public void search(String query, List<IIndexerDocument> results, int maxResults, long timeout) throws IOException, InterruptedException {
 		try {
 			/* ================================================================
 			 * SEND REQUEST
@@ -255,12 +264,10 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 			Thread.sleep(timeToWait);
 			
 			// Access result
-			return this.extractResult(reqMessage);
-			
+			this.extractResult(reqMessage, results);			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return null;
 	}
 
 	/**
@@ -275,13 +282,5 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 	 */
 	public ITokenFactory getTokenFactory() {
 		return new SearchServiceTokenFactor();
-	}
-
-	/**
-	 * @see ISearchProvider#search(String, List, int)
-	 */
-	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException, InterruptedException {
-		// TODO Auto-generated method stub
-		System.err.println("Needs to be implemented!");
 	}
 }

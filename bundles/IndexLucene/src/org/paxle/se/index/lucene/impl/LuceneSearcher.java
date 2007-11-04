@@ -27,7 +27,10 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 		this.manager = manager;
 	}
 	
-	public void search(String request, List<IIndexerDocument> results, int maxCount) throws IOException {
+	/**
+	 * TODO: how to handle the timeout properly?
+	 */
+	public void search(String request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException {
 		final QueryParser queryParser = new QueryParser(IIndexerDocument.TEXT.getName(), new StandardAnalyzer());
 		final Query query;
 		try {

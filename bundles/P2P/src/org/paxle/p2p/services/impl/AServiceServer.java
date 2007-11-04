@@ -17,7 +17,6 @@ import net.jxta.protocol.ModuleSpecAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
 import org.paxle.p2p.impl.P2PManager;
-import org.paxle.p2p.services.IService;
 import org.paxle.p2p.services.IServiceServer;
 import org.paxle.p2p.services.search.impl.SearchClientImpl;
 import org.paxle.p2p.services.search.impl.SearchServiceConstants;
