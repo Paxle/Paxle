@@ -2,8 +2,8 @@ package org.paxle.parser.impl;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.osgi.framework.ServiceReference;
@@ -72,7 +72,7 @@ public class SubParserManager implements ISubParserManager {
 	 * @see ISubParserManager#getSubParsers()
 	 */
 	public Collection<ISubParser> getSubParsers() {
-		return new HashSet<ISubParser>(this.subParserList.values());
+		return Collections.unmodifiableCollection(this.subParserList.values());
 	}
 	
 	/**
@@ -81,6 +81,6 @@ public class SubParserManager implements ISubParserManager {
 	public Collection<String> getMimeTypes() {
 		Set<String> keySet = this.subParserList.keySet();
 		String[] keyArray = keySet.toArray(new String[keySet.size()]);
-		return Arrays.asList(keyArray);
+		return Collections.unmodifiableCollection(Arrays.asList(keyArray));
 	}
 }

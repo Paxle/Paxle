@@ -1,6 +1,7 @@
 package org.paxle.crawler.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -72,6 +73,6 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 	 * @see ISubCrawlerManager#getSubCrawlers()
 	 */
 	public Collection<ISubCrawler> getSubCrawlers() {
-		return new HashSet<ISubCrawler>(subCrawlerList.values());
+		return Collections.unmodifiableCollection(subCrawlerList.values());
 	}
 }

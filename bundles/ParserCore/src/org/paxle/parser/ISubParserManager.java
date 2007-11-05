@@ -7,13 +7,12 @@ public interface ISubParserManager {
 	public ISubParser getSubParser(String mimeType);
 	
 	/**
-	 * @return a collection of all currently registered sub-parsers
+	 * @return an unmodifiable collection of all currently registered {@link ISubParser sub-parsers}
 	 */
 	public Collection<ISubParser> getSubParsers();
 	
 	/**
-	 * @return a collection of mime-types supported by the registered
-	 * 		   sub-parsers.
+	 * @return an unmodifiable collection of all mime-types supported by the registered {@link ISubParser sub-parsers}
 	 */
 	public Collection<String> getMimeTypes();
 }
