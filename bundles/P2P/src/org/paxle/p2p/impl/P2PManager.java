@@ -290,10 +290,6 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 				 */
 				this.configurator.setUseMulticast(false);
 
-				// setting the rdvz/relay-peers for bootstrapping
-				this.configurator.addRdvSeedingURI(seedingURI);
-				this.configurator.addRelaySeedingURI(seedingURI);
-
 //				this.configurator.setMode(NetworkConfigurator.EDGE_NODE);
 
 				// only use peers specified in the SeedingURI as relay/rendezvous peer (don't change this!)
@@ -308,6 +304,11 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 
 				System.out.println("Platform configured and saved");
 			}
+			
+			// setting the rdvz/relay-peers for bootstrapping
+			this.configurator.addRdvSeedingURI(seedingURI);
+			this.configurator.addRelaySeedingURI(seedingURI);
+			
 		} catch(Throwable e) {
 			e.printStackTrace();
 			System.exit(1);
