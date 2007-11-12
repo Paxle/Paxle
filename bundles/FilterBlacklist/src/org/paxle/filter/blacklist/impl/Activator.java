@@ -26,7 +26,7 @@ public class Activator implements BundleActivator {
         new File(list, "default.list");
         
         Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
-        filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in"});
+        filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in", "org.paxle.parser.out"});
         bc.registerService(IFilter.class.getName(), new BlacklistFilter(list), filterProps);
         
         ServiceReference sr = bc.getServiceReference(HttpService.class.getName());

@@ -9,7 +9,11 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
+		<attributes>
+			<attribute name="org.paxle.core.doc" value="0.0.0"/>
+		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/queue/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/filter/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
@@ -32,27 +36,26 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/HttpTools">
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/HttpTools;version=0.0.0">
 		<attributes>
 			<attribute name="org.apache.velocity.tools.view.servlet" value="0.0.0"/>
 		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/apache/velocity/tools/view/servlet/"/>
-			<accessrule kind="accessible" pattern="org/apache/velocity/app/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="lib" path="/HttpTools/libs/commons-httpclient-3.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/commons-io-1.3.2.jar"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.jsdk-LIB">
 		<attributes>
 			<attribute name="bundle-name" value="JSDK-LIB"/>
-			<attribute name="javax.servlet" value="0.0.0"/>
+			<attribute name="javax.servlet.http" value="0.0.0"/>
 		</attributes>
 		<accessrules>
-			<accessrule kind="accessible" pattern="javax/servlet/"/>
+			<accessrule kind="accessible" pattern="javax/servlet/http/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="libs/commons-io-1.3.2.jar"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>
