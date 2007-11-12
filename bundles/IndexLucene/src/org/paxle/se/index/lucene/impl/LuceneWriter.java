@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.Term;
 
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataSource;
@@ -120,6 +121,15 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 		}
 	}
 	
+    public void delete(Term term) throws IOException, IndexException {
+        //this.logger.debug("Adding document to index: " + document.get(IIndexerDocument.LOCATION));
+        try {
+            this.manager.delete(term);
+        } catch (CorruptIndexException e) {
+//            throw new IndexException("error deleting lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
+        }
+    }
+    
 	public void close() throws IOException {
 		this.interrupt();
 		try { this.join(); } catch (InterruptedException e) { /* ignore this */ }

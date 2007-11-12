@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
-Export-Package: org.paxle.se.index.lucene
+Export-Package: org.paxle.se.index.lucene, org.paxle.se.index.lucene.i
+ mpl
 Bundle-ClassPath: .
 Bundle-Version: 1.0.0
 Bundle-Name: Lucene

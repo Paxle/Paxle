@@ -144,14 +144,22 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 		}
 	}
 	
-	public void write(Document document) throws IOException, CorruptIndexException {
-		this.wlock.lock();
-		try {
-			this.writer.addDocument(document);
-			this.dirty = true;
-		} finally { this.wlock.unlock(); }
-	}
-	
+    public void write(Document document) throws IOException, CorruptIndexException {
+        this.wlock.lock();
+        try {
+            this.writer.addDocument(document);
+            this.dirty = true;
+        } finally { this.wlock.unlock(); }
+    }
+    
+    public void delete(Term term) throws IOException, CorruptIndexException {
+//        this.wlock.lock();
+//        try {
+            this.writer.deleteDocuments(term);
+            this.dirty = true;
+//        } finally { this.wlock.unlock(); }
+    }
+    
 	/* ================================================================================
 	 * Iterators
 	 * ================================================================================ */
