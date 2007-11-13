@@ -121,9 +121,10 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 		}
 	}
 	
-    public void delete(Term term) throws IOException, IndexException {
+    public void delete(String location) throws IOException, IndexException {
         //this.logger.debug("Adding document to index: " + document.get(IIndexerDocument.LOCATION));
         try {
+            Term term = new Term(IIndexerDocument.LOCATION.getName(),location);
             this.manager.delete(term);
         } catch (CorruptIndexException e) {
 //            throw new IndexException("error deleting lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
