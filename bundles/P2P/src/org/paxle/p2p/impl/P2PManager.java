@@ -191,7 +191,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 
 			// listen for app group rendezvous events
 			appPeerGroup.getRendezVousService().addListener(this);
-
+			
 			// join the group
 			if (appPeerGroup != null) {
 				AuthenticationCredential cred = new AuthenticationCredential(appPeerGroup, null, null);
@@ -216,9 +216,30 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 
 	public void publishPeerAdv() {
 		try {
-			appPeerGroup.getDiscoveryService().publish(appPeerGroup.getPeerAdvertisement());
-			appPeerGroup.getDiscoveryService().remotePublish(appPeerGroup.getPeerAdvertisement());
-		} catch (IOException e) {
+//			boolean found = false;
+//			do {
+				DiscoveryService ds = appPeerGroup.getDiscoveryService();
+				
+				// TODO: publish until our advertisement can be found remotely
+				ds.publish(appPeerGroup.getPeerAdvertisement());
+				ds.remotePublish(appPeerGroup.getPeerAdvertisement());
+
+//				// FIXME: seems not to work properly
+//				System.out.println("Search for own peer.");
+//				
+//				ds.getRemoteAdvertisements(null, DiscoveryService.PEER, "PID", this.getPeerID(), 2000, new DiscoveryListener() {
+//
+//					public void discoveryEvent(DiscoveryEvent event) {
+//						// TODO Auto-generated method stub
+//						System.out.println("FOUND");
+//					}
+//					
+//				});
+//				
+//				Thread.sleep(2000);
+//				
+//			} while (!found);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -263,7 +284,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	 */
 	private void configureJXTA() {
 		this.configurator = new NetworkConfigurator();
-		this.configurator.setHome(new File(jxtaHome));
+		this.configurator.setHome(new File(this.jxtaHome));
 
 		try {
 			if (this.configurator.exists()) {
@@ -298,16 +319,18 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 
 				// edge peers do not need incoming requests
 				this.configurator.setTcpIncoming(false);
-
-				// save configuration to file
-				this.configurator.save();
-
-				System.out.println("Platform configured and saved");
 			}
 			
 			// setting the rdvz/relay-peers for bootstrapping
+			this.configurator.clearRendezvousSeedURIs();
 			this.configurator.addRdvSeedingURI(seedingURI);
+			this.configurator.clearRelaySeedingURIs();
 			this.configurator.addRelaySeedingURI(seedingURI);
+			
+
+			// save configuration to file
+			this.configurator.save();
+			System.out.println("Platform configured and saved");			
 			
 		} catch(Throwable e) {
 			e.printStackTrace();
@@ -364,7 +387,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 		}
 		System.out.println(new Date().toString() + "  Rdv: event=" + eventDescription + " from peer = " + event.getPeer());
 
-		if(connected) {
+		if(connected && this.appPGRdvService.isConnectedToRendezVous()) {
 //			if (rdvLock.availablePermits() <= 0) {
 			rdvLock.release();
 //			}
