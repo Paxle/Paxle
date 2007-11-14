@@ -98,6 +98,8 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 
 	private URI seedingURI = null;
 
+	private boolean published = false;
+	
 	public P2PManager(File home, URI seedURI) throws IOException {
 		if (home == null) throw new NullPointerException("The config directory is null.");
 
@@ -216,29 +218,28 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 
 	public void publishPeerAdv() {
 		try {
-//			boolean found = false;
-//			do {
+			do {
 				DiscoveryService ds = appPeerGroup.getDiscoveryService();
 				
 				// TODO: publish until our advertisement can be found remotely
 				ds.publish(appPeerGroup.getPeerAdvertisement());
 				ds.remotePublish(appPeerGroup.getPeerAdvertisement());
 
-//				// FIXME: seems not to work properly
-//				System.out.println("Search for own peer.");
-//				
-//				ds.getRemoteAdvertisements(null, DiscoveryService.PEER, "PID", this.getPeerID(), 2000, new DiscoveryListener() {
-//
-//					public void discoveryEvent(DiscoveryEvent event) {
-//						// TODO Auto-generated method stub
-//						System.out.println("FOUND");
-//					}
-//					
-//				});
-//				
-//				Thread.sleep(2000);
-//				
-//			} while (!found);
+				System.out.println("Search for own peer.");
+				
+				ds.getRemoteAdvertisements(null, DiscoveryService.PEER, "PID", this.appPeerGroup.getPeerID().toString(), 2000, new DiscoveryListener() {
+
+					public void discoveryEvent(DiscoveryEvent event) {
+						// TODO Auto-generated method stub
+						System.out.println("Own peer found.");
+						published = true;
+					}
+					
+				});
+				
+				Thread.sleep(2000);
+				
+			} while (!this.published);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
