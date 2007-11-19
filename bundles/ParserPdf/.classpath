@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn/**|**/CVS/**" including="**/*.java" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.EXECUTION_ENVIRONMENT_CONTAINER"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/osgi/framework/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/FontBox-0.1.0-dev.jar"/>
+	<classpathentry kind="lib" path="libs/PDFBox-0.7.3.jar" sourcepath="/home/theli/workspace/Libs/PDFBox-0.7.3.zip"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
+		<attributes>
+			<attribute name="bundle-name" value="Commons-Logging"/>
+			<attribute name="org.apache.commons.logging" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.parser">
+		<attributes>
+			<attribute name="bundle-name" value="ParserCore"/>
+			<attribute name="org.paxle.parser" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/parser/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
+		<attributes>
+			<attribute name="bundle-name" value="Core"/>
+			<attribute name="org.paxle.core.doc" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="output" path="out"/>
+</classpath>
