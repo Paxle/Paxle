@@ -6,4 +6,5 @@ Import-Package: org.osgi.framework, org.apache.commons.logging, org.pa
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.filter.phpbb
 Bundle-Version: 1.0.0
+DynamicImport-Package: sun.reflect
 

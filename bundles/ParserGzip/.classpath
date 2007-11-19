@@ -11,7 +11,7 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core;version=0.0.0">
 		<attributes>
 			<attribute name="bundle-name" value="Core"/>
 			<attribute name="org.paxle.core.doc" value="0.0.0"/>

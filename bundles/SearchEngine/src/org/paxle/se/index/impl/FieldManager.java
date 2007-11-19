@@ -1,29 +1,32 @@
 package org.paxle.se.index.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.service.ASimpleManager;
 import org.paxle.se.index.IFieldManager;
 
 public class FieldManager extends ASimpleManager<String,Field<?>> implements IFieldManager {
+	private Log logger = LogFactory.getLog(this.getClass());
 	
-	public FieldManager() {
-		add(IIndexerDocument.AUTHOR);
-		add(IIndexerDocument.INTERNAL_NAME);
-		add(IIndexerDocument.KEYWORDS);
-		add(IIndexerDocument.LANGUAGES);
-		add(IIndexerDocument.LAST_CRAWLED);
-		add(IIndexerDocument.LAST_MODIFIED);
-		add(IIndexerDocument.LOCATION);
-		add(IIndexerDocument.MD5);
-		add(IIndexerDocument.MIME_TYPE);
-		add(IIndexerDocument.PROTOCOL);
-		add(IIndexerDocument.SIZE);
-		add(IIndexerDocument.SUMMARY);
-		add(IIndexerDocument.TEXT);
-		add(IIndexerDocument.TITLE);
-		add(IIndexerDocument.TOPICS);
-		add(IIndexerDocument.SNIPPET);
+	public FieldManager() {		
+		// detect all default indexer-document fields
+		java.lang.reflect.Field[] fields = IIndexerDocument.class.getFields();
+		if (fields != null) {
+			for (java.lang.reflect.Field field : fields) {
+				Object obj = null;
+				try {
+					obj = field.get(null);
+					if (obj instanceof Field) {
+						this.logger.debug(String.format("New field detected: %s.",((Field)obj).toString()));
+						this.add((Field)obj);
+					}
+				} catch (Exception e) {
+					this.logger.error("Unexpected error while determining default fields",e);
+				}
+			}
+		}
 	}
 	
 	void add(Field<?> field) {

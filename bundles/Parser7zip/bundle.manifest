@@ -11,4 +11,5 @@ Import-Package: org.osgi.framework, org.paxle.parser, org.paxle.core.d
  oc, org.paxle.parser.iotools, org.paxle.core.io.temp, org.paxle.core.
  charset
 Bundle-SymbolicName: org.paxle.parser.sevenzip
+DynamicImport-Package: sun.reflect
 

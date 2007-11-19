@@ -19,7 +19,7 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="/HttpTools/libs/velocity-dep-1.5.jar" sourcepath="G:/paxle/velocity-1.5.zip">
+	<classpathentry kind="lib" path="/HttpTools/libs/velocity-dep-1.5.jar" sourcepath="/home/theli/workspace/Libs/velocity-1.5.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/G:/paxle/velocity-1.5.zip!/velocity-1.5/docs/api"/>
 		</attributes>
@@ -36,11 +36,13 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/HttpTools;version=0.0.0">
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/HttpTools">
 		<attributes>
 			<attribute name="org.apache.velocity.tools.view.servlet" value="0.0.0"/>
+			<attribute name="org.apache.velocity.app" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/apache/velocity/app/"/>
 			<accessrule kind="accessible" pattern="org/apache/velocity/tools/view/servlet/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
@@ -51,9 +53,21 @@
 		<attributes>
 			<attribute name="bundle-name" value="JSDK-LIB"/>
 			<attribute name="javax.servlet.http" value="0.0.0"/>
+			<attribute name="javax.servlet" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="javax/servlet/"/>
 			<accessrule kind="accessible" pattern="javax/servlet/http/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.gui">
+		<attributes>
+			<attribute name="bundle-name" value="GUI"/>
+			<attribute name="org.paxle.gui" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/gui/"/>
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>

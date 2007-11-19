@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 
 
 public final class Field<Type extends Serializable> implements Comparable<Field<?>>, Serializable {
+	private static final long serialVersionUID = 1L;
+
 	private static Pattern pattern = Pattern.compile("(\\w+)\\s\\(([^)]+)\\)(?:\\s(indexed))?(?:\\s(savedPlain))?");
 	
 	private final boolean index;

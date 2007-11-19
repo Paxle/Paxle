@@ -10,4 +10,5 @@ Bundle-Description: Paxle HTML Parser Bundle
 Bundle-SymbolicName: org.paxle.parser.html
 Import-Package: org.paxle.parser, org.osgi.framework, org.paxle.core.d
  oc, org.apache.commons.logging
+DynamicImport-Package: sun.reflect
 

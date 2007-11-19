@@ -15,10 +15,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
-		<attributes>
-			<attribute name="org.paxle.core.doc" value="0.0.0"/>
-			<attribute name="org.paxle.core" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/paxle/core/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
@@ -28,7 +24,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/HttpTools"/>
-	<classpathentry kind="lib" path="/HttpTools/libs/commons-digester-1.8.jar"/>
 	<classpathentry kind="lib" path="/HttpTools/libs/velocity-dep-1.5.jar" sourcepath="G:/paxle/velocity-1.5.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/G:/paxle/velocity-1.5.zip!/velocity-1.5/docs/api"/>
@@ -40,11 +35,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.jsdk-LIB">
-		<attributes>
-			<attribute name="bundle-name" value="JSDK-LIB"/>
-			<attribute name="javax.servlet.http" value="0.0.0"/>
-			<attribute name="javax.servlet" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="javax/servlet/"/>
 			<accessrule kind="accessible" pattern="javax/servlet/http/"/>
@@ -52,11 +42,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/P2P">
-		<attributes>
-			<attribute name="bundle-name" value="P2P"/>
-			<attribute name="org.paxle.p2p" value="0.0.0"/>
-			<attribute name="org.paxle.p2p.services" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/paxle/p2p/services/"/>
 			<accessrule kind="accessible" pattern="org/paxle/p2p/"/>
@@ -64,11 +49,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
-		<attributes>
-			<attribute name="bundle-name" value="Commons-Logging"/>
-			<attribute name="org.osgi.service.log" value="0.0.0"/>
-			<attribute name="org.apache.commons.logging" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
 			<accessrule kind="accessible" pattern="org/osgi/service/log/"/>
@@ -76,11 +56,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.se">
-		<attributes>
-			<attribute name="bundle-name" value="SearchEngine"/>
-			<attribute name="org.paxle.se.search" value="0.0.0"/>
-			<attribute name="org.paxle.se.query" value="0.0.0"/>
-		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/paxle/se/query/"/>
 			<accessrule kind="accessible" pattern="org/paxle/se/search/"/>

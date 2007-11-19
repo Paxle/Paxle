@@ -24,8 +24,10 @@
 			<attribute name="org.paxle.core.filter" value="0.0.0"/>
 			<attribute name="org.paxle.core.io.temp" value="0.0.0"/>
 			<attribute name="org.paxle.core.io" value="0.0.0"/>
+			<attribute name="org.paxle.core.prefs" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/prefs/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/io/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/io/temp/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/filter/"/>

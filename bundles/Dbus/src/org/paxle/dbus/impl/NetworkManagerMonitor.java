@@ -15,11 +15,12 @@ import org.freedesktop.dbus.DBusSignal;
 import org.freedesktop.dbus.Path;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.paxle.core.IMWComponent;
+import org.paxle.dbus.IDbusService;
 
 /**
  * A class to receive signals from the {@link NetworkManager}
  */
-public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal> {
+public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbusService {
 	
 	private Log logger = LogFactory.getLog(this.getClass());
 	
@@ -56,6 +57,13 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal> {
 		if (deviceList != null) {
 			this.devices.addAll(deviceList);
 		}
+	}
+	
+	/**
+	 * @see IDbusService#disconnect()
+	 */
+	public void disconnect() {
+		this.conn.disconnect();
 	}
 	
 	public void registerSignalListener(IMWComponent crawler) {

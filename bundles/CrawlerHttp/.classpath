@@ -24,7 +24,7 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="lib" path="/HttpTools/libs/commons-codec-1.3.jar"/>
-	<classpathentry kind="lib" path="/HttpTools/libs/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="lib" path="/HttpTools/libs/commons-httpclient-3.0.1.jar" sourcepath="/home/theli/workspace/Libs/commons-httpclient-3.0.1-src.zip"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/HttpTools"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
 		<attributes>

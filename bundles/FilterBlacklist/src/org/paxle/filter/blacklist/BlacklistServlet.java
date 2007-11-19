@@ -1,9 +1,32 @@
 package org.paxle.filter.blacklist;
 
-import org.apache.velocity.tools.view.servlet.VelocityViewServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-public class BlacklistServlet extends VelocityViewServlet{
+import org.apache.velocity.Template;
+import org.apache.velocity.context.Context;
+import org.paxle.gui.ALayoutServlet;
 
-    private static final long serialVersionUID = 1L;
+public class BlacklistServlet extends ALayoutServlet {
 
+	private static final long serialVersionUID = 1L;
+
+	public BlacklistServlet(String bundleLocation) {
+		super(bundleLocation);
+	}
+
+    public Template handleRequest( HttpServletRequest request,
+                                   HttpServletResponse response,
+                                   Context context ) {
+
+        Template template = null;
+        try {        	
+        	template = this.getTemplate("/resources/templates/Blacklist.vm");
+        } catch( Exception e ) {
+        	e.printStackTrace();
+        } catch (Error e) {
+        	e.printStackTrace();
+        }
+        return template;
+    }
 }

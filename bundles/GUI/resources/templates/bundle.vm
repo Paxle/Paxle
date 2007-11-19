@@ -89,7 +89,7 @@
 	#set($services = $bundle.getServicesInUse())
 	<tr>
 		<th>Bundle ID</th>
-		<th>Servicd ID</th>
+		<th>Service ID</th>
 		<th>Object Classes</th>
 		<th>Properties</th>
 	</tr>	
@@ -121,10 +121,10 @@
 		#foreach($entry in $bundles.entrySet())
 			<li>
 				<form>
-						<input type="hidden" name="bundleID" value="$entry.key" />
-						<input type="submit" name="start" value="Start" />
-						<input type="submit" name="stop" value="Stop" />
-						<input type="submit" name="update" value="Update" />
+					<input type="hidden" name="bundleID" value="$entry.key" />
+					<input type="submit" name="start" value="Start" />
+					<input type="submit" name="stop" value="Stop" />
+					<input type="submit" name="update" value="Update" />
 				
 				<a class="$states.get($entry.value.state)" href="?bundleID=$entry.key&details=">
 				$entry.key - $entry.value.symbolicName</a>

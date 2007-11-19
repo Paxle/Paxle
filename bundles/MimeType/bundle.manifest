@@ -11,4 +11,5 @@ Bundle-ManifestVersion: 2
 Import-Package: org.osgi.framework, org.paxle.core.mimetype, org.apach
  e.commons.logging
 Bundle-SymbolicName: org.paxle.mimetype
+DynamicImport-Package: sun.reflect
 

@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-Name: P2P
 Bundle-ClassPath: ., libs/bcprov-jdk14.jar, libs/javax.servlet.jar, li
- bs/jxta.jar, libs/org.mortbay.jetty.jar, libs/dom4j-1.6.1.jar, libs/x
- erces.jar, libs/xml-apis.jar, libs/xmlParserAPIs.jar
+ bs/jxta.jar, libs/org.mortbay.jetty.jar, libs/dom4j-1.6.1.jar, libs/M
+ eteor.jar, libs/xerces.jar, libs/xml-apis.jar, libs/xmlParserAPIs.jar
 Bundle-Activator: org.paxle.p2p.impl.Activator
 Import-Package: org.osgi.framework, javax.servlet.http, org.apache.vel
  ocity, org.apache.velocity.app, org.apache.velocity.tools.view.servle
@@ -12,8 +12,8 @@ Import-Package: org.osgi.framework, javax.servlet.http, org.apache.vel
  l, org.paxle.core.doc, org.paxle.se.index;resolution:=optional, org.p
  axle.se.query;resolution:=optional, org.paxle.se.query.tokens;resolut
  ion:=optional
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ManifestVersion: 2
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-SymbolicName: P2P
 Export-Package: org.paxle.p2p, net.jxta, net.jxta.access, net.jxta.cod
  at, net.jxta.credential, net.jxta.discovery, net.jxta.document, net.j

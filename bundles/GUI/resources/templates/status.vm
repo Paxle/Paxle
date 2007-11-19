@@ -7,13 +7,16 @@
 ## Define some macros 
 #macro( filterlist $queues)
 	#if($queues)
+	   #set($color = $alternatorTool.auto('r1','r2'))
 	   #foreach($queue in $queues)
+   	   <table>
 		$queue.getFilters().size() filter(s) found:<br />
-		<ul>
-			#foreach($filter in $queue.getFilters())
-				<li><tt>$filter.getFilter().getClass().getName()</tt></li>
-			#end
-		</ul>
+		#foreach($filter in $queue.getFilters())
+		<tr class="$color">
+		   <td><tt>$filter.getFilter().getClass().getName()</tt></td>
+		</tr>
+		#end
+	   </table>		
 	   #end
 	#end
 #end
@@ -25,6 +28,7 @@
 	<li><a href="#dparser" onclick="fshow('parser');" id="tparser">Parser</a></li>
 	<li><a href="#dindex" onclick="fshow('index');" id="tindex">Index</a></li>
 	<li><a href="#dsearch" onclick="fshow('search');" id="tsearch">Search</a></li>
+	<li><a href="#dgui" onclick="fshow('gui');" id="tgui">GUI</a></li
 </ul>
 
 ## the regular content
@@ -36,6 +40,9 @@
 </fieldset>
 </form>
 
+## ==================================================================================
+## CRAWLER STATUS
+## ==================================================================================
 #set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
 #if($subCrawlerManager)
 <fieldset id="dcrawler">
@@ -73,12 +80,40 @@
 	<hr />		
 	<h3>Supported protocols:</h3>
 	$subCrawlerManager.getSubCrawlers().size() crawler(s) found, supporting following Protocols:<br />
-	<ul>
-		
+	
+	## Enable/Disable protocols if requested
+	#if($paramParser.getString("doEnableProtocol")) $subCrawlerManager.enableProtocol($paramParser.getString("enableProtocol"))#end
+	#if($paramParser.getString("doDisableProtocol")) $subCrawlerManager.disableProtocol($paramParser.getString("disableProtocol"))#end
+	
+	#set($color = $alternatorTool.auto('r1','r2'))
+	<table>
+		<tr><th>Protocol</th><th colspan="2">Status</th></tr>
+		#set($disabledProtocols = $subCrawlerManager.disabledProtocols())
 		#foreach($subCrawler in $subCrawlerManager.getSubCrawlers())
-				<li><tt>$subCrawler.getProtocol()</tt></li>
+			#foreach($protocol in $subCrawler.getProtocols())
+			<tr class="$color">
+				<td><tt>$protocol</tt></td>
+				<td>#if($disabledProtocols.contains($protocol))
+					<font color="red">disabled</font>
+				    #else
+				    	<font color="green">enabled</font>
+				    #end
+				</td>
+				<td>
+				   <form method="get">
+				   	#if($disabledProtocols.contains($protocol))
+					   <input type="submit" name="doEnableProtocol" value="enable" />
+					   <input type="hidden" name="enableProtocol" value="$protocol" />
+					#else
+					   <input type="submit" name="doDisableProtocol" value="disable" />
+					   <input type="hidden" name="disableProtocol" value="$protocol" />
+					#end
+				   </form>
+				</td>
+			</tr>			
+			#end
 		#end
-	</ul>
+	</table>
 	
 	<hr />
 	<h3>Deployed crawler input-queue filters:</h3>
@@ -94,6 +129,10 @@
 	<font color="red">Crawler bundle not installed!</font>
 </fieldset>	
 #end
+
+## ==================================================================================
+## PARSER STATUS
+## ==================================================================================
 
 #set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
 #if($subParserManager)
@@ -116,11 +155,37 @@
 	#set($mimeTypes = $subParserManager.getMimeTypes())
 	#set($parsers = $subParserManager.getSubParsers())		
 	<b>$parsers.size()</b> parser(s) installed supporting <b>$mimeTypes.size()</b> mime-types.
-	<ul>
+	
+	## Enable/Disable mime-types if requested
+	#if($paramParser.getString("doEnableMimeType")) $subParserManager.enableMimeType($paramParser.getString("enableMimeType"))#end
+	#if($paramParser.getString("doDisableMimeType")) $subParserManager.disableMimeType($paramParser.getString("disableMimeType"))#end	
+	
+	#set($color = $alternatorTool.auto('r1','r2'))
+	<table>
+		<tr><th>Mime-Type</th><th colspan="2">Status</th></tr>
+		#set($disabledMimeTypes = $subParserManager.disabledMimeTypes())
 		#foreach($mimeType in $mimeTypes)
-		<li><tt>$mimeType</tt></li>
+		<tr class="$color">
+			<td><tt>$mimeType</tt></li>
+			<td>#if($disabledMimeTypes.contains($mimeType))
+				<font color="red">disabled</font>
+			    #else
+				<font color="green">enabled</font>
+			    #end
+			</td>
+			<td>
+			   <form method="get">
+			   #if($disabledMimeTypes.contains($mimeType))
+			      <input type="submit" name="doEnableMimeType" value="enable" />
+			      <input type="hidden" name="enableMimeType" value="$mimeType" />
+			   #else
+			      <input type="submit" name="doDisableMimeType" value="disable" />
+			      <input type="hidden" name="disableMimeType" value="$mimeType" />
+			   #end
+			   </form>
+			</td>
 		#end
-	</ul>
+	</table>		
 	
 	<hr />
 	<h3>Deployed parser input-queue filters:</h3>
@@ -136,6 +201,10 @@
 	<font color="red">Parser bundle not installed!</font>
 </fieldset>	
 #end	
+
+## ==================================================================================
+## INDEXER STATUS
+## ==================================================================================
 
 #set($se = $manager.getService("org.paxle.se.index.IIndexSearcher"))
 #if($se)
@@ -158,6 +227,10 @@
 </fieldset>	
 #end
 
+## ==================================================================================
+## SEARCH ENGINE STATUS
+## ==================================================================================
+
 #set($sp = $manager.getService("org.paxle.se.search.ISearchProviderManager"))
 #if($sp)
 <fieldset id="dsearch">
@@ -177,3 +250,44 @@
 	<font color="red">Search-Engine bundle not installed!</font>	
 </fieldset>	
 #end
+
+
+## ==================================================================================
+## GUI STATUS
+## ==================================================================================
+#set($servletManager = $manager.getService("org.paxle.gui.IServletManager"))
+#if($servletManager)
+<fieldset id="dgui">
+	<legend>GUI</legend>
+		
+	<h3>Installed Servlets:</h3>
+	$servletManager.getServlets().size() servlet(s) found:<p />
+	
+	#set($color = $alternatorTool.auto('r1','r2'))
+	<table>		
+		<tr><th>Path</th><th>Class</th></tr>
+		#foreach($servlet in $sortTool.sort($servletManager.getServlets().entrySet(),["key"]))
+		<tr class="$color">
+			<td><a href="$servlet.getKey()">$servlet.getKey()</a></td>
+			<td><tt>$servlet.getValue().getClass().getName()</tt></td>
+		</tr>
+		#end
+	</table>		
+	<hr />
+	
+	<h3>Registered Resources:</h3>
+	$servletManager.getResources().size() resource(s) found:<p />
+	
+	#set($color = $alternatorTool.auto('r1','r2'))
+	<table>		
+		<tr><th>Path</th><th>Class</th></tr>
+		#foreach($resources in $sortTool.sort($servletManager.getResources().entrySet(),["key"]))
+		<tr class="$color">
+			<td><a href="$resources.getKey()">$resources.getKey()</a></td>
+			<td><tt>$resources.getValue()</tt></td>
+		</tr>
+		#end
+	</table>	
+</fieldset>
+#end
+

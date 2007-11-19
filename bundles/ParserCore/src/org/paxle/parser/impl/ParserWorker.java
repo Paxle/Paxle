@@ -5,12 +5,14 @@ import org.apache.commons.logging.LogFactory;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
+import org.paxle.parser.ParserException;
 
 public class ParserWorker extends AWorker<ICommand> {
 
@@ -54,55 +56,156 @@ public class ParserWorker extends AWorker<ICommand> {
 	}
 	
 	@Override
-	protected void execute(ICommand cmd) {
-		if (cmd.getResult() != ICommand.Result.Passed) {
-			this.logger.warn("Won't parse document " + cmd.getLocation() + " with result '" + cmd.getResult() + "' (" + cmd.getResultText() + ")");
-			return;
-		} else if (cmd.getCrawlerDocument().getStatus() != ICrawlerDocument.Status.OK) {
-			this.logger.warn("Won't parse crawler document " + cmd.getLocation() + " with status '" + cmd.getCrawlerDocument().getStatus() + "' (" + cmd.getCrawlerDocument().getStatusText() + ")");
-			return;
-		}
-		
-		// init the parser context
-		this.initParserContext();
-		
-		// get a proper parser
-		String mimeType = cmd.getCrawlerDocument().getMimeType();
-		if (mimeType == null) {
-			// document not parsable
-			this.logger.error("Unable to parse " + cmd.getLocation() + ", no mimetype was specified");
-			cmd.setResult(ICommand.Result.Failure, "No mimetype was specified");
-			return;			
-		}
-		
-		ISubParser parser = this.subParserManager.getSubParser(mimeType);
-		if (parser == null) {
-			// document not parsable
-			this.logger.error("Unable to parse " + cmd.getLocation() + ", no parser found for it's MIME type '" + mimeType + "'");
-			cmd.setResult(ICommand.Result.Failure, "No parser for MIME type '" + mimeType + "' found");
-			return;
-		}
-		
-		this.logger.info("Parsing of URL '" + cmd.getLocation() + "' (" + mimeType + ")");
-		final long time = System.currentTimeMillis();
+	protected void execute(ICommand command) {
+		final long start = System.currentTimeMillis();
+		IParserDocument parserDoc = null;
 		try {
-			final IParserDocument parserdoc = parser.parse(
-					cmd.getLocation(), 
-					cmd.getCrawlerDocument().getCharset(), 
-					cmd.getCrawlerDocument().getContent());
-			if (parserdoc.getMimeType() == null)
-				parserdoc.setMimeType(mimeType);
-			parserdoc.setStatus(IParserDocument.Status.OK);			
-			cmd.setParserDocument(parserdoc);
+			
+			/* ================================================================
+			 * Input Parameter Check
+			 * ================================================================ */
+			String errorMsg = null;
+			if (command.getResult() != ICommand.Result.Passed) {
+				errorMsg = String.format(
+						"Won't parse resource '%s'. Command status is: '%s' (%s)",
+						command.getLocation(),
+						command.getResult(),
+						command.getResultText()
+				);
+			} else if (command.getCrawlerDocument() == null) {
+				errorMsg = String.format(
+						"Won't parse resource '%s'. Crawler-document is null",
+						command.getLocation()
+				);
+			} else if (command.getCrawlerDocument().getStatus() != ICrawlerDocument.Status.OK) {
+				errorMsg = String.format(
+						"Won't parse resource '%s'. Crawler-document status is: '%s' (%s)",
+						command.getLocation(),
+						command.getCrawlerDocument().getStatus(),
+						command.getCrawlerDocument().getStatusText()
+				);			
+			}
+
+			if (errorMsg != null) {
+				this.logger.warn(errorMsg);
+				return;
+			}
+
+			/* ================================================================
+			 * Parse Resource
+			 * 
+			 * a) determine content mime-type
+			 * b) fetch appropriate parser
+			 * c) parse resource
+			 * d) process parser response
+			 * ================================================================ */			
+			
+			// init the parser context
+			this.initParserContext();
+
+			// determine resource mimetype
+			String mimeType = command.getCrawlerDocument().getMimeType();
+			if (mimeType == null) {
+				// document not parsable
+				this.logger.error(String.format("Unable to parse resource '%s'. No mime-type was specified.",command.getLocation()));
+				command.setResult(ICommand.Result.Failure, "No mime-type was specified");
+				return;			
+			}
+
+			// get appropriate parser
+			this.logger.debug(String.format("Getting parser for mime-type '%s' ...", mimeType));
+			ISubParser parser = this.subParserManager.getSubParser(mimeType);
+			this.logger.debug(String.format("Parser '%s' found for mime-type '%s'.", parser.getClass().getName(), mimeType));
+			
+			if (parser == null) {
+				// document not parsable
+				this.logger.error(String.format("No parser for resource '%s' and mime-type '%s' found.",command.getLocation(),mimeType));
+				command.setResult(
+						ICommand.Result.Failure, 
+						String.format("No parser for mime-type '%s' found.", mimeType)
+				);
+				return;			
+			}
+
+			// parse resource
+			try {
+				this.logger.info(String.format("Parsing resource '%s' with mime-type '%s' ...", command.getLocation(), mimeType));
+				parserDoc = parser.parse(
+						command.getLocation(), 
+						command.getCrawlerDocument().getCharset(), 
+						command.getCrawlerDocument().getContent()
+				);
+			} catch (ParserException e) {
+				parserDoc = new ParserDocument();
+				parserDoc.setStatus(IParserDocument.Status.FAILURE, e.getMessage());
+			}
+			
+			/* ================================================================
+			 * Process parser response
+			 * ================================================================ */			
+			
+			if (parserDoc == null) {
+				command.setResult(
+						ICommand.Result.Failure, 
+						String.format("Parser '%s' returned no parser-document.",parserDoc.getClass().getName())
+				);
+				return;
+			} else if (parserDoc.getStatus() == null || parserDoc.getStatus() != IParserDocument.Status.OK) {
+				command.setResult(
+						ICommand.Result.Failure, 
+						String.format("Parser-document status is '%s'.",parserDoc.getStatus())
+				);
+				return;
+			}
+			
+			// setting of default properties
+			if (parserDoc.getMimeType() == null) {
+				parserDoc.setMimeType(mimeType);
+			}
+			
+			// setting command status to passed
+			command.setResult(ICommand.Result.Passed,null);
+			
 		} catch (Exception e) {
-			this.logger.error("Error parsing " + cmd.getLocation(), e);
-			e.printStackTrace();
-			cmd.setResult(ICommand.Result.Failure, e.getMessage());
-			return;
+			// setting command status
+			command.setResult(
+					ICommand.Result.Failure, 
+					String.format("Unexpected '%s' while parsing resource. %s",e.getClass().getName(),e.getMessage())
+			);
+			
+			// log error
+			this.logger.warn(String.format("Unexpected '%s' while parsing resource '%s'.",
+					e.getClass().getName(),
+					command.getLocation()
+			),e);			
+		} finally {
+			/* 
+			 * Append parser-doc to command object.
+			 * 
+			 * This must be done even in error situations to 
+			 * - allow filters to correct the error (if possible)
+			 * - to report the error back properly (e.g. to store it into db
+			 *   or send it back to a remote peer). 
+			 */
+			if (parserDoc != null) {
+				command.setParserDocument(parserDoc);
+			}
+			
+			ICrawlerDocument crawlerDoc = command.getCrawlerDocument();
+			
+			this.logger.info(String.format(
+					"Finished parsing of resource '%s' with mime-type '%s' in %d ms.\r\n" +
+					"\tCrawler-Status: '%s' %s\r\n" +
+					"\tParser-Status:  '%s' %s",
+					command.getLocation(),
+					(command.getCrawlerDocument() == null) ? "unknown" : command.getCrawlerDocument().getMimeType(),
+					System.currentTimeMillis() - start,
+					(crawlerDoc == null) ? "unknown" : crawlerDoc.getStatus().toString(),
+					(crawlerDoc == null) ? "" : (crawlerDoc.getStatusText()==null)?"":crawlerDoc.getStatusText(),								
+					(parserDoc == null)  ? "unknown" : parserDoc.getStatus().toString(),
+					(parserDoc == null)  ? "" : (parserDoc.getStatusText()==null)?"":parserDoc.getStatusText()
+			));
 		}
-		
-		this.logger.info("Finished parsing of " + cmd.getLocation() + " in " + (System.currentTimeMillis() - time) + " ms");
-		cmd.setResult(ICommand.Result.Passed);
 	}
 	
 	@Override

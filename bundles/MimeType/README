@@ -1,0 +1,54 @@
+==================================================
+PAXLE - MIMETYPE DETECTOR BUNDLE
+==================================================
+
+Description:
+-------------------------------------------------- 
+A bundle to detect the mime-type[1] of a given file.
+The mime-type detection is required in situations where
+- a web-server doesn not report the mime-type of a 
+  downloaded resource correctly.
+- for protocol that does not report the content-type 
+  of a resource
+- to detect the type of a file contained in an archive
+  file (e.g. zip, tar, 7z, ...)
+  
+This bundle is used by some paxle crawler- and parser-
+bundles. It can be accessed from within a crawler or
+parser via the CrawlerContext or ParserContext function:
+
+  public IMimeTypeDetector getMimeTypeDetector();
+
+Sourcecode:
+--------------------------------------------------
+SVN:  svn+ssh://svn@svn.xenim.de/p2psearch/trunk/bundles/MimeType
+HTTP: http://trac.paxle.net/trac/browser/trunk/bundles/MimeType
+
+Dynamic Imports:
+-------------------------------------------------- 
+- sun.reflect
+
+Used External Bundles:
+-------------------------------------------------- 
+- Knopflerfish Framework 
+- Knopflerfish commons-logging (commons-logging_all)
+  
+Used Paxle Bundles:
+--------------------------------------------------   
+- Paxle Core
+  
+Used External Libraries:
+--------------------------------------------------
+- JMimeMagic
+  Files: jmimemagic-0.1.0.jar
+  See: http://jmimemagic.sourceforge.net
+  - Apache Xerces
+    Files: xerces.jar, xml-apis.jar, xmlParserAPIs.jar
+    See: http://xerces.apache.org/
+  - Jakarta ORO
+    Files: jakarta-oro-2.0.7.jar
+    See: http://jakarta.apache.org/oro/
+    
+References:
+--------------------------------------------------    
+[1] http://www.iana.org/assignments/media-types/  

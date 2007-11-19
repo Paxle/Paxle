@@ -5,19 +5,20 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.HttpService;
 import org.paxle.core.filter.IFilter;
 import org.paxle.filter.blacklist.BlacklistServlet;
 
 public class Activator implements BundleActivator {
 
+	/**
+	 * A reference to the {@link BundleContext bundle-context}
+	 */
     private static BundleContext bc;
-    private static HttpService http;
       
-    /* (non-Javadoc)
-     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-     */
+	/**
+	 * This function is called by the osgi-framework to start the bundle.
+	 * @see BundleActivator#start(BundleContext) 
+	 */	
     public void start(BundleContext context) throws Exception {
         bc = context;
         
@@ -29,17 +30,21 @@ public class Activator implements BundleActivator {
         filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in", "org.paxle.parser.out"});
         bc.registerService(IFilter.class.getName(), new BlacklistFilter(list), filterProps);
         
-        ServiceReference sr = bc.getServiceReference(HttpService.class.getName());
-        http = (HttpService) bc.getService(sr);
-        if(http != null) {  
-            http.registerServlet("/blacklist", new BlacklistServlet(), null, null);
-        }
-}
+//        ServiceReference sr = bc.getServiceReference(HttpService.class.getName());
+//        http = (HttpService) bc.getService(sr);
+//        if(http != null) {  
+//            http.registerServlet("/blacklist", new BlacklistServlet(), null, null);
+//        }
+        Hashtable<String, String> props = new Hashtable<String, String>();
+        props.put("path", "/blacklist");
+        bc.registerService("javax.servlet.Servlet", new BlacklistServlet(bc.getBundle().getLocation()), props);
+    }
 
-    /* (non-Javadoc)
-     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-     */
+    /**
+     * This function is called by the osgi-framework to stop the bundle.
+     * @see BundleActivator#stop(BundleContext)
+     */		
     public void stop(BundleContext context) throws Exception {
-      bc = null;
-  }
+    	bc = null;
+    }
 }

@@ -1,0 +1,32 @@
+==================================================
+PAXLE - CHARSET-DETECTOR BUNDLE
+==================================================
+
+Description:
+-------------------------------------------------- 
+TODO:
+
+Sourcecode:
+--------------------------------------------------
+SVN:  svn+ssh://svn@svn.xenim.de/p2psearch/trunk/bundles/CharsetDetector
+HTTP: http://trac.paxle.net/trac/browser/trunk/bundles/CharsetDetector
+
+Dynamic Imports:
+-------------------------------------------------- 
+- sun.reflect
+
+Used External Bundles:
+-------------------------------------------------- 
+- Knopflerfish Framework 
+- Knopflerfish commons-logging (commons-logging_all)
+  
+Used Paxle Bundles:
+--------------------------------------------------   
+- Paxle Core
+  
+Used External Libraries:
+--------------------------------------------------
+- JChardet: Java port of Mozilla charset detector
+  Files: chardet.jar
+  See: http://jchardet.sourceforge.net
+  

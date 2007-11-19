@@ -1,8 +1,5 @@
 package org.paxle.p2p.shell.impl;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 import net.jxta.impl.shell.bin.Shell.Shell;
 import net.jxta.peergroup.PeerGroup;
 
@@ -52,7 +49,11 @@ public class GroupListener implements ServiceListener {
 			shell.init(paxleGroup,null,null);
 			shell.startApp(null);			
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
-			shell.stopApp();
+			try {
+				shell.stopApp();
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
 		} else if (eventType == ServiceEvent.MODIFIED) {
 			// service properties have changed
 		}	

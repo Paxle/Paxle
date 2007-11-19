@@ -50,7 +50,11 @@ public class ZipParser implements IZipParser {
 					}
 				} }
 			}
-		} finally { zis.close(); }
+			
+			pdoc.setStatus(IParserDocument.Status.OK);
+		} finally { 
+			zis.close(); 
+		}
 		return pdoc;
 	}
 }

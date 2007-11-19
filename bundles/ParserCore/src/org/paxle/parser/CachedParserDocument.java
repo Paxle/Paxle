@@ -3,6 +3,7 @@ package org.paxle.parser;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
@@ -56,6 +57,10 @@ public final class CachedParserDocument extends ParserDocument implements IParse
 		this.content = this.text.toFile(file);
 		return this.content;
 	}	
+	
+	public Writer getTextWriter() {
+		return this.text;
+	}
 	
 	@Override
 	public void close() throws IOException {

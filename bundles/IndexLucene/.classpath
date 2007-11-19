@@ -32,7 +32,7 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Lucene/libs/lucene-core-2.2.0.jar" sourcepath="/lucene-test/lucene-2.2.0/src/java"/>
+	<classpathentry kind="lib" path="/Lucene/libs/lucene-core-2.2.0.jar" sourcepath="/home/theli/workspace/Libs/lucene-2.2.0-src.zip"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
 		<attributes>
 			<attribute name="bundle-name" value="Commons-Logging"/>

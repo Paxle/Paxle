@@ -1,10 +1,11 @@
 Manifest-Version: 1.0
 Bundle-Description: Http Libs and Tools for Paxle
 Bundle-Name: HttpTools
-Bundle-ClassPath: ., libs/commons-codec-1.3.jar, libs/commons-digester
- -1.8.jar, libs/commons-httpclient-3.0.1.jar, libs/velocity-dep-1.5.ja
- r, libs/velocity-tools-view-1.3.jar, libs/velocity-tools-generic-1.3.
- jar
+Bundle-ClassPath: ., libs/commons-codec-1.3.jar, libs/commons-httpclie
+ nt-3.0.1.jar, libs/velocity-dep-1.5.jar, libs/velocity-tools-view-1.3
+ .jar, libs/velocity-tools-generic-1.3.jar, libs/commons-collections-2
+ .1.1.jar, libs/commons-digester-1.8.jar, libs/xerces.jar, libs/xml-ap
+ is.jar, libs/xmlParserAPIs.jar, libs/commons-beanutils-1.6.jar
 Import-Package: org.apache.commons.logging, javax.servlet, javax.servl
  et.http
 Bundle-ManifestVersion: 2
@@ -31,7 +32,11 @@ Export-Package: org.apache.commons.httpclient, org.apache.commons.http
  .tools.view.i18n, org.apache.velocity.tools.view.servlet, org.apache.
  velocity.tools.view.tools, org.apache.velocity.util, org.apache.veloc
  ity.util.introspection, org.apache.commons.collections, org.apache.co
- mmons.collections.iterators, org.apache.commons.collections.map
+ mmons.collections.iterators, org.apache.commons.collections.map, org.
+ xml.sax, org.xml.sax.ext, org.xml.sax.helpers, org.apache.commons.dig
+ ester, org.apache.commons.digester.parser, org.apache.commons.digeste
+ r.plugins, org.apache.commons.digester.plugins.strategies, org.apache
+ .commons.digester.substitution, org.apache.commons.digester.xmlrules
 Bundle-Version: 1.0.0
 DynamicImport-Package: javax.net, sun.reflect, javax.net.ssl
 

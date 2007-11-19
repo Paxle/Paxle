@@ -17,10 +17,9 @@
 		#end
 		">
 		<p>$logEntry.getTime()</p>
-		<p>$logEntry.getMessage()</p>
-		#set($exception = $logEntry.getException())
-		#if($exception)
-			<p>$exception</p>
+		#<p>#$logEntry.getMessage()</p>
+		#if($logEntry.getException())
+			<p>$logEntry.getException()</p>
 		#end
 		</li>
 	#end

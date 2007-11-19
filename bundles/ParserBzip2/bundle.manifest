@@ -10,4 +10,5 @@ Bundle-Description: Paxle Bzip2 Parser Bundle
 Bundle-SymbolicName: org.paxle.parser.bzip2
 Import-Package: org.osgi.framework, org.paxle.core.doc, org.paxle.pars
  er, org.paxle.parser.iotools, org.paxle.core.io
+DynamicImport-Package: sun.reflect
 

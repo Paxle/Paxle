@@ -7,6 +7,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 
+import meteor.lookup.MeteorPeer;
 import net.jxta.peergroup.PeerGroup;
 
 import org.apache.velocity.app.VelocityEngine;
@@ -93,6 +94,10 @@ public class Activator implements BundleActivator {
 					null
 			);
 		}
+		
+		MeteorPeer mp = new MeteorPeer();
+		mp.init(p2pManager.getPeerGroup(), null, null);
+		mp.startApp(null);
 
 		/* ==========================================================
 		 * Register Services

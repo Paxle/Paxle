@@ -27,7 +27,8 @@ public class CrawlerContext {
 	
 	/**
 	 * @return a class that can be used to detect the charset of a resource
-	 * This reference may be <code>null</code> if no {@link ICharsetDetector charset-detector} is available.
+	 *         This reference may be <code>null</code> if no 
+	 *         {@link ICharsetDetector charset-detector} is available.
 	 */
 	public ICharsetDetector getCharsetDetector() {
 		return CrawlerContext.context.getCharsetDetector();
@@ -43,7 +44,8 @@ public class CrawlerContext {
 	
 	/**
 	 * @return a class that can be used to detect the mime-type of a resource
-	 * This reference may be <code>null</code> if no {@link IMimeTypeDetector mimetype-detector} is available.
+	 * 	       This reference may be <code>null</code> if no 
+	 *         {@link IMimeTypeDetector mimetype-detector} is available.
 	 */
 	public IMimeTypeDetector getMimeTypeDetector() {
 		return CrawlerContext.context.getMimeTypeDetector();

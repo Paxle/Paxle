@@ -17,6 +17,8 @@ import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.impl.TempFileManager;
+import org.paxle.core.prefs.IPropertiesStore;
+import org.paxle.core.prefs.impl.PropertiesStore;
 
 
 public class Activator implements BundleActivator {
@@ -56,6 +58,16 @@ public class Activator implements BundleActivator {
 		tempFileManager = new TempFileManager();
 		cryptManager = new CryptManager();
 		
+		System.out.println("Starting ...");
+		System.out.println(
+				"\t    ____             __    \r\n" +
+				"\t   / __ \\____ __  __/ /__  \r\n" +
+				"\t  / /_/ / __ `/ |/_/ / _ \\ \r\n" +
+				"\t / ____/ /_/ />  </ /  __/ \r\n" +
+			    "\t/_/    \\__,_/_/|_/_/\\___/ \r\n"
+		);
+
+		
 		/* ==========================================================
 		 * Register Service Listeners
 		 * ========================================================== */
@@ -82,8 +94,12 @@ public class Activator implements BundleActivator {
 		// register the filter-manager as service
 		context.registerService(IFilterManager.class.getName(), filterManager, null);
 		
+		// register crypt-manager
 		context.registerService(ICryptManager.class.getName(), cryptManager, null);
 		IOTools.setTempFileManager(tempFileManager);
+		
+		// register property store
+		context.registerService(IPropertiesStore.class.getName(), new PropertiesStore(), null);
 	}
 
 	/**

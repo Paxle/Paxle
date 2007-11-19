@@ -8,7 +8,7 @@ import org.apache.commons.net.ftp.FTP;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.url.URLStreamHandlerService;
 
-public class StreamHandlerService extends AbstractURLStreamHandlerService implements URLStreamHandlerService {
+public class FtpStreamHandlerService extends AbstractURLStreamHandlerService implements URLStreamHandlerService {
 	public static final String PROTOCOL = "ftp";
 
 	@Override

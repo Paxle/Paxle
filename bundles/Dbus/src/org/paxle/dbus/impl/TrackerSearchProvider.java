@@ -12,11 +12,12 @@ import org.freedesktop.dbus.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IndexerDocument;
+import org.paxle.dbus.IDbusService;
 import org.paxle.se.index.IFieldManager;
 import org.paxle.se.query.ITokenFactory;
 import org.paxle.se.search.ISearchProvider;
 
-public class TrackerSearchProvider implements ISearchProvider {
+public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 	public static final String TRACKER_BUSNAME = "org.freedesktop.Tracker";
 	public static final String TRACKER_OBJECTPATH = "/org/freedesktop/tracker";
 
@@ -64,6 +65,10 @@ public class TrackerSearchProvider implements ISearchProvider {
 		
 		this.search = conn.getRemoteObject(TRACKER_BUSNAME, TRACKER_OBJECTPATH, Tracker.Search.class);	
 		this.metadata = conn.getRemoteObject(TRACKER_BUSNAME, TRACKER_OBJECTPATH, Tracker.Metadata.class);
+	}
+	
+	public void disconnect() {
+		this.conn.disconnect();
 	}
 	
 	public ITokenFactory getTokenFactory() {

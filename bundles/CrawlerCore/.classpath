@@ -23,8 +23,10 @@
 			<attribute name="org.paxle.core.crypt" value="0.0.0"/>
 			<attribute name="org.paxle.core.io" value="0.0.0"/>
 			<attribute name="org.paxle.core.mimetype" value="0.0.0"/>
+			<attribute name="org.paxle.core.prefs" value="0.0.0"/>
 		</attributes>
 		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/prefs/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/mimetype/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/io/"/>
 			<accessrule kind="accessible" pattern="org/paxle/core/crypt/"/>

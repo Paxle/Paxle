@@ -26,7 +26,7 @@ import org.paxle.parser.ParserException;
  * @see IParserDocument#addSubDocument(String, IParserDocument)
  */
 public class ParserDocOutputStream extends OutputStream {
-	
+	private boolean closed = false;
 	private final ITempFileManager tfm;
 	private final OutputStream os;
 	private final File of;
@@ -53,6 +53,7 @@ public class ParserDocOutputStream extends OutputStream {
 	public void close() throws IOException {
 		this.os.flush();
 		this.os.close();
+		closed = true;
 	}
 	
 	public String getCharset() {
@@ -64,7 +65,13 @@ public class ParserDocOutputStream extends OutputStream {
 	}
 	
 	public IParserDocument parse(String location) throws ParserException, IOException {
-		close();
+		/* Closing stream if not already done.
+		 * 
+		 * ATTENTION: don't remove the closed check. Otherwise we get an StackOverflowException, because
+		 *            SubParserDocOutputStream is overwriting close and calls parse again within close! 
+		 */
+		if (!closed) this.close();
+		
 		final String charset = getCharset();
 		try {
 			return ParserTools.parse(location, charset, this.of);

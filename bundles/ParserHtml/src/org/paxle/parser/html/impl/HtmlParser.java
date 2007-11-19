@@ -124,6 +124,7 @@ public class HtmlParser implements IHtmlParser {
 			parser.visitAllNodesWith(nc);
 			page.close();
 			
+			doc.setStatus(IParserDocument.Status.OK);
 			return doc;
 		} catch (org.htmlparser.util.ParserException e) {
 			throw new ParserException("error parsing HTML nodes-tree", e);

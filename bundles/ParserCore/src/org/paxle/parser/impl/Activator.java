@@ -5,13 +5,12 @@ import java.util.Hashtable;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
-import org.paxle.core.data.IDataSink;
-import org.paxle.core.data.IDataSource;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.io.IOTools;
+import org.paxle.core.prefs.IPropertiesStore;
+import org.paxle.core.prefs.Properties;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorkerFactory;
@@ -47,7 +46,17 @@ public class Activator implements BundleActivator {
 	 */	
 	public void start(BundleContext context) throws Exception {
 		bc = context;
-		subParserManager = new SubParserManager();	
+		
+		/*
+		 * Load the properties of this bundle
+		 */
+		Properties props = null;
+		ServiceReference ref = bc.getServiceReference(IPropertiesStore.class.getName());
+		if (ref != null) props = ((IPropertiesStore) bc.getService(ref)).getProperties(bc);		
+		
+		subParserManager = new SubParserManager(props);
+		
+		// init thead worker-factory
 		workerFactory = new WorkerFactory(subParserManager, IOTools.getTempFileManager());
 		
 		/* ==========================================================

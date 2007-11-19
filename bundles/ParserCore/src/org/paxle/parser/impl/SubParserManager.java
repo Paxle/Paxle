@@ -4,19 +4,39 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.osgi.framework.ServiceReference;
+import org.paxle.core.prefs.Properties;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ISubParserManager;
 
 public class SubParserManager implements ISubParserManager {
+	private static final String DISABLED_MIMETYPES = ISubParserManager.class.getName() + "." + "disabledMimeTypes";
 	
 	/**
-	 * A {@link HashMap} containing the protocol that is supported by the sub-crawler as key and
+	 * A {@link HashMap} containing the mime-types that is supported by the sub-parser as key and
 	 * the {@link ServiceReference} as value.
 	 */
 	private HashMap<String, ISubParser> subParserList = new HashMap<String, ISubParser>();
+	
+	/**
+	 * A list of disabled mime-types
+	 */
+	private Set<String> disabledMimeTypes = new HashSet<String>();	
+	
+	/**
+	 * The properties of this component
+	 */
+	private Properties props = null;	
+	
+	public SubParserManager(Properties props) {
+		this.props = props;
+		if (this.props != null && this.props.containsKey(DISABLED_MIMETYPES)) {
+			this.disabledMimeTypes = this.props.getSet(DISABLED_MIMETYPES);
+		}
+	}
 	
 	/**
 	 * Adds a newly detected {@link ISubParser} to the {@link Activator#subParserList subparser-list}
@@ -55,6 +75,8 @@ public class SubParserManager implements ISubParserManager {
 	 * @return a {@link ISubParser} which is capable to parse a document with the given mime-type
 	 */
 	public ISubParser getSubParser(String mimeType) {
+		if (mimeType == null) return null;
+		if (this.disabledMimeTypes.contains(mimeType)) return null;
 		return this.subParserList.get(mimeType);
 	}
 	
@@ -65,6 +87,7 @@ public class SubParserManager implements ISubParserManager {
 	 * @return <code>true</code> if the given mime-tpye is supported or <code>false</code> otherwise
 	 */
 	public boolean isSupported(String mimeType) {
+		if (this.disabledMimeTypes.contains(mimeType)) return false;
 		return this.subParserList.containsKey(mimeType);
 	}
 
@@ -83,4 +106,28 @@ public class SubParserManager implements ISubParserManager {
 		String[] keyArray = keySet.toArray(new String[keySet.size()]);
 		return Collections.unmodifiableCollection(Arrays.asList(keyArray));
 	}
+	
+
+	/**
+	 * @see ISubParserManager#disableMimeType(String)
+	 */
+	public void disableMimeType(String mimeType) {
+		this.disabledMimeTypes.add(mimeType);
+		if (this.props != null) this.props.setSet(DISABLED_MIMETYPES, this.disabledMimeTypes);
+	}
+
+	/**
+	 * @see ISubParserManager#enableMimeType(String)
+	 */
+	public void enableMimeType(String mimeType) {
+		this.disabledMimeTypes.remove(mimeType);		
+		if (this.props != null) this.props.setSet(DISABLED_MIMETYPES, this.disabledMimeTypes);
+	}
+
+	/**
+	 * @see ISubParserManager#disabledMimeType()
+	 */
+	public Set<String> disabledMimeTypes() {
+		return Collections.unmodifiableSet(this.disabledMimeTypes);
+	}	
 }

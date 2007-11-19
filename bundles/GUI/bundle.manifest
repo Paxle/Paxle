@@ -13,7 +13,24 @@ Import-Package: org.osgi.framework, org.osgi.service.http, javax.servl
  =optional, org.osgi.service.log, org.apache.commons.collections, org.
  paxle.se.search;resolution:=optional, org.paxle.se.query;resolution:=
  optional, org.paxle.core.doc, org.apache.commons.logging, org.paxle.c
- ore, org.paxle.p2p.services;resolution:=optional
+ ore, org.paxle.p2p.services;resolution:=optional, org.xml.sax, org.xm
+ l.sax.ext, org.xml.sax.helpers, org.apache.commons.digester, org.apac
+ he.velocity.tools.generic, org.apache.velocity.tools.generic.log, org
+ .apache.velocity.tools.view, org.apache.velocity.tools.view.context, 
+ org.apache.velocity.tools.view.i18n, org.apache.velocity.tools.view.t
+ ools, org.apache.velocity.anakia, org.apache.velocity.app.event, org.
+ apache.velocity.app.event.implement, org.apache.velocity.app.tools, o
+ rg.apache.velocity.convert, org.apache.velocity.exception, org.apache
+ .velocity.io, org.apache.velocity.runtime, org.apache.velocity.runtim
+ e.defaults, org.apache.velocity.runtime.directive, org.apache.velocit
+ y.runtime.log, org.apache.velocity.runtime.parser, org.apache.velocit
+ y.runtime.parser.node, org.apache.velocity.runtime.resource, org.apac
+ he.velocity.runtime.resource.loader, org.apache.velocity.runtime.reso
+ urce.util, org.apache.velocity.runtime.visitor, org.apache.velocity.s
+ ervlet, org.apache.velocity.texen, org.apache.velocity.texen.ant, org
+ .apache.velocity.texen.defaults, org.apache.velocity.texen.util, org.
+ apache.velocity.util, org.apache.velocity.util.introspection
 Bundle-ContactAddress: http://www.paxle.net/
 DynamicImport-Package: sun.reflect
+Export-Package: org.paxle.gui
 

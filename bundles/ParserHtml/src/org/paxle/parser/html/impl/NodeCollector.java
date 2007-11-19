@@ -127,8 +127,9 @@ public class NodeCollector extends NodeVisitor {
 				MetaTagManager.Names.Creator,
 				MetaTagManager.Names.Contributor,
 				MetaTagManager.Names.Publisher);
-		if (author != null)
+		if (author != null && author.length() > 0) {
 			this.doc.setAuthor(HtmlTools.deReplaceHTML(author));
+		}
 		
 		// keywords (should be comma-separated)
 		final Collection<String> keywordStrings = this.mtm.get(

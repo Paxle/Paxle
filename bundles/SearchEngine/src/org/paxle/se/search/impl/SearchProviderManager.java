@@ -3,6 +3,7 @@ package org.paxle.se.search.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -61,7 +62,7 @@ public class SearchProviderManager implements ISearchProviderManager {
 	 * @see ISearchProviderManager#getSearchProviders()
 	 */
 	public Collection<ISearchProvider> getSearchProviders() {
-		return new ArrayList<ISearchProvider>(this.providers);
+		return Collections.unmodifiableList(this.providers);
 	}
 	
 	public void shutdown() throws IOException {

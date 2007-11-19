@@ -94,7 +94,17 @@ public interface IMWComponent<Data> {
 	public List<Data> getActiveJobs();
 	
 	/**
+	 * @return the size of the active-job queue 
+	 */
+	public int getActiveJobCount();
+	
+	/**
 	 * @return the list of currently enqueued jobs
 	 */
 	public List<Data> getEnqueuedJobs();
+
+	/**
+	 * @return the size of the enqueued-job queue
+	 */
+	public int getEnqueuedJobCount();
 }

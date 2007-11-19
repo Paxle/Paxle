@@ -29,6 +29,11 @@ public interface IPool<Data> {
 	public List<Data> getActiveJobs();
 	
 	/**
+	 * @return the size of the active job queue
+	 */
+	public int getActiveJobCount();
+	
+	/**
 	 * Close the thread pool and interrupts all running threads 
 	 */
 	public void close() throws Exception;

@@ -119,3 +119,11 @@ input:focus, textarea:focus {
 .resolved {
 	text-decoration: line-through;
 }
+
+.r1 {
+  background-color: #efefef;
+}
+
+.r1 {
+  background-color: #cdcdcd;
+}

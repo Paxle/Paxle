@@ -10,33 +10,37 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.queue.Command;
-import org.paxle.gui.AServlet;
+import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
 
-public class CrawlerView extends AServlet {
+public class CrawlerView extends ALayoutServlet {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;	
 
-    public CrawlerView(ServiceManager manager) {
-		super(manager);
-	}		
+    public CrawlerView(String bundleLocation) {
+		super(bundleLocation);
+	}
 	
-    public Template handleRequest( HttpServletRequest request,
-                                   HttpServletResponse response,
-                                   Context context ) {
+    public Template handleRequest( 
+    		HttpServletRequest request,
+            HttpServletResponse response,
+            Context context 
+    ) {
 
         Template template = null;
 
         try {
+        	ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+        	
         	if (request.getParameter("startURL") != null) {
-        		Object[] sinks = this.manager.getServices(IDataSink.class.getName(), "(org.paxle.core.data.IDataSink.id=org.paxle.crawler.sink)");
+        		Object[] sinks = manager.getServices(IDataSink.class.getName(), "(org.paxle.core.data.IDataSink.id=org.paxle.crawler.sink)");
         		if (sinks != null) {
                     if (!request.getParameter("startURL").equals(""))
                         ((IDataSink)sinks[0]).putData(Command.createCommand(request.getParameter("startURL")));
         		}
         	}
             else if (request.getParameter("startURL2") != null) {
-                Object[] sinks = this.manager.getServices(IDataSink.class.getName(), "(org.paxle.core.data.IDataSink.id=org.paxle.crawler.sink)");
+                Object[] sinks = manager.getServices(IDataSink.class.getName(), "(org.paxle.core.data.IDataSink.id=org.paxle.crawler.sink)");
                 if (sinks != null) {
                     BufferedReader startURLs = new BufferedReader(new StringReader(request.getParameter("startURL2")));
                     String line;

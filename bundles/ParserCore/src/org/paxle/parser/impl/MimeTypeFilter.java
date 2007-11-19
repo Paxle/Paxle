@@ -1,5 +1,7 @@
 package org.paxle.parser.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
@@ -10,6 +12,7 @@ import org.paxle.parser.ISubParser;
  * resource is not supported by one of the available {@link ISubParser sub-parsers}
  */
 public class MimeTypeFilter implements IFilter<ICommand> {
+	private Log logger = LogFactory.getLog(this.getClass());
 	private SubParserManager subParserManager = null;
 	
 	public MimeTypeFilter(SubParserManager subParserManager) {
@@ -25,6 +28,7 @@ public class MimeTypeFilter implements IFilter<ICommand> {
 		// check if the mime-type is supported by one of the 
 		// available sub-parsers
 		if (!this.subParserManager.isSupported(mimeType)) {
+			this.logger.info(String.format("Mime-type '%s' of resource '%s' not supported.",mimeType,command.getLocation()));
 			command.setResult(ICommand.Result.Rejected, String.format("MimeType '%s' not supported", mimeType));
 		}		
 		

@@ -8,6 +8,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.paxle.gui.IMenuManager;
+import org.paxle.gui.IServletManager;
 import org.paxle.gui.impl.servlets.BundleView;
 import org.paxle.gui.impl.servlets.CrawlerView;
 import org.paxle.gui.impl.servlets.LogView;
@@ -20,16 +21,31 @@ public class Activator implements BundleActivator {
 
 	private static BundleContext bc;
 	private static HttpService http;
-	private static ServiceManager manager = null;
 	private static MenuManager menuManager = null;
-
+	private static ServletManager servletManager = null; 
+	
 	public void start(BundleContext context) throws Exception {		
 		bc = context;		
-		manager = new ServiceManager(bc);
+		
+		// initialize service Manager for toolbox usage (don't remove this!)
+		ServiceManager.context = bc;
 		
 		// GUI menu manager
 		menuManager = new MenuManager();
 		bc.registerService(IMenuManager.class.getName(), menuManager, null);
+		
+		// servlet manager
+		servletManager = new ServletManager(menuManager, context.getBundle().getLocation());	
+		bc.registerService(IServletManager.class.getName(),servletManager,null);
+		
+		// register classloader
+		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());		
+		
+		/* ==========================================================
+		 * Register Service Listeners
+		 * ========================================================== */
+		bc.addServiceListener(new ServletListener(servletManager, menuManager, bc),ServletListener.FILTER);
+		bc.addServiceListener(new HttpServiceListener(servletManager, bc),HttpServiceListener.FILTER);
 		
 		// getting a reference to the osgi http service
 		ServiceReference sr = bc.getServiceReference(HttpService.class.getName());
@@ -39,7 +55,8 @@ public class Activator implements BundleActivator {
 			if(http != null) {											
 				// add some properties to the servlet props
 				Hashtable<String, String> props = new Hashtable<String, String>();
-				props.put("org.apache.velocity.properties", "/resources/velocity.properties");
+				props.put("org.apache.velocity.properties", "/resources/config/velocity.properties");
+				props.put("org.apache.velocity.toolbox", "/resources/config/velocity.toolbox");
 				props.put("bundle.location",context.getBundle().getLocation());
 				
 				HttpContext httpContext = null;
@@ -69,7 +86,7 @@ public class Activator implements BundleActivator {
 //
 //					public URL getResource(String arg0) {
 //						return bc.getBundle().getResource(arg0);
-//					}	
+//					}
 //				};
 								
 				// configure menu
@@ -84,31 +101,40 @@ public class Activator implements BundleActivator {
 				
 				
 				// registering the servlet which will be accessible using 
-                http.registerServlet("/search", new SearchView(manager), props, httpContext);
-				http.registerServlet("/status", new StatusView(manager), props, httpContext);
-                http.registerServlet("/p2p", new P2PView(manager), props, httpContext);
-                http.registerServlet("/crawler", new CrawlerView(manager), props, httpContext);
-                http.registerServlet("/bundle", new BundleView(manager), props, httpContext);
-                http.registerServlet("/log", new LogView(manager), props, httpContext);
-                http.registerServlet("/queue", new QueueView(manager), props, httpContext);
-                http.registerServlet("/", new SearchView(manager), props, httpContext);
-                http.registerServlet("/index.html", new SearchView(manager), props, httpContext);
-                
-                http.registerResources("/style.css", "resources/templates/layout/style.css", httpContext);
+//                http.registerServlet("/search", new SearchView(manager), props, httpContext);
+//				  http.registerServlet("/status", new StatusView(manager), props, httpContext);
+//                http.registerServlet("/p2p", new P2PView(manager), props, httpContext);
+//                http.registerServlet("/crawler", new CrawlerView(manager), props, httpContext);
+//                http.registerServlet("/bundle", new BundleView(manager), props, httpContext);
+//                http.registerServlet("/log", new LogView(manager), props, httpContext);
+//                http.registerServlet("/queue", new QueueView(manager), props, httpContext);
+//                http.registerServlet("/", new SearchView(manager), props, httpContext);
+//                http.registerServlet("/index.html", new SearchView(manager), props, httpContext);                
+//                http.registerResources("/style.css", "resources/templates/layout/style.css", httpContext);
 
 			}
+			
+			/* ==========================================================
+			 * Register Servlets
+			 * ========================================================== */	
+			servletManager.addServlet("/search", new SearchView(null));
+			servletManager.addServlet("/status", new StatusView(null));
+			servletManager.addServlet("/p2p", new P2PView(null));
+			servletManager.addServlet("/crawler", new CrawlerView(null));
+			servletManager.addServlet("/bundle", new BundleView(null));
+			servletManager.addServlet("/log", new LogView(null));
+			servletManager.addServlet("/queue", new QueueView(null));
+			servletManager.addServlet("/", new SearchView(null));
+			servletManager.addServlet("/index.html", new SearchView(null));
+			servletManager.addResources("/style.css", "resources/templates/layout/style.css");
 		}		
 	}
 
 	public void stop(BundleContext context) throws Exception {
-		// unregister servlet
-		http.unregister("/status");
-		http.unregister("/crawler");	
-		http.unregister("/bundle");
-		http.unregister("/log");
+		// unregister all servlets
+		servletManager.close();
 		
 		// cleanup
-		manager = null;
 		menuManager = null;
 		http = null;
 		bc = null;

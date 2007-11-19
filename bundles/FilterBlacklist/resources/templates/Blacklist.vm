@@ -1,0 +1,8 @@
+## Set the page title
+#set( $page_title = "Paxle Blacklist Filter" )
+
+<h1>Blacklist</h1>
+
+#if($manager)
+	<b>Service Manager found. Just use it ;-)</b>
+#end

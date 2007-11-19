@@ -23,7 +23,7 @@ public class MWComponentServiceFactory implements ServiceFactory {
 	/**
 	 * @see ServiceFactory#ungetService(Bundle, ServiceRegistration, Object)
 	 */
-	public void ungetService(Bundle arg0, ServiceRegistration arg1, Object arg2) {
+	public void ungetService(Bundle bundle, ServiceRegistration registration, Object arg2) {
 		// nothing todo here at the moment
 	}
 }

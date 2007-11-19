@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">
+   <channel>
+      <title>Paxle-Search for $escTool.xml($paramParser.getString('query'))</title>
+      <description>Paxle-Search for $escTool.xml($paramParser.getString('query'))</description>
+      <image>	 
+         <url></url>
+         <title></title>
+      </image>
+      <link></link>
+      <pubDate>$dateTool.get('EEE, dd MMM yyyy HH:mm:ss Z')</pubDate>
+
+   #if($searchQuery && $Search)
+      #foreach($searchResult in $Search.search($searchQuery, 50, 10000))
+         #foreach($result in $searchResult.getResult())
+	    #if($result.get($fieldManager.get("Location")))
+               <item>
+                   <link>$escTool.xml($result.get($fieldManager.get("Location")))</link>
+                   <title>
+                      #if($result.get($fieldManager.get("Title")))
+                         $escTool.xml($result.get($fieldManager.get("Title")))
+                      #else
+                         $escTool.xml($result.get($fieldManager.get("Location")))
+		      #end		   
+                   </title>
+		   #if($result.get($fieldManager.get("Author")))
+                      <author>$result.get($fieldManager.get("Author"))</author>
+		   #end
+		   
+		   #if($result.get($fieldManager.get("LastCrawled")))
+		   	<pubDate>$dateTool.format('EEE, dd MMM yyyy HH:mm:ss Z',$result.get($fieldManager.get("LastCrawled")))</pubDate>
+		   #end		   
+		   
+                   <description><![CDATA[
+                      #if($result.get($fieldManager.get("LastCrawled")))
+                         Last Crawled: $dateTool.format('short',$result.get($fieldManager.get("LastCrawled")))<br />
+                      #end
+                      #if($result.get($fieldManager.get("LastModified")))
+                         Last Modified: $dateTool.format('short',$result.get($fieldManager.get("LastModified")))<br />
+                      #end
+                      #if($result.get($fieldManager.get("Summary")))
+                         Summary: $result.get($fieldManager.get("Summary"))<br />
+                      #end
+			<hr />			
+                      #if($result.get($fieldManager.get("Snippet")))
+			   Summary: $result.get($fieldManager.get("Snippet"))
+                      #end
+                   ]]></description>		   
+		   
+		   ## what to use for the guid???
+		   ##<guid isPermaLink="false"></guid>
+               </item>
+		
+	    #end
+         #end
+      #end         
+   #end		
+   </channel>
+</rss>

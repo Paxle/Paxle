@@ -16,6 +16,7 @@ public class DataManager<Data> implements IDataManager {
 	private Hashtable<String, List<IDataProvider<Data>>> dataProviders = new Hashtable<String, List<IDataProvider<Data>>>();
 	private Hashtable<String, List<IDataConsumer<Data>>> dataConsumers = new Hashtable<String, List<IDataConsumer<Data>>>();
 	
+	@SuppressWarnings("unchecked")
 	public void add(String ID, String interfaceName, Object service) {		
 		if (ID == null) return;
 		if (service == null) return;

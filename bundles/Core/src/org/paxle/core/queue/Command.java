@@ -52,8 +52,8 @@ public class Command implements ICommand {
 		return this.parserDoc;
 	}
 
-	public void setParserDocument(IParserDocument parserDoc) throws IOException {
-		if (parserDoc != null) parserDoc.close();
+	public void setParserDocument(IParserDocument parserDoc) {
+		if (parserDoc != null) try { parserDoc.close(); } catch (Exception e) {e.printStackTrace();}
 		this.parserDoc = parserDoc;
 	}
 

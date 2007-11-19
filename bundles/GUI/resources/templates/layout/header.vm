@@ -3,6 +3,13 @@
 <head>
   <title>#if( $page_title ) - $page_title#end</title>
   <link href="/style.css" rel="stylesheet" type="text/css" media="screen, projection" />
+  
+  ## append custom headers
+  #if($page_headers)
+  	#foreach( $page_header in $page_headers)
+		$page_header
+	#end
+  #end
 </head>
 <script type="text/javascript">
 	/* <![CDATA[ */

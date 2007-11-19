@@ -1,10 +1,15 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <bundlejar>
 <resource dst="" pattern=".*\.class" src="/HttpTools/out" type="0"/>
+<resource dst="libs/commons-beanutils-1.6.jar" src="/HttpTools/libs/commons-beanutils-1.6.jar" type="1"/>
 <resource dst="libs/commons-codec-1.3.jar" src="/HttpTools/libs/commons-codec-1.3.jar" type="1"/>
+<resource dst="libs/commons-collections-2.1.1.jar" src="/HttpTools/libs/commons-collections-2.1.1.jar" type="1"/>
 <resource dst="libs/commons-digester-1.8.jar" src="/HttpTools/libs/commons-digester-1.8.jar" type="1"/>
 <resource dst="libs/commons-httpclient-3.0.1.jar" src="/HttpTools/libs/commons-httpclient-3.0.1.jar" type="1"/>
 <resource dst="libs/velocity-dep-1.5.jar" src="/HttpTools/libs/velocity-dep-1.5.jar" type="1"/>
 <resource dst="libs/velocity-tools-generic-1.3.jar" src="/HttpTools/libs/velocity-tools-generic-1.3.jar" type="1"/>
 <resource dst="libs/velocity-tools-view-1.3.jar" src="/HttpTools/libs/velocity-tools-view-1.3.jar" type="1"/>
+<resource dst="libs/xerces.jar" src="/HttpTools/libs/xerces.jar" type="1"/>
+<resource dst="libs/xml-apis.jar" src="/HttpTools/libs/xml-apis.jar" type="1"/>
+<resource dst="libs/xmlParserAPIs.jar" src="/HttpTools/libs/xmlParserAPIs.jar" type="1"/>
 </bundlejar>

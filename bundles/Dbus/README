@@ -1,0 +1,37 @@
+==================================================
+PAXLE - DBUS BUNDLE
+==================================================
+
+Description:
+-------------------------------------------------- 
+TODO:
+
+Sourcecode:
+--------------------------------------------------
+SVN:  svn+ssh://svn@svn.xenim.de/p2psearch/trunk/bundles/Dbus
+HTTP: http://trac.paxle.net/trac/browser/trunk/bundles/Dbus
+
+Dynamic Imports:
+-------------------------------------------------- 
+- com.sun.security.auth.module
+- sun.reflect
+
+Used External Bundles:
+-------------------------------------------------- 
+- Knopflerfish Framework 
+- Knopflerfish commons-logging (commons-logging_all)
+  
+Used Paxle Bundles:
+--------------------------------------------------   
+- Paxle Core
+- Paxle Search-Engine
+  
+Used External Libraries:
+--------------------------------------------------
+- Java D-Bus Implementation
+  Files: dbus-2.3.1.jar
+  See: http://dbus.freedesktop.org/doc/dbus-java/
+- Matthew Johnson - Java Libraries
+  Files: hexdump-0.1.jar, unix-02.jar, debug-enable-1.1.jar
+  See: http://matthew.ath.cx/projects/java/
+  

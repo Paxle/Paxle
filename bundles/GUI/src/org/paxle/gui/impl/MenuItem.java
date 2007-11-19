@@ -20,4 +20,9 @@ public class MenuItem {
 	public static MenuItem newInstance(String url, String name) {
 		return new MenuItem(url,name);
 	}
+	
+	@Override
+	public int hashCode() {
+		return this.url.hashCode();
+	}
 }

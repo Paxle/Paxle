@@ -7,4 +7,5 @@ Bundle-ManifestVersion: 2
 Import-Package: org.osgi.framework, org.apache.commons.logging, org.pa
  xle.core.charset
 Bundle-SymbolicName: org.paxle.charset
+DynamicImport-Package: sun.reflect
 

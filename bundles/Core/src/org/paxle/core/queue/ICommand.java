@@ -55,7 +55,7 @@ public interface ICommand extends Closeable {
 	public void setCrawlerDocument(ICrawlerDocument crawlerDoc);
 	
 	public IParserDocument getParserDocument();
-	public void setParserDocument(IParserDocument parserDoc) throws IOException;
+	public void setParserDocument(IParserDocument parserDoc);
 	
 	public IIndexerDocument[] getIndexerDocuments();
 	public void setIndexerDocuments(IIndexerDocument[] indexerDocs);

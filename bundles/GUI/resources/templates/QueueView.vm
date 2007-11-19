@@ -9,17 +9,39 @@
 
 <br />
 <br />
+#if($paramParser.getString("queue"))
 
-<b>Active jobs:</b><br />
-#if($activeJobs)
+  <h1>Active jobs:</h1>
+  #if($activeJobs)
+	#set($color = $alternatorTool.auto('r1','r2'))
 	#foreach($activeJob in $activeJobs)
-		$activeJob.getLocation()<br>
+		<span class="$color">$activeJob.getLocation()</span><br>
 	#end
-#end
-<hr />
-<b>Enqueued jobs:</b><br />
-#if($enqueuedJobs)
+  #end
+  <br /><hr />
+  
+  <h1>Enqueued jobs:</h1>
+  #if($enqueuedJobs)
 	#foreach($enqueuedJob in $enqueuedJobs)
-		$enqueuedJob.getLocation()<br>
+		<span class="$color">$enqueuedJob.getLocation()</span><br>
 	#end
+  #end
+#else
+   <h1>Overview:</h1>
+
+   #set($color = $alternatorTool.auto('r1','r2'))   
+   #set($components = {'Crawler':'org.paxle.crawler', 'Parser':'org.paxle.parser', 'Indexer':'org.paxle.indexer'})
+   <table>
+      <tr><th>Component</th><th>Active</th><th>Enqueued</th></tr>
+      #foreach($entry in $components.entrySet())
+   	#if($manager.getServices("org.paxle.core.IMWComponent","(component.ID=$entry.value)"))
+   	<tr class="$color">
+   		#set($compQueue = $listTool.get($manager.getServices("org.paxle.core.IMWComponent","(component.ID=$entry.value)"),0))
+   		<td><a href="?queue=$entry.value">$entry.key</a></td>
+   		<td>$compQueue.getActiveJobCount()</td>
+   		<td>$compQueue.getEnqueuedJobCount()</td>
+   	<tr>
+   	#end
+      #end
+   </table>
 #end

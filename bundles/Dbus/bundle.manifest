@@ -10,5 +10,5 @@ Import-Package: org.osgi.framework, org.paxle.core, org.apache.commons
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.dbus
 Bundle-Version: 1.0.0
-DynamicImport-Package: com.sun.security.auth.module
+DynamicImport-Package: com.sun.security.auth.module, sun.reflect
 

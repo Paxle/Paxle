@@ -1,10 +1,7 @@
 package org.paxle.filter.forum.impl;
 
-import java.util.Hashtable;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.paxle.core.filter.IFilter;
 
 public class Activator implements BundleActivator {
 
@@ -29,6 +26,10 @@ public class Activator implements BundleActivator {
 //		bc.registerService(IFilter.class.getName(), new ForumFilter(), filterProps);			
 	}
 
+	/**
+	 * This function is called by the osgi-framework to stop the bundle.
+	 * @see BundleActivator#stop(BundleContext)
+	 */		
 	public void stop(BundleContext context) throws Exception {
 		bc = null;
 	}

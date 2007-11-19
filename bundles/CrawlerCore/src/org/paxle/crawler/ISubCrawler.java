@@ -14,9 +14,9 @@ public interface ISubCrawler {
 	public static final String PROP_PROTOCOL = "Protocol";
 	
 	/**
-	 * @return the network protocol supported by this sub-crawler
+	 * @return the network protocols supported by this sub-crawler
 	 */
-	public String getProtocol();
+	public String[] getProtocols();
 	
 	public ICrawlerDocument request(String requestUrl);
 }

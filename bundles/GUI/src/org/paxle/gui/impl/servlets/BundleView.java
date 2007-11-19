@@ -11,11 +11,11 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 
 import org.osgi.framework.Bundle;
-import org.paxle.gui.AServlet;
+import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
 
-public class BundleView extends AServlet {
-	
+public class BundleView extends ALayoutServlet {
+
 	private static final long serialVersionUID = 1L;
 	
     private static final Map<Integer,String> states = new HashMap<Integer,String>();
@@ -27,10 +27,10 @@ public class BundleView extends AServlet {
     	states.put(Bundle.STOPPING, "stopping");
     	states.put(Bundle.UNINSTALLED, "uninstalled");
     }
-	
-	public BundleView(ServiceManager manager) {
-		super(manager);
-	}	
+    	
+	public BundleView(String bundleLocation) {
+		super(bundleLocation);
+	}
 	
     public Template handleRequest( HttpServletRequest request,
             HttpServletResponse response,
@@ -39,20 +39,22 @@ public class BundleView extends AServlet {
         Template template = null;
         try {
             template = this.getTemplate("/resources/templates/bundle.vm");
+            
+            ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
             if (request.getParameter("update") != null) {
-                Bundle bundle = this.manager.getBundle(Long.valueOf(request.getParameter("bundleID")));
+                Bundle bundle = manager.getBundle(Long.valueOf(request.getParameter("bundleID")));
                 bundle.update();
             } else if (request.getParameter("start") != null) {
-                Bundle bundle = this.manager.getBundle(Long.valueOf(request.getParameter("bundleID")));
+                Bundle bundle = manager.getBundle(Long.valueOf(request.getParameter("bundleID")));
                 bundle.start();
             } else if (request.getParameter("stop") != null) {
-                Bundle bundle = this.manager.getBundle(Long.valueOf(request.getParameter("bundleID")));
+                Bundle bundle = manager.getBundle(Long.valueOf(request.getParameter("bundleID")));
                 bundle.stop();
             } else if (request.getParameter("details") != null) {
-            	Bundle bundle = this.manager.getBundle(Long.valueOf(request.getParameter("bundleID")));
+            	Bundle bundle = manager.getBundle(Long.valueOf(request.getParameter("bundleID")));
             	context.put("bundle", bundle);
             }       
-            context.put("bundles", bundles2map(this.manager.getBundles()));
+            context.put("bundles", bundles2map(manager.getBundles()));
             context.put("states", states);
         } catch (Exception e) {
             System.err.println("Exception caught: " + e.getMessage());

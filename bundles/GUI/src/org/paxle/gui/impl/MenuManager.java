@@ -8,6 +8,10 @@ import org.paxle.gui.IMenuManager;
 public class MenuManager implements IMenuManager {
 	private List<MenuItem> items = new ArrayList<MenuItem>();	
 	
+	public void addItem(MenuItem item) {
+		items.add(item);
+	}
+	
 	public void addItem(String alias, String name) {
 		items.add(MenuItem.newInstance(alias, name));
 	}

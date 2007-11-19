@@ -29,14 +29,14 @@ public class Activator implements BundleActivator {
 		
 		// register this crawler as subcrawler
 		FtpCrawler crawler = new FtpCrawler();
-		Hashtable<String,String> props = new Hashtable<String, String>();
-		props.put(ISubCrawler.PROP_PROTOCOL, crawler.getProtocol());	  
+		Hashtable<String,Object> props = new Hashtable<String, Object>();
+		props.put(ISubCrawler.PROP_PROTOCOL, crawler.getProtocols());	  
 		bc.registerService(new String[]{ISubCrawler.class.getName(),IFtpCrawler.class.getName()}, crawler, props);
 		
 		// register URL handler service
 		Hashtable<String,String[]> properties = new Hashtable<String,String[]>(1);
-        properties.put(URLConstants.URL_HANDLER_PROTOCOL, new String[]{StreamHandlerService.PROTOCOL});
-        context.registerService(URLStreamHandlerService.class.getName(), new StreamHandlerService(), properties);
+        properties.put(URLConstants.URL_HANDLER_PROTOCOL, new String[]{FtpStreamHandlerService.PROTOCOL});
+        context.registerService(URLStreamHandlerService.class.getName(), new FtpStreamHandlerService(), properties);
 	}
 
 	/**

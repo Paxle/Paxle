@@ -14,15 +14,15 @@ import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.ftp.IFtpCrawler;
 
 public class FtpCrawler implements IFtpCrawler {
-	public static final String PROTOCOL = "ftp";
+	public static final String[] PROTOCOLS = new String[]{"ftp"};
 	
 	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
-	 * @see ISubCrawler#getProtocol()
+	 * @see ISubCrawler#getProtocols()
 	 */	
-	public String getProtocol() {
-		return PROTOCOL;
+	public String[] getProtocols() {
+		return PROTOCOLS;
 	}
 
 	public ICrawlerDocument request(String requestUrl) {
@@ -60,17 +60,14 @@ public class FtpCrawler implements IFtpCrawler {
 				crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, e.getMessage());
 			} else {
 				crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, "Unexpected Exception: " + e.getMessage());
-				e.printStackTrace();
 			}
+			
+			this.logger.warn(String.format("Unexpected '%s' while trying to crawl resource '%s'.",
+					e.getClass().getName(),
+					requestUrl
+			),e);
 		} 		
 
 		return crawlerDoc;
-	}
-	
-	public static void main(String[] args) {
-		FtpCrawler ftp = new FtpCrawler();
-		
-		ftp.request("ftp://anonymous:anonymous@ftp.tuwien.ac.at/api");
-		ftp.request("ftp://ftp.tuwien.ac.at/api/sane/README");
 	}
 }

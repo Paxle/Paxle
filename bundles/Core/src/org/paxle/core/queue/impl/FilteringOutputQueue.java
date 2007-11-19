@@ -52,7 +52,7 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 				// process the command by the next filter
 				filter.filter(command, filterContext);
 				if (command.getResult() == ICommand.Result.Rejected) {
-					this.logger.warn(String.format("Command for URL '%s' rejected by filter '%s'. Reason: %s",
+					this.logger.info(String.format("Command for URL '%s' rejected by filter '%s'. Reason: %s",
 							command.getLocation(), filter.getClass().getName(), command.getResultText()
 					));
 				}

@@ -7,52 +7,60 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
 public class ServiceManager {
-	private BundleContext context = null;
+	public static BundleContext context = null;
 	
-	public ServiceManager(BundleContext context) {
-		this.context = context;
-	}
+    /**
+     * Default constructor.
+     */
+    public ServiceManager() {
+        // do nothing
+    }	
 	
 	public void shutdownFramework() throws BundleException {
-		Bundle framework = this.context.getBundle(0);
+		Bundle framework = ServiceManager.context.getBundle(0);
 		if (framework != null) {
 			framework.stop();
 		}
 	}
 	
 	public void restartFramework() throws BundleException {
-		Bundle framework = this.context.getBundle(0);
+		Bundle framework = ServiceManager.context.getBundle(0);
 		if (framework != null) {
 			framework.update();
 		}		
 	}
 
 	public Object getService(String serviceName) {
-		ServiceReference reference = this.context.getServiceReference(serviceName);
-		return (reference == null) ? null : this.context.getService(reference);
+		ServiceReference reference = ServiceManager.context.getServiceReference(serviceName);
+		return (reference == null) ? null : ServiceManager.context.getService(reference);
 	}
 	
 	public boolean hasService(String serviceName) {
-		return this.context.getServiceReference(serviceName) != null;
+		return ServiceManager.context.getServiceReference(serviceName) != null;
 	}
 	
 	public Object[] getServices(String serviceName, String query) throws InvalidSyntaxException {
-		ServiceReference[] references = this.context.getServiceReferences(serviceName,query);
+		ServiceReference[] references = ServiceManager.context.getServiceReferences(serviceName,query);
 		if (references == null) return null;
 		
 		Object[] services = new Object[references.length];
 		for (int i=0; i < references.length; i++) {			
-			services[i] = this.context.getService(references[i]);
+			services[i] = ServiceManager.context.getService(references[i]);
 		}
 		
 		return services;
 	}
     
+	public boolean hasSerivce(String serviceName, String query) throws InvalidSyntaxException {
+		Object[] services = this.getServices(serviceName, query);
+		return (services != null && services.length > 0);
+	}
+	
     public Bundle[] getBundles() {
-        return this.context.getBundles();
+        return ServiceManager.context.getBundles();
     }
 
     public Bundle getBundle(long bundleID) {
-        return this.context.getBundle(bundleID);
+        return ServiceManager.context.getBundle(bundleID);
     }
 }

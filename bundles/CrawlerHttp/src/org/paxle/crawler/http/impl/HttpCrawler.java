@@ -40,7 +40,7 @@ public class HttpCrawler implements IHttpCrawler {
 	/**
 	 * The protocol supported by this crawler
 	 */
-	public static final String PROTOCOL = "http";
+	public static final String[] PROTOCOLS = new String[]{"http"};
 	
 	/**
 	 * Connection manager used for http connection pooling
@@ -61,10 +61,10 @@ public class HttpCrawler implements IHttpCrawler {
 	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
-	 * @see ISubCrawler#getProtocol()
+	 * @see ISubCrawler#getProtocols()
 	 */
-	public String getProtocol() {
-		return HttpCrawler.PROTOCOL;
+	public String[] getProtocols() {
+		return HttpCrawler.PROTOCOLS;
 	}	
 	
 	public ICrawlerDocument request(String requestUrl) {
@@ -72,6 +72,9 @@ public class HttpCrawler implements IHttpCrawler {
 		this.logger.info(String.format("Crawling URL '%s' ...",requestUrl));
 		
 		CrawlerDocument doc = new CrawlerDocument();
+		
+		// FIXME: we need to re-write the location on crawler-redirection
+		doc.setLocation(requestUrl);
 		
 		HttpMethod method = null;
 		try {

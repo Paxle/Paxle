@@ -8,6 +8,13 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/charset/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/chardet.jar"/>
 	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
 		<attributes>
 			<attribute name="bundle-name" value="Commons-Logging"/>
@@ -18,16 +25,5 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
-		<attributes>
-			<attribute name="bundle-name" value="Core"/>
-			<attribute name="org.paxle.core.charset" value="0.0.0"/>
-		</attributes>
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/paxle/core/charset/"/>
-			<accessrule kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry kind="lib" path="libs/chardet.jar"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>

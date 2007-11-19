@@ -235,7 +235,7 @@ public class RobotsTxtManager {
 
 	public boolean isDisallowed(String location) {	
 		if (!location.startsWith("http://") && !location.startsWith("https")) {
-			this.logger.info(String.format("Protocol of location '%s' not supported", location));
+			this.logger.debug(String.format("Protocol of location '%s' not supported", location));
 			return Boolean.FALSE;
 		}
 		

@@ -23,8 +23,8 @@ public class Activator implements BundleActivator {
 		
 		// register this crawler as subcrawler
 		HttpCrawler crawler = new HttpCrawler();
-		Hashtable<String,String> props = new Hashtable<String, String>();
-		props.put(ISubCrawler.PROP_PROTOCOL, crawler.getProtocol());	  
+		Hashtable<String,Object> props = new Hashtable<String, Object>();
+		props.put(ISubCrawler.PROP_PROTOCOL, crawler.getProtocols());	  
 		bc.registerService(new String[]{ISubCrawler.class.getName(),IHttpCrawler.class.getName()}, crawler, props);
 	}
 

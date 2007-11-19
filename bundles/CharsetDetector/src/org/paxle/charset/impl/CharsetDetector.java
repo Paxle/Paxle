@@ -50,7 +50,7 @@ public class CharsetDetector implements ICharsetDetector {
 
 	/**
 	 * {@inheritDoc}
-	 * @see ICharsetDetector
+	 * @see ICharsetDetector#createOutputStream(OutputStream)
 	 */
 	public CharsetDetectorOutputStream createOutputStream(OutputStream out) {
 		return new CharsetDetectorOutputStream(out);
@@ -58,7 +58,7 @@ public class CharsetDetector implements ICharsetDetector {
 
 	/**
 	 * {@inheritDoc}
-	 * @see ICharsetDetector
+	 * @see ICharsetDetector#createInputStream(InputStream)
 	 */	
 	public CharsetDetectorInputStream createInputStream(InputStream in) {
 		return new CharsetDetectorInputStream(in);
@@ -66,7 +66,8 @@ public class CharsetDetector implements ICharsetDetector {
 
 	/**
 	 * {@inheritDoc}
-	 * @see ICharsetDetector
+	 * @see ICharsetDetector#getSupportedCharsets()
+	 * @see nsDetector#getProbableCharsets()
 	 */		
 	public String[] getSupportedCharsets() {
 		return new nsDetector(nsPSMDetector.ALL).getProbableCharsets();
@@ -74,7 +75,7 @@ public class CharsetDetector implements ICharsetDetector {
 
 	/**
 	 * {@inheritDoc}
-	 * @see ICharsetDetector
+	 * @see ICharsetDetector#getInspectableMimeTypes()
 	 */		
 	public String[] getInspectableMimeTypes() {
 		return this.inspectableMimeTypes.toArray(new String[this.inspectableMimeTypes.size()]);
@@ -82,7 +83,7 @@ public class CharsetDetector implements ICharsetDetector {
 
 	/**
 	 * {@inheritDoc}
-	 * @see ICharsetDetector
+	 * @see ICharsetDetector#isInspectable(String)
 	 */		
 	public boolean isInspectable(String mimeType) {		
 		return this.inspectableMimeTypes.contains(mimeType);

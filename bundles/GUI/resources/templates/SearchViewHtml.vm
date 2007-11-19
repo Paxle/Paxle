@@ -1,0 +1,60 @@
+## Set the page title
+#set( $page_title = "Paxle Search Page" )
+
+## Add custom html headers
+#set( $h1 = "<link rel='alternate' type='application/rss+xml' title='Paxle Search Page' href='?format=rss&query=$escTool.url($searchQuery)' />")
+## TODO: link to a opensearch-description
+## #set( $h2 = '<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="opensearchdescription.xml" />')
+#set( $page_headers = [$h1] )
+
+## the regular content
+#if(!$Search || !$fieldManager)
+	<font color="red"><b>Search Engine Bundle not installed</b></font>
+#else	
+<form>
+	<input type="text" size="50" name="query" #if($searchQuery) value="$searchQuery" #end/>
+	<input type="submit" value="search now"/>
+</form>
+<p />
+#end
+
+#if($searchQuery)
+   <table >
+      #if($Search)
+         #foreach($searchResult in $Search.search($searchQuery, 50, 10000))
+            #foreach($result in $searchResult.getResult())
+               #if($result.get($fieldManager.get("Location")))
+                  <tr>
+                     <td style="border-bottom: 1px dotted rgb(153,153,153); color: black;">
+                           <a href="$result.get($fieldManager.get("Location"))">
+                           #if($result.get($fieldManager.get("Title")))
+                              $result.get($fieldManager.get("Title"))
+                           #else
+                              $result.get($fieldManager.get("Location"))
+                           #end</a><br />
+                           #if($result.get($fieldManager.get("Author")))
+                              Author: $result.get($fieldManager.get("Author"))<br />
+                           #end
+                           #if($result.get($fieldManager.get("LastCrawled")))
+                              Last Crawled: $dateTool.format('short',$result.get($fieldManager.get("LastCrawled")))<br />
+                           #end
+                           #if($result.get($fieldManager.get("LastModified")))
+                              Last Modified: $dateTool.format('short',$result.get($fieldManager.get("LastModified")))<br />
+                           #end
+                           #if ($result.get($fieldManager.get("MimeType")))
+                              Content Type: $result.get($fieldManager.get("MimeType"))
+                           #end
+                           #if($result.get($fieldManager.get("Summary")))
+                              Summary: $result.get($fieldManager.get("Summary"))<br />
+                           #end
+                           #if($result.get($fieldManager.get("Snippet")))
+                              Summary: $result.get($fieldManager.get("Snippet"))<br />
+                           #end
+                     </td>
+                  </tr>
+               #end
+            #end
+         #end
+      #end
+   </table>
+#end

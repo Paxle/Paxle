@@ -122,10 +122,24 @@ public class MWComponent<Data> implements IMWComponent<Data> {
 	}
 	
 	/**
+	 * @see IMWComponent#getActiveJobCount()
+	 */
+	public int getActiveJobCount() {
+		return this.pool.getActiveJobCount();
+	}
+	
+	/**
 	 * @see IMWComponent#getEnqueuedJobs()
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Data> getEnqueuedJobs() {
 		return (List<Data>) Arrays.asList(this.inQueue.toArray());
+	}
+	
+	/**
+	 * @see IMWComponent#getEnqueuedJobCount()
+	 */
+	public int getEnqueuedJobCount() {
+		return this.inQueue.size();
 	}
 }

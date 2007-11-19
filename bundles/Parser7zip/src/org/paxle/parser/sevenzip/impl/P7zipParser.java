@@ -32,7 +32,10 @@ public class P7zipParser implements I7zipParser {
 		final SZParserExtractCallback aec = new SZParserExtractCallback(doc, archive, context.getTempFileManager(), context.getCharsetDetector());
 		try {
 			archive.Extract(null, -1, 0, aec);
-		} finally { archive.close(); }
+			doc.setStatus(IParserDocument.Status.OK);
+		} finally { 
+			archive.close(); 
+		}
 		return doc;
 	}
 }

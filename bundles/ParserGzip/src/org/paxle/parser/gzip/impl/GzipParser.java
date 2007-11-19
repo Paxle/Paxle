@@ -36,6 +36,9 @@ public class GzipParser implements IGzipParser {
 			cfis.close();
 			pdos.close();
 		}
-		return pdos.parse(location);
+		
+		IParserDocument doc = pdos.parse(location);
+		doc.setStatus(IParserDocument.Status.OK);
+		return doc;
 	}
 }

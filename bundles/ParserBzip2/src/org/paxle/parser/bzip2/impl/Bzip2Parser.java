@@ -41,12 +41,15 @@ public class Bzip2Parser implements IBzip2Parser {
 		final ParserDocOutputStream pdos = new ParserDocOutputStream(context.getTempFileManager(), context.getCharsetDetector());
 		
 		try {
-			IOTools.copy(is, pdos);
+			IOTools.copy(is, pdos);			
 		} finally {
 			is.close();
 			pdos.close();
 		}
-		return pdos.parse(location);
+		
+		IParserDocument doc = pdos.parse(location);
+		doc.setStatus(IParserDocument.Status.OK);
+		return doc;
 	}
 	
 }

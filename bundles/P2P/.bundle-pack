@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bundlejar>
 <resource dst="" pattern=".*\.class" src="/P2P/out" type="0"/>
+<resource dst="libs/Meteor.jar" src="/P2P/libs/Meteor.jar" type="1"/>
 <resource dst="libs/bcprov-jdk14.jar" src="/P2P/libs/bcprov-jdk14.jar" type="1"/>
 <resource dst="libs/dom4j-1.6.1.jar" src="/P2P/libs/dom4j-1.6.1.jar" type="1"/>
 <resource dst="libs/javax.servlet.jar" src="/P2P/libs/javax.servlet.jar" type="1"/>

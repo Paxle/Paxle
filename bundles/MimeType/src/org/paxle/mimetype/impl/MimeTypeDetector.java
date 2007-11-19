@@ -10,13 +10,17 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.jmimemagic.Magic;
 import net.sf.jmimemagic.MagicMatch;
+import net.sf.jmimemagic.MagicMatchNotFoundException;
 import net.sf.jmimemagic.MagicMatcher;
 import net.sf.jmimemagic.MagicParser;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.mimetype.IDetectionHelper;
 
 public class MimeTypeDetector implements IMimeTypeDetector {
+	private Log logger = LogFactory.getLog(this.getClass());
 
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 	private final Lock r = rwl.readLock();
@@ -25,6 +29,7 @@ public class MimeTypeDetector implements IMimeTypeDetector {
 	private HashMap<String,Matcher> helpers = new HashMap<String,Matcher>();
 	private List<MagicMatcher> matcherList = null;
 
+	@SuppressWarnings("unchecked")
 	public MimeTypeDetector(File jMimeMagicFile) {
 		try {
 			// configure jMimeMagic to use our custom magic file
@@ -86,6 +91,7 @@ public class MimeTypeDetector implements IMimeTypeDetector {
 			if (match!=null) {
 				Collection subMatches = match.getSubMatches();
 				if ((subMatches != null) && (!subMatches.isEmpty())) {
+					// if there is a sub-match, use it
 					mimeType = ((MagicMatch) subMatches.iterator().next()).getMimeType();
 				} else {
 					mimeType = match.getMimeType();
@@ -94,8 +100,14 @@ public class MimeTypeDetector implements IMimeTypeDetector {
 
 			return mimeType;
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
+			if (!(e instanceof MagicMatchNotFoundException)) {
+				this.logger.warn(String.format("Unexpected '%s' while trying to determine the mime-type of file '%s'.",
+						e.getClass().getName(),
+						file.getCanonicalFile().toString()
+				),e);
+				throw e;
+			}
+			return null;
 		} finally {
 			r.unlock();
 		}
