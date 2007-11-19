@@ -269,6 +269,9 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 					this.netPeerGroup.getPeerGroupName()
 			));
 		}
+		
+		// stop application peer group
+		appPeerGroup.stopApp();
 
 		// stop the net peer group
 		netPeerGroup.stopApp();
