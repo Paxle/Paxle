@@ -9,6 +9,7 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.desktop
 Bundle-Version: 1.0.0
 DynamicImport-Package: javax.swing, sun.awt, javax.swing.event, sun.aw
- t.motif, sun.awt.X11, javax.swing.plaf.metal, javax.swing.plaf.basic
+ t.motif, sun.awt.X11, javax.swing.plaf.metal, javax.swing.plaf.basic,
+  sun.reflect
 Bundle-ContactAddress: http://www.paxle.net/
 
