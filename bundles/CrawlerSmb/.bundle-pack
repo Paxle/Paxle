@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundlejar>
+<resource dst="" pattern=".*\.class" src="/CrawlerSmb/out" type="0"/>
+<resource dst="libs/jcifs-1.2.17.jar" src="/CrawlerSmb/libs/jcifs-1.2.17.jar" type="1"/>
+</bundlejar>
