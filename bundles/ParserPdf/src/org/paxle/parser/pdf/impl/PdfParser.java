@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 import org.paxle.core.doc.IParserDocument;
@@ -84,6 +85,12 @@ public class PdfParser implements IPdfParser {
 					if (keywordArray != null && keywordArray.length > 0) {
 						parserDoc.setKeywords(Arrays.asList(keywordArray));
 					}
+				}
+				
+				// last modification date
+				Calendar lastMod = metadata.getModificationDate();
+				if (lastMod != null) {
+					parserDoc.setLastChanged(lastMod.getTime());
 				}
 			}
 			

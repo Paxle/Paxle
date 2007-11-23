@@ -1,0 +1,33 @@
+==================================================
+PAXLE - SMB CRAWLER
+==================================================
+
+Description:
+-------------------------------------------------- 
+TODO
+
+Sourcecode:
+--------------------------------------------------
+SVN:  svn+ssh://svn@svn.xenim.de/p2psearch/trunk/bundles/CrawlerSmb
+HTTP: http://trac.paxle.net/trac/browser/trunk/bundles/CrawlerSmb
+
+Dynamic Imports:
+-------------------------------------------------- 
+- sun.reflect
+
+Used External Bundles:
+-------------------------------------------------- 
+- Knopflerfish Framework 
+- Knopflerfish commons-logging (commons-logging_all)
+  
+Used Paxle Bundles:
+--------------------------------------------------   
+- Paxle Core
+- Paxle Core Crawler  
+  
+Used External Libraries:
+--------------------------------------------------
+- JCifs: Java CIFS/SMB client library
+  Files: jcifs-1.2.17
+  See: http://jcifs.samba.org
+  
