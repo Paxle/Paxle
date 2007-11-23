@@ -21,7 +21,7 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/jakarta-oro-2.0.7.jar"/>
-	<classpathentry kind="lib" path="libs/jmimemagic-0.1.0.jar"/>
+	<classpathentry kind="lib" path="libs/jmimemagic-0.1.0.jar" sourcepath="/home/theli/workspace/jMimeMagic"/>
 	<classpathentry kind="lib" path="libs/log4j-1.2.9.jar"/>
 	<classpathentry kind="lib" path="libs/xerces.jar"/>
 	<classpathentry kind="lib" path="libs/xml-apis.jar"/>

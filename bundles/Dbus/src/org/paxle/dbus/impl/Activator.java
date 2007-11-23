@@ -4,7 +4,6 @@ package org.paxle.dbus.impl;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-import org.freedesktop.dbus.DBusConnection;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.dbus.IDbusService;
