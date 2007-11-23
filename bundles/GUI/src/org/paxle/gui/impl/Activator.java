@@ -127,6 +127,7 @@ public class Activator implements BundleActivator {
 			servletManager.addServlet("/", new SearchView(null));
 			servletManager.addServlet("/index.html", new SearchView(null));
 			servletManager.addResources("/style.css", "resources/templates/layout/style.css");
+			servletManager.addResources("/js/wz_tooltip.js", "resources/js/wz_tooltip.js");
 		}		
 	}
 

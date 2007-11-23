@@ -1,0 +1,7 @@
+Hier kommen zusaetzliche Operationen für $escTool.html($location) rein, z.B.
+<ul>
+   <li>add to Blacklist</li>
+   <li>add to bookmarks (e.g. delicious, etc.</li>
+   <li>recrawl location</li>
+</ul>
+Diese Liste soll durch externe Servlets erweiterbar sein.

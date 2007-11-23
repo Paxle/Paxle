@@ -19,14 +19,19 @@
 #end
 
 #if($searchQuery)
+   <!-- java script lib for the tooltips -->
+   <script language="JavaScript" type="text/javascript" src="/js/wz_tooltip.js"></script>
+
    <table >
       #if($Search)
          #foreach($searchResult in $Search.search($searchQuery, 50, 10000))
             #foreach($result in $searchResult.getResult())
                #if($result.get($fieldManager.get("Location")))
                   <tr>
+                     #set($location = $result.get($fieldManager.get("Location")))
+	             #set($hintText = $escTool.javascript("#parse('/resources/templates/SearchViewToolTip.vm')"))	                               
                      <td style="border-bottom: 1px dotted rgb(153,153,153); color: black;">
-                           <a href="$result.get($fieldManager.get("Location"))">
+                           <a href="$result.get($fieldManager.get("Location"))" onmouseover="Tip('$hintText',STICKY,true,DURATION,2500)">
                            #if($result.get($fieldManager.get("Title")))
                               $result.get($fieldManager.get("Title"))
                            #else
