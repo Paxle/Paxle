@@ -1,0 +1,37 @@
+==================================================
+PAXLE - MS-OFFICE FILE PARSER
+==================================================
+
+Description:
+-------------------------------------------------- 
+Parser to parse:
+- MS Word documents
+- MS Powerpoint presentations
+- MS Visio drawlings
+
+Sourcecode:
+--------------------------------------------------
+SVN:  svn+ssh://svn@svn.xenim.de/p2psearch/trunk/bundles/ParserMsOffice
+HTTP: http://trac.paxle.net/trac/browser/trunk/bundles/ParserMsOffice
+
+Dynamic Imports:
+-------------------------------------------------- 
+- sun.reflect
+
+Used External Bundles:
+-------------------------------------------------- 
+- Knopflerfish Framework 
+- Knopflerfish commons-logging (commons-logging_all)
+  
+Used Paxle Bundles:
+--------------------------------------------------   
+- Paxle Core
+- Paxle Core Parser  
+  
+Used External Libraries:
+--------------------------------------------------
+- Apache POI: Java API to access Microsoft format files
+  Files: poi-3.0.1-FINAL-20070705.jar
+         poi-scratchpad-3.0.1-FINAL-20070705.jar
+  See: http://poi.apache.org
+  

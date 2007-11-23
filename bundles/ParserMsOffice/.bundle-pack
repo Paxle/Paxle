@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundlejar>
+<resource dst="" pattern=".*\.class" src="/ParserMsOffice/out" type="0"/>
+<resource dst="libs/poi-3.0.1-FINAL-20070705.jar" src="/ParserMsOffice/libs/poi-3.0.1-FINAL-20070705.jar" type="1"/>
+<resource dst="libs/poi-scratchpad-3.0.1-FINAL-20070705.jar" src="/ParserMsOffice/libs/poi-scratchpad-3.0.1-FINAL-20070705.jar" type="1"/>
+</bundlejar>
