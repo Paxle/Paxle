@@ -14,6 +14,8 @@ import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 
 public class InterfaceInterceptor extends EmptyInterceptor {
+	private static final long serialVersionUID = 1L;
+
 	public String getEntityName(Object object) {
         if (object instanceof ICommand) {
             return ICommand.class.getName();

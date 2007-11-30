@@ -17,7 +17,6 @@ import org.apache.commons.cache.SimpleCache;
 import org.apache.commons.cache.StashPolicy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.EntityMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -92,7 +91,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 					config.addURL(mapping);
 				}
 				
-				String[] sql = config.generateSchemaCreationScript( new org.hibernate.dialect.MySQLDialect());
+				// String[] sql = config.generateSchemaCreationScript( new org.hibernate.dialect.MySQLDialect());
 				
 				// create the session factory
 				sessionFactory = config.buildSessionFactory();
@@ -194,25 +193,29 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		return known;
 	}
 
-	/**
-	 * TODO: does not work at the moment
-	 */
-	private void commandToXML(ICommand cmd) {
-		Session session = sessionFactory.getCurrentSession();		
-		Transaction transaction = null;
-		try {
-			transaction = session.beginTransaction();	
-			Session dom4jSession = session.getSession(EntityMode.DOM4J);
-			
-			dom4jSession.saveOrUpdate(cmd);
-
-			transaction.commit();
-		} catch (HibernateException e) {
-			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-			this.logger.error("Error while converting command to XML",e);
-		}	
-	}
+//	/**
+//	 * TODO: does not work at the moment
+//	 */
+//	private void commandToXML(ICommand cmd) {
+//		Session session = sessionFactory.getCurrentSession();		
+//		Transaction transaction = null;
+//		try {
+//			transaction = session.beginTransaction();	
+//			Session dom4jSession = session.getSession(EntityMode.DOM4J);
+//			
+//			dom4jSession.saveOrUpdate(cmd);
+//
+//			transaction.commit();
+//		} catch (HibernateException e) {
+//			if (transaction != null && transaction.isActive()) transaction.rollback(); 
+//			this.logger.error("Error while converting command to XML",e);
+//		}	
+//	}
 	
+	/**
+	 * TODO: we can speedup this by using cursors or iterators here ... 
+	 */
+	@SuppressWarnings("unchecked")
 	private List<ICommand> fetchNextCommands(int offset, int limit)  {		
 		List<ICommand> result = null;
 		Session session = sessionFactory.getCurrentSession();
@@ -355,7 +358,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 
 				List<ICommand> commands = null;
 				while(!Thread.currentThread().isInterrupted()) {
-					commands = CommandDB.this.fetchNextCommands(0,1);
+					commands = CommandDB.this.fetchNextCommands(0,10);
 					if (commands != null && commands.size() > 0) {
 						for (ICommand command : commands) {
 //							System.out.println(CommandDB.this.isKnown(command.getLocation()));
