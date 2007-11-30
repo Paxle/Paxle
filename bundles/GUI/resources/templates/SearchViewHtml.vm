@@ -31,6 +31,11 @@
                      #set($location = $result.get($fieldManager.get("Location")))
 	             #set($hintText = $escTool.javascript("#parse('/resources/templates/SearchViewToolTip.vm')"))	                               
                      <td style="border-bottom: 1px dotted rgb(153,153,153); color: black;">
+                           ## only display favicons if the corresponding bundle is installed
+                     	   #if($showFavicons)
+                              #set($imageSrc = $escTool.javascript($result.get($fieldManager.get("Location"))))
+                              <img class="favicon" src="/favicon?url=$escTool.url("$imageSrc")" width="16" height="16" alt="-"/>
+                     	   #end
                            <a href="$result.get($fieldManager.get("Location"))" onmouseover="Tip('$hintText',STICKY,true,DURATION,2500)">
                            #if($result.get($fieldManager.get("Title")))
                               $result.get($fieldManager.get("Title"))
@@ -47,7 +52,7 @@
                               Last Modified: $dateTool.format('short',$result.get($fieldManager.get("LastModified")))<br />
                            #end
                            #if ($result.get($fieldManager.get("MimeType")))
-                              Content Type: $result.get($fieldManager.get("MimeType"))
+                              Content Type: $result.get($fieldManager.get("MimeType"))<br />
                            #end
                            #if($result.get($fieldManager.get("Summary")))
                               Summary: $result.get($fieldManager.get("Summary"))<br />

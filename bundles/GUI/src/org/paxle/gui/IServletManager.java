@@ -14,4 +14,9 @@ public interface IServletManager {
 	 * @return a map containing all currenty known resources.
 	 */
 	public Map<String, String> getResources();
+	
+	/**
+	 * @return <code>true</code> if a servlet was registered using the specified path
+	 */
+	public boolean hasServlet(String path);
 }

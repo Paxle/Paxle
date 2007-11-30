@@ -218,7 +218,17 @@ public class ServletManager implements IServletManager {
 		return Collections.unmodifiableMap(this.servlets);
 	}
 	
+	/**
+	 * @see IServletManager#getResources()
+	 */
 	public Map<String, String> getResources() {
 		return Collections.unmodifiableMap(this.resources);
+	}
+
+	/**
+	 * @see IServletManager#hasServlet(String)
+	 */
+	public boolean hasServlet(String alias) {
+		return this.servlets.containsKey(alias);
 	}
 }

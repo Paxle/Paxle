@@ -2,6 +2,7 @@
 #set( $page_title = "Paxle Queue View Page" )
 
 <ul class="tabs">
+	<li><a href="/queue">Overview</a></li>
 	<li><a href="?queue=org.paxle.crawler">Crawler</a></li>
 	<li><a href="?queue=org.paxle.parser">Parser</a></li>
 	<li><a href="?queue=org.paxle.indexer">Indexer</a></li>

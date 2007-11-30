@@ -12,6 +12,7 @@ import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IServletManager;
 import org.paxle.gui.impl.ServiceManager;
 
 public class SearchView extends ALayoutServlet {
@@ -42,6 +43,10 @@ public class SearchView extends ALayoutServlet {
 			context.put("Search", manager.getService("org.paxle.se.search.ISearchProviderManager"));
 			context.put("fieldManager", manager.getService("org.paxle.se.index.IFieldManager"));
 			
+			// get the servlet-manager and determine if the favicon-servlet was installed
+			IServletManager servletManager = (IServletManager) manager.getService(IServletManager.class.getName());
+			context.put("showFavicons", servletManager == null ? Boolean.FALSE : servletManager.hasServlet("/favicon"));
+			
 			/*
 			 * Choose the output format to use
 			 */
@@ -59,7 +64,6 @@ public class SearchView extends ALayoutServlet {
 				template = this.getTemplate("/resources/templates/SearchViewHtml.vm");
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			this.logger.error("Error",e);
 		}
 		return template;

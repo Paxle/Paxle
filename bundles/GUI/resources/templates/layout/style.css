@@ -127,3 +127,10 @@ input:focus, textarea:focus {
 .r1 {
   background-color: #cdcdcd;
 }
+
+img.favicon{
+  margin: 0px 4px 0px 0px;
+  width: 16px;
+  height: 16px;
+  float: left;
+}
