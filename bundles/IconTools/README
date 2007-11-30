@@ -1,0 +1,59 @@
+==================================================
+PAXLE - ICON BUNDLE
+==================================================
+
+Description:
+-------------------------------------------------- 
+This bundle is used to load the favicon of a given html-resource. For non-http
+resources, or for resources without a specified favicon an icon based on the 
+resource content-type is loaded (see the icons stored in /resources/icons/).
+
+This bundle requires a servlet that is available via http://[server]:[port]/favicon
+an accepts an URL as request parameter, e.g.
+  http://[server]:[port]/favicon?url=http://wiki.paxle.net
+
+This bundle is used by the GUI bundle to display favicons next to the displayed
+search-result items.
+
+Sourcecode:
+--------------------------------------------------
+SVN:  svn+ssh://svn@svn.xenim.de/p2psearch/trunk/bundles/IconTools
+HTTP: http://trac.paxle.net/trac/browser/trunk/bundles/IconTools
+
+Dynamic Imports:
+-------------------------------------------------- 
+- sun.reflect
+
+# imports required for image loading
+- javax.imageio
+- javax.imageio.spi
+- javax.swi
+
+# imports required for html parsing
+- javax.swing.text
+- javax.swing.text.html, 
+- javax.swing.text.html.parser
+
+Used External Bundles:
+-------------------------------------------------- 
+- Knopflerfish Framework 
+- Knopflerfish commons-logging (commons-logging_all)
+- Knopflerfish Servlet.jar (jsdk)
+  
+Used Paxle Bundles:
+--------------------------------------------------   
+- Paxle Core
+- Paxle HttpTools
+  
+Used External Libraries:
+--------------------------------------------------
+- AC.lib-ICO: Java library for ICO files
+  Files: aclibico-2.1.jar
+  See: http://sourceforge.net/projects/aclibico/
+  - Apache Log4J
+    Files: log4j-1.2.8.jar
+    See: http://logging.apache.org/log4j
+- Silk-Icons: a free icon set
+  Files: /resources/icons/*
+  See: http://famfamfam.com/lab/icons/silk/    
+  
