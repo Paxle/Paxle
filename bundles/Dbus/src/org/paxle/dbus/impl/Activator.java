@@ -57,6 +57,9 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext arg0) throws Exception {
 		// cleanup
 		bc = null;
+		
+		// loop through the registered services and disconnect
+		// them from DBus
 		for (IDbusService service : this.services) {
 			service.disconnect();
 		}

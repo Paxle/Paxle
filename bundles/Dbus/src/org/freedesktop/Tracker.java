@@ -10,6 +10,7 @@ import org.freedesktop.dbus.DBusInterface;
  * @see <a href="http://svn.gnome.org/viewvc/tracker/trunk/src/trackerd/tracker-dbus-methods.c?view=markup">tracker-dbus-methods.c</a>
  */
 public interface Tracker extends DBusInterface {
+	public static final String SERVICE_FILES = "Files"; 
 	
 	/**
 	 * @see <a href="http://svn.gnome.org/viewvc/tracker/trunk/src/trackerd/tracker-dbus-metadata.c?view=markup">tracker-dbus-metadata.c</a>
@@ -117,6 +118,7 @@ public interface Tracker extends DBusInterface {
 		 * 			<arg type="s" name="result" direction="out" />
 		 * </method>
 		 * </pre>
+		 * @return the sinippet text
 		 */
 		public String GetSnippet(String service, String uri, String searchText);
 	}
@@ -127,6 +129,7 @@ public interface Tracker extends DBusInterface {
 	 * 	<arg type="i" name="version" direction="out" />
 	 * </method>
 	 * </pre>
+	 * @return the tracker version
 	 */
 	public int GetVersion();
 	
