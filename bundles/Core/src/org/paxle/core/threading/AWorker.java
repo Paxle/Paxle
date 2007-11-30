@@ -112,15 +112,16 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                         this.done = true;
                         
                         // free memory
-                        reset();
+                        this.reset();
                         
                         // reset threadname
                     	this.setName();                    	
                     }
                 }
             }
+            this.logger.debug("Worker thread stopped from outside.");
         } catch (InterruptedException ex) {
-            ex.printStackTrace();
+        	this.logger.debug("Worker thread interrupted from outside.");
         } catch (Throwable ex) {
         	this.logger.error(String.format("Unexpected '%s' while processing command '%s'."
         			,ex.getClass().getName()
@@ -151,6 +152,9 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
         }
     }
     
+    /**
+     * @see IWorker#getAssigned()
+     */
     public Data getAssigned() {
     	return this.command;
     }
@@ -181,8 +185,17 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
      * @see IWorker#terminate()
      */
     public void terminate() {
+    	if (this.stopped && !this.isAlive()) {
+    		// thread already stopped
+    		return;
+    	}
+    	
+    	// signal termination to the worker thread
         this.stopped = true;     
         this.interrupt();
+        
+        // wait for the thread to finish
+        // XXX: should we use a timeout here?
         try {
 			this.join();
 		} catch (InterruptedException e) {/* ignore this */}

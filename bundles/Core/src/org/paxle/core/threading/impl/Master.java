@@ -1,5 +1,7 @@
 package org.paxle.core.threading.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.IInputQueue;
 import org.paxle.core.threading.IMaster;
@@ -9,7 +11,8 @@ import org.paxle.core.threading.PPM;
 
 
 public class Master<Data> extends Thread implements IMaster {
-
+	private Log logger = LogFactory.getLog(this.getClass());
+	
 	/**
 	 * A pool of {@link IWorker worker-threads}
 	 */
@@ -64,6 +67,7 @@ public class Master<Data> extends Thread implements IMaster {
 	@Override
 	public void run() {
         while (!this.stopped && !Thread.interrupted()) {
+        	Data command = null;
             try {
             	// check if the master was paused
             	synchronized (this) {
@@ -71,7 +75,7 @@ public class Master<Data> extends Thread implements IMaster {
 				}
             	
                 // getting a new command from the queue
-                Data command = this.inQueue.dequeue();
+                command = this.inQueue.dequeue();
 
                 // getting a free worker from pool
                 IWorker<Data> worker = this.pool.getWorker();
@@ -79,14 +83,19 @@ public class Master<Data> extends Thread implements IMaster {
                 // assign the command to the worker
                 worker.assign(command);
                 this.processedCount++;
+                command = null;
                 
                 //add the job to the total job-count and the PPM
                 this.ppm.trick();
             } catch (InterruptedException e) {
+            	this.logger.debug("Master thread interrupted from outside.");
                 Thread.interrupted();
                 this.stopped = true;
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Throwable e) {
+            	this.logger.error(String.format("Unexpected '%s' while processing command '%s'."
+            			,e.getClass().getName()
+            			,command
+            	),e);
             }
         }
 
@@ -95,9 +104,13 @@ public class Master<Data> extends Thread implements IMaster {
 
         // closing the pool
         try {
+        	this.logger.debug("Terminating worker-threads ...");
             this.pool.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+            this.logger.debug("Worker-threads terminated.");
+        } catch (Throwable e) {
+        	this.logger.error(String.format("Unexpected '%s' while terminating worker-threads."
+        			,e.getClass().getName()
+        	),e);
         }
 	}
 	

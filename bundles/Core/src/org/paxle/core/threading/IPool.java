@@ -34,9 +34,13 @@ public interface IPool<Data> {
 	public int getActiveJobCount();
 	
 	/**
-	 * Close the thread pool and interrupts all running threads 
+	 * Close the thread pool and interrupts all running threads .
 	 */
 	public void close() throws Exception;
 	
+	/**
+	 * Indicates if the thread-pool was closed via a call to {@link #close()}.
+	 * @return <code>true</code> if the thread-pool was closed.
+	 */
 	public boolean closed();
 }

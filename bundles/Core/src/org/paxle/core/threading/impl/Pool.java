@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.paxle.core.threading.IPool;
@@ -12,13 +14,20 @@ import org.paxle.core.threading.IWorker;
 
 
 public class Pool<Data> extends GenericObjectPool implements IPool<Data> {
+	private Log logger = LogFactory.getLog(this.getClass());
+	
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();
 	
 	/**
+	 * indicates if the pool was {@link #closed()}.
+	 */
+	private boolean closed = false;
+	
+	/**
 	 * A list of currently active workers
-	 * TODO: whould we keep using a list or should we use something else?
+	 * XXX: should we keep using a list or should we use something else?
 	 */
 	private ArrayList<IWorker<Data>> activeWorkers = new ArrayList<IWorker<Data>>();
 	
@@ -74,6 +83,11 @@ public class Pool<Data> extends GenericObjectPool implements IPool<Data> {
 	 */
 	@SuppressWarnings("unchecked")
 	public IWorker<Data> getWorker() throws Exception {
+		if (this.closed) {
+			// thread pool already closed. Notify the master thread about this circumstance
+			throw new InterruptedException("Thread pool was closed.");
+		}
+		
 		IWorker<Data> newWorker = (IWorker<Data>) super.borrowObject();
 		this.addActiveWorker(newWorker);
 		return newWorker;
@@ -84,12 +98,18 @@ public class Pool<Data> extends GenericObjectPool implements IPool<Data> {
 	 * @see GenericObjectPool#returnObject(Object)
 	 */
 	public void returnWorker(IWorker<Data> worker) {
-		try {
-			super.returnObject(worker);			
+		try {	
+			if (this.closed) {
+				// thread pool already closed. Notify the worker thrad about this circumstance.
+				throw new InterruptedException("Thread pool was closed");
+			}
+			super.returnObject(worker);	
 		} catch (Exception e) {
+			this.logger.error(String.format("Unexpected '%s' while returning worker thread into pool.",e.getClass().getName()),e);
 			worker.terminate();
+		} finally {
+			if (!this.closed) this.removeActiveWorker(worker);
 		}
-		this.removeActiveWorker(worker);		
 	}
 	
 	/**
@@ -98,29 +118,43 @@ public class Pool<Data> extends GenericObjectPool implements IPool<Data> {
 	 */
 	public void invalidateWorker(IWorker<Data> worker) {
 		try {
-			super.invalidateObject(worker);
+			if (!this.closed) super.invalidateObject(worker);
 		} catch (Exception e) {
+        	this.logger.error(String.format("Unexpected '%s' while invalidating worker thread.",e.getClass().getName()),e);
 			worker.terminate();
+		} finally {
+			if (!this.closed) this.removeActiveWorker(worker);
 		}
-		this.removeActiveWorker(worker);	
 	}
 
 	/**
-	 * TODO: implementation required ...
 	 * @see IPool#close()
 	 * @see GenericObjectPool#close()
 	 */
 	public void close() throws Exception {
-		// TODO Auto-generated method stub
+		this.logger.debug("Closing thread-pool ...");
+		this.closed = true;
 
+		try {
+			this.w.lock();
+			
+			// loop through all active workers
+			for (IWorker<Data> worker : this.activeWorkers) {
+				// terminate worker thread
+				worker.terminate();				
+			}
+		} finally {
+			this.w.unlock();
+		}	
+		
 		super.close();
+		this.logger.debug("Thread-pool closed.");
 	}
 
 	/**
 	 * @see IPool#closed()
 	 */
 	public boolean closed() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.closed;
 	}
 }

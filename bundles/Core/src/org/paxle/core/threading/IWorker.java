@@ -19,7 +19,8 @@ public interface IWorker<Data> {
 	public Data getAssigned();
 	
 	/**
-	 * Terminate the worker
+	 * Terminate the worker. This function is called by {@link IPool#close()} to terminate
+	 * all workers associated to the {@link IPool worker-thread-pool}.
 	 */
 	public void terminate();
 	
