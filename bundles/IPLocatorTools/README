@@ -1,0 +1,42 @@
+=====================================================================
+PAXLE - IP-LOCATOR BUNDLE
+=====================================================================
+
+Description:
+--------------------------------------------------------------------- 
+This bundle can be used to determine the locale for a given
+host-name of ip-address and returns the flag of the detected
+country. The available flags are located in /resources/flags/.
+
+This bundle registers a servlet that is available via 
+   http://[server]:[port]/ipLocator
+an accepts an URL as request parameter, e.g.
+   http://[server]:[port]/ipLocator?ip=paxel.sourceforge.net
+
+Sourcecode:
+---------------------------------------------------------------------
+SVN:  svn+ssh://svn@svn.xenim.de/p2psearch/trunk/bundles/IPLocatorTools
+HTTP: http://trac.paxle.net/trac/browser/trunk/bundles/IPLocatorTools
+
+Dynamic Imports:
+--------------------------------------------------------------------- 
+- sun.reflect
+
+Used External Bundles:
+--------------------------------------------------------------------- 
+- Knopflerfish Framework 
+- Knopflerfish Servlet.jar (jsdk)
+  
+Used Paxle Bundles:
+--------------------------------------------------   
+- Paxle Core
+  
+Used External Libraries:
+--------------------------------------------------
+- InetAddressLocator: Java IP geolocation system
+  Files: InetAddressLocator.jar
+  See: http://javainetlocator.sourceforge.net
+- Flag-Icons
+  Files: /resources/flags/*
+  See: http://famfamfam.com/lab/icons/flags/    
+  

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundlejar>
+<resource dst="" pattern=".*\.class" src="/IPLocatorTools/out" type="0"/>
+<resource dst="libs/InetAddressLocator.jar" src="/IPLocatorTools/libs/InetAddressLocator.jar" type="1"/>
+<resource dst="/resources/" src="/IPLocatorTools/resources" type="2"/>
+</bundlejar>
