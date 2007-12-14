@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundlejar>
+<resource dst="" pattern=".*\.class" src="/IndexMG4J/out" type="0"/>
+<resource dst="libs/colt-1.2.0.jar" src="/IndexMG4J/libs/colt-1.2.0.jar" type="1"/>
+<resource dst="libs/fastutil5-5.0.9.jar" src="/IndexMG4J/libs/fastutil5-5.0.9.jar" type="1"/>
+<resource dst="libs/jakarta-commons-collections-3.1.jar" src="/IndexMG4J/libs/jakarta-commons-collections-3.1.jar" type="1"/>
+<resource dst="libs/jakarta-commons-configuration-1.2.jar" src="/IndexMG4J/libs/jakarta-commons-configuration-1.2.jar" type="1"/>
+<resource dst="libs/jakarta-commons-io-1.2.jar" src="/IndexMG4J/libs/jakarta-commons-io-1.2.jar" type="1"/>
+<resource dst="libs/jakarta-commons-lang-2.1.jar" src="/IndexMG4J/libs/jakarta-commons-lang-2.1.jar" type="1"/>
+<resource dst="libs/jsap-2.0.jar" src="/IndexMG4J/libs/jsap-2.0.jar" type="1"/>
+<resource dst="libs/log4j-1.2.14.jar" src="/IndexMG4J/libs/log4j-1.2.14.jar" type="1"/>
+<resource dst="libs/mg4j-2.0.1.jar" src="/IndexMG4J/libs/mg4j-2.0.1.jar" type="1"/>
+</bundlejar>

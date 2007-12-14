@@ -1,0 +1,52 @@
+=====================================================================
+PAXLE - INDEX MG4J BUNDLE
+=====================================================================
+
+Description:
+--------------------------------------------------------------------- 
+TODO:
+
+Sourcecode:
+---------------------------------------------------------------------
+SVN:  svn+ssh://svn@svn.xenim.de/p2psearch/trunk/bundles/IndexMG4J
+HTTP: http://trac.paxle.net/trac/browser/trunk/bundles/IndexMG4J
+
+Dynamic Imports:
+---------------------------------------------------------------------
+- sun.reflect
+
+Used External Bundles:
+---------------------------------------------------------------------
+- Knopflerfish Framework 
+- Knopflerfish commons-logging (commons-logging_all)
+  
+Used Paxle Bundles:
+---------------------------------------------------------------------
+-
+  
+Used External Libraries:
+---------------------------------------------------------------------
+- MG4J: Managing Gigabytes for Java (TM) V2.0.1
+  Files: mg4j-2.0.1.jar
+  See: http://mg4j.dsi.unimi.it
+  - Apache Commons Configuration V1.2
+    Files: jakarta-commons-configuration-1.2.jar
+    See: http://commons.apache.org/configuration/
+  - Apache Commons Lang V2.1
+    Files: jakarta-commons-lang-2.1.jar
+    See: http://commons.apache.org/lang/
+  - Apache Commons Collections V3.1
+    Files: jakarta-commons-lang-2.1.jar
+    See: http://commons.apache.org/collections/
+  - Fastutil: Fast & compact type-specific collections for Java (TM) V5.0.9
+    Files: fastutils5-5.0.9.jar
+    See: fastutil.dsi.unimi.it
+  - Colt V1.2.0
+    Files: colt-1.2.0.jar
+    See: http://dsd.lbl.gov/~hoschek/colt/
+  - JSAP: the java-based Simple Argument Parser V2.0
+    Files: jsap-2.0.jar
+    See: http://www.martiansoftware.com/jsap/
+  - Apache Log4J
+    Files: log4j-1.2.14.jar
+    See: http://logging.apache.org/log4j

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn/**|**/CVS/**" including="**/*.java" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.EXECUTION_ENVIRONMENT_CONTAINER"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/osgi/framework/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/mg4j-2.0.1.jar" sourcepath="/home/theli/workspace/mg4j"/>
+	<classpathentry kind="lib" path="libs/jakarta-commons-configuration-1.2.jar"/>
+	<classpathentry kind="lib" path="libs/jakarta-commons-lang-2.1.jar"/>
+	<classpathentry kind="lib" path="libs/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="libs/jakarta-commons-collections-3.1.jar"/>
+	<classpathentry kind="lib" path="libs/fastutil5-5.0.9.jar"/>
+	<classpathentry kind="lib" path="libs/jsap-2.0.jar"/>
+	<classpathentry kind="lib" path="libs/colt-1.2.0.jar"/>
+	<classpathentry kind="lib" path="libs/jakarta-commons-io-1.2.jar"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/queue/"/>
+			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
+			<accessrule kind="accessible" pattern="org/paxle/core/data/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.se">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/se/index/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="output" path="out"/>
+</classpath>
