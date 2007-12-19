@@ -33,6 +33,12 @@
    </tool>     
    
    <tool>
+      <key>renderTool</key>
+      <scope>application</scope>
+      <class>org.apache.velocity.tools.generic.RenderTool</class>
+   </tool>     
+   
+   <tool>
       <key>linkTool</key>
       <scope>request</scope>
       <class>org.apache.velocity.tools.view.tools.LinkTool</class>

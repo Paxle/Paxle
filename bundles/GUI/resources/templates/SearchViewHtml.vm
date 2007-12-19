@@ -19,7 +19,8 @@
 #end
 
 #if($searchQuery)
-   <!-- java script lib for the tooltips -->
+   ## java script lib for the tooltips
+   ## See: SearchViewToolTip.vm
    <script language="JavaScript" type="text/javascript" src="/js/wz_tooltip.js"></script>
 
    <table >
@@ -36,12 +37,12 @@
                               #set($imageSrc = $escTool.javascript($result.get($fieldManager.get("Location"))))
                               <img class="favicon" src="/favicon?url=$escTool.url("$imageSrc")" width="16" height="16" alt="-"/>
                      	   #end
-                           <a href="$result.get($fieldManager.get("Location"))" onmouseover="Tip('$hintText',STICKY,true,DURATION,2500)">
+                           <a href="$result.get($fieldManager.get("Location"))">
                            #if($result.get($fieldManager.get("Title")))
                               $result.get($fieldManager.get("Title"))
                            #else
                               $result.get($fieldManager.get("Location"))
-                           #end</a><br />
+                           #end</a>&nbsp;<img src="/images/bullet_arrow_up.png" onclick="Tip('$hintText',STICKY,true,DURATION,5000)" alt="action"/><br />
                            #if($result.get($fieldManager.get("Author")))
                               Author: $result.get($fieldManager.get("Author"))<br />
                            #end

@@ -4,4 +4,16 @@ Hier kommen zusaetzliche Operationen für $escTool.html($location) rein, z.B.
    <li>add to bookmarks (e.g. delicious, etc.</li>
    <li>recrawl location</li>
 </ul>
-Diese Liste soll durch externe Servlets erweiterbar sein.<p />
+Diese Liste soll durch externe bundles/servlets erweiterbar sein.<p />
+
+## TODO: loop through SearchResultCommands and embed them
+## using the render-tool
+##
+## some pseudo-code:
+#*
+#foreach($resultItemCommand in $resultItemCommands)
+	## let the result-item-command return a velocity string
+	#set($commandString = $resultItemCommand.getCommandString($result))
+	$renderTool.recurse($ctx,$commandString)
+#end
+*#
