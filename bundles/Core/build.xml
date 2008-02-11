@@ -40,8 +40,10 @@
 	<pathelement location="${topdir}/jars/log/log_api.jar"/>
 	<pathelement location="${topdir}/jars/console/console_api.jar"/>
 	<pathelement location="${topdir}/jars/http/http_api.jar"/>
+	<pathelement location="${topdir}/jars/prefs/prefs_all-2.0.0.jar"/>
 	<pathelement location="${topdir}/jars/commons-logging/commons-logging_all-2.0.0.jar" />
 	<pathelement location="libs/commons-pool-1.3.jar"/>
+	
 	</path>
 
 
