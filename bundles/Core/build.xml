@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 
 <!DOCTYPE project [
-  <!ENTITY bundlebuild_include  SYSTEM "../../../deployment/knopflerfish/trunk/ant/bundlebuild_include.xml">
-  <!ENTITY my_bundlebuild_include  SYSTEM "../../../deployment/knopflerfish/bundlebuild_include.xml">
+  <!ENTITY bundlebuild_include  SYSTEM "../../../deployment/knopflerfish/ant/bundlebuild_include.xml">
 ]>
 
 <!-- Name of generated jar files will be:  -->
@@ -13,12 +12,12 @@
 <project name="Core" default="all">
 
   <!-- Set to top directory of OSGi code -->
-  <property name="topdir"       location="../../../deployment/knopflerfish/trunk/osgi/"/>
+	<property name="topdir"       location="../../../deployment/knopflerfish/osgi/" />
 
   <!-- Code which belong to bundle implementation, included in      -->
   <!-- impl-bundle and in all-bundle.                               -->
   <property name  = "impl.pattern"
-            value = "org/paxle/core/**"/>
+  	value = "org/paxle/core/**"/>
 
   <!-- Code which belong to the bundle API, i.e., to be included in   -->
   <!-- and exported by api-bundle, all-bundle but not the impl-bundle.-->
@@ -37,13 +36,13 @@
   -->
 
   <!-- explicit paths to compile-time jar files -->
-  <path id="bundle.compile.path">
-   <pathelement location="${topdir}/jars/log/log_api.jar"/>
-   <pathelement location="${topdir}/jars/console/console_api.jar"/>
-   <pathelement location="${topdir}/jars/http/http_api.jar"/>
-   <pathelement location="${topdir}/jars/commons-logging/commons-logging_all-2.0.0.jar" />
-   <pathelement location="libs/commons-pool-1.3.jar"/>
-  </path>
+	<path id="bundle.compile.path">
+	<pathelement location="${topdir}/jars/log/log_api.jar"/>
+	<pathelement location="${topdir}/jars/console/console_api.jar"/>
+	<pathelement location="${topdir}/jars/http/http_api.jar"/>
+	<pathelement location="${topdir}/jars/commons-logging/commons-logging_all-2.0.0.jar" />
+	<pathelement location="libs/commons-pool-1.3.jar"/>
+	</path>
 
 
   <!-- Activator, imports, exports etc are automatically found but    -->
@@ -56,12 +55,12 @@
   <!-- The default bundle symbolic name (property                     -->
   <!-- "bmfa.Bundle-SymbolicName") will be:                           -->
   <!--   ${domain.reverse}.bundle.${ant.project.name}                 -->
-  <!--
-  <property name="bmfa.Bundle-Description" value="HTTP test servlet"/>
-  <property name="bmfa.Bundle-Vendor"      value="Knopflerfish"/>
-  -->
-  &my_bundlebuild_include;
+
+  <property name="domain.reverse"          value="net.paxle"/>
+
+  <property name="bmfa.Bundle-Description" value="Paxle Core-Bundle"/>
+  <property name="bmfa.Bundle-Vendor"      value="Paxle"/>
 
   &bundlebuild_include;
-  
+
 </project>
