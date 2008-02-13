@@ -11,6 +11,25 @@
 
 <project name="Core" default="all">
 
+	<!-- set do.bundle.custom.pre to anything to trigger pre target -->
+	<property name="do.bundle.custom.pre" value=""/>
+	<target name="bundle.custom.pre">
+		<copydir dest="include/libs" src="libs"></copydir>
+	</target>
+	
+	<!-- set do.bundle.custom.post to anything to trigger post target -->
+	<property name="do.bundle.custom.post" value=""/>
+
+	<target name="bundle.custom.post">
+		<delete>
+			<fileset dir="include" id="id">
+				<include name="**" />
+			</fileset>
+		</delete>
+	</target>
+
+	<property name = "resources.dir" location="include/" />
+	
   <!-- Set to top directory of OSGi code -->
 	<property name="topdir"       location="../../../deployment/knopflerfish/osgi/" />
 
