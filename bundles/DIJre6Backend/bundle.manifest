@@ -6,4 +6,5 @@ Bundle-Description: Paxle JRE 6 Desktop Integration Backend Bundle
 Bundle-SymbolicName: org.paxle.desktop.backend.impl.jre6
 Fragment-Host: org.paxle.desktop
 Import-Package: javax.swing, org.paxle.desktop.backend, org.paxle.desk
- top.backend.desktop, org.paxle.desktop.backend.tray
+ top.backend.desktop, org.paxle.desktop.backend.tray, org.osgi.framewo
+ rk
