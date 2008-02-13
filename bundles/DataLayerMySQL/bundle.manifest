@@ -5,4 +5,6 @@ Bundle-Version: 1.0.0
 Bundle-Name: DataLayerMySQL
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.paxle.data.mysql
+Bundle-Activator: org.paxle.data.mysql.Activator
+Import-Package: org.osgi.framework
 
