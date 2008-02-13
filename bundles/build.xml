@@ -16,6 +16,7 @@
 	<target name="all">
 		<ant dir="Core"		target="all" />
 		<ant dir="CharsetDetector"	target="all" />
+		<ant dir="HttpTools"	target="all" />
 		<ant dir="CrawlerCore"	target="all" />
 		<ant dir="CrawlerFtp"	target="all" />
 		<ant dir="CrawlerHttp"	target="all" />
@@ -25,6 +26,7 @@
 		<ant dir="DataLayerDerby"	target="all" />
 		<ant dir="DataLayerMySQL"	target="all" />
 		<ant dir="DataLayerPostgreSQL"	target="all" />
+		<ant dir="SearchEngine"	target="all" />
 		<ant dir="Dbus"	target="all" />
 		<ant dir="DesktopIntegration"	target="all" />
 		<ant dir="DIJdicBackend"	target="all" />
@@ -34,7 +36,6 @@
 		<ant dir="FilterOldIndex"	target="all" />
 		<ant dir="FilterRobotsTxt"	target="all" />
 		<ant dir="GUI"	target="all" />
-		<ant dir="HttpTools"	target="all" />
 		<ant dir="IconTools"	target="all" />
 		<ant dir="Indexer"	target="all" />
 		<ant dir="IndexLucene"	target="all" />
@@ -50,7 +51,6 @@
 		<ant dir="ParserMsOffice"	target="all" />
 		<ant dir="ParserPdf"	target="all" />
 		<ant dir="ParserZip"	target="all" />
-		<ant dir="SearchEngine"	target="all" />
 		<ant dir="SEProviderGoogleSOAP"	target="all" />
 	</target>
 </project>
