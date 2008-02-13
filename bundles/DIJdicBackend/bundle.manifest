@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
-Fragment-Host: org.paxle.desktop
-Bundle-ClassPath: ., libs/jdic.jar, binaries/libs/linux/jdic_stub.jar
-Bundle-Version: 1.0.0
 Bundle-Name: DIJdicBackend
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.paxle.desktop.backend.impl.jdic
 Import-Package: javax.swing, org.paxle.desktop.backend, org.paxle.desk
  top.backend.desktop, org.paxle.desktop.backend.tray, org.paxle.deskto
- p.impl
+ p.impl, org.osgi.framework
+Bundle-Version: 1.0.0
+Bundle-SymbolicName: org.paxle.desktop.backend.impl.jdic
+Bundle-ManifestVersion: 2
+Fragment-Host: org.paxle.desktop
+Bundle-ClassPath: ., libs/jdic.jar, binaries/libs/linux/jdic_stub.jar
 
