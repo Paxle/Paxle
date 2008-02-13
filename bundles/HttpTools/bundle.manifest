@@ -1,15 +1,4 @@
 Manifest-Version: 1.0
-Bundle-Description: Http Libs and Tools for Paxle
-Bundle-Name: HttpTools
-Bundle-ClassPath: ., libs/commons-codec-1.3.jar, libs/commons-httpclie
- nt-3.0.1.jar, libs/velocity-dep-1.5.jar, libs/velocity-tools-view-1.3
- .jar, libs/velocity-tools-generic-1.3.jar, libs/commons-collections-2
- .1.1.jar, libs/commons-digester-1.8.jar, libs/xerces.jar, libs/xml-ap
- is.jar, libs/xmlParserAPIs.jar, libs/commons-beanutils-1.6.jar
-Import-Package: org.apache.commons.logging, javax.servlet, javax.servl
- et.http
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: HttpTools
 Export-Package: org.apache.commons.httpclient, org.apache.commons.http
  client.auth, org.apache.commons.httpclient.cookie, org.apache.commons
  .httpclient.methods, org.apache.commons.httpclient.methods.multipart,
@@ -37,6 +26,18 @@ Export-Package: org.apache.commons.httpclient, org.apache.commons.http
  ester, org.apache.commons.digester.parser, org.apache.commons.digeste
  r.plugins, org.apache.commons.digester.plugins.strategies, org.apache
  .commons.digester.substitution, org.apache.commons.digester.xmlrules
-Bundle-Version: 1.0.0
 DynamicImport-Package: javax.net, sun.reflect, javax.net.ssl
+Bundle-ClassPath: ., libs/commons-codec-1.3.jar, libs/commons-httpclie
+ nt-3.0.1.jar, libs/velocity-dep-1.5.jar, libs/velocity-tools-view-1.3
+ .jar, libs/velocity-tools-generic-1.3.jar, libs/commons-collections-2
+ .1.1.jar, libs/commons-digester-1.8.jar, libs/xerces.jar, libs/xml-ap
+ is.jar, libs/xmlParserAPIs.jar, libs/commons-beanutils-1.6.jar
+Bundle-Version: 1.0.0
+Bundle-Name: HttpTools
+Bundle-Activator: org.paxle.httptools.Activator
+Bundle-ManifestVersion: 2
+Bundle-Description: Http Libs and Tools for Paxle
+Bundle-SymbolicName: HttpTools
+Import-Package: org.apache.commons.logging, javax.servlet, javax.servl
+ et.http, org.osgi.framework
 
