@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-Name: IndexXapian
+Bundle-ClassPath: ., libs/xapian_jni.jar
+Bundle-NativeCode: libxapian_jni.so; processor=i386 ; osname=Linux
+Bundle-Activator: org.paxle.se.index.xapian.impl.Activator
+Import-Package: org.osgi.framework, org.paxle.core, org.apache.commons
+ .logging, org.paxle.se.search, org.paxle.se.query, org.paxle.se.index
+ , org.paxle.core.doc, org.paxle.se.query.tokens, org.paxle.core.data, org.paxle.core.queue
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.paxle.se.index.xapian
+Bundle-Version: 1.0.0
+DynamicImport-Package: sun.reflect
+

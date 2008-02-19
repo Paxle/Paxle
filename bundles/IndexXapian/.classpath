@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn/**|**/CVS/**" including="**/*.java" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.EXECUTION_ENVIRONMENT_CONTAINER"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/osgi/framework/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
+		<attributes>
+			<attribute name="org.paxle.core.data" value="0.0.0"/>
+			<attribute name="org.paxle.core.queue" value="0.0.0"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/core/queue/"/>
+			<accessrule kind="accessible" pattern="org/paxle/core/data/"/>
+			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
+			<accessrule kind="accessible" pattern="org/paxle/core/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.se">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/paxle/se/query/tokens/"/>
+			<accessrule kind="accessible" pattern="org/paxle/se/index/"/>
+			<accessrule kind="accessible" pattern="org/paxle/se/query/"/>
+			<accessrule kind="accessible" pattern="org/paxle/se/search/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/xapian_jni.jar"/>
+	<classpathentry kind="output" path="out"/>
+</classpath>
