@@ -33,6 +33,5 @@
 			<accessrule kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Lucene/libs/lucene-core-2.2.0.jar"/>
 	<classpathentry kind="output" path="out"/>
 </classpath>
