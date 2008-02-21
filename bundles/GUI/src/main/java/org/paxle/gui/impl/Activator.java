@@ -126,24 +126,24 @@ public class Activator implements BundleActivator {
 			servletManager.addServlet("/queue", new QueueView(null));
 			servletManager.addServlet("/", new SearchView(null));
 			servletManager.addServlet("/index.html", new SearchView(null));
-			
+				
 			/*
 			 * Add stylesheets
 			 * TODO: use some kind of addResourceFolder instead
 			 */
-			servletManager.addResources("/style.css", "resources/templates/layout/style.css");
+			servletManager.addResources("/style.css", "/resources/resources/templates/layout/style.css");
 			
 			/*
 			 * Add javascript files
 			 * TODO: use some kind of addResourceFolder instead
 			 */
-			servletManager.addResources("/js/wz_tooltip.js", "resources/js/wz_tooltip.js");
+			servletManager.addResources("/js/wz_tooltip.js", "/resources/js/wz_tooltip.js");
 			
 			/*
 			 * Add images 
 			 * TODO: use some kind of addResourceFolder instead
 			 */
-			servletManager.addResources("/images/bullet_arrow_up.png", "resources/images/bullet_arrow_up.png");
+			servletManager.addResources("/images/bullet_arrow_up.png", "/resources/images/bullet_arrow_up.png");
 		}		
 	}
 
