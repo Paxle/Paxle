@@ -79,6 +79,7 @@
 		<module>../CrawlerHttp</module>
 		<module>../ParserCore</module>
 		<module>../ParserGzip</module>
+		<module>../ParserPdf</module>
 		<module>../ParserZip</module>
 	</modules>
 </project>
