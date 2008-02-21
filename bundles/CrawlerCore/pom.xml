@@ -7,7 +7,7 @@
 	<artifactId>CrawlerCore</artifactId>
 	<packaging>bundle</packaging>
 	<version>1.0-SNAPSHOT</version>
-	<name>CrawlerCore</name>
+	<name>Paxle - CrawlerCore</name>
 	<url>http://wiki.paxle.net/dev/bundles/CrawlerCore</url>
 
 	<!-- Parent Project -->

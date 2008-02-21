@@ -53,7 +53,7 @@ public class DataListener implements ServiceListener {
 	
 	private void detect(String className) {
 		try {
-			ServiceReference[] refs = context.getServiceReferences(className,"()");
+			ServiceReference[] refs = context.getServiceReferences(className,null);
 			if (refs == null) return;
 			for (ServiceReference ref : refs) {
 				

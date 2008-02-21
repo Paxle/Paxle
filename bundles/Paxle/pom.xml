@@ -74,5 +74,7 @@
 	<!-- define modules -->
 	<modules>
 		<module>../Core</module>
+		<module>../CrawlerCore</module>
+		<module>../ParserCore</module>
 	</modules>
 </project>
