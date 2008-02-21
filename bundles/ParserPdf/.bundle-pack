@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bundlejar>
-<resource dst="" pattern=".*\.class" src="/ParserPdf/out" type="0"/>
-<resource dst="libs/FontBox-0.1.0-dev.jar" src="/ParserPdf/libs/FontBox-0.1.0-dev.jar" type="1"/>
-<resource dst="libs/PDFBox-0.7.3.jar" src="/ParserPdf/libs/PDFBox-0.7.3.jar" type="1"/>
-</bundlejar>
