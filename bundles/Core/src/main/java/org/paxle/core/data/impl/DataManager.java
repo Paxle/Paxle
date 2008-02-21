@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataManager;
 import org.paxle.core.data.IDataProvider;
@@ -15,6 +17,8 @@ public class DataManager<Data> implements IDataManager {
 	private Hashtable<String, IDataSink<Data>> dataSinks = new Hashtable<String, IDataSink<Data>>();
 	private Hashtable<String, List<IDataProvider<Data>>> dataProviders = new Hashtable<String, List<IDataProvider<Data>>>();
 	private Hashtable<String, List<IDataConsumer<Data>>> dataConsumers = new Hashtable<String, List<IDataConsumer<Data>>>();
+	
+	private Log logger = LogFactory.getLog(this.getClass());
 	
 	@SuppressWarnings("unchecked")
 	public void add(String ID, String interfaceName, Object service) {		
@@ -99,7 +103,6 @@ public class DataManager<Data> implements IDataManager {
 	}
 	
 	public void remove(String ID) {
-		// TODO
-		throw new RuntimeException("Not implemented!");
+		this.logger.error(String.format("Unable to remove %s. NOT IMPLEMENTED!",ID));
 	}
 }
