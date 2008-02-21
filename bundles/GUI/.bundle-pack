@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<bundlejar>
-  <resource src="/GUI/out" type="0" dst="" pattern=".*\.class"/>
-  <resource src="/GUI/resources" type="2" dst="resources"/>
-</bundlejar>
