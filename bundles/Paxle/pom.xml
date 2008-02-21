@@ -75,6 +75,8 @@
 	<modules>
 		<module>../Core</module>
 		<module>../CrawlerCore</module>
+		<module>../CrawlerFtp</module>
+		<module>../CrawlerHttp</module>
 		<module>../ParserCore</module>
 	</modules>
 </project>
