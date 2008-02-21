@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<bundlejar>
-<resource dst="" pattern=".*\.class" src="/CrawlerFtp/out" type="0"/>
-<resource dst="libs/commons-net-1.4.1.jar" src="/CrawlerFtp/libs/commons-net-1.4.1.jar" type="1"/>
-<resource dst="libs/jakarta-oro-2.0.8.jar" src="/CrawlerFtp/libs/jakarta-oro-2.0.8.jar" type="1"/>
-</bundlejar>
