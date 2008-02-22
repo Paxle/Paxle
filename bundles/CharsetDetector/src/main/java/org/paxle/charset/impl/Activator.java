@@ -24,7 +24,7 @@ public class Activator implements BundleActivator {
 		 * Register Services provided by this bundle
 		 * ========================================================== */
 		// register the Charset-Detector as service
-		URL mimeTypes = bc.getBundle().getResource("/resources/mimeTypes");
+		URL mimeTypes = bc.getBundle().getEntry("/mimeTypes");
 		bc.registerService(ICharsetDetector.class.getName(), new CharsetDetector(mimeTypes), null);			
 	}
 
