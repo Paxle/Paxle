@@ -81,6 +81,7 @@
 		<module>../ParserGzip</module>
 		<module>../ParserPdf</module>
 		<module>../ParserZip</module>
+		<module>../Parser7zip</module>
 		<module>../GUI</module>
 		<module>../CharsetDetector</module>
 	</modules>

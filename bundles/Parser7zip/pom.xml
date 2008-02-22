@@ -1,0 +1,79 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>Parser7zip</artifactId>
+	<packaging>bundle</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>Paxle - 7Zip-Parser</name>
+	<url>http://wiki.paxle.net/dev/bundles/Parser7zip</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Paxle</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<repositories>
+		<repository>
+			<id>paxle-repository</id>
+			<url>http://repository2.paxle.net/</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.2.1</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Export-Package>
+							org.paxle.parser.sevenzip
+						</Export-Package>
+						<Import-Package>
+							org.osgi.framework, 
+							org.paxle.parser, 
+							org.paxle.core.doc, 
+							org.paxle.parser.iotools, 
+							org.paxle.core.io.temp, 
+							org.paxle.core.charset
+						</Import-Package>
+						<Private-Package>
+							org.paxle.parser.sevenzip.impl
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.parser.sevenzip.impl.Activator
+						</Bundle-Activator>
+
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							J7Zip;scope=compile|runtime
+						</Embed-Dependency>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>ParserCore</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>SevenZip</groupId>
+			<artifactId>J7Zip</artifactId>
+			<version>4.43-alpha2</version>
+		</dependency>
+	</dependencies>
+</project>

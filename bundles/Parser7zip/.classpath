@@ -1,35 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="**/.svn/**|**/CVS/**" including="**/*.java" kind="src" path="src"/>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.EXECUTION_ENVIRONMENT_CONTAINER"/>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/osgi/framework/"/>
-			<accessrule kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.parser">
-		<attributes>
-			<attribute name="org.paxle.parser.iotools" value="0.0.0"/>
-		</attributes>
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/paxle/parser/iotools/"/>
-			<accessrule kind="accessible" pattern="org/paxle/parser/"/>
-			<accessrule kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
-		<attributes>
-			<attribute name="org.paxle.core.io.temp" value="0.0.0"/>
-			<attribute name="org.paxle.core.charset" value="0.0.0"/>
-		</attributes>
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/paxle/core/charset/"/>
-			<accessrule kind="accessible" pattern="org/paxle/core/io/temp/"/>
-			<accessrule kind="accessible" pattern="org/paxle/core/doc/"/>
-			<accessrule kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry kind="lib" path="libs/J7Zip.jar"/>
-	<classpathentry kind="output" path="out"/>
+  <classpathentry kind="src" path="src/main/java"/>
+  <classpathentry kind="src" path="src/test/java" output="target/test-classes"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging-api/1.1/commons-logging-api-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.3/commons-pool-1.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/osgi/osgi_R4_compendium/1.0/osgi_R4_compendium-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/SevenZip/J7Zip/4.43-alpha2/J7Zip-4.43-alpha2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/paxle/ParserCore/1.0-SNAPSHOT/ParserCore-1.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/osgi/osgi_R4_core/1.0/osgi_R4_core-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/paxle/Core/1.0-SNAPSHOT/Core-1.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar" sourcepath="M2_REPO/junit/junit/3.8.1/junit-3.8.1-sources.jar"/>
 </classpath>
