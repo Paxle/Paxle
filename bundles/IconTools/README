@@ -39,6 +39,7 @@ Used External Bundles:
 - Knopflerfish Framework 
 - Knopflerfish commons-logging (commons-logging_all)
 - Knopflerfish Servlet.jar (jsdk)
+- Log4j: http://download.eclipse.org/releases/europa/plugins/org.apache.log4j_1.2.13.v200706111418.jar
   
 Used Paxle Bundles:
 --------------------------------------------------   

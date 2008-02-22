@@ -1,71 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="**/.svn/**|**/CVS/**" including="**/*.java" kind="src" path="src"/>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.EXECUTION_ENVIRONMENT_CONTAINER"/>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/osgi/framework/"/>
-			<accessrule kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry kind="lib" path="libs/aclibico-2.1.jar"/>
-	<classpathentry kind="lib" path="libs/log4j-1.2.8.jar"/>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/HttpTools">
-		<attributes>
-			<attribute name="bundle-name" value="HttpTools"/>
-			<attribute name="org.apache.commons.httpclient" value="0.0.0"/>
-			<attribute name="org.apache.commons.httpclient.methods" value="0.0.0"/>
-			<attribute name="org.apache.commons.httpclient.auth" value="0.0.0"/>
-			<attribute name="org.apache.commons.httpclient.cookie" value="0.0.0"/>
-			<attribute name="org.apache.commons.httpclient.methods.multipart" value="0.0.0"/>
-			<attribute name="org.apache.commons.httpclient.params" value="0.0.0"/>
-			<attribute name="org.apache.commons.httpclient.protocol" value="0.0.0"/>
-			<attribute name="org.apache.commons.httpclient.util" value="0.0.0"/>
-		</attributes>
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/apache/commons/httpclient/util/"/>
-			<accessrule kind="accessible" pattern="org/apache/commons/httpclient/protocol/"/>
-			<accessrule kind="accessible" pattern="org/apache/commons/httpclient/params/"/>
-			<accessrule kind="accessible" pattern="org/apache/commons/httpclient/methods/multipart/"/>
-			<accessrule kind="accessible" pattern="org/apache/commons/httpclient/cookie/"/>
-			<accessrule kind="accessible" pattern="org/apache/commons/httpclient/auth/"/>
-			<accessrule kind="accessible" pattern="org/apache/commons/httpclient/methods/"/>
-			<accessrule kind="accessible" pattern="org/apache/commons/httpclient/"/>
-			<accessrule kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry kind="lib" path="/HttpTools/libs/commons-httpclient-3.0.1.jar" sourcepath="/home/theli/workspace/Libs/commons-httpclient-3.0.1-src.zip"/>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.paxle.core">
-		<attributes>
-			<attribute name="bundle-name" value="Core"/>
-			<attribute name="org.paxle.core.io" value="0.0.0"/>
-		</attributes>
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/paxle/core/io/"/>
-			<accessrule kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.jsdk-LIB">
-		<attributes>
-			<attribute name="bundle-name" value="JSDK-LIB"/>
-			<attribute name="javax.servlet" value="0.0.0"/>
-			<attribute name="javax.servlet.http" value="0.0.0"/>
-		</attributes>
-		<accessrules>
-			<accessrule kind="accessible" pattern="javax/servlet/http/"/>
-			<accessrule kind="accessible" pattern="javax/servlet/"/>
-			<accessrule kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.BUNDLE_CONTAINER/org.knopflerfish.bundle.commons-logging">
-		<attributes>
-			<attribute name="bundle-name" value="Commons-Logging"/>
-			<attribute name="org.apache.commons.logging" value="0.0.0"/>
-		</attributes>
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/apache/commons/logging/"/>
-			<accessrule kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry kind="output" path="out"/>
+  <classpathentry kind="src" path="src/main/java"/>
+  <classpathentry kind="src" path="src/main/resources" excluding="**/*.java"/>
+  <classpathentry kind="src" path="src/test/java" output="target/test-classes"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="var" path="M2_REPO/commons-codec/commons-codec/1.2/commons-codec-1.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.3/commons-pool-1.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/paxle/Core/1.0-SNAPSHOT/Core-1.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-httpclient/commons-httpclient/3.0.1/commons-httpclient-3.0.1.jar" sourcepath="M2_REPO/commons-httpclient/commons-httpclient/3.0.1/commons-httpclient-3.0.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging-api/1.1/commons-logging-api-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.jar" sourcepath="M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar" sourcepath="M2_REPO/junit/junit/3.8.1/junit-3.8.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.3/commons-logging-1.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/paxle/ParserCore/1.0-SNAPSHOT/ParserCore-1.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/ctreber/aclib/2.1/aclib-2.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/osgi/osgi_R4_core/1.0/osgi_R4_core-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/osgi/osgi_R4_compendium/1.0/osgi_R4_compendium-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar" sourcepath="M2_REPO/javax/servlet/servlet-api/2.4/servlet-api-2.4-sources.jar"/>
 </classpath>

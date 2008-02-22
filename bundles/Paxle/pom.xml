@@ -86,5 +86,6 @@
 		<module>../ParserMsOffice</module>
 		<module>../GUI</module>
 		<module>../CharsetDetector</module>
+		<module>../IconTools</module>
 	</modules>
 </project>
