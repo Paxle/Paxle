@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bundlejar>
-<resource dst="" pattern=".*\.class" src="/IconTools/out" type="0"/>
-<resource dst="libs/aclibico-2.1.jar" src="/IconTools/libs/aclibico-2.1.jar" type="1"/>
-<resource dst="libs/log4j-1.2.8.jar" src="/IconTools/libs/log4j-1.2.8.jar" type="1"/>
-<resource dst="/resources" src="/IconTools/resources" type="2"/>
-</bundlejar>
