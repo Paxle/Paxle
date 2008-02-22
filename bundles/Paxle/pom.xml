@@ -38,6 +38,19 @@
 					<target>1.5</target>
 				</configuration>
 			</plugin>
+
+			<!-- release file generation -->
+		       <plugin>
+		         <artifactId>maven-assembly-plugin</artifactId>
+		         <inherited>false</inherited>
+		         <configuration>
+		           <descriptors>
+		             <descriptor>src/main/assembly/bundles.xml</descriptor>
+		           </descriptors>
+		           <outputDirectory>target</outputDirectory>
+		           <workDirectory>target/assembly/work</workDirectory>
+		         </configuration>
+		       </plugin>
 		</plugins>
 	</build>
 

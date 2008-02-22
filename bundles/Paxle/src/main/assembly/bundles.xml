@@ -1,0 +1,21 @@
+<assembly>
+  <id>bin</id>
+  <formats>
+    <format>tar.gz</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <moduleSets>
+    <moduleSet>
+      <!-- include all bundles -->
+      <includes>
+        <include>org.paxle:*</include>
+      </includes>
+
+      <binaries>
+        <outputDirectory>bundles/</outputDirectory>
+        <unpack>false</unpack>
+	<includeDependencies>false</includeDependencies>
+      </binaries>
+    </moduleSet>
+  </moduleSets>
+</assembly>
