@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>org.paxle</groupId>
+	<artifactId>SearchEngine</artifactId>
+	<packaging>bundle</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>Paxle - SearchEngine</name>
+	<url>http://wiki.paxle.net/dev/bundles/SearchEngine</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Paxle</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.2.1</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Export-Package>
+							org.paxle.se.query, 
+							org.paxle.se.query.tokens, 
+							org.paxle.se.index, 
+							org.paxle.se.search
+						</Export-Package>
+						<Import-Package>
+							org.osgi.framework, 
+							org.apache.commons.logging,
+							org.paxle.core.doc, 
+							org.paxle.core.service							
+						</Import-Package>
+						<Private-Package>
+							org.paxle.se.impl,
+							org.paxle.se.index.impl, 
+							org.paxle.se.query.impl, 
+							org.paxle.se.search.impl
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.se.impl.Activator
+						</Bundle-Activator>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+</project>

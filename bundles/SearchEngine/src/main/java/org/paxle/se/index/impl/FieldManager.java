@@ -30,6 +30,7 @@ public class FieldManager extends ASimpleManager<String,Field<?>> implements IFi
 	}
 	
 	void add(Field<?> field) {
+		if (field == null) throw new NullPointerException("The field is null");
 		super.map.put(field.getName(), field);
 	}
 }

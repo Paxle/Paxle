@@ -100,5 +100,6 @@
 		<module>../GUI</module>
 		<module>../CharsetDetector</module>
 		<module>../IconTools</module>
+		<module>../SearchEngine</module>
 	</modules>
 </project>
