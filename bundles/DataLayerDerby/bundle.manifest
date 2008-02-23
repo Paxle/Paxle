@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Fragment-Host: org.paxle.data
-Bundle-ClassPath: ., libs/derby-10.3.1.4.jar
-Bundle-Version: 1.0.0
-Bundle-Name: DataLayerDerby
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.paxle.data.derby
-
