@@ -1,2 +1,4 @@
 # this file can be used to crawl URLs from file
 # see: TextCommandReader
+#http://brain/
+#http://brain/~theli/

@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.core.data.IDataConsumer;
@@ -23,15 +25,25 @@ public class Activator implements BundleActivator {
 	public static BundleContext bc = null;
 
 	/**
+	 * Logger
+	 */
+	private Log logger = null;
+	
+	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */		
 	public void start(BundleContext context) throws Exception {
 		bc = context;
 
+		// init logger
+		this.logger = LogFactory.getLog(this.getClass());
+		
 		/* ==========================================================
 		 * Register Services provided by this bundle
 		 * ========================================================== */
+		this.logger.info("Initializing pipes ...");
+		
 		// this pipe connects the Crawler-Outqueue with the Parser-InQueue
 		pipeConnect("org.paxle.crawler.source", "org.paxle.parser.sink");
 
@@ -47,14 +59,30 @@ public class Activator implements BundleActivator {
 		if (true) {
 			this.classLoaderCheck();
 			
+			this.logger.info("Trying to find db config files ...");
+			Enumeration<URL> configFileEnum = context.getBundle().findEntries("/resources/hibernate/", "*.cfg.xml", true);
+			if (configFileEnum != null) {				
+				ArrayList<URL> configFiles = Collections.list(configFileEnum);
+				this.logger.info(String.format("%d config-files found.",configFiles.size()));
+			} else {
+				this.logger.info("No config files found");
+			}
+			
+			
 			/* Getting the config file to use 
 			 * Note: we do not use class.getName() because the PreferencesSerivce  is declared as optional
 			 */
 			String configStr = System.getProperty("org.paxle.data.db.impl.CommandDB");
 			if (configStr != null) {
+				this.logger.info("Loading db configuration from '" + configStr + "' ...");
 				config = new URL(configStr);				
 			} else {						
-				config = context.getBundle().getResource("/resources/hibernate/derby.cfg.xml");
+				this.logger.info("Loading db configuration from /resources/hibernate/derby.cfg.xml ...");
+				System.err.println("class-getResource: " + this.getClass().getResource("/resources/hibernate/derby.cfg.xml"));
+				System.err.println("context-getEntry: " + context.getBundle().getEntry("/resources/hibernate/derby.cfg.xml"));
+				System.err.println("context-getEntry: " + context.getBundle().getResource("/resources/hibernate/derby.cfg.xml"));
+				 config = context.getBundle().getResource("/resources/hibernate/derby.cfg.xml");
+//				config = new URL("bundle://15.0:1/resources/hibernate/derby.cfg.xml");
 			}
 
 			// getting the mapping files to use
@@ -101,7 +129,9 @@ public class Activator implements BundleActivator {
 		}
 	}
 	
-	private static void pipeConnect(String from, String to) {
+	private void pipeConnect(String from, String to) {
+		this.logger.info(String.format("Create datapipe: %s -> %s",from,to));
+		
 		final DataPipe pipe = new DataPipe();
 		pipe.setName(String.format("Datapipe: %s -> %s", from,to));
 		final Hashtable<String,String> props = new Hashtable<String,String>();
