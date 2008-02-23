@@ -11,9 +11,11 @@
 	<url>http://www.paxle.net/</url>
 
 	<!-- disable automatic testing -->
+	<!-- 
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
 	</properties>
+	-->
 
 	<!-- plugin settings -->
 	<build>
@@ -101,5 +103,6 @@
 		<module>../CharsetDetector</module>
 		<module>../IconTools</module>
 		<module>../SearchEngine</module>
+		<module>../Indexer</module>
 	</modules>
 </project>
