@@ -1,0 +1,163 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>DataLayer</artifactId>
+	<packaging>bundle</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>Paxle - DataLayer</name>
+	<url>http://wiki.paxle.net/dev/bundles/DataLayer</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Paxle</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<repositories>
+		<repository>
+			<id>paxle-repository</id>
+			<url>http://repository2.paxle.net/</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.2.1</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<!--<Export-Package>!*</Export-Package> -->
+						<Import-Package>
+							org.osgi.framework,
+							org.apache.commons.logging,
+							org.paxle.core.data, org.paxle.core.queue,
+							org.paxle.core.doc, org.paxle.core.filter,
+							!*
+						</Import-Package>
+						<DynamicImport-Package>
+							javax.security,
+							javax.naming, 
+							javax.naming.spi, 
+							javax.naming.event, 
+							org.xml.sax, 
+							org.xml.sax.helpers, 
+							org.xml.sax.ext, 
+							javax.net.ssl, 
+							javax.sql
+						</DynamicImport-Package>
+						<Private-Package>
+							org.paxle.data.impl, org.paxle.data.db.impl,
+							org.paxle.data.txt.impl
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.data.impl.Activator
+						</Bundle-Activator>
+						<Bundle-SymbolicName>org.paxle.DataLayer</Bundle-SymbolicName>
+<Bundle-Name>org.paxle.DataLayer</Bundle-Name>
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							commons-cache;scope=compile|runtime,
+							hibernate;scope=compile|runtime,
+							antlr;scope=compile|runtime,
+							asm;scope=compile|runtime,
+							asm-attrs;scope=compile|runtime,
+							cglib;scope=compile|runtime,
+							commons-collections;scope=compile|runtime,
+							dom4j;scope=compile|runtime,
+							jta;scope=compile|runtime,
+							c3p0;scope=compile|runtime							
+						</Embed-Dependency>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-cache</artifactId>
+			<version>20070912-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate</artifactId>
+			<version>3.2.5.ga</version>
+		</dependency>
+		<dependency>
+			<groupId>antlr</groupId>
+			<artifactId>antlr</artifactId>
+			<version>2.7.6</version>
+		</dependency>
+		<dependency>
+			<groupId>asm</groupId>
+			<artifactId>asm</artifactId>
+			<version>1.5.3</version>
+		</dependency>
+		<dependency>
+			<groupId>asm</groupId>
+			<artifactId>asm-attrs</artifactId>
+			<version>1.5.3</version>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>2.1_3</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.transaction</groupId>
+			<artifactId>jta</artifactId>
+			<version>1.0.1B</version>
+		</dependency>
+		<dependency>
+			<groupId>c3p0</groupId>
+			<artifactId>c3p0</artifactId>
+			<version>0.9.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.13</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.sun.jdmk</groupId>
+					<artifactId>jmxtools</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.jms</groupId>
+					<artifactId>jms</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jmx</groupId>
+					<artifactId>jmxri</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+</project>
