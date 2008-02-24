@@ -8,22 +8,10 @@ import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 
 public class ReferenceNormalizationFilter implements IFilter {
-	private static final Pattern PATH_PATTERN = Pattern.compile("(/[^/]+(?<!/\\.{1,2})/)[.]{2}(?=/|$)|/\\.(?=/)|/(?=/)");
 
 	public void filter(ICommand command, IFilterContext filterContext) {
 		// TODO Auto-generated method stub
 	
-	}
-	
-	/**
-	 * For testing purpose only
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		
-		normalizeLocation("http://www.heise.de:777");
-		
-		System.exit(0);
 	}
 	
 	/**
@@ -91,8 +79,15 @@ public class ReferenceNormalizationFilter implements IFilter {
 		 */
 		
 		/*
-		 * Remove .. and . from URL
+		 * Description: Resolve backpaths
+		 * 
+		 *  Example:
+		 *  "http://example.org/test/.././x.html" --> "http://example.org/x.html"
+		 *  "http://example.org/test/.././x/../" --> "http://example.org/"
 		 */
+		
+		//WARNING: Breaks normalization. See #29
+		//newloc = resolveBackpath(newloc);
 		
 		/*
 		 * Reorder GET-parameters alphabetically: http://paxle.net/content?lang=en&article=URL --> http://www.paxle.net/content?article=URL&lang=en
@@ -102,24 +97,15 @@ public class ReferenceNormalizationFilter implements IFilter {
 		 * Remove the fragment.
 		 */
 		
-		/*
-		 * Convert URL to lowercase, after retrieving lower- and uppercase version of the site.
-		 * This has to be discussed.
-		 */
-		
-		/*
-		 * Add or remove www in front of hostname after checking for the same content
-		 * This has to be discussed.
-		 */
-		
-		// TODO: see Bugtracker
-
 		System.out.println("Finished normalization of URL: '" + location + "' --> '" + newloc + "'");
 		
-		return location;
+		return newloc;
 	}
 	
-    private String resolveBackpath(String path) {
+    private static String resolveBackpath(String path) {
+    	
+    	final Pattern PATH_PATTERN = Pattern.compile("(/[^/]+(?<!/\\.{1,2})/)[.]{2}(?=/|$)|/\\.(?=/)|/(?=/)");
+    	
     	if (path == null || path.length() == 0) return "/";
         if (path.length() == 0 || path.charAt(0) != '/') { path = "/" + path; }
 
