@@ -26,7 +26,10 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Export-Package>org.paxle.gui</Export-Package>
+						<Export-Package>
+							org.paxle.gui,
+							org.apache.velocity
+						</Export-Package>
 						<Import-Package>
 							org.apache.commons.logging, 
 							org.osgi.framework, 

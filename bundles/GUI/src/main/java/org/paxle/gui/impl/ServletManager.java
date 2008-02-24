@@ -68,6 +68,7 @@ public class ServletManager implements IServletManager {
 				 */
 				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());						
 				
+				this.logger.info(String.format("Registering servlet '%s' for alias '%s'.", servlet.getClass().getName(), alias));
 				this.http.registerServlet(alias, servlet, defaultProps, defaultContext);
 			} catch (Throwable e) {
 				this.logger.error(String.format("Unexpected '%s' while registering servlet '%s' for alias '%s'.",
@@ -90,6 +91,7 @@ public class ServletManager implements IServletManager {
 		this.resources.put(alias, name);
 		if (this.http != null) {
 			try {
+				this.logger.info(String.format("Registering resource '%s' for alias '%s'.", name, alias));
 				this.http.registerResources(alias, name, defaultContext);
 			} catch (Throwable e) {
 				this.logger.error(String.format("Unexpected '%s' while registering resource '%s' for alias '%s'.",
