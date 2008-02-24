@@ -22,6 +22,10 @@
 			<id>paxle-repository</id>
 			<url>http://repository2.paxle.net/</url>
 		</repository>
+		<repository>
+			<id>java.net-repository</id>
+			<url>http://download.java.net/maven/2/</url>
+		</repository>		
 	</repositories>
 
 	<build>
