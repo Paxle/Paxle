@@ -213,7 +213,9 @@
 		<module>../IconTools</module>
 		<module>../SearchEngine</module>
 		<module>../Indexer</module>
+		<!-- 
 		<module>../DataLayer</module>
 		<module>../DataLayerDerby</module>
+		 -->
 	</modules>
 </project>
