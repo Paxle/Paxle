@@ -51,10 +51,7 @@
 						<Bundle-Activator>
 							org.paxle.gui.impl.Activator
 						</Bundle-Activator>
-						<DynamicImport-Package>
-							org.xml.sax.*,
-							javax.xml.*
-						</DynamicImport-Package>
+						<DynamicImport-Package>*</DynamicImport-Package>
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
@@ -63,7 +60,8 @@
 							commons-collections;scope=compile|runtime,
 							commons-digester;scope=compile|runtime,
 							commons-beanutils;scope=compile|runtime,
-							commons-lang;scope=compile|runtime
+							commons-lang;scope=compile|runtime,
+							xercesImpl;scope=compile|runtime
 						</Embed-Dependency>						
 					</instructions>
 				</configuration>
@@ -76,6 +74,12 @@
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
 			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
 		</dependency>
 
 		<dependency>
@@ -113,5 +117,23 @@
 			<artifactId>servlet-api</artifactId>
 			<version>2.4</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>xml-apis</groupId>
+			<artifactId>xml-apis</artifactId>
+			<version>1.0.b2</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>xml-apis</groupId>
+			<artifactId>xmlParserAPIs</artifactId>
+			<version>2.0.2</version>
+			<scope>compile</scope>
+		</dependency>		
 	</dependencies>
 </project>

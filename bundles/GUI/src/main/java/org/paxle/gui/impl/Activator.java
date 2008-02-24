@@ -131,7 +131,7 @@ public class Activator implements BundleActivator {
 			 * Add stylesheets
 			 * TODO: use some kind of addResourceFolder instead
 			 */
-			servletManager.addResources("/style.css", "/resources/resources/templates/layout/style.css");
+			servletManager.addResources("/style.css", "/resources/templates/layout/style.css");
 			
 			/*
 			 * Add javascript files

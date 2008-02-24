@@ -9,6 +9,8 @@ import java.util.Map;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
@@ -40,6 +42,8 @@ public class ServletManager implements IServletManager {
 	
 	private HttpContext defaultContext = null;
 	
+	private Log logger = null;
+	
 	public ServletManager(MenuManager menuManager, String bundleLocation) {
 		this.menuManager = menuManager;
 		
@@ -49,6 +53,8 @@ public class ServletManager implements IServletManager {
 		this.defaultProps.put("org.apache.velocity.toolbox", "/resources/config/velocity.toolbox");
 //		this.defaultProps.put("bundle.location",context.getBundle().getLocation());
 		this.defaultProps.put("bundle.location",bundleLocation);
+		
+		this.logger = LogFactory.getLog(this.getClass());
 	}
 	
 	synchronized void addServlet(String alias, Servlet servlet) {
@@ -63,12 +69,12 @@ public class ServletManager implements IServletManager {
 				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());						
 				
 				this.http.registerServlet(alias, servlet, defaultProps, defaultContext);
-			} catch (ServletException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NamespaceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (Throwable e) {
+				this.logger.error(String.format("Unexpected '%s' while registering servlet '%s' for alias '%s'.",
+						e.getClass().getName(),
+						servlet.getClass().getName(),
+						alias
+				),e);
 			}
 		}
 	}
@@ -85,9 +91,12 @@ public class ServletManager implements IServletManager {
 		if (this.http != null) {
 			try {
 				this.http.registerResources(alias, name, defaultContext);
-			} catch (NamespaceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (Throwable e) {
+				this.logger.error(String.format("Unexpected '%s' while registering resource '%s' for alias '%s'.",
+						e.getClass().getName(),
+						name,
+						alias
+				),e);
 			}
 		}
 	}
