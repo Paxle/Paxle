@@ -217,5 +217,6 @@
 		<module>../DataLayer</module>
 		<module>../DataLayerDerby</module>
 		 -->
+		 <module>../FilterBlacklist</module>
 	</modules>
 </project>

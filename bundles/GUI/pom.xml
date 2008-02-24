@@ -28,7 +28,7 @@
 					<instructions>
 						<Export-Package>
 							org.paxle.gui,
-							org.apache.velocity
+							org.apache.velocity.*
 						</Export-Package>
 						<Import-Package>
 							org.apache.commons.logging, 
