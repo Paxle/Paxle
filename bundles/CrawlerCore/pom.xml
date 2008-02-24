@@ -26,6 +26,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+						<Bundle-SymbolicName>org.paxle.crawler</Bundle-SymbolicName>
 						<Export-Package>
 							org.paxle.crawler
 						</Export-Package>
