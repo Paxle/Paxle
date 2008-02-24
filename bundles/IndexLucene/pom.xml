@@ -1,0 +1,91 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>IndexLucene</artifactId>
+	<packaging>bundle</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>Paxle - IndexLucene</name>
+	<url>http://wiki.paxle.net/dev/bundles/IndexLucene</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Paxle</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.2.1</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Export-Package>
+							org.paxle.se.index.lucene
+						</Export-Package>
+						<Import-Package>
+							org.osgi.framework, 
+							org.apache.commons.logging, 
+							org.paxle.core.doc, 
+							org.paxle.core.data,
+							org.paxle.core.queue, 							 							
+							org.paxle.se.query, 
+							org.paxle.se.query.tokens, 
+							org.paxle.se.index, 
+							org.paxle.se.search
+						</Import-Package>
+						<Private-Package>
+							org.paxle.se.index.lucene.impl
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.se.index.lucene.impl.Activator
+						</Bundle-Activator>
+
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							lucene-core;scope=compile|runtime
+						</Embed-Dependency>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
+		</dependency>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Indexer</artifactId>
+			<version>${project.version}</version>
+		</dependency>	
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>SearchEngine</artifactId>
+			<version>${project.version}</version>
+		</dependency>				
+
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-core</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+	</dependencies>
+</project>
