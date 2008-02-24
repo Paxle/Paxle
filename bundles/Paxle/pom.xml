@@ -2,7 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<groupId>org.paxle</groupId>
 	<artifactId>Paxle</artifactId>
 	<packaging>pom</packaging>
@@ -10,12 +10,12 @@
 	<name>Paxle</name>
 	<url>http://www.paxle.net/</url>
 
-	<!-- disable automatic testing -->
-	<!-- 
-	<properties>
-		<maven.test.skip>true</maven.test.skip>
-	</properties>
-	-->
+	<repositories>
+		<repository>
+			<id>paxle-repository</id>
+			<url>http://repository2.paxle.net/</url>
+		</repository>
+	</repositories>
 
 	<!-- plugin settings -->
 	<build>
@@ -29,7 +29,7 @@
 					<downloadSources>true</downloadSources>
 				</configuration>
 			</plugin>
-			
+
 			<!-- java compiler -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -42,17 +42,126 @@
 			</plugin>
 
 			<!-- release file generation -->
-		       <plugin>
-		         <artifactId>maven-assembly-plugin</artifactId>
-		         <inherited>false</inherited>
-		         <configuration>
-		           <descriptors>
-		             <descriptor>src/main/assembly/bundles.xml</descriptor>
-		           </descriptors>
-		           <outputDirectory>target</outputDirectory>
-		           <workDirectory>target/assembly/work</workDirectory>
-		         </configuration>
-		       </plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<inherited>false</inherited>
+				<configuration>
+					<descriptors>
+						<descriptor>
+							src/main/assembly/bundles.xml
+						</descriptor>
+						<descriptor>
+							src/main/assembly/equinox.xml
+						</descriptor>						
+					</descriptors>
+					<outputDirectory>target</outputDirectory>
+					<workDirectory>target/assembly/work</workDirectory>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.0</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<!-- equinox framework -->
+							<artifactItems>
+								<!-- equinox system bundle -->
+								<artifactItem>
+									<groupId>
+										org.eclipse.osgi
+									</groupId>
+									<artifactId>osgi</artifactId>
+									<version>
+										3.3.1.R33x_v20070828
+									</version>
+									<destFileName>org.eclipse.osgi_3.3.1.R33x_v20070828.jar</destFileName>									
+								</artifactItem>
+								
+								<artifactItem>
+									<groupId>org.eclipse.osgi</groupId>
+									<artifactId>services</artifactId>
+									<version>
+										3.1.200.v20070605
+									</version>
+									<destFileName>org.eclipse.osgi.services_3.1.200.v20070605.jar</destFileName>
+								</artifactItem>								
+
+								<artifactItem>
+									<groupId>
+										org.eclipse.equinox
+									</groupId>
+									<artifactId>common</artifactId>
+									<version>3.3.0.v20070426</version>
+									<destFileName>org.eclipse.equinox.common_3.3.0.v20070426.jar</destFileName>
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>
+										org.eclipse.equinox
+									</groupId>
+									<artifactId>preferences</artifactId>
+									<version>3.2.100.v20070522</version>
+									<destFileName>org.eclipse.equinox.preferences_3.2.100.v20070522.jar</destFileName>
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>org.eclipse.equinox</groupId>
+									<artifactId>log</artifactId>
+									<version>
+										1.0.100.v20070226
+									</version>
+									<destFileName>org.eclipse.equinox.log_1.0.100.v20070226.jar</destFileName>									
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>org.eclipse.equinox</groupId>
+									<artifactId>http</artifactId>
+									<version>
+										1.0.100.v20070423
+									</version>
+									<destFileName>org.eclipse.equinox.http_1.0.100.v20070423.jar</destFileName>									
+								</artifactItem>
+
+
+								<artifactItem>
+									<groupId>
+										org.apache.commons.logging
+									</groupId>
+									<artifactId>
+										commons-logging-osgi
+									</artifactId>
+									<version>
+										1.0.4.v200706111724
+									</version>
+									<destFileName>org.apache.commons.logging_1.0.4.v200706111724.jar</destFileName>									
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>javax</groupId>
+									<artifactId>servlet</artifactId>
+									<version>
+										2.4.0.v200706111738
+									</version>
+									<destFileName>javax.servlet_2.4.0.v200706111738.jar</destFileName>									
+								</artifactItem>
+
+
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+
+
 		</plugins>
 	</build>
 
@@ -104,5 +213,7 @@
 		<module>../IconTools</module>
 		<module>../SearchEngine</module>
 		<module>../Indexer</module>
+		<module>../DataLayer</module>
+		<module>../DataLayerDerby</module>
 	</modules>
 </project>
