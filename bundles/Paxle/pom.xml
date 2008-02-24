@@ -208,13 +208,14 @@
 		<module>../Parser7zip</module>
 		<module>../ParserBzip2</module>
 		<module>../ParserMsOffice</module>
+		<module>../ParserHtml</module>
 		<module>../GUI</module>
 		<module>../CharsetDetector</module>
 		<module>../IconTools</module>
 		<module>../SearchEngine</module>
 		<module>../Indexer</module>
-		<!-- 
 		<module>../DataLayer</module>
+		<!-- 
 		<module>../DataLayerDerby</module>
 		 -->
 		 <module>../FilterBlacklist</module>
