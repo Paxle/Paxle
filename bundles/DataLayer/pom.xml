@@ -33,7 +33,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<!--<Export-Package>!*</Export-Package> -->
+						<Export-Package>org.paxle.data</Export-Package>
 						<Import-Package>
 							org.osgi.framework,
 							org.apache.commons.logging,
@@ -41,17 +41,7 @@
 							org.paxle.core.doc, org.paxle.core.filter,
 							!*
 						</Import-Package>
-						<DynamicImport-Package>
-							javax.security,
-							javax.naming, 
-							javax.naming.spi, 
-							javax.naming.event, 
-							org.xml.sax, 
-							org.xml.sax.helpers, 
-							org.xml.sax.ext, 
-							javax.net.ssl, 
-							javax.sql
-						</DynamicImport-Package>
+						<DynamicImport-Package>*</DynamicImport-Package>
 						<Private-Package>
 							org.paxle.data.impl, org.paxle.data.db.impl,
 							org.paxle.data.txt.impl
