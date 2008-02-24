@@ -1,0 +1,82 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>DataLayerDerby</artifactId>
+	<packaging>bundle</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>Paxle - DataLayer-Derby</name>
+	<url>http://wiki.paxle.net/dev/bundles/DataLayerDerby</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Paxle</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.2.1</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+<Import-Package>!*</Import-Package>
+<Export-Package>!*</Export-Package>
+						<Fragment-Host>org.paxle.DataLayer</Fragment-Host>
+						<!-- 
+							<Import-Package>
+							org.osgi.framework,
+							org.apache.commons.logging
+							</Import-Package>
+							<Export-Package>
+							org.apache.derby.*
+							</Export-Package>
+							
+							<DynamicImport-Package>*</DynamicImport-Package>
+							
+							<Private-Package>
+							org.paxle.data.derby.impl
+							</Private-Package>
+							<Bundle-Activator>
+							org.paxle.data.derby.impl.Activator
+							</Bundle-Activator>
+						-->
+
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							derby;scope=compile|runtime
+						</Embed-Dependency>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.3.1.4</version>
+		</dependency>
+	</dependencies>
+</project>
