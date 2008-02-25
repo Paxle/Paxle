@@ -22,7 +22,8 @@ public class Activator implements BundleActivator {
     public void start(BundleContext context) throws Exception {
         bc = context;
         
-        File list = bc.getDataFile("../../../blacklist");
+//        File list = bc.getDataFile("../../../blacklist");
+        File list = new File("blacklist");
         list.mkdirs();
         new File(list, "default.list");
         

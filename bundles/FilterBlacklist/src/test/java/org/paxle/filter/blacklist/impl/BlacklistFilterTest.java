@@ -27,21 +27,24 @@ public class BlacklistFilterTest extends TestCase {
 		testCommand.setLocation("http://test/");
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Passed));
+		
 		testCommand.setLocation("http://asd/");
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Passed));
+		
 		BlacklistFilter.addPattern(".*asd.*", "testList");
 		testCommand.setLocation("http://test/");
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Passed));
+		
 		testCommand.setLocation("http://asd/");
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Rejected));
-		
 	}
 
 	public void testAddList() throws Exception {
 		assertFalse(new File(testDir,"testList2").exists());
+		
 		BlacklistFilter.addList("testList2");
 		assertTrue(new File(testDir,"testList2").exists());
 	}

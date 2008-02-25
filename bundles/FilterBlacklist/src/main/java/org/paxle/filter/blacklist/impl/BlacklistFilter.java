@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
@@ -29,6 +31,8 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
     private static LinkedList<Matcher> matcherblacklist = new LinkedList<Matcher>();
     private static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     
+    private Log logger = LogFactory.getLog(this.getClass());
+    
     public BlacklistFilter(File list) {
         blacklistDir = list;
         reloadEntries();
@@ -38,7 +42,8 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
         FilterResult result = isListed(command.getLocation());
         if(result.getStatus()==FilterResult.LOCATION_REJECTED) {
             command.setResult(ICommand.Result.Rejected, "rejected by blacklistentry: " + result.getRejectPattern());
-            System.out.println(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
+            //System.out.println(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
+            logger.debug(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
             return;
         }
         // check the extracted links
@@ -74,6 +79,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
             if (result.getStatus()==FilterResult.LOCATION_REJECTED) {
                 refs.remove();
                 System.out.println(location + " rejected by blacklistentry: " + result.getRejectPattern());
+                this.logger.info(location + " rejected by blacklistentry: " + result.getRejectPattern());
             }
         }       
     }
@@ -94,6 +100,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
                 if(m.matches()) {
                     time = System.currentTimeMillis() - time;
                     //System.out.println("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
+                    logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
                     return new FilterResult(FilterResult.LOCATION_REJECTED, temp.pattern());
                 }
             }
@@ -102,6 +109,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
         }
         time = System.currentTimeMillis() - time;
         //System.out.println("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
+        logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
         return new FilterResult(FilterResult.LOCATION_OKAY, null);
     }
     
@@ -115,7 +123,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
         try {
             Pattern p = Pattern.compile(pattern);
             blacklist.add(p);
-            //System.out.println("Pattern from "+listFileName+" added to blacklist: "+pattern);
+            System.out.println("Pattern from "+listFileName+" added to blacklist: "+pattern);
             List<?> tempList = FileUtils.readLines(new File(blacklistDir, listFileName));
             FileUtils.writeLines(new File(blacklistDir, listFileName), tempList);
         } catch (PatternSyntaxException e) {
