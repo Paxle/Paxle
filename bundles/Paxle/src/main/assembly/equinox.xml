@@ -9,12 +9,15 @@
 			<includes>
 				<include>org.paxle:Core</include>
 				<include>org.paxle:GUI</include>
+				<include>org.paxle:SearchEngine</include>
 				<include>org.paxle:CrawlerCore</include>
 				<include>org.paxle:CrawlerHttp</include>
 				<include>org.paxle:ParserCore</include>
 				<include>org.paxle:ParserHtml</include>
-				<include>org.paxle:Indexer</include>
+				<include>org.paxle:Indexer</include>	
+				<include>org.paxle:IndexLucene</include>			
 				<include>org.paxle:DataLayer</include>
+				<include>org.paxle:DataLayerDerby</include>
 			</includes>
 
 			<binaries>

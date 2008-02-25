@@ -15,6 +15,10 @@
 			<id>paxle-repository</id>
 			<url>http://repository2.paxle.net/</url>
 		</repository>
+		<repository>
+			<id>java.net-repository</id>
+			<url>http://download.java.net/maven/2/</url>
+		</repository>
 	</repositories>
 
 	<!-- plugin settings -->
@@ -197,10 +201,15 @@
 
 	<!-- define modules -->
 	<modules>
+		<!-- paxle core bundle  -->
 		<module>../Core</module>
+		
+		<!-- paxle crawler bundles -->
 		<module>../CrawlerCore</module>
 		<module>../CrawlerFtp</module>
 		<module>../CrawlerHttp</module>
+		
+		<!-- paxle parser bundles -->
 		<module>../ParserCore</module>
 		<module>../ParserGzip</module>
 		<module>../ParserPdf</module>
@@ -209,15 +218,26 @@
 		<module>../ParserBzip2</module>
 		<module>../ParserMsOffice</module>
 		<module>../ParserHtml</module>
+		
+		<!-- GUI bundle -->
 		<module>../GUI</module>
+		
+		<!-- some tools -->
 		<module>../CharsetDetector</module>
 		<module>../IconTools</module>
+		
+		<!-- search engine bundles -->
 		<module>../SearchEngine</module>
+		
+		<!-- indexer bundles -->
 		<module>../Indexer</module>
+		<module>../IndexLucene</module>
+		
+		<!-- datalayer bundles -->
 		<module>../DataLayer</module>
-		<!-- 
 		<module>../DataLayerDerby</module>
-		 -->
-		 <module>../FilterBlacklist</module>
+		
+		<!-- some filters -->
+		<module>../FilterBlacklist</module>
 	</modules>
 </project>
