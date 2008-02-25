@@ -43,7 +43,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
         if(result.getStatus()==FilterResult.LOCATION_REJECTED) {
             command.setResult(ICommand.Result.Rejected, "rejected by blacklistentry: " + result.getRejectPattern());
             //System.out.println(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
-            logger.debug(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
+            logger.info(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
             return;
         }
         // check the extracted links
@@ -78,7 +78,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
             FilterResult result = isListed(location);
             if (result.getStatus()==FilterResult.LOCATION_REJECTED) {
                 refs.remove();
-                System.out.println(location + " rejected by blacklistentry: " + result.getRejectPattern());
+                //System.out.println(location + " rejected by blacklistentry: " + result.getRejectPattern());
                 this.logger.info(location + " rejected by blacklistentry: " + result.getRejectPattern());
             }
         }       
@@ -123,7 +123,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
         try {
             Pattern p = Pattern.compile(pattern);
             blacklist.add(p);
-            System.out.println("Pattern from "+listFileName+" added to blacklist: "+pattern);
+            //System.out.println("Pattern from "+listFileName+" added to blacklist: "+pattern);
             List<?> tempList = FileUtils.readLines(new File(blacklistDir, listFileName));
             FileUtils.writeLines(new File(blacklistDir, listFileName), tempList);
         } catch (PatternSyntaxException e) {
@@ -196,7 +196,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
             try {
                 Pattern p = Pattern.compile(temp);
                 blacklist.add(p);
-                System.out.println("Pattern from "+listFile.getName()+" added to blacklist: "+temp);
+                //System.out.println("Pattern from "+listFile.getName()+" added to blacklist: "+temp);
             } catch (PatternSyntaxException e) {
                 e.printStackTrace();
             }
