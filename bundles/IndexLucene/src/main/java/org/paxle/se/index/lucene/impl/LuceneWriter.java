@@ -2,6 +2,8 @@ package org.paxle.se.index.lucene.impl;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -28,14 +30,16 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	/**
 	 * The local logger
 	 */
-	private final Log logger = LogFactory.getLog(LuceneWriter.class);
+	private Log logger = null;
 	
-	private final AFlushableLuceneManager manager;
+	private AFlushableLuceneManager manager = null;
 	
 	public LuceneWriter(AFlushableLuceneManager manager) {
 		this.manager = manager;
 		this.setName("LuceneWriter");
 		this.start();
+		
+		this.logger = LogFactory.getLog(LuceneWriter.class);
 		this.logger.info("Lucene writer has been started");
 	}
 	
@@ -115,14 +119,19 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 			throw new IndexException("error adding lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
 		} finally {
 			// close everything now
-			for (final Map.Entry<Field<?>,Object> entry : document)
-				if (Closeable.class.isAssignableFrom(entry.getKey().getType()))
-					((Closeable)entry.getValue()).close();
+			Iterator<Field<?>> iter = document.fieldIterator();
+			while (iter.hasNext()) {
+				Field<?> key = iter.next();
+				Object value = document.get(key);
+				if (Closeable.class.isAssignableFrom(key.getType())) {
+					((Closeable)value).close();
+				}
+			}
 		}
 	}
 	
     public void delete(String location) throws IOException, IndexException {
-        //this.logger.debug("Adding document to index: " + document.get(IIndexerDocument.LOCATION));
+//        this.logger.debug("Adding document to index: " + document.get(IIndexerDocument.LOCATION));
         try {
             Term term = new Term(IIndexerDocument.LOCATION.getName(),location);
             this.manager.delete(term);
