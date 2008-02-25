@@ -18,6 +18,7 @@
 				<include>org.paxle:IndexLucene</include>			
 				<include>org.paxle:DataLayer</include>
 				<include>org.paxle:DataLayerDerby</include>
+				<include>org.paxle:FilterBlacklist</include>
 			</includes>
 
 			<binaries>
