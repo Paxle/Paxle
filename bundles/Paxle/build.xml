@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!-- 
+	http://freecol.svn.sourceforge.net/viewvc/freecol/freecol/trunk/build.xml?revision=3467&view=markup
+	http://freecol.svn.sourceforge.net/viewvc/freecol/freecol/trunk/build/jars/
+-->
+<project name="Paxle" default="javaInstaller">
+	<description></description>
+
+
+	<target name="init">
+		<condition property="mvn" value="mvn.bat">
+			<os family="dos" />
+		</condition>
+		<condition property="mvn" value="mvn">
+			<not>
+				<isset property="mvn" />
+			</not>
+		</condition>
+	</target>
+
+	<target name="assembly" depends="init">
+		<exec executable="${mvn}" failonerror="true">
+			<arg line="package assembly:assembly" />
+		</exec>
+	</target>
+
+	<target name="javaInstaller" depends="assembly">
+		<taskdef name="izpack"
+			classname="com.izforge.izpack.ant.IzPackTask"
+			classpath="src/main/resources/installers/standalone-compiler.jar" />
+
+		<echo message="${basedir}" />
+		<!-- untar archive -->
+		<untar compression="gzip"
+			src="target/Paxle-1.0-SNAPSHOT-equinox.tar.gz" dest="target/izpack" />
+			
+		<!-- create installer -->
+		<izpack output="target/Paxle-installer.jar"
+			installerType="standard" basedir="target/izpack/"
+			izpackdir="target/">
+			<config>
+				<![CDATA[
+				<installation version="1.0">
+					<info>
+						<appname>Paxle</appname>
+						<appversion>1.0</appversion>
+						<javaversion>1.5</javaversion>
+					</info>
+					<guiprefs width="640" height="480" resizable="no">
+						<laf name="looks">
+							<os family="unix" />
+ 						</laf>
+						<modifier key="langDisplayType" value="native"/>
+ 					</guiprefs>				
+					<locale>
+						<langpack iso3="eng"/>
+					</locale>
+					<panels>
+						<panel classname="HelloPanel"/>
+						<panel classname="TargetPanel"/>
+						<panel classname="PacksPanel"/>
+						<panel classname="InstallPanel"/>
+						<panel classname="ShortcutPanel"/>
+						<panel classname="SimpleFinishPanel"/>
+					</panels>	
+						<packs>
+							<pack id="Core" name="Paxle" required="yes">
+							<description>Core package</description>
+							<fileset dir="@{basedir}/target/izpack/Paxle-1.0-SNAPSHOT/" includes="**" targetdir="$INSTALL_PATH"/>
+						</pack>
+					</packs>
+				</installation>
+			]]>
+			</config>
+		</izpack>
+	</target>
+</project>
