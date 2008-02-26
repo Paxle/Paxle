@@ -58,9 +58,11 @@ public class HtmlTools {
     }
     
     public static String deReplaceHTML(String text) {
-    	text = deReplaceNumericEntities(text);
-        text = deReplaceHTMLEntities(text);
-        text = deReplaceXMLEntities(text);
+    	if (text.indexOf('&') >= 0) {
+	    	text = deReplaceNumericEntities(text);
+	        text = deReplaceHTMLEntities(text);
+	        text = deReplaceXMLEntities(text);
+    	}
         return text;
     }
     
@@ -74,27 +76,32 @@ public class HtmlTools {
     
     public static String deReplace(String text, String[] entities) {
         if (text == null) return null;
+        final StringBuffer sb = new StringBuffer(text);
         for (int i=entities.length-1; i>0; i-=2) {
             int p = 0;
-            while ((p = text.indexOf(entities[i])) >= 0) {
-                text = text.substring(0, p) + entities[i - 1] + text.substring(p + entities[i].length());
+            while ((p = sb.indexOf(entities[i])) >= 0) {
+                // text = text.substring(0, p) + entities[i - 1] + text.substring(p + entities[i].length());
+            	sb.replace(p, p + entities[i].length(), entities[i - 1]);
                 p += entities[i - 1].length();
             }
         }
-        return text;
+        return sb.toString();
     }
     
 	private static final Pattern NumericEntityPattern = Pattern.compile("&#((\\d+)|(x)([0-9a-fA-F]{4}));");
 	
 	// TODO: still fails at constructs like '&#x0301;e' - a possible representation of '&eacute;' respectively '&#233;'
+	// 26.02.2008: [FB]
+	// - added support for character-replacements requiring more than one char to represent
 	// [FB]
     public static String deReplaceNumericEntities(String text) {
     	if (text == null) return null;
     	if (text.length() == 0) return text;
     	final Matcher m = NumericEntityPattern.matcher(text);
     	final StringBuffer sb = new StringBuffer(text.length());
+    	final char[] cbuf = new char[2];
 		while (m.find()) {
-			final String repl;
+			String repl;
 			final int radix;
 			if (m.group(3) == null) {
 				radix = 10;
@@ -103,7 +110,10 @@ public class HtmlTools {
 				radix = 16;
 				repl = m.group(4);
 			}
-    		m.appendReplacement(sb, String.valueOf((char)Integer.parseInt(repl, radix)));
+			
+			final int nChars = Character.toChars(Integer.parseInt(repl, radix), cbuf, 0);
+			repl = String.valueOf(cbuf, 0, nChars);
+			m.appendReplacement(sb, Matcher.quoteReplacement(repl));
     	}
 		m.appendTail(sb);
 		return sb.toString();

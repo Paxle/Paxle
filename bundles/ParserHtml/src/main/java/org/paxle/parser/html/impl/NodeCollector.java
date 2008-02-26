@@ -100,9 +100,9 @@ public class NodeCollector extends NodeVisitor {
 	 *  <dd>{@link MetaTagManager.Names#Contributor}</dd>
 	 *  <dd>{@link MetaTagManager.Names#Publisher}</dd>
 	 *  <dt>The document's keywords:</dt>
-	 *  <dd>{@link MetaTagManager.Names#Keywords}}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Keywords}</dd>
 	 *  <dt>The document's abstract:</dt>
-	 *  <dd>{@link MetaTagManager.Names#Abstract}}</dd>
+	 *  <dd>{@link MetaTagManager.Names#Abstract}</dd>
 	 *  <dd>{@link MetaTagManager.Names#Description}</dd>
 	 *  <dd>{@link MetaTagManager.Names#Description_Abstract}</dd>
 	 *  <dd>{@link MetaTagManager.Names#Description_TableOfContents}</dd>
@@ -279,9 +279,17 @@ public class NodeCollector extends NodeVisitor {
 	}
 	
 	private void process(LinkTag tag) {
+		String link = tag.getLink().trim();
+		if (link.length() == 0)
+			return;
+		if (tag.isJavascriptLink() || tag.isIRCLink() || tag.isMailLink()) {
+			logger.debug("ignoring unsupported link '" + link + "'");
+			return;
+		}
+		
 		this.doc.addReference(
-				HtmlTools.deReplaceHTML(tag.getLink().trim()),
-				HtmlTools.deReplaceHTML(tag.getLinkText()));
+				HtmlTools.deReplaceHTML(link),
+				HtmlTools.deReplaceHTML(tag.getLinkText().trim()));
 	}
 	
 	private void process(HeadingTag tag) {

@@ -36,7 +36,7 @@
 		<tr>
 			<td valign="top"><b>$name</b></td>
 			<td>
-			#if($name == "Import-Package" || $name == "Export-Package")			
+			#if($name == "Import-Package" || $name == "Export-Package" || $name == "Private-Package" || $name == "Ignore-Package" || $name == "Bundle-ClassPath" || $name == "Embed-Dependency")			
 				#foreach($package in $headers.get($name).split(","))
 					$package<br />
 				#end
@@ -72,11 +72,13 @@
 				#end
 			</td>
 			<td valign="top">
+				<ul>
 				#foreach($propName in $service.getPropertyKeys())
 					#if($propName != "service.id" && $propName != "objectClass")
-						$propName=$service.getProperty($propName)<br />
+						<li>$propName=$service.getProperty($propName)</li>
 					#end
 				#end
+				</ul>
 			</td>
 		</tr>
 	#end	
