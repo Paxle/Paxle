@@ -30,6 +30,7 @@
 			classpath="src/main/resources/installers/standalone-compiler.jar" />
 
 		<echo message="${basedir}" />
+		
 		<!-- untar archive -->
 		<untar compression="gzip"
 			src="target/Paxle-1.0-SNAPSHOT-equinox.tar.gz" dest="target/izpack" />
@@ -44,7 +45,8 @@
 					<info>
 						<appname>Paxle</appname>
 						<appversion>1.0</appversion>
-						<javaversion>1.5</javaversion>
+						<url>http://www2.paxle.net/</url>
+						<javaversion>1.5</javaversion>						
 					</info>
 					<guiprefs width="640" height="480" resizable="no">
 						<laf name="looks">
@@ -53,10 +55,17 @@
 						<modifier key="langDisplayType" value="native"/>
  					</guiprefs>				
 					<locale>
-						<langpack iso3="eng"/>
+                        <langpack iso3="eng"/>
+                        <langpack iso3="deu"/>
 					</locale>
+                    <resources>
+                    	<res id="InfoPanel.info" src="@{basedir}/README.txt" parse="yes"/>
+	                    <res id="LicencePanel.licence" src="@{basedir}/LICENSE.txt"/>
+                        <res id="installer.langsel.img" src="@{basedir}/src/main/resources/installers/logo.png"/>					
+                    </resources>
 					<panels>
 						<panel classname="HelloPanel"/>
+						<panel classname="LicencePanel"/>
 						<panel classname="TargetPanel"/>
 						<panel classname="PacksPanel"/>
 						<panel classname="InstallPanel"/>
