@@ -58,7 +58,7 @@ public class HtmlTools {
     }
     
     public static String deReplaceHTML(String text) {
-    	if (text.indexOf('&') >= 0) {
+    	if (text != null && text.indexOf('&') >= 0) {
 	    	text = deReplaceNumericEntities(text);
 	        text = deReplaceHTMLEntities(text);
 	        text = deReplaceXMLEntities(text);
