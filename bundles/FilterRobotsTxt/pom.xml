@@ -1,0 +1,68 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>FilterRobotsTxt</artifactId>
+	<packaging>bundle</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>Paxle - FilterBlacklist</name>
+	<url>http://wiki.paxle.net/dev/bundles/FilterRobotsTxt</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Paxle</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.2.1</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Import-Package>
+							org.osgi.framework,
+							org.apache.commons.logging,
+							org.paxle.core.filter,
+							org.paxle.core.queue,
+							org.paxle.core.doc
+						</Import-Package>
+						<Private-Package>
+							org.paxle.filter.robots.impl
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.filter.robots.impl.Activator
+						</Bundle-Activator>
+
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							commons-cache;scope=compile|runtime
+						</Embed-Dependency>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+			<dependency>
+				<groupId>org.paxle</groupId>
+				<artifactId>Core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			
+			<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-cache</artifactId>
+			<version>20070912-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+</project>
