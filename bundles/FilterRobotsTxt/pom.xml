@@ -7,7 +7,7 @@
 	<artifactId>FilterRobotsTxt</artifactId>
 	<packaging>bundle</packaging>
 	<version>1.0-SNAPSHOT</version>
-	<name>Paxle - FilterBlacklist</name>
+	<name>Paxle - FilterRobotsTxt</name>
 	<url>http://wiki.paxle.net/dev/bundles/FilterRobotsTxt</url>
 
 	<!-- Parent Project -->
