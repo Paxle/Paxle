@@ -239,5 +239,6 @@
 		
 		<!-- some filters -->
 		<module>../FilterBlacklist</module>
+		<module>../FilterRobotsTxt</module>
 	</modules>
 </project>

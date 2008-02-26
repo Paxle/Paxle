@@ -19,6 +19,7 @@
 				<include>org.paxle:DataLayer</include>
 				<include>org.paxle:DataLayerDerby</include>
 				<include>org.paxle:FilterBlacklist</include>
+				<include>org.paxle:FilterRobotsTxt</include>
 			</includes>
 
 			<binaries>
