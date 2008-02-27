@@ -37,7 +37,6 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Export-Package>org.paxle.data</Export-Package>
 						<Import-Package>
 							org.osgi.framework,
 							org.apache.commons.logging,

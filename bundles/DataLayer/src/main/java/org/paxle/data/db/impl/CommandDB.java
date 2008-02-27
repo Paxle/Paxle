@@ -67,6 +67,11 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 	 */
 	private SessionFactory sessionFactory;
 	
+	/**
+	 * The currently used db configuration
+	 */
+	private Configuration config; 
+	
 	public CommandDB(URL configURL, List<URL> mappings) {
 		if (configURL == null) throw new NullPointerException("The URL to the hibernate config file is null.");
 		if (mappings == null) throw new NullPointerException("The list of mapping files was null.");
@@ -80,10 +85,10 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 				
 				// Read the hibernate configuration from *.cfg.xml
 	        	this.logger.info(String.format("Loading DB configuration from URL '%s'.",configURL));
-				Configuration config = new Configuration().configure(configURL);
+				this.config = new Configuration().configure(configURL);
 				
 				// register an interceptor (required to support our interface-based command model)
-				config.setInterceptor(new InterfaceInterceptor());
+				this.config.setInterceptor(new InterfaceInterceptor());
 				
 				// load the various mapping files
 				for (URL mapping : mappings) {
@@ -157,17 +162,23 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		this.writerThread.interrupt();
 		
 		// wait for the threads to shutdown
-		this.readerThread.join();
-		this.writerThread.join();
+		this.readerThread.join(2000);
+		this.writerThread.join(2000);
 		
 		// close the DB
 		this.sessionFactory.close();
 		
 		// shutdown the database
 		try {
-			DriverManager.getConnection("jdbc:derby:;shutdown=true");
+			String dbDriver = this.config.getProperties().getProperty("connection.driver_class");
+			if (dbDriver != null && dbDriver.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
+				DriverManager.getConnection("jdbc:derby:;shutdown=true");
+			}
 		} catch (SQLException e) {
-			this.logger.error("Unable to shutdown database.",e);
+			String errMsg = e.getMessage();
+			if (!(errMsg != null && errMsg.equals("Derby system shutdown."))) {
+				this.logger.error("Unable to shutdown database.",e);
+			}
 		}
 	}
 	
@@ -373,9 +384,13 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				if (!(e instanceof InterruptedException)) {
+					logger.error(String.format("Unexpected '%s' while waiting reading commands from db.",
+							e.getClass().getName()
+					),e);
+				}
 			} finally {
-
+				logger.info("CommandDB.Writer shutdown finished.");
 			}		
 		}
 		
@@ -406,9 +421,13 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 					}
 				}				
 			} catch (Exception e) {
-				e.printStackTrace();
+				if (!(e instanceof InterruptedException)) {
+					logger.error(String.format("Unexpected '%s' while waiting for a new command.",
+							e.getClass().getName()
+					),e);
+				}
 			} finally {
-
+				logger.info("CommandDB.Reader shutdown finished.");
 			}
 		}
 	}

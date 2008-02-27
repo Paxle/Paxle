@@ -29,6 +29,8 @@ public class Activator implements BundleActivator {
 	 */
 	private Log logger = null;
 	
+	private CommandDB commandDB = null;
+	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
@@ -90,20 +92,20 @@ public class Activator implements BundleActivator {
 			ArrayList<URL> mappings = Collections.list(mappingFileEnum);
 
 			// init command DB
-			CommandDB db = new CommandDB(config, mappings);		
+			this.commandDB = new CommandDB(config, mappings);		
 
 			final Hashtable<String,String> props = new Hashtable<String,String>();
 //			props.put(IDataConsumer.PROP_DATACONSUMER_ID, "org.paxle.indexer.source");
 			props.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.crawler.sink");		
-			bc.registerService(new String[]{IDataConsumer.class.getName(),IDataProvider.class.getName()}, db, props);
+			bc.registerService(new String[]{IDataConsumer.class.getName(),IDataProvider.class.getName()}, commandDB, props);
 
 			// register filter
 			Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
 			filterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{"org.paxle.parser.out; pos=" + Integer.MAX_VALUE});
-			bc.registerService(IFilter.class.getName(), new UrlExtractorFilter(db), filterProps);	
+			bc.registerService(IFilter.class.getName(), new UrlExtractorFilter(commandDB), filterProps);	
 
 			// start the commandDB
-			db.start();
+			commandDB.start();
 		}
 		
 		// fill the crawler queue with URLs
@@ -117,7 +119,13 @@ public class Activator implements BundleActivator {
 	 * This function is called by the osgi-framework to stop the bundle.
 	 * @see BundleActivator#stop(BundleContext)
 	 */		
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext context) throws Exception {		
+		// shutdown command DB
+		if (this.commandDB != null) {
+			this.commandDB.close();
+		}
+		
+		// release bundle context
 		bc = null;
 	}
 
