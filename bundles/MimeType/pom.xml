@@ -1,0 +1,138 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>MimeType</artifactId>
+	<packaging>bundle</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>Paxle - MimeType</name>
+	<url>http://wiki.paxle.net/dev/bundles/MimeType</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Paxle</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.2.1</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Export-Package>
+							org.paxle.mimetype
+						</Export-Package>
+						<Import-Package>
+							org.osgi.framework, 
+							org.apache.commons.logging,
+							org.paxle.core.mimetype,
+							org.paxle.core.io
+						</Import-Package>
+						<DynamicImport-Package>*</DynamicImport-Package>
+						
+						<!-- 
+						<DynamicImport-Package>
+							javax.xml.datatype,
+							javax.xml.namespace,
+							javax.xml.validation,
+							org.w3c.dom.ls,
+							sun.io,
+							org.apache.xml.resolver, 
+							org.apache.xml.resolver.readers,
+							org.xml.sax.*
+						</DynamicImport-Package>
+						 -->
+						<Private-Package>
+							org.paxle.mimetype.impl
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.mimetype.impl.Activator
+						</Bundle-Activator>
+
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							jmimemagic;scope=compile|runtime,
+							xercesImpl;scope=compile|runtime,
+							oro;scope=compile|runtime
+						</Embed-Dependency>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
+		</dependency>
+
+		<dependency>
+			<groupId>jmimemagic</groupId>
+			<artifactId>jmimemagic</artifactId>
+			<version>0.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>oro</groupId>
+			<artifactId>oro</artifactId>
+			<version>2.0.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>xml-apis</groupId>
+			<artifactId>xml-apis</artifactId>
+			<version>1.0.b2</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>xml-apis</groupId>
+			<artifactId>xmlParserAPIs</artifactId>
+			<version>2.0.2</version>
+			<scope>compile</scope>
+		</dependency>
+
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.13</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.sun.jdmk</groupId>
+					<artifactId>jmxtools</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.jms</groupId>
+					<artifactId>jms</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jmx</groupId>
+					<artifactId>jmxri</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>		
+		
+		
+	</dependencies>
+</project>

@@ -48,6 +48,7 @@ Used External Libraries:
   - Jakarta ORO
     Files: jakarta-oro-2.0.7.jar
     See: http://jakarta.apache.org/oro/
+  - Log4j: http://download.eclipse.org/releases/europa/plugins/org.apache.log4j_1.2.13.v200706111418.jar
     
 References:
 --------------------------------------------------    
