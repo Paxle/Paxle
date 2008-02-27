@@ -60,8 +60,14 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.paxle</groupId>
-			<artifactId>ParserCore</artifactId>
+			<artifactId>Core</artifactId>
 			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
 		</dependency>
 
 		<dependency>

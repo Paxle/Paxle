@@ -224,6 +224,7 @@
 		
 		<!-- some tools -->
 		<module>../CharsetDetector</module>
+		<module>../MimeType</module>
 		<module>../IconTools</module>
 		
 		<!-- search engine bundles -->

@@ -20,6 +20,8 @@
 				<include>org.paxle:DataLayerDerby</include>
 				<include>org.paxle:FilterBlacklist</include>
 				<include>org.paxle:FilterRobotsTxt</include>
+				<include>org.paxle:CharsetDetector</include>
+				<include>org.paxle:MimeType</include>
 			</includes>
 
 			<binaries>
