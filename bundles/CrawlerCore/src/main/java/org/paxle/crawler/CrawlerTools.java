@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +43,18 @@ public class CrawlerTools {
 		final CrawlerContext context = CrawlerContext.getCurrentContext();
 		if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");
 		
+		
+		// testing if the charset is supported by java
+		String contentCharset = doc.getCharset();
+		if (contentCharset != null && !Charset.isSupported(contentCharset)) {
+			logger.warn(String.format(
+					"The resource '%s' has an unsupported charset '%s'. Resetting charset ...", 
+					doc.getLocation(),
+					contentCharset
+			));
+			doc.setCharset(null);
+		}
+		
 		// init file output-stream
 		final File file = context.getTempFileManager().createTempFile();
 		OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
@@ -73,8 +86,13 @@ public class CrawlerTools {
 			 * ================================================================ */
 			if (chardetos != null) {
 				final String charset = chardetos.getCharset();
-				if (charset != null)
+				if (charset != null) {
 					doc.setCharset(charset);
+					logger.debug(String.format("Charset of resource '%s' was detected as '%s'.",
+							doc.getLocation(),
+							contentCharset
+					));
+				}
 			}
 			
 			/* ================================================================
