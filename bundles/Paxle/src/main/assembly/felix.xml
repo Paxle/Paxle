@@ -1,5 +1,5 @@
 <assembly>
-	<id>equinox</id>
+	<id>felix</id>
 	<formats>
 		<format>tar.gz</format>
 	</formats>
@@ -25,7 +25,7 @@
 			</includes>
 
 			<binaries>
-				<outputDirectory>/</outputDirectory>
+				<outputDirectory>/bundle/</outputDirectory>
 				<unpack>false</unpack>
 				<includeDependencies>false</includeDependencies>
 			</binaries>
@@ -33,17 +33,27 @@
 	</moduleSets>
 	<files>
 		<file>
-			<source>src/main/resources/equinox/configuration/config.ini</source>
-			<outputDirectory>/configuration/</outputDirectory>
+			<source>src/main/resources/felix/conf/config.properties</source>
+			<outputDirectory>/</outputDirectory>
 			<filtered>true</filtered>
 		</file>
 	</files>
 	<fileSets>
 		<fileSet>
-			<directory>${equinox.dependencies}</directory>
-			<outputDirectory>/</outputDirectory>
+			<directory>${felix.dependencies}</directory>
+			<outputDirectory>/bundle/</outputDirectory>
 			<includes>
 				<include>*.jar</include>
+			</includes>
+			<excludes>
+				<exclude>org.apache.felix.main*.jar</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>${felix.dependencies}</directory>
+			<outputDirectory>/bin/</outputDirectory>
+			<includes>
+				<include>org.apache.felix.main*.jar</include>
 			</includes>
 		</fileSet>
 	</fileSets>
