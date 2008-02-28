@@ -137,7 +137,7 @@ static class OwnURL {
 			host = url.substring(hostStart, hostEnd).toLowerCase();
 			
 			// TODO: de-punycode host
-			if (path.contains("--")) {
+			if (host.contains("--")) {
 				throw new MalformedURLException(url + " is a punycode domain. No support yet.");
 			}
 			
@@ -172,7 +172,7 @@ static class OwnURL {
 					int paramStart = qmark + 1;
 					do {
 						int paramEnd = url.indexOf('&', paramStart);
-						if (paramEnd == -1)
+						if (paramEnd == -1 || paramEnd > queryEnd)
 							paramEnd = queryEnd;
 						final int eq = url.indexOf('=', paramStart);
 						if (eq == -1 || eq > paramEnd)
