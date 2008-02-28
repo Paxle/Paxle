@@ -86,7 +86,7 @@ public class RobotsTxtManager {
 		if (prot.equals("http") && hostPort.endsWith(":80")) hostPort = hostPort.substring(0,hostPort.length()-":80".length());
 		if (prot.equals("https") && hostPort.endsWith(":443")) hostPort = hostPort.substring(0,hostPort.length()-":443".length());
 
-		return hostPort.intern();
+		return hostPort;
 	}
 
 	/**
@@ -245,7 +245,7 @@ public class RobotsTxtManager {
 		// getting the RobotsTxt-info for this host[:port]
 		RobotsTxt robotsTxt = null;
 		try {
-			synchronized (hostPort) {
+			synchronized (hostPort.intern()) {
 				// trying to geht the robots.txt from cache
 				robotsTxt = (RobotsTxt) this.cache.retrieve(hostPort);
 
