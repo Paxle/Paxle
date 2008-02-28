@@ -88,11 +88,15 @@ public class ServletManager implements IServletManager {
 	}
 	
 	synchronized void addResources(String alias, String name) {
+		this.addResources(alias, name, this.defaultContext);
+	}
+	
+	synchronized void addResources(String alias, String name, HttpContext httpContext) {
 		this.resources.put(alias, name);
 		if (this.http != null) {
 			try {
 				this.logger.info(String.format("Registering resource '%s' for alias '%s'.", name, alias));
-				this.http.registerResources(alias, name, defaultContext);
+				this.http.registerResources(alias, name, httpContext);
 			} catch (Throwable e) {
 				this.logger.error(String.format("Unexpected '%s' while registering resource '%s' for alias '%s'.",
 						e.getClass().getName(),

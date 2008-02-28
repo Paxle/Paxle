@@ -117,6 +117,7 @@ public class Activator implements BundleActivator {
 			/* ==========================================================
 			 * Register Servlets
 			 * ========================================================== */	
+			servletManager.addServlet("/", new SearchView(null));
 			servletManager.addServlet("/search", new SearchView(null));
 			servletManager.addServlet("/status", new StatusView(null));
 			servletManager.addServlet("/p2p", new P2PView(null));
@@ -124,27 +125,29 @@ public class Activator implements BundleActivator {
 			servletManager.addServlet("/bundle", new BundleView(null));
 			servletManager.addServlet("/log", new LogView(null));
 			servletManager.addServlet("/queue", new QueueView(null));
-			servletManager.addServlet("/", new SearchView(null));
-			servletManager.addServlet("/index.html", new SearchView(null));
+//			servletManager.addServlet("/", new SearchView(null));			
 				
 			/*
 			 * Add stylesheets
 			 * TODO: use some kind of addResourceFolder instead
 			 */
-			servletManager.addResources("/style.css", "/resources/templates/layout/style.css");
+//			servletManager.addResources("/style.css", "/resources/templates/layout/style.css");
+			servletManager.addResources("/css","/resources/templates/layout/css");
 			
 			/*
 			 * Add javascript files
 			 * TODO: use some kind of addResourceFolder instead
 			 */
-			servletManager.addResources("/js/wz_tooltip.js", "/resources/js/wz_tooltip.js");
+//			servletManager.addResources("/js/wz_tooltip.js", "/resources/js/wz_tooltip.js");
+			servletManager.addResources("/js","/resources/js");
 			
 			/*
 			 * Add images 
 			 * TODO: use some kind of addResourceFolder instead
 			 */
-			servletManager.addResources("/images/bullet_arrow_up.png", "/resources/images/bullet_arrow_up.png");
-		}		
+//			servletManager.addResources("/images/bullet_arrow_up.png", "/resources/images/bullet_arrow_up.png");
+			servletManager.addResources("/images", "/resources/images");
+		}
 	}
 
 	public void stop(BundleContext context) throws Exception {

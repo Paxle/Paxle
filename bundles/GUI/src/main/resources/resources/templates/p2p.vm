@@ -38,6 +38,7 @@
 
 #set($p2pManager = $manager.getService("org.paxle.p2p.IP2PManager"))
 #if($p2pManager)
+
 <fieldset id="dpeerInfo">
 	<legend>P2P-Manager:</legend>
 	<table>
@@ -67,4 +68,7 @@
 	#serviceList($manager.getServices(null,"(objectClass=org.paxle.p2p.services.IServiceClient)"))
 
 </fieldset>
+#else
+	<p/>
+	<font color="red"><b>P2P Bundle not installed</b></font>
 #end

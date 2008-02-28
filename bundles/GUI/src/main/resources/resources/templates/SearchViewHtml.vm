@@ -2,10 +2,13 @@
 #set( $page_title = "Paxle Search Page" )
 
 ## Add custom html headers
-#set( $h1 = "<link rel='alternate' type='application/rss+xml' title='Paxle Search Page' href='?format=rss&query=$escTool.url($searchQuery)' />")
-## TODO: link to a opensearch-description
-## #set( $h2 = '<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="opensearchdescription.xml" />')
-#set( $page_headers = [$h1] )
+#if($searchQuery)
+	#set( $h1 = "<link rel='alternate' type='application/rss+xml' title='Paxle Search Page' href='?format=rss&query=$escTool.url($searchQuery)' />")
+
+	## TODO: link to a opensearch-description
+	## #set( $h2 = '<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="opensearchdescription.xml" />')
+	#set( $page_headers = [$h1] )
+#end
 
 ## the regular content
 #if(!$Search || !$fieldManager)
