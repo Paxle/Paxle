@@ -25,13 +25,14 @@ public class ReferenceNormalisationFilterTest extends TestCase {
 		{"http://example.org/test/.././x/.././","http://example.org/"},
 		//some combined cases
 		{"http://user:pw@www.eXamplE.orG:359/path/../path/doc.htM?k=v&k2=v2#fragment","http://user:pw@www.example.org:359/path/doc.htM?k=v&k2=v2"},
+		//ftp
+		{"ftp://user@files.example.org:21/ex/../","ftp://user@files.example.org/"},
 	};
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 	}
-
 
 	public void testReferenceNormalisationFilter() throws Exception {
 		int x = 0;
