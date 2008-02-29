@@ -1,6 +1,8 @@
 
 package org.paxle.core.impl;
 
+import java.util.Hashtable;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.core.ICryptManager;
@@ -15,6 +17,7 @@ import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
+import org.paxle.core.filter.impl.ReferenceNormalizationFilter;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.core.prefs.IPropertiesStore;
@@ -100,6 +103,11 @@ public class Activator implements BundleActivator {
 		
 		// register property store
 		context.registerService(IPropertiesStore.class.getName(), new PropertiesStore(), null);
+		
+		// add reference normalization filter
+		final Hashtable<String,String[]> props = new Hashtable<String,String[]>();
+        props.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in", "org.paxle.parser.out"});
+        bc.registerService(IFilter.class.getName(), new ReferenceNormalizationFilter(), props);
 	}
 
 	/**

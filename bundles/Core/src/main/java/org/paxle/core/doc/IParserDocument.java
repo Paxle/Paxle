@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -92,6 +93,9 @@ public interface IParserDocument extends Closeable {
 	 * @param author the author(s) of the document
 	 */
 	public abstract void setAuthor(String author);
+	
+	public abstract Charset getCharset();
+	public abstract void setCharset(Charset charset);
 
 	/**
 	 * The last-modified date provides interesting long-term information regarding how often this

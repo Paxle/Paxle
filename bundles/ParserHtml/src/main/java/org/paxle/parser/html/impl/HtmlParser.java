@@ -135,6 +135,8 @@ public class HtmlParser implements IHtmlParser {
 			parser.visitAllNodesWith(nc);
 			page.close();
 			
+			if (charset != null)
+				doc.setCharset(Charset.forName(charset));
 			doc.setStatus(IParserDocument.Status.OK);
 			return doc;
 		} catch (org.htmlparser.util.ParserException e) {

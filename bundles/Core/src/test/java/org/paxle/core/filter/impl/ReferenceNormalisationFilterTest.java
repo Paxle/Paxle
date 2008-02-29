@@ -1,5 +1,7 @@
 package org.paxle.core.filter.impl;
 
+import java.nio.charset.Charset;
+
 import junit.framework.TestCase;
 
 public class ReferenceNormalisationFilterTest extends TestCase {
@@ -27,6 +29,9 @@ public class ReferenceNormalisationFilterTest extends TestCase {
 		{"http://user:pw@www.eXamplE.orG:359/path/../path/doc.htM?k=v&k2=v2#fragment","http://user:pw@www.example.org:359/path/doc.htM?k=v&k2=v2"},
 		//ftp
 		{"ftp://user@files.example.org:21/ex/../","ftp://user@files.example.org/"},
+		{"http://xn--bloah-nua.xn--brse-5qa.de/","http://bloah\u00F6.b\u00F6rse.de/"},
+		// other protocols
+		// {"smb://stuff/zeug/bla/../test.exe","smb://stuff/zeug/test.exe"},
 	};
 
 	@Override
@@ -37,9 +42,11 @@ public class ReferenceNormalisationFilterTest extends TestCase {
 	public void testReferenceNormalisationFilter() throws Exception {
 		int x = 0;
 		while (x < testCases.length) {
-			String normalizationResult = ReferenceNormalizationFilter.normalizeLocation(testCases[x][0]);
+			final ReferenceNormalizationFilter.OwnURL url = new ReferenceNormalizationFilter.OwnURL(true);
+			final String normalizationResult = url.parseBaseUrlString(testCases[x][0], Charset.defaultCharset());
 			assertNotNull(normalizationResult);
 			assertEquals(testCases[x][1], normalizationResult);
+			
 			x++;
 		}
 	}

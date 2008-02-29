@@ -1,10 +1,12 @@
 package org.paxle.parser.html.impl.tags;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.htmlparser.tags.MetaTag;
 
@@ -80,11 +82,13 @@ public class MetaTagManager {
 		}
 	}
 	
-	private final Hashtable<Names,Collection<String>> tags = new Hashtable<Names,Collection<String>>();
+	private final Map<Names,Collection<String>> tags = Collections.synchronizedMap(new EnumMap<Names,Collection<String>>(Names.class)); 
+	// private final Hashtable<Names,Collection<String>> tags = new Hashtable<Names,Collection<String>>();
 	
 	private void add(Names n, String v) {
 		if (v == null || v.length() == 0)
 			return;
+		
 		Collection<String> col = tags.get(n);
 		if (col == null)
 			tags.put(n, col = new LinkedList<String>());

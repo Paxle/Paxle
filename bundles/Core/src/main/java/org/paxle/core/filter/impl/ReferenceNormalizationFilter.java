@@ -1,90 +1,138 @@
+
 package org.paxle.core.filter.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.net.IDN;
 import java.net.MalformedURLException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.text.ParseException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.url.URLConstants;
+import org.osgi.service.url.URLStreamHandlerService;
+import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
+import org.paxle.core.impl.Activator;
 import org.paxle.core.queue.ICommand;
 
-public class ReferenceNormalizationFilter implements IFilter {
-
+public class ReferenceNormalizationFilter implements IFilter<ICommand> {
+	
+	private final Log logger = LogFactory.getLog(ReferenceNormalizationFilter.class);
+	
 	public void filter(ICommand command, IFilterContext filterContext) {
+		normalizeParserDoc(command.getParserDocument(), new OwnURL());
 	}
-
-	/**
-	 * This method takes an URL as input and returns it in a normalized form. There should be no change in the functionality of the URL.
-	 * @param location the unnormalized URL
-	 * @return the normalized URL
-	 * @author Roland Ramthun, Franz Brauﬂe
-	 * @throws MalformedURLException 
-	 */
-	public static String normalizeLocation(String location) throws MalformedURLException {
-
-		//We can issue this warning, as the HTTP/HTML processing parts (i.e. crawler and parser) should give us the clear text
-		//So how could an unresolved encoding get here?
-		if (location.contains("%")) {
-			System.err.println("URL '" + location + "' contains encoded reserved characters, which should not be. Please file a bug-report.");
+	
+	private void normalizeParserDoc(final IParserDocument pdoc, final OwnURL url) {
+		for (final IParserDocument subdoc : pdoc.getSubDocs().values())
+			normalizeParserDoc(subdoc, url);
+		
+		final Iterator<Map.Entry<String,String>> it = pdoc.getLinks().entrySet().iterator();
+		final Map<String,String> normalizedLinks = new HashMap<String,String>();
+		while (it.hasNext()) {
+			final Map.Entry<String,String> entry = it.next();
+			final String location = entry.getKey();
+			try {
+				final String normalized = url.parseBaseUrlString(location, pdoc.getCharset());
+				if (!normalized.equals(location)) {
+					normalizedLinks.put(normalized, entry.getValue());
+					it.remove();
+				}
+			} catch (ParseException e) {
+				logger.debug("error parsing reference: " + e.getMessage() + ", removing", e);
+				it.remove();
+			} catch (MalformedURLException e) {
+				logger.debug("removing malformed reference " + location, e);
+				it.remove();
+			}
 		}
-
-		OwnURL locurl = null;
-		locurl = new OwnURL(location);
-
-		return locurl.toNormalizedString();
+		pdoc.getLinks().putAll(normalizedLinks);
 	}
-
+	
+	private static final Pattern PATH_PATTERN = Pattern.compile("(/[^/]+(?<!/\\.{1,2})/)[.]{2}(?=/|$)|/\\.(?=/)|/(?=/)");
+	
 	/**
 	 * Resolves backpaths
 	 * @param path The path of an URL
 	 * @return The path without backpath directives
 	 */
 	private static String resolveBackpath(String path) {
-
-		final Pattern PATH_PATTERN = Pattern.compile("(/[^/]+(?<!/\\.{1,2})/)[.]{2}(?=/|$)|/\\.(?=/)|/(?=/)");
-
+		
 		if (path == null || path.length() == 0) return "/";
 		if (path.length() == 0 || path.charAt(0) != '/') { path = "/" + path; }
-
+		
 		Matcher matcher = PATH_PATTERN.matcher(path);
 		while (matcher.find()) {
 			path = matcher.replaceAll("");
 			matcher.reset(path);
 		}
-
+		
 		return path.equals("")?"/":path;
 	}
-
-static class OwnURL {
-		
-	/*
-	 * What happens here?
-	 * 
-	 * Every URL has to end with a slash, if it only consists of a scheme and authority.
-	 * 
-	 * This slash is a part of the path. Even a simple URL like "http://example.org/" is a mapping on a directory on the server.
-	 * As directories have to end with a slash, there _must_ be a slash if there is no path given ending with a filename.
-	 * 
-	 * In the next step we will remove default ports from the URL.
-	 * 
-	 * Then we convert the protocol identifier and the (sub-) domain to lowercase.
-	 * Case is not important for these parts, for the path it is.
-	 * 
-	 * Then we resolve backpaths in the path.
-	 * 
-	 * Later the resulting normalized URL is assembled, along this way possible fragments are removed, as they are simply not added
-	 * 
-	 */
 	
-		private static final HashMap<String,Integer> DEFAULT_PORTS = new HashMap<String,Integer>();
-
-		static {
-			DEFAULT_PORTS.put("ftp", Integer.valueOf(21));
-			DEFAULT_PORTS.put("http", Integer.valueOf(80));
-			DEFAULT_PORTS.put("https", Integer.valueOf(443));
+	static class OwnURL {
+		
+		/*
+		 * What happens here?
+		 * 
+		 * Every URL has to end with a slash, if it only consists of a scheme and authority.
+		 * 
+		 * This slash is a part of the path. Even a simple URL like "http://example.org/" is a mapping on a directory on the server.
+		 * As directories have to end with a slash, there _must_ be a slash if there is no path given ending with a filename.
+		 * 
+		 * In the next step we will remove default ports from the URL.
+		 * 
+		 * Then we convert the protocol identifier and the (sub-) domain to lowercase.
+		 * Case is not important for these parts, for the path it is.
+		 * 
+		 * Then we resolve backpaths in the path.
+		 * 
+		 * Later the resulting normalized URL is assembled, along this way possible fragments are removed, as they are simply not added
+		 * 
+		 */
+		
+		private static String urlDecode(final String str, final Charset charset) throws ParseException {
+			int percent = str.indexOf('%');
+			if (percent == -1)
+				return str;
+			
+			final StringBuffer sb = new StringBuffer(str.length());				// buffer to build the converted string
+			final ByteArrayOutputStream baos = new ByteArrayOutputStream(8);	// buffer for conversion of contiguous %-encoded bytes
+			int last = 0;
+			do {
+				sb.append(str.substring(last, percent));						// write non-encoded part
+				
+				/* loop to convert sequence of %-encoded tokens into bytes. Contiguous byte-sequences have to be dealt with
+				 * in one block before decoding, because - dependant on the charset - more than one byte may be needed to
+				 * represent a single character. If the conversion to bytes was done sequentially, decoding might fail */
+				do {
+					final String token = str.substring(percent + 1, percent + 3);
+					if (!token.matches("[0-9a-fA-F]{2}"))
+						throw new ParseException("illegal url-encoded token '" + token + "'", percent);
+					
+					baos.write(Integer.parseInt(token, 16) & 0xFF);
+					percent += 3;
+				} while (str.charAt(percent) == '%');
+				
+				sb.append(charset.decode(ByteBuffer.wrap(baos.toByteArray())));	// here the actual decoding takes place
+				baos.reset();													// reuse the ByteArrayOutputStream in the next run
+				
+				last = percent;													// byte after the token
+				percent = str.indexOf('%', last);								// search for next token
+			} while (percent != -1);
+			return sb.append(str.substring(last)).toString();
 		}
 		
 		private String protocol;
@@ -96,11 +144,64 @@ static class OwnURL {
 		private LinkedHashMap<String,String> query;
 		private String fragment;
 		
-		public OwnURL(String url) throws MalformedURLException {
-			parseBaseUrlString(url);
+		private final HashMap<String,Integer> defaultPorts = new HashMap<String,Integer>();
+		
+		public OwnURL() {
+			this(false);
 		}
 		
-		private void parseBaseUrlString(final String url) throws MalformedURLException {
+		OwnURL(final boolean test) {
+			// initialise the defaultPorts map using the currently registered URLStreamHandlerServices
+			defaultPorts.put("http", Integer.valueOf(80));		// HTTP is not part of the global url-stream-handlers
+			defaultPorts.put("https", Integer.valueOf(443));
+			
+			if (!test) try {
+				final ServiceReference[] refs = Activator.bc.getAllServiceReferences(URLStreamHandlerService.class.getName(), null);
+				if (refs == null)
+					return;
+				
+				for (final ServiceReference ref : refs) {
+					final URLStreamHandlerService streamHandler = (URLStreamHandlerService)Activator.bc.getService(ref);
+					if (streamHandler == null)
+						continue;
+					final Integer defaultPort = Integer.valueOf(streamHandler.getDefaultPort());
+					
+					final Object protVal = ref.getProperty(URLConstants.URL_HANDLER_PROTOCOL);
+					if (protVal instanceof String) {
+						final String protocol = (String)protVal;
+						defaultPorts.put(protocol, defaultPort);
+						
+					} else if (protVal instanceof String[]) {
+						final String[] protocols = (String[])protVal;
+						for (final String protocol : protocols)
+							defaultPorts.put(protocol, defaultPort);
+					}
+				}
+			} catch (InvalidSyntaxException e) { e.printStackTrace(); }
+		}
+		
+		/**
+		 * This method takes an URL as input and returns it in a normalized form. There should be no change in the functionality of the URL.
+		 * @param location the unnormalized URL
+		 * @param charset the {@link Charset} of the document this link was extracted from. It is needed to transform URL-encoded entities
+		 *        to Java's Unicode representation. If <code>null</code> is passed, the default charset will be used
+		 * @return the normalized URL consisting of protocol, username/password if given, hostname, port if it is not the default port for
+		 *         its protocol, the path and all given query arguments. The fragment part is omitted. It also performs Punycode- and
+		 *         URL-decoding.
+		 * @author Roland Ramthun, Franz Brau&szlig;e
+		 * @throws MalformedURLException if the given URL-String could not be parsed due to inconsistency with the URI-standard
+		 */
+		public String parseBaseUrlString(final String url, final Charset charset) throws MalformedURLException, ParseException {
+			// init
+			protocol = null;
+			username = null;
+			password = null;
+			host = null;
+			port = -1;
+			path = "/";
+			query = null;
+			fragment = null;
+			
 			// extract the protocol
 			final int colonpos = url.indexOf(':');
 			if (colonpos <= 0)
@@ -134,12 +235,7 @@ static class OwnURL {
 			// extract the hostname
 			final int portColon = url.indexOf(':', hostStart);
 			final int hostEnd = (portColon == -1) ? (slashAfterHost == -1) ? url.length() : slashAfterHost : portColon;
-			host = url.substring(hostStart, hostEnd).toLowerCase();
-			
-			// TODO: de-punycode host
-			if (host.contains("--")) {
-				throw new MalformedURLException(url + " is a punycode domain. No support yet.");
-			}
+			host = IDN.toUnicode(url.substring(hostStart, hostEnd).toLowerCase());		// de-punycode (sub-)domain(s)
 			
 			// extract the port
 			final int portEnd = (slashAfterHost == -1) ? url.length() : slashAfterHost;
@@ -150,42 +246,47 @@ static class OwnURL {
 				port = Integer.parseInt(portNr);
 				if (port < 1 || port > 65535)
 					throw new MalformedURLException("Port-number out of range in URL " + url);
-				final Integer defPort = DEFAULT_PORTS.get(protocol);
+				final Integer defPort = defaultPorts.get(protocol);
 				if (defPort != null && port == defPort.intValue())
 					port = -1;
 			}
 			
-			if (slashAfterHost == -1)
-				return;
-			
-			// extract the path
-			final int qmark = url.indexOf('?', slashAfterHost);
-			final int hashmark = url.indexOf('#', slashAfterHost);
-			final int pathEnd = (qmark == -1) ? (hashmark == -1) ? url.length() : hashmark : qmark;
-			path = resolveBackpath(url.substring(slashAfterHost, pathEnd));
-			
-			// extract the query
-			if (qmark != -1) {
-				final int queryEnd = (hashmark == -1) ? url.length() : hashmark;
-				if (queryEnd > qmark + 1) {
-					this.query = new LinkedHashMap<String,String>();
-					int paramStart = qmark + 1;
-					do {
-						int paramEnd = url.indexOf('&', paramStart);
-						if (paramEnd == -1 || paramEnd > queryEnd)
-							paramEnd = queryEnd;
-						final int eq = url.indexOf('=', paramStart);
-						if (eq == -1 || eq > paramEnd)
-							throw new MalformedURLException("Illegal query parameter " + url.substring(paramStart, paramEnd) + " in URL " + url);
-						this.query.put(url.substring(paramStart, eq), url.substring(eq + 1, paramEnd));
-						paramStart = paramEnd + 1;
-					} while (paramStart < queryEnd);
+			if (slashAfterHost != -1) {
+				// extract the path
+				final int qmark = url.indexOf('?', slashAfterHost);
+				final int hashmark = url.indexOf('#', slashAfterHost);
+				final int pathEnd = (qmark == -1) ? (hashmark == -1) ? url.length() : hashmark : qmark;
+				path = resolveBackpath(urlDecode(url.substring(slashAfterHost, pathEnd), charset));
+				
+				// extract the query
+				if (qmark != -1) {
+					final int queryEnd = (hashmark == -1) ? url.length() : hashmark;
+					if (queryEnd > qmark + 1) {
+						query = new LinkedHashMap<String,String>();
+						int paramStart = qmark + 1;
+						do {
+							int paramEnd = url.indexOf('&', paramStart);
+							if (paramEnd == -1 || paramEnd > queryEnd)
+								paramEnd = queryEnd;
+							final int eq = url.indexOf('=', paramStart);
+							if (eq == -1 || eq > paramEnd)
+								throw new MalformedURLException("Illegal query parameter " + url.substring(paramStart, paramEnd) + " in URL " + url);
+							query.put(
+									urlDecode(url.substring(paramStart, eq).replace('+', ' '), charset),
+									urlDecode(url.substring(eq + 1, paramEnd).replace('+', ' '), charset));
+							paramStart = paramEnd + 1;
+						} while (paramStart < queryEnd);
+					}
 				}
+				
+				// extract the fragment
+				if (hashmark != -1)
+					fragment = urlDecode(url.substring(hashmark + 1), charset);
 			}
 			
-			// extract the fragment
-			if (hashmark != -1)
-				fragment = url.substring(hashmark + 1);
+			
+			// output
+			return toNormalizedString();
 		}
 		
 		private StringBuffer appendQuery(final StringBuffer sb) {
@@ -210,7 +311,7 @@ static class OwnURL {
 			sb.append(host);
 			if (port != -1)
 				sb.append(':').append(port);
-				
+			
 			sb.append(path);
 			if (query != null)
 				appendQuery(sb.append('?'));
@@ -219,5 +320,3 @@ static class OwnURL {
 	}
 	
 }
-
-

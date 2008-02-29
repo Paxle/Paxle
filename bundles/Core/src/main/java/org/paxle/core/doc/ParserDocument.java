@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -39,6 +40,7 @@ public class ParserDocument implements IParserDocument {
 	protected File content;
 	protected FileWriter contentOut = null;
 	protected String mimeType;
+	protected Charset charset = Charset.defaultCharset();
 	
     public int getOID(){ 
     	return _oid; 
@@ -46,7 +48,15 @@ public class ParserDocument implements IParserDocument {
 
     public void setOID(int OID){ 
     	this._oid = OID; 
-    }		
+    }
+    
+    public Charset getCharset() {
+    	return this.charset;
+    }
+    
+    public void setCharset(Charset charset) {
+    	this.charset = charset;
+    }
 		
 	/**
 	 * {@inheritDoc}

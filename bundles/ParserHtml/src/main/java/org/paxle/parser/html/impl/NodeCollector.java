@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
+
 import org.htmlparser.PrototypicalNodeFactory;
 import org.htmlparser.Tag;
 import org.htmlparser.Text;
@@ -246,7 +246,7 @@ public class NodeCollector extends NodeVisitor {
 		if (summary != null)
 			this.doc.addKeyword(HtmlTools.deReplaceHTML(summary));
 	}
-	
+	/*
 	private static final Pattern DoctypePattern = Pattern.compile(
 			"<!DOCTYPE" +
 			"\\s+(\\w+)" +				// the root node this DOCTYPE applies to [1]
@@ -260,7 +260,7 @@ public class NodeCollector extends NodeVisitor {
 	//			"\\s+\\[([^\\]]*)\\]" +	// inline definitions
 	//		")" +
 			"\\s*>", Pattern.MULTILINE);
-	
+	*/
 	private void process(DoctypeTag tag) {
 		/*
 		final Matcher m = DoctypePattern.matcher(tag.toHtml());
