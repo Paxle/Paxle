@@ -5,6 +5,8 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceListener;
 import org.paxle.core.ICryptManager;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.data.IDataConsumer;
@@ -18,6 +20,7 @@ import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
 import org.paxle.core.filter.impl.ReferenceNormalizationFilter;
+import org.paxle.core.filter.impl.URLStreamHandlerListener;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.core.prefs.IPropertiesStore;
@@ -103,6 +106,10 @@ public class Activator implements BundleActivator {
 		
 		// register property store
 		context.registerService(IPropertiesStore.class.getName(), new PropertiesStore(), null);
+		
+		// register protocol-handlers listener which updates the table of known protocols for the reference normalization filter below
+		final ServiceListener protocolUpdater = new URLStreamHandlerListener(bc, ReferenceNormalizationFilter.OwnURL.DEFAULT_PORTS);
+		bc.addServiceListener(protocolUpdater, URLStreamHandlerListener.FILTER);
 		
 		// add reference normalization filter
 		final Hashtable<String,String[]> props = new Hashtable<String,String[]>();

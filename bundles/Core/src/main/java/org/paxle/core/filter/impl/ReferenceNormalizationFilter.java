@@ -2,12 +2,12 @@
 package org.paxle.core.filter.impl;
 
 import java.io.ByteArrayOutputStream;
-import java.net.IDN;
 import java.net.MalformedURLException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,14 +17,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.url.URLConstants;
-import org.osgi.service.url.URLStreamHandlerService;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
-import org.paxle.core.impl.Activator;
 import org.paxle.core.queue.ICommand;
 
 public class ReferenceNormalizationFilter implements IFilter<ICommand> {
@@ -32,14 +27,21 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 	private final Log logger = LogFactory.getLog(ReferenceNormalizationFilter.class);
 	
 	public void filter(ICommand command, IFilterContext filterContext) {
-		normalizeParserDoc(command.getParserDocument(), new OwnURL());
+		final IParserDocument pdoc = command.getParserDocument();
+		if (pdoc != null)
+			normalizeParserDoc(pdoc, new OwnURL());
 	}
 	
 	private void normalizeParserDoc(final IParserDocument pdoc, final OwnURL url) {
-		for (final IParserDocument subdoc : pdoc.getSubDocs().values())
-			normalizeParserDoc(subdoc, url);
+		final Map<String,IParserDocument> subdocMap = pdoc.getSubDocs();
+		if (subdocMap != null && subdocMap.size() > 0)
+			for (final IParserDocument subdoc : subdocMap.values())
+				normalizeParserDoc(subdoc, url);
 		
-		final Iterator<Map.Entry<String,String>> it = pdoc.getLinks().entrySet().iterator();
+		final Map<String,String> linkMap = pdoc.getLinks();
+		if (linkMap == null || linkMap.size() == 0)
+			return;
+		final Iterator<Map.Entry<String,String>> it = linkMap.entrySet().iterator();
 		final Map<String,String> normalizedLinks = new HashMap<String,String>();
 		while (it.hasNext()) {
 			final Map.Entry<String,String> entry = it.next();
@@ -47,18 +49,19 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 			try {
 				final String normalized = url.parseBaseUrlString(location, pdoc.getCharset());
 				if (!normalized.equals(location)) {
+					logger.debug("normalized reference " + location + " to " + normalized);
 					normalizedLinks.put(normalized, entry.getValue());
 					it.remove();
 				}
 			} catch (ParseException e) {
-				logger.debug("error parsing reference: " + e.getMessage() + ", removing", e);
+				logger.info("error parsing reference: " + e.getMessage() + ", removing");
 				it.remove();
 			} catch (MalformedURLException e) {
-				logger.debug("removing malformed reference " + location, e);
+				logger.info("removing malformed reference " + location);
 				it.remove();
 			}
 		}
-		pdoc.getLinks().putAll(normalizedLinks);
+		linkMap.putAll(normalizedLinks);
 	}
 	
 	private static final Pattern PATH_PATTERN = Pattern.compile("(/[^/]+(?<!/\\.{1,2})/)[.]{2}(?=/|$)|/\\.(?=/)|/(?=/)");
@@ -82,7 +85,13 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 		return path.equals("")?"/":path;
 	}
 	
-	static class OwnURL {
+	public static class OwnURL {
+		
+		public static final Hashtable<String,Integer> DEFAULT_PORTS = new Hashtable<String,Integer>();
+		static {
+			DEFAULT_PORTS.put("http", Integer.valueOf(80));		// HTTP is not part of the global url-stream-handlers
+			DEFAULT_PORTS.put("https", Integer.valueOf(443));
+		}
 		
 		/*
 		 * What happens here?
@@ -111,6 +120,7 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 			final StringBuffer sb = new StringBuffer(str.length());				// buffer to build the converted string
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream(8);	// buffer for conversion of contiguous %-encoded bytes
 			int last = 0;
+			final int len = str.length();
 			do {
 				sb.append(str.substring(last, percent));						// write non-encoded part
 				
@@ -118,19 +128,21 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 				 * in one block before decoding, because - dependant on the charset - more than one byte may be needed to
 				 * represent a single character. If the conversion to bytes was done sequentially, decoding might fail */
 				do {
+					if (percent + 3 > str.length())
+						throw new ParseException("unexpected end of input", percent + 3);
 					final String token = str.substring(percent + 1, percent + 3);
 					if (!token.matches("[0-9a-fA-F]{2}"))
 						throw new ParseException("illegal url-encoded token '" + token + "'", percent);
 					
 					baos.write(Integer.parseInt(token, 16) & 0xFF);
 					percent += 3;
-				} while (str.charAt(percent) == '%');
+				} while (percent < len && str.charAt(percent) == '%');
 				
 				sb.append(charset.decode(ByteBuffer.wrap(baos.toByteArray())));	// here the actual decoding takes place
 				baos.reset();													// reuse the ByteArrayOutputStream in the next run
 				
 				last = percent;													// byte after the token
-				percent = str.indexOf('%', last);								// search for next token
+				percent = str.indexOf('%', last);								// search for next token, returns -1 if last > len
 			} while (percent != -1);
 			return sb.append(str.substring(last)).toString();
 		}
@@ -144,40 +156,8 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 		private LinkedHashMap<String,String> query;
 		private String fragment;
 		
-		private final HashMap<String,Integer> defaultPorts = new HashMap<String,Integer>();
-		
 		public OwnURL() {
-			this(false);
-		}
-		
-		OwnURL(final boolean test) {
 			// initialise the defaultPorts map using the currently registered URLStreamHandlerServices
-			defaultPorts.put("http", Integer.valueOf(80));		// HTTP is not part of the global url-stream-handlers
-			defaultPorts.put("https", Integer.valueOf(443));
-			
-			if (!test) try {
-				final ServiceReference[] refs = Activator.bc.getAllServiceReferences(URLStreamHandlerService.class.getName(), null);
-				if (refs == null)
-					return;
-				
-				for (final ServiceReference ref : refs) {
-					final URLStreamHandlerService streamHandler = (URLStreamHandlerService)Activator.bc.getService(ref);
-					if (streamHandler == null)
-						continue;
-					final Integer defaultPort = Integer.valueOf(streamHandler.getDefaultPort());
-					
-					final Object protVal = ref.getProperty(URLConstants.URL_HANDLER_PROTOCOL);
-					if (protVal instanceof String) {
-						final String protocol = (String)protVal;
-						defaultPorts.put(protocol, defaultPort);
-						
-					} else if (protVal instanceof String[]) {
-						final String[] protocols = (String[])protVal;
-						for (final String protocol : protocols)
-							defaultPorts.put(protocol, defaultPort);
-					}
-				}
-			} catch (InvalidSyntaxException e) { e.printStackTrace(); }
 		}
 		
 		/**
@@ -235,7 +215,9 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 			// extract the hostname
 			final int portColon = url.indexOf(':', hostStart);
 			final int hostEnd = (portColon == -1) ? (slashAfterHost == -1) ? url.length() : slashAfterHost : portColon;
-			host = IDN.toUnicode(url.substring(hostStart, hostEnd).toLowerCase());		// de-punycode (sub-)domain(s)
+			// TODO: de-punycode
+			// host = IDN.toUnicode(url.substring(hostStart, hostEnd).toLowerCase());		// de-punycode (sub-)domain(s) - java 1.6 code
+			host = url.substring(hostStart, hostEnd).toLowerCase();
 			
 			// extract the port
 			final int portEnd = (slashAfterHost == -1) ? url.length() : slashAfterHost;
@@ -246,7 +228,7 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 				port = Integer.parseInt(portNr);
 				if (port < 1 || port > 65535)
 					throw new MalformedURLException("Port-number out of range in URL " + url);
-				final Integer defPort = defaultPorts.get(protocol);
+				final Integer defPort = DEFAULT_PORTS.get(protocol);
 				if (defPort != null && port == defPort.intValue())
 					port = -1;
 			}

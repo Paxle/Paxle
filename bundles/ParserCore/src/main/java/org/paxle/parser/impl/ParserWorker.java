@@ -115,7 +115,6 @@ public class ParserWorker extends AWorker<ICommand> {
 			// get appropriate parser
 			this.logger.debug(String.format("Getting parser for mime-type '%s' ...", mimeType));
 			ISubParser parser = this.subParserManager.getSubParser(mimeType);
-			this.logger.debug(String.format("Parser '%s' found for mime-type '%s'.", parser.getClass().getName(), mimeType));
 			
 			if (parser == null) {
 				// document not parsable
@@ -124,8 +123,9 @@ public class ParserWorker extends AWorker<ICommand> {
 						ICommand.Result.Failure, 
 						String.format("No parser for mime-type '%s' found.", mimeType)
 				);
-				return;			
+				return;
 			}
+			this.logger.debug(String.format("Parser '%s' found for mime-type '%s'.", parser.getClass().getName(), mimeType));
 
 			// parse resource
 			try {
