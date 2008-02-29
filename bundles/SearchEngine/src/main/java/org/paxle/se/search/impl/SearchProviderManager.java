@@ -48,7 +48,7 @@ public class SearchProviderManager implements ISearchProviderManager {
 			this.pqp.addTokenFactory(tokenFactory);
 			
 			// return provider number
-			return ret;
+			return Integer.valueOf(ret);
 		}
 	}
 	

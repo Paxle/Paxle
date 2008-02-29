@@ -1,15 +1,11 @@
 package org.paxle.indexer.impl;
 
-import java.util.Hashtable;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
-import org.paxle.core.data.IDataSink;
-import org.paxle.core.data.IDataSource;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorkerFactory;

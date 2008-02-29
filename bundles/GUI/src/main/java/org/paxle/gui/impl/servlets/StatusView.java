@@ -1,6 +1,5 @@
-package org.paxle.gui.impl.servlets;
 
-import java.util.Date;
+package org.paxle.gui.impl.servlets;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,11 +27,11 @@ public class StatusView extends ALayoutServlet {
         	ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
         	
     		if (request.getParameter("pauseCrawl") != null) {
-    			context.put("doPause", true);
+    			context.put("doPause", Boolean.TRUE);
     		} else if (request.getParameter("resumeCrawl") != null) {
-    			context.put("doResume", true);
+    			context.put("doResume", Boolean.TRUE);
     		} else if (request.getParameter("processNextCrawl") != null) {
-    			context.put("doProcessNextCrawl", true);
+    			context.put("doProcessNextCrawl", Boolean.TRUE);
     		} 
         	
             if (request.getParameter("shutdown") != null) {

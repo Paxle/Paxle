@@ -35,7 +35,7 @@ public abstract class ATempDir implements ITempDir {
 	}
 	
 	protected String formatUID(int uid) {
-		return String.format("%" + numLength + "d", uid);
+		return String.format("%" + numLength + "d", Integer.valueOf(uid));
 	}
 	
 	protected synchronized int generateNewUID() {

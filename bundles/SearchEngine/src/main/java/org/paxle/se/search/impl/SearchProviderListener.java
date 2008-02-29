@@ -53,7 +53,7 @@ public class SearchProviderListener implements ServiceListener {
 	private void unregister(ServiceReference ref) {
 		Integer num = this.referenceMap.get(ref);
 		if (num != null) {
-			this.searchProviderManager.removeProvider(num);
+			this.searchProviderManager.removeProvider(num.intValue());
 		}
 	}
 

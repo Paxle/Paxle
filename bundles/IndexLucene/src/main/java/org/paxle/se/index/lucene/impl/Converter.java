@@ -136,9 +136,9 @@ public class Converter {
 		 * =========================================================== */
 		final long num;
 		if (data instanceof Double) {
-			num = Double.doubleToLongBits((Double)data);
+			num = Double.doubleToLongBits(data.doubleValue());
 		} else if (data instanceof Float) {
-			num = Float.floatToIntBits((Float)data);
+			num = Float.floatToIntBits(data.floatValue());
 		} else {
 			num = data.longValue();
 		}
@@ -237,7 +237,7 @@ public class Converter {
 	
 	public static IIndexerDocument luceneDoc2IIndexerDoc(Document ldoc) throws ParseException, IOException {
 		final IndexerDocument doc = new IndexerDocument();
-		final Iterator it = ldoc.getFields().iterator();
+		final Iterator<?> it = ldoc.getFields().iterator();
 		while (it.hasNext()) {
 			final Fieldable field = (Fieldable)it.next();
 			if (!field.isStored())
@@ -303,11 +303,11 @@ public class Converter {
 		}
 		
 		if (Double.class.isAssignableFrom(pfield.getType())) {
-			return Double.longBitsToDouble(num);
+			return Double.valueOf(Double.longBitsToDouble(num));
 		} else if (Float.class.isAssignableFrom(pfield.getType())) {
-			return Float.intBitsToFloat((int)num);
+			return Float.valueOf(Float.intBitsToFloat((int)num));
 		} else {
-			return num;
+			return Long.valueOf(num);
 		}
 	}
 	
@@ -320,7 +320,7 @@ public class Converter {
 		final TokenStream ts = lfield.tokenStreamValue();
 		Token token;
 		while ((token = ts.next()) != null)
-			r.add(token.termText());
+			r.add(String.valueOf(token.termBuffer(), 0, token.termLength()));
 		return r.toArray(new Object[r.size()]);
 	}
 }

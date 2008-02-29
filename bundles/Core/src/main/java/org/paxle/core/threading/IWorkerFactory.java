@@ -1,7 +1,7 @@
 package org.paxle.core.threading;
 
 
-public interface IWorkerFactory<E extends IWorker> {
+public interface IWorkerFactory<E extends IWorker<?>> {
 	/**
 	 * Function to create a new{@link IWorker worker-instance}
 	 * @return a newly created worker

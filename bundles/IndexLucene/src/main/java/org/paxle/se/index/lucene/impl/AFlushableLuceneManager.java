@@ -57,7 +57,7 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 	 * This function 
 	 * <ul>
 	 * 	<li>closes an old {@link IndexReader index-reader}</li>
-	 * 	<li>causes the {@link IndexWriter index-writer] to flush recently added data</li>
+	 * 	<li>causes the {@link IndexWriter index-writer} to flush recently added data</li>
 	 * 	<li>creates a new {@link IndexReader index-reader}</li>
 	 * </ul>
 	 * 

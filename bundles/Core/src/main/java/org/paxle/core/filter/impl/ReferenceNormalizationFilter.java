@@ -24,6 +24,8 @@ import org.paxle.core.queue.ICommand;
 
 public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 	
+	private static final Charset UTF8 = Charset.forName("UTF-8");
+	
 	private final Log logger = LogFactory.getLog(ReferenceNormalizationFilter.class);
 	
 	public void filter(ICommand command, IFilterContext filterContext) {
@@ -43,23 +45,23 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 			return;
 		final Iterator<Map.Entry<String,String>> it = linkMap.entrySet().iterator();
 		final Map<String,String> normalizedLinks = new HashMap<String,String>();
+		final Charset charset = (pdoc.getCharset() == null) ? UTF8 : pdoc.getCharset();		// UTF-8 is a recommended fallback but not standard yet
 		while (it.hasNext()) {
 			final Map.Entry<String,String> entry = it.next();
 			final String location = entry.getKey();
 			try {
-				final String normalized = url.parseBaseUrlString(location, pdoc.getCharset());
-				if (!normalized.equals(location)) {
-					logger.debug("normalized reference " + location + " to " + normalized);
-					normalizedLinks.put(normalized, entry.getValue());
-					it.remove();
-				}
+				final String normalized = url.parseBaseUrlString(location, charset);
+				if (normalized.equals(location))
+					continue;
+				
+				logger.debug("normalized reference " + location + " to " + normalized);
+				normalizedLinks.put(normalized, entry.getValue());
 			} catch (ParseException e) {
 				logger.info("error parsing reference: " + e.getMessage() + ", removing");
-				it.remove();
 			} catch (MalformedURLException e) {
 				logger.info("removing malformed reference " + location);
-				it.remove();
 			}
+			it.remove();
 		}
 		linkMap.putAll(normalizedLinks);
 	}
@@ -157,7 +159,6 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 		private String fragment;
 		
 		public OwnURL() {
-			// initialise the defaultPorts map using the currently registered URLStreamHandlerServices
 		}
 		
 		/**
@@ -266,7 +267,6 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 					fragment = urlDecode(url.substring(hashmark + 1), charset);
 			}
 			
-			
 			// output
 			return toNormalizedString();
 		}
@@ -300,5 +300,4 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 			return sb.toString();
 		}
 	}
-	
 }

@@ -1,7 +1,7 @@
+
 package org.paxle.indexer.impl;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -121,7 +121,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 			if (command.getCrawlerDocument().getLastModDate() != null) {
 				indexerDoc.set(IIndexerDocument.LAST_MODIFIED, command.getCrawlerDocument().getLastModDate());
 			}
-			indexerDoc.set(IIndexerDocument.SIZE, command.getCrawlerDocument().getSize());
+			indexerDoc.set(IIndexerDocument.SIZE, Long.valueOf(command.getCrawlerDocument().getSize()));
 			
 			// setting command status to passed
 			command.setResult(ICommand.Result.Passed);
@@ -167,7 +167,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 					"\tParser-Status:  '%s' %s\r\n" +
 					"\tIndexer-Status: '%s' %s",					
 					command.getLocation(),
-					System.currentTimeMillis() - start,
+					Long.valueOf(System.currentTimeMillis() - start),
 					(crawlerDoc == null) ? "unknown" : crawlerDoc.getStatus().toString(),
 					(crawlerDoc == null) ? "" : (crawlerDoc.getStatusText()==null)?"":crawlerDoc.getStatusText(),
 					(parserDoc == null)  ? "unknown" : parserDoc.getStatus().toString(),

@@ -13,14 +13,14 @@ public class PPM {
 	
 	/**
 	 * This list stores the number of elements processed since the last 
-	 * @see getCleanPPM()
+	 * @see #getCleanPPM()
 	 */
 	private LinkedList<Long> ppm = new LinkedList<Long>();
 
 	public void trick() throws InterruptedException {
 		//add the job to the total job-count and the PPM
 		this.ppmsm.acquire();
-		this.ppm.addLast(System.currentTimeMillis());
+		this.ppm.addLast(Long.valueOf(System.currentTimeMillis()));
 		this.ppmsm.release();
 		
 		//Nobody should have more than 200 PPS, so we clean the DB if it gets to big after some time to save memory
@@ -42,7 +42,7 @@ public class PPM {
 			//Should only occur on program shutdown
 		}
 		
-		while (this.ppm.size() > 0 && this.ppm.getFirst() < maxage) {
+		while (this.ppm.size() > 0 && this.ppm.getFirst().longValue() < maxage) {
 			this.ppm.removeFirst();
 		}
 		

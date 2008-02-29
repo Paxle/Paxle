@@ -19,8 +19,8 @@ public class FieldManager extends ASimpleManager<String,Field<?>> implements IFi
 				try {
 					obj = field.get(null);
 					if (obj instanceof Field) {
-						this.logger.debug(String.format("New field detected: %s.",((Field)obj).toString()));
-						this.add((Field)obj);
+						this.logger.debug(String.format("New field detected: %s.", obj.toString()));
+						this.add((Field<?>)obj);
 					}
 				} catch (Exception e) {
 					this.logger.error("Unexpected error while determining default fields",e);

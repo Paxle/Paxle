@@ -53,7 +53,7 @@ public final class Field<Type extends Serializable> implements Comparable<Field<
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Field) {
-			return this.name.equals(((Field)obj).name);
+			return this.name.equals(((Field<?>)obj).name);
 		}
 		return super.equals(obj);
 	}

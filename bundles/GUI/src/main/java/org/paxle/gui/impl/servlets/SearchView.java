@@ -45,7 +45,7 @@ public class SearchView extends ALayoutServlet {
 			
 			// get the servlet-manager and determine if the favicon-servlet was installed
 			IServletManager servletManager = (IServletManager) manager.getService(IServletManager.class.getName());
-			context.put("showFavicons", servletManager == null ? Boolean.FALSE : servletManager.hasServlet("/favicon"));
+			context.put("showFavicons", servletManager == null ? Boolean.FALSE : Boolean.valueOf(servletManager.hasServlet("/favicon")));
 			
 			// add current context into itself (needed for render-tool)
 			context.put("ctx",context);
