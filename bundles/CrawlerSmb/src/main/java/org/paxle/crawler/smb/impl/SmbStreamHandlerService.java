@@ -17,8 +17,8 @@ public class SmbStreamHandlerService extends AbstractURLStreamHandlerService imp
 		return new SmbFile(url);
 	}
 
-//	@Override
-//	public int getDefaultPort() {
-//		return FTP.DEFAULT_PORT;
-//	}
+	@Override
+	public int getDefaultPort() {
+		return 445;
+	}
 }
