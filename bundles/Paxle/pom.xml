@@ -319,6 +319,7 @@
 		<module>../CrawlerCore</module>
 		<module>../CrawlerFtp</module>
 		<module>../CrawlerHttp</module>
+		<module>../CrawlerSmb</module>
 		
 		<!-- paxle parser bundles -->
 		<module>../ParserCore</module>
