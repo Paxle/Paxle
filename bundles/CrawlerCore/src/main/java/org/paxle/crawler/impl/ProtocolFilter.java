@@ -15,7 +15,7 @@ import org.paxle.crawler.ISubCrawler;
  * Filters {@link ICommand commands} out if the protocol of the
  * resource is not supported by one of the available {@link ISubCrawler sub-crawlers}
  */
-public class ProtocolFilter implements IFilter {
+public class ProtocolFilter implements IFilter<ICommand> {
 	private Log logger = LogFactory.getLog(this.getClass());
 	private SubCrawlerManager subCrawlerManager = null;
 

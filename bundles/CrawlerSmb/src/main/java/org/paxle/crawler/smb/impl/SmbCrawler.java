@@ -128,8 +128,8 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 							"</tr>\r\n",
 							smbFile.getURL(),
 							smbFile.getName(),
-							smbFile.isDirectory()?0:smbFile.getContentLength(),
-							smbFile.getLastModified()
+							Long.valueOf(smbFile.isDirectory() ? 0l : smbFile.getContentLength()),
+							Long.valueOf(smbFile.getLastModified())
 					)
 			);
 		}

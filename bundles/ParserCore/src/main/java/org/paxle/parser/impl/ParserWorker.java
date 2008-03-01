@@ -199,7 +199,7 @@ public class ParserWorker extends AWorker<ICommand> {
 					"\tParser-Status:  '%s' %s",
 					command.getLocation(),
 					(command.getCrawlerDocument() == null) ? "unknown" : command.getCrawlerDocument().getMimeType(),
-					System.currentTimeMillis() - start,
+					Long.valueOf(System.currentTimeMillis() - start),
 					(crawlerDoc == null) ? "unknown" : crawlerDoc.getStatus().toString(),
 					(crawlerDoc == null) ? "" : (crawlerDoc.getStatusText()==null)?"":crawlerDoc.getStatusText(),								
 					(parserDoc == null)  ? "unknown" : parserDoc.getStatus().toString(),

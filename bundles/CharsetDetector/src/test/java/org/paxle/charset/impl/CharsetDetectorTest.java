@@ -1,12 +1,9 @@
 package org.paxle.charset.impl;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.URL;
 
 import junit.framework.TestCase;
 
@@ -34,7 +31,7 @@ public class CharsetDetectorTest  extends TestCase {
 		
 		// init all required classes
 		File mimeTypesFile = new File("src/main/resources/mimeTypes");
-		this.detector = new CharsetDetector(mimeTypesFile.toURL());
+		this.detector = new CharsetDetector(mimeTypesFile.toURI().toURL());
 	}
 	
 

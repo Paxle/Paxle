@@ -138,7 +138,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 					"Finished crawling of resource '%s' in %d ms.\r\n" +
 					"\tCrawler-Status: '%s' %s",
 					command.getLocation(),
-					System.currentTimeMillis() - start,
+					Long.valueOf(System.currentTimeMillis() - start),
 					(crawlerDoc == null) ? "unknown" : crawlerDoc.getStatus().toString(),
 					(crawlerDoc == null) ? "" : (crawlerDoc.getStatusText()==null)?"":crawlerDoc.getStatusText()
 			));

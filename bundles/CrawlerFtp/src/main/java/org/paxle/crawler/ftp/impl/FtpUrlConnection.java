@@ -145,7 +145,7 @@ public class FtpUrlConnection extends URLConnection {
 								"</tr>\r\n",
 								baseURL + nextFile.getName(),
 								nextFile.getName(),
-								nextFile.isDirectory()?0:nextFile.getSize(),
+								Long.valueOf(nextFile.isDirectory() ? 0l : nextFile.getSize()),
 								nextFile.getTimestamp()
 						)
 				);

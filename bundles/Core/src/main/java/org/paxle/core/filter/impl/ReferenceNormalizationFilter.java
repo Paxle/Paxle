@@ -198,7 +198,7 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 			host = null;
 			port = -1;
 			path = "/";
-			query = null;
+			// the var query is handled in its block below
 			fragment = null;
 			
 			// extract the protocol
@@ -257,20 +257,22 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 				final int qmark = url.indexOf('?', slashAfterHost);
 				final int hashmark = url.indexOf('#', slashAfterHost);
 				final int pathEnd = (qmark == -1) ? (hashmark == -1) ? url.length() : hashmark : qmark;
-				final String decodedPath = urlDecode(url.substring(slashAfterHost, pathEnd), charset);
+				path = resolveBackpath(urlDecode(url.substring(slashAfterHost, pathEnd), charset));
 				if (appendSlash &&
-						decodedPath.charAt(decodedPath.length() - 1) != '/' &&
-						decodedPath.indexOf('.', decodedPath.lastIndexOf('/')) == -1) {
-					path = new StringBuffer(resolveBackpath(decodedPath)).append('/').toString();
-				} else {
-					path = resolveBackpath(decodedPath);
+						path.charAt(path.length() - 1) != '/' &&
+						path.indexOf('.', path.lastIndexOf('/')) == -1) {
+					path += '/';
 				}
 				
 				// extract the query
 				if (qmark != -1) {
 					final int queryEnd = (hashmark == -1) ? url.length() : hashmark;
 					if (queryEnd > qmark + 1) {
-						query = (sortQuery) ? new TreeMap<String,String>() : new LinkedHashMap<String,String>();
+						if (query == null) {
+							query = (sortQuery) ? new TreeMap<String,String>() : new LinkedHashMap<String,String>();
+						} else {
+							query.clear();
+						}
 						int paramStart = qmark + 1;
 						do {
 							int paramEnd = url.indexOf('&', paramStart);
