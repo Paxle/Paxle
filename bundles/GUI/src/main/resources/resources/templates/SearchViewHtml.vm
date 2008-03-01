@@ -33,7 +33,7 @@
                #if($result.get($fieldManager.get("Location")))
                   <tr>
                      #set($location = $result.get($fieldManager.get("Location")))
-	             #set($hintText = $escTool.javascript("#parse('/resources/templates/SearchViewToolTip.vm')"))	                               
+	             #set($hintText = $escTool.javascript("#parse('/resources/templates/SearchViewToolTip.vm')"))
                      <td style="border-bottom: 1px dotted rgb(153,153,153); color: black;">
                            ## only display favicons if the corresponding bundle is installed
                      	   #if($showFavicons)
