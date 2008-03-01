@@ -198,7 +198,8 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 			host = null;
 			port = -1;
 			path = "/";
-			// the var query is handled in its block below
+			if (query != null)
+				query.clear();
 			fragment = null;
 			
 			// extract the protocol
@@ -268,11 +269,8 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 				if (qmark != -1) {
 					final int queryEnd = (hashmark == -1) ? url.length() : hashmark;
 					if (queryEnd > qmark + 1) {
-						if (query == null) {
+						if (query == null)
 							query = (sortQuery) ? new TreeMap<String,String>() : new LinkedHashMap<String,String>();
-						} else {
-							query.clear();
-						}
 						int paramStart = qmark + 1;
 						do {
 							int paramEnd = url.indexOf('&', paramStart);
@@ -322,7 +320,7 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 				sb.append(':').append(port);
 			
 			sb.append(path);
-			if (query != null)
+			if (query != null && query.size() > 0)
 				appendQuery(sb.append('?'));
 			return sb.toString();
 		}
