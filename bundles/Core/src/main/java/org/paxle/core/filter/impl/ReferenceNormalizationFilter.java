@@ -11,6 +11,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +27,30 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 	
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
+	public static final Hashtable<String,Integer> DEFAULT_PORTS = new Hashtable<String,Integer>();
+	static {
+		DEFAULT_PORTS.put("http", Integer.valueOf(80));		// HTTP is not part of the global url-stream-handlers
+		DEFAULT_PORTS.put("https", Integer.valueOf(443));
+	}
+	
 	private final Log logger = LogFactory.getLog(ReferenceNormalizationFilter.class);
+	private final boolean sortQuery;
+	private final boolean appendSlash;
+	
+	public ReferenceNormalizationFilter() {
+		this(false, false);
+	}
+	
+	/**
+	 * Creates a new normalization filter for references.
+	 * @param sortQuery whether to sort the query parameters lexicographically by their respective keys
+	 * @param appendSlash whether a slash should be appended to the path if the last path element does not contain a dot
+	 * @see <a href="http://dblab.ssu.ac.kr/publication/LeKi05a.pdf">On URL Normalization</a>
+	 */
+	public ReferenceNormalizationFilter(final boolean sortQuery, final boolean appendSlash) {
+		this.sortQuery = sortQuery;
+		this.appendSlash = appendSlash;
+	}
 	
 	public void filter(ICommand command, IFilterContext filterContext) {
 		final IParserDocument pdoc = command.getParserDocument();
@@ -87,13 +111,42 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 		return path.equals("")?"/":path;
 	}
 	
-	public static class OwnURL {
+	private static String urlDecode(final String str, final Charset charset) throws ParseException {
+		int percent = str.indexOf('%');
+		if (percent == -1)
+			return str;
 		
-		public static final Hashtable<String,Integer> DEFAULT_PORTS = new Hashtable<String,Integer>();
-		static {
-			DEFAULT_PORTS.put("http", Integer.valueOf(80));		// HTTP is not part of the global url-stream-handlers
-			DEFAULT_PORTS.put("https", Integer.valueOf(443));
-		}
+		final StringBuffer sb = new StringBuffer(str.length());				// buffer to build the converted string
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream(8);	// buffer for conversion of contiguous %-encoded bytes
+		int last = 0;
+		final int len = str.length();
+		do {
+			sb.append(str.substring(last, percent));						// write non-encoded part
+			
+			/* loop to convert sequence of %-encoded tokens into bytes. Contiguous byte-sequences have to be dealt with
+			 * in one block before decoding, because - dependant on the charset - more than one byte may be needed to
+			 * represent a single character. If the conversion to bytes was done sequentially, decoding might fail */
+			do {
+				if (percent + 3 > str.length())
+					throw new ParseException("unexpected end of input", percent + 3);
+				final String token = str.substring(percent + 1, percent + 3);
+				if (!token.matches("[0-9a-fA-F]{2}"))
+					throw new ParseException("illegal url-encoded token '" + token + "'", percent);
+				
+				baos.write(Integer.parseInt(token, 16) & 0xFF);
+				percent += 3;
+			} while (percent < len && str.charAt(percent) == '%');
+			
+			sb.append(charset.decode(ByteBuffer.wrap(baos.toByteArray())));	// here the actual decoding takes place
+			baos.reset();													// reuse the ByteArrayOutputStream in the next run
+			
+			last = percent;													// byte after the token
+			percent = str.indexOf('%', last);								// search for next token, returns -1 if last > len
+		} while (percent != -1);
+		return sb.append(str.substring(last)).toString();
+	}
+	
+	public class OwnURL {
 		
 		/*
 		 * What happens here?
@@ -114,48 +167,13 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 		 * 
 		 */
 		
-		private static String urlDecode(final String str, final Charset charset) throws ParseException {
-			int percent = str.indexOf('%');
-			if (percent == -1)
-				return str;
-			
-			final StringBuffer sb = new StringBuffer(str.length());				// buffer to build the converted string
-			final ByteArrayOutputStream baos = new ByteArrayOutputStream(8);	// buffer for conversion of contiguous %-encoded bytes
-			int last = 0;
-			final int len = str.length();
-			do {
-				sb.append(str.substring(last, percent));						// write non-encoded part
-				
-				/* loop to convert sequence of %-encoded tokens into bytes. Contiguous byte-sequences have to be dealt with
-				 * in one block before decoding, because - dependant on the charset - more than one byte may be needed to
-				 * represent a single character. If the conversion to bytes was done sequentially, decoding might fail */
-				do {
-					if (percent + 3 > str.length())
-						throw new ParseException("unexpected end of input", percent + 3);
-					final String token = str.substring(percent + 1, percent + 3);
-					if (!token.matches("[0-9a-fA-F]{2}"))
-						throw new ParseException("illegal url-encoded token '" + token + "'", percent);
-					
-					baos.write(Integer.parseInt(token, 16) & 0xFF);
-					percent += 3;
-				} while (percent < len && str.charAt(percent) == '%');
-				
-				sb.append(charset.decode(ByteBuffer.wrap(baos.toByteArray())));	// here the actual decoding takes place
-				baos.reset();													// reuse the ByteArrayOutputStream in the next run
-				
-				last = percent;													// byte after the token
-				percent = str.indexOf('%', last);								// search for next token, returns -1 if last > len
-			} while (percent != -1);
-			return sb.append(str.substring(last)).toString();
-		}
-		
 		private String protocol;
 		private String username;
 		private String password;
 		private String host;
 		private int port = -1;
 		private String path = "/";
-		private LinkedHashMap<String,String> query;
+		private Map<String,String> query;
 		private String fragment;
 		
 		public OwnURL() {
@@ -239,13 +257,20 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 				final int qmark = url.indexOf('?', slashAfterHost);
 				final int hashmark = url.indexOf('#', slashAfterHost);
 				final int pathEnd = (qmark == -1) ? (hashmark == -1) ? url.length() : hashmark : qmark;
-				path = resolveBackpath(urlDecode(url.substring(slashAfterHost, pathEnd), charset));
+				final String decodedPath = urlDecode(url.substring(slashAfterHost, pathEnd), charset);
+				if (appendSlash &&
+						decodedPath.charAt(decodedPath.length() - 1) != '/' &&
+						decodedPath.indexOf('.', decodedPath.lastIndexOf('/')) == -1) {
+					path = new StringBuffer(resolveBackpath(decodedPath)).append('/').toString();
+				} else {
+					path = resolveBackpath(decodedPath);
+				}
 				
 				// extract the query
 				if (qmark != -1) {
 					final int queryEnd = (hashmark == -1) ? url.length() : hashmark;
 					if (queryEnd > qmark + 1) {
-						query = new LinkedHashMap<String,String>();
+						query = (sortQuery) ? new TreeMap<String,String>() : new LinkedHashMap<String,String>();
 						int paramStart = qmark + 1;
 						do {
 							int paramEnd = url.indexOf('&', paramStart);

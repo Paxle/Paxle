@@ -5,7 +5,6 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceListener;
 import org.paxle.core.ICryptManager;
 import org.paxle.core.IMWComponentFactory;
@@ -25,7 +24,6 @@ import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.impl.PropertiesStore;
-
 
 public class Activator implements BundleActivator {
 
@@ -108,7 +106,7 @@ public class Activator implements BundleActivator {
 		context.registerService(IPropertiesStore.class.getName(), new PropertiesStore(), null);
 		
 		// register protocol-handlers listener which updates the table of known protocols for the reference normalization filter below
-		final ServiceListener protocolUpdater = new URLStreamHandlerListener(bc, ReferenceNormalizationFilter.OwnURL.DEFAULT_PORTS);
+		final ServiceListener protocolUpdater = new URLStreamHandlerListener(bc, ReferenceNormalizationFilter.DEFAULT_PORTS);
 		bc.addServiceListener(protocolUpdater, URLStreamHandlerListener.FILTER);
 		
 		// add reference normalization filter
