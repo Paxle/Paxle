@@ -29,8 +29,7 @@
 						<Import-Package>
 							org.osgi.framework,
 							org.apache.commons.logging,
-							org.paxle.core.filter,
-							org.paxle.core.queue,
+							org.paxle.core.filter, org.paxle.core.queue,
 							org.paxle.core.doc
 						</Import-Package>
 						<Private-Package>
@@ -53,13 +52,19 @@
 	</build>
 
 	<dependencies>
-			<dependency>
-				<groupId>org.paxle</groupId>
-				<artifactId>Core</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			
-			<dependency>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-cache</artifactId>
 			<version>20070912-SNAPSHOT</version>
