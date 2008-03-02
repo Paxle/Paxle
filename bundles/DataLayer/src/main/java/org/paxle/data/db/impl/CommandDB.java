@@ -72,6 +72,8 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 	 */
 	private Configuration config; 
 	
+	private boolean closed = false;
+	
 	public CommandDB(URL configURL, List<URL> mappings) {
 		if (configURL == null) throw new NullPointerException("The URL to the hibernate config file is null.");
 		if (mappings == null) throw new NullPointerException("The list of mapping files was null.");
@@ -156,29 +158,37 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		}
 	}
 	
+	public boolean isClosed() {
+		return this.closed;
+	}
+	
 	public void close() throws InterruptedException {
-		// interrupt reader and writer
-		this.readerThread.interrupt();
-		this.writerThread.interrupt();
-		
-		// wait for the threads to shutdown
-		this.readerThread.join(2000);
-		this.writerThread.join(2000);
-		
-		// close the DB
-		this.sessionFactory.close();
-		
-		// shutdown the database
 		try {
-			String dbDriver = this.config.getProperties().getProperty("connection.driver_class");
-			if (dbDriver != null && dbDriver.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
-				DriverManager.getConnection("jdbc:derby:;shutdown=true");
+			// interrupt reader and writer
+			this.readerThread.interrupt();
+			this.writerThread.interrupt();
+
+			// wait for the threads to shutdown
+			this.readerThread.join(2000);
+			this.writerThread.join(2000);
+
+			// close the DB
+			this.sessionFactory.close();
+
+			// shutdown the database
+			try {
+				String dbDriver = this.config.getProperties().getProperty("connection.driver_class");
+				if (dbDriver != null && dbDriver.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
+					DriverManager.getConnection("jdbc:derby:;shutdown=true");
+				}
+			} catch (SQLException e) {
+				String errMsg = e.getMessage();
+				if (!(errMsg != null && errMsg.equals("Derby system shutdown."))) {
+					this.logger.error("Unable to shutdown database.",e);
+				}
 			}
-		} catch (SQLException e) {
-			String errMsg = e.getMessage();
-			if (!(errMsg != null && errMsg.equals("Derby system shutdown."))) {
-				this.logger.error("Unable to shutdown database.",e);
-			}
+		}finally {
+			this.closed = true;
 		}
 	}
 	
@@ -311,7 +321,10 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			this.writerThread.signalNewDbData();			
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-			this.logger.error("Error while writing command with location '%s' to db",e);
+			this.logger.error(String.format("Unexpected '%s' while writing %d new commands to db.",
+					e.getClass().getName(),
+					locations.size()
+			),e);
 		}		
 	}
 	

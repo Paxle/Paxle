@@ -1,9 +1,12 @@
 package org.paxle.core.filter.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -11,6 +14,7 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.io.temp.ITempFileManager;
 
@@ -30,6 +34,8 @@ public class FilterListener implements ServiceListener {
 	 * A LDAP styled expression used for the {@link IFilter filter}-listener
 	 */
 	public static final String FILTER;
+	
+	// generating filter expression
 	static {
 		StringBuilder sb = new StringBuilder("(|");
 		for (String intrface : INTERFACES) sb.append(String.format("(%s=%s)",Constants.OBJECTCLASS,intrface));
@@ -47,7 +53,16 @@ public class FilterListener implements ServiceListener {
 	 */
 	private BundleContext context = null;
 	
+	/**
+	 * Temp-File-Manager. This class is accessible from all {@link IFilter filters} via
+	 * function {@link IFilterContext#getTempFileManager()}.
+	 */
 	private ITempFileManager tempFileManager = null;
+	
+	/**
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
 
 	public FilterListener(FilterManager filterManager, ITempFileManager tempFileManager, BundleContext context) throws InvalidSyntaxException {
 		this.filterManager = filterManager;
@@ -84,46 +99,85 @@ public class FilterListener implements ServiceListener {
 		}
 	}
 
-	private void handleFilter(ServiceReference reference, int eventType) {		
+	private void handleFilter(ServiceReference reference, int eventType) {
+		// the service ID of the registered filter
+		Object serviceID = reference.getProperty(Constants.SERVICE_ID);
+		if (serviceID == null) {
+			this.logger.error("Unable to (un)register filter. No OSGi service-id found!");
+			return;
+		}
+		
+		// the id's of the target queues
+		String targetIDs[] = this.getTargetIDs(reference.getProperty(IFilter.PROP_FILTER_TARGET));
+		if (serviceID == null) {
+			this.logger.error("Unable to (un)register filter. No target-id found!");
+			return;
+		}				
+		
 		if (eventType == ServiceEvent.REGISTERED) {
-			// get the filter
+			// get a reference to the filter
 			IFilter filter = (IFilter) this.context.getService(reference);	
-			Object targets = reference.getProperty(IFilter.PROP_FILTER_TARGET);
 
-			if (targets instanceof String)  
-				this.filterManager.addFilter(this.generateFilterMetadata((String) targets, filter));
-			else if (targets instanceof String[]) {
-				for (String target : (String[]) targets) {
-					this.filterManager.addFilter(this.generateFilterMetadata(target, filter));
-				}
-			} else throw new IllegalArgumentException(IFilter.PROP_FILTER_TARGET + " has wrong type.");
+			// adding the filter to multiple targets
+			for (String targetID : targetIDs) {
+				this.filterManager.addFilter(this.generateFilterMetadata(serviceID,targetID, filter));
+			}
 
-
-			System.out.println("New filter '" + filter.getClass().getName() + "' registered.");			
+			this.logger.info(String.format("Filter '%s' with serviceID '%s' registered.",filter.getClass().getName(), serviceID.toString()));			
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
-			// TODO: filter was uninstalled
-			System.out.println("Filter unregistered.");
+			for (String targetID : targetIDs) {
+				this.filterManager.removeFilter(serviceID, targetID);
+			}
+			this.logger.info(String.format("Filter with serviceID '%s' unregistered.",serviceID.toString()));	
 		} else if (eventType == ServiceEvent.MODIFIED) {
 			// service properties have changed
 		}			
 	}
 
 	private void handleFilterQueue(ServiceReference reference, int eventType) {
+		String queueID = (String) reference.getProperty(IFilterQueue.PROP_FILTER_QUEUE_ID);
+		if (queueID == null) {
+			this.logger.error("Unable to (un)register filterqueue. No queue-id found!");
+			return;
+		}
+		
 		if (eventType == ServiceEvent.REGISTERED) {
-			// get the filter
-			IFilterQueue queue = (IFilterQueue) this.context.getService(reference);	
-			String queueID = (String) reference.getProperty(IFilterQueue.PROP_FILTER_QUEUE_ID);
-
+			// get the filterqueue
+			IFilterQueue queue = (IFilterQueue) this.context.getService(reference);				
+			
+			// register it
 			this.filterManager.addFilterQueue(queueID, queue);			
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
-			// TODO: new filter was uninstalled
-			System.out.println("Filter unregistered.");
+			// removing the filter-queue
+			this.filterManager.removeFilterQueue(queueID);
 		} else if (eventType == ServiceEvent.MODIFIED) {
 			// service properties have changed
 		}		
 	}
+	
+	private String[] getTargetIDs(Object targetProperty) { 
+		if (targetProperty == null) return null;
+		
+		ArrayList<String> targetIDs = new ArrayList<String>();
+		
+		if (targetProperty instanceof String) {
+			targetIDs.add((String)targetProperty);
+		} else if (targetProperty instanceof String[]) {
+			for (String target : (String[]) targetProperty) {
+				targetIDs.add(target);
+			}
+		} else {
+			throw new IllegalArgumentException(String.format(
+					"%s has wrong type '%s'.",
+					IFilter.PROP_FILTER_TARGET,
+					targetProperty.getClass().getName()
+			));
+		}
+		
+		return targetIDs.toArray(new String[targetIDs.size()]);
+	}
 
-	private FilterContext generateFilterMetadata(String target, IFilter filter) {
+	private FilterContext generateFilterMetadata(Object serviceID, String target, IFilter filter) {
 		Properties filterProps = new Properties();
 		String[] params = target.split(";");
 		String targetID = params[0].trim();
@@ -136,17 +190,30 @@ public class FilterListener implements ServiceListener {
 				String key = paramParts[0].trim();
 				String val = paramParts[1].trim();
 				
-				if (key.equals("pos")) {
+				if (key.equals(IFilter.PROP_FILTER_TARGET_POSITION)) {
+					/*
+					 * determining the filter-position
+					 */
 					try {
+						// parse the position
 						filterPos = Integer.valueOf(val).intValue();
 					} catch (NumberFormatException e) {/* ignore this */}
+					
+					/*
+					 * add position to the filter-properties
+					 */
+					filterProps.setProperty(IFilter.PROP_FILTER_TARGET_POSITION, Integer.toString(filterPos));
 				} else {
+					/*
+					 * Just take over the rest of the parameters
+					 */
 					filterProps.setProperty(key, val);
 				}
 			}
 		}
 
 		FilterContext filterContext = new FilterContext(
+				serviceID,
 				filter,
 				targetID,
 				filterPos,

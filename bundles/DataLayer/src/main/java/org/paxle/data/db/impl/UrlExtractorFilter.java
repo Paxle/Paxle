@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
@@ -12,6 +14,8 @@ import org.paxle.core.queue.ICommand;
 
 public class UrlExtractorFilter implements IFilter<ICommand> {
 	private CommandDB db;
+	
+	private Log logger = LogFactory.getLog(this.getClass());
 
 	public UrlExtractorFilter(CommandDB db) {
 		this.db = db;
@@ -26,27 +30,27 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		if (parserDoc == null) return;
 
 		// getting the link map
-		this.extractLinks(parserDoc);
+		this.extractLinks(command.getLocation(), parserDoc);
 	}
 	
-	private void extractLinks(IParserDocument parserDoc) {
+	private void extractLinks(final String location, IParserDocument parserDoc) {
 		if (parserDoc == null) return;
 		
 		// getting the link map
 		Map<String, String> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
-			this.extractLinks(linkMap);
+			this.extractLinks(location, linkMap);
 		}
 		
 		Map<String,IParserDocument> subDocs = parserDoc.getSubDocs();
 		if (subDocs != null) {
 			for (IParserDocument subDoc : subDocs.values()) {
-				this.extractLinks(subDoc);
+				this.extractLinks(location, subDoc);
 			}
 		}
 	}
 	
-	private void extractLinks(Map<String, String> linkMap) {
+	private void extractLinks(final String location, Map<String, String> linkMap) {
 		List<String> locations = new ArrayList<String>();
 		
 		for (String ref : (Set<String>) linkMap.keySet()) {
@@ -60,7 +64,14 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		}
 
 		// store commands into DB
-		db.storeUnknownLocations(locations);
+		if (!db.isClosed()) {
+			db.storeUnknownLocations(locations);
+		} else {
+			this.logger.error(String.format(
+					"Unable to write linkmap of location '%s' to db. Database already closed.",
+					location
+			));
+		}
 	}
 
 }

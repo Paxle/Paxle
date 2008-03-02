@@ -71,8 +71,7 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 	 */	
 	public void setFilters(List<IFilterContext> filters) {
 		filterList = filters;
-	}
-	
+	}	
 
 	/**
 	 * @see IFilterQueue#getFilters()
@@ -80,5 +79,17 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 	@SuppressWarnings("unchecked")
 	public List<IFilterContext> getFilters() {
 		return (this.filterList==null)?Collections.EMPTY_LIST:this.filterList;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder buf = new StringBuilder();
+		
+		buf.append("Enqueued:\n")
+		   .append(super.toString())
+		   .append("\nFilters:\n")
+		   .append(this.filterList==null?"[]":this.filterList.toString());
+		
+		return buf.toString();
 	}
 }
