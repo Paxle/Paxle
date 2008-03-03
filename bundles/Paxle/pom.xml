@@ -10,6 +10,25 @@
 	<name>Paxle</name>
 	<url>http://www.paxle.net/</url>
 
+	<repositories>
+		<repository>
+			<id>paxle-repository</id>
+			<url>http://repository2.paxle.net/</url>
+		</repository>
+		<repository>
+			<id>java.net</id>
+			<url>http://download.java.net/maven/2/</url>
+		</repository>
+ 		<repository>
+			<id>apache.snapshots</id>
+			<name>Apache Snapshot Repository</name>
+			<url>http://people.apache.org/repo/m2-snapshot-repository</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
+
 	<properties>
 		<equinox.dependencies>
 			target/dependency/equinox
