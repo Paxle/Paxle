@@ -29,10 +29,12 @@
 		</repository>
 	</repositories>
 
-        <properties>
-		<equinox.dependencies>target/dependency/equinox</equinox.dependencies>
+	<properties>
+		<equinox.dependencies>
+			target/dependency/equinox
+		</equinox.dependencies>
 		<felix.dependencies>target/dependency/felix</felix.dependencies>
-        </properties>
+	</properties>
 
 	<!-- plugin settings -->
 	<build>
@@ -91,30 +93,36 @@
 							<goal>copy</goal>
 						</goals>
 						<configuration>
-							<!-- equinox framework -->
+							<!-- ==================================================================-->
+							<!-- ECLIPSE EQUINOX - Dependencies                                    -->
+							<!-- ==================================================================-->
 							<artifactItems>
 								<!-- equinox system bundle -->
 								<artifactItem>
-									<groupId>
-										org.eclipse.osgi
-									</groupId>
+									<groupId>org.eclipse.osgi</groupId>
 									<artifactId>osgi</artifactId>
 									<version>
 										3.3.1.R33x_v20070828
 									</version>
-									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.osgi_3.3.1.R33x_v20070828.jar</destFileName>									
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										org.eclipse.osgi_3.3.1.R33x_v20070828.jar
+									</destFileName>
 								</artifactItem>
-								
+
 								<artifactItem>
 									<groupId>org.eclipse.osgi</groupId>
 									<artifactId>services</artifactId>
-									<version>
-										3.1.200.v20070605
-									</version>
-									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.osgi.services_3.1.200.v20070605.jar</destFileName>
-								</artifactItem>								
+									<version>3.1.200.v20070605</version>
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										org.eclipse.osgi.services_3.1.200.v20070605.jar
+									</destFileName>
+								</artifactItem>
 
 								<artifactItem>
 									<groupId>
@@ -122,8 +130,12 @@
 									</groupId>
 									<artifactId>common</artifactId>
 									<version>3.3.0.v20070426</version>
-									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.equinox.common_3.3.0.v20070426.jar</destFileName>
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										org.eclipse.equinox.common_3.3.0.v20070426.jar
+									</destFileName>
 								</artifactItem>
 
 								<artifactItem>
@@ -132,44 +144,118 @@
 									</groupId>
 									<artifactId>preferences</artifactId>
 									<version>3.2.100.v20070522</version>
-									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.equinox.preferences_3.2.100.v20070522.jar</destFileName>
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										org.eclipse.equinox.preferences_3.2.100.v20070522.jar
+									</destFileName>
 								</artifactItem>
-
-								<artifactItem>
-									<groupId>org.eclipse.equinox</groupId>
-									<artifactId>log</artifactId>
-									<version>
-										1.0.100.v20070226
-									</version>
-									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.equinox.log_1.0.100.v20070226.jar</destFileName>									
-								</artifactItem>
-
-								<artifactItem>
-									<groupId>org.eclipse.equinox</groupId>
-									<artifactId>http</artifactId>
-									<version>
-										1.0.100.v20070423
-									</version>
-									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.equinox.http_1.0.100.v20070423.jar</destFileName>									
-								</artifactItem>
-
 
 								<artifactItem>
 									<groupId>
-										org.apache.commons.logging
+										org.eclipse.equinox
+									</groupId>
+									<artifactId>log</artifactId>
+									<version>1.0.100.v20070226</version>
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										org.eclipse.equinox.log_1.0.100.v20070226.jar
+									</destFileName>
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>
+										org.eclipse.equinox
+									</groupId>
+									<artifactId>http</artifactId>
+									<version>1.0.100.v20070423</version>
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										org.eclipse.equinox.http_1.0.100.v20070423.jar
+									</destFileName>
+								</artifactItem>
+
+								<!-- 
+									<artifactItem>
+									<groupId>
+									org.apache.commons.logging
 									</groupId>
 									<artifactId>
-										commons-logging-osgi
+									commons-logging-osgi
 									</artifactId>
 									<version>
-										1.0.4.v200706111724
+									1.0.4.v200706111724
 									</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>org.apache.commons.logging_1.0.4.v200706111724.jar</destFileName>									
+									</artifactItem>
+								-->
+
+								<!-- commons-logging over slf4j -->
+								<artifactItem>
+									<groupId>org.slf4j</groupId>
+									<artifactId>
+										jcl104-over-slf4j
+									</artifactId>
+									<version>1.5.0</version>
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										jcl104-over-slf4j-1.5.0.jar
+									</destFileName>
 								</artifactItem>
+
+								<!-- pass slf4j logging to log4j -->
+								<artifactItem>
+									<groupId>org.slf4j</groupId>
+									<artifactId>
+										slf4j-log4j12
+									</artifactId>
+									<version>1.5.0</version>
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										slf4j-log4j12-1.5.0.jar
+									</destFileName>
+								</artifactItem>
+								
+								<!--  slf4j api -->
+								<artifactItem>
+									<groupId>org.slf4j</groupId>
+									<artifactId>
+										slf4j-api
+									</artifactId>
+									<version>1.5.0</version>
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										slf4j-api-1.5.0.jar
+									</destFileName>
+								</artifactItem>		
+								
+								<!-- log4j dependency -->
+								<artifactItem>
+									<groupId>org.apache.log4j</groupId>
+									<artifactId>
+										log4j-osgi
+									</artifactId>
+									<version>1.2.13.v200706111418</version>
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										log4j-osgi-1.2.13.v200706111418.jar
+									</destFileName>
+								</artifactItem>								
+														
 
 								<artifactItem>
 									<groupId>javax</groupId>
@@ -177,74 +263,115 @@
 									<version>
 										2.4.0.v200706111738
 									</version>
-									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>javax.servlet_2.4.0.v200706111738.jar</destFileName>									
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										javax.servlet_2.4.0.v200706111738.jar
+									</destFileName>
 								</artifactItem>
 
 
-
-								<!-- felix bundles -->
+								<!-- ==================================================================-->
+								<!-- APACHE FELIX - Dependencies                                    -->
+								<!-- ==================================================================-->
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
-									<artifactId>org.apache.felix.main</artifactId>
+									<artifactId>
+										org.apache.felix.main
+									</artifactId>
 									<version>1.0.3</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
 								</artifactItem>
 
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
-									<artifactId>org.apache.felix.framework</artifactId>
+									<artifactId>
+										org.apache.felix.framework
+									</artifactId>
 									<version>1.0.3</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
 								</artifactItem>
 
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
-									<artifactId>org.apache.felix.shell</artifactId>
+									<artifactId>
+										org.apache.felix.shell
+									</artifactId>
 									<version>1.0.0</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>	
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
 								</artifactItem>
 
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
-									<artifactId>org.apache.felix.bundlerepository</artifactId>
+									<artifactId>
+										org.apache.felix.bundlerepository
+									</artifactId>
 									<version>1.0.2</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>	
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
 								</artifactItem>
 
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
-									<artifactId>org.apache.felix.shell.tui</artifactId>
+									<artifactId>
+										org.apache.felix.shell.tui
+									</artifactId>
 									<version>1.0.0</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>	
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
 								</artifactItem>
 
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
-									<artifactId>org.apache.felix.shell.tui</artifactId>
+									<artifactId>
+										org.apache.felix.shell.tui
+									</artifactId>
 									<version>1.0.0</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>	
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
 								</artifactItem>
 
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
-									<artifactId>org.osgi.core</artifactId>
+									<artifactId>
+										org.osgi.core
+									</artifactId>
 									<version>1.0.0</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
 								</artifactItem>
 
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
-									<artifactId>org.osgi.compendium</artifactId>
+									<artifactId>
+										org.osgi.compendium
+									</artifactId>
 									<version>1.0.0</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
 								</artifactItem>
 
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
-									<artifactId>org.apache.felix.http.jetty</artifactId>
+									<artifactId>
+										org.apache.felix.http.jetty
+									</artifactId>
 									<version>0.9.0-SNAPSHOT</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
 								</artifactItem>
 
 								<artifactItem>
@@ -257,15 +384,23 @@
 									<version>
 										1.0.4.v200706111724
 									</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.logging_1.0.4.v200706111724.jar</destFileName>									
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
+									<destFileName>
+										org.apache.commons.logging_1.0.4.v200706111724.jar
+									</destFileName>
 								</artifactItem>
 
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
-									<artifactId>javax.servlet</artifactId>
+									<artifactId>
+										javax.servlet
+									</artifactId>
 									<version>1.0.0</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory> 					
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
 								</artifactItem>
 
 
@@ -296,9 +431,9 @@
 
 		<!-- Commons Logging API -->
 		<dependency>
-			<artifactId>commons-logging-api</artifactId>
+			<artifactId>commons-logging</artifactId>
 			<groupId>commons-logging</groupId>
-			<version>1.1</version>
+			<version>1.0.4</version>
 		</dependency>
 
 		<!-- Junit Testing -->

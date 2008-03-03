@@ -32,11 +32,18 @@
 		</moduleSet>
 	</moduleSets>
 	<files>
+		<!-- equinox config file -->
 		<file>
 			<source>src/main/resources/equinox/configuration/config.ini</source>
 			<outputDirectory>/configuration/</outputDirectory>
 			<filtered>true</filtered>
 		</file>
+		<!--  log4j config file -->
+		<file>
+			<source>src/main/resources/logging/log4j.properties</source>
+			<outputDirectory>/configuration/</outputDirectory>
+			<filtered>false</filtered>
+		</file>		
 	</files>
 	<fileSets>
 		<fileSet>
