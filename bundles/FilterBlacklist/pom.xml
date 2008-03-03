@@ -63,18 +63,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.paxle</groupId>
-			<artifactId>CrawlerCore</artifactId>
-			<version>${project.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-pool</groupId>
-					<artifactId>commons-pool</artifactId>
-				</exclusion>
-			</exclusions>				
-		</dependency>
-		
-		<dependency>
-			<groupId>org.paxle</groupId>
 			<artifactId>GUI</artifactId>
 			<version>${project.version}</version>
 		</dependency>		
