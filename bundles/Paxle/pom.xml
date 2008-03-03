@@ -62,14 +62,23 @@
 						</descriptor>
 						<descriptor>
 							src/main/assembly/equinox.xml
-						</descriptor>	
+						</descriptor>
 						<descriptor>
 							src/main/assembly/felix.xml
-						</descriptor>					
+						</descriptor>
 					</descriptors>
 					<outputDirectory>target</outputDirectory>
 					<workDirectory>target/assembly/work</workDirectory>
 				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attached</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
