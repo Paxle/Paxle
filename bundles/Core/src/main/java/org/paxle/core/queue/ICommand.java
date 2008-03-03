@@ -48,7 +48,16 @@ public interface ICommand extends Closeable {
 	public void setResult(Result result);
 	public void setResult(Result result, String description);
 	
+	/**
+	 * Returns the URL as String
+	 * @return the URL
+	 */
 	public String getLocation();
+	
+	/**
+	 * Sets the URL
+	 * @param location
+	 */
 	public void setLocation(String location);
 	
 	public ICrawlerDocument getCrawlerDocument();

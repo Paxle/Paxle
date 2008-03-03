@@ -31,7 +31,7 @@ public class Activator implements BundleActivator {
 		
 		// register the protocol filter as service
 		Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
-		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in","org.paxle.parser.out"});
+		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in","org.paxle.parser.out; pos=70;"});
 		bc.registerService(IFilter.class.getName(), new RobotsTxtFilter(robotsTxtManager), filterProps);		
 	}
 

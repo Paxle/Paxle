@@ -16,6 +16,7 @@ import org.paxle.core.data.impl.DataListener;
 import org.paxle.core.data.impl.DataManager;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterManager;
+import org.paxle.core.filter.impl.AscendingPathUrlExtractionFilter;
 import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
 import org.paxle.core.filter.impl.ReferenceNormalizationFilter;
@@ -111,8 +112,13 @@ public class Activator implements BundleActivator {
 		
 		// add reference normalization filter
 		final Hashtable<String,String[]> props = new Hashtable<String,String[]>();
-        props.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in", "org.paxle.parser.out"});
+        props.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in", "org.paxle.parser.out; pos=50"});
         bc.registerService(IFilter.class.getName(), new ReferenceNormalizationFilter(), props);
+        
+        // add AscendingPathUrlExtraction filter
+		final Hashtable<String,String[]> props2 = new Hashtable<String,String[]>();
+        props2.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.parser.out; pos=60;"});
+        bc.registerService(IFilter.class.getName(), new AscendingPathUrlExtractionFilter(), props2);
 	}
 
 	/**
