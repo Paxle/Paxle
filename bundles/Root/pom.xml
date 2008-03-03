@@ -36,6 +36,11 @@
 		<felix.dependencies>target/dependency/felix</felix.dependencies>
 	</properties>
 
+	<issueManagement>
+		<system>mantis</system>
+		<url>https://bugs.pxl.li/</url>
+	</issueManagement>
+
 	<!-- plugin settings -->
 	<build>
 		<plugins>
