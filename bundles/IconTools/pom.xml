@@ -69,7 +69,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.paxle</groupId>
-			<artifactId>ParserCore</artifactId>
+			<artifactId>Core</artifactId>
 			<version>${project.version}</version>
 			<exclusions>
 				<exclusion>
