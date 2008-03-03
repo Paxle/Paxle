@@ -209,7 +209,7 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 			protocol = url.substring(0, colonpos).toLowerCase();
 			
 			final int protocolEnd;
-			if (url.charAt(colonpos + 1) == '/' && url.charAt(colonpos + 2) == '/') {
+			if (url.length()>= (colonpos+1) && url.charAt(colonpos + 1) == '/' && url.charAt(colonpos + 2) == '/') {
 				protocolEnd = colonpos + 3;
 			} else {
 				throw new MalformedURLException("No valid protocol identifier given in URL " + url);
