@@ -22,7 +22,7 @@ public class Activator implements BundleActivator {
 		bc = context;		
 		
 		// register this crawler as subcrawler
-		HttpCrawler crawler = new HttpCrawler();
+		HttpCrawler crawler = new HttpCrawler(10, 15000, 15000);
 		Hashtable<String,Object> props = new Hashtable<String, Object>();
 		props.put(ISubCrawler.PROP_PROTOCOL, crawler.getProtocols());	  
 		bc.registerService(new String[]{ISubCrawler.class.getName(),IHttpCrawler.class.getName()}, crawler, props);

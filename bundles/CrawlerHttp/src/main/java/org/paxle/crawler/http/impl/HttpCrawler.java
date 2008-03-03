@@ -45,20 +45,29 @@ public class HttpCrawler implements IHttpCrawler {
 	/**
 	 * Connection manager used for http connection pooling
 	 */
-	private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
-	static {
-		connectionManager.getParams().setDefaultMaxConnectionsPerHost(10);
-	}
-	
+	private MultiThreadedHttpConnectionManager connectionManager = null;
+
 	/**
 	 * http client class
 	 */
-	private static HttpClient httpClient = new HttpClient(connectionManager); 
+	private HttpClient httpClient = null;
 	
 	/**
 	 * Logger class
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
+	
+	public HttpCrawler(int maxConnectionsPerHost, int connectionTimeout, int socketTimeout) {
+		this.connectionManager = new MultiThreadedHttpConnectionManager();
+		
+		this.connectionManager.getParams().setDefaultMaxConnectionsPerHost(maxConnectionsPerHost);
+		
+		// configuring timeouts
+		this.connectionManager.getParams().setConnectionTimeout(connectionTimeout);
+		this.connectionManager.getParams().setSoTimeout(socketTimeout);
+		
+		this.httpClient = new HttpClient(connectionManager); 
+	}
 	
 	/**
 	 * @see ISubCrawler#getProtocols()
