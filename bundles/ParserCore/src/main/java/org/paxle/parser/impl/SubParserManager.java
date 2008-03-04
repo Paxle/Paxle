@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceReference;
 import org.paxle.core.prefs.Properties;
 import org.paxle.parser.ISubParser;
@@ -31,6 +33,11 @@ public class SubParserManager implements ISubParserManager {
 	 */
 	private Properties props = null;	
 	
+	/**
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
+	
 	public SubParserManager(Properties props) {
 		this.props = props;
 		if (this.props != null && this.props.containsKey(DISABLED_MIMETYPES)) {
@@ -44,13 +51,23 @@ public class SubParserManager implements ISubParserManager {
 	 * @param subParser the newly detected sub-parser
 	 */
 	public void addSubParser(String mimeTypes, ISubParser subParser) {
+		if (mimeTypes == null) throw new NullPointerException("The mimetypes string must not be null.");
+		if (subParser == null) throw new NullPointerException("The parser object must not be null.");
+		
 		this.addSubParser(mimeTypes.split(";|,"), subParser);
 	}
 	
 	public void addSubParser(String[] mimeTypes, ISubParser subParser) {
+		if (mimeTypes == null) throw new NullPointerException("The mimetype-array must not be null.");
+		if (subParser == null) throw new NullPointerException("The parser object must not be null.");
+		
 		for (String mimeType : mimeTypes) {
 			this.subParserList.put(mimeType.trim(), subParser);
-			System.out.println("Parser for mimetypes '" + mimeType + "' was installed.");
+			this.logger.info(String.format(
+					"Parser '%s' for mimetypes '%s' was installed.",
+					subParser.getClass().getName(),
+					mimeType
+			));
 		}			
 	}
 	
@@ -59,13 +76,20 @@ public class SubParserManager implements ISubParserManager {
 	 * @param mimeTypes a list of mimeTypes supported by the sub-parser
 	 */
 	public void removeSubParser(String mimeTypes) {
+		if (mimeTypes == null) throw new NullPointerException("The mimetypes string must not be null.");
+		
 		this.removeSubParser(mimeTypes.split(";|,"));
 	}	
 	
 	public void removeSubParser(String[] mimeTypes) {
+		if (mimeTypes == null) throw new NullPointerException("The mimetype-array must not be null.");
+		
 		for (String mimeType : mimeTypes) {			
 			this.subParserList.remove(mimeType.trim());
-			System.out.println("Parser for mimetypes '" + mimeType + "' was uninstalled.");
+			this.logger.info(String.format(
+					"Parser for mimetypes '%s' was installed.",
+					mimeType
+			));
 		}			
 	}
 	
