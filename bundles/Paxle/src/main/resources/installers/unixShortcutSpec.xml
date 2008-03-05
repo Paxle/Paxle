@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Specifies the shortcuts to be created by an installer on a UNIX system. -->
+
+<shortcuts>
+	<programGroup defaultName="Paxle" location="applications" />
+
+	<shortcut name="Paxle" programGroup="yes" desktop="yes"
+		applications="no" startMenu="yes" startup="no"
+		target="$INSTALL_PATH/start.sh" iconFile="$INSTALL_PATH/img/icon.xpm"
+		iconIndex="0" workingDirectory="$INSTALL_PATH/"
+		description="Starts Paxle" type="Application" encoding="UTF-8"
+		terminal="true" KdeSubstUID="false" initialState="maximized"
+		categories="" createForAll="true">
+		<createForPack name="Paxle" />
+	</shortcut>
+
+	<shortcut name="Paxle-Web-GUI" url="http://localhost:8080/"
+		encoding="UTF-8" type="Link" categories="" description="Paxle Web GUI"
+		programGroup="yes" desktop="no" applications="no" startMenu="no"
+		startup="no" createForAll="true" initialState="maximized">
+		<createForPack name="Paxle" />
+	</shortcut>
+
+	<shortcut name="Paxle-Uninstaller" programGroup="yes" desktop="no"
+		applications="no" startMenu="yes" startup="no"
+		target="$JAVA_HOME/bin/java" commandLine="-jar uninstaller.jar"
+		iconFile="trashcan_full" iconIndex="0"
+		workingDirectory="$INSTALL_PATH/Uninstaller/"
+		description="Uninstall Paxle" type="Application" encoding="UTF-8"
+		terminal="false" KdeSubstUID="false" initialState="noShow"
+		categories="" createForAll="false">
+		<createForPack name="Paxle" />
+	</shortcut>
+</shortcuts>

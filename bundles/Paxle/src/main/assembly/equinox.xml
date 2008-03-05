@@ -43,7 +43,13 @@
 			<source>src/main/resources/logging/log4j.properties</source>
 			<outputDirectory>/configuration/</outputDirectory>
 			<filtered>false</filtered>
-		</file>		
+		</file>	
+		<!-- startup file -->	
+		<file>
+			<source>src/main/resources/equinox/start.sh</source>
+			<outputDirectory>/</outputDirectory>
+			<filtered>false</filtered>
+		</file>			
 	</files>
 	<fileSets>
 		<fileSet>

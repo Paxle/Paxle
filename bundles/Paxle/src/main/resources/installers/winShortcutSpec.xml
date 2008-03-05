@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- Specifies the shortcuts to be created by an installer on a WINDOWS system. -->
+
+<shortcuts>
+    <skipIfNotSupported/>
+    <programGroup defaultName="Paxle" location="applications"/>
+    
+    <shortcut name="Paxle"
+              target="$JAVA_HOME\bin\java.exe"
+              commandLine="-jar org.eclipse.osgi_3.3.1.R33x_v20070828.jar -console"
+              workingDirectory="$INSTALL_PATH"
+              description="Paxle"
+              iconFile="$INSTALL_PATH\img\icon.ico"
+              iconIndex="0"
+              initialState="normal"
+              programGroup="yes"
+              desktop="yes"
+              applications="no"
+              startMenu="no"
+              startup="no"
+              terminal="true"
+    />  
+    
+    <shortcut name="Uninstaller"
+              target="$JAVA_HOME\bin\java.exe"
+              commandLine="-jar uninstaller.jar"
+              workingDirectory="$INSTALL_PATH\Uninstaller"
+              description="Uninstall Paxle"
+              initialState="normal"
+              programGroup="yes"
+              desktop="no"
+              applications="no"
+              startMenu="no"
+              startup="no"
+    />
+    
+    <shortcut name="Paxle Web GUI"
+              target="http://localhost:8080"
+              description="The Paxle GUI"
+              iconFile="$INSTALL_PATH\img\icon.ico"
+              iconIndex="0"
+              programGroup="yes"
+              desktop="no"
+              applications="no"
+              startMenu="no"
+              startup="no"
+    />      
+</shortcuts>
+              
