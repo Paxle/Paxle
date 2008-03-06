@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>P2P</artifactId>
 	<packaging>bundle</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<name>Paxle - P2P</name>
 	<url>http://wiki.paxle.net/dev/bundles/P2P</url>
 
@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.paxle</groupId>
 		<artifactId>Root</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
 	<build>

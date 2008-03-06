@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>CrawlerCore</artifactId>
 	<packaging>bundle</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<name>Paxle - CrawlerCore</name>
 	<url>http://wiki.paxle.net/dev/bundles/CrawlerCore</url>
 
@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.paxle</groupId>
 		<artifactId>Root</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
 	<build>

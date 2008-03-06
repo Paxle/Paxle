@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Parser7zip</artifactId>
 	<packaging>bundle</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<name>Paxle - 7Zip-Parser</name>
 	<url>http://wiki.paxle.net/dev/bundles/Parser7zip</url>
 
@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.paxle</groupId>
 		<artifactId>Root</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
 	<repositories>
