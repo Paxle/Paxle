@@ -21,6 +21,16 @@ public class ServiceManager {
 		if (framework != null) {
 			framework.stop();
 		}
+		
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		// wait a view seconds, then try a System.exit
+		System.err.println("System.exit");
+		System.exit(0);
 	}
 	
 	public void restartFramework() throws BundleException {
