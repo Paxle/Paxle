@@ -3,7 +3,8 @@
 <!-- Specifies the shortcuts to be created by an installer on a UNIX system. -->
 
 <shortcuts>
-	<programGroup defaultName="Paxle" location="applications" />
+	<programGroup defaultName="Paxle" location="applications" 
+	iconFile="$INSTALL_PATH/img/icon.xpm" iconIndex="0"/>
 
 	<shortcut name="Paxle" programGroup="yes" desktop="yes"
 		applications="no" startMenu="yes" startup="no"
@@ -15,10 +16,16 @@
 		<createForPack name="Paxle" />
 	</shortcut>
 
-	<shortcut name="Paxle-Web-GUI" url="http://localhost:8080/"
-		encoding="UTF-8" type="Link" categories="" description="Paxle Web GUI"
-		programGroup="yes" desktop="no" applications="no" startMenu="no"
-		startup="no" createForAll="true" initialState="maximized">
+	<shortcut name="Paxle-Web-GUI"
+		programGroup="yes" desktop="yes" applications="no" startMenu="no"
+		startup="no" createForAll="true" initialState="noShow"
+		target="$INSTALL_PATH/launchBrowser.sh"
+		commandLine="http://localhost:8080/"
+		iconIndex="0" workingDirectory="$INSTALL_PATH/" 
+		url="http://localhost:8080/"                                
+		type="Application"
+		encoding="UTF-8" 	     
+		description="This opens a WebBrowser to open the Paxle Web GUI">
 		<createForPack name="Paxle" />
 	</shortcut>
 
