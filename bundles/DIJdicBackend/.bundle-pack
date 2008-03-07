@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<bundlejar>
-  <resource src="/DIJdicBackend/out" type="0" dst="" pattern=".*\.class"/>
-  <resource src="/DIJdicBackend/binaries/libs/linux/jdic_stub.jar" type="1" dst="binaries/libs/linux/jdic_stub.jar"/>
-  <resource src="/DIJdicBackend/libs/jdic.jar" type="1" dst="libs/jdic.jar"/>
-  <resource src="/DIJdicBackend/binaries" type="2" dst="/binaries/"/>
-</bundlejar>

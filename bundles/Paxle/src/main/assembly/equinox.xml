@@ -22,6 +22,8 @@
 				<include>org.paxle:FilterRobotsTxt</include>
 				<include>org.paxle:CharsetDetector</include>
 				<include>org.paxle:MimeType</include>
+				<include>org.paxle:DesktopIntegration</include>
+				<include>org.paxle:DIJdicBackend</include>
 			</includes>
 
 			<binaries>

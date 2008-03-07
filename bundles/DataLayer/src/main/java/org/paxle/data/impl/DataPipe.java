@@ -1,5 +1,7 @@
 package org.paxle.data.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
@@ -13,6 +15,17 @@ public class DataPipe<Data> extends Thread implements IDataProvider<Data>, IData
 	
 	private IDataSink<Data> sink = null;
 	private IDataSource<Data> source = null;
+	
+	/**
+	 * for logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
+	
+	/**
+	 * Indicates that the current thread was stopped through a call
+	 * to {@link #terminate()}
+	 */
+	private boolean stopped = false;
 	
 	public DataPipe() {
 		this.start();
@@ -39,6 +52,21 @@ public class DataPipe<Data> extends Thread implements IDataProvider<Data>, IData
 	}
 	
 	/**
+	 * Function to terminate the {@link DataPipe} thread.
+	 * @throws InterruptedException 
+	 */
+	public void terminate() throws InterruptedException {
+		// setting stop flag
+		this.stopped = true;
+		
+		// interrupt thread if required
+		this.interrupt();
+		
+		// wait for termination
+		this.join(200);
+	}
+	
+	/**
 	 * @see Thread#run()
 	 */
 	@Override
@@ -48,12 +76,20 @@ public class DataPipe<Data> extends Thread implements IDataProvider<Data>, IData
 				while ((this.sink == null) || (this.source == null)) this.wait();
 			}
 			
-			while (true) {
+			while (!this.stopped && !this.isInterrupted()) {
 				Data data = this.source.getData();
 				this.sink.putData(data);
 			}
 		} catch (Exception e) {
-			e.getStackTrace();
+			if (!(e instanceof InterruptedException)) {
+				this.logger.error(String.format(
+						"%s: Unexpected '%s' while copying data.",
+						this.getName(),
+						e.getClass().getName()
+				),e);
+			} else {
+				this.logger.info("Thread stopped successfully.");
+			}
 		}
 	}
 

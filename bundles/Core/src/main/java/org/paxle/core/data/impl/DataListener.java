@@ -13,14 +13,13 @@ import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
-import org.paxle.core.filter.IFilter;
 
 public class DataListener implements ServiceListener {
 	public static String DATASOURCE_CLASS = IDataSource.class.getName();
 	public static String DATASINK_CLASS = IDataSink.class.getName();
 	public static String DATAPROVIDER_CLASS = IDataProvider.class.getName();
 	public static String DATACONSUMER_CLASS = IDataConsumer.class.getName();
-	public static HashSet<String> CLASSES = new HashSet<String>(Arrays.asList(new String[]{
+	public static HashSet<String> INTERFACES = new HashSet<String>(Arrays.asList(new String[]{
 		DATASOURCE_CLASS,
 		DATASINK_CLASS,
 		DATAPROVIDER_CLASS,
@@ -45,43 +44,36 @@ public class DataListener implements ServiceListener {
 	 */
 	private BundleContext context = null;	
 	
-	public DataListener(DataManager dataManager, BundleContext context) {
+	public DataListener(DataManager dataManager, BundleContext context) throws InvalidSyntaxException {
 		this.manager = dataManager;
 		this.context = context;
-		for (String className : FILTERS) this.detect(className);
-	}
-	
-	private void detect(String className) {
-		try {
-			ServiceReference[] refs = context.getServiceReferences(className,null);
-			if (refs == null) return;
-			for (ServiceReference ref : refs) {
-				
-				// get the filter
-				IFilter filter = (IFilter) this.context.getService(ref);	
-				System.out.println("New filter '" + filter.getClass().getName() + "' registered.");
-				
-				// TODO: what to do with this filters?
-			}
-		} catch (InvalidSyntaxException e) {
-			e.printStackTrace();
-		}			
+		
+		// detect already installed data-sources/-sinks/-providers/-consumers
+		for (String className : FILTERS) {
+			ServiceReference[] services = context.getServiceReferences(className,null);
+			if (services != null) for (ServiceReference service : services) serviceChanged(service, ServiceEvent.REGISTERED);	
+		}
 	}
 	
 	public void serviceChanged(ServiceEvent event) {
 		// get the reference to the service 
 		ServiceReference reference = event.getServiceReference();
+		this.serviceChanged(reference, event.getType());
+	}
+	
+	private void serviceChanged(ServiceReference reference, int eventType) {
+		if (reference == null) return;		
 		
 		// get the names of the registered interfaces 
 		String[] interfaceNames = ((String[])reference.getProperty(Constants.OBJECTCLASS));
 		
 		// loop through the interfaces
 		for (String interfaceName : interfaceNames) {
-			if (!CLASSES.contains(interfaceName)) continue;
+			if (!INTERFACES.contains(interfaceName)) continue;
 
+			// getting the data-sources/-sinks/-providers/-consumers id
 			String id = (String) reference.getProperty(interfaceName + ".id");
 
-			int eventType = event.getType();
 			if (eventType == ServiceEvent.REGISTERED) {
 				// get the filter
 				Object service = this.context.getService(reference);

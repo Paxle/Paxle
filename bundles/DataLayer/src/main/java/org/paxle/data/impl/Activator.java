@@ -31,12 +31,15 @@ public class Activator implements BundleActivator {
 	
 	private CommandDB commandDB = null;
 	
+	private ArrayList<DataPipe<?>> pipes = null;
+	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */		
 	public void start(BundleContext context) throws Exception {
 		bc = context;
+		this.pipes = new ArrayList<DataPipe<?>>();
 
 		// init logger
 		this.logger = LogFactory.getLog(this.getClass());
@@ -125,6 +128,11 @@ public class Activator implements BundleActivator {
 			this.commandDB.close();
 		}
 		
+		// shutdown pipes
+		for (DataPipe<?> pipe : this.pipes) {
+			pipe.terminate();
+		}
+		
 		// release bundle context
 		bc = null;
 	}
@@ -146,5 +154,7 @@ public class Activator implements BundleActivator {
 		props.put(IDataConsumer.PROP_DATACONSUMER_ID, from);
 		props.put(IDataProvider.PROP_DATAPROVIDER_ID, to);
 		bc.registerService(new String[]{IDataConsumer.class.getName(),IDataProvider.class.getName()}, pipe, props);
+		
+		this.pipes.add(pipe);
 	}
 }

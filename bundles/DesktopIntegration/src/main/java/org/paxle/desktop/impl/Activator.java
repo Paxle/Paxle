@@ -14,6 +14,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -32,6 +34,8 @@ public class Activator implements BundleActivator {
 	
 	private static final String IMPL_JDIC = "jdic";
 	private static final String IMPL_JRE6 = "jre6";
+	
+	private Log logger = null;
 	
 	/**
 	 * Contains all currently known implementations of the desktop integration backend descendingly
@@ -76,6 +80,7 @@ public class Activator implements BundleActivator {
 	
 	public void start(final BundleContext context) throws Exception {
 		bc = context;
+		this.logger = LogFactory.getLog(this.getClass());
 		
 		final boolean thelisMethod = false;
 		final float javaVersion = getJavaVersion();
@@ -91,10 +96,10 @@ public class Activator implements BundleActivator {
 			try {
 				// display icon
 				initUI(context, impl.getValue(), false);
-				System.out.println("Successfully started bundle using backend '" + impl + "' and " + ((thelisMethod) ? "theli's" : "KoH's") + " method");
+				this.logger.info("Successfully started bundle using backend '" + impl + "' and " + ((thelisMethod) ? "theli's" : "KoH's") + " method");
 				break;
 			} catch (Exception e) {
-				System.out.println("Error starting bundle using backend '" + impl + "' and " + ((thelisMethod) ? "theli's" : "KoH's") + " method: " + e + " (" + e.getCause() + ")");
+				this.logger.error("Error starting bundle using backend '" + impl + "' and " + ((thelisMethod) ? "theli's" : "KoH's") + " method: " + e + " (" + e.getCause() + ")",e);
 			}
 		}
 	}
@@ -180,7 +185,7 @@ public class Activator implements BundleActivator {
 			fileName = fileName.substring(idx+"/binaries/libs/".length());			
 			libFile = context.getDataFile(fileName);			
 			
-			if (!libFile.exists()) {
+			if (!libFile.exists() && !fileName.endsWith("/")) {
 				File parent = libFile.getParentFile();
 				if (!parent.exists()) parent.mkdirs();
 				

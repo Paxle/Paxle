@@ -1,0 +1,73 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>DIJdicBackend</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - DesktopIntegration JDIC</name>
+	<url>http://wiki.paxle.net/dev/bundles/DIJdicBackend</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.2.1</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Fragment-Host>
+							org.paxle.desktop
+						</Fragment-Host>
+						<Bundle-SymbolicName>org.paxle.desktop.backend.impl.jdic</Bundle-SymbolicName>
+						<Import-Package>!*</Import-Package>
+						<Export-Package>!*</Export-Package>
+						<Private-Package>
+							org.jdesktop.jdic.init,
+							org.paxle.desktop.backend.impl.jdic
+						</Private-Package>
+						<DynamicImport-Package>
+							com.sun.jnlp, 
+							javax.swing,
+							sun.awt,
+							sun.awt.X11		
+						</DynamicImport-Package>
+						<Bundle-Activator></Bundle-Activator>
+						
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							jdic;scope=compile|runtime
+						</Embed-Dependency>						
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>DesktopIntegration</artifactId>
+			<version>${project.version}</version>			
+		</dependency>
+		
+		<dependency>
+			<!-- a special jdic version withouth jdicManager -->
+			<groupId>org.jdesktop.jdic</groupId>
+			<artifactId>jdic</artifactId>
+			<version>20060613</version>			
+		</dependency>	
+	</dependencies>
+</project>

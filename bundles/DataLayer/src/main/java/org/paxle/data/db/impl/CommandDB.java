@@ -187,6 +187,9 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 					this.logger.error("Unable to shutdown database.",e);
 				}
 			}
+			
+			// flush cache
+			this.urlExistsCache.clear();
 		}finally {
 			this.closed = true;
 		}
@@ -372,6 +375,9 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 	 * and to write it into the {@link CommandDB#sink data-sink}
 	 */
 	class Writer extends Thread {
+		public Writer() {
+			super("CommandDB.Writer");
+		}
 
 		@Override
 		public void run() {
@@ -417,6 +423,10 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 	 * and to write it into the {@link CommandDB#db}.
 	 */	
 	class Reader extends Thread {
+		public Reader() {
+			super("CommandDB.Reader");
+		}
+		
 		@Override
 		public void run() {
 			try {

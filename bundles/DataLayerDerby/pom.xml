@@ -26,9 +26,11 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-<Import-Package>!*</Import-Package>
-<Export-Package>!*</Export-Package>
-						<Fragment-Host>org.paxle.DataLayer</Fragment-Host>
+						<Import-Package>!*</Import-Package>
+						<Export-Package>!*</Export-Package>
+						<Fragment-Host>
+							org.paxle.DataLayer
+						</Fragment-Host>
 						<!-- 
 							<Import-Package>
 							org.osgi.framework,

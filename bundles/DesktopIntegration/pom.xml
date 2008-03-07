@@ -34,6 +34,7 @@
 						</Export-Package>
 						<Import-Package>
 							org.osgi.framework, 
+							org.apache.commons.logging,
 							org.paxle.core.data, 
 							org.paxle.se.search;resolution:=optional, 
 							org.paxle.core.queue, 
@@ -45,7 +46,8 @@
 						</Private-Package>
 						<DynamicImport-Package>
 							javax.swing.*, 
-							sun.awt.*							
+							sun.awt,
+							sun.awt.X11							
 						</DynamicImport-Package>
 						<Bundle-Activator>
 							org.paxle.desktop.impl.Activator

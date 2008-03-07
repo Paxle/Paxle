@@ -1,17 +1,20 @@
 package org.paxle.desktop.impl;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Hashtable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.io.IOTools;
 
 public class HelperClassLoader extends URLClassLoader {
 	private ClassLoader bundleClassloader = null;
-	private Hashtable<String,Class> classCache = new Hashtable<String,Class>();	
+	private Hashtable<String,Class> classCache = new Hashtable<String,Class>();
+	
+	private Log logger = LogFactory.getLog(this.getClass());
 	
 	public HelperClassLoader(URL[] urls, ClassLoader bundleClassloader) {
 		super(urls, null);
@@ -46,8 +49,8 @@ public class HelperClassLoader extends URLClassLoader {
 	private byte[] loadClassData(ClassLoader cl, String className) throws ClassNotFoundException {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
-			final String classFile = className.replace('.', File.separatorChar) + ".class";
-			System.out.println("HelperClassLoader: Search for: " + classFile);
+			final String classFile = className.replace('.', '/' /*File.separatorChar*/) + ".class";
+			this.logger.debug("HelperClassLoader: Search for: " + classFile);
 			final InputStream in = cl.getResourceAsStream(classFile);
 			if (in == null)
 				throw new ClassNotFoundException(classFile);

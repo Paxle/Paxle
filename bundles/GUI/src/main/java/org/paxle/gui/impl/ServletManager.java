@@ -80,8 +80,10 @@ public class ServletManager implements IServletManager {
 		}
 	}
 	
-	synchronized void removeServlet(String alias) {
-		this.servlets.remove(alias);
+	synchronized void removeServlet(String alias) {		
+		Servlet servlet = this.servlets.remove(alias);		
+		this.logger.info(String.format("Unregistering servlet '%s' for alias '%s'.", servlet.getClass().getName(), alias));
+		
 		if (this.http != null) {
 			this.http.unregister(alias);
 		}
@@ -108,7 +110,9 @@ public class ServletManager implements IServletManager {
 	}
 	
 	synchronized void removeResource(String alias) {
-		this.resources.remove(alias);
+		String name = this.resources.remove(alias);
+		this.logger.info(String.format("Unregistering resource '%s' for alias '%s'.", name, alias));
+		
 		if (this.http != null) {
 			this.http.unregister(alias);
 		}
@@ -117,7 +121,7 @@ public class ServletManager implements IServletManager {
 	synchronized void setHttpService(HttpService httpService) {		
 		if (httpService == null) {
 			// don't unregister, otherwise the http-service destroys our servlets!
-			 this.unregisterAll();
+			this.unregisterAll();
 			this.http = null;
 		} else {
 			this.http = httpService;
@@ -152,14 +156,18 @@ public class ServletManager implements IServletManager {
 		Iterator<Map.Entry<String, Servlet>> i = this.servlets.entrySet().iterator();
 		while (i.hasNext()) {
 			Map.Entry<String, Servlet> entry = i.next();
+			String name = entry.getValue().getClass().getName();
+			String alias = entry.getKey();
+			
 			try {
+				this.logger.info(String.format("Registering servlet '%s' for alias '%s'.", name, alias));
 				this.http.registerServlet(entry.getKey(), entry.getValue(), defaultProps, defaultContext);
-			} catch (ServletException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NamespaceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (Throwable e) {
+				this.logger.error(String.format("Unexpected '%s' while registering servlet '%s' for alias '%s'.",
+						e.getClass().getName(),
+						name,
+						alias
+				),e);				
 			}
 		}	
 	}
@@ -174,11 +182,18 @@ public class ServletManager implements IServletManager {
 		Iterator<Map.Entry<String, String>> i = this.resources.entrySet().iterator();
 		while (i.hasNext()) {
 			Map.Entry<String, String> entry = i.next();
+			String name = entry.getValue();
+			String alias = entry.getKey();
+			
 			try {
+				this.logger.info(String.format("Registering resource '%s' for alias '%s'.", name, alias));
 				this.http.registerResources(entry.getKey(), entry.getValue(), defaultContext);
-			} catch (NamespaceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (Throwable e) {
+				this.logger.error(String.format("Unexpected '%s' while registering resource '%s' for alias '%s'.",
+						e.getClass().getName(),
+						name,
+						alias
+				),e);	
 			}
 		}			
 	}
@@ -202,6 +217,10 @@ public class ServletManager implements IServletManager {
 		Iterator<Map.Entry<String, Servlet>> i = this.servlets.entrySet().iterator();
 		while (i.hasNext()) {				
 			Map.Entry<String, Servlet> entry = i.next();
+			String name = entry.getValue().getClass().getName();
+			String alias = entry.getKey();
+			
+			this.logger.info(String.format("Unegistering servlet '%s' for alias '%s'.", name, alias));			
 			this.http.unregister(entry.getKey());
 		}
 	}	
@@ -215,6 +234,10 @@ public class ServletManager implements IServletManager {
 		Iterator<Map.Entry<String, String>> i = this.resources.entrySet().iterator();
 		while (i.hasNext()) {				
 			Map.Entry<String, String> entry = i.next();
+			String name = entry.getValue();
+			String alias = entry.getKey();
+			
+			this.logger.info(String.format("Unegistering resource '%s' for alias '%s'.", name, alias));			
 			this.http.unregister(entry.getKey());
 		}		
 	}

@@ -644,5 +644,9 @@
 		<!-- some filters -->
 		<module>../FilterBlacklist</module>
 		<module>../FilterRobotsTxt</module>
+		
+		<!-- Desktop Integration -->
+		<module>../DesktopIntegration</module>
+		<module>../DIJdicBackend</module>
 	</modules>
 </project>
