@@ -59,6 +59,11 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 			int idx = ref.indexOf("#");
 			if (idx != -1) ref = ref.substring(0,idx);
 			
+			if (ref.length() > 512) {
+				this.logger.debug("Skipping too long URL: " + ref);
+				continue;
+			}
+			
 			// add command into list
 			locations.add(ref);
 		}
