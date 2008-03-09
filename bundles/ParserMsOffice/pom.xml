@@ -37,6 +37,8 @@
 						</Import-Package>
 						<DynamicImport-Package>
 							javax.imageio, 
+							javax.imageio.metadata, 
+							javax.imageio.stream,
 							javax.xml.parsers, 
 							javax.xml.transform.*,
 							org.w3c.dom
@@ -71,12 +73,12 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>3.0.1-FINAL</version>
+			<version>3.0.2-FINAL</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-scratchpad</artifactId>
-			<version>3.0.1-FINAL</version>
+			<version>3.0.2-FINAL</version>
 		</dependency>
 		<dependency>
 			<groupId>junit-addons</groupId>
