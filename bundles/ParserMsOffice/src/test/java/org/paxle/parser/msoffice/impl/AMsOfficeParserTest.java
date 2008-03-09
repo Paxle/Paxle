@@ -10,7 +10,7 @@ import org.paxle.parser.ParserContext;
 
 import junit.framework.TestCase;
 
-public class AMsOfficeParserTest extends TestCase {
+public abstract class AMsOfficeParserTest extends TestCase {
 	protected ParserContext parserContext = null;
 	
 	@Override
