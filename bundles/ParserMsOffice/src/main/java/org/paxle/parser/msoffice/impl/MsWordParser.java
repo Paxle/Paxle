@@ -64,7 +64,8 @@ public class MsWordParser extends AMsOfficeParser implements ISubParser, IMsWord
 			parserDoc.setStatus(IParserDocument.Status.OK);
 			return parserDoc;
 		} catch (Throwable e) {
-			throw new ParserException(String.format("Error parsing ms-word document. %s: %s",
+			throw new ParserException(String.format(
+					"Unexpected '%s' while parsing ms-word document: %s",
 					e.getClass().getName(),
 					e.getMessage()), e);
 		} finally {
