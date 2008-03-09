@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -209,6 +210,10 @@ public class ParserDocument implements IParserDocument {
 		return this.images;
 	}
 	
+	/**
+	 * @see IParserDocument#setImages(Map)
+	 * TODO: maybe we should loop through the list and trim all strings
+	 */
 	public void setImages(Map<String,String> images) {
 		this.images = images;
 	}
@@ -221,8 +226,18 @@ public class ParserDocument implements IParserDocument {
 		return this.keywords;
 	}
 	
+	/**
+	 * @see IParserDocument#setKeywords(Collection)
+	 */
 	public void setKeywords(Collection<String> keywords) {
-		this.keywords = keywords;
+		ArrayList<String> keywordsList = new ArrayList<String>(keywords==null?0:keywords.size());
+		if (keywords != null) {
+			// loop through the keywords and trim
+			for (String keyword : keywords) {
+				keywordsList.add(keyword.trim());
+			}
+		}
+		this.keywords = keywordsList;
 	}
 	
 	/**
@@ -233,8 +248,18 @@ public class ParserDocument implements IParserDocument {
 		return this.languages;
 	}
 	
+	/**
+	 * @see IParserDocument#setLanguages(Set)
+	 */
 	public void setLanguages(Set<String> languages) {
-		this.languages = languages;
+		HashSet<String> languageSet = new HashSet<String>(languages==null?0:languages.size());
+		if (languages != null) {
+			// loop throught the languages ant trim
+			for(String language: languages) {
+				languageSet.add(language.trim());
+			}
+		}
+		this.languages = languageSet;
 	}
 	
 	/**
@@ -253,6 +278,10 @@ public class ParserDocument implements IParserDocument {
 		return this.links;
 	}
 	
+	/**
+	 * @see IParserDocument#setLinks(Map)
+	 * TODO: maybe we should loop through the list and trim all strings
+	 */
 	public void setLinks(Map<String,String> links) {
 		this.links = links;
 	}
@@ -266,10 +295,17 @@ public class ParserDocument implements IParserDocument {
 		return this.subDocs;
 	}
 	
+	/**
+	 * @see IParserDocument#setSubDocs(Map)
+	 *  TODO: maybe we should loop through the list and trim all strings
+	 */
 	public void setSubDocs(Map<String,IParserDocument> subDocs) {
 		this.subDocs = subDocs;
 	}
 	
+	/**
+	 * @see IParserDocument#getMimeType()
+	 */
 	public String getMimeType() {
 		return this.mimeType;
 	}
@@ -384,10 +420,10 @@ public class ParserDocument implements IParserDocument {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder(100);
-		sb.append("Title: ").append(title).append('\n');
-		sb.append("Author: ").append(author).append('\n');
-		sb.append("last changed: ").append(lastChanged.toString()).append('\n');
-		sb.append("Summary: ").append(summary).append('\n');
+		sb.append("Title: ").append(title==null?"":title).append('\n');
+		sb.append("Author: ").append(author==null?"":author).append('\n');
+		sb.append("last changed: ").append((lastChanged==null)?"":lastChanged.toString()).append('\n');
+		sb.append("Summary: ").append(summary==null?"":summary).append('\n');
 		print(sb, this.languages, "Languages");
 		print(sb, this.headlines, "Headlines");
 		print(sb, this.keywords, "Keywords");
@@ -410,7 +446,7 @@ public class ParserDocument implements IParserDocument {
 		sb.append(name).append(": ").append('\n');
 		Iterator<String> it = col.iterator();
 		while (it.hasNext())
-			sb.append(" * ").append(it.next()).append('\n');
+			sb.append(" * ").append(it.next().trim()).append('\n');
 	}
 	
 	private static String whitespaces2Space(String text) {
