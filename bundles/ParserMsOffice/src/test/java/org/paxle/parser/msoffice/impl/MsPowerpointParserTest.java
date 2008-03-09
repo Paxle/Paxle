@@ -1,4 +1,5 @@
 package org.paxle.parser.msoffice.impl;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -6,32 +7,34 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import junitx.framework.ListAssert;
-
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserException;
 
+import junitx.framework.ListAssert;
 
-public class MsWordParserTest extends AMsOfficeParserTest {
+public class MsPowerpointParserTest extends AMsOfficeParserTest {
 
-	private MsWordParser parser = null;
-
+	private MsPowerpointParser parser = null;
+	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 
 		// create parser
-		this.parser = new MsWordParser();
+		this.parser = new MsPowerpointParser();
 	}
-
+	
 	public void testGetMimeType() {
 		List<String> mimeTypes = this.parser.getMimeTypes();
 		assertNotNull(mimeTypes);
-		assertEquals(1, mimeTypes.size());
-		ListAssert.assertContains(mimeTypes,"application/msword");
+		assertEquals(3, mimeTypes.size());
+		ListAssert.assertEquals(
+				Arrays.asList(new String[]{"application/mspowerpoint","application/powerpoint","application/vnd.ms-powerpoint"}),
+				mimeTypes
+		);
 	}
-
-	public void testParseMsWord() throws UnsupportedEncodingException, ParserException, IOException {
+	
+	public void testParseMsPowerpoint() throws UnsupportedEncodingException, ParserException, IOException {
 		IParserDocument parserDoc = null;
 		try {
 			List<String> mimeTypes = this.parser.getMimeTypes();
@@ -41,19 +44,17 @@ public class MsWordParserTest extends AMsOfficeParserTest {
 			String mimeType = mimeTypes.get(0);
 			assertTrue(mimeType.length() != 0);
 
-			File testFile = new File("src/test/resources/test.doc");
+			File testFile = new File("src/test/resources/test.ppt");
 			assertTrue(testFile.exists());
 
 			parserDoc = this.parser.parse("http://mydummylocation.at", "UTF-8", testFile);
 			assertNotNull(parserDoc);
 			assertEquals(IParserDocument.Status.OK, parserDoc.getStatus());		
 			assertEquals("Paxle MsOffice Parser", parserDoc.getTitle());
-			assertEquals("Testdocument", parserDoc.getSummary());
 			assertEquals("Martin Thelian", parserDoc.getAuthor());
 			ListAssert.assertEquals(Arrays.asList(new String[]{"paxle","tests","junit"}), new ArrayList<String>(parserDoc.getKeywords()));
 		} finally {
 			if (parserDoc != null) parserDoc.close();
 		}		
 	}
-
 }

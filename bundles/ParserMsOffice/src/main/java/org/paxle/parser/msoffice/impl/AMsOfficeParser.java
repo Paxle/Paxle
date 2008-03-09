@@ -59,7 +59,13 @@ public class AMsOfficeParser {
 			if (keywords != null && keywords.length() > 0) {
 				String[] keywordArray = keywords.split("[,;\\s]");
 				if (keywordArray != null && keywordArray.length > 0) {
-					ArrayList<String> keywordsList = new ArrayList<String>(Arrays.asList(keywordArray));
+					ArrayList<String> keywordsList = new ArrayList<String>(keywordArray.length);
+					for (String keyword :keywordArray) {
+						keyword = keyword.trim();
+						if (keyword.length() > 0) {
+							keywordsList.add(keyword);
+						}
+					}					
 					parserDoc.setKeywords(keywordsList);
 					this.logger.debug(String.format("Document keywords are: %s",keywordsList.toString()));
 				}
