@@ -75,14 +75,9 @@ public class MWComponentFactory implements IMWComponentFactory {
 		
 		if (workerFactory == null) throw new NullPointerException("The worker-factory is null");
 		
-		// creating the queues
-		//InputQueue<Data> inQueue = new InputQueue<Data>(queueBufferSize);
+		// creating the filter-queues
 		FilterInputQueue<Data> inQueue = new FilterInputQueue<Data>(queueBufferSize);
 		FilteringOutputQueue<Data> outQueue = new FilteringOutputQueue<Data>(queueBufferSize);
-		
-		/* TODO: use bundle-specific informations to ...
-		 * 1.) plugin all queue-filters
-		 */
 		
 		return createComponent(workerFactory, inQueue, outQueue, clazz);
 	}
@@ -134,16 +129,31 @@ public class MWComponentFactory implements IMWComponentFactory {
 		bc.registerService(IDataSource.class.getName(), component.getDataSource(), dataSourceProps);
 		
 		// register filter queues
-		if (component.getDataSource() instanceof IFilterQueue) {
+		IDataSource<?> compDataSource = component.getDataSource();
+		if (compDataSource instanceof IFilterQueue) {
+			// generating the filterqueue-ID
+			String filterQueueID = componentID + ".out";
+			
+			// setting the filter-queue ID
+			((IFilterQueue)compDataSource).setFilterQueueID(filterQueueID);
+			
+			// register the queue as osgi-service
 			Hashtable<String,String> filterQueueProps = new Hashtable<String, String>();
-			filterQueueProps.put(IFilterQueue.PROP_FILTER_QUEUE_ID, componentID + ".out");			
-			bc.registerService(IFilterQueue.class.getName(), component.getDataSource(), filterQueueProps);			
+			filterQueueProps.put(IFilterQueue.PROP_FILTER_QUEUE_ID, filterQueueID);			
+			bc.registerService(IFilterQueue.class.getName(), compDataSource, filterQueueProps);			
 		}
 		
-		if (component.getDataSink() instanceof IFilterQueue) {
+		IDataSink<?> compDataSink = component.getDataSink();
+		if (compDataSink instanceof IFilterQueue) {
+			// generating the filterqueue-ID
+			String filterQueueID = componentID + ".in";
+			
+			// setting the filter-queue ID
+			((IFilterQueue)compDataSink).setFilterQueueID(filterQueueID);	
+			
 			Hashtable<String,String> filterQueueProps = new Hashtable<String, String>();
-			filterQueueProps.put(IFilterQueue.PROP_FILTER_QUEUE_ID, componentID + ".in");			
-			bc.registerService(IFilterQueue.class.getName(), component.getDataSink(), filterQueueProps);			
+			filterQueueProps.put(IFilterQueue.PROP_FILTER_QUEUE_ID, filterQueueID);			
+			bc.registerService(IFilterQueue.class.getName(), compDataSink, filterQueueProps);			
 		}		
 	}
 

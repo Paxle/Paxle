@@ -8,11 +8,23 @@ import org.apache.commons.logging.LogFactory;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
+import org.paxle.core.impl.MWComponentFactory;
 import org.paxle.core.queue.ICommand;
 
 public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> implements IFilterQueue {
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * The ID that was used by the {@link MWComponentFactory} to register
+	 * this {@link IFilterQueue} to the OSGi framework.
+	 * 
+	 * @see #setFilterQueueID(String)
+	 */
+	private String filterQueueID = null;
+	
+	/**
+	 * for logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
@@ -22,6 +34,14 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 	
 	public FilterInputQueue(int length) {
 		super(length);
+	}
+	
+	/**
+	 * @see IFilterQueue#setFilterQueueID(String)
+	 */
+	public void setFilterQueueID(String filterQueueID) {
+		if (this.filterQueueID != null) throw new IllegalStateException("The filter-queue was already set.");
+		this.filterQueueID = filterQueueID;
 	}
 	
 	@Override
@@ -52,12 +72,18 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 				// process the command by the next filter
 				filter.filter(command, filterContext);
 				if (command.getResult() == ICommand.Result.Rejected) {
-					this.logger.info(String.format("Command for URL '%s' rejected by filter '%s'. Reason: %s",
-							command.getLocation(), filter.getClass().getName(), command.getResultText()
+					this.logger.info(String.format(
+							"[%s] Command for URL '%s' rejected by filter '%s'. Reason: %s",
+							this.filterQueueID,
+							command.getLocation(), 
+							filter.getClass().getName(), 
+							command.getResultText()
 					));
 				}				
 			} catch (Throwable e) {
-				this.logger.error(String.format("Filter '%s' throwed an '%s' while processing '%s'.",
+				this.logger.error(String.format(
+						"[%s] Filter '%s' throwed an '%s' while processing '%s'.",
+						this.filterQueueID,
 						filter.getClass().getName(),
 						e.getClass().getName(),
 						command.getLocation()
@@ -85,7 +111,9 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 	public String toString() {
 		StringBuilder buf = new StringBuilder();
 		
-		buf.append("Enqueued:\n")
+		buf.append("Queue-ID: ")
+		   .append(this.filterQueueID==null?"unknown":this.filterQueueID)
+		   .append("\nEnqueued:\n")
 		   .append(super.toString())
 		   .append("\nFilters:\n")
 		   .append(this.filterList==null?"[]":this.filterList.toString());
