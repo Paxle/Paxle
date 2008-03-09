@@ -425,7 +425,7 @@
 				<executions>
 					<execution>
 						<id>make-assembly</id>
-						<phase>package</phase>
+						<phase>install</phase>
 						<goals>
 							<goal>attached</goal>
 						</goals>
@@ -442,7 +442,7 @@
 				<executions>
 					<execution>
 						<id>make-java-installer</id>
-						<phase>package</phase>
+						<phase>install</phase>
 						<configuration>
 							<tasks>
 								<echo message="${basedir}" />
@@ -543,7 +543,7 @@
 				<executions>
 					<execution>
 						<id>make-exe-installer</id>
-						<phase>package</phase>
+						<phase>install</phase>
 						<goals>
 							<goal>launch4j</goal>
 						</goals>
@@ -629,6 +629,7 @@
 		<module>../CharsetDetector</module>
 		<module>../MimeType</module>
 		<module>../IconTools</module>
+		<module>../IPLocatorTools</module>
 		
 		<!-- search engine bundles -->
 		<module>../SearchEngine</module>
@@ -648,5 +649,6 @@
 		<!-- Desktop Integration -->
 		<module>../DesktopIntegration</module>
 		<module>../DIJdicBackend</module>
+				
 	</modules>
 </project>
