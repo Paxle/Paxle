@@ -2,6 +2,7 @@
 package org.paxle.desktop.backend.impl.jdic;
 
 import java.awt.Dimension;
+import java.awt.event.ActionListener;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -31,6 +32,11 @@ public class TrayIcon extends org.jdesktop.jdic.tray.TrayIcon implements ITrayIc
 	public TrayIcon(Icon icon, String caption, IPopupMenu popupMenu) {
 		this(icon, caption);
 		setMenu(popupMenu);
+	}
+	
+	@Override
+	public void addActionListener(ActionListener arg0) {
+		super.addActionListener(arg0);
 	}
 	
 	public void displayBalloonMessage(String caption, String text, MessageType messageType) {

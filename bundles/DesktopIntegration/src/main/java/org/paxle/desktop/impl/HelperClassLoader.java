@@ -12,7 +12,7 @@ import org.paxle.core.io.IOTools;
 
 public class HelperClassLoader extends URLClassLoader {
 	private ClassLoader bundleClassloader = null;
-	private Hashtable<String,Class> classCache = new Hashtable<String,Class>();
+	private Hashtable<String,Class<?>> classCache = new Hashtable<String,Class<?>>();
 	
 	private Log logger = LogFactory.getLog(this.getClass());
 	
@@ -27,7 +27,7 @@ public class HelperClassLoader extends URLClassLoader {
 		byte[] classByte = null;
 		if (className.startsWith("org.jdesktop.jdic") || className.equals("org.paxle.desktop.impl.DesktopInit") ||
 				className.startsWith("org.paxle.desktop")) {	
-			cls = (Class<?>)this.classCache.get(className);
+			cls = this.classCache.get(className);
 			if (cls != null)
 				return cls;
 			

@@ -7,10 +7,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.http.HttpService;
 
+import org.paxle.core.IMWComponent;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
@@ -20,17 +23,23 @@ import org.paxle.desktop.backend.tray.IPopupMenu;
 import org.paxle.desktop.backend.tray.ITrayIcon;
 import org.paxle.desktop.impl.dialogues.AFinally;
 import org.paxle.desktop.impl.dialogues.SmallDialog;
-import org.paxle.se.search.ISearchProviderManager;
 
 public class SystrayMenu2 implements ActionListener {
 	
 	private static final Class<IDataSink> CRAWLER_SINK_CLASS = IDataSink.class;
 	private static final String CRAWLER_SINK_QUERY = "(org.paxle.core.data.IDataSink.id=org.paxle.crawler.sink)";
-	private static final Class<ISearchProviderManager> SEARCHER_CLASS = ISearchProviderManager.class;
+	// private static final Class<ISearchProviderManager> SEARCHER_CLASS = ISearchProviderManager.class;
+	private static final Class<IMWComponent> MWCOMP_CLASS = IMWComponent.class;
+	private static final String CRAWLER_QUERY = String.format("(%s=org.paxle.crawler)", IMWComponent.COMPONENT_ID);
+	
+	// TODO: change label of crawlprItem according to current crawler-states
+	private static final String CRAWL_PAUSE = "Pause Crawling";
+	private static final String CRAWL_RESUME = "Resume Crawling";
 	
 	private static final String CRAWL = "crawl";
 	private static final String CRAWLPR = "crawlpr";
 	private static final String SEARCH = "search";
+	private static final String BROWSE = "browse";
 	private static final String RESTART = "restart";
 	private static final String QUIT = "quit";
 	
@@ -39,6 +48,7 @@ public class SystrayMenu2 implements ActionListener {
 	private final ITrayIcon ti;
 	
 	private final IMenuItem searchItem;
+	private final IMenuItem browseItem;
 	private final IMenuItem crawlItem;
 	private final IMenuItem crawlprItem;
 	private final IMenuItem quitItem;
@@ -51,11 +61,14 @@ public class SystrayMenu2 implements ActionListener {
 		final IPopupMenu pm = backend.createPopupMenu(
 				this.searchItem 	= backend.createMenuItem("Search...", 		SEARCH, 	this),
 				null,
+				this.browseItem		= backend.createMenuItem("Webinterface", 	BROWSE,		this),
+				null,
 				this.crawlItem 		= backend.createMenuItem("Crawl...", 		CRAWL, 		this),
 				this.crawlprItem 	= backend.createMenuItem("Pause Crawling", 	CRAWLPR, 	this),
 				null,
 				this.restartItem 	= backend.createMenuItem("Restart", 		RESTART, 	this),
 				this.quitItem 		= backend.createMenuItem("Quit", 			QUIT, 		this));
+		refresh();
 		
 		this.ti = backend.createTrayIcon(new ImageIcon(iconResource), "Paxle Tray", pm);
 		backend.getSystemTray().add(this.ti);
@@ -65,27 +78,53 @@ public class SystrayMenu2 implements ActionListener {
 		this.backend.getSystemTray().remove(this.ti);
 	}
 	
-	protected void refresh() {
+	private void refresh() {
+		// XXX: instead of polling should this be implemented as a filter?
+		// TODO: refresh on displaying popup-menu
 		try {
-			final boolean hasCrawler = this.manager.hasService(CRAWLER_SINK_CLASS, CRAWLER_SINK_QUERY);
-			this.crawlItem.setEnabled(hasCrawler);
-			this.crawlprItem.setEnabled(hasCrawler);
+			final boolean hasCrawler = manager.hasService(MWCOMP_CLASS, CRAWLER_QUERY);
+			crawlItem.setEnabled(hasCrawler);
+			crawlprItem.setEnabled(hasCrawler);
 		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
-		this.searchItem.setEnabled(this.manager.hasService(SEARCHER_CLASS));
+		
+		final boolean hasSearch = manager.hasService("org.paxle.se.search.ISearchProviderManager");
+		searchItem.setEnabled(hasSearch);
+		
+		final boolean hasWebui = manager.hasService(HttpService.class) && manager.hasService("org.paxle.gui.IServletManager");
+		browseItem.setEnabled(hasWebui);
 	}
 	
 	public void actionPerformed(ActionEvent e) {
 		final String cmd = e.getActionCommand();
 		
 		if (cmd == CRAWL) {
+			/* TODO:
+			 * - set location and size of icon to display the dialog at the correct position next to the icon
+			 *   - what to do about the JRE6-backend? How to determine the position of the icon on the screen? */
 			new SmallDialog(new CrawlFinally(), "Enter URL:", "Crawl").setVisible(true);
+			
 		} else if (cmd == CRAWLPR) {
-			// TODO: pause/resume crawler input queue
+			toggleCrawlersPR();
+			
 		} else if (cmd == SEARCH) {
 			new SmallDialog(new SearchFinally(), "Enter query:", "Search").setVisible(true);
+			
+		} else if (cmd == BROWSE) {
+			try {
+				final String url = getPaxleURL("/");
+				if (url == null) {
+					JOptionPane.showMessageDialog(null, "HTTP service not accessible", "Error", JOptionPane.ERROR_MESSAGE);
+				} else if (!backend.getDesktop().browse(url)) {
+					Utilities.showURLErrorMessage(
+							"Couldn't launch system browser due to an error in Paxle's system integration\n" +
+							"bundle. Please review the log for details. The requested URL was:", url);
+				}
+			} catch (MalformedURLException ee) { ee.printStackTrace(); }
+			
 		} else try {
 			if (cmd == RESTART) {
 				this.manager.restartFramework();
+				
 			} else if (cmd == QUIT) {
 				this.manager.shutdownFramework();
 			}
@@ -94,17 +133,49 @@ public class SystrayMenu2 implements ActionListener {
 		}
 	}
 	
+	private void toggleCrawlersPR() {
+		try {
+			final IMWComponent<?>[] crawlers = manager.getServices(MWCOMP_CLASS, CRAWLER_QUERY);
+			if (crawlers == null)
+				return;
+			
+			boolean pause = false;
+			for (int i=0; i<crawlers.length; i++)
+				if (!crawlers[i].isPaused()) {
+					pause = true;
+					break;
+				}
+			
+			if (pause) {
+				for (int i=0; i<crawlers.length; i++)
+					crawlers[i].pause();
+			} else {
+				for (int i=0; i<crawlers.length; i++)
+					crawlers[i].resume();
+			}
+		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
+	}
+	
+	private String getPaxleURL(String path) {
+		final String port = SystrayMenu2.this.manager.getProperty("org.osgi.service.http.port");
+		if (port == null)
+			return null;
+		return String.format("http://localhost:%s%s", port, path);
+	}
+	
 	private class SearchFinally extends AFinally {
 		@Override
 		public void run() {
-			final String port = SystrayMenu2.this.manager.getProperty("org.osgi.service.http.port");
-			if (port != null) try {
-				if (!SystrayMenu2.this.backend.getDesktop().browse(String.format("http://localhost:%s/search?query=%s", port, super.data))) {
-					// TODO: log error message: couldn't start browser
+			try {
+				final String url = getPaxleURL("/search?query=" + data);
+				if (url == null) {
+					JOptionPane.showMessageDialog(null, "HTTP service not accessible", "Error", JOptionPane.ERROR_MESSAGE);
+				} else if (!backend.getDesktop().browse(url)) {
+					Utilities.showURLErrorMessage(
+							"Couldn't launch system browser due to an error in Paxle's system integration\n" +
+							"bundle. Please review the log for details. The requested URL was:", url);
 				}
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
+			} catch (MalformedURLException e) { e.printStackTrace(); }
 		}
 	}
 	

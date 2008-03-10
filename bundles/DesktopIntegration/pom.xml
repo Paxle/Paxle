@@ -38,7 +38,10 @@
 							org.paxle.core.data, 
 							org.paxle.se.search;resolution:=optional, 
 							org.paxle.core.queue, 
-							org.paxle.core.io
+							org.paxle.core.io,
+							org.paxle.gui;resolution:=optional,
+							org.osgi.service.http;resolution:=optional,
+							org.paxle.core
 						</Import-Package>
 						<Private-Package>
 							org.paxle.desktop.impl,
@@ -76,5 +79,10 @@
 			<artifactId>SearchEngine</artifactId>
 			<version>${project.version}</version>			
 		</dependency>	
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>GUI</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 </project>

@@ -1,3 +1,4 @@
+
 package org.paxle.desktop.impl;
 
 import java.awt.Image;
@@ -93,7 +94,7 @@ public class DesktopInit {
 		return cl.loadClass(fullClazzName);
 	}
 	
-	private static Method getMethod(String mode, String className, String methodName, Class ... clazzes) throws Exception {
+	private static Method getMethod(String mode, String className, String methodName, Class<?> ... clazzes) throws Exception {
 		String realMethodName = CONSTANTS.get(mode + "." + className + "." + methodName);
 		return getClass(mode,className).getMethod(realMethodName, clazzes);
 	}

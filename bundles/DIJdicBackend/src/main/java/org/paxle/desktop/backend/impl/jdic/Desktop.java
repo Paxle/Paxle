@@ -16,6 +16,10 @@ public class Desktop implements IDesktop {
 		try {
 			org.jdesktop.jdic.desktop.Desktop.browse(url);
 		} catch (DesktopException e) {
+			System.err.println(e.getMessage());
+			return false;
+		} catch (LinkageError e) {
+			System.err.println(e.getMessage());
 			return false;
 		}
 		return true;

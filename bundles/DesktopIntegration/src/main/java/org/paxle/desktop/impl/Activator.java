@@ -52,8 +52,8 @@ public class Activator implements BundleActivator {
 			});
 	
 	static {
-		KNOWN_IMPLS.put(1.6f, IMPL_JRE6);
-		KNOWN_IMPLS.put(1.4f, IMPL_JDIC);
+		KNOWN_IMPLS.put(Float.valueOf(1.6f), IMPL_JRE6);
+		KNOWN_IMPLS.put(Float.valueOf(1.4f), IMPL_JDIC);
 	}
 	
 	private static float getJavaVersion() {
@@ -90,7 +90,7 @@ public class Activator implements BundleActivator {
 			final Map.Entry<Float,String> impl = implIt.next();
 			
 			// discard if not supported by JRE
-			if (impl.getKey() > javaVersion)
+			if (impl.getKey().floatValue() > javaVersion)
 				continue;
 			
 			try {
@@ -135,7 +135,7 @@ public class Activator implements BundleActivator {
 		if (thelisMethod) {
 			// use DesktopInit object
 			Class<?> init = uiClassLoader.loadClass("org.paxle.desktop.impl.DesktopInit");
-			Constructor initC = init.getConstructor(BundleContext.class, String.class);
+			Constructor<?> initC = init.getConstructor(BundleContext.class, String.class);
 			initObject = initC.newInstance(context, impl);
 			initMethod = init.getMethod("init");
 			shutdownMethod = init.getMethod("shutdown");
