@@ -16,6 +16,7 @@ public class Activator implements BundleActivator {
 	public static BundleContext bc;	
 	
 	private static RobotsTxtManager robotsTxtManager = null;
+	private static Thread robotsTxtCleanupThread = null;
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
@@ -24,6 +25,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		bc = context;
 		robotsTxtManager = new RobotsTxtManager(new File(DB_PATH));
+		robotsTxtCleanupThread = new RobotsTxtCleanupThread(new File(DB_PATH), 10); 
 		
 		/* ==========================================================
 		 * Register Services provided by this bundle
@@ -41,6 +43,7 @@ public class Activator implements BundleActivator {
 	 */	
 	public void stop(BundleContext context) throws Exception {
 		robotsTxtManager = null;
+		robotsTxtCleanupThread.interrupt();
 		bc = null;
 	}
 }

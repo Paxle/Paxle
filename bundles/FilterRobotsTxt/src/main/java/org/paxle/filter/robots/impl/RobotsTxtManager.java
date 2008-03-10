@@ -189,14 +189,14 @@ public class RobotsTxtManager {
 					robotsTxt.addRuleBlock(currentBlock);
 				}
 
-				// getting the user-agnet
+				// getting the user-agent
 				line = line.substring("User-agent:".length()).trim();
 				currentBlock.addAgent(line);				
 			} else if (line.toLowerCase().startsWith("Disallow:".toLowerCase())) {
 				if (currentBlock == null) continue;
 				inRuleBlock = true;
 
-				// getting the user-agnet
+				// getting the user-agent
 				line = line.substring("Disallow:".length()).trim();
 
 				if (line.length() > 0) {
@@ -210,7 +210,7 @@ public class RobotsTxtManager {
 				if (currentBlock == null) continue;
 				inRuleBlock = true;
 
-				// getting the user-agnet
+				// getting the user-agent
 				line = line.substring("Allow:".length()).trim();
 
 				if (line.length() > 0) {
@@ -246,7 +246,7 @@ public class RobotsTxtManager {
 		RobotsTxt robotsTxt = null;
 		try {
 			synchronized (hostPort.intern()) {
-				// trying to geht the robots.txt from cache
+				// trying to get the robots.txt from cache
 				robotsTxt = (RobotsTxt) this.cache.retrieve(hostPort);
 
 				// trying to get the robots.txt from file
@@ -291,6 +291,11 @@ public class RobotsTxtManager {
 		}
 	}
 
+	/**
+	 * Loads a robots.stxt from HDD
+	 * @param hostPort
+	 * @return
+	 */
 	private RobotsTxt loadRobotsTxt(String hostPort) {
 		ObjectInputStream ois = null;
 		File robotsTxtFile = null;

@@ -449,6 +449,11 @@ public class ParserDocument implements IParserDocument {
 			sb.append(" * ").append(it.next().trim()).append('\n');
 	}
 	
+	/**
+	 * Converts many whitespaces to one
+	 * @param text
+	 * @return the resulting string
+	 */
 	private static String whitespaces2Space(String text) {
 		if (text == null) return null;
 		return text.replaceAll("\\s", " ").trim();
