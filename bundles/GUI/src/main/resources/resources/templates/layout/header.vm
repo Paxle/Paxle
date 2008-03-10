@@ -3,6 +3,8 @@
 <head>
   <title>#if( $page_title ) - $page_title#end</title>
   <link href="/css/style.css" rel="stylesheet" type="text/css" media="screen, projection" />
+  <link rel="shortcut icon" href="/images/favicon.ico" type="image/vnd.microsoft.icon">
+  <link rel="icon" href="/images/favicon.ico" type="image/vnd.microsoft.icon"> 
   
   ## append custom headers
   #if($page_headers)
