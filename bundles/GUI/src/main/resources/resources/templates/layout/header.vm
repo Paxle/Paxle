@@ -3,6 +3,7 @@
 <head>
   <title>#if( $page_title ) - $page_title#end</title>
   <link href="/css/style.css" rel="stylesheet" type="text/css" media="screen, projection" />
+  <link rel="stylesheet" type="text/css" href="/css/navi.css" />
   <link rel="shortcut icon" href="/images/favicon.ico" type="image/vnd.microsoft.icon">
   <link rel="icon" href="/images/favicon.ico" type="image/vnd.microsoft.icon"> 
   
@@ -53,5 +54,16 @@
 	/* ]]> */
 </script>
 <body#if( $bodyonload ) onload="$bodyonload"#end>
+
+<div id="global_banner">
+	<ul>
+<li><a href="http://forum.paxle.info" title="Forum">Forum</a></li>
+<li><a href="https://bugs.pxl.li" title="Bugs">Bugs</a></li>
+<li><a href="http://wiki.paxle.net" title="Wiki">Wiki</a></li>
+<li><a href="http://svn.paxle.net" title="SVN">SVN</a></li>
+<li><a href="http://www2.paxle.net" title="Homepage">Homepage</a></li>
+<li class="active"><a href="/" title="This Peer">This Peer</a></li>
+	</ul>
+</div>
 
 <h1 style="margin: 0; padding: 0; line-height: 2em; background-color: #730002; color: white; font-size: 3em; text-align: center;">Paxle</h1>
