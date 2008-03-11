@@ -84,17 +84,24 @@ public class Activator implements BundleActivator {
 		
 		final boolean thelisMethod = false;
 		final float javaVersion = getJavaVersion();
+		this.logger.debug(String.format("Detected java version: %f", javaVersion));
 		
 		final Iterator<Map.Entry<Float,String>> implIt = KNOWN_IMPLS.entrySet().iterator();
 		while (implIt.hasNext()) {
 			final Map.Entry<Float,String> impl = implIt.next();
 			
 			// discard if not supported by JRE
-			if (impl.getKey().floatValue() > javaVersion)
+			if (impl.getKey().floatValue() > javaVersion) {
+				this.logger.info(String.format(
+						"Implementation %s skipped because of missing java version %f.",
+						impl.getValue(),
+						impl.getKey()
+				));
 				continue;
+			}
 			
 			try {
-				// display icon
+				// display icon				
 				initUI(context, impl.getValue(), false);
 				this.logger.info("Successfully started bundle using backend '" + impl + "' and " + ((thelisMethod) ? "theli's" : "KoH's") + " method");
 				break;
@@ -115,6 +122,14 @@ public class Activator implements BundleActivator {
 	}
 	
 	private void initUI(BundleContext context, String impl, final boolean thelisMethod) throws Exception {
+		String bundleName = BACKEND_IMPL_ROOT_PACKAGE + '.' + impl;
+		Bundle bundle = findBundle(context, bundleName);
+		if (bundle != null) {
+			this.logger.info(String.format("Using implementation %s ...",impl));
+		} else {
+			this.logger.warn(String.format("Unable to find bundle '%s' for implementation %s. Skipping implementation ...",bundleName, impl));
+			return;
+		}
 		
 		if (impl == IMPL_JDIC) {
 			// copy natives into bundle data folder

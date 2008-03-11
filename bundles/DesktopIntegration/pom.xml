@@ -48,7 +48,8 @@
 							org.paxle.desktop.impl.dialogues
 						</Private-Package>
 						<DynamicImport-Package>
-							javax.swing.*, 
+							javax.swing, 
+							javax.swing.*,
 							sun.awt,
 							sun.awt.X11							
 						</DynamicImport-Package>
