@@ -82,7 +82,7 @@ public class RobotsTxtCleanupThread extends Thread
 			}
 			if (go_on) {
 				try {
-					TimeUnit.MINUTES.sleep(delaytime); 
+					TimeUnit.SECONDS.sleep(delaytime*60); 
 				} catch ( InterruptedException e ) {
 					go_on=false;
 				} 

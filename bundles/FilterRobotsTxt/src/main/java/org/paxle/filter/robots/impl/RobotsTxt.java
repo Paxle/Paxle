@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class RobotsTxt implements Serializable {
-	public static final long RELOAD_INTERVAL_DEFAULT = TimeUnit.DAYS.toMillis(7);
-	public static final long RELOAD_INTERVAL_ERROR = TimeUnit.DAYS.toMillis(1);
-	public static final long RELOAD_INTERVAL_TEMP_ERROR = TimeUnit.HOURS.toMillis(1);
+	public static final long RELOAD_INTERVAL_DEFAULT = TimeUnit.SECONDS.toMillis(7*24*60*60);
+	public static final long RELOAD_INTERVAL_ERROR = TimeUnit.SECONDS.toMillis(1*24*60*60);
+	public static final long RELOAD_INTERVAL_TEMP_ERROR = TimeUnit.SECONDS.toMillis(1*24*60*60);
 	
 	private boolean accessRestricted = false;
 	private String downloadStatus = "200 OK";
