@@ -599,6 +599,20 @@
 		</dependency>
 	</dependencies>
 
+	<profiles>
+		<!-- JRE 6.0 modules -->
+		<profile>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<jdk>1.6</jdk>
+			</activation>
+
+			<modules>
+				<module>../DIJre6Backend</module>
+			</modules>
+		</profile>
+	</profiles>
+
 	<!-- define modules -->
 	<modules>
 		<module>../Root</module>

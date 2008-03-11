@@ -1,0 +1,92 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>DIJre6Backend</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - DesktopIntegration JRE6</name>
+	<url>http://wiki.paxle.net/dev/bundles/DIJre6Backend</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.4.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Fragment-Host>
+							org.paxle.desktop
+						</Fragment-Host>
+						<Bundle-SymbolicName>org.paxle.desktop.backend.impl.jre6</Bundle-SymbolicName>
+						<Import-Package>!*</Import-Package>
+						<Export-Package>!*</Export-Package>
+						<Private-Package>
+							org.paxle.desktop.backend.impl.jre6
+						</Private-Package>
+						<DynamicImport-Package>
+							javax.swing.*, 
+							sun.awt,
+							sun.awt.X11								
+						</DynamicImport-Package>
+						<Bundle-Activator></Bundle-Activator>		
+						<!-- 
+							<Bundle-RequiredExecutionEnvironment>J2SE-1.6</Bundle-RequiredExecutionEnvironment>			
+						 -->
+					</instructions>
+				</configuration>
+			</plugin>
+			
+			<!-- java compiler -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
+			<!-- ensure that a proper java version is installed -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>enforce-java</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireJavaVersion>
+									<version>[1.6.0,)</version>
+								</requireJavaVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>DesktopIntegration</artifactId>
+			<version>${project.version}</version>			
+		</dependency>
+	</dependencies>
+</project>
