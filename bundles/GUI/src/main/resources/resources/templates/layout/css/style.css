@@ -14,7 +14,7 @@ fieldset {
 }
 
 input, textarea {
-    border: 1px solid #9C0000;
+    border: 1px solid #96825F;
     background-color: #FFFFFF;
     padding:2px;
 }
@@ -32,7 +32,7 @@ input:focus, textarea:focus {
     top: 6em;
     left: 0;
 	list-style: none;
-	background-color: #9C0000;
+	background-color: #96825F;
 }
 
 #nav li {
@@ -50,7 +50,7 @@ input:focus, textarea:focus {
 }
 
 #nav li a:hover {
-	background-color: #000000;
+	background-color: #730002;
 }
 
 #main {
@@ -74,8 +74,8 @@ input:focus, textarea:focus {
 }
 
 .box {
-	margin: 1em 0 0 0;
-	padding: 0.5em;
+	margin: 0 0 1ex 0;
+	padding: 0.5ex;
 	background-color: #FFFFFF;
 	color: #000000;
 	border-style: solid;
@@ -94,27 +94,27 @@ input:focus, textarea:focus {
 	margin: 0;
 	padding: 0.5em;
     display: block;
-    background-color: #9C0000;
+    background-color: #96825F;
     color: #FFFFFF;
     text-decoration: none;
 }
 
 .tabs li a.active, .tabs li a:hover {
 	padding-top: 0.5em;
-    background-color: #000000; 
+    background-color: #730002; 
 }
 
 .error {
-	border-color: #FF0000;
+	border-color: #A00000;
 }
 .warning {
-	border-color: #FFFF00;
+	border-color: #A0A000;
 }
 .debug {
-	border-color: #0000FF;
+	border-color: #0000A0;
 }
 .info {
-	border-color: #00FF00;
+	border-color: #00A000;
 }
 .resolved {
 	text-decoration: line-through;
