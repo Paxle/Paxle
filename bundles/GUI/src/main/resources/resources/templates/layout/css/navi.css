@@ -1,0 +1,54 @@
+#global_banner {
+	font-family: "Lucida Grande", Verdana, Lucida, Helvetica, Arial, sans-serif;
+/*	background: url(../../images/cr_header/banner_bg.png) repeat-x;*/
+	background: #730002;
+	height: 30px;
+	min-width: 550px;
+  padding: 0; /* Mantis sets a default padding for divs */
+}
+
+#global_banner #logo {
+	float: left;
+  height: auto; /* Burning Board sets a fixed height for #logo */
+}
+
+#global_banner ul {
+	font-size: 12px;
+	float: right;
+	width: 580px;
+	padding:0;
+	margin:0;
+}
+
+#global_banner ul li {
+	list-style-type: none;
+	float: right;
+	
+}
+
+#global_banner ul li a {
+	display: block;
+	padding: 7px 20px;
+	border-left: 1px solid #adadad;
+	text-decoration: none;
+	text-transform: uppercase;
+	height: 16px;
+	font-weight: bold;
+	color: #fff;
+	text-align: center;
+}
+
+/* #global_banner ul li a:hover {
+	color: #96825F;
+	background: none;
+}*/
+
+#global_banner ul li.active a, #global_banner ul li a:hover {
+	color: #FFF;
+	background-color: #96825F;
+}
+
+body,html {
+	margin: 0;
+	padding: 0;
+}
