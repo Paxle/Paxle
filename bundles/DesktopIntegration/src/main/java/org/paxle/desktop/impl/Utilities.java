@@ -1,6 +1,7 @@
 
 package org.paxle.desktop.impl;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -68,6 +69,7 @@ public class Utilities {
 		urlField.setBorder(null);
 		urlField.setAutoscrolls(true);
 		urlField.setEditable(false);
+		urlField.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		gbc.gridy = 1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.weighty = 0.0;
@@ -79,5 +81,4 @@ public class Utilities {
 		frame.setLocation(Math.max(0, (d.width - frame.getWidth()) / 2), Math.max(0, (d.height - frame.getHeight()) / 2));
 		frame.setVisible(true);
 	}
-
 }

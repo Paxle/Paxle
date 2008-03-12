@@ -88,14 +88,17 @@ public class JdicManager {
 	 * @exception JdicInitException
 	 *                Generic initialization exception
 	 */
-	public void initShareNative() throws JdicInitException {
+	public synchronized void initShareNative() throws JdicInitException {
 		// If the shared native file setting was already initialized,
 		// just return.
 		if (isShareNativeInitialized) {
 			System.out.println("JdicManager INIT");
 			return;
 		}
-
+		
+		Thread.dumpStack();
+		System.out.println("Classloader: " + Thread.currentThread().getContextClassLoader());
+		
 		try {
 //				String runningURL = (new URL(JdicManager.class
 //						.getProtectionDomain().getCodeSource().getLocation(),
@@ -106,22 +109,22 @@ public class JdicManager {
 				
 				String platformPath = runningPath + File.separator + getPlatform();
 				System.out.println("platformPath: " + platformPath);
-				this.jdicStubJarFile = new File(platformPath + File.separator + "jdic_stub.jar");
+				System.out.println("nativeLibPath: " + nativeLibPath);
+				this.jdicStubJarFile = new File(platformPath, "jdic_stub.jar");
 				
 				// nativeLibPath = caculateNativeLibPath(runningPath);
 				// Add the binary path (including jdic.dll or libjdic.so) to
 				// "java.library.path", since we need to use the native methods
 				// in class InitUtility.
-				String newLibPath = nativeLibPath + File.pathSeparator
-						+ System.getProperty("java.library.path");
+				String newLibPath = nativeLibPath + File.pathSeparator + System.getProperty("java.library.path");
 				System.setProperty("java.library.path", newLibPath);
-				Field fieldSysPath = ClassLoader.class
-						.getDeclaredField("sys_paths");
+				Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
 				fieldSysPath.setAccessible(true);
 				if (fieldSysPath != null) {
 					fieldSysPath.set(System.class.getClassLoader(), null);
 				}		
 		} catch (Throwable e) {
+			System.out.println("ERROR occured: " + e);
 			throw new JdicInitException(e);
 		}
 		isShareNativeInitialized = true;
@@ -134,8 +137,7 @@ public class JdicManager {
 	 * @throws JdicInitException
 	 *  
 	 */
-	private String caculateNativeLibPath(String runningPath)
-			throws MalformedURLException, JdicInitException {
+	private String caculateNativeLibPath(String runningPath) throws MalformedURLException, JdicInitException {
 
 		String platformPath = runningPath + File.separator + getPlatform();
 		File jdicStubJarFile = new File(platformPath + File.separator
@@ -145,8 +147,7 @@ public class JdicManager {
 			return runningPath;
 		} else {
 			//cross platform version
-			String architecturePath = platformPath + File.separator
-					+ getArchitecture();
+			String architecturePath = platformPath + File.separator + getArchitecture();
 			ClassLoader cl = getClass().getClassLoader();
 			if (!(cl instanceof URLClassLoader)) {
 				ClassLoader parentCL = Thread.currentThread().getContextClassLoader();
@@ -167,8 +168,7 @@ public class JdicManager {
 				Method addURLMethod = URLClassLoader.class.getDeclaredMethod(
 						"addURL", new Class[] { URL.class });
 				addURLMethod.setAccessible(true);
-				addURLMethod.invoke(urlCl, new Object[] { jdicStubJarFile
-						.toURL() });
+				addURLMethod.invoke(urlCl, new Object[] { jdicStubJarFile.toURL() });
 				return architecturePath;//return the native lib path
 			} catch (Throwable t) {
 				t.printStackTrace();

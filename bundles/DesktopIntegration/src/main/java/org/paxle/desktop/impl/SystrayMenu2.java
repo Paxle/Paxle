@@ -32,16 +32,15 @@ public class SystrayMenu2 implements ActionListener {
 	private static final Class<IMWComponent> MWCOMP_CLASS = IMWComponent.class;
 	private static final String CRAWLER_QUERY = String.format("(%s=org.paxle.crawler)", IMWComponent.COMPONENT_ID);
 	
-	// TODO: change label of crawlprItem according to current crawler-states
 	private static final String CRAWL_PAUSE = "Pause Crawling";
 	private static final String CRAWL_RESUME = "Resume Crawling";
 	
-	private static final String CRAWL = "crawl";
-	private static final String CRAWLPR = "crawlpr";
-	private static final String SEARCH = "search";
-	private static final String BROWSE = "browse";
-	private static final String RESTART = "restart";
-	private static final String QUIT = "quit";
+	private static final String CRAWL = new String();
+	private static final String CRAWLPR = new String();
+	private static final String SEARCH = new String();
+	private static final String BROWSE = new String();
+	private static final String RESTART = new String();
+	private static final String QUIT = new String();
 	
 	private final ServiceManager manager;
 	private final IDIBackend backend;
@@ -92,6 +91,8 @@ public class SystrayMenu2 implements ActionListener {
 		
 		final boolean hasWebui = manager.hasService(HttpService.class) && manager.hasService("org.paxle.gui.IServletManager");
 		browseItem.setEnabled(hasWebui);
+		
+		crawlprItem.setText((crawlersPaused()) ? CRAWL_RESUME : CRAWL_PAUSE);
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -131,6 +132,20 @@ public class SystrayMenu2 implements ActionListener {
 		} catch (BundleException ee) {
 			ee.printStackTrace();
 		}
+	}
+	
+	private boolean crawlersPaused() {
+		try {
+			final IMWComponent<?>[] crawlers = manager.getServices(MWCOMP_CLASS, CRAWLER_QUERY);
+			if (crawlers == null)
+				return false;
+			
+			for (int i=0; i<crawlers.length; i++)
+				if (!crawlers[i].isPaused())
+					return false;
+			return true;
+		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
+		return false;
 	}
 	
 	private void toggleCrawlersPR() {

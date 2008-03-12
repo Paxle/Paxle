@@ -64,10 +64,9 @@
 		</dependency>
 		
 		<dependency>
-			<!-- a special jdic version withouth jdicManager -->
 			<groupId>org.jdesktop.jdic</groupId>
 			<artifactId>jdic</artifactId>
-			<version>20060613</version>			
+			<version>0.9.3</version>			
 		</dependency>	
 	</dependencies>
 </project>

@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Comparator;
@@ -29,13 +28,17 @@ import org.paxle.core.io.IOTools;
  */
 public class Activator implements BundleActivator {
 	
+	private static final Log logger = LogFactory.getLog(Activator.class);
+	
+	static {
+		logger.debug("Loading Activator with class-loader: " + Thread.currentThread().getContextClassLoader());
+	}
+	
 	public static final float NATIVE_JRE_SUPPORT = 1.6f;
 	public static final String BACKEND_IMPL_ROOT_PACKAGE = "org.paxle.desktop.backend.impl";
 	
 	private static final String IMPL_JDIC = "jdic";
 	private static final String IMPL_JRE6 = "jre6";
-	
-	private Log logger = null;
 	
 	/**
 	 * Contains all currently known implementations of the desktop integration backend descendingly
@@ -80,19 +83,18 @@ public class Activator implements BundleActivator {
 	
 	public void start(final BundleContext context) throws Exception {
 		bc = context;
-		this.logger = LogFactory.getLog(this.getClass());
 		
-		final boolean thelisMethod = false;
 		final float javaVersion = getJavaVersion();
-		this.logger.debug(String.format("Detected java version: %f", javaVersion));
+		logger.debug(String.format("Detected java version: %f", Float.valueOf(javaVersion)));
 		
 		final Iterator<Map.Entry<Float,String>> implIt = KNOWN_IMPLS.entrySet().iterator();
+		boolean started = false;
 		while (implIt.hasNext()) {
 			final Map.Entry<Float,String> impl = implIt.next();
 			
 			// discard if not supported by JRE
 			if (impl.getKey().floatValue() > javaVersion) {
-				this.logger.info(String.format(
+				logger.info(String.format(
 						"Implementation %s skipped because of missing java version %f.",
 						impl.getValue(),
 						impl.getKey()
@@ -103,12 +105,15 @@ public class Activator implements BundleActivator {
 			try {
 				// display icon				
 				initUI(context, impl.getValue(), false);
-				this.logger.info("Successfully started bundle using backend '" + impl + "' and " + ((thelisMethod) ? "theli's" : "KoH's") + " method");
+				started = true;
+				logger.info(String.format("Successfully started bundle using backend '%s'", impl));
 				break;
 			} catch (Exception e) {
-				this.logger.error("Error starting bundle using backend '" + impl + "' and " + ((thelisMethod) ? "theli's" : "KoH's") + " method: " + e + " (" + e.getCause() + ")",e);
+				logger.error(String.format("Error starting bundle using backend '%s', Skipping implementation...", impl), e);
 			}
 		}
+		if (!started)
+			logger.error("No backends left, could not start bundle");
 	}
 	
 	public void stop(BundleContext context) throws Exception {
@@ -125,10 +130,9 @@ public class Activator implements BundleActivator {
 		String bundleName = BACKEND_IMPL_ROOT_PACKAGE + '.' + impl;
 		Bundle bundle = findBundle(context, bundleName);
 		if (bundle != null) {
-			this.logger.info(String.format("Using implementation %s ...",impl));
+			logger.info(String.format("Using implementation %s ...",impl));
 		} else {
-			this.logger.warn(String.format("Unable to find bundle '%s' for implementation %s. Skipping implementation ...",bundleName, impl));
-			return;
+			throw new ClassNotFoundException(String.format("Unable to find bundle '%s' for implementation %s, is the bundle resolved?", bundleName, impl));
 		}
 		
 		if (impl == IMPL_JDIC) {
@@ -147,41 +151,36 @@ public class Activator implements BundleActivator {
 			}
 		}
 		
-		if (thelisMethod) {
-			// use DesktopInit object
-			Class<?> init = uiClassLoader.loadClass("org.paxle.desktop.impl.DesktopInit");
-			Constructor<?> initC = init.getConstructor(BundleContext.class, String.class);
-			initObject = initC.newInstance(context, impl);
-			initMethod = init.getMethod("init");
-			shutdownMethod = init.getMethod("shutdown");
-			initMethod.invoke(initObject);
-			
-		} else {
-			// use org.paxle.desktop.backend.*-tree and dialogues.Menu
-			final String diBackendCName = String.format("%s.%s.%s", BACKEND_IMPL_ROOT_PACKAGE, impl, "DIBackend");
-			this.dibackend = uiClassLoader.loadClass(diBackendCName).newInstance();
-			final Class<?> smC = uiClassLoader.loadClass("org.paxle.desktop.impl.ServiceManager");
-			final Object sm = smC.getConstructor(uiClassLoader.loadClass("org.osgi.framework.BundleContext")).newInstance(context);
-			
-			final Class<?> menuC = uiClassLoader.loadClass("org.paxle.desktop.impl.SystrayMenu2");
-			this.shutdownMethod = menuC.getMethod("shutdown");
-			
-			final Class<?> idibackendC = uiClassLoader.loadClass("org.paxle.desktop.backend.IDIBackend");
-			final Class<?> urlC = uiClassLoader.loadClass("java.net.URL");
-			final Object iconUrl = context.getBundle().getResource("/resources/trayIcon.png");
-			this.initObject = menuC.getConstructor(smC, idibackendC, urlC).newInstance(sm, this.dibackend, iconUrl);
-		}
+		// use org.paxle.desktop.backend.*-tree and dialogues.Menu
+		final String diBackendCName = String.format("%s.%s.%s", BACKEND_IMPL_ROOT_PACKAGE, impl, "DIBackend");
+		logger.debug("Loading " + diBackendCName + " using class-loader " + uiClassLoader);
+		
+		this.dibackend = uiClassLoader.loadClass(diBackendCName).newInstance();
+		final Class<?> smC = uiClassLoader.loadClass("org.paxle.desktop.impl.ServiceManager");
+		final Object sm = smC.getConstructor(uiClassLoader.loadClass("org.osgi.framework.BundleContext")).newInstance(context);
+		
+		final Class<?> menuC = uiClassLoader.loadClass("org.paxle.desktop.impl.SystrayMenu2");
+		this.shutdownMethod = menuC.getMethod("shutdown");
+		
+		final Class<?> idibackendC = uiClassLoader.loadClass("org.paxle.desktop.backend.IDIBackend");
+		final Class<?> urlC = uiClassLoader.loadClass("java.net.URL");
+		final Object iconUrl = context.getBundle().getResource("/resources/trayIcon.png");
+		this.initObject = menuC.getConstructor(smC, idibackendC, urlC).newInstance(sm, this.dibackend, iconUrl);
 	}
 	
 	private static Bundle findBundle(BundleContext context, String symbolicName) {
-		for (Bundle b : context.getBundles())
-			if (b.getHeaders().get(Constants.BUNDLE_SYMBOLICNAME).equals(symbolicName))
+		for (Bundle b : context.getBundles()) {
+			final Object bundleSymbolicName = b.getHeaders().get(Constants.BUNDLE_SYMBOLICNAME);
+			final boolean eq = bundleSymbolicName.equals(symbolicName);
+			if (eq)
 				return b;
+		}
 		return null;
 	}
 	
 	@SuppressWarnings("unchecked")
 	private static void copyNatives(BundleContext context) throws IOException {
+		logger.debug("copyNatives(): BundleContext: " + context);
 		Activator.libPath = context.getDataFile("/").getCanonicalPath();
 
 		File libFile = null;
@@ -208,6 +207,6 @@ public class Activator implements BundleActivator {
 				IOTools.copy(libIn,out);
 				out.close();
 			}
-		}		
+		}
 	}
 }
