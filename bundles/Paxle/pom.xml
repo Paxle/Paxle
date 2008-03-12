@@ -638,7 +638,7 @@
 		
 		<!-- GUI bundle -->
 		<module>../GUI</module>
-		
+
 		<!-- some tools -->
 		<module>../CharsetDetector</module>
 		<module>../MimeType</module>
@@ -651,6 +651,9 @@
 		<!-- indexer bundles -->
 		<module>../Indexer</module>
 		<module>../IndexLucene</module>
+		
+		<!-- Sample SearchProvider -->
+		<module>../SEProviderPaxleInfrastructure</module>
 		
 		<!-- datalayer bundles -->
 		<module>../DataLayer</module>
