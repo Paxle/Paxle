@@ -26,7 +26,7 @@ public class HelperClassLoader extends URLClassLoader {
 		Class<?> cls = null;
 		byte[] classByte = null;
 		
-		if (className.startsWith("org.jdesktop.jdic") && !className.equals("org.jdesktop.jdic.init.JdicManager") ||
+		if ((className.startsWith("org.jdesktop.jdic") && !className.equals("org.jdesktop.jdic.init.JdicManager")) ||
 				className.equals("org.paxle.desktop.impl.DesktopInit") ||
 				className.startsWith("org.paxle.desktop")) {
 			
@@ -53,7 +53,7 @@ public class HelperClassLoader extends URLClassLoader {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
 			final String classFile = className.replace('.', '/' /*File.separatorChar*/) + ".class";
-			this.logger.debug("HelperClassLoader: Search for: " + classFile);
+			this.logger.debug("Load: " + classFile + " using " + ((cl == this) ? "this" : "bundle") + " class-loader");
 			final InputStream in = cl.getResourceAsStream(classFile);
 			if (in == null)
 				throw new ClassNotFoundException(classFile);

@@ -95,7 +95,7 @@ public class JdicManager {
 		// If the shared native file setting was already initialized,
 		// just return.
 		if (isShareNativeInitialized) {
-			System.out.println("JdicManager INIT");
+			logger.debug("JdicManager INIT");
 			return;
 		}
 		

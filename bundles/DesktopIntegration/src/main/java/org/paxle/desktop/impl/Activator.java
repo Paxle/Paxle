@@ -110,12 +110,12 @@ public class Activator implements BundleActivator {
 				logger.info(String.format("Successfully started bundle using backend '%s'", impl));
 				break;
 			} catch (Exception e) {
-				logger.error(String.format("Error starting bundle using backend '%s': %s, Skipping implementation...", impl,
+				logger.error(String.format("Error starting bundle using backend '%s': %s Skipping implementation...", impl,
 						(e instanceof InvocationTargetException) ? e.getCause() : e));
 			}
 		}
 		if (!started)
-			logger.error("No backends left, could not start bundle");
+			logger.fatal("No backends left, could not start bundle");
 	}
 	
 	public void stop(BundleContext context) throws Exception {
