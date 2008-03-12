@@ -29,6 +29,8 @@ import java.net.URLClassLoader;
 
 import javax.swing.UIManager;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdesktop.jdic.browser.internal.WebBrowserUtil;
 import org.paxle.desktop.impl.Activator;
 
@@ -59,6 +61,7 @@ public class JdicManager {
 	String nativeLibPath = null;
 	
 	public File jdicStubJarFile = null;
+	private final Log logger = LogFactory.getLog(JdicManager.class);
 
 	/** Singleton instance of this class */
 	private static JdicManager sSingleton = null;
@@ -96,9 +99,10 @@ public class JdicManager {
 			return;
 		}
 		
-		Thread.dumpStack();
-		System.out.println("Classloader: " + Thread.currentThread().getContextClassLoader());
-		
+		if (logger.isDebugEnabled())
+			Thread.dumpStack();
+		logger.debug("Context-Classloader: " + Thread.currentThread().getContextClassLoader());
+		logger.debug("class-Classloader: " + getClass().getClassLoader());
 		try {
 //				String runningURL = (new URL(JdicManager.class
 //						.getProtectionDomain().getCodeSource().getLocation(),
@@ -108,8 +112,8 @@ public class JdicManager {
 				nativeLibPath = runningPath + File.separator + getPlatform() + File.separator + getArchitecture();
 				
 				String platformPath = runningPath + File.separator + getPlatform();
-				System.out.println("platformPath: " + platformPath);
-				System.out.println("nativeLibPath: " + nativeLibPath);
+				logger.debug("platformPath: " + platformPath);
+				logger.debug("nativeLibPath: " + nativeLibPath);
 				this.jdicStubJarFile = new File(platformPath, "jdic_stub.jar");
 				
 				// nativeLibPath = caculateNativeLibPath(runningPath);
@@ -124,7 +128,9 @@ public class JdicManager {
 					fieldSysPath.set(System.class.getClassLoader(), null);
 				}		
 		} catch (Throwable e) {
-			System.out.println("ERROR occured: " + e);
+			logger.error("error initializing shared native libraries: " + e);
+			if (logger.isDebugEnabled())
+				logger.error(e);
 			throw new JdicInitException(e);
 		}
 		isShareNativeInitialized = true;

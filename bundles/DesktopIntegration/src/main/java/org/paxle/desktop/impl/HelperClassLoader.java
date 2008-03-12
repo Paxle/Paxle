@@ -25,8 +25,11 @@ public class HelperClassLoader extends URLClassLoader {
 	public Class<?> loadClass(String className) throws ClassNotFoundException {
 		Class<?> cls = null;
 		byte[] classByte = null;
-		if (className.startsWith("org.jdesktop.jdic") || className.equals("org.paxle.desktop.impl.DesktopInit") ||
-				className.startsWith("org.paxle.desktop")) {	
+		
+		if (className.startsWith("org.jdesktop.jdic") && !className.equals("org.jdesktop.jdic.init.JdicManager") ||
+				className.equals("org.paxle.desktop.impl.DesktopInit") ||
+				className.startsWith("org.paxle.desktop")) {
+			
 			cls = this.classCache.get(className);
 			if (cls != null)
 				return cls;
