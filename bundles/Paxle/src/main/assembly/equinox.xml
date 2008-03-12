@@ -24,6 +24,7 @@
 				<include>org.paxle:MimeType</include>
 				<include>org.paxle:DesktopIntegration</include>
 				<include>org.paxle:DIJdicBackend</include>
+				<include>org.paxle:SEProviderPaxleInfrastructure</include>
 			</includes>
 
 			<binaries>

@@ -24,16 +24,20 @@ public class PaxleInfrastructureSearchProvider implements ISearchProvider {
 			if(request.toLowerCase().equals("paxle wiki")){
 				indexerDoc.set(IIndexerDocument.LOCATION, "http://wiki.paxle.net/");
 				indexerDoc.set(IIndexerDocument.TITLE, "Paxle Wiki");
-				results.add(indexerDoc);
 			}else if(request.toLowerCase().equals("paxle homepage")){
-				indexerDoc.set(IIndexerDocument.LOCATION, "http://wiki.paxle.net/");
+				indexerDoc.set(IIndexerDocument.LOCATION, "http://www2.paxle.net/");
 				indexerDoc.set(IIndexerDocument.TITLE, "Paxle Homepage");
-				results.add(indexerDoc);
 			}else if(request.toLowerCase().equals("paxle forum")){
 				indexerDoc.set(IIndexerDocument.LOCATION, "http://forum.paxle.info/");
 				indexerDoc.set(IIndexerDocument.TITLE, "Paxle Forum");
-				results.add(indexerDoc);
+			}else if(request.toLowerCase().equals("paxle bts")){
+				indexerDoc.set(IIndexerDocument.LOCATION, "http://bugs.paxle.net/");
+				indexerDoc.set(IIndexerDocument.TITLE, "Paxle Bugtracker");
+			}else{
+				indexerDoc=null;
 			}
+			if(indexerDoc!=null)
+				results.add(indexerDoc);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
