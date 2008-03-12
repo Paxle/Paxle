@@ -20,15 +20,19 @@ public class PaxleInfrastructureSearchProvider implements ISearchProvider {
 	public void search(String request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
 		try {
 			IIndexerDocument indexerDoc = new IndexerDocument();
+			System.out.println(request);
 			if(request.toLowerCase().equals("paxle wiki")){
 				indexerDoc.set(IIndexerDocument.LOCATION, "http://wiki.paxle.net/");
 				indexerDoc.set(IIndexerDocument.TITLE, "Paxle Wiki");
+				results.add(indexerDoc);
 			}else if(request.toLowerCase().equals("paxle homepage")){
 				indexerDoc.set(IIndexerDocument.LOCATION, "http://wiki.paxle.net/");
 				indexerDoc.set(IIndexerDocument.TITLE, "Paxle Homepage");
+				results.add(indexerDoc);
 			}else if(request.toLowerCase().equals("paxle forum")){
 				indexerDoc.set(IIndexerDocument.LOCATION, "http://forum.paxle.info/");
 				indexerDoc.set(IIndexerDocument.TITLE, "Paxle Forum");
+				results.add(indexerDoc);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
