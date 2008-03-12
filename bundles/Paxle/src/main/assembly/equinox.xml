@@ -48,6 +48,7 @@
 		</file>	
 		<!-- startup file -->	
 		<file>
+			<fileMode>755</fileMode>
 			<source>src/main/resources/equinox/start.sh</source>
 			<outputDirectory>/</outputDirectory>
 			<filtered>false</filtered>
