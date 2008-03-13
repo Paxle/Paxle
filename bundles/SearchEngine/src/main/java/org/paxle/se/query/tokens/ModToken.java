@@ -1,3 +1,4 @@
+
 package org.paxle.se.query.tokens;
 
 public class ModToken extends AToken {
@@ -16,10 +17,5 @@ public class ModToken extends AToken {
 	
 	public String getMod() {
 		return this.mod;
-	}
-	
-	public String getString() {
-		//throw new RuntimeException("Not supported");
-		return "(" + getClass().getSimpleName() + ") Mod: '" + this.mod + "' & " + this.token.getString();
 	}
 }

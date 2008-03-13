@@ -1,15 +1,15 @@
+
 package org.paxle.se.query;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.paxle.se.query.impl.DebugTokenFactory;
 import org.paxle.se.query.impl.DefaultMods;
-import org.paxle.se.query.impl.InternalSearchPluginManager;
 import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.query.tokens.ModToken;
 import org.paxle.se.query.tokens.AndOperator;
+import org.paxle.se.query.tokens.NotToken;
 import org.paxle.se.query.tokens.OrOperator;
 import org.paxle.se.query.tokens.PlainToken;
 import org.paxle.se.query.tokens.QuoteToken;
@@ -21,8 +21,6 @@ import org.paxle.se.query.tokens.QuoteToken;
  * @see #parse(String)
  */
 public class PaxleQueryParser {
-	
-	public static InternalSearchPluginManager manager = null;
 	
 	/**
 	 * Splits the given query-term on the 'top level' into tokens. Top level means
@@ -172,33 +170,6 @@ public class PaxleQueryParser {
 		return orts.toArray(new String[orts.size()][]);
 	}
 	
-	private final List<ITokenFactory> factories = new ArrayList<ITokenFactory>();
-	
-	public List<ITokenFactory> getTokenFactories() {
-		return this.factories;
-	}
-	
-	public void addTokenFactory(ITokenFactory factory) {
-		if (factory == null)
-			throw new NullPointerException("ITokenFactory is null");
-		this.factories.add(factory);
-	}
-	
-	public void removeTokenFactory(int num) {
-		this.factories.remove(num);
-	}
-	
-	public void clearTokenFactories() {
-		this.factories.clear();
-	}
-	
-	public List<AToken> parse(String query) {
-		final List<AToken> results = new ArrayList<AToken>(this.factories.size());
-		for (final ITokenFactory factory : this.factories)
-			results.add(parse(factory, query));
-		return results;
-	}
-	
 	/**
 	 * Splits the given query-{@link String} into top-level tokens and processes these
 	 * tokens regarding the connection operator. This method recurses indirectly if a
@@ -212,23 +183,21 @@ public class PaxleQueryParser {
 	 * @param  query the paxle-query to process
 	 * @return an {@link IToken} containing all found tokens in <code>query</code>.
 	 */
-	public static AToken parse(ITokenFactory factory, String query) {
-		if (factory == null)
-			throw new IllegalStateException("ITokenFactory is null");
+	public static AToken parse(String query) {
 		final String[] rts = lex(query);
 		if (rts.length == 0) return null;
 		if (rts.length == 1) {
-			return toToken(factory, rts[0]);
+			return toToken(rts[0]);
 		} else {
 			final String[][] aots = categorizeAndOrTokens(rts);
 			if (aots.length == 0) {
 				return null;
 			} else if (aots.length == 1) {
-				return and(factory, aots[0]);
+				return and(aots[0]);
 			} else {
-				final OrOperator or = factory.createOrOperator();
+				final OrOperator or = new OrOperator();
 				for (String[] andts : aots)
-					or.addToken(and(factory, andts));
+					or.addToken(and(andts));
 				return or;
 			}
 		}
@@ -244,16 +213,16 @@ public class PaxleQueryParser {
 	 * @return the resulting {@link IToken} or <code>null</code> if <code>tokens</code> is empty
 	 *         or contains only one invalid token.
 	 */
-	private static AToken and(ITokenFactory factory, String[] tokens) {
+	private static AToken and(String[] tokens) {
 		if (tokens.length == 0) {
 			return null;
 		} else if (tokens.length == 1) {
 			/* only one token so we don't need to create a multi-token here */
-			return toToken(factory, tokens[0]);
+			return toToken(tokens[0]);
 		} else {
-			final AndOperator and = factory.createAndOperator();
+			final AndOperator and = new AndOperator();
 			for (final String t : tokens)
-				and.addToken(parse(factory, t));
+				and.addToken(parse(t));
 			return and;
 		}
 	}
@@ -283,85 +252,85 @@ public class PaxleQueryParser {
 	 * @param  str the {@link String} to parse into a token
 	 * @return the {@link IToken} <code>str</code> has matched the conditions for
 	 */
-	private static AToken toToken(ITokenFactory factory, String str) {
-		if (str.length() > 1) {
-			/* queries or tokens with a length < 2 are not supported */
-			final char first = str.charAt(0);
-			final char last = str.charAt(str.length() - 1);
-			if (first == '-') {
-				/* the NOT operator */
-				final AToken pt = toToken(factory, str.substring(1));
-				if (pt == null) {
-					return null;
-				} else {
-					return factory.toNotToken(pt);
-				}
-			} else if (first == '+') {
-				/* the AND operator, this is the default, so we parse the token again without '+' */
-				return toToken(factory, str.substring(1));
-			} else if (first == '"' && last == '"') {
-				/* a quote-token containing a string of plain text tokens which must occur in this order in the document */
-				final String cnt = str.substring(1, str.length() - 1).trim();
-				if (cnt.length() == 0) {
-					return null;
-				} else if (cnt.indexOf(' ') == -1) {
-					/* no whitespace, so we may also treat it like a plain-token */
-					return factory.toPlainToken(cnt);
-				} else {
-					return factory.toQuoteToken(cnt);
-				}
-			} else if (first == '(' && last == ')') {
-				/* will most-likely result in a multi-token */
-				return parse(factory, str.substring(1, str.length() - 1));
-			}
-		} else {
+	private static AToken toToken(String str) {
+		if (str.length() < 2)
 			return null;
+		
+		/* queries or tokens with a length < 2 are not supported */
+		final char first = str.charAt(0);
+		final char last = str.charAt(str.length() - 1);
+		if (first == '-') {
+			/* the NOT operator */
+			final AToken pt = toToken(str.substring(1));
+			if (pt == null) {
+				return null;
+			} else {
+				return new NotToken(pt);
+			}
+		} else if (first == '+') {
+			/* the AND operator, this is the default, so we parse the token again without '+' */
+			return toToken(str.substring(1));
+		} else if (first == '"' && last == '"') {
+			/* a quote-token containing a string of plain text tokens which must occur in this order in the document */
+			final String cnt = str.substring(1, str.length() - 1).trim();
+			if (cnt.length() == 0) {
+				return null;
+			} else if (cnt.indexOf(' ') == -1) {
+				/* no whitespace, so we may also treat it like a plain-token */
+				return new PlainToken(cnt);
+			} else {
+				return new QuoteToken(cnt);
+			}
+		} else if (first == '(' && last == ')') {
+			/* will most-likely result in a multi-token */
+			return parse(str.substring(1, str.length() - 1));
 		}
 		
 		final int colon = str.indexOf(':');
 		if (colon > 0 && colon < str.length() - 1) {
 			/* this is a so-called 'mod-token', which includes a normal plain-token and some modifier
 			 * selecting where exactly to search for this token */
-			final AToken pt = toToken(factory, str.substring(colon + 1));
+			final AToken pt = toToken(str.substring(colon + 1));
 			final String mod = str.substring(0, colon);
 			if (pt instanceof PlainToken) {
 				/* "supported" mod-token behind ':', so we treat it as a modified token which can be transformed into
 				 * "normal" tokens without deeper knowledge of the search provider's language used */
 				if (DefaultMods.isModSupported(mod)) {
 					/* this is a modifier designated by the paxle query language */
-					return DefaultMods.toToken(factory, (PlainToken)pt, mod);
+					return DefaultMods.toToken((PlainToken)pt, mod);
+					/*
 				} else if (manager != null && manager.isSupported(mod)) {
-					/* this is a modifier defined by an internal search plugin */
-					return manager.getTokenFactory(mod).toToken((PlainToken)pt, mod);
+					/* this is a modifier defined by an internal search plugin *//*
+					return manager.getTokenFactory(mod).toToken((PlainToken)pt, mod); */
 				} else {
 					/* we return it as a plain token because there is no plugin around to handle this modifier */
 					// return new ModToken((PlainToken)pt, mod);
-					return factory.toPlainToken(str);
+					return new PlainToken(str);
 				}
 			} else {
 				/* the user entered something like 'title:(this OR that)', so the part behind ':'
 				 * is not a plain-token but a multi-token, which is not supported by the paxle query parser atm.
 				 * because we would have to split the multi-token behind into multiple mod-tokens.
 				 * some db-backends don't support statements like WHERE 'title' = (`this` or `that`) */
-				return factory.toPlainToken(str);
+				return new PlainToken(str);
 			}
 		} else if (str.equalsIgnoreCase("and") || str.equalsIgnoreCase("or")) {
 			/* operators in search queries with multiple tokens should have been removed already
 			 * if this is a search query with only a single token we can not do much with an operator ;) */
 			return null;
 		} else {
-			return factory.toPlainToken(str);
+			return new PlainToken(str);
 		}
 	}
 	
 	public static void main(String[] args) {
 		final String sb = "blubb -\"bla blubb\" +author:\"dies hier\" (ist or hat or \"denkt sich\" and so) ein text -mit (\"leeren zeichen\" or title:leerzeichen) \"ne?!  \"";
-		//                 01234567 8901234567 890123456789012345 67890123456 789012345678901234567890 123456789012345 678901234567890123456789 0123456 7
-		//                 0          1          2         3          4          5         6         7          8          9         0          1
+		//                 0123456 7890123456 7890123456 7890123456 78901234567890123 45678901234 5678901234567890123456789 012345678901234 567890123456789012345678 9012345 6
+		//                 0          1          2          3          4         5          6          7         8          9         0          1         2          3
 		//System.out.println(findMatching(sb, 24));
 		//System.out.println(findMatching(sb, 6));
 		
-		System.out.println(parse(new DebugTokenFactory(), sb).getString());
+		System.out.println(IQueryFactory.transformToken(parse(sb), new DebugTokenFactory()));
 		
 		/*
 		String[] ss = lex(sb);

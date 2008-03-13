@@ -1,3 +1,4 @@
+
 package org.paxle.se.search.impl;
 
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.concurrent.Callable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
 import org.paxle.se.search.ISearchRequest;
 import org.paxle.se.search.ISearchResult;
@@ -29,9 +31,9 @@ public class SearchProviderCallable implements Callable<ISearchResult> {
 	
 	public ISearchResult call() throws Exception {
 		final long start = System.currentTimeMillis();
-		String query = null;
+		AToken query = null;
 		try {
-			query = this.searchRequest.getSearchQuery().getString();
+			query = this.searchRequest.getSearchQuery();
 			this.logger.info("starting search for '" + query + "' (" + this.searchRequest.getSearchQuery().toString() + ")");			
 			this.provider.search(
 					query, 

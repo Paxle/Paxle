@@ -1,85 +1,58 @@
-package org.paxle.se.index.lucene.impl;
 
-import java.util.Collection;
-import java.util.Iterator;
+package org.paxle.se.index.lucene.impl;
 
 import org.apache.lucene.queryParser.QueryParser;
 
 import org.paxle.core.doc.Field;
-import org.paxle.se.query.ITokenFactory;
+import org.paxle.se.query.IQueryFactory;
 import org.paxle.se.query.tokens.AToken;
-import org.paxle.se.query.tokens.FieldToken;
-import org.paxle.se.query.tokens.NotToken;
-import org.paxle.se.query.tokens.AndOperator;
-import org.paxle.se.query.tokens.OrOperator;
-import org.paxle.se.query.tokens.PlainToken;
-import org.paxle.se.query.tokens.QuoteToken;
 
-public class LuceneTokenFactory implements ITokenFactory {
+public class LuceneTokenFactory extends IQueryFactory<String> {
 	
-	private static String getOperatorString(Collection<AToken> children, String str) {
+	private String getOperatorString(AToken[] children, String str) {
 		final StringBuilder sb = new StringBuilder();
 		sb.append('(');
-		final Iterator<AToken> it = children.iterator();
-		while (it.hasNext()) {
-			sb.append(it.next().getString());
-			if (it.hasNext())
+		for (int i=0; i<children.length; i++) {
+			sb.append(transformToken(children[i], this));
+			if (i + 1 < children.length)
 				sb.append(' ').append(str).append(' ');
 		}
 		return sb.append(')').toString();
 	}
 	
-	public AndOperator createAndOperator() {
-		return new AndOperator() {
-			@Override
-			public String getString() {
-				return LuceneTokenFactory.getOperatorString(super.children, "AND");
-			}
-		};
+	@Override
+	public String and(AToken[] token) {
+		return getOperatorString(token, "AND");
 	}
 	
-	public OrOperator createOrOperator() {
-		return new OrOperator() {
-			@Override
-			public String getString() {
-				return LuceneTokenFactory.getOperatorString(super.children, "OR");
-			}
-		};
+	@Override
+	public String field(AToken token, Field<?> field) {
+		return field.getName() + ':' + transformToken(token, this);
 	}
 	
-	public FieldToken toFieldToken(PlainToken token, Field<?> field) {
-		return new FieldToken(token, field) {
-			@Override
-			public String getString() {
-				return super.field.getName() + ':' + super.token.getString();
-			}
-		};
+	@Override
+	public String mod(AToken token, String mod) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
-	public NotToken toNotToken(AToken token) {
-		return new NotToken(token) {
-			@Override
-			public String getString() {
-				return '-' + super.token.getString();
-			}
-		};
+	@Override
+	public String not(AToken token) {
+		return '-' + transformToken(token, this);
 	}
 	
-	public PlainToken toPlainToken(String str) {
-		return new PlainToken(str) {
-			@Override
-			public String getString() {
-				return QueryParser.escape(super.str);
-			}
-		};
+	@Override
+	public String or(AToken[] token) {
+		return getOperatorString(token, "OR");
 	}
 	
-	public QuoteToken toQuoteToken(String str) {
-		return new QuoteToken(str) {
-			@Override
-			public String getString() {
-				return '"' + QueryParser.escape(super.str) + '"';
-			}
-		};
+	@Override
+	public String plain(String str) {
+		return QueryParser.escape(str);
+	}
+	
+	@Override
+	public String quote(String str) {
+		return '"' + QueryParser.escape(str) + '"';
 	}
 }

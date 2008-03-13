@@ -1,8 +1,9 @@
+
 package org.paxle.se.query.tokens;
 
 import org.paxle.core.doc.Field;
 
-public abstract class FieldToken extends AToken {
+public class FieldToken extends AToken {
 	
 	protected final Field<?> field;
 	protected final AToken token;
@@ -10,6 +11,14 @@ public abstract class FieldToken extends AToken {
 	public FieldToken(AToken token, Field<?> field) {
 		this.token = token;
 		this.field = field;
+	}
+	
+	public AToken getToken() {
+		return token;
+	}
+	
+	public Field<?> getField() {
+		return field;
 	}
 	
 	@Override

@@ -1,3 +1,4 @@
+
 package org.paxle.se.query.tokens;
 
 public abstract class AToken {
@@ -11,6 +12,4 @@ public abstract class AToken {
 	public MultiToken getParent() {
 		return this.parent;
 	}
-	
-	public abstract String getString();
 }

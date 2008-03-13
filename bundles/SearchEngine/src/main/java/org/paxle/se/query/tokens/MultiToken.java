@@ -1,9 +1,10 @@
+
 package org.paxle.se.query.tokens;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public abstract class MultiToken extends AToken implements Iterable<AToken> {
+abstract class MultiToken extends AToken implements Iterable<AToken> {
 	
 	protected class MTIterator implements Iterator<AToken> {
 		
@@ -31,6 +32,10 @@ public abstract class MultiToken extends AToken implements Iterable<AToken> {
 	
 	public MultiToken(String name) {
 		this.str = name;
+	}
+	
+	public String getString() {
+		return str;
 	}
 	
 	public void addToken(AToken child) {

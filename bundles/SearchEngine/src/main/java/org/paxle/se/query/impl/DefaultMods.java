@@ -1,3 +1,4 @@
+
 package org.paxle.se.query.impl;
 
 import java.util.Hashtable;
@@ -5,7 +6,6 @@ import java.util.Map;
 
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.se.query.ITokenFactory;
 import org.paxle.se.query.tokens.FieldToken;
 import org.paxle.se.query.tokens.PlainToken;
 
@@ -25,7 +25,7 @@ public class DefaultMods {
 		return fieldMods.containsKey(mod);
 	}
 	
-	public static FieldToken toToken(ITokenFactory factory, PlainToken token, String modifier) {
-		return factory.toFieldToken(token, fieldMods.get(modifier));
+	public static FieldToken toToken(PlainToken token, String modifier) {
+		return new FieldToken(token, fieldMods.get(modifier));
 	}
 }

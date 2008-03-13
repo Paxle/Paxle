@@ -15,7 +15,8 @@ import org.apache.lucene.search.Query;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneSearcher;
-import org.paxle.se.query.ITokenFactory;
+import org.paxle.se.query.IQueryFactory;
+import org.paxle.se.query.tokens.AToken;
 
 public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	
@@ -30,11 +31,11 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	/**
 	 * TODO: how to handle the timeout properly?
 	 */
-	public void search(String request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException {
+	public void search(AToken request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException {
 		final QueryParser queryParser = new QueryParser(IIndexerDocument.TEXT.getName(), new StandardAnalyzer());
 		final Query query;
 		try {
-			query = queryParser.parse(request);
+			query = queryParser.parse(IQueryFactory.transformToken(request, ltf));
 		} catch (org.apache.lucene.queryParser.ParseException e) {
 			throw new IndexException("error parsing query string '" + request + "'", e);
 		}
@@ -69,10 +70,6 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	
 	public void close() throws IOException {
 		this.manager.close();
-	}
-	
-	public ITokenFactory getTokenFactory() {
-		return this.ltf;
 	}
 	
 	public int getDocCount() throws IOException {

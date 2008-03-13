@@ -1,3 +1,4 @@
+
 package org.paxle.se.search.impl;
 
 import java.io.IOException;
@@ -15,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxle.se.query.ITokenFactory;
 import org.paxle.se.query.PaxleQueryParser;
 import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
@@ -28,7 +28,6 @@ public class SearchProviderManager implements ISearchProviderManager {
 	
 	private final ExecutorService execService;
 	private final List<ISearchProvider> providers = new ArrayList<ISearchProvider>();
-	private final PaxleQueryParser pqp = new PaxleQueryParser();
 	private final Log logger = LogFactory.getLog(SearchProviderManager.class);
 	
 	public SearchProviderManager() {
@@ -38,26 +37,19 @@ public class SearchProviderManager implements ISearchProviderManager {
 	Integer addProvider(ISearchProvider provider) {
 		final int ret = this.providers.size();
 		
-		ITokenFactory tokenFactory = provider.getTokenFactory();
-		if (tokenFactory == null) {
-			this.logger.error(String.format("Search-provider '%s' does not provide a TokenFactory.",provider.getClass().getName()));
-			return null;
-		} else {
-			this.logger.info("added search provider: " + provider.getClass().getName());
-			this.providers.add(provider);
-			this.pqp.addTokenFactory(tokenFactory);
-			
-			// return provider number
-			return Integer.valueOf(ret);
-		}
+		this.logger.info("added search provider: " + provider.getClass().getName());
+		this.providers.add(provider);
+		
+		// return provider number
+		return Integer.valueOf(ret);
 	}
 	
 	void removeProvider(int number) {
 		final ISearchProvider provider = this.providers.remove(number);
 		this.logger.info("removed search provider: " + provider.getClass().getName());
-		this.pqp.removeTokenFactory(number);
+		// this.pqp.removeTokenFactory(number);
 	}
-		
+	
 	/**
 	 * @see ISearchProviderManager#getSearchProviders()
 	 */
@@ -71,7 +63,7 @@ public class SearchProviderManager implements ISearchProviderManager {
 		this.execService.shutdown();
 		this.logger.debug("searches finished, cleaning up...");
 		this.providers.clear();
-		this.pqp.clearTokenFactories();
+		// this.pqp.clearTokenFactories();
 		this.logger.info("shutdown complete");
 	}
 	
@@ -84,11 +76,13 @@ public class SearchProviderManager implements ISearchProviderManager {
 	public void search(String paxleQuery, int maxResults, long timeout, ISearchResultCollector results) throws InterruptedException, ExecutionException {
 		final CompletionService<ISearchResult> execCompletionService = new ExecutorCompletionService<ISearchResult>(this.execService);
 		
-		final List<AToken> queries = this.pqp.parse(paxleQuery);
+		// final List<AToken> queries = this.pqp.parse(paxleQuery);
+		final AToken query = PaxleQueryParser.parse(paxleQuery);
 		
 		int n = providers.size();
 		for (int i=0; i<n; i++) {
-			final ISearchRequest searchRequest = new SearchRequest(queries.get(i), maxResults, timeout);
+			// final ISearchRequest searchRequest = new SearchRequest(queries.get(i), maxResults, timeout);
+			final ISearchRequest searchRequest = new SearchRequest(query, maxResults, timeout);
 			execCompletionService.submit(new SearchProviderCallable(this.providers.get(i), searchRequest));
 		}
 		

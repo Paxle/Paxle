@@ -1,12 +1,14 @@
+
 package org.paxle.se.search;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.se.query.ITokenFactory;
+import org.paxle.se.query.tokens.AToken;
 
 public interface ISearchProvider {
+	
 	/**
 	 * 
 	 * @param request the query string
@@ -16,7 +18,5 @@ public interface ISearchProvider {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public void search(String request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException;
-	
-	public ITokenFactory getTokenFactory();
+	public void search(AToken request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException;
 }

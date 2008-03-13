@@ -1,6 +1,7 @@
+
 package org.paxle.se.query.tokens;
 
-public abstract class AndOperator extends MultiToken {
+public class AndOperator extends MultiToken {
 	
 	public AndOperator() {
 		super("and");
