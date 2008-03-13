@@ -1,12 +1,9 @@
 package org.paxle.se.provider.socialbookmarks.impl;
-import java.net.URL;
+import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-
-import de.nava.informa.core.ChannelIF;
-import de.nava.informa.impl.basic.ChannelBuilder;
-import de.nava.informa.parsers.FeedParser;
+import org.paxle.se.search.ISearchProvider;
 
 public class Activator implements BundleActivator {
 
@@ -21,13 +18,11 @@ public class Activator implements BundleActivator {
 	 */		
 	public void start(BundleContext context) throws Exception {
 		bc = context;
+		
+		ISearchProvider deliciousProvider = new DeliciousSearchProvider();
+		bc.registerService(ISearchProvider.class.getName(), deliciousProvider, new Hashtable<String,String>());
 
-        // creating a channel-builder
-        ChannelBuilder builder = new ChannelBuilder();   
         
-        // parsing the rss/atom feed
-        ChannelIF channel = FeedParser.parse(builder, new URL("http://sourceforge.net/export/rss2_projnews.php?group_id=52620"));
-        System.out.println("fertig");
 	}
 
 	/**
