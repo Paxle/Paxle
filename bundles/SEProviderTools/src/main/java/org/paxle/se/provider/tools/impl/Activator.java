@@ -20,7 +20,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		bc = context;
 
-		ISearchProvider provider = new ToolsSearchProvider();
+		ISearchProvider provider = new DictSearchProvider();
 		bc.registerService(ISearchProvider.class.getName(), provider, new Hashtable<String,String>());
 	}
 
