@@ -8,6 +8,7 @@ import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -133,15 +134,8 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 				}
 			} catch (MalformedURLException ee) { ee.printStackTrace(); }
 			
-		} else try {
-			if (cmd == RESTART) {
-				this.manager.restartFramework();
-				
-			} else if (cmd == QUIT) {
-				this.manager.shutdownFramework();
-			}
-		} catch (BundleException ee) {
-			ee.printStackTrace();
+		} else if (cmd == RESTART || cmd == QUIT) {
+			SwingUtilities.invokeLater(new ShutdownRunnable(cmd == RESTART));
 		}
 	}
 	
@@ -187,6 +181,27 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 		if (port == null)
 			return null;
 		return String.format("http://localhost:%s%s", port, path);
+	}
+	
+	private class ShutdownRunnable implements Runnable {
+		
+		private final boolean restart;
+		
+		public ShutdownRunnable(final boolean restart) {
+			this.restart = restart;
+		}
+		
+		public void run() {
+			try {
+				if (restart) {
+					manager.shutdownFramework();
+				} else {
+					manager.restartFramework();
+				}
+			} catch (BundleException e) {
+				logger.error("error " + ((restart) ? "restarting" : "shutting down") + " framework", e);
+			}
+		}
 	}
 	
 	private class SearchFinally extends AFinally {
