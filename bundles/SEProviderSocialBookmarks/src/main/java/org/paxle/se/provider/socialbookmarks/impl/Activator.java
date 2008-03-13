@@ -21,7 +21,8 @@ public class Activator implements BundleActivator {
 		
 		ISearchProvider deliciousProvider = new DeliciousSearchProvider();
 		bc.registerService(ISearchProvider.class.getName(), deliciousProvider, new Hashtable<String,String>());
-
+		ISearchProvider mrwongProvider = new MrwongSearchProvider();
+		bc.registerService(ISearchProvider.class.getName(), mrwongProvider, new Hashtable<String,String>());
         
 	}
 
