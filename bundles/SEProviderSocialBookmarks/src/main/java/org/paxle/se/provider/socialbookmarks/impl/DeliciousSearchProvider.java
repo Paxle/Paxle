@@ -3,6 +3,7 @@ package org.paxle.se.provider.socialbookmarks.impl;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -25,21 +26,13 @@ public class DeliciousSearchProvider implements ISearchProvider {
 		return new PaxleInfrastructureTokenFactor();
 	}
 	
-	private String joinWords(String[] words){
-		String phrase="";
-		for(int i=1;i<words.length-1;i++)
-			phrase+=words[i]+" ";
-		phrase+=words[words.length-1];
-		return phrase;
-	}
-	
 	public void search(String request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
 		try {
 			//creating a channel-builder
 	        ChannelBuilder builder = new ChannelBuilder();   
 	        
 	        // parsing the rss/atom feed
-	        ChannelIF channel = FeedParser.parse(builder, new URL("http://del.icio.us/rss/tag/"+request));
+	        ChannelIF channel = FeedParser.parse(builder, new URL("http://del.icio.us/rss/tag/"+URLEncoder.encode(request)));
 	        Collection<Item> items = channel.getItems();
 	        Iterator<Item> it=items.iterator();
 	        int count=0;
