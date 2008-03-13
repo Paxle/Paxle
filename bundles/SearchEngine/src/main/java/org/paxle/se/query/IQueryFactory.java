@@ -11,7 +11,7 @@ import org.paxle.se.query.tokens.PlainToken;
 
 public abstract class IQueryFactory<R> {
 	
-	public static <R,QT extends IQueryFactory<R>> R transformToken(final AToken token, final IQueryFactory<R> factory) {
+	public static <R> R transformToken(final AToken token, final IQueryFactory<R> factory) {
 		if (token instanceof AndOperator) {
 			final AndOperator op = (AndOperator)token;
 			return factory.and(op.children());

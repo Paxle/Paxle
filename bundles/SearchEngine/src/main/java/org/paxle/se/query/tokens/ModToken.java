@@ -18,4 +18,9 @@ public class ModToken extends AToken {
 	public String getMod() {
 		return this.mod;
 	}
+	
+	@Override
+	public String toString() {
+		return "(" + getClass().getSimpleName() + ") Mod: '" + this.mod + "' & " + this.token.getString();
+	}
 }
