@@ -110,8 +110,16 @@ public class Activator implements BundleActivator {
 				logger.info(String.format("Successfully started bundle using backend '%s'", impl));
 				break;
 			} catch (Exception e) {
-				logger.error(String.format("Error starting bundle using backend '%s': %s Skipping implementation...", impl,
-						(e instanceof InvocationTargetException) ? e.getCause() : e));
+				final Throwable ex = (e instanceof InvocationTargetException) ? e.getCause() : e;
+				final String cause =
+					(ex instanceof UnsupportedOperationException) ? "Java claims your system to not support the system-tray." :
+					ex.toString();
+				final String err = String.format("Error starting bundle using backend '%s': %s Skipping implementation...", impl, cause);
+				if (logger.isDebugEnabled()) {
+					logger.error(err, ex);
+				} else {
+					logger.error(err);
+				}
 			}
 		}
 		if (!started)
@@ -147,6 +155,7 @@ public class Activator implements BundleActivator {
 			jdicManagerC.getMethod("initShareNative").invoke(jdicManager);
 			
 			if (!(uiClassLoader instanceof HelperClassLoader)) {
+				logger.debug("Wrapping the classloader into a HelperClassLoader for JDIC classes");
 				final File jdicStubJarFile = (File)jdicManagerC.getField("jdicStubJarFile").get(jdicManager);
 				final URL[] helperClassloaderURLs = { jdicStubJarFile.toURI().toURL() };
 				uiClassLoader = new HelperClassLoader(helperClassloaderURLs, uiClassLoader);

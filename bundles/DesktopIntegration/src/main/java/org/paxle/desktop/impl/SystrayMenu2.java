@@ -8,7 +8,11 @@ import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.http.HttpService;
@@ -24,11 +28,10 @@ import org.paxle.desktop.backend.tray.ITrayIcon;
 import org.paxle.desktop.impl.dialogues.AFinally;
 import org.paxle.desktop.impl.dialogues.SmallDialog;
 
-public class SystrayMenu2 implements ActionListener {
+public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	
 	private static final Class<IDataSink> CRAWLER_SINK_CLASS = IDataSink.class;
 	private static final String CRAWLER_SINK_QUERY = "(org.paxle.core.data.IDataSink.id=org.paxle.crawler.sink)";
-	// private static final Class<ISearchProviderManager> SEARCHER_CLASS = ISearchProviderManager.class;
 	private static final Class<IMWComponent> MWCOMP_CLASS = IMWComponent.class;
 	private static final String CRAWLER_QUERY = String.format("(%s=org.paxle.crawler)", IMWComponent.COMPONENT_ID);
 	
@@ -42,6 +45,7 @@ public class SystrayMenu2 implements ActionListener {
 	private static final String RESTART = new String();
 	private static final String QUIT = new String();
 	
+	private final Log logger = LogFactory.getLog(SystrayMenu2.class);
 	private final ServiceManager manager;
 	private final IDIBackend backend;
 	private final ITrayIcon ti;
@@ -67,19 +71,26 @@ public class SystrayMenu2 implements ActionListener {
 				null,
 				this.restartItem 	= backend.createMenuItem("Restart", 		RESTART, 	this),
 				this.quitItem 		= backend.createMenuItem("Quit", 			QUIT, 		this));
-		refresh();
+		pm.addPopupMenuListener(this);
 		
 		this.ti = backend.createTrayIcon(new ImageIcon(iconResource), "Paxle Tray", pm);
 		backend.getSystemTray().add(this.ti);
 	}
 	
+	public void popupMenuCanceled(PopupMenuEvent e) { /* ignore */ }
+	public void popupMenuWillBecomeInvisible(PopupMenuEvent e) { /* ignore */ }
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		logger.debug("popup becomes visible, refreshing menu-items");
+		refresh();
+	}
+	
 	public void shutdown() {
+		logger.debug("removing systray icon");
 		this.backend.getSystemTray().remove(this.ti);
+		logger.debug("removed systray icon successfully");
 	}
 	
 	private void refresh() {
-		// XXX: instead of polling should this be implemented as a filter?
-		// TODO: refresh on displaying popup-menu
 		try {
 			final boolean hasCrawler = manager.hasService(MWCOMP_CLASS, CRAWLER_QUERY);
 			crawlItem.setEnabled(hasCrawler);

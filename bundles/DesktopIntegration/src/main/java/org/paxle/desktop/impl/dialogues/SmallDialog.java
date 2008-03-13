@@ -23,11 +23,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
+import org.paxle.desktop.impl.Utilities;
+
 public class SmallDialog extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private static final Dimension dialogDim = new Dimension(500, 26);
+	private static final Dimension DIALOG_DIMENSION = new Dimension(500, 26);
 	
 	private class DWindowListener extends WindowAdapter {
 		@Override
@@ -90,7 +92,7 @@ public class SmallDialog extends JFrame {
 		super.setAlwaysOnTop(true);
 		super.setUndecorated(true);
 		super.addWindowListener(new DWindowListener());
-		super.setSize(dialogDim);
+		super.setSize(DIALOG_DIMENSION);
 		super.getRootPane().setDefaultButton(this.btn);
 		this.af = af;
 		
@@ -102,6 +104,8 @@ public class SmallDialog extends JFrame {
 		
 		this.btn.addActionListener(new BtnListener());
 		this.text.addKeyListener(new TextListener());
+		
+		Utilities.centerOnScreen(this, DIALOG_DIMENSION.width, DIALOG_DIMENSION.height);
 	}
 	
 	public SmallDialog(AFinally af, String labelText, String buttonText) {
@@ -137,14 +141,14 @@ public class SmallDialog extends JFrame {
 		
 		if (iconx > screen.width / 2) {
 			xoff *= -1;
-			x = iconx - dialogDim.width;
+			x = iconx - DIALOG_DIMENSION.width;
 		} else {
 			x = 0;
 		}
 		
 		if (icony > screen.height / 2) {
 			yoff = -genOff;
-			y = icony - dialogDim.height;
+			y = icony - DIALOG_DIMENSION.height;
 		} else {
 			y = 0;
 		}

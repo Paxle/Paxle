@@ -1,6 +1,7 @@
 
 package org.paxle.desktop.impl;
 
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -70,6 +71,7 @@ public class Utilities {
 		urlField.setAutoscrolls(true);
 		urlField.setEditable(false);
 		urlField.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+		urlField.select(0, url.length());
 		gbc.gridy = 1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.weighty = 0.0;
@@ -77,8 +79,16 @@ public class Utilities {
 		
 		frame.setContentPane(panel);
 		frame.pack();
-		final Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		frame.setLocation(Math.max(0, (d.width - frame.getWidth()) / 2), Math.max(0, (d.height - frame.getHeight()) / 2));
+		centerOnScreen(frame);
 		frame.setVisible(true);
+	}
+	
+	public static void centerOnScreen(final Component component) {
+		centerOnScreen(component, component.getWidth(), component.getHeight());
+	}
+	
+	public static void centerOnScreen(final Component component, final int compWidth, final int compHeight) {
+		final Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+		component.setLocation(Math.max(0, (d.width - compWidth) / 2), Math.max(0, (d.height - compHeight) / 2));
 	}
 }
