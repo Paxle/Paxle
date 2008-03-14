@@ -42,16 +42,4 @@ public class PaxleNumberTools extends NumberTools {
 			sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();
 	}
-	
-	public static void main(String[] args) {
-		int num = 1156 * 256 + 255;
-		byte[] d = toBytes(num);
-		System.out.println(toBinaryString(d, true));
-		int t = (int)toLong(d);
-		System.out.println(t);
-		/*
-		System.out.println(toString(fill(t)));
-		System.out.println(Long.toBinaryString(num));*/
-		System.out.println(num);
-	}
 }
