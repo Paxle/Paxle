@@ -1,0 +1,11 @@
+# Example file from Robots.txt filter testing
+
+User-agent: *
+Disallow:
+
+User-agent: agent1
+Disallow: /
+
+User-agent: paxle
+Disallow: /secret/
+

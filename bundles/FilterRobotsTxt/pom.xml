@@ -43,7 +43,8 @@
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
-							commons-cache;scope=compile|runtime
+							ehcache;scope=compile|runtime,
+							backport-util-concurrent;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
@@ -65,9 +66,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-cache</artifactId>
-			<version>20070912-SNAPSHOT</version>
+		    <groupId>net.sf.ehcache</groupId>
+		    <artifactId>ehcache</artifactId>
+		    <version>1.4.1</version>
 		</dependency>
+		 <dependency>
+		    <groupId>backport-util-concurrent</groupId>
+		    <artifactId>backport-util-concurrent</artifactId>
+		    <version>3.1</version>
+		</dependency>
+		
 	</dependencies>
 </project>

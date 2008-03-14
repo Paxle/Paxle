@@ -22,17 +22,16 @@ import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.cache.Cache;
-import org.apache.commons.cache.EvictionPolicy;
-import org.apache.commons.cache.GroupMap;
-import org.apache.commons.cache.LRUEvictionPolicy;
-import org.apache.commons.cache.MemoryStash;
-import org.apache.commons.cache.SimpleCache;
-import org.apache.commons.cache.StashPolicy;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class RobotsTxtManager {
+	private static final String ROBOTS_AGENT_PAXLE = "paxle";
+
 	private static final int CACHE_SIZE = 1000;
 	
 	/**
@@ -51,6 +50,11 @@ public class RobotsTxtManager {
 	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
+	 * The cachemanager to use
+	 */
+	private CacheManager manager = null;
+	
+	/**
 	 * A cach to hold {@link RobotsTxt} objects in memory
 	 */
 	private Cache cache = null;
@@ -64,12 +68,31 @@ public class RobotsTxtManager {
 	 * @param path the path where the {@link RobotsTxt} objects should be stored
 	 */
 	public RobotsTxtManager(File path) {
-		LRUEvictionPolicy ep = new LRUEvictionPolicy();
-		this.cache = new SimpleCache(new MemoryStash(CACHE_SIZE), (EvictionPolicy)ep, (StashPolicy)null, (GroupMap)null, (File)null);
+		// configure path where serialized robots-txt objects should be stored
 		this.path = path;
 		if (!this.path.exists()) this.path.mkdirs();
+		
+		// configure caching manager
+		this.manager = new CacheManager();
+		this.cache = new Cache("robotsTxtCache", CACHE_SIZE, false, false, 60*60, 30*60);
+		manager.addCache(this.cache);
+	}
+	
+	public void terminate() {
+		// clear cache
+		this.manager.clearAll();
+		
+		// unregiser cache
+		this.manager.removalAll();
+		
+		// shutdown cache manager
+		this.manager.shutdown();
 	}
 
+	Cache getCache() {
+		return this.cache;
+	}
+	
 	/**
 	 * @param location the URL
 	 * @return the hostname:port part of the location
@@ -104,7 +127,7 @@ public class RobotsTxtManager {
 	 * @return the parsed robots.txt file as a {@link RobotsTxt}-object
 	 * @throws IOException
 	 */
-	private RobotsTxt parseRobotsTxt(String robotsUrlStr) throws IOException {
+	RobotsTxt parseRobotsTxt(String robotsUrlStr) throws IOException {
 		String hostPort = this.getHostPort(robotsUrlStr);
 		URL robotsURL = new URL(robotsUrlStr);
 
@@ -167,7 +190,7 @@ public class RobotsTxtManager {
 	 * @return the {@link RobotsTxt} object. 
 	 * @throws IOException
 	 */
-	private RobotsTxt parseRobotsTxt(RobotsTxt robotsTxt, InputStream inputStream) throws IOException {
+	RobotsTxt parseRobotsTxt(RobotsTxt robotsTxt, InputStream inputStream) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));		
 		RuleBlock currentBlock = null;
 
@@ -247,32 +270,35 @@ public class RobotsTxtManager {
 		try {
 			synchronized (hostPort.intern()) {
 				// trying to get the robots.txt from cache
-				robotsTxt = (RobotsTxt) this.cache.retrieve(hostPort);
+				Element element = this.cache.get(hostPort);
+				if (element != null) robotsTxt = (RobotsTxt) element.getValue();
 
 				// trying to get the robots.txt from file
 				if (robotsTxt == null) {
 					robotsTxt = this.loadRobotsTxt(hostPort);
 					if (robotsTxt != null) {
-						this.cache.store(hostPort, robotsTxt, robotsTxt.getExpirationDate().getTime(), null);
+						element = new Element(hostPort, robotsTxt);
+						this.cache.put(element);
 					}
 				}
 
 				// trying to download the robots.txt
 				if (robotsTxt == null || (System.currentTimeMillis() - robotsTxt.getLoadedDate().getTime() > robotsTxt.getReloadInterval())) {				
 					robotsTxt = this.parseRobotsTxt("http://" + hostPort + "/robots.txt");
-					this.cache.store(hostPort, robotsTxt, robotsTxt.getExpirationDate().getTime(), null);
+					element = new Element(hostPort, robotsTxt);
+					this.cache.put(element);
 					this.storeRobotsTxt(robotsTxt);
 				}
 			}
 
-			return robotsTxt.isDisallowed("paxle", this.getPath(location));
+			return robotsTxt.isDisallowed(ROBOTS_AGENT_PAXLE, this.getPath(location));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		}
 	}
 
-	private void storeRobotsTxt(RobotsTxt robotsTxt) {
+	void storeRobotsTxt(RobotsTxt robotsTxt) {
 		ObjectOutputStream oos = null;
 		try {
 			// getting the host:port string
@@ -296,7 +322,7 @@ public class RobotsTxtManager {
 	 * @param hostPort
 	 * @return
 	 */
-	private RobotsTxt loadRobotsTxt(String hostPort) {
+	RobotsTxt loadRobotsTxt(String hostPort) {
 		ObjectInputStream ois = null;
 		File robotsTxtFile = null;
 		try {

@@ -8,22 +8,16 @@ import org.osgi.framework.BundleContext;
 import org.paxle.core.filter.IFilter;
 
 public class Activator implements BundleActivator {
-	private static String DB_PATH = "robots-db";
+	private static String DB_PATH = "robots-db";	
 	
-	/**
-	 * A reference to the {@link BundleContext bundle-context}
-	 */
-	public static BundleContext bc;	
-	
-	private static RobotsTxtManager robotsTxtManager = null;
-	private static Thread robotsTxtCleanupThread = null;
+	private RobotsTxtManager robotsTxtManager = null;
+	private Thread robotsTxtCleanupThread = null;
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
-	public void start(BundleContext context) throws Exception {
-		bc = context;
+	public void start(BundleContext bc) throws Exception {
 		robotsTxtManager = new RobotsTxtManager(new File(DB_PATH));
 		robotsTxtCleanupThread = new RobotsTxtCleanupThread(new File(DB_PATH), 10); 
 		
@@ -42,8 +36,9 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#stop(BundleContext)
 	 */	
 	public void stop(BundleContext context) throws Exception {
+		robotsTxtManager.terminate();
 		robotsTxtManager = null;
 		robotsTxtCleanupThread.interrupt();
-		bc = null;
+		robotsTxtCleanupThread = null;
 	}
 }
