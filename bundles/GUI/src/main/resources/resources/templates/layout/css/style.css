@@ -1,38 +1,46 @@
 html, body {
 	margin: 0;
 	padding: 0;
-	background-color: #F0F0F0;
+	background-color: #CCCCCC;
 	color: #000000;
 }
 
 fieldset {
+	margin: 0;
+	clear: left;
 	background-color: #FFFFFF;
 	color: #000000;
 	border: 1px solid black;
-	margin: 0;
-	clear: left;
+}
+
+h1 {
+	margin: 0 0 0.5em 0;
+	padding: 1em;
+	background-color: #730002;
+	color: #FFFFFF;
+	font-size: 2em;
+	text-align: center;
 }
 
 input, textarea {
-    border: 1px solid #96825F;
-    background-color: #FFFFFF;
-    padding:2px;
+	padding: 0.2em;
+	background-color: #FFFFFF;
+	border: 0.1em solid #96825F;
 }
 
 input:focus, textarea:focus {
-    border: 1px solid #f22;
-    background-color: #FFFFFF;
+	background-color: #FFFFFF;
+	border: 0.1em solid #f22;
 }
 
 #nav {
-	width: 12em;
-	margin: 0;
-	padding: 2em 0 8em 0;
-    position: absolute;
-    top: 8em;
-    left: 0;
+	width: 11em;
+	margin: 0 0 0 1em;
+	padding: 0;
+	float: left;
 	list-style: none;
 	background-color: #96825F;
+	border-top: solid 1em #444444;
 }
 
 #nav li {
@@ -47,15 +55,14 @@ input:focus, textarea:focus {
 	text-decoration: none;
 	white-space: nowrap;
 	font-size: 1.2em;
+	border-bottom: dashed 0.05em #444444;
 }
 
 #nav li a:hover {
 	background-color: #730002;
+	color: #FFFFFF;
 }
 
-#main {
-	margin: 1em 1em 1em 13em;
-}
 
 #bundle {
 	margin: 0 1em 1em 0;
@@ -63,6 +70,13 @@ input:focus, textarea:focus {
 	background-color: #FFFFFF;
 	color: #000000;
 	list-style: none;
+}
+
+#main {
+	margin: 0 1em 0 13em;
+	padding: 1em;
+	background-color: #FFFFFF;
+	border-top: solid 1em #444444;
 }
 
 #bundle li {
@@ -81,6 +95,7 @@ input:focus, textarea:focus {
 	border-style: solid;
 }
 
+
 .tabs {
 	margin: 0;
 	padding: 0;
@@ -90,47 +105,53 @@ input:focus, textarea:focus {
 .tabs li {
 	float: left;
 }
+
 .tabs li a {
 	margin: 0;
 	padding: 0.5em;
-    display: block;
-    background-color: #96825F;
-    color: #FFFFFF;
-    text-decoration: none;
+	display: block;
+	background-color: #96825F;
+	color: #FFFFFF;
+	text-decoration: none;
 }
 
 .tabs li a.active, .tabs li a:hover {
 	padding-top: 0.5em;
-    background-color: #730002; 
+	background-color: #730002; 
 }
+
 
 .error {
 	border-color: #A00000;
 }
+
 .warning {
 	border-color: #A0A000;
 }
+
 .debug {
 	border-color: #0000A0;
 }
+
 .info {
 	border-color: #00A000;
 }
+
 .resolved {
 	text-decoration: line-through;
 }
 
 .r1 {
-  background-color: #efefef;
+	background-color: #EFEFEF;
 }
 
 .r1 {
-  background-color: #cdcdcd;
+	background-color: #CDCDCD;
 }
 
 img.favicon{
-  margin: 0px 4px 0px 0px;
-  width: 16px;
-  height: 16px;
-  float: left;
+	margin: 0 4px 0 0;
+	width: 16px;
+	height: 16px;
+	float: left;
 }

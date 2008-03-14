@@ -2,7 +2,7 @@
 #set( $page_title = "Log View" )
 
 ## the regular content
-<h1>View Log:</h1>
+<h2>View Log:</h2>
 #set($logReader = $manager.getService("org.osgi.service.log.LogReaderService"))
 #if($logReader)
 	<dl>

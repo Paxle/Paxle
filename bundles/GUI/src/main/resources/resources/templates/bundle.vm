@@ -5,7 +5,7 @@
 #if($bundle)
 ## Activate onload
 #set ( $bodyonload = "fhide('runtimeinformation');" )
-<h1>Bundle Info</h1>
+<h2>Bundle Info</h2>
 
 <ul class="tabs">
 	<li><a href="#druntimeinformation" onclick="fshow('runtimeinformation');" id="truntimeinformation">Runtime Information</a></li>
@@ -117,7 +117,7 @@
 </fieldset>
 
 #else
-<h1>Bundle Controlpage</h1>
+<h2>Bundle Controlpage</h2>
 <ul id="bundle">
 	#if($bundles)
 		#foreach($entry in $bundles.entrySet())

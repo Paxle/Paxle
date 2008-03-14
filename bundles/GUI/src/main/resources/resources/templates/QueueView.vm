@@ -12,7 +12,7 @@
 <br />
 #if($paramParser.getString("queue"))
 
-  <h1>Active jobs:</h1>
+  <h2>Active jobs:</h2>
   #if($activeJobs)
 	#set($color = $alternatorTool.auto('r1','r2'))
 	#foreach($activeJob in $activeJobs)
@@ -21,14 +21,14 @@
   #end
   <br /><hr />
   
-  <h1>Enqueued jobs:</h1>
+  <h2>Enqueued jobs:</h2>
   #if($enqueuedJobs)
 	#foreach($enqueuedJob in $enqueuedJobs)
 		<span class="$color">$enqueuedJob.getLocation()</span><br>
 	#end
   #end
 #else
-   <h1>Overview:</h1>
+   <h2>Overview:</h2>
 
    #set($color = $alternatorTool.auto('r1','r2'))   
    #set($components = {'Crawler':'org.paxle.crawler', 'Parser':'org.paxle.parser', 'Indexer':'org.paxle.indexer'})
