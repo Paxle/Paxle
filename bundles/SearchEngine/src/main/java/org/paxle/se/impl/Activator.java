@@ -3,7 +3,10 @@ package org.paxle.se.impl;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
+import org.paxle.core.prefs.IPropertiesStore;
+import org.paxle.core.prefs.Properties;
 import org.paxle.se.index.IFieldManager;
 import org.paxle.se.index.impl.FieldListener;
 import org.paxle.se.index.impl.FieldManager;
@@ -27,12 +30,19 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		bc = context;
 		
+		/*
+		 * Load the properties of this bundle
+		 */
+		Properties props = null;
+		ServiceReference ref = bc.getServiceReference(IPropertiesStore.class.getName());
+		if (ref != null) props = ((IPropertiesStore) bc.getService(ref)).getProperties(bc);				
+		
 		fieldManager = new FieldManager();
 		bc.registerService(IFieldManager.class.getName(), fieldManager, null);
 		fieldListener = new FieldListener(bc, fieldManager);
 		bc.addServiceListener(fieldListener, FieldListener.FILTER);
 		
-		searchProviderManager = new SearchProviderManager();
+		searchProviderManager = new SearchProviderManager(props);
 		bc.registerService(ISearchProviderManager.class.getName(), searchProviderManager, null);
 		searchProviderListener = new SearchProviderListener(searchProviderManager, bc);
 		bc.addServiceListener(searchProviderListener, SearchProviderListener.FILTER);

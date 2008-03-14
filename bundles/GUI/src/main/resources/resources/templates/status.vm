@@ -238,11 +238,39 @@
 		
 	<h3>Installed Search Providers:</h3>
 	$sp.getSearchProviders().size() provider(s) found:<br />
-	<ul>		
+	
+	## Enable/Disable providers
+	#if($paramParser.getString("doEnableSEProvider")) $sp.enableProvider($paramParser.getString("enableSEProvider"))#end
+	#if($paramParser.getString("doDisableSEProvider")) $sp.disableProvider($paramParser.getString("disableSEProvider"))#end	
+	
+	#set($color = $alternatorTool.auto('r1','r2'))
+	<table>
+		<tr><th>Provider</th><th colspan="2">Status</th></tr>
+		#set($disabledSEProviders = $sp.disabledProviders())
 		#foreach($searchprovider in $sp.getSearchProviders())
-			<li><tt>$searchprovider.getClass().getName()</tt></li>
+			<tr class="$color">
+				<td><tt>$searchprovider.getClass().getName()</tt></td>
+				<td>#if($disabledSEProviders.contains($searchprovider.getClass().getName()))
+					<font color="red">disabled</font>
+				    #else
+				    	<font color="green">enabled</font>
+				    #end
+				</td>
+				<td>
+				   <form method="get">
+				   	#if($disabledSEProviders.contains($searchprovider.getClass().getName()))
+					   <input type="submit" name="doEnableSEProvider" value="enable" />
+					   <input type="hidden" name="enableSEProvider" value="$searchprovider.getClass().getName()" />
+					#else
+					   <input type="submit" name="doDisableSEProvider" value="disable" />
+					   <input type="hidden" name="disableSEProvider" value="$searchprovider.getClass().getName()" />
+					#end
+				   </form>
+				</td>
+			</tr>			
 		#end
-	</ul>		
+	</table>
+	
 </fieldset>
 #else
 <fieldset id="dsearch">
