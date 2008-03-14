@@ -2,23 +2,21 @@ package org.paxle.se.provider.paxleinfrastructure.impl;
 
 import java.io.IOException;
 import java.util.List;
+import java.lang.String;
 
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IndexerDocument;
-import org.paxle.se.query.ITokenFactory;
+import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
 
 public class PaxleInfrastructureSearchProvider implements ISearchProvider {
 
 	public PaxleInfrastructureSearchProvider(){
 	}
-	public ITokenFactory getTokenFactory() {
-		return new PaxleInfrastructureTokenFactor();
-	}
 	
-	
-	public void search(String request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
+	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
 		try {
+			String request = PaxleInfrastructureQueryFactor.transformToken(token, new PaxleInfrastructureQueryFactor());
 			IIndexerDocument indexerDoc = new IndexerDocument();
 			System.out.println(request);
 			if(request.toLowerCase().equals("paxle wiki")){
