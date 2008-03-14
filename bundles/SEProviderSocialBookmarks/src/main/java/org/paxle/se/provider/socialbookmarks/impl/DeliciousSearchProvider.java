@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IndexerDocument;
-import org.paxle.se.query.ITokenFactory;
+import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
 
 import de.nava.informa.core.ChannelIF;
@@ -22,12 +22,10 @@ public class DeliciousSearchProvider implements ISearchProvider {
 
 	public DeliciousSearchProvider(){
 	}
-	public ITokenFactory getTokenFactory() {
-		return new PaxleInfrastructureTokenFactor();
-	}
 	
-	public void search(String request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
+	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
 		try {
+			String request=SocialBookmarksQueryFactor.transformToken(token, new SocialBookmarksQueryFactor());
 			//creating a channel-builder
 	        ChannelBuilder builder = new ChannelBuilder();   
 	        
