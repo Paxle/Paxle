@@ -28,7 +28,7 @@
 	<li><a href="#dparser" onclick="fshow('parser');" id="tparser">Parser</a></li>
 	<li><a href="#dindex" onclick="fshow('index');" id="tindex">Index</a></li>
 	<li><a href="#dsearch" onclick="fshow('search');" id="tsearch">Search</a></li>
-	<li><a href="#dgui" onclick="fshow('gui');" id="tgui">GUI</a></li
+	<li><a href="#dgui" onclick="fshow('gui');" id="tgui">GUI</a></li>
 </ul>
 
 ## the regular content
