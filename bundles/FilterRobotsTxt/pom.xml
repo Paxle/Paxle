@@ -30,11 +30,23 @@
 							org.osgi.framework,
 							org.apache.commons.logging,
 							org.paxle.core.filter, org.paxle.core.queue,
-							org.paxle.core.doc
+							org.paxle.core.doc,
+							!javax.management, 
+							!javax.servlet, 
+							!javax.servlet.http, 
+							!org.hibernate.*,
+							!org.apache.commons.collections.*,
+							!net.sf.jsr107cache
 						</Import-Package>
 						<Private-Package>
 							org.paxle.filter.robots.impl
 						</Private-Package>
+						<DynamicImport-Package>
+							javax.xml.parsers, 
+							org.xml.sax, 
+							org.xml.sax.helpers, 
+							sun.misc						
+						</DynamicImport-Package>
 						<Bundle-Activator>
 							org.paxle.filter.robots.impl.Activator
 						</Bundle-Activator>
@@ -69,6 +81,16 @@
 		    <groupId>net.sf.ehcache</groupId>
 		    <artifactId>ehcache</artifactId>
 		    <version>1.4.1</version>
+			<exclusions>
+				<exclusion>
+				    <groupId>net.sf.jsr107cache</groupId>
+				    <artifactId>jsr107cache</artifactId>
+				</exclusion>
+				<exclusion>
+				    <groupId>commons-collections</groupId>
+				    <artifactId>commons-collections</artifactId>
+				</exclusion>				
+			</exclusions>		    
 		</dependency>
 		 <dependency>
 		    <groupId>backport-util-concurrent</groupId>
