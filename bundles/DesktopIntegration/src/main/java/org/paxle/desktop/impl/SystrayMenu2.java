@@ -86,9 +86,13 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	}
 	
 	public void shutdown() {
-		logger.debug("removing systray icon");
-		this.backend.getSystemTray().remove(this.ti);
-		logger.debug("removed systray icon successfully");
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				logger.debug("removing systray icon");
+				backend.getSystemTray().remove(ti);
+				logger.debug("removed systray icon successfully");
+			}
+		});
 	}
 	
 	private void refresh() {
@@ -194,9 +198,13 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 		public void run() {
 			try {
 				if (restart) {
+					logger.debug("SHUTTING DOWN FRAMEWORK");
 					manager.shutdownFramework();
+					logger.debug("FINISHED SHUTTING DOWN FRAMEWORK");
 				} else {
+					logger.debug("RESTARTING FRAMEWORK");
 					manager.restartFramework();
+					logger.debug("FINISHED RESTARTING FRAMEWORK");
 				}
 			} catch (BundleException e) {
 				logger.error("error " + ((restart) ? "restarting" : "shutting down") + " framework", e);

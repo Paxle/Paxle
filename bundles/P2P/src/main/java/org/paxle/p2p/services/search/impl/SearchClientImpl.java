@@ -1,3 +1,4 @@
+
 package org.paxle.p2p.services.search.impl;
 
 import java.io.IOException;
@@ -32,7 +33,8 @@ import org.paxle.p2p.services.IService;
 import org.paxle.p2p.services.impl.AServiceClient;
 import org.paxle.p2p.services.search.ISearchClient;
 import org.paxle.se.index.IFieldManager;
-import org.paxle.se.query.ITokenFactory;
+import org.paxle.se.query.IQueryFactory;
+import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
 
 public class SearchClientImpl extends AServiceClient implements ISearchClient, ISearchProvider {
@@ -46,9 +48,8 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 	
 	private SearchServerImpl searchServiceServer = null;
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	private final SearchQueryTokenFactory queryFactory = new SearchQueryTokenFactory();
+	
 	public SearchClientImpl(P2PManager p2pManager, IFieldManager fieldManager, SearchServerImpl searchServiceServer) {
 		super(p2pManager);
 		this.fieldManager = fieldManager;
@@ -120,7 +121,7 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 		
 		// add entry into the resultMap
         synchronized (this.resultMap) {
-			this.resultMap.put(reqMessage.getMessageNumber(), new ArrayList<Message>());
+			this.resultMap.put(Integer.valueOf(reqMessage.getMessageNumber()), new ArrayList<Message>());
 		}
 		
 		return reqMessage;
@@ -171,12 +172,12 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 	protected void extractResult(Message reqMessage, List<IIndexerDocument> results) {
 		List<Message> messageList = null;
 		synchronized (this.resultMap) {				
-			if (!this.resultMap.containsKey(reqMessage.getMessageNumber())) {
+			if (!this.resultMap.containsKey(Integer.valueOf(reqMessage.getMessageNumber()))) {
 				this.logger.warn("Unknown requestID: " + reqMessage.getMessageNumber());
 				messageList = Collections.EMPTY_LIST;
 			} else {
 				// remove the request from the result-list
-				messageList = this.resultMap.remove(reqMessage.getMessageNumber());
+				messageList = this.resultMap.remove(Integer.valueOf(reqMessage.getMessageNumber()));
 			}
 		}	
 		
@@ -224,11 +225,15 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 		List<IIndexerDocument> results = new ArrayList<IIndexerDocument>();
 		this.search(query, results, maxResults, timeout);
 		return results;
-	}	
-
+	}
+	
 	/**
 	 * @see ISearchProvider#search(String, List, int, long)
 	 */
+	public void search(AToken request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
+		search(IQueryFactory.transformToken(request, queryFactory), results, maxCount, timeout);
+	}
+	
 	public void search(String query, List<IIndexerDocument> results, int maxResults, long timeout) throws IOException, InterruptedException {
 		try {
 			/* ================================================================
@@ -275,12 +280,5 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 	 */
 	public String getServiceIdentifier() {
 		return SearchServiceConstants.SERVICE_MOD_SPEC_NAME;
-	}
-
-	/**
-	 * @see ISearchProvider#getTokenFactory()
-	 */
-	public ITokenFactory getTokenFactory() {
-		return new SearchServiceTokenFactor();
 	}
 }
