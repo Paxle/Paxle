@@ -1,8 +1,11 @@
 #set($menuManager = $manager.getService("org.paxle.gui.IMenuManager"))
 
-#if($menuManager)
+#if($menuManager)    
+    #set($current = $context.get("request").getServletPath())
 	#foreach($item in $menuManager.getMenuItemList())
-		<li><a href="$item.getUrl()">$item.getName()</a></li>
+		<li class="#if($current == $item.getUrl())menuItemActive#{else}menuItemInactive#end">
+			<a href="$item.getUrl()">$item.getName()</a>
+		</li>
 	#end
 #else
 	<font color="red">MenuManager not found!</font>
