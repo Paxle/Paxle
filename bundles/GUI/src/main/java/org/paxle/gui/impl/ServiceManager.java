@@ -45,6 +45,11 @@ public class ServiceManager {
 		return (reference == null) ? null : ServiceManager.context.getService(reference);
 	}
 	
+	public Object getServiceProperty(String serviceName, String propertyname) {
+		ServiceReference reference = ServiceManager.context.getServiceReference(serviceName);
+		return (reference == null) ? null : reference.getProperty(propertyname);
+	}
+	
 	public boolean hasService(String serviceName) {
 		return ServiceManager.context.getServiceReference(serviceName) != null;
 	}
