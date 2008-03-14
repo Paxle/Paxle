@@ -72,8 +72,4 @@ public class SearchView extends ALayoutServlet {
 		return template;
 	}
 
-	@Override
-	protected void mergeTemplate(Template template, Context context, HttpServletResponse response) throws ResourceNotFoundException, ParseErrorException, MethodInvocationException, IOException, UnsupportedEncodingException, Exception {
-		super.mergeTemplate(template, context, response);
-	}
 }
