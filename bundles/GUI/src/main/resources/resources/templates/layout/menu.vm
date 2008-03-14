@@ -2,7 +2,7 @@
 
 #if($menuManager)
 	#foreach($item in $menuManager.getMenuItemList())
-		<li><a href="$item.url">$item.name</a></li>
+		<li><a href="$item.getUrl()">$item.getName()</a></li>
 	#end
 #else
 	<font color="red">MenuManager not found!</font>

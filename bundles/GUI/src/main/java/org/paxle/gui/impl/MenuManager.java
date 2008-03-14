@@ -12,8 +12,8 @@ public class MenuManager implements IMenuManager {
 		items.add(item);
 	}
 	
-	public void addItem(String alias, String name) {
-		items.add(MenuItem.newInstance(alias, name));
+	public void addItem(String url, String name) {
+		items.add(MenuItem.newInstance(url, name));
 	}
 	
 	public List<MenuItem> getMenuItemList() {

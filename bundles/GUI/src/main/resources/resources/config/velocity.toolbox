@@ -50,6 +50,12 @@
       <class>org.apache.velocity.tools.view.tools.ParameterParser</class>
    </tool>   
    
+   <tool>
+      <key>context</key>
+      <scope>request</scope>
+      <class>org.apache.velocity.tools.view.tools.ContextTool</class>
+   </tool>
+   
    <!-- Custom paxle tools -->
    <tool>
       <key>manager</key>

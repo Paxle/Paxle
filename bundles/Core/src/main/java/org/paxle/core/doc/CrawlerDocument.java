@@ -12,6 +12,7 @@ public class CrawlerDocument implements ICrawlerDocument {
 	
 	private ICrawlerDocument.Status status = null;
 	private String statusText = null;
+	/** The location, i.e. URL of this document */
 	private String location = null;
 	private String mimeType = null;
 	private String charset = null;

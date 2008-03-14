@@ -12,6 +12,7 @@ import org.paxle.gui.IServletManager;
 import org.paxle.gui.impl.servlets.BundleView;
 import org.paxle.gui.impl.servlets.CrawlerView;
 import org.paxle.gui.impl.servlets.LogView;
+import org.paxle.gui.impl.servlets.OpenSearchDescription;
 import org.paxle.gui.impl.servlets.P2PView;
 import org.paxle.gui.impl.servlets.QueueView;
 import org.paxle.gui.impl.servlets.SearchView;
@@ -125,7 +126,7 @@ public class Activator implements BundleActivator {
 			servletManager.addServlet("/bundle", new BundleView(null));
 			servletManager.addServlet("/log", new LogView(null));
 			servletManager.addServlet("/queue", new QueueView(null));
-//			servletManager.addServlet("/", new SearchView(null));			
+			servletManager.addServlet("/opensearch/osd.xml", new OpenSearchDescription(null));
 				
 			/*
 			 * Add stylesheets
@@ -147,6 +148,7 @@ public class Activator implements BundleActivator {
 			 */
 //			servletManager.addResources("/images/bullet_arrow_up.png", "/resources/images/bullet_arrow_up.png");
 			servletManager.addResources("/images", "/resources/images");
+
 		}
 	}
 
