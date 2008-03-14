@@ -29,6 +29,12 @@ public class ServletManager implements IServletManager {
 	private HashMap<String, String> resources = new HashMap<String, String>();
 	
 	/**
+	 * The {@link HttpContext} that should be used to register a given 
+	 * {@link #servlets servlet} or {@link #resources resource}.
+	 */
+	private HashMap<String, HttpContext> httpContexts = new HashMap<String, HttpContext>();
+	
+	/**
 	 * Http Service
 	 */
 	private HttpService http = null;
@@ -95,6 +101,8 @@ public class ServletManager implements IServletManager {
 	
 	synchronized void addResources(String alias, String name, HttpContext httpContext) {
 		this.resources.put(alias, name);
+		this.httpContexts.put(alias, httpContext);
+		
 		if (this.http != null) {
 			try {
 				this.logger.info(String.format("Registering resource '%s' for alias '%s'.", name, alias));
@@ -111,6 +119,7 @@ public class ServletManager implements IServletManager {
 	
 	synchronized void removeResource(String alias) {
 		String name = this.resources.remove(alias);
+		this.httpContexts.remove(alias);
 		this.logger.info(String.format("Unregistering resource '%s' for alias '%s'.", name, alias));
 		
 		if (this.http != null) {
@@ -173,7 +182,8 @@ public class ServletManager implements IServletManager {
 	}
 	
 	/**
-	 * Function to register all known resources
+	 * Function to register all resources that were added to
+	 * {@link #resources}
 	 */
 	private void registerAllResources() {
 		if (this.http == null) return;
@@ -184,10 +194,13 @@ public class ServletManager implements IServletManager {
 			Map.Entry<String, String> entry = i.next();
 			String name = entry.getValue();
 			String alias = entry.getKey();
+			HttpContext context = this.httpContexts.containsKey(alias)
+				? this.httpContexts.get(alias)
+				: defaultContext;
 			
 			try {
 				this.logger.info(String.format("Registering resource '%s' for alias '%s'.", name, alias));
-				this.http.registerResources(entry.getKey(), entry.getValue(), defaultContext);
+				this.http.registerResources(entry.getKey(), entry.getValue(), context);
 			} catch (Throwable e) {
 				this.logger.error(String.format("Unexpected '%s' while registering resource '%s' for alias '%s'.",
 						e.getClass().getName(),
@@ -226,7 +239,8 @@ public class ServletManager implements IServletManager {
 	}	
 	
 	/**
-	 * Function to unregister all resources
+	 * Function to unregister resources that were added
+	 * to {@link #resources}
 	 */
 	private synchronized void unregisterAllResources() {
 		if (this.http == null) return;
