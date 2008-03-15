@@ -8,5 +8,5 @@
 		</li>
 	#end
 #else
-	<font color="red">MenuManager not found!</font>
+	<div class="notInstalled">MenuManager not found!</div>
 #end

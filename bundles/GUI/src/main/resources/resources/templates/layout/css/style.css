@@ -160,3 +160,57 @@ img.favicon{
 	height: 16px;
 	float: left;
 }
+
+.notInstalled {
+	color:red;
+}
+
+.statusRunning {
+	color:green;
+}
+
+.statusPaused {
+	color:red;
+}
+
+.statusEnabled {
+	color:green;
+}
+
+.statusDisabled {
+	color:red;
+}
+
+input.btnEnable {
+	background-image: url(/images/control_play.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	padding-left: 15px;
+}
+
+input.btnDisable {
+	background-image: url(/images/control_stop.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	padding-left: 15px;
+}
+
+input.btnShutdown {
+}
+
+input.btnRestart {
+}
+
+input.btnResume {
+	background-image: url(/images/control_play.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	padding-left: 15px;
+}
+
+input.btnPause {
+	background-image: url(/images/control_pause.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	padding-left: 15px;
+}

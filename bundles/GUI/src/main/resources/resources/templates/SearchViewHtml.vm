@@ -12,7 +12,7 @@
 
 ## the regular content
 #if(!$Search || !$fieldManager)
-	<font color="red"><b>Search Engine Bundle not installed</b></font>
+	<div class="notInstalled">Search Engine Bundle not installed</div>
 #else	
 <form>
 	<input type="text" size="50" name="query" #if($searchQuery) value="$searchQuery" #end/>

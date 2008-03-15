@@ -35,8 +35,8 @@
 <form method="post">
 <fieldset id="dgeneral">
 <legend>General</legend>
-	<input type="submit" name="shutdown" value="Shutdown" />
-	<input type="submit" name="restart" value="Restart" />
+	<input class="btnShutdown" type="submit" name="shutdown" value="Shutdown" />
+	<input class="btnRestart" type="submit" name="restart" value="Restart" />
 </fieldset>
 </form>
 
@@ -59,15 +59,15 @@
 			#end
 			The crawler is 
 			#if($crawler.isPaused() == true)
-				<b><font color="red">paused</font></b><br/>
+				<div class="statusPaused">paused</div><br/>
 				<form method="get">
-					<input type="submit" name="resumeCrawl" value="Resume" />
+					<input class="btnResume" type="submit" name="resumeCrawl" value="Resume" />
 					<input type="submit" name="processNextCrawl" value="Process Next" />
 				</form>
 			#else 
-				<b><font color="green">running</font></b><br/>
+				<div class="statusRunning">running</div><br/>
 				<form method="get">
-					<input type="submit" name="pauseCrawl" value="Pause" />
+					<input class="btnPause" type="submit" name="pauseCrawl" value="Pause" />
 				</form>
 			#end
 			<p />
@@ -94,18 +94,18 @@
 			<tr class="$color">
 				<td><tt>$protocol</tt></td>
 				<td>#if($disabledProtocols.contains($protocol))
-					<font color="red">disabled</font>
+						<div class="statusDisabled">disabled</div>
 				    #else
-				    	<font color="green">enabled</font>
+				    	<div class="statusEnabled">enabled</div>
 				    #end
 				</td>
 				<td>
 				   <form method="get">
 				   	#if($disabledProtocols.contains($protocol))
-					   <input type="submit" name="doEnableProtocol" value="enable" />
+					   <input class="btnEnable" type="submit" name="doEnableProtocol" value="enable" />
 					   <input type="hidden" name="enableProtocol" value="$protocol" />
 					#else
-					   <input type="submit" name="doDisableProtocol" value="disable" />
+					   <input class="btnDisable" type="submit" name="doDisableProtocol" value="disable" />
 					   <input type="hidden" name="disableProtocol" value="$protocol" />
 					#end
 				   </form>
@@ -126,7 +126,7 @@
 #else
 <fieldset id="dcrawler">
 	<legend>Crawler:</legend>	
-	<font color="red">Crawler bundle not installed!</font>
+	<div class="notInstalled">Crawler bundle not installed!</div>
 </fieldset>	
 #end
 
@@ -143,9 +143,9 @@
 		#foreach($parser in $parsers)
 			The parser is 
 			#if($parser.isPaused() == true)
-				<b><font color="red">paused</font></b>
+				<div class="statusPaused">paused</div>
 			#else 
-				<b><font color="green">running</font></b>
+				<div class="statusRunning">running</div>
 			#end.
 		#end
 	#end
@@ -168,18 +168,18 @@
 		<tr class="$color">
 			<td><tt>$mimeType</tt></td>
 			<td>#if($disabledMimeTypes.contains($mimeType))
-				<font color="red">disabled</font>
+				<div class="statusDisabled">disabled</div>
 			    #else
-				<font color="green">enabled</font>
+				<div class="statusEnabled">enabled</div>
 			    #end
 			</td>
 			<td>
 			   <form method="get">
 			   #if($disabledMimeTypes.contains($mimeType))
-			      <input type="submit" name="doEnableMimeType" value="enable" />
+			      <input class="btnEnable" type="submit" name="doEnableMimeType" value="enable" />
 			      <input type="hidden" name="enableMimeType" value="$mimeType" />
 			   #else
-			      <input type="submit" name="doDisableMimeType" value="disable" />
+			      <input class="btnDisable" type="submit" name="doDisableMimeType" value="disable" />
 			      <input type="hidden" name="disableMimeType" value="$mimeType" />
 			   #end
 			   </form>
@@ -199,7 +199,7 @@
 #else
 <fieldset id="dparser">
 	<legend>Parser:</legend>
-	<font color="red">Parser bundle not installed!</font>
+	<div class="notInstalled">Parser bundle not installed!</div>
 </fieldset>	
 #end	
 
@@ -224,7 +224,7 @@
 #else
 <fieldset id="dindex">
 	<legend>Index</legend>
-	<font color="red">Indexer bundle not installed!</font>	
+	<div class="notInstalled">Indexer bundle not installed!</div>	
 </fieldset>	
 #end
 
@@ -252,18 +252,18 @@
 			<tr class="$color">
 				<td><tt>$searchprovider.getClass().getName()</tt></td>
 				<td>#if($disabledSEProviders.contains($searchprovider.getClass().getName()))
-					<font color="red">disabled</font>
+						<div class="statusDisabled">disabled</div>
 				    #else
-				    	<font color="green">enabled</font>
+				    	<div class="statusEnabled">enabled</div>
 				    #end
 				</td>
 				<td>
 				   <form method="get">
 				   	#if($disabledSEProviders.contains($searchprovider.getClass().getName()))
-					   <input type="submit" name="doEnableSEProvider" value="enable" />
+					   <input class="btnEnable" type="submit" name="doEnableSEProvider" value="enable" />
 					   <input type="hidden" name="enableSEProvider" value="$searchprovider.getClass().getName()" />
 					#else
-					   <input type="submit" name="doDisableSEProvider" value="disable" />
+					   <input class="btnDisable" type="submit" name="doDisableSEProvider" value="disable" />
 					   <input type="hidden" name="disableSEProvider" value="$searchprovider.getClass().getName()" />
 					#end
 				   </form>
@@ -276,7 +276,7 @@
 #else
 <fieldset id="dsearch">
 	<legend>Search</legend>
-	<font color="red">Search-Engine bundle not installed!</font>	
+	<div class="notInstalled">Search-Engine bundle not installed!</div>	
 </fieldset>	
 #end
 
