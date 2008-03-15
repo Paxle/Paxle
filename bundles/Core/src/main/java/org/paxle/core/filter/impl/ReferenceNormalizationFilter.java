@@ -276,12 +276,14 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 							int paramEnd = url.indexOf('&', paramStart);
 							if (paramEnd == -1 || paramEnd > queryEnd)
 								paramEnd = queryEnd;
-							final int eq = url.indexOf('=', paramStart);
+							int eq = url.indexOf('=', paramStart);
 							if (eq == -1 || eq > paramEnd)
-								throw new MalformedURLException("Illegal query parameter " + url.substring(paramStart, paramEnd) + " in URL " + url);
+								eq = paramEnd;
+								// throw new MalformedURLException("Illegal query parameter " + url.substring(paramStart, paramEnd) + " in URL " + url);
+							
 							query.put(
 									urlDecode(url.substring(paramStart, eq).replace('+', ' '), charset),
-									urlDecode(url.substring(eq + 1, paramEnd).replace('+', ' '), charset));
+									(eq < paramEnd) ? urlDecode(url.substring(eq + 1, paramEnd).replace('+', ' '), charset) : null);
 							paramStart = paramEnd + 1;
 						} while (paramStart < queryEnd);
 					}
@@ -297,8 +299,13 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 		}
 		
 		private StringBuffer appendQuery(final StringBuffer sb) {
-			for (Map.Entry<String,String> e : query.entrySet())
-				sb.append(e.getKey()).append('=').append(e.getValue()).append('&');
+			for (Map.Entry<String,String> e : query.entrySet()) {
+				sb.append(e.getKey());
+				final String val = e.getValue();
+				if (val != null)
+					sb.append('=').append(val);
+				sb.append('&');
+			}
 			sb.deleteCharAt(sb.length() - 1);
 			return sb;
 		}

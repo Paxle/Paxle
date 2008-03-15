@@ -32,6 +32,8 @@ public class ReferenceNormalisationFilterTest extends TestCase {
 		// {"http://xn--bloah-nua.xn--brse-5qa.de/","http://bloah\u00F6.b\u00F6rse.de/"},
 		// other protocols
 		// {"smb://stuff/zeug/bla/../test.exe","smb://stuff/zeug/test.exe"},
+		{"http://etienne.chouard.free.fr/Europe/forum/index.php?2007/10/27/86-le-candidat-giscard-d-estaing-confirme-la-scandaleuse-arnaque-du-mini-traite-simplifie-il-oublie-cependant-quelques-details","http://etienne.chouard.free.fr/Europe/forum/index.php?2007/10/27/86-le-candidat-giscard-d-estaing-confirme-la-scandaleuse-arnaque-du-mini-traite-simplifie-il-oublie-cependant-quelques-details"},
+		{"http://ontolog.cim3.net/cgi-bin/wiki.pl?DatabaseAndOntology","http://ontolog.cim3.net/cgi-bin/wiki.pl?DatabaseAndOntology"}
 	};
 
 	@Override
