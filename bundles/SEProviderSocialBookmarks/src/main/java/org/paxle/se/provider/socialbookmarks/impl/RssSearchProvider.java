@@ -18,9 +18,10 @@ import de.nava.informa.impl.basic.ChannelBuilder;
 import de.nava.informa.impl.basic.Item;
 import de.nava.informa.parsers.FeedParser;
 
-public class MrwongSearchProvider implements ISearchProvider {
-
-	public MrwongSearchProvider(){
+public class RssSearchProvider implements ISearchProvider {
+	String feedURL;
+	public RssSearchProvider(String feedURL){
+		this.feedURL=feedURL;
 	}
 	
 	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
@@ -30,7 +31,7 @@ public class MrwongSearchProvider implements ISearchProvider {
 	        ChannelBuilder builder = new ChannelBuilder();   
 	        
 	        // parsing the rss/atom feed
-	        ChannelIF channel = FeedParser.parse(builder, new URL("http://www.mister-wong.com/rss/tags/"+URLEncoder.encode(request)+"/"));
+	        ChannelIF channel = FeedParser.parse(builder, new URL(String.format(feedURL, URLEncoder.encode(request))));
 	        Collection<Item> items = channel.getItems();
 	        Iterator<Item> it=items.iterator();
 	        int count=0;

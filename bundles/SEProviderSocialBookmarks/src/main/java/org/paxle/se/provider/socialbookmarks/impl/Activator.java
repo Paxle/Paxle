@@ -19,9 +19,9 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		bc = context;
 		
-		ISearchProvider deliciousProvider = new DeliciousSearchProvider();
+		ISearchProvider deliciousProvider = new RssSearchProvider("http://del.icio.us/rss/tag/%s");
 		bc.registerService(ISearchProvider.class.getName(), deliciousProvider, new Hashtable<String,String>());
-		ISearchProvider mrwongProvider = new MrwongSearchProvider();
+		ISearchProvider mrwongProvider = new RssSearchProvider("http://www.mister-wong.com/rss/tags/%s");
 		bc.registerService(ISearchProvider.class.getName(), mrwongProvider, new Hashtable<String,String>());
         
 	}
