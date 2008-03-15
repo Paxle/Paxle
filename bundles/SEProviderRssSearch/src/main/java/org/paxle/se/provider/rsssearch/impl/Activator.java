@@ -1,4 +1,4 @@
-package org.paxle.se.provider.socialbookmarks.impl;
+package org.paxle.se.provider.rsssearch.impl;
 import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;

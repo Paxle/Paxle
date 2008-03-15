@@ -1,4 +1,4 @@
-package org.paxle.se.provider.socialbookmarks.impl;
+package org.paxle.se.provider.rssearch.impl;
 
 
 import java.io.IOException;

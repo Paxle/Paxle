@@ -1,4 +1,4 @@
-package org.paxle.se.provider.socialbookmarks.impl;
+package org.paxle.se.provider.rsssearch.impl;
 
 import org.paxle.core.doc.Field;
 import org.paxle.se.query.IQueryFactory;
