@@ -14,14 +14,16 @@
 #if(!$Search || !$fieldManager)
 	<div class="notInstalled">Search Engine Bundle not installed</div>
 #else	
-<a class="rssFeedLink" href="?format=rss&query=$escTool.url($searchQuery)" title="Display results as RSS-feed">
-<img src="/images/feed.png" alt="RSS"/>
-</a>
-<form>
-	<input type="text" size="50" name="query" #if($searchQuery) value="$searchQuery" #end/>
-	<input type="submit" value="search now"/>
-</form>
-<p />
+    #if($searchQuery)	
+        <a class="rssFeedLink" href="?format=rss&query=$escTool.url($searchQuery)" title="Display results as RSS-feed">
+        <img src="/images/feed.png" alt="RSS"/>
+        </a>
+    #end
+    <form>
+    	<input type="text" size="50" name="query" #if($searchQuery) value="$searchQuery" #end/>
+    	<input type="submit" value="search now"/>
+    </form>
+    <p />
 #end
 
 #if($searchQuery)
