@@ -1,4 +1,4 @@
-package org.paxle.se.provider.rssearch.impl;
+package org.paxle.se.provider.rsssearch.impl;
 
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class RssSearchProvider implements ISearchProvider {
 	
 	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
 		try {
-			String request=SocialBookmarksQueryFactor.transformToken(token, new SocialBookmarksQueryFactor());
+			String request=RssSearchQueryFactor.transformToken(token, new RssSearchQueryFactor());
 			//creating a channel-builder
 	        ChannelBuilder builder = new ChannelBuilder();   
 	        

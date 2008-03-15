@@ -3,11 +3,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.paxle</groupId>
-	<artifactId>SEProviderSocialBookmarks</artifactId>
+	<artifactId>SEProviderRssSearch</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - Search Engine Provider: Social Bookmarks</name>
-	<url>http://wiki.paxle.net/dev/bundles/SEProviderSocialBookmarks</url>
+	<name>Paxle - Search Engine Provider: RSS Search</name>
+	<url>http://wiki.paxle.net/dev/bundles/SEProviderRssSearch</url>
 
 	<!-- Parent Project -->
 	<parent>

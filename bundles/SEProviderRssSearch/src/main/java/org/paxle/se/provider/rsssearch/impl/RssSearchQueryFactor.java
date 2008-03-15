@@ -5,7 +5,7 @@ import org.paxle.se.query.IQueryFactory;
 import org.paxle.se.query.tokens.AToken;
 
 /**
- * SocialBookmarksQueryFactory.
+ * RssSearchQueryFactory.
  * Supports:
  * * AND
  * * OR (only first value then)
@@ -14,7 +14,7 @@ import org.paxle.se.query.tokens.AToken;
  */
 //TODO: how much more tokens can be supported with intelligen api-use? 
 //Need to split the Factory for different Sites?
-public class SocialBookmarksQueryFactor extends IQueryFactory<String> {
+public class RssSearchQueryFactor extends IQueryFactory<String> {
 	public String and(AToken[] token){
 		String result=new String(transformToken(token[0], this));
 		for(int i=1;i<token.length;i++)
