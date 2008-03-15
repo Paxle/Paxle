@@ -30,7 +30,7 @@ public class MrwongSearchProvider implements ISearchProvider {
 	        ChannelBuilder builder = new ChannelBuilder();   
 	        
 	        // parsing the rss/atom feed
-	        ChannelIF channel = FeedParser.parse(builder, new URL("http://mr-wong.com/rss/tags/"+URLEncoder.encode(request)));
+	        ChannelIF channel = FeedParser.parse(builder, new URL("http://www.mister-wong.com/rss/tags/"+URLEncoder.encode(request)+"/"));
 	        Collection<Item> items = channel.getItems();
 	        Iterator<Item> it=items.iterator();
 	        int count=0;
