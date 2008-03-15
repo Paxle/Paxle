@@ -33,25 +33,15 @@
 							org.osgi.framework, 
 							org.apache.commons.logging,
 							org.paxle.core.mimetype,
-							org.paxle.core.io
+							org.paxle.core.io,
+							org.xml.sax,
+							org.xml.sax.helpers
 						</Import-Package>
-						<DynamicImport-Package>*</DynamicImport-Package>
-						
-						<!-- 
-						<DynamicImport-Package>
-							javax.xml.datatype,
-							javax.xml.namespace,
-							javax.xml.validation,
-							org.w3c.dom.ls,
-							sun.io,
-							org.apache.xml.resolver, 
-							org.apache.xml.resolver.readers,
-							org.xml.sax.*
-						</DynamicImport-Package>
-						 -->
+
 						<Private-Package>
 							org.paxle.mimetype.impl
 						</Private-Package>
+						
 						<Bundle-Activator>
 							org.paxle.mimetype.impl.Activator
 						</Bundle-Activator>
@@ -61,7 +51,6 @@
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
 							jmimemagic;scope=compile|runtime,
-							xercesImpl;scope=compile|runtime,
 							oro;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
@@ -98,6 +87,7 @@
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
 			<version>2.7.1</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>xml-apis</groupId>
