@@ -32,7 +32,7 @@
 </ul>
 
 ## the regular content
-<form method="post">
+<form method="post" action="#dgeneral">
 <fieldset id="dgeneral">
 <legend>General</legend>
 	<input class="btnShutdown" type="submit" name="shutdown" value="Shutdown" />
@@ -60,13 +60,13 @@
 			The crawler is 
 			#if($crawler.isPaused() == true)
 				<div class="statusPaused">paused</div><br/>
-				<form method="get">
+				<form method="get" action="#dcrawler">
 					<input class="btnResume" type="submit" name="resumeCrawl" value="Resume" />
 					<input type="submit" name="processNextCrawl" value="Process Next" />
 				</form>
 			#else 
 				<div class="statusRunning">running</div><br/>
-				<form method="get">
+				<form method="get" action="#dcrawler">
 					<input class="btnPause" type="submit" name="pauseCrawl" value="Pause" />
 				</form>
 			#end
@@ -100,7 +100,7 @@
 				    #end
 				</td>
 				<td>
-				   <form method="get">
+				   <form method="get" action="#dcrawler">
 				   	#if($disabledProtocols.contains($protocol))
 					   <input class="btnEnable" type="submit" name="doEnableProtocol" value="enable" />
 					   <input type="hidden" name="enableProtocol" value="$protocol" />
@@ -174,7 +174,7 @@
 			    #end
 			</td>
 			<td>
-			   <form method="get">
+			   <form method="get" action="#dparser">
 			   #if($disabledMimeTypes.contains($mimeType))
 			      <input class="btnEnable" type="submit" name="doEnableMimeType" value="enable" />
 			      <input type="hidden" name="enableMimeType" value="$mimeType" />
@@ -258,7 +258,7 @@
 				    #end
 				</td>
 				<td>
-				   <form method="get">
+				   <form method="get" action="#dsearch">
 				   	#if($disabledSEProviders.contains($searchprovider.getClass().getName()))
 					   <input class="btnEnable" type="submit" name="doEnableSEProvider" value="enable" />
 					   <input type="hidden" name="enableSEProvider" value="$searchprovider.getClass().getName()" />
