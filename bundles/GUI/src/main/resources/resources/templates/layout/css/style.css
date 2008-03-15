@@ -218,3 +218,11 @@ input.btnPause {
 	background-position: left center;
 	padding-left: 15px;
 }
+
+a.rssFeedLink {
+	float:right;	
+}
+
+a.rssFeedLink > img {
+	border: 0px;
+}

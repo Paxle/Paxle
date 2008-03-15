@@ -14,6 +14,9 @@
 #if(!$Search || !$fieldManager)
 	<div class="notInstalled">Search Engine Bundle not installed</div>
 #else	
+<a class="rssFeedLink" href="?format=rss&query=$escTool.url($searchQuery)" title="Display results as RSS-feed">
+<img src="/images/feed.png" alt="RSS"/>
+</a>
 <form>
 	<input type="text" size="50" name="query" #if($searchQuery) value="$searchQuery" #end/>
 	<input type="submit" value="search now"/>
@@ -33,7 +36,7 @@
                #if($result.get($fieldManager.get("Location")))
                   <tr>
                      #set($location = $result.get($fieldManager.get("Location")))
-	             #set($hintText = $escTool.javascript("#parse('/resources/templates/SearchViewToolTip.vm')"))
+					 #set($hintText = $escTool.javascript("#parse('/resources/templates/SearchViewToolTip.vm')"))
                      <td style="border-bottom: 1px dotted rgb(153,153,153); color: black;">
                            ## only display favicons if the corresponding bundle is installed
                      	   #if($showFavicons)
