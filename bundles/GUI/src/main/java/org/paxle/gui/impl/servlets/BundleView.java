@@ -50,6 +50,11 @@ public class BundleView extends ALayoutServlet {
             } else if (request.getParameter("stop") != null) {
                 Bundle bundle = manager.getBundle(Long.parseLong(request.getParameter("bundleID")));
                 bundle.stop();
+            }else if(request.getParameter("uninstall") != null){
+            	Bundle bundle = manager.getBundle(Long.parseLong(request.getParameter("bundleID")));
+                bundle.uninstall();
+            }else if(request.getParameter("install") != null && request.getParameter("bundlePath")!=null){
+            	ServiceManager.context.installBundle(request.getParameter("bundlePath"));
             } else if (request.getParameter("details") != null) {
             	Bundle bundle = manager.getBundle(Long.parseLong(request.getParameter("bundleID")));
             	context.put("bundle", bundle);

@@ -118,6 +118,7 @@
 
 #else
 <h2>Bundle Controlpage</h2>
+Install Bundle: <form><input type="text" name="bundlePath" size="60" /><input type="submit" name="install" value="Install" /></form>
 <ul id="bundle">
 	#if($bundles)
 		#foreach($entry in $bundles.entrySet())
@@ -127,6 +128,7 @@
 					<input type="submit" name="start" value="Start" />
 					<input type="submit" name="stop" value="Stop" />
 					<input type="submit" name="update" value="Update" />
+					<input type="submit" name="uninstall" value="Uninstall" />
 				
 				<a class="$states.get($entry.value.state)" href="?bundleID=$entry.key&details=">
 				$entry.key - $entry.value.symbolicName</a>
