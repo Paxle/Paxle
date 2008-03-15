@@ -35,6 +35,16 @@ public class RobotsTxtManager {
 	private static final int CACHE_SIZE = 1000;
 	
 	/**
+	 * Connection timeout to use for the http connection
+	 */
+	private static final int CONNECTION_TIMEOUT = 15000;
+	
+	/**
+	 * Read timeout to use for the http connection
+	 */
+	private static final int READ_TIMEOUT = 15000;
+	
+	/**
 	 * Regular expression pattern to extract the hostname:port portion of an URL
 	 */
 	private static final Pattern HOSTPORT_PATTERN = Pattern.compile("([^:]+)://([^/\\?#]+)(?=/|$|\\?|#)");
@@ -136,6 +146,10 @@ public class RobotsTxtManager {
 		if ( connection instanceof HttpURLConnection) {
 			HttpURLConnection httpConnection = (HttpURLConnection) connection;
 
+			// configuring timeouts for the http-connection
+			httpConnection.setConnectTimeout(CONNECTION_TIMEOUT);
+			httpConnection.setReadTimeout(READ_TIMEOUT);
+			
 			try {
 				int code = httpConnection.getResponseCode();
 				statusLine = httpConnection.getHeaderField(0);
