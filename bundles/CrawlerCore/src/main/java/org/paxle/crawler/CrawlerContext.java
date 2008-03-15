@@ -1,6 +1,7 @@
 package org.paxle.crawler;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
@@ -49,6 +50,15 @@ public class CrawlerContext {
 	 */
 	public IMimeTypeDetector getMimeTypeDetector() {
 		return CrawlerContext.context.getMimeTypeDetector();
+	}
+	
+	/**
+	 * @return a set of mime-types supported by the 
+	 * 		   {@link org.paxle.parser.ISubParser subparsers} that are 
+	 *         currently registered on the system.
+	 */
+	public Set<String> getSupportedMimeTypes() {
+		return CrawlerContext.context.getSupportedMimeTypes();
 	}
 	
 	/* ========================================================================

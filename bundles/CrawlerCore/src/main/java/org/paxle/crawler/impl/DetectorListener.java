@@ -15,6 +15,17 @@ import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 
 public class DetectorListener implements ServiceListener {
+	/**
+	 * Interface-names of the {@link org.paxle.parser.ISubParser subparsers}
+	 * currently registered to the system.
+	 */
+	private static final String SUBPARSER = "org.paxle.parser.ISubParser";
+	
+	/**
+	 * Mimetypes supported by a {@link org.paxle.parser.ISubParser subparser}.
+	 * @see {@link org.paxle.parser.ISubParser#MIMETYPES}
+	 */
+	private static final String SUBPARSER_MIMETYPES = "MimeTypes";
 
 	/**
 	 * The interfaces to listen for
@@ -22,7 +33,10 @@ public class DetectorListener implements ServiceListener {
 	private static final HashSet<String> INTERFACES = new HashSet<String>(Arrays.asList(new String[]{
 		ICharsetDetector.class.getName(),
 		ICryptManager.class.getName(),
-		IMimeTypeDetector.class.getName()
+		IMimeTypeDetector.class.getName(),
+		
+		/* don't use the the .class directly otherwise we have an unwanted dependency */
+		SUBPARSER
 	}));
 
 	/**
@@ -80,6 +94,12 @@ public class DetectorListener implements ServiceListener {
 					this.crawlerLocal.setCryptManager((ICryptManager)detector);
 				} else if (interfaceName.equals(IMimeTypeDetector.class.getName())) {
 					this.crawlerLocal.setMimeTypeDetector((IMimeTypeDetector)detector);
+				} else if (interfaceName.equals(SUBPARSER)) {
+					String[] mimeTypes = this.getSubParserMimeTypes(reference);
+					
+					for (String mimeType : mimeTypes) {
+						this.crawlerLocal.getSupportedMimeTypes().add(mimeType.trim());
+					}
 				}
 			} else if (eventType == ServiceEvent.UNREGISTERING) {
 				if (interfaceName.equals(ICharsetDetector.class.getName())) {
@@ -88,11 +108,25 @@ public class DetectorListener implements ServiceListener {
 					this.crawlerLocal.setCryptManager(null);
 				} else if (interfaceName.equals(IMimeTypeDetector.class.getName())) {
 					this.crawlerLocal.setMimeTypeDetector(null);
+				} else if (interfaceName.equals(SUBPARSER)) {
+					String[] mimeTypes = this.getSubParserMimeTypes(reference);
+					
+					for (String mimeType : mimeTypes) {
+						this.crawlerLocal.getSupportedMimeTypes().remove(mimeType.trim());
+					}
 				}
 				this.context.ungetService(reference);
 			} else if (eventType == ServiceEvent.MODIFIED) {
 				// service properties have changed
 			}	
 		}
+	}
+	
+	private String[] getSubParserMimeTypes(ServiceReference reference) {
+		String[] mimeTypes = {};
+		Object mimeTypesProp = reference.getProperty(SUBPARSER_MIMETYPES);
+		if (mimeTypesProp instanceof String) mimeTypes = new String[]{(String)mimeTypesProp};
+		else if (mimeTypesProp instanceof String[]) mimeTypes = (String[]) mimeTypesProp;
+		return mimeTypes;
 	}
 }

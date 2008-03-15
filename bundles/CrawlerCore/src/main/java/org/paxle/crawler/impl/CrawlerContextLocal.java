@@ -1,5 +1,9 @@
 package org.paxle.crawler.impl;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
@@ -11,6 +15,8 @@ public class CrawlerContextLocal extends ThreadLocal<CrawlerContext> {
 	private ICharsetDetector charsetDetector;
 	private ICryptManager cryptManager;
 	private ITempFileManager tempFileManager;
+	
+	private Set<String> supportedMimeTypes = Collections.synchronizedSet(new HashSet<String>());
 	
 	public CrawlerContextLocal() {
 		CrawlerContext.setThreadLocal(this);
@@ -52,4 +58,9 @@ public class CrawlerContextLocal extends ThreadLocal<CrawlerContext> {
 	public void setTempFileManager(ITempFileManager tempFileManager) {
 		this.tempFileManager = tempFileManager;
 	}
+	
+	public Set<String> getSupportedMimeTypes() {
+		return this.supportedMimeTypes;
+	}
+	
 }

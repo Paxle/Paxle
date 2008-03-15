@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.http.IHttpCrawler;
@@ -137,6 +138,22 @@ public class HttpCrawler implements IHttpCrawler {
 				
 				doc.setMimeType(contentMimeType);
 				doc.setCharset(contentCharset);
+			}
+			
+			// check if we support the mimetype
+			final CrawlerContext context = CrawlerContext.getCurrentContext();
+			if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");
+			
+			if (!context.getSupportedMimeTypes().contains(contentMimeType)) {
+				String msg = String.format(
+						"Mimetype '%s' of resource '%s' not supported by any parser installed on the system.",
+						contentMimeType,
+						requestUrl
+				);
+				
+				this.logger.warn(msg);
+				doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
+				return doc;
 			}
 			
 			// getting the document languages
