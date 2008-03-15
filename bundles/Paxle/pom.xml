@@ -429,7 +429,7 @@
 						<goals>
 							<goal>attached</goal>
 						</goals>
-					</execution>
+					</execution>				
 				</executions>
 			</plugin>
 
@@ -611,12 +611,52 @@
 				<module>../DIJre6Backend</module>
 			</modules>
 		</profile>
+		
+		<!--  debug -->
+		<profile>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>debug</name>
+				</property>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<inherited>false</inherited>
+						<configuration>
+							<descriptors>
+								<descriptor>
+									src/main/assembly/debug.xml
+								</descriptor>
+							</descriptors>
+							<outputDirectory>../</outputDirectory>
+							<workDirectory>
+								target/assembly/debug
+							</workDirectory>
+							<finalName>/Debug</finalName>
+							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>	
+							<appendAssemblyId>false</appendAssemblyId>							
+						</configuration>
+						<executions>
+							<execution>
+								<id>make-debug-assembly</id>
+								<phase>install</phase>
+								<goals>
+									<goal>directory-single</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>		
 	</profiles>
 
 	<!-- define modules -->
 	<modules>
-		<module>../Root</module>
-	
 		<!-- paxle core bundle  -->
 		<module>../Core</module>
 		
