@@ -163,6 +163,10 @@ img.favicon{
 
 .notInstalled {
 	color:red;
+	background-image: url(/images/plugin_error.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	padding-left: 20px;	
 }
 
 .statusRunning {

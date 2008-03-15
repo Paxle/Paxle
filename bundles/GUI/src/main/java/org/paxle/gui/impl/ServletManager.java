@@ -7,13 +7,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.Servlet;
-import javax.servlet.ServletException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
 import org.paxle.gui.IServletManager;
 
 public class ServletManager implements IServletManager {
@@ -64,7 +62,13 @@ public class ServletManager implements IServletManager {
 	}
 	
 	synchronized void addServlet(String alias, Servlet servlet) {
+		this.addServlet(alias, servlet, this.defaultContext);	
+	}
+	
+	synchronized void addServlet(String alias, Servlet servlet, HttpContext httpContext) {
 		this.servlets.put(alias, servlet);
+		this.httpContexts.put(alias, httpContext);
+		
 		if (this.http != null) {
 			try {
 				/* Configure classloader properly.
@@ -75,7 +79,7 @@ public class ServletManager implements IServletManager {
 				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());						
 				
 				this.logger.info(String.format("Registering servlet '%s' for alias '%s'.", servlet.getClass().getName(), alias));
-				this.http.registerServlet(alias, servlet, defaultProps, defaultContext);
+				this.http.registerServlet(alias, servlet, defaultProps, httpContext);
 			} catch (Throwable e) {
 				this.logger.error(String.format("Unexpected '%s' while registering servlet '%s' for alias '%s'.",
 						e.getClass().getName(),
@@ -88,6 +92,7 @@ public class ServletManager implements IServletManager {
 	
 	synchronized void removeServlet(String alias) {		
 		Servlet servlet = this.servlets.remove(alias);		
+		this.httpContexts.remove(alias);
 		this.logger.info(String.format("Unregistering servlet '%s' for alias '%s'.", servlet.getClass().getName(), alias));
 		
 		if (this.http != null) {
@@ -167,10 +172,13 @@ public class ServletManager implements IServletManager {
 			Map.Entry<String, Servlet> entry = i.next();
 			String name = entry.getValue().getClass().getName();
 			String alias = entry.getKey();
+			HttpContext context = this.httpContexts.containsKey(alias)
+				? this.httpContexts.get(alias)
+				: defaultContext;			
 			
 			try {
 				this.logger.info(String.format("Registering servlet '%s' for alias '%s'.", name, alias));
-				this.http.registerServlet(entry.getKey(), entry.getValue(), defaultProps, defaultContext);
+				this.http.registerServlet(entry.getKey(), entry.getValue(), defaultProps, context);
 			} catch (Throwable e) {
 				this.logger.error(String.format("Unexpected '%s' while registering servlet '%s' for alias '%s'.",
 						e.getClass().getName(),
