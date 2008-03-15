@@ -695,7 +695,7 @@
 		<module>../IndexLucene</module>
 		
 		<!-- Sample SearchProvider -->
-		<!-- <module>../SEProviderPaxleInfrastructure</module> -->
+		<module>../SEProviderPaxleInfrastructure</module>
 		
 		<!-- datalayer bundles -->
 		<module>../DataLayer</module>
