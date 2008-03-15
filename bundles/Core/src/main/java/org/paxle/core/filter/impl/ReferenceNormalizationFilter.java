@@ -6,12 +6,13 @@ import java.net.MalformedURLException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.ParseException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -146,6 +147,21 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 		return sb.append(str.substring(last)).toString();
 	}
 	
+	private static final class QueryEntry implements Comparable<QueryEntry> {
+		
+		public final String key;
+		public final String val;
+		
+		public QueryEntry(final String key, final String val) {
+			this.key = key;
+			this.val = val;
+		}
+		
+		public int compareTo(QueryEntry o) {
+			return key.compareTo(o.key);
+		}
+	}
+	
 	public class OwnURL {
 		
 		/*
@@ -173,7 +189,7 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 		private String host;
 		private int port = -1;
 		private String path = "/";
-		private Map<String,String> query;
+		private List<QueryEntry> query;
 		private String fragment;
 		
 		public OwnURL() {
@@ -270,22 +286,26 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 					final int queryEnd = (hashmark == -1) ? url.length() : hashmark;
 					if (queryEnd > qmark + 1) {
 						if (query == null)
-							query = (sortQuery) ? new TreeMap<String,String>() : new LinkedHashMap<String,String>();
+							query = new LinkedList<QueryEntry>();
 						int paramStart = qmark + 1;
 						do {
 							int paramEnd = url.indexOf('&', paramStart);
 							if (paramEnd == -1 || paramEnd > queryEnd)
 								paramEnd = queryEnd;
-							int eq = url.indexOf('=', paramStart);
-							if (eq == -1 || eq > paramEnd)
-								eq = paramEnd;
-								// throw new MalformedURLException("Illegal query parameter " + url.substring(paramStart, paramEnd) + " in URL " + url);
-							
-							query.put(
-									urlDecode(url.substring(paramStart, eq).replace('+', ' '), charset),
-									(eq < paramEnd) ? urlDecode(url.substring(eq + 1, paramEnd).replace('+', ' '), charset) : null);
+							if (paramEnd > paramStart) {
+								int eq = url.indexOf('=', paramStart);
+								if (eq == -1 || eq > paramEnd)
+									eq = paramEnd;
+								
+								final String key = urlDecode(url.substring(paramStart, eq).replace('+', ' '), charset);
+								final String val = (eq < paramEnd) ? urlDecode(url.substring(eq + 1, paramEnd).replace('+', ' '), charset) : null;
+								// System.out.println("query arg: " + key + " <-> " + val);
+								query.add(new QueryEntry(key, val));
+							}
 							paramStart = paramEnd + 1;
 						} while (paramStart < queryEnd);
+						if (sortQuery)
+							Collections.sort(query);
 					}
 				}
 				
@@ -299,9 +319,9 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 		}
 		
 		private StringBuffer appendQuery(final StringBuffer sb) {
-			for (Map.Entry<String,String> e : query.entrySet()) {
-				sb.append(e.getKey());
-				final String val = e.getValue();
+			for (QueryEntry e : query) {
+				sb.append(e.key);
+				final String val = e.val;
 				if (val != null)
 					sb.append('=').append(val);
 				sb.append('&');
