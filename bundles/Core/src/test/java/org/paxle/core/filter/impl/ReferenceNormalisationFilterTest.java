@@ -41,6 +41,8 @@ public class ReferenceNormalisationFilterTest extends TestCase {
 				"kwuris=http%3A%2F%2Fwww.semanlink.net%2Ftag%2Fairbus&kwuris=http%3A%2F%2Fwww.semanlink.net%2Ftag%2Ftechnical_documentation",
 			"http://www.semanlink.net/andkws.do;jsessionid=7A0F3800C5F466E0EA9405C483CB3341?" +
 			"kwuris=http://www.semanlink.net/tag/airbus&kwuris=http://www.semanlink.net/tag/technical_documentation"},
+		{"http://www.youtube.com/comment_servlet?all_comments&v=snaecrgdniU&fromurl=/watch%3Fv%3DsnaecrgdniU",
+				"http://www.youtube.com/comment_servlet?all_comments&v=snaecrgdniU&fromurl=/watch%3Fv%3DsnaecrgdniU"},
 	};
 
 	@Override

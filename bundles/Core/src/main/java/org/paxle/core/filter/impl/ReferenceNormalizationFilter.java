@@ -134,12 +134,29 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 				if (!token.matches("[0-9a-fA-F]{2}"))
 					throw new ParseException("illegal url-encoded token '" + token + "'", percent);
 				
-				baos.write(Integer.parseInt(token, 16) & 0xFF);
+				final int tokenValue = Integer.parseInt(token, 16) & 0xFF;
+				switch (tokenValue) {
+					case '#': // fall through
+					case '&': // fall through
+					case '=': // fall through
+					case '?':
+						if (baos.size() > 0) {
+							sb.append(charset.decode(ByteBuffer.wrap(baos.toByteArray())));
+							baos.reset();
+						}
+						sb.append('%').append(token);
+						break;
+					default:
+						baos.write(tokenValue);
+						break;
+				}
 				percent += 3;
 			} while (percent < len && str.charAt(percent) == '%');
 			
-			sb.append(charset.decode(ByteBuffer.wrap(baos.toByteArray())));	// here the actual decoding takes place
-			baos.reset();													// reuse the ByteArrayOutputStream in the next run
+			if (baos.size() > 0) {
+				sb.append(charset.decode(ByteBuffer.wrap(baos.toByteArray())));	// here the actual decoding takes place
+				baos.reset();													// reuse the ByteArrayOutputStream in the next run
+			}
 			
 			last = percent;													// byte after the token
 			percent = str.indexOf('%', last);								// search for next token, returns -1 if last > len
