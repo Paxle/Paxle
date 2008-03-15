@@ -67,7 +67,26 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 		for (IFilterContext filterContext : this.filterList) {
 			IFilter<ICommand> filter = null;
 			try {
+				long start = System.currentTimeMillis();
+				
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(String.format(
+						"[%s] Passing command with ULR '%s' to filter '%s' ...",
+						this.filterQueueID,
+						command.getLocation(),
+						filter.getClass().getName()
+					));
+				}
 				filter = filterContext.getFilter();
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(String.format(
+						"[%s] Filtering of command with URL '%s' by filter '%s' took %d ms.",
+						this.filterQueueID,
+						command.getLocation(),
+						filter.getClass().getName(),
+						System.currentTimeMillis() - start
+					));
+				}
 				
 				// process the command by the next filter
 				filter.filter(command, filterContext);
