@@ -127,6 +127,7 @@ Install Bundle: <form><input type="text" name="bundlePath" size="60" /><input ty
 					<input type="hidden" name="bundleID" value="$entry.key" />
 					<input type="submit" name="start" value="Start" />
 					<input type="submit" name="stop" value="Stop" />
+					<input type="submit" name="restart" value="Restart" />
 					<input type="submit" name="update" value="Update" />
 					<input type="submit" name="uninstall" value="Uninstall" />
 				
