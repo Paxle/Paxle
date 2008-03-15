@@ -126,6 +126,7 @@
 
 	<profiles>
 		<profile>
+			<id>bundle-debug-profile</id>
 			<activation>
 				<property>
 					<name>debug</name>
