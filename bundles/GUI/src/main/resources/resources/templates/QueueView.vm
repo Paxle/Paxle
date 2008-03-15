@@ -41,7 +41,7 @@
    		<td><a href="?queue=$entry.value">$entry.key</a></td>
    		<td>$compQueue.getActiveJobCount()</td>
    		<td>$compQueue.getEnqueuedJobCount()</td>
-   	<tr>
+   	</tr>
    	#end
       #end
    </table>

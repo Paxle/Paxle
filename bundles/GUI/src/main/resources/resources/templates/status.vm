@@ -166,7 +166,7 @@
 		#set($disabledMimeTypes = $subParserManager.disabledMimeTypes())
 		#foreach($mimeType in $mimeTypes)
 		<tr class="$color">
-			<td><tt>$mimeType</tt></li>
+			<td><tt>$mimeType</tt></td>
 			<td>#if($disabledMimeTypes.contains($mimeType))
 				<font color="red">disabled</font>
 			    #else
@@ -184,6 +184,7 @@
 			   #end
 			   </form>
 			</td>
+		</tr>
 		#end
 	</table>		
 	
