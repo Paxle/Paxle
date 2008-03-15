@@ -15,6 +15,7 @@ import org.paxle.gui.impl.servlets.LogView;
 import org.paxle.gui.impl.servlets.OpenSearchDescription;
 import org.paxle.gui.impl.servlets.P2PView;
 import org.paxle.gui.impl.servlets.QueueView;
+import org.paxle.gui.impl.servlets.RootView;
 import org.paxle.gui.impl.servlets.SearchView;
 import org.paxle.gui.impl.servlets.SettingsView;
 import org.paxle.gui.impl.servlets.StatusView;
@@ -122,7 +123,7 @@ public class Activator implements BundleActivator {
 			/* ==========================================================
 			 * Register Servlets
 			 * ========================================================== */	
-			servletManager.addServlet("/", new SearchView(null));
+			servletManager.addServlet("/", new RootView(null));
 			servletManager.addServlet("/search", new SearchView(null));
 			servletManager.addServlet("/status", new StatusView(null));
 			servletManager.addServlet("/p2p", new P2PView(null));
