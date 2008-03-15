@@ -38,7 +38,7 @@ public class BundleView extends ALayoutServlet {
     	
         Template template = null;
         try {
-            template = this.getTemplate("/resources/templates/bundle.vm");
+            template = this.getTemplate("/resources/templates/BundleView.vm");
             
             ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
             if (request.getParameter("update") != null) {

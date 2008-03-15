@@ -27,7 +27,7 @@ public class P2PView extends ALayoutServlet {
     		/*
     		 * Setting template parameters
     		 */             
-    		template = this.getTemplate("/resources/templates/p2p.vm");
+    		template = this.getTemplate("/resources/templates/P2PView.vm");
     	} catch( Exception e ) {
     		e.printStackTrace();
     	} catch (Error e) {

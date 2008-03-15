@@ -42,7 +42,7 @@ public class StatusView extends ALayoutServlet {
         	   	/*
 	        	 * Setting template parameters
 	        	 */             
-	            template = this.getTemplate("/resources/templates/status.vm");
+	            template = this.getTemplate("/resources/templates/StatusView.vm");
         	}
         } catch( Exception e ) {
         	e.printStackTrace();

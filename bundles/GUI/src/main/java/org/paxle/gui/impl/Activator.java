@@ -16,6 +16,7 @@ import org.paxle.gui.impl.servlets.OpenSearchDescription;
 import org.paxle.gui.impl.servlets.P2PView;
 import org.paxle.gui.impl.servlets.QueueView;
 import org.paxle.gui.impl.servlets.SearchView;
+import org.paxle.gui.impl.servlets.SettingsView;
 import org.paxle.gui.impl.servlets.StatusView;
 
 public class Activator implements BundleActivator {
@@ -60,6 +61,7 @@ public class Activator implements BundleActivator {
 				props.put("org.apache.velocity.toolbox", "/resources/config/velocity.toolbox");
 				props.put("bundle.location",context.getBundle().getLocation());
 				
+				@SuppressWarnings("unused")
 				HttpContext httpContext = null;
  
 				/* TODO: do user authentication here.
@@ -99,7 +101,7 @@ public class Activator implements BundleActivator {
 				menuManager.addItem("/bundle", "Bundles");
 				menuManager.addItem("/log", "Logging");
 				menuManager.addItem("/queue", "Queues");				
-				
+				menuManager.addItem("/config", "Settings");
 				
 				// registering the servlet which will be accessible using 
 //                http.registerServlet("/search", new SearchView(manager), props, httpContext);
@@ -127,7 +129,8 @@ public class Activator implements BundleActivator {
 			servletManager.addServlet("/log", new LogView(null));
 			servletManager.addServlet("/queue", new QueueView(null));
 			servletManager.addServlet("/opensearch/osd.xml", new OpenSearchDescription(null));
-				
+			servletManager.addServlet("/config", new SettingsView(null));
+			
 			/*
 			 * Add stylesheets
 			 * TODO: use some kind of addResourceFolder instead

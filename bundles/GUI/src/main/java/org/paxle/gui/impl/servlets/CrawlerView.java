@@ -53,7 +53,7 @@ public class CrawlerView extends ALayoutServlet {
         	/*
         	 * Setting template parameters
         	 */        	
-            template = this.getTemplate("/resources/templates/crawler.vm");
+            template = this.getTemplate("/resources/templates/CrawlerView.vm");
         } catch( Exception e ) {
           System.err.println("Exception caught: " + e.getMessage());
           e.printStackTrace();
