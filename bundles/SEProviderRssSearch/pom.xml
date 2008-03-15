@@ -45,7 +45,7 @@
 							!org.apache.xml.resolver.*
 						</Import-Package>
 						<Private-Package>
-							org.paxle.se.provider.socialbookmarks.impl,
+							org.paxle.se.provider.rsssearch.impl,
 							org.jdom,
 							org.jdom.*
 						</Private-Package>
@@ -58,7 +58,7 @@
 						</DynamicImport-Package>
 						
 						<Bundle-Activator>
-							org.paxle.se.provider.socialbookmarks.impl.Activator
+							org.paxle.se.provider.rsssearch.impl.Activator
 						</Bundle-Activator>
 	
 						<Embed-StripGroup>true</Embed-StripGroup>
