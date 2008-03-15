@@ -37,9 +37,14 @@ public class SettingsView extends ALayoutServlet
 
 		Template template = null;
 		
-		if ( request.getParameter( "changeStyle") != null) {
+		if( request.getParameter( "searchForStyles") != null) {
+			StyleManager.searchForStyles();
+		}
+		
+		if( request.getParameter( "changeStyle") != null) {
 			StyleManager.setStyle( request.getParameter( "changeStyle"));
 		}
+		
 
 		try {
 			context.put( "availbleStyles", StyleManager.getStyles());

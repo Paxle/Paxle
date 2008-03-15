@@ -11,74 +11,75 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.http.HttpContext;
 
+
 public class StyleManager
 {
-	
+
 	private static Log logger = LogFactory.getLog( StyleManager.class);
-	
-	/** Vector containing available styles */
+
+	/** HashMap containing available styles */
 	private static HashMap<String, File> styles = new HashMap<String, File>();
 
-	static {
-		styles.put( "Red Style", new File("/home/markus/styletest.jar"));
-	}
-	
-	
 	public static HashMap<String, File> getStyles()
 	{
 		return styles;
 	}
-	
-	
+
+
 	public static void searchForStyles()
 	{
+//		styles = new HashMap<String, File>();
+		
+		File stylePath = new File("bundles/Styles");
+				
+		File[] files = stylePath.listFiles();
+
+		for (int i = 0; i < files.length; i++) {
+
+			styles.put( files[i].getName(), files[i]);
+
+		}
+
 		return;
 	}
-	
-	
+
+
 	public static void setStyle( String name)
 	{
-		
 		ServletManager servletManager = Activator.getServletManager();
-		
+
 		HttpContext httpContextStyle = new HttpContextStyle( name);
-		
+
 		try {
 
 			JarFile styleJarFile = new JarFile( name);
-			
-			Enumeration<?> jarEntryEnum = styleJarFile.entries(); 
-			
-			while( jarEntryEnum.hasMoreElements()) {
-				
+
+			Enumeration<?> jarEntryEnum = styleJarFile.entries();
+
+			while (jarEntryEnum.hasMoreElements()) {
+
 				JarEntry entry = (JarEntry) jarEntryEnum.nextElement();
-				
-				if( entry.isDirectory()) {
-					
+
+				if (entry.isDirectory()) {
+
 					String alias = "/" + entry.getName().substring( 0, entry.getName().length() - 1);
-					
-					logger.warn( "JarEntryName: " + alias);
-					
+
 					servletManager.removeResource( alias);
-					
-					servletManager.addResources( alias, alias , httpContextStyle);
-				
+
+					servletManager.addResources( alias, alias, httpContextStyle);
+
 				}
-				
+
 			}
-		
 
 		} catch (IOException e) {
-			
+
 			logger.error( "io: " + e);
-			
+
 			e.printStackTrace();
-			
+
 		}
 		return;
 	}
 
-
 }
-
-
