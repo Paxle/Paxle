@@ -198,13 +198,13 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 		public void run() {
 			try {
 				if (restart) {
-					logger.debug("SHUTTING DOWN FRAMEWORK");
-					manager.shutdownFramework();
-					logger.debug("FINISHED SHUTTING DOWN FRAMEWORK");
-				} else {
 					logger.debug("RESTARTING FRAMEWORK");
 					manager.restartFramework();
 					logger.debug("FINISHED RESTARTING FRAMEWORK");
+				} else {
+					logger.debug("SHUTTING DOWN FRAMEWORK");
+					manager.shutdownFramework();
+					logger.debug("FINISHED SHUTTING DOWN FRAMEWORK");
 				}
 			} catch (BundleException e) {
 				logger.error("error " + ((restart) ? "restarting" : "shutting down") + " framework", e);
