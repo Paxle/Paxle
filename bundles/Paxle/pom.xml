@@ -400,69 +400,172 @@
 					</execution>
 				</executions>
 			</plugin>
+		</plugins>
+	</build>
 
-			<!-- ==================================================================-->
-			<!-- RELEASE - FILES                                                   -->
-			<!-- ==================================================================-->
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.2-beta-2</version>
-				<inherited>false</inherited>
-				<configuration>
-					<descriptors>
-						<descriptor>
-							src/main/assembly/bundles.xml
-						</descriptor>
-						<descriptor>
-							src/main/assembly/equinox.xml
-						</descriptor>
-						<descriptor>
-							src/main/assembly/felix.xml
-						</descriptor>
-					</descriptors>
-					<outputDirectory>target</outputDirectory>
-					<workDirectory>target/assembly/work</workDirectory>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>install</phase>
-						<goals>
-							<goal>attached</goal>
-						</goals>
-					</execution>				
-				</executions>
-			</plugin>
+	<!-- define global dependendies -->
+	<dependencies>
+		<!-- OSGi API -->
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>osgi_R4_core</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>osgi_R4_compendium</artifactId>
+			<version>1.0</version>
+		</dependency>
 
-			<!-- ==================================================================-->
-			<!-- INSTALLER - JAVA                                                  -->
-			<!-- java based installer for paxle                                    -->
-			<!-- ==================================================================-->
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>make-java-installer</id>
-						<phase>install</phase>
+		<!-- Commons Logging API -->
+		<dependency>
+			<artifactId>commons-logging</artifactId>
+			<groupId>commons-logging</groupId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<!-- Junit Testing -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<!-- JRE 6.0 modules -->
+		<profile>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<jdk>1.6</jdk>
+			</activation>
+
+			<modules>
+				<module>../DIJre6Backend</module>
+			</modules>
+		</profile>
+
+		<!--  debug profile -->
+		<profile>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>debug</name>
+				</property>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>2.2-beta-2</version>
+						<inherited>false</inherited>
 						<configuration>
-							<tasks>
-								<echo message="${basedir}" />
+							<descriptors>
+								<descriptor>
+									src/main/assembly/debug.xml
+								</descriptor>
+							</descriptors>
+							<outputDirectory>../</outputDirectory>
+							<workDirectory>
+								target/assembly/debug
+							</workDirectory>
+							<finalName>/Debug</finalName>
+							<ignoreDirFormatExtensions>
+								true
+							</ignoreDirFormatExtensions>
+							<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
+						<executions>
+							<execution>
+								<id>make-debug-assembly</id>
+								<phase>install</phase>
+								<goals>
+									<goal>directory-single</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 
-								<taskdef name="izpack"
-									classname="com.izforge.izpack.ant.IzPackTask"
-									classpath="src/main/resources/installers/standalone-compiler.jar" />
+		<!--  release profile [DEFAULT] -->
+		<profile>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>!debug</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<!-- ==================================================================-->
+					<!-- RELEASE - FILES                                                   -->
+					<!-- ==================================================================-->
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>2.2-beta-2</version>
+						<inherited>false</inherited>
+						<configuration>
+							<descriptors>
+								<descriptor>
+									src/main/assembly/bundles.xml
+								</descriptor>
+								<descriptor>
+									src/main/assembly/equinox.xml
+								</descriptor>
+								<descriptor>
+									src/main/assembly/felix.xml
+								</descriptor>
+							</descriptors>
+							<outputDirectory>target</outputDirectory>
+							<workDirectory>
+								target/assembly/work
+							</workDirectory>
+						</configuration>
+						<executions>
+							<execution>
+								<id>make-assembly</id>
+								<phase>install</phase>
+								<goals>
+									<goal>attached</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 
-								<!-- untar archive -->
-								<untar compression="gzip"
-									src="target/${pom.artifactId}-${pom.version}-equinox.tar.gz"
-									dest="target/izpack" />
+					<!-- ==================================================================-->
+					<!-- INSTALLER - JAVA                                                  -->
+					<!-- java based installer for paxle                                    -->
+					<!-- ==================================================================-->
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>make-java-installer</id>
+								<phase>install</phase>
+								<configuration>
+									<tasks>
+										<echo message="${basedir}" />
 
-								<!-- create installer -->
-								<izpack
-									output="target/${pom.artifactId}-${pom.version}-installer.jar" installerType="standard"
-									basedir="target/izpack/" izpackdir="src/main/resources/installers/">
-									<config>
-										<![CDATA[
+										<taskdef name="izpack"
+											classname="com.izforge.izpack.ant.IzPackTask"
+											classpath="src/main/resources/installers/standalone-compiler.jar" />
+
+										<!-- untar archive -->
+										<untar compression="gzip"
+											src="target/${pom.artifactId}-${pom.version}-equinox.tar.gz"
+											dest="target/izpack" />
+
+										<!-- create installer -->
+										<izpack
+											output="target/${pom.artifactId}-${pom.version}-installer.jar"
+											installerType="standard" basedir="target/izpack/"
+											izpackdir="src/main/resources/installers/">
+											<config>
+												<![CDATA[
 										<installation version="1.0">
 											<info>
 												<appname>Paxle</appname>
@@ -522,139 +625,65 @@
 											</packs>
 										</installation>
 									]]>
-									</config>
-								</izpack>
-							</tasks>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+											</config>
+										</izpack>
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 
-			<!-- ==================================================================-->
-			<!-- INSTALLER - EXE                                                   -->
-			<!-- a plugin to generate an exe file from the jar-installer           -->
-			<!-- generated above                                                   -->
-			<!-- ==================================================================-->
-			<plugin>
-				<groupId>com.akathist.maven.plugins.launch4j</groupId>
-				<artifactId>launch4j-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>make-exe-installer</id>
-						<phase>install</phase>
-						<goals>
-							<goal>launch4j</goal>
-						</goals>
-						<configuration>
-							<headerType>gui</headerType>
-							<outfile>target/${pom.artifactId}-${pom.version}-installer.exe</outfile>
-							<jar>target/${pom.artifactId}-${pom.version}-installer.jar</jar>
-							<dontWrapJar>false</dontWrapJar>
-							<icon>src/main/resources/img/icon.ico</icon>
-							<classPath>
-								<mainClass>com.izforge.izpack.installer.Installer</mainClass>
-								<addDependencies>false</addDependencies>
-								<preCp>anything</preCp>
-							</classPath>
-							<jre>
-								<minVersion>1.5.0</minVersion>
-							</jre>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-		</plugins>
-	</build>
-
-	<!-- define global dependendies -->
-	<dependencies>
-		<!-- OSGi API -->
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>osgi_R4_core</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>osgi_R4_compendium</artifactId>
-			<version>1.0</version>
-		</dependency>
-
-		<!-- Commons Logging API -->
-		<dependency>
-			<artifactId>commons-logging</artifactId>
-			<groupId>commons-logging</groupId>
-			<version>1.0.4</version>
-		</dependency>
-
-		<!-- Junit Testing -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
-	<profiles>
-		<!-- JRE 6.0 modules -->
-		<profile>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-				<jdk>1.6</jdk>
-			</activation>
-
-			<modules>
-				<module>../DIJre6Backend</module>
-			</modules>
-		</profile>
-		
-		<!--  debug -->
-		<profile>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-				<property>
-					<name>debug</name>
-				</property>
-			</activation>
-
-			<build>
-				<plugins>
+					<!-- ==================================================================-->
+					<!-- INSTALLER - EXE                                                   -->
+					<!-- a plugin to generate an exe file from the jar-installer           -->
+					<!-- generated above                                                   -->
+					<!-- ==================================================================-->
 					<plugin>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<version>2.2-beta-2</version>
-						<inherited>false</inherited>
-						<configuration>
-							<descriptors>
-								<descriptor>
-									src/main/assembly/debug.xml
-								</descriptor>
-							</descriptors>
-							<outputDirectory>../</outputDirectory>
-							<workDirectory>
-								target/assembly/debug
-							</workDirectory>
-							<finalName>/Debug</finalName>
-							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>	
-							<appendAssemblyId>false</appendAssemblyId>							
-						</configuration>
+						<groupId>
+							com.akathist.maven.plugins.launch4j
+						</groupId>
+						<artifactId>launch4j-maven-plugin</artifactId>
 						<executions>
 							<execution>
-								<id>make-debug-assembly</id>
+								<id>make-exe-installer</id>
 								<phase>install</phase>
 								<goals>
-									<goal>directory-single</goal>
+									<goal>launch4j</goal>
 								</goals>
+								<configuration>
+									<headerType>gui</headerType>
+									<outfile>
+										target/${pom.artifactId}-${pom.version}-installer.exe
+									</outfile>
+									<jar>
+										target/${pom.artifactId}-${pom.version}-installer.jar
+									</jar>
+									<dontWrapJar>false</dontWrapJar>
+									<icon>
+										src/main/resources/img/icon.ico
+									</icon>
+									<classPath>
+										<mainClass>
+											com.izforge.izpack.installer.Installer
+										</mainClass>
+										<addDependencies>
+											false
+										</addDependencies>
+										<preCp>anything</preCp>
+									</classPath>
+									<jre>
+										<minVersion>1.5.0</minVersion>
+									</jre>
+								</configuration>
 							</execution>
 						</executions>
 					</plugin>
 				</plugins>
 			</build>
-		</profile>		
+		</profile>
 	</profiles>
 
 	<!-- define modules -->
