@@ -10,7 +10,6 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.paxle.gui.ALayoutServlet;
-import org.paxle.gui.impl.ServiceManager;
 import org.paxle.gui.impl.StyleManager;
 
 
@@ -37,6 +36,10 @@ public class SettingsView extends ALayoutServlet
 	{
 
 		Template template = null;
+		
+		if ( request.getParameter( "changeStyle") != null) {
+			StyleManager.setStyle( request.getParameter( "changeStyle"));
+		}
 
 		try {
 			context.put( "availbleStyles", StyleManager.getStyles());

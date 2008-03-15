@@ -61,11 +61,11 @@ public class ServletManager implements IServletManager {
 		this.logger = LogFactory.getLog(this.getClass());
 	}
 	
-	synchronized void addServlet(String alias, Servlet servlet) {
+	public synchronized void addServlet( String alias, Servlet servlet) {
 		this.addServlet(alias, servlet, this.defaultContext);	
 	}
 	
-	synchronized void addServlet(String alias, Servlet servlet, HttpContext httpContext) {
+	public synchronized void addServlet( String alias, Servlet servlet, HttpContext httpContext) {
 		this.servlets.put(alias, servlet);
 		this.httpContexts.put(alias, httpContext);
 		
@@ -90,7 +90,7 @@ public class ServletManager implements IServletManager {
 		}
 	}
 	
-	synchronized void removeServlet(String alias) {		
+	public synchronized void removeServlet( String alias) {		
 		Servlet servlet = this.servlets.remove(alias);		
 		this.httpContexts.remove(alias);
 		this.logger.info(String.format("Unregistering servlet '%s' for alias '%s'.", servlet.getClass().getName(), alias));
@@ -100,11 +100,11 @@ public class ServletManager implements IServletManager {
 		}
 	}
 	
-	synchronized void addResources(String alias, String name) {
+	public synchronized void addResources( String alias, String name) {
 		this.addResources(alias, name, this.defaultContext);
 	}
 	
-	synchronized void addResources(String alias, String name, HttpContext httpContext) {
+	public synchronized void addResources( String alias, String name, HttpContext httpContext) {
 		this.resources.put(alias, name);
 		this.httpContexts.put(alias, httpContext);
 		
@@ -122,7 +122,7 @@ public class ServletManager implements IServletManager {
 		}
 	}
 	
-	synchronized void removeResource(String alias) {
+	public synchronized void removeResource( String alias) {
 		String name = this.resources.remove(alias);
 		this.httpContexts.remove(alias);
 		this.logger.info(String.format("Unregistering resource '%s' for alias '%s'.", name, alias));
@@ -132,7 +132,7 @@ public class ServletManager implements IServletManager {
 		}
 	}
 	
-	synchronized void setHttpService(HttpService httpService) {		
+	public synchronized void setHttpService( HttpService httpService) {		
 		if (httpService == null) {
 			// don't unregister, otherwise the http-service destroys our servlets!
 			this.unregisterAll();

@@ -117,6 +117,8 @@ public class Activator implements BundleActivator {
 
 			}
 			
+			HttpContext httpContextAuth = new HttpContextAuth( bc.getBundle());
+			
 			/* ==========================================================
 			 * Register Servlets
 			 * ========================================================== */	
@@ -126,7 +128,7 @@ public class Activator implements BundleActivator {
 			servletManager.addServlet("/p2p", new P2PView(null));
 			servletManager.addServlet("/crawler", new CrawlerView(null));
 			servletManager.addServlet("/bundle", new BundleView(null));
-			servletManager.addServlet("/log", new LogView(null));
+			servletManager.addServlet("/log", new LogView(null), httpContextAuth);
 			servletManager.addServlet("/queue", new QueueView(null));
 			servletManager.addServlet("/opensearch/osd.xml", new OpenSearchDescription(null));
 			servletManager.addServlet("/config", new SettingsView(null));
@@ -163,5 +165,11 @@ public class Activator implements BundleActivator {
 		menuManager = null;
 		http = null;
 		bc = null;
+	}
+	
+	public static ServletManager getServletManager() {
+		
+		return servletManager;
+		
 	}
 }
