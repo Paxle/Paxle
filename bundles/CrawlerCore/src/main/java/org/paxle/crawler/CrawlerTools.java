@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,7 +47,17 @@ public class CrawlerTools {
 		
 		// testing if the charset is supported by java
 		String contentCharset = doc.getCharset();
-		if (contentCharset != null && !Charset.isSupported(contentCharset)) {
+		
+		boolean unsupportedCharset = false;		
+		try {
+			if (contentCharset != null && !Charset.isSupported(contentCharset)) {
+				unsupportedCharset = true;
+			}
+		} catch (IllegalCharsetNameException e) {
+			unsupportedCharset = true;
+		}
+		
+		if (unsupportedCharset) {
 			logger.warn(String.format(
 					"The resource '%s' has an unsupported charset '%s'. Resetting charset ...", 
 					doc.getLocation(),
