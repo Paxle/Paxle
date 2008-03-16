@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -116,7 +117,16 @@ public class HtmlParser implements IHtmlParser {
 		final FileInputStream fis = new FileInputStream(content);
 		try {
 			// testing if we support the charset. if not we try to use UTF-8
-			if (charset != null && !Charset.isSupported(charset)) {
+			boolean unsupportedCharset = false;
+			try {
+				if (charset != null && !Charset.isSupported(charset)) {
+					unsupportedCharset = true;
+				}
+			} catch (IllegalCharsetNameException e) {
+				unsupportedCharset = true;
+			}
+			
+			if (unsupportedCharset) {
 				this.logger.warn(String.format(
 						"The resource '%s' has an unsupported charset '%s'. We try to use UTF-8 instead.", 
 						location,
