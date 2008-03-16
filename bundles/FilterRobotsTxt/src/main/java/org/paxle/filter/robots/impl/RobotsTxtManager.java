@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
@@ -176,11 +177,13 @@ public class RobotsTxtManager {
 				if (e instanceof UnknownHostException) {
 					reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
 					status = "Unknown host";
+				} else if (e instanceof SocketTimeoutException) {
+					logger.debug("TimeOut while loading robots.txt from" + hostPort);
 				} else if (!(
 						e instanceof ConnectException ||
 						e instanceof SocketException
 				)){
-					e.printStackTrace();
+					logger.error("Exception while loading robots.txt from" + hostPort, e);
 				}
 				
 				return new RobotsTxt(hostPort, reloadInterval, status);
