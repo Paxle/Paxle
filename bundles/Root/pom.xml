@@ -94,6 +94,22 @@
 		</plugins>
 	</build>
 
+	<!-- dependencies that are used multiple times -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>commons-httpclient</groupId>
+				<artifactId>commons-httpclient</artifactId>
+				<version>3.0.1</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-codec</groupId>
+				<artifactId>commons-codec</artifactId>
+				<version>1.2</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<!-- define global dependendies -->
 	<dependencies>
 		<!-- OSGi API -->

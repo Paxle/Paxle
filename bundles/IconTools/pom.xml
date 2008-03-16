@@ -45,7 +45,11 @@
 							javax.swing.text.html, 
 							javax.swing.text.html.parser, 
 							javax.swing.text,
-							org.w3c.dom
+							org.w3c.dom,
+							javax.crypto, 
+							javax.crypto.spec, 
+							javax.net, 
+							javax.net.ssl
 						</DynamicImport-Package>
 						<Private-Package>
 							org.paxle.icon.impl
@@ -58,7 +62,9 @@
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
-							aclib;scope=compile|runtime
+							aclib;scope=compile|runtime,
+							commons-httpclient;scope=compile|runtime,
+							commons-codec;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
@@ -87,8 +93,11 @@
 		<dependency>
 			<groupId>commons-httpclient</groupId>
 			<artifactId>commons-httpclient</artifactId>
-			<version>3.0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>		
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
