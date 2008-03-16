@@ -131,11 +131,11 @@ public class HtmlParser implements IHtmlParser {
 			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
 			
 			final IParserDocument doc = new CachedParserDocument(ParserContext.getCurrentContext().getTempFileManager());
-			final NodeCollector nc = new NodeCollector(doc, this.logger);
+			final NodeCollector nc = new NodeCollector(doc, new ParserLogger(logger, location));
 			parser.visitAllNodesWith(nc);
 			page.close();
 			
-			if (charset != null)
+			if (charset != null && doc.getCharset() == null)
 				doc.setCharset(Charset.forName(charset));
 			doc.setStatus(IParserDocument.Status.OK);
 			return doc;

@@ -1,3 +1,4 @@
+
 package org.paxle.parser.html.impl.tags;
 
 import java.util.Collection;
@@ -9,6 +10,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.htmlparser.tags.MetaTag;
+import org.paxle.parser.html.impl.ParserLogger;
 
 public class MetaTagManager {
 	
@@ -16,6 +18,7 @@ public class MetaTagManager {
 		public boolean isPrefixed();
 		public String getPrefix();
 	}
+	
 	/**
 	 * @see <a href="http://www.metatab.de/index.html">Dublin Core META-tags</a>
 	 */
@@ -26,21 +29,38 @@ public class MetaTagManager {
 		Creator("DC"),
 		Subject("DC"),
 		Description("DC"),
-			Description_TableOfContents("DC"), Description_Abstract("DC"),
+			Description_TableOfContents("DC"),
+			Description_Abstract("DC"),
 		Publisher("DC"),
 		Contributor("DC"),
 		Date("DC"),
-			Date_Created("DC"), Date_Valid("DC"), Date_Available("DC"), Date_Issued("DC"), Date_Modified("DC"),
+			Date_Created("DC"),
+			Date_Valid("DC"),
+			Date_Available("DC"),
+			Date_Issued("DC"),
+			Date_Modified("DC"),
 		Type("DC"),
 		Format("DC"),
-			Format_Extent("DC"), Format_Medium("DC"),
+			Format_Extent("DC"),
+			Format_Medium("DC"),
 		Source("DC"),
 		Language("DC"),
 		Relation("DC"),
-			Relation_IsVersionOf("DC"), Relation_HasVersion("DC"), Relation_IsReplacedBy("DC"), Relation_Replaces("DC"),
-			Relation_IsRequiredBy("DC"), Relation_Requires("DC"), Relation_IsPartOf("DC"), Relation_HasPart("DC"),
-			Relation_IsReferencedBy("DC"), Relation_References("DC"), Relation_IsFormatOf("DC"), Relation_HasFormat("DC"),
-		Coverage("DC"), Coverage_Spatial("DC"), Coverage_Temporal("DC"),
+			Relation_IsVersionOf("DC"),
+			Relation_HasVersion("DC"),
+			Relation_IsReplacedBy("DC"),
+			Relation_Replaces("DC"),
+			Relation_IsRequiredBy("DC"),
+			Relation_Requires("DC"),
+			Relation_IsPartOf("DC"),
+			Relation_HasPart("DC"),
+			Relation_IsReferencedBy("DC"),
+			Relation_References("DC"),
+			Relation_IsFormatOf("DC"),
+			Relation_HasFormat("DC"),
+		Coverage("DC"),
+			Coverage_Spatial("DC"),
+			Coverage_Temporal("DC"),
 		Rights("DC"),
 		Keywords,
 		Robots,
@@ -82,8 +102,13 @@ public class MetaTagManager {
 		}
 	}
 	
+	private final ParserLogger logger;
 	private final Map<Names,Collection<String>> tags = Collections.synchronizedMap(new EnumMap<Names,Collection<String>>(Names.class)); 
 	// private final Hashtable<Names,Collection<String>> tags = new Hashtable<Names,Collection<String>>();
+	
+	public MetaTagManager(final ParserLogger logger) {
+		this.logger = logger;
+	}
 	
 	private void add(Names n, String v) {
 		if (v == null || v.length() == 0)
@@ -96,14 +121,26 @@ public class MetaTagManager {
 	}
 	
 	public void addMetaTag(MetaTag tag) {
+		int c = 0;
+		String value = tag.getMetaContent();
+		while (value == null) {
+			switch (c++) {
+				case 0: value = tag.getAttribute("value"); break;
+				default:
+					logger.logInfo("MetaTag not processable due to unknown key", tag.getStartingLineNumber());
+					return;
+			}
+		}
+		
 		Names n = getName(tag.getAttribute("name"));
 		if (n != null) {
-			add(n, tag.getMetaContent().replaceAll("\\s", " ").trim());
+			add(n, value.replaceAll("\\s", " ").trim());
 			return;
 		}
+		
 		n = getName(tag.getHttpEquiv());
 		if (n != null) {
-			add(n, tag.getMetaContent().replaceAll("\\s", " ").trim());
+			add(n, value.replaceAll("\\s", " ").trim());
 			return;
 		}
 	}

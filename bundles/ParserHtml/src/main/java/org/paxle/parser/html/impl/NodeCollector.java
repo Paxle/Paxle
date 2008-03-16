@@ -1,11 +1,10 @@
+
 package org.paxle.parser.html.impl;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-
-import org.apache.commons.logging.Log;
 
 import org.htmlparser.PrototypicalNodeFactory;
 import org.htmlparser.Tag;
@@ -41,7 +40,7 @@ import org.paxle.parser.html.impl.tags.MetaTagManager;
  * @see #visitTag(Tag) for a list of tags supported by the {@link NodeCollector}
  * @see #postProcessMeta() for a list of supported META-tag-properties
  */
-public class NodeCollector extends NodeVisitor {
+public class NodeCollector extends NodeVisitor{
 	
 	/**
 	 * The node factory used by the underlying HTML parser to determine the type of a node and
@@ -74,15 +73,16 @@ public class NodeCollector extends NodeVisitor {
 			"lh", "caption", "label", "span"
 	));
 	
-	private final MetaTagManager mtm = new MetaTagManager();
+	private final MetaTagManager mtm;
 	private final IParserDocument doc;
-	private final Log logger;
+	private final ParserLogger logger;
 	private boolean noParse = false;
 	
-	public NodeCollector(final IParserDocument doc, Log logger) {
+	public NodeCollector(final IParserDocument doc, final ParserLogger logger) {
 		super(true, true);
 		this.doc = doc;
 		this.logger = logger;
+		this.mtm = new MetaTagManager(logger);
 	}
 	
 	/**
@@ -179,7 +179,7 @@ public class NodeCollector extends NodeVisitor {
 			if (txt.length() > 0) try {
 				this.doc.addText(txt);
 			} catch (IOException e) {
-				this.logger.error("Error processing String-node: " + e.getMessage(), e);
+				logger.logError("Error processing string-node", string.getStartPosition(), e);
 			}
 		}
 	}
@@ -229,10 +229,9 @@ public class NodeCollector extends NodeVisitor {
 			else if (tag instanceof TableTag)		process((TableTag)tag);
 			else if (tag instanceof TitleTag) 		process((TitleTag)tag);
 			else if (!tag.isEndTag())
-				this.logger.debug("missed named tag " + tag.getClass().getSimpleName() + " at line " + tag.getStartingLineNumber());
+				this.logger.logDebug("missed named tag " + tag.getClass().getSimpleName(), tag.getStartingLineNumber());
 		} catch (Exception e) {
-			this.logger.error("Error processing named tag '" + tag.getRawTagName()
-					+ "' at line " + tag.getStartingLineNumber() + ": " + e.getMessage(), e);
+			logger.logError("Error processing named tag '" + tag.getRawTagName() + "'", tag.getStartingLineNumber(), e);
 		}
 	}
 	
@@ -283,7 +282,7 @@ public class NodeCollector extends NodeVisitor {
 		if (link.length() == 0)
 			return;
 		if (tag.isJavascriptLink() || tag.isIRCLink() || tag.isMailLink()) {
-			logger.debug("ignoring unsupported link '" + link + "'");
+			logger.logDebug("ignoring unsupported link '" + link + "'", tag.getStartingLineNumber());
 			return;
 		}
 		
