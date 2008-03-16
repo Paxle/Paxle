@@ -170,6 +170,20 @@
 										org.eclipse.equinox.http_1.0.100.v20070423.jar
 									</destFileName>
 								</artifactItem>
+								
+								<artifactItem>
+									<groupId>
+										org.eclipse.equinox
+									</groupId>
+									<artifactId>cm</artifactId>
+									<version>3.2.0.v20070116</version>
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										org.eclipse.equinox.cm_3.2.0.v20070116.jar
+									</destFileName>
+								</artifactItem>								
 
 								<!-- 
 									<artifactItem>
