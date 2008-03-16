@@ -12,7 +12,7 @@
 
 ## the regular content
 #if(!$Search || !$fieldManager)
-	<div class="notInstalled">Search Engine Bundle not installed</div>
+	<div class="bundleNotInstalled">Search Engine Bundle not installed</div>
 #else	
     #if($searchQuery)	
         <a class="rssFeedLink" href="?format=rss&query=$escTool.url($searchQuery)" title="Display results as RSS-feed">

@@ -8,5 +8,5 @@
 		</li>
 	#end
 #else
-	<div class="notInstalled">MenuManager not found!</div>
+	<div class="bundleNotInstalled">MenuManager not found!</div>
 #end

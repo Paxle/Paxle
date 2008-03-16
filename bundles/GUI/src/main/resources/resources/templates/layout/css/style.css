@@ -161,7 +161,7 @@ img.favicon{
 	float: left;
 }
 
-.notInstalled {
+.bundleNotInstalled {
 	color:red;
 	background-image: url(/images/plugin_error.png);
 	background-repeat: no-repeat;

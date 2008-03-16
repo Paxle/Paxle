@@ -32,7 +32,6 @@ public class LogView extends ALayoutServlet {
         Template template = null;
 
         try {
-//        	Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());	
         	
         	/*
         	 * Setting template parameters

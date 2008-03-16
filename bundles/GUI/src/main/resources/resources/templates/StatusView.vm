@@ -126,7 +126,7 @@
 #else
 <fieldset id="dcrawler">
 	<legend>Crawler:</legend>	
-	<div class="notInstalled">Crawler bundle not installed!</div>
+	<div class="bundleNotInstalled">Crawler bundle not installed!</div>
 </fieldset>	
 #end
 

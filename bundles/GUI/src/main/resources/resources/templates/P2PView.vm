@@ -70,5 +70,5 @@
 </fieldset>
 #else
 	<p/>
-	<div class="notInstalled">P2P Bundle not installed</div>
+	<div class="bundleNotInstalled">P2P Bundle not installed</div>
 #end

@@ -9,7 +9,7 @@
 	#foreach($logEntry in $logReader.getLog())
 		#set($level = $logEntry.getLevel())			
 		
-		<dt>$logEntry.getTime()</dt>
+		<dt>$date.format("HH:mm:ss z - dd.MM.yy",$logEntry.getTime())</dt>
 		<dd class="box 
 		#if($level == $LEVEL_ERROR)error
 		#elseif($level == $LEVEL_WARNING)warning
