@@ -12,6 +12,13 @@ fieldset {
 	border: 1px solid black;
 }
 
+fieldset.infobox {
+	/*width: 15em;*/
+	min-width: 15em;
+	margin: 1em;
+	float: left;
+}
+
 h1 {
 	margin: 0 0 0.5em 0;
 	padding: 1em;
@@ -57,7 +64,7 @@ input:focus, textarea:focus {
 	border-bottom: dashed 0.05em #444444;
 }
 
-#nav li a:hover {
+#nav li a:hover, #nav li.menuItemActive a {
 	background-color: #730002;
 	color: #FFFFFF;
 }
@@ -123,7 +130,9 @@ input:focus, textarea:focus {
 }
 
 
-
+.clearer {
+	clear: both;
+}
 
 
 .error {

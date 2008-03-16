@@ -61,6 +61,17 @@ public class OverView extends ALayoutServlet {
 				if (services != null && services.length == 1 && services[0] instanceof IMWComponent) {
 					final String name = Character.toUpperCase(queue.charAt(0)) + queue.substring(1);
 					
+					// check if resume or pause is demanded
+					if (request.getParameter("service") != null && request.getParameter("service").equals(name)) {
+						if (request.getParameter("pause") != null) {
+							((IMWComponent)services[0]).pause();
+							response.sendRedirect("/overview");
+						} else if (request.getParameter("resume") != null) {
+							((IMWComponent)services[0]).resume();
+							response.sendRedirect("/overview");
+						}
+					}
+					
 					final int count;
 					if (queue.equals("indexer")) {
 						count = 1;

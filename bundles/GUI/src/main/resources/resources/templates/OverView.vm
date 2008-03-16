@@ -3,15 +3,18 @@
 
 ## Content
 
-<fieldset id="dsystem">
+<fieldset class="infobox">
 	<legend>System</legend>
 	<dl>
 		<dt>CPUs</dt><dd>$runtime.availableProcessors()</dd>
-		<dt>OS</dt><dd>$sysprops.get("os.arch") $sysprops.get("os.name") $sysprops.get("os.version")</dd>
-		<dt>JVM</dt><dd>$sysprops.get("java.vendor") $sysprops.get("java.runtime.name") $sysprops.get("java.version")</dd>
-		<dt>OSGi v$osgiVersion</dt><dd>by $frameworkVendor, version $frameworkVersion</dd>
+		<dt>OS</dt><dd>$sysprops.get("os.arch")<br /> $sysprops.get("os.name")<br /> $sysprops.get("os.version")</dd>
+		<dt>JVM</dt><dd>$sysprops.get("java.vendor")<br /> $sysprops.get("java.runtime.name")<br /> $sysprops.get("java.version")</dd>
+		<dt>OSGi v$osgiVersion</dt><dd>by $frameworkVendor,<br /> version $frameworkVersion</dd>
 	</dl>
-	
+</fieldset>
+
+<fieldset class="infobox">
+	<legend>Memory</legend>
 	#set($used = ($runtime.totalMemory() - $runtime.freeMemory()) / (1024 * 1024))
 	#set($free = ($runtime.maxMemory() - $runtime.totalMemory() + $runtime.freeMemory()) / (1024 * 1024))
 	#set($total = $runtime.maxMemory() / (1024 * 1024))
@@ -20,16 +23,23 @@
 		<dt>Memory free:</dt><dd>$free MiB</dd>
 		<dt>Memory total:</dt><dd>$total MiB</dd>
 	</dl>
-	
+</fieldset>
+
+<fieldset class="infobox">
+	<legend>Host</legend>
 	<dl>
 		<dt>Hostname:</dt><dd>$hostname</dd>
 		<dt>IP:</dt><dd>$ip:$port</dd>
 	</dl>
+</fieldset>
 	
 	#if ($services.size() > 0)
+<fieldset class="infobox">
+	<legend>Activity</legend>
 		<table>
 			<tr>
 				<th>#</th>
+				<th>Status</th>
 				<th>Component</th>
 				<th>PPM</th>
 				<th>Active</th>
@@ -43,6 +53,23 @@
 				#end
 				<tr>
 					<td>$entry.getCount()</td>	
+					<td>
+					#if($entry.service.isPaused() == true)
+						<form method="get" action="">
+							<div>
+								<input type="hidden" name="service" value="$entry.getName()" />
+								<input class="btnResume" type="submit" name="resume" value="Resume" />
+							</div>
+						</form>
+					#else 
+						<form method="get" action="">
+							<div>
+								<input type="hidden" name="service" value="$entry.getName()" />
+								<input class="btnPause" type="submit" name="pause" value="Pause" />
+							</div>
+						</form>
+					#end
+					</td>
 					<td><a href="/queue?queue=$entry.getId()">$name</a></td>
 					<td>$entry.getService().getPPM()</td>
 					<td>$entry.getService().getActiveJobCount()</td>
@@ -50,5 +77,6 @@
 				</tr>
 			#end
 		</table>
-	#end
 </fieldset>
+	#end
+<p class="clearer">&nbsp;</p>
