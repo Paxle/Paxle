@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Properties;
 
 import javax.imageio.ImageIO;
@@ -30,17 +31,17 @@ public class IconTool {
 	 * 
 	 * This map is loaded from the properties file <code>iconmap.properties</code>.
 	 */
-	private static Properties iconMap = new Properties();
+	static Properties iconMap = new Properties();
 	
 	/**
 	 * default icon for unknown mime-types
 	 */
-	private static IconData defaultIcon = null;
+	static IconData defaultIcon = null;
 	
 	/**
 	 * default icon for html pages without favicon
 	 */
-	private static IconData defaultHtmlIcon = null;
+	static IconData defaultHtmlIcon = null;
 	
 	/*
 	 * Initialize the icon-map and load the default icons
@@ -79,13 +80,32 @@ public class IconTool {
 	 * @return the loaded image data.
 	 */
 	public static IconData getIcon(URL url) {
+		return getIcon(url,0);
+	}
+	
+	/**
+	 * @param url the location of the resource, for which the favicon should be loaded
+	 * @param deep protection against endless loops, e.g. if the icon link returned by
+	 *        a page is another html site.
+	 * @return the loaded image data.
+	 */
+	private static IconData getIcon(URL url, int deep) {	
 		if (url == null) return defaultIcon;
-		if (!url.getProtocol().equals("http")) return defaultIcon;
-		
-		// TODO: for non http resources we should just load the icons from file
 		
 		GetMethod method = null;
 		try {
+			/*
+			 * Handling of !http URLs
+			 */
+			if (!url.getProtocol().equals("http")) {				
+				String expectedType = URLConnection.guessContentTypeFromName(url.getFile());
+				byte[] data = readFileIconPng(expectedType);
+				return data == null ? defaultIcon : new IconData(data);
+			}
+			
+			/*
+			 * Handling of http URLs 
+			 */
 			method = new GetMethod(url.toExternalForm());
 			int status = httpClient.executeMethod(method);
 			if (status != 200) {
@@ -105,6 +125,11 @@ public class IconTool {
 			byte[] body = null;
 			String iconType = "image/png";
 			if (contentMimeType.equals("text/html")) {
+				if (url.getPath().equals("/favicon.ico")) {
+					// the website returned the favicon.ico als html!
+					return defaultHtmlIcon;
+				} 
+				
 				/* Download content until we get the
 				 * <LINK REL="SHORTCUT ICON" HREF="icons/matex.ico">
 				 * header
@@ -118,11 +143,12 @@ public class IconTool {
 				String urlString = theParser.getFaviconUrl();
 				URL faviconURL = null;
 				if (urlString == null || urlString.length() == 0) {
+					// website has no special icon, try to fetch the global favicon
 					faviconURL = new URL(url,"/favicon.ico");
 				} else {			
 					faviconURL = new URL(url,urlString);				
 				}
-				IconData faviconData = getIcon(faviconURL);
+				IconData faviconData = getIcon(faviconURL,++deep);
 				return (faviconData == null || faviconData == defaultIcon) ? defaultHtmlIcon : faviconData; 
 			} else if (contentMimeType.equals("image/x-icon") || 
 					contentMimeType.equals("image/vnd.microsoft.icon")) {

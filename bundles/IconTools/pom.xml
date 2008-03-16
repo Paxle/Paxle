@@ -28,7 +28,6 @@
 					<instructions>
 						<Import-Package>
 							org.osgi.framework, 
-							org.apache.commons.httpclient.*,
 							org.apache.commons.logging,
 							org.paxle.core.io, 							
 							javax.servlet, 
