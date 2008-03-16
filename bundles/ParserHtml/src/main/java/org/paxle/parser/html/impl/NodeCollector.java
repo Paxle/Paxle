@@ -152,6 +152,14 @@ public class NodeCollector extends NodeVisitor{
 		if (abstrcts != null && abstrcts.size() > 0)
 			for (final String abstrct : abstrcts)
 				this.doc.addHeadline(HtmlTools.deReplaceHTML(abstrct));
+		
+		// refresh meta-tag
+		final Collection<String> refreshs = this.mtm.get(MetaTagManager.Names.Refresh);
+		if (refreshs != null && refreshs.size() > 0)
+			for (final String refresh : refreshs) {
+				final String unescaped = HtmlTools.deReplaceHTML(refresh);
+				this.doc.addReference(unescaped, unescaped);
+			}
 	}
 	
 	private void addLanguages(String... languages) {

@@ -8,7 +8,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.htmlparser.Tag;
 import org.htmlparser.tags.MetaTag;
 import org.paxle.parser.html.impl.ParserLogger;
 
@@ -110,10 +113,21 @@ public class MetaTagManager {
 		this.logger = logger;
 	}
 	
-	private void add(Names n, String v) {
+	static final Pattern REFRESH_PATTERN = Pattern.compile("\\s*(\\d+[\\s;,]*)?([^ ]*=)?(\\S*).*");
+	
+	private void add(Names n, String v, final Tag tag) {
 		if (v == null || v.length() == 0)
 			return;
 		
+		if (n == Names.Refresh) {
+			final Matcher m = REFRESH_PATTERN.matcher(v);
+			if (!m.find()) {
+				logger.logError("Unable to process META refresh string '" + v + "'", tag.getStartingLineNumber());
+				return;
+			} else {
+				v = m.group(3);
+			}
+		}
 		Collection<String> col = tags.get(n);
 		if (col == null)
 			tags.put(n, col = new LinkedList<String>());
@@ -127,20 +141,21 @@ public class MetaTagManager {
 			switch (c++) {
 				case 0: value = tag.getAttribute("value"); break;
 				default:
-					logger.logInfo("MetaTag not processable due to unknown key", tag.getStartingLineNumber());
+					logger.logError("META not processable due to unknown key", tag.getStartingLineNumber());
 					return;
 			}
 		}
 		
-		Names n = getName(tag.getAttribute("name"));
+		Names n;
+		n = getName(tag.getAttribute("name"));
 		if (n != null) {
-			add(n, value.replaceAll("\\s", " ").trim());
+			add(n, value.replaceAll("\\s", " ").trim(), tag);
 			return;
 		}
 		
 		n = getName(tag.getHttpEquiv());
 		if (n != null) {
-			add(n, value.replaceAll("\\s", " ").trim());
+			add(n, value.replaceAll("\\s", " ").trim(), tag);
 			return;
 		}
 	}

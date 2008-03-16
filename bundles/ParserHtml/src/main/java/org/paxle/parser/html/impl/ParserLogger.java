@@ -13,6 +13,10 @@ public class ParserLogger {
 		this.location = location;
 	}
 	
+	public void logError(final String msg, final int tagStart) {
+		logger.error(String.format("%s at %d of %s", msg, Integer.valueOf(tagStart), location));
+	}
+	
 	public void logError(String msg, final int tagStart, final Exception e) {
 		final Integer tagStartValue = Integer.valueOf(tagStart);
 		if (e != null && logger.isDebugEnabled()) {
