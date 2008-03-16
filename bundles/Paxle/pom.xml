@@ -183,6 +183,20 @@
 									<destFileName>
 										org.eclipse.equinox.cm_3.2.0.v20070116.jar
 									</destFileName>
+								</artifactItem>	
+								
+								<artifactItem>
+									<groupId>
+										org.eclipse.equinox
+									</groupId>
+									<artifactId>metatype</artifactId>
+									<version>1.0.0.v20070226</version>
+									<outputDirectory>
+										${equinox.dependencies}
+									</outputDirectory>
+									<destFileName>
+										org.eclipse.equinox.metatype_1.0.0.v20070226.jar
+									</destFileName>
 								</artifactItem>								
 
 								<!-- 
