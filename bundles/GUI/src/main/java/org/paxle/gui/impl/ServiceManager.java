@@ -14,7 +14,11 @@ public class ServiceManager {
      */
     public ServiceManager() {
         // do nothing
-    }	
+    }
+    
+    public String getProperty(final String name) {
+    	return ServiceManager.context.getProperty(name);
+    }
 	
 	public void shutdownFramework() throws BundleException {
 		Bundle framework = ServiceManager.context.getBundle(0);

@@ -1,0 +1,54 @@
+## Page title
+#set($page_title = "Paxle Peer Status")
+
+## Content
+
+<fieldset id="dsystem">
+	<legend>System</legend>
+	<dl>
+		<dt>CPUs</dt><dd>$runtime.availableProcessors()</dd>
+		<dt>OS</dt><dd>$sysprops.get("os.arch") $sysprops.get("os.name") $sysprops.get("os.version")</dd>
+		<dt>JVM</dt><dd>$sysprops.get("java.vendor") $sysprops.get("java.runtime.name") $sysprops.get("java.version")</dd>
+		<dt>OSGi v$osgiVersion</dt><dd>by $frameworkVendor, version $frameworkVersion</dd>
+	</dl>
+	
+	#set($used = ($runtime.totalMemory() - $runtime.freeMemory()) / (1024 * 1024))
+	#set($free = ($runtime.maxMemory() - $runtime.totalMemory() + $runtime.freeMemory()) / (1024 * 1024))
+	#set($total = $runtime.maxMemory() / (1024 * 1024))
+	<dl>
+		<dt>Memory used:</dt><dd>$used MiB</dd>
+		<dt>Memory free:</dt><dd>$free MiB</dd>
+		<dt>Memory total:</dt><dd>$total MiB</dd>
+	</dl>
+	
+	<dl>
+		<dt>Hostname:</dt><dd>$hostname</dd>
+		<dt>IP:</dt><dd>$ip:$port</dd>
+	</dl>
+	
+	#if ($services.size() > 0)
+		<table>
+			<tr>
+				<th>#</th>
+				<th>Component</th>
+				<th>PPM</th>
+				<th>Active</th>
+				<th>Enqueued</th>
+			</tr>
+			#foreach($entry in $services)
+				#if ($entry.getCount() == 1)
+					#set($name = $entry.getName())
+				#else
+					#set($name = $entry.getName() + "s")
+				#end
+				<tr>
+					<td>$entry.getCount()</td>	
+					<td><a href="/queue?queue=$entry.getId()">$name</a></td>
+					<td>$entry.getService().getPPM()</td>
+					<td>$entry.getService().getActiveJobCount()</td>
+					<td>$entry.getService().getEnqueuedJobCount()</td>
+				</tr>
+			#end
+		</table>
+	#end
+</fieldset>

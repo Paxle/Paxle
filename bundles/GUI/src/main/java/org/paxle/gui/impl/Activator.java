@@ -13,6 +13,7 @@ import org.paxle.gui.impl.servlets.BundleView;
 import org.paxle.gui.impl.servlets.CrawlerView;
 import org.paxle.gui.impl.servlets.LogView;
 import org.paxle.gui.impl.servlets.OpenSearchDescription;
+import org.paxle.gui.impl.servlets.OverView;
 import org.paxle.gui.impl.servlets.P2PView;
 import org.paxle.gui.impl.servlets.QueueView;
 import org.paxle.gui.impl.servlets.RootView;
@@ -104,6 +105,7 @@ public class Activator implements BundleActivator {
 				menuManager.addItem("/log", "Logging");
 				menuManager.addItem("/queue", "Queues");				
 				menuManager.addItem("/config", "Settings");
+				menuManager.addItem("/overview", "Overview");
 				
 				// registering the servlet which will be accessible using 
 //                http.registerServlet("/search", new SearchView(manager), props, httpContext);
@@ -135,6 +137,7 @@ public class Activator implements BundleActivator {
 			servletManager.addServlet("/opensearch/osd.xml", new OpenSearchDescription(null));
 			servletManager.addServlet("/config", new SettingsView(null));
 			servletManager.addServlet("/threads", new TheaddumpView(null));
+			servletManager.addServlet("/overview", new OverView(null));
 			
 			/*
 			 * Add stylesheets
