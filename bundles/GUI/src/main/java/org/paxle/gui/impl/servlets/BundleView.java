@@ -72,6 +72,8 @@ public class BundleView extends ALayoutServlet {
         					bundle.start();
         				}else if(request.getParameter("uninstall") != null){
         					bundle.uninstall();
+        				}else if (request.getParameter("details") != null) {
+        					context.put("bundle", bundle);
         				}
         			} catch (BundleException e) {
             			String errorMsg = String.format(
@@ -84,9 +86,6 @@ public class BundleView extends ALayoutServlet {
         		}
             }else if(request.getParameter("installURL") != null && request.getParameter("bundlePath")!=null){
             	ServiceManager.context.installBundle(request.getParameter("bundlePath"));
-            } else if (request.getParameter("details") != null) {
-            	Bundle bundle = manager.getBundle(Long.parseLong(request.getParameter("bundleID")));
-            	context.put("bundle", bundle);
             } else if (ServletFileUpload.isMultipartContent(request)) {
 
             	// Create a factory for disk-based file items
