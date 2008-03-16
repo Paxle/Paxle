@@ -19,6 +19,7 @@ import org.paxle.gui.impl.servlets.RootView;
 import org.paxle.gui.impl.servlets.SearchView;
 import org.paxle.gui.impl.servlets.SettingsView;
 import org.paxle.gui.impl.servlets.StatusView;
+import org.paxle.gui.impl.servlets.TheaddumpView;
 
 public class Activator implements BundleActivator {
 
@@ -133,6 +134,7 @@ public class Activator implements BundleActivator {
 			servletManager.addServlet("/queue", new QueueView(null));
 			servletManager.addServlet("/opensearch/osd.xml", new OpenSearchDescription(null));
 			servletManager.addServlet("/config", new SettingsView(null));
+			servletManager.addServlet("/threads", new TheaddumpView(null));
 			
 			/*
 			 * Add stylesheets

@@ -1,0 +1,37 @@
+## Set the page title
+#set( $page_title = "Thread Dump" )
+
+## the regular content
+<h2>Thread Dump:</h2>
+
+#if($dumps)
+	
+		## A typical thread-dump looks like:
+		##
+        ##	"Thread-13" daemon prio=1 tid=0x08165128 nid=0x747b waiting on condition [0xa7dd7000..0xa7dd7db0]
+        ##        at java.lang.Thread.sleep(Native Method)
+        ##        at org.apache.commons.cache.StaleObjectEvictor.run(Unknown Source)
+        ##        at java.lang.Thread.run(Thread.java:595)
+	
+		#foreach($dump in $dumps.entrySet())
+			#set($thread = $dump.getKey())
+			
+			## thread-name
+			<tt>"$thread.getName()"&nbsp;</tt>
+			
+			## if it is a deamon
+			<tt>#if($thread.isDaemon())daemon&nbsp;#{end}</tt>
+				
+			## priority
+			<tt>prio=$thread.getPriority()&nbsp;</tt>
+			
+			## tid
+			<tt>tid=$thread.getId()&nbsp;</tt>
+			
+			## nid?
+			<tt>$thread.getState()&nbsp;</tt>
+			
+			<pre>#foreach($element in $dump.getValue())&nbsp;&nbsp;&nbsp;&nbsp;$element<br/>#{end}</pre>
+		#end		
+#end
+
