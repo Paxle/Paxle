@@ -60,6 +60,8 @@
 						<Embed-Dependency>
 							velocity;scope=compile|runtime,
 							velocity-tools;scope=compile|runtime,
+							commons-fileupload;scope=compile|runtime,
+							commons-io;scope=compile|runtime,
 							commons-collections;scope=compile|runtime,
 							commons-digester;scope=compile|runtime,
 							commons-beanutils;scope=compile|runtime,
@@ -102,6 +104,16 @@
 			</exclusions>				
 		</dependency>
 		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
+		</dependency>		
+		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
 			<version>3.2</version>
@@ -127,6 +139,10 @@
 			<version>2.4</version>
 		</dependency>
 		
+		<!-- 
+			XML parser dependencies
+			TODO: we should move this out of the bundle
+		  -->
 		<dependency>
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>

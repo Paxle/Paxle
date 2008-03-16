@@ -24,7 +24,7 @@
 	<tr><td><b>ID</b></td><td>$bundle.BundleId</td></tr>
 	<tr><td><b>Location</b></td><td>$bundle.Location</td></tr>
 	<tr><td><b>State</b></td><td>$states.get($bundle.state)</td></tr>
-	<tr><td><b>Last Modified</b></td><td>$bundle.LastModified</td></tr>
+	<tr><td><b>Last Modified</b></td><td>$dateTool.format('medium',$bundle.LastModified)</td></tr>
 </table>
 </fieldset>
 
@@ -118,7 +118,25 @@
 
 #else
 <h2>Bundle Controlpage</h2>
-Install Bundle: <form><input type="text" name="bundlePath" size="60" /><input type="submit" name="install" value="Install" /></form>
+
+#if($errorMsg)
+	<div class="box error">$errorMsg</div>
+#end
+
+<h3>Install Bundles</h3>
+
+<b>Install from URL</b><br/>
+<form>
+	<input type="text" name="bundlePath" size="60" /><input type="submit" name="installURL" value="Install" />
+</form>
+
+<b>Install via File-Upload</b>
+<form enctype="multipart/form-data" method="post">
+	<input type="file" name="bundleJar" size="60" /><input type="submit" name="installUpload" value="Install" />
+</form>
+
+
+<h3>Bundle List</h3>
 <ul id="bundle">
 	#if($bundles)
 		#foreach($entry in $bundles.entrySet())
