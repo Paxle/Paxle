@@ -193,18 +193,26 @@ public class ParserWorker extends AWorker<ICommand> {
 			
 			ICrawlerDocument crawlerDoc = command.getCrawlerDocument();
 			
-			this.logger.info(String.format(
-					"Finished parsing of resource '%s' with mime-type '%s' in %d ms.\r\n" +
-					"\tCrawler-Status: '%s' %s\r\n" +
-					"\tParser-Status:  '%s' %s",
-					command.getLocation(),
-					(command.getCrawlerDocument() == null) ? "unknown" : command.getCrawlerDocument().getMimeType(),
-					Long.valueOf(System.currentTimeMillis() - start),
-					(crawlerDoc == null) ? "unknown" : crawlerDoc.getStatus().toString(),
-					(crawlerDoc == null) ? "" : (crawlerDoc.getStatusText()==null)?"":crawlerDoc.getStatusText(),								
-					(parserDoc == null)  ? "unknown" : parserDoc.getStatus().toString(),
-					(parserDoc == null)  ? "" : (parserDoc.getStatusText()==null)?"":parserDoc.getStatusText()
-			));
+			
+			if (logger.isDebugEnabled()) {
+				this.logger.info(String.format(
+						"Finished parsing of resource '%s' with mime-type '%s' in %d ms.\r\n" +
+						"\tCrawler-Status: '%s' %s\r\n" +
+						"\tParser-Status:  '%s' %s",
+						command.getLocation(),
+						(command.getCrawlerDocument() == null) ? "unknown" : command.getCrawlerDocument().getMimeType(),
+						Long.valueOf(System.currentTimeMillis() - start),
+						(crawlerDoc == null) ? "unknown" : crawlerDoc.getStatus().toString(),
+						(crawlerDoc == null) ? "" : (crawlerDoc.getStatusText()==null)?"":crawlerDoc.getStatusText(),								
+						(parserDoc == null)  ? "unknown" : parserDoc.getStatus().toString(),
+						(parserDoc == null)  ? "" : (parserDoc.getStatusText()==null)?"":parserDoc.getStatusText()
+				));
+			} else if (logger.isInfoEnabled()) {
+				logger.info(String.format("Finished parsing of resource '%s' with mime-type '%s' in %d ms.",
+						command.getLocation(),
+						(command.getCrawlerDocument() == null) ? "unknown" : command.getCrawlerDocument().getMimeType(),
+						Long.valueOf(System.currentTimeMillis() - start)));
+			}
 		}
 	}
 	

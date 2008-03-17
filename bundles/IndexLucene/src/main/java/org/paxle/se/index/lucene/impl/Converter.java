@@ -1,3 +1,4 @@
+
 package org.paxle.se.index.lucene.impl;
 
 import java.io.File;
@@ -12,6 +13,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.DateTools;
@@ -25,9 +28,11 @@ import org.paxle.se.index.IFieldManager;
 
 public class Converter {
 	
+	private static final Log logger = LogFactory.getLog(Converter.class);
+	
 	static IFieldManager fieldManager = null;
 	
-	private static class ArrayTokenStream extends TokenStream {
+	private static class ArrayTokenStream extends TokenStream implements Counting {
 		
 		private final Object[] data;
 		private int pos = 0;
@@ -35,6 +40,10 @@ public class Converter {
 		
 		public ArrayTokenStream(final Object[] data) {
 			this.data = data;
+		}
+		
+		public int getTokenCount() {
+			return data.length;
 		}
 		
 		@Override
@@ -93,11 +102,12 @@ public class Converter {
 				return reader2field(field, new FileReader((File)data));
 			} catch (FileNotFoundException e) {
 				// TODO what to do in this situation?
-				e.printStackTrace();
+				logger.error("Backing file for field " + field + " not found!", e);
 				return null;
-			}						
+			}
 		} else {
 			// TODO
+			logger.warn("Unknown field " + field);
 			return null;
 		}
 	}
@@ -180,7 +190,7 @@ public class Converter {
 		 * =========================================================== */
 		return new Field(
 				field.getName(),
-				data,
+				new PaxleTokenizer(data, false),
 				termVector(field, TV_POSITIONS));
 	}
 	

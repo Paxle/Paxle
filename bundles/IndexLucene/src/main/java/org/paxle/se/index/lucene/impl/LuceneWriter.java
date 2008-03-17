@@ -8,6 +8,7 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 
@@ -37,7 +38,6 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 		this.manager = manager;
 		this.setName("LuceneWriter");
 		this.start();
-		
 		this.logger = LogFactory.getLog(LuceneWriter.class);
 		this.logger.info("Lucene writer has been started");
 	}
@@ -112,12 +112,22 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	public synchronized void write(IIndexerDocument document) throws IOException, IndexException {
 		this.logger.debug("Adding document to index: " + document.get(IIndexerDocument.LOCATION));
 		try {
+			final long time = System.currentTimeMillis();
 			final Document doc = Converter.iindexerDoc2LuceneDoc(document);
+			final Fieldable f = doc.getField(IIndexerDocument.TEXT.getName());
 			this.manager.write(doc);
+			if (logger.isInfoEnabled()) {
+				final Counting ct = (f == null) ? null : (PaxleTokenizer)f.tokenStreamValue();
+				logger.info(String.format("Added document '%s' in %d ms to index, word-count: %s",
+						document.get(IIndexerDocument.LOCATION),
+						Long.valueOf(System.currentTimeMillis() - time),
+						(ct == null) ? ("unknown, " + ((f == null) ? "f" : "ct") + " == null") : Integer.toString(ct.getTokenCount())));
+			}
 		} catch (CorruptIndexException e) {
 			throw new IndexException("error adding lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
 		} finally {
 			// close everything now
+			
 			Iterator<Field<?>> iter = document.fieldIterator();
 			while (iter.hasNext()) {
 				Field<?> key = iter.next();

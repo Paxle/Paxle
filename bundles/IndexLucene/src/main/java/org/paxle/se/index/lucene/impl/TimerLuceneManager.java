@@ -1,10 +1,9 @@
+
 package org.paxle.se.index.lucene.impl;
 
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import org.apache.lucene.analysis.Analyzer;
 
 public class TimerLuceneManager extends AFlushableLuceneManager {
 	
@@ -20,11 +19,6 @@ public class TimerLuceneManager extends AFlushableLuceneManager {
 	
 	public TimerLuceneManager(String path, int flushDelay, int flushPeriod) throws IOException {
 		super(path);
-		this.timer.schedule(this.flushTTask, flushDelay, flushPeriod);
-	}
-	
-	public TimerLuceneManager(String path, Analyzer writeAnalyzer, int flushDelay, int flushPeriod) throws IOException {
-		super(path, writeAnalyzer);
 		this.timer.schedule(this.flushTTask, flushDelay, flushPeriod);
 	}
 	

@@ -10,8 +10,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
@@ -39,18 +37,10 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 	
 	private boolean dirty = false;
 	
-	private AFlushableLuceneManager(String path, IndexWriter writer) throws IOException {
+	public AFlushableLuceneManager(String path) throws IOException {
 		this.path = path;
 		this.reader = IndexReader.open(path);
-		this.writer = writer;
-	}
-	
-	public AFlushableLuceneManager(String path) throws IOException {
-		this(path, new StandardAnalyzer());
-	}
-	
-	public AFlushableLuceneManager(String path, Analyzer writeAnalyzer) throws IOException {
-		this(path, new IndexWriter(path, writeAnalyzer));
+		this.writer = new IndexWriter(path, new PaxleAnalyzer());
 	}
 	
 	/**

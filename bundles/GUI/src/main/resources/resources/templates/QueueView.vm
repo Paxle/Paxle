@@ -15,7 +15,7 @@
   #set( $color = $alternatorTool.auto( 'r1','r2'))
   <ul>
     #foreach( $activeJob in $activeJobs)
-    <li>class="$color">$activeJob.getLocation()</li>
+    <li class="$color"><a href="$activeJob.getLocation()">$activeJob.getLocation()</a></li>
     #end
   </ul>
   #else
@@ -28,7 +28,7 @@
   #if( $enqueuedJobs)
   <ul>
     #foreach( $enqueuedJob in $enqueuedJobs)
-    <li class="$color">$enqueuedJob.getLocation()</li>
+    <li class="$color"><a href="$enqueuedJob.getLocation()">$enqueuedJob.getLocation()</a></li>
     #end
   </ul>
   #else

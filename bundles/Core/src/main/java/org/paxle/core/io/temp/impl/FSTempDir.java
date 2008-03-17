@@ -11,13 +11,16 @@ public class FSTempDir extends ATempDir implements ITempDir {
 	private final File directory;
 	private final boolean deleteOnExit;
 	
-	public FSTempDir(File dir, String prefix, boolean deleteOnExit) {
+	public FSTempDir(File dir, String prefix, boolean deleteOnExit) throws IOException {
 		super(prefix);
 		this.directory = dir;
 		this.deleteOnExit = deleteOnExit;
+		if (!dir.exists())
+			if (!dir.mkdirs())
+				throw new IOException("Couldn't create directory for temporay files: " + dir);
 	}
 	
-	public FSTempDir(File dir, boolean deleteOnExit) {
+	public FSTempDir(File dir, boolean deleteOnExit) throws IOException {
 		this(dir, null, deleteOnExit);
 	}
 	

@@ -58,6 +58,25 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	private final IMenuItem quitItem;
 	private final IMenuItem restartItem;
 	
+	// instantiate this here to prevent delays when the popup shows up
+	private final Runnable refresh = new Runnable() {
+		public void run() {
+			try {
+				final boolean hasCrawler = manager.hasService(MWCOMP_CLASS, CRAWLER_QUERY);
+				crawlItem.setEnabled(hasCrawler);
+				crawlprItem.setEnabled(hasCrawler);
+			} catch (InvalidSyntaxException e) { e.printStackTrace(); }
+			
+			final boolean hasSearch = manager.hasService("org.paxle.se.search.ISearchProviderManager");
+			searchItem.setEnabled(hasSearch);
+			
+			final boolean hasWebui = manager.hasService(HttpService.class) && manager.hasService("org.paxle.gui.IServletManager");
+			browseItem.setEnabled(hasWebui);
+			
+			crawlprItem.setText((crawlersPaused()) ? CRAWL_RESUME : CRAWL_PAUSE);
+		}
+	};
+	
 	public SystrayMenu2(ServiceManager manager, IDIBackend backend, URL iconResource) {
 		this.manager = manager;
 		this.backend = backend;
@@ -96,19 +115,7 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	}
 	
 	private void refresh() {
-		try {
-			final boolean hasCrawler = manager.hasService(MWCOMP_CLASS, CRAWLER_QUERY);
-			crawlItem.setEnabled(hasCrawler);
-			crawlprItem.setEnabled(hasCrawler);
-		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
-		
-		final boolean hasSearch = manager.hasService("org.paxle.se.search.ISearchProviderManager");
-		searchItem.setEnabled(hasSearch);
-		
-		final boolean hasWebui = manager.hasService(HttpService.class) && manager.hasService("org.paxle.gui.IServletManager");
-		browseItem.setEnabled(hasWebui);
-		
-		crawlprItem.setText((crawlersPaused()) ? CRAWL_RESUME : CRAWL_PAUSE);
+		SwingUtilities.invokeLater(refresh);
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -127,16 +134,7 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 			new SmallDialog(new SearchFinally(), "Enter query:", "Search").setVisible(true);
 			
 		} else if (cmd == BROWSE) {
-			try {
-				final String url = getPaxleURL("/");
-				if (url == null) {
-					JOptionPane.showMessageDialog(null, "HTTP service not accessible", "Error", JOptionPane.ERROR_MESSAGE);
-				} else if (!backend.getDesktop().browse(url)) {
-					Utilities.showURLErrorMessage(
-							"Couldn't launch system browser due to an error in Paxle's system integration\n" +
-							"bundle. Please review the log for details. The requested URL was:", url);
-				}
-			} catch (MalformedURLException ee) { ee.printStackTrace(); }
+			browseUrl(getPaxleURL("/"));
 			
 		} else if (cmd == RESTART || cmd == QUIT) {
 			SwingUtilities.invokeLater(new ShutdownRunnable(cmd == RESTART));
@@ -146,13 +144,9 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	private boolean crawlersPaused() {
 		try {
 			final IMWComponent<?>[] crawlers = manager.getServices(MWCOMP_CLASS, CRAWLER_QUERY);
-			if (crawlers == null)
+			if (crawlers == null || crawlers.length == 0)
 				return false;
-			
-			for (int i=0; i<crawlers.length; i++)
-				if (!crawlers[i].isPaused())
-					return false;
-			return true;
+			return crawlers[0].isPaused();
 		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
 		return false;
 	}
@@ -160,31 +154,44 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	private void toggleCrawlersPR() {
 		try {
 			final IMWComponent<?>[] crawlers = manager.getServices(MWCOMP_CLASS, CRAWLER_QUERY);
-			if (crawlers == null)
+			if (crawlers == null || crawlers.length == 0)
 				return;
-			
-			boolean pause = false;
-			for (int i=0; i<crawlers.length; i++)
-				if (!crawlers[i].isPaused()) {
-					pause = true;
-					break;
-				}
-			
-			if (pause) {
-				for (int i=0; i<crawlers.length; i++)
-					crawlers[i].pause();
+			final IMWComponent<?> crawler = crawlers[0];
+			if (crawler.isPaused()) {
+				crawler.resume();
 			} else {
-				for (int i=0; i<crawlers.length; i++)
-					crawlers[i].resume();
+				crawler.pause();
 			}
 		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
 	}
 	
-	private String getPaxleURL(String path) {
+	private String getPaxleURL(String... path) {
 		final String port = SystrayMenu2.this.manager.getProperty("org.osgi.service.http.port");
 		if (port == null)
 			return null;
-		return String.format("http://localhost:%s%s", port, path);
+		final StringBuffer sb = new StringBuffer("http://localhost:").append(port);
+		if (path.length == 0 || path[0].charAt(0) != '/')
+			sb.append('/');
+		for (final String s : path)
+			sb.append(s);
+		return sb.toString();
+	}
+	
+	private boolean browseUrl(final String url) {
+		if (url == null) {
+			JOptionPane.showMessageDialog(null, "HTTP service not accessible", "Error", JOptionPane.ERROR_MESSAGE);
+		} else try {
+			if (backend.getDesktop().browse(url)) {
+				return true;
+			} else {
+				Utilities.showURLErrorMessage(
+						"Couldn't launch system browser due to an error in Paxle's system integration\n" +
+						"bundle. Please review the log for details. The requested URL was:", url);
+			}
+		} catch (MalformedURLException e) {
+			logger.error("Generated mal-formed URL '" + url + "': " + e.getMessage(), e);
+		}
+		return false;
 	}
 	
 	private class ShutdownRunnable implements Runnable {
@@ -215,16 +222,8 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	private class SearchFinally extends AFinally {
 		@Override
 		public void run() {
-			try {
-				final String url = getPaxleURL("/search?query=" + data);
-				if (url == null) {
-					JOptionPane.showMessageDialog(null, "HTTP service not accessible", "Error", JOptionPane.ERROR_MESSAGE);
-				} else if (!backend.getDesktop().browse(url)) {
-					Utilities.showURLErrorMessage(
-							"Couldn't launch system browser due to an error in Paxle's system integration\n" +
-							"bundle. Please review the log for details. The requested URL was:", url);
-				}
-			} catch (MalformedURLException e) { e.printStackTrace(); }
+			if (data != null && data.length() > 0)
+				browseUrl(getPaxleURL("/search?query=", data));
 		}
 	}
 	
@@ -232,12 +231,12 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 		@Override
 		@SuppressWarnings("unchecked")
 		public void run() {
-			try {
+			if (data != null && data.length() > 0) try {
 				final IDataSink<ICommand>[] sink = SystrayMenu2.this.manager.getServices(CRAWLER_SINK_CLASS, CRAWLER_SINK_QUERY);
 				if (sink != null)
 					sink[0].putData(Command.createCommand(super.data));
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error("Starting crawl of URL '" + data + "' failed: " + e.getMessage(), e);
 			}
 		}
 	}

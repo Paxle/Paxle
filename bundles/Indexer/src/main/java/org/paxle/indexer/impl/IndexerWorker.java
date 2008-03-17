@@ -76,7 +76,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 			 * Generate Indexer Document
 			 * ================================================================ */
 			
-			this.logger.info("Indexing of URL '" + command.getLocation() + "' (MIME type '" + command.getCrawlerDocument().getMimeType() + "')");
+			this.logger.info("Indexing of URL '" + command.getLocation() + "' (" + command.getCrawlerDocument().getMimeType() + ")");
 			
 			// generate the "main" indexer document from the "main" parser document including the
 			// data from the command object
@@ -161,20 +161,27 @@ public class IndexerWorker extends AWorker<ICommand> {
 			ICrawlerDocument crawlerDoc = command.getCrawlerDocument();
 			IParserDocument parserDoc = command.getParserDocument();
 			
-			this.logger.info(String.format(
-					"Finished indexing of resource '%s' in %d ms.\r\n" +
-					"\tCrawler-Status: '%s' %s\r\n" +
-					"\tParser-Status:  '%s' %s\r\n" +
-					"\tIndexer-Status: '%s' %s",					
-					command.getLocation(),
-					Long.valueOf(System.currentTimeMillis() - start),
-					(crawlerDoc == null) ? "unknown" : crawlerDoc.getStatus().toString(),
-					(crawlerDoc == null) ? "" : (crawlerDoc.getStatusText()==null)?"":crawlerDoc.getStatusText(),
-					(parserDoc == null)  ? "unknown" : parserDoc.getStatus().toString(),
-					(parserDoc == null)  ? "" : (parserDoc.getStatusText()==null)?"":parserDoc.getStatusText(),									
-					(indexerDoc == null) ? "unknown" : indexerDoc.getStatus().toString(),
-					(indexerDoc == null) ? "" : (indexerDoc.getStatusText()==null)?"":indexerDoc.getStatusText()
-			));
+			if (logger.isDebugEnabled()) {
+				this.logger.info(String.format(
+						"Finished indexing of resource '%s' in %d ms.\r\n" +
+						"\tCrawler-Status: '%s' %s\r\n" +
+						"\tParser-Status:  '%s' %s\r\n" +
+						"\tIndexer-Status: '%s' %s",					
+						command.getLocation(),
+						Long.valueOf(System.currentTimeMillis() - start),
+						(crawlerDoc == null) ? "unknown" : crawlerDoc.getStatus().toString(),
+						(crawlerDoc == null) ? "" : (crawlerDoc.getStatusText()==null)?"":crawlerDoc.getStatusText(),
+						(parserDoc == null)  ? "unknown" : parserDoc.getStatus().toString(),
+						(parserDoc == null)  ? "" : (parserDoc.getStatusText()==null)?"":parserDoc.getStatusText(),									
+						(indexerDoc == null) ? "unknown" : indexerDoc.getStatus().toString(),
+						(indexerDoc == null) ? "" : (indexerDoc.getStatusText()==null)?"":indexerDoc.getStatusText()
+				));
+			} else if (logger.isInfoEnabled()) {
+				this.logger.info(String.format(
+						"Finished indexing of resource '%s' in %d ms.",					
+						command.getLocation(),
+						Long.valueOf(System.currentTimeMillis() - start)));
+			}
 		}
 	}
 	
