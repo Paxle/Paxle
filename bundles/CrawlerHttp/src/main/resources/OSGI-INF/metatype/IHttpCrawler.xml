@@ -7,7 +7,7 @@
         
         <AD name="Max Connections per Host" type="Integer" id="maxConnectionsPerHost" default="10" 
             description="Defines the maximum number of connections allowed per host configuration."/>
-        <AD name="Socket Timeout" type="Integer" id="socketTimeout" default="50" 
+        <AD name="Socket Timeout" type="Integer" id="socketTimeout" default="15000" 
             description="Defines the socket timeout in milliseconds which is the timeout for waiting for data."/>
         <AD name="Connection Timeout" type="Integer" id="connectionTimeout" default="15000" 
             description="Determines the timeout in milliseconds until a connection is etablished."/>        
