@@ -11,64 +11,65 @@
 	<h3>Configuration Management</h3>
 	
 	#if($paramParser.getString("bundleID") && $paramParser.getString("pid"))
-		#set($bundle = $manager.getBundle($mathTool.toInteger($paramParser.getString("bundleID"))))
+		#set($bundleID = $paramParser.getString("bundleID"))
+		#set($PID = $paramParser.getString("pid"))
+		#set($bundle = $manager.getBundle($mathTool.toInteger($bundleID)))
 		
 		## searching for metatype info
 		#set($metaType = $metaTypeService.getMetaTypeInformation($bundle))
 		#if($metaType)
-			#set($ocd = $metaType.getObjectClassDefinition($paramParser.getString("pid"), null))
-			#if($ocd)
-				<p>
-					<h4>Name: $ocd.getName()</h4><br/>
-					Bundle: $bundle.Location<br/>
-					Desc.: $ocd.getDescription()<br/>
-					ID: $paramParser.getString("pid")<br/>
-					
-					## 	getting the current configuration
-					#set($config = $configAdmin.getConfiguration($PID,$bundle.getLocation()))
-					
-					## getting configuration properties
-					#if($config)
-						#set($properties = $config.getProperties())
-					#end
-					
-					## getting the configuration attributes
-					#set($attributes = $ocd.getAttributeDefinitions(-1))
-					#if($attributes)
-
-						#set($color = $alternatorTool.auto('r1','r2'))
-                    	<table border="1">
-                    	<tr>
-                    		<th>Name</th>
-							<th>Type</th>
-                    		<th>Description</th>
-                    		<th>ID</th>
-                    		<th>Value</th>
-                    	</tr>
-                    	#foreach($attribute in $attributes)
-                    		<tr class="$color">
-                    			<td>$attribute.getName()</td>
-								<td>$dataTypes.get($attribute.getType())</td>
-                    			<td>$attribute.getDescription()</td>
-                    			<td>$attribute.getID()</td>
-                    			<td>#if($properties) 
-										$properties.get($attribute.getID())
-									#else
-										#set($defaultValues = $attribute.getDefaultValue())
-										#if($defaultValues && !$listToo.isEmpty($defaultValues))
-											$listTool.get($defaultValues,0)
-										#else
-											-
-										#end
-									#end
-								</td>
-                    		</tr>                            		
-                    	#end
-                    	</table>
-					#end
-					<hr/>
-				</p>
-			#end		
+			#if($bundle.getBundleId() == $metaType.getBundle().getBundleId())
+    			#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
+    			#if($ocd)
+    				<p>
+    					<h4>Name: $ocd.getName()</h4><br/>
+    					Bundle: $bundle.Location<br/>
+    					Desc.: $ocd.getDescription()<br/>
+    					ID: $paramParser.getString("pid")<br/>
+    					
+    					## 	getting the current configuration
+    					#set($config = $configAdmin.getConfiguration($PID,$bundle.getLocation()))
+    					
+    					## getting the configuration attributes
+    					#set($attributes = $ocd.getAttributeDefinitions(-1))
+    					#if($attributes)
+    
+    						#set($color = $alternatorTool.auto('r1','r2'))
+                        	<table border="1">
+                        	<tr>
+                        		<th>Name</th>
+    							<th>Type</th>
+                        		<th>Description</th>
+                        		<th>ID</th>
+                        		<th>Value</th>
+                        	</tr>
+                        	#foreach($attribute in $attributes)
+								#set($attributeID = $attribute.getID())
+								
+                        		<tr class="$color">
+                        			<td>$attribute.getName()</td>
+    								<td>$dataTypes.get($attribute.getType())</td>
+                        			<td>$attribute.getDescription()</td>
+                        			<td>$attributeID</td>
+                        			<td>#if($config && ${config.getProperties()}) 
+    										${config.getProperties().get($attributeID)}
+    									#else
+    										#set($defaultValues = $attribute.getDefaultValue())
+    										#if($defaultValues && !$listToo.isEmpty($defaultValues))
+    											$listTool.get($defaultValues,0)
+    										#else
+    											-
+    										#end
+    									#end
+    								</td>
+                        		</tr>                            		
+                        	#end
+                        	</table>
+    					#end
+    					<hr/>
+    				</p>
+    			#end	
+		    #end	
 		#end
 	#else 
     		
@@ -84,29 +85,31 @@
     	#foreach($bundle in $manager.getBundles())
     		#set($metaType = $metaTypeService.getMetaTypeInformation($bundle))
     		#if($metaType)
-    			## get the PIDs of all managed services
-    			#set($PIDs = $metaType.getPids())
-    			#if($PIDs)					
-    				## loop through all managed services and fetch the
-    				## corresponding ObjectClassDefinitions
-    				#foreach($PID in $PIDs)
-    					#set($ocd = $metaType.getObjectClassDefinition($PID, null))
-    					#if($ocd)
-							<tr class="$color">
-								<td>$ocd.getName()</td>
-								<td>$PID</td>
-								<td><a href="?bundleID=$bundle.getBundleId()&pid=$PID">View</a></td>
-							</tr>							
-    					#end
-    				#end
-    			#end			
+				#if($bundle.getBundleId() == $metaType.getBundle().getBundleId())
+        			## get the PIDs of all managed services
+        			#set($PIDs = $metaType.getPids())
+        			#if($PIDs)					
+        				## loop through all managed services and fetch the
+        				## corresponding ObjectClassDefinitions
+        				#foreach($PID in $PIDs)
+        					#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
+        					#if($ocd)
+    							<tr class="$color">
+    								<td>$ocd.getName()</td>
+    								<td>$PID</td>
+    								<td><a href="?bundleID=$bundle.getBundleId()&pid=$PID">View</a></td>
+    							</tr>							
+        					#end
+        				#end
+        			#end	
+				#end
     		#end
 		#end
 		</table>
 	#end
 #else 
 	#if(!$configAdmin)<div class="bundleNotInstalled">Configuration Administration bundle not installed!</div>#end
-	#if(!$configAdmin)<div class="bundleNotInstalled">Metatype bundle not installed!</div>#end
+	#if(!$metaTypeService)<div class="bundleNotInstalled">Metatype bundle not installed!</div>#end
 #end
 
 
