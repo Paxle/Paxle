@@ -156,27 +156,8 @@ public class Activator implements BundleActivator {
 			registerServlet("/threads", new TheaddumpView(), null);
 			registerServlet("/overview", new OverView(), "Overview");
 			
-			/*
-			 * Add stylesheets
-			 * TODO: use some kind of addResourceFolder instead
-			 */
-//			servletManager.addResources("/style.css", "/resources/templates/layout/style.css");
-			servletManager.addResources("/css","/resources/templates/layout/css");
-			
-			/*
-			 * Add javascript files
-			 * TODO: use some kind of addResourceFolder instead
-			 */
-//			servletManager.addResources("/js/wz_tooltip.js", "/resources/js/wz_tooltip.js");
-			servletManager.addResources("/js","/resources/js");
-			
-			/*
-			 * Add images 
-			 * TODO: use some kind of addResourceFolder instead
-			 */
-//			servletManager.addResources("/images/bullet_arrow_up.png", "/resources/images/bullet_arrow_up.png");
-			servletManager.addResources("/images", "/resources/images");
-
+			// load the current style
+			StyleManager.setStyle( "default");
 		}
 	}
 	

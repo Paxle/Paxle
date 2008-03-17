@@ -2,28 +2,38 @@
 #set( $page_title = "Log View" )
 
 ## the regular content
-<h2>View Log:</h2>
-#set($logReader = $manager.getService("org.osgi.service.log.LogReaderService"))
-#if($logReader)
-	<dl>
-	#foreach($logEntry in $logReader.getLog())
-		#set($level = $logEntry.getLevel())			
-		
-		<dt>$date.format("HH:mm:ss z - dd.MM.yy",$logEntry.getTime())</dt>
-		<dd class="box 
-		#if($level == $LEVEL_ERROR)error
-		#elseif($level == $LEVEL_WARNING)warning
-		#elseif($level == $LEVEL_INFO)info
-		#elseif($level == $LEVEL_DEBUG)debug
-		#end
-		">
-		#<span>#$logEntry.getMessage()</span>
-		#if($logEntry.getException())
-			<p>$logEntry.getException()</p>
-		#end
-		</dd>
-	#end
-	</dl>
+<h2>View Log</h2>
+#set( $logReader = $manager.getService("org.osgi.service.log.LogReaderService"))
+#if( $logReader)
+<form>
+  <select name="filterLogLevel">
+    <option value="1">Error</option>
+    <option value="2">Warning</option>
+    <option value="3">Info</option>
+    <option value="4">Debug</option>
+  </select>
+  <input type="submit" value="Filter LogLevel" />
+</form>
+
+<table width="100%">
+  <tr>
+    <td width="5%">Level</td>
+    <td width="20%">Time</td>
+    <td width="75%">Message</td>
+  </tr>
+#foreach( $logEntry in $logReader.getLog())
+#set( $level = $logEntry.getLevel())
+#if( $level <= $filterLogLevel)
+  #set( $levelName = $logLevelName.get( $level))
+  <tr>
+    <td class="$levelName">$levelName</td>
+    <td>$date.format("HH:mm:ss z - dd.MM.yy",$logEntry.getTime())</td>
+    <td>$logEntry.getMessage()#if( $logEntry.getException()) <p class="exception">$logEntry.getException()</p> #end
+    </td>
+  </tr>
+#end
+#end
+</table>
 #else
-	<p class="box warning">No LogReaderService found</p>
+<p class="box warning">No LogReaderService found</p>
 #end

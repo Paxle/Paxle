@@ -2,24 +2,23 @@
 #set( $page_title = "Bundle Controlpage" )
 
 ## the regular content
-#if($bundle)
+#if( $bundle)
 ## Activate onload
-#set ( $bodyonload = "fhide('runtimeinformation');" )
+#set ( $bodyonload = "initTabs('runtimeinformation');" )
 <h2>Bundle Info</h2>
 
 <ul class="tabs">
-	<li><a href="#druntimeinformation" onclick="fshow('runtimeinformation');" id="truntimeinformation">Runtime Information</a></li>
-	<li><a href="#dbundlemanifest" onclick="fshow('bundlemanifest');" id="tbundlemanifest">Bundle Manifest</a></li>
-	<li><a href="#dexportedservices" onclick="fshow('exportedservices');" id="texportedservices">Exported Services</a></li>
-	<li><a href="#dimportedservices" onclick="fshow('importedservices');" id="timportedservices">Imported Services</a></li>
+  <li><a href="#druntimeinformation" onclick="fshow('runtimeinformation');" id="truntimeinformation">Runtime Information</a></li>
+  <li><a href="#dbundlemanifest" onclick="fshow('bundlemanifest');" id="tbundlemanifest">Bundle Manifest</a></li>
+  <li><a href="#dexportedservices" onclick="fshow('exportedservices');" id="texportedservices">Exported Services</a></li>
+  <li><a href="#dimportedservices" onclick="fshow('importedservices');" id="timportedservices">Imported Services</a></li>
 </ul>
 
 <br />
 <br />
 
-
 <fieldset id="druntimeinformation">
-<legend>Runtime Information</legend>
+  <legend>Runtime Information</legend>
 <table>
 	<tr><td><b>ID</b></td><td>$bundle.BundleId</td></tr>
 	<tr><td><b>Location</b></td><td>$bundle.Location</td></tr>
@@ -29,7 +28,7 @@
 </fieldset>
 
 <fieldset id="dbundlemanifest">
-<legend>Bundle Manifest</legend>
+  <legend>Bundle Manifest</legend>
 <table>
 	#set($headers = $bundle.getHeaders())	
 	#foreach($name in $headers.keys())		
@@ -55,7 +54,7 @@
 </fieldset>
 
 <fieldset id="dexportedservices">
-<legend>Exported Services</legend>
+  <legend>Exported Services</legend>
 <table>
 	#set($services = $bundle.getRegisteredServices())
 	<tr>
@@ -86,7 +85,7 @@
 </fieldset>
 
 <fieldset id="dimportedservices">
-<legend>Imported Services</legend>
+  <legend>Imported Services</legend>
 <table>
 	#set($services = $bundle.getServicesInUse())
 	<tr>
@@ -120,41 +119,41 @@
 <h2>Bundle Controlpage</h2>
 
 #if($errorMsg)
-	<div class="box error">$errorMsg</div>
+  <p class="box error">$errorMsg</p>
 #end
 
-<h3>Install Bundles</h3>
+<h3>Install new Bundles</h3>
 
-<b>Install from URL</b><br/>
+<h4>Install new Bundle from URL</h4><br/>
 <form>
-	<input type="text" name="bundlePath" size="60" /><input type="submit" name="installURL" value="Install" />
+  <input type="text" name="bundlePath" size="60" />
+  <input type="submit" name="installURL" value="Install" />
 </form>
 
-<b>Install via File-Upload</b>
+<h4>Instal new Bundle via File-Upload</h4>
 <form enctype="multipart/form-data" method="post">
-	<input type="file" name="bundleJar" size="60" /><input type="submit" name="installUpload" value="Install" />
+  <input type="file" name="bundleJar" size="60" />
+  <input type="submit" name="installUpload" value="Install" />
 </form>
 
 
 <h3>Bundle List</h3>
+
 <ul id="bundle">
-	#if($bundles)
-		#foreach($entry in $bundles.entrySet())
-			<li>
-				<form>
-					<input type="hidden" name="bundleID" value="$entry.key" />
-					<input type="submit" name="start" value="Start" />
-					<input type="submit" name="stop" value="Stop" />
-					<input type="submit" name="restart" value="Restart" />
-					<input type="submit" name="update" value="Update" />
-					<input type="submit" name="uninstall" value="Uninstall" />
-				
-				<a class="$states.get($entry.value.state)" href="?bundleID=$entry.key&details=">
-				$entry.key - $entry.value.symbolicName</a>
-				</form>
-	
-			</li>
-		#end
-	#end
+  #if($bundles)
+  #foreach($entry in $bundles.entrySet())
+  <li>
+    <form>
+      <input type="hidden" name="bundleID" value="$entry.key" />
+      <input type="submit" name="start" value="Start" />
+      <input type="submit" name="stop" value="Stop" />
+      <input type="submit" name="restart" value="Restart" />
+      <input type="submit" name="update" value="Update" />
+      <input type="submit" name="uninstall" value="Uninstall" />
+      <a class="$states.get( $entry.value.state)" href="?bundleID=$entry.key&details=">$entry.key - $entry.value.symbolicName</a>
+    </form>
+  </li>
+  #end
+  #end
 </ul>
 #end

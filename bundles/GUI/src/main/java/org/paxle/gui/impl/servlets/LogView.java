@@ -2,6 +2,7 @@ package org.paxle.gui.impl.servlets;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,23 +19,27 @@ public class LogView extends ALayoutServlet {
 
 	private static final long serialVersionUID = 1L;
 	
-    public Template handleRequest( 
-    		HttpServletRequest request,
-            HttpServletResponse response,
-            Context context 
-    ) {
-
+	@Override
+	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context)
+	{
         Template template = null;
 
         try {
         	
-        	/*
-        	 * Setting template parameters
-        	 */        	        	   
-            context.put("LEVEL_ERROR",Integer.toString(LogService.LOG_ERROR));
-            context.put("LEVEL_WARNING",Integer.toString(LogService.LOG_WARNING));
-            context.put("LEVEL_INFO",Integer.toString(LogService.LOG_INFO));
-            context.put("LEVEL_DEBUG",Integer.toString(LogService.LOG_DEBUG));
+        	if( request.getParameter( "filterLogLevel") != null) {
+        		context.put( "filterLogLevel", new Integer( request.getParameter( "filterLogLevel")));
+        	}
+        	else {
+        		context.put( "filterLogLevel", 4);
+        	}
+        	
+        	//HashMap to determine LogLevelName
+        	HashMap<Integer, String> level = new HashMap<Integer, String>();
+        	level.put( LogService.LOG_ERROR , "error");
+        	level.put( LogService.LOG_WARNING, "warning");
+        	level.put( LogService.LOG_INFO, "info");
+        	level.put( LogService.LOG_DEBUG, "debug");
+        	context.put( "logLevelName" , level);
             
             template = this.getTemplate("/resources/templates/LogView.vm");
         } catch( Exception e ) {
@@ -44,7 +49,7 @@ public class LogView extends ALayoutServlet {
         }
 
         return template;
-    }
+	}
 
     @Override
     protected void mergeTemplate(Template template, Context context, HttpServletResponse response) throws ResourceNotFoundException, ParseErrorException, MethodInvocationException, IOException, UnsupportedEncodingException, Exception {
@@ -55,4 +60,8 @@ public class LogView extends ALayoutServlet {
     		e.printStackTrace();
     	}
     }
+
+
+
+
 }

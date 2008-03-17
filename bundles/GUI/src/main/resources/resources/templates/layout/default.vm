@@ -1,7 +1,10 @@
 #parse( '/resources/templates/layout/header.vm' )
-  <!-- left nav -->
-  <ul id="nav">
-   #parse( '/resources/templates/layout/menu.vm' )
-  </ul>
-  <div id="main">$screen_content</div>
+
+<!-- left nav -->
+<ul id="nav">
+#parse( '/resources/templates/layout/menu.vm' )
+</ul>
+<!-- end left nav -->
+
+<div id="main">$screen_content</div>
 #parse( '/resources/templates/layout/footer.vm' )

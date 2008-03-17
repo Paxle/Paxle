@@ -5,6 +5,11 @@ html, body {
 	color: #000000;
 }
 
+form {
+	margin: 0;
+	padding: 0;
+}
+
 fieldset {
 	margin: 0;
 	background-color: #FFFFFF;
@@ -93,14 +98,6 @@ input:focus, textarea:focus {
 	color: #000000;
 }
 
-.box {
-	margin: 0 0 1ex 0;
-	padding: 0.5ex;
-	background-color: #FFFFFF;
-	color: #000000;
-	border-style: solid;
-}
-
 
 .tabs {
 	margin: 0 0 1em 0;
@@ -130,25 +127,32 @@ input:focus, textarea:focus {
 }
 
 
+tr:hover {
+	background-color: #FFFFFF;
+}
+
+tr {
+	background-color: #EEEEEE;
+}
+
 .clearer {
 	clear: both;
 }
 
-
 .error {
-	border-color: #A00000;
+	background-color: #A00000;
 }
 
 .warning {
-	border-color: #A0A000;
-}
-
-.debug {
-	border-color: #0000A0;
+	background-color: #A0A000;
 }
 
 .info {
-	border-color: #00A000;
+	background-color: #00A000;
+}
+
+.debug {
+	background-color: #0000A0;
 }
 
 .resolved {
@@ -261,9 +265,5 @@ a.rssFeedLink {
 }
 
 a.rssFeedLink > img {
-	border: 0px;
-}
-
-form {
-	margin-bottom: 0
+	border: 0;
 }

@@ -2,13 +2,36 @@
 #set( $page_title = "Crawler Controlpage" )
 
 ## the content
-<form action="/crawler" method="post">
-	<label for="startURL">Crawl URL:</label><br /> 
-	<input type="text" id="startURL" name="startURL" /> <input type="submit" value="Send" />
-</form>
-<form action="/crawler" method="post">
-	<label for="startURL2">MassCrawl URL:</label><br /> 
-	<textarea cols="80" rows="15" name="startURL2" id="startURL2"></textarea>
-	<br />
-	<input type="submit" value="Send" />
-</form>
+
+## Activate onload
+#set ( $bodyonload = "initTabs('singlecrawl');" )
+
+<ul class="tabs">
+  <li><a href="#dsinglecrawl" onclick="fshow('singlecrawl');" id="tsinglecrawl">Crawl URL</a></li>
+  <li><a href="#dmasscrawl" onclick="fshow('masscrawl');" id="tmasscrawl">Mass Crawl</a></li>
+  <li><a href="#dstatuscrawl" onclick="fshow('statuscrawl');" id="tstatuscrawl">Crawler Status</a></li>
+</ul>
+
+<fieldset id="dsinglecrawl">
+  <legend>Crawl URL</legend>
+  <form action="/crawler" method="post">
+  <input type="text" id="startURL" name="startURL" />
+  <input type="submit" value="Start Crawl" />
+  </form>
+</fieldset>
+
+
+
+<fieldset id="dmasscrawl">
+  <legend>MassCrawl URL</legend>
+  <form action="/crawler" method="post">
+  <textarea cols="80" rows="15" name="startURL2" id="startURL2"></textarea>
+  <br />
+  <input type="submit" value="Start Crawl" />
+  </form>
+</fieldset>
+
+
+<fieldset id="dstatuscrawl">
+  <legend>Crawler Status</legend>
+</fieldset>

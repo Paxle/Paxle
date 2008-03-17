@@ -19,7 +19,8 @@ public class StyleManager
 
 	/** HashMap containing available styles */
 	private static HashMap<String, File> styles = new HashMap<String, File>();
-
+	
+	
 	public static HashMap<String, File> getStyles()
 	{
 		return styles;
@@ -47,6 +48,17 @@ public class StyleManager
 	public static void setStyle( String name)
 	{
 		ServletManager servletManager = Activator.getServletManager();
+		
+		if( name.equals( "default")) {
+			
+			servletManager.addResources("/css","/resources/templates/layout/css");
+
+			servletManager.addResources("/js","/resources/js");
+			
+			servletManager.addResources("/images", "/resources/images");
+			
+			return;
+		}
 
 		HttpContext httpContextStyle = new HttpContextStyle( name);
 

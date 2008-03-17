@@ -168,18 +168,21 @@
 #end
 *#
 
-#if($availbleStyles)
+#if( $availbleStyles)
 <h3>Styles:</h3>
 <form>
-	<select name="changeStyle">
-	#foreach($name in $availbleStyles.keySet())
-		<option value="$availbleStyles.get( $name).getAbsoluteFile()">$name</option>
-	#end
-	</select>
-	<input type="submit" value="Change Style" />
+  <select name="changeStyle">
+    <option value="default">Default Style</option>
+    #foreach($name in $availbleStyles.keySet())
+    <option value="$availbleStyles.get( $name).getAbsoluteFile()">$name</option>
+    #end
+  </select>
+  <input type="submit" value="Change Style" />
 </form>
+
 <form>
-	<input type="hidden" name="searchForStyles" value="search" />
-	<input type="submit" value="Refresh" />
+  <input type="hidden" name="searchForStyles" value="search" />
+  <input type="submit" value="Refresh" />
 </form>
+
 #end

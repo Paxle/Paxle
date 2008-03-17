@@ -1,70 +1,35 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>#if( $page_title ) - $page_title#end</title>
-  <link href="/css/style.css" rel="stylesheet" type="text/css" media="screen, projection" />
-  <link rel="stylesheet" type="text/css" href="/css/navi.css" />
-  <link rel="shortcut icon" href="/images/favicon.ico" type="image/vnd.microsoft.icon">
-  <link rel="icon" href="/images/favicon.ico" type="image/vnd.microsoft.icon"> 
-  <link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="$request.getScheme()://$request.getServerName():$request.getServerPort()/opensearch/osd.xml" />
+  <title>Paxle #if( $page_title ) - $page_title#end</title>
+ 
+  <link rel="stylesheet" type="text/css" href="/css/style.css" media="screen, projection" />
+  <link rel="stylesheet" type="text/css" href="/css/navi.css" media="screen, projection" />
   
+  <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico" />
+  <link rel="icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico" /> 
+  <link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="$request.getScheme()://$request.getServerName():$request.getServerPort()/opensearch/osd.xml" />
+ 
+  <script type="text/javascript" language="javascript" src="/js/tabs.js"></script>
+ 
   ## append custom headers
-  #if($page_headers)
+  #if( $page_headers)
   	#foreach( $page_header in $page_headers)
 		$page_header
 	#end
   #end
 </head>
-<script type="text/javascript">
-	/* <![CDATA[ */
-	function getHash(offset) {
-		var href = document.location.href;
-		var i = href.indexOf( "#" );
-		return i >= 0 ? href.substr( i + 1 + offset ) : null;
-	}
-	var cobj;
-	function initTabs(d) {
-		var i, obj = document.getElementsByTagName('fieldset');
-		for(i = 0; i < obj.length; i++) {
-			if (obj[i].id.substring(0,1) == 'd') {
-				obj[i].style.display = 'none';
-				obj[i].getElementsByTagName('legend')[0].style.display = 'none';
-			}
-		}
-		tab = getHash(1);
-		fshow(tab ? tab : d);
-		setInterval( function() {
-			var newTab = getHash(1);
-			if (newTab != tab) {
-				fshow(newTab ? newTab : d);
-				tab = newTab;
-			}
-		}, 200);
-	}
-
-	function fshow(n) {		
-		if(cobj != null) {
-			document.getElementById('d' + cobj).style.display = 'none';
-			document.getElementById('t' + cobj).className = '';
-		}
-		cobj = n;
-		document.getElementById('d' + n).style.display = '';
-		document.getElementById('t' + n).className = 'active';		
-		return false;
-	}
-	/* ]]> */
-</script>
 <body#if( $bodyonload ) onload="$bodyonload"#end>
 
 <div id="global_banner">
-	<ul>
-<li><a href="http://forum.paxle.info" title="Forum">Forum</a></li>
-<li><a href="https://bugs.pxl.li" title="Bugs">Bugs</a></li>
-<li><a href="http://wiki.paxle.net" title="Wiki">Wiki</a></li>
-<li><a href="http://svn.paxle.net" title="SVN">SVN</a></li>
-<li><a href="http://www2.paxle.net" title="Homepage">Homepage</a></li>
-<li class="active"><a href="/" title="This Peer">This Peer</a></li>
-	</ul>
+<ul>
+  <li><a href="http://forum.paxle.info" title="Forum">Forum</a></li>
+  <li><a href="https://bugs.pxl.li" title="Bugs">Bugs</a></li>
+  <li><a href="http://wiki.paxle.net" title="Wiki">Wiki</a></li>
+  <li><a href="http://svn.paxle.net" title="SVN">SVN</a></li>
+  <li><a href="http://www2.paxle.net" title="Homepage">Homepage</a></li>
+  <li class="active"><a href="/" title="This Peer">This Peer</a></li>
+</ul>
 </div>
 
 <h1>Paxle</h1>
