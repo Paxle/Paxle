@@ -21,9 +21,10 @@ public class OverView extends ALayoutServlet {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private static final String[] QUEUES = {
-		"crawler", "parser", "indexer"
-	};
+	private static final String Q_CRAWLER = "crawler";
+	private static final String Q_PARSER = "parser";
+	private static final String Q_INDEXER = "indexer";
+	private static final String[] QUEUES = { Q_CRAWLER, Q_PARSER, Q_INDEXER };
 	
 	public OverView(final String bundleLocation) {
 		super(bundleLocation);
@@ -53,7 +54,6 @@ public class OverView extends ALayoutServlet {
 				context.put("ip", "127.0.0.1");
 			}
 			
-			// final LinkedHashMap<String,Object> servicesMap = new LinkedHashMap<String,Object>();
 			final LinkedList<Entry> servicesList = new LinkedList<Entry>();
 			for (final String queue : QUEUES) {
 				final String id = "org.paxle." + queue;
@@ -73,10 +73,10 @@ public class OverView extends ALayoutServlet {
 					}
 					
 					final int count;
-					if (queue.equals("indexer")) {
+					if (queue == Q_INDEXER) {
 						count = 1;
 					} else {
-						final Object subManager = manager.getService(id + ".ISub" + name + "Manager");
+						final Object subManager = manager.getService(String.format("%s.ISub%sManager", id, name));
 						if (subManager == null) {
 							count = 0;
 						} else {

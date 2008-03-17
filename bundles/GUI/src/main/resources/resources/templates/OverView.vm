@@ -4,7 +4,7 @@
 ## Content
 
 <fieldset class="infobox">
-	<legend>System</legend>
+	<legend class="ovSystem">System</legend>
 	<dl>
 		<dt>CPUs</dt><dd>$runtime.availableProcessors()</dd>
 		<dt>OS</dt><dd>$sysprops.get("os.arch")<br /> $sysprops.get("os.name")<br /> $sysprops.get("os.version")</dd>
@@ -14,7 +14,7 @@
 </fieldset>
 
 <fieldset class="infobox">
-	<legend>Memory</legend>
+	<legend class="ovMemory">Memory</legend>
 	#set($used = ($runtime.totalMemory() - $runtime.freeMemory()) / (1024 * 1024))
 	#set($free = ($runtime.maxMemory() - $runtime.totalMemory() + $runtime.freeMemory()) / (1024 * 1024))
 	#set($total = $runtime.maxMemory() / (1024 * 1024))
@@ -26,7 +26,7 @@
 </fieldset>
 
 <fieldset class="infobox">
-	<legend>Host</legend>
+	<legend class="ovHost">Host</legend>
 	<dl>
 		<dt>Hostname:</dt><dd>$hostname</dd>
 		<dt>IP:</dt><dd>$ip:$port</dd>
@@ -35,7 +35,7 @@
 	
 	#if ($services.size() > 0)
 <fieldset class="infobox">
-	<legend>Activity</legend>
+	<legend class="ovActivity">Activity</legend>
 		<table>
 			<tr>
 				<th>#</th>
