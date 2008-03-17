@@ -7,6 +7,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
+import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IMenuManager;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.impl.servlets.BundleView;
@@ -97,6 +98,7 @@ public class Activator implements BundleActivator {
 								
 				// configure menu
 				// TODO: this will be generated dynamically later
+				/*
 				menuManager.addItem("/search", "Search");
 				menuManager.addItem("/status", "Status");
 				menuManager.addItem("/p2p", "P2P");
@@ -106,6 +108,7 @@ public class Activator implements BundleActivator {
 				menuManager.addItem("/queue", "Queues");				
 				menuManager.addItem("/config", "Settings");
 				menuManager.addItem("/overview", "Overview");
+				*/
 				
 				// registering the servlet which will be accessible using 
 //                http.registerServlet("/search", new SearchView(manager), props, httpContext);
@@ -125,7 +128,8 @@ public class Activator implements BundleActivator {
 			
 			/* ==========================================================
 			 * Register Servlets
-			 * ========================================================== */	
+			 * ========================================================== */
+			/*
 			servletManager.addServlet("/", new RootView(null));
 			servletManager.addServlet("/search", new SearchView(null));
 			servletManager.addServlet("/status", new StatusView(null));
@@ -138,6 +142,19 @@ public class Activator implements BundleActivator {
 			servletManager.addServlet("/config", new SettingsView(null));
 			servletManager.addServlet("/threads", new TheaddumpView(null));
 			servletManager.addServlet("/overview", new OverView(null));
+			*/
+			registerServlet("/", new RootView(), null);
+			registerServlet("/search", new SearchView(), "Search");
+			registerServlet("/status", new StatusView(), "Status");
+			registerServlet("/p2p", new P2PView(), "P2P");
+			registerServlet("/crawler", new CrawlerView(), "Crawler");
+			registerServlet("/bundle", new BundleView(), "Bundles");
+			registerServlet("/log", new LogView(), "Logging");
+			registerServlet("/queue", new QueueView(), "Queues");
+			registerServlet("/opensearch/osd.xml", new OpenSearchDescription(), null);
+			registerServlet("/config", new SettingsView(), "Settings");
+			registerServlet("/threads", new TheaddumpView(), null);
+			registerServlet("/overview", new OverView(), "Overview");
 			
 			/*
 			 * Add stylesheets
@@ -161,6 +178,13 @@ public class Activator implements BundleActivator {
 			servletManager.addResources("/images", "/resources/images");
 
 		}
+	}
+	
+	private static void registerServlet(final String location, final ALayoutServlet servlet, final String menuName) {
+		servlet.init(null, location);
+		servletManager.addServlet(location, servlet);
+		if (menuName != null && http != null)
+			menuManager.addItem(location, menuName);
 	}
 
 	public void stop(BundleContext context) throws Exception {

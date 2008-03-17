@@ -15,11 +15,7 @@ import org.paxle.gui.impl.ServiceManager;
 
 public class CrawlerView extends ALayoutServlet {
 
-	private static final long serialVersionUID = 1L;	
-
-    public CrawlerView(String bundleLocation) {
-		super(bundleLocation);
-	}
+	private static final long serialVersionUID = 1L;
 	
     public Template handleRequest( 
     		HttpServletRequest request,

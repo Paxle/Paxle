@@ -228,6 +228,13 @@ input.btnPause {
 	padding-left: 20px;
 }
 
+input.btnGC {
+	background-image: url(/images/cog.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	padding-left: 20px;
+}
+
 .ovSystem {
 	background-image: url(/images/computer.png);
 	background-repeat: no-repeat;
@@ -257,6 +264,6 @@ a.rssFeedLink > img {
 	border: 0px;
 }
 
-table form {
+form {
 	margin-bottom: 0
 }

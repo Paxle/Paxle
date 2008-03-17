@@ -11,10 +11,6 @@ import org.paxle.gui.ALayoutServlet;
 
 public class RootView extends ALayoutServlet {
 
-	public RootView(String bundleLocation) {
-		super(bundleLocation);
-	}
-
 	private static final long serialVersionUID = 1L;
 	
     public Template handleRequest( 

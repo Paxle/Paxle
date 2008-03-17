@@ -18,10 +18,6 @@ import org.paxle.gui.impl.ServiceManager;
 public class SearchView extends ALayoutServlet {
 
 	private static final long serialVersionUID = 1L;
-
-	public SearchView(String bundleLocation) {
-		super(bundleLocation);
-	}
 	
 	public Template handleRequest( 
 			HttpServletRequest request,

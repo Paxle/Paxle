@@ -24,13 +24,6 @@ public class SettingsView extends ALayoutServlet
 
 	private Log logger = LogFactory.getLog( this.getClass());
 
-
-	public SettingsView(String bundleLocation)
-	{
-		super( bundleLocation);
-	}
-
-
 	@Override
 	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context)
 	{

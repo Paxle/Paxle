@@ -20,7 +20,13 @@
 	#set($total = $runtime.maxMemory() / (1024 * 1024))
 	<dl>
 		<dt>Memory used:</dt><dd>$used MiB</dd>
-		<dt>Memory free:</dt><dd>$free MiB</dd>
+		<dt>Memory free:</dt>
+		<dd>
+			$free MiB
+			<form method="get" action="">
+				<input class="btnGC" type="submit" name="gc" value="GC" />
+			</form>
+		</dd>
 		<dt>Memory total:</dt><dd>$total MiB</dd>
 	</dl>
 </fieldset>
@@ -32,8 +38,17 @@
 		<dt>IP:</dt><dd>$ip:$port</dd>
 	</dl>
 </fieldset>
+
+#if($indexSearcher)
+<fieldset class="infobox">
+	<legend>Index</legend>
+	<dl>
+		<dt>Documents known:</dt><dd>$indexSearcher.getDocCount()</dd>
+	</dl>
+</fieldset>
+#end
 	
-	#if ($services.size() > 0)
+#if ($services.size() > 0)
 <fieldset class="infobox">
 	<legend class="ovActivity">Activity</legend>
 		<table>
@@ -70,7 +85,13 @@
 						</form>
 					#end
 					</td>
-					<td><a href="/queue?queue=$entry.getId()">$name</a></td>
+					<td>
+					#if ($queueServletExists == true)
+						<a href="/queue?queue=$entry.getId()">$name</a>
+					#else
+						$name
+					#end
+					</td>
 					<td>$entry.getService().getPPM()</td>
 					<td>$entry.getService().getActiveJobCount()</td>
 					<td>$entry.getService().getEnqueuedJobCount()</td>
@@ -78,5 +99,5 @@
 			#end
 		</table>
 </fieldset>
-	#end
+#end
 <p class="clearer">&nbsp;</p>

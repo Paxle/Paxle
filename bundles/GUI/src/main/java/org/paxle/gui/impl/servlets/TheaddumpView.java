@@ -10,11 +10,8 @@ import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 
 public class TheaddumpView extends ALayoutServlet {
+	
 	private static final long serialVersionUID = 1L;
-
-    public TheaddumpView(String bundleLocation) {
-		super(bundleLocation);
-	}    
     
     public Template handleRequest( 
     		HttpServletRequest request,

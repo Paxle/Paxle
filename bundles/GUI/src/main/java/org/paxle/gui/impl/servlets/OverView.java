@@ -15,6 +15,7 @@ import org.apache.velocity.context.Context;
 import org.osgi.framework.Constants;
 import org.paxle.core.IMWComponent;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IServletManager;
 import org.paxle.gui.impl.ServiceManager;
 
 public class OverView extends ALayoutServlet {
@@ -26,10 +27,6 @@ public class OverView extends ALayoutServlet {
 	private static final String Q_INDEXER = "indexer";
 	private static final String[] QUEUES = { Q_CRAWLER, Q_PARSER, Q_INDEXER };
 	
-	public OverView(final String bundleLocation) {
-		super(bundleLocation);
-	}
-	
 	@Override
 	public Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context context) {
 		
@@ -38,6 +35,12 @@ public class OverView extends ALayoutServlet {
 		try {
 			final ServiceManager manager = (ServiceManager)context.get(SERVICE_MANAGER);
 			
+			if (request.getParameter("gc") != null) {
+				System.gc();
+				response.sendRedirect(super.servletLocation);
+			}
+			
+			// set system
 			context.put("runtime", Runtime.getRuntime());
 			context.put("sysprops", System.getProperties());
 			context.put("port", manager.getProperty("org.osgi.service.http.port"));
@@ -45,6 +48,7 @@ public class OverView extends ALayoutServlet {
 			context.put("frameworkVendor", manager.getProperty(Constants.FRAMEWORK_VENDOR));
 			context.put("frameworkVersion", manager.getProperty("osgi.framework.version"));
 			
+			// set host
 			try {
 				final InetAddress localhost = InetAddress.getLocalHost();
 				context.put("hostname", localhost.getCanonicalHostName());
@@ -54,6 +58,7 @@ public class OverView extends ALayoutServlet {
 				context.put("ip", "127.0.0.1");
 			}
 			
+			// set activity
 			final LinkedList<Entry> servicesList = new LinkedList<Entry>();
 			for (final String queue : QUEUES) {
 				final String id = "org.paxle." + queue;
@@ -64,11 +69,11 @@ public class OverView extends ALayoutServlet {
 					// check if resume or pause is demanded
 					if (request.getParameter("service") != null && request.getParameter("service").equals(name)) {
 						if (request.getParameter("pause") != null) {
-							((IMWComponent)services[0]).pause();
-							response.sendRedirect("/overview");
+							((IMWComponent<?>)services[0]).pause();
+							response.sendRedirect(super.servletLocation);
 						} else if (request.getParameter("resume") != null) {
-							((IMWComponent)services[0]).resume();
-							response.sendRedirect("/overview");
+							((IMWComponent<?>)services[0]).resume();
+							response.sendRedirect(super.servletLocation);
 						}
 					}
 					
@@ -97,6 +102,13 @@ public class OverView extends ALayoutServlet {
 				}
 			}
 			context.put("services", servicesList);
+			
+			// determine whether the queues-servlet is installed and therefore links can be displayed
+			final IServletManager servletManager = (IServletManager)manager.getService(IServletManager.class.getName());
+			context.put("queueServletExists", Boolean.valueOf(servletManager.hasServlet("/queue")));
+			
+			// set index searcher
+			context.put("indexSearcher", manager.getService("org.paxle.se.index.IIndexSearcher"));
 			
 			template = getTemplate("/resources/templates/OverView.vm");
 		} catch (Exception e) {

@@ -13,10 +13,6 @@ public class StatusView extends ALayoutServlet {
 
 	private static final long serialVersionUID = 1L;
 	
-	public StatusView(String bundleLocation) {
-		super(bundleLocation);
-	}	
-	
     public Template handleRequest( 
     		HttpServletRequest request,
     		HttpServletResponse response,
@@ -28,8 +24,10 @@ public class StatusView extends ALayoutServlet {
         	
     		if (request.getParameter("pauseCrawl") != null) {
     			context.put("doPause", Boolean.TRUE);
+    			response.sendRedirect(super.servletLocation);
     		} else if (request.getParameter("resumeCrawl") != null) {
     			context.put("doResume", Boolean.TRUE);
+    			response.sendRedirect(super.servletLocation);
     		} else if (request.getParameter("processNextCrawl") != null) {
     			context.put("doProcessNextCrawl", Boolean.TRUE);
     		} 

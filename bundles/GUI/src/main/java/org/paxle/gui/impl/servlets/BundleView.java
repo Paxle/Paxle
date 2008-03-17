@@ -35,10 +35,6 @@ public class BundleView extends ALayoutServlet {
     	states.put(Integer.valueOf(Bundle.STOPPING), "stopping");
     	states.put(Integer.valueOf(Bundle.UNINSTALLED), "uninstalled");
     }
-    
-	public BundleView(String bundleLocation) {
-		super(bundleLocation);
-	}
 	
     public Template handleRequest( HttpServletRequest request,
             HttpServletResponse response,
@@ -50,7 +46,7 @@ public class BundleView extends ALayoutServlet {
             
             ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
             if (request.getParameter("bundleID") != null) {
-            	Long bundleID = Long.parseLong(request.getParameter("bundleID"));
+            	long bundleID = Long.parseLong(request.getParameter("bundleID"));
             	Bundle bundle = manager.getBundle(bundleID);
         		if (bundle == null) {
         			String errorMsg = String.format(
@@ -138,7 +134,7 @@ public class BundleView extends ALayoutServlet {
             		    item.write(targetFile);
             		    
             		    // installing bundle
-            			ServiceManager.context.installBundle(targetFile.toURL().toString());
+            			ServiceManager.context.installBundle(targetFile.toURI().toURL().toString());
 
             			// cleanup
             			item.delete();

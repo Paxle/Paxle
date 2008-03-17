@@ -13,11 +13,8 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
 
 public class QueueView extends ALayoutServlet {
+	
 	private static final long serialVersionUID = 1L;
-
-    public QueueView(String bundleLocation) {
-		super(bundleLocation);
-	}    
     
     public Template handleRequest( 
     		HttpServletRequest request,

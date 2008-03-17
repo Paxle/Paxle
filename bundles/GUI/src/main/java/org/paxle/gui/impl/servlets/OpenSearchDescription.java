@@ -8,11 +8,7 @@ import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 
 public class OpenSearchDescription extends ALayoutServlet {
-
-	public OpenSearchDescription(String bundleLocation) {
-		super(bundleLocation);
-	}
-
+	
 	private static final long serialVersionUID = 1L;
 	
     public Template handleRequest( 

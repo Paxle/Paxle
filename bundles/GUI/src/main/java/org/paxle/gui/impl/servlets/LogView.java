@@ -17,11 +17,6 @@ import org.paxle.gui.ALayoutServlet;
 public class LogView extends ALayoutServlet {
 
 	private static final long serialVersionUID = 1L;
-    
-
-    public LogView(String bundleLocation) {
-		super(bundleLocation);
-	}	
 	
     public Template handleRequest( 
     		HttpServletRequest request,
