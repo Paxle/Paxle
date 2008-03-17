@@ -49,6 +49,10 @@ public class ServiceManager {
 		return (reference == null) ? null : ServiceManager.context.getService(reference);
 	}
 	
+	public ServiceReference[] getServiceReferences(String serviceName) throws InvalidSyntaxException {
+		return ServiceManager.context.getServiceReferences(serviceName,null);
+	}
+	
 	public Object getServiceProperty(String serviceName, String propertyname) {
 		ServiceReference reference = ServiceManager.context.getServiceReference(serviceName);
 		return (reference == null) ? null : reference.getProperty(propertyname);

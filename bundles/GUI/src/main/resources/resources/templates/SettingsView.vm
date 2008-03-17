@@ -3,6 +3,69 @@
 
 ## the regular content
 <h2>Settings: </h2>
+
+#set($configAdmin = $manager.getService("org.osgi.service.cm.ConfigurationAdmin"))
+#set($metaTypeService = $manager.getService("org.osgi.service.metatype.MetaTypeService"))
+
+#if(!$metaTypeService)
+	<div class="notInstalled">Metatype bundle not installed!</div>
+#end
+
+#if($configAdmin)
+<h3>Crawler-Config:</h3>
+	
+	#set($bundleRefs = $manager.getServiceReferences("org.paxle.crawler.http.IHttpCrawler"))
+	BundleRefs: $bundleRefs<br/>
+	
+	#set($bundleRef = $listTool.get($bundleRefs,0))
+	BundleRef: $bundleRef<br/>
+	
+	#set($bundle = $bundleRef.getBundle())
+	Bundle: $bundle<br/>
+	
+	#set($bundleLocation = $bundle.getLocation())
+	Location: $bundleLocation<br/>
+	
+	#set($config = $configAdmin.getConfiguration("org.paxle.crawler.http.IHttpCrawler",$bundleLocation))
+	Configuration: $config<br/>
+	
+	#set($properties = $config.getProperties())
+	Properties: $properties<br/>
+	
+	#set($metaType = $metaTypeService.getMetaTypeInformation($bundle))
+	MetaTypeInfo: $metaType<br/>
+	
+	#set($ocd = $metaType.getObjectClassDefinition("org.paxle.crawler.http.IHttpCrawler", null))
+	Object Class Definition: $ocd<br/>
+	Name: $ocd.getName()<br/>
+	Desc.: $ocd.getDescription()<br/>
+	ID: $ocd.getID()<br/>
+	
+	#set($attributes = $ocd.getAttributeDefinitions(-1))
+	Attributes: $attributes<br/>
+	
+	#set($color = $alternatorTool.auto('r1','r2'))
+	<table border="1">
+	<tr>
+		<th>Name</th>
+		<th>Description</th>
+		<th>ID</th>
+		<th>Value</th>
+	</tr>
+	#foreach($attribute in $attributes)
+		<tr class="$color">
+			<td>$attribute.getName()</td>
+			<td>$attribute.getDescription()</td>
+			<td>$attribute.getID()</td>
+			<td>$properties.get($attribute.getID())</td>
+		</tr>
+		
+	#end
+	</table>
+#else
+	<div class="notInstalled">CM bundle not installed!</div>
+#end
+
 #if($availbleStyles)
 <h3>Styles:</h3>
 <form>
