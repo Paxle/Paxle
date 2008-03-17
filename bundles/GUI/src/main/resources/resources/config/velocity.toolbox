@@ -39,6 +39,12 @@
    </tool>     
    
    <tool>
+	   <key>mathTool</key>
+	   <scope>application</scope>
+	   <class>org.apache.velocity.tools.generic.MathTool</class>
+   </tool>   
+   
+   <tool>
       <key>linkTool</key>
       <scope>request</scope>
       <class>org.apache.velocity.tools.view.tools.LinkTool</class>

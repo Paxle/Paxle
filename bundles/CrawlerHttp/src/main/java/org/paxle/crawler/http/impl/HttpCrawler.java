@@ -86,12 +86,12 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	/**
 	 * @return the default configuration of this service
 	 */
-	public Hashtable<String,String> getDefaults() {
-		Hashtable<String,String> defaults = new Hashtable<String,String>();
+	public Hashtable<String,Object> getDefaults() {
+		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 		
-		defaults.put(PROP_CONNECTION_TIMEOUT, "15000");
-		defaults.put(PROP_SOCKET_TIMEOUT, "15000");
-		defaults.put(PROP_MAXCONNECTIONS_PER_HOST, "10");
+		defaults.put(PROP_CONNECTION_TIMEOUT, new Integer(15000));
+		defaults.put(PROP_SOCKET_TIMEOUT, new Integer(15000));
+		defaults.put(PROP_MAXCONNECTIONS_PER_HOST, new Integer(10));
 
 		defaults.put(Constants.SERVICE_PID, IHttpCrawler.class.getName());
 		
@@ -120,11 +120,11 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		this.connectionManager = new MultiThreadedHttpConnectionManager();
 		
 		// configure connections per host
-		this.connectionManager.getParams().setDefaultMaxConnectionsPerHost(Integer.valueOf((String) configuration.get(PROP_MAXCONNECTIONS_PER_HOST)));
+		this.connectionManager.getParams().setDefaultMaxConnectionsPerHost(((Integer) configuration.get(PROP_MAXCONNECTIONS_PER_HOST)).intValue());
 		
 		// configuring timeouts
-		this.connectionManager.getParams().setConnectionTimeout(Integer.valueOf((String) configuration.get(PROP_CONNECTION_TIMEOUT)));
-		this.connectionManager.getParams().setSoTimeout(Integer.valueOf((String) configuration.get(PROP_SOCKET_TIMEOUT)));
+		this.connectionManager.getParams().setConnectionTimeout(((Integer) configuration.get(PROP_CONNECTION_TIMEOUT)).intValue());
+		this.connectionManager.getParams().setSoTimeout(((Integer) configuration.get(PROP_SOCKET_TIMEOUT)).intValue());
 		
 		// set new http client
 		this.httpClient = new HttpClient(connectionManager); 
