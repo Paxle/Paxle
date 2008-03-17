@@ -32,6 +32,6 @@ function fshow(n) {
 	}
 	cobj = n;
 	document.getElementById('d' + n).style.display = '';
-	document.getElementById('t' + n).className = 'active';		
+	document.getElementById('t' + n).className = 'active';
 	return false;
 }

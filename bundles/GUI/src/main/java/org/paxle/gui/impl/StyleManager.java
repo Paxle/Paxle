@@ -51,9 +51,15 @@ public class StyleManager
 		
 		if( name.equals( "default")) {
 			
+			servletManager.removeResource( "/css");
+			
 			servletManager.addResources("/css","/resources/templates/layout/css");
 
+			servletManager.removeResource( "/js");
+			
 			servletManager.addResources("/js","/resources/js");
+			
+			servletManager.removeResource( "/images");
 			
 			servletManager.addResources("/images", "/resources/images");
 			

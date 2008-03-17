@@ -17,9 +17,9 @@
 
 <table width="100%">
   <tr>
-    <td width="5%">Level</td>
-    <td width="20%">Time</td>
-    <td width="75%">Message</td>
+    <th>Level</th>
+    <th>Time</th>
+    <th>Message</th>
   </tr>
 #foreach( $logEntry in $logReader.getLog())
 #set( $level = $logEntry.getLevel())

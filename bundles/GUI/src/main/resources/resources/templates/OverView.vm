@@ -2,41 +2,76 @@
 #set($page_title = "Paxle Peer Status")
 
 ## Content
+#set ( $bodyonload = "initTabs('system');" )
 
-<fieldset class="infobox">
-	<legend class="ovSystem">System</legend>
-	<dl>
-		<dt>CPUs</dt><dd>$runtime.availableProcessors()</dd>
-		<dt>OS</dt><dd>$sysprops.get("os.arch")<br /> $sysprops.get("os.name")<br /> $sysprops.get("os.version")</dd>
-		<dt>JVM</dt><dd>$sysprops.get("java.vendor")<br /> $sysprops.get("java.runtime.name")<br /> $sysprops.get("java.version")</dd>
-		<dt>OSGi v$osgiVersion</dt><dd>by $frameworkVendor,<br /> version $frameworkVersion</dd>
-	</dl>
+<ul class="tabs">
+  <li><a href="#dsystem" onclick="fshow('system');" id="tsystem">System</a></li>
+  <li><a href="#dmemory" onclick="fshow('memory');" id="tmemory">Memory</a></li>
+  <li><a href="#dhost" onclick="fshow('host');" id="thost">Host</a></li>
+</ul>
+
+<fieldset id="dsystem">
+  <legend class="ovSystem">System</legend>
+  <table>
+    <tr><th>Name</th><th>Value</th></tr>
+    <tr>
+      <td><b>CPUs</b></td>
+      <td>$runtime.availableProcessors()</td>
+    </tr>
+    <tr>
+      <td><b>OS</b></td>
+      <td>$sysprops.get("os.arch")<br />$sysprops.get("os.name")<br />$sysprops.get("os.version")</td>
+    </tr>
+    <tr>
+      <td><b>JVM</b></td>
+      <td>$sysprops.get("java.vendor")<br />$sysprops.get("java.runtime.name")<br />$sysprops.get("java.version")</td>
+    </tr>
+    <tr>
+      <td><b>OSGi v$osgiVersion</b></td>
+      <td>by $frameworkVendor,<br />version $frameworkVersion</td>
+    </tr>
+  </table>
 </fieldset>
 
-<fieldset class="infobox">
-	<legend class="ovMemory">Memory</legend>
-	#set($used = ($runtime.totalMemory() - $runtime.freeMemory()) / (1024 * 1024))
-	#set($free = ($runtime.maxMemory() - $runtime.totalMemory() + $runtime.freeMemory()) / (1024 * 1024))
-	#set($total = $runtime.maxMemory() / (1024 * 1024))
-	<dl>
-		<dt>Memory used:</dt><dd>$used MiB</dd>
-		<dt>Memory free:</dt>
-		<dd>
-			$free MiB
-			<form method="get" action="">
-				<input class="btnGC" type="submit" name="gc" value="GC" />
-			</form>
-		</dd>
-		<dt>Memory total:</dt><dd>$total MiB</dd>
-	</dl>
+<fieldset id="dmemory">
+  <legend class="ovMemory">Memory</legend>
+  #set($used = ($runtime.totalMemory() - $runtime.freeMemory()) / (1024 * 1024))
+  #set($free = ($runtime.maxMemory() - $runtime.totalMemory() + $runtime.freeMemory()) / (1024 * 1024))
+  #set($total = $runtime.maxMemory() / (1024 * 1024))
+  <table>
+    <tr><th>Name</th><th>Value</th></tr>
+    <tr>
+      <td><b>Memory used</b></td>
+      <td>$used MiB</td>
+    </tr>
+    <tr>
+      <td><b>Memory free</b></td>
+      <td>$free MiB</td>
+    </tr>
+    <tr>
+      <td><b>Memory total</b></td>
+      <td>$total MiB</td>
+    </tr>
+    <tr>
+      <td><b>Memory misc</b></td>
+      <td><a href="?gc=GC" class="btnGC">run Garbage Collection</a></td>
+    </tr>
+  </table>
 </fieldset>
 
-<fieldset class="infobox">
-	<legend class="ovHost">Host</legend>
-	<dl>
-		<dt>Hostname:</dt><dd>$hostname</dd>
-		<dt>IP:</dt><dd>$ip:$port</dd>
-	</dl>
+<fieldset id="dhost">
+  <legend class="ovHost">Host</legend>
+  <table>
+    <tr><th>Name</th><th>Value</th></tr>
+    <tr>
+      <td><b>Hostname</b></td>
+      <td>$hostname</td>
+    </tr>
+    <tr>
+      <td><b>IP</b></td>
+      <td>$ip:$port</td>
+    </td>
+  </table>
 </fieldset>
 
 #if($indexSearcher)

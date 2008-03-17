@@ -180,12 +180,12 @@
     <option value="$availbleStyles.get( $name).getAbsoluteFile()">$name</option>
     #end
   </select>
-  <input type="submit" value="Change Style" />
+  <input type="submit" value="Change" />
 </form>
 
 <form>
   <input type="hidden" name="searchForStyles" value="search" />
-  <input type="submit" value="Refresh" />
+  <input type="submit" value="" class="btnreload" />
 </form>
 
 #end
