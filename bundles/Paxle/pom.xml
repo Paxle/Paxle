@@ -385,6 +385,28 @@
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
 									<artifactId>
+										org.apache.felix.configadmin
+									</artifactId>
+									<version>1.0.0</version>
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
+								</artifactItem>
+								
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>
+										org.apache.felix.metatype
+									</artifactId>
+									<version>1.0.0</version>
+									<outputDirectory>
+										${felix.dependencies}
+									</outputDirectory>
+								</artifactItem>								
+
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>
 										org.apache.felix.http.jetty
 									</artifactId>
 									<version>0.9.0-SNAPSHOT</version>
