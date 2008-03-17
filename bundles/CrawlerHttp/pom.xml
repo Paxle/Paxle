@@ -32,7 +32,9 @@
 						<Import-Package>
 							org.apache.commons.logging,
 							org.osgi.framework;version="1.3",
-							org.paxle.crawler, org.paxle.core.doc
+							org.osgi.service.cm,
+							org.paxle.crawler, 
+							org.paxle.core.doc
 						</Import-Package>
 						<DynamicImport-Package>
 							javax.crypto, 

@@ -6,6 +6,8 @@ import java.net.ConnectException;
 import java.net.NoRouteToHostException;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -19,6 +21,8 @@ import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.Constants;
+import org.osgi.service.cm.ManagedService;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.crawler.CrawlerContext;
@@ -31,7 +35,14 @@ import org.paxle.crawler.http.IHttpCrawler;
  * TODO: set redirection follow, etc....
  * 
  */
-public class HttpCrawler implements IHttpCrawler {
+public class HttpCrawler implements IHttpCrawler, ManagedService {
+	/* =========================================================
+	 * Config Properties
+	 * ========================================================= */
+	private static final String PROP_CONNECTION_TIMEOUT = "connectionTimeout";
+	private static final String PROP_SOCKET_TIMEOUT = "socketTimeout";
+	private static final String PROP_MAXCONNECTIONS_PER_HOST = "maxConnectionsPerHost";
+	
 	private static final String HTTPHEADER_ETAG = "ETag";
 	private static final String HTTPHEADER_LAST_MODIFIED = "Last-Modified";
 	private static final String HTTPHEADER_DATE = "Date";
@@ -58,17 +69,66 @@ public class HttpCrawler implements IHttpCrawler {
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
-	public HttpCrawler(int maxConnectionsPerHost, int connectionTimeout, int socketTimeout) {
+	public HttpCrawler() {
+		// init with default configuration
+		this.updated(this.getDefaults());
+	}
+	
+	public void cleanup() {
+		// cleanup old settings
+		if (this.connectionManager != null) {
+			this.connectionManager.shutdown();
+			this.connectionManager = null;
+			this.httpClient = null;
+		}
+	}
+
+	/**
+	 * @return the default configuration of this service
+	 */
+	public Hashtable<String,String> getDefaults() {
+		Hashtable<String,String> defaults = new Hashtable<String,String>();
+		
+		defaults.put(PROP_CONNECTION_TIMEOUT, "15000");
+		defaults.put(PROP_SOCKET_TIMEOUT, "15000");
+		defaults.put(PROP_MAXCONNECTIONS_PER_HOST, "10");
+
+		defaults.put(Constants.SERVICE_PID, IHttpCrawler.class.getName());
+		
+		return defaults;
+	}
+
+	/**
+	 * @see ManagedService#updated(Dictionary)
+	 */
+	public synchronized void updated(Dictionary configuration) {
+		if ( configuration == null ) {
+			/*
+			 * Generate default configuration
+			 */
+			configuration = this.getDefaults();
+		}
+		
+		/*
+		 * Cleanup old config
+		 */
+		this.cleanup();
+		
+		/*
+		 * Init with changed configuration
+		 */
 		this.connectionManager = new MultiThreadedHttpConnectionManager();
 		
-		this.connectionManager.getParams().setDefaultMaxConnectionsPerHost(maxConnectionsPerHost);
+		// configure connections per host
+		this.connectionManager.getParams().setDefaultMaxConnectionsPerHost(Integer.valueOf((String) configuration.get(PROP_MAXCONNECTIONS_PER_HOST)));
 		
 		// configuring timeouts
-		this.connectionManager.getParams().setConnectionTimeout(connectionTimeout);
-		this.connectionManager.getParams().setSoTimeout(socketTimeout);
+		this.connectionManager.getParams().setConnectionTimeout(Integer.valueOf((String) configuration.get(PROP_CONNECTION_TIMEOUT)));
+		this.connectionManager.getParams().setSoTimeout(Integer.valueOf((String) configuration.get(PROP_SOCKET_TIMEOUT)));
 		
+		// set new http client
 		this.httpClient = new HttpClient(connectionManager); 
-	}
+	}	
 	
 	/**
 	 * @see ISubCrawler#getProtocols()
@@ -76,6 +136,16 @@ public class HttpCrawler implements IHttpCrawler {
 	public String[] getProtocols() {
 		return HttpCrawler.PROTOCOLS;
 	}	
+	
+	/**
+	 * This method is synchronized with {@link #updated(Dictionary)} to avoid
+	 * problems during configuration update.
+	 * 
+	 * @return the {@link HttpClient} to use
+	 */
+	private synchronized HttpClient getHttpClient() {
+		return this.httpClient;
+	}
 	
 	public ICrawlerDocument request(String requestUrl) {
 		if (requestUrl == null) throw new NullPointerException("URL was null");
@@ -97,7 +167,7 @@ public class HttpCrawler implements IHttpCrawler {
 			//method.setRequestHeader("Accept-Encoding","gzip");
 
 			// send the request to the server
-			int statusCode = httpClient.executeMethod(method);
+			int statusCode = this.getHttpClient().executeMethod(method);
 			
 			// check the response status code
 			if (statusCode != HttpStatus.SC_OK) {
