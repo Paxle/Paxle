@@ -36,9 +36,11 @@ public class Activator implements BundleActivator {
 //        if(http != null) {  
 //            http.registerServlet("/blacklist", new BlacklistServlet(), null, null);
 //        }
+        BlacklistServlet servlet = new BlacklistServlet();
+        servlet.init(bc.getBundle().getLocation(), "/blacklist");
         Hashtable<String, String> props = new Hashtable<String, String>();
         props.put("path", "/blacklist");
-        bc.registerService("javax.servlet.Servlet", new BlacklistServlet(bc.getBundle().getLocation()), props);
+        bc.registerService("javax.servlet.Servlet", servlet, props);
     }
 
     /**
