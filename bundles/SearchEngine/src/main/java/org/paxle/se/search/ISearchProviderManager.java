@@ -29,7 +29,7 @@ public interface ISearchProviderManager {
 	public void disableProvider(String providerName);	
 	
 	public List<ISearchResult> search(String paxleQuery, int maxResults, long timeout) throws
-			InterruptedException, ExecutionException;
+			InterruptedException, ExecutionException, SearchException;
 	public void search(String paxleQuery, int maxResults, long timeout, ISearchResultCollector collector) throws
-			InterruptedException, ExecutionException;
+			InterruptedException, ExecutionException, SearchException;
 }
