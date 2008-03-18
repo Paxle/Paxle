@@ -51,17 +51,4 @@ public class LogView extends ALayoutServlet {
         return template;
 	}
 
-    @Override
-    protected void mergeTemplate(Template template, Context context, HttpServletResponse response) throws ResourceNotFoundException, ParseErrorException, MethodInvocationException, IOException, UnsupportedEncodingException, Exception {
-    	try {
-    	// TODO Auto-generated method stub
-    	super.mergeTemplate(template, context, response);
-    	} catch (Throwable e) {
-    		e.printStackTrace();
-    	}
-    }
-
-
-
-
 }
