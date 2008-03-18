@@ -1,5 +1,6 @@
 package org.paxle.gui.impl.servlets;
 
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
-import org.osgi.framework.Bundle;
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.StyleManager;
@@ -64,8 +65,9 @@ public class SettingsView extends ALayoutServlet
 		
 
 		try {
-			context.put( "availbleStyles", StyleManager.getStyles());
-			context.put( "dataTypes", dataTypes);
+			context.put("availbleStyles", StyleManager.getStyles());
+			context.put("dataTypes", dataTypes);
+			context.put("settingsView", this);
 			
 			template = this.getTemplate( "resources/templates/SettingsView.vm");
 		} catch (ResourceNotFoundException e) {
@@ -80,5 +82,23 @@ public class SettingsView extends ALayoutServlet
 		}
 
 		return template;
+	}
+	
+	public Object getPropertyValue(Configuration config, AttributeDefinition attribute) {
+		if (config == null) throw new NullPointerException("Configuration object is null");
+		if (attribute == null) throw new NullPointerException("Attribute definition is null");
+		
+		String propertyKey = attribute.getID();
+		Dictionary props = (config==null)?null:config.getProperties();
+		Object value = (props == null)?null:props.get(propertyKey);
+		String[] defaultValues = attribute.getDefaultValue();
+		
+		if (value != null) {
+			return value;
+		} else if (defaultValues != null && defaultValues.length > 0){
+			return defaultValues[0];
+		} else {
+			return null;
+		}
 	}
 }

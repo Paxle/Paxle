@@ -35,5 +35,5 @@
 #end
 </table>
 #else
-<p class="box warning">No LogReaderService found</p>
+<div class="bundleNotInstalled">No LogReaderService found</p>
 #end

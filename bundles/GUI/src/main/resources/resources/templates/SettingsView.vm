@@ -23,9 +23,11 @@
     			#if($ocd)
     				<p>
     					<h4>Name: $ocd.getName()</h4><br/>
+						<p>
     					Bundle: $bundle.Location<br/>
     					Desc.: $ocd.getDescription()<br/>
     					ID: $paramParser.getString("pid")<br/>
+						</p>
     					
     					## 	getting the current configuration
     					#set($config = $configAdmin.getConfiguration($PID,$bundle.getLocation()))
@@ -45,23 +47,14 @@
                         	</tr>
                         	#foreach($attribute in $attributes)
 								#set($attributeID = $attribute.getID())
+								#set($attribValue = $settingsView.getPropertyValue($config,$attribute))
 								
                         		<tr class="$color">
                         			<td>$attribute.getName()</td>
     								<td>$dataTypes.get($attribute.getType())</td>
                         			<td>$attribute.getDescription()</td>
                         			<td>$attributeID</td>
-                        			<td>#if($config && ${config.getProperties()}) 
-    										${config.getProperties().get($attributeID)}
-    									#else
-    										#set($defaultValues = $attribute.getDefaultValue())
-    										#if($defaultValues && !$listToo.isEmpty($defaultValues))
-    											$listTool.get($defaultValues,0)
-    										#else
-    											-
-    										#end
-    									#end
-    								</td>
+                        			<td>#if($attribValue)$attribValue#else&nbsp;#end</td>
                         		</tr>                            		
                         	#end
                         	</table>
