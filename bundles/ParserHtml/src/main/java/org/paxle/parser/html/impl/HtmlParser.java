@@ -43,7 +43,8 @@ public class HtmlParser implements IHtmlParser {
 			"text/html",
 			"application/xhtml+xml",
 			"application/xml",
-			"text/xml");
+			"text/xml",
+			"text/sgml");
 	
 	private final Log logger = LogFactory.getLog(HtmlParser.class);
 	
