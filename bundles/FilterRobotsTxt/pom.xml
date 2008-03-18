@@ -38,6 +38,9 @@
 							!org.apache.commons.collections.*,
 							!net.sf.jsr107cache
 						</Import-Package>
+						<Export-Package>
+							org.paxle.filter.robots
+						</Export-Package>
 						<Private-Package>
 							org.paxle.filter.robots.impl
 						</Private-Package>

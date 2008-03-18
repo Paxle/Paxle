@@ -29,8 +29,9 @@ import net.sf.ehcache.Element;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.filter.robots.IRobotsTxtManager;
 
-public class RobotsTxtManager {
+public class RobotsTxtManager implements IRobotsTxtManager {
 	private static final String ROBOTS_AGENT_PAXLE = "paxle";
 
 	private static final int CACHE_SIZE = 1000;
