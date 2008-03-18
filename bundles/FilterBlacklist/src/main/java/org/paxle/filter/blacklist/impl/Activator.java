@@ -1,3 +1,4 @@
+
 package org.paxle.filter.blacklist.impl;
 
 import java.io.File;
@@ -6,7 +7,6 @@ import java.util.Hashtable;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.core.filter.IFilter;
-import org.paxle.filter.blacklist.BlacklistServlet;
 
 public class Activator implements BundleActivator {
 
@@ -36,11 +36,14 @@ public class Activator implements BundleActivator {
 //        if(http != null) {  
 //            http.registerServlet("/blacklist", new BlacklistServlet(), null, null);
 //        }
+        
+        /* TODO
         BlacklistServlet servlet = new BlacklistServlet();
         servlet.init(bc.getBundle().getLocation(), "/blacklist");
         Hashtable<String, String> props = new Hashtable<String, String>();
         props.put("path", "/blacklist");
         bc.registerService("javax.servlet.Servlet", servlet, props);
+        */
     }
 
     /**
