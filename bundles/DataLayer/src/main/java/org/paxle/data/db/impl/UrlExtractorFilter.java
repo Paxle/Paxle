@@ -74,7 +74,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		// store commands into DB
 		if (!db.isClosed()) {
 			db.storeUnknownLocations(locations);
-			c.c++;
+			c.c += locations.size();
 		} else {
 			this.logger.error(String.format(
 					"Unable to write linkmap of location '%s' to db. Database already closed.",
