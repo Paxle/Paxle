@@ -307,17 +307,18 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			// check which URLs are already known
 			HashSet<String> knownLocations = new HashSet<String>();
 
-			if (locations.size() <= 100) {
+			int chunkSize = 10;
+			if (locations.size() <= chunkSize) {
 				Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",locations);
 				knownLocations.addAll(query.list());
 			} else {
 				int i=0,oldI;
 				while (i<(locations.size()-1)) {
 					oldI = i;
-					if ((i+100)>=locations.size()) {
+					if ((i+chunkSize)>=locations.size()) {
 						i=(locations.size()-1); 
 					} else {
-						i+=100;
+						i+=chunkSize;
 					}
 					List<String> miniLocations = locations.subList(oldI, i);
 					Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",miniLocations);
