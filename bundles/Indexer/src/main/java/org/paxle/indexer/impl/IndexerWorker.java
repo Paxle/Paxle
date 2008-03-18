@@ -178,9 +178,12 @@ public class IndexerWorker extends AWorker<ICommand> {
 				));
 			} else if (logger.isInfoEnabled()) {
 				this.logger.info(String.format(
-						"Finished indexing of resource '%s' in %d ms.",					
+						"Finished indexing of resource '%s' in %d ms.\r\n" +
+						"\tIndexer-Status: '%s' %s",					
 						command.getLocation(),
-						Long.valueOf(System.currentTimeMillis() - start)));
+						Long.valueOf(System.currentTimeMillis() - start),									
+						(indexerDoc == null) ? "unknown" : indexerDoc.getStatus().toString(),
+						(indexerDoc == null) ? "" : (indexerDoc.getStatusText()==null)?"":indexerDoc.getStatusText()));
 			}
 		}
 	}
