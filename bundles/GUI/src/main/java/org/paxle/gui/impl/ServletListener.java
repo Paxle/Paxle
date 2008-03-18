@@ -54,6 +54,7 @@ public class ServletListener implements ServiceListener {
 
 		String path = (String)reference.getProperty("path");
 		String name = (String)reference.getProperty("name");
+		String menu = (String)reference.getProperty("menu");
 
 		if (eventType == ServiceEvent.REGISTERED) {
 			// getting a reference to the servlet
@@ -61,6 +62,11 @@ public class ServletListener implements ServiceListener {
 			
 			// register servlet
 			this.servletManager.addServlet(path, servlet);
+			
+			// registering menu
+			if (menu != null && menu.length() > 0) {
+				this.menuManager.addItem(path, menu);
+			}
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			// unregister servlet
 			this.servletManager.removeServlet(path);

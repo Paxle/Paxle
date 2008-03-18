@@ -52,9 +52,12 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 		ExtendedProperties props = super.loadConfiguration(config);
 		
 		if (this.bundleLocation != null) {
-			props.addProperty("jar.resource.loader.path", "jar:" + this.bundleLocation + ",jar:" + config.getInitParameter("bundle.location"));
-		} else if (config.getInitParameter("bundle.location") != null) {
-			props.addProperty("jar.resource.loader.path", "jar:" + config.getInitParameter("bundle.location"));
+//			props.addProperty("jar.resource.loader.path", "jar:" + this.bundleLocation + ",jar:" + config.getInitParameter("bundle.location"));
+			props.addProperty("url.resource.loader.root", this.bundleLocation);
+		} 
+		if (config.getInitParameter("bundle.location") != null) {
+//			props.addProperty("jar.resource.loader.path", "jar:" + config.getInitParameter("bundle.location"));
+			props.addProperty("url.resource.loader.root",this.bundleLocation+ "," + config.getInitParameter("bundle.location"));
 		}
 		return props;
 	}

@@ -22,7 +22,7 @@ import org.paxle.gui.impl.servlets.TheaddumpView;
 
 public class Activator implements BundleActivator {
 
-	private static MenuManager menuManager = null;
+	private MenuManager menuManager = null;
 
 	private static ServletManager servletManager = null;
 
@@ -35,7 +35,7 @@ public class Activator implements BundleActivator {
 		bc.registerService( IMenuManager.class.getName(), menuManager, null);
 
 		// servlet manager
-		servletManager = new ServletManager( menuManager, bc.getBundle().getLocation());
+		servletManager = new ServletManager( menuManager, bc.getBundle().getEntry("/").toString());
 		bc.registerService( IServletManager.class.getName(), servletManager, null);
 
 		// register classloader
@@ -81,7 +81,7 @@ public class Activator implements BundleActivator {
 	}
 
 
-	private static void registerServlet( final String location, final ALayoutServlet servlet, final String menuName) {
+	private void registerServlet( final String location, final ALayoutServlet servlet, final String menuName) {
 		servlet.init( null, location);
 		servletManager.addServlet( location, servlet);
 		if (menuName != null) {
@@ -95,6 +95,7 @@ public class Activator implements BundleActivator {
 		servletManager.close();
 
 		// cleanup
+		ServiceManager.context = null;
 		servletManager = null;
 		menuManager = null;
 	}

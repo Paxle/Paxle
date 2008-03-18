@@ -76,7 +76,7 @@ public class ServletManager implements IServletManager {
 				 * This is very important for velocity to load the toolboxes and
 				 * GUI configuration files.
 				 */
-				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());						
+//				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());						
 				
 				this.logger.info(String.format("Registering servlet '%s' for alias '%s'.", servlet.getClass().getName(), alias));
 				this.http.registerServlet(alias, servlet, defaultProps, httpContext);
@@ -164,7 +164,7 @@ public class ServletManager implements IServletManager {
 		 * This is very important for velocity to load the toolboxes and
 		 * GUI configuration files.
 		 */
-		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());		
+//		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());		
 		
 		// register all servlets
 		Iterator<Map.Entry<String, Servlet>> i = this.servlets.entrySet().iterator();
@@ -284,7 +284,13 @@ public class ServletManager implements IServletManager {
 	 * Unregisters all known servlets and resources
 	 */
 	public void close() {
+		// unregister everything
 		this.unregisterAll();
+		
+		// clear maps
+		this.resources.clear();
+		this.servlets.clear();
+		this.httpContexts.clear();
 	}
 	
 	/**
