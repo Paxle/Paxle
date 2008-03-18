@@ -33,15 +33,15 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 	protected final String path;
 	protected final IndexWriter writer;
 	protected final Log logger = LogFactory.getLog(AFlushableLuceneManager.class);
-	protected IndexReader reader;
+	protected final IndexReader reader;
 	
 	private boolean dirty = false;
 	
 	public AFlushableLuceneManager(String path) throws IOException {
 		this.path = path;
-		this.reader = IndexReader.open(path);
 		this.writer = new IndexWriter(path, new PaxleAnalyzer());
 		this.writer.setMaxFieldLength(Integer.MAX_VALUE);
+		this.reader = IndexReader.open(path);
 	}
 	
 	/**
@@ -65,9 +65,8 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 	 */
 	private void flush() throws IOException {
 		this.logger.debug("Flushing index writer and reopening index reader");
-		this.reader.close();
 		this.writer.flush();
-		this.reader = IndexReader.open(this.path);
+		this.reader.reopen();
 	}
 	
 	protected void checkFlush() throws IOException {

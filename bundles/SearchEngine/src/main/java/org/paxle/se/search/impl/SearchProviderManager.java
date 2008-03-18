@@ -26,6 +26,7 @@ import org.paxle.se.search.ISearchProviderManager;
 import org.paxle.se.search.ISearchRequest;
 import org.paxle.se.search.ISearchResult;
 import org.paxle.se.search.ISearchResultCollector;
+import org.paxle.se.search.SearchException;
 
 public class SearchProviderManager implements ISearchProviderManager {
 	private static final String DISABLED_PROVIDERS = ISearchProviderManager.class.getName() + "." + "disabledProviders";	
@@ -90,17 +91,24 @@ public class SearchProviderManager implements ISearchProviderManager {
 		this.logger.info("shutdown complete");
 	}
 	
-	public List<ISearchResult> search(String paxleQuery, int maxResults, long timeout) throws InterruptedException, ExecutionException {
+	public List<ISearchResult> search(String paxleQuery,
+			int maxResults,
+			long timeout) throws InterruptedException, ExecutionException, SearchException {
 		final ListResultCollector collector = new ListResultCollector();
 		search(paxleQuery, maxResults, timeout, collector);
 		return collector;
 	}
 	
-	public void search(String paxleQuery, int maxResults, long timeout, ISearchResultCollector results) throws InterruptedException, ExecutionException {
+	public void search(String paxleQuery,
+			int maxResults,
+			long timeout,
+			ISearchResultCollector results) throws InterruptedException, ExecutionException, SearchException {
 		final CompletionService<ISearchResult> execCompletionService = new ExecutorCompletionService<ISearchResult>(this.execService);
 		
 		// final List<AToken> queries = this.pqp.parse(paxleQuery);
 		final AToken query = PaxleQueryParser.parse(paxleQuery);
+		if (query == null)
+			throw new SearchException(paxleQuery, "Illegal query (maybe too short?)");
 		
 		int n = providers.size();
 		

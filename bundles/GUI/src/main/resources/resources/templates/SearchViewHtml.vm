@@ -11,10 +11,10 @@
 #end
 
 ## the regular content
-#if(!$Search || !$fieldManager)
+#if($seBundeNotInstalled || !$fieldManager)
 	<div class="bundleNotInstalled">Search Engine Bundle not installed</div>
 #else	
-    #if($searchQuery)	
+    #if($searchResultList)	
         <a class="rssFeedLink" href="?format=rss&query=$escTool.url($searchQuery)" title="Display results as RSS-feed">
         <img src="/images/feed.png" alt="RSS"/>
         </a>
@@ -24,56 +24,58 @@
     	<input type="submit" value="search now"/>
     </form>
     <p />
-#end
-
-#if($searchQuery)
-   ## java script lib for the tooltips
-   ## See: SearchViewToolTip.vm
-   <script language="JavaScript" type="text/javascript" src="/js/wz_tooltip.js"></script>
-
-   <table >
-      #if($Search)
-         #foreach($searchResult in $Search.search($searchQuery, 50, 10000))
-            #foreach($result in $searchResult.getResult())
-               #if($result.get($fieldManager.get("Location")))
-                  <tr>
-                     #set($location = $result.get($fieldManager.get("Location")))
-					 #set($hintText = $escTool.javascript("#parse('/resources/templates/SearchViewToolTip.vm')"))
-                     <td style="border-bottom: 1px dotted rgb(153,153,153); color: black;">
-                           ## only display favicons if the corresponding bundle is installed
-                     	   #if($showFavicons)
-                              #set($imageSrc = $escTool.javascript($result.get($fieldManager.get("Location"))))
-                              <img class="favicon" src="/favicon?url=$escTool.url("$imageSrc")" width="16" height="16" alt="-"/>
-                     	   #end
-                           <a href="$result.get($fieldManager.get("Location"))">
-                           #if($result.get($fieldManager.get("Title")))
-                              $result.get($fieldManager.get("Title"))
-                           #else
-                              $result.get($fieldManager.get("Location"))
-                           #end</a>&nbsp;<img src="/images/bullet_arrow_up.png" onclick="Tip('$hintText',STICKY,true,DURATION,5000)" alt="action"/><br />
-                           #if($result.get($fieldManager.get("Author")))
-                              Author: $result.get($fieldManager.get("Author"))<br />
-                           #end
-                           #if($result.get($fieldManager.get("LastCrawled")))
-                              Last Crawled: $dateTool.format('short',$result.get($fieldManager.get("LastCrawled")))<br />
-                           #end
-                           #if($result.get($fieldManager.get("LastModified")))
-                              Last Modified: $dateTool.format('short',$result.get($fieldManager.get("LastModified")))<br />
-                           #end
-                           #if ($result.get($fieldManager.get("MimeType")))
-                              Content Type: $result.get($fieldManager.get("MimeType"))<br />
-                           #end
-                           #if($result.get($fieldManager.get("Summary")))
-                              Summary: $result.get($fieldManager.get("Summary"))<br />
-                           #end
-                           #if($result.get($fieldManager.get("Snippet")))
-                              Summary: $result.get($fieldManager.get("Snippet"))<br />
-                           #end
-                     </td>
-                  </tr>
-               #end
-            #end
-         #end
-      #end
-   </table>
+	
+	#if($searchError)
+	   <p class="error">$searchError</p>
+	   
+	#elseif($searchResultList)
+	   ## java script lib for the tooltips
+	   ## See: SearchViewToolTip.vm
+	   <script language="JavaScript" type="text/javascript" src="/js/wz_tooltip.js"></script>
+      <table>
+	         #foreach($searchResult in $searchResultList)
+	            #foreach($result in $searchResult.getResult())
+	               #if($result.get($fieldManager.get("Location")))
+	                  <tr>
+	                     #set($location = $result.get($fieldManager.get("Location")))
+						 #set($hintText = $escTool.javascript("#parse('/resources/templates/SearchViewToolTip.vm')"))
+	                     <td style="border-bottom: 1px dotted rgb(153,153,153); color: black;">
+	                           ## only display favicons if the corresponding bundle is installed
+	                     	   #if($showFavicons)
+	                              #set($imageSrc = $escTool.javascript($result.get($fieldManager.get("Location"))))
+	                              <img class="favicon" src="/favicon?url=$escTool.url("$imageSrc")" width="16" height="16" alt="-"/>
+	                     	   #end
+	                           <a href="$result.get($fieldManager.get("Location"))">
+	                           #if($result.get($fieldManager.get("Title")))
+	                              $result.get($fieldManager.get("Title"))
+	                           #else
+	                              $result.get($fieldManager.get("Location"))
+	                           #end</a>&nbsp;<img src="/images/bullet_arrow_up.png" onclick="Tip('$hintText',STICKY,true,DURATION,5000)" alt="action"/><br />
+	                           #if($result.get($fieldManager.get("Author")))
+	                              Author: $result.get($fieldManager.get("Author"))<br />
+	                           #end
+	                           #if($result.get($fieldManager.get("LastCrawled")))
+	                              Last Crawled: $dateTool.format('short',$result.get($fieldManager.get("LastCrawled")))<br />
+	                           #end
+	                           #if($result.get($fieldManager.get("LastModified")))
+	                              Last Modified: $dateTool.format('short',$result.get($fieldManager.get("LastModified")))<br />
+	                           #end
+	                           #if ($result.get($fieldManager.get("MimeType")))
+	                              Content Type: $result.get($fieldManager.get("MimeType"))<br />
+	                           #end
+	                           #if($result.get($fieldManager.get("Summary")))
+	                              Summary: $result.get($fieldManager.get("Summary"))<br />
+	                           #end
+	                           #if($result.get($fieldManager.get("Snippet")))
+	                              Summary: $result.get($fieldManager.get("Snippet"))<br />
+	                           #end
+	                     </td>
+	                  </tr>
+	               #end
+	            #end
+	         #end
+	   </table>
+	#else
+		<!-- search-footer -->
+	#end
 #end

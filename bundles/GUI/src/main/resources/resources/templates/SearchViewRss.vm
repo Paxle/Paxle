@@ -9,9 +9,11 @@
       </image>
       <link></link>
       <pubDate>$dateTool.get('EEE, dd MMM yyyy HH:mm:ss Z')</pubDate>
-
-   #if($searchQuery && $Search)
-      #foreach($searchResult in $Search.search($searchQuery, 50, 10000))
+   
+   #if($searchError)
+   	<!-- TODO -->
+   #elseif($searchResultList)
+      #foreach($searchResult in $searchResultList)
          #foreach($result in $searchResult.getResult())
 	    #if($result.get($fieldManager.get("Location")))
                <item>
