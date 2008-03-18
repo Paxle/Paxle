@@ -240,9 +240,17 @@ public class ServletManager implements IServletManager {
 			Map.Entry<String, Servlet> entry = i.next();
 			String name = entry.getValue().getClass().getName();
 			String alias = entry.getKey();
-			
-			this.logger.info(String.format("Unegistering servlet '%s' for alias '%s'.", name, alias));			
-			this.http.unregister(entry.getKey());
+			try {			
+				this.logger.info(String.format("Unegistering servlet '%s' for alias '%s'.", name, alias));			
+				this.http.unregister(entry.getKey());
+			} catch (Throwable e) {
+				this.logger.error(String.format(
+						"Unexpected '%s' while unregistering servlet '%s' with alias '%s'.",
+						e.getClass().getName(),
+						name,
+						alias
+				));
+			}
 		}
 	}	
 	
@@ -252,15 +260,23 @@ public class ServletManager implements IServletManager {
 	 */
 	public synchronized void unregisterAllResources() {
 		if (this.http == null) return;
-		
+
 		Iterator<Map.Entry<String, String>> i = this.resources.entrySet().iterator();
-		while (i.hasNext()) {				
+		while (i.hasNext()) {
 			Map.Entry<String, String> entry = i.next();
 			String name = entry.getValue();
 			String alias = entry.getKey();
-			
-			this.logger.info(String.format("Unegistering resource '%s' for alias '%s'.", name, alias));			
-			this.http.unregister(entry.getKey());
+			try {
+				this.logger.info(String.format("Unegistering resource '%s' for alias '%s'.", name, alias));			
+				this.http.unregister(entry.getKey());
+			} catch (Throwable e) {
+				this.logger.error(String.format(
+						"Unexpected '%s' while unregistering resource '%s' with alias '%s'.",
+						e.getClass().getName(),
+						name,
+						alias
+				));
+			}
 		}		
 	}
 	
