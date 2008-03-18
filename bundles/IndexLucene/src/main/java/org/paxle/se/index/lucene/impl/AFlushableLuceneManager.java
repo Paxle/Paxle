@@ -33,7 +33,7 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 	protected final String path;
 	protected final IndexWriter writer;
 	protected final Log logger = LogFactory.getLog(AFlushableLuceneManager.class);
-	protected final IndexReader reader;
+	protected IndexReader reader;
 	
 	private boolean dirty = false;
 	
@@ -66,7 +66,11 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 	private void flush() throws IOException {
 		this.logger.debug("Flushing index writer and reopening index reader");
 		this.writer.flush();
-		this.reader.reopen();
+		 IndexReader newReader = this.reader.reopen();
+		 if (newReader != reader) {
+		   reader.close(); 
+		 }
+		 this.reader = newReader;
 	}
 	
 	protected void checkFlush() throws IOException {
