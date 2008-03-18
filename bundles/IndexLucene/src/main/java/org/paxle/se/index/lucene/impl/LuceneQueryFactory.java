@@ -7,7 +7,7 @@ import org.paxle.core.doc.Field;
 import org.paxle.se.query.IQueryFactory;
 import org.paxle.se.query.tokens.AToken;
 
-public class LuceneTokenFactory extends IQueryFactory<String> {
+public class LuceneQueryFactory extends IQueryFactory<String> {
 	
 	private String getOperatorString(AToken[] children, String str) {
 		final StringBuilder sb = new StringBuilder();
@@ -32,7 +32,6 @@ public class LuceneTokenFactory extends IQueryFactory<String> {
 	
 	@Override
 	public String mod(AToken token, String mod) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

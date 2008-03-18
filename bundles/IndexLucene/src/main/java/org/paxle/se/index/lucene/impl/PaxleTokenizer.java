@@ -10,10 +10,10 @@ import org.apache.lucene.analysis.standard.StandardTokenizer;
 public class PaxleTokenizer extends StandardTokenizer implements Counting {
 	
 	private int tokenCount;
-	private boolean isCounted = false;
 	
 	public PaxleTokenizer(Reader reader) {
 		super(reader);
+		super.setMaxTokenLength(20);
 	}
 	
 	public PaxleTokenizer(Reader reader, boolean replaceInvalidAcronym) {
@@ -21,26 +21,9 @@ public class PaxleTokenizer extends StandardTokenizer implements Counting {
 	}
 	
 	@Override
-	public Token next() throws IOException {
-		final Token token = super.next();
-		if (isCounted) {
-			isCounted = false;
-		} else {
-			isCounted = true;
-			tokenCount++;
-		}
-		return token;
-	}
-	
-	@Override
 	public Token next(Token result) throws IOException {
 		final Token token = super.next(result);
-		if (isCounted) {
-			isCounted = false;
-		} else {
-			isCounted = true;
-			tokenCount++;
-		}
+		tokenCount++;
 		return token;
 	}
 	

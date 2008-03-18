@@ -26,7 +26,7 @@ public class Activator implements BundleActivator {
 	public static AFlushableLuceneManager lmanager = null;
 	public static LuceneWriter indexWriterThread = null;
 	public static LuceneSearcher indexSearcher = null;
-	public static LuceneTokenFactory tokenFactory = null;
+	public static LuceneQueryFactory tokenFactory = null;
 	
 	public void start(BundleContext context) throws Exception {
 		bc = context;
@@ -38,6 +38,7 @@ public class Activator implements BundleActivator {
 			logger.warn("Lucene index directory is locked, removing lock. " +
 					"Shutdown now if any other lucene-compatible application currently accesses the directory '" +
 					writeLock.getPath());
+			Thread.sleep(5000l);
 			writeLock.delete();
 		}
 		writeLock.deleteOnExit();

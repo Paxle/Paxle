@@ -21,7 +21,7 @@ import org.paxle.se.query.tokens.AToken;
 public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	
 	private final Log logger = LogFactory.getLog(LuceneSearcher.class);
-	private final LuceneTokenFactory ltf = new LuceneTokenFactory();
+	private final LuceneQueryFactory ltf = new LuceneQueryFactory();
 	private final AFlushableLuceneManager manager;
 	
 	public LuceneSearcher(AFlushableLuceneManager manager) {

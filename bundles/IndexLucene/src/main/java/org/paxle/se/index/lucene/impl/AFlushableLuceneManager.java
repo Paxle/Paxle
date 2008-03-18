@@ -41,6 +41,7 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 		this.path = path;
 		this.reader = IndexReader.open(path);
 		this.writer = new IndexWriter(path, new PaxleAnalyzer());
+		this.writer.setMaxFieldLength(Integer.MAX_VALUE);
 	}
 	
 	/**
