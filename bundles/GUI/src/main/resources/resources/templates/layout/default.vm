@@ -1,3 +1,5 @@
+#parse( '/resources/templates/headers/ServerName.vm' )
+#parse( '/resources/templates/headers/NoCaching.vm' )
 #parse( '/resources/templates/layout/header.vm' )
 
 <!-- left nav -->

@@ -1,7 +1,5 @@
 package org.paxle.gui.impl.servlets;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,9 +7,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.apache.velocity.exception.MethodInvocationException;
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
 import org.osgi.service.log.LogService;
 import org.paxle.gui.ALayoutServlet;
 

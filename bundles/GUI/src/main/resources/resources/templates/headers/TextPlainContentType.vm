@@ -1,0 +1,3 @@
+#if($response)
+	$response.setHeader("Content-Type","text/plain; charset=utf-8")
+#end

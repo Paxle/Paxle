@@ -27,7 +27,7 @@
   #set( $levelName = $logLevelName.get( $level))
   <tr>
     <td class="$levelName">$levelName</td>
-    <td>$date.format("HH:mm:ss z - dd.MM.yy",$logEntry.getTime())</td>
+    <td>$dateTool.format("HH:mm:ss z - dd.MM.yy",$logEntry.getTime())</td>
     <td>$logEntry.getMessage()#if( $logEntry.getException()) <p class="exception">$logEntry.getException()</p> #end
     </td>
   </tr>

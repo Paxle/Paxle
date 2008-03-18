@@ -62,12 +62,6 @@
       <class>org.apache.velocity.tools.view.tools.ContextTool</class>
    </tool>
    
-   <tool>
-   <key>date</key>
-   <scope>application</scope>
-   <class>org.apache.velocity.tools.generic.DateTool</class>
-   </tool>
-   
    <!-- Custom paxle tools -->
    <tool>
       <key>manager</key>

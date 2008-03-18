@@ -67,11 +67,11 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 				crawlprItem.setEnabled(hasCrawler);
 			} catch (InvalidSyntaxException e) { e.printStackTrace(); }
 			
-			final boolean hasSearch = manager.hasService("org.paxle.se.search.ISearchProviderManager");
-			searchItem.setEnabled(hasSearch);
-			
 			final boolean hasWebui = manager.hasService(HttpService.class) && manager.hasService("org.paxle.gui.IServletManager");
 			browseItem.setEnabled(hasWebui);
+			
+			final boolean hasSearch = manager.hasService("org.paxle.se.search.ISearchProviderManager");
+			searchItem.setEnabled(hasSearch && hasWebui); //remove "&& hasWebUi" if we have other methods of displaying the searchresults
 			
 			crawlprItem.setText((crawlersPaused()) ? CRAWL_RESUME : CRAWL_PAUSE);
 		}

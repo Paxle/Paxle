@@ -1,1 +1,7 @@
 $screen_content
+
+## parse() directives must be processed "under" the screen content. 
+## Otherwise blank lines appear in front of content, which may irritate browsers (e.g. FF and the OpenSearch description)
+#parse('/resources/templates/headers/ServerName.vm')
+#parse('/resources/templates/headers/NoCaching.vm')
+#parse('/resources/templates/headers/TextPlainContentType.vm')
