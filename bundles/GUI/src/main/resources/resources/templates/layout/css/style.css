@@ -46,11 +46,13 @@ input[type=submit] {
 
 	padding: 0;
 	
-	width: 6em;
-	height: 1.85em;
+	min-width: 80px;
+	min-height: 25px;
 	
 	background-color: #FFFFFF;
 	color: #000000;
+	
+	text-align: center;
 	
 	background-image: url('/images/button.png');
 	background-position: center;

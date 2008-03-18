@@ -250,7 +250,7 @@ public class ServletManager implements IServletManager {
 	 * Function to unregister resources that were added
 	 * to {@link #resources}
 	 */
-	private synchronized void unregisterAllResources() {
+	public synchronized void unregisterAllResources() {
 		if (this.http == null) return;
 		
 		Iterator<Map.Entry<String, String>> i = this.resources.entrySet().iterator();

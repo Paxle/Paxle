@@ -1,7 +1,7 @@
 .btnreload {
 	background-image: url('/images/reload.png') !important;
-	width: 33px !important;
-	height: 2.25em !important;
+	min-width: 33px !important;
+	min-height: 22px !important;
 }
 
 input.btnEnable {
