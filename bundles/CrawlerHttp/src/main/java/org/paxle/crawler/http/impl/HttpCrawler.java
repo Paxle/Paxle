@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.NoRouteToHostException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import org.apache.commons.httpclient.CircularRedirectException;
+import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -149,7 +152,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	
 	public ICrawlerDocument request(String requestUrl) {
 		if (requestUrl == null) throw new NullPointerException("URL was null");
-		this.logger.info(String.format("Crawling URL '%s' ...",requestUrl));
+		this.logger.debug(String.format("Crawling URL '%s' ...",requestUrl));
 		
 		CrawlerDocument doc = new CrawlerDocument();
 		
@@ -285,7 +288,16 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());	
 		} catch (ConnectException e) {
 			this.logger.error(String.format("Error crawling %s: Unable to connect to host.", requestUrl));
-			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());				
+			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
+		} catch (ConnectTimeoutException e) {
+			this.logger.error(String.format("Error crawling %s: %s.", requestUrl, e.getMessage()));
+			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
+		} catch (SocketTimeoutException e) {
+			this.logger.error(String.format("Error crawling %s: Connection timeout.", requestUrl));
+			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
+		} catch (CircularRedirectException e) {
+			this.logger.error(String.format("Error crawling %s: %s", requestUrl, e.getMessage()));
+			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (Throwable e) {
 			String errorMsg;
 			if (e instanceof HttpException) {

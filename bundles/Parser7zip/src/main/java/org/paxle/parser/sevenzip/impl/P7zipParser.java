@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -23,13 +24,14 @@ public class P7zipParser implements I7zipParser {
 	}
 	
 	public IParserDocument parse(String location, String charset, File content) throws
-		ParserException, UnsupportedEncodingException, IOException {
+			ParserException, UnsupportedEncodingException, IOException {
 		final Handler archive = new Handler();
 		archive.Open(new RAFInStream(content));
 		
 		final ParserContext context = ParserContext.getCurrentContext();
-		final CachedParserDocument doc = new CachedParserDocument(context.getTempFileManager());
-		final SZParserExtractCallback aec = new SZParserExtractCallback(doc, archive, context.getTempFileManager(), context.getCharsetDetector());
+		final ITempFileManager tfm = context.getTempFileManager();
+		final CachedParserDocument doc = new CachedParserDocument(tfm);
+		final SZParserExtractCallback aec = new SZParserExtractCallback(doc, archive, tfm, context.getCharsetDetector());
 		try {
 			archive.Extract(null, -1, 0, aec);
 			doc.setStatus(IParserDocument.Status.OK);

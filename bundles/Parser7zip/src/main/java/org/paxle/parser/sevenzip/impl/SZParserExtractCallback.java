@@ -26,7 +26,6 @@ public class SZParserExtractCallback implements IArchiveExtractCallback {
 	private final ITempFileManager tfm;
 	private final ICharsetDetector cd;
 	private String current = null;
-	private OutputStream os = null;
 	
 	public SZParserExtractCallback(IParserDocument pdoc, IInArchive handler, ITempFileManager tfm, ICharsetDetector cd) {
 		this.pdoc = pdoc;
@@ -42,7 +41,7 @@ public class SZParserExtractCallback implements IArchiveExtractCallback {
 	public int GetStream(int index, OutputStream[] oss, int askExtractMode) throws IOException {
 		SevenZipEntry item = this.handler.getEntry(index);
 		this.current = item.getName();
-		this.os = oss[0] = (item.isDirectory()) ? null : new SubParserDocOutputStream(this.tfm, this.cd, this.pdoc, this.current);
+		oss[0] = (item.isDirectory()) ? null : new SubParserDocOutputStream(this.tfm, this.cd, this.pdoc, this.current);
 		return 0;
 	}
 	
@@ -51,8 +50,10 @@ public class SZParserExtractCallback implements IArchiveExtractCallback {
 	}
 	
 	public int SetOperationResult(int arg0) throws IOException {
+		/* the output-stream is closed by SevenZip.Archive.Common.OutStreamWithCRC.ReleaseStream,
+		 * which is called here-after.
 		if (this.os != null)
-			this.os.close();
+			this.os.close();*/
 		
 		if (arg0 != IInArchive.NExtract_NOperationResult_kOK) {
 			switch(arg0) {

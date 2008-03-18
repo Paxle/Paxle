@@ -13,7 +13,6 @@ public class PaxleTokenizer extends StandardTokenizer implements Counting {
 	
 	public PaxleTokenizer(Reader reader) {
 		super(reader);
-		super.setMaxTokenLength(20);
 	}
 	
 	public PaxleTokenizer(Reader reader, boolean replaceInvalidAcronym) {

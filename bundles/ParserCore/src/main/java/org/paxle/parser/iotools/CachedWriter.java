@@ -11,6 +11,8 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 
@@ -33,9 +35,11 @@ public class CachedWriter extends Writer {
 	
 	private final int maxSize;
 	private final ITempFileManager tfm;
+	private final Log logger = LogFactory.getLog(CachedWriter.class);
 	private Writer writer;
 	private long written = 0;
 	private File ffile = null;
+	private boolean fileWriterClosed = false;
 	
 	public CachedWriter(int maxSize, ITempFileManager tfm) {
 		this.maxSize = maxSize;
@@ -77,7 +81,8 @@ public class CachedWriter extends Writer {
 		if (isFallback()) return;
 		if (file == null)
 			file = this.tfm.createTempFile();
-		close();
+		this.writer.flush();
+		this.writer.close();
 		final CAOS caos = (CAOS)this.writer;
 		this.ffile = file;
 		this.writer = new FileWriter(file);
@@ -86,8 +91,14 @@ public class CachedWriter extends Writer {
 	
 	@Override
 	public void close() throws IOException {
+		if (fileWriterClosed) {
+			logger.error("File Writer is closed allready");
+			Thread.dumpStack();
+		}
 		flush();
 		this.writer.close();
+		if (isFallback())
+			fileWriterClosed = true;
 	}
 	
 	@Override
@@ -108,16 +119,18 @@ public class CachedWriter extends Writer {
 	}
 	
 	public File toFile(File file) throws IOException {
-		fallback(file);
-		close();
+		if (!isFallback()) {
+			fallback(file);
+			close();
+		}
 		return this.ffile;
 	}
 	
 	public Reader toReader() throws IOException {
-		close();
 		if (isFallback()) {
 			return new FileReader(this.ffile);
 		} else {
+			close();
 			return new CharArrayReader(((CAOS)this.writer).getBuffer());
 		}
 	}

@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.charset.ACharsetDetectorOutputStream;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.IParserDocument;
@@ -26,6 +28,9 @@ import org.paxle.parser.ParserException;
  * @see IParserDocument#addSubDocument(String, IParserDocument)
  */
 public class ParserDocOutputStream extends OutputStream {
+	
+	private final Log logger = LogFactory.getLog(SubParserDocOutputStream.class);
+	
 	private boolean closed = false;
 	private final ITempFileManager tfm;
 	private final OutputStream os;
@@ -35,6 +40,7 @@ public class ParserDocOutputStream extends OutputStream {
 	public ParserDocOutputStream(ITempFileManager tfm, ICharsetDetector cd) throws IOException {
 		this.tfm = tfm;
 		this.of = tfm.createTempFile();
+		logger.debug("Created tmp-file '" + of + "' with " + tfm);
 		final OutputStream fos = new BufferedOutputStream(new FileOutputStream(this.of));
 		this.os = (cd != null) ? cd.createOutputStream(fos) : fos;
 	}
@@ -74,6 +80,7 @@ public class ParserDocOutputStream extends OutputStream {
 		
 		final String charset = getCharset();
 		try {
+			logger.debug("parsing sub-doc '" + location + "', using tmp-file '" + of + "' (exists: " + of.exists() + ")");
 			return ParserTools.parse(location, charset, this.of);
 		} catch (UnsupportedEncodingException e) {
 			throw new ParserException("Error parsing file on close due to incorrectly detected charset '" + charset + "'", e);
