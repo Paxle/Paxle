@@ -1,3 +1,4 @@
+
 package org.paxle.se.index.lucene.impl;
 
 import org.apache.lucene.document.NumberTools;

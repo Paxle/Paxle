@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
@@ -136,6 +137,14 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 			collector.reset();
 			this.rlock.unlock();
 		}
+	}
+	
+	public void write(final Document document, final Analyzer analyzer) throws IOException, CorruptIndexException {
+		wlock.lock();
+		try {
+			writer.addDocument(document, analyzer);
+			dirty = true;
+		} finally { wlock.unlock(); }
 	}
 	
     public void write(Document document) throws IOException, CorruptIndexException {

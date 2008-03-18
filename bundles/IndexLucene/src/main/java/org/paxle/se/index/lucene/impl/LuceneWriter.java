@@ -32,10 +32,12 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	 */
 	private Log logger = null;
 	
-	private AFlushableLuceneManager manager = null;
+	private final AFlushableLuceneManager manager;
+	private final StopwordsManager stopwordsManager;
 	
-	public LuceneWriter(AFlushableLuceneManager manager) {
+	public LuceneWriter(AFlushableLuceneManager manager, final StopwordsManager stopwordsManager) {
 		this.manager = manager;
+		this.stopwordsManager = stopwordsManager;
 		this.setName("LuceneWriter");
 		this.start();
 		this.logger = LogFactory.getLog(LuceneWriter.class);
@@ -115,7 +117,14 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 			final long time = System.currentTimeMillis();
 			final Document doc = Converter.iindexerDoc2LuceneDoc(document);
 			final Fieldable f = doc.getField(IIndexerDocument.TEXT.getName());
-			this.manager.write(doc);
+			
+			final IIndexerDocument.Language[] langs = document.get(IIndexerDocument.LANGUAGES);
+			if (langs == null || langs.length == 0) {
+				this.manager.write(doc);
+			} else {
+				this.manager.write(doc, stopwordsManager.getAnalyzer(langs[0]));
+			}
+			
 			if (logger.isInfoEnabled()) {
 				final Counting ct = (f == null) ? null : (PaxleTokenizer)f.tokenStreamValue();
 				logger.info(String.format("Added document '%s' in %d ms to index, word-count: %s",

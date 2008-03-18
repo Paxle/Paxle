@@ -30,11 +30,12 @@
 							org.paxle.se.index.lucene
 						</Export-Package>
 						<Import-Package>
-							org.osgi.framework, 
-							org.apache.commons.logging, 
-							org.paxle.core.doc, 
-							org.paxle.core.data,	
-							org.paxle.core.queue,					 							
+							org.osgi.framework,
+							org.apache.commons.logging,
+							org.paxle.core.doc,
+							org.paxle.core.data,
+							org.paxle.core.queue,
+							org.paxle.core.io,
 							org.paxle.se.query, 
 							org.paxle.se.query.tokens, 
 							org.paxle.se.index, 

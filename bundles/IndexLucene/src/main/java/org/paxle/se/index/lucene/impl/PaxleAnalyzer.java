@@ -37,7 +37,6 @@ public class PaxleAnalyzer extends StandardAnalyzer {
 	
 	@Override
 	public TokenStream tokenStream(String fieldName, Reader reader) {
-		super.tokenStream(fieldName, reader);
 	    StandardTokenizer tokenStream = new PaxleTokenizer(reader, super.isReplaceInvalidAcronym());
 	    tokenStream.setMaxTokenLength(super.getMaxTokenLength());
 	    TokenStream result = new StandardFilter(tokenStream);

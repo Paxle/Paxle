@@ -2,6 +2,10 @@
 package org.paxle.se.index.lucene.impl;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.apache.commons.logging.Log;
@@ -11,6 +15,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 import org.paxle.core.data.IDataConsumer;
+import org.paxle.core.io.IOTools;
 import org.paxle.se.index.IFieldManager;
 import org.paxle.se.index.IIndexIteratable;
 import org.paxle.se.index.IIndexSearcher;
@@ -43,8 +48,11 @@ public class Activator implements BundleActivator {
 		}
 		writeLock.deleteOnExit();
 		
+		final File stopwordsRoot = context.getDataFile("/stopwords/").getCanonicalFile();
+		copyNatives(context, "/stopwords/snowball/", stopwordsRoot);
+		
 		lmanager = new TimerLuceneManager(DB_PATH, 30000, 30000);
-		indexWriterThread = new LuceneWriter(lmanager);
+		indexWriterThread = new LuceneWriter(lmanager, new StopwordsManager(stopwordsRoot));
 		indexWriterThread.setPriority(3);
 		indexSearcher = new LuceneSearcher(lmanager);
 		
@@ -58,6 +66,35 @@ public class Activator implements BundleActivator {
 		context.registerService(IDataConsumer.class.getName(), indexWriterThread, sinkp);
 		
 		Converter.fieldManager = (IFieldManager)context.getService(context.getServiceReference(IFieldManager.class.getName()));
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static void copyNatives(final BundleContext context, final String searchPath, final File root) throws IOException {
+		if (!root.exists())
+			root.mkdirs();
+		
+		final Enumeration<URL> stopwords = context.getBundle().findEntries(searchPath, "*" + StopwordsManager.STOPWORDS_FILE_EXT, true);
+		while (stopwords.hasMoreElements()) {
+			final URL swFileURL = stopwords.nextElement();
+			
+			// open a file
+			String fileName = swFileURL.getFile();
+			if (fileName.endsWith("/"))
+				continue;
+			
+			final File swFile = new File(root, fileName.substring(fileName.lastIndexOf('/') + 1));		
+			
+			if (!swFile.exists() && !fileName.endsWith("/")) {
+				final File parent = swFile.getParentFile();
+				if (!parent.exists())
+					parent.mkdirs();
+				
+				final FileOutputStream out = new FileOutputStream(swFile);
+				// open the URL and copy everything to the new file
+				IOTools.copy(swFileURL.openStream(), out);
+				out.close();
+			}
+		}
 	}
 	 
 	public void stop(BundleContext context) throws Exception {

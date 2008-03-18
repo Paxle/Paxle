@@ -78,6 +78,8 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<? extends Ser
 	/**
 	 * @see <a href="http://www.sub.uni-goettingen.de/ssgfi/projekt/doku/sprachcode.html">List of ISO 639-1 languages</a>
 	 */
+	/* When you change the names of the constants, please be aware that the
+	 * org.paxle.se.index.lucene.impl.StopwordManager depends on them */
 	public static enum Language {
 		aa, //	Afar 
 		ab, //	Abkhazian 
