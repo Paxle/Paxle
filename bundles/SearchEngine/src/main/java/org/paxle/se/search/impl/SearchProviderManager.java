@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
@@ -32,7 +33,7 @@ public class SearchProviderManager implements ISearchProviderManager {
 	private static final String DISABLED_PROVIDERS = ISearchProviderManager.class.getName() + "." + "disabledProviders";	
 	
 	private final ExecutorService execService;
-	private final List<ISearchProvider> providers = new ArrayList<ISearchProvider>();
+	private final LinkedHashMap<Long,ISearchProvider> providers = new LinkedHashMap<Long, ISearchProvider>();
 	
 	/**
 	 * for logging
@@ -58,18 +59,27 @@ public class SearchProviderManager implements ISearchProviderManager {
 		}		
 	}
 	
-	Integer addProvider(ISearchProvider provider) {
-		final int ret = this.providers.size();
+	synchronized void addProvider(Long providerID, ISearchProvider provider) {
+		if (providerID == null) throw new NullPointerException("The provider-ID is null");
+		if (provider == null) throw new NullPointerException("The provider is null");
+		if (this.providers.containsKey(providerID)) {
+			String format = String.format("Unable to register se-provider with ID '%s'. Provider already registered.", providerID.toString());
+			this.logger.error(format);
+		}
 		
 		this.logger.info("added search provider: " + provider.getClass().getName());
-		this.providers.add(provider);
-		
-		// return provider number
-		return Integer.valueOf(ret);
+		this.providers.put(providerID, provider);
 	}
 	
-	void removeProvider(int number) {
-		final ISearchProvider provider = this.providers.remove(number);
+	synchronized void removeProvider(Long providerID) {
+		if (providerID == null) throw new NullPointerException("The provider-ID is null");
+		if (!this.providers.containsKey(providerID)) {
+			String format = String.format("Unable to unregister se-provider with ID '%s'. Provider unknown.", providerID.toString());
+			this.logger.error(format);
+			return;
+		}
+		
+		final ISearchProvider provider = this.providers.remove(providerID);
 		this.logger.info("removed search provider: " + provider.getClass().getName());
 		// this.pqp.removeTokenFactory(number);
 	}
@@ -78,7 +88,7 @@ public class SearchProviderManager implements ISearchProviderManager {
 	 * @see ISearchProviderManager#getSearchProviders()
 	 */
 	public Collection<ISearchProvider> getSearchProviders() {
-		return Collections.unmodifiableList(this.providers);
+		return Collections.unmodifiableCollection(this.providers.values());
 	}
 	
 	public void shutdown() throws IOException {

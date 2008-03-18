@@ -1,8 +1,5 @@
 package org.paxle.se.search.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -18,7 +15,6 @@ public class SearchProviderListener implements ServiceListener {
 			Constants.OBJECTCLASS, ISearchProvider.class.getName(),
 			Constants.OBJECTCLASS, IIndexSearcher.class.getName());
 	
-	private final Map<ServiceReference,Integer> referenceMap = new HashMap<ServiceReference,Integer>();
 	private final SearchProviderManager searchProviderManager;
 	private final BundleContext context;
 	
@@ -43,18 +39,20 @@ public class SearchProviderListener implements ServiceListener {
 	}
 	
 	private void register(ServiceReference ref) {
+		// the (unique) service ID of the registered filter
+		Long serviceID = (Long) ref.getProperty(Constants.SERVICE_ID);
+		
+		// register provider
 		final ISearchProvider provider = (ISearchProvider)this.context.getService(ref);
-		Integer num = this.searchProviderManager.addProvider(provider);
-		if (num != null) {
-			this.referenceMap.put(ref, num);
-		}
+		this.searchProviderManager.addProvider(serviceID, provider);
 	}
 	
 	private void unregister(ServiceReference ref) {
-		Integer num = this.referenceMap.get(ref);
-		if (num != null) {
-			this.searchProviderManager.removeProvider(num.intValue());
-		}
+		// the service ID of the registered filter
+		Long serviceID = (Long) ref.getProperty(Constants.SERVICE_ID);
+		
+		// unregister provider
+		this.searchProviderManager.removeProvider(serviceID);
 	}
 
 	public void serviceChanged(ServiceEvent event) {
