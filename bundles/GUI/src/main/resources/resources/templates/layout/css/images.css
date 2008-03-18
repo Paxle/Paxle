@@ -4,14 +4,14 @@
 	min-height: 22px !important;
 }
 
-input.btnEnable {
+input.btnEnable, input.btnEnable:hover {
 	background-image: url(/images/control_play.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 15px;
 }
 
-input.btnDisable {
+input.btnDisable, input.btnDisable:hover {
 	background-image: url(/images/control_stop.png);
 	background-repeat: no-repeat;
 	background-position: left center;
@@ -24,14 +24,14 @@ input.btnShutdown {
 input.btnRestart {
 }
 
-input.btnResume {
+input.btnResume, input.btnResume:hover {
 	background-image: url(/images/control_play.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;
 }
 
-input.btnPause {
+input.btnPause, input.btnPause:hover {
 	background-image: url(/images/control_pause.png);
 	background-repeat: no-repeat;
 	background-position: left center;
