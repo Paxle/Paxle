@@ -34,72 +34,72 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 	private static final int MAX_IDLE_SLEEP = 60000;
 
 	private Cache urlExistsCache = null;
-	
+
 	/**
 	 * A {@link IDataSink data-sink} to write the loaded {@link ICommand commands} out
 	 */
 	private IDataSink<ICommand> sink = null;	
-	
+
 	/**
 	 * A {@link IDataSource data-source} to fetch {@link ICommand commands} from
 	 */
 	private IDataSource<ICommand> source = null;	
-	
+
 	/**
 	 * A {@link Thread thread} to read {@link ICommand commands} from the {@link #source data-source}
 	 * and write it into the {@link #db database}. 
 	 */
 	private Reader readerThread = null;
-	
+
 	/**
 	 * A {@link Thread thread} to read {@link ICommand commands} from the {@link #db database}
 	 * and write it into the {@link #sink data-sink}.
 	 */
 	private Writer writerThread = null;
-	
+
 	/**
 	 * The logger
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
-	
+
 	/**
 	 * The hibernate {@link SessionFactory}
 	 */
 	private SessionFactory sessionFactory;
-	
+
 	/**
 	 * The currently used db configuration
 	 */
 	private Configuration config; 
-	
+
 	private boolean closed = false;
-	
+
 	public CommandDB(URL configURL, List<URL> mappings) {
 		if (configURL == null) throw new NullPointerException("The URL to the hibernate config file is null.");
 		if (mappings == null) throw new NullPointerException("The list of mapping files was null.");
-		
+
 		try {
 			/* ===========================================================================
 			 * Init Hibernate
 			 * =========================================================================== */
 			try {
-	        	Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-				
+				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+
 				// Read the hibernate configuration from *.cfg.xml
-	        	this.logger.info(String.format("Loading DB configuration from URL '%s'.",configURL));
+				this.logger.info(String.format("Loading DB configuration from URL '%s'.",configURL));
 				this.config = new Configuration().configure(configURL);
-				
+
 				// register an interceptor (required to support our interface-based command model)
 				this.config.setInterceptor(new InterfaceInterceptor());
-				
+
 				// load the various mapping files
 				for (URL mapping : mappings) {
-					this.logger.debug(String.format("Loading mapping file from URL '%s'.",mapping));
+					if (logger.isDebugEnabled()) this.logger.debug(String.format("Loading mapping file from URL '%s'.",mapping));
 					config.addURL(mapping);
 				}
-				
+
 				// String[] sql = config.generateSchemaCreationScript( new org.hibernate.dialect.MySQLDialect());
-				
+
 				// create the session factory
 				sessionFactory = config.buildSessionFactory();
 			} catch (Throwable ex) {
@@ -107,31 +107,31 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 				this.logger.error("Initial SessionFactory creation failed.",ex);
 				throw new ExceptionInInitializerError(ex);
 			}
-		    			
+
 			System.out.println(this.size());
-			
+
 			/* ===========================================================================
 			 * Init Reader/Writer Threads
 			 * =========================================================================== */
-		    this.writerThread = new Writer();
-		    this.readerThread = new Reader();
-		    
+			this.writerThread = new Writer();
+			this.readerThread = new Reader();
+
 			/* ===========================================================================
 			 * Init Cache
 			 * =========================================================================== */		  
-		    LRUEvictionPolicy ep = new LRUEvictionPolicy();
-		    this.urlExistsCache = new SimpleCache(new MemoryStash(100000), (EvictionPolicy)ep, (StashPolicy) null, (GroupMap)null, (File)null);
+			LRUEvictionPolicy ep = new LRUEvictionPolicy();
+			this.urlExistsCache = new SimpleCache(new MemoryStash(100000), (EvictionPolicy)ep, (StashPolicy) null, (GroupMap)null, (File)null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}	
-	
+
 	public void start() {		
-	    this.writerThread.start();
-	    this.readerThread.start();		
+		this.writerThread.start();
+		this.readerThread.start();		
 	}
-	
+
 	/**
 	 * @see IDataConsumer#setDataSource(IDataSource)
 	 */
@@ -157,11 +157,11 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			this.writerThread.notify();			
 		}
 	}
-	
+
 	public boolean isClosed() {
 		return this.closed;
 	}
-	
+
 	public void close() throws InterruptedException {
 		try {
 			// interrupt reader and writer
@@ -187,18 +187,18 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 					this.logger.error("Unable to shutdown database.",e);
 				}
 			}
-			
+
 			// flush cache
 			this.urlExistsCache.clear();
 		}finally {
 			this.closed = true;
 		}
 	}
-	
+
 	public boolean isKnown(String location) {
 		if (location == null || location.length() == 0) return false;
 		boolean known = false;
-		
+
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
 		try {
@@ -207,7 +207,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			Query query = session.createQuery("SELECT count(location) FROM ICommand as cmd WHERE location = ?").setString(0, location);
 			Long result = (Long) query.uniqueResult();
 			known = (result != null && result.longValue() > 0);
-			
+
 			transaction.commit();
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
@@ -218,24 +218,24 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 	}
 
 //	/**
-//	 * TODO: does not work at the moment
-//	 */
+//	* TODO: does not work at the moment
+//	*/
 //	private void commandToXML(ICommand cmd) {
-//		Session session = sessionFactory.getCurrentSession();		
-//		Transaction transaction = null;
-//		try {
-//			transaction = session.beginTransaction();	
-//			Session dom4jSession = session.getSession(EntityMode.DOM4J);
-//			
-//			dom4jSession.saveOrUpdate(cmd);
-//
-//			transaction.commit();
-//		} catch (HibernateException e) {
-//			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-//			this.logger.error("Error while converting command to XML",e);
-//		}	
+//	Session session = sessionFactory.getCurrentSession();		
+//	Transaction transaction = null;
+//	try {
+//	transaction = session.beginTransaction();	
+//	Session dom4jSession = session.getSession(EntityMode.DOM4J);
+
+//	dom4jSession.saveOrUpdate(cmd);
+
+//	transaction.commit();
+//	} catch (HibernateException e) {
+//	if (transaction != null && transaction.isActive()) transaction.rollback(); 
+//	this.logger.error("Error while converting command to XML",e);
+//	}	
 //	}
-	
+
 	/**
 	 * TODO: we can speedup this by using cursors or iterators here ... 
 	 */
@@ -248,18 +248,18 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			transaction = session.beginTransaction();
 
 			Query query = session.getNamedQuery("fromCrawlerQueue");
-//				session.createQuery("FROM ICommand as cmd LEFT JOIN cmd.IndexerDocuments as indexerDoc WHERE AND (indexerDoc is null)");
+//			session.createQuery("FROM ICommand as cmd LEFT JOIN cmd.IndexerDocuments as indexerDoc WHERE AND (indexerDoc is null)");
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 			result = (List<ICommand>) query.list();
-			
+
 			/* This is a q&d hack to avoid double loading of enqueued commands. */
 			for (ICommand cmd : (List<ICommand>) result) {
 				cmd.setResultText("Enqueued");
 				session.update(cmd);
 				this.urlExistsCache.store(cmd.getLocation(), Boolean.TRUE, null, null);
 			}
-			
+
 			transaction.commit();
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
@@ -268,18 +268,18 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 
 		return result;
 	}
-	
+
 	public synchronized void storeCommand(ICommand cmd) {
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
 		try {
 			transaction = session.beginTransaction();
-			
-	        session.saveOrUpdate(cmd);
-	        this.urlExistsCache.store(cmd.getLocation(), Boolean.TRUE, null, null);
-	        
+
+			session.saveOrUpdate(cmd);
+			this.urlExistsCache.store(cmd.getLocation(), Boolean.TRUE, null, null);
+
 			transaction.commit();
-			
+
 			// signal writer that a new URL is available
 			this.writerThread.signalNewDbData();			
 		} catch (HibernateException e) {
@@ -287,14 +287,14 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			this.logger.error(String.format("Error while writing command with location '%s' to db.", cmd.getLocation()),e);
 		}
 	}
-	
+
 	void storeUnknownLocations(List<String> locations) {
 		if (locations == null || locations.size() == 0) return;
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
 		try {
 			transaction = session.beginTransaction();
-			
+
 			// check the cache for URL existance
 			Iterator<String> locationIterator = locations.iterator();
 			while (locationIterator.hasNext()) {
@@ -303,11 +303,28 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 				}
 			}
 			if (locations.size() == 0) return;
-			
+
 			// check which URLs are already known
-			Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",locations);
-			HashSet<String> knownLocations = new HashSet<String>(query.list());
-			
+			HashSet<String> knownLocations = new HashSet<String>();
+
+			if (locations.size() <= 100) {
+				Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",locations);
+				knownLocations.addAll(query.list());
+			} else {
+				int i=0,oldI;
+				while (i<(locations.size()-1)) {
+					oldI = i;
+					if ((i+100)>=locations.size()) {
+						i=(locations.size()-1); 
+					} else {
+						i+=100;
+					}
+					List<String> miniLocations = locations.subList(oldI, i);
+					Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",miniLocations);
+					knownLocations.addAll(query.list());			
+				}
+			}
+
 			// add new commands into DB
 			for (String location: locations) {			
 				if (knownLocations.contains(location)) {
@@ -317,9 +334,9 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 				session.saveOrUpdate(Command.createCommand(location));	
 				this.urlExistsCache.store(location, Boolean.TRUE, null, null);
 			}
-	        
+
 			transaction.commit();
-			
+
 			// signal writer that a new URL is available
 			this.writerThread.signalNewDbData();			
 		} catch (HibernateException e) {
@@ -330,7 +347,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			),e);
 		}		
 	}
-	
+
 	/**
 	 * @return the total size of the command queue
 	 */
@@ -340,18 +357,18 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		Transaction transaction = null;
 		try {
 			transaction = session.beginTransaction();
-			
+
 			count = (Long) session.createQuery("select count(*) from ICommand").uniqueResult();
-			
+
 			transaction.commit();
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
 			this.logger.error("Error while querying queue size",e);
 		}		
-		
+
 		return count;
 	}
-	
+
 	/**
 	 * Resets the command queue
 	 */
@@ -360,16 +377,16 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		Transaction transaction = null;
 		try {
 			transaction = session.beginTransaction();
-			
+
 			session.createQuery("DELETE FROM ICommand").executeUpdate();
-			
+
 			transaction.commit();
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
 			this.logger.error("Error while reseting queue.",e);
 		}
 	}
-	
+
 	/**
 	 * A {@link Thread} to read {@link ICommand commands} from the {@link CommandDB#db}
 	 * and to write it into the {@link CommandDB#sink data-sink}
@@ -412,12 +429,12 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 				logger.info("CommandDB.Writer shutdown finished.");
 			}		
 		}
-		
+
 		public synchronized void signalNewDbData() {
 			this.notify();
 		}
 	}
-	
+
 	/**
 	 * A {@link Thread} to read {@link ICommand commands} from the {@link CommandDB#source data-source}
 	 * and to write it into the {@link CommandDB#db}.
@@ -426,7 +443,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 		public Reader() {
 			super("CommandDB.Reader");
 		}
-		
+
 		@Override
 		public void run() {
 			try {
@@ -434,7 +451,7 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 				synchronized (this) {
 					while (CommandDB.this.source == null) this.wait();
 				}		
-				
+
 				while(!Thread.currentThread().isInterrupted()) {
 					ICommand command = CommandDB.this.source.getData();
 					if (command != null) {
