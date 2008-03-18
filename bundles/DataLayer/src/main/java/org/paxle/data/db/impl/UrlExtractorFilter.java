@@ -1,9 +1,9 @@
+
 package org.paxle.data.db.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,6 +13,12 @@ import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 
 public class UrlExtractorFilter implements IFilter<ICommand> {
+	
+	private static class Counter {
+		
+		public int c = 0;
+	}
+	
 	private CommandDB db;
 	
 	private Log logger = LogFactory.getLog(this.getClass());
@@ -30,35 +36,32 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		if (parserDoc == null) return;
 
 		// getting the link map
-		this.extractLinks(command.getLocation(), parserDoc);
+		final Counter c = new Counter();
+		this.extractLinks(command.getLocation(), parserDoc, c);
+		logger.info(String.format("Extracted %d links from '%s'", Integer.valueOf(c.c), command.getLocation()));
 	}
 	
-	private void extractLinks(final String location, IParserDocument parserDoc) {
+	private void extractLinks(final String location, IParserDocument parserDoc, final Counter c) {
 		if (parserDoc == null) return;
 		
 		// getting the link map
 		Map<String, String> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
-			this.extractLinks(location, linkMap);
+			this.extractLinks(location, linkMap, c);
 		}
 		
 		Map<String,IParserDocument> subDocs = parserDoc.getSubDocs();
 		if (subDocs != null) {
 			for (IParserDocument subDoc : subDocs.values()) {
-				this.extractLinks(location, subDoc);
+				this.extractLinks(location, subDoc, c);
 			}
 		}
 	}
 	
-	private void extractLinks(final String location, Map<String, String> linkMap) {
+	private void extractLinks(final String location, Map<String, String> linkMap, final Counter c) {
 		List<String> locations = new ArrayList<String>();
 		
-		for (String ref : (Set<String>) linkMap.keySet()) {
-			// do some url normalization here
-			// TODO: this should be done in another filter
-			int idx = ref.indexOf("#");
-			if (idx != -1) ref = ref.substring(0,idx);
-			
+		for (String ref : linkMap.keySet()) {
 			if (ref.length() > 512) {
 				this.logger.debug("Skipping too long URL: " + ref);
 				continue;
@@ -71,6 +74,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		// store commands into DB
 		if (!db.isClosed()) {
 			db.storeUnknownLocations(locations);
+			c.c++;
 		} else {
 			this.logger.error(String.format(
 					"Unable to write linkmap of location '%s' to db. Database already closed.",
