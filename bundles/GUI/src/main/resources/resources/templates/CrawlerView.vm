@@ -31,6 +31,19 @@
   </form>
 </fieldset>
 
+#if ($errorUrls && $errorUrls.size() > 0)
+	<div>
+		<p class="error">
+			The following URLs could not be crawled because of errors:
+		</p>
+		<ul>
+		#foreach ($entry in $errorUrls.entrySet())
+			<li><a href="$entry.getKey()">$entry.getKey()</a>: $entry.getValue()</li>
+		#end
+		</ul>
+	</div>
+#end
+
 
 <fieldset id="dstatuscrawl">
   <legend>Crawler Status</legend>
