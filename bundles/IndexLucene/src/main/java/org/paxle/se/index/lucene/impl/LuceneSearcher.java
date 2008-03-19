@@ -28,8 +28,9 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 		this.manager = manager;
 	}
 	
-	/**
-	 * TODO: how to handle the timeout properly?
+	/* TODO: how to handle the timeout properly?
+	 * TODO: transform the Paxle-query into a Lucene-query without
+	 *       the indirection over String and the query-factory
 	 */
 	public void search(AToken request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException {
 		final QueryParser queryParser = new QueryParser(IIndexerDocument.TEXT.getName(), new StandardAnalyzer());

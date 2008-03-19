@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.paxle.core.doc.IIndexerDocument;
 
 public class StopwordsManager {
@@ -15,8 +16,8 @@ public class StopwordsManager {
 	public static final String STOPWORDS_FILE_EXT = ".stopwords";
 	
 	private final HashMap<IIndexerDocument.Language,PaxleAnalyzer> map = new HashMap<IIndexerDocument.Language,PaxleAnalyzer>();
-	private final File root;
 	private final Log logger = LogFactory.getLog(StopwordsManager.class);
+	private final File root;
 	private PaxleAnalyzer defaultAnalyzer = null;
 	
 	public StopwordsManager(final File root) {
@@ -24,6 +25,7 @@ public class StopwordsManager {
 	}
 	
 	public PaxleAnalyzer getAnalyzer(final IIndexerDocument.Language language) {
+		logger.debug("providing analyzer for language '" + language + "'");
 		if (language == null)
 			return getDefaultAnalyzer();
 		PaxleAnalyzer pa = map.get(language);
@@ -48,7 +50,7 @@ public class StopwordsManager {
 	
 	public PaxleAnalyzer getDefaultAnalyzer() {
 		if (defaultAnalyzer == null)
-			defaultAnalyzer = new PaxleAnalyzer();
+			defaultAnalyzer = new PaxleAnalyzer(StandardAnalyzer.STOP_WORDS);
 		return defaultAnalyzer;
 	}
 }

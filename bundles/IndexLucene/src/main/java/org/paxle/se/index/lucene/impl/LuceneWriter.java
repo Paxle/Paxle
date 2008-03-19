@@ -8,7 +8,6 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 
@@ -34,10 +33,12 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	
 	private final AFlushableLuceneManager manager;
 	private final StopwordsManager stopwordsManager;
+	private final Converter defaultCv;
 	
 	public LuceneWriter(AFlushableLuceneManager manager, final StopwordsManager stopwordsManager) {
 		this.manager = manager;
 		this.stopwordsManager = stopwordsManager;
+		this.defaultCv = new Converter(stopwordsManager.getDefaultAnalyzer());
 		this.setName("LuceneWriter");
 		this.start();
 		this.logger = LogFactory.getLog(LuceneWriter.class);
@@ -73,7 +74,10 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 				
 				// check status
 				if (command.getResult() != ICommand.Result.Passed) {
-					this.logger.warn("Won't save document " + command.getLocation() + " with result '" + command.getResult() + "' (" + command.getResultText() + ")");
+					this.logger.warn(String.format("Won't save document '%s' with result '%s' (%s)",
+							command.getLocation(),
+							command.getResult(),
+							command.getResultText()));
 					continue;
 				}
 				
@@ -84,18 +88,20 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 						this.write(indexerDoc);
 					} catch (IndexException e) {
 						this.logger.error("Error adding document to index: " + e.getMessage(), e);
-						e.printStackTrace();
 						indexerDoc.setStatus(IIndexerDocument.Status.IndexError, e.getMessage());
 					} catch (IOException e) {
 						this.logger.error("Low-level I/O error occured during adding document to index: " + e.getMessage(), e);
-						e.printStackTrace();
 						indexerDoc.setStatus(IIndexerDocument.Status.IOError, e.getMessage());
 					} catch (Exception e) {
 						this.logger.error("Internal error processing the indexer document", e);
-						e.printStackTrace();
-						indexerDoc.setStatus(IIndexerDocument.Status.IndexError, "Unexpected runtime exception processing the indexer document: " + e.getMessage());
+						indexerDoc.setStatus(
+								IIndexerDocument.Status.IndexError,
+								"Unexpected runtime exception processing the indexer document: " + e.getMessage());
 					} else {
-						this.logger.warn("Won't add indexer document to index with status '" + indexerDoc.getStatus() + "' (" + indexerDoc.getStatusText() + ")");
+						this.logger.warn(String.format("Won't save indexer-doc for location '%s' with status '%s' (%s)",
+								indexerDoc.get(IIndexerDocument.LOCATION),
+								indexerDoc.getStatus(),
+								indexerDoc.getStatusText()));
 					}
 				}
 			}
@@ -115,22 +121,44 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 		this.logger.debug("Adding document to index: " + document.get(IIndexerDocument.LOCATION));
 		try {
 			final long time = System.currentTimeMillis();
-			final Document doc = Converter.iindexerDoc2LuceneDoc(document);
-			final Fieldable f = doc.getField(IIndexerDocument.TEXT.getName());
 			
 			final IIndexerDocument.Language[] langs = document.get(IIndexerDocument.LANGUAGES);
-			if (langs == null || langs.length == 0) {
-				this.manager.write(doc);
-			} else {
-				this.manager.write(doc, stopwordsManager.getAnalyzer(langs[0]));
+			
+			// depending on whether the document has set a valid language or not, either the
+			// default stop-words set of Lucene is used or - if available for the language -
+			// the one provided by the stopwordsManager through an instance of PaxleAnalyzer
+			// to convert the IIndexerDocument into a Document of Lucene and after that to
+			// store it.
+			//
+			// TODO: extend the StopwordsManager to store the Converters for the languages
+			//       to not always having to create a new instance
+			final Converter cv = (langs == null || langs.length == 0)
+					? defaultCv
+					: new Converter(stopwordsManager.getAnalyzer(langs[0]));
+			
+			final int wc;
+			try {
+				// cv's internal counters (which are in fact token-streams) are created here
+				final Document doc = cv.iindexerDoc2LuceneDoc(document);
+				// the converted document is written to Lucene's cache here
+				this.manager.write(doc, cv.getAnalyzer());
+				
+			} finally {
+				// the token-streams provided by the given analyzer contained in the converter
+				// are only read when manager.write() is called, so we have to get the number of
+				// words afterwards.
+				wc = cv.getCountersAccumulated();
+				
+				// since writing may fail because of whatever, it is ensured here that the counter
+				// is reset, independently of the status of the write-operation
+				cv.resetCounters();
 			}
 			
 			if (logger.isInfoEnabled()) {
-				final Counting ct = (f == null) ? null : (PaxleTokenizer)f.tokenStreamValue();
-				logger.info(String.format("Added document '%s' in %d ms to index, word-count: %s",
+				logger.info(String.format("Added document '%s' in %d ms to index, word-count: %d",
 						document.get(IIndexerDocument.LOCATION),
 						Long.valueOf(System.currentTimeMillis() - time),
-						(ct == null) ? ("unknown, " + ((f == null) ? "f" : "ct") + " == null") : Integer.toString(ct.getTokenCount())));
+						Integer.valueOf(wc)));
 			}
 		} catch (CorruptIndexException e) {
 			throw new IndexException("error adding lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
@@ -141,8 +169,10 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 			while (iter.hasNext()) {
 				Field<?> key = iter.next();
 				Object value = document.get(key);
-				if (Closeable.class.isAssignableFrom(key.getType())) {
+				if (Closeable.class.isAssignableFrom(key.getType())) try {
 					((Closeable)value).close();
+				} catch (IOException e) {
+					logger.error("I/O exception while closing value of field '" + key + "': " + value, e);
 				}
 			}
 		}

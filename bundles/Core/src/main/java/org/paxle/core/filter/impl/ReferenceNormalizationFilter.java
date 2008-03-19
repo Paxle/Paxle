@@ -4,6 +4,7 @@ package org.paxle.core.filter.impl;
 import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.Collections;
@@ -26,7 +27,7 @@ import org.paxle.core.queue.ICommand;
 
 public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 	
-	private static final Charset UTF8 = Charset.forName("UTF-8");
+	static final Charset UTF8 = Charset.forName("UTF-8");
 	
 	public static final Hashtable<String,Integer> DEFAULT_PORTS = new Hashtable<String,Integer>();
 	static {
@@ -112,7 +113,7 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 		return path.equals("")?"/":path;
 	}
 	
-	private static String urlDecode(final String str, final Charset charset) throws ParseException {
+	static String urlDecode(final String str, final Charset charset) throws ParseException {
 		int percent = str.indexOf('%');
 		if (percent == -1)
 			return str;
@@ -135,27 +136,24 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 					throw new ParseException("illegal url-encoded token '" + token + "'", percent);
 				
 				final int tokenValue = Integer.parseInt(token, 16) & 0xFF;
-				switch (tokenValue) {
-					case '#': // fall through
-					case '&': // fall through
-					case '=': // fall through
-					case '?':
-						if (baos.size() > 0) {
-							sb.append(charset.decode(ByteBuffer.wrap(baos.toByteArray())));
-							baos.reset();
-						}
-						sb.append('%').append(token);
-						break;
-					default:
-						baos.write(tokenValue);
-						break;
-				}
+				baos.write(tokenValue);
 				percent += 3;
 			} while (percent < len && str.charAt(percent) == '%');
 			
 			if (baos.size() > 0) {
-				sb.append(charset.decode(ByteBuffer.wrap(baos.toByteArray())));	// here the actual decoding takes place
-				baos.reset();													// reuse the ByteArrayOutputStream in the next run
+				final CharBuffer decoded = charset.decode(ByteBuffer.wrap(baos.toByteArray()));
+				baos.reset();												// reuse the ByteArrayOutputStream in the next run
+				for (int i=0; i<decoded.length(); i++) {
+					final char c = decoded.charAt(i);
+					switch (c) {
+						case '#': sb.append("%23"); continue;
+						case '%': sb.append("%25"); continue;
+						case '&': sb.append("%26"); continue;
+						case '=': sb.append("%3D"); continue;
+						case '?': sb.append("%3F"); continue;
+						default: sb.append(c); continue;
+					}
+				}
 			}
 			
 			last = percent;													// byte after the token
@@ -200,14 +198,14 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 		 * 
 		 */
 		
-		private String protocol;
-		private String username;
-		private String password;
-		private String host;
-		private int port = -1;
-		private String path = "/";
-		private List<QueryEntry> query;
-		private String fragment;
+		String protocol;
+		String username;
+		String password;
+		String host;
+		int port = -1;
+		String path = "/";
+		List<QueryEntry> query;
+		String fragment;
 		
 		public OwnURL() {
 		}
@@ -236,7 +234,8 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 			fragment = null;
 			
 			// extract the protocol
-			final int colonpos = url.indexOf(':');
+			int urlStart = 0;
+			int colonpos = url.indexOf(':', urlStart);
 			if (colonpos <= 0)
 				throw new MalformedURLException("No protocol specified in URL " + url);
 			protocol = url.substring(0, colonpos).toLowerCase();
@@ -250,7 +249,7 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 			
 			// extract username / password
 			final int slashAfterHost = url.indexOf('/', protocolEnd);
-			final int at = url.indexOf('@');
+			final int at = url.indexOf('@', protocolEnd);
 			final int hostStart;
 			final int credSepColon = url.indexOf(':', protocolEnd); //the colon which separates username and password
 			if (at != -1 && at < slashAfterHost) {
@@ -267,7 +266,8 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 			
 			// extract the hostname
 			final int portColon = url.indexOf(':', hostStart);
-			final int hostEnd = (portColon == -1) ? (slashAfterHost == -1) ? url.length() : slashAfterHost : portColon;
+			final int hostEndTmp = (slashAfterHost == -1) ? url.length() : slashAfterHost;
+			final int hostEnd = (portColon > hostStart && portColon < hostEndTmp) ? portColon : hostEndTmp;
 			// TODO: de-punycode
 			// host = IDN.toUnicode(url.substring(hostStart, hostEnd).toLowerCase());		// de-punycode (sub-)domain(s) - java 1.6 code
 			host = url.substring(hostStart, hostEnd).toLowerCase();
@@ -304,6 +304,7 @@ public class ReferenceNormalizationFilter implements IFilter<ICommand> {
 					if (queryEnd > qmark + 1) {
 						if (query == null)
 							query = new LinkedList<QueryEntry>();
+						
 						int paramStart = qmark + 1;
 						do {
 							int paramEnd = url.indexOf('&', paramStart);

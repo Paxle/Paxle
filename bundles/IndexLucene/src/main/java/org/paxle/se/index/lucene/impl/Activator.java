@@ -25,7 +25,7 @@ public class Activator implements BundleActivator {
 	
 	public static final String CONF_INDEX_LUCENE_PATH_STR = "paxle.index.path";
 	
-	private static String DB_PATH = "lucene-db";
+	private static final String DB_PATH = "lucene-db";
 	
 	public static BundleContext bc = null;
 	public static AFlushableLuceneManager lmanager = null;
@@ -50,9 +50,10 @@ public class Activator implements BundleActivator {
 		
 		final File stopwordsRoot = context.getDataFile("/stopwords/").getCanonicalFile();
 		copyNatives(context, "/stopwords/snowball/", stopwordsRoot);
+		final StopwordsManager stopwordsManager = new StopwordsManager(stopwordsRoot);
 		
-		lmanager = new TimerLuceneManager(DB_PATH, 30000, 30000);
-		indexWriterThread = new LuceneWriter(lmanager, new StopwordsManager(stopwordsRoot));
+		lmanager = new TimerLuceneManager(DB_PATH, stopwordsManager.getDefaultAnalyzer(), 30000, 30000);
+		indexWriterThread = new LuceneWriter(lmanager, stopwordsManager);
 		indexWriterThread.setPriority(3);
 		indexSearcher = new LuceneSearcher(lmanager);
 		

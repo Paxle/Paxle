@@ -1,11 +1,12 @@
+
 package org.paxle.core.filter.impl;
 
 import java.nio.charset.Charset;
 
 import junit.framework.TestCase;
 
-public class ReferenceNormalisationFilterTest extends TestCase {
-
+public class ReferenceNormalizationFilterTest extends TestCase {
+	
 	/**
 	 * Testcases to test
 	 */
@@ -42,23 +43,18 @@ public class ReferenceNormalisationFilterTest extends TestCase {
 			"http://www.semanlink.net/andkws.do;jsessionid=7A0F3800C5F466E0EA9405C483CB3341?" +
 			"kwuris=http://www.semanlink.net/tag/airbus&kwuris=http://www.semanlink.net/tag/technical_documentation"},
 		{"http://www.youtube.com/comment_servlet?all_comments&v=snaecrgdniU&fromurl=/watch%3Fv%3DsnaecrgdniU",
-				"http://www.youtube.com/comment_servlet?all_comments&v=snaecrgdniU&fromurl=/watch%3Fv%3DsnaecrgdniU"},
+			"http://www.youtube.com/comment_servlet?all_comments&v=snaecrgdniU&fromurl=/watch%3Fv%3DsnaecrgdniU"},
+ 		{"http://fr.wikipedia.org/wiki/cat%c3%a9gorie/wiki/Cat%c3%a9gorie:Film_danois",
+			"http://fr.wikipedia.org/wiki/cat\u00e9gorie/wiki/Cat\u00e9gorie:Film_danois"},
+		{"http://ftp://www.example.org/bla?blubb#blo", "ftp://www.example.org/bla?blubb"},
 	};
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-
+	
 	public void testReferenceNormalisationFilter() throws Exception {
-		int x = 0;
-		while (x < testCases.length) {
+		for (int x=0; x<testCases.length; x++) {
 			final ReferenceNormalizationFilter.OwnURL url = new ReferenceNormalizationFilter().new OwnURL();
 			final String normalizationResult = url.parseBaseUrlString(testCases[x][0], Charset.defaultCharset());
 			assertNotNull(normalizationResult);
 			assertEquals(testCases[x][1], normalizationResult);
-			
-			x++;
 		}
 	}
 }

@@ -25,7 +25,7 @@ public class MultiFormatWordlistLoader extends WordlistLoader {
 			while ((line = br.readLine()) != null) {
 				final int comment = line.indexOf('|');
 				if (comment > -1)
-					line = line.substring(0, comment).trim();
+					line = line.substring(0, comment);
 				line = line.trim();
 				if (line.length() > 0)
 					r.add(line);

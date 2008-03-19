@@ -8,9 +8,11 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -30,44 +32,37 @@ public class Converter {
 	
 	private static final Log logger = LogFactory.getLog(Converter.class);
 	
+	// package private
 	static IFieldManager fieldManager = null;
 	
-	private static class ArrayTokenStream extends TokenStream implements Counting {
-		
-		private final Object[] data;
-		private int pos = 0;
-		private int textPos = 0;
-		
-		public ArrayTokenStream(final Object[] data) {
-			this.data = data;
-		}
-		
-		public int getTokenCount() {
-			return data.length;
-		}
-		
-		@Override
-		public Token next() {
-			Object o = null;
-			while (o == null && this.pos < this.data.length)
-				o = this.data[this.pos++];
-			
-			if (o == null)
-				return null;
-			
-			int otp = this.textPos;
-			final String text = o.toString();
-			this.textPos += text.length();
-			return new Token(text, otp, this.textPos++);
-		}
+	private final PaxleAnalyzer pa;
+	private final List<Counting> counters = new ArrayList<Counting>();
+	
+	public Converter(final PaxleAnalyzer pa) {
+		this.pa = pa;
 	}
 	
-	public static Document iindexerDoc2LuceneDoc(IIndexerDocument document) {
+	public PaxleAnalyzer getAnalyzer() {
+		return pa;
+	}
+	
+	public int getCountersAccumulated() {
+		int r = 0;
+		for (final Counting c : counters)
+			r += c.getTokenCount();
+		return r;
+	}
+	
+	public void resetCounters() {
+		counters.clear();
+	}
+	
+	public Document iindexerDoc2LuceneDoc(IIndexerDocument document) {
 		final Document doc = new Document();
 		for (final Map.Entry<org.paxle.core.doc.Field<?>,Object> entry : document) {
 			Fieldable field = any2field(entry.getKey(), entry.getValue());
 			if (field == null) {
-				System.err.println("Found null-field: " + entry.getKey() + " / " + entry.getValue());
+				logger.error("Found null-field: " + entry.getKey() + " / " + entry.getValue());
 			} else {
 				doc.add(field);
 			}
@@ -75,39 +70,46 @@ public class Converter {
 		return doc;
 	}
 	
-	public static Fieldable any2field(org.paxle.core.doc.Field<?> field, Object data) {
-		if (String.class.isAssignableFrom(field.getType())) {
-			return string2field(field, (String)data);
-			
-		} else if (Reader.class.isAssignableFrom(field.getType())) {
-			return reader2field(field, (Reader)data);
-
-		} else if (File.class.isAssignableFrom(field.getType())) {
-			return file2field(field, (File)data);
-			
-		} else if (Date.class.isAssignableFrom(field.getType())) {
-			return date2field(field, (Date)data);
-			
-		} else if (Number.class.isAssignableFrom(field.getType())) {
-			return number2field(field, (Number)data);
-			
-		} else if (byte[].class.isAssignableFrom(field.getType()) && field.isSavePlain()) {
-			return byteArray2field(field, (byte[])data);
-			
-		} else if (field.getType().isArray()) {
-			return array2field(field, (Object[])data);
-			
-		} else if (File.class.isAssignableFrom(field.getType())) {
-			try {
-				return reader2field(field, new FileReader((File)data));
-			} catch (FileNotFoundException e) {
-				// TODO what to do in this situation?
-				logger.error("Backing file for field " + field + " not found!", e);
+	public Fieldable any2field(org.paxle.core.doc.Field<?> field, Object data) {
+		try {
+			if (String.class.isAssignableFrom(field.getType())) {
+				return string2field(field, (String)data);
+				
+			} else if (Reader.class.isAssignableFrom(field.getType())) {
+				return reader2field(field, (Reader)data);
+	
+			} else if (File.class.isAssignableFrom(field.getType())) {
+				return file2field(field, (File)data);
+				
+			} else if (Date.class.isAssignableFrom(field.getType())) {
+				return date2field(field, (Date)data);
+				
+			} else if (Number.class.isAssignableFrom(field.getType())) {
+				return number2field(field, (Number)data);
+				
+			} else if (byte[].class.isAssignableFrom(field.getType()) && field.isSavePlain()) {
+				return byteArray2field(field, (byte[])data);
+				
+			} else if (field.getType().isArray()) {
+				return array2field(field, (Object[])data);
+				/* double?
+			} else if (File.class.isAssignableFrom(field.getType())) {
+				try {
+					return reader2field(field, new FileReader((File)data));
+				} catch (FileNotFoundException e) {
+					// TODO what to do in this situation?
+					logger.error("Backing file for field " + field + " not found!", e);
+					return null;
+				}*/
+			} else {
+				// TODO
 				return null;
 			}
-		} else {
-			// TODO
-			logger.warn("Unknown field " + field);
+		} catch (FileNotFoundException e) {
+			logger.error("File '" + data + "' not found for field '" + field + "'");
+			return null;
+		} catch (IOException e) {
+			logger.error("I/O exception during conversion of field '" + field + "'");
 			return null;
 		}
 	}
@@ -116,7 +118,7 @@ public class Converter {
 		/* ===========================================================
 		 * Strings
 		 * - may be stored (if so, then compressed)
-		 * - may be indexed (tokenized using lucene's standard analyzer)
+		 * - may be indexed (for tokenization see LuceneWriter.write(IIndexerDocument))
 		 * - position term vectors
 		 * =========================================================== */
 		return new Field(
@@ -127,14 +129,16 @@ public class Converter {
 				termVector(field, TV_POSITIONS));
 	}
 	
-	private static Fieldable array2field(org.paxle.core.doc.Field<?> field, Object[] data) {
+	private Fieldable array2field(org.paxle.core.doc.Field<?> field, Object[] data) {
 		/* ===========================================================
 		 * Arrays
 		 * - is not stored
-		 * - is indexed (tokenized using lucene's standard analyzer)
+		 * - is indexed (for tokenization see LuceneWriter.write(IIndexerDocument))
 		 * - no term vectors
 		 * =========================================================== */
-		return new Field(field.getName(), new ArrayTokenStream(data));
+		final ArrayTokenStream ats = new ArrayTokenStream(data);
+		counters.add(ats);
+		return new Field(field.getName(), pa.wrapDefaultFilters(ats, false));
 	}
 	
 	private static Fieldable number2field(org.paxle.core.doc.Field<?> field, Number data) {
@@ -181,32 +185,29 @@ public class Converter {
 				index(field));
 	}
 	
-	private static Fieldable reader2field(org.paxle.core.doc.Field<?> field, Reader data) {
+	private Fieldable reader2field(org.paxle.core.doc.Field<?> field, Reader data) throws IOException {
 		/* ===========================================================
 		 * Readers
 		 * - not stored
-		 * - indexed (tokenized using lucene's standard analyzer)
+		 * - indexed (for tokenization see LuceneWriter.write(IIndexerDocument))
 		 * - position term vectors
 		 * =========================================================== */
+		final PaxleTokenizer pt = pa.createTokenizer(data);
+		counters.add(pt);
 		return new Field(
 				field.getName(),
-				new PaxleTokenizer(data, false),
+				pa.wrapDefaultFilters(pt, true),
 				termVector(field, TV_POSITIONS));
 	}
 	
-	private static Fieldable file2field(org.paxle.core.doc.Field<?> field, File data) {
+	private Fieldable file2field(org.paxle.core.doc.Field<?> field, File data) throws IOException {
 		/* ===========================================================
 		 * Files
 		 * - not stored
-		 * - indexed (tokenized using lucene's standard analyzer)
+		 * - indexed (for tokenization see LuceneWriter.write(IIndexerDocument))
 		 * - position term vectors
 		 * =========================================================== */
-		try {
-			return reader2field(field, new FileReader(data));
-		} catch (FileNotFoundException e) {
-			System.err.println("File not found: " + data);
-			return null;
-		}
+		return reader2field(field, new FileReader(data));
 	}
 	
 	private static Fieldable byteArray2field(org.paxle.core.doc.Field<?> field, byte[] data) {
@@ -233,12 +234,21 @@ public class Converter {
 	private static final int TV_OFFSETS = 2;
 	
 	private static Field.TermVector termVector(org.paxle.core.doc.Field<?> field, int options) {
-		return (field.isIndex()) ? (
-				((options & (TV_OFFSETS | TV_POSITIONS)) != (TV_OFFSETS | TV_POSITIONS)) ? (
-						((options & TV_OFFSETS) != 0) ? Field.TermVector.WITH_OFFSETS :
-						((options & TV_POSITIONS) != 0) ? Field.TermVector.WITH_POSITIONS : Field.TermVector.NO
-				) : Field.TermVector.WITH_POSITIONS_OFFSETS
-		) : Field.TermVector.NO;
+		if (!field.isIndex())
+			return Field.TermVector.NO;
+		
+		switch (options) {
+			case 0:
+				return Field.TermVector.NO;
+			case TV_POSITIONS:
+				return Field.TermVector.WITH_POSITIONS;
+			case TV_OFFSETS:
+				return Field.TermVector.WITH_OFFSETS;
+			case (TV_OFFSETS | TV_POSITIONS):
+				return Field.TermVector.WITH_POSITIONS_OFFSETS;
+			default:
+				throw new IllegalArgumentException("illegal value for options " + options + " during processing field '" + field + "'");
+		}
 	}
 	
 	/* ========================================================================== */

@@ -68,14 +68,17 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 			} catch (InvalidSyntaxException e) { e.printStackTrace(); }
 			
 			final boolean hasWebui = manager.hasService(HttpService.class) && manager.hasService("org.paxle.gui.IServletManager");
-			browseItem.setEnabled(hasWebui);
+			browseItem.setEnabled(canOpenBrowser && hasWebui);
 			
 			final boolean hasSearch = manager.hasService("org.paxle.se.search.ISearchProviderManager");
-			searchItem.setEnabled(hasSearch && hasWebui); //remove "&& hasWebUi" if we have other methods of displaying the searchresults
+			// remove "&& hasWebUi" if we have other methods of displaying the searchresults
+			searchItem.setEnabled(canOpenBrowser && hasSearch && hasWebui);
 			
 			crawlprItem.setText((crawlersPaused()) ? CRAWL_RESUME : CRAWL_PAUSE);
 		}
 	};
+	
+	private boolean canOpenBrowser = true;
 	
 	public SystrayMenu2(ServiceManager manager, IDIBackend backend, URL iconResource) {
 		this.manager = manager;
@@ -181,7 +184,7 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 		if (url == null) {
 			JOptionPane.showMessageDialog(null, "HTTP service not accessible", "Error", JOptionPane.ERROR_MESSAGE);
 		} else try {
-			if (backend.getDesktop().browse(url)) {
+			if ((canOpenBrowser = backend.getDesktop().browse(url))) {
 				return true;
 			} else {
 				Utilities.showURLErrorMessage(
