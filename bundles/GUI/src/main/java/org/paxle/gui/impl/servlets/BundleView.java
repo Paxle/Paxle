@@ -57,16 +57,16 @@ public class BundleView extends ALayoutServlet {
         			context.put("errorMsg",errorMsg);
         		} else {
         			try {
-        				if (request.getParameter("update") != null) {
+        				if (request.getParameter("action").equals( "update")) {
         					bundle.update();
-        				} else if (request.getParameter("start") != null) {
+        				} else if (request.getParameter("action").equals( "start")) {
         					bundle.start();
-        				} else if (request.getParameter("stop") != null) {
+        				} else if (request.getParameter("action").equals( "stop")) {
         					bundle.stop();
-        				} else if (request.getParameter("restart") != null) {
+        				} else if (request.getParameter("action").equals( "restart")) {
         					bundle.stop();
         					bundle.start();
-        				}else if(request.getParameter("uninstall") != null){
+        				}else if(request.getParameter("action").equals( "uninstall")){
         					bundle.uninstall();
         				}else if (request.getParameter("details") != null) {
         					context.put("bundle", bundle);
