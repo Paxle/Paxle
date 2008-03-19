@@ -52,7 +52,7 @@ public class ReferenceNormalizationFilterTest extends TestCase {
 	public void testReferenceNormalisationFilter() throws Exception {
 		for (int x=0; x<testCases.length; x++) {
 			final ReferenceNormalizationFilter.OwnURL url = new ReferenceNormalizationFilter().new OwnURL();
-			final String normalizationResult = url.parseBaseUrlString(testCases[x][0], Charset.defaultCharset());
+			final String normalizationResult = url.parseBaseUrlString(testCases[x][0], ReferenceNormalizationFilter.UTF8);
 			assertNotNull(normalizationResult);
 			assertEquals(testCases[x][1], normalizationResult);
 		}
