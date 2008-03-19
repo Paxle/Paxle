@@ -46,7 +46,7 @@ public class ReferenceNormalizationFilterTest extends TestCase {
 			"http://www.youtube.com/comment_servlet?all_comments&v=snaecrgdniU&fromurl=/watch%3Fv%3DsnaecrgdniU"},
  		{"http://fr.wikipedia.org/wiki/cat%c3%a9gorie/wiki/Cat%c3%a9gorie:Film_danois",
 			"http://fr.wikipedia.org/wiki/cat\u00e9gorie/wiki/Cat\u00e9gorie:Film_danois"},
-		{"http://ftp://www.example.org/bla?blubb#blo", "ftp://www.example.org/bla?blubb"},
+// 		{"http://ftp://www.example.org/bla?blubb#blo", "ftp://www.example.org/bla?blubb"},
 	};
 	
 	public void testReferenceNormalisationFilter() throws Exception {
