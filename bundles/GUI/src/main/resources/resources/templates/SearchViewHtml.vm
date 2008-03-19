@@ -1,37 +1,37 @@
 ## Set the page title
-#set( $page_title = "Paxle Search Page" )
-
+#set( $page_title = "Search Page" )
 ## Add custom html headers
-#if($searchQuery)
-	#set( $h1 = "<link rel='alternate' type='application/rss+xml' title='Paxle Search Page' href='?format=rss&query=$escTool.url($searchQuery)' />")
-
+#if( $searchQuery)
+	#set( $h1 = "<link rel='alternate' type='application/rss+xml' title='Paxle Search Page' href='?format=rss&amp;query=$escTool.url($searchQuery)' />")
+	#set( $h2 = "<script type="text/javascript" src="/js/wz_tooltip.js"></script>")
 	## TODO: link to a opensearch-description
-	## #set( $h2 = '<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="opensearchdescription.xml" />')
-	#set( $page_headers = [$h1] )
+	## #set( $h3 = '<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="opensearchdescription.xml" />')
+	#set( $page_headers = [$h1, $h2] )
 #end
-
 ## the regular content
-#if($seBundeNotInstalled || !$fieldManager)
-	<div class="bundleNotInstalled">Search Engine Bundle not installed</div>
+#if( $seBundeNotInstalled || !$fieldManager)
+	<p class="error bundleNotInstalled">Search Engine Bundle not installed</p>
 #else	
-    #if($searchResultList)	
-        <a class="rssFeedLink" href="?format=rss&query=$escTool.url($searchQuery)" title="Display results as RSS-feed">
-        <img src="/images/feed.png" alt="RSS"/>
-        </a>
+    #if( $searchResultList)	
+    <a class="rssFeedLink" href="?format=rss&amp;query=$escTool.url($searchQuery)" title="Display results as RSS-feed">
+		<img src="/images/feed.png" alt="RSS"/>
+	</a>
     #end
-    <form>
-    	<input type="text" size="50" name="query" #if($searchQuery) value="$searchQuery" #end/>
-    	<input type="submit" value="search now"/>
+    <form action="">
+    	<p>
+    		<input type="text" size="50" name="query" #if( $searchQuery) value="$searchQuery" #end/>
+    		<input type="submit" value="Search"/>
+    	</p>
     </form>
-    <p />
+    <br />
 	
-	#if($searchError)
+	#if( $searchError)
 	   <p class="error">$searchError</p>
 	   
-	#elseif($searchResultList)
+	#elseif( $searchResultList)
 	   ## java script lib for the tooltips
 	   ## See: SearchViewToolTip.vm
-	   <script language="JavaScript" type="text/javascript" src="/js/wz_tooltip.js"></script>
+
       <table>
 	         #foreach($searchResult in $searchResultList)
 	            #foreach($result in $searchResult.getResult())
@@ -39,7 +39,7 @@
 	                  <tr>
 	                     #set($location = $result.get($fieldManager.get("Location")))
 						 #set($hintText = $escTool.javascript("#parse('/resources/templates/SearchViewToolTip.vm')"))
-	                     <td style="border-bottom: 1px dotted rgb(153,153,153); color: black;">
+	                     <td>
 	                           ## only display favicons if the corresponding bundle is installed
 	                     	   #if($showFavicons)
 	                              #set($imageSrc = $escTool.javascript($result.get($fieldManager.get("Location"))))

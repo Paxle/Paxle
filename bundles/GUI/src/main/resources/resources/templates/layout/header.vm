@@ -1,36 +1,34 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>Paxle #if( $page_title ) - $page_title#end</title>
+	<title>Paxle #if( $page_title) - $page_title#end</title>
+
+	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen, projection" />
+	<link rel="stylesheet" type="text/css" href="/css/images.css" media="screen, projection" />
+	<link rel="stylesheet" type="text/css" href="/css/navi.css" media="screen, projection" />
+
+	<link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico" />
+	<link rel="icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico" /> 
+	<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="$request.getScheme()://$request.getServerName():$request.getServerPort()/opensearch/osd.xml" />
+
+	<script type="text/javascript" src="/js/tabs.js"></script>
  
-  <link rel="stylesheet" type="text/css" href="/css/style.css" media="screen, projection" />
-  <link rel="stylesheet" type="text/css" href="/css/images.css" media="screen, projection" />
-  <link rel="stylesheet" type="text/css" href="/css/navi.css" media="screen, projection" />
-  
-  <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico" />
-  <link rel="icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico" /> 
-  <link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="$request.getScheme()://$request.getServerName():$request.getServerPort()/opensearch/osd.xml" />
- 
-  <script type="text/javascript" language="javascript" src="/js/tabs.js"></script>
- 
-  ## append custom headers
-  #if( $page_headers)
-  	#foreach( $page_header in $page_headers)
+	## append custom headers
+	#if( $page_headers)
+	#foreach( $page_header in $page_headers)
 		$page_header
 	#end
-  #end
+	#end
 </head>
-<body#if( $bodyonload ) onload="$bodyonload"#end>
+<body#if( $bodyonload) onload="$bodyonload"#end>
 
-<div id="global_banner">
-<ul>
-  <li><a href="http://forum.paxle.info" title="Forum">Forum</a></li>
-  <li><a href="https://bugs.pxl.li" title="Bugs">Bugs</a></li>
-  <li><a href="http://wiki.paxle.net" title="Wiki">Wiki</a></li>
-  <li><a href="http://svn.paxle.net" title="SVN">SVN</a></li>
-  <li><a href="http://www2.paxle.net" title="Homepage">Homepage</a></li>
-  <li class="active"><a href="/" title="This Peer">This Peer</a></li>
+<ul id="global_banner">
+	<li><a href="http://forum.paxle.info" title="Forum">Forum</a></li>
+	<li><a href="https://bugs.pxl.li" title="Bugs">Bugs</a></li>
+	<li><a href="http://wiki.paxle.net" title="Wiki">Wiki</a></li>
+	<li><a href="http://svn.paxle.net" title="SVN">SVN</a></li>
+	<li><a href="http://www2.paxle.net" title="Homepage">Homepage</a></li>
+	<li class="active"><a href="/" title="This Peer">This Peer</a></li>
 </ul>
-</div>
 
 <h1>Paxle</h1>

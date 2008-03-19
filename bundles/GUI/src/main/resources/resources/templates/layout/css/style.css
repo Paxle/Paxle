@@ -12,7 +12,7 @@ fieldset {
 	background-color: #FFFFFF;
 	color: #000000;
 
-	border: solid 0.1em #000000;
+	border: solid 0.1em #444444;
 }
 
 form {
@@ -23,31 +23,48 @@ form {
 h1 {
 	margin: 0 0 0.5em 0;
 	padding: 1em;
+	
 	background-color: #730002;
 	color: #FFFFFF;
+	
 	font-size: 2em;
 	text-align: center;
+	
 	background-image: url('/images/header_bg.png');
 	background-repeat: no-repeat;
 }
 
+img.favicon{
+	width: 16px;
+	margin: 0 4px 0 0;
+	height: 16px;
+	float: left;
+}
+
+
 input[type=text] , textarea {
+	margin: 0;
 	padding: 0.2em;
+	
 	background-color: #FFFFFF;
+	color: #444444;
+	
 	border: 0.1em solid #96825F;
 }
 
-input:focus, textarea:focus {
+input[type=text]:focus, textarea:focus {
 	background-color: #FFFFFF;
-	border: 0.1em solid #f22;
+	color: #000000;
+	
+	border: 0.1em solid #730002;
 }
 
 input[type=submit] {
-
-	padding: 0;
-	
 	min-width: 80px;
 	min-height: 25px;
+	
+	margin: 0;
+	padding: 0 0 0 5px;
 	
 	background-color: #FFFFFF;
 	color: #000000;
@@ -65,9 +82,9 @@ input[type=submit]:hover {
 }
 
 table {
+	width: 100%;
 	margin: 0;
 	padding: 0;
-	width: 100%;
 }
 
 th {
@@ -90,19 +107,28 @@ tr {
 #main {
 	margin: 0 1em 0 13em;
 	padding: 1em;
+	
 	background-color: #FFFFFF;
+	
 	border-top: solid 1em #444444;
 }
 
 
 #nav {
 	width: 11em;
+	
 	margin: 0 0 0 1em;
 	padding: 0;
+	
 	float: left;
 	list-style: none;
-	background-color: #96825F;
+	
+	dasbackground-color: #FFFFFF;
+	color: #96825F;
+	
 	border-top: solid 1em #444444;
+	
+	background-image: url('/images/nav-background.png');
 }
 
 #nav li {
@@ -111,9 +137,13 @@ tr {
 }
 
 #nav li a {
+	margin: 0;
 	padding: 0.5em 0 0.5em 1em;
+	
 	display: block;
-	color: #FFFFFF;
+	
+	color: #000000;
+	
 	text-decoration: none;
 	white-space: nowrap;
 	font-size: 1.2em;
@@ -123,23 +153,6 @@ tr {
 #nav li a:hover, #nav li.menuItemActive a {
 	background-color: #730002;
 	color: #FFFFFF;
-}
-
-
-#bundle {
-	margin: 0 1em 1em 0;
-	padding: 1em 0 3em 0;
-	background-color: #FFFFFF;
-	color: #000000;
-	list-style: none;
-}
-
-#bundle li {
-	margin: 1em 0 0 2em;
-}
-
-#bundle a{
-	color: #000000;
 }
 
 
@@ -170,44 +183,61 @@ tr {
 	background-color: #730002; 
 }
 
+.filter {
+	margin: 0;
+	padding: 0.2em 0.5em 0.2em 0.5em;
 
-.clearer {
-	clear: both;
+	background-color: #444444;
+	color: #FFFFFF;	
 }
 
 .error {
-	background-color: #A00000;
+	padding: 1em;
+	
+	background-color: #730002;
+	color: #FFFFFF;
+	
+	font-size: 1.2em;
+	
+	background-image: url('/images/error.png');
+	background-repeat: no-repeat;
 }
 
-.warning {
-	background-color: #A0A000;
+.exception {
+	background-color: FFEEFF;
 }
 
-.info {
-	background-color: #00A000;
+
+.logerror {
+	padding: 0 0 0 22px;
+	//background-color: #730002;
+	background-image: url('/images/log-error.png');
+	background-repeat: no-repeat;
 }
 
-.debug {
-	background-color: #0000A0;
+.logwarning {
+	padding: 0 0 0 22px;
+	//background-color: #FFDE00;
+	background-image: url('/images/log-warning.png');
+	background-repeat: no-repeat;
+}
+
+.loginfo {
+	padding: 0 0 0 22px;
+	//background-color: #0F6500;
+	background-image: url('/images/log-info.png');
+	background-repeat: no-repeat;
+}
+
+.logdebug {
+	padding: 0 0 0 22px;
+	//background-color: #000073;
+	background-image: url('/images/log-debug.png');
+	background-repeat: no-repeat;
 }
 
 .resolved {
 	text-decoration: line-through;
-}
-
-.r1 {
-	background-color: #EFEFEF;
-}
-
-.r1 {
-	background-color: #CDCDCD;
-}
-
-img.favicon{
-	margin: 0 4px 0 0;
-	width: 16px;
-	height: 16px;
-	float: left;
 }
 
 .statusRunning {
@@ -227,7 +257,7 @@ img.favicon{
 }
 
 a.rssFeedLink {
-	float:right;	
+	float:right;
 }
 
 a.rssFeedLink > img {

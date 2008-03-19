@@ -7,44 +7,43 @@
 #set ( $bodyonload = "initTabs('singlecrawl');" )
 
 <ul class="tabs">
-  <li><a href="#dsinglecrawl" onclick="fshow('singlecrawl');" id="tsinglecrawl">Crawl URL</a></li>
-  <li><a href="#dmasscrawl" onclick="fshow('masscrawl');" id="tmasscrawl">Mass Crawl</a></li>
-  <li><a href="#dstatuscrawl" onclick="fshow('statuscrawl');" id="tstatuscrawl">Crawler Status</a></li>
+	<li><a href="#dsinglecrawl" onclick="fshow('singlecrawl');" id="tsinglecrawl">Crawl URL</a></li>
+	<li><a href="#dmasscrawl" onclick="fshow('masscrawl');" id="tmasscrawl">Mass Crawl</a></li>
+	<li><a href="#dstatuscrawl" onclick="fshow('statuscrawl');" id="tstatuscrawl">Crawler Status</a></li>
 </ul>
 
-<fieldset id="dsinglecrawl">
-  <legend>Crawl URL</legend>
-  <form action="/crawler" method="post">
-  <input type="text" id="startURL" name="startURL" />
-  <input type="submit" value="Start Crawl" />
-  </form>
-</fieldset>
-
-
-
-<fieldset id="dmasscrawl">
-  <legend>MassCrawl URL</legend>
-  <form action="/crawler" method="post">
-  <textarea cols="80" rows="15" name="startURL2" id="startURL2"></textarea>
-  <br />
-  <input type="submit" value="Start Crawl" />
-  </form>
-</fieldset>
-
-#if ($errorUrls && $errorUrls.size() > 0)
-	<div>
-		<p class="error">
-			The following URLs could not be crawled because of errors:
-		</p>
-		<ul>
-		#foreach ($entry in $errorUrls.entrySet())
-			<li><a href="$entry.getKey()">$entry.getKey()</a>: $entry.getValue()</li>
-		#end
-		</ul>
-	</div>
+#if( $errorUrls && $errorUrls.size() > 0)
+<p class="error">
+	The following URLs could not be crawled because of following errors:		
+	<ul>
+	#foreach ( $entry in $errorUrls.entrySet())
+		<li><a href="$entry.getKey()">$entry.getKey()</a>: $entry.getValue()</li>
+	#end
+	</ul>
+</p>
 #end
 
+<fieldset id="dsinglecrawl">
+	<legend>Crawl URL</legend>
+	<form action="/crawler" method="post">
+		<p>
+			<input type="text" id="startURL" name="startURL" />
+			<input type="submit" value="Start Crawl" />
+		</p>
+	</form>
+</fieldset>
+
+<fieldset id="dmasscrawl">
+	<legend>MassCrawl URL</legend>
+		<form action="/crawler" method="post">
+			<p>
+				<textarea cols="80" rows="15" name="startURL2"></textarea>
+				<br />
+				<input type="submit" value="Start Crawl" />
+			</p>
+	</form>
+</fieldset>
 
 <fieldset id="dstatuscrawl">
-  <legend>Crawler Status</legend>
+	<legend>Crawler Status</legend>
 </fieldset>

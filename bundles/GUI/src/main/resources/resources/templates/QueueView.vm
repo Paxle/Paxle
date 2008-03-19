@@ -2,56 +2,58 @@
 #set( $page_title = "Queue View Page" )
 
 <ul class="tabs">
-  <li><a href="/queue">Overview</a></li>
-  <li><a href="?queue=org.paxle.crawler">Crawler</a></li>
-  <li><a href="?queue=org.paxle.parser">Parser</a></li>
-  <li><a href="?queue=org.paxle.indexer">Indexer</a></li>
+	<li><a href="/queue">Overview</a></li>
+	<li><a href="?queue=org.paxle.crawler">Crawler</a></li>
+	<li><a href="?queue=org.paxle.parser">Parser</a></li>
+	<li><a href="?queue=org.paxle.indexer">Indexer</a></li>
 </ul>
 
-#if($paramParser.getString("queue"))
+#if( $paramParser.getString("queue"))
 <fieldset>
-  <legend>Active Jobs</legend>
-  #if( $activeJobs)
-  #set( $color = $alternatorTool.auto( 'r1','r2'))
-  <ul>
-    #foreach( $activeJob in $activeJobs)
-    <li class="$color"><a href="$activeJob.getLocation()">$activeJob.getLocation()</a></li>
-    #end
-  </ul>
-  #else
-  <p>empty queue</p>
-  #end
+	<legend>Active Jobs</legend>
+	#if( $activeJobs)
+	<ul>
+		#foreach( $activeJob in $activeJobs)
+		<li><a href="$activeJob.getLocation()">$activeJob.getLocation()</a></li>
+		#end
+	</ul>
+	#else
+		<p>empty queue</p>
+	#end
 </fieldset>
 
 <fieldset>
-  <legend>Enqueued Jobs</legend>
-  #if( $enqueuedJobs)
-  <ul>
-    #foreach( $enqueuedJob in $enqueuedJobs)
-    <li class="$color"><a href="$enqueuedJob.getLocation()">$enqueuedJob.getLocation()</a></li>
-    #end
-  </ul>
-  #else
-  <p>empty queue</p>
-  #end
+	<legend>Enqueued Jobs</legend>
+	#if( $enqueuedJobs)
+	<ul>
+		#foreach( $enqueuedJob in $enqueuedJobs)
+		<li><a href="$enqueuedJob.getLocation()">$enqueuedJob.getLocation()</a></li>
+		#end
+	</ul>
+	#else
+	<p>empty queue</p>
+	#end
 </fieldset>
 #else
 <fieldset>
-  <legend>Queue Overview</legend>
-  #set( $color = $alternatorTool.auto( 'r1','r2'))   
-  #set( $components = { 'Crawler':'org.paxle.crawler', 'Parser':'org.paxle.parser', 'Indexer':'org.paxle.indexer'})
-   <table>
-      <tr><th>Component</th><th>Active</th><th>Enqueued</th></tr>
-      #foreach($entry in $components.entrySet())
-   	#if($manager.getServices("org.paxle.core.IMWComponent","(component.ID=$entry.value)"))
-   	<tr class="$color">
-   		#set($compQueue = $listTool.get($manager.getServices("org.paxle.core.IMWComponent","(component.ID=$entry.value)"),0))
-   		<td><a href="?queue=$entry.value">$entry.key</a></td>
-   		<td>$compQueue.getActiveJobCount()</td>
-   		<td>$compQueue.getEnqueuedJobCount()</td>
-   	</tr>
-   	#end
-      #end
-   </table>
+	<legend>Queue Overview</legend>  
+	#set( $components = { 'Crawler':'org.paxle.crawler', 'Parser':'org.paxle.parser', 'Indexer':'org.paxle.indexer'})
+	<table>
+		<tr>
+			<th>Component</th>
+			<th>Active</th>
+			<th>Enqueued</th>
+		</tr>
+		#foreach( $entry in $components.entrySet())
+		#if( $manager.getServices( "org.paxle.core.IMWComponent", "(component.ID=$entry.value)"))
+		<tr>
+		#set($compQueue = $listTool.get( $manager.getServices( "org.paxle.core.IMWComponent", "(component.ID=$entry.value)"),0))
+			<td><a href="?queue=$entry.value">$entry.key</a></td>
+			<td>$compQueue.getActiveJobCount()</td>
+			<td>$compQueue.getEnqueuedJobCount()</td>
+		</tr>
+		#end
+		#end
+	</table>
 </fieldset>
 #end

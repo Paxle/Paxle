@@ -5,35 +5,39 @@
 <h2>View Log</h2>
 #set( $logReader = $manager.getService("org.osgi.service.log.LogReaderService"))
 #if( $logReader)
-<form>
-  <select name="filterLogLevel">
-    <option value="1">Error</option>
-    <option value="2">Warning</option>
-    <option value="3">Info</option>
-    <option value="4">Debug</option>
-  </select>
-  <input type="submit" value="Filter LogLevel" />
+<form class="filter" action="">
+	<p>
+		<select name="filterLogLevel">
+			<option value="1">Error</option>
+			<option value="2">Warning</option>
+			<option value="3">Info</option>
+			<option value="4">Debug</option>
+		</select>
+	 	<input type="submit" value="Apply" />
+	 </p>
 </form>
+<br />
 
-<table width="100%">
-  <tr>
-    <th>Level</th>
-    <th>Time</th>
-    <th>Message</th>
-  </tr>
-#foreach( $logEntry in $logReader.getLog())
-#set( $level = $logEntry.getLevel())
-#if( $level <= $filterLogLevel)
-  #set( $levelName = $logLevelName.get( $level))
-  <tr>
-    <td class="$levelName">$levelName</td>
-    <td>$dateTool.format("HH:mm:ss z - dd.MM.yy",$logEntry.getTime())</td>
-    <td>$logEntry.getMessage()#if( $logEntry.getException()) <p class="exception">$logEntry.getException()</p> #end
-    </td>
-  </tr>
-#end
-#end
+
+<table>
+	<tr>
+		<th>Level</th>
+		<th>Time</th>
+		<th>Message</th>
+	</tr>
+	#foreach( $logEntry in $logReader.getLog())
+	#set( $level = $logEntry.getLevel())
+	#if( $level <= $filterLogLevel)
+	#set( $levelName = $logLevelName.get( $level))
+	<tr>
+		<td class="log$levelName">$levelName</td>
+		<td>$dateTool.format("HH:mm:ss z - dd.MM.yy",$logEntry.getTime())</td>
+		<td>$logEntry.getMessage()#if( $logEntry.getException()) <p class="exception">$logEntry.getException()</p> #end
+		</td>
+	</tr>
+	#end
+	#end
 </table>
 #else
-<div class="bundleNotInstalled">No LogReaderService found</p>
+<p class="error bundleNotInstalled">No LogReaderService found</p>
 #end
