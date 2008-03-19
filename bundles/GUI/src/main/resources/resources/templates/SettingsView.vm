@@ -8,27 +8,26 @@
 	<p class="box error">$errorMsg</p>
 #end
 
-#set($configAdmin = $manager.getService("org.osgi.service.cm.ConfigurationAdmin"))
-#set($metaTypeService = $manager.getService("org.osgi.service.metatype.MetaTypeService"))
+#set( $configAdmin = $manager.getService( "org.osgi.service.cm.ConfigurationAdmin"))
+#set( $metaTypeService = $manager.getService( "org.osgi.service.metatype.MetaTypeService"))
 
-#if($metaTypeService && $configAdmin)
+#if( $metaTypeService && $configAdmin)
 	<h3>Configuration Management</h3>
-	
-	#if($paramParser.getString("bundleID") && $paramParser.getString("pid"))
-		#set($bundleID = $paramParser.getString("bundleID"))
-		#set($PID = $paramParser.getString("pid"))
-		#set($bundle = $manager.getBundle($mathTool.toInteger($bundleID)))
+	#if( $paramParser.getString( "bundleID") && $paramParser.getString( "pid"))
+		#set( $bundleID = $paramParser.getString( "bundleID"))
+		#set( $PID = $paramParser.getString( "pid"))
+		#set( $bundle = $manager.getBundle( $mathTool.toInteger( $bundleID)))
 		
 		## searching for metatype info
-		#set($metaType = $metaTypeService.getMetaTypeInformation($bundle))
-		#if($metaType)
-			#if($bundle.getBundleId() == $metaType.getBundle().getBundleId())
-    			#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
-    			#if($ocd)
+		#set( $metaType = $metaTypeService.getMetaTypeInformation( $bundle))
+		#if( $metaType)
+			#if( $bundle.getBundleId() == $metaType.getBundle().getBundleId())
+    			#set( $ocd = $metaType.getObjectClassDefinition( $PID, "en"))
+    			#if( $ocd)
     				<p>
     					<h4>Name: $ocd.getName()</h4><br/>
 						<p>
-    					Bundle: <a href="bundle?bundleID=$bundleID&details=">$bundle.Location</a><br/>
+    					Bundle: <a href="bundle?bundleID=$bundleID&amp;details=">$bundle.Location</a><br/>
     					Desc.: $ocd.getDescription()<br/>
     					ID: $paramParser.getString("pid")<br/>
 						</p>
@@ -39,9 +38,7 @@
     					## getting the configuration attributes
     					#set($attributes = $ocd.getAttributeDefinitions(-1))
     					#if($attributes)
-    							
-    						#set($color = $alternatorTool.auto('r1','r2'))
-							<form>
+							<form action="">
 								<input type="hidden" name="pid" value="$PID">
 								<input type="hidden" name="bundleID" value="${bundle.getBundleId()}">
 								</ins>
@@ -118,7 +115,7 @@
     							<tr class="$color">
     								<td>$ocd.getName()</td>
     								<td>$PID</td>
-    								<td><a href="?bundleID=$bundle.getBundleId()&pid=$PID">View</a></td>
+    								<td><a href="?bundleID=$bundle.getBundleId()&amp;pid=$PID">View</a></td>
     							</tr>							
         					#end
         				#end
@@ -194,19 +191,23 @@
 
 #if( $availbleStyles)
 <h3>Styles:</h3>
-<form>
-  <select name="changeStyle">
-    <option value="default">Default Style</option>
-    #foreach($name in $availbleStyles.keySet())
-    <option value="$availbleStyles.get( $name).getAbsoluteFile()">$name</option>
-    #end
-  </select>
-  <input type="submit" value="Change" />
+<form action="">
+	<p>
+		<select name="changeStyle">
+			<option value="default">Default Style</option>
+			#foreach($name in $availbleStyles.keySet())
+			<option value="$availbleStyles.get( $name).getAbsoluteFile()">$name</option>
+			#end
+		</select>
+		<input type="submit" value="Change" />
+	</p>
 </form>
 
-<form>
-  <input type="hidden" name="searchForStyles" value="search" />
-  <input type="submit" value="" class="btnreload" />
+<form action="">
+	<p>
+		<input type="hidden" name="searchForStyles" value="search" />
+		<input type="submit" value="" class="btnreload" />
+	</p>
 </form>
 
 #end

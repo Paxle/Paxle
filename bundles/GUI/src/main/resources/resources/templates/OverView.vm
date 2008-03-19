@@ -5,76 +5,85 @@
 #set ( $bodyonload = "initTabs('system');" )
 
 <ul class="tabs">
-  <li><a href="#dsystem" onclick="fshow('system');" id="tsystem">System</a></li>
-  <li><a href="#dmemory" onclick="fshow('memory');" id="tmemory">Memory</a></li>
-  <li><a href="#dhost" onclick="fshow('host');" id="thost">Host</a></li>
+	<li><a href="#dsystem" onclick="fshow('system');" id="tsystem">System</a></li>
+	<li><a href="#dmemory" onclick="fshow('memory');" id="tmemory">Memory</a></li>
+	<li><a href="#dhost" onclick="fshow('host');" id="thost">Host</a></li>
 </ul>
 
 <fieldset id="dsystem">
-  <legend class="ovSystem">System</legend>
-  <table>
-    <tr><th>Name</th><th>Value</th></tr>
-    <tr>
-      <td><b>CPUs</b></td>
-      <td>$runtime.availableProcessors()</td>
-    </tr>
-    <tr>
-      <td><b>OS</b></td>
-      <td>$sysprops.get("os.arch")<br />$sysprops.get("os.name")<br />$sysprops.get("os.version")</td>
-    </tr>
-    <tr>
-      <td><b>JVM</b></td>
-      <td>$sysprops.get("java.vendor")<br />$sysprops.get("java.runtime.name")<br />$sysprops.get("java.version")</td>
-    </tr>
-    <tr>
-      <td><b>OSGi v$osgiVersion</b></td>
-      <td>by $frameworkVendor,<br />version $frameworkVersion</td>
-    </tr>
-  </table>
+	<legend class="ovSystem">System</legend>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Value</th>
+		</tr>
+		<tr>
+			<td><b>CPUs</b></td>
+			<td>$runtime.availableProcessors()</td>
+		</tr>
+		<tr>
+			<td><b>OS</b></td>
+			<td>$sysprops.get( "os.arch")<br />$sysprops.get( "os.name")<br />$sysprops.get( "os.version")</td>
+		</tr>
+		<tr>
+			<td><b>JVM</b></td>
+			<td>$sysprops.get( "java.vendor")<br />$sysprops.get( "java.runtime.name")<br />$sysprops.get( "java.version")</td>
+		</tr>
+		<tr>
+			<td><b>OSGi v$osgiVersion</b></td>
+			<td>by $frameworkVendor,<br />version $frameworkVersion</td>
+		</tr>
+	</table>
 </fieldset>
 
 <fieldset id="dmemory">
-  <legend class="ovMemory">Memory</legend>
-  #set($used = ($runtime.totalMemory() - $runtime.freeMemory()) / (1024 * 1024))
-  #set($free = ($runtime.maxMemory() - $runtime.totalMemory() + $runtime.freeMemory()) / (1024 * 1024))
-  #set($total = $runtime.maxMemory() / (1024 * 1024))
-  <table>
-    <tr><th>Name</th><th>Value</th></tr>
-    <tr>
-      <td><b>Memory used</b></td>
-      <td>$used MiB</td>
-    </tr>
-    <tr>
-      <td><b>Memory free</b></td>
-      <td>$free MiB</td>
-    </tr>
-    <tr>
-      <td><b>Memory total</b></td>
-      <td>$total MiB</td>
-    </tr>
-    <tr>
-      <td><b>Memory misc</b></td>
-      <td><a href="?gc=GC" class="btnGC">run Garbage Collection</a></td>
-    </tr>
-  </table>
+	<legend class="ovMemory">Memory</legend>
+	#set($used = ( $runtime.totalMemory() - $runtime.freeMemory()) / ( 1024 * 1024))
+	#set($free = ( $runtime.maxMemory() - $runtime.totalMemory() + $runtime.freeMemory()) / ( 1024 * 1024))
+	#set($total = $runtime.maxMemory() / ( 1024 * 1024))
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Value</th>
+		</tr>
+		<tr>
+			<td><b>Memory used</b></td>
+			<td>$used MiB</td>
+	    </tr>
+	    <tr>
+			<td><b>Memory free</b></td>
+			<td>$free MiB</td>
+		</tr>
+		<tr>
+			<td><b>Memory total</b></td>
+			<td>$total MiB</td>
+		</tr>
+		<tr>
+			<td><b>Memory misc</b></td>
+			<td><a href="?gc=GC" class="btnGC">run Garbage Collection</a></td>
+		</tr>
+	</table>
 </fieldset>
 
 <fieldset id="dhost">
-  <legend class="ovHost">Host</legend>
-  <table>
-    <tr><th>Name</th><th>Value</th></tr>
-    <tr>
-      <td><b>Hostname</b></td>
-      <td>$hostname</td>
-    </tr>
-    <tr>
-      <td><b>IP</b></td>
-      <td>$ip:$port</td>
-    </td>
-  </table>
+	<legend class="ovHost">Host</legend>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Value</th>
+		</tr>
+		<tr>
+			<td><b>Hostname</b></td>
+			<td>$hostname</td>
+		</tr>
+		<tr>
+			<td><b>IP</b></td>
+			<td>$ip:$port</td>
+		</tr>
+	</table>
 </fieldset>
 
-#if($indexSearcher)
+#if( $indexSearcher)
 <fieldset class="infobox">
 	<legend>Index</legend>
 	<dl>
@@ -83,56 +92,51 @@
 </fieldset>
 #end
 	
-#if ($services.size() > 0)
+#if( $services.size() > 0)
 <fieldset class="infobox">
 	<legend class="ovActivity">Activity</legend>
-		<table>
-			<tr>
-				<th>#</th>
-				<th>Status</th>
-				<th>Component</th>
-				<th>PPM</th>
-				<th>Active</th>
-				<th>Enqueued</th>
-			</tr>
-			#foreach($entry in $services)
-				#if ($entry.getCount() == 1)
-					#set($name = $entry.getName())
-				#else
-					#set($name = $entry.getName() + "s")
-				#end
-				<tr>
-					<td>$entry.getCount()</td>	
-					<td>
-					#if($entry.service.isPaused() == true)
-						<form method="get" action="">
-							<div>
-								<input type="hidden" name="service" value="$entry.getName()" />
-								<input class="btnResume" type="submit" name="resume" value="Resume" />
-							</div>
-						</form>
+	<table>
+		<tr>
+			<th>#</th>
+			<th>Status</th>
+			<th>Component</th>
+			<th>PPM</th>
+			<th>Active</th>
+			<th>Enqueued</th>
+		</tr>
+		#foreach( $entry in $services)
+		#if ( $entry.getCount() == 1)
+			#set( $name = $entry.getName())
+		#else
+			#set( $name = $entry.getName() + "s")
+		#end
+		<tr>
+			<td>$entry.getCount()</td>	
+			<td>
+				<form method="get" action="">
+					<p>
+					#if( $entry.service.isPaused() == true)
+						<input type="hidden" name="service" value="$entry.getName()" />
+						<input class="btnResume" type="submit" name="resume" value="Resume" />
 					#else 
-						<form method="get" action="">
-							<div>
-								<input type="hidden" name="service" value="$entry.getName()" />
-								<input class="btnPause" type="submit" name="pause" value="Pause" />
-							</div>
-						</form>
+						<input type="hidden" name="service" value="$entry.getName()" />
+						<input class="btnPause" type="submit" name="pause" value="Pause" />
 					#end
-					</td>
-					<td>
-					#if ($queueServletExists == true)
-						<a href="/queue?queue=$entry.getId()">$name</a>
-					#else
-						$name
-					#end
-					</td>
-					<td>$entry.getService().getPPM()</td>
-					<td>$entry.getService().getActiveJobCount()</td>
-					<td>$entry.getService().getEnqueuedJobCount()</td>
-				</tr>
-			#end
-		</table>
+					</p>
+				</form>
+			</td>
+			<td>
+				#if ( $queueServletExists == true)
+				<a href="/queue?queue=$entry.getId()">$name</a>
+				#else
+				$name
+				#end
+			</td>
+			<td>$entry.getService().getPPM()</td>
+			<td>$entry.getService().getActiveJobCount()</td>
+			<td>$entry.getService().getEnqueuedJobCount()</td>
+		</tr>
+		#end
+	</table>
 </fieldset>
 #end
-<p class="clearer">&nbsp;</p>

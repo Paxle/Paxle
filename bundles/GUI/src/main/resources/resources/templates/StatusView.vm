@@ -6,17 +6,19 @@
 ## ---------------------------------------------------------------------------------------
 ## Define some macros 
 #macro( filterlist $queues)
-	#if($queues)
-	   #set($color = $alternatorTool.auto('r1','r2'))
-	   #foreach($queue in $queues)
-   	   <table>
-		$queue.getFilters().size() filter(s) found:<br />
-		#foreach($filter in $queue.getFilters())
-		<tr class="$color">
-		   <td><tt>$filter.getFilter().getClass().getName()</tt></td>
+	#if( $queues)
+	   #foreach( $queue in $queues)
+		<p>$queue.getFilters().size() filter(s) found:</p>
+		<table>
+		<tr>
+			<th>Name</th>
+		</tr>
+		#foreach( $filter in $queue.getFilters())
+		<tr>
+		   <td>$filter.getFilter().getClass().getName()</td>
 		</tr>
 		#end
-	   </table>		
+	   </table>
 	   #end
 	#end
 #end
@@ -35,42 +37,48 @@
 <form method="post" action="#dgeneral">
 <fieldset id="dgeneral">
 <legend>General</legend>
-	<input class="btnShutdown" type="submit" name="shutdown" value="Shutdown" />
-	<input class="btnRestart" type="submit" name="restart" value="Restart" />
+	<p>
+		<input class="btnShutdown" type="submit" name="shutdown" value="Shutdown" />
+		<input class="btnRestart" type="submit" name="restart" value="Restart" />
+	</p>
 </fieldset>
 </form>
 
 ## ==================================================================================
 ## CRAWLER STATUS
 ## ==================================================================================
-#set($subCrawlerManager = $manager.getService("org.paxle.crawler.ISubCrawlerManager"))
+#set($subCrawlerManager = $manager.getService( "org.paxle.crawler.ISubCrawlerManager"))
 #if($subCrawlerManager)
 <fieldset id="dcrawler">
-	<legend>Crawler:</legend>
-	#set($crawlers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
-	#if ($crawlers)
-		#foreach($crawler in $crawlers)
-			#if($doPause && $doPause == true)
+	<legend>Crawler</legend>
+	#set( $crawlers = $manager.getServices( "org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
+	#if ( $crawlers)
+		#foreach( $crawler in $crawlers)
+			#if( $doPause && $doPause == true)
 				$crawler.pause()
-			#elseif($doResume && $doResume == true)
+			#elseif( $doResume && $doResume == true)
 				$crawler.resume()	
-			#elseif($doProcessNextCrawl && $doProcessNextCrawl == true)				
+			#elseif( $doProcessNextCrawl && $doProcessNextCrawl == true)				
 				$crawler.processNext()
 			#end
 			The crawler is 
-			#if($crawler.isPaused() == true)
-				<div class="statusPaused">paused</div><br/>
+			#if( $crawler.isPaused() == true)
+				<p class="statusPaused">paused</p><br/>
 				<form method="get" action="#dcrawler">
-					<input class="btnResume" type="submit" name="resumeCrawl" value="Resume" />
-					<input type="submit" name="processNextCrawl" value="Process Next" />
+					<p>
+						<input class="btnResume" type="submit" name="resumeCrawl" value="Resume" />
+						<input type="submit" name="processNextCrawl" value="Process Next" />
+					</p>
 				</form>
 			#else 
-				<div class="statusRunning">running</div><br/>
+				<p class="statusRunning">running</p><br/>
 				<form method="get" action="#dcrawler">
-					<input class="btnPause" type="submit" name="pauseCrawl" value="Pause" />
+					<p>
+						<input class="btnPause" type="submit" name="pauseCrawl" value="Pause" />
+					</p>
 				</form>
 			#end
-			<p />
+			<br />
 			
 			Current PPM: $crawler.getPPM()
 		#end
@@ -82,51 +90,52 @@
 	$subCrawlerManager.getSubCrawlers().size() crawler(s) found, supporting following Protocols:<br />
 	
 	## Enable/Disable protocols if requested
-	#if($paramParser.getString("doEnableProtocol")) $subCrawlerManager.enableProtocol($paramParser.getString("enableProtocol"))#end
-	#if($paramParser.getString("doDisableProtocol")) $subCrawlerManager.disableProtocol($paramParser.getString("disableProtocol"))#end
-	
-	#set($color = $alternatorTool.auto('r1','r2'))
+	#if( $paramParser.getString( "doEnableProtocol")) $subCrawlerManager.enableProtocol( $paramParser.getString( "enableProtocol"))#end
+	#if( $paramParser.getString( "doDisableProtocol")) $subCrawlerManager.disableProtocol( $paramParser.getString( "disableProtocol"))#end
+
 	<table>
 		<tr><th>Protocol</th><th colspan="2">Status</th></tr>
-		#set($disabledProtocols = $subCrawlerManager.disabledProtocols())
-		#foreach($subCrawler in $subCrawlerManager.getSubCrawlers())
-			#foreach($protocol in $subCrawler.getProtocols())
-			<tr class="$color">
-				<td><tt>$protocol</tt></td>
-				<td>#if($disabledProtocols.contains($protocol))
-						<div class="statusDisabled">disabled</div>
+		#set( $disabledProtocols = $subCrawlerManager.disabledProtocols())
+		#foreach( $subCrawler in $subCrawlerManager.getSubCrawlers())
+			#foreach( $protocol in $subCrawler.getProtocols())
+			<tr>
+				<td>$protocol</td>
+				<td>#if( $disabledProtocols.contains( $protocol))
+					<p class="statusDisabled">disabled</p>
 				    #else
-				    	<div class="statusEnabled">enabled</div>
+					<p class="statusEnabled">enabled</p>
 				    #end
 				</td>
 				<td>
-				   <form method="get" action="#dcrawler">
-				   	#if($disabledProtocols.contains($protocol))
-					   <input class="btnEnable" type="submit" name="doEnableProtocol" value="enable" />
-					   <input type="hidden" name="enableProtocol" value="$protocol" />
-					#else
-					   <input class="btnDisable" type="submit" name="doDisableProtocol" value="disable" />
-					   <input type="hidden" name="disableProtocol" value="$protocol" />
-					#end
-				   </form>
+					<form method="get" action="#dcrawler">
+						<p>
+							#if( $disabledProtocols.contains( $protocol))
+							<input class="btnEnable" type="submit" name="doEnableProtocol" value="enable" />
+							<input type="hidden" name="enableProtocol" value="$protocol" />
+							#else
+							<input class="btnDisable" type="submit" name="doDisableProtocol" value="disable" />
+							<input type="hidden" name="disableProtocol" value="$protocol" />
+							#end
+						</p>
+					</form>
 				</td>
-			</tr>			
+			</tr>
 			#end
 		#end
 	</table>
 	
 	<hr />
 	<h3>Deployed crawler input-queue filters:</h3>
-	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.crawler.in)"))
+	#filterlist( $manager.getServices( "org.paxle.core.filter.IFilterQueue", "(org.paxle.core.filter.IFilterQueue.id=org.paxle.crawler.in)"))
 
 	<hr />
 	<h3>Deployed crawler output-queue filters:</h3>
-	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.crawler.out)"))
+	#filterlist( $manager.getServices( "org.paxle.core.filter.IFilterQueue", "(org.paxle.core.filter.IFilterQueue.id=org.paxle.crawler.out)"))
 </fieldset>
 #else
 <fieldset id="dcrawler">
-	<legend>Crawler:</legend>	
-	<div class="bundleNotInstalled">Crawler bundle not installed!</div>
+	<legend>Crawler</legend>	
+	<p class="error bundleNotInstalled">Crawler bundle not installed!</p>
 </fieldset>	
 #end
 
@@ -134,55 +143,57 @@
 ## PARSER STATUS
 ## ==================================================================================
 
-#set($subParserManager = $manager.getService("org.paxle.parser.ISubParserManager"))
-#if($subParserManager)
+#set( $subParserManager = $manager.getService( "org.paxle.parser.ISubParserManager"))
+#if( $subParserManager)
 <fieldset id="dparser">
-	<legend>Parser:</legend>
-	#set($parsers = $manager.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))	
-	#if ($parsers)
-		#foreach($parser in $parsers)
-			The parser is 
-			#if($parser.isPaused() == true)
-				<div class="statusPaused">paused</div>
-			#else 
-				<div class="statusRunning">running</div>
-			#end.
-		#end
+	<legend>Parser</legend>
+	#set( $parsers = $manager.getServices( "org.paxle.core.IMWComponent", "(component.ID=org.paxle.crawler)"))	
+	#if( $parsers)
+	#foreach( $parser in $parsers)
+		The parser is 
+		#if( $parser.isPaused() == true)
+		<p class="statusPaused">paused</p>
+		#else 
+		<p class="statusRunning">running</p>
+		#end.
+	#end
 	#end
 
 	<hr />
 	<h3>Supported mimetypes:</h3>	
-	#set($mimeTypes = $subParserManager.getMimeTypes())
-	#set($parsers = $subParserManager.getSubParsers())		
+	#set( $mimeTypes = $subParserManager.getMimeTypes())
+	#set( $parsers = $subParserManager.getSubParsers())		
 	<b>$parsers.size()</b> parser(s) installed supporting <b>$mimeTypes.size()</b> mime-types.
 	
 	## Enable/Disable mime-types if requested
-	#if($paramParser.getString("doEnableMimeType")) $subParserManager.enableMimeType($paramParser.getString("enableMimeType"))#end
-	#if($paramParser.getString("doDisableMimeType")) $subParserManager.disableMimeType($paramParser.getString("disableMimeType"))#end	
+	#if( $paramParser.getString( "doEnableMimeType")) $subParserManager.enableMimeType( $paramParser.getString( "enableMimeType"))#end
+	#if( $paramParser.getString( "doDisableMimeType")) $subParserManager.disableMimeType( $paramParser.getString( "disableMimeType"))#end	
 	
-	#set($color = $alternatorTool.auto('r1','r2'))
+
 	<table>
 		<tr><th>Mime-Type</th><th colspan="2">Status</th></tr>
-		#set($disabledMimeTypes = $subParserManager.disabledMimeTypes())
-		#foreach($mimeType in $mimeTypes)
-		<tr class="$color">
-			<td><tt>$mimeType</tt></td>
-			<td>#if($disabledMimeTypes.contains($mimeType))
-				<div class="statusDisabled">disabled</div>
+		#set( $disabledMimeTypes = $subParserManager.disabledMimeTypes())
+		#foreach( $mimeType in $mimeTypes)
+		<tr>
+			<td>$mimeType</td>
+			<td>#if( $disabledMimeTypes.contains( $mimeType))
+				<p class="statusDisabled">disabled</p>
 			    #else
-				<div class="statusEnabled">enabled</div>
+				<p class="statusEnabled">enabled</p>
 			    #end
 			</td>
 			<td>
-			   <form method="get" action="#dparser">
-			   #if($disabledMimeTypes.contains($mimeType))
-			      <input class="btnEnable" type="submit" name="doEnableMimeType" value="enable" />
-			      <input type="hidden" name="enableMimeType" value="$mimeType" />
-			   #else
-			      <input class="btnDisable" type="submit" name="doDisableMimeType" value="disable" />
-			      <input type="hidden" name="disableMimeType" value="$mimeType" />
-			   #end
-			   </form>
+				<form method="get" action="#dparser">
+					<p>
+						#if( $disabledMimeTypes.contains( $mimeType))
+						<input class="btnEnable" type="submit" name="doEnableMimeType" value="enable" />
+						<input type="hidden" name="enableMimeType" value="$mimeType" />
+						#else
+						<input class="btnDisable" type="submit" name="doDisableMimeType" value="disable" />
+						<input type="hidden" name="disableMimeType" value="$mimeType" />
+						#end
+					</p>
+				</form>
 			</td>
 		</tr>
 		#end
@@ -190,16 +201,16 @@
 	
 	<hr />
 	<h3>Deployed parser input-queue filters:</h3>
-	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.parser.in)"))
+	#filterlist( $manager.getServices( "org.paxle.core.filter.IFilterQueue", "(org.paxle.core.filter.IFilterQueue.id=org.paxle.parser.in)"))
 	
 	<hr />
 	<h3>Deployed parser output-queue filters:</h3>
-	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.parser.out)"))	
+	#filterlist( $manager.getServices( "org.paxle.core.filter.IFilterQueue", "(org.paxle.core.filter.IFilterQueue.id=org.paxle.parser.out)"))	
 </fieldset>
 #else
 <fieldset id="dparser">
-	<legend>Parser:</legend>
-	<div class="notInstalled">Parser bundle not installed!</div>
+	<legend>Parser</legend>
+	<p class="error notInstalled">Parser bundle not installed!</p>
 </fieldset>	
 #end	
 
@@ -207,24 +218,24 @@
 ## INDEXER STATUS
 ## ==================================================================================
 
-#set($se = $manager.getService("org.paxle.se.index.IIndexSearcher"))
-#if($se)
+#set( $se = $manager.getService( "org.paxle.se.index.IIndexSearcher"))
+#if( $se)
 <fieldset id="dindex">
 	<legend>Index</legend>
 	<p>Known documents: $se.docCount</p>
 		
 	<hr />
 	<h3>Deployed indexer input-queue filters:</h3>
-	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.indexer.in)"))	
+	#filterlist( $manager.getServices( "org.paxle.core.filter.IFilterQueue", "(org.paxle.core.filter.IFilterQueue.id=org.paxle.indexer.in)"))	
 	
 	<hr />
 	<h3>Deployed indexer output-queue filters:</h3>
-	#filterlist($manager.getServices("org.paxle.core.filter.IFilterQueue","(org.paxle.core.filter.IFilterQueue.id=org.paxle.indexer.out)"))		
+	#filterlist( $manager.getServices( "org.paxle.core.filter.IFilterQueue", "(org.paxle.core.filter.IFilterQueue.id=org.paxle.indexer.out)"))		
 </fieldset>
 #else
 <fieldset id="dindex">
 	<legend>Index</legend>
-	<div class="notInstalled">Indexer bundle not installed!</div>	
+	<p class="error notInstalled">Indexer bundle not installed!</p>	
 </fieldset>	
 #end
 
@@ -232,8 +243,8 @@
 ## SEARCH ENGINE STATUS
 ## ==================================================================================
 
-#set($sp = $manager.getService("org.paxle.se.search.ISearchProviderManager"))
-#if($sp)
+#set( $sp = $manager.getService( "org.paxle.se.search.ISearchProviderManager"))
+#if( $sp)
 <fieldset id="dsearch">
 	<legend>Search</legend>
 		
@@ -241,34 +252,36 @@
 	$sp.getSearchProviders().size() provider(s) found:<br />
 	
 	## Enable/Disable providers
-	#if($paramParser.getString("doEnableSEProvider")) $sp.enableProvider($paramParser.getString("enableSEProvider"))#end
-	#if($paramParser.getString("doDisableSEProvider")) $sp.disableProvider($paramParser.getString("disableSEProvider"))#end	
+	#if( $paramParser.getString( "doEnableSEProvider")) $sp.enableProvider( $paramParser.getString( "enableSEProvider"))#end
+	#if( $paramParser.getString( "doDisableSEProvider")) $sp.disableProvider( $paramParser.getString( "disableSEProvider"))#end	
 	
-	#set($color = $alternatorTool.auto('r1','r2'))
+
 	<table>
 		<tr><th>Provider</th><th colspan="2">Status</th></tr>
-		#set($disabledSEProviders = $sp.disabledProviders())
-		#foreach($searchprovider in $sp.getSearchProviders())
-			<tr class="$color">
-				<td><tt>$searchprovider.getClass().getName()</tt></td>
-				<td>#if($disabledSEProviders.contains($searchprovider.getClass().getName()))
-						<div class="statusDisabled">disabled</div>
-				    #else
-				    	<div class="statusEnabled">enabled</div>
-				    #end
-				</td>
-				<td>
-				   <form method="get" action="#dsearch">
-				   	#if($disabledSEProviders.contains($searchprovider.getClass().getName()))
-					   <input class="btnEnable" type="submit" name="doEnableSEProvider" value="enable" />
-					   <input type="hidden" name="enableSEProvider" value="$searchprovider.getClass().getName()" />
-					#else
-					   <input class="btnDisable" type="submit" name="doDisableSEProvider" value="disable" />
-					   <input type="hidden" name="disableSEProvider" value="$searchprovider.getClass().getName()" />
-					#end
-				   </form>
-				</td>
-			</tr>			
+		#set( $disabledSEProviders = $sp.disabledProviders())
+		#foreach( $searchprovider in $sp.getSearchProviders())
+		<tr>
+			<td>$searchprovider.getClass().getName()</td>
+			<td>#if( $disabledSEProviders.contains( $searchprovider.getClass().getName()))
+				<p class="statusDisabled">disabled</p>
+				#else
+				<p class="statusEnabled">enabled</p>
+				#end
+			</td>
+			<td>
+				<form method="get" action="#dsearch">
+					<p>
+						#if( $disabledSEProviders.contains( $searchprovider.getClass().getName()))
+						<input class="btnEnable" type="submit" name="doEnableSEProvider" value="enable" />
+						<input type="hidden" name="enableSEProvider" value="$searchprovider.getClass().getName()" />
+						#else
+						<input class="btnDisable" type="submit" name="doDisableSEProvider" value="disable" />
+						<input type="hidden" name="disableSEProvider" value="$searchprovider.getClass().getName()" />
+						#end
+					</p>
+				</form>
+			</td>
+		</tr>			
 		#end
 	</table>
 	
@@ -276,7 +289,7 @@
 #else
 <fieldset id="dsearch">
 	<legend>Search</legend>
-	<div class="notInstalled">Search-Engine bundle not installed!</div>	
+	<p class="error notInstalled">Search-Engine bundle not installed!</p>	
 </fieldset>	
 #end
 
@@ -284,21 +297,20 @@
 ## ==================================================================================
 ## GUI STATUS
 ## ==================================================================================
-#set($servletManager = $manager.getService("org.paxle.gui.IServletManager"))
-#if($servletManager)
+#set( $servletManager = $manager.getService( "org.paxle.gui.IServletManager"))
+#if( $servletManager)
 <fieldset id="dgui">
 	<legend>GUI</legend>
 		
 	<h3>Installed Servlets:</h3>
 	$servletManager.getServlets().size() servlet(s) found:<p />
 	
-	#set($color = $alternatorTool.auto('r1','r2'))
 	<table>		
 		<tr><th>Path</th><th>Class</th></tr>
-		#foreach($servlet in $sortTool.sort($servletManager.getServlets().entrySet(),["key"]))
-		<tr class="$color">
+		#foreach( $servlet in $sortTool.sort( $servletManager.getServlets().entrySet(), ["key"]))
+		<tr>
 			<td><a href="$servlet.getKey()">$servlet.getKey()</a></td>
-			<td><tt>$servlet.getValue().getClass().getName()</tt></td>
+			<td>$servlet.getValue().getClass().getName()</td>
 		</tr>
 		#end
 	</table>		
@@ -307,13 +319,12 @@
 	<h3>Registered Resources:</h3>
 	$servletManager.getResources().size() resource(s) found:<p />
 	
-	#set($color = $alternatorTool.auto('r1','r2'))
 	<table>		
 		<tr><th>Path</th><th>Class</th></tr>
-		#foreach($resources in $sortTool.sort($servletManager.getResources().entrySet(),["key"]))
-		<tr class="$color">
+		#foreach( $resources in $sortTool.sort( $servletManager.getResources().entrySet(), ["key"]))
+		<tr>
 			<td><a href="$resources.getKey()">$resources.getKey()</a></td>
-			<td><tt>$resources.getValue()</tt></td>
+			<td>$resources.getValue()</td>
 		</tr>
 		#end
 	</table>	
