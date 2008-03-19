@@ -123,7 +123,7 @@ tr {
 	float: left;
 	list-style: none;
 	
-	dasbackground-color: #FFFFFF;
+
 	color: #96825F;
 	
 	border-top: solid 1em #444444;
@@ -204,34 +204,34 @@ tr {
 }
 
 .exception {
-	background-color: FFEEFF;
+	background-color: #FFEEFF;
 }
 
 
 .logerror {
 	padding: 0 0 0 22px;
-	//background-color: #730002;
+	background-color: #A00000;
 	background-image: url('/images/log-error.png');
 	background-repeat: no-repeat;
 }
 
 .logwarning {
 	padding: 0 0 0 22px;
-	//background-color: #FFDE00;
+	background-color: #A0A000;
 	background-image: url('/images/log-warning.png');
 	background-repeat: no-repeat;
 }
 
 .loginfo {
 	padding: 0 0 0 22px;
-	//background-color: #0F6500;
+	background-color: #00A000;
 	background-image: url('/images/log-info.png');
 	background-repeat: no-repeat;
 }
 
 .logdebug {
 	padding: 0 0 0 22px;
-	//background-color: #000073;
+	background-color: #0000A0;
 	background-image: url('/images/log-debug.png');
 	background-repeat: no-repeat;
 }
