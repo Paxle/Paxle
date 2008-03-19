@@ -62,5 +62,5 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 		return props;
 	}
 	
-	public abstract Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context);
+	public abstract Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception;
 }

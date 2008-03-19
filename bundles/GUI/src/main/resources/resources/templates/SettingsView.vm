@@ -4,6 +4,10 @@
 ## the regular content
 <h2>Settings: </h2>
 
+#if( $errorMsg)
+	<p class="box error">$errorMsg</p>
+#end
+
 #set($configAdmin = $manager.getService("org.osgi.service.cm.ConfigurationAdmin"))
 #set($metaTypeService = $manager.getService("org.osgi.service.metatype.MetaTypeService"))
 
@@ -24,40 +28,64 @@
     				<p>
     					<h4>Name: $ocd.getName()</h4><br/>
 						<p>
-    					Bundle: $bundle.Location<br/>
+    					Bundle: <a href="bundle?bundleID=$bundleID&details=">$bundle.Location</a><br/>
     					Desc.: $ocd.getDescription()<br/>
     					ID: $paramParser.getString("pid")<br/>
 						</p>
     					
     					## 	getting the current configuration
-    					#set($config = $configAdmin.getConfiguration($PID,$bundle.getLocation()))
+    					#set($config = $configAdmin.getConfiguration($PID,${bundle.getLocation()}))
     					
     					## getting the configuration attributes
     					#set($attributes = $ocd.getAttributeDefinitions(-1))
     					#if($attributes)
-    
+    							
     						#set($color = $alternatorTool.auto('r1','r2'))
-                        	<table border="1">
-                        	<tr>
-                        		<th>Name</th>
-    							<th>Type</th>
-                        		<th>Description</th>
-                        		<th>ID</th>
-                        		<th>Value</th>
-                        	</tr>
-                        	#foreach($attribute in $attributes)
-								#set($attributeID = $attribute.getID())
-								#set($attribValue = $settingsView.getPropertyValue($config,$attribute))
-								
-                        		<tr class="$color">
-                        			<td>$attribute.getName()</td>
-    								<td>$dataTypes.get($attribute.getType())</td>
-                        			<td>$attribute.getDescription()</td>
-                        			<td>$attributeID</td>
-                        			<td>#if($attribValue)$attribValue#else&nbsp;#end</td>
-                        		</tr>                            		
-                        	#end
-                        	</table>
+							<form>
+								<input type="hidden" name="pid" value="$PID">
+								<input type="hidden" name="bundleID" value="${bundle.getBundleId()}">
+								</ins>
+                            	<table>
+                            	<tr>
+                            		<th>Name</th>
+        							<th>Type</th>
+                            		<th>Value</th>
+    								<th>Description</th>
+                            	</tr>
+                            	#foreach($attribute in $attributes)
+    								#set($attributeID = ${attribute.getID()})								
+    								#set($attribValue = ${settingsView.getPropertyValue($config,$attribute)})
+    								#set($attribType = ${dataTypes.get($attribute.getType())})
+									#set($optionLabels = ${attribute.getOptionLabels()})
+									#set($optionValues = ${attribute.getOptionValues()})
+    								
+                            		<tr class="$color">
+                            			<td>$attribute.getName()</td>
+        								<td>$attribType</td>
+                            			<td>
+											#if($optionLabels)
+												<select size="1" name="$attributeID">
+												#foreach($optionLabel in $optionLabels)
+													#set($idx = $velocityCount - 1)
+													#set($optionValue = ${listTool.get($optionValues,$idx)})
+													<option value="$optionValue" #if($optionValue==$attribValue)selected="selected"#end>$optionLabel</option>                                               
+												#end
+												</select>
+    										#else 
+        										#if($attribType == "Boolean")
+    												<input type="radio" name="$attributeID" value="true" #if($attribValue)checked="checked"#end> Yes &nbsp;
+    												<input type="radio" name="$attributeID" value="false" #if(!$attribValue)checked="checked"#end> No 
+        										#else
+        											<input type="text" name="$attributeID" value="$!attribValue"/>
+        										#end	
+											#end
+    									</td>
+    									<td>${attribute.getDescription()}</td>
+                            		</tr>                            		
+                            	#end
+                            	</table>
+    							 <input type="submit" name="doEdit" value="Change"/>
+							</form>
     					#end
     					<hr/>
     				</p>
@@ -66,7 +94,7 @@
 		#end
 	#else 
     		
-		<table border="1">
+		<table>
 		<tr>
 			<th>Name</th>
 			<th>PID</th>
