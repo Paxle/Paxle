@@ -19,7 +19,7 @@
 		#set( $bundle = $manager.getBundle( $mathTool.toInteger( $bundleID)))
 		
 		## searching for metatype info
-		#set( $metaType = $metaTypeService.getMetaTypeInformation( $bundle))
+		#set( $metaType = $metaTypeService.getMetaTypeInformation($bundle))
 		#if( $metaType)
 			#if( $bundle.getBundleId() == $metaType.getBundle().getBundleId())
     			#set( $ocd = $metaType.getObjectClassDefinition( $PID, "en"))
@@ -120,6 +120,25 @@
         					#end
         				#end
         			#end	
+					
+					#*
+        			## get the PIDs of all managed services factories
+        			#set($PIDs = $metaType.getFactoryPids())
+        			#if($PIDs)					
+        				## loop through all managed services and fetch the
+        				## corresponding ObjectClassDefinitions
+        				#foreach($PID in $PIDs)
+        					#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
+        					#if($ocd)
+    							<tr class="$color">
+    								<td>$ocd.getName()</td>
+    								<td>$PID</td>
+    								<td><a href="?bundleID=$bundle.getBundleId()&amp;pid=$PID&amp;factory=">View</a></td>
+    							</tr>							
+        					#end
+        				#end
+        			#end		
+					*#
 				#end
     		#end
 		#end
@@ -195,8 +214,8 @@
 	<p>
 		<select name="changeStyle">
 			<option value="default">Default Style</option>
-			#foreach($name in $availbleStyles.keySet())
-			<option value="$availbleStyles.get( $name).getAbsoluteFile()">$name</option>
+			#foreach($name in $availbleStyles)
+				<option value="$name">$name</option>
 			#end
 		</select>
 		<input type="submit" value="Change" />

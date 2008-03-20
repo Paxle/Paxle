@@ -37,19 +37,21 @@ public class ServletManager implements IServletManager {
 	 */
 	private HttpService http = null;
 	
-	private MenuManager menuManager = null;
-	
 	/**
 	 * Default Servlet properties
 	 */
 	private Hashtable<String, String> defaultProps = null;
 	
+	/**
+	 * The default context that is used to register servlets and resources.
+	 * Leaving this to <code>null</code> means that the {@link HttpService}
+	 * creates a new context for each resource/servlet
+	 */
 	private HttpContext defaultContext = null;
 	
 	private Log logger = null;
 	
-	public ServletManager(MenuManager menuManager, String bundleLocation) {
-		this.menuManager = menuManager;
+	public ServletManager(String bundleLocation) {
 		if (bundleLocation != null && bundleLocation.endsWith("/")) {
 			bundleLocation = bundleLocation.substring(0,bundleLocation.length()-1);
 		}

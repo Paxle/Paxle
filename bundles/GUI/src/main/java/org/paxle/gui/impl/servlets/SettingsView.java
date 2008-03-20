@@ -22,6 +22,7 @@ import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IStyleManager;
 import org.paxle.gui.impl.ServiceManager;
 import org.paxle.gui.impl.StyleManager;
 
@@ -57,16 +58,21 @@ public class SettingsView extends ALayoutServlet {
 		
 		Template template = null;
 		try {
-
+			// getting the servicemanager
+			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+			
+			// getting a reference to the stylemanager
+			IStyleManager styleManager = (IStyleManager) manager.getService(IStyleManager.class.getName());
+			
 			if( request.getParameter( "searchForStyles") != null) {
-				StyleManager.searchForStyles();
+				styleManager.searchForStyles();
 			} else if( request.getParameter( "changeStyle") != null) {
-				StyleManager.setStyle( request.getParameter( "changeStyle"));
+				styleManager.setStyle( request.getParameter("changeStyle"));
 			} else if (request.getParameter("doEdit") != null) {
 				this.setPropertyValues(request, response, context);
 			}
 
-			context.put("availbleStyles", StyleManager.getStyles());
+			context.put("availbleStyles", styleManager.getStyles());
 			context.put("dataTypes", dataTypes);
 			context.put("settingsView", this);
 

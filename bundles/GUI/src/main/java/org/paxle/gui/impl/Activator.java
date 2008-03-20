@@ -1,11 +1,14 @@
 package org.paxle.gui.impl;
 
+import java.io.File;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpContext;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IMenuManager;
 import org.paxle.gui.IServletManager;
+import org.paxle.gui.IStyleManager;
 import org.paxle.gui.impl.servlets.BundleView;
 import org.paxle.gui.impl.servlets.CrawlerView;
 import org.paxle.gui.impl.servlets.LogView;
@@ -24,20 +27,26 @@ public class Activator implements BundleActivator {
 
 	private MenuManager menuManager = null;
 
-	private static ServletManager servletManager = null;
+	private StyleManager styleManager = null;
+	
+	private ServletManager servletManager = null;
 
 	public void start( BundleContext bc) throws Exception {
 		// initialize service Manager for toolbox usage (don't remove this!)
 		ServiceManager.context = bc;
 
 		// GUI menu manager
-		menuManager = new MenuManager();
-		bc.registerService( IMenuManager.class.getName(), menuManager, null);
+		this.menuManager = new MenuManager();
+		bc.registerService( IMenuManager.class.getName(), this.menuManager, null);
 
 		// servlet manager
-		servletManager = new ServletManager( menuManager, bc.getBundle().getEntry("/").toString());
-		bc.registerService( IServletManager.class.getName(), servletManager, null);
+		this.servletManager = new ServletManager(bc.getBundle().getEntry("/").toString());
+		bc.registerService( IServletManager.class.getName(), this.servletManager, null);
 
+		// style manager
+		this.styleManager = new StyleManager(new File("styles"),this.servletManager);
+		bc.registerService(IStyleManager.class.getName(), this.styleManager, null);
+		
 		// register classloader
 		Thread.currentThread().setContextClassLoader( this.getClass().getClassLoader());
 
@@ -48,15 +57,6 @@ public class Activator implements BundleActivator {
 		 */
 		bc.addServiceListener( new ServletListener( servletManager, menuManager, bc), ServletListener.FILTER);
 		bc.addServiceListener( new HttpServiceListener( servletManager, bc), HttpServiceListener.FILTER);
-
-		/*
-		 * User authentication here. Please read
-		 * http://www2.osgi.org/javadoc/r4/index.html to see how this could
-		 * be used in combination with the OSGI User Admin Service
-		 * (http://www2.osgi.org/javadoc/r4/org/osgi/service/useradmin/package-summary.html)
-		 */
-
-		HttpContext httpContextAuth = new HttpContextAuth( bc.getBundle());
 
 		/*
 		 * ==========================================================
@@ -77,7 +77,7 @@ public class Activator implements BundleActivator {
 		registerServlet( "/overview", new OverView(), "Overview");
 
 		// load the current style
-		StyleManager.setStyle( "default");
+		this.styleManager.setStyle("default");
 	}
 
 
@@ -96,12 +96,8 @@ public class Activator implements BundleActivator {
 
 		// cleanup
 		ServiceManager.context = null;
-		servletManager = null;
-		menuManager = null;
-	}
-
-
-	public static ServletManager getServletManager() {
-		return servletManager;
+		this.servletManager = null;
+		this.styleManager = null;
+		this.menuManager = null;
 	}
 }

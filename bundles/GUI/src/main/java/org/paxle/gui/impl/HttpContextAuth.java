@@ -11,6 +11,12 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.service.http.HttpContext;
 
+/*
+ * User authentication here. Please read
+ * http://www2.osgi.org/javadoc/r4/index.html to see how this could
+ * be used in combination with the OSGI User Admin Service
+ * (http://www2.osgi.org/javadoc/r4/org/osgi/service/useradmin/package-summary.html)
+ */
 public class HttpContextAuth implements HttpContext
 {
 	
