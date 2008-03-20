@@ -192,7 +192,7 @@ public class Activator implements BundleActivator {
 	@SuppressWarnings("unchecked")
 	private static void copyNatives(BundleContext context) throws IOException {
 		logger.debug("copyNatives(): BundleContext: " + context);
-		Activator.libPath = context.getDataFile("/").getCanonicalPath();
+		Activator.libPath = context.getDataFile("").getCanonicalPath();
 
 		File libFile = null;
 		

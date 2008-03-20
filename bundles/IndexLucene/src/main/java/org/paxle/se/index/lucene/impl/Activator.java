@@ -20,6 +20,7 @@ import org.paxle.se.index.IFieldManager;
 import org.paxle.se.index.IIndexIteratable;
 import org.paxle.se.index.IIndexSearcher;
 import org.paxle.se.index.IIndexWriter;
+import org.paxle.se.search.ISearchProvider;
 
 public class Activator implements BundleActivator {
 	
@@ -48,7 +49,7 @@ public class Activator implements BundleActivator {
 		}
 		writeLock.deleteOnExit();
 		
-		final File stopwordsRoot = context.getDataFile("/stopwords/").getCanonicalFile();
+		final File stopwordsRoot = context.getDataFile("stopwords/").getCanonicalFile();
 		copyNatives(context, "/stopwords/snowball/", stopwordsRoot);
 		final StopwordsManager stopwordsManager = new StopwordsManager(stopwordsRoot);
 		
@@ -58,7 +59,10 @@ public class Activator implements BundleActivator {
 		indexSearcher = new LuceneSearcher(lmanager);
 		
 		context.registerService(IIndexWriter.class.getName(), indexWriterThread, new Hashtable<String,String>());
-		context.registerService(IIndexSearcher.class.getName(), indexSearcher, new Hashtable<String,String>());
+		context.registerService(
+				new String[]{IIndexSearcher.class.getName(), ISearchProvider.class.getName()}, 
+				indexSearcher, 
+				new Hashtable<String,String>());
 		context.registerService(IIndexIteratable.class.getName(), lmanager, new Hashtable<String,String>());
 		
 		// publish data source
