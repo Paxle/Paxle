@@ -60,7 +60,7 @@
                             			<td>$attribute.getName()</td>
         								<td>$attribType</td>
                             			<td>
-											#if($optionLabels)
+											#if($optionLabels && $listTool.size($optionLabels) > 0)
 												<select size="1" name="$attributeID">
 												#foreach($optionLabel in $optionLabels)
 													#set($idx = $velocityCount - 1)

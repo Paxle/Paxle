@@ -24,6 +24,18 @@ import org.paxle.gui.impl.ServiceManager;
 
 public class BundleView extends ALayoutServlet {
 
+	private static final String PARAM_BUNDLE_PATH = "bundlePath";
+	private static final String PARAM_INSTALL_URL = "installURL";
+	private static final String PARAM_BUNDLE_ID = "bundleID";
+	private static final String PARAM_ACTION = "action";
+	
+	private static final String ACTION_DETAILS = "details";
+	private static final String ACTION_UNINSTALL = "uninstall";
+	private static final String ACTION_RESTART = "restart";
+	private static final String ACTION_STOP = "stop";
+	private static final String ACTION_START = "start";
+	private static final String ACTION_UPDATE = "update";
+
 	private static final long serialVersionUID = 1L;
 	
     private static final Map<Integer,String> states = new HashMap<Integer,String>();
@@ -45,43 +57,45 @@ public class BundleView extends ALayoutServlet {
             template = this.getTemplate("/resources/templates/BundleView.vm");
             
             ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
-            if (request.getParameter("bundleID") != null) {
-            	long bundleID = Long.parseLong(request.getParameter("bundleID"));
+            if (request.getParameter(PARAM_BUNDLE_ID) != null) {
+            	long bundleID = Long.parseLong(request.getParameter(PARAM_BUNDLE_ID));
             	Bundle bundle = manager.getBundle(bundleID);
         		if (bundle == null) {
         			String errorMsg = String.format(
         					"Bundle with ID '%s' not found.", 
-        					request.getParameter("bundleID")
+        					request.getParameter(PARAM_BUNDLE_ID)
         			);
         			this.logger.warn(errorMsg);
         			context.put("errorMsg",errorMsg);
-        		} else {
+        		} else if (request.getParameter(PARAM_ACTION) != null) {
+        			String action = request.getParameter(PARAM_ACTION);
         			try {
-        				if (request.getParameter("action").equals( "update")) {
+        				if (action.equals( ACTION_UPDATE)) {
         					bundle.update();
-        				} else if (request.getParameter("action").equals( "start")) {
+        				} else if (action.equals( ACTION_START)) {
         					bundle.start();
-        				} else if (request.getParameter("action").equals( "stop")) {
+        				} else if (action.equals( ACTION_STOP)) {
         					bundle.stop();
-        				} else if (request.getParameter("action").equals( "restart")) {
+        				} else if (action.equals( ACTION_RESTART)) {
         					bundle.stop();
         					bundle.start();
-        				}else if(request.getParameter("action").equals( "uninstall")){
+        				}else if(action.equals( ACTION_UNINSTALL)){
         					bundle.uninstall();
-        				}else if (request.getParameter("details") != null) {
+        				}else if (action.equals(ACTION_DETAILS)) {
         					context.put("bundle", bundle);
         				}
         			} catch (BundleException e) {
             			String errorMsg = String.format(
-            					"Unexpected exception while operating on bundle with ID '%s", 
-            					request.getParameter("bundleID")
+            					"Unexpected exception while doing action '%s' on bundle with ID '%s", 
+            					action,
+            					request.getParameter(PARAM_BUNDLE_ID)
             			);
             			this.logger.warn(errorMsg, e);
             			context.put("errorMsg",e.getMessage());
         			}
         		}
-            }else if(request.getParameter("installURL") != null && request.getParameter("bundlePath")!=null){
-            	ServiceManager.context.installBundle(request.getParameter("bundlePath"));
+            }else if(request.getParameter(PARAM_INSTALL_URL) != null && request.getParameter(PARAM_BUNDLE_PATH)!=null){
+            	ServiceManager.context.installBundle(request.getParameter(PARAM_BUNDLE_PATH));
             } else if (ServletFileUpload.isMultipartContent(request)) {
 
             	// Create a factory for disk-based file items

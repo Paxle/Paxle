@@ -96,7 +96,7 @@
 		</tr>	
 		#foreach( $service in $services)
 		<tr>
-			<td><a href="?bundleID=$service.Bundle.BundleId&amp;details=">$service.Bundle.BundleId</a></td>
+			<td><a href="?bundleID=$service.Bundle.BundleId&amp;action=details">$service.Bundle.BundleId</a></td>
 			<td>$service.getProperty( "service.id")</td>
 			<td>
 			#foreach( $serviceClass in $service.getProperty( "objectClass"))
@@ -152,7 +152,7 @@
 	#foreach( $entry in $bundles.entrySet())
 	<tr>
 		<td>
-			<a class="$states.get( $entry.value.state)" href="?bundleID=$entry.key&amp;details=">$entry.key - $entry.value.symbolicName</a>
+			<a class="$states.get( $entry.value.state)" href="?bundleID=$entry.key&amp;action=details">$entry.key - $entry.value.symbolicName</a>
 		</td>
 		<td>
 			<form action="">
