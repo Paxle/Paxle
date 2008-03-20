@@ -1,0 +1,58 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>FilterForum</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - FilterForum</name>
+	<url>http://wiki.paxle.net/dev/bundles/FilterForum</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Import-Package>
+							org.osgi.framework,
+							org.paxle.core.filter,
+							org.paxle.core.queue,
+							org.paxle.core.doc
+						</Import-Package>
+						<Private-Package>
+							org.paxle.filter.forum.impl,
+							org.paxle.filter.forum.impl.phpbb,
+							org.paxle.filter.forum.impl.phpmyforum,
+							org.paxle.filter.forum.impl.vbulletin,
+							org.paxle.filter.forum.impl.wbb
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.filter.forum.impl.Activator
+						</Bundle-Activator>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>${project.version}</version>
+		</dependency>		
+	</dependencies>
+</project>
