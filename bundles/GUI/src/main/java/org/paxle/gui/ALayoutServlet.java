@@ -40,6 +40,9 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 	 */
 	public void init(final String bundleLocation, final String servletLocation) {
 		this.bundleLocation = bundleLocation;
+		if (this.bundleLocation != null && this.bundleLocation.endsWith("/")) {
+			this.bundleLocation = this.bundleLocation.substring(0,this.bundleLocation.length()-1);
+		}
 		this.servletLocation = servletLocation;
 	}
 	

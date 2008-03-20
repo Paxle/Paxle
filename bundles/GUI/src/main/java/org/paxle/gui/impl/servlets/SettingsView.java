@@ -70,7 +70,7 @@ public class SettingsView extends ALayoutServlet {
 			context.put("dataTypes", dataTypes);
 			context.put("settingsView", this);
 
-			template = this.getTemplate( "resources/templates/SettingsView.vm");
+			template = this.getTemplate( "/resources/templates/SettingsView.vm");
 		} catch (ResourceNotFoundException e) {
 			logger.error( "resource: " + e);
 			e.printStackTrace();

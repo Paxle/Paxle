@@ -50,6 +50,9 @@ public class ServletManager implements IServletManager {
 	
 	public ServletManager(MenuManager menuManager, String bundleLocation) {
 		this.menuManager = menuManager;
+		if (bundleLocation != null && bundleLocation.endsWith("/")) {
+			bundleLocation = bundleLocation.substring(0,bundleLocation.length()-1);
+		}
 		
 		// add some properties to the servlet props
 		this.defaultProps = new Hashtable<String, String>();
