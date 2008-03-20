@@ -132,7 +132,7 @@
 	</p>
 </form>
 
-<h4>Instal new Bundle via File-Upload</h4>
+<h4>Install new Bundle via File-Upload</h4>
 <form enctype="multipart/form-data" method="post" action="">
 	<p>
 		<input type="file" name="bundleJar" size="60" />

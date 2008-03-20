@@ -1,13 +1,23 @@
 package org.paxle.gui.impl.servlets;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.Template;
@@ -58,21 +68,19 @@ public class SettingsView extends ALayoutServlet {
 		
 		Template template = null;
 		try {
-			// getting the servicemanager
-			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
-			
-			// getting a reference to the stylemanager
-			IStyleManager styleManager = (IStyleManager) manager.getService(IStyleManager.class.getName());
-			
-			if( request.getParameter( "searchForStyles") != null) {
-				styleManager.searchForStyles();
-			} else if( request.getParameter( "changeStyle") != null) {
-				styleManager.setStyle( request.getParameter("changeStyle"));
-			} else if (request.getParameter("doEdit") != null) {
+			if (request.getParameter("doEdit") != null) {
 				this.setPropertyValues(request, response, context);
+			} else if (ServletFileUpload.isMultipartContent(request)) {
+				// getting the servicemanager
+				ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+				
+				// getting a reference to the stylemanager
+				IStyleManager styleManager = (IStyleManager) manager.getService(IStyleManager.class.getName());
+				
+				// get the file
+				this.installStyle(styleManager, request, context);
 			}
 
-			context.put("availbleStyles", styleManager.getStyles());
 			context.put("dataTypes", dataTypes);
 			context.put("settingsView", this);
 
@@ -89,6 +97,56 @@ public class SettingsView extends ALayoutServlet {
 		}
 
 		return template;
+	}
+	
+	private void installStyle(IStyleManager styleManager, HttpServletRequest request, Context context) throws Exception {
+
+		// Create a factory for disk-based file items
+		FileItemFactory factory = new DiskFileItemFactory();
+
+		// Create a new file upload handler
+		ServletFileUpload upload = new ServletFileUpload(factory);
+
+		// Parse the request
+		List<FileItem> items = upload.parseRequest(request);
+
+		// Process the uploaded items
+		Iterator<FileItem> iter = items.iterator();
+		while (iter.hasNext()) {
+			FileItem item = iter.next();
+
+			if (!item.isFormField()) {
+				if (!item.getFieldName().equals("styleJar")) {
+					String errorMsg = String.format("Unknown file-upload field '%s'.",item.getFieldName());
+					this.logger.warn(errorMsg);
+					context.put("errorMsg",errorMsg);
+					continue;
+				}
+
+				String fileName = item.getName();
+				if (fileName != null) {
+					fileName = FilenameUtils.getName(fileName);
+				} else {
+					String errorMsg = String.format("Fileupload field '%s' has no valid filename.", item.getFieldName());
+					this.logger.warn(errorMsg);
+					context.put("errorMsg",errorMsg);
+					continue;
+				}
+
+				// write the bundle to disk
+				File targetFile = new File(styleManager.getDataPath(),fileName);
+				if (targetFile.exists()) {
+					String errorMsg = String.format("Targetfile '%s' already exists.",targetFile.getCanonicalFile().toString());
+					this.logger.warn(errorMsg);
+					context.put("errorMsg",errorMsg);
+					continue;
+				}            		    
+				item.write(targetFile);
+
+				// cleanup
+				item.delete();
+			}
+		}	
 	}
 	
 	public void setPropertyValues(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {		

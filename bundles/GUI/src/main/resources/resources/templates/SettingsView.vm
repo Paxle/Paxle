@@ -4,7 +4,7 @@
 ## the regular content
 <h2>Settings: </h2>
 
-#if( $errorMsg)
+#if($errorMsg)
 	<p class="box error">$errorMsg</p>
 #end
 
@@ -25,10 +25,12 @@
     			#set( $ocd = $metaType.getObjectClassDefinition( $PID, "en"))
     			#if( $ocd)
     				<p>
-    					<h4>Name: $ocd.getName()</h4><br/>
-    					<i>Bundle:</i><a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a><br/>
-    					<i>Description:</i> $ocd.getDescription()<br/>
-    					
+						<p>
+        					<b>Name:&nbsp;$ocd.getName()</b><br/>
+        					<i>Bundle:&nbsp;</i><a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a><br/>
+        					<i>Description:</i> $ocd.getDescription()<br/>
+						</p>
+						
     					## 	getting the current configuration
     					#set($config = $configAdmin.getConfiguration($PID,${bundle.getLocation()}))
     					
@@ -83,7 +85,17 @@
     					#end
     					<hr/>
     				</p>
-    			#end	
+				#end
+				
+				#if($PID == "org.paxle.gui.IStyleManager")
+					<b>Upload new styles jar</b>
+                    <form enctype="multipart/form-data" method="post" action="">
+                    	<p>
+                    		<input type="file" name="styleJar" size="60" />
+                    		<input type="submit" name="doUpload" value="Install" />
+                    	</p>
+                    </form>
+				#end
 		    #end	
 		#end
 	#else 
@@ -145,87 +157,3 @@
 	#if(!$configAdmin)<div class="bundleNotInstalled">Configuration Administration bundle not installed!</div>#end
 	#if(!$metaTypeService)<div class="bundleNotInstalled">Metatype bundle not installed!</div>#end
 #end
-
-
-
-#*
-#if($configAdmin)
-<h3>Crawler-Config:</h3>
-	
-	#set($bundleRefs = $manager.getServiceReferences("org.paxle.crawler.http.IHttpCrawler"))
-	BundleRefs: $bundleRefs<br/>
-	
-	#set($bundleRef = $listTool.get($bundleRefs,0))
-	BundleRef: $bundleRef<br/>
-	
-	#set($bundle = $bundleRef.getBundle())
-	Bundle: $bundle<br/>
-	
-	#set($bundleLocation = $bundle.getLocation())
-	Location: $bundleLocation<br/>
-	
-	#set($config = $configAdmin.getConfiguration("org.paxle.crawler.http.IHttpCrawler",$bundleLocation))
-	Configuration: $config<br/>
-	
-	#set($properties = $config.getProperties())
-	Properties: $properties<br/>
-	
-	#set($metaType = $metaTypeService.getMetaTypeInformation($bundle))
-	MetaTypeInfo: $metaType<br/>
-	
-	#set($ocd = $metaType.getObjectClassDefinition("org.paxle.crawler.http.IHttpCrawler", null))
-	Object Class Definition: $ocd<br/>
-	Name: $ocd.getName()<br/>
-	Desc.: $ocd.getDescription()<br/>
-	ID: $ocd.getID()<br/>
-	
-	#set($attributes = $ocd.getAttributeDefinitions(-1))
-	Attributes: $attributes<br/>
-	
-	#set($color = $alternatorTool.auto('r1','r2'))
-	<table border="1">
-	<tr>
-		<th>Name</th>
-		<th>Description</th>
-		<th>ID</th>
-		<th>Value</th>
-	</tr>
-	#foreach($attribute in $attributes)
-		<tr class="$color">
-			<td>$attribute.getName()</td>
-			<td>$attribute.getDescription()</td>
-			<td>$attribute.getID()</td>
-			<td>$properties.get($attribute.getID())</td>
-		</tr>
-		
-	#end
-	</table>
-#else
-	<div class="notInstalled">CM bundle not installed!</div>
-#end
-*#
-
-#* This is configurable via CM now.
-#if( $availbleStyles)
-<h3>Styles:</h3>
-<form action="">
-	<p>
-		<select name="changeStyle">
-			<option value="default">Default Style</option>
-			#foreach($name in $availbleStyles)
-				<option value="$name">$name</option>
-			#end
-		</select>
-		<input type="submit" value="Change" />
-	</p>
-</form>
-
-<form action="">
-	<p>
-		<input type="hidden" name="searchForStyles" value="search" />
-		<input type="submit" value="" class="btnreload" />
-	</p>
-</form>
-
-#end
-*#

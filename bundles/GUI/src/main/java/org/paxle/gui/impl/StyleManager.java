@@ -59,6 +59,10 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 		// search for available styles
 		this.searchForStyles();
 	}
+	
+	public File getDataPath() {
+		return this.dataPath;
+	}
 
 	public Collection<String> getStyles() {
 		return Collections.unmodifiableCollection(styles.keySet());
@@ -130,6 +134,10 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 	 * TODO: localization required here
 	 */
 	public ObjectClassDefinition getObjectClassDefinition(String id, String locale) {
+		// refresh the style list
+		this.searchForStyles();
+		
+		// create metadata
 		ObjectClassDefinition ocd = new ObjectClassDefinition() {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {
 				return new AttributeDefinition[]{
