@@ -1,10 +1,17 @@
 package org.paxle.gui.impl;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.http.HttpContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ManagedService;
+import org.osgi.service.metatype.MetaTypeProvider;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IMenuManager;
 import org.paxle.gui.IServletManager;
@@ -44,8 +51,7 @@ public class Activator implements BundleActivator {
 		bc.registerService( IServletManager.class.getName(), this.servletManager, null);
 
 		// style manager
-		this.styleManager = new StyleManager(new File("styles"),this.servletManager);
-		bc.registerService(IStyleManager.class.getName(), this.styleManager, null);
+		this.initStyleManager(bc);
 		
 		// register classloader
 		Thread.currentThread().setContextClassLoader( this.getClass().getClassLoader());
@@ -89,6 +95,40 @@ public class Activator implements BundleActivator {
 		}
 	}
 
+	/**
+	 * This function
+	 * <ul>
+	 * <li>initialized the {@link StyleManager}</li>
+	 * <li>creates a default {@link Configuration} if no {@link Configuration} exists</li>
+	 * <li>registers the {@link StyleManager} as {@link ManagedService}</li>
+	 * <li>registers the {@link StyleManager} as {@link MetaTypeProvider}</li>
+	 * </ul>
+	 * 
+	 * @param context the bundle context needed for service registration
+	 * @throws IOException
+	 */
+	private void initStyleManager(BundleContext context) throws IOException {
+		// create the style manager
+		this.styleManager = new StyleManager(new File("styles"),this.servletManager);
+		
+		// get the config-admin service and set the default configuration if not available
+		ServiceReference cmRef = context.getServiceReference(ConfigurationAdmin.class.getName());
+		if (cmRef != null) {
+			ConfigurationAdmin cm = (ConfigurationAdmin) context.getService(cmRef);
+			Configuration config = cm.getConfiguration(StyleManager.PID);
+			if (config.getProperties() == null) {
+				config.update(this.styleManager.getDefaults());
+			}
+		}		
+		
+		// sevice properties for registration
+		Hashtable<String, Object> styleManagerProps = new Hashtable<String, Object>();
+		styleManagerProps.put(Constants.SERVICE_PID, StyleManager.PID);
+		
+		// register as services
+		context.registerService(IStyleManager.class.getName(), this.styleManager, null);
+		context.registerService(new String[]{ManagedService.class.getName(),MetaTypeProvider.class.getName()}, this.styleManager, styleManagerProps);
+	}
 
 	public void stop( BundleContext context) throws Exception {
 		// unregister all servlets

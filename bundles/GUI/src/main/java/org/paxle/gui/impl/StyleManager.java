@@ -2,20 +2,33 @@ package org.paxle.gui.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.Constants;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.http.HttpContext;
+import org.osgi.service.metatype.AttributeDefinition;
+import org.osgi.service.metatype.MetaTypeProvider;
+import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.gui.IStyleManager;
 
 
-public class StyleManager implements IStyleManager {
+public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedService {
+	public static final String PID = IStyleManager.class.getName();
+	
+	private static final String PROP_STYLE = "style";
 
 	/** 
 	 * for logging
@@ -33,7 +46,7 @@ public class StyleManager implements IStyleManager {
 	private File dataPath = null;
 
 	/** HashMap containing available styles */
-	private HashMap<String, File> styles = new HashMap<String, File>();	
+	private final HashMap<String, File> styles = new HashMap<String, File>();	
 
 	public StyleManager(File dataPath, ServletManager servletManager) {
 		if (dataPath == null) throw new NullPointerException("The datapath is null");
@@ -63,7 +76,8 @@ public class StyleManager implements IStyleManager {
 			}
 		}
 
-		this.styles = temp;
+		this.styles.clear();
+		this.styles.putAll(temp);
 	}
 
 
@@ -98,6 +112,118 @@ public class StyleManager implements IStyleManager {
 			e.printStackTrace();
 		}
 		return;
+	}
+
+	/**
+	 * @see MetaTypeProvider#getLocales()
+	 */
+	public String[] getLocales() {
+		return new String[]{"en"};
+	}
+
+	/**
+	 * This function dynamically generates the metatype description of the configuration options of this 
+	 * {@link ManagedService}. This data is displayed in the configuraton dialog.
+	 * 
+	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
+	 * 
+	 * TODO: localization required here
+	 */
+	public ObjectClassDefinition getObjectClassDefinition(String id, String locale) {
+		ObjectClassDefinition ocd = new ObjectClassDefinition() {
+			public AttributeDefinition[] getAttributeDefinitions(int filter) {
+				return new AttributeDefinition[]{
+						new AttributeDefinition() {
+							public int getCardinality() {
+								return 0;
+							}
+
+							public String[] getDefaultValue() {
+								return new String[]{"default"};
+							}
+
+							public String getDescription() {
+								return "The style that should be used by the GUI";
+							}
+
+							public String getID() {
+								return PROP_STYLE;
+							}
+
+							public String getName() {
+								return "Style";
+							}
+
+							public String[] getOptionLabels() {
+								ArrayList<String> labels = new ArrayList<String>();
+								labels.addAll(styles.keySet());
+								labels.add("default");
+								return labels.toArray(new String[styles.size()]);
+							}
+
+							public String[] getOptionValues() {
+								ArrayList<String> values = new ArrayList<String>();
+								values.addAll(styles.keySet());
+								values.add("default");
+								return values.toArray(new String[styles.size()]);
+							}
+
+							public int getType() {
+								return AttributeDefinition.STRING;
+							}
+
+							public String validate(String value) {
+								return null;
+							}							
+						}
+				};
+			}
+
+			public String getDescription() {
+				return "Component to manage the available styles for the GUI";
+			}
+
+			public String getID() {
+				return IStyleManager.class.getName();
+			}
+
+			public InputStream getIcon(int size) throws IOException {
+				return null;
+			}
+
+			public String getName() {
+				return "Style Manager";
+			}
+		};
+
+		return ocd;
+	}
+
+	/**
+	 * @return the default configuration of this service
+	 */
+	public Hashtable<String,Object> getDefaults() {
+		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
+		defaults.put(PROP_STYLE, "default");
+		defaults.put(Constants.SERVICE_PID, PID);
+		return defaults;
+	}
+	
+	/**
+	 * Updates the manager with the configuration changed by the user
+	 * @see ManagedService#updated(Dictionary)
+	 */
+	public void updated(Dictionary configuration) throws ConfigurationException {
+		if (configuration == null ) {
+			/*
+			 * Generate default configuration
+			 */
+			configuration = this.getDefaults();
+		}
+		
+		// getting the configured style
+		String style = (String) configuration.get(PROP_STYLE);
+		this.setStyle(style);
 	}
 
 }
