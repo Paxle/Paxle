@@ -132,9 +132,15 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 			//
 			// TODO: extend the StopwordsManager to store the Converters for the languages
 			//       to not always having to create a new instance
-			final Converter cv = (langs == null || langs.length == 0)
-					? defaultCv
-					: new Converter(stopwordsManager.getAnalyzer(langs[0]));
+			final IIndexerDocument.Language lang;
+			final Converter cv;
+			if (langs == null || langs.length == 0) {
+				lang = null;
+				cv = defaultCv;
+			} else {
+				lang = langs[0];
+				cv = new Converter(stopwordsManager.getAnalyzer(lang));
+			}
 			
 			final int wc;
 			try {
@@ -155,16 +161,19 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 			}
 			
 			if (logger.isInfoEnabled()) {
-				logger.info(String.format("Added document '%s' in %d ms to index, word-count: %d",
-						document.get(IIndexerDocument.LOCATION),
-						Long.valueOf(System.currentTimeMillis() - time),
-						Integer.valueOf(wc)));
+				logger.info(String.format(
+						"Added document '%s' in %d ms to index\n" +
+						"\tTitle: %s\n" +
+						"\tsize: %d bytes, word-count: %d, language: %s, mime-type: %s",
+						document.get(IIndexerDocument.LOCATION), Long.valueOf(System.currentTimeMillis() - time),
+						document.get(IIndexerDocument.TITLE),
+						document.get(IIndexerDocument.SIZE), Integer.valueOf(wc), lang, document.get(IIndexerDocument.MIME_TYPE)));
 			}
 		} catch (CorruptIndexException e) {
 			throw new IndexException("error adding lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
 		} finally {
-			// close everything now
 			
+			// close everything now
 			Iterator<Field<?>> iter = document.fieldIterator();
 			while (iter.hasNext()) {
 				Field<?> key = iter.next();

@@ -40,7 +40,7 @@ import org.paxle.parser.html.impl.tags.MetaTagManager;
  * @see #visitTag(Tag) for a list of tags supported by the {@link NodeCollector}
  * @see #postProcessMeta() for a list of supported META-tag-properties
  */
-public class NodeCollector extends NodeVisitor{
+public class NodeCollector extends NodeVisitor {
 	
 	/**
 	 * The node factory used by the underlying HTML parser to determine the type of a node and
@@ -221,7 +221,6 @@ public class NodeCollector extends NodeVisitor{
 	public void visitTag(Tag tag) {
 		try {
 			if (DiscardedTags.contains(tag.getRawTagName().toLowerCase())) {
-				this.doc.addText(HtmlTools.deReplaceHTML(tag.toPlainTextString()));
 				return;
 			} else if (tag instanceof AddressTag)	process((AddressTag)tag);
 			else if (tag instanceof DoctypeTag)     process((DoctypeTag)tag);
@@ -236,8 +235,9 @@ public class NodeCollector extends NodeVisitor{
 			else if (tag instanceof StyleTag)		this.noParse = true;
 			else if (tag instanceof TableTag)		process((TableTag)tag);
 			else if (tag instanceof TitleTag) 		process((TitleTag)tag);
+			else if (tag instanceof BoldTag)		; // TODO: BoldTag: extra weight for some words
 			else if (!tag.isEndTag())
-				this.logger.logDebug("missed named tag " + tag.getClass().getSimpleName(), tag.getStartingLineNumber());
+				this.logger.logDebug("missed named tag " + tag.getClass().getSimpleName() + " (" + tag.getRawTagName() + ")", tag.getStartingLineNumber());
 		} catch (Exception e) {
 			logger.logError("Error processing named tag '" + tag.getRawTagName() + "'", tag.getStartingLineNumber(), e);
 		}

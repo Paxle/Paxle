@@ -27,10 +27,10 @@ public class FSTempDir extends ATempDir implements ITempDir {
 	public File createTempFile(String prefix, String suffix) throws IOException {
 		final String name = generateNewName(prefix, suffix);
 		final File r = new File(this.directory, name);
-		if (!r.createNewFile())
-			throw new Error("file '" + name + "' in directory '" + this.directory + "' already exists, this is an internal error and must be fixed");
 		if (this.deleteOnExit)
 			r.deleteOnExit();
+		if (!r.createNewFile())
+			throw new IOException("file '" + name + "' in directory '" + this.directory + "' already exists, this is an internal error and must be fixed");
 		return r;
 	}
 }
