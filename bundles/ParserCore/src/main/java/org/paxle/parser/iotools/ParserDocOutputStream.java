@@ -40,7 +40,6 @@ public class ParserDocOutputStream extends OutputStream {
 	public ParserDocOutputStream(ITempFileManager tfm, ICharsetDetector cd) throws IOException {
 		this.tfm = tfm;
 		this.of = tfm.createTempFile();
-		logger.debug("Created tmp-file '" + of + "' with " + tfm);
 		final OutputStream fos = new BufferedOutputStream(new FileOutputStream(this.of));
 		this.os = (cd != null) ? cd.createOutputStream(fos) : fos;
 	}
@@ -80,7 +79,7 @@ public class ParserDocOutputStream extends OutputStream {
 		
 		final String charset = getCharset();
 		try {
-			logger.debug("parsing sub-doc '" + location + "', using tmp-file '" + of + "' (exists: " + of.exists() + ")");
+			logger.debug("parsing sub-doc '" + location + "'");
 			return ParserTools.parse(location, charset, this.of);
 		} catch (UnsupportedEncodingException e) {
 			throw new ParserException("Error parsing file on close due to incorrectly detected charset '" + charset + "'", e);

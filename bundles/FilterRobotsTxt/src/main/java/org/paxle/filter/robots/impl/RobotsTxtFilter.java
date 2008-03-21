@@ -11,6 +11,12 @@ import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 
 public class RobotsTxtFilter implements IFilter<ICommand> {
+	
+	private static class Counter {
+		
+		public int c = 0;
+	}
+	
 	private Log logger = LogFactory.getLog(this.getClass());
 	private RobotsTxtManager robotsTxtManager = null;
 	
@@ -34,32 +40,34 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 			}
 
 			// check the extracted links
+			final Counter c = new Counter();
 			IParserDocument parserDoc = command.getParserDocument();
-			this.checkRobotsTxt(parserDoc);
+			this.checkRobotsTxt(parserDoc, c);
+			logger.info(String.format("removed %d URLs from reference map(s)", Integer.valueOf(c.c))); 
 		} catch (Exception e) {
 			this.logger.error(String.format("Unexpected %s while filtering command with location '%s'.",e.getClass().getName(),location),e);
 		}
 	}
 	
-	private void checkRobotsTxt(IParserDocument parserDoc) {
+	private void checkRobotsTxt(IParserDocument parserDoc, final Counter c) {
 		if (parserDoc == null) return;
 		
 		// getting the link map
 		Map<String, String> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
-			this.checkRobotsTxt(linkMap);
+			this.checkRobotsTxt(linkMap, c);
 		}
 		
 		// loop through sub-parser-docs
 		Map<String,IParserDocument> subDocs = parserDoc.getSubDocs();
 		if (subDocs != null) {
 			for (IParserDocument subDoc : subDocs.values()) {
-				this.checkRobotsTxt(subDoc);
+				this.checkRobotsTxt(subDoc, c);
 			}
 		}
 	}	
 	
-	private void checkRobotsTxt(Map<String, String> linkMap) {
+	private void checkRobotsTxt(Map<String, String> linkMap, final Counter c) {
 		if (linkMap == null || linkMap.size() == 0) return;
 		
 		Iterator<String> refs = linkMap.keySet().iterator();
@@ -68,7 +76,9 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 
 			if (this.robotsTxtManager.isDisallowed(location)) {
 				refs.remove();
-				this.logger.info(String.format("URL '%s' removed from reference map.", location));
+				c.c++;
+				if (logger.isDebugEnabled())
+					this.logger.debug(String.format("URL '%s' removed from reference map.", location));
 			}
 		}		
 	}

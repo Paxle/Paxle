@@ -1,7 +1,9 @@
+
 package org.paxle.crawler.http.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.ConnectException;
 import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
@@ -9,6 +11,9 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.apache.commons.httpclient.CircularRedirectException;
 import org.apache.commons.httpclient.ConnectTimeoutException;
@@ -81,9 +86,18 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 */
 	private int maxDownloadSize = -1;
 	
+	private final ReadLock robotsRLock;
+	private final WriteLock robotsWLock;
+	private Object robotsTxtManager;
+	private Method robotsIsDisallowed;
+	
 	public HttpCrawler() {
 		// init with default configuration
 		this.updated(this.getDefaults());
+		
+		final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+		robotsRLock = lock.readLock();
+		robotsWLock = lock.writeLock();
 	}
 	
 	public void cleanup() {
@@ -160,6 +174,40 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 */
 	private synchronized HttpClient getHttpClient() {
 		return this.httpClient;
+	}
+	
+	// package private, called by the RobotsFilterListener
+	void setRobotsTxtFilter(final Object rmanager) {
+		robotsWLock.lock();
+		try {
+			robotsTxtManager = rmanager;
+			if (rmanager == null) {
+				robotsIsDisallowed = null;
+			} else try {
+				robotsIsDisallowed = robotsTxtManager.getClass().getMethod("isDisallowed", String.class);
+			} catch (NoSuchMethodException e) {
+				robotsIsDisallowed = null;
+				logger.error("Unable to access 'isDisallowed'-method of robots.txt-filter, has the interface changed?");
+			}
+		} finally { robotsWLock.unlock(); }
+	}
+	
+	private boolean isLocationDisallowed(final String location) {
+		Object result = null;
+		robotsRLock.lock();
+		try {
+			if (robotsTxtManager == null || robotsIsDisallowed == null)
+				return false;
+			result = robotsIsDisallowed.invoke(robotsTxtManager, location);
+		} catch (Exception e) {
+			if (e instanceof RuntimeException)
+				throw (RuntimeException)e;
+			logger.error("Error checking host of '%s' against robots.txt-filter", e);
+		} finally { robotsRLock.unlock(); }
+		
+		if (result == null)
+			return false;
+		return ((Boolean)result).booleanValue();
 	}
 	
 	/**
@@ -331,6 +379,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				return doc;
 			}
 			
+			// XXX redirects
+			
 			Header contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
 			if (contentTypeHeader != null) {
 				final boolean mimeTypeOk = handleContentTypeHeader(contentTypeHeader, doc);
@@ -357,10 +407,6 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			
 			// send the request to the server
 			statusCode = this.getHttpClient().executeMethod(method);
-			
-			// the redirected location is set here after GET and not directly after HEAD because that
-			// way we are save if a server handles HEAD a bit sloppy
-			// XXX redirects
 			
 			// check the response status code
 			if (statusCode != HttpStatus.SC_OK) {

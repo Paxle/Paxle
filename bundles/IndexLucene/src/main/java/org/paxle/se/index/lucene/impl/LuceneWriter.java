@@ -161,12 +161,14 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 			}
 			
 			if (logger.isInfoEnabled()) {
+				final String internalName = document.get(IIndexerDocument.INTERNAL_NAME);
 				logger.info(String.format(
 						"Added document '%s' in %d ms to index\n" +
-						"\tTitle: %s\n" +
+						"\tTitle: %s%s\n" +
 						"\tsize: %d bytes, word-count: %d, language: %s, mime-type: %s",
 						document.get(IIndexerDocument.LOCATION), Long.valueOf(System.currentTimeMillis() - time),
 						document.get(IIndexerDocument.TITLE),
+						(internalName == null || internalName.length() == 0) ? "" : " (internal: " + internalName + ")",
 						document.get(IIndexerDocument.SIZE), Integer.valueOf(wc), lang, document.get(IIndexerDocument.MIME_TYPE)));
 			}
 		} catch (CorruptIndexException e) {

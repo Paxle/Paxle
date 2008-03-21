@@ -29,8 +29,8 @@ public class SubParserDocOutputStream extends ParserDocOutputStream {
 			this.pdoc.addSubDocument(this.location, super.parse(this.location));
 		} catch (ParserException e) {
 			// ignore the sub-document if we cannot parse it
-			if (logger.isDebugEnabled()) {
-				logger.debug("error parsing sub-document '" + location + "'", e);
+			if (logger.isTraceEnabled()) {
+				logger.trace("error parsing sub-document '" + location + "'", e);
 			} else {
 				logger.info("error parsing sub-document '" + location + "': " + e.getMessage());
 			}
