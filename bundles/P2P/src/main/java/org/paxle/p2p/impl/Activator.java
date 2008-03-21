@@ -1,16 +1,17 @@
 package org.paxle.p2p.impl;
-/*
- * Created on Fri Jul 27 18:27:15 GMT+02:00 2007
- */
 
 import java.io.File;
 import java.net.URL;
 
 import net.jxta.peergroup.PeerGroup;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
+import org.paxle.core.filter.impl.URLStreamHandlerListener;
 import org.paxle.p2p.IP2PManager;
 import org.paxle.p2p.services.IService;
 import org.paxle.p2p.services.IServiceClient;
@@ -34,7 +35,14 @@ public class Activator implements BundleActivator {
 	 */
 	public static BundleContext bc;				
 	
-	private static P2PManager p2pManager = null;
+	private P2PManager p2pManager = null;
+	
+	private P2PServiceManager serviceManager = null;
+	
+	/**
+	 * For logging
+	 */
+	private Log logger = null;
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
@@ -43,8 +51,14 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		bc = context;
 		
+		// init logger
+		this.logger = LogFactory.getLog(this.getClass());
+		
 		// init P2P manager
 		URL seedURI = bc.getBundle().getResource("/resources/seeds.txt");
+		this.logger.info(String.format("Loading seed-file from '%s'.", seedURI==null?"null":seedURI.toString()));
+		
+		// init P2P manager
 		p2pManager = new P2PManager(new File("p2p"), seedURI.toURI());
 		
 		// register the P2P-manager as a osgi service
@@ -57,36 +71,43 @@ public class Activator implements BundleActivator {
 		// init active firewall check
 //		this.initFirewallCheckActive();
 		
+		// create a P2P-service-manager and register it as OSGI service listener
+		P2PServiceManager serviceManager = new P2PServiceManager(p2pManager, bc);
+		bc.addServiceListener(serviceManager);
+		
+		Filter filter = bc.createFilter("(objectClass=org.paxle.se.search.ISearchProviderManager)");
+		serviceManager.addService(new Filter[]{filter}, SearchServerImpl.class);
+		
 		/*
 		 * Get the search provider.
 		 * ATTENTION: don't replace the string by ISearchProviderManager.class.getName(), otherwise the
 		 * 			  paxle search bundle is not optional. 
 		 */
-		ServiceReference searchProviderRef = bc.getServiceReference("org.paxle.se.search.ISearchProviderManager");
-		SearchServerImpl searchServiceServer = null;
-		if (searchProviderRef != null) {			
-			searchServiceServer = new SearchServerImpl(p2pManager,(ISearchProviderManager)bc.getService(searchProviderRef));
-			bc.registerService(new String[]{IService.class.getName(), IServiceServer.class.getName()}, searchServiceServer, null);
-		}
-		ServiceReference fieldManagerRef = bc.getServiceReference("org.paxle.se.index.IFieldManager"); 
-		if (fieldManagerRef != null) {
-			// start a new search client
-			SearchClientImpl searchServiceClient = new SearchClientImpl(
-					p2pManager,
-					(IFieldManager)bc.getService(fieldManagerRef),
-					searchServiceServer
-			);
-			
-			// register remote search service
-			bc.registerService(new String[]{
-					IService.class.getName(), 
-					IServiceClient.class.getName(),
-					ISearchClient.class.getName(),
-					"org.paxle.se.search.ISearchProvider"}, // ATTENTION: do not replace the string by class.getName()
-					searchServiceClient, 
-					null
-			);
-		}
+//		ServiceReference searchProviderRef = bc.getServiceReference("org.paxle.se.search.ISearchProviderManager");
+//		SearchServerImpl searchServiceServer = null;
+//		if (searchProviderRef != null) {			
+//			searchServiceServer = new SearchServerImpl(p2pManager,(ISearchProviderManager)bc.getService(searchProviderRef));
+//			bc.registerService(new String[]{IService.class.getName(), IServiceServer.class.getName()}, searchServiceServer, null);
+//		}
+//		ServiceReference fieldManagerRef = bc.getServiceReference("org.paxle.se.index.IFieldManager"); 
+//		if (fieldManagerRef != null) {
+//			// start a new search client
+//			SearchClientImpl searchServiceClient = new SearchClientImpl(
+//					p2pManager,
+//					(IFieldManager)bc.getService(fieldManagerRef),
+//					searchServiceServer
+//			);
+//			
+//			// register remote search service
+//			bc.registerService(new String[]{
+//					IService.class.getName(), 
+//					IServiceClient.class.getName(),
+//					ISearchClient.class.getName(),
+//					"org.paxle.se.search.ISearchProvider"}, // ATTENTION: do not replace the string by class.getName()
+//					searchServiceClient, 
+//					null
+//			);
+//		}
 		
 //		MeteorPeer mp = new MeteorPeer();
 //		mp.init(p2pManager.getPeerGroup(), null, null);
@@ -131,5 +152,7 @@ public class Activator implements BundleActivator {
 		bc = null;		
 		p2pManager.terminate();
 		p2pManager = null;
+		
+		this.serviceManager.stopAllServices();
 	}	
 }

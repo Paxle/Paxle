@@ -2,6 +2,7 @@ package org.paxle.p2p.services.impl;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.StructuredDocumentFactory;
@@ -32,6 +33,13 @@ public abstract class AServiceServer extends AService implements IServiceServer 
 	 */
 	protected AServiceServer(P2PManager p2pManager) {
 		super(p2pManager);				
+	}
+	
+	@Override
+	public ArrayList<String> getExportedInterfaces() {
+		ArrayList<String> interfaces = super.getExportedInterfaces();
+		interfaces.add(IServiceServer.class.getName());
+		return interfaces;		
 	}
 	
 	/**
@@ -86,7 +94,9 @@ public abstract class AServiceServer extends AService implements IServiceServer 
 			 * =============================================================== */	   
             this.serviceInputPipe = this.pgPipeService.createInputPipe(mdadv.getPipeAdvertisement());
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (!(e instanceof InterruptedException)) {
+				e.printStackTrace();
+			}
 		}
 	}
 

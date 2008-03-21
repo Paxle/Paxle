@@ -1,5 +1,9 @@
 package org.paxle.p2p.services.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.endpoint.Message;
 import net.jxta.peergroup.PeerGroup;
@@ -76,7 +80,6 @@ public abstract class AService extends Thread implements IService {
 	 */
 	protected long sentBytes = 0;
 	
-	
 	protected AService(P2PManager p2pManager) {
 		if (p2pManager == null) throw new NullPointerException("P2PManager is null");
 		this.p2pManager = p2pManager;
@@ -85,8 +88,18 @@ public abstract class AService extends Thread implements IService {
 		this.getPeerGroupServices(this.p2pManager.getPeerGroup());
 		
 		// start this thread
-		this.start();
+//		this.start();
 	}	
+	
+	public void start(List<? extends Object> dependencies) {
+		this.start();
+	}
+	
+	public ArrayList<String>  getExportedInterfaces() {
+		return new ArrayList<String>(Arrays.asList(new String[]{
+				IService.class.getName()
+		}));
+	}
 	
 	private void getPeerGroupServices(PeerGroup appPeerGroup) {
 		if (appPeerGroup == null) throw new NullPointerException("Peer group is null");
@@ -130,6 +143,12 @@ public abstract class AService extends Thread implements IService {
             	),e);
             }
         }
+		
+		// cleanup
+		this.cleanup();
+		
+		// finished
+		this.logger.info("Service stopped successfully.");
 	}
 	
 	/**
@@ -137,13 +156,15 @@ public abstract class AService extends Thread implements IService {
 	 */
 	public void terminate() {
 		this.stopped = true;
-		this.interrupt();
-		try {
-			this.join(15000);
-		} catch (InterruptedException e) {
-			/* ignore this */
-		}		
-	};	
+		if (this.isAlive()) {
+			this.interrupt();
+			try {
+				this.join(15000);
+			} catch (InterruptedException e) {
+				/* ignore this */
+			}		
+		}
+	}
 	
 	protected Message createMessage() {
 		Message msg = new Message();
@@ -176,6 +197,13 @@ public abstract class AService extends Thread implements IService {
 	 * This method is executed from within {@link #run()} and is used to init the service
 	 */
 	protected abstract void init();
+	
+	/**
+	 * This method is executed from within {@link #run()} if the service is stopped.
+	 */
+	protected void cleanup() {
+		// overwrite this if needed
+	}
 	
 	/**
 	 * Function to create the advertisement for the {@link #serviceInputPipe input-pipe} 

@@ -23,14 +23,22 @@ import org.paxle.se.search.ISearchProviderManager;
 import org.paxle.se.search.ISearchResult;
 
 public class SearchServerImpl extends AServiceServer {
+	
+	
 	/**
 	 * paxle search provider. required for local search
 	 */
 	private ISearchProviderManager searchProviderManager = null;
 
-	public SearchServerImpl(P2PManager p2pManager, ISearchProviderManager searchProviderManager) {
+	public SearchServerImpl(P2PManager p2pManager /*, ISearchProviderManager searchProviderManager */) {
 		super(p2pManager);
-		this.searchProviderManager = searchProviderManager;
+//		this.searchProviderManager = searchProviderManager;
+	}
+
+	@Override
+	public void start(List<? extends Object> dependencies) {
+		this.searchProviderManager = (ISearchProviderManager) dependencies.get(0);
+		super.start();
 	}
 	
 	/**

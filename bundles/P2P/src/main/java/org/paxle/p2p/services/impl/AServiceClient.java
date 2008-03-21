@@ -1,6 +1,7 @@
 package org.paxle.p2p.services.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.InputStreamMessageElement;
@@ -44,6 +45,13 @@ public abstract class AServiceClient extends AService implements IServiceClient 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public ArrayList<String> getExportedInterfaces() {
+		ArrayList<String> interfaces = super.getExportedInterfaces();
+		interfaces.add(IServiceClient.class.getName());
+		return interfaces;		
 	}
 	
 	@Override
