@@ -23,6 +23,12 @@ public interface IWorker<Data> {
 	 * all workers associated to the {@link IPool worker-thread-pool}.
 	 */
 	public void terminate();
+    
+    /**
+     * Destroys a worker. This function is called by {@link IPool#returnWorker(IWorker)}
+     * if there are too many workers in the pool and therefore some need to be terminated
+     */
+    public void destroy();
 	
 	/**
 	 * Called from the worker thread pool on worker creation time to set a 

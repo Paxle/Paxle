@@ -33,7 +33,7 @@ public class WorkerFactoryWrapper<Data,E extends IWorker<Data>> implements Poola
 	}
 
 	public void destroyObject(Object obj) throws Exception {
-//		 nothing todo here
+		((E)obj).destroy();
 	}
 
 	public Object makeObject() throws Exception {

@@ -200,4 +200,11 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
 			this.join();
 		} catch (InterruptedException e) {/* ignore this */}
     }
+    
+    /**
+     * @see IWorker#destroy()
+     */
+    public void destroy() {
+    	this.destroyed = true;
+    }
 }
