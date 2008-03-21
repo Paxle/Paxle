@@ -62,6 +62,22 @@ public class RobotsTxt implements Serializable {
 		if (this.ruleBlockMap.size() > 0) this.ruleBlockMap.clear();
 	}
 	
+	/**
+	 * @return the amount of rule-blocks contained in this robots.txt file
+	 */
+	int size() {
+		return this.ruleBlocks.size();
+	}
+	
+	/**
+	 * @param idx
+	 * @return the {@link RuleBlock} for the given idx.
+	 */
+	RuleBlock getRuleBlock(int idx) {
+		return (this.ruleBlocks.size() < idx) ? null : this.ruleBlocks.get(idx);
+	}
+	
+	
 	public boolean isDisallowed(String agent, String path) {
 		if (path != null && path.equals("/robots.txt")) return Boolean.FALSE;
 		if (this.accessRestricted) return Boolean.TRUE;		

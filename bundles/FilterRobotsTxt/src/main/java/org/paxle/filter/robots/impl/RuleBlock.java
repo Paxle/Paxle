@@ -31,6 +31,13 @@ public class RuleBlock implements Serializable {
 		this.props.put(propName, propValue);
 	}
 	
+	/**
+	 * @return the amount of different agents to which this rule this block applies 
+	 */
+	int agentsCount() {
+		return this.agents.size();
+	}
+	
 	public String getProperty(String propertyName) {
 		return this.props.get(propertyName);
 	}

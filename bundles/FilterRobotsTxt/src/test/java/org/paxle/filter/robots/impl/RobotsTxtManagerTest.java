@@ -2,13 +2,11 @@ package org.paxle.filter.robots.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
+import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-
-import junit.framework.TestCase;
 
 public class RobotsTxtManagerTest extends TestCase {
 	
@@ -57,6 +55,16 @@ public class RobotsTxtManagerTest extends TestCase {
 		RobotsTxt rtxt = this.getRobotsTxt(robotsTxtFile);
 		assertNotNull(rtxt);
 	}
+	
+	public void testParseRobotsTxtWithEmptyAgent() throws IOException {
+		File robotsTxtFile = new File("src/test/resources/robots2.txt");
+		RobotsTxt rtxt = this.getRobotsTxt(robotsTxtFile);
+		assertNotNull(rtxt);
+		assertEquals(2, rtxt.size());
+		assertNotNull(rtxt.getRuleBlock(1));
+		assertEquals(1, rtxt.getRuleBlock(1).agentsCount());
+	}
+	
 	
 	public void testIsDisallowed() throws IOException {
 		// parse the robots.txt
