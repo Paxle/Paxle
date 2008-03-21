@@ -82,7 +82,7 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
         	if (this.outQueue == null) throw new IllegalArgumentException("Output-Queue was not set properly.");
         	
             // The thread keeps running.
-            while (!this.stopped && !this.isInterrupted()) {        
+        	while (!this.stopped && !this.destroyed && !this.isInterrupted()) {   
                 if (this.done) {  
                     if (this.myPool != null && !this.myPool.closed()) {
                         synchronized (this) { 
