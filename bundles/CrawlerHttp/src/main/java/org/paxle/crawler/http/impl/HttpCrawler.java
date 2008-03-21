@@ -100,6 +100,18 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		robotsWLock = lock.writeLock();
 	}
 	
+	/**
+	 * for testing purpose only! 
+	 * @param httpClient
+	 */
+	HttpCrawler(HttpClient httpClient) {
+		this.httpClient = httpClient;
+		
+		final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+		robotsRLock = lock.readLock();
+		robotsWLock = lock.writeLock();
+	}
+	
 	public void cleanup() {
 		// cleanup old settings
 		if (this.connectionManager != null) {
