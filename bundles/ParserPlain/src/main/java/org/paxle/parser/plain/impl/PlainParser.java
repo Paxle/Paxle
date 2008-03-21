@@ -72,8 +72,6 @@ public class PlainParser implements IPlainParser {
 				final String token = st.nextToken();
 				final Matcher m = URI_PATTERN.matcher(token);
 				if (m.matches()) {
-					for (int i=0; i<m.groupCount(); i++)
-						System.out.println(i + "'" + m.group(i) + "'");
 					pdoc.addReference(token, token);
 				} else {
 					pdoc.addText(token);
