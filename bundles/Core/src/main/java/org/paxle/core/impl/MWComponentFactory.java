@@ -1,9 +1,16 @@
 package org.paxle.core.impl;
 
+import java.io.IOException;
 import java.util.Hashtable;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ManagedService;
+import org.osgi.service.metatype.MetaTypeProvider;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.data.IDataSink;
@@ -15,7 +22,6 @@ import org.paxle.core.queue.impl.FilteringOutputQueue;
 import org.paxle.core.queue.impl.InputQueue;
 import org.paxle.core.queue.impl.OutputQueue;
 import org.paxle.core.threading.IMaster;
-import org.paxle.core.threading.IPool;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 import org.paxle.core.threading.impl.Master;
@@ -91,7 +97,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 		WorkerFactoryWrapper<Data,W> factoryWrapper = new WorkerFactoryWrapper<Data,W>();
 		
 		// create a new thread pool
-		IPool<Data> pool = new Pool<Data>(factoryWrapper);
+		Pool<Data> pool = new Pool<Data>(factoryWrapper);
 		
 		// init the factory wrapper
 		factoryWrapper.setPool(pool);
@@ -108,11 +114,23 @@ public class MWComponentFactory implements IMWComponentFactory {
 		return component;
 	}
 
-	public void registerComponentServices(IMWComponent component, BundleContext bc) {
-		this.registerComponentServices(bc.getBundle().getSymbolicName(),component, bc);
+	public void registerComponentServices(IMWComponent component, BundleContext bc) throws IOException {
+		this.registerComponentServices(
+				bc.getBundle().getSymbolicName(),
+				(String) bc.getBundle().getHeaders().get(Constants.BUNDLE_NAME),
+				(String) bc.getBundle().getHeaders().get(Constants.BUNDLE_DESCRIPTION),
+				component, 
+				bc
+		);
 	}
 	
-	public void registerComponentServices(String componentID, IMWComponent component, BundleContext bc) {
+	public void registerComponentServices(
+			final String componentID, 
+			final String componentName,
+			final String componentDescription,
+			final IMWComponent component, 
+			final BundleContext bc
+	) throws IOException {
 		// register component
 		Hashtable<String, String> componentProps = new Hashtable<String, String>();
 		componentProps.put(IMWComponent.COMPONENT_ID, componentID);
@@ -155,6 +173,28 @@ public class MWComponentFactory implements IMWComponentFactory {
 			filterQueueProps.put(IFilterQueue.PROP_FILTER_QUEUE_ID, filterQueueID);			
 			bc.registerService(IFilterQueue.class.getName(), compDataSink, filterQueueProps);			
 		}		
+				
+		// configure some properties needed by CM
+		((MWComponent<?>)component).setComponentID(componentID);
+		((MWComponent<?>)component).setComponentName(componentName==null?componentID:componentName);
+		((MWComponent<?>)component).setComponentDescription(componentDescription==null?"":componentDescription);		
+		
+		// get the config-admin service and set the default configuration if not available
+		ServiceReference cmRef = bc.getServiceReference(ConfigurationAdmin.class.getName());
+		if (cmRef != null) {
+			ConfigurationAdmin cm = (ConfigurationAdmin) bc.getService(cmRef);
+			Configuration config = cm.getConfiguration(componentID);
+			if (config.getProperties() == null) {
+				config.update(((MWComponent<?>)component).getDefaults());
+			}
+		}	
+		
+		// sevice properties for registration
+		Hashtable<String, Object> managedServiceProps = new Hashtable<String, Object>();
+		managedServiceProps.put(Constants.SERVICE_PID, componentID);
+		
+		// register as services
+		bc.registerService(new String[]{ManagedService.class.getName(),MetaTypeProvider.class.getName()}, component, managedServiceProps);		
 	}
 
 	public void unregisterComponentServices(String componentID, IMWComponent component, BundleContext bc) {
