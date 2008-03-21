@@ -214,16 +214,16 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		}
 		
 		Integer minIdle = (Integer)configuration.get(PROP_POOL_MIN_IDLE);
-		this.pool.setMinIdle(minIdle==null? 0 : minIdle.intValue());
+		this.pool.setMinIdle((minIdle == null) ? 0 : minIdle.intValue());
 		
-		Integer maxIdle = (Integer)configuration.get(PROP_POOL_MIN_IDLE);
-		this.pool.setMaxIdle(maxIdle==null? 8 : maxIdle.intValue());
+		Integer maxIdle = (Integer)configuration.get(PROP_POOL_MAX_IDLE);
+		this.pool.setMaxIdle((maxIdle == null) ? 8 : maxIdle.intValue());
 		
 		Integer maxActive = (Integer)configuration.get(PROP_POOL_MAX_ACTIVE);
-		this.pool.setMaxActive(maxActive==null? 8 : maxActive.intValue());
+		this.pool.setMaxActive((maxActive == null) ? 8 : maxActive.intValue());
 		
-		Integer delay = (Integer) configuration.get(PROP_DELAY);
-		this.master.setDelay(delay==null?new Integer(-1):delay);
+		Integer delay = (Integer)configuration.get(PROP_DELAY);
+		this.master.setDelay((delay == null) ? -1 : delay.intValue());
 	}
 
 	public String[] getLocales() {

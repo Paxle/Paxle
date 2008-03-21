@@ -67,29 +67,33 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 		for (IFilterContext filterContext : this.filterList) {
 			IFilter<ICommand> filter = null;
 			try {
-				long start = System.currentTimeMillis();
 				
-				if (this.logger.isDebugEnabled()) {
-					this.logger.debug(String.format(
-						"[%s] Passing command with ULR '%s' to filter '%s' ...",
-						this.filterQueueID,
-						command.getLocation(),
-						filter.getClass().getName()
-					));
-				}
 				filter = filterContext.getFilter();
-				if (this.logger.isDebugEnabled()) {
-					this.logger.debug(String.format(
-						"[%s] Filtering of command with URL '%s' by filter '%s' took %d ms.",
+				
+				if (this.logger.isTraceEnabled()) {
+					this.logger.trace(String.format(
+						"[%s] Passing command with URL '%s' to filter '%s' ...",
 						this.filterQueueID,
 						command.getLocation(),
-						filter.getClass().getName(),
-						System.currentTimeMillis() - start
+						(filter == null) ? "null" : filter.getClass().getName()
 					));
 				}
+				
+				long start = System.currentTimeMillis();
 				
 				// process the command by the next filter
 				filter.filter(command, filterContext);
+				
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(String.format(
+							"[%s] Filter '%s' took %d ms processingh URL '%s'.",
+							this.filterQueueID,
+							(filter == null) ? "null" : filter.getClass().getSimpleName(),
+							Long.valueOf(System.currentTimeMillis() - start),
+							command.getLocation()
+					));
+				}
+				
 				if (command.getResult() == ICommand.Result.Rejected) {
 					this.logger.info(String.format(
 							"[%s] Command for URL '%s' rejected by filter '%s'. Reason: %s",
@@ -103,7 +107,7 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 				this.logger.error(String.format(
 						"[%s] Filter '%s' throwed an '%s' while processing '%s'.",
 						this.filterQueueID,
-						filter.getClass().getName(),
+						(filter == null) ? "null" : filter.getClass().getName(),
 						e.getClass().getName(),
 						command.getLocation()
 				),e);

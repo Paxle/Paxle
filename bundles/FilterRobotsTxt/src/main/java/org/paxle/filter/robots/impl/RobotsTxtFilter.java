@@ -43,7 +43,7 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 			final Counter c = new Counter();
 			IParserDocument parserDoc = command.getParserDocument();
 			this.checkRobotsTxt(parserDoc, c);
-			logger.info(String.format("removed %d URLs from reference map(s)", Integer.valueOf(c.c))); 
+			logger.info(String.format("removed %d URLs from reference map(s) of '%s'", Integer.valueOf(c.c), command.getLocation())); 
 		} catch (Exception e) {
 			this.logger.error(String.format("Unexpected %s while filtering command with location '%s'.",e.getClass().getName(),location),e);
 		}

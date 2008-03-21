@@ -377,34 +377,36 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			initRequestMethod(method);
 			
 			int statusCode = this.getHttpClient().executeMethod(method);
-			if (statusCode != HttpStatus.SC_OK) {
-				// RFC 2616 states that the GET and HEAD methods _must_ be supported by any
-				// general purpose servers (which are in fact the ones we are connecting to here)
-				
-				if (statusCode == HttpStatus.SC_NOT_FOUND) {
-					doc.setStatus(ICrawlerDocument.Status.NOT_FOUND);
-				} else {
-					doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, String.format("Server returned: %s", method.getStatusLine()));
+			if (statusCode != HttpStatus.SC_METHOD_FAILURE && statusCode != HttpStatus.SC_METHOD_NOT_ALLOWED) {
+				if (statusCode != HttpStatus.SC_OK) {
+					// RFC 2616 states that the GET and HEAD methods _must_ be supported by any
+					// general purpose servers (which are in fact the ones we are connecting to here)
+					
+					if (statusCode == HttpStatus.SC_NOT_FOUND) {
+						doc.setStatus(ICrawlerDocument.Status.NOT_FOUND);
+					} else {
+						doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, String.format("Server returned: %s", method.getStatusLine()));
+					}
+					
+					this.logger.warn(String.format("Crawling of URL '%s' failed. Server returned: %s", requestUrl, method.getStatusLine()));
+					return doc;
 				}
 				
-				this.logger.warn(String.format("Crawling of URL '%s' failed. Server returned: %s", requestUrl, method.getStatusLine()));
-				return doc;
-			}
-			
-			// XXX redirects
-			
-			Header contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
-			if (contentTypeHeader != null) {
-				final boolean mimeTypeOk = handleContentTypeHeader(contentTypeHeader, doc);
-				if (!mimeTypeOk)
-					return doc;
-			}
-			
-			Header contentTypeLength = method.getResponseHeader(HTTPHEADER_CONTENT_LENGTH);
-			if (contentTypeLength != null) {
-				final boolean contentLengthAccepted = handleContentTypeLength(contentTypeLength, doc);
-				if (!contentLengthAccepted)
-					return doc;
+				// XXX redirects
+				
+				Header contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
+				if (contentTypeHeader != null) {
+					final boolean mimeTypeOk = handleContentTypeHeader(contentTypeHeader, doc);
+					if (!mimeTypeOk)
+						return doc;
+				}
+				
+				Header contentTypeLength = method.getResponseHeader(HTTPHEADER_CONTENT_LENGTH);
+				if (contentTypeLength != null) {
+					final boolean contentLengthAccepted = handleContentTypeLength(contentTypeLength, doc);
+					if (!contentLengthAccepted)
+						return doc;
+				}
 			}
 			
 			// secondly - if everything is alright up to now - proceed with getting the actual
@@ -434,7 +436,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			
 			// getting the mimetype and charset
 			// XXX needed here again?
-			contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
+			Header contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
 			if (contentTypeHeader != null) {
 				final boolean mimeTypeOk = handleContentTypeHeader(contentTypeHeader, doc);
 				if (!mimeTypeOk)
@@ -463,9 +465,9 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			doc.setCrawlerDate(crawlingDate);
 
 			// last mod date
-			Date lastModDate = null;			
+			Date lastModDate = null;
+			Header lastModDateHeader = method.getResponseHeader(HTTPHEADER_LAST_MODIFIED);
 			try {
-				Header lastModDateHeader = method.getResponseHeader(HTTPHEADER_LAST_MODIFIED);
 				if (lastModDateHeader != null) {
 					String dateStr = lastModDateHeader.getValue();
 					lastModDate = DateUtil.parseDate(dateStr);
