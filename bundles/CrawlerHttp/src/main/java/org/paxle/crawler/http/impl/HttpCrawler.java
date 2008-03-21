@@ -348,8 +348,11 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			// secondly - if everything is alright up to now - proceed with getting the actual
 			// document
 			
-			// generate the request method
-			method = new GetMethod(requestUrl);		// automatically follows redirects
+			// generate the GET request method
+			HttpMethod getMethod = new GetMethod(requestUrl);		// automatically follows redirects
+			method.releaseConnection();
+			
+			method = getMethod;
 			initRequestMethod(method);
 			
 			// send the request to the server
@@ -372,6 +375,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			}
 			
 			// getting the mimetype and charset
+			// XXX needed here again?
 			contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
 			if (contentTypeHeader != null) {
 				final boolean mimeTypeOk = handleContentTypeHeader(contentTypeHeader, doc);
