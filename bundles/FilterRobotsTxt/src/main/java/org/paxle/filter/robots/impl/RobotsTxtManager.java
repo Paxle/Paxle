@@ -35,22 +35,22 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	private static final String ROBOTS_AGENT_PAXLE = "paxle";
 
 	private static final int CACHE_SIZE = 1000;
-	
+
 	/**
 	 * Connection timeout to use for the http connection
 	 */
 	private static final int CONNECTION_TIMEOUT = 15000;
-	
+
 	/**
 	 * Read timeout to use for the http connection
 	 */
 	private static final int READ_TIMEOUT = 15000;
-	
+
 	/**
 	 * Regular expression pattern to extract the hostname:port portion of an URL
 	 */
 	private static final Pattern HOSTPORT_PATTERN = Pattern.compile("([^:]+)://([^/\\?#]+)(?=/|$|\\?|#)");
-	
+
 	/**
 	 * Regular expression to extract the path of an URL
 	 */
@@ -60,17 +60,17 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
-	
+
 	/**
 	 * The cachemanager to use
 	 */
 	private CacheManager manager = null;
-	
+
 	/**
 	 * A cach to hold {@link RobotsTxt} objects in memory
 	 */
 	private Cache cache = null;
-	
+
 	/**
 	 * Path where {@link RobotsTxt} objects should be stored
 	 */
@@ -83,20 +83,20 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		// configure path where serialized robots-txt objects should be stored
 		this.path = path;
 		if (!this.path.exists()) this.path.mkdirs();
-		
+
 		// configure caching manager
 		this.manager = new CacheManager();
 		this.cache = new Cache("robotsTxtCache", CACHE_SIZE, false, false, 60*60, 30*60);
 		manager.addCache(this.cache);
 	}
-	
+
 	public void terminate() {
 		// clear cache
 		this.manager.clearAll();
-		
+
 		// unregiser cache
 		this.manager.removalAll();
-		
+
 		// shutdown cache manager
 		this.manager.shutdown();
 	}
@@ -104,7 +104,7 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	Cache getCache() {
 		return this.cache;
 	}
-	
+
 	/**
 	 * @param location the URL
 	 * @return the hostname:port part of the location
@@ -151,7 +151,7 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 			// configuring timeouts for the http-connection
 			httpConnection.setConnectTimeout(CONNECTION_TIMEOUT);
 			httpConnection.setReadTimeout(READ_TIMEOUT);
-			
+
 			try {
 				int code = httpConnection.getResponseCode();
 				statusLine = httpConnection.getHeaderField(0);
@@ -186,7 +186,7 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 				)){
 					logger.error("Exception while loading robots.txt from" + hostPort, e);
 				}
-				
+
 				return new RobotsTxt(hostPort, reloadInterval, status);
 			}
 		}
@@ -212,30 +212,32 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));		
 		RuleBlock currentBlock = null;
 
-		boolean inRuleBlock = false;
+		boolean isInRuleBlock = false;
 		String line = null;
 		while ((line = reader.readLine()) != null) {
-			// trim and cutof comments
+			// trim and cut of comments
 			line = line.trim();
 			line = this.cutOfComments(line);
-			
+
 			// ignore empty lines
 			if (line.length() == 0) continue;
 
 			if (line.toLowerCase().startsWith("User-agent:".toLowerCase())) {
-				if (inRuleBlock || currentBlock == null) {
-					// the start of a new block ws detected
-					inRuleBlock = false;
-					currentBlock = new RuleBlock();
-					robotsTxt.addRuleBlock(currentBlock);
-				}
 
 				// getting the user-agent
 				line = line.substring("User-agent:".length()).trim();
-				currentBlock.addAgent(line);				
+				if (line.length() > 0) {
+					if (isInRuleBlock || currentBlock == null) {
+						// the start of a new block was detected
+						isInRuleBlock = false;
+						currentBlock = new RuleBlock();
+						robotsTxt.addRuleBlock(currentBlock);
+					}
+					currentBlock.addAgent(line);
+				}
 			} else if (line.toLowerCase().startsWith("Disallow:".toLowerCase())) {
 				if (currentBlock == null) continue;
-				inRuleBlock = true;
+				isInRuleBlock = true;
 
 				// getting the user-agent
 				line = line.substring("Disallow:".length()).trim();
@@ -249,7 +251,7 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 				}
 			} else if (line.toLowerCase().startsWith("Allow:".toLowerCase())) {
 				if (currentBlock == null) continue;
-				inRuleBlock = true;
+				isInRuleBlock = true;
 
 				// getting the user-agent
 				line = line.substring("Allow:".length()).trim();
@@ -279,7 +281,7 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 			this.logger.debug(String.format("Protocol of location '%s' not supported", location));
 			return Boolean.FALSE;
 		}
-		
+
 		// getting the host[:port] string 
 		String hostPort = this.getHostPort(location);
 

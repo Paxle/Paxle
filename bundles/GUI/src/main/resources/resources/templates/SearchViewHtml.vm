@@ -3,16 +3,16 @@
 ## Add custom html headers
 #if( $searchQuery)
 	#set( $h1 = "<link rel='alternate' type='application/rss+xml' title='Paxle Search Page' href='?format=rss&amp;query=$escTool.url($searchQuery)' />")
-	#set( $h2 = '<script type="text/javascript" src="/js/wz_tooltip.js"></script>')
 	## TODO: link to a opensearch-description
-	## #set( $h3 = '<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="opensearchdescription.xml" />')
-	#set( $page_headers = [$h1, $h2] )
+	## #set( $h2 = '<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="opensearchdescription.xml" />')
+	#set( $page_headers = [$h1] )
 #end
 ## the regular content
 #if( $seBundeNotInstalled || !$fieldManager)
 	<p class="error bundleNotInstalled">Search Engine Bundle not installed</p>
 #else	
     #if( $searchResultList)	
+    <script type="text/javascript" src="/js/wz_tooltip.js"></script>
     <a class="rssFeedLink" href="?format=rss&amp;query=$escTool.url($searchQuery)" title="Display results as RSS-feed">
 		<img src="/images/feed.png" alt="RSS"/>
 	</a>
