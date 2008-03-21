@@ -44,6 +44,9 @@ public class PaxleQueryParser {
 			while (loff < query.length() && query.charAt(loff) == ' ')
 				loff++;
 			
+			if (loff == query.length())
+				break;
+			
 			/* set last to the end of the next term (if it starts with a brace or quotation-mark, the
 			 * position is the closing brace respective quotation-mark) */
 			last = findTokenEnd(query, loff);
@@ -198,7 +201,9 @@ public class PaxleQueryParser {
 				final OrOperator or = new OrOperator();
 				for (String[] andts : aots)
 					or.addToken(and(andts));
-				return or;
+				
+				final int cc = or.getChildCount();
+				return (cc == 0) ? null : (cc == 1) ? or.children()[0] : or;
 			}
 		}
 	}
@@ -223,7 +228,9 @@ public class PaxleQueryParser {
 			final AndOperator and = new AndOperator();
 			for (final String t : tokens)
 				and.addToken(parse(t));
-			return and;
+			
+			final int cc = and.getChildCount();
+			return (cc == 0) ? null : (cc == 1) ? and.children()[0] : and;
 		}
 	}
 	
@@ -331,6 +338,7 @@ public class PaxleQueryParser {
 		//System.out.println(findMatching(sb, 6));
 		
 		System.out.println(IQueryFactory.transformToken(parse(sb), new DebugTokenFactory()));
+		System.out.println(IQueryFactory.transformToken(parse(" b la"), new DebugTokenFactory()));
 		
 		/*
 		String[] ss = lex(sb);

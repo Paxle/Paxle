@@ -48,6 +48,10 @@ abstract class MultiToken extends AToken implements Iterable<AToken> {
 		return this.children.toArray(new AToken[this.children.size()]);
 	}
 	
+	public int getChildCount() {
+		return this.children.size();
+	}
+	
 	public Iterator<AToken> iterator() {
 		return new MTIterator();
 	}

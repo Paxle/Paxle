@@ -6,8 +6,10 @@ import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.query.tokens.AndOperator;
 import org.paxle.se.query.tokens.FieldToken;
 import org.paxle.se.query.tokens.ModToken;
+import org.paxle.se.query.tokens.NotToken;
 import org.paxle.se.query.tokens.OrOperator;
 import org.paxle.se.query.tokens.PlainToken;
+import org.paxle.se.query.tokens.QuoteToken;
 
 public abstract class IQueryFactory<R> {
 	
@@ -28,11 +30,17 @@ public abstract class IQueryFactory<R> {
 			final FieldToken ftoken = (FieldToken)token;
 			return factory.field(ftoken.getToken(), ftoken.getField());
 			
+		} else if (token instanceof QuoteToken) {
+			return factory.quote(((QuoteToken)token).getString());
+			
 		} else if (token instanceof PlainToken) {
 			return factory.plain(((PlainToken)token).getString());
 			
+		} else if (token instanceof NotToken) {
+			return factory.not(((NotToken)token).getToken());
+			
 		} else {
-			return null;
+			throw new RuntimeException("unknown token-type: " + token + " (" + token.getClass() + ")");
 		}
 	}
 	
