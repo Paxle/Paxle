@@ -20,6 +20,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.HeadMethod;
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.logging.Log;
@@ -45,12 +46,14 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	private static final String PROP_CONNECTION_TIMEOUT = "connectionTimeout";
 	private static final String PROP_SOCKET_TIMEOUT = "socketTimeout";
 	private static final String PROP_MAXCONNECTIONS_PER_HOST = "maxConnectionsPerHost";
+	private static final String PROP_MAXDOWNLOAD_SIZE = "maxDownloadSize";
 	
 	private static final String HTTPHEADER_ETAG = "ETag";
 	private static final String HTTPHEADER_LAST_MODIFIED = "Last-Modified";
 	private static final String HTTPHEADER_DATE = "Date";
 	private static final String HTTPHEADER_CONTENT_LANGUAGE = "Content-Language";
 	private static final String HTTPHEADER_CONTENT_TYPE = "Content-Type";
+	private static final String HTTPHEADER_CONTENT_LENGTH = "Content-Length";
 
 	/**
 	 * The protocol supported by this crawler
@@ -71,6 +74,12 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * Logger class
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
+	
+	/**
+	 * The maximum size of a file. If set to <code>-1</code>, all files are fetched, otherwise
+	 * (if the server provides the file-size) only files with a size equal to or less than this value.
+	 */
+	private int maxDownloadSize = -1;
 	
 	public HttpCrawler() {
 		// init with default configuration
@@ -95,7 +104,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		defaults.put(PROP_CONNECTION_TIMEOUT, new Integer(15000));
 		defaults.put(PROP_SOCKET_TIMEOUT, new Integer(15000));
 		defaults.put(PROP_MAXCONNECTIONS_PER_HOST, new Integer(10));
-
+		defaults.put(PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(-1));
+		
 		defaults.put(Constants.SERVICE_PID, IHttpCrawler.class.getName());
 		
 		return defaults;
@@ -130,8 +140,10 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		this.connectionManager.getParams().setSoTimeout(((Integer) configuration.get(PROP_SOCKET_TIMEOUT)).intValue());
 		
 		// set new http client
-		this.httpClient = new HttpClient(connectionManager); 
-	}	
+		this.httpClient = new HttpClient(connectionManager);
+		
+		this.maxDownloadSize = ((Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE)).intValue();
+	}
 	
 	/**
 	 * @see ISubCrawler#getProtocols()
@@ -150,6 +162,141 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		return this.httpClient;
 	}
 	
+	/**
+	 * Initializes the {@link HttpMethod} with common attributes for all requests this crawler
+	 * initiates.
+	 * <p>
+	 * Currently the following attributes (represented as HTTP header values in the final request)
+	 * are set:
+	 * <ul>
+	 *   <li>cookies shall be rejected ({@link CookiePolicy#IGNORE_COOKIES})</li>
+	 * </ul>
+	 * 
+	 * @param method the method to set the standard attributes on
+	 */
+	private static void initRequestMethod(final HttpMethod method) {
+		method.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+		
+		// TODO: set some additional http headers
+		//method.setRequestHeader("User-Agent","xxx");
+		//method.setRequestHeader("Accept-Encoding","gzip");
+	}
+	
+	/**
+	 * This method handles the <code>Content-Type</code> {@link Header} of a HTTP-request.
+	 * If available, the header is used to set the MIME-type of the {@link ICrawlerDocument}
+	 * as well as the character set. The return value determines whether processing of the
+	 * URL shall be continued or not
+	 * <p>
+	 * In case of a positive result, the <code>doc</code>'s MIME-type and - if available -
+	 * charset will be set. Otherwise it's <code>result</code> will be set to
+	 * {@link ICrawlerDocument.Status#UNKNOWN_FAILURE} and a warning message will be logged.
+	 * 
+	 * @see #HTTPHEADER_CONTENT_TYPE
+	 * @param contentTypeHeader the HTTP-{@link Header}'s <code>Content-Type</code> attribute
+	 * @param doc the {@link CrawlerDocument} the resulting MIME-type and charset shall be set in
+	 * @return <code>true</code> if proceeding with the URL may continue or <code>false</code> if
+	 *         it shall be aborted due to an unsupported MIME-type of the requested document
+	 */
+	private boolean handleContentTypeHeader(final Header contentTypeHeader, final CrawlerDocument doc) {
+		// separate MIME-type and charset from the content-type specification
+		String contentMimeType = null;
+		if (contentTypeHeader != null) {
+			String contentCharset = null;
+			contentMimeType = contentTypeHeader.getValue();
+			
+			int idx = contentMimeType.indexOf(";");
+			if (idx != -1) {
+				contentCharset = contentMimeType.substring(idx+1).trim();
+				contentMimeType = contentMimeType.substring(0,idx);
+				
+				if (contentCharset.startsWith("charset=")) {
+					contentCharset = contentCharset.substring("charset=".length()).trim();
+					if (contentCharset.matches("^['\"].*")) {
+						contentCharset = contentCharset.substring(1);
+					}
+					if (contentCharset.matches(".*['\"]$")) {
+						contentCharset = contentCharset.substring(0,contentCharset.length()-1);							
+					}
+				} else {
+					contentCharset = null;
+				}
+			}	
+			
+			doc.setMimeType(contentMimeType);
+			doc.setCharset(contentCharset);
+		}
+		
+		// check if we support the mimetype
+		final CrawlerContext context = CrawlerContext.getCurrentContext();
+		if (context == null)
+			throw new RuntimeException("Unexpected error. The crawler-context was null.");
+		
+		if (!context.getSupportedMimeTypes().contains(contentMimeType)) {
+			// abort
+			String msg = String.format(
+					"Mimetype '%s' of resource '%s' not supported by any parser installed on the system.",
+					contentMimeType,
+					doc.getLocation()
+			);
+			
+			this.logger.warn(msg);
+			doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
+			return false;
+		}
+		
+		// continue
+		return true;
+	}
+	
+	/**
+	 * This method handles the <code>Content-Length</code> {@link Header} of a HTTP-request.
+	 * If given, and this {@link HttpCrawler} has a valid {@link #maxDownloadSize} set, both values
+	 * are being compared and if the further exceeds the latter, <code>false</code> is retured,
+	 * <code>true</code> otherwise
+	 * <p>
+	 * No values are set in the {@link CrawlerDocument} in case of a positive result, otherwise
+	 * the document's <code>result</code> is set to {@link ICrawlerDocument.Status#UNKNOWN_FAILURE}
+	 * and a warning message is logged.
+	 * 
+	 * @see #maxDownloadSize
+	 * @param contentTypeLength the HTTP-{@link Header}'s <code>Content-Length</code> attribute
+	 * @param doc the {@link CrawlerDocument} the resulting MIME-type and charset shall be set in
+	 * @return <code>true</code> if proceeding with the URL may continue or <code>false</code> if
+	 *         it shall be aborted due to an exceeded maximum file-size of the document
+	 */
+	private boolean handleContentTypeLength(final Header contentTypeLength, final CrawlerDocument doc) {
+		if (contentTypeLength == null)
+			// no Content-Length given, continue
+			return true;
+		
+		final int maxDownloadSize = this.maxDownloadSize;
+		if (maxDownloadSize < 0)
+			// no maximum specified, continue
+			return true;
+		
+		// extract the content length in bytes
+		final String lengthString = contentTypeLength.getValue();
+		if (lengthString.length() > 0 && lengthString.matches("\\d+")) {
+			final int contentLength = Integer.parseInt(lengthString);
+			if (contentLength > maxDownloadSize) {
+				// reject the document
+				final String msg = String.format(
+						"Content-length %d of resource '%s' is larger than the max. allowed size of %d.",
+						Integer.valueOf(contentLength),
+						doc.getLocation(),
+						Integer.valueOf(maxDownloadSize));
+				
+				this.logger.warn(msg);
+				doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
+				return false;
+			}
+		}
+		
+		// continue
+		return true;
+	}
+	
 	public ICrawlerDocument request(String requestUrl) {
 		if (requestUrl == null) throw new NullPointerException("URL was null");
 		this.logger.debug(String.format("Crawling URL '%s' ...",requestUrl));
@@ -161,16 +308,56 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		
 		HttpMethod method = null;
 		try {
-			// generate the request method
-			method = new GetMethod(requestUrl);
-	        method.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
-
-			// TODO: set some additional http headers
-			//method.setRequestHeader("User-Agent","xxx");
-			//method.setRequestHeader("Accept-Encoding","gzip");
-
-			// send the request to the server
+			// first use the HEAD method to determine whether the MIME-type is supported
+			// and to compare the content-length with the maximum allowed download size
+			// (both only if the server provides this information, if not, the file is
+			// fetched)
+			
+			method = new HeadMethod(requestUrl);		// automatically follows redirects
+			initRequestMethod(method);
+			
 			int statusCode = this.getHttpClient().executeMethod(method);
+			if (statusCode != HttpStatus.SC_OK) {
+				// RFC 2616 states that the GET and HEAD methods _must_ be supported by any
+				// general purpose servers (which are in fact the ones we are connecting to here)
+				
+				if (statusCode == HttpStatus.SC_NOT_FOUND) {
+					doc.setStatus(ICrawlerDocument.Status.NOT_FOUND);
+				} else {
+					doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, String.format("Server returned: %s", method.getStatusLine()));
+				}
+				
+				this.logger.warn(String.format("Crawling of URL '%s' failed. Server returned: %s", requestUrl, method.getStatusLine()));
+				return doc;
+			}
+			
+			Header contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
+			if (contentTypeHeader != null) {
+				final boolean mimeTypeOk = handleContentTypeHeader(contentTypeHeader, doc);
+				if (!mimeTypeOk)
+					return doc;
+			}
+			
+			Header contentTypeLength = method.getResponseHeader(HTTPHEADER_CONTENT_LENGTH);
+			if (contentTypeLength != null) {
+				final boolean contentLengthAccepted = handleContentTypeLength(contentTypeLength, doc);
+				if (!contentLengthAccepted)
+					return doc;
+			}
+			
+			// secondly - if everything is alright up to now - proceed with getting the actual
+			// document
+			
+			// generate the request method
+			method = new GetMethod(requestUrl);		// automatically follows redirects
+			initRequestMethod(method);
+			
+			// send the request to the server
+			statusCode = this.getHttpClient().executeMethod(method);
+			
+			// the redirected location is set here after GET and not directly after HEAD because that
+			// way we are save if a server handles HEAD a bit sloppy
+			// XXX redirects
 			
 			// check the response status code
 			if (statusCode != HttpStatus.SC_OK) {
@@ -185,48 +372,11 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			}
 			
 			// getting the mimetype and charset
-			String contentMimeType = null;
-			Header contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
+			contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
 			if (contentTypeHeader != null) {
-				String contentCharset = null;
-				contentMimeType = contentTypeHeader.getValue();
-				
-				int idx = contentMimeType.indexOf(";");
-				if (idx != -1) {
-					contentCharset = contentMimeType.substring(idx+1).trim();
-					contentMimeType = contentMimeType.substring(0,idx);
-					
-					if (contentCharset.startsWith("charset=")) {
-						contentCharset = contentCharset.substring("charset=".length()).trim();
-						if (contentCharset.matches("^['\"].*")) {
-							contentCharset = contentCharset.substring(1);
-						}
-						if (contentCharset.matches(".*['\"]$")) {
-							contentCharset = contentCharset.substring(0,contentCharset.length()-1);							
-						}
-					} else {
-						contentCharset = null;
-					}
-				}	
-				
-				doc.setMimeType(contentMimeType);
-				doc.setCharset(contentCharset);
-			}
-			
-			// check if we support the mimetype
-			final CrawlerContext context = CrawlerContext.getCurrentContext();
-			if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");
-			
-			if (!context.getSupportedMimeTypes().contains(contentMimeType)) {
-				String msg = String.format(
-						"Mimetype '%s' of resource '%s' not supported by any parser installed on the system.",
-						contentMimeType,
-						requestUrl
-				);
-				
-				this.logger.warn(msg);
-				doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
-				return doc;
+				final boolean mimeTypeOk = handleContentTypeHeader(contentTypeHeader, doc);
+				if (!mimeTypeOk)
+					return doc;
 			}
 			
 			// getting the document languages
