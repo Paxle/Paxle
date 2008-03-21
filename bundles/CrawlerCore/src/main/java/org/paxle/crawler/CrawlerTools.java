@@ -12,6 +12,7 @@ import java.nio.charset.IllegalCharsetNameException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ACharsetDetectorOutputStream;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.crypt.ACryptOutputStream;
@@ -80,7 +81,8 @@ public class CrawlerTools {
 		
 		// init md5-calculation stream
 		ACryptOutputStream md5os = null;		
-		final ICrypt md5 = context.getCryptManager().getCrypt("md5");
+		ICryptManager cryptManager = context.getCryptManager();
+		final ICrypt md5 = (cryptManager==null)?null:cryptManager.getCrypt("md5");
 		if (md5 != null) {
 			md5os = md5.createOutputStream(os);
 			os = md5os;
