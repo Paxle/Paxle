@@ -30,6 +30,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	public static final String PROP_POOL_MIN_IDLE = "pool.minIdle";
 	public static final String PROP_POOL_MAX_IDLE = "pool.maxIdle";
 	public static final String PROP_POOL_MAX_ACTIVE = "pool.maxActive";
+	public static final String PROP_DELAY = "master.delay";
 	
 	private IMaster master;
 	private Pool<Data> pool;
@@ -199,6 +200,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		defaults.put(PROP_POOL_MIN_IDLE, new Integer(0));
 		defaults.put(PROP_POOL_MAX_IDLE, new Integer(8));
 		defaults.put(PROP_POOL_MAX_ACTIVE, new Integer(8));
+		defaults.put(PROP_DELAY, new Integer(-1));
 		  
 		return defaults;
 	}
@@ -211,9 +213,17 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 			configuration = this.getDefaults();
 		}
 		
-		this.pool.setMinIdle(((Integer)configuration.get(PROP_POOL_MIN_IDLE)).intValue());
-		this.pool.setMaxIdle(((Integer)configuration.get(PROP_POOL_MIN_IDLE)).intValue());
-		this.pool.setMaxActive(((Integer)configuration.get(PROP_POOL_MAX_ACTIVE)).intValue());
+		Integer minIdle = (Integer)configuration.get(PROP_POOL_MIN_IDLE);
+		this.pool.setMinIdle(minIdle==null? 0 : minIdle.intValue());
+		
+		Integer maxIdle = (Integer)configuration.get(PROP_POOL_MIN_IDLE);
+		this.pool.setMaxIdle(maxIdle==null? 8 : maxIdle.intValue());
+		
+		Integer maxActive = (Integer)configuration.get(PROP_POOL_MAX_ACTIVE);
+		this.pool.setMaxActive(maxActive==null? 8 : maxActive.intValue());
+		
+		Integer delay = (Integer) configuration.get(PROP_DELAY);
+		this.master.setDelay(delay==null?new Integer(-1):delay);
 	}
 
 	public String[] getLocales() {
@@ -222,9 +232,10 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 
 	public ObjectClassDefinition getObjectClassDefinition(String id, String locale) {
 		final ArrayList<AD> ads = new ArrayList<AD>();
-		ads.add(new AD(PROP_POOL_MIN_IDLE, "Min. idle threads","", new String[]{"0"}));
-		ads.add(new AD(PROP_POOL_MAX_IDLE, "Max. idle threads","", new String[]{"8"}));
-		ads.add(new AD(PROP_POOL_MAX_ACTIVE, "Max. active threads","", new String[]{"8"}));
+		ads.add(new AD(PROP_POOL_MIN_IDLE, "Min. idle threads","The minimum number of threads", new String[]{"0"}));
+		ads.add(new AD(PROP_POOL_MAX_IDLE, "Max. idle threads","The number of 'idle' threads in the pool. Use a negative value to indicate an unlimited number of idle threads", new String[]{"8"}));
+		ads.add(new AD(PROP_POOL_MAX_ACTIVE, "Max. active threads","Total number of active threads from my pool. Use a negative value for an infinite number of threads.", new String[]{"8"}));
+		ads.add(new AD(PROP_DELAY, "Delay", "Delay between busy loops in ms", new String[]{"0"}));
 		
 		final String PID = this.componentID;
 		final String mame = this.componentName;

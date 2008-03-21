@@ -54,6 +54,12 @@ public class Master<Data> extends Thread implements IMaster {
 	private PPM ppm = new PPM();
 	
 	/**
+	 * set this to <code>>0</code> to delay
+	 * the master thread between busy loops.
+	 */
+	private int delay = -1;
+	
+	/**
 	 * @param threadPool the thread pool containing {@link IWorker worker-threads}
 	 * @param commandQueue the queue containing {@link ICommand commands} to process
 	 */
@@ -87,6 +93,11 @@ public class Master<Data> extends Thread implements IMaster {
                 
                 //add the job to the total job-count and the PPM
                 this.ppm.trick();
+                
+                // delay
+                if (this.delay > 0) {
+                	Thread.sleep(this.delay);
+                }
             } catch (InterruptedException e) {
             	this.logger.debug("Master thread interrupted from outside.");
                 Thread.interrupted();
@@ -161,5 +172,12 @@ public class Master<Data> extends Thread implements IMaster {
 	 */
 	public int getPPM() {
 		return this.ppm.getPPM();
+	}
+
+	/**
+	 * @see IMaster#setDelay(int)
+	 */
+	public void setDelay(int delay) {
+		this.delay = delay;
 	}
 }

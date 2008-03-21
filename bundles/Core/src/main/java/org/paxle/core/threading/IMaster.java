@@ -15,6 +15,14 @@ public interface IMaster {
 	public boolean isPaused();
 	
 	/**
+	 * Function to configure the delay the master thread
+	 * should pause between two busy loops.
+	 * 
+	 * @param delay the delay in ms. set this to <code><=0</code> to disable the delay
+	 */
+	public void setDelay(int delay);
+	
+	/**
 	 * @return the PPM of this component since startup
 	 */
 	public int getPPM();
