@@ -1,4 +1,4 @@
-package org.paxle.parser.gzip.impl;
+package org.paxle.parser.plain.impl;
 
 import java.util.Hashtable;
 import java.util.List;
@@ -6,9 +6,10 @@ import java.util.List;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.parser.ISubParser;
-import org.paxle.parser.gzip.IGzipParser;
+import org.paxle.parser.plain.IPlainParser;
 
 public class Activator implements BundleActivator {
+	
 	/**
 	 * A reference to the {@link BundleContext bundle-context}
 	 */	
@@ -20,11 +21,11 @@ public class Activator implements BundleActivator {
 	 */	
 	public void start(BundleContext context) throws Exception {
 		bc = context;
-		final ISubParser sp = new GzipParser();
+		final ISubParser sp = new PlainParser();
 		Hashtable<String,String[]> props = new Hashtable<String,String[]>();
 		List<String> mimeTypes = sp.getMimeTypes();
 		props.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
-		context.registerService(new String[]{ISubParser.class.getName(),IGzipParser.class.getName()}, sp, props);
+		context.registerService(new String[]{ISubParser.class.getName(),IPlainParser.class.getName()}, sp, props);
 	}
 	
 	/**
