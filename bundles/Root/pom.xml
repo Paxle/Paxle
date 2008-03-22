@@ -107,6 +107,16 @@
 				<artifactId>commons-codec</artifactId>
 				<version>1.2</version>
 			</dependency>
+			<dependency>
+				<groupId>org.jmock</groupId>
+				<artifactId>jmock</artifactId>
+				<version>2.4.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jmock</groupId>
+				<artifactId>jmock-junit3</artifactId>
+				<version>2.4.0</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -145,7 +155,19 @@
 			<artifactId>junit-addons</artifactId>
 			<version>1.4</version>
 			<scope>test</scope>
-		</dependency>			
+		</dependency>		
+		
+		<!-- jmock dependencies -->	
+		<dependency>
+			<groupId>org.jmock</groupId>
+			<artifactId>jmock</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jmock</groupId>
+			<artifactId>jmock-junit3</artifactId>
+			<scope>test</scope>
+		</dependency>				
 	</dependencies>
 
 	<profiles>
