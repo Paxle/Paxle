@@ -69,8 +69,11 @@
 												</select>
     										#else 
         										#if($attribType == "Boolean")
-    												<input type="radio" name="$attributeID" value="true" #if($attribValue)checked="checked"#end> Yes &nbsp;
-    												<input type="radio" name="$attributeID" value="false" #if(!$attribValue)checked="checked"#end> No 
+    												<input type="radio" name="$attributeID" id="true$attributeID" value="true" #if($attribValue)checked="checked"#end>
+    												<label for="true$attributeID">Yes</label>
+    												&nbsp;
+    												<input type="radio" name="$attributeID" id="false$attributeID" value="false" #if(!$attribValue)checked="checked"#end>
+    												<label for="false$attributeID">No</label> 
         										#else
         											<input type="text" name="$attributeID" value="$!attribValue"/>
         										#end	

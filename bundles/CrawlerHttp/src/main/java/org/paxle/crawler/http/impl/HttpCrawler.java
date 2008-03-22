@@ -3,7 +3,6 @@ package org.paxle.crawler.http.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.net.ConnectException;
 import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
@@ -11,9 +10,9 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.util.StringTokenizer;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipInputStream;
 
 import org.apache.commons.httpclient.CircularRedirectException;
 import org.apache.commons.httpclient.ConnectTimeoutException;
@@ -52,6 +51,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	private static final String PROP_SOCKET_TIMEOUT = "socketTimeout";
 	private static final String PROP_MAXCONNECTIONS_PER_HOST = "maxConnectionsPerHost";
 	private static final String PROP_MAXDOWNLOAD_SIZE = "maxDownloadSize";
+	private static final String PROP_ACCEPT_ENCODING = "acceptEncoding";
 	
 	private static final String HTTPHEADER_ETAG = "ETag";
 	private static final String HTTPHEADER_LAST_MODIFIED = "Last-Modified";
@@ -59,6 +59,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	private static final String HTTPHEADER_CONTENT_LANGUAGE = "Content-Language";
 	private static final String HTTPHEADER_CONTENT_TYPE = "Content-Type";
 	private static final String HTTPHEADER_CONTENT_LENGTH = "Content-Length";
+	private static final String HTTPHEADER_CONTENT_ENCODING = "Content-Encoding";
+	private static final String HTTPHEADER_ACCEPT_ENCODING = "Accept-Encoding";
 
 	/**
 	 * The protocol supported by this crawler
@@ -86,18 +88,11 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 */
 	private int maxDownloadSize = -1;
 	
-	private final ReadLock robotsRLock;
-	private final WriteLock robotsWLock;
-	private Object robotsTxtManager;
-	private Method robotsIsDisallowed;
+	private boolean acceptEncoding = true;
 	
 	public HttpCrawler() {
 		// init with default configuration
 		this.updated(this.getDefaults());
-		
-		final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-		robotsRLock = lock.readLock();
-		robotsWLock = lock.writeLock();
 	}
 	
 	/**
@@ -106,10 +101,6 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 */
 	HttpCrawler(HttpClient httpClient) {
 		this.httpClient = httpClient;
-		
-		final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-		robotsRLock = lock.readLock();
-		robotsWLock = lock.writeLock();
 	}
 	
 	public void cleanup() {
@@ -127,10 +118,11 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	public Hashtable<String,Object> getDefaults() {
 		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 		
-		defaults.put(PROP_CONNECTION_TIMEOUT, new Integer(15000));
-		defaults.put(PROP_SOCKET_TIMEOUT, new Integer(15000));
-		defaults.put(PROP_MAXCONNECTIONS_PER_HOST, new Integer(10));
+		defaults.put(PROP_CONNECTION_TIMEOUT, Integer.valueOf(15000));
+		defaults.put(PROP_SOCKET_TIMEOUT, Integer.valueOf(15000));
+		defaults.put(PROP_MAXCONNECTIONS_PER_HOST, Integer.valueOf(10));
 		defaults.put(PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(-1));
+		defaults.put(PROP_ACCEPT_ENCODING, Boolean.TRUE);
 		
 		defaults.put(Constants.SERVICE_PID, IHttpCrawler.class.getName());
 		
@@ -140,6 +132,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	/**
 	 * @see ManagedService#updated(Dictionary)
 	 */
+	@SuppressWarnings("unchecked")		// we're only implementing an interface
 	public synchronized void updated(Dictionary configuration) {
 		if ( configuration == null ) {
 			/*
@@ -169,6 +162,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		this.httpClient = new HttpClient(connectionManager);
 		
 		this.maxDownloadSize = ((Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE)).intValue();
+		this.acceptEncoding = ((Boolean)configuration.get(PROP_ACCEPT_ENCODING)).booleanValue();
 	}
 	
 	/**
@@ -188,40 +182,6 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		return this.httpClient;
 	}
 	
-	// package private, called by the RobotsFilterListener
-	void setRobotsTxtFilter(final Object rmanager) {
-		robotsWLock.lock();
-		try {
-			robotsTxtManager = rmanager;
-			if (rmanager == null) {
-				robotsIsDisallowed = null;
-			} else try {
-				robotsIsDisallowed = robotsTxtManager.getClass().getMethod("isDisallowed", String.class);
-			} catch (NoSuchMethodException e) {
-				robotsIsDisallowed = null;
-				logger.error("Unable to access 'isDisallowed'-method of robots.txt-filter, has the interface changed?");
-			}
-		} finally { robotsWLock.unlock(); }
-	}
-	
-	private boolean isLocationDisallowed(final String location) {
-		Object result = null;
-		robotsRLock.lock();
-		try {
-			if (robotsTxtManager == null || robotsIsDisallowed == null)
-				return false;
-			result = robotsIsDisallowed.invoke(robotsTxtManager, location);
-		} catch (Exception e) {
-			if (e instanceof RuntimeException)
-				throw (RuntimeException)e;
-			logger.error("Error checking host of '%s' against robots.txt-filter", e);
-		} finally { robotsRLock.unlock(); }
-		
-		if (result == null)
-			return false;
-		return ((Boolean)result).booleanValue();
-	}
-	
 	/**
 	 * Initializes the {@link HttpMethod} with common attributes for all requests this crawler
 	 * initiates.
@@ -230,16 +190,21 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * are set:
 	 * <ul>
 	 *   <li>cookies shall be rejected ({@link CookiePolicy#IGNORE_COOKIES})</li>
+	 *   <li>
+	 *     content-transformation using <code>compress</code>, <code>gzip</code> and
+	 *     <code>deflate</code> is supported</li>
+	 *   </li> 
 	 * </ul>
 	 * 
 	 * @param method the method to set the standard attributes on
 	 */
-	private static void initRequestMethod(final HttpMethod method) {
+	private void initRequestMethod(final HttpMethod method) {
 		method.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+		if (acceptEncoding)
+			method.setRequestHeader(HTTPHEADER_ACCEPT_ENCODING, "compress, gzip, identity, deflate");	// see RFC 2616, section 14.3
 		
 		// TODO: set some additional http headers
 		//method.setRequestHeader("User-Agent","xxx");
-		//method.setRequestHeader("Accept-Encoding","gzip");
 	}
 	
 	/**
@@ -325,7 +290,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * @return <code>true</code> if proceeding with the URL may continue or <code>false</code> if
 	 *         it shall be aborted due to an exceeded maximum file-size of the document
 	 */
-	private boolean handleContentTypeLength(final Header contentTypeLength, final CrawlerDocument doc) {
+	private boolean handleContentTypeLengthHeader(final Header contentTypeLength, final CrawlerDocument doc) {
 		if (contentTypeLength == null)
 			// no Content-Length given, continue
 			return true;
@@ -363,7 +328,6 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		
 		CrawlerDocument doc = new CrawlerDocument();
 		
-		// FIXME: we need to re-write the location on crawler-redirection
 		doc.setLocation(requestUrl);
 		
 		HttpMethod method = null;
@@ -377,7 +341,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			initRequestMethod(method);
 			
 			int statusCode = this.getHttpClient().executeMethod(method);
-			if (statusCode != HttpStatus.SC_METHOD_FAILURE && statusCode != HttpStatus.SC_METHOD_NOT_ALLOWED) {
+			final boolean headUnsupported = (statusCode == HttpStatus.SC_METHOD_FAILURE || statusCode == HttpStatus.SC_METHOD_NOT_ALLOWED);
+			if (!headUnsupported) {
 				if (statusCode != HttpStatus.SC_OK) {
 					// RFC 2616 states that the GET and HEAD methods _must_ be supported by any
 					// general purpose servers (which are in fact the ones we are connecting to here)
@@ -392,21 +357,17 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 					return doc;
 				}
 				
-				// XXX redirects
-				
+				// getting the mimetype and charset
 				Header contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
-				if (contentTypeHeader != null) {
-					final boolean mimeTypeOk = handleContentTypeHeader(contentTypeHeader, doc);
-					if (!mimeTypeOk)
-						return doc;
-				}
+				if (!handleContentTypeHeader(contentTypeHeader, doc))
+					return doc;
 				
+				// reject the document if content-length is above our limit
 				Header contentTypeLength = method.getResponseHeader(HTTPHEADER_CONTENT_LENGTH);
-				if (contentTypeLength != null) {
-					final boolean contentLengthAccepted = handleContentTypeLength(contentTypeLength, doc);
-					if (!contentLengthAccepted)
-						return doc;
-				}
+				if (!handleContentTypeLengthHeader(contentTypeLength, doc))
+					return doc;
+				
+				// FIXME: if we've been redirected, re-enqueue the new URL and abort processing
 			}
 			
 			// secondly - if everything is alright up to now - proceed with getting the actual
@@ -434,59 +395,23 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				return doc;
 			}
 			
-			// getting the mimetype and charset
-			// XXX needed here again?
-			Header contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
-			if (contentTypeHeader != null) {
-				final boolean mimeTypeOk = handleContentTypeHeader(contentTypeHeader, doc);
-				if (!mimeTypeOk)
+			if (headUnsupported) {
+				// getting the mimetype and charset
+				Header contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
+				if (!handleContentTypeHeader(contentTypeHeader, doc))
 					return doc;
+				
+				// FIXME: if we've been redirected, re-enqueue the new URL and abort processing
 			}
 			
-			// getting the document languages
-			Header contentLanguageHeader = method.getResponseHeader(HTTPHEADER_CONTENT_LANGUAGE);
-			if (contentLanguageHeader != null) {
-				String contentLanguage = contentLanguageHeader.getValue();
-				String[] languages = contentLanguage.split(",");
-				doc.setLanguages(languages);
-			}
+			postProcessHeaders(method, doc);		// externalised into this method to cleanup here a bit
 			
-			// crawling Date
-			Date crawlingDate = null;			
-			try {
-				Header crawlingDateHeader = method.getResponseHeader(HTTPHEADER_DATE);
-				if (crawlingDateHeader != null) {
-					String dateStr = crawlingDateHeader.getValue();
-					crawlingDate = DateUtil.parseDate(dateStr);
-				}
-			} catch (DateParseException e) {
-				crawlingDate = new Date();
-			}
-			doc.setCrawlerDate(crawlingDate);
-
-			// last mod date
-			Date lastModDate = null;
-			Header lastModDateHeader = method.getResponseHeader(HTTPHEADER_LAST_MODIFIED);
-			try {
-				if (lastModDateHeader != null) {
-					String dateStr = lastModDateHeader.getValue();
-					lastModDate = DateUtil.parseDate(dateStr);
-				}
-			} catch (DateParseException e) {
-				lastModDate = crawlingDate;
-			}
-			doc.setLastModDate(lastModDate);			
-			
-			// ETAG
-			Header etageHeader = method.getResponseHeader(HTTPHEADER_ETAG);
-			if (etageHeader != null) {
-				String etag = etageHeader.getValue();
-				doc.setEtag(etag);
-			}			
-			
-			// getting the response body			
+			// getting the response body
 			InputStream respBody = method.getResponseBodyAsStream();
-			// TODO: add gzip/deflate support
+			
+			// handle the content-encoding, i.e. decompress the server's response
+			Header contentEncodingHeader = method.getResponseHeader(HTTPHEADER_CONTENT_ENCODING);
+			respBody = handleContentEncoding(contentEncodingHeader, respBody);
 			
 			// copy the content to file
 			CrawlerTools.saveInto(doc, respBody);
@@ -531,5 +456,70 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		}
 		
 		return doc;
+	}
+	
+	private static void postProcessHeaders(final HttpMethod method, final CrawlerDocument doc) throws IOException {
+		// getting the document languages
+		Header contentLanguageHeader = method.getResponseHeader(HTTPHEADER_CONTENT_LANGUAGE);
+		if (contentLanguageHeader != null) {
+			String contentLanguage = contentLanguageHeader.getValue();
+			String[] languages = contentLanguage.split(",");
+			doc.setLanguages(languages);
+		}
+		
+		// crawling Date
+		Date crawlingDate = null;
+		Header crawlingDateHeader = method.getResponseHeader(HTTPHEADER_DATE);			
+		if (crawlingDateHeader != null) try {
+			String dateStr = crawlingDateHeader.getValue();
+			crawlingDate = DateUtil.parseDate(dateStr);
+		} catch (DateParseException e) {
+			crawlingDate = new Date();
+		}
+		doc.setCrawlerDate(crawlingDate);
+
+		// last mod date
+		Date lastModDate = null;
+		Header lastModDateHeader = method.getResponseHeader(HTTPHEADER_LAST_MODIFIED);
+		if (lastModDateHeader != null) try {
+			String dateStr = lastModDateHeader.getValue();
+			lastModDate = DateUtil.parseDate(dateStr);
+		} catch (DateParseException e) {
+			lastModDate = crawlingDate;
+		}
+		doc.setLastModDate(lastModDate);			
+		
+		// ETAG
+		Header etageHeader = method.getResponseHeader(HTTPHEADER_ETAG);
+		if (etageHeader != null) {
+			String etag = etageHeader.getValue();
+			doc.setEtag(etag);
+		}
+	}
+	
+	private static InputStream handleContentEncoding(final Header contentEncodingHeader, final InputStream responseBody) throws IOException {
+		if (contentEncodingHeader == null)
+			return responseBody;
+		
+		final String contentEncoding = contentEncodingHeader.getValue();
+		InputStream r = responseBody;
+		// apply decompression methods in the order given, see RFC 2616, section 14.11
+		final StringTokenizer st = new StringTokenizer(contentEncoding, ",");
+		while (st.hasMoreTokens()) {
+			String encoding = st.nextToken().trim();
+			// the "identity"-encoding does not need any transformation
+			
+			if (encoding.equals("deflate")) {
+				r = new ZipInputStream(r);
+			} else {
+				// support for the recommendation of the W3C, see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.5
+				if (encoding.startsWith("x-"))
+					encoding = encoding.substring("x-".length());
+				if (encoding.equals("gzip") || encoding.equals("compress")) {
+					r = new GZIPInputStream(r);
+				}
+			}
+		}
+		return r;
 	}
 }

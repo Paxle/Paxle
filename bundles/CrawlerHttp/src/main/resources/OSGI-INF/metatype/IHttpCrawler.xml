@@ -1,51 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-   <OCD description="Crawler to download http resources" 
-        name="HTTP Crawler"
-        id="1.1.1.1">
-        
-        <AD name="Max Connections per Host"
-	    type="Integer"
-	    id="maxConnectionsPerHost"
-	    default="10"
-	    min="1" 
-            description="Defines the maximum number of connections allowed per host configuration."/>
-            
-        <AD name="Socket Timeout"
-            type="Integer"
-            id="socketTimeout"
-            default="15000"
-            min="1000"
-            description="Defines the socket timeout in milliseconds which is the timeout for waiting for data."/>
-            
-        <AD name="Connection Timeout"
-            type="Integer"
-            id="connectionTimeout"
-            default="15000"
-            min="1000"
-            description="Determines the timeout in milliseconds until a connection is etablished."/>
-            
-        <AD name="Use Content Encoding"
-            type="Boolean"
-            id="enableContentEncoding"
-            default="true"
-            description="Specifies whether the crawler should use ContentEncoding."/>
-            
-	<AD name="Maximum size of documents to download"
-	    type="Integer"
-	    id="maxDownloadSize"
-	    default="-1"
-	    min="-1"
-	    description="Defines the size limit for documents to fetch in kile-bytes. A value of -1 allows every file-size. Only in effect if supported by the server."/>
-   </OCD>
-   
-   <Designate 
-      pid="org.paxle.crawler.http.IHttpCrawler"
-      bundle="ignored" >
-      <Object ocdref="1.1.1.1">
-      </Object>
-
-</Designate>
+	<OCD description="Crawler to download http resources" 
+			name="HTTP Crawler"
+			id="1.1.1.1">
+		
+		<AD name="Max Connections per Host"
+				type="Integer"
+				id="maxConnectionsPerHost"
+				default="10"
+				min="1" 
+				description="Defines the maximum number of connections allowed per host configuration."/>
+		
+		<AD name="Socket Timeout"
+				type="Integer"
+				id="socketTimeout"
+				default="15000"
+				min="1000"
+				description="Defines the socket timeout in milliseconds which is the timeout for waiting for data."/>
+		
+		<AD name="Connection Timeout"
+				type="Integer"
+				id="connectionTimeout"
+				default="15000"
+				min="1000"
+				description="Determines the timeout in milliseconds until a connection is etablished."/>
+		
+		<AD name="Use Content Encoding"
+				type="Boolean"
+				id="enableContentEncoding"
+				default="true"
+				description="Specifies whether the crawler should use ContentEncoding."/>
+		
+		<AD name="Maximum size of documents to download"
+				type="Integer"
+				id="maxDownloadSize"
+				default="-1"
+				min="-1"
+				description="Defines the size limit for documents to fetch in kile-bytes. A value of -1 allows every file-size. Only in effect if supported by the server."/>
+		
+		<AD name="Use Accept Encoding"
+				type="Boolean"
+				id="acceptEncodings"
+				default="true"
+				cardinality="2147483647"
+				description="Specifies whether the crawler should use AcceptEncoding and encourage servers to send compressed responses" />
+	</OCD>
+	
+	<Designate
+			pid="org.paxle.crawler.http.IHttpCrawler"
+			bundle="ignored">
+		<Object ocdref="1.1.1.1"></Object>
+	</Designate>
 
 </metatype:MetaData>
