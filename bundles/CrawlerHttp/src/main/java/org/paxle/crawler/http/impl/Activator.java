@@ -9,6 +9,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
+import org.paxle.core.prefs.IPropertiesStore;
+import org.paxle.core.prefs.Properties;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.http.IHttpCrawler;
 
@@ -24,10 +26,18 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext context) throws Exception {
+		/*
+		 * Load the properties of this bundle
+		 */
+		Properties properties = null;
+		final ServiceReference ref = context.getServiceReference(IPropertiesStore.class.getName());
+		if (ref != null)
+			properties = ((IPropertiesStore)context.getService(ref)).getProperties(context);
+		
 		/* 
 		 * Register this crawler as subcrawler
 		 */
-		this.crawler = new HttpCrawler();
+		this.crawler = new HttpCrawler(properties);
 		Hashtable<String,Object> props = new Hashtable<String, Object>();
 		props.put(ISubCrawler.PROP_PROTOCOL, this.crawler.getProtocols());	  
 		context.registerService(new String[]{ISubCrawler.class.getName(),IHttpCrawler.class.getName()}, this.crawler, props);
@@ -62,6 +72,7 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 		if (this.crawler != null) {
 			this.crawler.cleanup();
+			this.crawler.saveProperties();
 		}
 	}
 }

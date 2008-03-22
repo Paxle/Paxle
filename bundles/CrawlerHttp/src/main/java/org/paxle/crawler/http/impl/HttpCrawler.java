@@ -10,7 +10,10 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipInputStream;
 
@@ -22,6 +25,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.HeadMethod;
@@ -33,6 +37,7 @@ import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedService;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.prefs.Properties;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ISubCrawler;
@@ -59,6 +64,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	private static final String HTTPHEADER_CONTENT_LENGTH = "Content-Length";
 	private static final String HTTPHEADER_CONTENT_ENCODING = "Content-Encoding";
 	private static final String HTTPHEADER_ACCEPT_ENCODING = "Accept-Encoding";
+	
+	private static final int PREF_NO_ENCODING = 1;
 
 	/**
 	 * The protocol supported by this crawler
@@ -88,9 +95,20 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	
 	private boolean acceptEncoding = true;
 	
-	public HttpCrawler() {
+	private Properties props = null;
+	private final ConcurrentHashMap<String,Integer> hostSettings;
+	
+	public HttpCrawler(final Properties props) {
 		// init with default configuration
 		this.updated(this.getDefaults());
+		
+		this.props = props;
+		final Set<Object> keySet = props.keySet();
+		hostSettings = new ConcurrentHashMap<String,Integer>(keySet.size(), 0.75f, 10);
+		for (final Object o : keySet) {
+			final String key = (String)o;
+			hostSettings.put(key, Integer.valueOf(props.getProperty(key)));
+		}
 	}
 	
 	/**
@@ -99,6 +117,27 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 */
 	HttpCrawler(HttpClient httpClient) {
 		this.httpClient = httpClient;
+		hostSettings = new ConcurrentHashMap<String,Integer>();
+	}
+	
+	public void saveProperties() {
+		if (props != null) {
+			for (Map.Entry<String,Integer> e : hostSettings.entrySet())
+				props.setProperty(e.getKey(), Integer.toString(e.getValue().intValue()));
+		}
+	}
+	
+	private boolean isHostSettingSet(final String host, final int pref) {
+		final Integer i = hostSettings.get(host);
+		if (i == null)
+			return false;
+		return (i.intValue() & pref) != 0;
+	}
+	
+	private void setHostSetting(final String host, final int pref) {
+		final Integer i = hostSettings.get(host);
+		final int val = (i == null) ? pref : (i.intValue() | pref);
+		hostSettings.put(host, Integer.valueOf(val));
 	}
 	
 	public void cleanup() {
@@ -109,7 +148,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			this.httpClient = null;
 		}
 	}
-
+	
 	/**
 	 * @return the default configuration of this service
 	 */
@@ -126,7 +165,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		
 		return defaults;
 	}
-
+	
 	/**
 	 * @see ManagedService#updated(Dictionary)
 	 */
@@ -196,9 +235,9 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * 
 	 * @param method the method to set the standard attributes on
 	 */
-	private void initRequestMethod(final HttpMethod method) {
+	private void initRequestMethod(final HttpMethod method) throws URIException {
 		method.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
-		if (acceptEncoding)
+		if (acceptEncoding && !isHostSettingSet(method.getURI().getHost(), PREF_NO_ENCODING))
 			method.setRequestHeader(HTTPHEADER_ACCEPT_ENCODING, "compress, gzip, identity, deflate");	// see RFC 2616, section 14.3
 		
 		// TODO: set some additional http headers
@@ -339,6 +378,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			initRequestMethod(method);
 			
 			int statusCode = this.getHttpClient().executeMethod(method);
+			
 			final boolean headUnsupported = (statusCode == HttpStatus.SC_METHOD_FAILURE || statusCode == HttpStatus.SC_METHOD_NOT_ALLOWED);
 			if (!headUnsupported) {
 				if (statusCode != HttpStatus.SC_OK) {
@@ -409,14 +449,28 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			
 			// handle the content-encoding, i.e. decompress the server's response
 			Header contentEncodingHeader = method.getResponseHeader(HTTPHEADER_CONTENT_ENCODING);
-			respBody = handleContentEncoding(contentEncodingHeader, respBody);
-			
-			// copy the content to file
-			CrawlerTools.saveInto(doc, respBody);
-			respBody.close();
-			
-			doc.setStatus(ICrawlerDocument.Status.OK);
-			this.logger.info(String.format("Crawling of URL '%s' finished.", requestUrl));
+			try {
+				respBody = handleContentEncoding(contentEncodingHeader, respBody);
+				
+				// copy the content to file
+				CrawlerTools.saveInto(doc, respBody);
+				
+				doc.setStatus(ICrawlerDocument.Status.OK);
+				this.logger.info(String.format("Crawling of URL '%s' finished.", requestUrl));
+			} catch (IOException e) {
+				String msg = e.getMessage();
+				if (msg == null || !msg.equals("Corrupt GZIP trailer"))
+					throw e;
+				
+				setHostSetting(method.getURI().getHost(), PREF_NO_ENCODING);
+				msg = String.format("server sent a corrupt gzip trailer at URL '%s'", requestUrl);
+				logger.warn(msg);
+				
+				// FIXME re-enqueue command
+				doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
+			} finally {
+				respBody.close();
+			}
 		} catch (NoRouteToHostException e) {
 			this.logger.error(String.format("Error crawling %s: %s", requestUrl, e.getMessage()));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
