@@ -63,7 +63,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	/**
 	 * The protocol supported by this crawler
 	 */
-	public static final String[] PROTOCOLS = new String[]{"http"};
+	public static final String[] PROTOCOLS = new String[]{"http","https"};
 	
 	/**
 	 * Connection manager used for http connection pooling
