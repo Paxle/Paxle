@@ -60,14 +60,26 @@ public class Master<Data> extends Thread implements IMaster {
 	private int delay = -1;
 	
 	/**
+	 * Specifies whether the workers will be triggerd to fetch
+	 * the next command on their own or get the already dequeued
+	 * command by the master.
+	 */
+	private boolean triggerMode = true;
+	
+	/**
 	 * @param threadPool the thread pool containing {@link IWorker worker-threads}
 	 * @param commandQueue the queue containing {@link ICommand commands} to process
 	 */
 	public Master(IPool<Data> threadPool, IInputQueue<Data> commandQueue) {		
+		this(threadPool, commandQueue, true);
+	}
+	
+	public Master(IPool<Data> threadPool, IInputQueue<Data> commandQueue, boolean useTrigger) {		
+		this.triggerMode = useTrigger;
 		this.pool = threadPool;
 		this.inQueue = commandQueue;
 		this.setName("Master");
-		this.start();
+		this.start();		
 	}
 	
 	@Override
@@ -79,17 +91,27 @@ public class Master<Data> extends Thread implements IMaster {
             	synchronized (this) {
 					if (this.paused) this.wait();
 				}
-            	
-                // getting a new command from the queue
-                command = this.inQueue.dequeue();
+            	            	
+            	if (!this.triggerMode) {
+            		// getting a new command from the queue
+            		command = this.inQueue.dequeue();
+            	} else {
+            		// just wait for the next command
+            		this.inQueue.waitForNext();
+            	}
 
                 // getting a free worker from pool
                 IWorker<Data> worker = this.pool.getWorker();
 
-                // assign the command to the worker
-                worker.assign(command);
+                if (!this.triggerMode) {
+                	// assign the command to the worker
+                	worker.assign(command);
+                	command = null;
+                } else {
+                	// force the worker to fetch the next command
+                	worker.trigger();
+                }
                 this.processedCount++;
-                command = null;
                 
                 //add the job to the total job-count and the PPM
                 this.ppm.trick();

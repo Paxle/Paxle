@@ -17,7 +17,7 @@ public interface IWorker<Data> {
 	 * This method is called by the {@link IMaster master-thread} to
      * signal the worker to fetch a next command from the input-queue
 	 */
-	public void trigger();
+	public void trigger() throws InterruptedException;
 	
 	/**
 	 * @return the command that was assigned by the {@link IMaster master-thread} to the worker

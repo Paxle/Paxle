@@ -115,7 +115,15 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                     try {
                     	// if we are in trigger mode we fetch the next command on our own
                     	if (this.command == null && this.inQueue != null) {
-                    		this.command = this.inQueue.dequeue();
+                    		try {
+                    			// fetch the next command
+                    			this.command = this.inQueue.dequeue();
+                    		} finally {
+                    			// notify the master that we have fetched the command
+                    			synchronized (this) {
+                    				this.notify();
+                    			}
+                    		}
                     		
                     		/*
                     		 * If the command is null here, then it was rejected by one of the
@@ -181,9 +189,10 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
     }
     
     /**
+     * @throws InterruptedException 
      * @see IWorker#trigger()
      */
-    public void trigger() {
+    public void trigger() throws InterruptedException {
     	if (this.inQueue == null) {
     		throw new IllegalStateException("No inputqueue set on this object.");
     	}
@@ -191,6 +200,9 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
         synchronized (this) {
             this.done = false;
 
+            /*
+             * Start or notify the thread
+             */
             if (!this.running) {
                 // if the thread is not running until yet, we need to start it now
                 this.start();
@@ -198,6 +210,9 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                 // inform the thread about the new command
                 this.notifyAll();
             }
+            
+            // wait until the worker has dequeued the command
+            this.wait(1000);
         }
     }
     
