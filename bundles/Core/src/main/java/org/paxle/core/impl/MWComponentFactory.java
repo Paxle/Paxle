@@ -102,6 +102,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 		// init the factory wrapper
 		factoryWrapper.setPool(pool);
 		factoryWrapper.setFactory(workerFactory);
+		factoryWrapper.setInQueue(inQueue);
 		factoryWrapper.setOutQueue(outQueue);
 		
 		// create a master thread

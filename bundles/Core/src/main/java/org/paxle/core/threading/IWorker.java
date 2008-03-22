@@ -1,5 +1,6 @@
 package org.paxle.core.threading;
 
+import org.paxle.core.queue.IInputQueue;
 import org.paxle.core.queue.IOutputQueue;
 
 public interface IWorker<Data> {
@@ -11,6 +12,12 @@ public interface IWorker<Data> {
      * be enqueue
      */
 	public void assign(Data cmd);
+	
+	/**
+	 * This method is called by the {@link IMaster master-thread} to
+     * signal the worker to fetch a next command from the input-queue
+	 */
+	public void trigger();
 	
 	/**
 	 * @return the command that was assigned by the {@link IMaster master-thread} to the worker
@@ -43,4 +50,11 @@ public interface IWorker<Data> {
      * @param outQueue
      */
     public void setOutQueue(IOutputQueue<Data> outQueue);
+    
+    /**
+     * Called from the worker-thread-pool on worker creatin time to set a
+     * reference to the input command queue
+     * @param inQueue
+     */
+    public void setInQueue(IInputQueue<Data> inQueue);
 }

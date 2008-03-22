@@ -3,6 +3,7 @@ package org.paxle.core.threading;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.IInputQueue;
 import org.paxle.core.queue.IOutputQueue;
 import org.paxle.core.threading.IPool;
 import org.paxle.core.threading.IWorker;
@@ -34,6 +35,12 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
      * be enqueued.
      */
     private IOutputQueue<Data> outQueue = null;
+    
+    /**
+     * The input-queue where incoming commands are fetched
+     * from.
+     */
+    private IInputQueue<Data> inQueue = null;
         
     /**
      * The next {@link ICommand command} that must be processed by the worker  
@@ -74,6 +81,13 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
     	this.outQueue = outQueue;
     }
     
+    /**
+     * @see IWorker#setInQueue(IInputQueue)
+     */
+    public void setInQueue(IInputQueue<Data> inQueue) {
+    	this.inQueue = inQueue;
+    }
+    
     @Override
     public void run() {
         this.running = true;
@@ -99,6 +113,20 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                     }
                 } else {
                     try {
+                    	// if we are in trigger mode we fetch the next command on our own
+                    	if (this.command == null && this.inQueue != null) {
+                    		this.command = this.inQueue.dequeue();
+                    		
+                    		/*
+                    		 * If the command is null here, then it was rejected by one of the
+                    		 * input-queue filters during dequeueing. 
+                    		 */
+                    		if (this.command == null) {
+                    			this.logger.debug("Command was null. Maybe command was consumed by a queue filter");
+                    			continue;
+                    		}
+                    	}
+                    	
                     	// set threadname
                     	this.setName();
                     	
@@ -106,7 +134,7 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                         execute(this.command);                        
                     } finally {
                         // write the modified command object to the out-queue
-                        this.outQueue.enqueue(this.command);                    	
+                        if (this.command != null) this.outQueue.enqueue(this.command);                    	
                     	
                         // signal that we have finished execution
                         this.done = true;
@@ -140,6 +168,27 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
         synchronized (this) {
 
             this.command = cmd;
+            this.done = false;
+
+            if (!this.running) {
+                // if the thread is not running until yet, we need to start it now
+                this.start();
+            }  else {
+                // inform the thread about the new command
+                this.notifyAll();
+            }
+        }
+    }
+    
+    /**
+     * @see IWorker#trigger()
+     */
+    public void trigger() {
+    	if (this.inQueue == null) {
+    		throw new IllegalStateException("No inputqueue set on this object.");
+    	}
+    	
+        synchronized (this) {
             this.done = false;
 
             if (!this.running) {

@@ -1,6 +1,7 @@
 package org.paxle.core.threading.impl;
 
 import org.apache.commons.pool.PoolableObjectFactory;
+import org.paxle.core.queue.IInputQueue;
 import org.paxle.core.queue.IOutputQueue;
 import org.paxle.core.threading.IPool;
 import org.paxle.core.threading.IWorker;
@@ -15,6 +16,7 @@ public class WorkerFactoryWrapper<Data,E extends IWorker<Data>> implements Poola
 	private IPool<Data> pool = null;
 	private IWorkerFactory<E> factory = null;
 	private IOutputQueue<Data> outQueue = null;
+	private IInputQueue<Data> inQueue = null;
 	
 	public void setPool(IPool<Data> pool) {
 		this.pool = pool;
@@ -22,6 +24,10 @@ public class WorkerFactoryWrapper<Data,E extends IWorker<Data>> implements Poola
 	
 	public void setFactory(IWorkerFactory<E> factory) {
 		this.factory = factory;
+	}
+	
+	public void setInQueue(IInputQueue<Data> inQueue) {
+		this.inQueue = inQueue;
 	}
 	
 	public void setOutQueue(IOutputQueue<Data> outQueue) {
@@ -40,6 +46,7 @@ public class WorkerFactoryWrapper<Data,E extends IWorker<Data>> implements Poola
 		E newWorker = this.factory.createWorker();	
 		
 		// setting some dependencies
+		newWorker.setInQueue(this.inQueue);
 		newWorker.setOutQueue(this.outQueue);
 		newWorker.setPool(this.pool);
 		
