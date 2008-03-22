@@ -33,5 +33,17 @@ public class InputQueue<Data> extends ArrayBlockingQueue<Data>
 	 */
 	public void putData(Data data) throws InterruptedException {
 		super.put(data);
+		synchronized (this) {
+			this.notify();
+		}
+	}
+
+	/**
+	 * @see IInputQueue#waitForNext()
+	 */
+	public void waitForNext() throws InterruptedException {
+		synchronized(this) {
+			if (this.size() == 0) this.wait();
+		}
 	}
 }

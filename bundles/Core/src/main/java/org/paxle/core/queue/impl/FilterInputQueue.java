@@ -43,21 +43,32 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 		if (this.filterQueueID != null) throw new IllegalStateException("The filter-queue was already set.");
 		this.filterQueueID = filterQueueID;
 	}
-	
+
 	@Override
-	public void putData(Cmd command) throws InterruptedException {
+	public Cmd dequeue() throws InterruptedException {
+		// get next command
+		Cmd command = super.dequeue();
+		
 		switch (command.getResult()) {
 			case Failure:
 			case Rejected:
 		}
-		
+
+		// filtering
 		this.filter(command);		
-		
+
+		// only return "passed" commands
 		switch (command.getResult()) {
+			case Passed:  return command;
 			case Failure:
-			case Passed:  super.putData(command); break;
 			case Rejected: 
+			default: return null;
 		}		
+	}
+	
+	@Override
+	public void putData(Cmd command) throws InterruptedException {
+		super.putData(command); 
 	}
 	
 	private void filter(Cmd command) {
