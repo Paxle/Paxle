@@ -43,7 +43,6 @@
 				type="Boolean"
 				id="acceptEncodings"
 				default="true"
-				cardinality="2147483647"
 				description="Specifies whether the crawler should use AcceptEncoding and encourage servers to send compressed responses" />
 	</OCD>
 	

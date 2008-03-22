@@ -39,9 +39,7 @@ import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.http.IHttpCrawler;
 
 /**
- * TODO: configure the connection pool properly
- * TODO: set redirection follow, etc....
- * 
+ * TODO: javadoc
  */
 public class HttpCrawler implements IHttpCrawler, ManagedService {
 	/* =========================================================
@@ -191,7 +189,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * <ul>
 	 *   <li>cookies shall be rejected ({@link CookiePolicy#IGNORE_COOKIES})</li>
 	 *   <li>
-	 *     content-transformation using <code>compress</code>, <code>gzip</code> and
+	 *     if enabled, content-transformation using <code>compress</code>, <code>gzip</code> and
 	 *     <code>deflate</code> is supported</li>
 	 *   </li> 
 	 * </ul>
@@ -470,14 +468,16 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		// crawling Date
 		Date crawlingDate = null;
 		Header crawlingDateHeader = method.getResponseHeader(HTTPHEADER_DATE);			
-		if (crawlingDateHeader != null) try {
+		if (crawlingDateHeader == null) {
+			crawlingDate = new Date();
+		} else try {
 			String dateStr = crawlingDateHeader.getValue();
 			crawlingDate = DateUtil.parseDate(dateStr);
 		} catch (DateParseException e) {
 			crawlingDate = new Date();
 		}
 		doc.setCrawlerDate(crawlingDate);
-
+		
 		// last mod date
 		Date lastModDate = null;
 		Header lastModDateHeader = method.getResponseHeader(HTTPHEADER_LAST_MODIFIED);
