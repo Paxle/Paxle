@@ -87,7 +87,9 @@
 
 	<hr />		
 	<h3>Supported protocols:</h3>
-	$subCrawlerManager.getSubCrawlers().size() crawler(s) found, supporting following Protocols:<br />
+	#set($protocols = $subCrawlerManager.getProtocols())
+	#set($crawlers = $subCrawlerManager.getSubCrawlers())		
+	<b>$crawlers.size()</b> crawler(s) installed supporting <b>$protocols.size()</b> protocols.
 	
 	## Enable/Disable protocols if requested
 	#if( $paramParser.getString( "doEnableProtocol")) $subCrawlerManager.enableProtocol( $paramParser.getString( "enableProtocol"))#end
@@ -96,8 +98,7 @@
 	<table>
 		<tr><th>Protocol</th><th colspan="2">Status</th></tr>
 		#set( $disabledProtocols = $subCrawlerManager.disabledProtocols())
-		#foreach( $subCrawler in $subCrawlerManager.getSubCrawlers())
-			#foreach( $protocol in $subCrawler.getProtocols())
+		#foreach($protocol in $protocols)
 			<tr>
 				<td>$protocol</td>
 				<td>#if( $disabledProtocols.contains( $protocol))
@@ -120,7 +121,6 @@
 					</form>
 				</td>
 			</tr>
-			#end
 		#end
 	</table>
 	
