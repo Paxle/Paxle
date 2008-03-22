@@ -35,7 +35,7 @@ public class AWorkerTest extends MockObjectTestCase {
 		checking(new Expectations(){{
 			// allow enqueuing and dequeueing of exactly one command
 			one(inQueue).dequeue(); will(returnValue(command));
-			never(outQueue).enqueue(with(same(command)));
+			one(outQueue).enqueue(with(same(command)));
 			
 			// pool is closed
 			one(pool).closed(); will(returnValue(true));
