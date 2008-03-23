@@ -26,6 +26,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -211,8 +212,8 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 			if (e instanceof UnknownHostException) {
 				reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
 				status = "Unknown host";
-			} else if (e instanceof SocketTimeoutException) {
-				logger.debug("TimeOut while loading robots.txt from" + hostPort);
+			} else if (e instanceof SocketTimeoutException || e instanceof ConnectTimeoutException) {
+				logger.debug("TimeOut while loading robots.txt from " + hostPort);
 			} else if (!(
 					e instanceof ConnectException ||
 					e instanceof SocketException
