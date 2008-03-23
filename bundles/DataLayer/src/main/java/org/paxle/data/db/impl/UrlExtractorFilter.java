@@ -4,6 +4,7 @@ package org.paxle.data.db.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,15 +74,10 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 
 		// store commands into DB
 		if (!db.isClosed()) {
-			final Map<String,String> failMap = db.storeUnknownLocations(locations);
-			if (failMap != null && failMap.size() > 0) {
-				if (logger.isDebugEnabled()) {
-					for (Map.Entry<String,String> e : failMap.entrySet())
-						logger.warn(String.format("Unable to add '%s' to command-db: %s", e.getKey(), e.getValue()));
-				} else {
-					logger.warn(String.format("Failed to add %d new locations to command-db because of syntax errors",
-							Integer.valueOf(failMap.size())));
-				}
+			final Set<String> failSet = db.storeUnknownLocations(locations);
+			if (failSet != null && failSet.size() > 0) {
+				for (final String msg : failSet)
+					logger.warn(String.format("Unable to add URI to command-db: %s", msg));
 			}
 			c.c += locations.size();
 		} else {

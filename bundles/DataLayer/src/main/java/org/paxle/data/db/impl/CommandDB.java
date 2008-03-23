@@ -6,11 +6,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.cache.Cache;
 import org.apache.commons.cache.EvictionPolicy;
@@ -299,10 +298,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 * {@link URISyntaxException}.
 	 * 
 	 * @param locations the locations to add to the DB
-	 * @return all locations which fail to form valid URIs mapping to the respective error
-	 *         message
+	 * @return the respective error messages for all locations (they include the location
+	 *         string as well)
 	 */
-	Map<String,String> storeUnknownLocations(List<String> locations) {
+	Set<String> storeUnknownLocations(List<String> locations) {
 		if (locations == null || locations.size() == 0) return null;
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
@@ -340,7 +339,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				}
 			}
 			
-			final Map<String,String> failMap = new HashMap<String,String>();
+			final Set<String> failSet = new HashSet<String>();
 
 			// add new commands into DB
 			for (String location: locations) {
@@ -352,7 +351,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 					session.saveOrUpdate(Command.createCommand(new URI(location)));	
 					this.urlExistsCache.store(location, Boolean.TRUE, null, null);
 				} catch (URISyntaxException e) {
-					failMap.put(location, e.getMessage());
+					failSet.add(e.getMessage());
 				}
 			}
 
@@ -360,12 +359,12 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 
 			// signal writer that a new URL is available
 			this.writerThread.signalNewDbData();
-			return failMap;
+			return failSet;
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
 			this.logger.error(String.format("Unexpected '%s' while writing %d new commands to db.",
 					e.getClass().getName(),
-					locations.size()
+					Integer.valueOf(locations.size())
 			),e);
 		}
 		return null;
@@ -375,7 +374,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 * @return the total size of the command queue
 	 */
 	public long size() {		
-		Long count = -1l;
+		Long count = Long.valueOf(-1l);
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
 		try {
@@ -389,7 +388,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			this.logger.error("Error while querying queue size",e);
 		}		
 
-		return count;
+		return count.longValue();
 	}
 
 	/**
