@@ -58,6 +58,9 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 		
 		// search for available styles
 		this.searchForStyles();
+		
+		// load the current style for now
+		this.setStyle("default");
 	}
 	
 	public File getDataPath() {

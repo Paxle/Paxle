@@ -81,9 +81,6 @@ public class Activator implements BundleActivator {
 		registerServlet( "/config", new SettingsView(), "Settings");
 		registerServlet( "/threads", new TheaddumpView(), null);
 		registerServlet( "/overview", new OverView(), "Overview");
-
-		// load the current style
-		this.styleManager.setStyle("default");
 	}
 
 
