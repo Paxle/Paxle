@@ -97,16 +97,19 @@
 	<!-- dependencies that are used multiple times -->
 	<dependencyManagement>
 		<dependencies>
+			<!-- httpclient dependencies -->
 			<dependency>
 				<groupId>commons-httpclient</groupId>
-				<artifactId>commons-httpclient</artifactId>
-				<version>3.0.1</version>
+				<artifactId>commons-httpclient-osgi</artifactId>
+				<version>3.1.0.v200712051435</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-codec</groupId>
-				<artifactId>commons-codec</artifactId>
-				<version>1.2</version>
+				<artifactId>commons-codec-osgi</artifactId>
+				<version>1.2.0.v200711021015</version>
 			</dependency>
+			
+			<!-- jmock dependencies -->
 			<dependency>
 				<groupId>org.jmock</groupId>
 				<artifactId>jmock</artifactId>

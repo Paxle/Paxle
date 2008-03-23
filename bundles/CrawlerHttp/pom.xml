@@ -35,28 +35,16 @@
 							org.osgi.service.cm,
 							org.paxle.crawler, 
 							org.paxle.core.doc,
-							org.paxle.core.prefs
+							org.paxle.core.prefs,
+							org.apache.commons.httpclient.*;version="3.1.0"
 						</Import-Package>
-						<DynamicImport-Package>
-							javax.crypto, 
-							javax.crypto.spec, 
-							javax.net, 
-							javax.net.ssl
-						</DynamicImport-Package>
+						<DynamicImport-Package></DynamicImport-Package>
 						<Private-Package>
 							org.paxle.crawler.http.impl
 						</Private-Package>
 						<Bundle-Activator>
 							org.paxle.crawler.http.impl.Activator
 						</Bundle-Activator>
-
-						<!-- embedding libs -->
-						<Embed-StripGroup>true</Embed-StripGroup>
-						<Embed-Directory>dependencies</Embed-Directory>
-						<Embed-Dependency>
-							commons-httpclient;scope=compile|runtime,
-							commons-codec;scope=compile|runtime
-						</Embed-Dependency>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -72,11 +60,11 @@
 
 		<dependency>
 			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
+			<artifactId>commons-httpclient-osgi</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
+			<artifactId>commons-codec-osgi</artifactId>
 		</dependency>
 
 		<!-- for testing -->

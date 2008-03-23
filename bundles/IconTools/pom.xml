@@ -32,7 +32,8 @@
 							org.paxle.core.io, 							
 							javax.servlet, 
 							javax.servlet.http,
-							org.apache.log4j
+							org.apache.log4j,
+							org.apache.commons.httpclient.*;version="3.1.0"
 						</Import-Package>
 						<DynamicImport-Package>
 							javax.imageio, 
@@ -56,15 +57,13 @@
 						<Bundle-Activator>
 							org.paxle.icon.impl.Activator
 						</Bundle-Activator>
-
+						
 						<!-- embedding libs -->
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
-							aclib;scope=compile|runtime,
-							commons-httpclient;scope=compile|runtime,
-							commons-codec;scope=compile|runtime
-						</Embed-Dependency>
+							aclib;scope=compile|runtime
+						</Embed-Dependency>						
 					</instructions>
 				</configuration>
 			</plugin>
@@ -91,11 +90,11 @@
 		</dependency>
 		<dependency>
 			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
+			<artifactId>commons-httpclient-osgi</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
+			<artifactId>commons-codec-osgi</artifactId>
 		</dependency>		
 		<dependency>
 			<groupId>javax.servlet</groupId>

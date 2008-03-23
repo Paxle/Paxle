@@ -7,7 +7,6 @@ import org.paxle.core.queue.IOutputQueue;
 import org.paxle.core.queue.impl.FilterInputQueue;
 import org.paxle.core.threading.AWorker;
 import org.paxle.core.threading.IPool;
-import org.paxle.core.threading.IWorker;
 
 public class MasterTest extends MockObjectTestCase {
 
