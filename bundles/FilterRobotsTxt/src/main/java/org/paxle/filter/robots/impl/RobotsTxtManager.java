@@ -13,12 +13,10 @@ import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ConnectException;
-import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.util.regex.Matcher;
@@ -28,6 +26,12 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.filter.robots.IRobotsTxtManager;
@@ -76,6 +80,16 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	 * Path where {@link RobotsTxt} objects should be stored
 	 */
 	private File path = null;
+	
+	/**
+	 * Connection manager used for http connection pooling
+	 */
+	private MultiThreadedHttpConnectionManager connectionManager = null;
+
+	/**
+	 * http client class
+	 */
+	private HttpClient httpClient = null;	
 
 	/**
 	 * @param path the path where the {@link RobotsTxt} objects should be stored
@@ -89,6 +103,12 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		this.manager = new CacheManager();
 		this.cache = new Cache("robotsTxtCache", CACHE_SIZE, false, false, 60*60, 30*60);
 		manager.addCache(this.cache);
+		
+		// init http-client
+		this.connectionManager = new MultiThreadedHttpConnectionManager();
+		this.connectionManager.getParams().setConnectionTimeout(CONNECTION_TIMEOUT);
+		this.connectionManager.getParams().setSoTimeout(READ_TIMEOUT);
+		this.httpClient = new HttpClient(this.connectionManager);
 	}
 
 	public void terminate() {
@@ -100,6 +120,13 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 
 		// shutdown cache manager
 		this.manager.shutdown();
+		
+		// cleanup http-client
+		if (this.connectionManager != null) {
+			this.connectionManager.shutdown();
+			this.connectionManager = null;
+			this.httpClient = null;
+		}		
 	}
 
 	Cache getCache() {
@@ -139,65 +166,64 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	 * @param robotsUrlStr the URL to the robots.txt
 	 * @return the parsed robots.txt file as a {@link RobotsTxt}-object
 	 * @throws IOException
+	 * @throws URISyntaxException 
 	 */
-	RobotsTxt parseRobotsTxt(String robotsUrlStr) throws IOException {
+	RobotsTxt parseRobotsTxt(String robotsUrlStr) throws IOException, URISyntaxException {
 		String hostPort = this.getHostPort(robotsUrlStr);
-		URL robotsURL = new URL(robotsUrlStr);
+		URI robotsURL = new URI(robotsUrlStr);
 
 		String statusLine = null;
-		URLConnection connection = robotsURL.openConnection();
-		if ( connection instanceof HttpURLConnection) {
-			HttpURLConnection httpConnection = (HttpURLConnection) connection;
-
-			// configuring timeouts for the http-connection
-			httpConnection.setConnectTimeout(CONNECTION_TIMEOUT);
-			httpConnection.setReadTimeout(READ_TIMEOUT);
-
-			try {
-				int code = httpConnection.getResponseCode();
-				statusLine = httpConnection.getHeaderField(0);
-
-				if (code == 401 || code == 403) {
-					// access to the whole website is restricted
-					return new RobotsTxt(hostPort,RobotsTxt.RELOAD_INTERVAL_DEFAULT, statusLine, true);
-				} else if (code == 404) {
-					// no robots.txt provided
-					return new RobotsTxt(hostPort,RobotsTxt.RELOAD_INTERVAL_DEFAULT, statusLine);
-				} else if (code != 200) {
-					// the robots.txt seems not to be deliverable
-					return new RobotsTxt(hostPort,RobotsTxt.RELOAD_INTERVAL_DEFAULT, statusLine);
-				}
-
-				String mimeType = httpConnection.getContentType();
-				if (mimeType != null && !mimeType.startsWith("text/plain")) {
-					// the robots.txt seems not to be available
-					return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_ERROR, "Wrong mimeType " + mimeType);
-				}
-			} catch (IOException e) {
-				long reloadInterval = RobotsTxt.RELOAD_INTERVAL_TEMP_ERROR;
-				String status = e.getMessage();
-				if (e instanceof UnknownHostException) {
-					reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
-					status = "Unknown host";
-				} else if (e instanceof SocketTimeoutException) {
-					logger.debug("TimeOut while loading robots.txt from" + hostPort);
-				} else if (!(
-						e instanceof ConnectException ||
-						e instanceof SocketException
-				)){
-					logger.error("Exception while loading robots.txt from" + hostPort, e);
-				}
-
-				return new RobotsTxt(hostPort, reloadInterval, status);
-			}
+		if (!robotsURL.getScheme().startsWith("http")) {
+			throw new IOException(String.format("Unsupported protocol: %s", robotsURL.getScheme()));
 		}
 
 		InputStream inputStream = null;
+		HttpMethod getMethod = null;
 		try {
+			getMethod = new GetMethod(robotsURL.toASCIIString());
+
+			int code = this.httpClient.executeMethod(getMethod);
+			statusLine = getMethod.getStatusLine().toString();
+
+			if (code == HttpStatus.SC_UNAUTHORIZED || code == HttpStatus.SC_FORBIDDEN) {
+				// access to the whole website is restricted
+				return new RobotsTxt(hostPort,RobotsTxt.RELOAD_INTERVAL_DEFAULT, statusLine, true);
+			} else if (code == HttpStatus.SC_NOT_FOUND) {
+				// no robots.txt provided
+				return new RobotsTxt(hostPort,RobotsTxt.RELOAD_INTERVAL_DEFAULT, statusLine);
+			} else if (code != HttpStatus.SC_OK) {
+				// the robots.txt seems not to be deliverable
+				return new RobotsTxt(hostPort,RobotsTxt.RELOAD_INTERVAL_DEFAULT, statusLine);
+			}
+
+			Header contentTypeHeader = getMethod.getResponseHeader("Content-Type");
+			if (contentTypeHeader != null && !contentTypeHeader.getValue().startsWith("text/plain")) {
+				// the robots.txt seems not to be available
+				return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_ERROR, "Wrong mimeType " + contentTypeHeader.getValue());
+			}
+			
+			inputStream = getMethod.getResponseBodyAsStream();
 			RobotsTxt robotsTxt = new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_DEFAULT, statusLine);
-			return this.parseRobotsTxt(robotsTxt, connection.getInputStream());
+			return this.parseRobotsTxt(robotsTxt, inputStream);
+		} catch (IOException e) {
+			long reloadInterval = RobotsTxt.RELOAD_INTERVAL_TEMP_ERROR;
+			String status = e.getMessage();
+			if (e instanceof UnknownHostException) {
+				reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
+				status = "Unknown host";
+			} else if (e instanceof SocketTimeoutException) {
+				logger.debug("TimeOut while loading robots.txt from" + hostPort);
+			} else if (!(
+					e instanceof ConnectException ||
+					e instanceof SocketException
+			)){
+				logger.error("Exception while loading robots.txt from" + hostPort, e);
+			}
+
+			return new RobotsTxt(hostPort, reloadInterval, status);
 		} finally {
 			if (inputStream != null) try { inputStream.close(); } catch (Exception e) {/* ignore this */}
+			if (getMethod != null) getMethod.releaseConnection();			
 		}
 
 	}

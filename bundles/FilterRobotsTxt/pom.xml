@@ -31,6 +31,7 @@
 							org.apache.commons.logging,
 							org.paxle.core.filter, org.paxle.core.queue,
 							org.paxle.core.doc,
+							org.apache.commons.httpclient.*;version="3.1.0",
 							!javax.management, 
 							!javax.servlet, 
 							!javax.servlet.http, 
@@ -80,6 +81,17 @@
 			</exclusions>
 		</dependency>
 
+		<!-- http client dependencies -->
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient-osgi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec-osgi</artifactId>
+		</dependency>		
+
+		<!-- cache dependency -->
 		<dependency>
 		    <groupId>net.sf.ehcache</groupId>
 		    <artifactId>ehcache</artifactId>

@@ -1,8 +1,10 @@
 package org.paxle.filter.robots.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
@@ -28,8 +30,15 @@ public class RobotsTxtManagerTest extends TestCase {
 		assertTrue(robotsTxtFile.exists());
 		assertTrue(robotsTxtFile.canRead());
 		
-		URL robotsTxtURL = robotsTxtFile.toURL();
-		return this.manager.parseRobotsTxt(robotsTxtURL.toString());	
+		InputStream fileInput = null;
+		try {
+			fileInput = new FileInputStream(robotsTxtFile);
+			RobotsTxt robotsTxt = new RobotsTxt("host:port", RobotsTxt.RELOAD_INTERVAL_DEFAULT, "200 OK");
+			return this.manager.parseRobotsTxt(robotsTxt, fileInput); 
+		} finally {
+			if (fileInput != null) try { fileInput.close(); } catch (Exception e) {/* ignore this */}
+		}
+		
 	}
 	
 	public void testCache() {
@@ -47,6 +56,12 @@ public class RobotsTxtManagerTest extends TestCase {
 		assertNotNull(rtxtE);
 		assertEquals(hostport, rtxtE.getKey());
 		rtxt = (RobotsTxt) rtxtE.getValue();
+		assertNotNull(rtxt);
+	}
+	
+	public void _testDownloadAndParserRobotsTxt() throws IOException, URISyntaxException {
+		String uri = "http://www.hibernate.org/robots.txt";
+		RobotsTxt rtxt = this.manager.parseRobotsTxt(uri);
 		assertNotNull(rtxt);
 	}
 	
