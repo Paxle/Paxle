@@ -29,7 +29,7 @@ public class TextCommandReader extends ACommandReader {
 	        	Command cmd = Command.createCommand(new URI(line));
 	        	this.enqueue(cmd);
         	} catch (URISyntaxException e) {
-        		throw new IOException(String.format("location '%s' not a valid URI", line), e);
+        		throw new IOException(String.format("location '%s' not a valid URI: %s", line, e.getMessage()));
         	}
         }
     }	
