@@ -2,7 +2,7 @@ package org.paxle.crawler.ftp.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.util.Date;
 
 import org.apache.commons.logging.Log;
@@ -25,15 +25,15 @@ public class FtpCrawler implements IFtpCrawler {
 		return PROTOCOLS;
 	}
 
-	public ICrawlerDocument request(String requestUrl) {
-		if (requestUrl == null) throw new NullPointerException("URL was null");
-		this.logger.info(String.format("Crawling URL '%s' ...", requestUrl));		
+	public ICrawlerDocument request(URI requestUri) {
+		if (requestUri == null) throw new NullPointerException("URL was null");
+		this.logger.info(String.format("Crawling URL '%s' ...", requestUri));		
 		
 		CrawlerDocument crawlerDoc = new CrawlerDocument();
 		crawlerDoc.setCrawlerDate(new Date());
 		
 		try {
-			FtpUrlConnection ftpConnection = new FtpUrlConnection(new URL(requestUrl));
+			FtpUrlConnection ftpConnection = new FtpUrlConnection(requestUri.toURL());
 
 			// connect to host
 			ftpConnection.connect();
@@ -64,7 +64,7 @@ public class FtpCrawler implements IFtpCrawler {
 			
 			this.logger.warn(String.format("Unexpected '%s' while trying to crawl resource '%s'.",
 					e.getClass().getName(),
-					requestUrl
+					requestUri
 			),e);
 		} 		
 

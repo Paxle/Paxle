@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -25,7 +26,7 @@ public class GzipParser implements IGzipParser {
 		return MIME_TYPES;
 	}
 	
-	public IParserDocument parse(String location, String charset, File content)
+	public IParserDocument parse(URI location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		final GZIPInputStream cfis = new GZIPInputStream(new FileInputStream(content));
 		final ParserContext context = ParserContext.getCurrentContext();

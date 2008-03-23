@@ -3,6 +3,7 @@ package org.paxle.core.doc;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Date;
 
 public interface ICrawlerDocument extends Closeable {
@@ -21,8 +22,8 @@ public interface ICrawlerDocument extends Closeable {
 	public void setStatus(Status status);
 	public void setStatus(Status status, String statusText);
 	
-	public String getLocation();
-	public void setLocation(String location);
+	public URI getLocation();
+	public void setLocation(URI location);
 	
 	public String getCharset();
 	public void setCharset(String charset);

@@ -2,6 +2,8 @@
 package org.paxle.parser.iotools;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,21 +14,23 @@ import org.paxle.parser.ParserException;
 
 public class SubParserDocOutputStream extends ParserDocOutputStream {
 	
-	private final String location;
+	private final URI location;
 	private final IParserDocument pdoc;
 	private final Log logger = LogFactory.getLog(SubParserDocOutputStream.class);
+	private final String name;
 	
-	public SubParserDocOutputStream(ITempFileManager tfm, ICharsetDetector cd, IParserDocument pdoc, String location) throws IOException {
+	public SubParserDocOutputStream(ITempFileManager tfm, ICharsetDetector cd, IParserDocument pdoc, URI location, String name) throws IOException {
 		super(tfm, cd);
 		this.location = location;
 		this.pdoc = pdoc;
+		this.name = URLEncoder.encode(name, "UTF-8");
 	}
 	
 	@Override
 	public void close() throws IOException {
 		super.close();
 		try {
-			this.pdoc.addSubDocument(this.location, super.parse(this.location));
+			this.pdoc.addSubDocument(name, super.parse(location));
 		} catch (ParserException e) {
 			// ignore the sub-document if we cannot parse it
 			if (logger.isTraceEnabled()) {

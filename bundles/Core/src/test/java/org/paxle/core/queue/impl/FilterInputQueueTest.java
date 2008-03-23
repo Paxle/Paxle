@@ -1,8 +1,8 @@
 package org.paxle.core.queue.impl;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
@@ -18,7 +18,7 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void testDequeueRejectedCommand() throws InterruptedException {
+	public void testDequeueRejectedCommand() throws Exception {
 		final ICommand command = mock(ICommand.class);
 		final IFilter<ICommand> filter = mock(IFilter.class);
 		final IFilterContext filtercontext = new FilterContext(
@@ -28,6 +28,8 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 				0,
 				null
 		);
+		
+		final URI result = new URI("http://test.xyz");
 
 		// define expectations
 		checking(new Expectations(){{
@@ -49,7 +51,7 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 			one(filter).filter(with(same(command)), with(same(filtercontext)));
 			
 			// metadata about command
-			allowing(command).getLocation(); will(returnValue("http://test.xyz"));
+			allowing(command).getLocation(); will(returnValue(result));
 			ignoring(command);
 		}});		
 

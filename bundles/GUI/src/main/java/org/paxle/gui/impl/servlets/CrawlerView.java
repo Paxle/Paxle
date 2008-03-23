@@ -4,6 +4,7 @@ package org.paxle.gui.impl.servlets;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,7 +61,7 @@ public class CrawlerView extends ALayoutServlet {
 			}
 			
 			logger.info("Initiated crawl of URL '" + url + "'");
-			crawlerSink.putData(Command.createCommand(url));
+			crawlerSink.putData(Command.createCommand(new URI(url)));
 		}
 		
 		private void putError(final String url, final String err) {

@@ -13,7 +13,7 @@ public class AscendingPathUrlExtractionFilter implements IFilter<ICommand> {
 	
 	public void filter(ICommand command, IFilterContext filterContext) {
 		
-		String url = command.getLocation();
+		String url = command.getLocation().toASCIIString();
 		IParserDocument doc = command.getParserDocument();
 		if (doc == null) {
 			logger.warn("ParserDocument is null");

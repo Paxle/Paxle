@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -31,7 +32,7 @@ public class PdfParser implements IPdfParser {
 		return MIME_TYPES;
 	}
 
-	public IParserDocument parse(String location, String charset, File content) throws ParserException, UnsupportedEncodingException, IOException {
+	public IParserDocument parse(URI location, String charset, File content) throws ParserException, UnsupportedEncodingException, IOException {
 		CachedParserDocument parserDoc = null;
 		PDDocument pddDoc = null;
 		InputStream fileIn = null;

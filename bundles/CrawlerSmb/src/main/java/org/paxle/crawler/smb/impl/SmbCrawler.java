@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.Date;
 
 import jcifs.smb.SmbException;
@@ -30,23 +31,23 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 		return PROTOCOLS;
 	}
 
-	public ICrawlerDocument request(String requestUrl) {
-		if (requestUrl == null) throw new NullPointerException("URL was null");
-		this.logger.info(String.format("Crawling URL '%s' ...", requestUrl));	
+	public ICrawlerDocument request(URI requestUri) {
+		if (requestUri == null) throw new NullPointerException("URL was null");
+		this.logger.info(String.format("Crawling URL '%s' ...", requestUri));	
 		
 		CrawlerDocument crawlerDoc = new CrawlerDocument();
 		crawlerDoc.setCrawlerDate(new Date());
-		crawlerDoc.setLocation(requestUrl);
+		crawlerDoc.setLocation(requestUri);
 		
 		try {
-			SmbFile smbFile = new SmbFile(requestUrl);
+			SmbFile smbFile = new SmbFile(requestUri.toURL());
 			if (!smbFile.exists()) {
 				crawlerDoc.setStatus(ICrawlerDocument.Status.NOT_FOUND, "The resource does not exist");				
-				this.logger.info(String.format("The resource '%s' does not exit.",requestUrl));			
+				this.logger.info(String.format("The resource '%s' does not exit.",requestUri));			
 				return crawlerDoc;
 			} else if (!smbFile.canRead()) {
 				crawlerDoc.setStatus(ICrawlerDocument.Status.NOT_FOUND, "The resource can not be read.");				
-				this.logger.info(String.format("The resource '%s' can not be read.",requestUrl));			
+				this.logger.info(String.format("The resource '%s' can not be read.",requestUri));			
 				return crawlerDoc;				
 			}
 			
@@ -55,9 +56,11 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 				/* Append '/' if necessary. Otherwise we will get:
 				 * jcifs.smb.SmbException: smb://srver/dir directory must end with '/'
 				 */
-				if (!requestUrl.endsWith("/")) {
-					requestUrl += "/";
-					smbFile = new SmbFile(requestUrl);
+				// XXX still needed with the SmbFile(URL)-constructor?
+				String uriString = requestUri.toASCIIString();
+				if (!uriString.endsWith("/")) {
+					uriString += "/";
+					smbFile = new SmbFile(uriString);
 				}
 				
 				// set the mimetype accordingly
@@ -95,7 +98,7 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 			
 			this.logger.warn(String.format("Unexpected '%s' while trying to crawl resource '%s'.",
 					e.getClass().getName(),
-					requestUrl
+					requestUri
 			),e);
 		} 		
 

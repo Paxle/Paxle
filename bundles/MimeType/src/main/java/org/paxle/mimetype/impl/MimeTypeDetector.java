@@ -89,7 +89,7 @@ public class MimeTypeDetector implements IMimeTypeDetector {
 
 			// if a match was found we can return the new mimeType
 			if (match!=null) {
-				Collection subMatches = match.getSubMatches();
+				Collection<?> subMatches = match.getSubMatches();
 				if ((subMatches != null) && (!subMatches.isEmpty())) {
 					// if there is a sub-match, use it
 					mimeType = ((MagicMatch) subMatches.iterator().next()).getMimeType();
@@ -112,5 +112,37 @@ public class MimeTypeDetector implements IMimeTypeDetector {
 			r.unlock();
 		}
 	}
+	
+	
+	public String getMimeType(final byte[] buffer, final String logFileName) throws Exception {
+		r.lock();
+		try {
+			String mimeType = null;
+			MagicMatch match = Magic.getMagicMatch(buffer, false);        
 
+			// if a match was found we can return the new mimeType
+			if (match != null) {
+				Collection<?> subMatches = match.getSubMatches();
+				if ((subMatches != null) && (!subMatches.isEmpty())) {
+					// if there is a sub-match, use it
+					mimeType = ((MagicMatch) subMatches.iterator().next()).getMimeType();
+				} else {
+					mimeType = match.getMimeType();
+				}
+			}
+
+			return mimeType;
+		} catch (Exception e) {
+			if (!(e instanceof MagicMatchNotFoundException)) {
+				this.logger.warn(String.format("Unexpected '%s' while trying to determine the mime-type of file '%s'.",
+						e.getClass().getName(),
+						logFileName
+				),e);
+				throw e;
+			}
+			return null;
+		} finally {
+			r.unlock();
+		}
+	}
 }

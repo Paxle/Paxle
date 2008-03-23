@@ -2,6 +2,7 @@
 package org.paxle.parser.html.impl;
 
 import java.io.File;
+import java.net.URI;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.impl.TempFileManager;
@@ -21,7 +22,7 @@ public class HtmlParserTest extends TestCase {
 		final HtmlParser parser = new HtmlParser();
 		ParserContext.setCurrentContext(new ParserContext(null, null, null, new TempFileManager()));
 		for (final String testCase : TEST_CASES) {
-			final IParserDocument pdoc = parser.parse("http://www.example.org/" + testCase, null, new File(testResources, testCase));
+			final IParserDocument pdoc = parser.parse(new URI("http://www.example.org/" + testCase), null, new File(testResources, testCase));
 			assertNotNull(pdoc);
 			
 			System.out.println(testCase);

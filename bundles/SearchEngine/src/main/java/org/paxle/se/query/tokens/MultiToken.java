@@ -55,4 +55,16 @@ abstract class MultiToken extends AToken implements Iterable<AToken> {
 	public Iterator<AToken> iterator() {
 		return new MTIterator();
 	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("(").append(getClass().getSimpleName()).append(") { ");
+		if (children.size() > 0) {
+			for (AToken t : children)
+				sb.append(t).append(", ");
+			sb.deleteCharAt(sb.length() - 2);
+		}
+		return sb.append('}').toString();
+	}
 }

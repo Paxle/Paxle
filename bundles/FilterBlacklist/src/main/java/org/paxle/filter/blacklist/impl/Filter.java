@@ -151,7 +151,7 @@ public class Filter implements IBlacklistFilter {
 	}
 	
 	public void filter(ICommand command, IFilterContext filterContext) {
-		FilterResult result = isListed(command.getLocation());
+		FilterResult result = isListed(command.getLocation().toASCIIString());
 		if(result.getStatus()==FilterResult.LOCATION_REJECTED) {
 			command.setResult(ICommand.Result.Rejected, "rejected by blacklistentry: " + result.getRejectPattern());
 			//System.out.println(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());

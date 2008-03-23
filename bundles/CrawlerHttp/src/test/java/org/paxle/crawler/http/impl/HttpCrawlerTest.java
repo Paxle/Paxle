@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.jmock.integration.junit3.MockObjectTestCase;
@@ -37,7 +38,7 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 		CrawlerContext.setThreadLocal(threadLocal);
 	}
 	
-	public void testCrawlDummy() throws IOException {
+	public void testCrawlDummy() throws Exception {
 		// get the testdata from file
 		File testFile = new File("src/test/resources/test1.html");
 		FileInputStream fileInput = new FileInputStream(testFile);
@@ -51,7 +52,7 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 		this.initCrawlerContext("text/html");
 		
 		// do some crawling
-		ICrawlerDocument doc = this.crawler.request("http://test.xyz");
+		ICrawlerDocument doc = this.crawler.request(new URI("http://test.xyz"));
 		assertNotNull(doc);
 		assertEquals(ICrawlerDocument.Status.OK, doc.getStatus());
 		assertEquals("text/html", doc.getMimeType());

@@ -4,6 +4,7 @@ package org.paxle.desktop.impl;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
+import java.net.URI;
 
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
@@ -66,7 +67,7 @@ public class SystrayMenu extends JPopupMenu implements ActionListener {
 			try {
 				final IDataSink<ICommand>[] sink = SystrayMenu.this.manager.getServices(CRAWLER_SINK_CLASS, CRAWLER_SINK_QUERY);
 				if (sink != null)
-					sink[0].putData(Command.createCommand(super.data));
+					sink[0].putData(Command.createCommand(new URI(super.data)));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class MsPowerpointParser extends AMsOfficeParser implements ISubParser, I
 		return MIME_TYPES;
 	}
 
-	public IParserDocument parse(String location, String charset, File content)
+	public IParserDocument parse(URI location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		CachedParserDocument parserDoc = null;
 		

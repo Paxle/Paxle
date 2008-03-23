@@ -1,5 +1,6 @@
 package org.paxle.crawler.impl;
 
+import java.net.URI;
 import java.util.Date;
 
 import org.apache.commons.logging.Log;
@@ -56,11 +57,10 @@ public class CrawlerWorker extends AWorker<ICommand> {
 			 * ================================================================ */
 			
 			// get the URL to crawl
-			String urlString = command.getLocation();
+			final URI location = command.getLocation();
 			
 			// determine protocol to use
-			int idx = urlString.indexOf("://");
-			String protocol = (idx == -1) ? "" : urlString.substring(0,idx);
+			String protocol = location.getScheme();
 
 			// get a sub-crawler that is capable to handle the specified protocol
 			this.logger.debug(String.format("Getting crawler for protocol '%s' ...", protocol));			
@@ -68,7 +68,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 			this.logger.debug(String.format("Crawler '%s' found for protocol '%s'.", crawler.getClass().getName(), protocol));
 						
 			if (crawler == null) {
-				this.logger.error(String.format("No crawler for resource '%s' and protocol '%s' found.",urlString, protocol));
+				this.logger.error(String.format("No crawler for resource '%s' and protocol '%s' found.", location, protocol));
 				command.setResult(
 						ICommand.Result.Failure, 
 						String.format("No crawler for protocol '%s' found.", protocol)
@@ -77,8 +77,8 @@ public class CrawlerWorker extends AWorker<ICommand> {
 			}			
 			
 			// pass the URL to the crawler
-			this.logger.info(String.format("Crawling resource '%s' using protocol '%s' ...", urlString, protocol));
-			crawlerDoc = crawler.request(urlString);
+			this.logger.info(String.format("Crawling resource '%s' using protocol '%s' ...", location, protocol));
+			crawlerDoc = crawler.request(location);
 			
 			/* ================================================================
 			 * Process crawler response
@@ -100,7 +100,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 			
 			// handling of default properties
 			if (crawlerDoc.getLocation() == null) {
-				crawlerDoc.setLocation(urlString);
+				crawlerDoc.setLocation(location);
 			}
 			if (crawlerDoc.getCrawlerDate() == null) {
 				crawlerDoc.setCrawlerDate(new Date());

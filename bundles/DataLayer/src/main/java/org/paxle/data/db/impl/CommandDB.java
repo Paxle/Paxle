@@ -1,12 +1,16 @@
 package org.paxle.data.db.impl;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cache.Cache;
 import org.apache.commons.cache.EvictionPolicy;
@@ -30,7 +34,7 @@ import org.paxle.core.data.IDataSource;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 
-public class CommandDB implements IDataProvider, IDataConsumer {
+public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand> {
 	private static final int MAX_IDLE_SLEEP = 60000;
 
 	private Cache urlExistsCache = null;
@@ -287,9 +291,19 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 			this.logger.error(String.format("Error while writing command with location '%s' to db.", cmd.getLocation()),e);
 		}
 	}
-
-	void storeUnknownLocations(List<String> locations) {
-		if (locations == null || locations.size() == 0) return;
+	
+	/**
+	 * First queries the DB to remove all known locations from the list and then updates
+	 * it with the new list, omitting all locations which do not form valid {@link URI}s.
+	 * These invalid URIs are returned along with the respective message of the
+	 * {@link URISyntaxException}.
+	 * 
+	 * @param locations the locations to add to the DB
+	 * @return all locations which fail to form valid URIs mapping to the respective error
+	 *         message
+	 */
+	Map<String,String> storeUnknownLocations(List<String> locations) {
+		if (locations == null || locations.size() == 0) return null;
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
 		try {
@@ -302,12 +316,12 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 					locationIterator.remove();
 				}
 			}
-			if (locations.size() == 0) return;
+			if (locations.size() == 0) return null;
 
 			// check which URLs are already known
 			HashSet<String> knownLocations = new HashSet<String>();
 
-			int chunkSize = 10;
+			int chunkSize = 1000;
 			if (locations.size() <= chunkSize) {
 				Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",locations);
 				knownLocations.addAll(query.list());
@@ -325,28 +339,36 @@ public class CommandDB implements IDataProvider, IDataConsumer {
 					knownLocations.addAll(query.list());			
 				}
 			}
+			
+			final Map<String,String> failMap = new HashMap<String,String>();
 
 			// add new commands into DB
-			for (String location: locations) {			
+			for (String location: locations) {
 				if (knownLocations.contains(location)) {
 					this.urlExistsCache.store(location, Boolean.TRUE, null, null);
 					continue;
 				}
-				session.saveOrUpdate(Command.createCommand(location));	
-				this.urlExistsCache.store(location, Boolean.TRUE, null, null);
+				try {
+					session.saveOrUpdate(Command.createCommand(new URI(location)));	
+					this.urlExistsCache.store(location, Boolean.TRUE, null, null);
+				} catch (URISyntaxException e) {
+					failMap.put(location, e.getMessage());
+				}
 			}
 
 			transaction.commit();
 
 			// signal writer that a new URL is available
-			this.writerThread.signalNewDbData();			
+			this.writerThread.signalNewDbData();
+			return failMap;
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
 			this.logger.error(String.format("Unexpected '%s' while writing %d new commands to db.",
 					e.getClass().getName(),
 					locations.size()
 			),e);
-		}		
+		}
+		return null;
 	}
 
 	/**

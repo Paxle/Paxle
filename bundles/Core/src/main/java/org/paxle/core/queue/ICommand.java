@@ -2,6 +2,7 @@ package org.paxle.core.queue;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URI;
 
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IIndexerDocument;
@@ -52,13 +53,13 @@ public interface ICommand extends Closeable {
 	 * Returns the URL as String
 	 * @return the URL
 	 */
-	public String getLocation();
+	public URI getLocation();
 	
 	/**
 	 * Sets the URL
 	 * @param location
 	 */
-	public void setLocation(String location);
+	public void setLocation(URI location);
 	
 	public ICrawlerDocument getCrawlerDocument();
 	public void setCrawlerDocument(ICrawlerDocument crawlerDoc);

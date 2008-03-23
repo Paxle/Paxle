@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -69,7 +70,7 @@ public class ParserDocOutputStream extends OutputStream {
 		}
 	}
 	
-	public IParserDocument parse(String location) throws ParserException, IOException {
+	public IParserDocument parse(URI location) throws ParserException, IOException {
 		/* Closing stream if not already done.
 		 * 
 		 * ATTENTION: don't remove the closed check. Otherwise we get an StackOverflowException, because

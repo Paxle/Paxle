@@ -4,6 +4,7 @@ package org.paxle.desktop.impl;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -237,7 +238,7 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 			if (data != null && data.length() > 0) try {
 				final IDataSink<ICommand>[] sink = SystrayMenu2.this.manager.getServices(CRAWLER_SINK_CLASS, CRAWLER_SINK_QUERY);
 				if (sink != null)
-					sink[0].putData(Command.createCommand(super.data));
+					sink[0].putData(Command.createCommand(new URI(super.data)));
 			} catch (Exception e) {
 				logger.error("Starting crawl of URL '" + data + "' failed: " + e.getMessage(), e);
 			}

@@ -1,14 +1,16 @@
 
 package org.paxle.parser.html.impl;
 
+import java.net.URI;
+
 import org.apache.commons.logging.Log;
 
 public class ParserLogger {
 	
 	private final Log logger;
-	private final String location;
+	private final URI location;
 	
-	public ParserLogger(final Log logger, final String location) {
+	public ParserLogger(final Log logger, final URI location) {
 		this.logger = logger;
 		this.location = location;
 	}

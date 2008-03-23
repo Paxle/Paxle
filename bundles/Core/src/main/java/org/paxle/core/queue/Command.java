@@ -1,6 +1,7 @@
 package org.paxle.core.queue;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,13 +20,13 @@ public class Command implements ICommand {
 	private Result result = Result.Passed;
 	private String resultText = null;
 	
-	private String location = null;
+	private URI location = null;
 	
 	private ICrawlerDocument crawlerDoc = null;
 	private IParserDocument parserDoc = null;
 	private List<IIndexerDocument> indexerDocs = new LinkedList<IIndexerDocument>();
 
-	public static Command createCommand(String location) {
+	public static Command createCommand(URI location) {
 		Command cmd = new Command();
 		cmd.setLocation(location);
 		return cmd;
@@ -91,11 +92,11 @@ public class Command implements ICommand {
 		this.setResultText(description);
 	}
 
-	public String getLocation() {
+	public URI getLocation() {
 		return this.location;
 	}
 
-	public void setLocation(String location) {
+	public void setLocation(URI location) {
 		this.location = location;
 	}
 	

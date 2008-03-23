@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.paxle.core.charset.ACharsetDetectorInputStream;
 import org.paxle.core.charset.ICharsetDetector;
@@ -107,7 +109,7 @@ public class ParserTools {
 	 * </ul>
 	 * @throws <b>IOException</b> if an I/O-error occures during reading <code>content</code>
 	 */
-	public static IParserDocument parse(String location, File content) throws ParserException, IOException {
+	public static IParserDocument parse(String location, File content) throws ParserException, IOException, URISyntaxException {
 		final String mimeType = getMimeType(content);
 		if (mimeType == null)
 			throw new ParserException("detected MIME type of file " + content + " is null, cannot parse it");
@@ -123,13 +125,13 @@ public class ParserTools {
 		}
 		
 		try {
-			return parse(location, mimeType, charset, content);
+			return parse(new URI(location), mimeType, charset, content);
 		} catch (UnsupportedEncodingException e) {
 			throw new ParserException("Detected wrong charset '" + charset + "' for file: " + content, e);
 		}
 	}
 	
-	public static IParserDocument parse(String location, String charset, File content) throws ParserException, IOException,
+	public static IParserDocument parse(URI location, String charset, File content) throws ParserException, IOException,
 			UnsupportedEncodingException {
 		final String mimeType = getMimeType(content);
 		if (mimeType == null)
@@ -137,7 +139,7 @@ public class ParserTools {
 		return parse(location, mimeType, charset, content);
 	}
 	
-	public static IParserDocument parse(String location, String mimeType, String charset, File content) throws ParserException,
+	public static IParserDocument parse(URI location, String mimeType, String charset, File content) throws ParserException,
 			IOException, UnsupportedEncodingException {
 		// retrieve the sub-parser for the found MIME type, parse content and return the document
 		final ParserContext context = ParserContext.getCurrentContext();

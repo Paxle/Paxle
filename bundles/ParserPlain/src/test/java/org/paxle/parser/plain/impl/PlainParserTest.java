@@ -4,6 +4,7 @@ package org.paxle.parser.plain.impl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempDir;
@@ -43,7 +44,7 @@ public class PlainParserTest extends TestCase {
 	
 	public void testPlainParser() throws Exception {
 		final PlainParser pp = new PlainParser();
-		final IParserDocument pdoc = pp.parse("http://www.example.org", "UTF-8", new File("src/test/resources/threaddump"));
+		final IParserDocument pdoc = pp.parse(new URI("http://www.example.org"), "UTF-8", new File("src/test/resources/threaddump"));
 		assertNotNull(pdoc.getTitle());
 		assertEquals("\"CrawlerWorker\" daemon prio=10 tid=0x081bb000 nid=0x286b in Object.wait() [0x97f1d000..0x97f1e030]", pdoc.getTitle());
 		assertNull(pdoc.getAuthor());

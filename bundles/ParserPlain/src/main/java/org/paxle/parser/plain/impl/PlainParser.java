@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -81,7 +82,7 @@ public class PlainParser implements IPlainParser {
 		}
 	}
 	
-	public IParserDocument parse(String location, String charset, File content)
+	public IParserDocument parse(URI location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		
 		final ParserContext context = ParserContext.getCurrentContext();

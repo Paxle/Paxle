@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
@@ -113,7 +114,7 @@ public class HtmlParser implements IHtmlParser {
 	/**
 	 * TODO: the html parser seems not to extract the keywords
 	 */
-	public IParserDocument parse(String location, String charset, File content) throws ParserException,
+	public IParserDocument parse(URI location, String charset, File content) throws ParserException,
 			UnsupportedEncodingException, IOException {
 		final FileInputStream fis = new FileInputStream(content);
 		try {
@@ -137,7 +138,7 @@ public class HtmlParser implements IHtmlParser {
 			}
 			
 			final Page page = new FixedPage(new InputStreamSource(fis, charset));
-			page.setUrl(location);
+			page.setUrl(location.toASCIIString());
 			final Parser parser = new Parser(new Lexer(page));
 			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
 			

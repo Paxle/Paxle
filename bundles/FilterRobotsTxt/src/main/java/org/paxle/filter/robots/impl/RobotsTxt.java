@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class RobotsTxt implements Serializable {
+	
 	public static final long RELOAD_INTERVAL_DEFAULT = TimeUnit.SECONDS.toMillis(7*24*60*60);
 	public static final long RELOAD_INTERVAL_ERROR = TimeUnit.SECONDS.toMillis(1*24*60*60);
 	public static final long RELOAD_INTERVAL_TEMP_ERROR = TimeUnit.SECONDS.toMillis(1*24*60*60);
@@ -79,9 +80,9 @@ public class RobotsTxt implements Serializable {
 	
 	
 	public boolean isDisallowed(String agent, String path) {
-		if (path != null && path.equals("/robots.txt")) return Boolean.FALSE;
-		if (this.accessRestricted) return Boolean.TRUE;		
-		if (this.ruleBlocks == null || this.ruleBlocks.size() == 0) return Boolean.FALSE;
+		if (path != null && path.equals("/robots.txt")) return false;
+		if (this.accessRestricted) return true;		
+		if (this.ruleBlocks == null || this.ruleBlocks.size() == 0) return false;
 		
 		if (this.ruleBlockMap.size() == 0) this.buildRuleBlockMap();
 		
@@ -94,10 +95,10 @@ public class RobotsTxt implements Serializable {
 		
 		if (ruleBlock != null) {
 			Boolean isDisallowed = ruleBlock.isDisallowed(agent, path);
-			if (isDisallowed != null) return isDisallowed;
+			if (isDisallowed != null) return isDisallowed.booleanValue();
 		}
 		
-		return Boolean.FALSE;
+		return false;
 	}
 	
 	private void buildRuleBlockMap() {

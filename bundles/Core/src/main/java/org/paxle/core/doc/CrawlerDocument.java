@@ -2,6 +2,7 @@ package org.paxle.core.doc;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Date;
 
 public class CrawlerDocument implements ICrawlerDocument {
@@ -13,7 +14,7 @@ public class CrawlerDocument implements ICrawlerDocument {
 	private ICrawlerDocument.Status status = null;
 	private String statusText = null;
 	/** The location, i.e. URL of this document */
-	private String location = null;
+	private URI location = null;
 	private String mimeType = null;
 	private String charset = null;
 	private String[] languages = null; 
@@ -31,11 +32,11 @@ public class CrawlerDocument implements ICrawlerDocument {
     	this._oid = OID; 
     }		
     
-	public void setLocation(String location) {
+	public void setLocation(URI location) {
 		this.location = location;
 	}
 
-	public String getLocation() {
+	public URI getLocation() {
 		return this.location;
 	}
 
@@ -105,7 +106,7 @@ public class CrawlerDocument implements ICrawlerDocument {
 	}
 
 	public void setCrawlerDate(Date crawlerDate) {
-		this.crawlerDate  = crawlerDate;
+		this.crawlerDate = crawlerDate;
 	}
 	
 	public Date getCrawlerDate() {

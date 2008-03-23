@@ -16,6 +16,7 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
@@ -275,11 +276,15 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		if (pos != -1) line = line.substring(0,pos).trim();
 		return line;
 	}
+	
+	public boolean isDisallowed(URI location) {
+		return isDisallowed(location.toString());		// XXX please re-check whether non-escaped hosts (i.e. "umlaut-domains") work
+	}
 
 	public boolean isDisallowed(String location) {	
 		if (!location.startsWith("http://") && !location.startsWith("https")) {
 			this.logger.debug(String.format("Protocol of location '%s' not supported", location));
-			return Boolean.FALSE;
+			return false;
 		}
 
 		// getting the host[:port] string 

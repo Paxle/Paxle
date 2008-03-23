@@ -2,6 +2,7 @@
 package org.paxle.indexer.impl;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -189,7 +190,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 	}
 	
 	private IIndexerDocument generateIIndexerDoc(
-			final String location,
+			final URI location,
 			final Date lastCrawled,
 			final String name,
 			final IParserDocument pdoc) {
@@ -197,9 +198,8 @@ public class IndexerWorker extends AWorker<ICommand> {
 		try {
 			final Collection<String> kw = pdoc.getKeywords();
 			final Set<String> langs = pdoc.getLanguages();
-			
-			int idx = location.indexOf("://");
-			String protocol = (idx == -1) ? null : location.substring(0, idx);
+
+			String protocol = location.getScheme();
 			
 			/* this non-standard format has been chosen intentionally to allow an easy overview about which fields
 			 * are set
@@ -212,7 +212,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 			if (langs.size() > 0)              idoc.set(IIndexerDocument.LANGUAGES,     toLanguages(langs));
 			                                   idoc.set(IIndexerDocument.LAST_CRAWLED,  (lastCrawled == null) ? new Date(System.currentTimeMillis()) : lastCrawled);
 			if (pdoc.getLastChanged() != null) idoc.set(IIndexerDocument.LAST_MODIFIED, pdoc.getLastChanged());
-			                                   idoc.set(IIndexerDocument.LOCATION,      location);
+			                                   idoc.set(IIndexerDocument.LOCATION,      location.toString());
 		                                       idoc.set(IIndexerDocument.MIME_TYPE,     pdoc.getMimeType());
 			if (protocol != null)              idoc.set(IIndexerDocument.PROTOCOL,      protocol);
 			if (pdoc.getSummary() != null)     idoc.set(IIndexerDocument.SUMMARY,       pdoc.getSummary());

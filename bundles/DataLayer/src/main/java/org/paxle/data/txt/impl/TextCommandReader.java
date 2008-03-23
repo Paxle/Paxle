@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.paxle.core.queue.Command;
 import org.paxle.data.impl.ACommandReader;
@@ -23,9 +25,12 @@ public class TextCommandReader extends ACommandReader {
         	line = line.trim();
         	if (line.length() == 0) continue;
         	else if (line.startsWith("#")) continue;
-        	
-        	Command cmd = Command.createCommand(line);
-        	this.enqueue(cmd);
+        	try {
+	        	Command cmd = Command.createCommand(new URI(line));
+	        	this.enqueue(cmd);
+        	} catch (URISyntaxException e) {
+        		throw new IOException(String.format("location '%s' not a valid URI", line), e);
+        	}
         }
     }	
 }

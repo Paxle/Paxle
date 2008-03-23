@@ -2,6 +2,7 @@ package org.paxle.parser.sevenzip.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.IParserDocument;
@@ -21,13 +22,15 @@ import SevenZip.Archive.SevenZipEntry;
  */
 public class SZParserExtractCallback implements IArchiveExtractCallback {
 	
+	private final URI location;
 	private final IParserDocument pdoc;
 	private final IInArchive handler;
 	private final ITempFileManager tfm;
 	private final ICharsetDetector cd;
 	private String current = null;
 	
-	public SZParserExtractCallback(IParserDocument pdoc, IInArchive handler, ITempFileManager tfm, ICharsetDetector cd) {
+	public SZParserExtractCallback(final URI location, IParserDocument pdoc, IInArchive handler, ITempFileManager tfm, ICharsetDetector cd) {
+		this.location = location;
 		this.pdoc = pdoc;
 		this.handler = handler;
 		this.tfm = tfm;
@@ -41,7 +44,7 @@ public class SZParserExtractCallback implements IArchiveExtractCallback {
 	public int GetStream(int index, OutputStream[] oss, int askExtractMode) throws IOException {
 		SevenZipEntry item = this.handler.getEntry(index);
 		this.current = item.getName();
-		oss[0] = (item.isDirectory()) ? null : new SubParserDocOutputStream(this.tfm, this.cd, this.pdoc, this.current);
+		oss[0] = (item.isDirectory()) ? null : new SubParserDocOutputStream(this.tfm, this.cd, this.pdoc, location, this.current);
 		return 0;
 	}
 	

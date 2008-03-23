@@ -1,6 +1,7 @@
 package org.paxle.filter.blacklist.impl;
 
 import java.io.File;
+import java.net.URI;
 
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
@@ -24,20 +25,20 @@ public class BlacklistFilterTest extends TestCase {
 	
 	public void testIsListed() throws Exception {
 		ICommand testCommand = new Command();
-		testCommand.setLocation("http://test/");
+		testCommand.setLocation(new URI("http://test/"));
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Passed));
 		
-		testCommand.setLocation("http://asd/");
+		testCommand.setLocation(new URI("http://asd/"));
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Passed));
 		
 		BlacklistFilter.addPattern(".*asd.*", "testList");
-		testCommand.setLocation("http://test/");
+		testCommand.setLocation(new URI("http://test/"));
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Passed));
 		
-		testCommand.setLocation("http://asd/");
+		testCommand.setLocation(new URI("http://asd/"));
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Rejected));
 	}

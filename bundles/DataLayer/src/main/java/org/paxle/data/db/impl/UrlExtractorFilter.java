@@ -37,7 +37,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 
 		// getting the link map
 		final Counter c = new Counter();
-		this.extractLinks(command.getLocation(), parserDoc, c);
+		this.extractLinks(command.getLocation().toASCIIString(), parserDoc, c);
 		logger.info(String.format("Extracted %d links from '%s'", Integer.valueOf(c.c), command.getLocation()));
 	}
 	
@@ -73,7 +73,16 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 
 		// store commands into DB
 		if (!db.isClosed()) {
-			db.storeUnknownLocations(locations);
+			final Map<String,String> failMap = db.storeUnknownLocations(locations);
+			if (failMap != null && failMap.size() > 0) {
+				if (logger.isDebugEnabled()) {
+					for (Map.Entry<String,String> e : failMap.entrySet())
+						logger.warn(String.format("Unable to add '%s' to command-db: %s", e.getKey(), e.getValue()));
+				} else {
+					logger.warn(String.format("Failed to add %d new locations to command-db because of syntax errors",
+							Integer.valueOf(failMap.size())));
+				}
+			}
 			c.c += locations.size();
 		} else {
 			this.logger.error(String.format(

@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Dictionary;
@@ -359,13 +360,13 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		return true;
 	}
 	
-	public ICrawlerDocument request(String requestUrl) {
-		if (requestUrl == null) throw new NullPointerException("URL was null");
-		this.logger.debug(String.format("Crawling URL '%s' ...",requestUrl));
+	public ICrawlerDocument request(URI requestUri) {
+		if (requestUri == null) throw new NullPointerException("URL was null");
+		this.logger.debug(String.format("Crawling URL '%s' ...",requestUri));
 		
 		CrawlerDocument doc = new CrawlerDocument();
 		
-		doc.setLocation(requestUrl);
+		doc.setLocation(requestUri);
 		
 		HttpMethod method = null;
 		try {
@@ -374,7 +375,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			// (both only if the server provides this information, if not, the file is
 			// fetched)
 			
-			method = new HeadMethod(requestUrl);		// automatically follows redirects
+			method = new HeadMethod(requestUri.toASCIIString());		// automatically follows redirects
 			initRequestMethod(method);
 			
 			int statusCode = this.getHttpClient().executeMethod(method);
@@ -391,7 +392,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 						doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, String.format("Server returned: %s", method.getStatusLine()));
 					}
 					
-					this.logger.warn(String.format("Crawling of URL '%s' failed. Server returned: %s", requestUrl, method.getStatusLine()));
+					this.logger.warn(String.format("Crawling of URL '%s' failed. Server returned: %s", requestUri, method.getStatusLine()));
 					return doc;
 				}
 				
@@ -412,7 +413,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			// document
 			
 			// generate the GET request method
-			HttpMethod getMethod = new GetMethod(requestUrl);		// automatically follows redirects
+			HttpMethod getMethod = new GetMethod(requestUri.toASCIIString());		// automatically follows redirects
 			method.releaseConnection();
 			
 			method = getMethod;
@@ -429,7 +430,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 					doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, String.format("Server returned: %s", method.getStatusLine()));
 				}
 				
-				this.logger.warn(String.format("Crawling of URL '%s' failed. Server returned: %s", requestUrl, method.getStatusLine()));
+				this.logger.warn(String.format("Crawling of URL '%s' failed. Server returned: %s", requestUri, method.getStatusLine()));
 				return doc;
 			}
 			
@@ -456,14 +457,14 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				CrawlerTools.saveInto(doc, respBody);
 				
 				doc.setStatus(ICrawlerDocument.Status.OK);
-				this.logger.info(String.format("Crawling of URL '%s' finished.", requestUrl));
+				this.logger.info(String.format("Crawling of URL '%s' finished.", requestUri));
 			} catch (IOException e) {
 				String msg = e.getMessage();
 				if (msg == null || !msg.equals("Corrupt GZIP trailer"))
 					throw e;
 				
 				setHostSetting(method.getURI().getHost(), PREF_NO_ENCODING);
-				msg = String.format("server sent a corrupt gzip trailer at URL '%s'", requestUrl);
+				msg = String.format("server sent a corrupt gzip trailer at URL '%s'", requestUri);
 				logger.warn(msg);
 				
 				// FIXME re-enqueue command
@@ -472,22 +473,22 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				respBody.close();
 			}
 		} catch (NoRouteToHostException e) {
-			this.logger.error(String.format("Error crawling %s: %s", requestUrl, e.getMessage()));
+			this.logger.error(String.format("Error crawling %s: %s", requestUri, e.getMessage()));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (UnknownHostException e) {
-			this.logger.error(String.format("Error crawling %s: Unknown host.", requestUrl));
+			this.logger.error(String.format("Error crawling %s: Unknown host.", requestUri));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());	
 		} catch (ConnectException e) {
-			this.logger.error(String.format("Error crawling %s: Unable to connect to host.", requestUrl));
+			this.logger.error(String.format("Error crawling %s: Unable to connect to host.", requestUri));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (ConnectTimeoutException e) {
-			this.logger.error(String.format("Error crawling %s: %s.", requestUrl, e.getMessage()));
+			this.logger.error(String.format("Error crawling %s: %s.", requestUri, e.getMessage()));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (SocketTimeoutException e) {
-			this.logger.error(String.format("Error crawling %s: Connection timeout.", requestUrl));
+			this.logger.error(String.format("Error crawling %s: Connection timeout.", requestUri));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (CircularRedirectException e) {
-			this.logger.error(String.format("Error crawling %s: %s", requestUrl, e.getMessage()));
+			this.logger.error(String.format("Error crawling %s: %s", requestUri, e.getMessage()));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (Throwable e) {
 			String errorMsg;
@@ -500,7 +501,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			}
 			errorMsg = String.format(errorMsg, e.getClass().getName(), e.getMessage());
 			
-			this.logger.error(String.format("Error crawling %s: %s", requestUrl, errorMsg));
+			this.logger.error(String.format("Error crawling %s: %s", requestUri, errorMsg));
 			doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, errorMsg);
 			e.printStackTrace();
 		} finally {

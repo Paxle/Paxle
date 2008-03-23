@@ -1,5 +1,6 @@
 package org.paxle.crawler.impl;
 
+import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -16,6 +17,10 @@ import org.paxle.crawler.ISubCrawler;
  * resource is not supported by one of the available {@link ISubCrawler sub-crawlers}
  */
 public class ProtocolFilter implements IFilter<ICommand> {
+	
+	private static final String ERR_NOTSUPPORTED = "Protocol '%s' not supported";
+	private static final String ERR_NOPROT = "Malformed URL. No protocol was specified";
+	
 	private Log logger = LogFactory.getLog(this.getClass());
 	private SubCrawlerManager subCrawlerManager = null;
 
@@ -29,13 +34,14 @@ public class ProtocolFilter implements IFilter<ICommand> {
 	public void filter(ICommand command, IFilterContext context) {
 		try {
 			// check the command location
-			String location = command.getLocation();
-			try {
-				this.checkProtocol(location);
-			} catch (ProtocolFilterException pe) {
-				command.setResult(ICommand.Result.Rejected, pe.getMessage());
+			URI location = command.getLocation();
+			final String scheme = location.getScheme();
+			if (scheme.length() == 0) {
+				command.setResult(ICommand.Result.Rejected, ERR_NOPROT);
+			} else if (!this.subCrawlerManager.isSupported(scheme)) {
+				command.setResult(ICommand.Result.Rejected, String.format(ERR_NOTSUPPORTED, scheme));
 				return;
-			}			
+			}
 			
 			// check the extracted links
 			IParserDocument parserDoc = command.getParserDocument();
@@ -81,13 +87,13 @@ public class ProtocolFilter implements IFilter<ICommand> {
 	
 	private void checkProtocol(String location) throws ProtocolFilterException {
 		int idx = location.indexOf("://");
-		if (idx == -1) throw new ProtocolFilterException("Malformed URL. No protocol was specified");
+		if (idx == -1) throw new ProtocolFilterException(ERR_NOPROT);
 		String protocol = location.substring(0,idx);
 
 		// check if the protocol is supported by one of the 
 		// available sub-crawlers
 		if (!this.subCrawlerManager.isSupported(protocol)) {
-			throw new ProtocolFilterException(String.format("Protocol '%s' not supported",protocol));
+			throw new ProtocolFilterException(String.format(ERR_NOTSUPPORTED, protocol));
 		}
 	}
 }

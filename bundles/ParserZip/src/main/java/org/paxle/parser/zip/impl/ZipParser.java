@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -29,7 +30,7 @@ public class ZipParser implements IZipParser {
 		return MIME_TYPES;
 	}
 	
-	public IParserDocument parse(String location, String charset, File content)
+	public IParserDocument parse(URI location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		final ParserContext context = ParserContext.getCurrentContext();
 		final IParserDocument pdoc = new CachedParserDocument(context.getTempFileManager());
@@ -39,7 +40,7 @@ public class ZipParser implements IZipParser {
 			while ((ze = zis.getNextEntry()) != null) {
 				if (ze.isDirectory()) continue;
 				final SubParserDocOutputStream sos = new SubParserDocOutputStream(
-						context.getTempFileManager(), context.getCharsetDetector(), pdoc, ze.getName());
+						context.getTempFileManager(), context.getCharsetDetector(), pdoc, location, ze.getName());
 				try {
 					IOTools.copy(zis, sos, ze.getSize());
 				} finally { try { sos.close(); } catch (IOException e) {

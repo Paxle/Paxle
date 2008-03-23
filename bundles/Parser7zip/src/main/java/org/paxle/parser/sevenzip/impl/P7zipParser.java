@@ -3,6 +3,7 @@ package org.paxle.parser.sevenzip.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class P7zipParser implements I7zipParser {
 		return MimeTypes;
 	}
 	
-	public IParserDocument parse(String location, String charset, File content) throws
+	public IParserDocument parse(URI location, String charset, File content) throws
 			ParserException, UnsupportedEncodingException, IOException {
 		final Handler archive = new Handler();
 		archive.Open(new RAFInStream(content));
@@ -31,7 +32,7 @@ public class P7zipParser implements I7zipParser {
 		final ParserContext context = ParserContext.getCurrentContext();
 		final ITempFileManager tfm = context.getTempFileManager();
 		final CachedParserDocument doc = new CachedParserDocument(tfm);
-		final SZParserExtractCallback aec = new SZParserExtractCallback(doc, archive, tfm, context.getCharsetDetector());
+		final SZParserExtractCallback aec = new SZParserExtractCallback(location, doc, archive, tfm, context.getCharsetDetector());
 		try {
 			archive.Extract(null, -1, 0, aec);
 			doc.setStatus(IParserDocument.Status.OK);

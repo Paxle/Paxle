@@ -2,6 +2,8 @@ package org.paxle.parser.msoffice.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +33,7 @@ public class MsWordParserTest extends AMsOfficeParserTest {
 		ListAssert.assertContains(mimeTypes,"application/msword");
 	}
 
-	public void testParseMsWord() throws UnsupportedEncodingException, ParserException, IOException {
+	public void testParseMsWord() throws UnsupportedEncodingException, ParserException, IOException, URISyntaxException {
 		IParserDocument parserDoc = null;
 		try {
 			List<String> mimeTypes = this.parser.getMimeTypes();
@@ -44,7 +46,7 @@ public class MsWordParserTest extends AMsOfficeParserTest {
 			File testFile = new File("src/test/resources/test.doc");
 			assertTrue(testFile.exists());
 
-			parserDoc = this.parser.parse("http://mydummylocation.at", "UTF-8", testFile);
+			parserDoc = this.parser.parse(new URI("http://mydummylocation.at"), "UTF-8", testFile);
 			assertNotNull(parserDoc);
 			assertEquals(IParserDocument.Status.OK, parserDoc.getStatus());		
 			assertEquals("Paxle MsOffice Parser", parserDoc.getTitle());

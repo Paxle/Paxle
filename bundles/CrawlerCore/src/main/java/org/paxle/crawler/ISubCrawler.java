@@ -1,5 +1,7 @@
 package org.paxle.crawler;
 
+import java.net.URI;
+
 import org.paxle.core.doc.ICrawlerDocument;
 
 
@@ -18,5 +20,5 @@ public interface ISubCrawler {
 	 */
 	public String[] getProtocols();
 	
-	public ICrawlerDocument request(String requestUrl);
+	public ICrawlerDocument request(URI requestUri);
 }

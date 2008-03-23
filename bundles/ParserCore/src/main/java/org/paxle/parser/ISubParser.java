@@ -3,6 +3,7 @@ package org.paxle.parser;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.List;
 
 import org.paxle.core.doc.IParserDocument;
@@ -39,6 +40,6 @@ public interface ISubParser {
 	 *         doesn't match the file
 	 * @throws <b>IOException</b> if an I/O-error occures during reading <code>content</code>
 	 */
-	public IParserDocument parse(String location, String charset, File content)
+	public IParserDocument parse(URI location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException;
 }

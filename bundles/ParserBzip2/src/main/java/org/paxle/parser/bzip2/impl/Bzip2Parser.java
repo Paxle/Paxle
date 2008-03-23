@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class Bzip2Parser implements IBzip2Parser {
 		return MIME_TYPES;
 	}
 	
-	public IParserDocument parse(String location, String charset, File content)
+	public IParserDocument parse(URI location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		final FileInputStream fis = new FileInputStream(content);
 		// read two bytes to ensure correctness and to make the CBZip2InputStream working,

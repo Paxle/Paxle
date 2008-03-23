@@ -54,13 +54,29 @@
     								#set($attribType = ${dataTypes.get($attribute.getType())})
 									#set($optionLabels = ${attribute.getOptionLabels()})
 									#set($optionValues = ${attribute.getOptionValues()})
+									#set($attribCardinality = ${attribute.getCardinality()})
     								
                             		<tr class="$color">
                             			<td>$attribute.getName()</td>
         								<td>$attribType</td>
                             			<td>
 											#if($optionLabels && $listTool.size($optionLabels) > 0)
-												<select size="1" name="$attributeID">
+												<select name="$attributeID"
+												#set($numOptions = $listTool.size($optionLabels))
+												#if($attribCardinality == 0 || $numOptions == 1)
+													size="1"
+												#else
+													#*
+													#if($numOptions > 5)
+														#set($selectSize = 5)
+													#else
+														#set($selectSize = $numOptions)
+													#end
+													*#
+													multiple="multiple"
+													size="#if($attribCardinality > 5)5#else${numOptions}#end"
+												#end
+												>
 												#foreach($optionLabel in $optionLabels)
 													#set($idx = $velocityCount - 1)
 													#set($optionValue = ${listTool.get($optionValues,$idx)})
@@ -107,7 +123,6 @@
 		<tr>
 			<th>Name</th>
 			<th>PID</th>
-			<th>Link</th>
 		</tr>
 		#set($color = $alternatorTool.auto('r1','r2'))
 		
@@ -125,9 +140,8 @@
         					#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
         					#if($ocd)
     							<tr class="$color">
-    								<td>$ocd.getName()</td>
+    								<td><a href="?bundleID=$bundle.getBundleId()&amp;pid=$PID">$ocd.getName()</a></td>
     								<td>$PID</td>
-    								<td><a href="?bundleID=$bundle.getBundleId()&amp;pid=$PID">View</a></td>
     							</tr>							
         					#end
         				#end

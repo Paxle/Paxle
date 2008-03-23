@@ -1,5 +1,6 @@
 package org.paxle.filter.robots.impl;
 
+import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 	 */
 	public void filter(ICommand command, IFilterContext filterContext) {		
 		// getting the location
-		String location = command.getLocation();
+		URI location = command.getLocation();
 
 		try {
 
