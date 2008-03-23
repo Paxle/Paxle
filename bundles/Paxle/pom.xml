@@ -752,6 +752,7 @@
 		
 		<!-- paxle parser bundles -->
 		<module>../ParserCore</module>
+		<module>../ParserPlain</module>
 		<module>../ParserGzip</module>
 		<module>../ParserPdf</module>
 		<module>../ParserZip</module>
