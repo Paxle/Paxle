@@ -64,7 +64,7 @@ public class FilterManager implements IFilterManager {
 	 * @param targetID the property {@link IFilter#PROP_FILTER_TARGET} wich was used by the
 	 * {@link IFilter} during service-registration.
 	 */
-	public void removeFilter(Object serviceID, String targetID) {
+	public void removeFilter(Long serviceID, String targetID) {
 		if (serviceID == null) throw new NullPointerException("The serviceID must not be null.");
 		if (targetID == null) throw new NullPointerException("The targetID must not be null.");
 		

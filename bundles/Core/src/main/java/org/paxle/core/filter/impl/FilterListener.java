@@ -1,5 +1,6 @@
 package org.paxle.core.filter.impl;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.core.norm.IReferenceNormalizer;
 
 /**
  * A class to listen for registered and unregistered {@link IFilter filters}.
@@ -60,13 +62,32 @@ public class FilterListener implements ServiceListener {
 	private ITempFileManager tempFileManager = null;
 	
 	/**
+	 * A component to normalize {@link URI URIs}. This component is accessible to all 
+	 * from all {@link IFilter filters} via function {@link IFilterContext#getReferenceNormalizer()}.
+	 * 
+	 * @see IReferenceNormalizer#normalizeReference(String)
+	 */
+	private IReferenceNormalizer referenceNormalizer;
+	
+	/**
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 
-	public FilterListener(FilterManager filterManager, ITempFileManager tempFileManager, BundleContext context) throws InvalidSyntaxException {
+	public FilterListener(
+			FilterManager filterManager, 
+			ITempFileManager tempFileManager,
+			IReferenceNormalizer referenceNormalizer,
+			BundleContext context
+	) throws InvalidSyntaxException {
+		if (filterManager == null) throw new NullPointerException("The filter-manager is null.");
+		if (tempFileManager == null) throw new NullPointerException("The temp-file-manager is null.");
+		if (referenceNormalizer == null) throw new NullPointerException("The reference-normalizer is null.");
+		if (context == null) throw new NullPointerException("The bundle-context is null.");
+		
 		this.filterManager = filterManager;
 		this.tempFileManager = tempFileManager;
+		this.referenceNormalizer = referenceNormalizer;
 		this.context = context;
 
 		ServiceReference[] services = context.getServiceReferences(null,FILTER);
@@ -90,6 +111,7 @@ public class FilterListener implements ServiceListener {
 
 		// loop through the interfaces
 		for (String interfaceName : interfaceNames) {
+			// ignore unknown interfaces
 			if (!INTERFACES.contains(interfaceName)) continue;
 
 			if (interfaceName.equals(IFilter.class.getName())) 
@@ -101,7 +123,7 @@ public class FilterListener implements ServiceListener {
 
 	private void handleFilter(ServiceReference reference, int eventType) {
 		// the service ID of the registered filter
-		Object serviceID = reference.getProperty(Constants.SERVICE_ID);
+		Long serviceID = (Long) reference.getProperty(Constants.SERVICE_ID);
 		if (serviceID == null) {
 			this.logger.error("Unable to (un)register filter. No OSGi service-id found!");
 			return;
@@ -177,7 +199,7 @@ public class FilterListener implements ServiceListener {
 		return targetIDs.toArray(new String[targetIDs.size()]);
 	}
 
-	private FilterContext generateFilterMetadata(Object serviceID, String target, IFilter filter) {
+	private FilterContext generateFilterMetadata(Long serviceID, String target, IFilter filter) {
 		Properties filterProps = new Properties();
 		String[] params = target.split(";");
 		String targetID = params[0].trim();
@@ -220,6 +242,7 @@ public class FilterListener implements ServiceListener {
 				filterProps
 		);
 		filterContext.setTempFileManager(this.tempFileManager);
+		filterContext.setReferenceNormalizer(this.referenceNormalizer);
 		return filterContext;
 	}
 }

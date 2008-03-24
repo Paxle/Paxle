@@ -5,6 +5,7 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceListener;
 
 import org.paxle.core.ICryptManager;
@@ -30,16 +31,11 @@ import org.paxle.core.prefs.impl.PropertiesStore;
 import org.paxle.core.queue.ICommand;
 
 public class Activator implements BundleActivator {
-
-	/**
-	 * A reference to the {@link BundleContext bundle-context}
-	 */
-	public static BundleContext bc;	
 	
 	/**
 	 * A class to manage {@link IFilter filters}
 	 */
-	public static FilterManager filterManager = null;
+	private FilterManager filterManager = null;
 	
 	/**
 	 * A class to manage:
@@ -50,29 +46,33 @@ public class Activator implements BundleActivator {
 	 * 	<li>{@link IDataConsumer}</li>
 	 * </ul>
 	 */
-	public static DataManager<ICommand> dataManager = null;
+	private DataManager<ICommand> dataManager = null;
 	
-	public static CryptManager cryptManager = null;
-	public static TempFileManager tempFileManager = null;
+	private CryptManager cryptManager = null;
+	private TempFileManager tempFileManager = null;
+	
+	private ReferenceNormalizer referenceNormalizer = null;
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
-	public void start(BundleContext context) throws Exception {
-		bc = context;
+	public void start(BundleContext bc) throws Exception {
 		filterManager = new FilterManager();
 		dataManager = new DataManager<ICommand>();
 		tempFileManager = new TempFileManager();
 		cryptManager = new CryptManager();
-		
+		referenceNormalizer = new ReferenceNormalizer();
+				
 		System.out.println("Starting ...");
 		System.out.println(
 				"\t    ____             __    \r\n" +
 				"\t   / __ \\____ __  __/ /__  \r\n" +
 				"\t  / /_/ / __ `/ |/_/ / _ \\ \r\n" +
 				"\t / ____/ /_/ />  </ /  __/ \r\n" +
-			    "\t/_/    \\__,_/_/|_/_/\\___/ \r\n"
+			    "\t/_/    \\__,_/_/|_/_/\\___/ \r\n" +
+			    "\r\n" +
+				"\tVersion: " + bc.getBundle().getHeaders().get(Constants.BUNDLE_VERSION)
 		);
 
 		
@@ -80,7 +80,7 @@ public class Activator implements BundleActivator {
 		 * Register Service Listeners
 		 * ========================================================== */
 		// register the filter listener
-		bc.addServiceListener(new FilterListener(filterManager,tempFileManager,bc),FilterListener.FILTER);		
+		bc.addServiceListener(new FilterListener(this.filterManager,this.tempFileManager,this.referenceNormalizer,bc),FilterListener.FILTER);		
 		
 		// register a data-source/sink- and data-producer/consumer-listener
 		DataListener dataListener = new DataListener(dataManager,bc);
@@ -90,31 +90,31 @@ public class Activator implements BundleActivator {
 //		bc.addServiceListener(dataListener,DataListener.DATAPROVIDER_FILTER);
 //		bc.addServiceListener(dataListener,DataListener.DATACONSUMER_FILTER);
 		
-		final CryptListener cryptListener = new CryptListener(bc, cryptManager);
+		final CryptListener cryptListener = new CryptListener(bc, this.cryptManager);
 		bc.addServiceListener(cryptListener, CryptListener.FILTER);
 		
 		/* ==========================================================
 		 * Register Services
 		 * ========================================================== */		
 		// register the master-worker-factory as a service
-		context.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(), null);
+		bc.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(), null);
 		
 		// register the filter-manager as service
-		context.registerService(IFilterManager.class.getName(), filterManager, null);
+		bc.registerService(IFilterManager.class.getName(), this.filterManager, null);
 		
 		// register crypt-manager
-		context.registerService(ICryptManager.class.getName(), cryptManager, null);
-		IOTools.setTempFileManager(tempFileManager);
+		bc.registerService(ICryptManager.class.getName(), this.cryptManager, null);
+		IOTools.setTempFileManager(this.tempFileManager);
 		
 		// register property store
-		context.registerService(IPropertiesStore.class.getName(), new PropertiesStore(), null);
+		bc.registerService(IPropertiesStore.class.getName(), new PropertiesStore(), null);
 		
 		// register protocol-handlers listener which updates the table of known protocols for the reference normalization filter below
 		final ServiceListener protocolUpdater = new URLStreamHandlerListener(bc, ReferenceNormalizer.DEFAULT_PORTS);
 		bc.addServiceListener(protocolUpdater, URLStreamHandlerListener.FILTER);
 		
 		// add reference normalizer service
-        bc.registerService(IReferenceNormalizer.class.getName(), new ReferenceNormalizer(), null);
+        bc.registerService(IReferenceNormalizer.class.getName(), this.referenceNormalizer, null);
         
         // add AscendingPathUrlExtraction filter
 		final Hashtable<String,String[]> props2 = new Hashtable<String,String[]>();
@@ -129,9 +129,9 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 		IOTools.setTempFileManager(null);
 		// cleanup
-		tempFileManager = null;
-		dataManager = null;
-		filterManager = null;
-		bc = null;
+		this.tempFileManager = null;
+		this.referenceNormalizer = null;
+		this.dataManager = null;
+		this.filterManager = null;
 	}
 }

@@ -1,5 +1,6 @@
 package org.paxle.core.filter.impl;
 
+import java.net.URI;
 import java.util.Properties;
 
 import org.osgi.framework.Constants;
@@ -8,10 +9,13 @@ import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.core.norm.IReferenceNormalizer;
 
 
 public class FilterContext implements Comparable<FilterContext>, IFilterContext {
 	private ITempFileManager tempFileManager = null;
+	
+	private IReferenceNormalizer referenceNormalizer;
 	
 	/**
 	 * OSGi {@link Constants#SERVICE_ID} of a filter. This is required by the
@@ -19,7 +23,7 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	 * 
 	 * @see Constants#SERVICE_ID
 	 */
-	private Object servicID = null;
+	private Long servicID = null;
 	
 	/**
 	 * Properties that were specified during the registration of the filter via the
@@ -51,7 +55,7 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	private int pos = 0;
 	
 	
-	public FilterContext(Object serviceID, IFilter filterImpl, String targetID, int filterPos, Properties props) {
+	public FilterContext(Long serviceID, IFilter filterImpl, String targetID, int filterPos, Properties props) {
 		if (serviceID == null) throw new NullPointerException("The serviceID must not be null");
 		if (filterImpl == null) throw new NullPointerException("Filter class is null");
 		if (targetID == null || targetID.length() == 0) throw new IllegalArgumentException("Filter targetID is not set");
@@ -67,7 +71,7 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	 * @return the OSGi {@link Constants#SERVICE_ID} of the filter. This property is required by the
 	 * {@link IFilterManager} to unregister a {@link IFilter}.
 	 */
-	Object getServiceID() {
+	Long getServiceID() {
 		return this.servicID;
 	}
 	
@@ -111,6 +115,18 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	 */
 	public ITempFileManager getTempFileManager() {
 		return this.tempFileManager;
+	}
+	
+	void setReferenceNormalizer(IReferenceNormalizer referenceNormalizer) {
+		this.referenceNormalizer = referenceNormalizer;
+	}
+	
+	/**
+	 * @return a component to normalize {@link URI URIs}.
+	 * @see IReferenceNormalizer#normalizeReference(String)
+	 */
+	public IReferenceNormalizer getReferenceNormalizer() {
+		return this.referenceNormalizer;
 	}
 	
 	/**
