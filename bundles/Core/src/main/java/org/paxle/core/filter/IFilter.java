@@ -4,8 +4,15 @@ import org.paxle.core.queue.ICommand;
 
 public interface IFilter<C extends ICommand> {
 	/**
-	 * Property to specify the target of a {@link IFilter filter}, e.g.
+	 * Property to specify the target of a {@link IFilter filter}, e.g.:
 	 * <pre>org.paxle.parser.out; pos=10</pre>
+	 * 
+	 * You can also pass additional target- and position- related properties
+	 * to the filter, e.g.:
+	 * <pre>org.paxle.parser.out; pos=10; key=value</pre>
+	 * 
+	 * These additional properties are then accessible by the filter via
+	 * {@link IFilterContext#getFilterProperties()}.
 	 */
 	public static final String PROP_FILTER_TARGET = "FilterTarget";
 	

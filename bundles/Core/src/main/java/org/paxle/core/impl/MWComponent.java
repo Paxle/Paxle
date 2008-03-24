@@ -239,6 +239,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		
 		final String PID = this.componentID;
 		final String mame = this.componentName;
+		final String descr = this.componentDescription;
 		
 		// create metadata
 		ObjectClassDefinition ocd = new ObjectClassDefinition() {
@@ -247,7 +248,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 			}
 
 			public String getDescription() {
-				return "Master/Worker thread pool";
+				return descr;
 			}
 
 			public String getID() {
