@@ -12,26 +12,31 @@ import org.osgi.framework.ServiceReference;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
+import org.paxle.core.norm.IReferenceNormalizer;
 
 public class DetectorListener implements ServiceListener {
 
 	/**
 	 * The interfaces to listen for
 	 */
-	private static String[] INTERFACES = new String[]{
+	private static final String[] INTERFACES = new String[]{
 		IMimeTypeDetector.class.getName(),
 		ICharsetDetector.class.getName(),
-		ITempFileManager.class.getName()
+		ITempFileManager.class.getName(),
+		IReferenceNormalizer.class.getName()
 	};
 	
 	/**
 	 * A LDAP styled expression used for the service-listener
 	 */
-	public static final String FILTER = String.format("(|(objectClass=%s)(objectClass=%s)(objectClass=%s))", 
-			INTERFACES[0],
-			INTERFACES[1],
-			INTERFACES[2]
-	);
+	public static final String FILTER;
+	static {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("(|");
+		for (final String str : INTERFACES)
+			sb.append('(').append(Constants.OBJECTCLASS).append('=').append(str).append(')');
+		FILTER = sb.append(')').toString();
+	}
 	
 	/**
 	 * The {@link BundleContext osgi-bundle-context} of this bundle
@@ -72,14 +77,28 @@ public class DetectorListener implements ServiceListener {
 			// pass it to the worker factory
 			if (interfaces.contains(IMimeTypeDetector.class.getName())) {
 				this.workerFactory.setMimeTypeDetector((IMimeTypeDetector) detector);
-			} else if (interfaces.contains(ICharsetDetector.class.getName())) {
+			}
+			if (interfaces.contains(ICharsetDetector.class.getName())) {
 				this.workerFactory.setCharsetDetector((ICharsetDetector) detector);
+			}
+			if (interfaces.contains(ITempFileManager.class.getName())) {
+				this.workerFactory.setTempFileManager((ITempFileManager)detector);
+			}
+			if (interfaces.contains(IReferenceNormalizer.class.getName())) {
+				this.workerFactory.setReferenceNormalizer((IReferenceNormalizer)detector);
 			}
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			if (interfaces.contains(IMimeTypeDetector.class.getName())) {
 				this.workerFactory.setMimeTypeDetector(null);
-			} else if (interfaces.contains(ICharsetDetector.class.getName())) {
+			}
+			if (interfaces.contains(ICharsetDetector.class.getName())) {
 				this.workerFactory.setCharsetDetector(null);
+			}
+			if (interfaces.contains(ITempFileManager.class.getName())) {
+				this.workerFactory.setTempFileManager(null);
+			}
+			if (interfaces.contains(IReferenceNormalizer.class.getName())) {
+				this.workerFactory.setReferenceNormalizer(null);
 			}
 			this.context.ungetService(reference);
 		} else if (eventType == ServiceEvent.MODIFIED) {

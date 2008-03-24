@@ -3,13 +3,15 @@ package org.paxle.parser.impl;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
+import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 
 public class WorkerFactory implements IWorkerFactory<ParserWorker> {
 	
 	private final SubParserManager subParserManager;
-	private final ITempFileManager tempFileManager;
+	private ITempFileManager tempFileManager;
+	private IReferenceNormalizer referenceNormalizer;
 	private IMimeTypeDetector mimeTypeDetector = null; 
 	private ICharsetDetector charsetDetector = null;
 	
@@ -17,9 +19,13 @@ public class WorkerFactory implements IWorkerFactory<ParserWorker> {
 	 * @param subParserManager the {@link SubParserManager} that should be passed 
 	 *        to the {@link ParserWorker worker-thread} on {@link #createWorker() worker-creation}
 	 */
-	public WorkerFactory(SubParserManager subParserManager, ITempFileManager tempFileManager) {
+	public WorkerFactory(
+			SubParserManager subParserManager,
+			ITempFileManager tempFileManager,
+			IReferenceNormalizer referenceNormalizer) {
 		this.subParserManager = subParserManager;
 		this.tempFileManager = tempFileManager;
+		this.referenceNormalizer = referenceNormalizer;
 	}
 	
 	/**
@@ -36,6 +42,14 @@ public class WorkerFactory implements IWorkerFactory<ParserWorker> {
 	 */
 	public void setCharsetDetector(ICharsetDetector charsetDetector) {
 		this.charsetDetector = charsetDetector;
+	}
+	
+	public void setTempFileManager(ITempFileManager tempFileManager) {
+		this.tempFileManager = tempFileManager;
+	}
+	
+	public void setReferenceNormalizer(final IReferenceNormalizer referenceNormalizer) {
+		this.referenceNormalizer = referenceNormalizer;
 	}
 	
 	/**
@@ -56,5 +70,6 @@ public class WorkerFactory implements IWorkerFactory<ParserWorker> {
 		worker.mimeTypeDetector = this.mimeTypeDetector;
 		worker.charsetDetector = this.charsetDetector;
 		worker.tempFileManager = this.tempFileManager;
+		worker.referenceNormalizer = this.referenceNormalizer;
 	}
 }

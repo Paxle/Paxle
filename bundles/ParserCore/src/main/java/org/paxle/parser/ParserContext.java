@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
+import org.paxle.core.norm.IReferenceNormalizer;
 
 public class ParserContext {
 	
@@ -14,6 +15,7 @@ public class ParserContext {
     private final ICharsetDetector charsetDetector;
     private final ISubParserManager subParserManager;
     private final ITempFileManager tempFileManager;
+    private final IReferenceNormalizer referenceNormalizer;
     
     private HashMap<String, Object> bag = new HashMap<String, Object>();
     
@@ -21,11 +23,13 @@ public class ParserContext {
     		ISubParserManager subParserManager,
     		IMimeTypeDetector mimeTypeDetector,
     		ICharsetDetector charsetDetector,
-    		ITempFileManager tempFileManager) {
+    		ITempFileManager tempFileManager,
+    		IReferenceNormalizer referenceNormalizer) {
     	this.subParserManager = subParserManager;
     	this.mimeTypeDetector = mimeTypeDetector;
     	this.charsetDetector = charsetDetector;
     	this.tempFileManager = tempFileManager;
+    	this.referenceNormalizer = referenceNormalizer;
 	}
     
     public static void setCurrentContext(ParserContext parserContext) {
@@ -62,6 +66,10 @@ public class ParserContext {
 	
 	public ITempFileManager getTempFileManager() {
 		return this.tempFileManager;
+	}
+	
+	public IReferenceNormalizer getReferenceNormalizer() {
+		return this.referenceNormalizer;
 	}
 	
 	/* ========================================================================

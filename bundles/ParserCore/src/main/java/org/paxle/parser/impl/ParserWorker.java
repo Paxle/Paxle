@@ -8,6 +8,7 @@ import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
+import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 import org.paxle.parser.ISubParser;
@@ -33,6 +34,8 @@ public class ParserWorker extends AWorker<ICommand> {
 	
 	ITempFileManager tempFileManager = null;
 	
+	IReferenceNormalizer referenceNormalizer = null;
+	
 	/**
 	 * A logger class 
 	 */
@@ -51,7 +54,8 @@ public class ParserWorker extends AWorker<ICommand> {
 				this.subParserManager,
 				this.mimeTypeDetector,
 				this.charsetDetector,
-				this.tempFileManager);
+				this.tempFileManager,
+				this.referenceNormalizer);
 		ParserContext.setCurrentContext(parserContext);		
 	}
 	

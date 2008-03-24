@@ -1,7 +1,9 @@
+
 package org.paxle.parser;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.List;
@@ -41,5 +43,8 @@ public interface ISubParser {
 	 * @throws <b>IOException</b> if an I/O-error occures during reading <code>content</code>
 	 */
 	public IParserDocument parse(URI location, String charset, File content)
+			throws ParserException, UnsupportedEncodingException, IOException;
+	
+	public IParserDocument parse(URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException;
 }

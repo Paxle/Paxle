@@ -30,7 +30,7 @@ import org.paxle.parser.ParserException;
  */
 public class ParserDocOutputStream extends OutputStream {
 	
-	private final Log logger = LogFactory.getLog(SubParserDocOutputStream.class);
+	private static final Log logger = LogFactory.getLog(ParserDocOutputStream.class);
 	
 	private boolean closed = false;
 	private final ITempFileManager tfm;
@@ -79,9 +79,10 @@ public class ParserDocOutputStream extends OutputStream {
 		if (!closed) this.close();
 		
 		final String charset = getCharset();
+		final String mimeType = ParserTools.getMimeType(this.of);
+		logger.debug(String.format("Parsing contained file in '%s' with mime-type '%s' and charset '%s'", location, mimeType, charset));
 		try {
-			logger.debug("parsing sub-doc '" + location + "'");
-			return ParserTools.parse(location, charset, this.of);
+			return ParserTools.parse(location, mimeType, charset, this.of);
 		} catch (UnsupportedEncodingException e) {
 			throw new ParserException("Error parsing file on close due to incorrectly detected charset '" + charset + "'", e);
 		} finally {

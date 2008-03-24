@@ -43,6 +43,7 @@
 							org.paxle.core.io.temp, 
 							org.paxle.core.io, 
 							org.paxle.core.mimetype, 
+							org.paxle.core.norm,
 							org.paxle.core.prefs							
 						</Import-Package>
 						<Private-Package>

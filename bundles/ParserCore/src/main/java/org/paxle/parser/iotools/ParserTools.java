@@ -1,9 +1,11 @@
+
 package org.paxle.parser.iotools;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -131,14 +133,6 @@ public class ParserTools {
 		}
 	}
 	
-	public static IParserDocument parse(URI location, String charset, File content) throws ParserException, IOException,
-			UnsupportedEncodingException {
-		final String mimeType = getMimeType(content);
-		if (mimeType == null)
-			throw new ParserException("detected MIME type of file " + content + " is null, cannot parse it");
-		return parse(location, mimeType, charset, content);
-	}
-	
 	public static IParserDocument parse(URI location, String mimeType, String charset, File content) throws ParserException,
 			IOException, UnsupportedEncodingException {
 		// retrieve the sub-parser for the found MIME type, parse content and return the document
@@ -149,6 +143,31 @@ public class ParserTools {
 		final ISubParser sp = context.getParser(mimeType);
 		if (sp == null)
 			throw new ParserException("No parser found for MIME type '" + mimeType + "'");
+		
+		final IParserDocument pdoc = sp.parse(location, charset, content);
+		if (pdoc.getMimeType() == null)
+			pdoc.setMimeType(mimeType);
+		
+		return pdoc;
+	}
+	
+	/* ================================================================================
+	 * Stream methods
+	 * ================================================================================ */
+	
+	public static IParserDocument parse(URI location, String mimeType, String charset, InputStream content) throws ParserException,
+			IOException, UnsupportedEncodingException {
+		// retrieve the sub-parser for the found MIME type, parse content and return the document
+		final ParserContext context = ParserContext.getCurrentContext();
+		if (context == null)
+			throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
+		
+		if (mimeType == null)
+			throw new ParserException("detected MIME type of file " + content + " is null, cannot parse it");
+		final ISubParser sp = context.getParser(mimeType);
+		if (sp == null)
+			throw new ParserException("No parser found for MIME type '" + mimeType + "'");
+		
 		final IParserDocument pdoc = sp.parse(location, charset, content);
 		if (pdoc.getMimeType() == null)
 			pdoc.setMimeType(mimeType);

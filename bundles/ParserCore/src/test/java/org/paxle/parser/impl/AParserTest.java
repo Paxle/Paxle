@@ -2,11 +2,13 @@ package org.paxle.parser.impl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 
 import junit.framework.TestCase;
 
 import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.ParserContext;
 
 
@@ -33,6 +35,10 @@ public abstract class AParserTest extends TestCase {
 				return tempfile;
 			}
 
+		}, new IReferenceNormalizer() {
+			public URI normalizeReference(String reference) {
+				return URI.create(reference);
+			}
 		});
 		ParserContext.setCurrentContext(this.parserContext);		
 	}

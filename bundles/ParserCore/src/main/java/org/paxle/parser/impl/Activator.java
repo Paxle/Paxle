@@ -9,6 +9,7 @@ import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.io.IOTools;
+import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.Properties;
 import org.paxle.core.queue.ICommand;
@@ -56,8 +57,13 @@ public class Activator implements BundleActivator {
 		
 		subParserManager = new SubParserManager(props);
 		
+		ref = bc.getServiceReference(IReferenceNormalizer.class.getName());
+		IReferenceNormalizer refNorm = null;
+		if (ref != null)
+			refNorm = (IReferenceNormalizer)bc.getService(ref);
+		
 		// init thead worker-factory
-		workerFactory = new WorkerFactory(subParserManager, IOTools.getTempFileManager());
+		workerFactory = new WorkerFactory(subParserManager, IOTools.getTempFileManager(), refNorm);
 		
 		/* ==========================================================
 		 * Register Service Listeners
