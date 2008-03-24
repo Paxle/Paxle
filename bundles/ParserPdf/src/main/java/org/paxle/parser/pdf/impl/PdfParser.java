@@ -95,7 +95,6 @@ public class PdfParser implements IPdfParser {
 			// init text stripper
 			PDFTextStripper stripper = new PDFTextStripper();
 			stripper.writeText(pddDoc, parserDoc.getTextWriter());
-			parserDoc.close();
 			
 			parserDoc.setStatus(IParserDocument.Status.OK);
 			return parserDoc;

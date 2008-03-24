@@ -18,7 +18,7 @@ public class FSTempDir extends ATempDir implements ITempDir {
 				throw new IOException("Couldn't create directory for temporay files: " + dir);
 	}
 	
-	public FSTempDir(File dir, boolean deleteOnExit) throws IOException {
+	public FSTempDir(File dir) throws IOException {
 		this(dir, null);
 	}
 	
