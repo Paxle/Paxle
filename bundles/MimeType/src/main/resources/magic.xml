@@ -8,6 +8,12 @@
 </info>
 <match-list>
 <match>
+	<mimetype>video/x-flv</mimetype>
+	<description>Macromedia Flash Video</description>
+	<extension>flv</extension>
+	<test type="string" offset="0" bitmask="0" comparator="=">FLV</test>
+</match>
+<match>
 	<mimetype>audio/mp3</mimetype>
 	<extension></extension>
 	<description>MP3</description>
