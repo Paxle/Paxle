@@ -1,7 +1,6 @@
 package org.paxle.parser.msoffice.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.commons.logging.Log;

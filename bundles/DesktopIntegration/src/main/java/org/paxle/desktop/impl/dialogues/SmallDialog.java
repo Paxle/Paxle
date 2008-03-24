@@ -15,7 +15,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -25,7 +25,7 @@ import javax.swing.WindowConstants;
 
 import org.paxle.desktop.impl.Utilities;
 
-public class SmallDialog extends JFrame {
+public class SmallDialog extends JDialog {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -50,20 +50,15 @@ public class SmallDialog extends JFrame {
 	
 	private class BtnListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			SwingUtilities.invokeLater(new DoAction(true));
+			aborted = false;
+			SwingUtilities.invokeLater(new DoAction());
 		}
 	}
 	
 	private class DoAction implements Runnable {
 		
-		private final boolean success;
-		
-		public DoAction(boolean success) {
-			this.success = success;
-		}
-		
 		public void run() {
-			if (this.success) {
+			if (!aborted && af != null) {
 				SmallDialog.this.af.init(SmallDialog.this.text.getText());
 				new Thread(SmallDialog.this.af).start();
 			}
@@ -75,7 +70,8 @@ public class SmallDialog extends JFrame {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-				SwingUtilities.invokeLater(new DoAction(false));
+				aborted = true;
+				SwingUtilities.invokeLater(new DoAction());
 			}
 		}
 	}
@@ -84,6 +80,7 @@ public class SmallDialog extends JFrame {
 	private final JLabel label = new JLabel();
 	private final JTextField text = new JTextField();
 	private final JButton btn = new JButton();
+	private boolean aborted = false;
 	
 	public SmallDialog(AFinally af) {
 		super();
@@ -173,7 +170,16 @@ public class SmallDialog extends JFrame {
 		return panel;
 	}
 	
+	public static String showDialog(final String labelText, final String buttonText) {
+		final SmallDialog sd = new SmallDialog(null, labelText, buttonText);
+		sd.setModal(true);
+		sd.setVisible(true);
+		
+		return (sd.aborted) ? null : sd.text.getText();
+	}
+	
 	public static void main(String[] args) {
+		/*
 		SmallDialog sd = new SmallDialog(new AFinally() {
 			@Override
 			public void run() {
@@ -183,6 +189,11 @@ public class SmallDialog extends JFrame {
 		sd.setLabelText("Enter here:");
 		sd.setButtonText("OK");
 		sd.setLocation(1200, 1000, 24);
+		sd.setModal(true);
 		sd.setVisible(true);
+		*/
+		// System.out.println("finished");
+		
+		System.out.println(showDialog("bla", "blubb"));
 	}
 }

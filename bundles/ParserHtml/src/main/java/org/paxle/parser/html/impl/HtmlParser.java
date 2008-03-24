@@ -4,10 +4,9 @@ package org.paxle.parser.html.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.util.Arrays;
@@ -19,7 +18,6 @@ import org.htmlparser.Parser;
 import org.htmlparser.lexer.InputStreamSource;
 import org.htmlparser.lexer.Lexer;
 import org.htmlparser.lexer.Page;
-import org.htmlparser.lexer.Source;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.CachedParserDocument;
@@ -49,43 +47,6 @@ public class HtmlParser implements IHtmlParser {
 	
 	private final Log logger = LogFactory.getLog(HtmlParser.class);
 	
-	// workaround for invalid relative links returned by Page due to BaseHrefTag setting the Page's
-	// base URL to an empty String instead of null and therefore getAbsoluteURL() does not fall back
-	// to getUrl() as it should when getBaseUrl() returns something invalid
-	private static class FixedPage extends Page {
-		
-		private static final long serialVersionUID = 1L;
-		
-		public FixedPage(Source source) {
-			super(source);
-		}
-		
-		@Override
-		public String getAbsoluteURL(String link, boolean strict) {
-			String base;
-	        URL url;
-	        String ret;
-	        if ((null == link) || ("".equals(link))) {
-	            ret = "";
-	        } else {
-	            try {
-	                base = getBaseUrl();
-	                if (null == base || base.trim().length() == 0)
-	                    base = getUrl();
-	                if (null == base) {
-	                    ret = link;
-	                } else {
-		                url = constructUrl(link, base, strict);
-		                ret = url.toExternalForm();
-	                }
-	            } catch (MalformedURLException murle) {
-	                ret = link;
-	            }
-	        }
-	        return (ret);
-		}
-	}
-	
 	/*
 	public static void main(String[] args) {
 		final File dir = new File(args[0]);
@@ -111,12 +72,8 @@ public class HtmlParser implements IHtmlParser {
 		return MIME_TYPES;
 	}
 	
-	/**
-	 * TODO: the html parser seems not to extract the keywords
-	 */
-	public IParserDocument parse(URI location, String charset, File content) throws ParserException,
-			UnsupportedEncodingException, IOException {
-		final FileInputStream fis = new FileInputStream(content);
+	public IParserDocument parse(URI location, String charset, InputStream is)
+			throws ParserException, UnsupportedEncodingException, IOException {
 		try {
 			// testing if we support the charset. if not we try to use UTF-8
 			boolean unsupportedCharset = false;
@@ -137,13 +94,14 @@ public class HtmlParser implements IHtmlParser {
 				charset = "UTF-8";
 			}
 			
-			final Page page = new FixedPage(new InputStreamSource(fis, charset));
+			final Page page = new FixedPage(new InputStreamSource(is, charset));
 			page.setUrl(location.toASCIIString());
 			final Parser parser = new Parser(new Lexer(page));
 			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
-			
-			final IParserDocument doc = new CachedParserDocument(ParserContext.getCurrentContext().getTempFileManager());
-			final NodeCollector nc = new NodeCollector(doc, new ParserLogger(logger, location));
+
+			final ParserContext context = ParserContext.getCurrentContext();
+			final IParserDocument doc = new CachedParserDocument(context.getTempFileManager());
+			final NodeCollector nc = new NodeCollector(doc, new ParserLogger(logger, location), page, context.getReferenceNormalizer());
 			parser.visitAllNodesWith(nc);
 			page.close();
 			
@@ -153,6 +111,17 @@ public class HtmlParser implements IHtmlParser {
 			return doc;
 		} catch (org.htmlparser.util.ParserException e) {
 			throw new ParserException("error parsing HTML nodes-tree", e);
+		}
+	}
+	
+	/**
+	 * TODO: the html parser does not seem to extract the keywords
+	 */
+	public IParserDocument parse(URI location, String charset, File content) throws ParserException,
+			UnsupportedEncodingException, IOException {
+		final FileInputStream fis = new FileInputStream(content);
+		try {
+			return parse(location, charset, fis);
 		} finally {
 			fis.close();
 		}

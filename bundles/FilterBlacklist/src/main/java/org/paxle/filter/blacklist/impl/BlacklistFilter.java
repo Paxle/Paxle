@@ -2,6 +2,7 @@ package org.paxle.filter.blacklist.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +40,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
     }
 
     public void filter(ICommand command, IFilterContext filterContext) {
-        FilterResult result = isListed(command.getLocation().toString());
+        FilterResult result = isListed(command.getLocation().toString());		// XXX should this be .toASCIIString()?
         if(result.getStatus()==FilterResult.LOCATION_REJECTED) {
             command.setResult(ICommand.Result.Rejected, "rejected by blacklistentry: " + result.getRejectPattern());
             //System.out.println(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
@@ -55,7 +56,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
         if (parserDoc == null) return;
         
         // getting the link map
-        Map<String, String> linkMap = parserDoc.getLinks();
+        Map<URI, String> linkMap = parserDoc.getLinks();
         if (linkMap != null) {
             this.checkBlacklist(linkMap);
         }
@@ -69,13 +70,13 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
         }
     }   
     
-    private void checkBlacklist(Map<String, String> linkMap) {
+    private void checkBlacklist(Map<URI, String> linkMap) {
         if (linkMap == null || linkMap.size() == 0) return;
         
-        Iterator<String> refs = linkMap.keySet().iterator();
+        Iterator<URI> refs = linkMap.keySet().iterator();
         while (refs.hasNext()) {
-            String location = refs.next();
-            FilterResult result = isListed(location);
+            URI location = refs.next();
+            FilterResult result = isListed(location.toString());		// XXX should this be .toASCIIString()?
             if (result.getStatus()==FilterResult.LOCATION_REJECTED) {
                 refs.remove();
                 //System.out.println(location + " rejected by blacklistentry: " + result.getRejectPattern());

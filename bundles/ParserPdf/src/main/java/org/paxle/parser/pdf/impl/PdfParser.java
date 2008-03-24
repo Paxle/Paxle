@@ -23,26 +23,23 @@ import org.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
 import org.pdfbox.util.PDFTextStripper;
 
 public class PdfParser implements IPdfParser {
-
+	
 	private static final List<String> MIME_TYPES = Arrays.asList(
 			"application/pdf"
 	);
-
+	
 	public List<String> getMimeTypes() {
 		return MIME_TYPES;
 	}
-
-	public IParserDocument parse(URI location, String charset, File content) throws ParserException, UnsupportedEncodingException, IOException {
+	
+	public IParserDocument parse(URI location, String charset, InputStream fileIn)
+			throws ParserException, UnsupportedEncodingException, IOException {
 		CachedParserDocument parserDoc = null;
 		PDDocument pddDoc = null;
-		InputStream fileIn = null;
+		
 		try {
 			// create an empty document
 			parserDoc = new CachedParserDocument(ParserContext.getCurrentContext().getTempFileManager());
-
-			// open file
-			fileIn = new BufferedInputStream(new FileInputStream(content));
-			
 			// parse it
 			PDFParser parser = new PDFParser(fileIn);
 			parser.parse();
@@ -74,7 +71,7 @@ public class PdfParser implements IPdfParser {
 				// document author(s)
 				String author = metadata.getAuthor();
 				if (author != null && author.length() > 0) parserDoc.setAuthor(author);;
-								
+				
 				// subject
 				String summary = metadata.getSubject();
 				if (summary != null && summary.length() > 0) parserDoc.setSummary(summary);
@@ -105,9 +102,19 @@ public class PdfParser implements IPdfParser {
 		} catch (Throwable e) {
 			throw new ParserException("Error parsing pdf document. " + e.getMessage(), e);
 		} finally {
-			if (fileIn != null) try { fileIn.close(); } catch (Exception e) {/* ignore this */}
 			if (pddDoc != null) try { pddDoc.close(); } catch (Exception e) {/* ignore this */}
 		}
 	}
-
+	
+	public IParserDocument parse(URI location, String charset, File content) throws ParserException, UnsupportedEncodingException, IOException {
+		InputStream fileIn = null;
+		try {
+			// open file
+			fileIn = new BufferedInputStream(new FileInputStream(content));
+			return parse(location, charset, fileIn);
+		} finally {
+			if (fileIn != null) try { fileIn.close(); } catch (Exception e) {/* ignore this */}
+		}
+	}
+	
 }

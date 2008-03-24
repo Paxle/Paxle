@@ -29,24 +29,20 @@ public class MsPowerpointParser extends AMsOfficeParser implements ISubParser, I
 	public List<String> getMimeTypes() {
 		return MIME_TYPES;
 	}
-
-	public IParserDocument parse(URI location, String charset, File content)
+	
+	public IParserDocument parse(URI location, String charset, InputStream fileIn)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		CachedParserDocument parserDoc = null;
-		
-		InputStream fileIn = null;
 		try {		
+			
 			// create an empty document
 			parserDoc = new CachedParserDocument(ParserContext.getCurrentContext().getTempFileManager());
-
-			// open file			
-			fileIn = new BufferedInputStream(new FileInputStream(content));		
 			
 			// open the POI filesystem
 			POIFSFileSystem fs = new POIFSFileSystem(fileIn);
 			fileIn.close();
 			fileIn = null;
-						
+			
 			// extract metadata
 			this.extractMetadata(fs, parserDoc);
 			
@@ -63,6 +59,17 @@ public class MsPowerpointParser extends AMsOfficeParser implements ISubParser, I
 			throw new ParserException(String.format("Error parsing ms-powerpoint document. %s: %s",
 					e.getClass().getName(),
 					e.getMessage()), e);
+		}
+	}
+
+	public IParserDocument parse(URI location, String charset, File content)
+			throws ParserException, UnsupportedEncodingException, IOException {
+		
+		InputStream fileIn = null;
+		try {		
+			// open file
+			fileIn = new BufferedInputStream(new FileInputStream(content));
+			return parse(location, charset, fileIn);
 		} finally {
 			if (fileIn != null) try { fileIn.close(); } catch (Exception e) {/* ignore this */}
 		}

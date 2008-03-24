@@ -3,6 +3,7 @@ package org.paxle.parser.zip.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Arrays;
@@ -30,32 +31,42 @@ public class ZipParser implements IZipParser {
 		return MIME_TYPES;
 	}
 	
-	public IParserDocument parse(URI location, String charset, File content)
+	public IParserDocument parse(URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		final ParserContext context = ParserContext.getCurrentContext();
 		final IParserDocument pdoc = new CachedParserDocument(context.getTempFileManager());
-		final ZipInputStream zis = new ZipInputStream(new FileInputStream(content));
+		final ZipInputStream zis = new ZipInputStream(is);
 		ZipEntry ze;
-		try {
-			while ((ze = zis.getNextEntry()) != null) {
-				if (ze.isDirectory()) continue;
-				final SubParserDocOutputStream sos = new SubParserDocOutputStream(
-						context.getTempFileManager(), context.getCharsetDetector(), pdoc, location, ze.getName());
-				try {
-					IOTools.copy(zis, sos, ze.getSize());
-				} finally { try { sos.close(); } catch (IOException e) {
+		while ((ze = zis.getNextEntry()) != null) {
+			if (ze.isDirectory()) continue;
+			final SubParserDocOutputStream sos = new SubParserDocOutputStream(
+					context.getTempFileManager(),
+					context.getCharsetDetector(),
+					pdoc, location, ze.getName());
+			try {
+				IOTools.copy(zis, sos, ze.getSize());
+			} finally {
+				try { sos.close(); } catch (IOException e) {
 					if (e.getCause() instanceof ParserException) {
 						throw (ParserException)e.getCause();
 					} else {
 						throw e;
 					}
-				} }
+				}
 			}
-			
-			pdoc.setStatus(IParserDocument.Status.OK);
-		} finally { 
-			zis.close(); 
 		}
+		
+		pdoc.setStatus(IParserDocument.Status.OK);
 		return pdoc;
+	}
+	
+	public IParserDocument parse(URI location, String charset, File content)
+			throws ParserException, UnsupportedEncodingException, IOException {
+		final FileInputStream fis = new FileInputStream(content);
+		try {
+			return parse(location, charset, fis);
+		} finally { 
+			fis.close(); 
+		}
 	}
 }

@@ -34,6 +34,7 @@
 							org.apache.commons.logging,							
 							org.paxle.core.doc, 
 							org.paxle.core.io.temp,
+							org.paxle.core.norm,
 							org.paxle.parser
 						</Import-Package>
 						<DynamicImport-Package>

@@ -54,7 +54,7 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 		if (parserDoc == null) return;
 		
 		// getting the link map
-		Map<String, String> linkMap = parserDoc.getLinks();
+		Map<URI, String> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
 			this.checkRobotsTxt(linkMap, c);
 		}
@@ -68,12 +68,12 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 		}
 	}	
 	
-	private void checkRobotsTxt(Map<String, String> linkMap, final Counter c) {
+	private void checkRobotsTxt(Map<URI, String> linkMap, final Counter c) {
 		if (linkMap == null || linkMap.size() == 0) return;
 		
-		Iterator<String> refs = linkMap.keySet().iterator();
+		Iterator<URI> refs = linkMap.keySet().iterator();
 		while (refs.hasNext()) {
-			String location = refs.next();
+			String location = refs.next().toString();		// XXX: should this be .toASCIIString()?
 
 			if (this.robotsTxtManager.isDisallowed(location)) {
 				refs.remove();

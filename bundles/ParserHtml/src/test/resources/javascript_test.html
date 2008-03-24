@@ -1,0 +1,22 @@
+<html>
+	<head>
+		<title>Test Page</title>
+		<style>
+			<a href="http://www.example.org/style-link">This link shall not be considered</a>
+		</style>
+	</head>
+	<body>
+		<script>
+			<!CDATA[[ <a href="http://www.example.org/javascript-link">neither shall this link</a> ]]!>
+			/*
+			<a href="http://www.example.org/js2-link">and this one not</a>
+			<p>
+				<a href="http://www.example.org/js3-link">as well as that one</a>
+				*/
+		</script>
+		<p>
+			bliblablo
+			<a href="http://www.example.org/legal-link">but this one should</a>
+		</p>
+	</body>
+</html>

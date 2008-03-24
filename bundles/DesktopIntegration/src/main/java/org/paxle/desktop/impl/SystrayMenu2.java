@@ -27,7 +27,6 @@ import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.backend.tray.IMenuItem;
 import org.paxle.desktop.backend.tray.IPopupMenu;
 import org.paxle.desktop.backend.tray.ITrayIcon;
-import org.paxle.desktop.impl.dialogues.AFinally;
 import org.paxle.desktop.impl.dialogues.SmallDialog;
 
 public class SystrayMenu2 implements ActionListener, PopupMenuListener {
@@ -122,6 +121,7 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 		SwingUtilities.invokeLater(refresh);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void actionPerformed(ActionEvent e) {
 		final String cmd = e.getActionCommand();
 		
@@ -129,13 +129,22 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 			/* TODO:
 			 * - set location and size of icon to display the dialog at the correct position next to the icon
 			 *   - what to do about the JRE6-backend? How to determine the position of the icon on the screen? */
-			new SmallDialog(new CrawlFinally(), "Enter URL:", "Crawl").setVisible(true);
+			final String url = SmallDialog.showDialog("Enter URL:", "Crawl");
+			if (url != null && url.length() > 0) try {
+				final IDataSink<ICommand>[] sink = manager.getServices(CRAWLER_SINK_CLASS, CRAWLER_SINK_QUERY);
+				if (sink != null)
+					sink[0].putData(Command.createCommand(new URI(url)));
+			} catch (Exception ee) {
+				logger.error("Starting crawl of URL '" + url + "' failed: " + ee.getMessage(), ee);
+			}
 			
 		} else if (cmd == CRAWLPR) {
 			toggleCrawlersPR();
 			
 		} else if (cmd == SEARCH) {
-			new SmallDialog(new SearchFinally(), "Enter query:", "Search").setVisible(true);
+			final String query = SmallDialog.showDialog("Enter query:", "Search");
+			if (query != null && query.length() > 0)
+				browseUrl(getPaxleURL("/search?query=", query));
 			
 		} else if (cmd == BROWSE) {
 			browseUrl(getPaxleURL("/"));
@@ -219,28 +228,6 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 				}
 			} catch (BundleException e) {
 				logger.error("error " + ((restart) ? "restarting" : "shutting down") + " framework", e);
-			}
-		}
-	}
-	
-	private class SearchFinally extends AFinally {
-		@Override
-		public void run() {
-			if (data != null && data.length() > 0)
-				browseUrl(getPaxleURL("/search?query=", data));
-		}
-	}
-	
-	private class CrawlFinally extends AFinally {
-		@Override
-		@SuppressWarnings("unchecked")
-		public void run() {
-			if (data != null && data.length() > 0) try {
-				final IDataSink<ICommand>[] sink = SystrayMenu2.this.manager.getServices(CRAWLER_SINK_CLASS, CRAWLER_SINK_QUERY);
-				if (sink != null)
-					sink[0].putData(Command.createCommand(new URI(super.data)));
-			} catch (Exception e) {
-				logger.error("Starting crawl of URL '" + data + "' failed: " + e.getMessage(), e);
 			}
 		}
 	}

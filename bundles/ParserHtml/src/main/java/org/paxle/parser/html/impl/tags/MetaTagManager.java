@@ -65,6 +65,7 @@ public class MetaTagManager {
 			Coverage_Spatial("DC"),
 			Coverage_Temporal("DC"),
 		Rights("DC"),
+		Allow_search,
 		Keywords,
 		Robots,
 		Author,
@@ -141,7 +142,7 @@ public class MetaTagManager {
 			switch (c++) {
 				case 0: value = tag.getAttribute("value"); break;
 				default:
-					logger.logError("META not processable due to unknown key", tag.getStartingLineNumber());
+					logger.logInfo("META not processable due to unknown key", tag.getStartingLineNumber());
 					return;
 			}
 		}

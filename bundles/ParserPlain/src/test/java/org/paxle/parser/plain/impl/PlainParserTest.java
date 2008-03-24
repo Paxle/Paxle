@@ -9,6 +9,7 @@ import java.net.URI;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.ParserContext;
 
 import junit.framework.TestCase;
@@ -38,6 +39,10 @@ public class PlainParserTest extends TestCase {
 				return tempfile;
 			}
 
+		}, new IReferenceNormalizer() {
+			public URI normalizeReference(String reference) {
+				return URI.create(reference);
+			}
 		});
 		ParserContext.setCurrentContext(this.parserContext);		
 	}
@@ -56,7 +61,7 @@ public class PlainParserTest extends TestCase {
 		assertTrue(pdoc.getKeywords().size() == 0);
 		assertTrue(pdoc.getLanguages().size() == 0);
 		assertTrue(pdoc.getLinks().size() == 1);
-		assertEquals("http://www.example.org/bla?blubb=#tmp", pdoc.getLinks().entrySet().iterator().next().getKey());
+		assertEquals(URI.create("http://www.example.org/bla?blubb=#tmp"), pdoc.getLinks().entrySet().iterator().next().getKey());
 		assertTrue(pdoc.getSubDocs().size() == 0);
 	}
 }

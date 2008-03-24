@@ -55,7 +55,7 @@ public class ProtocolFilter implements IFilter<ICommand> {
 		if (parserDoc == null) return;
 		
 		// getting the link map
-		Map<String, String> linkMap = parserDoc.getLinks();
+		Map<URI, String> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
 			this.checkProtocol(linkMap);
 		}
@@ -69,12 +69,12 @@ public class ProtocolFilter implements IFilter<ICommand> {
 		}
 	}	
 	
-	private void checkProtocol(Map<String, String> linkMap) {
+	private void checkProtocol(Map<URI, String> linkMap) {
 		if (linkMap == null || linkMap.size() == 0) return;
 		
-		Iterator<String> refs = linkMap.keySet().iterator();
+		Iterator<URI> refs = linkMap.keySet().iterator();
 		while (refs.hasNext()) {
-			String location = refs.next();
+			URI location = refs.next();
 
 			try {
 				this.checkProtocol(location);
@@ -85,10 +85,10 @@ public class ProtocolFilter implements IFilter<ICommand> {
 		}		
 	}
 	
-	private void checkProtocol(String location) throws ProtocolFilterException {
-		int idx = location.indexOf("://");
-		if (idx == -1) throw new ProtocolFilterException(ERR_NOPROT);
-		String protocol = location.substring(0,idx);
+	private void checkProtocol(URI location) throws ProtocolFilterException {
+		String protocol = location.getScheme();
+		if (protocol == null || protocol.length() == 0)
+			throw new ProtocolFilterException(ERR_NOPROT);
 
 		// check if the protocol is supported by one of the 
 		// available sub-crawlers

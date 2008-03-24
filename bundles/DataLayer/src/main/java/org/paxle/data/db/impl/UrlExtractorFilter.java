@@ -1,10 +1,10 @@
 
 package org.paxle.data.db.impl;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,6 +18,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 	private static class Counter {
 		
 		public int c = 0;
+		public int known = 0;
 	}
 	
 	private CommandDB db;
@@ -39,14 +40,15 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		// getting the link map
 		final Counter c = new Counter();
 		this.extractLinks(command.getLocation().toASCIIString(), parserDoc, c);
-		logger.info(String.format("Extracted %d links from '%s'", Integer.valueOf(c.c), command.getLocation()));
+		logger.info(String.format("Extracted %d new and %d already known URIs from '%s'",
+				Integer.valueOf(c.c), Integer.valueOf(c.known), command.getLocation()));
 	}
 	
 	private void extractLinks(final String location, IParserDocument parserDoc, final Counter c) {
 		if (parserDoc == null) return;
 		
 		// getting the link map
-		Map<String, String> linkMap = parserDoc.getLinks();
+		Map<URI, String> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
 			this.extractLinks(location, linkMap, c);
 		}
@@ -59,11 +61,11 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		}
 	}
 	
-	private void extractLinks(final String location, Map<String, String> linkMap, final Counter c) {
-		List<String> locations = new ArrayList<String>();
+	private void extractLinks(final String location, Map<URI, String> linkMap, final Counter c) {
+		List<URI> locations = new ArrayList<URI>();
 		
-		for (String ref : linkMap.keySet()) {
-			if (ref.length() > 512) {
+		for (URI ref : linkMap.keySet()) {
+			if (ref.toString().length() > 512) {
 				this.logger.debug("Skipping too long URL: " + ref);
 				continue;
 			}
@@ -74,11 +76,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 
 		// store commands into DB
 		if (!db.isClosed()) {
-			final Set<String> failSet = db.storeUnknownLocations(locations);
-			if (failSet != null && failSet.size() > 0) {
-				for (final String msg : failSet)
-					logger.warn(String.format("Unable to add URI to command-db: %s", msg));
-			}
+			c.known += db.storeUnknownLocations(locations);
 			c.c += locations.size();
 		} else {
 			this.logger.error(String.format(

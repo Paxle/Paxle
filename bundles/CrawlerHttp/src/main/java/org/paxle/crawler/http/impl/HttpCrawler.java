@@ -8,8 +8,10 @@ import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -67,7 +69,20 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	private static final String HTTPHEADER_ACCEPT_ENCODING = "Accept-Encoding";
 	
 	private static final int PREF_NO_ENCODING = 1;
-
+	
+	/**
+	 * The MIME-type detection of some servers is not that mature, i.e. Apache oftenly tends to
+	 * report 'text/plain' for binary files or 'application/x-tar' for compressed tar-archives,
+	 * which do not help us at all. This set contains MIME-types, known to be reported erroneously
+	 * by servers in general.
+	 * Of course this list would be divisible further by extending it into a per-server map, but
+	 * our means to determine the type (and possibly version) of the servers here are limited, so
+	 * this shall suffice for now.
+	 */
+	private static final HashSet<String> ERRONEOUS_MIME_TYPES = new HashSet<String>(Arrays.asList(
+			"text/plain",
+			"application/x-tar"));
+	
 	/**
 	 * The protocol supported by this crawler
 	 */
@@ -286,6 +301,9 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				}
 			}	
 			
+			if (ERRONEOUS_MIME_TYPES.contains(contentMimeType))
+				contentMimeType = null;
+			
 			doc.setMimeType(contentMimeType);
 			doc.setCharset(contentCharset);
 		}
@@ -328,7 +346,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * @return <code>true</code> if proceeding with the URL may continue or <code>false</code> if
 	 *         it shall be aborted due to an exceeded maximum file-size of the document
 	 */
-	private boolean handleContentTypeLengthHeader(final Header contentTypeLength, final CrawlerDocument doc) {
+	private boolean handleContentLengthHeader(final Header contentTypeLength, final CrawlerDocument doc) {
 		if (contentTypeLength == null)
 			// no Content-Length given, continue
 			return true;
@@ -403,7 +421,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				
 				// reject the document if content-length is above our limit
 				Header contentTypeLength = method.getResponseHeader(HTTPHEADER_CONTENT_LENGTH);
-				if (!handleContentTypeLengthHeader(contentTypeLength, doc))
+				if (!handleContentLengthHeader(contentTypeLength, doc))
 					return doc;
 				
 				// FIXME: if we've been redirected, re-enqueue the new URL and abort processing

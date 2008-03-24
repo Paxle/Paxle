@@ -2,6 +2,7 @@
 package org.paxle.parser.html.impl;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -9,6 +10,8 @@ import java.util.HashSet;
 import org.htmlparser.PrototypicalNodeFactory;
 import org.htmlparser.Tag;
 import org.htmlparser.Text;
+import org.htmlparser.lexer.Page;
+import org.htmlparser.nodes.RemarkNode;
 import org.htmlparser.tags.DoctypeTag;
 import org.htmlparser.tags.HeadingTag;
 import org.htmlparser.tags.Html;
@@ -26,6 +29,7 @@ import org.htmlparser.util.ParserException;
 import org.htmlparser.visitors.NodeVisitor;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.html.impl.tags.AddressTag;
 import org.paxle.parser.html.impl.tags.BoldTag;
 import org.paxle.parser.html.impl.tags.ItalicTag;
@@ -70,19 +74,23 @@ public class NodeCollector extends NodeVisitor {
 	private static final HashSet<String> DiscardedTags = new HashSet<String>(Arrays.asList(
 			"div", "tr", "td", "th", "li", "ul", "ol", "dt", "dd", "dl", "form", "input", "head",
 			"br", "option", "select", "link", "hr", "code", "pre", "sup", "small", "tt", "center",
-			"lh", "caption", "label", "span"
+			"lh", "caption", "label", "span", "body"
 	));
 	
 	private final MetaTagManager mtm;
 	private final IParserDocument doc;
 	private final ParserLogger logger;
+	private final Page page;
+	private final IReferenceNormalizer refNorm;
 	private boolean noParse = false;
 	
-	public NodeCollector(final IParserDocument doc, final ParserLogger logger) {
+	public NodeCollector(final IParserDocument doc, final ParserLogger logger, final Page page, final IReferenceNormalizer refNorm) {
 		super(true, true);
 		this.doc = doc;
 		this.logger = logger;
 		this.mtm = new MetaTagManager(logger);
+		this.page = page;
+		this.refNorm = refNorm;
 	}
 	
 	/**
@@ -158,7 +166,12 @@ public class NodeCollector extends NodeVisitor {
 		if (refreshs != null && refreshs.size() > 0)
 			for (final String refresh : refreshs) {
 				final String unescaped = HtmlTools.deReplaceHTML(refresh);
-				this.doc.addReference(unescaped, unescaped);
+				final String absUrl = page.getAbsoluteURL(unescaped, false);
+				if (absUrl == null)
+					continue;
+				final URI uri = refNorm.normalizeReference(absUrl);
+				if (uri != null)
+					this.doc.addReference(uri, unescaped);
 			}
 	}
 	
@@ -222,20 +235,23 @@ public class NodeCollector extends NodeVisitor {
 		try {
 			if (DiscardedTags.contains(tag.getRawTagName().toLowerCase())) {
 				return;
-			} else if (tag instanceof AddressTag)	process((AddressTag)tag);
+			}
+			else if (tag instanceof AddressTag)		{ process((AddressTag)tag); noParse = true; }
+			else if (tag instanceof BoldTag)		; // handled by visitStringNode(), TODO: extra weight
 			else if (tag instanceof DoctypeTag)     process((DoctypeTag)tag);
-			else if (tag instanceof HeadingTag)		process((HeadingTag)tag);
+			else if (tag instanceof HeadingTag)		{ process((HeadingTag)tag); noParse = true; }
 			else if (tag instanceof Html)			process((Html)tag);
 			else if (tag instanceof ImageTag)		process((ImageTag)tag);
+			else if (tag instanceof ItalicTag)		; // handled by visitStringNode(), TODO: extra weight
 			else if (tag instanceof JspTag)			this.noParse = true;
-			else if (tag instanceof LinkTag)		process((LinkTag)tag);
+			else if (tag instanceof LinkTag)		{ process((LinkTag)tag); noParse = true; }
 			else if (tag instanceof MetaTag) 		this.mtm.addMetaTag((MetaTag)tag);
-			else if (tag instanceof ParagraphTag)	process((ParagraphTag)tag);
+			else if (tag instanceof ParagraphTag)	; // handled by visitStringNode()
+			else if (tag instanceof RemarkNode)		this.noParse = true;
 			else if (tag instanceof ScriptTag)		this.noParse = true;
 			else if (tag instanceof StyleTag)		this.noParse = true;
 			else if (tag instanceof TableTag)		process((TableTag)tag);
-			else if (tag instanceof TitleTag) 		process((TitleTag)tag);
-			else if (tag instanceof BoldTag)		; // TODO: BoldTag: extra weight for some words
+			else if (tag instanceof TitleTag) 		{ process((TitleTag)tag); noParse = true; }
 			else if (!tag.isEndTag())
 				this.logger.logDebug("missed named tag " + tag.getClass().getSimpleName() + " (" + tag.getRawTagName() + ")", tag.getStartingLineNumber());
 		} catch (Exception e) {
@@ -245,7 +261,19 @@ public class NodeCollector extends NodeVisitor {
 	
 	@Override
 	public void visitEndTag(Tag tag) {
-		this.noParse = false;
+		final Tag ntag = NODE_FACTORY.get(tag.getTagName());		// otherwise tag is always an instance of TagNode
+		if (ntag != null) {
+			ntag.setStartPosition(tag.getStartPosition());
+			ntag.setEndPosition(tag.getEndPosition());
+			if (ntag instanceof AddressTag)			noParse = false;
+			else if (ntag instanceof HeadingTag)	noParse = false;
+			else if (ntag instanceof JspTag)		noParse = false;
+			else if (ntag instanceof LinkTag)		noParse = false;
+			else if (ntag instanceof RemarkNode)	noParse = false;
+			else if (ntag instanceof ScriptTag)		noParse = false;
+			else if (ntag instanceof StyleTag)		noParse = false;
+			else if (ntag instanceof TitleTag)		noParse = false;
+		}
 	}
 	
 	private void process(TableTag tag) {
@@ -281,10 +309,6 @@ public class NodeCollector extends NodeVisitor {
 		this.doc.setTitle(HtmlTools.deReplaceHTML(tag.getTitle()));
 	}
 	
-	private void process(ParagraphTag tag) throws IOException {
-		this.doc.addText(HtmlTools.deReplaceHTML(tag.getText()));
-	}
-	
 	private void process(LinkTag tag) {
 		String link = tag.getLink().trim();
 		if (link.length() == 0)
@@ -294,9 +318,9 @@ public class NodeCollector extends NodeVisitor {
 			return;
 		}
 		
-		this.doc.addReference(
-				HtmlTools.deReplaceHTML(link),
-				HtmlTools.deReplaceHTML(tag.getLinkText().trim()));
+		final URI uri = refNorm.normalizeReference(HtmlTools.deReplaceHTML(link));
+		if (uri != null)
+			this.doc.addReference(uri, HtmlTools.deReplaceHTML(tag.getLinkText().trim()));
 	}
 	
 	private void process(HeadingTag tag) {
@@ -317,8 +341,8 @@ public class NodeCollector extends NodeVisitor {
 	}
 	
 	private void process(ImageTag tag) {
-		this.doc.addReferenceImage(
-				HtmlTools.deReplaceHTML(tag.getImageURL()),
-				HtmlTools.deReplaceHTML(tag.getAttribute("alt")));
+		final URI uri = refNorm.normalizeReference(HtmlTools.deReplaceHTML(tag.getImageURL()));
+		if (uri != null)
+			this.doc.addReferenceImage(uri, HtmlTools.deReplaceHTML(tag.getAttribute("alt")));
 	}
 }

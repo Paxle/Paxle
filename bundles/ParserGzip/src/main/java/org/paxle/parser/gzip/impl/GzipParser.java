@@ -3,6 +3,7 @@ package org.paxle.parser.gzip.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Arrays;
@@ -26,9 +27,9 @@ public class GzipParser implements IGzipParser {
 		return MIME_TYPES;
 	}
 	
-	public IParserDocument parse(URI location, String charset, File content)
+	public IParserDocument parse(URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException {
-		final GZIPInputStream cfis = new GZIPInputStream(new FileInputStream(content));
+		final GZIPInputStream cfis = new GZIPInputStream(is);
 		final ParserContext context = ParserContext.getCurrentContext();
 		final ParserDocOutputStream pdos = new ParserDocOutputStream(context.getTempFileManager(), context.getCharsetDetector());
 		try {
@@ -41,5 +42,13 @@ public class GzipParser implements IGzipParser {
 		IParserDocument doc = pdos.parse(location);
 		doc.setStatus(IParserDocument.Status.OK);
 		return doc;
+	}
+	
+	public IParserDocument parse(URI location, String charset, File content)
+			throws ParserException, UnsupportedEncodingException, IOException {
+		final FileInputStream fis = new FileInputStream(content);
+		try {
+			return parse(location, charset, fis);
+		} finally { fis.close(); }
 	}
 }

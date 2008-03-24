@@ -1,5 +1,5 @@
 
-package org.paxle.core.filter.impl;
+package org.paxle.core.norm.impl;
 
 import java.util.Map;
 

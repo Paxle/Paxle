@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.parser.ASubParser;
 import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -16,7 +17,7 @@ import org.paxle.parser.sevenzip.I7zipParser;
 
 import SevenZip.Archive.SevenZip.Handler;
 
-public class P7zipParser implements I7zipParser {
+public class P7zipParser extends ASubParser implements I7zipParser {
 	
 	private static final List<String> MimeTypes = Arrays.asList("application/x-7z-compressed");
 	

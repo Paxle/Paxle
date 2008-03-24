@@ -22,31 +22,26 @@ import org.paxle.parser.ParserException;
 import org.paxle.parser.msoffice.IMsWordParser;
 
 public class MsWordParser extends AMsOfficeParser implements ISubParser, IMsWordParser {
-
+	
 	private static final List<String> MIME_TYPES = Arrays.asList(
 			"application/msword"
 	);
-
+	
 	public List<String> getMimeTypes() {
 		return MIME_TYPES;
 	}
-
-	public IParserDocument parse(URI location, String charset, File content) throws ParserException, UnsupportedEncodingException, IOException {
+	
+	public IParserDocument parse(URI location, String charset, InputStream fileIn)
+			throws ParserException, UnsupportedEncodingException, IOException {
 		CachedParserDocument parserDoc = null;
-		
-		InputStream fileIn = null;
-		try {		
+		try {
 			// create an empty document
 			parserDoc = new CachedParserDocument(ParserContext.getCurrentContext().getTempFileManager());
-
-			// open file			
-			fileIn = new BufferedInputStream(new FileInputStream(content));			
-			
 			// open the POI filesystem
 			POIFSFileSystem fs = HWPFDocument.verifyAndBuildPOIFS(fileIn);
 			fileIn.close();
 			fileIn = null;
-						
+			
 			// extract metadata
 			this.extractMetadata(fs, parserDoc);
 			
@@ -57,11 +52,11 @@ public class MsWordParser extends AMsOfficeParser implements ISubParser, IMsWord
 			for(int i=0; i<r.numParagraphs(); i++) {
 				// get next paragraph 
 				Paragraph p = r.getParagraph(i);
-
+				
 				// append paragraph text
 				parserDoc.addText(p.text());					
 			}
-						
+			
 			parserDoc.setStatus(IParserDocument.Status.OK);
 			return parserDoc;
 		} catch (Throwable e) {
@@ -69,6 +64,15 @@ public class MsWordParser extends AMsOfficeParser implements ISubParser, IMsWord
 					"Unexpected '%s' while parsing ms-word document: %s",
 					e.getClass().getName(),
 					e.getMessage()), e);
+		}
+	}
+	
+	public IParserDocument parse(URI location, String charset, File content) throws ParserException, UnsupportedEncodingException, IOException {
+		InputStream fileIn = null;
+		try {		
+			// open file			
+			fileIn = new BufferedInputStream(new FileInputStream(content));			
+			return parse(location, charset, fileIn);
 		} finally {
 			if (fileIn != null) try { fileIn.close(); } catch (Exception e) {/* ignore this */}
 		}

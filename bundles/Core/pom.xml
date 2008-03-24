@@ -36,6 +36,7 @@
 							org.paxle.core.charset, 
 							org.paxle.core.service, 
 							org.paxle.core.io.temp,
+							org.paxle.core.norm,
 							org.paxle.core.crypt, 
 							org.paxle.core.io,
 							org.paxle.core.prefs
@@ -53,6 +54,7 @@
 							org.paxle.core.data.impl,
 							org.paxle.core.filter.impl,
 							org.paxle.core.io.temp.impl,
+							org.paxle.core.norm.impl,
 							org.paxle.core.prefs.impl,
 							org.paxle.core.queue.impl,
 							org.paxle.core.threading.impl

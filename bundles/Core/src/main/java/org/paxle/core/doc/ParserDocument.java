@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,8 +30,8 @@ public class ParserDocument implements IParserDocument {
 	protected Map<String,IParserDocument> subDocs = new HashMap<String,IParserDocument>();
 	protected Collection<String> headlines = new LinkedList<String>();
 	protected Collection<String> keywords = new LinkedList<String>();
-	protected Map<String,String> links = new HashMap<String,String>();
-	protected Map<String,String> images = new HashMap<String,String>();
+	protected Map<URI,String> links = new HashMap<URI,String>();
+	protected Map<URI,String> images = new HashMap<URI,String>();
 	protected Set<String> languages = new HashSet<String>();	
 	protected String author;
 	protected Date lastChanged;
@@ -99,10 +100,9 @@ public class ParserDocument implements IParserDocument {
 	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#addReference(java.lang.String, java.lang.String)
 	 */
-	public void addReference(String ref, String name) {
-		ref = whitespaces2Space(ref);
+	public void addReference(URI ref, String name) {
 		name = whitespaces2Space(name);
-		if (ref != null && ref.length() > 0) {
+		if (ref != null) {
 			this.links.put(ref,name);
 		}
 	}
@@ -111,11 +111,10 @@ public class ParserDocument implements IParserDocument {
 	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#addReferenceImage(java.lang.String, java.lang.String)
 	 */
-	public void addReferenceImage(String ref, String name) {
-		ref = whitespaces2Space(ref);
+	public void addReferenceImage(URI ref, String name) {
 		name = whitespaces2Space(name);
-		if (ref != null && ref.length() > 0)  {
-			this.images.put(whitespaces2Space(ref), whitespaces2Space(name));
+		if (ref != null)  {
+			this.images.put(ref, whitespaces2Space(name));
 		}
 	}
 	
@@ -206,7 +205,7 @@ public class ParserDocument implements IParserDocument {
 	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getImages()
 	 */
-	public Map<String,String> getImages() {
+	public Map<URI,String> getImages() {
 		return this.images;
 	}
 	
@@ -214,7 +213,7 @@ public class ParserDocument implements IParserDocument {
 	 * @see IParserDocument#setImages(Map)
 	 * TODO: maybe we should loop through the list and trim all strings
 	 */
-	public void setImages(Map<String,String> images) {
+	public void setImages(Map<URI,String> images) {
 		this.images = images;
 	}
 	
@@ -274,7 +273,7 @@ public class ParserDocument implements IParserDocument {
 	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getLinks()
 	 */
-	public Map<String,String> getLinks() {
+	public Map<URI,String> getLinks() {
 		return this.links;
 	}
 	
@@ -282,7 +281,7 @@ public class ParserDocument implements IParserDocument {
 	 * @see IParserDocument#setLinks(Map)
 	 * TODO: maybe we should loop through the list and trim all strings
 	 */
-	public void setLinks(Map<String,String> links) {
+	public void setLinks(Map<URI,String> links) {
 		this.links = links;
 	}
 	
@@ -433,11 +432,11 @@ public class ParserDocument implements IParserDocument {
 		return sb.toString();
 	}
 	
-	private static void print(StringBuilder sb, Map<String,String> map, String name) {
-		Iterator<Map.Entry<String,String>> it = map.entrySet().iterator();
+	private static void print(StringBuilder sb, Map map, String name) {
+		Iterator<Map.Entry<?,?>> it = map.entrySet().iterator();
 		sb.append(name).append(":").append('\n');
 		while (it.hasNext()) {
-			Map.Entry<String,String> e = it.next();
+			Map.Entry<?,?> e = it.next();
 			sb.append(" * ").append(e.getKey()).append(" -> ").append(e.getValue()).append('\n');
 		}
 	}

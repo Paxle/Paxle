@@ -28,6 +28,14 @@ public class ParserLogger {
 		}
 	}
 	
+	public void logError(final String msg, final Exception e) {
+		if (logger.isDebugEnabled()) {
+			logger.error(String.format("%s while processing '%s'", msg, location), e);
+		} else {
+			logger.error(String.format("%s while processing '%s': %s", msg, location, e.getMessage()));
+		}
+	}
+	
 	public void logInfo(String msg, int tagStart) {
 		logger.info(String.format("%s at line %d of %s", msg, Integer.valueOf(tagStart), location));
 	}

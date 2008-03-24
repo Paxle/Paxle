@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Date;
@@ -56,7 +57,7 @@ public interface IParserDocument extends Closeable {
 	 * @param ref the URL or resource location referenced
 	 * @param name the label of the reference if named, may be <code>null</code>
 	 */
-	public abstract void addReference(String ref, String name);
+	public abstract void addReference(URI ref, String name);
 
 	/**
 	 * Documents may contain or link to images which themselves are to be found via this
@@ -66,7 +67,7 @@ public interface IParserDocument extends Closeable {
 	 * @param ref the URL or resource location referenced
 	 * @param name the label or alternate text of the image if named, may be <code>null</code>
 	 */
-	public abstract void addReferenceImage(String ref, String name);
+	public abstract void addReferenceImage(URI ref, String name);
 
 	/**
 	 * If this document is a container for other data, like i.e. an archive, this data may not be
@@ -152,9 +153,9 @@ public interface IParserDocument extends Closeable {
 	 * @return all referenced images by this document, mapping the location to it's (maybe
 	 *         non-existant) name or label 
 	 */
-	public abstract Map<String, String> getImages();
+	public abstract Map<URI, String> getImages();
 
-	public void setImages(Map<String,String> images);
+	public void setImages(Map<URI,String> images);
 	
 	/**
 	 * @see #addKeyword(String)
@@ -183,9 +184,9 @@ public interface IParserDocument extends Closeable {
 	 * @return all references by this document exclusive images, mapping the location to it's
 	 *         (maybe non-existant) name or label
 	 */
-	public abstract Map<String, String> getLinks();
+	public abstract Map<URI, String> getLinks();
 	
-	public void setLinks(Map<String,String> links);
+	public void setLinks(Map<URI,String> links);
 	
 	public String getMimeType();
 	

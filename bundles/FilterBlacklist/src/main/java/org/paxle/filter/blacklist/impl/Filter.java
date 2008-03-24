@@ -4,6 +4,7 @@ package org.paxle.filter.blacklist.impl;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -167,7 +168,7 @@ public class Filter implements IBlacklistFilter {
 		if (parserDoc == null) return;
 		
 		// getting the link map
-		Map<String, String> linkMap = parserDoc.getLinks();
+		Map<URI, String> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
 			this.checkBlacklist(linkMap);
 		}
@@ -181,13 +182,13 @@ public class Filter implements IBlacklistFilter {
 		}
 	}
 	
-	private void checkBlacklist(Map<String, String> linkMap) {
+	private void checkBlacklist(Map<URI, String> linkMap) {
 		if (linkMap == null || linkMap.size() == 0) return;
 		
-		Iterator<String> refs = linkMap.keySet().iterator();
+		Iterator<URI> refs = linkMap.keySet().iterator();
 		while (refs.hasNext()) {
-			String location = refs.next();
-			FilterResult result = isListed(location);
+			URI location = refs.next();
+			FilterResult result = isListed(location.toASCIIString());
 			if (result.getStatus() == FilterResult.LOCATION_REJECTED) {
 				refs.remove();
 				//System.out.println(location + " rejected by blacklistentry: " + result.getRejectPattern());

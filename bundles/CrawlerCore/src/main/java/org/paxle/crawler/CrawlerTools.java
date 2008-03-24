@@ -21,7 +21,7 @@ import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 
 public class CrawlerTools {
-	private static Log logger = LogFactory.getLog(CrawlerTools.class);
+	private static final Log logger = LogFactory.getLog(CrawlerTools.class);
 	
 	/**
 	 * Copies all data from the given {@link InputStream} to the given {@link ICrawlerDocument crawler-document}.<br />
@@ -132,7 +132,9 @@ public class CrawlerTools {
 								doc.getLocation()
 						),e);
 					}
-					if (mimeType != null) doc.setMimeType(mimeType);
+					logger.debug(String.format("MimeType of resource '%s' was detected as '%s'", doc.getLocation(), mimeType));
+					if (mimeType != null)
+						doc.setMimeType(mimeType);
 				}
 			}
 			
