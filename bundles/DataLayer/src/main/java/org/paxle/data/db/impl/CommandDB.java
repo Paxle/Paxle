@@ -3,11 +3,14 @@ package org.paxle.data.db.impl;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.cache.Cache;
 import org.apache.commons.cache.EvictionPolicy;
@@ -108,7 +111,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				this.logger.error("Initial SessionFactory creation failed.",ex);
 				throw new ExceptionInInitializerError(ex);
 			}
-
+			this.manipulateDbSchema();
 			System.out.println(this.size());
 
 			/* ===========================================================================
@@ -127,6 +130,25 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			throw new RuntimeException(e);
 		}
 	}	
+	
+	private void manipulateDbSchema() {
+		System.setProperty("derby.language.logQueryPlan", "true");
+		Connection c = null;
+		try {
+			Properties props = this.config.getProperties();
+			String dbDriver = props.getProperty("connection.driver_class");
+			if (dbDriver != null && dbDriver.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
+				c = DriverManager.getConnection(props.getProperty("connection.url"));
+				PreparedStatement p = c.prepareStatement("CREATE INDEX LOCATION_IDX on COMMAND (location)");
+				p.execute();
+				p.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try { c.close(); } catch (SQLException e) {/* ignore this */}
+		}
+	}
 
 	public void start() {		
 		this.writerThread.start();
