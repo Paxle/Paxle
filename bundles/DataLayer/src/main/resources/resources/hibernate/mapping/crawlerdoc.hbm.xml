@@ -13,7 +13,7 @@
 			</type>
       	</property>
       	<property name="statusText"/>
-        <property name="location"/>
+        <property name="location" type="org.paxle.data.db.impl.URIUserType"/>
         <property name="charset"/>         
         <property name="mimeType"/>       
         <property name="crawlerDate"/>

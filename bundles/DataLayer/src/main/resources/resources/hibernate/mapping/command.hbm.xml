@@ -16,7 +16,7 @@
       	<property name="resultText" node="Result/Text"/>        
       	
       	<!-- the resource location -->
-    	<property name="location" node="Location" length="512" index="location_idx"/>
+    	<property name="location" node="Location" length="512" index="location_idx" type="org.paxle.data.db.impl.URIUserType"/>
         
         <!-- the crawler document -->
 	    <many-to-one name="crawlerDocument" column="crawlerDocId" unique="true" cascade="all" embed-xml="true"/>
