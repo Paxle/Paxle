@@ -5,24 +5,30 @@ import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.filter.IFilter;
+import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.core.queue.ICommand;
 
-public class ReferenceNormalizer implements IReferenceNormalizer {
+public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<ICommand> {
 	
 	private static final class QueryEntry implements Comparable<QueryEntry> {
 		
@@ -68,6 +74,10 @@ public class ReferenceNormalizer implements IReferenceNormalizer {
 	}
 	
 	public URI normalizeReference(String reference) {
+		return normalizeReference(reference, UTF8);
+	}
+	
+	public URI normalizeReference(String reference, Charset charset) {
 		try {
 			// temporary "solution" until I've found a way to escape characters in different charsets than UTF-8
 			URI uri = new URI(reference);
@@ -89,6 +99,8 @@ public class ReferenceNormalizer implements IReferenceNormalizer {
 	 *         URL-decoding.
 	 * @author Roland Ramthun, Franz Brau&szlig;e
 	 * @throws MalformedURLException if the given URL-String could not be parsed due to inconsistency with the URI-standard
+	 * 
+	 * FIXME doesn't handle unescaped characters in other charsets than UTF-8 correctly
 	 */
 	public URI parseBaseUrlString(final String url, final Charset charset) throws URISyntaxException {
 		/*
@@ -199,15 +211,15 @@ public class ReferenceNormalizer implements IReferenceNormalizer {
 							int eq = url.indexOf('=', paramStart);
 							if (eq == -1 || eq > paramEnd)
 								eq = paramEnd;
-
+							
 							try {
 								final String key = // urlDecode(url.substring(paramStart, eq).replace('+', ' '), charset);
-									URLDecoder.decode(url.substring(paramStart, eq), "UTF-8");
+									/*URLDecoder.decode(*/url.substring(paramStart, eq)/*, "UTF-8")*/;
 								final String val = (eq < paramEnd) ?
 										// urlDecode(url.substring(eq + 1, paramEnd).replace('+', ' '), charset)
 										/*URLDecoder.decode(*/url.substring(eq + 1, paramEnd)/*, "UTF-8")*/
 										: null;
-								System.out.println("query arg: " + key + " <-> " + val);
+								// System.out.println("query arg: " + key + " <-> " + val);
 								queryList.add(new QueryEntry(key, val));
 							} catch (Exception e) {
 								e.printStackTrace();
@@ -251,45 +263,44 @@ public class ReferenceNormalizer implements IReferenceNormalizer {
 		return sb.toString();
 	}
 	
-	/*
+	
 	public void filter(ICommand command, IFilterContext filterContext) {
 		final IParserDocument pdoc = command.getParserDocument();
 		if (pdoc != null)
-			normalizeParserDoc(pdoc, new OwnURL());
+			normalizeParserDoc(pdoc);
 	}
 	
-	private void normalizeParserDoc(final IParserDocument pdoc, final OwnURL url) {
+	private void normalizeParserDoc(final IParserDocument pdoc) {
 		final Map<String,IParserDocument> subdocMap = pdoc.getSubDocs();
 		if (subdocMap != null && subdocMap.size() > 0)
 			for (final IParserDocument subdoc : subdocMap.values())
-				normalizeParserDoc(subdoc, url);
+				normalizeParserDoc(subdoc);
 		
-		final Map<String,String> linkMap = pdoc.getLinks();
+		final Map<URI,String> linkMap = pdoc.getLinks();
 		if (linkMap == null || linkMap.size() == 0)
 			return;
-		final Iterator<Map.Entry<String,String>> it = linkMap.entrySet().iterator();
-		final Map<String,String> normalizedLinks = new HashMap<String,String>();
+		final Iterator<Map.Entry<URI,String>> it = linkMap.entrySet().iterator();
+		final Map<URI,String> normalizedLinks = new HashMap<URI,String>();
 		final Charset charset = (pdoc.getCharset() == null) ? UTF8 : pdoc.getCharset();		// UTF-8 is a recommended fallback but not standard yet
 		while (it.hasNext()) {
-			final Map.Entry<String,String> entry = it.next();
-			final String location = entry.getKey();
-			try {
-				final String normalized = url.parseBaseUrlString(location, charset);
-				if (normalized.equals(location))
-					continue;
-				
-				logger.debug("normalized reference " + location + " to " + normalized);
-				normalizedLinks.put(normalized, entry.getValue());
-			} catch (ParseException e) {
-				logger.info("error parsing reference: " + e.getMessage() + ", removing");
-			} catch (MalformedURLException e) {
-				logger.info("removing malformed reference " + location);
+			final Map.Entry<URI,String> entry = it.next();
+			final URI locationURI = entry.getKey();
+			final String location = locationURI.toASCIIString();
+			final URI normalizedURI = normalizeReference(location, charset);
+			if (normalizedURI == null) {
+				logger.info("removing malformed reference: " + location);
+				continue;
 			}
+			if (normalizedURI.equals(locationURI))
+				continue;
+			
+			logger.debug("normalized reference " + location + " to " + normalizedURI);
+			normalizedLinks.put(normalizedURI, entry.getValue());
 			it.remove();
 		}
 		linkMap.putAll(normalizedLinks);
 	}
-	*/
+	
 	private static final Pattern PATH_PATTERN = Pattern.compile("(/[^/]+(?<!/\\.{1,2})/)[.]{2}(?=/|$)|/\\.(?=/)|/(?=/)");
 	
 	/**

@@ -14,13 +14,16 @@ public class TempFileManager implements ITempFileManager {
 	private final Hashtable<String,ITempDir> classMap = new Hashtable<String,ITempDir>();
 	private final Hashtable<File,ITempDir> fileMap = new Hashtable<File,ITempDir>();
 	private final ITempDir defaultDir;
+	private final boolean deleteOnExit;
 	
-	public TempFileManager(ITempDir defaultDir) {
+	public TempFileManager(ITempDir defaultDir, final boolean deleteOnExit) {
 		this.defaultDir = defaultDir;
+		this.deleteOnExit = deleteOnExit;
 	}
 	
 	public TempFileManager() {
 		this.defaultDir = new DefaultTempDir();
+		this.deleteOnExit = true;
 	}
 	
 	public void removeTempDirFor(String... classNames) {
@@ -40,6 +43,8 @@ public class TempFileManager implements ITempFileManager {
 			dir = this.defaultDir;
 		final File ret = dir.createTempFile(className, ".tmp");
 		this.fileMap.put(ret, this.defaultDir);
+		if (deleteOnExit)
+			ret.deleteOnExit();
 		return ret;
 	}
 	

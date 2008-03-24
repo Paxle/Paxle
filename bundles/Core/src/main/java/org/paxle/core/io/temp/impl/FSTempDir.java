@@ -9,26 +9,22 @@ import org.paxle.core.io.temp.ITempDir;
 public class FSTempDir extends ATempDir implements ITempDir {
 	
 	private final File directory;
-	private final boolean deleteOnExit;
 	
-	public FSTempDir(File dir, String prefix, boolean deleteOnExit) throws IOException {
+	public FSTempDir(File dir, String prefix) throws IOException {
 		super(prefix);
 		this.directory = dir;
-		this.deleteOnExit = deleteOnExit;
 		if (!dir.exists())
 			if (!dir.mkdirs())
 				throw new IOException("Couldn't create directory for temporay files: " + dir);
 	}
 	
 	public FSTempDir(File dir, boolean deleteOnExit) throws IOException {
-		this(dir, null, deleteOnExit);
+		this(dir, null);
 	}
 	
 	public File createTempFile(String prefix, String suffix) throws IOException {
 		final String name = generateNewName(prefix, suffix);
 		final File r = new File(this.directory, name);
-		if (this.deleteOnExit)
-			r.deleteOnExit();
 		if (!r.createNewFile())
 			throw new IOException("file '" + name + "' in directory '" + this.directory + "' already exists, this is an internal error and must be fixed");
 		return r;
