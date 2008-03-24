@@ -337,7 +337,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			// check which URLs are already known
 			HashSet<String> knownLocations = new HashSet<String>();
 
-			int chunkSize = 1000;
+			int chunkSize = 10;
 			if (locations.size() <= chunkSize) {
 				Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",locations);
 				knownLocations.addAll(query.list());
