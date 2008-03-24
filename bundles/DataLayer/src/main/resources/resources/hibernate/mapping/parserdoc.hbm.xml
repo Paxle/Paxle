@@ -38,14 +38,14 @@
         <!-- found links -->
         <map name="links" table="ParserDocLinks" lazy="false">  
         	<key column="parserDocId"/>  
-        	<index column="link" type="string" type="org.paxle.data.db.impl.URIUserType"/>  
+        	<index column="link" type="org.paxle.data.db.impl.URIUserType"/>  
         	<element column="text" type="string"/>  
         </map>
         
         <!-- found images -->
         <map name="images" table="ParserDocImages" lazy="false">  
         	<key column="parserDocId"/>  
-        	<index column="link" type="string" type="org.paxle.data.db.impl.URIUserType"/>  
+        	<index column="link" type="org.paxle.data.db.impl.URIUserType"/>  
         	<element column="text" type="string"/>  
         </map>           
         
