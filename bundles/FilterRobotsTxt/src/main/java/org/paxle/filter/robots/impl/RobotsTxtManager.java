@@ -26,6 +26,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import org.apache.commons.httpclient.CircularRedirectException;
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -212,8 +213,11 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 			if (e instanceof UnknownHostException) {
 				reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
 				status = "Unknown host";
+			} else if (e instanceof CircularRedirectException) {
+				reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
+				logger.debug(String.format("Invalid redirection on host '%s'.",hostPort));
 			} else if (e instanceof SocketTimeoutException || e instanceof ConnectTimeoutException) {
-				logger.debug("TimeOut while loading robots.txt from " + hostPort);
+				logger.debug(String.format("TimeOut while loading robots.txt from host '%s'.",hostPort));
 			} else if (!(
 					e instanceof ConnectException ||
 					e instanceof SocketException
