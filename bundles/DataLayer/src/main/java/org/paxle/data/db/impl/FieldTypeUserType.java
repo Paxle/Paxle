@@ -63,11 +63,14 @@ public class FieldTypeUserType implements EnhancedUserType {
 
 	@SuppressWarnings("unchecked")
 	public Object nullSafeGet(ResultSet rs, String[] names, Object owner)throws HibernateException, SQLException {
+		String name = rs.getString(names[0]);		
 		if (rs.wasNull()) return null;
-		String name = rs.getString(names[0]);
 		String clazz = rs.getString(names[1]);
+		if (rs.wasNull()) return null;
 		boolean isIndex = rs.getBoolean(names[2]);
+		if (rs.wasNull()) return null;
 		boolean sSavePlain = rs.getBoolean(names[3]);
+		if (rs.wasNull()) return null;
 		
 		try {
 			return new Field(

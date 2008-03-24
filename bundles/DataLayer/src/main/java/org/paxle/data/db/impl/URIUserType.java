@@ -51,7 +51,8 @@ public class URIUserType implements EnhancedUserType {
 	}
 
 	public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
-	      return rs.wasNull() ? null : URI.create(rs.getString(names[0]));
+		String value = rs.getString(names[0]);
+		return (value == null) ? null : URI.create(value);
 	}
 
 	public void nullSafeSet(PreparedStatement st, Object value, int index) throws HibernateException, SQLException {

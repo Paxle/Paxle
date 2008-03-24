@@ -51,10 +51,9 @@ public class EnumUserType implements EnhancedUserType, ParameterizedType {
       return false;
    }
 
-   public Object nullSafeGet(ResultSet rs, String[] names, Object owner)
-         throws HibernateException, SQLException {
+   public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
       String name = rs.getString(names[0]);
-      return rs.wasNull() ? null : Enum.valueOf(enumClass, name);
+      return (name==null) ? null : Enum.valueOf(enumClass, name);
    }
 
    public void nullSafeSet(PreparedStatement st, Object value, int index)
