@@ -10,17 +10,8 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
-import org.osgi.framework.ServiceReference;
-import org.paxle.core.filter.impl.URLStreamHandlerListener;
 import org.paxle.p2p.IP2PManager;
-import org.paxle.p2p.services.IService;
-import org.paxle.p2p.services.IServiceClient;
-import org.paxle.p2p.services.IServiceServer;
-import org.paxle.p2p.services.search.ISearchClient;
-import org.paxle.p2p.services.search.impl.SearchClientImpl;
 import org.paxle.p2p.services.search.impl.SearchServerImpl;
-import org.paxle.se.index.IFieldManager;
-import org.paxle.se.search.ISearchProviderManager;
 
 /**
  * ATTENTION: Set the property value of
