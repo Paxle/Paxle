@@ -66,13 +66,6 @@
 												#if($attribCardinality == 0 || $numOptions == 1)
 													size="1"
 												#else
-													#*
-													#if($numOptions > 5)
-														#set($selectSize = 5)
-													#else
-														#set($selectSize = $numOptions)
-													#end
-													*#
 													multiple="multiple"
 													size="#if($attribCardinality > 5)5#else${numOptions}#end"
 												#end
@@ -91,11 +84,16 @@
     												<input type="radio" name="$attributeID" id="false$attributeID" value="false" #if(!$attribValue)checked="checked"#end>
     												<label for="false$attributeID">No</label> 
         										#else
-        											<input type="text" name="$attributeID" value="$!attribValue"/>
+        											<input type="#if($attributeID.toLowerCase().contains("password"))password#else{text}#end" name="$attributeID" value="$!attribValue"/>
         										#end	
 											#end
     									</td>
-    									<td>${attribute.getDescription()}</td>
+    									<td>
+    										${attribute.getDescription()}
+    										#if($attributeID.toLowerCase().contains("password"))
+    											<p><em>Be aware that this password is being saved unencrypted.</em></p>
+    										#end
+    									</td>
                             		</tr>                            		
                             	#end
                             	</table>

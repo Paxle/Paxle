@@ -44,6 +44,38 @@
 				id="acceptEncodings"
 				default="true"
 				description="Specifies whether the crawler should use AcceptEncoding and encourage servers to send compressed responses" />
+		
+		<AD name="Use Proxy"
+				type="Boolean"
+				id="useProxy"
+				default="false"
+				description="Enables or disables use of the proxy specified" />
+		
+		<AD name="Proxy Host"
+				type="String"
+				id="proxyHost"
+				default=""
+				description="Name or IP of the host where the proxy resides" />
+		
+		<AD name="Proxy Port"
+				type="Integer"
+				id="proxyPort"
+				min="-1"
+				max="65535"
+				default="3128"
+				description="Port on which the proxy listens for connections (-1 for the default protocol port)" />
+		
+		<AD name="Proxy User"
+				type="String"
+				id="proxyUser"
+				default=""
+				description="Username (if needed) used to authenticate at the proxy" />
+		
+		<AD name="Proxy Password"
+				type="String"
+				id="proxyPassword"
+				default=""
+				description="Password (if needed) used to authenticate at the proxy" />
 	</OCD>
 	
 	<Designate

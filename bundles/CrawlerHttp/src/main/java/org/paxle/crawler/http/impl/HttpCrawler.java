@@ -28,7 +28,10 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.ProxyHost;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.HeadMethod;
@@ -57,7 +60,13 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	private static final String PROP_SOCKET_TIMEOUT = "socketTimeout";
 	private static final String PROP_MAXCONNECTIONS_PER_HOST = "maxConnectionsPerHost";
 	private static final String PROP_MAXDOWNLOAD_SIZE = "maxDownloadSize";
-	private static final String PROP_ACCEPT_ENCODING = "acceptEncoding";
+	private static final String PROP_ACCEPT_ENCODING = "acceptEncodings";
+	
+	private static final String PROP_PROXY_USE = "useProxy";
+	private static final String PROP_PROXY_HOST = "proxyHost";
+	private static final String PROP_PROXY_PORT = "proxyPort";
+	private static final String PROP_PROXY_USER = "proxyUser";
+	private static final String PROP_PROXY_PASSWORD = "proxyPassword";
 	
 	private static final String HTTPHEADER_ETAG = "ETag";
 	private static final String HTTPHEADER_LAST_MODIFIED = "Last-Modified";
@@ -119,11 +128,15 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		this.updated(this.getDefaults());
 		
 		this.props = props;
-		final Set<Object> keySet = props.keySet();
-		hostSettings = new ConcurrentHashMap<String,Integer>(keySet.size(), 0.75f, 10);
-		for (final Object o : keySet) {
-			final String key = (String)o;
-			hostSettings.put(key, Integer.valueOf(props.getProperty(key)));
+		if (props != null) {
+			final Set<Object> keySet = props.keySet();
+			hostSettings = new ConcurrentHashMap<String,Integer>(keySet.size(), 0.75f, 10);
+			for (final Object o : keySet) {
+				final String key = (String)o;
+				hostSettings.put(key, Integer.valueOf(props.getProperty(key)));
+			}
+		} else {
+			hostSettings = new ConcurrentHashMap<String,Integer>(10, 0.75f, 10);
 		}
 	}
 	
@@ -177,6 +190,12 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		defaults.put(PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(-1));
 		defaults.put(PROP_ACCEPT_ENCODING, Boolean.TRUE);
 		
+		defaults.put(PROP_PROXY_USE, Boolean.FALSE);
+		defaults.put(PROP_PROXY_HOST, "");
+		defaults.put(PROP_PROXY_PORT, Integer.valueOf(3128));		// default squid port
+		defaults.put(PROP_PROXY_USER, "");
+		defaults.put(PROP_PROXY_PASSWORD, "");
+		
 		defaults.put(Constants.SERVICE_PID, IHttpCrawler.class.getName());
 		
 		return defaults;
@@ -187,35 +206,64 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 */
 	@SuppressWarnings("unchecked")		// we're only implementing an interface
 	public synchronized void updated(Dictionary configuration) {
-		if ( configuration == null ) {
+		// our caller catches all runtime-exceptions and silently ignores them, leaving us confused behind,
+		// so this try/catch-block exists for debugging purposes
+		try {
+			if ( configuration == null ) {
+				logger.warn("updated configuration is null");
+				/*
+				 * Generate default configuration
+				 */
+				configuration = this.getDefaults();
+			}
+			
 			/*
-			 * Generate default configuration
+			 * Cleanup old config
 			 */
-			configuration = this.getDefaults();
+			// this.cleanup();
+			
+			/*
+			 * Init with changed configuration
+			 */
+			
+			this.connectionManager = new MultiThreadedHttpConnectionManager();
+			
+			// configure connections per host
+			this.connectionManager.getParams().setDefaultMaxConnectionsPerHost(((Integer) configuration.get(PROP_MAXCONNECTIONS_PER_HOST)).intValue());
+			
+			// configuring timeouts
+			this.connectionManager.getParams().setConnectionTimeout(((Integer) configuration.get(PROP_CONNECTION_TIMEOUT)).intValue());
+			this.connectionManager.getParams().setSoTimeout(((Integer) configuration.get(PROP_SOCKET_TIMEOUT)).intValue());
+			
+			// set new http client
+			this.httpClient = new HttpClient(connectionManager);
+			
+			this.maxDownloadSize = ((Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE)).intValue();
+			this.acceptEncoding = ((Boolean)configuration.get(PROP_ACCEPT_ENCODING)).booleanValue();
+			
+			// proxy configuration
+			final boolean useProxy = ((Boolean)configuration.get(PROP_PROXY_USE)).booleanValue();
+			final String host = (String)configuration.get(PROP_PROXY_HOST);
+			final int port = ((Integer)configuration.get(PROP_PROXY_PORT)).intValue();
+			if (useProxy && host.length() > 0) {
+				logger.info("Proxy is enabled");
+				final ProxyHost proxyHost = new ProxyHost(host, port);
+				httpClient.getHostConfiguration().setProxyHost(proxyHost);
+				
+				final String user = (String)configuration.get(PROP_PROXY_HOST);
+				final String pwd = (String)configuration.get(PROP_PROXY_PASSWORD);
+				if (user.length() > 0 && pwd.length() > 0)
+					httpClient.getState().setProxyCredentials(
+							new AuthScope(host, port),
+							new UsernamePasswordCredentials(user, pwd));
+			} else {
+				logger.info("Proxy is disabled");
+				httpClient.getHostConfiguration().setProxyHost(null);
+				httpClient.getState().clearCredentials();
+			}
+		} catch (Throwable e) {
+			logger.error("Internal exception during configuring", e);
 		}
-		
-		/*
-		 * Cleanup old config
-		 */
-		this.cleanup();
-		
-		/*
-		 * Init with changed configuration
-		 */
-		this.connectionManager = new MultiThreadedHttpConnectionManager();
-		
-		// configure connections per host
-		this.connectionManager.getParams().setDefaultMaxConnectionsPerHost(((Integer) configuration.get(PROP_MAXCONNECTIONS_PER_HOST)).intValue());
-		
-		// configuring timeouts
-		this.connectionManager.getParams().setConnectionTimeout(((Integer) configuration.get(PROP_CONNECTION_TIMEOUT)).intValue());
-		this.connectionManager.getParams().setSoTimeout(((Integer) configuration.get(PROP_SOCKET_TIMEOUT)).intValue());
-		
-		// set new http client
-		this.httpClient = new HttpClient(connectionManager);
-		
-		this.maxDownloadSize = ((Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE)).intValue();
-		this.acceptEncoding = ((Boolean)configuration.get(PROP_ACCEPT_ENCODING)).booleanValue();
 	}
 	
 	/**
@@ -393,7 +441,9 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			// (both only if the server provides this information, if not, the file is
 			// fetched)
 			
-			method = new HeadMethod(requestUri.toASCIIString());		// automatically follows redirects
+			final String uriAsciiString = requestUri.toASCIIString();
+			
+			method = new HeadMethod(uriAsciiString);		// automatically follows redirects
 			initRequestMethod(method);
 			
 			int statusCode = this.getHttpClient().executeMethod(method);
@@ -424,14 +474,15 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				if (!handleContentLengthHeader(contentTypeLength, doc))
 					return doc;
 				
-				// FIXME: if we've been redirected, re-enqueue the new URL and abort processing
+				if (!requestUri.equals(method.getURI()))
+					; // FIXME: we've been redirected, re-enqueue the new URL and abort processing
 			}
 			
 			// secondly - if everything is alright up to now - proceed with getting the actual
 			// document
 			
 			// generate the GET request method
-			HttpMethod getMethod = new GetMethod(requestUri.toASCIIString());		// automatically follows redirects
+			HttpMethod getMethod = new GetMethod(uriAsciiString);		// automatically follows redirects
 			method.releaseConnection();
 			
 			method = getMethod;
@@ -458,7 +509,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				if (!handleContentTypeHeader(contentTypeHeader, doc))
 					return doc;
 				
-				// FIXME: if we've been redirected, re-enqueue the new URL and abort processing
+				if (!requestUri.equals(method.getURI()))
+					; // FIXME: we've been redirected, re-enqueue the new URL and abort processing
 			}
 			
 			postProcessHeaders(method, doc);		// externalised into this method to cleanup here a bit
