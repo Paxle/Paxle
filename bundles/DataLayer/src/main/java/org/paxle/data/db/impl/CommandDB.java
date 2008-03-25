@@ -132,7 +132,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	}	
 	
 	private void manipulateDbSchema() {
+		/* disabled because it seems to cause NPEs in derby, see
+		 * https://issues.apache.org/jira/browse/DERBY-3197?page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#action_12543729
 		System.setProperty("derby.language.logQueryPlan", "true");
+		 */
 		Connection c = null;
 		try {
 			Properties props = this.config.getProperties();
