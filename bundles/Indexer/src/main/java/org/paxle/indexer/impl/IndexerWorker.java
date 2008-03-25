@@ -216,7 +216,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 		                                       idoc.set(IIndexerDocument.MIME_TYPE,     pdoc.getMimeType());
 			if (protocol != null)              idoc.set(IIndexerDocument.PROTOCOL,      protocol);
 			if (pdoc.getSummary() != null)     idoc.set(IIndexerDocument.SUMMARY,       pdoc.getSummary());
-			                                   idoc.set(IIndexerDocument.TEXT,          pdoc.getTextFile());
+			if (pdoc.getTextFile() != null)    idoc.set(IIndexerDocument.TEXT,          pdoc.getTextFile());
 			if (pdoc.getTitle() != null)       idoc.set(IIndexerDocument.TITLE,         pdoc.getTitle());
 			// TODO: IIndexerDocument.TOPICS
 			
