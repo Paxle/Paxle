@@ -324,53 +324,56 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 *         it shall be aborted due to an unsupported MIME-type of the requested document
 	 */
 	private boolean handleContentTypeHeader(final Header contentTypeHeader, final CrawlerDocument doc) {
+		if (contentTypeHeader == null)
+			// might be ok, might be not, we don't know yet
+			return true;
+		
 		// separate MIME-type and charset from the content-type specification
 		String contentMimeType = null;
-		if (contentTypeHeader != null) {
-			String contentCharset = null;
-			contentMimeType = contentTypeHeader.getValue();
+		String contentCharset = null;
+		contentMimeType = contentTypeHeader.getValue();
+		
+		int idx = contentMimeType.indexOf(";");
+		if (idx != -1) {
+			contentCharset = contentMimeType.substring(idx+1).trim();
+			contentMimeType = contentMimeType.substring(0,idx);
 			
-			int idx = contentMimeType.indexOf(";");
-			if (idx != -1) {
-				contentCharset = contentMimeType.substring(idx+1).trim();
-				contentMimeType = contentMimeType.substring(0,idx);
-				
-				if (contentCharset.startsWith("charset=")) {
-					contentCharset = contentCharset.substring("charset=".length()).trim();
-					if (contentCharset.matches("^['\"].*")) {
-						contentCharset = contentCharset.substring(1);
-					}
-					if (contentCharset.matches(".*['\"]$")) {
-						contentCharset = contentCharset.substring(0,contentCharset.length()-1);							
-					}
-				} else {
-					contentCharset = null;
+			if (contentCharset.startsWith("charset=")) {
+				contentCharset = contentCharset.substring("charset=".length()).trim();
+				if (contentCharset.matches("^['\"].*")) {
+					contentCharset = contentCharset.substring(1);
 				}
-			}	
-			
-			if (ERRONEOUS_MIME_TYPES.contains(contentMimeType))
-				contentMimeType = null;
-			
-			doc.setMimeType(contentMimeType);
-			doc.setCharset(contentCharset);
+				if (contentCharset.matches(".*['\"]$")) {
+					contentCharset = contentCharset.substring(0,contentCharset.length()-1);							
+				}
+				doc.setCharset(contentCharset);
+			} else {
+				contentCharset = null;
+			}
 		}
 		
-		// check if we support the mimetype
-		final CrawlerContext context = CrawlerContext.getCurrentContext();
-		if (context == null)
-			throw new RuntimeException("Unexpected error. The crawler-context was null.");
-		
-		if (!context.getSupportedMimeTypes().contains(contentMimeType)) {
-			// abort
-			String msg = String.format(
-					"Mimetype '%s' of resource '%s' not supported by any parser installed on the system.",
-					contentMimeType,
-					doc.getLocation()
-			);
+		// check against common MIME-types wrongly attributed to files by servers
+		// if this is one of them, we just ignore the MIME-type and let the MimeType-bundle do the job
+		if (!ERRONEOUS_MIME_TYPES.contains(contentMimeType)) {
+			doc.setMimeType(contentMimeType);
 			
-			this.logger.warn(msg);
-			doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
-			return false;
+			// check if we support the mimetype
+			final CrawlerContext context = CrawlerContext.getCurrentContext();
+			if (context == null)
+				throw new RuntimeException("Unexpected error. The crawler-context was null.");
+			
+			if (!context.getSupportedMimeTypes().contains(contentMimeType)) {
+				// abort
+				String msg = String.format(
+						"Mimetype '%s' of resource '%s' not supported by any parser installed on the system.",
+						contentMimeType,
+						doc.getLocation()
+				);
+				
+				this.logger.warn(msg);
+				doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
+				return false;
+			}
 		}
 		
 		// continue
@@ -526,7 +529,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				CrawlerTools.saveInto(doc, respBody);
 				
 				doc.setStatus(ICrawlerDocument.Status.OK);
-				this.logger.info(String.format("Crawling of URL '%s' finished.", requestUri));
+				this.logger.debug(String.format("Crawling of URL '%s' finished.", requestUri));
 			} catch (IOException e) {
 				String msg = e.getMessage();
 				if (msg == null || !msg.equals("Corrupt GZIP trailer"))
