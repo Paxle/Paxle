@@ -26,12 +26,6 @@
 				min="1000"
 				description="Determines the timeout in milliseconds until a connection is etablished."/>
 		
-		<AD name="Use Content Encoding"
-				type="Boolean"
-				id="enableContentEncoding"
-				default="true"
-				description="Specifies whether the crawler should use ContentEncoding."/>
-		
 		<AD name="Maximum size of documents to download"
 				type="Integer"
 				id="maxDownloadSize"
