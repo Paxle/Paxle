@@ -220,12 +220,11 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			/*
 			 * Cleanup old config
 			 */
-			// this.cleanup();
+			this.cleanup();
 			
 			/*
 			 * Init with changed configuration
 			 */
-			
 			this.connectionManager = new MultiThreadedHttpConnectionManager();
 			
 			// configure connections per host

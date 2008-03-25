@@ -41,7 +41,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		final Counter c = new Counter();
 		this.extractLinks(command.getLocation().toASCIIString(), parserDoc, c);
 		logger.info(String.format("Extracted %d new and %d already known URIs from '%s'",
-				Integer.valueOf(c.c), Integer.valueOf(c.known), command.getLocation()));
+				Integer.valueOf(c.c - c.known), Integer.valueOf(c.known), command.getLocation()));
 	}
 	
 	private void extractLinks(final String location, IParserDocument parserDoc, final Counter c) {

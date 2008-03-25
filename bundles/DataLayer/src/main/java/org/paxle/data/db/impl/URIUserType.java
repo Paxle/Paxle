@@ -67,7 +67,7 @@ public class URIUserType implements EnhancedUserType {
 		return original;
 	}
 
-	public Class returnedClass() {
+	public Class<?> returnedClass() {
 		return URI.class;
 	}
 

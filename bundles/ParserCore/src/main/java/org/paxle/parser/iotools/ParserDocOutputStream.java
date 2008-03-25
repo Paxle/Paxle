@@ -35,7 +35,7 @@ public class ParserDocOutputStream extends OutputStream {
 	private boolean closed = false;
 	private final ITempFileManager tfm;
 	private final OutputStream os;
-	private final File of;
+	protected final File of;
 	
 	// TODO: cache file in ram
 	public ParserDocOutputStream(ITempFileManager tfm, ICharsetDetector cd) throws IOException {
@@ -71,6 +71,10 @@ public class ParserDocOutputStream extends OutputStream {
 	}
 	
 	public IParserDocument parse(URI location) throws ParserException, IOException {
+		return parse(location, ParserTools.getMimeType(this.of));
+	}
+	
+	public IParserDocument parse(URI location, final String mimeType) throws ParserException, IOException {
 		/* Closing stream if not already done.
 		 * 
 		 * ATTENTION: don't remove the closed check. Otherwise we get an StackOverflowException, because
@@ -79,7 +83,6 @@ public class ParserDocOutputStream extends OutputStream {
 		if (!closed) this.close();
 		
 		final String charset = getCharset();
-		final String mimeType = ParserTools.getMimeType(this.of);
 		logger.debug(String.format("Parsing contained file in '%s' with mime-type '%s' and charset '%s'", location, mimeType, charset));
 		try {
 			return ParserTools.parse(location, mimeType, charset, this.of);

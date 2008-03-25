@@ -30,8 +30,9 @@ public class SubParserDocOutputStream extends ParserDocOutputStream {
 	public void close() throws IOException {
 		super.close();
 		try {
-			logger.info(String.format("Parsing sub-doc '%s' of '%s'", name, location));
-			this.pdoc.addSubDocument(name, super.parse(location));
+			final String mimeType = ParserTools.getMimeType(super.of);
+			logger.info(String.format("Parsing sub-doc '%s' (%s) of '%s'", name, mimeType, location));
+			this.pdoc.addSubDocument(name, super.parse(location, mimeType));
 		} catch (ParserException e) {
 			// ignore the sub-document if we cannot parse it
 			if (logger.isTraceEnabled()) {

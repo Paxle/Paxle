@@ -221,8 +221,8 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 			} else if (!(
 					e instanceof ConnectException ||
 					e instanceof SocketException
-			)){
-				logger.error("Exception while loading robots.txt from" + hostPort, e);
+			)) {
+				logger.error("Exception while loading robots.txt from " + hostPort, e);
 			}
 
 			return new RobotsTxt(hostPort, reloadInterval, status);
