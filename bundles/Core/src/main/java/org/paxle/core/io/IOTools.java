@@ -100,7 +100,7 @@ public class IOTools {
 	 * @throws <b>IOException</b> if an I/O-error occures
 	 */
 	public static long copy(InputStream is, OutputStream os, long bytes) throws IOException {
-		final byte[] buf = new byte[DEFAULT_BUFFER_SIZE_BYTES];                
+		final byte[] buf = new byte[DEFAULT_BUFFER_SIZE_BYTES];
 		int cs = (int)((bytes > 0 && bytes < DEFAULT_BUFFER_SIZE_BYTES) ? bytes : DEFAULT_BUFFER_SIZE_BYTES);
 		
 		int rn;
@@ -115,6 +115,43 @@ public class IOTools {
 					break;
 			}
 		}
+		os.flush();
+		return rt;
+	}
+	
+	public static long copy(final InputStream is, final OutputStream os, final long bytes, final int limitKBps) throws IOException {
+		final long delta = (limitKBps == 0) ? 0 : 1000l / (limitKBps * 1024 / DEFAULT_BUFFER_SIZE_BYTES);
+		if (delta > 0) {
+			return copy(is, os, bytes, delta);
+		} else {
+			return copy(is, os, bytes);
+		}
+	}
+	
+	private static long copy(final InputStream is, final OutputStream os, final long bytes, final long delta) throws IOException {
+		final byte[] buf = new byte[DEFAULT_BUFFER_SIZE_BYTES];
+		int cs = (int)((bytes > 0 && bytes < DEFAULT_BUFFER_SIZE_BYTES) ? bytes : DEFAULT_BUFFER_SIZE_BYTES);
+		
+		int rn;
+		long rt = 0;
+		long time = System.currentTimeMillis();
+		try {
+			while ((rn = is.read(buf, 0, cs)) > 0) {
+				os.write(buf, 0, rn);
+				rt += rn;
+				
+				if (bytes > 0) {
+					cs = (int)Math.min(bytes - rt, DEFAULT_BUFFER_SIZE_BYTES);
+					if (cs == 0)
+						break;
+				}
+				time += delta;
+				final long sleep = time - System.currentTimeMillis();
+				System.out.println("SLEEPING " + sleep + " ms");
+				if (sleep > 0)
+					Thread.sleep(sleep);
+			}
+		} catch (InterruptedException e) { /* ignore, simply quit copying */ }
 		os.flush();
 		return rt;
 	}

@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.util.concurrent.Semaphore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,10 +19,76 @@ import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.crypt.ACryptOutputStream;
 import org.paxle.core.crypt.ICrypt;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.io.IOTools;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 
 public class CrawlerTools {
+	
 	private static final Log logger = LogFactory.getLog(CrawlerTools.class);
+	
+	public static class LimitedRateCopier {
+		
+		private final Semaphore sem = new Semaphore(1);
+		private final long minDelta;
+		private int working = 0;
+		private volatile long curDelta;
+		
+		public LimitedRateCopier(final int maxKBps) {
+			this.minDelta = 1000l / (maxKBps * 1024 / DEFAULT_BUFFER_SIZE_BYTES);
+		}
+		
+		private int addWorker() throws InterruptedException {
+			final int r;
+			sem.acquire();
+			r = ++working;
+			sem.release();
+			curDelta = minDelta * r;
+			return r;
+		}
+		
+		private int delWorker() throws InterruptedException {
+			final int r;
+			sem.acquire();
+			r = --working;
+			sem.release();
+			curDelta = minDelta * r;
+			return r;
+		}
+		
+		public long copy(final InputStream is, final OutputStream os, final long bytes) throws IOException {
+			long rt = 0;
+			try {
+				final byte[] buf = new byte[DEFAULT_BUFFER_SIZE_BYTES];
+				int cs = (int)((bytes > 0 && bytes < DEFAULT_BUFFER_SIZE_BYTES) ? bytes : DEFAULT_BUFFER_SIZE_BYTES);
+				
+				int rn;
+				long time = System.currentTimeMillis();
+				addWorker();
+				try {
+					while ((rn = is.read(buf, 0, cs)) > 0) {
+						os.write(buf, 0, rn);
+						rt += rn;
+						
+						if (bytes > 0) {
+							cs = (int)Math.min(bytes - rt, DEFAULT_BUFFER_SIZE_BYTES);
+							if (cs == 0)
+								break;
+						}
+						time += curDelta;
+						final long sleep = time - System.currentTimeMillis();
+						if (sleep > 0)
+							Thread.sleep(sleep);
+					}
+				} finally { delWorker(); }
+				os.flush();
+			} catch (InterruptedException e) { /* ignore, simply quit copying */ }
+			return rt;
+		}
+	}
+	
+	public static long saveInto(ICrawlerDocument doc, InputStream is) throws IOException {
+		return saveInto(doc, is, null);
+	}
 	
 	/**
 	 * Copies all data from the given {@link InputStream} to the given {@link ICrawlerDocument crawler-document}.<br />
@@ -34,11 +101,12 @@ public class CrawlerTools {
 	 * 
 	 * @see #copy(InputStream, OutputStream, long) for details
 	 * @param doc the crawler-document the content belongs to
-	 * @param in the stream to read from
+	 * @param is the stream to read from
+	 * @param lrc the {@link LimitedRateCopier} to use to copy the data, if any, otherwise <code>null</code>
 	 * @return the number of copied bytes
 	 * @throws IOException if an I/O-error occures
 	 */
-	public static long saveInto(ICrawlerDocument doc, InputStream is) throws IOException {
+	public static long saveInto(ICrawlerDocument doc, InputStream is, final LimitedRateCopier lrc) throws IOException {
 		if (doc == null) throw new NullPointerException("The crawler-document is null.");
 		if (is == null) throw new NullPointerException("The content inputstream is null.");
 		
@@ -92,7 +160,7 @@ public class CrawlerTools {
 			/* ================================================================
 			 * COPY DATA
 			 * ================================================================ */
-			final long copied = copy(is, os);
+			final long copied = (lrc == null) ? IOTools.copy(is, os) : lrc.copy(is, os, -1);
 			
 			/* ================================================================
 			 * CHARSET DETECTION

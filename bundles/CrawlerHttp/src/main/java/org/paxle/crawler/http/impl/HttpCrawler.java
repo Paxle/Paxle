@@ -61,6 +61,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	private static final String PROP_MAXCONNECTIONS_PER_HOST = "maxConnectionsPerHost";
 	private static final String PROP_MAXDOWNLOAD_SIZE = "maxDownloadSize";
 	private static final String PROP_ACCEPT_ENCODING = "acceptEncodings";
+	private static final String PROP_TRANSFER_LIMIT = "transferLimit";			// in KB/s
 	
 	private static final String PROP_PROXY_USE = "useProxy";
 	private static final String PROP_PROXY_HOST = "proxyHost";
@@ -119,6 +120,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	private int maxDownloadSize = -1;
 	
 	private boolean acceptEncoding = true;
+	private CrawlerTools.LimitedRateCopier lrc = null;
 	
 	private Properties props = null;
 	private final ConcurrentHashMap<String,Integer> hostSettings;
@@ -189,6 +191,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		defaults.put(PROP_MAXCONNECTIONS_PER_HOST, Integer.valueOf(10));
 		defaults.put(PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(-1));
 		defaults.put(PROP_ACCEPT_ENCODING, Boolean.TRUE);
+		defaults.put(PROP_TRANSFER_LIMIT, Integer.valueOf(-1));
 		
 		defaults.put(PROP_PROXY_USE, Boolean.FALSE);
 		defaults.put(PROP_PROXY_HOST, "");
@@ -239,6 +242,10 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			
 			this.maxDownloadSize = ((Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE)).intValue();
 			this.acceptEncoding = ((Boolean)configuration.get(PROP_ACCEPT_ENCODING)).booleanValue();
+			int limitKBps = ((Integer)configuration.get(PROP_TRANSFER_LIMIT)).intValue();
+			logger.debug("transfer rate limit: " + limitKBps + " kb/s");
+			if (limitKBps > 0)
+				lrc = new CrawlerTools.LimitedRateCopier(limitKBps);
 			
 			// proxy configuration
 			final boolean useProxy = ((Boolean)configuration.get(PROP_PROXY_USE)).booleanValue();
@@ -526,7 +533,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				respBody = handleContentEncoding(contentEncodingHeader, respBody);
 				
 				// copy the content to file
-				CrawlerTools.saveInto(doc, respBody);
+				CrawlerTools.saveInto(doc, respBody, lrc);
 				
 				doc.setStatus(ICrawlerDocument.Status.OK);
 				this.logger.debug(String.format("Crawling of URL '%s' finished.", requestUri));
