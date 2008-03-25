@@ -244,8 +244,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			this.acceptEncoding = ((Boolean)configuration.get(PROP_ACCEPT_ENCODING)).booleanValue();
 			int limitKBps = ((Integer)configuration.get(PROP_TRANSFER_LIMIT)).intValue();
 			logger.debug("transfer rate limit: " + limitKBps + " kb/s");
-			if (limitKBps > 0)
-				lrc = new CrawlerTools.LimitedRateCopier(limitKBps);
+			lrc = (limitKBps > 0) ? new CrawlerTools.LimitedRateCopier(limitKBps) : null;
 			
 			// proxy configuration
 			final boolean useProxy = ((Boolean)configuration.get(PROP_PROXY_USE)).booleanValue();
