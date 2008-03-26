@@ -23,12 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -46,6 +42,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.filter.robots.IRobotsTxtManager;
 
+import sun.awt.image.OffScreenImage;
+
 public class RobotsTxtManager implements IRobotsTxtManager {
 	private static final String ROBOTS_AGENT_PAXLE = "paxle";
 
@@ -60,16 +58,6 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	 * Read timeout to use for the http connection
 	 */
 	private static final int READ_TIMEOUT = 15000;
-
-	/**
-	 * Regular expression pattern to extract the hostname:port portion of an URL
-	 */
-	private static final Pattern HOSTPORT_PATTERN = Pattern.compile("([^:]+)://([^/\\?#]+)(?=/|$|\\?|#)");
-
-	/**
-	 * Regular expression to extract the path of an URL
-	 */
-	private static final Pattern PATH_PATTERN = Pattern.compile("((?<!:/)/(?!/).*$)");
 
 	/**
 	 * For logging
@@ -160,7 +148,7 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	
 	/**
 	 * Downloads a <i>robots.txt</i> file from the given url and parses it
-	 * @param robotsUrlStr the URL to the robots.txt
+	 * @param robotsUrlStr the URL to the robots.txt. This must be a http(s) resource
 	 * @return the parsed robots.txt file as a {@link RobotsTxt}-object
 	 * @throws IOException
 	 * @throws URISyntaxException 
@@ -302,10 +290,18 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		return line;
 	}
 	
+	/**
+	 * Check weather the specified {@link URI} is blocked by the robots.txt of the server hosting the {@link URI}
+	 * @return <code>true</code> if crawling of the {@link URI} is disallowed
+	 */
 	public boolean isDisallowed(String location) {
 		return isDisallowed(URI.create(location));		// XXX please re-check whether non-escaped hosts (i.e. "umlaut-domains") work
 	}
 
+	/**
+	 * Check weather the specified {@link URI} is blocked by the robots.txt of the server hosting the {@link URI}
+	 * @return <code>true</code> if crawling of the {@link URI} is disallowed
+	 */
 	public boolean isDisallowed(URI location) {
 		String protocol = location.getScheme();
 		if (!protocol.startsWith("http")) {
@@ -313,14 +309,20 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 			return false;
 		}
 
-		// getting the host[:port] string 
-		String hostPort = this.getHostPort(location);
-		
 		// check if the URI is blocked
 		return this.isDisallowed(new ArrayList<URI>(Arrays.asList(new URI[]{location}))).size() == 1;
 	}
 	
+	/**
+	 * Check a list of {@link URI URI} against the robots.txt file of the servers hosting the {@link URI}.
+	 * @param hostPort the web-server hosting the {@link URI URIs}
+	 * @param urlList a list of {@link URI}
+	 * 
+	 * @return all {@link URI} that are blocked by the servers
+	 */
 	public List<URI> isDisallowed(Collection<URI> urlList) {
+		if (urlList == null) throw new NullPointerException("The URI-list is null.");
+		
 		// group the URL list based on hostname:port
 		HashMap<String, List<URI>> groupedURLs = this.groupURI(urlList);
 		
@@ -341,7 +343,17 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		return disallowedURI;
 	}
 	
+	/**
+	 * Check a list of {@link URI URI} against the robots.txt file of the specified server.
+	 * @param hostPort the web-server hosting the {@link URI URIs}
+	 * @param urlList a list of {@link URI}. Each {@link URI} must belong to the specified <code>hostname:port</code>
+	 * 
+	 * @return all {@link URI} that are blocked by the specified server
+	 */
 	private Collection<URI> isDisallowed(String hostPort, Collection<URI> urlList) {
+		if (hostPort == null) throw new NullPointerException("The hostname:port is null.");
+		if (urlList == null) throw new NullPointerException("The URI-list is null.");
+		
 		ArrayList<URI> disallowedList = new ArrayList<URI>();
 		
 		// getting the RobotsTxt-info for this host[:port]
@@ -370,7 +382,9 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 				}
 			}
 			
+			// loop through each URI and check against the robots.txt
 			for (URI location : urlList) {
+				assert(this.getHostPort(location).equals(hostPort));
 				String path = location.getPath();
 				
 				if (robotsTxt.isDisallowed(ROBOTS_AGENT_PAXLE, path)) {
@@ -378,7 +392,11 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			this.logger.error(String.format(
+					"Unexpected '%s' while checking URIs against the robots.txt of host '%s'.",
+					e.getClass().getName(),
+					hostPort
+			),e);
 		} 
 		
 		return disallowedList;
@@ -404,7 +422,7 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	}
 
 	/**
-	 * Loads a robots.stxt from HDD
+	 * Loads a robots.txt from HDD
 	 * @param hostPort
 	 * @return
 	 */
@@ -436,6 +454,14 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		}
 	}
 	
+	/**
+	 * Groups a list of {@link URI} into blocks hosted by a single server. 
+	 * {@link URI} which are not accessible via <code>http(s)</code> are ignored.
+	 * 
+	 * @param urlList the {@link URI} list
+	 * @return a map containing the <code>hostname:port</code> as key and the list of {@link URI}
+	 *         hosted by the host as values.
+	 */
 	private HashMap<String, List<URI>> groupURI(Collection<URI> urlList) {
 		HashMap<String, List<URI>> group = new HashMap<String, List<URI>>();
 		

@@ -25,8 +25,14 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
+	/**
+	 * A component to check URLs against robots.txt files.
+	 */
 	private RobotsTxtManager robotsTxtManager = null;
 	
+	/**
+	 * @param robotsTxtManager the robots.txt manager to use
+	 */
 	public RobotsTxtFilter(RobotsTxtManager robotsTxtManager) {
 		this.robotsTxtManager = robotsTxtManager;
 	}
@@ -50,7 +56,7 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 			final Counter c = new Counter();
 			IParserDocument parserDoc = command.getParserDocument();
 			this.checkRobotsTxt(parserDoc, c);
-			logger.info(String.format("removed %d URLs from reference map(s) of '%s'", Integer.valueOf(c.c), command.getLocation())); 
+			logger.info(String.format("Removed %d URLs from reference map(s) of '%s'", Integer.valueOf(c.c), command.getLocation())); 
 		} catch (Exception e) {
 			this.logger.error(String.format("Unexpected %s while filtering command with location '%s'.",e.getClass().getName(),location),e);
 		}
@@ -77,23 +83,22 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 	private void checkRobotsTxt(Map<URI, String> linkMap, final Counter c) {
 		if (linkMap == null || linkMap.size() == 0) return;
 		
-		Collection<URI> disallowedURI = this.robotsTxtManager.isDisallowed(linkMap.keySet());
+		Collection<URI> disallowedURI = this.robotsTxtManager.isDisallowed(linkMap.keySet());		
 		if (disallowedURI != null && disallowedURI.size() > 0) {
+			StringBuffer debugMsg = new StringBuffer();
+			
 			for (URI location : disallowedURI) {
-				// TODO: logging
 				linkMap.remove(location);
+				c.c++;
+				if (logger.isDebugEnabled()) {
+					debugMsg.append(String.format("\t%s\r\n", location.toASCIIString()));
+				}
 			}
-		}
-//		Iterator<URI> refs = linkMap.keySet().iterator();
-//		while (refs.hasNext()) {
-//			String location = refs.next().toString();		// XXX: should this be .toASCIIString()?
-//
-//			if (this.robotsTxtManager.isDisallowed(location)) {
-//				refs.remove();
-//				c.c++;
-//				if (logger.isDebugEnabled())
-//					this.logger.debug(String.format("URL '%s' removed from reference map.", location));
-//			}
-//		}		
+			
+			if (logger.isDebugEnabled()) {
+				this.logger.debug(String.format("%d URI removed from reference map:\r\n%s", disallowedURI.size(),debugMsg.toString()));
+			}
+
+		}	
 	}
 }
