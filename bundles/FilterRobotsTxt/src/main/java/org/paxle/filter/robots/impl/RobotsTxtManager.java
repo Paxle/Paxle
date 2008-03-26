@@ -42,8 +42,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.filter.robots.IRobotsTxtManager;
 
-import sun.awt.image.OffScreenImage;
-
 public class RobotsTxtManager implements IRobotsTxtManager {
 	private static final String ROBOTS_AGENT_PAXLE = "paxle";
 
