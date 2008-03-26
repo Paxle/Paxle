@@ -1,7 +1,7 @@
 package org.paxle.filter.robots.impl;
 
 import java.net.URI;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -13,12 +13,18 @@ import org.paxle.core.queue.ICommand;
 
 public class RobotsTxtFilter implements IFilter<ICommand> {
 	
-	private static class Counter {
-		
+	/**
+	 * Class to count rejected URI
+	 */
+	private static class Counter {		
 		public int c = 0;
 	}
 	
+	/**
+	 * For logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
+	
 	private RobotsTxtManager robotsTxtManager = null;
 	
 	public RobotsTxtFilter(RobotsTxtManager robotsTxtManager) {
@@ -71,16 +77,23 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 	private void checkRobotsTxt(Map<URI, String> linkMap, final Counter c) {
 		if (linkMap == null || linkMap.size() == 0) return;
 		
-		Iterator<URI> refs = linkMap.keySet().iterator();
-		while (refs.hasNext()) {
-			String location = refs.next().toString();		// XXX: should this be .toASCIIString()?
-
-			if (this.robotsTxtManager.isDisallowed(location)) {
-				refs.remove();
-				c.c++;
-				if (logger.isDebugEnabled())
-					this.logger.debug(String.format("URL '%s' removed from reference map.", location));
+		Collection<URI> disallowedURI = this.robotsTxtManager.isDisallowed(linkMap.keySet());
+		if (disallowedURI != null && disallowedURI.size() > 0) {
+			for (URI location : disallowedURI) {
+				// TODO: logging
+				linkMap.remove(location);
 			}
-		}		
+		}
+//		Iterator<URI> refs = linkMap.keySet().iterator();
+//		while (refs.hasNext()) {
+//			String location = refs.next().toString();		// XXX: should this be .toASCIIString()?
+//
+//			if (this.robotsTxtManager.isDisallowed(location)) {
+//				refs.remove();
+//				c.c++;
+//				if (logger.isDebugEnabled())
+//					this.logger.debug(String.format("URL '%s' removed from reference map.", location));
+//			}
+//		}		
 	}
 }

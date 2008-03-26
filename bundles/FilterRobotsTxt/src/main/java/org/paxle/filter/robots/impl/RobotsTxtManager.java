@@ -19,6 +19,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -139,30 +147,17 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	 * @param location the URL
 	 * @return the hostname:port part of the location
 	 */
-	private String getHostPort(String location) {
-		// getting the host:port string
-		Matcher matcher = HOSTPORT_PATTERN.matcher(location);
-		if (!matcher.find()) return null;
+	private String getHostPort(URI location) {
+		String prot = location.getScheme();
+		String host = location.getHost();
+		int port = location.getPort();
 
-		String hostPort = matcher.group(2);
-		if (hostPort.endsWith(":-1")) hostPort = hostPort.substring(0,hostPort.length()-":-1".length());
+		if (prot.equals("http") && port == -1) port = 80;
+		if (prot.equals("https") && port == -1) port = 443;
 
-		String prot = matcher.group(1);
-		if (prot.equals("http") && hostPort.endsWith(":80")) hostPort = hostPort.substring(0,hostPort.length()-":80".length());
-		if (prot.equals("https") && hostPort.endsWith(":443")) hostPort = hostPort.substring(0,hostPort.length()-":443".length());
-
-		return hostPort;
+		return String.format("%s:%d",host,port);
 	}
-
-	/**
-	 * @param location the URL
-	 * @return the path of the location
-	 */
-	private String getPath(String location) {
-		Matcher matcher = PATH_PATTERN.matcher(location);
-		return (!matcher.find())? "" : matcher.group(1);
-	}
-
+	
 	/**
 	 * Downloads a <i>robots.txt</i> file from the given url and parses it
 	 * @param robotsUrlStr the URL to the robots.txt
@@ -170,9 +165,8 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	 * @throws IOException
 	 * @throws URISyntaxException 
 	 */
-	RobotsTxt parseRobotsTxt(String robotsUrlStr) throws IOException, URISyntaxException {
-		String hostPort = this.getHostPort(robotsUrlStr);
-		URI robotsURL = new URI(robotsUrlStr);
+	RobotsTxt parseRobotsTxt(URI robotsURL) throws IOException, URISyntaxException {
+		String hostPort = this.getHostPort(robotsURL);
 
 		String statusLine = null;
 		if (!robotsURL.getScheme().startsWith("http")) {
@@ -308,19 +302,48 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		return line;
 	}
 	
-	public boolean isDisallowed(URI location) {
-		return isDisallowed(location.toString());		// XXX please re-check whether non-escaped hosts (i.e. "umlaut-domains") work
+	public boolean isDisallowed(String location) {
+		return isDisallowed(URI.create(location));		// XXX please re-check whether non-escaped hosts (i.e. "umlaut-domains") work
 	}
 
-	public boolean isDisallowed(String location) {	
-		if (!location.startsWith("http://") && !location.startsWith("https")) {
+	public boolean isDisallowed(URI location) {
+		String protocol = location.getScheme();
+		if (!protocol.startsWith("http")) {
 			this.logger.debug(String.format("Protocol of location '%s' not supported", location));
 			return false;
 		}
 
 		// getting the host[:port] string 
 		String hostPort = this.getHostPort(location);
-
+		
+		// check if the URI is blocked
+		return this.isDisallowed(new ArrayList<URI>(Arrays.asList(new URI[]{location}))).size() == 1;
+	}
+	
+	public List<URI> isDisallowed(Collection<URI> urlList) {
+		// group the URL list based on hostname:port
+		HashMap<String, List<URI>> groupedURLs = this.groupURI(urlList);
+		
+		// TODO: start new worker-threads here ...
+		
+		ArrayList<URI> disallowedURI = new ArrayList<URI>();
+		for (Entry<String, List<URI>> group : groupedURLs.entrySet()) {
+			String hostPort = group.getKey();
+			List<URI> UriList = group.getValue();
+			
+			// check the block
+			Collection<URI> disallowedInGroup = this.isDisallowed(hostPort, UriList);
+			if (disallowedInGroup != null) {
+				disallowedURI.addAll(disallowedInGroup);
+			}
+		}
+		
+		return disallowedURI;
+	}
+	
+	private Collection<URI> isDisallowed(String hostPort, Collection<URI> urlList) {
+		ArrayList<URI> disallowedList = new ArrayList<URI>();
+		
 		// getting the RobotsTxt-info for this host[:port]
 		RobotsTxt robotsTxt = null;
 		try {
@@ -340,18 +363,25 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 
 				// trying to download the robots.txt
 				if (robotsTxt == null || (System.currentTimeMillis() - robotsTxt.getLoadedDate().getTime() > robotsTxt.getReloadInterval())) {				
-					robotsTxt = this.parseRobotsTxt("http://" + hostPort + "/robots.txt");
+					robotsTxt = this.parseRobotsTxt(URI.create("http://" + hostPort + "/robots.txt"));
 					element = new Element(hostPort, robotsTxt);
 					this.cache.put(element);
 					this.storeRobotsTxt(robotsTxt);
 				}
 			}
-
-			return robotsTxt.isDisallowed(ROBOTS_AGENT_PAXLE, this.getPath(location));
+			
+			for (URI location : urlList) {
+				String path = location.getPath();
+				
+				if (robotsTxt.isDisallowed(ROBOTS_AGENT_PAXLE, path)) {
+					disallowedList.add(location);
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
-		}
+		} 
+		
+		return disallowedList;
 	}
 
 	void storeRobotsTxt(RobotsTxt robotsTxt) {
@@ -404,5 +434,27 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		} finally {
 			if (ois != null) try { ois.close(); } catch (Exception e) {/* ingore this */}
 		}
+	}
+	
+	private HashMap<String, List<URI>> groupURI(Collection<URI> urlList) {
+		HashMap<String, List<URI>> group = new HashMap<String, List<URI>>();
+		
+		for (URI uri : urlList) {
+			if (!uri.getScheme().startsWith("http")) continue;
+			
+			// getting hostname:port
+			String hostPort = this.getHostPort(uri);
+			
+			List<URI> pathList = null;
+			if (!group.containsKey(hostPort)) {
+				pathList = new ArrayList<URI>();
+				group.put(hostPort, pathList);
+			} else {
+				pathList = group.get(hostPort);
+			}
+			pathList.add(uri);			
+		}
+		
+		return group;
 	}
 }
