@@ -114,7 +114,7 @@ public class IOToolsTest extends TestCase {
 		}
 	}
 	
-	public void _testCopyWithLimitKBps() throws IOException {
+	public void testCopyWithLimitKBps() throws IOException {
 		File[] testFiles = null;
 		try {
 			int size = 1024*3;

@@ -140,16 +140,17 @@ public class IOTools {
 				os.write(buf, 0, rn);
 				rt += rn;
 				
+				time += delta;
+				final long sleep = time - System.currentTimeMillis();
+				// System.out.println("SLEEPING " + sleep + " ms");
+				if (sleep > 0)
+					Thread.sleep(sleep);
+				
 				if (bytes > 0) {
 					cs = (int)Math.min(bytes - rt, DEFAULT_BUFFER_SIZE_BYTES);
 					if (cs == 0)
 						break;
 				}
-				time += delta;
-				final long sleep = time - System.currentTimeMillis();
-				System.out.println("SLEEPING " + sleep + " ms");
-				if (sleep > 0)
-					Thread.sleep(sleep);
 			}
 		} catch (InterruptedException e) { /* ignore, simply quit copying */ }
 		os.flush();

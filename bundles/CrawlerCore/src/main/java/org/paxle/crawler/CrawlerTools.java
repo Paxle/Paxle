@@ -69,15 +69,16 @@ public class CrawlerTools {
 						os.write(buf, 0, rn);
 						rt += rn;
 						
+						time += curDelta;
+						final long sleep = time - System.currentTimeMillis();
+						if (sleep > 0)
+							Thread.sleep(sleep);
+						
 						if (bytes > 0) {
 							cs = (int)Math.min(bytes - rt, DEFAULT_BUFFER_SIZE_BYTES);
 							if (cs == 0)
 								break;
 						}
-						time += curDelta;
-						final long sleep = time - System.currentTimeMillis();
-						if (sleep > 0)
-							Thread.sleep(sleep);
 					}
 				} finally { delWorker(); }
 				os.flush();
