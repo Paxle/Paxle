@@ -1,4 +1,4 @@
-package org.paxle.filter.robots.impl;
+package org.paxle.filter.robots.impl.rules;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class RobotsTxt implements Serializable {
 		return this.reloadInterval;
 	}
 	
-	void addRuleBlock(RuleBlock ruleBlock) {
+	public void addRuleBlock(RuleBlock ruleBlock) {
 		this.ruleBlocks.add(ruleBlock);
 		if (this.ruleBlockMap.size() > 0) this.ruleBlockMap.clear();
 	}
@@ -66,7 +66,7 @@ public class RobotsTxt implements Serializable {
 	/**
 	 * @return the amount of rule-blocks contained in this robots.txt file
 	 */
-	int size() {
+	public int size() {
 		return this.ruleBlocks.size();
 	}
 	
@@ -74,7 +74,7 @@ public class RobotsTxt implements Serializable {
 	 * @param idx
 	 * @return the {@link RuleBlock} for the given idx.
 	 */
-	RuleBlock getRuleBlock(int idx) {
+	public RuleBlock getRuleBlock(int idx) {
 		return (this.ruleBlocks.size() < idx) ? null : this.ruleBlocks.get(idx);
 	}
 	

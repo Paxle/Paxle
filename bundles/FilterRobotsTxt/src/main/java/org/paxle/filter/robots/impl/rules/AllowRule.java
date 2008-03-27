@@ -1,10 +1,10 @@
-package org.paxle.filter.robots.impl;
+package org.paxle.filter.robots.impl.rules;
 
 import java.io.Serializable;
 
 public class AllowRule extends ARule implements Serializable {
 
-	protected AllowRule(String rule) {
+	public AllowRule(String rule) {
 		super(rule);
 	}
 

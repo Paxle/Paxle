@@ -43,7 +43,8 @@
 							org.paxle.filter.robots
 						</Export-Package>
 						<Private-Package>
-							org.paxle.filter.robots.impl
+							org.paxle.filter.robots.impl,
+							org.paxle.filter.robots.impl.rules
 						</Private-Package>
 						<DynamicImport-Package>
 							javax.xml.parsers, 

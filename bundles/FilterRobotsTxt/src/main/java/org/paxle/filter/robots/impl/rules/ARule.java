@@ -1,4 +1,4 @@
-package org.paxle.filter.robots.impl;
+package org.paxle.filter.robots.impl.rules;
 
 import java.io.Serializable;
 

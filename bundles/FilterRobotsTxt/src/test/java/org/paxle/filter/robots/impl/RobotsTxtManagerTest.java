@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.paxle.filter.robots.impl.rules.RobotsTxt;
+
 import junit.framework.TestCase;
 import junitx.framework.ListAssert;
 import net.sf.ehcache.Cache;

@@ -1,4 +1,4 @@
-package org.paxle.filter.robots.impl;
+package org.paxle.filter.robots.impl.rules;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ public class RuleBlock implements Serializable {
 	private List<ARule> rules = new ArrayList<ARule>();	
 	private HashMap<String, String> props = new HashMap<String, String>();
 
-	void addAgent(String agent) {
+	public void addAgent(String agent) {
 		if (agent == null || agent.length() == 0) throw new IllegalArgumentException("Agent is null or empty.");
 		this.agents.add(agent.trim());
 	}
@@ -22,7 +22,7 @@ public class RuleBlock implements Serializable {
 		return Arrays.asList(this.agents.toArray(new String[this.agents.size()]));
 	}
 	
-	void addRule(ARule rule) {
+	public void addRule(ARule rule) {
 		this.rules.add(rule);
 	}
 	
@@ -34,7 +34,7 @@ public class RuleBlock implements Serializable {
 	/**
 	 * @return the amount of different agents to which this rule this block applies 
 	 */
-	int agentsCount() {
+	public int agentsCount() {
 		return this.agents.size();
 	}
 	

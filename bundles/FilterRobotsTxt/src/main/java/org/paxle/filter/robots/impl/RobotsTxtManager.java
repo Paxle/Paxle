@@ -41,6 +41,10 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.filter.robots.IRobotsTxtManager;
+import org.paxle.filter.robots.impl.rules.AllowRule;
+import org.paxle.filter.robots.impl.rules.DisallowRule;
+import org.paxle.filter.robots.impl.rules.RobotsTxt;
+import org.paxle.filter.robots.impl.rules.RuleBlock;
 
 public class RobotsTxtManager implements IRobotsTxtManager {
 	private static final String ROBOTS_AGENT_PAXLE = "paxle";
