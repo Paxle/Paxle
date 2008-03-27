@@ -33,7 +33,7 @@ public class BlacklistFilterTest extends TestCase {
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Passed));
 		
-		BlacklistFilter.addPattern(".*asd.*", "testList");
+		testFilter.addPattern(".*asd.*", "testList");
 		testCommand.setLocation(new URI("http://test/"));
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Passed));

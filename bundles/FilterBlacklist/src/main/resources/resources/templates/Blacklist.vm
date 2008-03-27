@@ -1,8 +1,58 @@
 ## Set the page title
 #set( $page_title = "Paxle Blacklist Filter" )
 
-<h1>Blacklist</h1>
+<h2>Blacklist</h2>
 
 #if($manager)
-	<b>Service Manager found. Just use it ;-)</b>
+	<ul class="tabs">
+		#foreach($list in $listnames)
+			#if ($curList == $list && $action != "newList")
+				<li><a class="active" href="/blacklist?list=$escTool.url($list)">$list</a></li>
+			#else
+				<li><a href="/blacklist?list=$escTool.url($list)">$list</a></li>
+			#end
+		#end
+		#if ($action == "newList")
+			<li><a class="active" href="/blacklist?action=newList">New list</a></li>
+		#else
+			<li><a href="/blacklist?action=newList">New List</a></li>
+		#end		
+	</ul>
+	#if ($action != "newList" && $action != "delList")
+		<p><a href="/blacklist?action=delList&list=$escTool.url($curList)">Delete this list</a></p>
+	#end
+	#if ($action == "newList")
+		<h3>Create a new List</h3>
+		<form method="post" action="/blacklist">
+			<div>
+				<input type="text" name="listName" id="listName" value="" />
+				<input type="hidden" name="action" value="addList" />
+				<input type="submit" value="Create" />
+			</div>
+		</form>
+	#elseif ($action == "delList")
+		<h3>Delete this List?</h3>
+		<p class="warning"><strong>Warning:</strong> this will permanently delte this list. This operation can not be undone! <a href="/blacklist?list=$escTool.url($curList)">Cancel</a></p>
+		<form method="post" action="/blacklist">
+			<div>
+				<input type="hidden" name="action" value="removeList" />
+				<input type="hidden" name="listName" value="$escTool.html($curList)" />
+				<input type="submit" value="Delete!" />
+			</div>
+		</form>
+	#else
+		<form method="post" action="/blacklist">
+			<div>
+				<input type="hidden" name="action" value="addPattern" />
+				<input type="hidden" name="listName" value="$escTool.html($curList)" />
+				<input type="text" name="pattern" value="" />
+				<input type="submit" value="Add this pattern" />
+			</div>
+		</form>
+		<ul>
+			#foreach ($pattern in $patternList)
+				<li>$escTool.html($pattern)</li>
+			#end
+		</ul>
+	#end
 #end

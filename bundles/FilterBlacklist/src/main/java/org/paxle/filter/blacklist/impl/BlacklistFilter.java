@@ -120,7 +120,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
      * @param pattern blacklistpattern to be added 
      * @param listFileName name of the target blacklistfile
      */
-    public static void addPattern(String pattern, String listFileName) {
+    public void addPattern(String pattern, String listFileName) {
         lock.writeLock().lock();
         try {
             Pattern p = Pattern.compile(pattern);

@@ -30,7 +30,8 @@ public class Activator implements BundleActivator {
         
         Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
         filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in", "org.paxle.parser.out"});
-        bc.registerService(IFilter.class.getName(), new BlacklistFilter(list), filterProps);
+        BlacklistFilter blacklistFilter = new BlacklistFilter(list);
+        bc.registerService(IFilter.class.getName(), blacklistFilter, filterProps);
         
 //        ServiceReference sr = bc.getServiceReference(HttpService.class.getName());
 //        http = (HttpService) bc.getService(sr);
@@ -38,14 +39,13 @@ public class Activator implements BundleActivator {
 //            http.registerServlet("/blacklist", new BlacklistServlet(), null, null);
 //        }
                 
-        /* TODO:
-        BlacklistServlet servlet = new BlacklistServlet();
+
+        BlacklistServlet servlet = new BlacklistServlet(blacklistFilter);
         servlet.init(bc.getBundle().getEntry("/").toString(),"/blacklist");
         Hashtable<String, String> props = new Hashtable<String, String>();
         props.put("path", "/blacklist");
         props.put("menu", "Blacklist");
         bc.registerService("javax.servlet.Servlet", servlet, props);
-        */
     }
 
     /**
