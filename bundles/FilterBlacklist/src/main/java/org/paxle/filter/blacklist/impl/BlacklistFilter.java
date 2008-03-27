@@ -148,6 +148,22 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
             e.printStackTrace();
         }
     }
+    
+    public void removeList(String listName) {
+		if (listName == null) throw new NullPointerException("The list name was null");		
+        try {
+        	File listFile = new File(blacklistDir,listName);
+        	if (!listFile.exists()) throw new IllegalArgumentException("Unknown blacklist.");
+        	
+        	// delete the file
+            listFile.delete();
+            
+            // refresh filter
+            this.reloadEntries();
+        } catch (Exception e) {
+            e.printStackTrace();            
+        }
+    }
 
 	public List<String> getLists() {
     	ArrayList<String> fileNames = new ArrayList<String>();
