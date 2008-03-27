@@ -224,7 +224,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			this.manager.addCache(this.cache);
 			
 			// shutdown old connection-manager
-			this.connectionManager.shutdown();
+			if (this.connectionManager != null) this.connectionManager.shutdown();
 			this.connectionManager = null;
 			
 			// init http-client
