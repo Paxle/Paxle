@@ -34,16 +34,14 @@ public class RobotsTxtCleanupThread extends Thread
 		this.start();
 	}
 
-	public void run() 
-	{ 
+	public void run() { 
 		/** If set to false the thread terminates */
 		boolean go_on = true;
 
 		while (go_on) {
 			logger.info("Cleaning cache...");
 
-			for ( File file : dir.listFiles() ) 
-			{
+			for ( File file : dir.listFiles() )  {
 				if (!file.isFile()) {
 					logger.warn("The cache should only contain files. Please review non-file element " + file.toURI() + " manually.");
 				} else {
@@ -53,6 +51,7 @@ public class RobotsTxtCleanupThread extends Thread
 						ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
 						robotsTxt = (RobotsTxt) ois.readObject();
 						ois.close();
+						ois = null;
 					} catch (InvalidClassException e) {
 						//Old type of class definition. Just delete it to avoid cruft.
 						file.delete();
@@ -61,7 +60,10 @@ public class RobotsTxtCleanupThread extends Thread
 						file.delete();
 					} catch (Exception e) {
 						logger.error("Error while reading file " + file.getName(), e);
-					}
+					} finally {
+						if (ois != null) try { ois.close(); } catch (Exception e) {/* ingore this */}
+					}					
+					
 					if (robotsTxt != null && (robotsTxt.getExpirationDate().getTime() < System.currentTimeMillis())) {
 						file.delete();
 						logger.debug("Deleted caching file for " + robotsTxt.getHostPort());

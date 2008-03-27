@@ -5,6 +5,11 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ManagedService;
 import org.paxle.core.filter.IFilter;
 import org.paxle.filter.robots.IRobotsTxtManager;
 
@@ -34,6 +39,28 @@ public class Activator implements BundleActivator {
 		// register robots.txt manager as service
 		Hashtable<String, String[]> managerProps = new Hashtable<String, String[]>();
 		bc.registerService(IRobotsTxtManager.class.getName(), this.robotsTxtManager, managerProps);	
+		
+		/*
+		 * Create configuration if not available
+		 */
+		ServiceReference cmRef = bc.getServiceReference(ConfigurationAdmin.class.getName());
+		if (cmRef != null) {
+			ConfigurationAdmin cm = (ConfigurationAdmin) bc.getService(cmRef);
+			Configuration config = cm.getConfiguration(IRobotsTxtManager.class.getName());
+			if (config.getProperties() == null) {
+				config.update(this.robotsTxtManager.getDefaults());
+			}
+		}
+		
+		/* 
+		 * Register as managed service
+		 * 
+		 * ATTENTION: it's important to specify a unique PID, otherwise
+		 * the CM-Admin service does not recognize us.
+		 */
+		Hashtable<String,Object> msProps = new Hashtable<String, Object>();
+		msProps.put(Constants.SERVICE_PID, IRobotsTxtManager.class.getName());
+		bc.registerService(ManagedService.class.getName(), this.robotsTxtManager, msProps);		
 	}
 
 	/**

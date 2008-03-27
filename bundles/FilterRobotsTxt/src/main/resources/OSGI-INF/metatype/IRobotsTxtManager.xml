@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<OCD description="Component to check whether crawling of an URL is disallowed by the robots.txt" 
+			name="Robots.txt Manager"
+			id="org.paxle.filter.robots.IRobotsTxtManager">
+		
+		<AD name="Max Total Connections"
+				type="Integer"
+				id="maxConnectionsTotal"
+				default="10"
+				min="1" 
+				description="The maximum number of connections allowed overall."/>
+		
+		<AD name="Cache Size"
+				type="Integer"
+				id="maxCacheSize"
+				default="50"
+				min="0" 
+				description="The maximum number of elements in memory, before they are evicted."/>		
+		
+		<AD name="Socket Timeout"
+				type="Integer"
+				id="socketTimeout"
+				default="15000"
+				min="1000"
+				description="Defines the socket timeout in milliseconds which is the timeout for waiting for data."/>
+		
+		<AD name="Connection Timeout"
+				type="Integer"
+				id="connectionTimeout"
+				default="15000"
+				min="1000"
+				description="Determines the timeout in milliseconds until a connection is etablished."/>		
+		
+		<AD name="Use Proxy"
+				type="Boolean"
+				id="useProxy"
+				default="false"
+				description="Enables or disables use of the proxy specified" />
+		
+		<AD name="Proxy Host"
+				type="String"
+				id="proxyHost"
+				default=""
+				description="Name or IP of the host where the proxy resides" />
+		
+		<AD name="Proxy Port"
+				type="Integer"
+				id="proxyPort"
+				min="-1"
+				max="65535"
+				default="3128"
+				description="Port on which the proxy listens for connections (-1 for the default protocol port)" />
+		
+		<AD name="Proxy User"
+				type="String"
+				id="proxyUser"
+				default=""
+				description="Username (if needed) used to authenticate at the proxy" />
+		
+		<AD name="Proxy Password"
+				type="String"
+				id="proxyPassword"
+				default=""
+				description="Password (if needed) used to authenticate at the proxy" />
+	</OCD>
+	
+	<Designate
+			pid="org.paxle.filter.robots.IRobotsTxtManager"
+			bundle="ignored">
+		<Object ocdref="org.paxle.filter.robots.IRobotsTxtManager"></Object>
+	</Designate>
+
+</metatype:MetaData>

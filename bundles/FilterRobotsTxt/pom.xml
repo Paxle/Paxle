@@ -28,6 +28,7 @@
 					<instructions>
 						<Import-Package>
 							org.osgi.framework,
+							org.osgi.service.cm,
 							org.apache.commons.logging,
 							org.paxle.core.filter, org.paxle.core.queue,
 							org.paxle.core.doc,

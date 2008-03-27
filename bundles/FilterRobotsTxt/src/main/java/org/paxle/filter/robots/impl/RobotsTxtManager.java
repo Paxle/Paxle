@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
@@ -44,29 +46,36 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.ProxyHost;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.Constants;
+import org.osgi.service.cm.ManagedService;
 import org.paxle.filter.robots.IRobotsTxtManager;
 import org.paxle.filter.robots.impl.rules.AllowRule;
 import org.paxle.filter.robots.impl.rules.DisallowRule;
 import org.paxle.filter.robots.impl.rules.RobotsTxt;
 import org.paxle.filter.robots.impl.rules.RuleBlock;
 
-public class RobotsTxtManager implements IRobotsTxtManager {
+public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
+	/* =========================================================
+	 * Config Properties
+	 * ========================================================= */
+	private static final String PROP_CONNECTION_TIMEOUT = "connectionTimeout";
+	private static final String PROP_SOCKET_TIMEOUT = "socketTimeout";
+	private static final String PROP_MAXCONNECTIONS_TOTAL = "maxConnectionsTotal";
+	private static final String PROP_MAX_CACHE_SIZE = "maxCacheSize";
+	
+	private static final String PROP_PROXY_USE = "useProxy";
+	private static final String PROP_PROXY_HOST = "proxyHost";
+	private static final String PROP_PROXY_PORT = "proxyPort";
+	private static final String PROP_PROXY_USER = "proxyUser";
+	private static final String PROP_PROXY_PASSWORD = "proxyPassword";	
+		
 	private static final String ROBOTS_AGENT_PAXLE = "paxle";
-
-	private static final int CACHE_SIZE = 1000;
-
-	/**
-	 * Connection timeout to use for the http connection
-	 */
-	private static final int CONNECTION_TIMEOUT = 15000;
-
-	/**
-	 * Read timeout to use for the http connection
-	 */
-	private static final int READ_TIMEOUT = 15000;
 
 	/**
 	 * For logging
@@ -112,20 +121,15 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 
 		// configure caching manager
 		this.manager = new CacheManager();
-		this.cache = new Cache("robotsTxtCache", CACHE_SIZE, false, false, 60*60, 30*60);
-		manager.addCache(this.cache);
 		
-		// init http-client
-		this.connectionManager = new MultiThreadedHttpConnectionManager();
-		this.connectionManager.getParams().setConnectionTimeout(CONNECTION_TIMEOUT);
-		this.connectionManager.getParams().setSoTimeout(READ_TIMEOUT);
-		this.httpClient = new HttpClient(this.connectionManager);
-		
+		// configure with default configuration
+		this.updated(this.getDefaults());
+				
 		// init threadpool
 		// XXX should we set the thread-pool size? 
-		this.execService = Executors.newCachedThreadPool();
+		this.execService = Executors.newCachedThreadPool();					
 	}
-
+	
 	public void terminate() {
 		// clear cache
 		this.manager.clearAll();
@@ -148,8 +152,115 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		this.execService.shutdown();
 	}
 
-	Cache getCache() {
+	/**
+	 * This method is synchronized with {@link #updated(Dictionary)} to avoid
+	 * problems during configuration update.
+	 * 
+	 * @return the {@link Cache} to use
+	 */
+	synchronized Cache getCache() {
 		return this.cache;
+	}
+	
+
+	/**
+	 * This method is synchronized with {@link #updated(Dictionary)} to avoid
+	 * problems during configuration update.
+	 * 
+	 * @return the {@link HttpClient} to use
+	 */
+	private synchronized HttpClient getHttpClient() {
+		return this.httpClient;
+	}	
+	
+	/**
+	 * @return the default configuration of this service
+	 */
+	public Hashtable<String,Object> getDefaults() {
+		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
+		
+		// default connection manager properties
+		defaults.put(PROP_MAXCONNECTIONS_TOTAL, Integer.valueOf(MultiThreadedHttpConnectionManager.DEFAULT_MAX_TOTAL_CONNECTIONS));
+		defaults.put(PROP_CONNECTION_TIMEOUT, Integer.valueOf(15000));
+		defaults.put(PROP_SOCKET_TIMEOUT, Integer.valueOf(15000));
+		
+		// default cache props
+		defaults.put(PROP_MAX_CACHE_SIZE, Integer.valueOf(1000));
+		
+		// default proxy settings
+		defaults.put(PROP_PROXY_USE, Boolean.FALSE);
+		defaults.put(PROP_PROXY_HOST, "");
+		defaults.put(PROP_PROXY_PORT, Integer.valueOf(3128));		// default squid port
+		defaults.put(PROP_PROXY_USER, "");
+		defaults.put(PROP_PROXY_PASSWORD, "");
+		
+		defaults.put(Constants.SERVICE_PID, IRobotsTxtManager.class.getName());
+		
+		return defaults;
+	}	
+	
+	/**
+	 * @see ManagedService#updated(Dictionary)
+	 */
+	@SuppressWarnings("unchecked")		// we're only implementing an interface
+	public synchronized void updated(Dictionary configuration) {
+		// our caller catches all runtime-exceptions and silently ignores them, leaving us confused behind,
+		// so this try/catch-block exists for debugging purposes
+		try {
+			if ( configuration == null ) {
+				logger.warn("updated configuration is null");
+				/*
+				 * Generate default configuration
+				 */
+				configuration = this.getDefaults();
+			}
+			
+			// remove old cache
+			this.manager.removeCache("robotsTxtCache");
+			this.cache = null;
+			
+			// init a new cache 
+			this.cache = new Cache("robotsTxtCache", ((Integer) configuration.get(PROP_MAX_CACHE_SIZE)).intValue(), false, false, 60*60, 30*60);
+			this.manager.addCache(this.cache);
+			
+			// shutdown old connection-manager
+			this.connectionManager.shutdown();
+			this.connectionManager = null;
+			
+			// init http-client
+			this.connectionManager = new MultiThreadedHttpConnectionManager();
+			this.connectionManager.getParams().setConnectionTimeout(((Integer) configuration.get(PROP_CONNECTION_TIMEOUT)).intValue());
+			this.connectionManager.getParams().setSoTimeout(((Integer) configuration.get(PROP_SOCKET_TIMEOUT)).intValue());
+			this.connectionManager.getParams().setMaxTotalConnections(((Integer) configuration.get(PROP_MAXCONNECTIONS_TOTAL)).intValue());
+			this.httpClient = new HttpClient(this.connectionManager);
+			
+			// proxy configuration
+			final boolean useProxy = ((Boolean)configuration.get(PROP_PROXY_USE)).booleanValue();
+			final String host = (String)configuration.get(PROP_PROXY_HOST);
+			final int port = ((Integer)configuration.get(PROP_PROXY_PORT)).intValue();
+			
+			if (useProxy && host.length() > 0) {
+				this.logger.info(String.format("Proxy is enabled: %s:%d",host,port));
+				final ProxyHost proxyHost = new ProxyHost(host, port);
+				this.httpClient.getHostConfiguration().setProxyHost(proxyHost);
+				
+				final String user = (String)configuration.get(PROP_PROXY_HOST);
+				final String pwd = (String)configuration.get(PROP_PROXY_PASSWORD);
+				
+				if (user.length() > 0 && pwd.length() > 0)
+					this.httpClient.getState().setProxyCredentials(
+							new AuthScope(host, port),
+							new UsernamePasswordCredentials(user, pwd)
+					);
+			} else {
+				this.logger.info("Proxy is disabled");
+				this.httpClient.getHostConfiguration().setProxyHost(null);
+				this.httpClient.getState().clearCredentials();
+			}			
+			
+		} catch (Throwable e) {
+			logger.error("Internal exception during configuring", e);
+		}			
 	}
 
 	/**
@@ -187,7 +298,7 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		try {
 			getMethod = new GetMethod(robotsURL.toASCIIString());
 
-			int code = this.httpClient.executeMethod(getMethod);
+			int code = this.getHttpClient().executeMethod(getMethod);
 			statusLine = getMethod.getStatusLine().toString();
 
 			if (code == HttpStatus.SC_UNAUTHORIZED || code == HttpStatus.SC_FORBIDDEN) {
@@ -415,10 +526,12 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		// getting the RobotsTxt-info for this host[:port]
 		RobotsTxt robotsTxt = null;
 		try {
+			Cache theCache = this.getCache();
+			
 			String hostPort = this.getHostPort(baseUri);			
 			synchronized (hostPort.intern()) {
 				// trying to get the robots.txt from cache
-				Element element = this.cache.get(hostPort);
+				Element element = theCache.get(hostPort);
 				if (element != null) robotsTxt = (RobotsTxt) element.getValue();
 
 				// trying to get the robots.txt from file
@@ -426,7 +539,7 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 					robotsTxt = this.loadRobotsTxt(hostPort);
 					if (robotsTxt != null) {
 						element = new Element(hostPort, robotsTxt);
-						this.cache.put(element);
+						theCache.put(element);
 					}
 				}
 
@@ -434,7 +547,7 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 				if (robotsTxt == null || (System.currentTimeMillis() - robotsTxt.getLoadedDate().getTime() > robotsTxt.getReloadInterval())) {				
 					robotsTxt = this.parseRobotsTxt(URI.create(baseUri.toASCIIString() + "/robots.txt"));
 					element = new Element(hostPort, robotsTxt);
-					this.cache.put(element);
+					theCache.put(element);
 					this.storeRobotsTxt(robotsTxt);
 				}
 			}
