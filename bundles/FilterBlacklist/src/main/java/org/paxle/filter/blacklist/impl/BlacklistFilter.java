@@ -3,6 +3,7 @@ package org.paxle.filter.blacklist.impl;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -146,6 +147,18 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+	public List<String> getLists() {
+    	ArrayList<String> fileNames = new ArrayList<String>();
+    	
+    	Iterator<?> eter = FileUtils.iterateFiles(this.blacklistDir, null, false);
+        while(eter.hasNext()) {
+            File listFile = (File) eter.next();
+            fileNames.add(listFile.getName());
+        }
+        
+        return fileNames;
     }
     
     public static void reloadEntries() {
