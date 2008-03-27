@@ -161,6 +161,23 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
         return fileNames;
     }
     
+	/**
+	 * @param list name of the blacklist
+	 * @return
+	 */
+	public List<String> getPatternList(String list) {
+		if (list == null) throw new NullPointerException("The list name was null");		
+        try {
+        	File listFile = new File(blacklistDir,list);
+        	if (!listFile.exists()) throw new IllegalArgumentException("Unknown blacklist.");
+        	
+            return FileUtils.readLines(listFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+	}
+    
     public static void reloadEntries() {
         lock.writeLock().lock();
         try {
