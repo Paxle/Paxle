@@ -22,11 +22,13 @@ public class RssSearchProvider implements ISearchProvider {
 	String feedURL;
 	public RssSearchProvider(String feedURL){
 		this.feedURL=feedURL;
+		System.out.println(feedURL);
 	}
 	
 	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
 		try {
 			String request=RssSearchQueryFactor.transformToken(token, new RssSearchQueryFactor());
+			System.out.println(this.feedURL+" suche nach "+request);
 			//creating a channel-builder
 	        ChannelBuilder builder = new ChannelBuilder();   
 	        
