@@ -1,22 +1,26 @@
 package org.paxle.gui.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 
 import org.paxle.gui.IMenuManager;
 
 public class MenuManager implements IMenuManager {
-	private List<MenuItem> items = new ArrayList<MenuItem>();	
+	private LinkedHashMap<String,MenuItem> items = new LinkedHashMap<String,MenuItem>();	
 	
 	public void addItem(MenuItem item) {
-		items.add(item);
+		items.put(item.getUrl(),item);
 	}
 	
 	public void addItem(String url, String name) {
-		items.add(MenuItem.newInstance(url, name));
+		items.put(url,MenuItem.newInstance(url, name));
 	}
 	
-	public List<MenuItem> getMenuItemList() {
-		return items;
+	public Collection<MenuItem> getMenuItemList() {
+		return items.values();
+	}
+	
+	public void removeItem(String url) {
+		this.items.remove(url);
 	}
 }

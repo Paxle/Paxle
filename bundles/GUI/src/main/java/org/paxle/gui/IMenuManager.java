@@ -1,9 +1,9 @@
 package org.paxle.gui;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.paxle.gui.impl.MenuItem;
 
 public interface IMenuManager {	
-	public List<MenuItem> getMenuItemList();
+	public Collection<MenuItem> getMenuItemList();
 }

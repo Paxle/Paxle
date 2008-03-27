@@ -10,12 +10,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IServiceManager;
 import org.paxle.gui.IServletManager;
-import org.paxle.gui.impl.ServiceManager;
 
 public class SearchView extends ALayoutServlet {
-
 	private static final long serialVersionUID = 1L;
+	
+	public static final String PARAM_FORMAT = "format";
+	public static final String PARAM_QUERY = "query";
 	
 	public Template handleRequest( 
 			HttpServletRequest request,
@@ -24,13 +26,13 @@ public class SearchView extends ALayoutServlet {
 	) {
 
 		Template template = null;
-		String format = request.getParameter("format");
+		String format = request.getParameter(PARAM_FORMAT);
 		try {
-			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+			IServiceManager manager = (IServiceManager) context.get(SERVICE_MANAGER);
 			
-			if (request.getParameter("query") != null && !request.getParameter("query").equals("")) {
+			if (request.getParameter(PARAM_QUERY) != null && !request.getParameter(PARAM_QUERY).equals("")) {
 				// context.put("searchQuery", request.getParameter("query"));
-				final String query = request.getParameter("query");
+				final String query = request.getParameter(PARAM_QUERY);
 				context.put("searchQuery", query);
 				final Object isearchProviderManager = manager.getService("org.paxle.se.search.ISearchProviderManager");
 				if (isearchProviderManager == null) {

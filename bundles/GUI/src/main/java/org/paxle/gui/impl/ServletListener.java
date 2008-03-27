@@ -70,6 +70,12 @@ public class ServletListener implements ServiceListener {
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			// unregister servlet
 			this.servletManager.removeServlet(path);
+			
+			// remove menu
+			if (menu != null && menu.length() > 0) {
+				this.menuManager.removeItem(path);
+			}
+			
 		} else if (eventType == ServiceEvent.MODIFIED) {
 		}	
 	}
