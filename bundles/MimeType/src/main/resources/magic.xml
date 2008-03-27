@@ -8,12 +8,6 @@
 </info>
 <match-list>
 <match>
-	<mimetype>video/x-flv</mimetype>
-	<description>Macromedia Flash Video</description>
-	<extension>flv</extension>
-	<test type="string" offset="0" bitmask="0" comparator="=">FLV</test>
-</match>
-<match>
 	<mimetype>audio/mp3</mimetype>
 	<extension></extension>
 	<description>MP3</description>
@@ -3429,6 +3423,59 @@
 		</match>
 	</match-list>
 </match>
+
+<!-- added for Paxle - before regex-matches because of possible OOMs at large files -->
+
+<match>
+	<mimetype>video/x-flv</mimetype>
+	<description>Macromedia Flash Video</description>
+	<extension>flv</extension>
+	<test type="string" offset="0" bitmask="0" comparator="=">FLV</test>
+</match>
+
+<match>
+	<mimetype>text/PGP</mimetype>
+	<description>PGP armored data</description>
+	<extension></extension>
+	<match-list>
+		<match>
+			<mimetype></mimetype>
+			<extension>???</extension>
+			<description>block</description>
+			<test type="string" offset="0" bitmask="0" comparator="=">-----BEGIN PGP SIGNATURE-----</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension>asc</extension>
+			<description>public key block</description>
+			<test type="string" offset="0" bitmask="0" comparator="=">-----BEGIN PGP PUBLIC KEY BLOCK-----</test>
+		</match>
+	</match-list>
+</match>
+
+<match>
+	<mimetype>application/x-gnupg-keyring</mimetype>
+	<description>GPG key public ring</description>
+	<extension>gpg</extension>
+	<test type="beshort" offset="0" length="" comparator="=">0x9901</test>
+</match>
+
+<match>
+	<mimetype>audio/x-flac</mimetype>
+	<extension>flac</extension>
+	<description>Free Lossless Audio Codec</description>
+	<test type="string" offset="0" comparator="=">fLaC</test>
+</match>
+
+<match>
+	<mimetype>video/x-ms-wmv</mimetype>
+	<extension>wmv</extension>
+	<description>Windows Media Video - ASF</description>
+	<test type="belong" offset="0" comparator="=">0x3026b275</test>
+</match>
+
+<!-- /added for Paxle -->
+
 <match>
 	<mimetype>text/x-java</mimetype>
 	<extension>java</extension>
@@ -3534,5 +3581,6 @@
 	<description>net.sf.jmimemagic.detectors.TextFileDetector</description>
 	<test type="detector" offset="0" length="" bitmask="" comparator="=">net.sf.jmimemagic.detectors.TextFileDetector</test>
 </match>
+
 </match-list>
 </magic>
