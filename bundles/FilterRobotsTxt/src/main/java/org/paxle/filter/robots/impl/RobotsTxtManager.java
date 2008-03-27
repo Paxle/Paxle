@@ -22,9 +22,16 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -90,7 +97,11 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	 * http client class
 	 */
 	private HttpClient httpClient = null;	
-
+	
+	private boolean useAsyncExecution = true;
+	
+	private ExecutorService execService;
+	
 	/**
 	 * @param path the path where the {@link RobotsTxt} objects should be stored
 	 */
@@ -109,6 +120,10 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		this.connectionManager.getParams().setConnectionTimeout(CONNECTION_TIMEOUT);
 		this.connectionManager.getParams().setSoTimeout(READ_TIMEOUT);
 		this.httpClient = new HttpClient(this.connectionManager);
+		
+		// init threadpool
+		// XXX should we set the thread-pool size? 
+		this.execService = Executors.newCachedThreadPool();
 	}
 
 	public void terminate() {
@@ -127,6 +142,10 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 			this.connectionManager = null;
 			this.httpClient = null;
 		}		
+		
+		// shutdown exec-service
+		// XXX maybe we should use shutdownNow here?
+		this.execService.shutdown();
 	}
 
 	Cache getCache() {
@@ -326,19 +345,52 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 		if (urlList == null) throw new NullPointerException("The URI-list is null.");
 		
 		// group the URL list based on hostname:port
-		HashMap<String, List<URI>> groupedURLs = this.groupURI(urlList);
-		
-		// TODO: start new worker-threads here ...
-		
+		HashMap<URI, List<URI>> uriBlocks = this.groupURI(urlList);
 		ArrayList<URI> disallowedURI = new ArrayList<URI>();
-		for (Entry<String, List<URI>> group : groupedURLs.entrySet()) {
-			String hostPort = group.getKey();
-			List<URI> UriList = group.getValue();
+
+		if (this.useAsyncExecution) {
+			/*
+			 * Asynchronous execution and parallel check of all blocks 
+			 */
+			final CompletionService<Collection<URI>> execCompletionService = new ExecutorCompletionService<Collection<URI>>(this.execService);
 			
-			// check the block
-			Collection<URI> disallowedInGroup = this.isDisallowed(hostPort, UriList);
-			if (disallowedInGroup != null) {
-				disallowedURI.addAll(disallowedInGroup);
+			// loop through the blocks and start a worker for each block
+			for (Entry<URI, List<URI>> uriBlock : uriBlocks.entrySet()) {
+				URI baseUri = uriBlock.getKey();
+				List<URI> uriList = uriBlock.getValue();			
+				execCompletionService.submit(new RobotsTxtManagerCallable(baseUri,uriList));
+			}
+			
+			// wait for the worker-threads to finish execution
+			for (int i = 0; i < uriBlocks.size(); ++i) {
+				try {
+					Collection<URI> disallowedInGroup = execCompletionService.take().get();
+					if (disallowedInGroup != null) {
+						disallowedURI.addAll(disallowedInGroup);
+					}
+				} catch (InterruptedException e) {
+					this.logger.info(String.format("Interruption detected while waiting for robots.txt-check result."));
+					// XXX should we break here?
+				} catch (ExecutionException e) {
+					this.logger.error(String.format("Unexpected '%s' while performing robots.txt check.",
+							e.getClass().getName()
+					),e);
+				}
+			}
+			
+		} else {
+			/*
+			 * Synchronous execution and sequential check of all blocks 
+			 */
+			for (Entry<URI, List<URI>> uriBlock : uriBlocks.entrySet()) {
+				URI baseUri = uriBlock.getKey();
+				List<URI> uriList = uriBlock.getValue();
+
+				// check the block
+				Collection<URI> disallowedInGroup = this.isDisallowed(baseUri, uriList);
+				if (disallowedInGroup != null) {
+					disallowedURI.addAll(disallowedInGroup);
+				}
 			}
 		}
 		
@@ -347,20 +399,23 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	
 	/**
 	 * Check a list of {@link URI URI} against the robots.txt file of the specified server.
-	 * @param hostPort the web-server hosting the {@link URI URIs}
-	 * @param urlList a list of {@link URI}. Each {@link URI} must belong to the specified <code>hostname:port</code>
+	 * @param baseUri the base-URI of the server hosting the {@link URI URIs}
+	 * @param uriList a list of {@link URI}. Each {@link URI} must belong to the specified <code>hostname:port</code>
 	 * 
 	 * @return all {@link URI} that are blocked by the specified server
 	 */
-	private Collection<URI> isDisallowed(String hostPort, Collection<URI> urlList) {
-		if (hostPort == null) throw new NullPointerException("The hostname:port is null.");
-		if (urlList == null) throw new NullPointerException("The URI-list is null.");
+	private Collection<URI> isDisallowed(URI baseUri , Collection<URI> uriList) {
+		if (baseUri == null) throw new NullPointerException("The base-URI is null.");
+		if (uriList == null) throw new NullPointerException("The URI-list is null.");
+		if (!baseUri.getScheme().startsWith("http")) throw new IllegalArgumentException("Only http(s) resources are allowed.");
+		if (baseUri.getPath().length() > 1) throw new IllegalArgumentException("Invalid base-URI.");
 		
 		ArrayList<URI> disallowedList = new ArrayList<URI>();
 		
 		// getting the RobotsTxt-info for this host[:port]
 		RobotsTxt robotsTxt = null;
 		try {
+			String hostPort = this.getHostPort(baseUri);			
 			synchronized (hostPort.intern()) {
 				// trying to get the robots.txt from cache
 				Element element = this.cache.get(hostPort);
@@ -377,7 +432,7 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 
 				// trying to download the robots.txt
 				if (robotsTxt == null || (System.currentTimeMillis() - robotsTxt.getLoadedDate().getTime() > robotsTxt.getReloadInterval())) {				
-					robotsTxt = this.parseRobotsTxt(URI.create("http://" + hostPort + "/robots.txt"));
+					robotsTxt = this.parseRobotsTxt(URI.create(baseUri.toASCIIString() + "/robots.txt"));
 					element = new Element(hostPort, robotsTxt);
 					this.cache.put(element);
 					this.storeRobotsTxt(robotsTxt);
@@ -385,7 +440,7 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 			}
 			
 			// loop through each URI and check against the robots.txt
-			for (URI location : urlList) {
+			for (URI location : uriList) {
 				assert(this.getHostPort(location).equals(hostPort));
 				String path = location.getPath();
 				
@@ -395,9 +450,9 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 			}
 		} catch (Exception e) {
 			this.logger.error(String.format(
-					"Unexpected '%s' while checking URIs against the robots.txt of host '%s'.",
+					"Unexpected '%s' while checking URIs against the robots.txt hosted on '%s'.",
 					e.getClass().getName(),
-					hostPort
+					baseUri.toASCIIString()
 			),e);
 		} 
 		
@@ -461,28 +516,70 @@ public class RobotsTxtManager implements IRobotsTxtManager {
 	 * {@link URI} which are not accessible via <code>http(s)</code> are ignored.
 	 * 
 	 * @param urlList the {@link URI} list
-	 * @return a map containing the <code>hostname:port</code> as key and the list of {@link URI}
+	 * @return a map containing the base-URI <code>http(s)://hostname:port</code> as key and the list of {@link URI}
 	 *         hosted by the host as values.
 	 */
-	private HashMap<String, List<URI>> groupURI(Collection<URI> urlList) {
-		HashMap<String, List<URI>> group = new HashMap<String, List<URI>>();
+	private HashMap<URI, List<URI>> groupURI(Collection<URI> urlList) {
+		HashMap<URI, List<URI>> group = new HashMap<URI, List<URI>>();
 		
 		for (URI uri : urlList) {
 			if (!uri.getScheme().startsWith("http")) continue;
 			
 			// getting hostname:port
 			String hostPort = this.getHostPort(uri);
+			URI baseURI = URI.create(uri.getScheme() + "://" + hostPort);
 			
 			List<URI> pathList = null;
-			if (!group.containsKey(hostPort)) {
+			if (!group.containsKey(baseURI)) {
 				pathList = new ArrayList<URI>();
-				group.put(hostPort, pathList);
+				group.put(baseURI, pathList);
 			} else {
-				pathList = group.get(hostPort);
+				pathList = group.get(baseURI);
 			}
 			pathList.add(uri);			
 		}
 		
 		return group;
 	}
+	
+	/**
+	 * Callable class for async. execution of {@link RobotsTxtManager#isDisallowed(URI, Collection)} check.
+	 */
+	class RobotsTxtManagerCallable implements Callable<Collection<URI>> {		
+		private URI baseUri = null;
+		private List<URI> uriList = null;
+		
+		public RobotsTxtManagerCallable(URI baseUri, List<URI> uriList) {
+			if (baseUri == null) throw new NullPointerException("The base-URI is null.");
+			if (uriList == null) throw new NullPointerException("The URI-list is null.");
+			this.baseUri = baseUri;
+			this.uriList = uriList;
+		}
+
+		@SuppressWarnings("unchecked")
+		public Collection<URI> call() throws Exception {
+			try {
+				long start = System.currentTimeMillis(); 
+				Collection<URI> disallowedList = isDisallowed(this.baseUri, this.uriList);
+				long end = System.currentTimeMillis();
+
+				logger.debug(String.format(
+						"Robots.txt check of %d URI hosted on '%s' took %d ms. Access to %d URI disallowed.",
+						this.uriList.size(),
+						this.baseUri.toASCIIString(),
+						end-start,
+						(disallowedList==null)?0:disallowedList.size()
+				));
+
+				return disallowedList;
+			} catch (Exception e) {
+				logger.error(String.format("Unexpected '%s' while performing robots.txt check agains '%s'.",
+						e.getClass().getName(),
+						this.baseUri.toASCIIString()
+				),e);
+				return Collections.EMPTY_LIST;
+			}
+		}
+
+	}	
 }

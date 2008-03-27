@@ -56,6 +56,9 @@ public class RobotsTxtCleanupThread extends Thread
 					} catch (InvalidClassException e) {
 						//Old type of class definition. Just delete it to avoid cruft.
 						file.delete();
+					} catch (ClassNotFoundException e) {
+						// class was refactored. just delete it
+						file.delete();
 					} catch (Exception e) {
 						logger.error("Error while reading file " + file.getName(), e);
 					}
