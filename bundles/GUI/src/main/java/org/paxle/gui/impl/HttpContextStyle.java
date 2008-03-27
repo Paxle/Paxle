@@ -50,7 +50,7 @@ public class HttpContextStyle implements HttpContext {
 			String tempName = name.startsWith("/") ? name.substring(1,name.length()) : name;
 			if (this.styleJarFile.getJarEntry(tempName) == null) {
 				this.logger.warn(String.format(
-						"Resource '%' not found in style-file '%s'.",
+						"Resource '%s' not found in style-file '%s'.",
 						name,
 						this.styleFile.toString()
 				));
