@@ -46,7 +46,7 @@ public class BlacklistFilterTest extends TestCase {
 	public void testAddList() throws Exception {
 		assertFalse(new File(testDir,"testList2").exists());
 		
-		BlacklistFilter.addList("testList2");
+		testFilter.addList("testList2");
 		assertTrue(new File(testDir,"testList2").exists());
 	}
 	

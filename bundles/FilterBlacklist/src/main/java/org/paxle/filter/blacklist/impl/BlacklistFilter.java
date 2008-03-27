@@ -141,7 +141,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
      * Adds a new empty blacklist-file
      * @param listName name of the new blacklistfile
      */
-    public static void addList(String listName) {
+    public void addList(String listName) {
         try {
             FileUtils.touch(new File(blacklistDir, listName));
         } catch (IOException e) {
