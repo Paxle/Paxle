@@ -9,7 +9,6 @@ import org.apache.commons.logging.LogFactory;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
-import org.paxle.parser.ParserException;
 
 public class SubParserDocOutputStream extends ParserDocOutputStream {
 
@@ -26,24 +25,35 @@ public class SubParserDocOutputStream extends ParserDocOutputStream {
 		this.name = name;
 	}
 	
+	public SubParserDocOutputStream(
+			final ITempFileManager tfm,
+			final ICharsetDetector cd,
+			final IParserDocument pdoc,
+			final URI location,
+			final String name,
+			final long expectedSize) throws IOException {
+		super(tfm, cd, expectedSize);
+		this.location = location;
+		this.pdoc = pdoc;
+		this.name = name;
+	}
+	
 	@Override
 	public void close() throws IOException {
 		super.close();
 		try {
-			final String mimeType = ParserTools.getMimeType(super.of);
+			final String mimeType = getMimeType(name);
 			logger.info(String.format("Parsing sub-doc '%s' (%s) of '%s'", name, mimeType, location));
 			this.pdoc.addSubDocument(name, super.parse(location, mimeType));
-		} catch (ParserException e) {
+		} catch (Exception e) {
+			if (e instanceof RuntimeException)
+				throw (RuntimeException)e;
 			// ignore the sub-document if we cannot parse it
 			if (logger.isTraceEnabled()) {
-				logger.trace("error parsing sub-document '" + location + "'", e);
+				logger.trace(String.format("%s parsing sub-document '%s'", e.getClass().getName(), location), e);
 			} else {
-				logger.info("error parsing sub-document '" + location + "': " + e.getMessage());
+				logger.info(String.format("%s parsing sub-document '%s': %s", e.getClass().getSimpleName(), location, e.getMessage()));
 			}
-			/*
-			final IOException ret = new IOException("Error parsing file on close");
-			ret.initCause(e);
-			throw ret;*/
 		}
 	}
 }

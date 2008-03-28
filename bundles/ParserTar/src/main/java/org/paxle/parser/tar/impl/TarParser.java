@@ -58,7 +58,7 @@ public class TarParser implements ITarParser {
 				final SubParserDocOutputStream pdos = new SubParserDocOutputStream(
 						context.getTempFileManager(),
 						context.getCharsetDetector(),
-						pdoc, location, te.getName());
+						pdoc, location, te.getName(), te.getSize());
 				try {
 					IOTools.copy(tis, pdos, te.getSize());
 				} finally {

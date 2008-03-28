@@ -42,12 +42,16 @@ public class CachedWriter extends Writer {
 	private boolean fileWriterClosed = false;
 	
 	public CachedWriter(int maxSize, ITempFileManager tfm) {
+		if (maxSize < 0)
+			throw new IllegalArgumentException("max size < 0: " + maxSize);
 		this.maxSize = maxSize;
 		this.writer = new CAOS();
 		this.tfm = tfm;
 	}
 	
 	public CachedWriter(int maxSize, int initialSize, ITempFileManager tfm) throws IOException {
+		if (maxSize < 0)
+			throw new IllegalArgumentException("max size < 0: " + maxSize);
 		this.maxSize = maxSize;
 		this.tfm = tfm;
 		if (initialSize > maxSize) {
@@ -74,7 +78,7 @@ public class CachedWriter extends Writer {
 	}
 	
 	public boolean isFallback() {
-		return (this.writer instanceof OutputStreamWriter);
+		return !(this.writer instanceof CAOS);
 	}
 	
 	private void fallback(File file) throws IOException {
@@ -140,8 +144,20 @@ public class CachedWriter extends Writer {
 	}
 	
 	@Override
+	protected void finalize() throws Throwable {
+		if (ffile != null) {
+			if (isFallback() && !fileWriterClosed)
+				writer.close();
+			tfm.releaseTempFile(ffile);
+		}
+		super.finalize();
+	}
+	
+	@Override
 	public String toString() {
-		try { close(); } catch (IOException e) {
+		if (isFallback()) try {
+			close();
+		} catch (IOException e) {
 			throw new RuntimeException("error copying text data from stream to memory", e);
 		}
 		

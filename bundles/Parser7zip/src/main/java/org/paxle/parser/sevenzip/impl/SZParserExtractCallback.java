@@ -44,7 +44,13 @@ public class SZParserExtractCallback implements IArchiveExtractCallback {
 	public int GetStream(int index, OutputStream[] oss, int askExtractMode) throws IOException {
 		SevenZipEntry item = this.handler.getEntry(index);
 		this.current = item.getName();
-		oss[0] = (item.isDirectory()) ? null : new SubParserDocOutputStream(this.tfm, this.cd, this.pdoc, location, this.current);
+		oss[0] = (item.isDirectory()) ? null : new SubParserDocOutputStream(
+				this.tfm,
+				this.cd,
+				this.pdoc,
+				location,
+				this.current,
+				item.getSize());
 		return 0;
 	}
 	

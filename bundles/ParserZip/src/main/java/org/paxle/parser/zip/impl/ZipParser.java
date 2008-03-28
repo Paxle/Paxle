@@ -42,7 +42,7 @@ public class ZipParser implements IZipParser {
 			final SubParserDocOutputStream sos = new SubParserDocOutputStream(
 					context.getTempFileManager(),
 					context.getCharsetDetector(),
-					pdoc, location, ze.getName());
+					pdoc, location, ze.getName(), ze.getSize());
 			try {
 				IOTools.copy(zis, sos, ze.getSize());
 			} finally {

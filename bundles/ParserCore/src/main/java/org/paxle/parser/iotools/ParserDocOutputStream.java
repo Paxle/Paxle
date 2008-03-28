@@ -1,7 +1,6 @@
 
 package org.paxle.parser.iotools;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,19 +29,22 @@ import org.paxle.parser.ParserException;
  */
 public class ParserDocOutputStream extends OutputStream {
 	
+	private static final int MAX_CACHED_SIZE = 512 * 1024;
+	
 	private static final Log logger = LogFactory.getLog(ParserDocOutputStream.class);
 	
 	private boolean closed = false;
-	private final ITempFileManager tfm;
 	private final OutputStream os;
-	protected final File of;
+	private final CachedOutputStream cos;
 	
-	// TODO: cache file in ram
-	public ParserDocOutputStream(ITempFileManager tfm, ICharsetDetector cd) throws IOException {
-		this.tfm = tfm;
-		this.of = tfm.createTempFile();
-		final OutputStream fos = new BufferedOutputStream(new FileOutputStream(this.of));
-		this.os = (cd != null) ? cd.createOutputStream(fos) : fos;
+	public ParserDocOutputStream(final ITempFileManager tfm, final ICharsetDetector cd, final long expectedSize) throws IOException {
+		this.cos = new CachedOutputStream(MAX_CACHED_SIZE, expectedSize, tfm);
+		this.os = (cd == null) ? cos : cd.createOutputStream(cos);
+	}
+	
+	public ParserDocOutputStream(final ITempFileManager tfm, final ICharsetDetector cd) throws IOException {
+		this.cos = new CachedOutputStream(MAX_CACHED_SIZE, tfm);
+		this.os = (cd == null) ? cos : cd.createOutputStream(cos);
 	}
 	
 	@Override
@@ -70,8 +72,14 @@ public class ParserDocOutputStream extends OutputStream {
 		}
 	}
 	
+	protected String getMimeType(final String logName) throws ParserException, IOException {
+		return (cos.isFallback())
+				? ParserTools.getMimeType(cos.toFile(null))
+				: ParserTools.getMimeType(cos.toBytes(), logName);
+	}
+	
 	public IParserDocument parse(URI location) throws ParserException, IOException {
-		return parse(location, ParserTools.getMimeType(this.of));
+		return parse(location, getMimeType(location.toString()));
 	}
 	
 	public IParserDocument parse(URI location, final String mimeType) throws ParserException, IOException {
@@ -85,11 +93,14 @@ public class ParserDocOutputStream extends OutputStream {
 		final String charset = getCharset();
 		logger.debug(String.format("Parsing contained file in '%s' with mime-type '%s' and charset '%s'", location, mimeType, charset));
 		try {
-			return ParserTools.parse(location, mimeType, charset, this.of);
+			if (cos.isFallback()) {
+				// the file created by cos.toFile(null) is being removed when cos is finalized
+				return ParserTools.parse(location, mimeType, charset, cos.toFile(null));
+			} else {
+				return ParserTools.parse(location, mimeType, charset, cos.toInputStream());
+			}
 		} catch (UnsupportedEncodingException e) {
 			throw new ParserException("Error parsing file on close due to incorrectly detected charset '" + charset + "'", e);
-		} finally {
-			this.tfm.releaseTempFile(this.of);
 		}
 	}
 	

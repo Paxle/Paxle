@@ -75,6 +75,27 @@ public class ParserTools {
 		return mimeType;
 	}
 	
+	public static String getMimeType(final byte[] buf, final String logName) throws IOException, ParserException {
+		final ParserContext context = ParserContext.getCurrentContext();
+		if (context == null)
+			throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
+		return getMimeType(buf, logName, context.getMimeTypeDetector());
+	}
+	
+	public static String getMimeType(final byte[] buf, final String logName, final IMimeTypeDetector mtd) throws IOException, ParserException {
+		if (mtd == null)
+			throw new ParserException("cannot determine the MIME type of " + logName + " due to missing MIME type detector");
+		final String mimeType;
+		try {
+			mimeType = mtd.getMimeType(buf, logName);
+		} catch (Exception e) {
+			if (e instanceof RuntimeException)
+				throw (RuntimeException)e;
+			throw new ParserException("error detecting MIME type of " + logName, e);
+		}
+		return mimeType;
+	}
+	
 	/**
 	 * Determines the MIME type and character set of the given file and finally calles
 	 * the {@link ISubParser#parse(String, String, File)} of the found sub-parser.

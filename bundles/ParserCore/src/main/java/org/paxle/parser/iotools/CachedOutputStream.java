@@ -1,6 +1,8 @@
 
 package org.paxle.parser.iotools;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -43,19 +45,23 @@ public class CachedOutputStream extends OutputStream {
 	private boolean fileOSClosed = false;
 	
 	public CachedOutputStream(int maxSize, ITempFileManager tfm) {
+		if (maxSize < 0)
+			throw new IllegalArgumentException("max size < 0: " + maxSize);
 		this.maxSize = maxSize;
 		this.os = new BAOS();
 		this.tfm = tfm;
 	}
 	
-	public CachedOutputStream(int maxSize, int initialSize, ITempFileManager tfm) throws IOException {
+	public CachedOutputStream(int maxSize, long initialSize, ITempFileManager tfm) throws IOException {
+		if (maxSize < 0)
+			throw new IllegalArgumentException("max size < 0: " + maxSize);
 		this.maxSize = maxSize;
 		this.tfm = tfm;
 		if (initialSize > maxSize) {
 			this.ffile = tfm.createTempFile();
-			this.os = new FileOutputStream(this.ffile);
+			this.os = new BufferedOutputStream(new FileOutputStream(this.ffile));
 		} else {
-			this.os = new BAOS(initialSize);
+			this.os = new BAOS((int)initialSize);
 		}
 	}
 	
@@ -75,7 +81,7 @@ public class CachedOutputStream extends OutputStream {
 	}
 	
 	public boolean isFallback() {
-		return (this.os instanceof RAFOutStream);
+		return !(this.os instanceof BAOS);
 	}
 	
 	private void fallback(File file) throws IOException {
@@ -84,10 +90,10 @@ public class CachedOutputStream extends OutputStream {
 			file = this.tfm.createTempFile();
 		this.os.flush();
 		this.os.close();
-		final BAOS caos = (BAOS)this.os;
+		final BAOS baos = (BAOS)this.os;
 		this.ffile = file;
-		this.os = new FileOutputStream(file);
-		IOTools.copy(new ByteArrayInputStream(caos.getBuffer()), this.os, this.written);
+		this.os = new BufferedOutputStream(new FileOutputStream(file));
+		IOTools.copy(new ByteArrayInputStream(baos.getBuffer()), this.os, this.written);
 	}
 	
 	@Override
@@ -119,6 +125,15 @@ public class CachedOutputStream extends OutputStream {
 		this.os.write(cbuf, off, len);
 	}
 	
+	public byte[] toBytes() {
+		if (isFallback())
+			throw new IllegalStateException("already in fallback-mode, can't access buffer");
+		final BAOS baos = ((BAOS)os);
+		final byte[] r = new byte[baos.size()];
+		System.arraycopy(baos.getBuffer(), 0, r, 0, baos.size());
+		return r;
+	}
+	
 	public File toFile(File file) throws IOException {
 		if (!isFallback()) {
 			fallback(file);
@@ -129,7 +144,7 @@ public class CachedOutputStream extends OutputStream {
 	
 	public InputStream toInputStream() throws IOException {
 		if (isFallback()) {
-			return new FileInputStream(this.ffile);
+			return new BufferedInputStream(new FileInputStream(this.ffile));
 		} else {
 			close();
 			return new ByteArrayInputStream(((BAOS)this.os).getBuffer(), 0, ((BAOS)this.os).size());
@@ -141,8 +156,20 @@ public class CachedOutputStream extends OutputStream {
 	}
 	
 	@Override
+	protected void finalize() throws Throwable {
+		if (ffile != null) {
+			if (isFallback() && !fileOSClosed)
+				os.close();
+			tfm.releaseTempFile(ffile);
+		}
+		super.finalize();
+	}
+	
+	@Override
 	public String toString() {
-		try { close(); } catch (IOException e) {
+		if (isFallback()) try {
+			close();
+		} catch (IOException e) {
 			throw new RuntimeException("error copying text data from stream to memory", e);
 		}
 		
