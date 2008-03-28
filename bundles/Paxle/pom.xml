@@ -156,6 +156,14 @@
 										org.eclipse.equinox.log_1.0.100.v20070226.jar
 									</destFileName>
 								</artifactItem>
+								
+								<artifactItem>
+									<groupId>org.eclipse.equinox</groupId>
+									<artifactId>event</artifactId>
+									<version>1.0.100.v20070516</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.eclipse.equinox.event_1.0.100.v20070516.jar</destFileName>
+								</artifactItem>								
 
 								<artifactItem>
 									<groupId>
