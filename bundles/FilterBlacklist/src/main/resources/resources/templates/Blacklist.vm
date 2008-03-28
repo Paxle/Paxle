@@ -36,7 +36,7 @@
 		<form method="post" action="/blacklist">
 			<div>
 				<input type="hidden" name="action" value="removeList" />
-				<input type="hidden" name="listName" value="$escTool.html($curList)" />
+				<input type="hidden" name="list" value="$escTool.html($curList)" />
 				<input type="submit" value="Delete!" />
 			</div>
 		</form>
@@ -44,7 +44,7 @@
 		<form method="post" action="/blacklist">
 			<div>
 				<input type="hidden" name="action" value="addPattern" />
-				<input type="hidden" name="listName" value="$escTool.html($curList)" />
+				<input type="hidden" name="list" value="$escTool.html($curList)" />
 				<input type="text" name="pattern" value="" />
 				<input type="submit" value="Add this pattern" />
 			</div>

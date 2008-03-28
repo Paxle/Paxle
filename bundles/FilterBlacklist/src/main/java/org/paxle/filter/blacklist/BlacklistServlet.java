@@ -1,6 +1,7 @@
 package org.paxle.filter.blacklist;
 
 import java.net.URLEncoder;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +27,8 @@ public class BlacklistServlet extends ALayoutServlet {
                                    Context context ) {
         Template template = null;
         try {
-        	context.put("listnames", this.blacklistFilter.getLists());
+        	List<String> listnames = this.blacklistFilter.getLists();
+        	context.put("listnames", listnames);
         	
         	// get the action
         	String action = request.getParameter("action");
@@ -36,38 +38,39 @@ public class BlacklistServlet extends ALayoutServlet {
         	
         	// create a new list
        		if (request.getMethod().equals("POST") && action.equals("addList") && request.getParameter("listName") != null) {
-     			blacklistFilter.addList(request.getParameter("listName"));
+       			if  (! listnames.contains(request.getParameter("listName")))
+       					blacklistFilter.addList(request.getParameter("listName"));
      			response.sendRedirect("/blacklist?list=" + URLEncoder.encode(request.getParameter("listName"), "UTF-8"));
      			return null;
        		}
        		
-       		// delete a list
-       		if (request.getMethod().equals("POST") && action.equals("removeList") && request.getParameter("listName") != null) {
-       			blacklistFilter.removeList(request.getParameter("listName"));
-       			response.sendRedirect("/blacklist");
-       			return null;
-       		}
-       		
-       		// add a new pattern
-       		if (request.getMethod().equals("POST") && action.equals("addPattern") && request.getParameter("listName") != null) {
-       			blacklistFilter.addPattern(request.getParameter("pattern"), request.getParameter("listName"));
-       			response.sendRedirect("/blacklist?list=" + URLEncoder.encode(request.getParameter("listName"), "UTF-8"));
-       			return null;
-       		}
-       		
-        	// get the current list
+       		// get the current list
         	String curList = request.getParameter("list");
-        	// when there is no list specified, take the first one
+        	
+        	// check if this list exists:
+        	if (! listnames.contains(curList))
+        		curList = null;
+        	
         	if (curList == null) {
-        		if (! this.blacklistFilter.getLists().isEmpty())
+        		if (! this.blacklistFilter.getLists().isEmpty()) // get the first list when there is one
         			curList = this.blacklistFilter.getLists().get(0);
         		else if (! action.equals("newList")) { // well, it seems there aren't any lists, so the user might want to create one, let's redirect him
         			response.sendRedirect("/blacklist?action=newList");
         			return null;
         		}
-        	}
-        	context.put("curList", curList);
-
+        	} else if (request.getMethod().equals("POST")) { // these are non-save methods and should only be executed when there is a post-request and a valid list was given
+        		if (action.equals("removeList")) {
+        			blacklistFilter.removeList(curList);
+        			response.sendRedirect("/blacklist");
+        			return null;
+        		} else if (action.equals("addPattern") && request.getParameter("pattern") != null) {
+        			blacklistFilter.addPattern(request.getParameter("pattern"), curList);
+        			response.sendRedirect("/blacklist?list=" + URLEncoder.encode(curList, "UTF-8"));
+        			return null;
+        		}
+       		}
+       		
+        	context.put("curList", curList); 
        		
        		// when we get until here, the user probably wants to display the list, so get the items
         	if (curList != null)
