@@ -1,26 +1,228 @@
 
 package org.paxle.desktop.impl;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.border.EtchedBorder;
 
 public class Utilities {
+
+	/* 
+	 * Author: Franz Brauße
+	 * from YacyAdmin - relicensed
+	 * License: CPL v1.0
+	 */
+	private static class ExceptionBox extends JDialog {
+		
+		private static final long serialVersionUID = 1L;
+		
+		private static final String SHOW_TEXT 			= "Show stacktrace";
+		private static final String HIDE_TEXT 			= "Hide stacktrace";
+		private static final String LBL_TITLE 			= "An error occured";
+		private static final String ERR_MSG_ 			= "Error message:";
+		private static final String LBL_STACKTRACE_ 	= "Stacktrace:";
+		private static final String LBL_OK 				= "OK";
+		private static final String LBL_COPY2CLIPBRD 	= "Copy to clipboard";
+		private static final String __AT_ 				= "        at ";
+		
+		private static final Dimension hiddenDim = new Dimension(500, 84);
+		private static final Dimension shownDim = new Dimension(500, 300);
+		
+		private JPanel 		content				= null;
+		private JButton 	btnShowHide 		= null;
+		private JButton 	btnCopyClipboard 	= null;
+		private JScrollPane	exceptionLog 		= null;
+		private JLabel 		lStackTrace 		= null;
+		private JTextArea 	textStacktrace 		= null;
+		
+		private final Throwable ex;
+		private final String detail;
+		private boolean hidden = true;
+		
+		public ExceptionBox(Frame parent, Throwable ex) {
+			this(parent, ex.getMessage(), ex);
+		}
+		
+		public ExceptionBox(Frame parent, String detail, Throwable ex) {
+			super(parent, LBL_TITLE, true);
+			this.ex = ex;
+			this.detail = detail;
+			initialize(parent);
+		}
+		
+		public static void showExceptionBox(final Frame parent, final Throwable ex) {
+			showExceptionBox(parent, ex.getMessage(), ex);
+		}
+		
+		public static void showExceptionBox(final Frame parent, final String detail, final Throwable ex) {
+			new ExceptionBox(parent, detail, ex).setVisible(true);
+		}
+		
+		private void initialize(Component parent) {
+			this.setSize(hiddenDim);
+			
+			// place dialog in the middle of the screen
+			Dimension dim = parent.getSize();
+			this.setLocation(((int)(dim.getWidth() - hiddenDim.width) / 2) + parent.getX(), ((int)(dim.getHeight() - shownDim.height) / 2) + parent.getY());
+			
+			this.setResizable(true);
+			this.setContentPane(getContent());
+			
+			StackTraceElement[] se = this.ex.getStackTrace();
+			StringBuffer s = new StringBuffer(100);
+			s.append(this.ex.toString()).append("\n");
+			for (int i=0; i<se.length; i++)
+				s.append(__AT_).append(se[i].toString()).append("\n");
+			textStacktrace.setText(s.toString());
+		}
+		
+		private JPanel getContent() {
+			if (content == null) {
+				content = new JPanel();
+				content.setLayout(new BorderLayout());
+				content.add(getDisplayPanel(), BorderLayout.CENTER);
+				content.add(getSubmitPanel(), BorderLayout.SOUTH);
+			}
+			return content;
+		}
+		
+		private JPanel getDisplayPanel() {
+			JPanel r = new JPanel(new GridBagLayout());
+			
+			GridBagConstraints gbc = new GridBagConstraints();
+			gbc.insets = new Insets(5, 5, 5, 5);
+			gbc.anchor = GridBagConstraints.NORTHEAST;
+			r.add(new JLabel(ERR_MSG_), gbc);
+			
+			gbc.gridx = 1;
+			gbc.weightx = 1D;
+			gbc.anchor = GridBagConstraints.WEST;
+			r.add(new JLabel(this.detail), gbc);
+			
+			gbc.weightx = 0D;
+			gbc.gridx = 0;
+			gbc.gridy = 1;
+			gbc.anchor = GridBagConstraints.NORTHEAST;
+			this.lStackTrace = new JLabel(LBL_STACKTRACE_);
+			lStackTrace.setVisible(false);
+			r.add(lStackTrace, gbc);
+			
+			gbc.gridx = 1;
+			gbc.fill = GridBagConstraints.BOTH;
+			gbc.weightx = 1D;
+			gbc.weighty = 1D;
+			r.add(getExceptionLog(), gbc);
+			
+			return r;
+		}
+		
+		private JPanel getSubmitPanel() {
+			JPanel r = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+			r.add(getBtnCopyToClipboard());
+			r.add(getBtnShowHide());
+			r.add(getBtnOK());
+			return r;
+		}
+		
+		private JScrollPane getExceptionLog() {
+			if (this.exceptionLog == null) {
+				textStacktrace = new JTextArea();
+				textStacktrace.setEditable(false);
+				textStacktrace.setBorder(null);
+				this.exceptionLog = new JScrollPane();
+				this.exceptionLog.setViewportView(textStacktrace);
+				this.exceptionLog.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+				this.exceptionLog.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+				this.exceptionLog.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+				this.exceptionLog.setVisible(false);
+			}
+			return this.exceptionLog;
+		}
+		
+		private JButton getBtnOK() {
+			JButton r = new JButton(LBL_OK);
+			this.getRootPane().setDefaultButton(r);
+			r.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ExceptionBox.this.setVisible(false);
+				}
+			});
+			return r;
+		}
+		
+		private class clpbrdListener implements ActionListener, ClipboardOwner {
+			public void actionPerformed(ActionEvent e) {
+				Toolkit.getDefaultToolkit().getSystemClipboard()
+						.setContents(new StringSelection(ExceptionBox.this.textStacktrace.getText()), this);
+			}
+			public void lostOwnership(Clipboard arg0, Transferable arg1) { /* ignore this */ }
+		}
+		
+		private JButton getBtnCopyToClipboard() {
+			if (this.btnCopyClipboard == null) {
+				this.btnCopyClipboard = new JButton(LBL_COPY2CLIPBRD);
+				this.btnCopyClipboard.addActionListener(new clpbrdListener());
+			}
+			return this.btnCopyClipboard;
+		}
+		
+		private JButton getBtnShowHide() {
+			if (this.btnShowHide == null) {
+				this.btnShowHide = new JButton(SHOW_TEXT);
+				this.btnShowHide.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						hidden = !hidden;
+						ExceptionBox.this.btnShowHide.setText((hidden) ? SHOW_TEXT : HIDE_TEXT);
+						ExceptionBox.this.exceptionLog.setVisible(!hidden);
+						ExceptionBox.this.lStackTrace.setVisible(!hidden);
+						ExceptionBox.this.setSize((hidden) ? hiddenDim : shownDim);
+						ExceptionBox.this.exceptionLog.setViewportView((hidden) ? null : textStacktrace);
+						textStacktrace.updateUI();
+						ExceptionBox.this.lStackTrace.updateUI();
+					}
+				});
+			}
+			return this.btnShowHide;
+		}
+	}
+	
+	public static void showExceptionBox(final Frame parent, final String detail, final Throwable ex) {
+		ExceptionBox.showExceptionBox(parent, detail, ex);
+	}
+	
+	public static void showExceptionBox(final String detail, final Throwable ex) {
+		ExceptionBox.showExceptionBox(null, detail, ex);
+	}
+	
+	public static void showExceptionBox(final Throwable ex) {
+		ExceptionBox.showExceptionBox(null, ex.getMessage(), ex);
+	}
 	
 	public static void showURLErrorMessage(final String message, final String url) {
 		final JFrame frame = new JFrame("Error");

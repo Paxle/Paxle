@@ -27,24 +27,22 @@ import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.backend.tray.IMenuItem;
 import org.paxle.desktop.backend.tray.IPopupMenu;
 import org.paxle.desktop.backend.tray.ITrayIcon;
+import org.paxle.desktop.impl.dialogues.AFinally;
 import org.paxle.desktop.impl.dialogues.SmallDialog;
 
 public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	
 	private static final Class<IDataSink> CRAWLER_SINK_CLASS = IDataSink.class;
-	private static final String CRAWLER_SINK_QUERY = "(org.paxle.core.data.IDataSink.id=org.paxle.crawler.sink)";
+	private static final String CRAWLER_SINK_QUERY = String.format("(%s=org.paxle.crawler.sink)", IDataSink.PROP_DATASINK_ID);
 	private static final Class<IMWComponent> MWCOMP_CLASS = IMWComponent.class;
 	private static final String CRAWLER_QUERY = String.format("(%s=org.paxle.crawler)", IMWComponent.COMPONENT_ID);
 	
 	private static final String CRAWL_PAUSE = "Pause Crawling";
 	private static final String CRAWL_RESUME = "Resume Crawling";
 	
-	private static final String CRAWL = new String();
-	private static final String CRAWLPR = new String();
-	private static final String SEARCH = new String();
-	private static final String BROWSE = new String();
-	private static final String RESTART = new String();
-	private static final String QUIT = new String();
+	private static enum Actions {
+		SEARCH, BROWSE, CRAWL, CRAWLPR, RESTART, QUIT
+	}
 	
 	private final Log logger = LogFactory.getLog(SystrayMenu2.class);
 	private final ServiceManager manager;
@@ -74,7 +72,7 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 			// remove "&& hasWebUi" if we have other methods of displaying the searchresults
 			searchItem.setEnabled(canOpenBrowser && hasSearch && hasWebui);
 			
-			crawlprItem.setText((crawlersPaused()) ? CRAWL_RESUME : CRAWL_PAUSE);
+			crawlprItem.setText((isCrawlerCorePaused()) ? CRAWL_RESUME : CRAWL_PAUSE);
 		}
 	};
 	
@@ -85,15 +83,15 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 		this.backend = backend;
 		
 		final IPopupMenu pm = backend.createPopupMenu(
-				this.searchItem 	= backend.createMenuItem("Search...", 		SEARCH, 	this),
+				this.searchItem 	= backend.createMenuItem("Search...", 		Actions.SEARCH.name(), 	this),
 				null,
-				this.browseItem		= backend.createMenuItem("Webinterface", 	BROWSE,		this),
+				this.browseItem		= backend.createMenuItem("Webinterface", 	Actions.BROWSE.name(),	this),
 				null,
-				this.crawlItem 		= backend.createMenuItem("Crawl...", 		CRAWL, 		this),
-				this.crawlprItem 	= backend.createMenuItem("Pause Crawling", 	CRAWLPR, 	this),
+				this.crawlItem 		= backend.createMenuItem("Crawl...", 		Actions.CRAWL.name(), 	this),
+				this.crawlprItem 	= backend.createMenuItem("Pause Crawling", 	Actions.CRAWLPR.name(), this),
 				null,
-				this.restartItem 	= backend.createMenuItem("Restart", 		RESTART, 	this),
-				this.quitItem 		= backend.createMenuItem("Quit", 			QUIT, 		this));
+				this.restartItem 	= backend.createMenuItem("Restart", 		Actions.RESTART.name(), this),
+				this.quitItem 		= backend.createMenuItem("Quit", 			Actions.QUIT.name(), 	this));
 		pm.addPopupMenuListener(this);
 		
 		this.ti = backend.createTrayIcon(new ImageIcon(iconResource), "Paxle Tray", pm);
@@ -104,7 +102,7 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	public void popupMenuWillBecomeInvisible(PopupMenuEvent e) { /* ignore */ }
 	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
 		logger.debug("popup becomes visible, refreshing menu-items");
-		refresh();
+		SwingUtilities.invokeLater(refresh);
 	}
 	
 	public void shutdown() {
@@ -117,50 +115,102 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 		});
 	}
 	
-	private void refresh() {
-		SwingUtilities.invokeLater(refresh);
-	}
-	
-	@SuppressWarnings("unchecked")
+	/* TODO:
+	 * - set location and size of icon to display the dialog at the correct position next to the icon
+	 *   - what to do about the JRE6-backend? How to determine the position of the icon on the screen? */
 	public void actionPerformed(ActionEvent e) {
 		final String cmd = e.getActionCommand();
+		final Actions action = Actions.valueOf(cmd);
+		if (action == null)
+			throw new RuntimeException("unknown action '" + cmd + "'");
 		
-		if (cmd == CRAWL) {
-			/* TODO:
-			 * - set location and size of icon to display the dialog at the correct position next to the icon
-			 *   - what to do about the JRE6-backend? How to determine the position of the icon on the screen? */
-			final String url = SmallDialog.showDialog("Enter URL:", "Crawl");
-			if (url != null && url.length() > 0) try {
-				final IDataSink<ICommand>[] sink = manager.getServices(CRAWLER_SINK_CLASS, CRAWLER_SINK_QUERY);
-				if (sink != null)
-					sink[0].putData(Command.createCommand(new URI(url)));
-			} catch (Exception ee) {
-				logger.error("Starting crawl of URL '" + url + "' failed: " + ee.getMessage(), ee);
-			}
-			
-		} else if (cmd == CRAWLPR) {
-			toggleCrawlersPR();
-			
-		} else if (cmd == SEARCH) {
-			final String query = SmallDialog.showDialog("Enter query:", "Search");
-			if (query != null && query.length() > 0)
-				browseUrl(getPaxleURL("/search?query=", query));
-			
-		} else if (cmd == BROWSE) {
-			browseUrl(getPaxleURL("/"));
-			
-		} else if (cmd == RESTART || cmd == QUIT) {
-			SwingUtilities.invokeLater(new ShutdownRunnable(cmd == RESTART));
+		final TrayRunnable dr = new TrayRunnable(action);
+		
+		switch (action) {
+			case SEARCH:
+				new SmallDialog(dr, "Enter query:", "Search").setVisible(true);
+				break;
+			case CRAWL:
+				new SmallDialog(dr, "Enter URL:", "Crawl").setVisible(true);
+				break;
+			case BROWSE: // fall through
+			case CRAWLPR: // fall through
+			case RESTART: // fall through
+			case QUIT:
+				new Thread(dr).start();
+				break;
+				
+			default:
+				throw new RuntimeException("switch-statement does not cover action '" + action + "'");
 		}
 	}
 	
-	private boolean crawlersPaused() {
+	private class TrayRunnable extends AFinally implements Runnable {
+		
+		private final Actions action;
+		
+		public TrayRunnable(final Actions action) {
+			this.action = action;
+		}
+		
+		@Override
+		@SuppressWarnings("unchecked")
+		public void run() {
+			switch (action) {
+				case SEARCH:
+					if (data != null && data.length() > 0)
+						browseUrl(getPaxleURL("/search?query=", data));
+					break;
+					
+				case CRAWL:
+					if (data != null && data.length() > 0) try {
+						final IDataSink<ICommand>[] sink = manager.getServices(CRAWLER_SINK_CLASS, CRAWLER_SINK_QUERY);
+						if (sink != null)
+							sink[0].putData(Command.createCommand(new URI(data)));
+					} catch (Exception ee) {
+						Utilities.showURLErrorMessage("Starting crawl failed: " + ee.getMessage(), data);
+						logger.error("Starting crawl of URL '" + data + "' failed: " + ee.getMessage(), ee);
+					}
+					break;
+					
+				case BROWSE:
+					browseUrl(getPaxleURL("/"));
+					break;
+					
+				case CRAWLPR:
+					toggleCrawlersPR();
+					break;
+					
+				case RESTART: try {
+					manager.restartFramework();
+				} catch (BundleException e) {
+					Utilities.showExceptionBox("error restarting framework", e);
+					logger.error("error restarting framework", e);
+				} break;
+				
+				case QUIT: try {
+					manager.shutdownFramework();
+				} catch (BundleException e) {
+					Utilities.showExceptionBox("error shutting down framework", e);
+					logger.error("error shutting down framework", e);
+				} break;
+					
+				default:
+					throw new RuntimeException("switch-statement does not cover action '" + action + "'");
+			}
+		}
+	}
+	
+	private boolean isCrawlerCorePaused() {
 		try {
 			final IMWComponent<?>[] crawlers = manager.getServices(MWCOMP_CLASS, CRAWLER_QUERY);
 			if (crawlers == null || crawlers.length == 0)
 				return false;
 			return crawlers[0].isPaused();
-		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
+		} catch (InvalidSyntaxException e) {
+			Utilities.showExceptionBox(e);
+			e.printStackTrace();
+		}
 		return false;
 	}
 	
@@ -175,7 +225,10 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 			} else {
 				crawler.pause();
 			}
-		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
+		} catch (InvalidSyntaxException e) {
+			Utilities.showExceptionBox(e);
+			e.printStackTrace();
+		}
 	}
 	
 	private String getPaxleURL(String... path) {
@@ -202,33 +255,9 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 						"bundle. Please review the log for details. The requested URL was:", url);
 			}
 		} catch (MalformedURLException e) {
+			Utilities.showExceptionBox("Generated mal-formed URL", e);
 			logger.error("Generated mal-formed URL '" + url + "': " + e.getMessage(), e);
 		}
 		return false;
-	}
-	
-	private class ShutdownRunnable implements Runnable {
-		
-		private final boolean restart;
-		
-		public ShutdownRunnable(final boolean restart) {
-			this.restart = restart;
-		}
-		
-		public void run() {
-			try {
-				if (restart) {
-					logger.debug("RESTARTING FRAMEWORK");
-					manager.restartFramework();
-					logger.debug("FINISHED RESTARTING FRAMEWORK");
-				} else {
-					logger.debug("SHUTTING DOWN FRAMEWORK");
-					manager.shutdownFramework();
-					logger.debug("FINISHED SHUTTING DOWN FRAMEWORK");
-				}
-			} catch (BundleException e) {
-				logger.error("error " + ((restart) ? "restarting" : "shutting down") + " framework", e);
-			}
-		}
 	}
 }

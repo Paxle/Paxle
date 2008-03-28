@@ -25,7 +25,7 @@ import javax.swing.WindowConstants;
 
 import org.paxle.desktop.impl.Utilities;
 
-public class SmallDialog extends JDialog {
+public class SmallDialog extends JDialog implements Runnable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -51,18 +51,7 @@ public class SmallDialog extends JDialog {
 	private class BtnListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			aborted = false;
-			SwingUtilities.invokeLater(new DoAction());
-		}
-	}
-	
-	private class DoAction implements Runnable {
-		
-		public void run() {
-			if (!aborted && af != null) {
-				SmallDialog.this.af.init(SmallDialog.this.text.getText());
-				new Thread(SmallDialog.this.af).start();
-			}
-			SmallDialog.this.dispose();
+			SwingUtilities.invokeLater(SmallDialog.this);
 		}
 	}
 	
@@ -71,7 +60,7 @@ public class SmallDialog extends JDialog {
 		public void keyPressed(KeyEvent e) {
 			if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 				aborted = true;
-				SwingUtilities.invokeLater(new DoAction());
+				SwingUtilities.invokeLater(SmallDialog.this);
 			}
 		}
 	}
@@ -109,6 +98,14 @@ public class SmallDialog extends JDialog {
 		this(af);
 		this.label.setText(labelText);
 		this.btn.setText(buttonText);
+	}
+	
+	public void run() {
+		if (!aborted && af != null) {
+			SmallDialog.this.af.init(SmallDialog.this.text.getText());
+			new Thread(SmallDialog.this.af).start();
+		}
+		SmallDialog.this.dispose();
 	}
 	
 	public void setLabelText(String text) {
@@ -174,7 +171,7 @@ public class SmallDialog extends JDialog {
 		final SmallDialog sd = new SmallDialog(null, labelText, buttonText);
 		sd.setModal(true);
 		sd.setVisible(true);
-		
+		sd.dispose();
 		return (sd.aborted) ? null : sd.text.getText();
 	}
 	
