@@ -6,6 +6,7 @@ import java.util.List;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.parser.ISubParser;
+import org.paxle.parser.msoffice.IMsExcelParser;
 import org.paxle.parser.msoffice.IMsPowerpointParser;
 import org.paxle.parser.msoffice.IMsVisioParser;
 import org.paxle.parser.msoffice.IMsWordParser;
@@ -47,7 +48,14 @@ public class Activator implements BundleActivator {
 		mimeTypes = parser.getMimeTypes();
 		props.clear();
 		props.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
-		bc.registerService(new String[]{ISubParser.class.getName(),IMsVisioParser.class.getName()}, parser, props);			
+		bc.registerService(new String[]{ISubParser.class.getName(),IMsVisioParser.class.getName()}, parser, props);
+		
+		// MS Excel parser
+		parser = new MsExcelParser();
+		mimeTypes = parser.getMimeTypes();
+		props.clear();
+		props.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
+		bc.registerService(new String[]{ISubParser.class.getName(),IMsExcelParser.class.getName()}, parser, props);
 	}
 
 
