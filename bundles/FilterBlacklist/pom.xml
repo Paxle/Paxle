@@ -41,8 +41,7 @@
 							org.apache.velocity.context
 						</Import-Package>
 						<Private-Package>
-							org.paxle.filter.blacklist.impl,
-							org.paxle.filter.blacklist.impl.backend
+							org.paxle.filter.blacklist.impl
 						</Private-Package>
 						<Bundle-Activator>
 							org.paxle.filter.blacklist.impl.Activator

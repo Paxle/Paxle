@@ -112,7 +112,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
         time = System.currentTimeMillis() - time;
         //System.out.println("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
         logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
-        return new FilterResult(FilterResult.LOCATION_OKAY, null);
+        return FilterResult.LOCATION_OKAY_RESULT;
     }
     
     /**
@@ -159,7 +159,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
             listFile.delete();
             
             // refresh filter
-            this.reloadEntries();
+            reloadEntries();
         } catch (Exception e) {
             e.printStackTrace();            
         }
@@ -168,7 +168,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 	public List<String> getLists() {
     	ArrayList<String> fileNames = new ArrayList<String>();
     	
-    	Iterator<?> eter = FileUtils.iterateFiles(this.blacklistDir, null, false);
+    	Iterator<?> eter = FileUtils.iterateFiles(blacklistDir, null, false);
         while(eter.hasNext()) {
             File listFile = (File) eter.next();
             fileNames.add(listFile.getName());
@@ -247,36 +247,6 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
             } catch (PatternSyntaxException e) {
                 e.printStackTrace();
             }
-        }
-    }
-    
-    class FilterResult {
-        
-        final static int LOCATION_OKAY = 0;
-        final static int LOCATION_REJECTED = 1;
-        
-        private int status;
-        private String rejectPattern = null;
-        
-        FilterResult(int resultStatus, String pattern) {
-            setStatus(resultStatus);
-            setRejectPattern(pattern);
-        }
-
-        public void setStatus(int status) {
-            this.status = status;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public void setRejectPattern(String rejectPattern) {
-            this.rejectPattern = rejectPattern;
-        }
-
-        public String getRejectPattern() {
-            return rejectPattern;
         }
     }
 }
