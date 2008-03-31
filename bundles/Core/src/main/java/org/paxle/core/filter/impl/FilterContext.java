@@ -10,6 +10,7 @@ import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.core.queue.ICommand;
 
 
 public class FilterContext implements Comparable<FilterContext>, IFilterContext {
@@ -39,7 +40,7 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	/**
 	 * The registered filter itself.
 	 */
-	private IFilter filterImpl = null;
+	private IFilter<ICommand> filterImpl = null;
 	
 	/**
 	 * The {@link IFilterQueue target} for which the {@link IFilter} was registered. 
@@ -55,7 +56,7 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	private int pos = 0;
 	
 	
-	public FilterContext(Long serviceID, IFilter filterImpl, String targetID, int filterPos, Properties props) {
+	public FilterContext(Long serviceID, IFilter<ICommand> filterImpl, String targetID, int filterPos, Properties props) {
 		if (serviceID == null) throw new NullPointerException("The serviceID must not be null");
 		if (filterImpl == null) throw new NullPointerException("Filter class is null");
 		if (targetID == null || targetID.length() == 0) throw new IllegalArgumentException("Filter targetID is not set");
@@ -78,7 +79,7 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	/**
 	 * A reference to the registered {@link IFilter}
 	 */
-	public IFilter getFilter() {
+	public IFilter<ICommand> getFilter() {
 		return this.filterImpl;
 	}
 	

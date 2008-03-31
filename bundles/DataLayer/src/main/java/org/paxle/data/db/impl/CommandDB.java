@@ -33,11 +33,18 @@ import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandTracker;
+import org.paxle.data.db.ICommandDB;
 
-public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand> {
+public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB {
 	private static final int MAX_IDLE_SLEEP = 60000;
 
 	private Cache urlExistsCache = null;
+	
+	/**
+	 * Component to track {@link ICommand commands}
+	 */
+	private ICommandTracker commandTracker;
 
 	/**
 	 * A {@link IDataSink data-sink} to write the loaded {@link ICommand commands} out
@@ -77,12 +84,14 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	private Configuration config; 
 
 	private boolean closed = false;
-
-	public CommandDB(URL configURL, List<URL> mappings) {
+	
+	public CommandDB(URL configURL, List<URL> mappings, ICommandTracker commandTracker) {
 		if (configURL == null) throw new NullPointerException("The URL to the hibernate config file is null.");
 		if (mappings == null) throw new NullPointerException("The list of mapping files was null.");
 
 		try {
+			this.commandTracker = commandTracker;
+			
 			/* ===========================================================================
 			 * Init Hibernate
 			 * =========================================================================== */
@@ -388,7 +397,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	}
 
 	/**
-	 * @return the total size of the command queue
+	 * @return the total size of the command db
 	 */
 	public long size() {		
 		Long count = Long.valueOf(-1l);
@@ -447,6 +456,11 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 					commands = CommandDB.this.fetchNextCommands(0,10);
 					if (commands != null && commands.size() > 0) {
 						for (ICommand command : commands) {
+							// notify the command-tracker about the creation of the command
+							if (CommandDB.this.commandTracker != null) {
+								CommandDB.this.commandTracker.commandCreated(ICommandDB.class.getName(), command);
+							}
+							
 //							System.out.println(CommandDB.this.isKnown(command.getLocation()));
 							CommandDB.this.sink.putData(command);
 //							commandToXML(command);

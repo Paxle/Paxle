@@ -1,8 +1,11 @@
 package org.paxle.core.impl;
 
 import java.io.IOException;
+import java.util.AbstractQueue;
 import java.util.Hashtable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -10,6 +13,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
@@ -17,6 +21,7 @@ import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.impl.AQueue;
 import org.paxle.core.queue.impl.FilterInputQueue;
 import org.paxle.core.queue.impl.FilteringOutputQueue;
 import org.paxle.core.queue.impl.InputQueue;
@@ -43,6 +48,11 @@ public class MWComponentFactory implements IMWComponentFactory {
 	//private MWComponent<?> component = null;
 
 	private Hashtable<Class<?>,IMWComponent<?>> components = new Hashtable<Class<?>,IMWComponent<?>>();
+	
+	/**
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
 	 * @param bundle reference to the {@link Bundle} which has requested the
@@ -132,6 +142,12 @@ public class MWComponentFactory implements IMWComponentFactory {
 			final IMWComponent component, 
 			final BundleContext bc
 	) throws IOException {
+		ServiceReference ref = bc.getServiceReference(EventAdmin.class.getName());
+		EventAdmin eventService = (EventAdmin) ((ref == null) ? null : bc.getService(ref));
+		if (eventService == null) {
+			this.logger.warn("Event-admin service not found. Command-tracking will not work!");
+		}
+		
 		// register component
 		Hashtable<String, String> componentProps = new Hashtable<String, String>();
 		componentProps.put(IMWComponent.COMPONENT_ID, componentID);
@@ -156,6 +172,11 @@ public class MWComponentFactory implements IMWComponentFactory {
 			// setting the filter-queue ID
 			((IFilterQueue)compDataSource).setFilterQueueID(filterQueueID);
 			
+			// set the event-admin service
+			if (eventService != null && compDataSource instanceof AbstractQueue) {
+				((AQueue<?>)compDataSource).setEventService(eventService);
+			}
+			
 			// register the queue as osgi-service
 			Hashtable<String,String> filterQueueProps = new Hashtable<String, String>();
 			filterQueueProps.put(IFilterQueue.PROP_FILTER_QUEUE_ID, filterQueueID);			
@@ -169,6 +190,11 @@ public class MWComponentFactory implements IMWComponentFactory {
 			
 			// setting the filter-queue ID
 			((IFilterQueue)compDataSink).setFilterQueueID(filterQueueID);	
+			
+			// set the event-admin service
+			if (eventService != null && compDataSink instanceof AbstractQueue) {
+				((AQueue<?>)compDataSink).setEventService(eventService);
+			}			
 			
 			Hashtable<String,String> filterQueueProps = new Hashtable<String, String>();
 			filterQueueProps.put(IFilterQueue.PROP_FILTER_QUEUE_ID, filterQueueID);			

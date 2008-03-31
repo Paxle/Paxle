@@ -3,10 +3,16 @@ package org.paxle.core.impl;
 
 import java.util.Hashtable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 
 import org.paxle.core.ICryptManager;
 import org.paxle.core.IMWComponentFactory;
@@ -28,7 +34,10 @@ import org.paxle.core.norm.impl.ReferenceNormalizer;
 import org.paxle.core.norm.impl.URLStreamHandlerListener;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.impl.PropertiesStore;
+import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandTracker;
+import org.paxle.core.queue.impl.CommandTracker;
 
 public class Activator implements BundleActivator {
 	
@@ -49,15 +58,21 @@ public class Activator implements BundleActivator {
 	private DataManager<ICommand> dataManager = null;
 	
 	private CryptManager cryptManager = null;
+	
 	private TempFileManager tempFileManager = null;
 	
 	private ReferenceNormalizer referenceNormalizer = null;
+	
+	private Log logger;
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext bc) throws Exception {
+		// init logger
+		this.logger = LogFactory.getLog(this.getClass());
+		
 		filterManager = new FilterManager();
 		dataManager = new DataManager<ICommand>();
 		tempFileManager = new TempFileManager();
@@ -120,6 +135,19 @@ public class Activator implements BundleActivator {
 		final Hashtable<String,String[]> props2 = new Hashtable<String,String[]>();
         props2.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.parser.out; pos=60;"});
         bc.registerService(IFilter.class.getName(), new AscendingPathUrlExtractionFilter(), props2);
+        
+        // getting the Event-Admin service
+        ServiceReference eventAdminRef = bc.getServiceReference(EventAdmin.class.getName());
+        if (eventAdminRef != null) {
+        	EventAdmin eventAdmin = (EventAdmin) bc.getService(eventAdminRef);
+        	
+	        // the command-tracker
+	        final Hashtable<String, Object> trackerProps = new Hashtable<String, Object>();
+	        trackerProps.put(EventConstants.EVENT_TOPIC, new String[]{CommandEvent.TOPIC_ALL});
+	        bc.registerService(new String[]{EventHandler.class.getName(),ICommandTracker.class.getName()}, new CommandTracker(eventAdmin), trackerProps);
+        } else {
+        	this.logger.warn("No EventAdmin-service found. Command-tracking will not work.");
+        }
 	}
 
 	/**

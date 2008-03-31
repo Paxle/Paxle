@@ -49,6 +49,9 @@
 							org.paxle.data.impl, org.paxle.data.db.impl,
 							org.paxle.data.txt.impl
 						</Private-Package>
+						<Export-Package>
+							org.paxle.data.db
+						</Export-Package>
 						<Bundle-Activator>
 							org.paxle.data.impl.Activator
 						</Bundle-Activator>

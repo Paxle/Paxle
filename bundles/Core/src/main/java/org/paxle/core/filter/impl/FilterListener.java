@@ -19,6 +19,7 @@ import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.core.queue.ICommand;
 
 /**
  * A class to listen for registered and unregistered {@link IFilter filters}.
@@ -121,6 +122,7 @@ public class FilterListener implements ServiceListener {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void handleFilter(ServiceReference reference, int eventType) {
 		// the service ID of the registered filter
 		Long serviceID = (Long) reference.getProperty(Constants.SERVICE_ID);
@@ -138,7 +140,7 @@ public class FilterListener implements ServiceListener {
 		
 		if (eventType == ServiceEvent.REGISTERED) {
 			// get a reference to the filter
-			IFilter filter = (IFilter) this.context.getService(reference);	
+			IFilter<ICommand> filter = (IFilter<ICommand>) this.context.getService(reference);	
 
 			// adding the filter to multiple targets
 			for (String targetID : targetIDs) {
@@ -199,7 +201,7 @@ public class FilterListener implements ServiceListener {
 		return targetIDs.toArray(new String[targetIDs.size()]);
 	}
 
-	private FilterContext generateFilterMetadata(Long serviceID, String target, IFilter filter) {
+	private FilterContext generateFilterMetadata(Long serviceID, String target, IFilter<ICommand> filter) {
 		Properties filterProps = new Properties();
 		String[] params = target.split(";");
 		String targetID = params[0].trim();

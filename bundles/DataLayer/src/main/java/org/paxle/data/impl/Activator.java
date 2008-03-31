@@ -10,9 +10,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.queue.ICommandTracker;
 import org.paxle.data.db.impl.CommandDB;
 import org.paxle.data.db.impl.UrlExtractorFilter;
 import org.paxle.data.txt.impl.TextCommandReader;
@@ -55,6 +57,13 @@ public class Activator implements BundleActivator {
 		// another pipe to connect the Parser-OutQueue with the Indexer-InQueue
 		pipeConnect("org.paxle.parser.source", "org.paxle.indexer.sink");
 
+        // getting the Event-Admin service
+        ServiceReference commandTrackerRef = bc.getServiceReference(ICommandTracker.class.getName());
+        ICommandTracker commandTracker = (commandTrackerRef == null) ? null :  (ICommandTracker) bc.getService(commandTrackerRef);
+        if (commandTracker == null) {
+        	this.logger.warn("No CommandTracker-service found. Command-tracking will not work.");
+        }
+		
 		/*
 		 * Registering the CommandDB
 		 * TODO: not finished yet
@@ -95,7 +104,7 @@ public class Activator implements BundleActivator {
 			ArrayList<URL> mappings = Collections.list(mappingFileEnum);
 
 			// init command DB
-			this.commandDB = new CommandDB(config, mappings);		
+			this.commandDB = new CommandDB(config, mappings, commandTracker);		
 
 			final Hashtable<String,String> props = new Hashtable<String,String>();
 //			props.put(IDataConsumer.PROP_DATACONSUMER_ID, "org.paxle.indexer.source");

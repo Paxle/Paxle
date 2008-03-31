@@ -10,12 +10,12 @@ import java.util.Hashtable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-
+import org.osgi.framework.ServiceReference;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.io.IOTools;
+import org.paxle.core.queue.ICommandTracker;
 import org.paxle.se.index.IFieldManager;
 import org.paxle.se.index.IIndexIteratable;
 import org.paxle.se.index.IIndexSearcher;
@@ -38,6 +38,13 @@ public class Activator implements BundleActivator {
 		bc = context;
 		final Log logger = LogFactory.getLog(Activator.class);
 		
+		// getting the command-tracker
+		ServiceReference commandTrackerRef = bc.getServiceReference(ICommandTracker.class.getName());
+		ICommandTracker commandTracker = (commandTrackerRef == null) ? null : (ICommandTracker)bc.getService(commandTrackerRef);
+		if (commandTracker == null) {
+			logger.warn("No CommandTracker-service found. Command-tracking will not work.");
+		}
+		
 		// check whether directory is locked from previous runs
 		final File writeLock = new File(DB_PATH, "write.lock");
 		if (writeLock.exists()) {
@@ -54,7 +61,7 @@ public class Activator implements BundleActivator {
 		final StopwordsManager stopwordsManager = new StopwordsManager(stopwordsRoot);
 		
 		lmanager = new TimerLuceneManager(DB_PATH, stopwordsManager.getDefaultAnalyzer(), 30000, 30000);
-		indexWriterThread = new LuceneWriter(lmanager, stopwordsManager);
+		indexWriterThread = new LuceneWriter(lmanager, stopwordsManager, commandTracker);
 		indexWriterThread.setPriority(3);
 		indexSearcher = new LuceneSearcher(lmanager);
 		

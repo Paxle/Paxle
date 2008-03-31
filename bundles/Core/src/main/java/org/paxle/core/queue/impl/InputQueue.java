@@ -1,7 +1,5 @@
 package org.paxle.core.queue.impl;
 
-import java.util.concurrent.ArrayBlockingQueue;
-
 import org.paxle.core.IMWComponent;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
@@ -11,10 +9,9 @@ import org.paxle.core.queue.IInputQueue;
  * This acts as an {@link IInputQueue input-queue} for a {@link IMWComponent master-worker-component}
  * and as a {@link IDataSink data-sink} for a {@link IDataProvider data-provider}.
  */
-public class InputQueue<Data> extends ArrayBlockingQueue<Data> 
-	implements IInputQueue<Data>, IDataSink<Data> {
+public class InputQueue<Data> extends AQueue<Data> implements IInputQueue<Data>, IDataSink<Data> {
 	private static final long serialVersionUID = 1L;	
-
+	
 	public InputQueue(int length) {
 		super(length);
 	}

@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.core.queue.ICommand;
 
 public interface IFilterContext {	
 	/**
@@ -28,7 +29,7 @@ public interface IFilterContext {
 	 * @return the {@link org.paxle.core.filter.IFilter} this context
 	 * belongs to.
 	 */
-	public IFilter getFilter();
+	public IFilter<ICommand> getFilter();
 	
 	/**
 	 * @return some {@link #getTargetID() target-} and {@link #getFilterPosition() position-}

@@ -16,6 +16,7 @@ import org.paxle.core.data.IDataSource;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandTracker;
 import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneWriter;
 
@@ -31,13 +32,16 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	 */
 	private Log logger = null;
 	
+	private ICommandTracker commandTracker;
+	
 	private final AFlushableLuceneManager manager;
 	private final StopwordsManager stopwordsManager;
 	private final Converter defaultCv;
 	
-	public LuceneWriter(AFlushableLuceneManager manager, final StopwordsManager stopwordsManager) {
+	public LuceneWriter(AFlushableLuceneManager manager, final StopwordsManager stopwordsManager, final ICommandTracker commandTracker) {
 		this.manager = manager;
 		this.stopwordsManager = stopwordsManager;
+		this.commandTracker = commandTracker;
 		this.defaultCv = new Converter(stopwordsManager.getDefaultAnalyzer());
 		this.setName("LuceneWriter");
 		this.start();
@@ -69,39 +73,48 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 			}
 
 			while (!Thread.interrupted()) {
-				// fetch the next command from the data-source
-				ICommand command = this.source.getData();
+				ICommand command = null;
 				
-				// check status
-				if (command.getResult() != ICommand.Result.Passed) {
-					this.logger.warn(String.format("Won't save document '%s' with result '%s' (%s)",
-							command.getLocation(),
-							command.getResult(),
-							command.getResultText()));
-					continue;
-				}
-				
-				// loop through the indexer docs
-				for (IIndexerDocument indexerDoc : command.getIndexerDocuments()) {
-					if (indexerDoc.getStatus() == IIndexerDocument.Status.OK) try {
-						// write indexer-doc to the index
-						this.write(indexerDoc);
-					} catch (IndexException e) {
-						this.logger.error("Error adding document to index: " + e.getMessage(), e);
-						indexerDoc.setStatus(IIndexerDocument.Status.IndexError, e.getMessage());
-					} catch (IOException e) {
-						this.logger.error("Low-level I/O error occured during adding document to index: " + e.getMessage(), e);
-						indexerDoc.setStatus(IIndexerDocument.Status.IOError, e.getMessage());
-					} catch (Exception e) {
-						this.logger.error("Internal error processing the indexer document", e);
-						indexerDoc.setStatus(
-								IIndexerDocument.Status.IndexError,
-								"Unexpected runtime exception processing the indexer document: " + e.getMessage());
-					} else {
-						this.logger.warn(String.format("Won't save indexer-doc for location '%s' with status '%s' (%s)",
-								indexerDoc.get(IIndexerDocument.LOCATION),
-								indexerDoc.getStatus(),
-								indexerDoc.getStatusText()));
+				try {
+					// fetch the next command from the data-source
+					command = this.source.getData();
+
+					// check status
+					if (command.getResult() != ICommand.Result.Passed) {
+						this.logger.warn(String.format("Won't save document '%s' with result '%s' (%s)",
+								command.getLocation(),
+								command.getResult(),
+								command.getResultText()));
+						continue;
+					}
+
+					// loop through the indexer docs
+					for (IIndexerDocument indexerDoc : command.getIndexerDocuments()) {
+						if (indexerDoc.getStatus() == IIndexerDocument.Status.OK) try {
+							// write indexer-doc to the index
+							this.write(indexerDoc);
+						} catch (IndexException e) {
+							this.logger.error("Error adding document to index: " + e.getMessage(), e);
+							indexerDoc.setStatus(IIndexerDocument.Status.IndexError, e.getMessage());
+						} catch (IOException e) {
+							this.logger.error("Low-level I/O error occured during adding document to index: " + e.getMessage(), e);
+							indexerDoc.setStatus(IIndexerDocument.Status.IOError, e.getMessage());
+						} catch (Exception e) {
+							this.logger.error("Internal error processing the indexer document", e);
+							indexerDoc.setStatus(
+									IIndexerDocument.Status.IndexError,
+									"Unexpected runtime exception processing the indexer document: " + e.getMessage());
+						} else {
+							this.logger.warn(String.format("Won't save indexer-doc for location '%s' with status '%s' (%s)",
+									indexerDoc.get(IIndexerDocument.LOCATION),
+									indexerDoc.getStatus(),
+									indexerDoc.getStatusText()));
+						}
+					}
+				} finally {
+					if (this.commandTracker != null && command != null) {
+						// notify the command-tracker about the destruction of the command-event
+						this.commandTracker.commandDestroyed(ILuceneWriter.class.getName(), command);
 					}
 				}
 			}

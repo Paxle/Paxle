@@ -3,12 +3,12 @@ package org.paxle.core.queue.impl;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.paxle.core.filter.CommandFilterEvent;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.impl.MWComponentFactory;
+import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 
 public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd> implements IFilterQueue {
@@ -21,11 +21,6 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 	 * @see #setFilterQueueID(String)
 	 */
 	private String filterQueueID = null;
-	
-	/**
-	 * for logging
-	 */
-	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
 	 * A list containing all filters that are active for this output-queue
@@ -46,6 +41,13 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 	
 	@Override
 	public void enqueue(Cmd command) throws InterruptedException {
+		if (command == null) throw new NullPointerException("The command object was null!");
+		
+		// fire a event
+		if (this.eventSerivce != null) {
+			this.eventSerivce.postEvent(CommandEvent.createEvent(this.filterQueueID, CommandEvent.TOPIC_ENQUEUED, command));
+		} 	
+						
 		switch (command.getResult()) {
 			case Failure:
 			case Rejected:
@@ -54,9 +56,17 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 		this.filter(command);
 		
 		switch (command.getResult()) {
-			case Failure:
 			case Passed:  super.enqueue(command); break;
+			case Failure:			
 			case Rejected: 
+			default: 
+				// fire a command-destruction event (this _must_ be send synchronous)
+				if (this.eventSerivce != null) {
+					this.eventSerivce.sendEvent(CommandEvent.createEvent(this.filterQueueID, CommandEvent.TOPIC_DESTROYED, command));
+				} 
+				
+				// signal blocking of message
+				return;
 		}
 	}
 	
@@ -66,8 +76,13 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 		// post-process the command through filters
 		for (IFilterContext filterContext : this.filterList) {
 			IFilter<ICommand> filter = null;
-			try {
+			try {				
+				// fire a event
+				if (this.eventSerivce != null) {
+					this.eventSerivce.postEvent(CommandFilterEvent.createEvent(this.filterQueueID, CommandFilterEvent.TOPIC_PRE_FILTER, command, filterContext));
+				} 	
 				
+				// getting the filter
 				filter = filterContext.getFilter();
 				
 				if (this.logger.isTraceEnabled()) {
@@ -111,6 +126,11 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 						e.getClass().getName(),
 						command.getLocation()
 				),e);				
+			} finally {
+				// fire a event
+				if (this.eventSerivce != null) {
+					this.eventSerivce.postEvent(CommandFilterEvent.createEvent(this.filterQueueID, CommandFilterEvent.TOPIC_POST_FILTER, command, filterContext));
+				} 
 			}
 		}
 	}

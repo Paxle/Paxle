@@ -3,12 +3,12 @@ package org.paxle.core.queue.impl;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.paxle.core.filter.CommandFilterEvent;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.impl.MWComponentFactory;
+import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 
 public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> implements IFilterQueue {
@@ -21,11 +21,6 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 	 * @see #setFilterQueueID(String)
 	 */
 	private String filterQueueID = null;
-	
-	/**
-	 * for logging
-	 */
-	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
 	 * A list containing all filters that are active for this output-queue
@@ -49,6 +44,11 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 		// get next command
 		Cmd command = super.dequeue();
 		
+		// fire a event
+		if (this.eventSerivce != null) {
+			this.eventSerivce.postEvent(CommandEvent.createEvent(this.filterQueueID, CommandEvent.TOPIC_DEQUEUED, command));
+		} 
+		
 		switch (command.getResult()) {
 			case Failure:
 			case Rejected:
@@ -62,7 +62,14 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 			case Passed:  return command;
 			case Failure:
 			case Rejected: 
-			default: return null;
+			default: 
+				// fire a command-destruction event (this _must_ be send synchronous)
+				if (this.eventSerivce != null) {
+					this.eventSerivce.sendEvent(CommandEvent.createEvent(this.filterQueueID, CommandEvent.TOPIC_DESTROYED, command));
+				} 
+				
+				// signal blocking of message
+				return null;
 		}		
 	}
 	
@@ -78,7 +85,12 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 		for (IFilterContext filterContext : this.filterList) {
 			IFilter<ICommand> filter = null;
 			try {
+				// fire a event
+				if (this.eventSerivce != null) {
+					this.eventSerivce.postEvent(CommandFilterEvent.createEvent(this.filterQueueID, CommandFilterEvent.TOPIC_PRE_FILTER, command, filterContext));
+				} 					
 				
+				// get the filter
 				filter = filterContext.getFilter();
 				
 				if (this.logger.isTraceEnabled()) {
@@ -122,6 +134,11 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 						e.getClass().getName(),
 						command.getLocation()
 				),e);
+			} finally {
+				// fire a event
+				if (this.eventSerivce != null) {
+					this.eventSerivce.postEvent(CommandFilterEvent.createEvent(this.filterQueueID, CommandFilterEvent.TOPIC_POST_FILTER, command, filterContext));
+				} 				
 			}
 		}
 	}
