@@ -17,7 +17,7 @@ public class Activator implements BundleActivator {
 	private static String DB_PATH = "robots-db";	
 	
 	private RobotsTxtManager robotsTxtManager = null;
-	private Thread robotsTxtCleanupThread = null;
+	private RobotsTxtCleanupThread robotsTxtCleanupThread = null;
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
@@ -25,7 +25,7 @@ public class Activator implements BundleActivator {
 	 */	
 	public void start(BundleContext bc) throws Exception {
 		this.robotsTxtManager = new RobotsTxtManager(new File(DB_PATH));
-		this.robotsTxtCleanupThread = new RobotsTxtCleanupThread(new File(DB_PATH), 10); 
+		this.robotsTxtCleanupThread = new RobotsTxtCleanupThread(new File(DB_PATH)); 
 		
 		/* ==========================================================
 		 * Register Services provided by this bundle
@@ -50,6 +50,10 @@ public class Activator implements BundleActivator {
 			if (config.getProperties() == null) {
 				config.update(this.robotsTxtManager.getDefaults());
 			}
+			config = cm.getConfiguration(RobotsTxtCleanupThread.class.getName());
+			if (config.getProperties() == null) {
+				config.update(this.robotsTxtCleanupThread.getDefaults());
+			}
 		}
 		
 		/* 
@@ -61,6 +65,11 @@ public class Activator implements BundleActivator {
 		Hashtable<String,Object> msProps = new Hashtable<String, Object>();
 		msProps.put(Constants.SERVICE_PID, IRobotsTxtManager.class.getName());
 		bc.registerService(ManagedService.class.getName(), this.robotsTxtManager, msProps);		
+		
+		Hashtable<String,Object> msP = new Hashtable<String, Object>();
+		msP.put(Constants.SERVICE_PID, RobotsTxtCleanupThread.class.getName());
+		bc.registerService(ManagedService.class.getName(), this.robotsTxtCleanupThread, msP);
+		this.robotsTxtCleanupThread.start(); //we start it here, as the config is not available earlier
 	}
 
 	/**

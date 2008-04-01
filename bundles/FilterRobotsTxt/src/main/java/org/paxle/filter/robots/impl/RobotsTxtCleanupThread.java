@@ -5,33 +5,37 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.Constants;
+import org.osgi.service.cm.ManagedService;
 import org.paxle.filter.robots.impl.rules.RobotsTxt;
 
-public class RobotsTxtCleanupThread extends Thread
+public class RobotsTxtCleanupThread extends Thread implements ManagedService
 { 
 	/** the directory where the robots.txt data is stored */
 	File dir = null;
 	/** The time in minutes between each cleaning */
-	int delaytime = 10;
+	public static final String PROP_DELAY = "delay";
+	
+	/** The configuration data for this class */
+	private Dictionary<String, Object> config = null;
 
 	Log logger = LogFactory.getLog(this.getClass());
 
 	/**
 	 * Generates a thread which wipes out robots.txt entries from the cache, which are older than their ExpirationDate
 	 * @param dir the directory where the robots.txt objects are stored
-	 * @param delay the delay between the cleaning processes in minutes
 	 */
-	RobotsTxtCleanupThread(File dir, int delay) 
-	{ 
-		this.delaytime = delay;
+	RobotsTxtCleanupThread(File dir) 
+	{
 		this.dir = dir;
 		this.setName("RobotsTxtCleanupThread");
 		this.setPriority(Thread.MIN_PRIORITY);
-		this.start();
 	}
 
 	public void run() { 
@@ -59,21 +63,22 @@ public class RobotsTxtCleanupThread extends Thread
 						// class was refactored. just delete it
 						file.delete();
 					} catch (Exception e) {
-						logger.error("Error while reading file " + file.getName(), e);
+						logger.error("Error while reading file " + file.getName() + " - Removing it.", e);
+						file.delete();
 					} finally {
-						if (ois != null) try { ois.close(); } catch (Exception e) {/* ingore this */}
+						if (ois != null) try { ois.close(); } catch (Exception e) {/* ignore this */}
 					}					
 					
 					if (robotsTxt != null && (robotsTxt.getExpirationDate().getTime() < System.currentTimeMillis())) {
+						logger.debug("Deleting cached robots.txt file for " + robotsTxt.getHostPort());
 						file.delete();
-						logger.debug("Deleted caching file for " + robotsTxt.getHostPort());
 					}
 				}
 				if (isInterrupted()) {
 					go_on=false;
 					break;
 				}
-				//Wait am moment to not overload the I/O
+				//Wait a moment to not overload the I/O
 				try {
 					TimeUnit.MILLISECONDS.sleep(500); 
 				} catch ( InterruptedException e ) {
@@ -88,7 +93,7 @@ public class RobotsTxtCleanupThread extends Thread
 			}
 			if (go_on) {
 				try {
-					TimeUnit.SECONDS.sleep(delaytime*60); 
+					TimeUnit.SECONDS.sleep(((Integer)config.get(PROP_DELAY)).intValue()*60); 
 				} catch ( InterruptedException e ) {
 					go_on=false;
 				} 
@@ -96,4 +101,34 @@ public class RobotsTxtCleanupThread extends Thread
 		}
 		logger.info("Thread terminated.");
 	}
+	
+	/**
+	 * @see ManagedService#updated(Dictionary)
+	 */
+	@SuppressWarnings("unchecked")		// we're only implementing an interface
+	public synchronized void updated(Dictionary configuration) {
+		logger.debug("Updating configuration");
+		try {
+			if ( configuration == null ) {
+				logger.warn("Updated configuration is null. Using defaults.");
+				configuration = this.getDefaults();
+			}			
+			this.config = configuration;
+		} catch (Throwable e) {
+			logger.error("Internal exception during configuring", e);
+		}
+	}
+	
+	/**
+	 * @return the default configuration of this service
+	 */
+	public Hashtable<String,Object> getDefaults() {
+		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
+		
+		defaults.put(PROP_DELAY, Integer.valueOf(30));
+		defaults.put(Constants.SERVICE_PID, RobotsTxtCleanupThread.class.getName());
+		
+		return defaults;
+	}
+	
 }

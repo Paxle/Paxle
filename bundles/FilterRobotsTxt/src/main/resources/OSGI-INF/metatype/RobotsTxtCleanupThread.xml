@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<OCD description="This thread cleans the cache of robots.txt definitions" 
+			name="Robots.txt - CleanupThread"
+			id="org.paxle.filter.robots.impl.RobotsTxtCleanupThread">
+		
+		<AD name="Interval"
+				type="Integer"
+				id="delay"
+				default="30"
+				min="1" 
+				description="The interval the cache is purged. In minutes."/>
+	</OCD>
+	
+	<Designate
+			pid="org.paxle.filter.robots.impl.RobotsTxtCleanupThread"
+			bundle="ignored">
+		<Object ocdref="org.paxle.filter.robots.impl.RobotsTxtCleanupThread"></Object>
+	</Designate>
+
+</metatype:MetaData>
