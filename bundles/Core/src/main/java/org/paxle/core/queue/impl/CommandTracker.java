@@ -39,6 +39,12 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
+	
+	/**
+	 * A special logger that will be redirected via logging configuration into
+	 * an extra file
+	 */
+	private Log cmdEventLogger = LogFactory.getLog(CommandEvent.class.getName());
 
 	/**
 	 * The OSGi event-admin service. We use it to send events via
@@ -92,6 +98,10 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();	
 
+	/**
+	 * @param eventService the OSGi event-admin service. This is required to send out events 
+	 * when calling {@link #commandCreated(String, ICommand)} and {@link #commandDestroyed(String, ICommand)}
+	 */
 	public CommandTracker(EventAdmin eventService) {
 		if (eventService == null) throw new NullPointerException("The event-service is null.");
 
@@ -106,8 +116,11 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 		this.start();
 	}
 
-	public void commandCreated(String stageID, ICommand command) {
-		if (stageID == null) throw new NullPointerException("The component-id is null.");
+	/**
+	 * @see ICommandTracker#commandCreated(String, ICommand)
+	 */
+	public void commandCreated(String componentID, ICommand command) {
+		if (componentID == null) throw new NullPointerException("The component-id is null.");
 		if (command == null) throw new NullPointerException("The command is null.");
 
 		// add command into datastructures
@@ -123,15 +136,18 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 		}
 
 		// send out a CommandEvent.TOPIC_CREATED event
-		this.eventService.postEvent(CommandEvent.createEvent(stageID, CommandEvent.TOPIC_CREATED, command));		
+		this.eventService.postEvent(CommandEvent.createEvent(componentID, CommandEvent.TOPIC_CREATED, command));		
 	}
 
-	public void commandDestroyed(String stageID, ICommand command) {
-		if (stageID == null) throw new NullPointerException("The component-id is null.");
+	/**
+	 * @see ICommandTracker#commandDestroyed(String, ICommand)
+	 */
+	public void commandDestroyed(String componentID, ICommand command) {
+		if (componentID == null) throw new NullPointerException("The component-id is null.");
 		if (command == null) throw new NullPointerException("The command is null.");
 
 		// send out a CommandEvent.TOPIC_DESTROYED event (this _must_ be send synchronous)
-		this.eventService.sendEvent(CommandEvent.createEvent(stageID, CommandEvent.TOPIC_DESTROYED, command));
+		this.eventService.sendEvent(CommandEvent.createEvent(componentID, CommandEvent.TOPIC_DESTROYED, command));
 	}	
 
 	/**
@@ -144,7 +160,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 		String fqTopic = (String)event.getProperty(EventConstants.EVENT_TOPIC);
 		String topic = fqTopic.substring(fqTopic.lastIndexOf('/')+1);
 
-		this.logger.info(String.format("Command [%06d] %s (%s): %s",
+		this.cmdEventLogger.debug(String.format("Command [%06d] %s (%s): %s",
 				event.getProperty(CommandEvent.PROP_COMMAND_ID),
 				topic,
 				event.getProperty(CommandEvent.PROP_STAGE_ID),
@@ -168,11 +184,18 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 		}
 	}
 
+	/**
+	 * Terminates the {@link #run() cleanup-thread}
+	 * @throws InterruptedException
+	 */
 	public void terminate() throws InterruptedException {
 		this.interrupt();
-		this.join();
+		this.join(2000);
 	}
 
+	/**
+	 * @see Thread#run()
+	 */
 	@Override
 	public void run() {
 		try {
@@ -251,7 +274,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 								cmdRef = this.commandIDTable.remove(commandID);
 								cmdRef.clear();
 
-								this.logger.info(String.format("Command [%06d] removed from destroyed map: %s",
+								this.logger.debug(String.format("Command [%06d] removed from destroyed map: %s",
 										commandID,
 										(commandURI==null)?"unknown":commandURI.toASCIIString()
 								));							
@@ -271,6 +294,9 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 		}
 	}
 
+	/**
+	 * @see ICommandTracker#getCommandByID(Long)
+	 */
 	public ICommand getCommandByID(Long commandID) {		
 		try {
 			if (commandID == null) throw new NullPointerException("The command-ID is null.");
@@ -288,6 +314,9 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 		}
 	}
 
+	/**
+	 * @see ICommandTracker#getCommandByLocation(URI)
+	 */
 	public ICommand getCommandByLocation(URI commandLocation) {
 		try {
 			if (commandLocation == null) throw new NullPointerException("The command-location is null.");
@@ -304,11 +333,18 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 		}
 	}
 
+	/**
+	 * @see ICommandTracker#getTrackingSize()
+	 */
 	public long getTrackingSize() {
 		return this.commandIDTable.size();
 	}
 }
 
+/**
+ * A class to hold information about already {@link CommandTracker#commandDestroyed(String, ICommand) destoryed}
+ * commands that should be kept accessible, otherwise the garbage collection would clean them up.
+ */
 class DestroyedCommandData {
 	public ICommand command;
 	public Long destroyedTime;

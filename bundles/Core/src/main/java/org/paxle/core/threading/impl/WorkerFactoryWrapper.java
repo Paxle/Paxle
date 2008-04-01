@@ -34,10 +34,12 @@ public class WorkerFactoryWrapper<Data,E extends IWorker<Data>> implements Poola
 		this.outQueue = outQueue;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void activateObject(Object obj) throws Exception {
 		this.factory.initWorker((E)obj);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void destroyObject(Object obj) throws Exception {
 		((E)obj).destroy();
 	}

@@ -57,12 +57,30 @@ public class Activator implements BundleActivator {
 	 */
 	private DataManager<ICommand> dataManager = null;
 	
+	/**
+	 * A component providing cypt-functions, e.g. 
+	 * to genererate MD5 checksums, etc.
+	 */
 	private CryptManager cryptManager = null;
 	
+	/**
+	 * A component to create (and cleanup) temp-files
+	 */
 	private TempFileManager tempFileManager = null;
 	
+	/**
+	 * A component to normalize URLs
+	 */
 	private ReferenceNormalizer referenceNormalizer = null;
 	
+	/**
+	 * A component used to track {@link org.paxle.core.queue.Command commands}
+	 */
+	private CommandTracker commandTracker = null;
+	
+	/**
+	 * For logging
+	 */
 	private Log logger;
 	
 	/**
@@ -144,7 +162,7 @@ public class Activator implements BundleActivator {
 	        // the command-tracker
 	        final Hashtable<String, Object> trackerProps = new Hashtable<String, Object>();
 	        trackerProps.put(EventConstants.EVENT_TOPIC, new String[]{CommandEvent.TOPIC_ALL});
-	        bc.registerService(new String[]{EventHandler.class.getName(),ICommandTracker.class.getName()}, new CommandTracker(eventAdmin), trackerProps);
+	        bc.registerService(new String[]{EventHandler.class.getName(),ICommandTracker.class.getName()}, this.commandTracker = new CommandTracker(eventAdmin), trackerProps);
         } else {
         	this.logger.warn("No EventAdmin-service found. Command-tracking will not work.");
         }
@@ -161,5 +179,8 @@ public class Activator implements BundleActivator {
 		this.referenceNormalizer = null;
 		this.dataManager = null;
 		this.filterManager = null;
+		if (this.commandTracker != null) {
+			this.commandTracker.terminate();
+		}
 	}
 }
