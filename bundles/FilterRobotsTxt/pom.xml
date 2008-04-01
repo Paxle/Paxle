@@ -93,11 +93,10 @@
 			<artifactId>commons-codec-osgi</artifactId>
 		</dependency>		
 
-		<!-- cache dependency -->
+		<!-- cache dependencies -->
 		<dependency>
 		    <groupId>net.sf.ehcache</groupId>
 		    <artifactId>ehcache</artifactId>
-		    <version>1.4.1</version>
 			<exclusions>
 				<exclusion>
 				    <groupId>net.sf.jsr107cache</groupId>
@@ -112,7 +111,6 @@
 		 <dependency>
 		    <groupId>backport-util-concurrent</groupId>
 		    <artifactId>backport-util-concurrent</artifactId>
-		    <version>3.1</version>
 		</dependency>
 		
 	</dependencies>
