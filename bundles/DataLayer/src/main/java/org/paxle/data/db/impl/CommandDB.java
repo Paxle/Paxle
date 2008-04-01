@@ -12,13 +12,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.cache.Cache;
-import org.apache.commons.cache.EvictionPolicy;
-import org.apache.commons.cache.GroupMap;
-import org.apache.commons.cache.LRUEvictionPolicy;
-import org.apache.commons.cache.MemoryStash;
-import org.apache.commons.cache.SimpleCache;
-import org.apache.commons.cache.StashPolicy;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -39,7 +36,15 @@ import org.paxle.data.db.ICommandDB;
 public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB {
 	private static final int MAX_IDLE_SLEEP = 60000;
 
-	private Cache urlExistsCache = null;
+	/**
+	 * The cachemanager to use
+	 */
+	private CacheManager manager = null;	
+	
+	/**
+	 * A cach to hold {@link RobotsTxt} objects in memory
+	 */
+	private Cache urlExistsCache = null;	
 	
 	/**
 	 * Component to track {@link ICommand commands}
@@ -131,10 +136,14 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 
 			/* ===========================================================================
 			 * Init Cache
-			 * =========================================================================== */		  
-			LRUEvictionPolicy ep = new LRUEvictionPolicy();
-			this.urlExistsCache = new SimpleCache(new MemoryStash(100000), (EvictionPolicy)ep, (StashPolicy) null, (GroupMap)null, (File)null);
-		} catch (Exception e) {
+			 * =========================================================================== */		
+			// configure caching manager
+			this.manager = new CacheManager();
+			
+			// init a new cache 
+			this.urlExistsCache = new Cache("DoubleURLCache", 100000, false, false, 60*60, 30*60);
+			this.manager.addCache(this.urlExistsCache);
+		} catch (Throwable e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
@@ -224,7 +233,9 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			}
 
 			// flush cache
-			this.urlExistsCache.clear();
+			this.manager.clearAll();
+			this.manager.removalAll();
+			this.manager.shutdown();
 		}finally {
 			this.closed = true;
 		}
@@ -292,7 +303,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			for (ICommand cmd : (List<ICommand>) result) {
 				cmd.setResultText("Enqueued");
 				session.update(cmd);
-				this.urlExistsCache.store(cmd.getLocation(), Boolean.TRUE, null, null);
+				
+				// add command-location into cache
+				Element element = new Element(cmd.getLocation(), null);
+				this.urlExistsCache.put(element);
 			}
 
 			transaction.commit();
@@ -311,7 +325,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			transaction = session.beginTransaction();
 
 			session.saveOrUpdate(cmd);
-			this.urlExistsCache.store(cmd.getLocation(), Boolean.TRUE, null, null);
+			
+			// add command-location into cache
+			Element element = new Element(cmd.getLocation(), null);
+			this.urlExistsCache.put(element);
 
 			transaction.commit();
 
@@ -340,7 +357,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			// check the cache for URL existance
 			Iterator<URI> locationIterator = locations.iterator();
 			while (locationIterator.hasNext()) {
-				if (this.urlExistsCache.contains(locationIterator.next())) {
+				if (this.urlExistsCache.get(locationIterator.next()) != null) {
 					locationIterator.remove();
 				}
 			}
@@ -373,12 +390,18 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			// add new commands into DB
 			for (URI location : locations) {
 				if (knownLocations.contains(location)) {
-					this.urlExistsCache.store(location, Boolean.TRUE, null, null);
+					// add command-location into cache
+					Element element = new Element(location, null);
+					this.urlExistsCache.put(element);
+
 					known++;
 					continue;
 				}
 				session.saveOrUpdate(Command.createCommand(location));	
-				this.urlExistsCache.store(location, Boolean.TRUE, null, null);
+				
+				// add command-location into cache
+				Element element = new Element(location, null);
+				this.urlExistsCache.put(element);
 			}
 
 			transaction.commit();

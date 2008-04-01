@@ -56,12 +56,14 @@
 							org.paxle.data.impl.Activator
 						</Bundle-Activator>
 						<Bundle-SymbolicName>org.paxle.DataLayer</Bundle-SymbolicName>
-<Bundle-Name>org.paxle.DataLayer</Bundle-Name>
+						<Bundle-Name>org.paxle.DataLayer</Bundle-Name>
+						
 						<!-- embedding libs -->
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
-							commons-cache;scope=compile|runtime,
+							ehcache;scope=compile|runtime,
+							backport-util-concurrent;scope=compile|runtime,
 							hibernate;scope=compile|runtime,
 							antlr;scope=compile|runtime,
 							asm;scope=compile|runtime,
@@ -91,11 +93,27 @@
 			</exclusions>				
 		</dependency>
 
+		<!-- cache dependencies -->
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-cache</artifactId>
-			<version>20070912-SNAPSHOT</version>
+		    <groupId>net.sf.ehcache</groupId>
+		    <artifactId>ehcache</artifactId>
+			<exclusions>
+				<exclusion>
+				    <groupId>net.sf.jsr107cache</groupId>
+				    <artifactId>jsr107cache</artifactId>
+				</exclusion>
+				<exclusion>
+				    <groupId>commons-collections</groupId>
+				    <artifactId>commons-collections</artifactId>
+				</exclusion>				
+			</exclusions>		    
 		</dependency>
+		 <dependency>
+		    <groupId>backport-util-concurrent</groupId>
+		    <artifactId>backport-util-concurrent</artifactId>
+		</dependency>
+		
+		<!-- hibernate dependencies -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate</artifactId>
