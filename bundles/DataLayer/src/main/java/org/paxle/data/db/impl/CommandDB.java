@@ -1,12 +1,12 @@
 package org.paxle.data.db.impl;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -160,7 +160,14 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			String dbDriver = props.getProperty("connection.driver_class");
 			if (dbDriver != null && dbDriver.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
 				c = DriverManager.getConnection(props.getProperty("connection.url"));
+				
+				// create index on command-location
 				PreparedStatement p = c.prepareStatement("CREATE INDEX LOCATION_IDX on COMMAND (location)");
+				p.execute();
+				p.close();
+				
+				// create index on command-status
+				p = c.prepareStatement("CREATE INDEX RESULT_IDX on COMMAND (result)");
 				p.execute();
 				p.close();
 			}
@@ -241,8 +248,13 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		}
 	}
 
-	public boolean isKnown(String location) {
-		if (location == null || location.length() == 0) return false;
+	/**
+	 * @see ICommandDB#isKnown(URI)
+	 */
+	public boolean isKnown(URI location) {
+		if (location == null) return false;
+		if (this.urlExistsCache.get(location) != null) return true;
+		
 		boolean known = false;
 
 		Session session = sessionFactory.getCurrentSession();
@@ -250,14 +262,18 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		try {
 			transaction = session.beginTransaction();
 
-			Query query = session.createQuery("SELECT count(location) FROM ICommand as cmd WHERE location = ?").setString(0, location);
+			Query query = session.createQuery("SELECT count(location) FROM ICommand as cmd WHERE location = ?").setParameter(0, location);
 			Long result = (Long) query.uniqueResult();
 			known = (result != null && result.longValue() > 0);
 
 			transaction.commit();
-		} catch (HibernateException e) {
+		} catch (Exception e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-			this.logger.error("Error while testing if location is known.",e);
+			this.logger.error(String.format(
+					"Unexpected '%s' while testing if location '%s' is known.",
+					e.getClass().getName(),
+					location.toASCIIString()
+			),e);
 		}	
 
 		return known;
@@ -318,7 +334,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		return result;
 	}
 
-	public synchronized void storeCommand(ICommand cmd) {
+	private synchronized void storeCommand(ICommand cmd) {
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
 		try {
@@ -338,6 +354,14 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
 			this.logger.error(String.format("Error while writing command with location '%s' to db.", cmd.getLocation()),e);
 		}
+	}
+	
+	/**
+	 * @see ICommandDB#enqueue(URI)
+	 */
+	public boolean enqueue(URI location) {
+		if (location == null) return false;
+		return this.storeUnknownLocations(Arrays.asList(new URI[]{location})) == 0;
 	}
 	
 	/**
@@ -421,15 +445,32 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 
 	/**
 	 * @return the total size of the command db
+	 * @see ICommandDB#size()
 	 */
-	public long size() {		
+	public long size() {
+		return this.size(null);
+	}
+	
+	/**
+	 * @see ICommandDB#enqueuedSize()
+	 */
+	public long enqueuedSize() {
+		return this.size("enqueued");
+	}
+	
+	private long size(String type) {
 		Long count = Long.valueOf(-1l);
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
 		try {
 			transaction = session.beginTransaction();
 
-			count = (Long) session.createQuery("select count(*) from ICommand").uniqueResult();
+			String sqlString = "select count(*) from ICommand as cmd";
+			if (type != null && type.equals("enqueued")) {
+				sqlString += " WHERE (cmd.result = 'Passed') AND (cmd.resultText is null) AND (cmd.crawlerDocument is null)";
+			}
+			
+			count = (Long) session.createQuery(sqlString).uniqueResult();
 
 			transaction.commit();
 		} catch (HibernateException e) {
@@ -439,6 +480,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 
 		return count.longValue();
 	}
+	
+
 
 	/**
 	 * Resets the command queue
