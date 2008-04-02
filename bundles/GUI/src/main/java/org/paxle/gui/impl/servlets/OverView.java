@@ -110,7 +110,16 @@ public class OverView extends ALayoutServlet {
 			// set index searcher
 			context.put("indexSearcher", manager.getService("org.paxle.se.index.IIndexSearcher"));
 			
-			template = getTemplate("/resources/templates/OverView.vm");
+			String reload = request.getParameter("reload");
+			if (reload == null) {
+				template = getTemplate("/resources/templates/OverView.vm");
+			} else if (reload.equals("activity")) {
+				// we don't want full html 
+				context.put("layout", "plain.vm");
+				
+				// just return the activity overview
+				template = getTemplate("/resources/templates/OverViewActivity.vm");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

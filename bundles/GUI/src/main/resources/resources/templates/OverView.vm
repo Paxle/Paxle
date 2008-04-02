@@ -1,6 +1,9 @@
 ## Page title
 #set($page_title = "Paxle Peer Status")
 
+#set( $h1 = "<script src='/js/prototype.js' type='text/javascript'></script>")
+#set( $page_headers = [$h1] )
+
 ## Content
 #set ( $bodyonload = "initTabs('system');" )
 
@@ -91,52 +94,22 @@
 	</dl>
 </fieldset>
 #end
-	
-#if( $services.size() > 0)
-<fieldset class="infobox">
-	<legend class="ovActivity">Activity</legend>
-	<table>
-		<tr>
-			<th>#</th>
-			<th>Status</th>
-			<th>Component</th>
-			<th>PPM</th>
-			<th>Active</th>
-			<th>Enqueued</th>
-		</tr>
-		#foreach( $entry in $services)
-		#if ( $entry.getCount() == 1)
-			#set( $name = $entry.getName())
-		#else
-			#set( $name = $entry.getName() + "s")
-		#end
-		<tr>
-			<td>$entry.getCount()</td>	
-			<td>
-				<form method="get" action="">
-					<p>
-					#if( $entry.service.isPaused() == true)
-						<input type="hidden" name="service" value="$entry.getName()" />
-						<input class="btnResume" type="submit" name="resume" value="Resume" />
-					#else 
-						<input type="hidden" name="service" value="$entry.getName()" />
-						<input class="btnPause" type="submit" name="pause" value="Pause" />
-					#end
-					</p>
-				</form>
-			</td>
-			<td>
-				#if ( $queueServletExists == true)
-				<a href="/queue?queue=$entry.getId()">$name</a>
-				#else
-				$name
-				#end
-			</td>
-			<td>$entry.getService().getPPM()</td>
-			<td>$entry.getService().getActiveJobCount()</td>
-			<td>$entry.getService().getEnqueuedJobCount()</td>
-		</tr>
-		#end
-	</table>
-</fieldset>
-#end
+
+
+<script type="text/javascript">
+   var ajaxPopulater = function (id,reload){
+    var url  = '/overview?reload=' + reload;
+    new Ajax.PeriodicalUpdater(id, url,   
+    {
+     method: 'post',
+     frequency: 5,
+     asynchronous: true,
+     decay: 1
+    });
+   };
+   
+   ajaxPopulater('infoBoxActivity','activity');
+  </script>
+  <div id="infoBoxActivity">
+	#parse('/resources/templates/OverViewActivity.vm')
+  </div>

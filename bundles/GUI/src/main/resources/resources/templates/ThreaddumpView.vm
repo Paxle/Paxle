@@ -5,6 +5,15 @@
 <h2>Thread Dump:</h2>
 
 #if($dumps)
+		<ul>
+		#foreach($thread in $sortTool.sort($dumps.keySet(),["name"]))
+			
+			## thread-name
+			<li><a href="#${thread.getId()}">$thread.getName()</a></li>
+	
+		#end
+		</ul>
+		<hr/>
 	
 		## A typical thread-dump looks like:
 		##
@@ -17,7 +26,7 @@
 			#set($thread = $dump.getKey())
 			
 			## thread-name
-			<tt>"$thread.getName()"&nbsp;</tt>
+			<tt><a name="${thread.getId()}">"$thread.getName()"&nbsp;</a></tt>
 			
 			## if it is a deamon
 			<tt>#if($thread.isDaemon())daemon&nbsp;#{end}</tt>
