@@ -23,26 +23,31 @@
 </p>
 #end
 
+<form action="/crawler" method="post">
+<fieldset>
+	<legend>Profile</legend>
+	<table>
+	<tr><td>Profile Name:</td><td><input type="depth" id="crawlDepth" name="profileName" value="$!defaultName"/></td></tr>
+	<tr><td>Crawl Depth:</td><td><input type="depth" id="crawlDepth" name="crawlDepth" value="$!defaultDepth"/></td></tr>
+	</table>
+</fieldset>
+
 <fieldset id="dsinglecrawl">
-	<legend>Crawl URL</legend>
-	<form action="/crawler" method="post">
+	<legend>Crawl URL</legend>	
 		<p>
 			<input type="text" id="startURL" name="startURL" />
-			<input type="submit" value="Start Crawl" />
+			<input type="submit" name="crawlSingle" value="Start Crawl" />
 		</p>
-	</form>
 </fieldset>
 
 <fieldset id="dmasscrawl">
 	<legend>MassCrawl URL</legend>
-		<form action="/crawler" method="post">
-			<p>
-				<textarea cols="80" rows="15" name="startURL2"></textarea>
-				<br />
-				<input type="submit" value="Start Crawl" />
-			</p>
-	</form>
+		<p>
+			<textarea cols="80" rows="15" name="startURL2"></textarea>
+			<input type="submit" name="crawlMass" value="Start Crawl" />
+		</p>
 </fieldset>
+</form>
 
 <fieldset id="dstatuscrawl">
 	<legend>Crawler Status</legend>

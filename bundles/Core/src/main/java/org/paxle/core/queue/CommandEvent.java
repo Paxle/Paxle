@@ -72,6 +72,14 @@ public class CommandEvent {
 	public static final String PROP_COMMAND_ID = "commandID";
 	
 	/**
+	 * The {@link ICommandProfile#getOID() profile-ID} fot he
+	 * {@link ICommandProfile profile} the command belongs to.
+	 * <p/>
+	 * This value must be of type {@link Long}.
+	 */
+	public static final String PROP_PROFILE_ID = "profileID";
+	
+	/**
 	 * The {@link ICommand#getLocation() command-location}.
 	 * <p/> 
 	 * This value must be of type {@link URI}.
@@ -120,6 +128,7 @@ public class CommandEvent {
 	@SuppressWarnings("unchecked")
 	private static void extractCommandProps(String componentID, ICommand command, Dictionary properties) {
 		properties.put(PROP_COMMAND_ID, Long.valueOf(command.getOID()));
+		properties.put(PROP_PROFILE_ID, Long.valueOf(command.getProfileOID()));
 		properties.put(PROP_COMMAND_LOCATION, command.getLocation().toASCIIString());
 		
 		ICommand.Result result = command.getResult();

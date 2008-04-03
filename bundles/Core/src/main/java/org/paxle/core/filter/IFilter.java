@@ -36,7 +36,9 @@ public interface IFilter<C extends ICommand> {
 	
 	/**
 	 * Function to process a given {@link ICommand} by a filter.
-	 * @param command the {@link ICommand} to process
+	 * 
+	 * @param command the {@link ICommand} to process. Note that a filter receives all {@link ICommand}, 
+	 * independently of their {@link ICommand#getResult() status}. 
 	 * @param filterContext an object containing context-specific parameters that should
 	 * be passed to the filter. 
 	 */

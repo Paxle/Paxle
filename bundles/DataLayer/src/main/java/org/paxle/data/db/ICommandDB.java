@@ -27,5 +27,5 @@ public interface ICommandDB {
 	 * @param location the {@link URI} to enqueue
 	 * @return <code>false</code> if the {@link URI} was not enqueued because it is already {@link #isKnown(URI) known}
 	 */
-	public boolean enqueue(URI location);
+	public boolean enqueue(URI location, int profileID, int depth);
 }

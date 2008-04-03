@@ -212,7 +212,7 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
             }
             
             // wait until the worker has dequeued the command
-            this.wait(1000);
+            this.wait(10000);
         }
     }
     

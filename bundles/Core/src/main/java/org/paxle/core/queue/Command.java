@@ -17,18 +17,69 @@ public class Command implements ICommand {
 	 */
 	private int _oid;
 	
+	/**
+	 * 
+	 */
+	private int depth = 0;
+	
+	/**
+	 * ID of the {@link ICommandProfile profile} this {@link ICommand}
+	 * belongs to.
+	 */
+	private int profileID = -1;
+	
+	/**
+	 * Current status of {@link ICommand} processing. 
+	 * @see #getResult()
+	 */
 	private Result result = Result.Passed;
+	
+	/**
+	 * A textual description of {@link #result}
+	 * @see #getResultText()
+	 */
 	private String resultText = null;
 	
+	/**
+	 * The location of the document to process.
+	 * @see #getLocation()
+	 */
 	private URI location = null;
 	
+	/**
+	 * The crawled {@link ICrawlerDocument document}
+	 */
 	private ICrawlerDocument crawlerDoc = null;
+	
+	/**
+	 * The parsed {@link IParserDocument document}.
+	 * A {@link IParserDocument parser-document} can contain multiple
+	 * {@link IParserDocument sub-parser-document}
+	 */
 	private IParserDocument parserDoc = null;
+	
+	/**
+	 * The indexed {@link IIndexerDocument documents}-
+	 */
 	private List<IIndexerDocument> indexerDocs = new LinkedList<IIndexerDocument>();
 
+	/**
+	 * @param location the location of the document to process.
+	 * @return
+	 */
 	public static Command createCommand(URI location) {
+		return createCommand(location, -1);
+	}
+	
+	public static Command createCommand(URI location, int profileOID) {
+		return createCommand(location, profileOID, 0);
+	}
+	
+	public static Command createCommand(URI location, int profileOID, int depth) {
 		Command cmd = new Command();
 		cmd.setLocation(location);
+		cmd.setProfileOID(profileOID);
+		cmd.setDepth(depth);
 		return cmd;
 	}
 
@@ -40,13 +91,29 @@ public class Command implements ICommand {
     	this._oid = OID; 
     }	
 	
+    public int getProfileOID() {
+    	return this.profileID;
+    }
+    
+    public void setProfileOID(int profileOID) {
+    	this.profileID = profileOID;
+    }
+    
+    public int getDepth() {
+    	return this.depth;
+    }
+    
+    public void setDepth(int depth) {
+    	if (depth < 0) throw new IllegalArgumentException("The depth must be greater or qual 0.");
+    	this.depth = depth;
+    }
+    
 	public ICrawlerDocument getCrawlerDocument() {
 		return this.crawlerDoc;
 	}
 
 	public void setCrawlerDocument(ICrawlerDocument crawlerDoc) {
 		this.crawlerDoc = crawlerDoc;
-//		if (this.crawlerDoc != null) this.crawlerDoc.setCommand(this);
 	}	
 
 	public IParserDocument getParserDocument() {

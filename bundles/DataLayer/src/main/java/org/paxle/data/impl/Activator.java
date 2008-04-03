@@ -15,7 +15,10 @@ import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.queue.ICommandTracker;
+import org.paxle.data.db.ICommandDB;
+import org.paxle.data.db.ICommandProfileDB;
 import org.paxle.data.db.impl.CommandDB;
+import org.paxle.data.db.impl.CommandProfileFilter;
 import org.paxle.data.db.impl.UrlExtractorFilter;
 import org.paxle.data.txt.impl.TextCommandReader;
 
@@ -109,12 +112,31 @@ public class Activator implements BundleActivator {
 			final Hashtable<String,String> props = new Hashtable<String,String>();
 //			props.put(IDataConsumer.PROP_DATACONSUMER_ID, "org.paxle.indexer.source");
 			props.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.crawler.sink");		
-			bc.registerService(new String[]{IDataConsumer.class.getName(),IDataProvider.class.getName()}, commandDB, props);
+			bc.registerService(new String[]{
+					IDataConsumer.class.getName(),
+					IDataProvider.class.getName(),
+					ICommandDB.class.getName(),
+					ICommandProfileDB.class.getName()
+			}, commandDB, props);
 
-			// register filter
-			Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
-			filterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{"org.paxle.parser.out; pos=" + Integer.MAX_VALUE});
-			bc.registerService(IFilter.class.getName(), new UrlExtractorFilter(commandDB), filterProps);	
+			/* =====================================================
+			 * Register filters
+			 * ===================================================== */
+			
+			// command-extraction filter
+			Hashtable<String, String[]> urlExtractorFilterProps = new Hashtable<String, String[]>();
+			urlExtractorFilterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{
+					String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.MAX_VALUE)
+			});
+			bc.registerService(IFilter.class.getName(), new UrlExtractorFilter(commandDB), urlExtractorFilterProps);	
+			
+			// command-profile filter
+			Hashtable<String, String[]> profileFilterProps = new Hashtable<String, String[]>();
+			profileFilterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{
+					String.format("org.paxle.crawler.in; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.MIN_VALUE),
+					String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.MAX_VALUE-1)
+			});
+			bc.registerService(IFilter.class.getName(), new CommandProfileFilter(commandDB), profileFilterProps);	
 
 			// start the commandDB
 			commandDB.start();

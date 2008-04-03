@@ -11,7 +11,9 @@ import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.IndexerDocument;
 import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.queue.Command;
+import org.paxle.core.queue.CommandProfile;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandProfile;
 
 public class InterfaceInterceptor extends EmptyInterceptor {
 	private static final long serialVersionUID = 1L;
@@ -25,6 +27,8 @@ public class InterfaceInterceptor extends EmptyInterceptor {
         	return IParserDocument.class.getName();
         } else if (object instanceof IIndexerDocument) {
         	return IIndexerDocument.class.getName();
+        } else if (object instanceof ICommandProfile) {
+        	return ICommandProfile.class.getName();
         }
         return super.getEntityName(object);
     }
@@ -46,7 +50,11 @@ public class InterfaceInterceptor extends EmptyInterceptor {
         	IIndexerDocument indexerDocument = new IndexerDocument();
         	indexerDocument.setOID((Integer)id);
         	return indexerDocument;
-        } 
+        } else if (entityName.equals(ICommandProfile.class.getName())) {
+        	ICommandProfile profile = new CommandProfile();
+        	profile.setOID((Integer)id);
+        	return profile;
+        }
         return super.instantiate(entityName, entityMode, id);
     }
 }

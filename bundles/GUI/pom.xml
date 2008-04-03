@@ -47,6 +47,7 @@
 							org.paxle.core.doc,
 							org.paxle.core,
 							org.paxle.p2p.services;resolution:=optional,
+							org.paxle.data.db;resolution:=optional,
 							!*
 						</Import-Package>
 						<Private-Package>
@@ -162,5 +163,23 @@
 			<version>2.0.2</version>
 			<scope>compile</scope>
 		</dependency>		
+		
+
+		<dependency>
+			<groupId>org.jmock</groupId>
+			<artifactId>jmock</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jmock</groupId>
+			<artifactId>jmock-junit3</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>SearchEngine</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>				
 	</dependencies>
 </project>

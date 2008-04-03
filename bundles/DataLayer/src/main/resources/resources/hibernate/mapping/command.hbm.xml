@@ -13,10 +13,14 @@
 				<param name="enumClassName">org.paxle.core.queue.ICommand$Result</param>
 			</type>
       	</property>
-      	<property name="resultText" node="Result/Text"/>        
+      	<property name="resultText" node="Result/Text"/>    
       	
       	<!-- the resource location -->
     	<property name="location" node="Location" length="512" index="location_idx" type="org.paxle.data.db.impl.URIUserType"/>
+        
+        <property name="profileOID" column="profileID" type="integer"/>
+
+    	<property name="depth" type="integer"/>
         
         <!-- the crawler document -->
 	    <many-to-one name="crawlerDocument" column="crawlerDocId" unique="true" cascade="all" embed-xml="true"/>

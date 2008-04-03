@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,10 +31,12 @@ import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.data.db.ICommandDB;
+import org.paxle.data.db.ICommandProfileDB;
 
-public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB {
+public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, ICommandProfileDB {
 	private static final int MAX_IDLE_SLEEP = 60000;
 
 	/**
@@ -116,7 +119,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 					config.addURL(mapping);
 				}
 
-				// String[] sql = config.generateSchemaCreationScript( new org.hibernate.dialect.MySQLDialect());
+				String[] sql = config.generateSchemaCreationScript( new org.hibernate.dialect.MySQLDialect());
 
 				// create the session factory
 				sessionFactory = config.buildSessionFactory();
@@ -359,19 +362,22 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	/**
 	 * @see ICommandDB#enqueue(URI)
 	 */
-	public boolean enqueue(URI location) {
+	public boolean enqueue(URI location, int profileID, int depth) {
 		if (location == null) return false;
-		return this.storeUnknownLocations(Arrays.asList(new URI[]{location})) == 0;
+		return this.storeUnknownLocations(profileID, depth, new ArrayList<URI>(Arrays.asList(new URI[]{location}))) == 0;
 	}
 	
 	/**
 	 * First queries the DB to remove all known locations from the list and then updates
 	 * it with the new list.
 	 * 
+	 * @param profileID the ID of the {@link ICommandProfile}, newly created 
+	 * commands should belong to
+	 * @param depth depth of the new {@link ICommand} 
 	 * @param locations the locations to add to the DB
 	 * @return the number of known locations in the given list
 	 */
-	int storeUnknownLocations(List<URI> locations) {
+	int storeUnknownLocations(int profileID, int depth, ArrayList<URI> locations) {
 		if (locations == null || locations.size() == 0) return 0;
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
@@ -421,7 +427,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 					known++;
 					continue;
 				}
-				session.saveOrUpdate(Command.createCommand(location));	
+				session.saveOrUpdate(Command.createCommand(location,profileID,depth));	
 				
 				// add command-location into cache
 				Element element = new Element(location, null);
@@ -498,6 +504,40 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
 			this.logger.error("Error while reseting queue.",e);
+		}
+	}
+	
+	public ICommandProfile getProfileByID(int profileID) {		
+		Session session = sessionFactory.getCurrentSession();
+		Transaction transaction = null;
+		try {
+			transaction = session.beginTransaction();
+			ICommandProfile profile = (ICommandProfile) session.load(ICommandProfile.class, profileID);
+			transaction.commit();
+			return profile;
+		} catch (HibernateException e) {
+			if (transaction != null && transaction.isActive()) transaction.rollback(); 
+			this.logger.error(String.format("Error while writing profile with ID '%d' to db.", profileID),e);
+			throw e;
+		}
+	}
+	
+	/**
+	 * @see ICommandProfileDB#storeProfile(ICommandProfile)
+	 */
+	public void storeProfile(ICommandProfile profile) {
+		if (profile == null) throw new NullPointerException("Profile was null");
+		
+		Session session = sessionFactory.getCurrentSession();
+		Transaction transaction = null;
+		try {
+			transaction = session.beginTransaction();
+			session.saveOrUpdate(profile);
+			transaction.commit();		
+		} catch (HibernateException e) {
+			if (transaction != null && transaction.isActive()) transaction.rollback(); 
+			this.logger.error(String.format("Error while writing profile '%s' to db.", profile.getName()),e);
+			throw e;
 		}
 	}
 
