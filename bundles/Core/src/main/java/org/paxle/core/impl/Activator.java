@@ -151,7 +151,10 @@ public class Activator implements BundleActivator {
         
         // add AscendingPathUrlExtraction filter
 		final Hashtable<String,String[]> props2 = new Hashtable<String,String[]>();
-        props2.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.parser.out; pos=60;"});
+        props2.put(IFilter.PROP_FILTER_TARGET, new String[] {
+        		// apply filter to the parser-output-queue at position 60
+        		String.format("org.paxle.parser.out; %s=%d;",IFilter.PROP_FILTER_TARGET_POSITION,60)
+        });
         bc.registerService(IFilter.class.getName(), new AscendingPathUrlExtractionFilter(), props2);
         
         // getting the Event-Admin service
