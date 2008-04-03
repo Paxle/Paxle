@@ -13,6 +13,8 @@ public interface IFilter<C extends ICommand> {
 	 * 
 	 * These additional properties are then accessible by the filter via
 	 * {@link IFilterContext#getFilterProperties()}.
+	 * <p/>
+	 * The value of this property must be an array of strings.
 	 */
 	public static final String PROP_FILTER_TARGET = "FilterTarget";
 	
@@ -24,7 +26,7 @@ public interface IFilter<C extends ICommand> {
 	 * e.g.
 	 * <pre>
 	 * Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
-	 * filterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{"org.paxle.parser.out; pos=10"});
+	 * filterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{String.format("org.paxle.parser.out; %s=%d", IFilter.PROP_FILTER_TARGET_POSITION,10)});
 	 * bc.registerService(IFilter.class.getName(), new MyFilter(), filterProps);	
 	 * </pre>
 	 * 
