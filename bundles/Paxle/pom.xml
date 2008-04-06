@@ -51,22 +51,14 @@
 		<felix.dependencies>target/dependency/felix</felix.dependencies>
 	</properties>
 
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-					<aggregate>true</aggregate>
-					<debug>true</debug>
-					<links>
-						<link>http://java.sun.com/j2se/1.5.0/docs/api</link>
-						<link>http://www2.osgi.org/javadoc/r4/</link>
-					</links>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
+	<licenses>
+		<license>
+			<name>CPL 1.0</name>
+			<url>http://www.opensource.org/licenses/cpl1.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>Ask if you need an alternative license.</comments>
+		</license>
+	</licenses>
 
 	<!-- plugin settings -->
 	<build>

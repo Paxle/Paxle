@@ -41,6 +41,50 @@
 		<url>https://bugs.pxl.li/</url>
 	</issueManagement>
 
+	<licenses>
+		<license>
+			<name>CPL 1.0</name>
+			<url>http://www.opensource.org/licenses/cpl1.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>Ask if you need an alternative license.</comments>
+		</license>
+	</licenses>
+	
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+<!--					<aggregate>true</aggregate>-->
+					<debug>true</debug>
+					<links>
+						<link>
+							http://java.sun.com/j2se/1.5.0/docs/api
+						</link>
+						<link>http://www2.osgi.org/javadoc/r4/</link>
+					</links>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>taglist-maven-plugin</artifactId>
+				<configuration>
+<!--					<aggregate>true</aggregate>-->
+					<tags>
+                        <tag>TODO</tag>
+                        <tag>TODO:</tag>
+                        <tag>FIXME:</tag>
+                        <tag>FIXME:</tag>
+                        <tag>XXX</tag>
+                        <tag>XXX:</tag>
+                        <tag>@deprecated</tag>						
+					</tags>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>	
+
 	<!-- plugin settings -->
 	<build>
 		<!-- central plugin management to set the plugin versions to use -->
