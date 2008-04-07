@@ -2,10 +2,19 @@
 package org.paxle.util;
 
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 public class ArrayByteBuffer extends OutputStream implements Cloneable {
 	
 	private static final int INC_BUF_BYTES = 8;
+	
+	public static ArrayByteBuffer wrap(final byte[] b) {
+		return new ArrayByteBuffer(b, b.length);
+	}
+	
+	public static ArrayByteBuffer wrap(final byte[] b, final int len) {
+		return new ArrayByteBuffer(b, len);
+	}
 	
 	protected byte[] buf;
 	protected int len;
@@ -28,7 +37,7 @@ public class ArrayByteBuffer extends OutputStream implements Cloneable {
 		this.len = len;
 	}
 	
-	public ArrayByteBuffer(final byte[] buf, final int len) {
+	private ArrayByteBuffer(final byte[] buf, final int len) {
 		if (len > buf.length)
 			throw new IndexOutOfBoundsException("len > buf.length: " + len);
 		this.buf = buf;
@@ -63,6 +72,11 @@ public class ArrayByteBuffer extends OutputStream implements Cloneable {
 		return true;
 	}
 	
+	@Override
+	public String toString() {
+		return new String(buf, 0, len);
+	}
+	
 	protected void checkLength(final int additional) {
 		final int add = len + additional - buf.length;
 		if (add > 0) {
@@ -78,6 +92,10 @@ public class ArrayByteBuffer extends OutputStream implements Cloneable {
 		final byte[] r = new byte[len];
 		System.arraycopy(buf, 0, r, 0, len);
 		return r;
+	}
+	
+	public String toString(final Charset cs) {
+		return new String(buf, 0, len, cs);
 	}
 	
 	public byte[] getBuffer() {
@@ -136,9 +154,47 @@ public class ArrayByteBuffer extends OutputStream implements Cloneable {
 	public ArrayByteBuffer append(final byte[] b, final int off, final int len) {
 		checkLength(len);
 		if (off < 0 || off + len > b.length)
-			throw new ArrayIndexOutOfBoundsException("off: " + off + ", len: " + len);
+			throw new IndexOutOfBoundsException("off: " + off + ", len: " + len);
 		System.arraycopy(b, off, buf, this.len, len);
 		this.len += len;
+		return this;
+	}
+	
+	/* -------------------------------------------------------------------- */
+	
+	public ArrayByteBuffer replace(final byte[] b, final int from) {
+		return replace(b, 0, b.length, from, from + b.length);
+	}
+	
+	public ArrayByteBuffer replace(final byte[] b, final int off, final int len, final int from) {
+		return replace(b, off, len, from, from + len);
+	}
+	
+	public ArrayByteBuffer replace(final byte[] b, final int from, final int to) {
+		return replace(b, 0, b.length, from, to);
+	}
+	
+	public ArrayByteBuffer replace(final byte[] b, final int off, final int num, final int from, final int to) {
+		if (off < 0 || off + num > b.length)
+			throw new IndexOutOfBoundsException("off: " + off + ", num: " + num);
+		if (from < 0 || to < from || to > len)
+			throw new IndexOutOfBoundsException("from: " + from  + ", to: " + to + ", len: " + len);
+		
+		System.out.println("replacing: from: " + from + ", to: " + to + " - off: " + off + ", num: " + num);
+		
+		final int delta = to - from;
+		final int add = num - delta;
+		if (add == 0) {
+			System.arraycopy(b, off, buf, from, num);				// directly replace bytes in buf with b
+		} else if (add < 0) {
+			System.arraycopy(b, off, buf, from, num);				// copy b into buf
+			System.arraycopy(buf, to, buf, to + add, len - to);		// move bytes in buf from 'to' to replacement end @ to + add (== from + num)
+		} else {
+			checkLength(add);										// ensure additional space
+			System.arraycopy(buf, to, buf, to + add, len - to);		// move bytes in buf from 'to' to replacement end @ to + add
+			System.arraycopy(b, off, buf, from, num);				// copy b into buf
+		}
+		len += add;
 		return this;
 	}
 	

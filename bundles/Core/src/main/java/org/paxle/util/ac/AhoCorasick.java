@@ -335,7 +335,7 @@ public class AhoCorasick<E> {
 	 * This method cleans up all fail-transitions added previously and also clears the added fail-values of
 	 * the nodes via {@link ANode#clearFailValues()}, no prior cleanup-step is required.
 	 */
-	private void createFailTransitions() {
+	public void createFailTransitions() {
 		// breadth-first => nodes nearer to root are already processed
 		final Queue<ANode<E>> queue = new LinkedList<ANode<E>>();
 		for (final ANode<E> node : root) {
