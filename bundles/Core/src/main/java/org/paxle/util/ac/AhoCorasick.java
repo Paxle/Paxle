@@ -397,8 +397,10 @@ public class AhoCorasick<E> {
 		}
 		final boolean r = (last.getFirstValue() == null);
 		last.setFirstValue(value, p.length);
-		if (r) size++;
-		dirty = true;
+		if (r) {
+			size++;
+			dirty = true;
+		}
 		return r;
 	}
 	

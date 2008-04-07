@@ -30,7 +30,7 @@ public class AhoCorasickTest extends TestCase {
     				assertTrue(4 == r.getMatchBegin());
     				break;
     			default:
-    				assertFalse("Matched too many patterns: " + i, false);
+    				assertFalse("Matched too many patterns: " + i, true);
     		}
     	}
 	}
