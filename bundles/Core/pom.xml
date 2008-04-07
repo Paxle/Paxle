@@ -28,7 +28,7 @@
 						<Export-Package>
 							org.paxle.core.queue,
 							org.paxle.core.threading, 
-							org.pa xle.core,
+							org.paxle.core,
 							org.paxle.core.filter, 
 							org.paxle.core.data,
 							org.paxle.core.doc, 
@@ -39,7 +39,9 @@
 							org.paxle.core.norm,
 							org.paxle.core.crypt, 
 							org.paxle.core.io,
-							org.paxle.core.prefs
+							org.paxle.core.prefs,
+							org.paxle.util,
+							org.paxle.util.ac
 						</Export-Package>
 						<Import-Package>
 							org.apache.commons.logging,

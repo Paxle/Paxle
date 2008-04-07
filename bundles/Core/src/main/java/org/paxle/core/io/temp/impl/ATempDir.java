@@ -9,7 +9,7 @@ import org.paxle.core.io.temp.ITempDir;
 
 public abstract class ATempDir implements ITempDir {
 	
-	protected static AtomicInteger num = new AtomicInteger(0);
+	protected static final AtomicInteger num = new AtomicInteger(0);
 	protected static int numLength = 3;
 	
 	protected final String prefix;

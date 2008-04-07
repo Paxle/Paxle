@@ -117,7 +117,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 		
 		// create a master thread
 		IMaster master = new Master<Data>(pool, inQueue);
-		((Master)master).setName(this.bundle.getSymbolicName() + ".Master");
+		((Master<?>)master).setName(this.bundle.getSymbolicName() + ".Master");
 		
 		// create the component and return it
 		MWComponent<Data> component = new MWComponent<Data>(master,pool,inQueue,outQueue);
@@ -125,7 +125,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 		return component;
 	}
 
-	public void registerComponentServices(IMWComponent component, BundleContext bc) throws IOException {
+	public void registerComponentServices(IMWComponent<?> component, BundleContext bc) throws IOException {
 		this.registerComponentServices(
 				bc.getBundle().getSymbolicName(),
 				(String) bc.getBundle().getHeaders().get(Constants.BUNDLE_NAME),
@@ -139,7 +139,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 			final String componentID, 
 			final String componentName,
 			final String componentDescription,
-			final IMWComponent component, 
+			final IMWComponent<?> component, 
 			final BundleContext bc
 	) throws IOException {
 		ServiceReference ref = bc.getServiceReference(EventAdmin.class.getName());
@@ -224,7 +224,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 		bc.registerService(new String[]{ManagedService.class.getName(),MetaTypeProvider.class.getName()}, component, managedServiceProps);		
 	}
 
-	public void unregisterComponentServices(String componentID, IMWComponent component, BundleContext bc) {
+	public void unregisterComponentServices(String componentID, IMWComponent<?> component, BundleContext bc) {
 		// TODO:
 	}
 }

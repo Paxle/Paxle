@@ -29,9 +29,9 @@ public interface IMWComponentFactory {
 			int queueBufferSize,
 			Class<Data> clazz);
 	
-	public void registerComponentServices(IMWComponent component, BundleContext bc) throws IOException;
+	public void registerComponentServices(IMWComponent<?> component, BundleContext bc) throws IOException;
 	
-	public void unregisterComponentServices(String componentID, IMWComponent component, BundleContext bc);
+	public void unregisterComponentServices(String componentID, IMWComponent<?> component, BundleContext bc);
 
 	/**
 	 * This function registers a previously created {@link IMWComponent} as multiple services to the OSGi framework.
@@ -50,5 +50,5 @@ public interface IMWComponentFactory {
 	 * @param bc 
 	 * @throws IOException
 	 */
-	public void registerComponentServices(String componentID, String componentName, String componentDescription, IMWComponent component, BundleContext bc) throws IOException;
+	public void registerComponentServices(String componentID, String componentName, String componentDescription, IMWComponent<?> component, BundleContext bc) throws IOException;
 }

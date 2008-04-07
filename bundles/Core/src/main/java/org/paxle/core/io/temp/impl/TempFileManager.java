@@ -39,10 +39,13 @@ public class TempFileManager implements ITempFileManager {
 	public File createTempFile() throws IOException {
 		final String className = new Exception().getStackTrace()[1].getClassName();
 		ITempDir dir = this.classMap.get(className);
-		if (dir == null)
-			dir = this.defaultDir;
-		final File ret = dir.createTempFile(className, ".tmp");
-		this.fileMap.put(ret, this.defaultDir);
+		final File ret;
+		if (dir == null) {
+			ret = defaultDir.createTempFile(className, ".tmp");
+		} else {
+			ret = dir.createTempFile(className, ".tmp");
+			this.fileMap.put(ret, dir);
+		}
 		if (deleteOnExit)
 			ret.deleteOnExit();
 		return ret;
@@ -50,8 +53,6 @@ public class TempFileManager implements ITempFileManager {
 	
 	public void releaseTempFile(File file) throws FileNotFoundException, IOException {
 		final ITempDir dir = this.fileMap.get(file);
-		if (dir == null)
-			throw new FileNotFoundException("this manager doesn't handle the file '" + file + "'");
-		dir.releaseTempFile(file);
+		((dir == null) ? defaultDir : dir).releaseTempFile(file);
 	}
 }
