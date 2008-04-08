@@ -2,6 +2,7 @@
 package org.paxle.util;
 
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 public class ArrayByteBuffer extends OutputStream implements Cloneable {
@@ -101,7 +102,7 @@ public class ArrayByteBuffer extends OutputStream implements Cloneable {
 	}
 	
 	public String toString(final Charset cs) {
-		return new String(buf, 0, len, cs);
+		return cs.decode(ByteBuffer.wrap(buf, 0, len)).toString();
 	}
 	
 	public byte[] getBuffer() {
