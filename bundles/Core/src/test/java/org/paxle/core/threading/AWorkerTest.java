@@ -30,7 +30,7 @@ public class AWorkerTest extends MockObjectTestCase {
 	@SuppressWarnings("unchecked")
 	public void testWorkerTriggeringPoolClosed() throws InterruptedException {
 		final ICommand command = mock(ICommand.class);
-		final TestWorker worker = new TestWorker();
+		final DummyWorker worker = new DummyWorker();
 		
 		checking(new Expectations(){{
 			// allow enqueuing and dequeueing of exactly one command
@@ -58,7 +58,7 @@ public class AWorkerTest extends MockObjectTestCase {
 	@SuppressWarnings("unchecked")
 	public void testWorkerTriggeringFilteredCommandPoolClosed() throws InterruptedException {
 		final ICommand command = mock(ICommand.class);
-		final TestWorker worker = new TestWorker();
+		final DummyWorker worker = new DummyWorker();
 		
 		checking(new Expectations(){{
 			// allow dequeueing of exactly one command
@@ -87,7 +87,7 @@ public class AWorkerTest extends MockObjectTestCase {
 	
 	public void testWorkerTriggeredAndReturnToPool() throws InterruptedException {
 		final ICommand command = mock(ICommand.class);
-		final TestWorker worker = new TestWorker();
+		final DummyWorker worker = new DummyWorker();
 		final WaitForReturnToPool waitforReturnToPool = new WaitForReturnToPool();
 		
 		checking(new Expectations(){{
@@ -122,7 +122,7 @@ public class AWorkerTest extends MockObjectTestCase {
 	}
 }
 
-class TestWorker extends AWorker<ICommand> {
+class DummyWorker extends AWorker<ICommand> {
 	private Log logger = LogFactory.getLog(this.getClass());
 	
 	public boolean commandProcessed = false;

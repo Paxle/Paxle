@@ -20,7 +20,7 @@ public class MasterTest extends MockObjectTestCase {
 		final IPool<ICommand> pool = mock(IPool.class);
 		final FilterInputQueue<ICommand> inQueue = new FilterInputQueue<ICommand>(8);
 		final IOutputQueue<ICommand> outQueue = mock(IOutputQueue.class);
-		final TestWorker worker = new TestWorker(true);
+		final DummyWorker worker = new DummyWorker(true);
 		worker.setInQueue(inQueue);
 		worker.setOutQueue(outQueue);
 		
@@ -49,13 +49,13 @@ public class MasterTest extends MockObjectTestCase {
 	}
 }
 
-class TestWorker extends AWorker<ICommand> {
+class DummyWorker extends AWorker<ICommand> {
 	private boolean triggerMode = true;
 	
 	private Object triggerSync = new Object();
 	private boolean wasTriggered = false;
 	
-	public TestWorker(boolean useTriggerMode) {
+	public DummyWorker(boolean useTriggerMode) {
 		this.triggerMode = useTriggerMode;
 	}
 	
