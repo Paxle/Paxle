@@ -163,7 +163,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 		this.cmdEventLogger.debug(String.format("Command [%06d] %s (%s): %s",
 				event.getProperty(CommandEvent.PROP_COMMAND_ID),
 				topic,
-				event.getProperty(CommandEvent.PROP_STAGE_ID),
+				event.getProperty(CommandEvent.PROP_COMPONENT_ID),
 				event.getProperty(CommandEvent.PROP_COMMAND_LOCATION)
 		));
 		

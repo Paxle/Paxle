@@ -114,7 +114,7 @@ public class CommandEvent {
 	 * <p/>
 	 * This value must be of type {@link String}.
 	 */
-	public static final String PROP_STAGE_ID = "stageID";
+	public static final String PROP_COMPONENT_ID = "componentID";
 	
 	/**
 	 * Function to extract the {@link #PROP_COMMAND_ID command-ID}, {@link #PROP_COMMAND_LOCATION command-location},
@@ -170,7 +170,7 @@ public class CommandEvent {
 		if (properties == null) properties = new Hashtable<String, Object>();
 
 		// adding the component-id
-		properties.put(PROP_STAGE_ID, componentID);
+		properties.put(PROP_COMPONENT_ID, componentID);
 		
 		// adding timestamp
 		properties.put(EventConstants.TIMESTAMP, Long.valueOf(System.currentTimeMillis()));

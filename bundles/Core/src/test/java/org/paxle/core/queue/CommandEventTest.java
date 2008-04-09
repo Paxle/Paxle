@@ -38,7 +38,7 @@ public class CommandEventTest extends MockObjectTestCase {
 		
 		assertTrue(props.containsKey(EventConstants.TIMESTAMP));
 		assertEquals(topic, event.getTopic());		
-		assertEquals(componentID, event.getProperty(CommandEvent.PROP_STAGE_ID));
+		assertEquals(componentID, event.getProperty(CommandEvent.PROP_COMPONENT_ID));
 		assertEquals(Long.valueOf(commandOID), event.getProperty(CommandEvent.PROP_COMMAND_ID));
 		assertEquals(Long.valueOf(commandProfileID), event.getProperty(CommandEvent.PROP_PROFILE_ID));
 		assertEquals(commandLocation.toASCIIString(), event.getProperty(CommandEvent.PROP_COMMAND_LOCATION));
