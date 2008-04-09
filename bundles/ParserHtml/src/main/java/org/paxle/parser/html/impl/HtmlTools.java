@@ -1,6 +1,7 @@
 
 package org.paxle.parser.html.impl;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -151,21 +152,23 @@ public class HtmlTools {
 		// return deReplace(text, htmlentities);
 		
 		int last = 0;
-		final byte[] data = text.getBytes(UTF8);
-		final ArrayByteBuffer abb = ArrayByteBuffer.wrap(data);
-		for (final SearchResult<byte[]> r : HTML_ENTITY_TREE.search(data)) {
-			// abb.append(data, last, r.getMatchBegin() - last).append(r.getValue());
+		final ByteBuffer bb = UTF8.encode(text);		// creates a HeapByteBuffer which uses a backing array
+		final byte[] data = bb.array();
+		final int len = bb.limit();
+		final ArrayByteBuffer abb = ArrayByteBuffer.wrap(data, len);
+		for (final SearchResult<byte[]> r : HTML_ENTITY_TREE.search(data, 0, len)) {
+			abb.append(data, last, r.getMatchBegin() - last).append(r.getValue());
 			/* the method below is faster, because the backing array of abb does
 			 * not have to be expanded since the replacements are shorter than the
-			 * escaped sequences */ 
-			abb.replace(r.getValue(), r.getMatchBegin(), r.getMatchEnd() + 1);
+			 * escaped sequences, unfortunately the index values don't fit with data
+			 * anymore after the first replace */
+			// abb.replace(r.getValue(), r.getMatchBegin(), r.getMatchEnd() + 1);
 			
 			last = r.getMatchEnd() + 1;
 		}
 		
 		if (last > 0) {
-			// abb.append(data, last, data.length - last);
-			return abb.toString(UTF8);
+			return abb.append(data, last, data.length - last).toString(UTF8);
 		} else {
 			return text;
 		}
