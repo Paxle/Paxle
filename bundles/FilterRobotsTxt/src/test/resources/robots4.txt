@@ -1,0 +1,11 @@
+User-agent: *
+Crawl-Delay: 10
+Disallow: /?q=admin
+Disallow: /admin/
+Disallow: /cron.php
+Disallow: /xmlrpc.php
+Disallow: /database/
+Disallow: /includes/
+Disallow: /modules/
+Disallow: /scripts/
+Disallow: /themes/

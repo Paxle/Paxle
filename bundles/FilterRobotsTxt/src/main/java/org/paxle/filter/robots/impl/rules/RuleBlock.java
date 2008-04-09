@@ -3,9 +3,11 @@ package org.paxle.filter.robots.impl.rules;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 public class RuleBlock implements Serializable {
 	
@@ -26,7 +28,7 @@ public class RuleBlock implements Serializable {
 		this.rules.add(rule);
 	}
 	
-	void addProperty(String propName, String propValue) {
+	public void addProperty(String propName, String propValue) {
 		if (propName == null || propName.length() == 0) throw new IllegalArgumentException("Invalid property name.");
 		this.props.put(propName, propValue);
 	}
@@ -40,6 +42,10 @@ public class RuleBlock implements Serializable {
 	
 	public String getProperty(String propertyName) {
 		return this.props.get(propertyName);
+	}
+	
+	public Map<String, String> getProperties() {
+		return Collections.unmodifiableMap(this.props);
 	}
 	
 	public Boolean isDisallowed(String agent, String path) {

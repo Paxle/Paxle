@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import junitx.framework.ListAssert;
@@ -160,5 +161,15 @@ public class RobotsTxtManagerTest extends TestCase {
 		for (URI sitemap : expectedSiteMapList) {
 			ListAssert.assertContains(actualSitemaps, sitemap);
 		}
+	}
+	
+	public void testGetProperties() throws IOException {
+		String hostPort = "xxxxx:80";
+		this.parseAndPutIntoCache("src/test/resources/robots4.txt",hostPort);
+		
+		Map<String,String> props = this.manager.getRobotsProperties("http://" + hostPort);
+		assertNotNull(props);
+		assertEquals(1, props.size());
+		assertTrue(props.containsKey("Crawl-Delay"));
 	}
 }

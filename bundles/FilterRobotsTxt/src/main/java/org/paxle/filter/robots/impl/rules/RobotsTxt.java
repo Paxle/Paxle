@@ -108,6 +108,25 @@ public class RobotsTxt implements Serializable {
 	}
 	
 	
+	/**
+	 * Get the {@link RuleBlock} for the given agent
+	 * @param agent
+	 * @return the found {@link RuleBlock} or <code>null</code> if no block was found
+	 */
+	public RuleBlock getRuleBlock(String agent) {
+		if (this.ruleBlocks == null || this.ruleBlocks.size() == 0) return null;
+		
+		if (this.ruleBlockMap.size() == 0) this.buildRuleBlockMap();
+		
+		RuleBlock ruleBlock = null;
+		if (this.ruleBlockMap.containsKey(agent)) {
+			ruleBlock = ruleBlockMap.get(agent);
+		} else if (this.ruleBlockMap.containsKey("*")) {
+			ruleBlock = ruleBlockMap.get("*");
+		}
+		return ruleBlock;
+	}
+	
 	public boolean isDisallowed(String agent, String path) {
 		if (path != null && path.equals("/robots.txt")) return false;
 		if (this.accessRestricted) return true;		

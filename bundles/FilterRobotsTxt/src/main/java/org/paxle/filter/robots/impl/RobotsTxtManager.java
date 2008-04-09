@@ -27,6 +27,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -409,9 +410,27 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 
 					currentBlock.addRule(new AllowRule(line));
 				}
+			} else if (line.toLowerCase().startsWith("Crawl-Delay:".toLowerCase())) {
+				line = line.substring("Crawl-Delay:".length()).trim();
+				
+				/* 
+				 * According to [1] this should be the "time in seconds between page requests" [1]
+				 * [1] http://drupal.org/node/14177
+				 */
+				try {
+					// just test if it's a valid number
+                	Integer crawlDelay = Integer.valueOf(line);
+					currentBlock.addProperty("Crawl-Delay", crawlDelay.toString());
+				} catch (Exception e) {
+					this.logger.error(String.format("Invalid sitemaps directive '%s' in robots.txt from host '%s': %s",
+							line,
+							robotsTxt.getHostPort(),
+							e.getMessage()
+					));
+				}
 			} else if (line.toLowerCase().startsWith("Sitemap:".toLowerCase())) {
 				line = line.substring("Sitemap:".length()).trim();
-				
+
 				/* 
 				 * According to [1] this "should be the complete URL to the Sitemap" [1]
 				 * [1] http://www.sitemaps.org/protocol.php#submit_robots
@@ -454,6 +473,26 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 					this.getHostPort(location)
 			),e);
 			return Collections.EMPTY_LIST;
+		} 
+	}
+	
+	public Map<String, String> getRobotsProperties(String location) {
+		return this.getRobotsProperties(URI.create(location));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, String> getRobotsProperties(URI location) {
+		try {		
+			RobotsTxt robotsTxt = this.getRobotsTxt(location);
+			RuleBlock ruleBlock = robotsTxt.getRuleBlock(ROBOTS_AGENT_PAXLE);
+			return (ruleBlock == null) ? Collections.EMPTY_MAP : ruleBlock.getProperties();			
+		} catch (Exception e) {
+			this.logger.error(String.format(
+					"Unexpected '%s' while getting properties from robots.txt hosted on '%s'.",
+					e.getClass().getName(),
+					this.getHostPort(location)
+			),e);
+			return Collections.EMPTY_MAP;
 		} 
 	}
 	
