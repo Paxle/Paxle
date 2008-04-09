@@ -409,6 +409,22 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 
 					currentBlock.addRule(new AllowRule(line));
 				}
+			} else if (line.toLowerCase().startsWith("Sitemap:".toLowerCase())) {
+				line = line.substring("Sitemap:".length()).trim();
+				
+				/* 
+				 * According to [1] this "should be the complete URL to the Sitemap" [1]
+				 * [1] http://www.sitemaps.org/protocol.php#submit_robots
+				 */
+				try {
+					robotsTxt.addSitemap(URI.create(line));
+				} catch (Exception e) {
+					this.logger.error(String.format("Invalid sitemaps directive '%s' in robots.txt from host '%s': %s",
+							line,
+							robotsTxt.getHostPort(),
+							e.getMessage()
+					));
+				}
 			}
 
 		}
@@ -420,6 +436,25 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		int pos = line.indexOf("#");
 		if (pos != -1) line = line.substring(0,pos).trim();
 		return line;
+	}
+	
+	public Collection<URI> getSitemaps(String location) {
+		return this.getSitemaps(URI.create(location));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Collection<URI> getSitemaps(URI location) {
+		try {		
+			RobotsTxt robotsTxt = this.getRobotsTxt(location);
+			return robotsTxt.getSitemaps();
+		} catch (Exception e) {
+			this.logger.error(String.format(
+					"Unexpected '%s' while getting sitemaps from robots.txt hosted on '%s'.",
+					e.getClass().getName(),
+					this.getHostPort(location)
+			),e);
+			return Collections.EMPTY_LIST;
+		} 
 	}
 	
 	/**
@@ -523,34 +558,11 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		
 		ArrayList<URI> disallowedList = new ArrayList<URI>();
 		
-		// getting the RobotsTxt-info for this host[:port]
-		RobotsTxt robotsTxt = null;
 		try {
-			Cache theCache = this.getCache();
+			String hostPort = this.getHostPort(baseUri);
 			
-			String hostPort = this.getHostPort(baseUri);			
-			synchronized (hostPort.intern()) {
-				// trying to get the robots.txt from cache
-				Element element = theCache.get(hostPort);
-				if (element != null) robotsTxt = (RobotsTxt) element.getValue();
-
-				// trying to get the robots.txt from file
-				if (robotsTxt == null) {
-					robotsTxt = this.loadRobotsTxt(hostPort);
-					if (robotsTxt != null) {
-						element = new Element(hostPort, robotsTxt);
-						theCache.put(element);
-					}
-				}
-
-				// trying to download the robots.txt
-				if (robotsTxt == null || (System.currentTimeMillis() - robotsTxt.getLoadedDate().getTime() > robotsTxt.getReloadInterval())) {				
-					robotsTxt = this.parseRobotsTxt(URI.create(baseUri.toASCIIString() + "/robots.txt"));
-					element = new Element(hostPort, robotsTxt);
-					theCache.put(element);
-					this.storeRobotsTxt(robotsTxt);
-				}
-			}
+			// getting the RobotsTxt-info for this host[:port]
+			RobotsTxt robotsTxt = this.getRobotsTxt(baseUri);
 			
 			// loop through each URI and check against the robots.txt
 			for (URI location : uriList) {
@@ -572,6 +584,38 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		return disallowedList;
 	}
 
+	private RobotsTxt getRobotsTxt(URI baseUri) throws IOException, URISyntaxException {		
+		Cache theCache = this.getCache();
+		String hostPort = this.getHostPort(baseUri);
+		
+		synchronized (hostPort.intern()) {
+			RobotsTxt robotsTxt = null;
+			
+			// trying to get the robots.txt from cache
+			Element element = theCache.get(hostPort);
+			if (element != null) robotsTxt = (RobotsTxt) element.getValue();
+
+			// trying to get the robots.txt from file
+			if (robotsTxt == null) {
+				robotsTxt = this.loadRobotsTxt(hostPort);
+				if (robotsTxt != null) {
+					element = new Element(hostPort, robotsTxt);
+					theCache.put(element);
+				}
+			}
+
+			// trying to download the robots.txt
+			if (robotsTxt == null || (System.currentTimeMillis() - robotsTxt.getLoadedDate().getTime() > robotsTxt.getReloadInterval())) {				
+				robotsTxt = this.parseRobotsTxt(URI.create(baseUri.toASCIIString() + "/robots.txt"));
+				element = new Element(hostPort, robotsTxt);
+				theCache.put(element);
+				this.storeRobotsTxt(robotsTxt);
+			}
+			
+			return robotsTxt;
+		}
+	}
+	
 	void storeRobotsTxt(RobotsTxt robotsTxt) {
 		ObjectOutputStream oos = null;
 		try {

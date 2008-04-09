@@ -8,14 +8,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-
-import org.paxle.filter.robots.impl.rules.RobotsTxt;
 
 import junit.framework.TestCase;
 import junitx.framework.ListAssert;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+
+import org.paxle.filter.robots.impl.rules.RobotsTxt;
 
 public class RobotsTxtManagerTest extends TestCase {
 	
@@ -45,7 +46,27 @@ public class RobotsTxtManagerTest extends TestCase {
 		} finally {
 			if (fileInput != null) try { fileInput.close(); } catch (Exception e) {/* ignore this */}
 		}
+	}
+	
+	/**
+	 * Function to parse a robots.txt from {@link File} and to place this {@link RobotsTxt} into
+	 * the internal manager-cache.
+	 * 
+	 * @param robotsTxtFileName name of the robots.txt file
+	 * @param hostnamePort the hostname-port to use to insert the element into the {@link RobotsTxtManager#getCache() cache}.
+	 * @throws IOException 
+	 */
+	private void parseAndPutIntoCache(String robotsTxtFileName, String hostnamePort) throws IOException {
+		File robotsTxtFile = new File(robotsTxtFileName);
+		assertTrue(robotsTxtFile.exists());
+		assertTrue(robotsTxtFile.canRead());
 		
+		RobotsTxt rtxt = this.getRobotsTxt(robotsTxtFile);
+		assertNotNull(rtxt);
+
+		// append it to the cache to avoid real downloading of the robots.txt file
+		Element e = new Element(hostnamePort,rtxt);
+		this.manager.getCache().put(e);
 	}
 	
 	public void testCache() {
@@ -89,13 +110,8 @@ public class RobotsTxtManagerTest extends TestCase {
 	
 	
 	public void testIsDisallowed() throws IOException {
-		// parse the robots.txt
-		File robotsTxtFile = new File("src/test/resources/robots.txt");
-		RobotsTxt rtxt = this.getRobotsTxt(robotsTxtFile);
-		
-		// append it to the cache to avoid real downloading of the robots.txt file
-		Element e = new Element("xxxxx:80",rtxt);
-		this.manager.getCache().put(e);
+		String hostPort = "xxxxx:80";
+		this.parseAndPutIntoCache("src/test/resources/robots.txt",hostPort);
 		
 		// check disallowed
 		boolean disallowed = this.manager.isDisallowed("http://xxxxx/");
@@ -109,13 +125,8 @@ public class RobotsTxtManagerTest extends TestCase {
 	}
 	
 	public void testIsDisallowedBlock() throws IOException {
-		// parse the robots.txt
-		File robotsTxtFile = new File("src/test/resources/robots.txt");
-		RobotsTxt rtxt = this.getRobotsTxt(robotsTxtFile);
-		
-		// append it to the cache to avoid real downloading of the robots.txt file
-		Element e = new Element("xxxxx:80",rtxt);
-		this.manager.getCache().put(e);
+		String hostPort = "xxxxx:80";
+		this.parseAndPutIntoCache("src/test/resources/robots.txt",hostPort);
 		
 		ArrayList<URI> uriList = new ArrayList<URI>(Arrays.asList(new URI[]{
 			URI.create("http://xxxxx/"),
@@ -128,5 +139,26 @@ public class RobotsTxtManagerTest extends TestCase {
 		assertNotNull(disallowedURIs);
 		assertEquals(1,disallowedURIs.size());
 		ListAssert.assertContains(disallowedURIs, URI.create("http://xxxxx/secret/"));
+	}
+	
+	public void testGetSitemaps() throws IOException {
+		String hostPort = "xxxxx:80";
+		this.parseAndPutIntoCache("src/test/resources/robots3.txt",hostPort);
+		
+		// expected list of sitemaps
+		ArrayList<URI> expectedSiteMapList = new ArrayList<URI>(Arrays.asList(new URI[]{
+				URI.create("http://www.heise.de/sitemap_softwarevz.xml.gz"),
+				URI.create("http://www.heise.de/handysitemap.xml.gz")
+		}));
+		
+		// get the sitemaps
+		Collection<URI> sitemaps = this.manager.getSitemaps("http://" + hostPort);
+		assertNotNull(sitemaps);
+		assertEquals(2, sitemaps.size());
+		
+		ArrayList<URI> actualSitemaps = new ArrayList<URI>(sitemaps);
+		for (URI sitemap : expectedSiteMapList) {
+			ListAssert.assertContains(actualSitemaps, sitemap);
+		}
 	}
 }

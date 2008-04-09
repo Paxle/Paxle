@@ -1,7 +1,10 @@
 package org.paxle.filter.robots.impl.rules;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,8 +21,22 @@ public class RobotsTxt implements Serializable {
 	private String hostPort = null;
 	private Date loadedDate = null;
 	private long reloadInterval = RELOAD_INTERVAL_DEFAULT;	
+	
+	/**
+	 * A map containing the agent-name as key and the {@link RuleBlock} for the given 
+	 * agent as value
+	 */
 	private HashMap<String, RuleBlock> ruleBlockMap = new HashMap<String, RuleBlock>();
+	
+	/**
+	 * A list of all {@link RuleBlock rule-blocks} found in the robots.txt file
+	 */
 	private List<RuleBlock> ruleBlocks = new ArrayList<RuleBlock>();
+	
+	/**
+	 * A list of sitemaps found in the robots.txt file
+	 */
+	private List<URI> sitemaps = new ArrayList<URI>();
 	
 	public RobotsTxt(String hostPort, long reloadInterval, String downloadStatus) {
 		this(hostPort, reloadInterval, downloadStatus, false);
@@ -61,6 +78,18 @@ public class RobotsTxt implements Serializable {
 	public void addRuleBlock(RuleBlock ruleBlock) {
 		this.ruleBlocks.add(ruleBlock);
 		if (this.ruleBlockMap.size() > 0) this.ruleBlockMap.clear();
+	}
+	
+	public void addSitemap(URI sitemapURI){
+		if (sitemapURI == null) return;
+		this.sitemaps.add(sitemapURI);
+	}
+	
+	/**
+	 * @return the list of sitemap-URI found in the robots.txt file
+	 */
+	public Collection<URI> getSitemaps() {
+		return Collections.unmodifiableCollection(this.sitemaps);
 	}
 	
 	/**
@@ -129,6 +158,14 @@ public class RobotsTxt implements Serializable {
 			for (RuleBlock ruleBlock : this.ruleBlocks) {
 				str.append(ruleBlock).append("\r\n");
 			}			
+		}
+		
+		if (this.sitemaps.size() > 0) {
+			str.append("\r\n")
+			   .append("# Sitemaps\r\n");
+			for (URI sitemap : this.sitemaps) {
+				str.append("Sitemap: ").append(sitemap.toASCIIString()).append("\r\n");
+			}
 		}
 		
 		return str.toString();
