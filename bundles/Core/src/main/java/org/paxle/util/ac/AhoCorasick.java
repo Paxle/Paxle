@@ -369,6 +369,10 @@ public class AhoCorasick<E> {
 		dirty = false;
 	}
 	
+	public boolean addPattern(final byte[] p, final E value) {
+		return addPattern(p, 0, p.length, value);
+	}
+	
 	/**
 	 * Adds a pattern to this trie. If it is not being removed in the mean-time, any call to
 	 * either {@link #search(byte[], int, int)} or {@link #match(byte[], int, int)} will include
@@ -378,9 +382,8 @@ public class AhoCorasick<E> {
 	 *        It will be returned when this pattern is recognized in some string.
 	 * @return whether the pattern denoted by <code>p</code> has not been in the trie before.
 	 */
-	public boolean addPattern(final byte[] p, final E value) {
-		final int len = p.length;
-		if (len == 0)
+	public boolean addPattern(final byte[] p, int off, int len, final E value) {
+		if (len == 0 || off > len || len > p.length)
 			throw new IllegalArgumentException();
 		
 		ANode<E> last = root, node;
@@ -404,21 +407,24 @@ public class AhoCorasick<E> {
 		return r;
 	}
 	
+	public E removePattern(final byte[] p) {
+		return removePattern(p, 0, p.length);
+	}
+	
 	/**
 	 * Removes a pattern from this trie.
 	 * @param p the pattern to remove
 	 * @return the value attached to the pattern <code>p</code>, if it is contained in this trie,
 	 *         <code>null</code> otherwise.
 	 */
-	public E removePattern(final byte[] p) {
+	public E removePattern(final byte[] p, final int off, final int len) {
 		if (size == 0)
 			throw new NoSuchElementException();
-		final E r = match(p);
+		final E r = match(p, off, len);
 		if (r == null)
 			throw new NoSuchElementException();
 		
 		ANode<E> q = root, nq;
-		final int len = p.length;
 		for (int i=0; i<len; i++) {
 			final byte b = p[i];
 			nq = q.funcGoto(b);

@@ -132,10 +132,13 @@ public class HtmlTools {
 				"\u00FE","&thorn;",
 				"\u00FF","&yuml;"
 		};
-		for (int i=0; i<htmlentities.length; i+=2)
+		for (int i=0; i<htmlentities.length; i+=2) {
+			final ByteBuffer bb1 = UTF8.encode(htmlentities[i+1]);
+			final ByteBuffer bb0 = UTF8.encode(htmlentities[i]);
 			HTML_ENTITY_TREE.addPattern(
-					htmlentities[i+1].getBytes(UTF8),
-					htmlentities[i].getBytes(UTF8));
+					bb1.array(), 0, bb1.limit(),
+					ArrayByteBuffer.wrap(bb0.array(), bb0.limit()).toByteArray());
+		}
 		HTML_ENTITY_TREE.createFailTransitions();
 	}
 	
@@ -155,20 +158,14 @@ public class HtmlTools {
 		final ByteBuffer bb = UTF8.encode(text);		// creates a HeapByteBuffer which uses a backing array
 		final byte[] data = bb.array();
 		final int len = bb.limit();
-		final ArrayByteBuffer abb = ArrayByteBuffer.wrap(data, len);
+		final ArrayByteBuffer abb = new ArrayByteBuffer(len);
 		for (final SearchResult<byte[]> r : HTML_ENTITY_TREE.search(data, 0, len)) {
 			abb.append(data, last, r.getMatchBegin() - last).append(r.getValue());
-			/* the method below is faster, because the backing array of abb does
-			 * not have to be expanded since the replacements are shorter than the
-			 * escaped sequences, unfortunately the index values don't fit with data
-			 * anymore after the first replace */
-			// abb.replace(r.getValue(), r.getMatchBegin(), r.getMatchEnd() + 1);
-			
 			last = r.getMatchEnd() + 1;
 		}
 		
 		if (last > 0) {
-			return abb.append(data, last, data.length - last).toString(UTF8);
+			return abb.append(data, last, len - last).toString(UTF8);
 		} else {
 			return text;
 		}

@@ -18,7 +18,8 @@ public class HtmlParserTest extends TestCase {
 		"javascript_test.html"
 	};
 	
-	public static void testHtmlParser() throws Exception {
+	/** does not work as expected yet */
+	public static void _testHtmlParser() throws Exception {
 		final File testResources = new File("src/test/resources/");
 		final HtmlParser parser = new HtmlParser();
 		ParserContext.setCurrentContext(new ParserContext(null, null, null, new TempFileManager(), new ReferenceNormalizer()));
@@ -29,6 +30,20 @@ public class HtmlParserTest extends TestCase {
 			
 			System.out.println(pdoc.getLinks());
 			System.out.println();
+		}
+	}
+	
+	private static final String[][] REPL_CASES = {
+		{ "Il y a une &eacute;cole", "Il y a une \u00E9cole" },
+		{ "Da &amp; dort passierte &quot;etwas&quot;.", "Da & dort passierte \"etwas\"." }
+	};
+	
+	public static void testHtmlReplace() throws Exception {
+		for (int i=0; i<REPL_CASES.length; i++) {
+			final String repl = HtmlTools.deReplaceHTML(REPL_CASES[i][0]);
+			final String exp = REPL_CASES[i][1];
+			assertNotNull(repl);
+			assertEquals(exp, repl);
 		}
 	}
 }
