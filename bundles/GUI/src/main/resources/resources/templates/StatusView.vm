@@ -34,7 +34,7 @@
 </ul>
 
 ## the regular content
-<form method="post" action="#dgeneral">
+<form method="post" action="">
 <fieldset id="dgeneral">
 <legend>General</legend>
 	<p>

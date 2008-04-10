@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
-import org.paxle.gui.impl.ServiceManager;
 
 public class StatusView extends ALayoutServlet {
 
@@ -19,9 +18,7 @@ public class StatusView extends ALayoutServlet {
             Context context 
     ) {
 		Template template = null;
-    	try {
-        	ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
-        	
+    	try {        	
     		if (request.getParameter("pauseCrawl") != null) {
     			context.put("doPause", Boolean.TRUE);
     			response.sendRedirect(super.servletLocation);
@@ -33,9 +30,9 @@ public class StatusView extends ALayoutServlet {
     		} 
         	
             if (request.getParameter("shutdown") != null) {
-        		manager.shutdownFramework();
+            	response.sendRedirect("/sysdown?restart=false");
         	} else if (request.getParameter("restart") != null) {
-        		manager.restartFramework();
+        		response.sendRedirect("/sysdown?restart=true");
         	} else {
         	   	/*
 	        	 * Setting template parameters

@@ -10,8 +10,14 @@ public interface IServiceManager {
 	public String getProperty(final String name);
 
 	public void shutdownFramework() throws BundleException;
+	
+	/** Shuts down the OSGi framework after the given time (in seconds), but returns immediately */
+	public void shutdownFrameworkDelayed(int delay) throws BundleException;
 
 	public void restartFramework() throws BundleException;
+	
+	/** Shuts down and restarts the OSGi framework after the given time (in seconds), but returns immediately */
+	public void restartFrameworkDelayed(int delay) throws BundleException;
 
 	public Object getService(String serviceName);
 
@@ -25,7 +31,7 @@ public interface IServiceManager {
 	public Object[] getServices(String serviceName, String query)
 			throws InvalidSyntaxException;
 
-	public boolean hasSerivce(String serviceName, String query)
+	public boolean hasService(String serviceName, String query)
 			throws InvalidSyntaxException;
 
 	public Bundle[] getBundles();

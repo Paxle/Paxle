@@ -1,0 +1,16 @@
+## Set the page title
+#if( $restart )
+#set( $page_title = "Paxle is restarting..." )
+#else
+#set( $page_title = "Paxle is shutting down..." )
+#end
+
+## the regular content
+
+#if( $restart )
+<img src="../images/restart.png">
+<h2>This Paxle system is restarting now.</h2>
+#else
+<img src="../images/shutdown.png">
+<h2>This Paxle system is shutting down now.</h2>
+#end

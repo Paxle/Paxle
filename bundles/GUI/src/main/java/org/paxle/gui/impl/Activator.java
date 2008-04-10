@@ -27,6 +27,7 @@ import org.paxle.gui.impl.servlets.RootView;
 import org.paxle.gui.impl.servlets.SearchView;
 import org.paxle.gui.impl.servlets.SettingsView;
 import org.paxle.gui.impl.servlets.StatusView;
+import org.paxle.gui.impl.servlets.SysDown;
 import org.paxle.gui.impl.servlets.TheaddumpView;
 
 
@@ -81,6 +82,7 @@ public class Activator implements BundleActivator {
 		registerServlet( "/config", new SettingsView(), "Settings");
 		registerServlet( "/threads", new TheaddumpView(), null);
 		registerServlet( "/overview", new OverView(), "Overview");
+		registerServlet( "/sysdown", new SysDown(), null);
 	}
 
 

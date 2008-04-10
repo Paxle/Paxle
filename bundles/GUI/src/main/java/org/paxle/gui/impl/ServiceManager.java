@@ -9,13 +9,6 @@ import org.paxle.gui.IServiceManager;
 
 public class ServiceManager implements IServiceManager {
 	public static BundleContext context = null;
-	
-    /**
-     * Default constructor.
-     */
-    public ServiceManager() {
-        // do nothing
-    }
     
     /* (non-Javadoc)
 	 * @see org.paxle.gui.impl.IServiceManager#getProperty(java.lang.String)
@@ -39,7 +32,7 @@ public class ServiceManager implements IServiceManager {
 			e.printStackTrace();
 		}
 		
-		// wait a view seconds, then try a System.exit
+		// wait a few seconds, then try a System.exit
 		System.err.println("System.exit");
 		System.exit(0);
 	}
@@ -102,7 +95,7 @@ public class ServiceManager implements IServiceManager {
 	/* (non-Javadoc)
 	 * @see org.paxle.gui.impl.IServiceManager#hasSerivce(java.lang.String, java.lang.String)
 	 */
-	public boolean hasSerivce(String serviceName, String query) throws InvalidSyntaxException {
+	public boolean hasService(String serviceName, String query) throws InvalidSyntaxException {
 		Object[] services = this.getServices(serviceName, query);
 		return (services != null && services.length > 0);
 	}
@@ -120,4 +113,18 @@ public class ServiceManager implements IServiceManager {
     public Bundle getBundle(long bundleID) {
         return ServiceManager.context.getBundle(bundleID);
     }
+
+	/* (non-Javadoc)
+	 * @see org.paxle.gui.IServiceManager#shutdownFrameworkDelayed(int)
+	 */
+	public void shutdownFrameworkDelayed(int delay) throws BundleException {
+		new SysDownDelayThread(delay, false, this);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.paxle.gui.IServiceManager#restartFrameworkDelayed()
+	 */
+	public void restartFrameworkDelayed(int delay) throws BundleException {
+		new SysDownDelayThread(delay, true, this);
+	}
 }

@@ -1,0 +1,6 @@
+Contributors for the Paxle Bundle GUI
+
+We would like to thank the following people for their work:
+
+Armin Hausmann and Jean Victor Balin
+They placed the files http://openclipart.org/media/files/jean_victor_balin/869 and http://openclipart.org/media/files/get8k/5297 in the Public Domain, which are the basis for restart.png and shutdown.png in /src/main/resources/resources/images/. Combination by Roland Ramthun.

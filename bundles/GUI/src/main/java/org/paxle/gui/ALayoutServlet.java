@@ -29,13 +29,14 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
      */
 	protected String bundleLocation = null;
 	
+	/** The URL of this servlet (relative))*/
 	protected String servletLocation;
 	
 	/**
 	 * @param bundleLocation the location of the osgi bundle the servlet belongs to.<br />
 	 *        e.g. <code>file:/path-to-the-bundle-jar/FilterBlacklist-0.0.1.jar</code><br />
 	 *        Just call <code>bundlecontext.getBundle().getLocation();</code> to get it.
-	 * @param servletLocation the location where this servlet is registered at the
+	 * @param servletLocation the relative location where this servlet is registered at the
 	 *        manager, e.g. <code>/search</code>.
 	 */
 	public void init(final String bundleLocation, final String servletLocation) {

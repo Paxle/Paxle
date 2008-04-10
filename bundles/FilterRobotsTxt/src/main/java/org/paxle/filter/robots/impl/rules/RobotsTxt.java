@@ -13,7 +13,9 @@ import java.util.concurrent.TimeUnit;
 public class RobotsTxt implements Serializable {
 	
 	public static final long RELOAD_INTERVAL_DEFAULT = TimeUnit.SECONDS.toMillis(7*24*60*60);
+	/** The reload interval used if an error occurred, which may last for some time */
 	public static final long RELOAD_INTERVAL_ERROR = TimeUnit.SECONDS.toMillis(1*24*60*60);
+	/** The reload interval used if an error occurred, which is probably only a temporary problem */
 	public static final long RELOAD_INTERVAL_TEMP_ERROR = TimeUnit.SECONDS.toMillis(1*24*60*60);
 	
 	private boolean accessRestricted = false;
