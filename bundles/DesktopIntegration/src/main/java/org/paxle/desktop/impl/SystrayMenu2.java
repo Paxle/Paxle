@@ -3,6 +3,7 @@ package org.paxle.desktop.impl;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -20,9 +21,8 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.http.HttpService;
 
 import org.paxle.core.IMWComponent;
-import org.paxle.core.data.IDataSink;
-import org.paxle.core.queue.Command;
-import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.CommandProfile;
+import org.paxle.core.queue.ICommandProfile;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.backend.tray.IMenuItem;
 import org.paxle.desktop.backend.tray.IPopupMenu;
@@ -32,8 +32,6 @@ import org.paxle.desktop.impl.dialogues.SmallDialog;
 
 public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	
-	private static final Class<IDataSink> CRAWLER_SINK_CLASS = IDataSink.class;
-	private static final String CRAWLER_SINK_QUERY = String.format("(%s=org.paxle.crawler.sink)", IDataSink.PROP_DATASINK_ID);
 	private static final Class<IMWComponent> MWCOMP_CLASS = IMWComponent.class;
 	private static final String CRAWLER_QUERY = String.format("(%s=org.paxle.crawler)", IMWComponent.COMPONENT_ID);
 	
@@ -96,7 +94,17 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 		
 		this.ti = backend.createTrayIcon(new ImageIcon(iconResource), "Paxle Tray", pm);
 		backend.getSystemTray().add(this.ti);
+		
+		// desktop integration needs to be quite responsive, therefore we impudently increase
+		// the EventQueue's dispatcher thread's priority
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				Thread.currentThread().setPriority(8);
+			}
+		});
 	}
+	
+	// private long tmBecameVisible = 0;
 	
 	public void popupMenuCanceled(PopupMenuEvent e) { /* ignore */ }
 	public void popupMenuWillBecomeInvisible(PopupMenuEvent e) { /* ignore */ }
@@ -105,6 +113,47 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 		SwingUtilities.invokeLater(refresh);
 	}
 	
+	/*
+	public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+		EventQueue queue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+		AWTEvent event = queue.peekEvent();
+		System.out.println("##### invisible -> next event: " + event);
+		boolean canceled = false;
+		if (event == null)
+			canceled = true;
+		else {
+			if (event instanceof InvocationEvent) try {
+				queue.getNextEvent();
+				canceled = true;
+			} catch (Exception ee) {
+				ee.printStackTrace();
+			} else if (event instanceof KeyEvent) {
+				if (((KeyEvent)event).getKeyChar() == 27)
+					canceled = true;
+			}
+		}
+		
+		System.out.println("##### Popup menu has been canceled: " + canceled);
+	}
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		logger.debug("popup becomes visible, refreshing menu-items");
+		EventQueue queue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+		try {
+			AWTEvent event = queue.peekEvent();
+			System.out.println("##### visible -> next event: " + event);
+		} catch (Exception ee) {
+			ee.printStackTrace();
+		}
+		SwingUtilities.invokeLater(refresh);
+		System.out.println("becoming visible: " + tmBecameVisible);
+		Thread.dumpStack();
+		if (tmBecameVisible < 0) {
+			tmBecameVisible = 0;
+		} else {
+			tmBecameVisible = System.currentTimeMillis();
+		}
+	}
+	*/
 	public void shutdown() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -145,6 +194,10 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 		}
 	}
 	
+	private ICommandProfile profile = null;
+	private String profileName = "tray-crawl";
+	private int crawlDepth = 3;
+	
 	private class TrayRunnable extends AFinally implements Runnable {
 		
 		private final Actions action;
@@ -164,9 +217,41 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 					
 				case CRAWL:
 					if (data != null && data.length() > 0) try {
-						final IDataSink<ICommand>[] sink = manager.getServices(CRAWLER_SINK_CLASS, CRAWLER_SINK_QUERY);
-						if (sink != null)
-							sink[0].putData(Command.createCommand(new URI(data)));
+						final URI uri = new URI(data);
+						
+						final Object commandDB = manager.getService("org.paxle.data.db.ICommandDB");
+						if (commandDB == null) throw new Exception("Command-DB not available");
+						final Method enqueueCommand = commandDB.getClass().getMethod("enqueue", URI.class, int.class, int.class);
+						
+						final Object profileDB = manager.getService("org.paxle.data.db.ICommandProfileDB");
+						if (profileDB == null) throw new Exception("Profile-DB not available");
+						final Method storeProfile = profileDB.getClass().getMethod("storeProfile", ICommandProfile.class);
+						
+						final Object robotsManager = manager.getService("org.paxle.filter.robots.IRobotsTxtManager");
+						if (robotsManager != null) {
+							final Method isDisallowed = robotsManager.getClass().getMethod("isDisallowed", URI.class);
+							final Object result = isDisallowed.invoke(robotsManager, uri);
+							if (((Boolean)result).booleanValue()) {
+								logger.info("Domain does not allow crawling of '" + uri + "' due to robots.txt blockage");
+								Utilities.showURLErrorMessage(
+										"This URI is blocked by the domain's robots.txt, see",
+										uri.resolve(URI.create("/robots.txt")).toString());
+								break;
+							}
+						}
+						
+						logger.info("Initiated crawl of URL '" + uri + "'");
+						if (profile == null) {
+							// create a new profile
+							profile = new CommandProfile();
+							profile.setMaxDepth(crawlDepth);
+							profile.setName(profileName);
+							
+							// store it into the profile-db
+							storeProfile.invoke(profileDB, profile);
+						}
+						
+						enqueueCommand.invoke(commandDB, uri, Integer.valueOf(profile.getOID()), Integer.valueOf(0));
 					} catch (Exception ee) {
 						Utilities.showURLErrorMessage("Starting crawl failed: " + ee.getMessage(), data);
 						logger.error("Starting crawl of URL '" + data + "' failed: " + ee.getMessage(), ee);
