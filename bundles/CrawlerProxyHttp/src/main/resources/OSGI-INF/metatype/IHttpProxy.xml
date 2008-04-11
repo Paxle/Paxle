@@ -3,7 +3,7 @@
 
 	<OCD description="HTTP Proxy" 
 			name="Paxle - HTTP Proxy"
-			id="org.paxle.proxy.http.IHttpProxy">
+			id="org.paxle.crawler.proxy.IHttpProxy">
 		
 		<AD name="Proxy Port"
 				type="Integer"
@@ -15,9 +15,9 @@
 	</OCD>
 	
 	<Designate
-			pid="org.paxle.proxy.http.IHttpProxy"
+			pid="org.paxle.crawler.proxy.IHttpProxy"
 			bundle="ignored">
-		<Object ocdref="org.paxle.proxy.http.IHttpProxy"></Object>
+		<Object ocdref="org.paxle.crawler.proxy.IHttpProxy"></Object>
 	</Designate>
 
 </metatype:MetaData>
