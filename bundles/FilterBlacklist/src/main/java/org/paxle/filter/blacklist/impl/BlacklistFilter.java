@@ -1,19 +1,11 @@
 package org.paxle.filter.blacklist.impl;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
@@ -24,20 +16,16 @@ import org.paxle.filter.blacklist.IRegexpBlacklistFilter;
 /**
  * This is a RegExp-based Blacklistfilter
  * @author Matthias Soehnholz
+ * @author Michael Hamann
  *
  */
 public class BlacklistFilter implements IRegexpBlacklistFilter {
     
-    private static File blacklistDir;
-    private static LinkedList<Pattern> blacklist = new LinkedList<Pattern>();
-    private static LinkedList<Matcher> matcherblacklist = new LinkedList<Matcher>();
-    private static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    
+ 
     private Log logger = LogFactory.getLog(this.getClass());
     
     public BlacklistFilter(File list) {
-        blacklistDir = list;
-        reloadEntries();
+    	Blacklist.init(list);
     }
 
     public void filter(ICommand command, IFilterContext filterContext) {
@@ -92,161 +80,32 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
      * @return returns a String containing the pattern which blacklists the url, returns null otherwise
      */
     private FilterResult isListed(String url) {
-        lock.readLock().lock();
-        long time = System.currentTimeMillis();
-        try {
-            Iterator<Pattern> eter = blacklist.iterator();
-            while(eter.hasNext()) {
-                Pattern temp = eter.next();
-                Matcher m = temp.matcher(url);
-                if(m.matches()) {
-                    time = System.currentTimeMillis() - time;
-                    //System.out.println("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
-                    logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
-                    return new FilterResult(FilterResult.LOCATION_REJECTED, temp.pattern());
-                }
-            }
-        } finally {
-            lock.readLock().unlock();            
-        }
-        time = System.currentTimeMillis() - time;
-        //System.out.println("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
-        logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
-        return FilterResult.LOCATION_OKAY_RESULT;
+    	return Blacklist.isListedInAnyList(url);
     }
     
     /**
-     * Adds a new blacklist-pattern to the selected blacklistfile
-     * @param pattern blacklistpattern to be added 
-     * @param listFileName name of the target blacklistfile
+     * gets a list of all blacklistnames
+     * @return a list of strings
      */
-    public void addPattern(String pattern, String listFileName) {
-        lock.writeLock().lock();
-        try {
-            Pattern p = Pattern.compile(pattern);
-            blacklist.add(p);
-            //System.out.println("Pattern from "+listFileName+" added to blacklist: "+pattern);
-            List<?> tempList = FileUtils.readLines(new File(blacklistDir, listFileName));
-            FileUtils.writeLines(new File(blacklistDir, listFileName), tempList);
-        } catch (PatternSyntaxException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
-    
-    /**
-     * Adds a new empty blacklist-file
-     * @param listName name of the new blacklistfile
-     */
-    public void addList(String listName) {
-        try {
-            FileUtils.touch(new File(blacklistDir, listName));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public void removeList(String listName) {
-		if (listName == null) throw new NullPointerException("The list name was null");		
-        try {
-        	File listFile = new File(blacklistDir,listName);
-        	if (!listFile.exists()) throw new IllegalArgumentException("Unknown blacklist.");
-        	
-        	// delete the file
-            listFile.delete();
-            
-            // refresh filter
-            reloadEntries();
-        } catch (Exception e) {
-            e.printStackTrace();            
-        }
-    }
-
 	public List<String> getLists() {
-    	ArrayList<String> fileNames = new ArrayList<String>();
-    	
-    	Iterator<?> eter = FileUtils.iterateFiles(blacklistDir, null, false);
-        while(eter.hasNext()) {
-            File listFile = (File) eter.next();
-            fileNames.add(listFile.getName());
-        }
-        
-        return fileNames;
+    	return Blacklist.getLists();
     }
-    
+	
 	/**
-	 * @param list name of the blacklist
-	 * @return
+	 * creates a blacklist
+	 * @param name the name of the blacklist
+	 * @return the blacklist that was created, can be null when there is a failure
 	 */
-	public List<String> getPatternList(String list) {
-		if (list == null) throw new NullPointerException("The list name was null");		
-        try {
-        	File listFile = new File(blacklistDir,list);
-        	if (!listFile.exists()) throw new IllegalArgumentException("Unknown blacklist.");
-        	
-            return FileUtils.readLines(listFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+	public Blacklist createList(String name) {
+		return Blacklist.create(name);
 	}
-    
-    public static void reloadEntries() {
-        lock.writeLock().lock();
-        try {
-            blacklist.clear();
-            List<?> lines = null;
-            Iterator<?> eter = FileUtils.iterateFiles(blacklistDir, null, false);
-            while(eter.hasNext())
-            {
-                File listFile = (File) eter.next();
-                try {
-                    lines = FileUtils.readLines(listFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Iterator<?> eter2 = lines.iterator();
-                while(eter2.hasNext()) {
-                    String temp = (String) eter2.next();
-                    try {
-                        Pattern p = Pattern.compile(temp);
-                        blacklist.add(p);
-                        matcherblacklist.add(p.matcher(""));
-                        //System.out.println("Pattern from "+listFile.getName()+" added to blacklist: "+temp);
-                    } catch (PatternSyntaxException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
-    
-    public static void removeEntry(String list, String pattern) {
-        List<?> lines = null;
-        File listFile = new File(blacklistDir, list);
-        try {
-            lines = FileUtils.readLines(listFile);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        Iterator<?> eter2 = lines.iterator();
-        while(eter2.hasNext()) {
-            String temp = (String) eter2.next();
-            try {
-                Pattern p = Pattern.compile(temp);
-                blacklist.add(p);
-                //System.out.println("Pattern from "+listFile.getName()+" added to blacklist: "+temp);
-            } catch (PatternSyntaxException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+	
+	/**
+	 * gets a blacklist
+	 * @param name the name of the blacklist
+	 * @return the blacklist, may be null when a blacklist with the given name does not exist
+	 */
+	public Blacklist getList(String name) {
+		return Blacklist.getList(name);
+	}
 }

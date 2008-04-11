@@ -33,7 +33,8 @@ public class BlacklistFilterTest extends TestCase {
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Passed));
 		
-		testFilter.addPattern(".*asd.*", "testList");
+		Blacklist testList = testFilter.createList("testList");
+		testList.addPattern(".*asd.*");
 		testCommand.setLocation(new URI("http://test/"));
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Passed));
@@ -41,12 +42,18 @@ public class BlacklistFilterTest extends TestCase {
 		testCommand.setLocation(new URI("http://asd/"));
 		testFilter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Rejected));
+		
+		testCommand = new Command();
+		testCommand.setLocation(new URI("http://asd/"));		
+		testList.removePattern(".*asd.*");
+		testFilter.filter(testCommand, null);
+		assertTrue(testCommand.getResult().equals(ICommand.Result.Passed));
 	}
 
 	public void testAddList() throws Exception {
 		assertFalse(new File(testDir,"testList2").exists());
 		
-		testFilter.addList("testList2");
+		testFilter.createList("testList2");
 		assertTrue(new File(testDir,"testList2").exists());
 	}
 	
