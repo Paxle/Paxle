@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<OCD description="HTTP Proxy" 
+			name="Paxle - HTTP Proxy"
+			id="org.paxle.proxy.http.IHttpProxy">
+		
+		<AD name="Proxy Port"
+				type="Integer"
+				id="proxyPort"
+				min="-1"
+				max="65535"
+				default="8081"
+				description="Port on which the proxy listens for connections (-1 for the default protocol port 8081)" />
+	</OCD>
+	
+	<Designate
+			pid="org.paxle.proxy.http.IHttpProxy"
+			bundle="ignored">
+		<Object ocdref="org.paxle.proxy.http.IHttpProxy"></Object>
+	</Designate>
+
+</metatype:MetaData>

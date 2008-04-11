@@ -1,0 +1,82 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>CrawlerProxyHttp</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - Http-Proxy</name>
+	<url>http://wiki.paxle.net/dev/bundles/CrawlerProxyHttp</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Export-Package>	
+							org.paxle.crawler.proxy
+						</Export-Package>
+						<Import-Package>
+							org.osgi.framework;version="1.3",
+							org.osgi.service.cm,
+							org.paxle.crawler, 
+							org.paxle.core.doc,
+							org.apache.commons.logging,
+							javax.net.ssl;resolution:=optional,
+							javax.management;resolution:=optional
+						</Import-Package>
+						<DynamicImport-Package>
+						</DynamicImport-Package>
+						<Private-Package>
+							org.paxle.crawler.proxy.impl,
+							org.paxle.crawler.proxy.impl.io
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.crawler.proxy.impl.Activator
+						</Bundle-Activator>
+
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							xSocket;scope=compile|runtime,
+							xSocket-http;scope=compile|runtime
+						</Embed-Dependency>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>CrawlerCore</artifactId>
+			<version>${project.version}</version>
+		</dependency>	
+	
+		<dependency>
+			<groupId>org.xsocket</groupId>
+			<artifactId>xSocket-http</artifactId>
+			<version>2.0-alpha-4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.xsocket</groupId>
+			<artifactId>xSocket</artifactId>
+			<version>2.0-beta-2</version>
+		</dependency>
+	</dependencies>
+</project>
