@@ -58,7 +58,7 @@ public class CrawlerView extends ALayoutServlet {
 		private Method enqueueCommand = null;
 		
 		/**
-		 * @see org.paxle.data.db.ICommandProfileDB#storeProfile(ICommandProfile)
+		 * @see org.paxle.core.queue.ICommandProfileManager#storeProfile(ICommandProfile)
 		 */
 		private Method storeProfile = null;
 		
@@ -80,7 +80,7 @@ public class CrawlerView extends ALayoutServlet {
 			this.enqueueCommand = this.commandDB.getClass().getMethod("enqueue", URI.class, int.class, int.class);
 			this.doubleURL = this.commandDB.getClass().getMethod("isKnown", URI.class);
 			
-			this.profileDB = manager.getService("org.paxle.data.db.ICommandProfileDB");
+			this.profileDB = manager.getService("org.paxle.core.queue.ICommandProfileManager");
 			if (this.profileDB == null) throw new Exception("Profile-DB not available");
 			this.storeProfile = this.profileDB.getClass().getMethod("storeProfile", ICommandProfile.class);
 			

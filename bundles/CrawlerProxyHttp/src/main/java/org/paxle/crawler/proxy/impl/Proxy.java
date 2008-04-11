@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedService;
+import org.paxle.core.prefs.Properties;
 import org.paxle.crawler.proxy.IHttpProxy;
 import org.xsocket.connection.ConnectionUtils;
 import org.xsocket.connection.http.server.HttpServer;
@@ -17,16 +18,39 @@ public class Proxy implements ManagedService, IHttpProxy {
 	 * ========================================================= */
 	public static final String PROP_PROX_PORT = "proxyPort";
 
+	/* =========================================================
+	 * Preferences
+	 * ========================================================= */
+	public static final String PREF_PROFILE_ID = "profileID";
+	
 	/**
 	 * Logger class
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());	
 
+	/**
+	 * The proxy server implementation
+	 */
 	private HttpServer proxy = null;
 
-	public Proxy() {
+	/**
+	 * The properties of this component
+	 */
+	private Properties props = null;	
+	
+	private long commandProfileID = -1;
+	
+	public Proxy(Properties props) {
 		// init with default configuration
 		this.updated(this.getDefaults());
+		
+		if (props != null) {
+			this.commandProfileID = Long.valueOf(props.getProperty(PREF_PROFILE_ID,"-1"));
+		}
+		
+		if (commandProfileID == -1) {
+			// TODO: create a new command-profile
+		}
 	}
 
 	/**

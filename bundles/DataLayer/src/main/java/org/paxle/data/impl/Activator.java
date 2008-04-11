@@ -14,9 +14,9 @@ import org.osgi.framework.ServiceReference;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.data.db.ICommandDB;
-import org.paxle.data.db.ICommandProfileDB;
 import org.paxle.data.db.impl.CommandDB;
 import org.paxle.data.db.impl.CommandProfileFilter;
 import org.paxle.data.db.impl.UrlExtractorFilter;
@@ -116,7 +116,7 @@ public class Activator implements BundleActivator {
 					IDataConsumer.class.getName(),
 					IDataProvider.class.getName(),
 					ICommandDB.class.getName(),
-					ICommandProfileDB.class.getName()
+					ICommandProfileManager.class.getName()
 			}, commandDB, props);
 
 			/* =====================================================

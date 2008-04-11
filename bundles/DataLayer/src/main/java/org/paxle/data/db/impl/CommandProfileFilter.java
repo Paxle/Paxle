@@ -10,7 +10,7 @@ import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfile;
-import org.paxle.data.db.ICommandProfileDB;
+import org.paxle.core.queue.ICommandProfileManager;
 
 /**
  * XXX: This is just a fist step. later we'll split this filter into 
@@ -34,9 +34,9 @@ public class CommandProfileFilter implements IFilter {
 	/**
 	 * Component to load and store crawling profiles
 	 */
-	private final ICommandProfileDB profileDB;
+	private final ICommandProfileManager profileDB;
 
-	public CommandProfileFilter(ICommandProfileDB profileDB) {
+	public CommandProfileFilter(ICommandProfileManager profileDB) {
 		if (profileDB == null) throw new NullPointerException("The profile-db is null.");
 		this.profileDB = profileDB;
 	}

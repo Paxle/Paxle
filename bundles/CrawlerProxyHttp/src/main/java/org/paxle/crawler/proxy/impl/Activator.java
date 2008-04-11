@@ -9,6 +9,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
+import org.paxle.core.prefs.IPropertiesStore;
+import org.paxle.core.prefs.Properties;
 import org.paxle.crawler.proxy.IHttpProxy;
 
 public class Activator implements BundleActivator {
@@ -23,7 +25,14 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext context) throws Exception {
-		this.proxy = new Proxy();
+		/*
+		 * Load the properties of this bundle
+		 */
+		Properties props = null;
+		ServiceReference ref = context.getServiceReference(IPropertiesStore.class.getName());
+		if (ref != null) props = ((IPropertiesStore) context.getService(ref)).getProperties(context);
+		
+		this.proxy = new Proxy(props);
 		
 		/*
 		 * Create configuration if not available

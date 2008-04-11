@@ -223,7 +223,7 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 						if (commandDB == null) throw new Exception("Command-DB not available");
 						final Method enqueueCommand = commandDB.getClass().getMethod("enqueue", URI.class, int.class, int.class);
 						
-						final Object profileDB = manager.getService("org.paxle.data.db.ICommandProfileDB");
+						final Object profileDB = manager.getService("org.paxle.core.queue.ICommandProfileManager");
 						if (profileDB == null) throw new Exception("Profile-DB not available");
 						final Method storeProfile = profileDB.getClass().getMethod("storeProfile", ICommandProfile.class);
 						

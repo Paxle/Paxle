@@ -32,11 +32,11 @@ import org.paxle.core.data.IDataSource;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfile;
+import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.data.db.ICommandDB;
-import org.paxle.data.db.ICommandProfileDB;
 
-public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, ICommandProfileDB {
+public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, ICommandProfileManager {
 	private static final int MAX_IDLE_SLEEP = 60000;
 
 	/**
@@ -523,7 +523,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	}
 	
 	/**
-	 * @see ICommandProfileDB#storeProfile(ICommandProfile)
+	 * @see ICommandProfileManager#storeProfile(ICommandProfile)
 	 */
 	public void storeProfile(ICommandProfile profile) {
 		if (profile == null) throw new NullPointerException("Profile was null");
