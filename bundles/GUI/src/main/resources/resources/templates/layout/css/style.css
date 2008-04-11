@@ -153,6 +153,7 @@ tr {
 #nav li a:hover, #nav li.menuItemActive a {
 	background-color: #730002;
 	color: #FFFFFF;
+	opacity: 0.8;
 }
 
 
