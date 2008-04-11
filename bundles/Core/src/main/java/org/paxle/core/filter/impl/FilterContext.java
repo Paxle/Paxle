@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Properties;
 
 import org.osgi.framework.Constants;
+import org.osgi.util.tracker.ServiceTracker;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterManager;
@@ -11,12 +12,15 @@ import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandProfileManager;
 
 
 public class FilterContext implements Comparable<FilterContext>, IFilterContext {
 	private ITempFileManager tempFileManager = null;
 	
 	private IReferenceNormalizer referenceNormalizer;
+	
+	private ServiceTracker cmdProfileTracker = null;
 	
 	/**
 	 * OSGi {@link Constants#SERVICE_ID} of a filter. This is required by the
@@ -128,6 +132,15 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	 */
 	public IReferenceNormalizer getReferenceNormalizer() {
 		return this.referenceNormalizer;
+	}
+	
+	public ICommandProfileManager getCommandProfileManager() {
+		if (this.cmdProfileTracker == null) return null;
+		return (ICommandProfileManager) this.cmdProfileTracker.getService();
+	}
+	
+	public void setCommandProfileManagerTracker(ServiceTracker cmdProfileManagerTracker) {
+		this.cmdProfileTracker = cmdProfileManagerTracker;
 	}
 	
 	/**

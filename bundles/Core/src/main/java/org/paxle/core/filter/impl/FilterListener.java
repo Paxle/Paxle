@@ -14,12 +14,14 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandProfileManager;
 
 /**
  * A class to listen for registered and unregistered {@link IFilter filters}.
@@ -75,6 +77,8 @@ public class FilterListener implements ServiceListener {
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 
+	private final ServiceTracker cmdProfileManagerTracker;
+	
 	public FilterListener(
 			FilterManager filterManager, 
 			ITempFileManager tempFileManager,
@@ -90,6 +94,9 @@ public class FilterListener implements ServiceListener {
 		this.tempFileManager = tempFileManager;
 		this.referenceNormalizer = referenceNormalizer;
 		this.context = context;
+		
+		this.cmdProfileManagerTracker = new ServiceTracker(context, ICommandProfileManager.class.getName(),null);
+		this.cmdProfileManagerTracker.open();
 
 		ServiceReference[] services = context.getServiceReferences(null,FILTER);
 		if (services != null) for (ServiceReference service : services) serviceChanged(service, ServiceEvent.REGISTERED);	
@@ -245,6 +252,7 @@ public class FilterListener implements ServiceListener {
 		);
 		filterContext.setTempFileManager(this.tempFileManager);
 		filterContext.setReferenceNormalizer(this.referenceNormalizer);
+		filterContext.setCommandProfileManagerTracker(this.cmdProfileManagerTracker);
 		return filterContext;
 	}
 }

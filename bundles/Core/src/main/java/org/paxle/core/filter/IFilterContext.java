@@ -6,6 +6,7 @@ import java.util.Properties;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandProfileManager;
 
 public interface IFilterContext {	
 	/**
@@ -48,4 +49,9 @@ public interface IFilterContext {
 	 * @see IReferenceNormalizer#normalizeReference(String)
 	 */
 	public IReferenceNormalizer getReferenceNormalizer();
+	
+	/**
+	 * @return a reference to the {@link ICommandProfileManager}
+	 */
+	public ICommandProfileManager getCommandProfileManager();
 }
