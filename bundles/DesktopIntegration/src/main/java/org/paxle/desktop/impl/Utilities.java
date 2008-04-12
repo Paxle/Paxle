@@ -30,6 +30,7 @@ import javax.swing.JTextField;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
+import javax.swing.text.JTextComponent;
 
 public class Utilities {
 
@@ -258,20 +259,11 @@ public class Utilities {
 		gbc.weighty = 1.0;
 		gbc.fill = GridBagConstraints.BOTH;
 		final JTextArea textField = new JTextArea(message);
-		textField.setFont(def.getFont("OptionPane.font"));
-		textField.setBackground(def.getColor("OptionPane.background"));
-		textField.setForeground(def.getColor("OptionPane.foreground"));
-		textField.setBorder(null);
-		textField.setEditable(false);
-		textField.setFocusable(false);
+		setTextLabelDefaults(textField);
 		panel.add(textField, gbc);
 		final JTextField urlField = new JTextField(url);
-		urlField.setFont(def.getFont("OptionPane.font"));
-		urlField.setBackground(def.getColor("OptionPane.background"));
-		urlField.setForeground(def.getColor("OptionPane.foreground"));
-		urlField.setBorder(null);
+		setTextLabelDefaults(urlField);
 		urlField.setAutoscrolls(true);
-		urlField.setEditable(false);
 		urlField.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		urlField.select(0, url.length());
 		gbc.gridy = 1;
@@ -283,6 +275,16 @@ public class Utilities {
 		frame.pack();
 		centerOnScreen(frame);
 		frame.setVisible(true);
+	}
+	
+	public static void setTextLabelDefaults(final JTextComponent textComponent) {
+		final UIDefaults def = UIManager.getLookAndFeelDefaults();
+		textComponent.setFont(def.getFont("OptionPane.font"));
+		textComponent.setBackground(def.getColor("OptionPane.background"));
+		textComponent.setForeground(def.getColor("OptionPane.foreground"));
+		textComponent.setBorder(null);
+		textComponent.setEditable(false);
+		textComponent.setFocusable(false);
 	}
 	
 	public static void centerOnScreen(final Component component) {

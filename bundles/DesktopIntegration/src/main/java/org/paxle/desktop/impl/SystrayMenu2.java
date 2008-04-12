@@ -7,8 +7,10 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Hashtable;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
@@ -16,9 +18,14 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.metatype.MetaTypeService;
 
 import org.paxle.core.IMWComponent;
 import org.paxle.core.queue.CommandProfile;
@@ -28,6 +35,7 @@ import org.paxle.desktop.backend.tray.IMenuItem;
 import org.paxle.desktop.backend.tray.IPopupMenu;
 import org.paxle.desktop.backend.tray.ITrayIcon;
 import org.paxle.desktop.impl.dialogues.AFinally;
+import org.paxle.desktop.impl.dialogues.SettingsFrame;
 import org.paxle.desktop.impl.dialogues.SmallDialog;
 
 public class SystrayMenu2 implements ActionListener, PopupMenuListener {
@@ -39,7 +47,7 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	private static final String CRAWL_RESUME = "Resume Crawling";
 	
 	private static enum Actions {
-		SEARCH, BROWSE, CRAWL, CRAWLPR, RESTART, QUIT
+		SEARCH, BROWSE, CRAWL, CRAWLPR, SETTINGS, RESTART, QUIT
 	}
 	
 	private final Log logger = LogFactory.getLog(SystrayMenu2.class);
@@ -51,8 +59,12 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	private final IMenuItem browseItem;
 	private final IMenuItem crawlItem;
 	private final IMenuItem crawlprItem;
+	private final IMenuItem settingsItem;
 	private final IMenuItem quitItem;
 	private final IMenuItem restartItem;
+	
+	private SettingsFrame settings = null;
+	private ServiceRegistration settingsReg = null;
 	
 	// instantiate this here to prevent delays when the popup shows up
 	private final Runnable refresh = new Runnable() {
@@ -81,15 +93,16 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 		this.backend = backend;
 		
 		final IPopupMenu pm = backend.createPopupMenu(
-				this.searchItem 	= backend.createMenuItem("Search...", 		Actions.SEARCH.name(), 	this),
+				this.searchItem 	= backend.createMenuItem("Search...", 		Actions.SEARCH.name(), 	 this),
 				null,
-				this.browseItem		= backend.createMenuItem("Webinterface", 	Actions.BROWSE.name(),	this),
+				this.browseItem		= backend.createMenuItem("Webinterface", 	Actions.BROWSE.name(),	 this),
 				null,
-				this.crawlItem 		= backend.createMenuItem("Crawl...", 		Actions.CRAWL.name(), 	this),
-				this.crawlprItem 	= backend.createMenuItem("Pause Crawling", 	Actions.CRAWLPR.name(), this),
+				this.crawlItem 		= backend.createMenuItem("Crawl...", 		Actions.CRAWL.name(), 	 this),
+				this.crawlprItem 	= backend.createMenuItem("Pause Crawling", 	Actions.CRAWLPR.name(),  this),
 				null,
-				this.restartItem 	= backend.createMenuItem("Restart", 		Actions.RESTART.name(), this),
-				this.quitItem 		= backend.createMenuItem("Quit", 			Actions.QUIT.name(), 	this));
+				this.settingsItem   = backend.createMenuItem("Settings",        Actions.SETTINGS.name(), this),
+				this.restartItem 	= backend.createMenuItem("Restart", 		Actions.RESTART.name(),  this),
+				this.quitItem 		= backend.createMenuItem("Quit", 			Actions.QUIT.name(), 	 this));
 		pm.addPopupMenuListener(this);
 		
 		this.ti = backend.createTrayIcon(new ImageIcon(iconResource), "Paxle Tray", pm);
@@ -157,6 +170,10 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 	public void shutdown() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
+				if (settings != null)
+					settings.dispose();
+				if (settingsReg != null)
+					settingsReg.unregister();
 				logger.debug("removing systray icon");
 				backend.getSystemTray().remove(ti);
 				logger.debug("removed systray icon successfully");
@@ -182,15 +199,10 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 			case CRAWL:
 				new SmallDialog(dr, "Enter URL:", "Crawl").setVisible(true);
 				break;
-			case BROWSE: // fall through
-			case CRAWLPR: // fall through
-			case RESTART: // fall through
-			case QUIT:
+			
+			default:
 				new Thread(dr).start();
 				break;
-				
-			default:
-				throw new RuntimeException("switch-statement does not cover action '" + action + "'");
 		}
 	}
 	
@@ -265,6 +277,21 @@ public class SystrayMenu2 implements ActionListener, PopupMenuListener {
 				case CRAWLPR:
 					toggleCrawlersPR();
 					break;
+				
+				case SETTINGS: {
+					if (settings == null) {
+						settings = new SettingsFrame(manager.getBundles(),
+							manager.getService(ConfigurationAdmin.class),
+							manager.getService(MetaTypeService.class));
+						manager.registerService(settings, new Hashtable<String,Object>(), ConfigurationListener.class);
+					}
+					final int extstate = settings.getExtendedState();
+					if ((extstate & JFrame.ICONIFIED) == JFrame.ICONIFIED)
+						settings.setExtendedState(extstate ^ JFrame.ICONIFIED);
+					if (!settings.isVisible())
+						settings.setVisible(true);
+					settings.toFront();
+				} break;
 					
 				case RESTART: try {
 					manager.restartFramework();

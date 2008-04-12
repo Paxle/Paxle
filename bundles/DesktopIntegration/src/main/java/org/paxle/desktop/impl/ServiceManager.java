@@ -2,12 +2,14 @@
 package org.paxle.desktop.impl;
 
 import java.lang.reflect.Array;
+import java.util.Hashtable;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 
 public class ServiceManager {
 	
@@ -42,6 +44,13 @@ public class ServiceManager {
 		if (framework != null) {
 			framework.update();
 		}
+	}
+	
+	public <E> ServiceRegistration registerService(final E service, final Hashtable<String,?> properties, final Class<? super E>... clazzes) {
+		final String[] cnames = new String[clazzes.length];
+		for (int i=0; i<clazzes.length; i++)
+			cnames[i] = clazzes[i].getName();
+		return context.registerService(cnames, service, properties);
 	}
 	
 	public String getProperty(String key) {

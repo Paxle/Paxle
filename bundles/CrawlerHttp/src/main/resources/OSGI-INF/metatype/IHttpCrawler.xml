@@ -26,12 +26,12 @@
 				min="1000"
 				description="Determines the timeout in milliseconds until a connection is etablished."/>
 		
-		<AD name="Maximum size of documents to download"
+		<AD name="Maximum download size"
 				type="Integer"
 				id="maxDownloadSize"
 				default="-1"
 				min="-1"
-				description="Defines the size limit for documents to fetch in kile-bytes. A value of -1 allows every file-size. Only in effect if supported by the server."/>
+				description="Defines a size limit for documents to fetch in kilo-bytes. A value of -1 allows every file-size. Only in effect if supported by the server."/>
 		
 		<AD name="Use Accept Encoding"
 				type="Boolean"
