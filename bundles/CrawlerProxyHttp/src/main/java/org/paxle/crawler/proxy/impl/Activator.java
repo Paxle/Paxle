@@ -2,6 +2,8 @@ package org.paxle.crawler.proxy.impl;
 
 import java.util.Hashtable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -9,8 +11,10 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
+import org.paxle.core.data.IDataProvider;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.Properties;
+import org.paxle.core.queue.ICommandTracker;
 import org.paxle.crawler.proxy.IHttpProxy;
 
 public class Activator implements BundleActivator {
@@ -21,18 +25,40 @@ public class Activator implements BundleActivator {
 	private Proxy proxy = null;
 	
 	/**
+	 * Logger
+	 */
+	private Log logger = null;	
+	
+	private ProxyDataProvider dataProvider = null;
+	
+	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext context) throws Exception {
-		/*
-		 * Load the properties of this bundle
-		 */
-		Properties props = null;
-		ServiceReference ref = context.getServiceReference(IPropertiesStore.class.getName());
-		if (ref != null) props = ((IPropertiesStore) context.getService(ref)).getProperties(context);
+		// init logger
+		this.logger = LogFactory.getLog(this.getClass());		
 		
-		this.proxy = new Proxy(props);
+		// Load the preferences of this bundle
+		Properties providerPrefs = null;
+		ServiceReference ref = context.getServiceReference(IPropertiesStore.class.getName());
+		if (ref != null) providerPrefs = ((IPropertiesStore) context.getService(ref)).getProperties(context);
+		
+        // getting the command-tracker
+        ServiceReference commandTrackerRef = context.getServiceReference(ICommandTracker.class.getName());
+        ICommandTracker commandTracker = (commandTrackerRef == null) ? null :  (ICommandTracker) context.getService(commandTrackerRef);
+        if (commandTracker == null) {
+        	this.logger.warn("No CommandTracker-service found. Command-tracking will not work.");
+        }
+		
+		// init data provider
+		this.dataProvider = new ProxyDataProvider(providerPrefs, commandTracker);
+		final Hashtable<String,String> providerProps = new Hashtable<String,String>();
+		providerProps.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.parser.sink");		
+		context.registerService(new String[]{IDataProvider.class.getName()}, this.dataProvider, providerProps);
+		
+		// init proxy
+		this.proxy = new Proxy();
 		
 		/*
 		 * Create configuration if not available
@@ -66,5 +92,8 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 		this.proxy.terminate();
 		this.proxy = null;
+		
+		this.dataProvider.terminate();
+		this.dataProvider = null;
 	}
 }

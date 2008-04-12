@@ -55,7 +55,7 @@ public class ProxyResponseHandler implements IHttpResponseHandler, IHttpResponse
 	 * Reponse-message context
 	 */
 	private final IHttpResponseContext responseCtx;
-
+	
 	public ProxyResponseHandler(HttpRequest req, IHttpResponseContext responseCtx) {
 		this.req = req;
 		this.responseCtx = responseCtx;
@@ -93,11 +93,23 @@ public class ProxyResponseHandler implements IHttpResponseHandler, IHttpResponse
 			}
 			dataSink.setFlushmode(FlushMode.ASYNC);
 
-			boolean hasBody = response.hasBody();
-			if (hasBody) response.getNonBlockingBody().setDataHandler(new ProxyForwarder(ps,dataSink));
-
-			if (hasBody && shouldCrawl) {
-				new ProxyDataProvider(reqHdr.getTargetURI(),resHdr, is).start();
+			if (response.hasBody()) {
+				response.getNonBlockingBody().setDataHandler(new ProxyForwarder(ps,dataSink));
+				
+				if (shouldCrawl) {
+					// for some reason xsocket returns HTTP in upper letters
+					URI targetURI = reqHdr.getTargetURI();
+					targetURI = new URI(
+							targetURI.getScheme().toLowerCase(),
+							null,
+							targetURI.getHost(),
+							targetURI.getPort(),
+							targetURI.getRawPath(),
+							targetURI.getRawQuery(),
+							null
+					);
+					ProxyDataProvider.process(targetURI,resHdr, is);
+				}
 			}
 		} catch (Throwable e) {
 			String msg = String.format("Unexpected '%s' while requesting '%s': %s",e.getClass().getName(),reqHdr.getTargetURI() ,e.getMessage());
@@ -129,7 +141,7 @@ public class ProxyResponseHandler implements IHttpResponseHandler, IHttpResponse
 		 */
 		String queryString = reqHdr.getQueryString();
 		if (queryString != null) {
-			this.logger.info(String.format("Crawling of '%s' disallowed: Query parameters found '%s'.",uri,queryString));
+			this.logger.info(String.format("Crawling of '%s' disallowed: Query parameters found.",uri));
 			return false;
 		}
 		

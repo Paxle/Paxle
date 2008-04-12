@@ -9,9 +9,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xsocket.Execution;
 import org.xsocket.connection.http.BodyDataSink;
+import org.xsocket.connection.http.HttpResponse;
 import org.xsocket.connection.http.IBodyDataHandler;
 import org.xsocket.connection.http.NonBlockingBodyDataSource;
 
+/**
+ * This class forwards the body of a {@link HttpResponse}-message
+ * to the client and furthermore pipes the {@link HttpResponse}-message
+ * into a {@link PipedOutputStream} 
+ */
 public class ProxyForwarder implements IBodyDataHandler {
 	final Log logger = LogFactory.getLog(this.getClass());
 	final PipedOutputStream fileDataSink;
