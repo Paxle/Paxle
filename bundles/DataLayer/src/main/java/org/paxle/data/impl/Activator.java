@@ -11,9 +11,12 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.data.db.ICommandDB;
@@ -109,14 +112,16 @@ public class Activator implements BundleActivator {
 			// init command DB
 			this.commandDB = new CommandDB(config, mappings, commandTracker);		
 
-			final Hashtable<String,String> props = new Hashtable<String,String>();
+			final Hashtable<String,Object> props = new Hashtable<String,Object>();
 //			props.put(IDataConsumer.PROP_DATACONSUMER_ID, "org.paxle.indexer.source");
 			props.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.crawler.sink");		
+			props.put(EventConstants.EVENT_TOPIC, new String[]{CommandEvent.TOPIC_OID_REQUIRED});
 			bc.registerService(new String[]{
 					IDataConsumer.class.getName(),
 					IDataProvider.class.getName(),
 					ICommandDB.class.getName(),
-					ICommandProfileManager.class.getName()
+					ICommandProfileManager.class.getName(),
+					EventHandler.class.getName()
 			}, commandDB, props);
 
 			/* =====================================================

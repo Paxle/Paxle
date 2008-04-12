@@ -25,18 +25,21 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.queue.Command;
+import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.data.db.ICommandDB;
 
-public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, ICommandProfileManager {
+public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, ICommandProfileManager, EventHandler {
 	private static final int MAX_IDLE_SLEEP = 60000;
 
 	/**
@@ -320,6 +323,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 
 			/* This is a q&d hack to avoid double loading of enqueued commands. */
 			for (ICommand cmd : (List<ICommand>) result) {
+				// TODO: we need a better mechanism to decide if a command was enqueued
 				cmd.setResultText("Enqueued");
 				session.update(cmd);
 				
@@ -541,6 +545,30 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		}
 	}
 
+	/**
+	 * @see EventHandler#handleEvent(Event)
+	 */
+	public void handleEvent(Event event) {
+		String topic = event.getTopic();
+		
+		// check if any other component has created a command 
+		if (topic != null && topic.equals(CommandEvent.TOPIC_OID_REQUIRED)) {
+			// this is a synchronous event, so we have time to set a valid OID
+			String location = (String) event.getProperty(CommandEvent.PROP_COMMAND_LOCATION);
+			if (location != null) {
+				ICommand cmd = this.commandTracker.getCommandByLocation(URI.create(location));
+				if (cmd != null) {
+					/* 
+					 * TODO: this is needed for now to decide if the 
+					 * command was already enqueued. We need a better mechanism here!
+					 */
+					cmd.setResultText("Enqueued");
+					this.storeCommand(cmd);
+				}
+			}
+		}
+	}
+	
 	/**
 	 * A {@link Thread} to read {@link ICommand commands} from the {@link CommandDB#db}
 	 * and to write it into the {@link CommandDB#sink data-sink}
