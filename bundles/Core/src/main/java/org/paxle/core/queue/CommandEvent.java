@@ -19,6 +19,16 @@ public class CommandEvent {
 	public static final String TOPIC_ALL = TOPIC_ + "*";
 	
 	/**
+	 * A very special topic that is used by the {@link ICommandTracker} if a
+	 * command is passed to {@link ICommandTracker#commandCreated(String, ICommand)}
+	 * that does not have a valid {@link ICommand#getOID() OID}.
+	 * 
+	 * Events with this topic should be catched by the ORM layer to allow
+	 * to persist the newly created {@link ICommand command}
+	 */
+	public static final String TOPIC_OID_REQUIRED = TOPIC_ + "OID_REQUIRED";
+	
+	/**
 	 * The {@link ICommand} was produced by a {@link IDataProvider}.
 	 * <p/>
 	 * This topic should only be used by the {@link IDataProvider} that 
@@ -82,7 +92,7 @@ public class CommandEvent {
 	/**
 	 * The {@link ICommand#getLocation() command-location}.
 	 * <p/> 
-	 * This value must be of type {@link URI}.
+	 * This value must be of type {@link String}.
 	 */
 	public static final String PROP_COMMAND_LOCATION = "commandLocation";
 	

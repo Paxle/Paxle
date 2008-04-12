@@ -127,9 +127,30 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 		Long commandID = Long.valueOf(command.getOID());
 		WeakReference<ICommand> commandRef = new WeakReference<ICommand>(command, this.refQueue);
 		if (commandID.intValue() <= 0) {
-			this.logger.warn(String.format("The command-ID invalid: '%d'. Maybe a problem in the ORM-mapping?"));
+			// store the command based on the alreacy known location into the mapping-table so that
+			// the ORM can fetch it via #getCommandByLocation(URI commandLocation)
+			try {
+				w.lock();
+				this.commandLocationTable.put(command.getLocation(), commandRef);
+			} finally {
+				w.unlock();
+			}
+			
+			// fire a synchronous event to get the ORM-mapping-tool a chance to set the OID properly
+			this.eventService.sendEvent(CommandEvent.createEvent(ICommandTracker.class.getName(), CommandEvent.TOPIC_OID_REQUIRED, command));
+			
+			// now the command should have a valid OID
+			if (commandID.intValue() <= 0) {
+				this.logger.warn(String.format("The command-ID invalid: '%d'. Maybe a problem in the ORM-mapping?",commandID));
+			}
 		}
 		
+		/*
+		 * Regularely insert the command into the
+		 * - OID to command
+		 * - Location to command
+		 * mapping tables
+		 */
 		try {
 			w.lock();
 			this.commandIDTable.put(commandID, commandRef);
@@ -139,7 +160,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 		}
 
 		// send out a CommandEvent.TOPIC_CREATED event
-		this.eventService.postEvent(CommandEvent.createEvent(componentID, CommandEvent.TOPIC_CREATED, command));		
+		this.eventService.sendEvent(CommandEvent.createEvent(componentID, CommandEvent.TOPIC_CREATED, command));		
 	}
 
 	/**
