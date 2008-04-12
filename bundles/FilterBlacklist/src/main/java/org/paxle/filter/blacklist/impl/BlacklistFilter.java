@@ -20,77 +20,77 @@ import org.paxle.filter.blacklist.IRegexpBlacklistFilter;
  *
  */
 public class BlacklistFilter implements IRegexpBlacklistFilter {
-    
- 
-    private Log logger = LogFactory.getLog(this.getClass());
-    
-    public BlacklistFilter(File list) {
-    	Blacklist.init(list);
-    }
 
-    public void filter(ICommand command, IFilterContext filterContext) {
-        FilterResult result = isListed(command.getLocation().toString());		// XXX should this be .toASCIIString()?
-        if(result.getStatus()==FilterResult.LOCATION_REJECTED) {
-            command.setResult(ICommand.Result.Rejected, "rejected by blacklistentry: " + result.getRejectPattern());
-            //System.out.println(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
-            logger.info(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
-            return;
-        }
-        // check the extracted links
-        IParserDocument parserDoc = command.getParserDocument();
-        this.checkBlacklist(parserDoc);
-    }
-    
-    private void checkBlacklist(IParserDocument parserDoc) {
-        if (parserDoc == null) return;
-        
-        // getting the link map
-        Map<URI, String> linkMap = parserDoc.getLinks();
-        if (linkMap != null) {
-            this.checkBlacklist(linkMap);
-        }
-        
-        // loop through sub-parser-docs
-        Map<String,IParserDocument> subDocs = parserDoc.getSubDocs();
-        if (subDocs != null) {
-            for (IParserDocument subDoc : subDocs.values()) {
-                this.checkBlacklist(subDoc);
-            }
-        }
-    }   
-    
-    private void checkBlacklist(Map<URI, String> linkMap) {
-        if (linkMap == null || linkMap.size() == 0) return;
-        
-        Iterator<URI> refs = linkMap.keySet().iterator();
-        while (refs.hasNext()) {
-            URI location = refs.next();
-            FilterResult result = isListed(location.toString());		// XXX should this be .toASCIIString()?
-            if (result.getStatus()==FilterResult.LOCATION_REJECTED) {
-                refs.remove();
-                //System.out.println(location + " rejected by blacklistentry: " + result.getRejectPattern());
-                this.logger.info(location + " rejected by blacklistentry: " + result.getRejectPattern());
-            }
-        }       
-    }
-    
-    /**
-     * 
-     * @param url URL to be checked against blacklist
-     * @return returns a String containing the pattern which blacklists the url, returns null otherwise
-     */
-    private FilterResult isListed(String url) {
-    	return Blacklist.isListedInAnyList(url);
-    }
-    
-    /**
-     * gets a list of all blacklistnames
-     * @return a list of strings
-     */
+
+	private Log logger = LogFactory.getLog(this.getClass());
+
+	public BlacklistFilter(File list) {
+		Blacklist.init(list);
+	}
+
+	public void filter(ICommand command, IFilterContext filterContext) {
+		FilterResult result = isListed(command.getLocation().toString());		// XXX should this be .toASCIIString()?
+		if(result.getStatus()==FilterResult.LOCATION_REJECTED) {
+			command.setResult(ICommand.Result.Rejected, "rejected by blacklistentry: " + result.getRejectPattern());
+			//System.out.println(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
+			logger.info(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
+			return;
+		}
+		// check the extracted links
+		IParserDocument parserDoc = command.getParserDocument();
+		this.checkBlacklist(parserDoc);
+	}
+
+	private void checkBlacklist(IParserDocument parserDoc) {
+		if (parserDoc == null) return;
+
+		// getting the link map
+		Map<URI, String> linkMap = parserDoc.getLinks();
+		if (linkMap != null) {
+			this.checkBlacklist(linkMap);
+		}
+
+		// loop through sub-parser-docs
+		Map<String,IParserDocument> subDocs = parserDoc.getSubDocs();
+		if (subDocs != null) {
+			for (IParserDocument subDoc : subDocs.values()) {
+				this.checkBlacklist(subDoc);
+			}
+		}
+	}   
+
+	private void checkBlacklist(Map<URI, String> linkMap) {
+		if (linkMap == null || linkMap.size() == 0) return;
+
+		Iterator<URI> refs = linkMap.keySet().iterator();
+		while (refs.hasNext()) {
+			URI location = refs.next();
+			FilterResult result = isListed(location.toString());		// XXX should this be .toASCIIString()?
+			if (result.getStatus()==FilterResult.LOCATION_REJECTED) {
+				refs.remove();
+				//System.out.println(location + " rejected by blacklistentry: " + result.getRejectPattern());
+				this.logger.info(location + " rejected by blacklistentry: " + result.getRejectPattern());
+			}
+		}       
+	}
+
+	/**
+	 * 
+	 * @param url URL to be checked against blacklist
+	 * @return returns a String containing the pattern which blacklists the url, returns null otherwise
+	 */
+	private FilterResult isListed(String url) {
+		return Blacklist.isListedInAnyList(url);
+	}
+
+	/**
+	 * gets a list of all blacklistnames
+	 * @return a list of strings
+	 */
 	public List<String> getLists() {
-    	return Blacklist.getLists();
-    }
-	
+		return Blacklist.getLists();
+	}
+
 	/**
 	 * creates a blacklist
 	 * @param name the name of the blacklist
@@ -99,7 +99,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 	public Blacklist createList(String name) {
 		return Blacklist.create(name);
 	}
-	
+
 	/**
 	 * gets a blacklist
 	 * @param name the name of the blacklist
