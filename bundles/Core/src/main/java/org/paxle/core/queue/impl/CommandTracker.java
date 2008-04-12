@@ -126,7 +126,10 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 		// add command into datastructures
 		Long commandID = Long.valueOf(command.getOID());
 		WeakReference<ICommand> commandRef = new WeakReference<ICommand>(command, this.refQueue);
-
+		if (commandID.intValue() <= 0) {
+			this.logger.warn(String.format("The command-ID invalid: '%d'. Maybe a problem in the ORM-mapping?"));
+		}
+		
 		try {
 			w.lock();
 			this.commandIDTable.put(commandID, commandRef);
