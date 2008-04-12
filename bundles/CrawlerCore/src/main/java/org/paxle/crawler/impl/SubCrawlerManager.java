@@ -48,10 +48,15 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 	 * @param reference the reference to the deployed {@link ISubCrawler subcrawler-service}
 	 */
 	public void addSubCrawler(String[] protocols, ISubCrawler subCrawler) {
+		if (protocols == null) throw new NullPointerException("The protocol array must not be null.");
 		for (String protocol : protocols) this.addSubCrawler(protocol, subCrawler);
 	}
 	
 	private void addSubCrawler(String protocol, ISubCrawler subCrawler) {
+		if (protocol == null) throw new NullPointerException("The protocol must not be null");
+		if (subCrawler == null) throw new NullPointerException("The crawler object must not be null");		
+		protocol = protocol.toLowerCase();
+		
 		this.subCrawlerList.put(protocol, subCrawler);		
 		this.logger.info(String.format("Crawler for protocol '%s' was installed.",protocol));
 	}
@@ -61,10 +66,14 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 	 * @param protocols the protocols supported by the crawler that should be uninstalled
 	 */
 	public void removeSubCrawler(String[] protocols) {
+		if (protocols == null) throw new NullPointerException("The protocol array must not be null.");
 		for (String protocol : protocols) this.removeSubCrawler(protocol);
 	}	
 	
 	public void removeSubCrawler(String protocol) {
+		if (protocol == null) throw new NullPointerException("The protocol must not be null");		
+		protocol = protocol.toLowerCase();
+		
 		this.subCrawlerList.remove(protocol);
 		this.logger.info(String.format("Crawler for protocol '%s' was uninstalled.",protocol));
 	}		
@@ -78,6 +87,8 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 	 */
 	public ISubCrawler getSubCrawler(String protocol) {
 		if (protocol == null) return null;
+		protocol = protocol.toLowerCase();
+		
 		if (this.disabledProtocols.contains(protocol)) return null;
 		return this.subCrawlerList.get(protocol);
 	}	
@@ -89,6 +100,9 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 	 * @return <code>true</code> if the given protocol is supported or <code>false</code> otherwise
 	 */
 	public boolean isSupported(String protocol) {
+		if (protocol == null) return false;
+		protocol = protocol.toLowerCase();
+		
 		if (this.disabledProtocols.contains(protocol)) return false; 
 		return this.subCrawlerList.containsKey(protocol);
 	}
@@ -113,6 +127,9 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 	 * @see ISubCrawlerManager#disableProtocol(String)
 	 */
 	public void disableProtocol(String protocol) {
+		if (protocol == null) return;
+		protocol = protocol.toLowerCase();
+		
 		this.disabledProtocols.add(protocol);
 		if (this.props != null) this.props.setSet(DISABLED_PROTOCOLS, this.disabledProtocols);
 	}
@@ -121,6 +138,9 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 	 * @see ISubCrawlerManager#enableProtocol(String)
 	 */
 	public void enableProtocol(String protocol) {
+		if (protocol == null) return;
+		protocol = protocol.toLowerCase();
+		
 		this.disabledProtocols.remove(protocol);		
 		if (this.props != null) this.props.setSet(DISABLED_PROTOCOLS, this.disabledProtocols);
 	}
