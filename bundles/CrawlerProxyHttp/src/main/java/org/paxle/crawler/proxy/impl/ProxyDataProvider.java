@@ -140,13 +140,21 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 						ICommand cmd = Command.createCommand(crawlerDoc.getLocation(), this.getProfileID(), 0);
 						cmd.setResult(ICommand.Result.Passed, null);
 						
-						// TODO: notify the command-db about the newly created command
-						
-//						// sending event via command-tracker!
-//						this.commandTracker.commandCreated(this.getClass().getName(), cmd);
-//						
-//						// put it into the data-sink
-//						this.sink.putData(cmd);
+						/* Sending event via command-tracker!
+						 * 
+						 * Callig this function should also created a valid command OID for us
+						 */ 
+						this.commandTracker.commandCreated(this.getClass().getName(), cmd);
+						if (cmd.getOID() <= 0) {
+							this.logger.warn(String.format(
+									"Command with location '%s' has an invalid OID '%d'. ORM mapping seems not to work. Command is not enqueued.",
+									cmd.getOID(),
+									cmd.getLocation()
+							));
+						} else {
+							// put it into the data-sink
+							this.sink.putData(cmd);
+						}
 					}
 				} catch (Exception e) {
 					if (!(e instanceof InterruptedException)) {
