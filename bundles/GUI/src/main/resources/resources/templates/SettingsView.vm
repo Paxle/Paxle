@@ -119,6 +119,7 @@
     		
 		<table>
 		<tr>
+			<th>&nbsp;</th>
 			<th>Name</th>
 			<th>PID</th>
 		</tr>
@@ -138,6 +139,7 @@
         					#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
         					#if($ocd)
     							<tr class="$color">
+									<td><img src="?bundleID=$bundle.getBundleId()&amp;pid=$PID&amp;getImage=" alt="$ocd.getName()"/></td>
     								<td><a href="?bundleID=$bundle.getBundleId()&amp;pid=$PID">$ocd.getName()</a></td>
     								<td>$PID</td>
     							</tr>							
