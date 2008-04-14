@@ -147,9 +147,9 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 						this.commandTracker.commandCreated(this.getClass().getName(), cmd);
 						if (cmd.getOID() <= 0) {
 							this.logger.warn(String.format(
-									"Command with location '%s' has an invalid OID '%d'. ORM mapping seems not to work. Command is not enqueued.",
-									cmd.getOID(),
-									cmd.getLocation()
+									"Command with location '%s' has an invalid OID '%d'. ORM mapping seems not to work. Command is not enqueued.",									
+									cmd.getLocation(),
+									cmd.getOID()
 							));
 						} else {
 							// put it into the data-sink
