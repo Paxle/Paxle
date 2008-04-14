@@ -1,0 +1,34 @@
+## ---------------------------------------------------------------------------------------
+## Define some macros 
+## ---------------------------------------------------------------------------------------
+#macro(listCommands $cmdList)
+	#if($cmdList && ${listTool.size($cmdList)} > 0)
+	<table>
+    	<tr>
+    		<th>Profile</th>
+    		<th>Command</th>
+    	</tr>		
+		#foreach($cmd in $cmdList)
+		<tr>
+			<td>${cmd.getProfileOID()}</td>
+			<td>${cmd.getLocation()}</td>
+		</tr>
+		#end
+	</table>
+	#else
+		<p>empty queue</p>
+	#end	
+#end
+## --------------------------------------------------------------------------------------
+
+<fieldset>
+	<legend>Active Jobs</legend>	
+	#listCommands($activeJobs)
+</fieldset>
+
+<fieldset>
+	<legend>Enqueued Jobs</legend>
+	#listCommands($enqueuedJobs)
+</fieldset>
+	
+<div class="lastUpdate">Last Update: ${dateTool.format('medium',$dateTool.getDate())}</div>

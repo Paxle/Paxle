@@ -27,9 +27,9 @@ public class QueueView extends ALayoutServlet {
         try {
         	ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
         	
-            if (request.getParameter("queue") != null) {
-            	String queueName = request.getParameter("queue");
-            	Object[] services = manager.getServices("org.paxle.core.IMWComponent","(component.ID="+queueName+")");
+        	String queue = request.getParameter("queue");
+            if (queue != null && queue.length() > 0) {
+            	Object[] services = manager.getServices("org.paxle.core.IMWComponent","(component.ID="+queue+")");
                 if (services != null && services.length == 1 && services[0] instanceof IMWComponent) {
                 	List<ICommand> activeJobs = ((IMWComponent<ICommand>)services[0]).getActiveJobs();
                 	context.put("activeJobs", activeJobs);
@@ -37,7 +37,23 @@ public class QueueView extends ALayoutServlet {
                 	context.put("enqueuedJobs", enqueuedJobs);
                 }
             }
-            template = this.getTemplate("/resources/templates/QueueView.vm");
+            
+			String reload = request.getParameter("reload");
+			if (reload == null) {
+				template = this.getTemplate("/resources/templates/QueueView.vm");
+			} else if (reload.equals("queueList")) {
+				// we don't want full html 
+				context.put("layout", "plain.vm");
+				
+				// just return the activity overview
+				template = getTemplate("/resources/templates/QueueViewLists.vm");
+			} else if (reload.equals("overview")) {
+				// we don't want full html 
+				context.put("layout", "plain.vm");
+				
+				// just return the activity overview
+				template = getTemplate("/resources/templates/QueueViewOverview.vm");
+			}
             
         } catch (Exception e) {
             // TODO Auto-generated catch block

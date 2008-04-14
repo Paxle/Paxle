@@ -1,5 +1,9 @@
 ## Set the page title
-#set( $page_title = "Queue View Page" )
+#set( $page_title = "Queue View Page" )	
+
+## load prototypes
+#set( $h1 = "<script src='/js/prototype.js' type='text/javascript'></script>")
+#set( $page_headers = [$h1] )
 
 <ul class="tabs">
 	<li><a href="/queue">Overview</a></li>
@@ -8,52 +12,32 @@
 	<li><a href="?queue=org.paxle.indexer">Indexer</a></li>
 </ul>
 
-#if( $paramParser.getString("queue"))
-<fieldset>
-	<legend>Active Jobs</legend>
-	#if( $activeJobs)
-	<ul>
-		#foreach( $activeJob in $activeJobs)
-		<li><a href="$activeJob.getLocation()">$activeJob.getLocation()</a></li>
-		#end
-	</ul>
-	#else
-		<p>empty queue</p>
-	#end
-</fieldset>
+<script type="text/javascript">
+      var ajaxPopulater = function (id,reload) {
+         var url  = '/queue?#{if}($paramParser.getString("queue"))queue=${paramParser.getString("queue")}&#{end}reload=' + reload;
+         new Ajax.PeriodicalUpdater(id, url, {
+            method: 'post',
+            frequency: 5,
+            asynchronous: true,
+            decay: 1
+         });
+      };
+</script>
+	  
+#if($paramParser.getString("queue"))
+   <script type="text/javascript">
+      ajaxPopulater('infoBoxQueueLists','queueList');
+   </script>	
 
-<fieldset>
-	<legend>Enqueued Jobs</legend>
-	#if( $enqueuedJobs)
-	<ul>
-		#foreach( $enqueuedJob in $enqueuedJobs)
-		<li><a href="$enqueuedJob.getLocation()">$enqueuedJob.getLocation()</a></li>
-		#end
-	</ul>
-	#else
-	<p>empty queue</p>
-	#end
-</fieldset>
+   <div id="infoBoxQueueLists">
+      #parse('/resources/templates/QueueViewLists.vm')
+   </div>
 #else
-<fieldset>
-	<legend>Queue Overview</legend>  
-	#set( $components = { 'Crawler':'org.paxle.crawler', 'Parser':'org.paxle.parser', 'Indexer':'org.paxle.indexer'})
-	<table>
-		<tr>
-			<th>Component</th>
-			<th>Active</th>
-			<th>Enqueued</th>
-		</tr>
-		#foreach( $entry in $components.entrySet())
-		#if( $manager.getServices( "org.paxle.core.IMWComponent", "(component.ID=$entry.value)"))
-		<tr>
-		#set($compQueue = $listTool.get( $manager.getServices( "org.paxle.core.IMWComponent", "(component.ID=$entry.value)"),0))
-			<td><a href="?queue=$entry.value">$entry.key</a></td>
-			<td>$compQueue.getActiveJobCount()</td>
-			<td>$compQueue.getEnqueuedJobCount()</td>
-		</tr>
-		#end
-		#end
-	</table>
-</fieldset>
+   <script type="text/javascript">
+      ajaxPopulater('infoBoxQueueOverview','overview');
+   </script>		
+	
+   <div id="infoBoxQueueOverview">
+	  #parse('/resources/templates/QueueViewOverview.vm')
+   </div>
 #end

@@ -1,0 +1,23 @@
+<fieldset>
+	<legend>Queue Overview</legend>  
+	#set( $components = { 'Crawler':'org.paxle.crawler', 'Parser':'org.paxle.parser', 'Indexer':'org.paxle.indexer'})
+	<table>
+		<tr>
+			<th>Component</th>
+			<th>Active</th>
+			<th>Enqueued</th>
+		</tr>
+		#foreach($entry in ${components.entrySet()})
+    		#if($manager.getServices("org.paxle.core.IMWComponent", "(component.ID=${entry.value})"))
+    		<tr>
+				#set($compQueue = $listTool.get($manager.getServices( "org.paxle.core.IMWComponent", "(component.ID=${entry.value})"),0))
+    			<td><a href="?queue=${entry.value}">${entry.key}</a></td>
+    			<td>${compQueue.getActiveJobCount()}</td>
+    			<td>${compQueue.getEnqueuedJobCount()}</td>
+    		</tr>
+    		#end
+		#end
+	</table>
+</fieldset>
+		
+<div class="lastUpdate">Last Update: ${dateTool.format('medium',$dateTool.getDate())}</div>
