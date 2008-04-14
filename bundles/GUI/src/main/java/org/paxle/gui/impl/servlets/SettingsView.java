@@ -1,7 +1,9 @@
 package org.paxle.gui.impl.servlets;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -9,12 +11,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
@@ -34,7 +37,6 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IStyleManager;
 import org.paxle.gui.impl.ServiceManager;
-import org.paxle.gui.impl.StyleManager;
 
 
 public class SettingsView extends ALayoutServlet {
@@ -62,6 +64,25 @@ public class SettingsView extends ALayoutServlet {
      * For logging
      */
 	private Log logger = LogFactory.getLog( this.getClass());
+	
+	@Override
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if (request.getParameter("getImage") != null) {	
+			try {
+				/*
+				 * this is a template less request therefore we need to overwrite doGet
+				 */
+
+				// create context
+				Context context = this.createContext(request, response);
+				this.writeImage(request, response, context);
+			} catch (Exception e) {
+				throw new IOException(e.getMessage());
+			}
+		} else {
+			super.doGet(request, response);
+		}
+	}
 
 	@Override
 	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
@@ -148,6 +169,79 @@ public class SettingsView extends ALayoutServlet {
 			}
 		}	
 	}
+	
+	public void writeImage(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {	
+		String pid = request.getParameter("pid");
+		if (pid == null) {
+			response.sendError(501, "No pid supplied.");
+			return;
+		}
+		
+		String bundleID = request.getParameter("bundleID");
+		if (bundleID == null) {
+			response.sendError(501, "No bundle-ID supplied.");
+			return;
+		}
+		
+		ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+		if (bundleID == null) {
+			response.sendError(501, "No ServiceManager found.");
+			return;
+		}
+		
+		// getting the bundle the managed service belongs to
+		Bundle bundle = manager.getBundle(Long.valueOf(bundleID));
+		if (bundleID == null) {
+			response.sendError(501, String.format("No bundle with ID '%s' found.",bundleID));
+			return;
+		}
+		
+		// getting configuration meta-data
+		MetaTypeService metaType = (MetaTypeService) manager.getService(MetaTypeService.class.getName());
+		if (metaType == null) {
+			response.sendError(501, "Metatype service not found.");
+			return;
+		}
+		
+		MetaTypeInformation metaTypeInfo = metaType.getMetaTypeInformation(bundle);
+		if (metaTypeInfo == null) {
+			response.sendError(501, String.format("No MetaTypeInformation found for service with PID '%s'.",pid));
+			return;
+		}
+		
+		String locale = "en";		
+		ObjectClassDefinition ocd = metaTypeInfo.getObjectClassDefinition(pid, locale);
+		if (ocd == null) {
+			response.sendError(501, String.format("No ObjectClassDefinition found for service with PID '%s' and locale '%s'.",pid,locale));
+			return;
+		}		
+		
+		try {
+			// trying to find a proper icon
+			int[] sizes = new int[] {16,32,64,128,256};
+
+			for (int size : sizes) {
+				InputStream in = ocd.getIcon(16);
+				if (in != null) {
+					BufferedImage img = ImageIO.read(in);
+					response.setHeader("Content-Type","image/png");
+					ImageIO.write(img, "png", response.getOutputStream());
+					return;
+				} 
+			}
+
+			// no icon found. loading a default icon now
+			BufferedImage img = ImageIO.read(this.getClass().getResourceAsStream("/resources/images/cog.png"));
+			response.setHeader("Content-Type","image/png");
+			ImageIO.write(img, "png", response.getOutputStream());
+			return;
+
+		} catch (Exception e) {			
+			response.sendError(404, e.getMessage());
+			return;
+		}
+	}
+		
 	
 	public void setPropertyValues(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {		
 		Dictionary<String, Object> props = new Hashtable<String, Object>();		
