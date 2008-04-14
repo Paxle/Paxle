@@ -18,9 +18,13 @@
       	<!-- the resource location -->
     	<property name="location" node="Location" length="512" index="location_idx" type="org.paxle.data.db.impl.URIUserType"/>
         
-        <property name="profileOID" column="profileID" type="integer"/>
+        <property name="profileOID" type="integer">
+        	<column name="profileID" default="-1"/>
+        </property>
 
-    	<property name="depth" type="integer"/>
+    	<property name="depth" type="integer">
+    		<column name="depth" default="0"/>
+    	</property>
         
         <!-- the crawler document -->
 	    <many-to-one name="crawlerDocument" column="crawlerDocId" unique="true" cascade="all" embed-xml="true"/>
