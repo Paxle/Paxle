@@ -11,7 +11,7 @@
 		#foreach($cmd in $cmdList)
 		<tr>
 			<td>${cmd.getProfileOID()}</td>
-			<td>${cmd.getLocation()}</td>
+			<td><a href="${cmd.getLocation()}">${cmd.getLocation()}</a></td>
 		</tr>
 		#end
 	</table>
