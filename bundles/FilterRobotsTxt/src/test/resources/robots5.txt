@@ -1,0 +1,4 @@
+Sitemap: http://xxx.com/sitemap.xml.gz
+Crawl-delay: 0
+User-agent: *
+Disallow: 

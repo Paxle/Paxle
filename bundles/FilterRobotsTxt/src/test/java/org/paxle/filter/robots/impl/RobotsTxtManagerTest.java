@@ -172,4 +172,13 @@ public class RobotsTxtManagerTest extends TestCase {
 		assertEquals(1, props.size());
 		assertTrue(props.containsKey("Crawl-Delay"));
 	}
+	
+	public void testGetProperties2() throws IOException {
+		String hostPort = "xxxxx:80";
+		this.parseAndPutIntoCache("src/test/resources/robots5.txt",hostPort);
+		
+		Map<String,String> props = this.manager.getRobotsProperties("http://" + hostPort);
+		assertNotNull(props);
+		assertEquals(0, props.size());
+	}
 }
