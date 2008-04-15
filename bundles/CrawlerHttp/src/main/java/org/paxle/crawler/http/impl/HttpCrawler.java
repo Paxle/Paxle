@@ -35,6 +35,7 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.HeadMethod;
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.logging.Log;
@@ -237,8 +238,11 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			this.connectionManager.getParams().setConnectionTimeout(((Integer) configuration.get(PROP_CONNECTION_TIMEOUT)).intValue());
 			this.connectionManager.getParams().setSoTimeout(((Integer) configuration.get(PROP_SOCKET_TIMEOUT)).intValue());
 			
+			// init the protocol factory for https
+		    Protocol.registerProtocol("https", new Protocol("https", new AllSSLProtocolSocketFactory(), 443));
+			
 			// set new http client
-			this.httpClient = new HttpClient(connectionManager);
+			this.httpClient = new HttpClient(connectionManager);		
 			
 			this.maxDownloadSize = ((Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE)).intValue();
 			this.acceptEncoding = ((Boolean)configuration.get(PROP_ACCEPT_ENCODING)).booleanValue();
