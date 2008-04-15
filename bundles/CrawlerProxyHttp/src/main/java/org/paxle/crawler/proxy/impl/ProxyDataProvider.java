@@ -152,6 +152,8 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 									cmd.getOID()
 							));
 						} else {
+							cmd.setCrawlerDocument(crawlerDoc);
+							
 							// put it into the data-sink
 							this.sink.putData(cmd);
 						}
@@ -189,7 +191,7 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 	 * @see IDataProvider#setDataSink(IDataSink)
 	 */
 	public synchronized void setDataSink(IDataSink<ICommand> dataSink) {
-		if (dataSink == null) throw new NullPointerException("The data-sink is null-");
+		if (dataSink == null) throw new NullPointerException("The data-sink is null.");
 		if (this.sink != null) throw new IllegalStateException("The data-sink was already set.");
 		
 		this.sink = dataSink;
