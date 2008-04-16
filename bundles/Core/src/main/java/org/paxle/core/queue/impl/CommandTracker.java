@@ -140,6 +140,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 			this.eventService.sendEvent(CommandEvent.createEvent(ICommandTracker.class.getName(), CommandEvent.TOPIC_OID_REQUIRED, command));
 			
 			// now the command should have a valid OID
+			commandID = Long.valueOf(command.getOID());
 			if (commandID.intValue() <= 0) {
 				this.logger.warn(String.format("The command-ID invalid: '%d'. Maybe a problem in the ORM-mapping?",commandID));
 			}
@@ -362,6 +363,19 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	 */
 	public long getTrackingSize() {
 		return this.commandIDTable.size();
+	}
+	
+	/**
+	 * This function is just used for junit testing.
+	 * Do not use it for other purposes.
+	 */
+	boolean isInDestroyedList(ICommand cmd) {
+		if (this.destroyedCommandMap != null) {
+			for (DestroyedCommandData data : this.destroyedCommandMap) {
+				if (data.command == cmd) return true;
+			}
+		}
+		return false;
 	}
 }
 
