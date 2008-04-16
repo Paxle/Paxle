@@ -81,6 +81,21 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	}
 	
 	/**
+	 * Function to free all resources. This is called by the {@link IFilterManager} 
+	 */
+	void close() {
+		// close tracker(s)
+		if (this.cmdProfileTracker != null) {
+			this.cmdProfileTracker.close();
+		}
+		
+		// clear props
+		if (this.props != null) {
+			this.props.clear();
+		}
+	}
+	
+	/**
 	 * A reference to the registered {@link IFilter}
 	 */
 	public IFilter<ICommand> getFilter() {

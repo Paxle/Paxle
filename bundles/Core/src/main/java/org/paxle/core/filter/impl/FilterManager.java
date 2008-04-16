@@ -88,8 +88,13 @@ public class FilterManager implements IFilterManager {
 		Iterator<FilterContext> filterIter = filterList.iterator();
 		while (filterIter.hasNext()) {
 			FilterContext next = filterIter.next();
-			if (next.getServiceID().equals(serviceID) /* TODO: && next.getFilterPosition() == position */) {
+			if (next.getServiceID().equals(serviceID) /* TODO: && next.getFilterPosition() == position */) {				
+				// remove it from the list
 				filterIter.remove();
+				
+				// free resources
+				next.close();
+				
 				this.logger.info(String.format(
 						"Filter '%s' with service-id '%s' successfully removed from target '%s'.",
 						next.getFilter().getClass().getName(),
