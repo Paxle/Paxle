@@ -38,7 +38,9 @@
 							org.paxle.core.prefs,
 							org.apache.commons.httpclient.*;version="3.1.0"
 						</Import-Package>
-						<DynamicImport-Package></DynamicImport-Package>
+						<DynamicImport-Package>
+							javax.net.ssl
+						</DynamicImport-Package>
 						<Private-Package>
 							org.paxle.crawler.http.impl
 						</Private-Package>
