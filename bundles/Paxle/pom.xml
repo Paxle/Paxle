@@ -197,7 +197,15 @@
 									<destFileName>
 										org.eclipse.equinox.metatype_1.0.0.v20070226.jar
 									</destFileName>
-								</artifactItem>								
+								</artifactItem>		
+								
+								<artifactItem>
+									<groupId>org.eclipse.equinox</groupId>
+									<artifactId>useradmin</artifactId>
+									<version>1.0.0.v20070226</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.eclipse.equinox.useradmin_1.0.0.v20070226.jar</destFileName>
+								</artifactItem>														
 
 								<!-- 
 									<artifactItem>
