@@ -37,7 +37,7 @@ public class OverView extends ALayoutServlet {
 			
 			if (request.getParameter("gc") != null) {
 				System.gc();
-				response.sendRedirect(super.servletLocation);
+				response.sendRedirect(super.servletLocation + "#dmemory");
 			}
 			
 			// set system

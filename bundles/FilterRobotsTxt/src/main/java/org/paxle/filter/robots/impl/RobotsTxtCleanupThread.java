@@ -21,7 +21,7 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 	File dir = null;
 	/** The time in minutes between each cleaning */
 	public static final String PROP_DELAY = "delay";
-	
+
 	/** The configuration data for this class */
 	private Dictionary<String, Object> config = null;
 
@@ -68,7 +68,7 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 					} finally {
 						if (ois != null) try { ois.close(); } catch (Exception e) {/* ignore this */}
 					}					
-					
+
 					if (robotsTxt != null && (robotsTxt.getExpirationDate().getTime() < System.currentTimeMillis())) {
 						logger.debug("Deleting cached robots.txt file for " + robotsTxt.getHostPort());
 						file.delete();
@@ -92,6 +92,10 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 				go_on=false;
 			}
 			if (go_on) {
+				if (config.get(PROP_DELAY) == null) {
+					logger.warn("Delay for robots.txt cleaning is null. Loading defaults.");
+					updated(getDefaults());
+				}
 				try {
 					TimeUnit.SECONDS.sleep(((Integer)config.get(PROP_DELAY)).intValue()*60); 
 				} catch ( InterruptedException e ) {
@@ -101,7 +105,7 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 		}
 		logger.info("Thread terminated.");
 	}
-	
+
 	/**
 	 * @see ManagedService#updated(Dictionary)
 	 */
@@ -118,17 +122,17 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 			logger.error("Internal exception during configuring", e);
 		}
 	}
-	
+
 	/**
 	 * @return the default configuration of this service
 	 */
 	public Hashtable<String,Object> getDefaults() {
 		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
-		
+
 		defaults.put(PROP_DELAY, Integer.valueOf(30));
 		defaults.put(Constants.SERVICE_PID, RobotsTxtCleanupThread.class.getName());
-		
+
 		return defaults;
 	}
-	
+
 }
