@@ -1,176 +1,18 @@
 ## Set the page title
 #set( $page_title = "Settings Controlpage" )
 
-## the regular content
-<h2>Settings: </h2>
+
+<ul class="tabs">
+	<li><a href="?settings=config">Config-Management</a></li>
+	<li><a href="?settings=user">User-Management</a></li>
+</ul>
 
 #if($errorMsg)
 	<p class="box error">$errorMsg</p>
 #end
 
-#set( $configAdmin = $manager.getService( "org.osgi.service.cm.ConfigurationAdmin"))
-#set( $metaTypeService = $manager.getService( "org.osgi.service.metatype.MetaTypeService"))
-
-#if( $metaTypeService && $configAdmin)
-	<h3>Configuration Management</h3>
-	#if( $paramParser.getString( "bundleID") && $paramParser.getString( "pid"))
-		#set( $bundleID = $paramParser.getString( "bundleID"))
-		#set( $PID = $paramParser.getString( "pid"))
-		#set( $bundle = $manager.getBundle( $mathTool.toInteger( $bundleID)))
-		
-		## searching for metatype info
-		#set( $metaType = $metaTypeService.getMetaTypeInformation($bundle))
-		#if( $metaType)
-			#if( $bundle.getBundleId() == $metaType.getBundle().getBundleId())
-    			#set( $ocd = $metaType.getObjectClassDefinition( $PID, "en"))
-    			#if( $ocd)
-    				<p>
-						<p>
-        					<b>Name:&nbsp;$ocd.getName()</b><br/>
-        					<i>Bundle:&nbsp;</i><a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a><br/>
-        					<i>Description:</i> $ocd.getDescription()<br/>
-						</p>
-						
-    					## 	getting the current configuration
-    					#set($config = $configAdmin.getConfiguration($PID,${bundle.getLocation()}))
-    					
-    					## getting the configuration attributes
-    					#set($attributes = $ocd.getAttributeDefinitions(-1))
-    					#if($attributes)
-							<form action="">
-								<input type="hidden" name="pid" value="$PID">
-								<input type="hidden" name="bundleID" value="${bundle.getBundleId()}">
-								</ins>
-                            	<table>
-                            	<tr>
-                            		<th>Name</th>
-        							<th>Type</th>
-                            		<th>Value</th>
-    								<th>Description</th>
-                            	</tr>
-                            	#foreach($attribute in $attributes)
-    								#set($attributeID = ${attribute.getID()})								
-    								#set($attribValue = ${settingsView.getPropertyValue($config,$attribute)})
-    								#set($attribType = ${dataTypes.get($attribute.getType())})
-									#set($optionLabels = ${attribute.getOptionLabels()})
-									#set($optionValues = ${attribute.getOptionValues()})
-									#set($attribCardinality = ${attribute.getCardinality()})
-    								
-                            		<tr class="$color">
-                            			<td>$attribute.getName()</td>
-        								<td>$attribType</td>
-                            			<td>
-											#if($optionLabels && $listTool.size($optionLabels) > 0)
-												<select name="$attributeID"
-												#set($numOptions = $listTool.size($optionLabels))
-												#if($attribCardinality == 0 || $numOptions == 1)
-													size="1"
-												#else
-													multiple="multiple"
-													size="#if($attribCardinality > 5)5#else${numOptions}#end"
-												#end
-												>
-												#foreach($optionLabel in $optionLabels)
-													#set($idx = $velocityCount - 1)
-													#set($optionValue = ${listTool.get($optionValues,$idx)})
-													<option value="$optionValue" #if($optionValue==$attribValue)selected="selected"#end>$optionLabel</option>                                               
-												#end
-												</select>
-    										#else 
-        										#if($attribType == "Boolean")
-    												<input type="radio" name="$attributeID" id="true$attributeID" value="true" #if($attribValue)checked="checked"#end>
-    												<label for="true$attributeID">Yes</label>
-    												&nbsp;
-    												<input type="radio" name="$attributeID" id="false$attributeID" value="false" #if(!$attribValue)checked="checked"#end>
-    												<label for="false$attributeID">No</label> 
-        										#else
-        											<input type="#if($attributeID.toLowerCase().contains("password"))password#else{text}#end" name="$attributeID" value="$!attribValue"/>
-        										#end	
-											#end
-    									</td>
-    									<td>
-    										${attribute.getDescription()}
-    										#if($attributeID.toLowerCase().contains("password"))
-    											<p><em>Be aware that this password is being saved unencrypted.</em></p>
-    										#end
-    									</td>
-                            		</tr>                            		
-                            	#end
-                            	</table>
-    							 <input type="submit" name="doEdit" value="Change"/>
-							</form>
-    					#end
-    					<hr/>
-    				</p>
-				#end
-				
-				#if($PID == "org.paxle.gui.IStyleManager")
-					<b>Upload new styles jar</b>
-                    <form enctype="multipart/form-data" method="post" action="">
-                    	<p>
-                    		<input type="file" name="styleJar" size="60" />
-                    		<input type="submit" name="doUpload" value="Install" />
-                    	</p>
-                    </form>
-				#end
-		    #end	
-		#end
-	#else 
-    		
-		<table>
-		<tr>
-			<th>&nbsp;</th>
-			<th>Name</th>
-			<th>PID</th>
-		</tr>
-		#set($color = $alternatorTool.auto('r1','r2'))
-		
-    	## loop through each bundle to see if there are any metatypes	
-    	#foreach($bundle in $manager.getBundles())
-    		#set($metaType = $metaTypeService.getMetaTypeInformation($bundle))
-    		#if($metaType)
-				#if($bundle.getBundleId() == $metaType.getBundle().getBundleId())
-        			## get the PIDs of all managed services
-        			#set($PIDs = $metaType.getPids())
-        			#if($PIDs)					
-        				## loop through all managed services and fetch the
-        				## corresponding ObjectClassDefinitions
-        				#foreach($PID in $PIDs)
-        					#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
-        					#if($ocd)
-    							<tr class="$color">
-									<td><img src="?bundleID=$bundle.getBundleId()&amp;pid=$PID&amp;getImage=" alt="$ocd.getName()"/></td>
-    								<td><a href="?bundleID=$bundle.getBundleId()&amp;pid=$PID">$ocd.getName()</a></td>
-    								<td>$PID</td>
-    							</tr>							
-        					#end
-        				#end
-        			#end	
-					
-					#*
-        			## get the PIDs of all managed services factories
-        			#set($PIDs = $metaType.getFactoryPids())
-        			#if($PIDs)					
-        				## loop through all managed services and fetch the
-        				## corresponding ObjectClassDefinitions
-        				#foreach($PID in $PIDs)
-        					#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
-        					#if($ocd)
-    							<tr class="$color">
-    								<td>$ocd.getName()</td>
-    								<td>$PID</td>
-    								<td><a href="?bundleID=$bundle.getBundleId()&amp;pid=$PID&amp;factory=">View</a></td>
-    							</tr>							
-        					#end
-        				#end
-        			#end		
-					*#
-				#end
-    		#end
-		#end
-		</table>
-	#end
-#else 
-	#if(!$configAdmin)<div class="bundleNotInstalled">Configuration Administration bundle not installed!</div>#end
-	#if(!$metaTypeService)<div class="bundleNotInstalled">Metatype bundle not installed!</div>#end
-#end
+#if($paramParser.getString("settings") == "config")
+	#parse('/resources/templates/SettingsConfigView.vm')
+#elseif($paramParser.getString("settings") == "user")
+	#parse('/resources/templates/SettingsUserView.vm')
+#end	

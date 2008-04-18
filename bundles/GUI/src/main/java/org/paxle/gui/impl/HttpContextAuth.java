@@ -6,10 +6,15 @@ import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.service.http.HttpContext;
+import org.osgi.service.useradmin.Authorization;
+import org.osgi.service.useradmin.User;
+import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 
 /*
  * User authentication here. Please read
@@ -17,53 +22,91 @@ import org.osgi.service.http.HttpContext;
  * be used in combination with the OSGI User Admin Service
  * (http://www2.osgi.org/javadoc/r4/org/osgi/service/useradmin/package-summary.html)
  */
-public class HttpContextAuth implements HttpContext
-{
-	
-	private Log logger = LogFactory.getLog( this.getClass());
-	
-	private boolean loggedIn = false;
+public class HttpContextAuth implements HttpContext {
+	public static final String USER_HTTP_PASSWORD = "http.password";
+	public static final String USER_HTTP_LOGIN = "http.login";
 
-	private Bundle bundle;
-	
-	public HttpContextAuth( Bundle b)
-	{
-		bundle = b;
-		
-		return;
+	/**
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog( this.getClass());
+
+	private final Bundle bundle;
+
+	private final ServiceTracker uAdminTracker;
+
+	public HttpContextAuth(Bundle b, ServiceTracker uAdminTracker) {
+		this.bundle = b;
+		this.uAdminTracker = uAdminTracker;
 	}
-	
-	public String getMimeType( String name)
-	{
-		// TODO Auto-generated method stub
+
+	public String getMimeType( String name) {
 		return null;
 	}
 
-	public URL getResource( String name)
-	{
+	public URL getResource( String name) {
 		return bundle.getResource( name);
 	}
 
-	public boolean handleSecurity( HttpServletRequest request, HttpServletResponse response) throws IOException
-	{
-		if( loggedIn) {
-			
-			return true;
-			
-		}
-		else {
-			
+	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String auth = request.getHeader("Authorization");
+		if (auth == null) {
 			logger.info( "authentication needed");
-			
-			response.setStatus(401);
-			
-			response.setHeader("WWW-Authenticate", "Basic realm=\"paxle log-in\"");
-			
-			loggedIn = true; // FIXME
-			
+			this.writeResponse(response);
 			return false;
-			
+		} else if (auth.length() <= "Basic ".length()) {
+			response.setStatus(400);
+			return false;
 		}
+
+		// base64 decode and get username + password
+		byte[] authBytes = Base64.decodeBase64(auth.substring("Basic ".length()).getBytes("UTF-8"));
+		auth = new String(authBytes,"UTF-8");		
+		String[] authData = auth.split(":");
+		String userName = authData[0];
+		String password = authData.length==1?"":authData[1];
+
+		UserAdmin userAdmin = (UserAdmin) this.uAdminTracker.getService();
+		if (userAdmin == null) {
+			this.logger.warn("OSGi UserAdmin service not found");
+			this.writeResponse(response);
+			return false;
+		}
+
+		User user = userAdmin.getUser(USER_HTTP_LOGIN,userName);
+		if( user == null ) {
+			this.logger.warn(String.format("No user found for username '%s'.", userName));	
+			this.writeResponse(response);
+			return false;
+		}
+
+		if(!user.hasCredential(USER_HTTP_PASSWORD, password)) {
+			this.logger.warn(String.format("Wrong password for username '%s'.", userName));
+			this.writeResponse(response);
+			return false;
+		}
+
+		Authorization authorization = userAdmin.getAuthorization(user);
+		if(authorization == null) {
+			this.logger.warn(String.format("No authorization found for username '%s'.", userName));
+			this.writeResponse(response);
+			return false;
+		}
+		
+		if (!authorization.hasRole("Administrators")) {
+//			this.logger.warn(String.format(""))
+		}
+
+		// according to the OSGi spec we need to set the following properties ...
+		request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
+		request.setAttribute(HttpContext.AUTHORIZATION, authorization);
+		request.setAttribute(HttpContext.REMOTE_USER, user);
+
+		return true;
 	}
 
+	private void writeResponse(HttpServletResponse response) {
+		response.setStatus(401);
+		response.setHeader("WWW-Authenticate", "Basic realm=\"paxle log-in\"");
+	}
 }

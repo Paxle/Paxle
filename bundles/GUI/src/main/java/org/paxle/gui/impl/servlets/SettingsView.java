@@ -4,8 +4,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -28,14 +31,21 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
+import org.osgi.service.useradmin.Authorization;
+import org.osgi.service.useradmin.Group;
+import org.osgi.service.useradmin.Role;
+import org.osgi.service.useradmin.User;
+import org.osgi.service.useradmin.UserAdmin;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IStyleManager;
+import org.paxle.gui.impl.HttpContextAuth;
 import org.paxle.gui.impl.ServiceManager;
 
 
@@ -85,16 +95,64 @@ public class SettingsView extends ALayoutServlet {
 	}
 
 	@Override
-	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
+	public Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
 		
 		Template template = null;
 		try {
-			if (request.getParameter("doEdit") != null) {
+			// getting the servicemanager
+			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+			
+			if (request.getParameter("doEditConfig") != null) {
 				this.setPropertyValues(request, response, context);
+			} else if (request.getParameter("doCreateUser") != null || request.getParameter("doUpdateUser") != null) {
+				UserAdmin userAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
+				if (userAdmin != null) {
+					String name = request.getParameter("roleName");
+					Role user = null;
+					if (request.getParameter("doCreateUser") != null) {
+						user = userAdmin.createRole(name, Role.USER);
+						if (user == null) {
+							String errorMsg = String.format("Role with name '%s' already exists.",name);
+							this.logger.warn(errorMsg);
+							context.put("errorMsg",errorMsg);
+						}
+					} else {
+						user = userAdmin.getRole(name);
+						if (user == null) {
+							String errorMsg = String.format("Unable to find user with name '%s'.",name);
+							this.logger.warn(errorMsg);
+							context.put("errorMsg",errorMsg);
+						}
+					}
+					
+					this.updateUser(userAdmin, (User) user, request, context);
+				}
+				response.sendRedirect("/config?settings=user");
+			} else if (request.getParameter("doCreateGroup") != null || request.getParameter("doUpdateGroup") != null) {
+				UserAdmin userAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
+				if (userAdmin != null) {
+					String name = request.getParameter("roleName");
+					Role user = null;
+					if (request.getParameter("doCreateGroup") != null) {
+						user = userAdmin.createRole(name, Role.GROUP);
+						if (user == null) {
+							String errorMsg = String.format("Role with name '%s' already exists.",name);
+							this.logger.warn(errorMsg);
+							context.put("errorMsg",errorMsg);
+						}
+					} else {
+						user = userAdmin.getRole(name);
+						if (user == null) {
+							String errorMsg = String.format("Unable to find group with name '%s'.",name);
+							this.logger.warn(errorMsg);
+							context.put("errorMsg",errorMsg);
+						}
+						
+						// XXX nothing to edit at the moment
+					}
+				}
+				response.sendRedirect("/config?settings=user");
 			} else if (ServletFileUpload.isMultipartContent(request)) {
-				// getting the servicemanager
-				ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
-				
 				// getting a reference to the stylemanager
 				IStyleManager styleManager = (IStyleManager) manager.getService(IStyleManager.class.getName());
 				
@@ -118,6 +176,97 @@ public class SettingsView extends ALayoutServlet {
 		}
 
 		return template;
+	}
+	
+	private void updateUser(UserAdmin userAdmin, User user, HttpServletRequest request, Context context) throws InvalidSyntaxException {
+		if (user == null) return;
+		
+		String loginName = request.getParameter(HttpContextAuth.USER_HTTP_LOGIN);
+		
+		// check if the login-name is not empty
+		if (loginName == null || loginName.length() == 0) {
+			String errorMsg = String.format("The login name must not be null or empty.");
+			this.logger.warn(errorMsg);
+			context.put("errorMsg",errorMsg);
+			return;
+		}
+		
+		// check if the login name is unique
+		Role[] roles = userAdmin.getRoles(String.format("(%s=%s)",HttpContextAuth.USER_HTTP_LOGIN, loginName));
+		if (roles.length > 2 || (roles.length == 1 && !roles[0].equals(user))) {
+			String errorMsg = String.format("The given login name '%s' is already used by a different user.", loginName);
+			this.logger.warn(errorMsg);
+			context.put("errorMsg",errorMsg);
+			return;
+		}
+		
+		// check if the password is typed correclty
+		String pwd1 = request.getParameter(HttpContextAuth.USER_HTTP_PASSWORD);
+		String pwd2 = request.getParameter(HttpContextAuth.USER_HTTP_PASSWORD + "2");
+		if (pwd1 == null || pwd2 == null || !pwd1.equals(pwd2)) {
+			String errorMsg = String.format("The password for login name '%s' was not typed correctly.", loginName);
+			this.logger.warn(errorMsg);
+			context.put("errorMsg",errorMsg);
+			return;
+		}
+		
+		// configure http-login data
+		Dictionary<String, Object> props = user.getProperties();
+		props.put(HttpContextAuth.USER_HTTP_LOGIN, loginName);
+		
+		Dictionary<String, Object> credentials = user.getCredentials();
+		credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, pwd1);
+		
+		// process membership
+		Authorization auth = userAdmin.getAuthorization(user);		
+		String[] currentMembership = auth.getRoles();
+		if (currentMembership == null) currentMembership = new String[0];
+		
+		String[] newMembership = request.getParameterValues("membership");
+		if (newMembership == null) newMembership = new String[0];
+		
+		// new memberships
+		for (String groupName : newMembership) {
+			if (!auth.hasRole(groupName)) {
+				Role role = userAdmin.getRole(groupName);
+				if (role != null && role.getType() == Role.GROUP) {
+					((Group)role).addMember(user);
+				}
+			}
+		}
+
+		// memberships to remove
+		ArrayList<String> oldMemberships = new ArrayList<String>(Arrays.asList(currentMembership));
+		oldMemberships.removeAll(Arrays.asList(newMembership));
+		for (String roleName : oldMemberships) {
+			if (auth.hasRole(roleName)) {
+				Role role = userAdmin.getRole(roleName);
+				if (role != null && role.getType() == Role.GROUP) {
+					((Group)role).removeMember(user);
+				}
+			}
+		}
+	}
+	
+	public Group[] getParentGroups(UserAdmin userAdmin, User user) throws InvalidSyntaxException {
+		ArrayList<Group> groups = new ArrayList<Group>();		
+		
+		if (user != null) {
+			Authorization auth = userAdmin.getAuthorization(user);
+			if (auth != null) {
+				String[] currentRoles = auth.getRoles();
+				if (currentRoles != null) {
+					for (String roleName : currentRoles) {
+						Role role = userAdmin.getRole(roleName);
+						if (role != null && role.getType() == Role.GROUP) {
+							groups.add((Group) role);
+						}
+					}
+				}
+			}
+		}
+		
+		return groups.toArray(new Group[groups.size()]);
 	}
 	
 	private void installStyle(IStyleManager styleManager, HttpServletRequest request, Context context) throws Exception {

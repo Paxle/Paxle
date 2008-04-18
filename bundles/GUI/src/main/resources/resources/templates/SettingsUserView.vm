@@ -1,0 +1,108 @@
+#set($userAdmin = $manager.getService("org.osgi.service.useradmin.UserAdmin"))
+#if($userAdmin)
+	<h3>User Management</h3>
+	
+	#if($paramParser.getString("roleName") || $paramParser.getString("newUser") || $paramParser.getString("newGroup"))
+		#if($paramParser.getString("roleName"))
+			#set($role = $userAdmin.getRole($paramParser.getString("roleName")))
+			#if(${role.getType()}==1)
+				#set($roleType = "User")
+			#else
+				#set($roleType = "Group")
+			#end
+		#elseif($paramParser.getString("newUser") || $paramParser.getString("newGroup"))
+			#if($paramParser.getString("newUser"))
+				#set($roleType = "User")
+			#else
+				#set($roleType = "Group")
+			#end
+		#else
+			<p class="box error">No role with name $paramParser.getString("roleName") found!</p>
+			#stop()			
+		#end
+		
+		<form method="post">
+			<h4>#if(!$role)Create#{else}Update#{end}&nbsp;$roleType</h4> 
+    		<table>
+				<tr>
+					<th>Name</th>
+					<th>Value</th>
+					<th>Description</th>
+				</tr>
+    			<tr>
+					<td>Name</td>
+					<td>#if(!$role)
+							<input name="roleName" value=""/>
+						#else
+							$paramParser.getString("roleName")
+						#end
+					</td>
+					<td>Systemwidth unique name of this #if($roleType == "User")user#{else}group#{end}</td>
+				</tr>
+				#if($roleType == "User")
+				<tr>
+					<td>Http-Login</td>
+					<td><input name='http.login' value='$!role.getProperties().get("http.login")'/></td>
+					<td>Username to login via http</td>
+				</tr>
+				<tr>					
+					<td>Http-Password</td>
+					<td><input name='http.password' type='password' value='$!role.getCredentials().get("http.password")'/></td>
+					<td>Password to login via http</td>
+				</tr>
+				<tr>
+					<td>Http-Password (Repeated)</td>
+					<td><input name='http.password2' type='password' value='$!role.getCredentials().get("http.password")'/></td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td>Groups</td>
+					<td>
+						<select name="membership" multiple="multiple" size="5"> 
+							#set($membership = $settingsView.getParentGroups($userAdmin,$role))
+							#foreach($group in $sortTool.sort(${userAdmin.getRoles(null)}, ["name:asc"]))
+								#if(${group.getType()}==2)
+									<option #if($listTool.contains($membership,$group))selected="selected"#end>${group.getName()}</option>
+								#end
+						   #end
+						</select> 
+					</td>
+					<td>The user is member in these groups</td>
+				</tr>					
+				#end
+				<tr><td>&nbsp;</td>
+					<td>
+						<input class="btnAddUser" type="submit" name="do#if(!$role)Create#{else}Update#{end}$roleType" value="#if(!$role)Create#{else}Update#{end}" />
+					</td>
+					<td>&nbsp;</td>
+				</tr>
+    		</table>
+		</form>
+	#else
+		## List all groups and users
+    	<table>
+		<tr>
+			<th>Type</th>
+			<th>Name</th>
+			<th>Edit</th>
+		</tr>
+    	#foreach($role in $sortTool.sort(${userAdmin.getRoles(null)}, ["type:desc","name:asc"]))
+    		#if(${role.getName()} != "user.anyone")
+    		<tr>
+    			<td><img src="/images/#{if}(${role.getType()}==2)group.png#{else}user.png#{end}"/></td>
+    			<td>${role.getName()}</td>
+				<td><a href="?settings=user&amp;roleName=${role.getName()}"><img src="/images/#{if}(${role.getType()}==2)group#{else}user#{end}_edit.png" border="0"/></a></td>
+    		</tr>
+    		#end
+    	#end
+    	</table>
+		<p>
+    		<form method="post" action="">
+    			<input class="btnAddUser" type="submit" name="newUser" value="New User" />
+    			<input class="btnAddGroup" type="submit" name="newGroup" value="New Group" />
+    		</form>
+		</p>
+	#end
+#else
+	<div class="bundleNotInstalled">User Administration bundle not installed!</div>
+#end
