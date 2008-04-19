@@ -11,8 +11,10 @@
 	<p class="box error">$errorMsg</p>
 #end
 
-#if($paramParser.getString("settings") == "config")
-	#parse('/resources/templates/SettingsConfigView.vm')
-#elseif($paramParser.getString("settings") == "user")
-	#parse('/resources/templates/SettingsUserView.vm')
-#end	
+#if($paramParser.getString("settings"))
+	#if($paramParser.getString("settings") == "config")
+		#parse('/resources/templates/SettingsConfigView.vm')
+	#elseif($paramParser.getString("settings") == "user")
+		#parse('/resources/templates/SettingsUserView.vm')
+	#end
+#end

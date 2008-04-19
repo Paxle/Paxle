@@ -37,21 +37,21 @@
 							$paramParser.getString("roleName")
 						#end
 					</td>
-					<td>Systemwidth unique name of this #if($roleType == "User")user#{else}group#{end}</td>
+					<td>Systemwide unique name of this #if($roleType == "User")user#{else}group#{end}</td>
 				</tr>
 				#if($roleType == "User")
 				<tr>
-					<td>Http-Login</td>
+					<td>HTTP-Login</td>
 					<td><input name='http.login' value='$!role.getProperties().get("http.login")'/></td>
-					<td>Username to login via http</td>
+					<td>Username to login via HTTP</td>
 				</tr>
 				<tr>					
-					<td>Http-Password</td>
+					<td>HTTP-Password</td>
 					<td><input name='http.password' type='password' value='$!role.getCredentials().get("http.password")'/></td>
-					<td>Password to login via http</td>
+					<td>Password to login via HTTP</td>
 				</tr>
 				<tr>
-					<td>Http-Password (Repeated)</td>
+					<td>HTTP-Password (Repeated)</td>
 					<td><input name='http.password2' type='password' value='$!role.getCredentials().get("http.password")'/></td>
 					<td>&nbsp;</td>
 				</tr>
@@ -89,9 +89,9 @@
     	#foreach($role in $sortTool.sort(${userAdmin.getRoles(null)}, ["type:desc","name:asc"]))
     		#if(${role.getName()} != "user.anyone")
     		<tr>
-    			<td><img src="/images/#{if}(${role.getType()}==2)group.png#{else}user.png#{end}"/></td>
+    			<td><img src="/images/#{if}(${role.getType()}==2)group.png" alt="Group"#{else}user.png" alt="User"#{end}/></td>
     			<td>${role.getName()}</td>
-				<td><a href="?settings=user&amp;roleName=${role.getName()}"><img src="/images/#{if}(${role.getType()}==2)group#{else}user#{end}_edit.png" border="0"/></a></td>
+				<td><a href="?settings=user&amp;roleName=${role.getName()}"><img src="/images/#{if}(${role.getType()}==2)group_edit.png" alt="Edit Group" title="Edit Group"#{else}user_edit.png" alt="Edit User" title="Edit User"#{end} border="0"/></a></td>
     		</tr>
     		#end
     	#end
