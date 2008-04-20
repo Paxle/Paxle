@@ -51,7 +51,7 @@ public class HttpContextAuth implements HttpContext {
 	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String auth = request.getHeader("Authorization");
 		if (auth == null) {
-			logger.info( "authentication needed");
+			logger.info(String.format("[%s] Authentication needed to access '%s'.", request.getRemoteHost(), request.getRequestURI()));
 			this.writeResponse(response);
 			return false;
 		} else if (auth.length() <= "Basic ".length()) {
@@ -68,27 +68,27 @@ public class HttpContextAuth implements HttpContext {
 
 		UserAdmin userAdmin = (UserAdmin) this.uAdminTracker.getService();
 		if (userAdmin == null) {
-			this.logger.warn("OSGi UserAdmin service not found");
+			this.logger.warn(String.format("[%s] OSGi UserAdmin service not found", request.getRemoteHost()));
 			this.writeResponse(response);
 			return false;
 		}
 
 		User user = userAdmin.getUser(USER_HTTP_LOGIN,userName);
 		if( user == null ) {
-			this.logger.warn(String.format("No user found for username '%s'.", userName));	
+			this.logger.warn(String.format("[%s] No user found for username '%s'.", request.getRemoteHost(), userName));	
 			this.writeResponse(response);
 			return false;
 		}
 
 		if(!user.hasCredential(USER_HTTP_PASSWORD, password)) {
-			this.logger.warn(String.format("Wrong password for username '%s'.", userName));
+			this.logger.warn(String.format("[%s] Wrong password for username '%s'.", request.getRemoteHost(), userName));
 			this.writeResponse(response);
 			return false;
 		}
 
 		Authorization authorization = userAdmin.getAuthorization(user);
 		if(authorization == null) {
-			this.logger.warn(String.format("No authorization found for username '%s'.", userName));
+			this.logger.warn(String.format("[%s] No authorization found for username '%s'.", request.getRemoteHost(), userName));
 			this.writeResponse(response);
 			return false;
 		}
