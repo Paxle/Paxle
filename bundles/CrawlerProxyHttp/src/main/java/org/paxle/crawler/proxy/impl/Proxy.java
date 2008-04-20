@@ -7,6 +7,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 import org.paxle.crawler.proxy.IHttpProxy;
 import org.xsocket.connection.ConnectionUtils;
 import org.xsocket.connection.http.server.HttpServer;
@@ -27,7 +29,15 @@ public class Proxy implements ManagedService, IHttpProxy {
 	 */
 	private HttpServer proxy = null;
 	
-	public Proxy() {
+	/**
+	 * OSGi Service to tracke the {@link UserAdmin} service.
+	 */
+	private ServiceTracker userAgentTracker = null;	
+	
+	public Proxy(ServiceTracker userAgentTracker) {
+		if (userAgentTracker == null) throw new NullPointerException("The user-agent-tracker must not be null.");		
+		this.userAgentTracker = userAgentTracker;		
+		
 		// init with default configuration
 		this.updated(this.getDefaults());
 	}
@@ -67,7 +77,7 @@ public class Proxy implements ManagedService, IHttpProxy {
 			// init new
 			int port = ((Integer)configuration.get(PROP_PROX_PORT)).intValue();
 			if (port <= 0) port = 8081;
-			this.proxy = new HttpServer(port, new ProxyRequestHandler());
+			this.proxy = new HttpServer(port, new ProxyRequestHandler(this.userAgentTracker));
 
 			ConnectionUtils.start(proxy);
 		} catch (Throwable e) {

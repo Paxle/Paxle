@@ -33,6 +33,7 @@
 							org.osgi.framework;version="1.3",
 							org.osgi.service.cm,
 							org.osgi.util.tracker,
+							org.osgi.service.useradmin,
 							org.paxle.crawler, 
 							org.paxle.core.doc,
 							org.paxle.core.data, 

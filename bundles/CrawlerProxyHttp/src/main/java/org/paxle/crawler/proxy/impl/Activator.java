@@ -11,6 +11,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.Properties;
@@ -29,7 +31,18 @@ public class Activator implements BundleActivator {
 	 */
 	private Log logger = null;	
 	
+	/**
+	 * A special {@link IDataProvider} which pipes the intercepted {@link org.xsocket.connection.http.HttpResponse HTTP-response-data}
+	 * into the {@link org.paxle.parser.ISubParser parser}-input-queue if the 
+	 * {@link org.xsocket.connection.http.HttpRequest HTTP-request-} and {@link org.xsocket.connection.http.HttpResponse -response-data}
+	 * not contain personal user-data
+	 */
 	private ProxyDataProvider dataProvider = null;
+	
+	/**
+	 * OSGi Service to tracke the {@link UserAdmin} service.
+	 */
+	private ServiceTracker userAgentTracker = null;
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
@@ -38,6 +51,10 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		// init logger
 		this.logger = LogFactory.getLog(this.getClass());		
+		
+		// init useradmin tracker
+		this.userAgentTracker = new ServiceTracker(context, UserAdmin.class.getName(), null);
+		this.userAgentTracker.open();
 		
 		// Load the preferences of this bundle
 		Properties providerPrefs = null;
@@ -58,7 +75,7 @@ public class Activator implements BundleActivator {
 		context.registerService(new String[]{IDataProvider.class.getName()}, this.dataProvider, providerProps);
 		
 		// init proxy
-		this.proxy = new Proxy();
+		this.proxy = new Proxy(this.userAgentTracker);
 		
 		/*
 		 * Create configuration if not available
@@ -81,8 +98,6 @@ public class Activator implements BundleActivator {
 		Hashtable<String,Object> msProps = new Hashtable<String, Object>();
 		msProps.put(Constants.SERVICE_PID, IHttpProxy.class.getName());
 		context.registerService(ManagedService.class.getName(), this.proxy, msProps);	
-		
-
 	}
 
 	/**
@@ -95,5 +110,8 @@ public class Activator implements BundleActivator {
 		
 		this.dataProvider.terminate();
 		this.dataProvider = null;
+		
+		this.userAgentTracker.close();
+		this.userAgentTracker = null;
 	}
 }
