@@ -17,7 +17,8 @@ public class Proxy implements ManagedService, IHttpProxy {
 	/* =========================================================
 	 * Config Properties
 	 * ========================================================= */
-	public static final String PROP_PROX_PORT = "proxyPort";
+	public static final String PROP_PROXY_PORT = "proxyPort";
+	public static final String PROP_ENABLE_PROXY_AUTH = "enableProxyAuthentication";
 	
 	/**
 	 * Logger class
@@ -48,7 +49,8 @@ public class Proxy implements ManagedService, IHttpProxy {
 	public Hashtable<String,Object> getDefaults() {
 		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 
-		defaults.put(PROP_PROX_PORT, Integer.valueOf(8081));		
+		defaults.put(PROP_ENABLE_PROXY_AUTH, Boolean.TRUE);
+		defaults.put(PROP_PROXY_PORT, Integer.valueOf(8081));		
 		defaults.put(Constants.SERVICE_PID, IHttpProxy.class.getName());
 
 		return defaults;
@@ -75,10 +77,14 @@ public class Proxy implements ManagedService, IHttpProxy {
 			this.terminate();
 
 			// init new
-			int port = ((Integer)configuration.get(PROP_PROX_PORT)).intValue();
+			int port = ((Integer)configuration.get(PROP_PROXY_PORT)).intValue();
 			if (port <= 0) port = 8081;
-			this.proxy = new HttpServer(port, new ProxyRequestHandler(this.userAgentTracker));
+			this.proxy = new HttpServer(port, new ProxyRequestHandler(
+					this.userAgentTracker,
+					(Boolean)configuration.get(PROP_ENABLE_PROXY_AUTH)
+			));
 
+			// start it
 			ConnectionUtils.start(proxy);
 		} catch (Throwable e) {
 			this.logger.error("Internal exception during configuring", e);

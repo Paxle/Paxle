@@ -40,6 +40,7 @@
 							org.paxle.core.prefs, 
 							org.paxle.core.queue,							
 							org.apache.commons.logging,
+							org.apache.commons.codec.binary,
 							javax.net.ssl;resolution:=optional,
 							javax.management;resolution:=optional
 						</Import-Package>
@@ -83,5 +84,11 @@
 			<artifactId>xSocket</artifactId>
 			<version>2.0-beta-2</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.2</version>
+		</dependency>		
 	</dependencies>
 </project>
