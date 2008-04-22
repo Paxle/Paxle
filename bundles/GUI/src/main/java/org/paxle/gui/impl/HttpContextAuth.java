@@ -68,27 +68,27 @@ public class HttpContextAuth implements HttpContext {
 
 		UserAdmin userAdmin = (UserAdmin) this.uAdminTracker.getService();
 		if (userAdmin == null) {
-			this.logger.warn(String.format("[%s] OSGi UserAdmin service not found", request.getRemoteHost()));
+			this.logger.info(String.format("[%s] OSGi UserAdmin service not found", request.getRemoteHost()));
 			this.writeResponse(response);
 			return false;
 		}
 
 		User user = userAdmin.getUser(USER_HTTP_LOGIN,userName);
 		if( user == null ) {
-			this.logger.warn(String.format("[%s] No user found for username '%s'.", request.getRemoteHost(), userName));	
+			this.logger.info(String.format("[%s] No user found for username '%s'.", request.getRemoteHost(), userName));	
 			this.writeResponse(response);
 			return false;
 		}
 
 		if(!user.hasCredential(USER_HTTP_PASSWORD, password)) {
-			this.logger.warn(String.format("[%s] Wrong password for username '%s'.", request.getRemoteHost(), userName));
+			this.logger.info(String.format("[%s] Wrong password for username '%s'.", request.getRemoteHost(), userName));
 			this.writeResponse(response);
 			return false;
 		}
 
 		Authorization authorization = userAdmin.getAuthorization(user);
 		if(authorization == null) {
-			this.logger.warn(String.format("[%s] No authorization found for username '%s'.", request.getRemoteHost(), userName));
+			this.logger.info(String.format("[%s] No authorization found for username '%s'.", request.getRemoteHost(), userName));
 			this.writeResponse(response);
 			return false;
 		}
