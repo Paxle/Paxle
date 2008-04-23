@@ -427,6 +427,13 @@
 									</outputDirectory>
 								</artifactItem>								
 
+								<dependency>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.eventadmin</artifactId>
+									<version>1.0.0</version>
+									<outputDirectory>${felix.dependencies}</outputDirectory>
+								</dependency>
+
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
 									<artifactId>
