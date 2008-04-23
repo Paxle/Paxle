@@ -410,7 +410,7 @@
 									<artifactId>
 										org.apache.felix.configadmin
 									</artifactId>
-									<version>1.0.0</version>
+									<version>1.0.1</version>
 									<outputDirectory>
 										${felix.dependencies}
 									</outputDirectory>
