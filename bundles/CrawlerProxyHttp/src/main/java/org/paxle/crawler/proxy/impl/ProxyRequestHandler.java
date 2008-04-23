@@ -92,7 +92,7 @@ public class ProxyRequestHandler implements IHttpRequestHandler, ILifeCycle {
 	 * @see org.paxle.gui.impl.HttpContextAuth#USER_HTTP_LOGIN
 	 * @see org.paxle.gui.impl.HttpContextAuth#USER_HTTP_PASSWORD
 	 */
-	private boolean authenticationUser(HttpRequest request, IHttpResponseContext responseCtx) {
+	boolean authenticationUser(HttpRequest request, IHttpResponseContext responseCtx) {
 		if (!this.enableProxyAuthentication) return true;
 
 		try {
@@ -182,7 +182,7 @@ public class ProxyRequestHandler implements IHttpRequestHandler, ILifeCycle {
 	 * @see ILifeCycle#onInit()
 	 */
 	public void onInit() {
-		this.httpClient = new HttpClient();		
+		this.httpClient = new HttpClient();
 	}
 
 }
