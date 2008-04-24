@@ -41,6 +41,9 @@ public class MasterTest extends MockObjectTestCase {
 		// enqueue a command
 		inQueue.putData(command);
 		
+		// sleep
+		Thread.sleep(200);
+		
 		// wait until the worker was triggered
 		worker.wasTriggered();
 		
