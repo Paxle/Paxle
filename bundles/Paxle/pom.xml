@@ -427,12 +427,12 @@
 									</outputDirectory>
 								</artifactItem>								
 
-								<dependency>
+								<artifactItem>
 									<groupId>org.apache.felix</groupId>
 									<artifactId>org.apache.felix.eventadmin</artifactId>
 									<version>1.0.0</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
-								</dependency>
+								</artifactItem>
 
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
