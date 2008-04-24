@@ -95,8 +95,7 @@ public class ProxyRequestHandler implements IHttpRequestHandler, ILifeCycle {
 	boolean authenticationUser(HttpRequest request, IHttpResponseContext responseCtx) {
 		if (!this.enableProxyAuthentication) return true;
 
-		try {
-			// TODO: add proxy-auth. here				
+		try {			
 			UserAdmin userAdmin = (UserAdmin) this.userAgentTracker.getService();
 			if (userAdmin == null) {
 				this.logger.warn(String.format("[%s] OSGi UserAdmin service not found", request.getRemoteHost()));

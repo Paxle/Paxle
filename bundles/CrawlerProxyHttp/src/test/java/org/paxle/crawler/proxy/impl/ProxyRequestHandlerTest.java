@@ -62,31 +62,82 @@ public class ProxyRequestHandlerTest extends MockObjectTestCase {
 		this.handler = new ProxyRequestHandler(this.tracker, Boolean.TRUE);
 	}
 	
-	public void testAuthenticationUser() throws URISyntaxException, UnsupportedEncodingException {
-		final String userName = "test";
-		final String userPwd = "test";
-		final String userAuth = new String(Base64.encodeBase64((userName + ":" + userPwd).getBytes("UTF-8")),"UTF-8");
-		
-		final User user = mock(User.class);
-		final Authorization auth = mock(Authorization.class);
+	private HttpRequest createHttpAuthRequest(String userName, String password) throws UnsupportedEncodingException, URISyntaxException {
+		final String userAuth = new String(Base64.encodeBase64((userName + ":" + password).getBytes("UTF-8")),"UTF-8");
 		
 		HttpRequestHeader reqHeader = new HttpRequestHeader("GET", "http://xxx.yyy");
 		reqHeader.addHeader("Proxy-Authorization", "Basic " + userAuth);		
-		HttpRequest req = new HttpRequest(reqHeader);
+		return new HttpRequest(reqHeader);
+	}
+	
+	private Expectations createExpectation(final String userName, final String password, final boolean hasAuthorization) {		
+		final User user = mock(User.class);
+		final Authorization auth = mock(Authorization.class);
 		
-		// define username and password
-		checking(new Expectations(){{
+		return new Expectations(){{
 			// return the user for the given username
-			one(userAdmin).getUser("http.login",userName); will(returnValue(user));
-			one(userAdmin).getAuthorization(user); will(returnValue(auth));
+			if (userName != null) {
+				allowing(userAdmin).getUser("http.login",userName); will(returnValue(user));
+			}
+			allowing(userAdmin).getUser(with(any(String.class)), with(any(String.class))); will(returnValue(null));
+			
+			if (hasAuthorization) {
+				allowing(userAdmin).getAuthorization(user); will(returnValue(auth));
+			}
+			allowing(userAdmin).getAuthorization(with(any(User.class))); will(returnValue(null));
 			
 			// check if pwd is valid
-			one(user).hasCredential("http.password", userPwd); will(returnValue(true));
+			if (password != null) {
+				allowing(user).hasCredential("http.password", password); will(returnValue(true));
+			}
 			allowing(user).hasCredential(with(any(String.class)), with(any(String.class))); will(returnValue(false));
-		}});
+			
+			ignoring(responseCtx);
+		}};
+	}
+	
+	public void testAuthenticationUser() throws URISyntaxException, UnsupportedEncodingException {
+		final String userName = "test";
+		final String userPwd = "test";
+			
+		HttpRequest req = this.createHttpAuthRequest(userName, userPwd);
+		
+		// define username and password
+		checking(this.createExpectation(userName, userPwd, true));
 		
 		boolean ok = this.handler.authenticationUser(req, this.responseCtx);
 		assertTrue(ok);
 	}
 
+	public void testUnknownUser() throws UnsupportedEncodingException, URISyntaxException {
+		HttpRequest req = this.createHttpAuthRequest("xxxx","yyyy");
+		checking(this.createExpectation(null, null, true));
+		
+		boolean ok = this.handler.authenticationUser(req, this.responseCtx);
+		assertFalse(ok);
+	}
+	
+	public void testInvalidPassword() throws UnsupportedEncodingException, URISyntaxException {
+		HttpRequest req = this.createHttpAuthRequest("xxxx","yyyy");
+		checking(this.createExpectation("xxxx", null, true));
+		
+		boolean ok = this.handler.authenticationUser(req, this.responseCtx);
+		assertFalse(ok);
+	}
+	
+	public void testNoAuthorization() throws UnsupportedEncodingException, URISyntaxException {
+		HttpRequest req = this.createHttpAuthRequest("xxxx","yyyy");
+		checking(this.createExpectation("xxxx", "yyyy", false));
+		
+		boolean ok = this.handler.authenticationUser(req, this.responseCtx);
+		assertFalse(ok);
+	}
+
+	public void testNoAuthorizationHeader() throws UnsupportedEncodingException, URISyntaxException {
+		HttpRequest req = new HttpRequest("GET", "http://xxx.yyy/");
+		checking(new Expectations() {{ ignoring(responseCtx); }});
+		
+		boolean ok = this.handler.authenticationUser(req, this.responseCtx);
+		assertFalse(ok);
+	}
 }
