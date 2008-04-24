@@ -193,7 +193,7 @@ public class SettingsView extends ALayoutServlet {
 		
 		// check if the login name is unique
 		Role[] roles = userAdmin.getRoles(String.format("(%s=%s)",HttpContextAuth.USER_HTTP_LOGIN, loginName));
-		if (roles.length > 2 || (roles.length == 1 && !roles[0].equals(user))) {
+		if (roles != null && (roles.length > 2 || (roles.length == 1 && !roles[0].equals(user)))) {
 			String errorMsg = String.format("The given login name '%s' is already used by a different user.", loginName);
 			this.logger.warn(errorMsg);
 			context.put("errorMsg",errorMsg);
