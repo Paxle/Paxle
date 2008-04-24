@@ -50,7 +50,7 @@ public class DataListener implements ServiceListener {
 		
 		// detect already installed data-sources/-sinks/-providers/-consumers
 		for (String className : FILTERS) {
-			ServiceReference[] services = context.getServiceReferences(className,null);
+			ServiceReference[] services = context.getServiceReferences(null,className);
 			if (services != null) for (ServiceReference service : services) serviceChanged(service, ServiceEvent.REGISTERED);	
 		}
 	}
