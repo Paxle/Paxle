@@ -13,6 +13,13 @@
 				default="8081"
 				description="Port on which the proxy listens for connections (-1 for the default protocol port 8081)" />
 				
+		<AD name="Transfer rate limit"
+				type="Integer"
+				id="transferLimit"
+				default="-1"
+				min="-1"
+				description="Limits the maximum transfer rate in KB/s, -1 to disable a limit" />				
+				
 		<AD name="Enable Proxy Authentication"
 				type="Boolean"
 				id="enableProxyAuthentication"

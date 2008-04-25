@@ -54,7 +54,7 @@ public class ProxyForwarder implements IBodyDataHandler {
 		} catch (Throwable ioe) {
 			if (this.fileDataSink != null) try {this.fileDataSink.close(); } catch (IOException e) {/* ignore this */ }
 			this.clientDataSink.destroy();
-			this.logger.error(String.format("Unexpected '%s': %s", ioe.getClass().getName(), ioe.getMessage()));
+			this.logger.error(String.format("Unexpected '%s': %s", ioe.getClass().getName(), ioe.getMessage()),ioe);
 		}
 
 		return true;

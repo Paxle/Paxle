@@ -17,8 +17,9 @@ public class Proxy implements ManagedService, IHttpProxy {
 	/* =========================================================
 	 * Config Properties
 	 * ========================================================= */
-	public static final String PROP_PROXY_PORT = "proxyPort";
-	public static final String PROP_ENABLE_PROXY_AUTH = "enableProxyAuthentication";
+	private static final String PROP_PROXY_PORT = "proxyPort";
+	private static final String PROP_ENABLE_PROXY_AUTH = "enableProxyAuthentication";
+	private static final String PROP_TRANSFER_LIMIT = "transferLimit";
 	
 	/**
 	 * Logger class
@@ -50,6 +51,7 @@ public class Proxy implements ManagedService, IHttpProxy {
 		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 
 		defaults.put(PROP_ENABLE_PROXY_AUTH, Boolean.TRUE);
+		defaults.put(PROP_TRANSFER_LIMIT, Integer.valueOf(-1));
 		defaults.put(PROP_PROXY_PORT, Integer.valueOf(8081));		
 		defaults.put(Constants.SERVICE_PID, IHttpProxy.class.getName());
 
@@ -84,6 +86,11 @@ public class Proxy implements ManagedService, IHttpProxy {
 					(Boolean)configuration.get(PROP_ENABLE_PROXY_AUTH)
 			));
 
+			Integer transferLimit = (Integer) configuration.get(PROP_TRANSFER_LIMIT);
+			if (transferLimit != null && transferLimit.intValue() > 0) {
+				this.proxy.setWriteTransferRate(transferLimit.intValue() * 1024);
+			}
+			
 			// start it
 			ConnectionUtils.start(proxy);
 		} catch (Throwable e) {
