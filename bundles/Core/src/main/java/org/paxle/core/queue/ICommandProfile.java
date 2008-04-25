@@ -11,6 +11,7 @@ package org.paxle.core.queue;
  * - amount of processed documents
  * - amount of loaded bytes
  * - restrict to a single domain?
+ * - only crawl within a given time-span?
  * 
  * == crawling specific params ==
  * - max depth

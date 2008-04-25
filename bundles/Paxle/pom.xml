@@ -296,6 +296,15 @@
 										javax.servlet_2.4.0.v200706111738.jar
 									</destFileName>
 								</artifactItem>
+								
+								<!-- Apache commons pool dependencies -->
+								<artifactItem>
+									<groupId>commons-pool</groupId>
+									<artifactId>commons-pool</artifactId>
+									<version>1.4</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.apache.commons.pool_1.4.jar</destFileName>
+								</artifactItem>								
 
 								<!-- HTTP Client dependencies -->
 								<artifactItem>
