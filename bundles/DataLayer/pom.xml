@@ -41,8 +41,12 @@
 							org.osgi.framework,
 							org.osgi.service.event,
 							org.apache.commons.logging,
-							org.paxle.core.data, org.paxle.core.queue,
-							org.paxle.core.doc, org.paxle.core.filter,
+							org.apache.commons.collections;version="3.2.1",
+							org.apache.commons.collections.*;version="3.2.1",
+							org.paxle.core.data, 
+							org.paxle.core.queue,
+							org.paxle.core.doc, 
+							org.paxle.core.filter,
 							!*
 						</Import-Package>
 						<DynamicImport-Package>*</DynamicImport-Package>
@@ -70,7 +74,6 @@
 							asm;scope=compile|runtime,
 							asm-attrs;scope=compile|runtime,
 							cglib;scope=compile|runtime,
-							commons-collections;scope=compile|runtime,
 							dom4j;scope=compile|runtime,
 							jta;scope=compile|runtime,
 							c3p0;scope=compile|runtime							
@@ -143,7 +146,7 @@
 		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
-			<version>3.2</version>
+			<version>3.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>dom4j</groupId>
