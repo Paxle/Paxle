@@ -237,7 +237,34 @@
 									<version>3.2.1</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>org.apache.commons.collections_3.2.1.jar</destFileName>
-								</artifactItem>								
+								</artifactItem>		
+								
+								<!-- Apache commons IO dependencies -->
+								<artifactItem>
+									<groupId>commons-io</groupId>
+									<artifactId>commons-io</artifactId>
+									<version>1.4</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.apache.commons.io_1.4.jar</destFileName>
+								</artifactItem>
+								
+								<!-- Apache commons fileupload dependencies -->
+								<artifactItem>
+									<groupId>commons-fileupload</groupId>
+									<artifactId>commons-fileupload</artifactId>
+									<version>1.2.1</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.apache.commons.fileupload_1.2.1.jar</destFileName>
+								</artifactItem>
+								
+								<!-- Apache commons fileupload dependencies -->
+								<artifactItem>
+									<groupId>commons-lang</groupId>
+									<artifactId>commons-lang</artifactId>
+									<version>2.4</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.apache.commons.lang_2.4.jar</destFileName>
+								</artifactItem>																															
 								
 								<!-- HTTP Client dependencies -->
 								<artifactItem>
@@ -374,7 +401,34 @@
 									<version>3.2.1</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
 									<destFileName>org.apache.commons.collections_3.2.1.jar</destFileName>
-								</artifactItem>								
+								</artifactItem>
+								
+								<!-- Apache commons IO dependencies -->
+								<artifactItem>
+									<groupId>commons-io</groupId>
+									<artifactId>commons-io</artifactId>
+									<version>1.4</version>
+									<outputDirectory>${felix.dependencies}</outputDirectory>
+									<destFileName>org.apache.commons.io_1.4.jar</destFileName>
+								</artifactItem>
+								
+								<!-- Apache commons fileupload dependencies -->
+								<artifactItem>
+									<groupId>commons-fileupload</groupId>
+									<artifactId>commons-fileupload</artifactId>
+									<version>1.2.1</version>
+									<outputDirectory>${felix.dependencies}</outputDirectory>
+									<destFileName>org.apache.commons.fileupload_1.2.1.jar</destFileName>
+								</artifactItem>
+								
+								<!-- Apache commons fileupload dependencies -->
+								<artifactItem>
+									<groupId>commons-lang</groupId>
+									<artifactId>commons-lang</artifactId>
+									<version>2.4</version>
+									<outputDirectory>${felix.dependencies}</outputDirectory>
+									<destFileName>org.apache.commons.lang_2.4.jar</destFileName>
+								</artifactItem>															
 
 								<!-- HTTP Client dependencies -->
 								<artifactItem>
