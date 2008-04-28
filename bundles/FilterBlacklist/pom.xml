@@ -37,6 +37,8 @@
 							org.paxle.gui,
 							javax.servlet.http, 
 							org.apache.commons.logging,
+						    org.apache.commons.io;version="1.4",
+							org.apache.commons.io.*;version="1.4",
 							org.apache.velocity, 
 							org.apache.velocity.context
 						</Import-Package>
@@ -46,13 +48,6 @@
 						<Bundle-Activator>
 							org.paxle.filter.blacklist.impl.Activator
 						</Bundle-Activator>
-
-						<!-- embedding libs -->
-						<Embed-StripGroup>true</Embed-StripGroup>
-						<Embed-Directory>dependencies</Embed-Directory>
-						<Embed-Dependency>
-							commons-io;scope=compile|runtime
-						</Embed-Dependency>
 					</instructions>
 				</configuration>
 			</plugin>
