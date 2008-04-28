@@ -97,7 +97,10 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
         	
             // The thread keeps running.
         	while (!this.stopped && !this.destroyed && !this.isInterrupted()) {   
-                if (this.done) {  
+                if (this.done) {                      
+                    // free memory
+                    this.reset();                	
+                	
                     if (this.myPool != null && !this.myPool.closed()) {
                         synchronized (this) { 
                             // return thread back into pool
@@ -146,9 +149,6 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                     	
                         // signal that we have finished execution
                         this.done = true;
-                        
-                        // free memory
-                        this.reset();
                         
                         // reset threadname
                     	this.setName();                    	
