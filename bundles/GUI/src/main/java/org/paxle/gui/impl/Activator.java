@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Properties;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -95,7 +94,7 @@ public class Activator implements BundleActivator {
 		registerServlet( "/config", new SettingsView(), "Settings", new HttpContextAuth(bc.getBundle() ,this.userAdminTracker));
 		registerServlet( "/threads", new TheaddumpView(), null);
 		registerServlet( "/overview", new OverView(), "Overview");
-		registerServlet( "/sysdown", new SysDown(), null);
+		registerServlet( "/sysdown", new SysDown(), null, new HttpContextAuth(bc.getBundle() ,this.userAdminTracker));
 	}
 
 	private void registerServlet( final String location, final ALayoutServlet servlet, final String menuName) {
@@ -136,7 +135,7 @@ public class Activator implements BundleActivator {
 			}
 		}		
 		
-		// sevice properties for registration
+		// service properties for registration
 		Hashtable<String, Object> styleManagerProps = new Hashtable<String, Object>();
 		styleManagerProps.put(Constants.SERVICE_PID, StyleManager.PID);
 		

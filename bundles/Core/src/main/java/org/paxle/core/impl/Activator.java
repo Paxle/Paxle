@@ -97,7 +97,7 @@ public class Activator implements BundleActivator {
 		cryptManager = new CryptManager();
 		referenceNormalizer = new ReferenceNormalizer();
 				
-		System.out.println("Starting ...");
+		logger.info("Starting ...");
 		System.out.println(
 				"\t    ____             __    \r\n" +
 				"\t   / __ \\____ __  __/ /__  \r\n" +

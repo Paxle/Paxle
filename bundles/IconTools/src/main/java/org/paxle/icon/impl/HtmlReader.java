@@ -21,8 +21,8 @@ public class HtmlReader extends InputStreamReader {
 	
 	@Override
 	public void close() throws IOException {
-		this.closed = true;
 		super.close();
+		this.closed = true;
 	}
 
 	@Override
