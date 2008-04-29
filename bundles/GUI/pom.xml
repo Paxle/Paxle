@@ -140,8 +140,7 @@
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.2</version>
+			<artifactId>commons-codec-osgi</artifactId>
 		</dependency>		
 		<dependency>
 			<groupId>commons-lang</groupId>
