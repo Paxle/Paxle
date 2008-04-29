@@ -59,6 +59,10 @@
 							org.paxle.core,
 							org.paxle.p2p.services;resolution:=optional,
 							org.paxle.data.db;resolution:=optional,
+							javax.xml,
+							javax.xml.*,
+							org.xml.sax,
+							org.xml.sax.*,
 							!*
 						</Import-Package>
 						<Private-Package>
@@ -68,15 +72,14 @@
 						<Bundle-Activator>
 							org.paxle.gui.impl.Activator
 						</Bundle-Activator>
-						<DynamicImport-Package>*</DynamicImport-Package>
+						<DynamicImport-Package></DynamicImport-Package>
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
 							velocity;scope=compile|runtime,
 							velocity-tools;scope=compile|runtime,
 							commons-digester;scope=compile|runtime,
-							commons-beanutils;scope=compile|runtime,
-							xercesImpl;scope=compile|runtime
+							commons-beanutils;scope=compile|runtime
 						</Embed-Dependency>						
 					</instructions>
 				</configuration>
