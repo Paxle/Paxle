@@ -645,17 +645,21 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 				
 				case SAVE: try {
 					final BundleConfig sel = (BundleConfig)list.getSelectedValue();
+					list.setValueIsAdjusting(true);
 					for (final BundleConfig bc : confMap.values())
 						if (bc.isChanged())
 							bc.save();
+					list.setValueIsAdjusting(false);
 					list.setSelectedValue(sel, true);
 				} catch (IOException e) { e.printStackTrace(); }
 				break;
 				
 				case RESET: try {
 					final BundleConfig sel = (BundleConfig)list.getSelectedValue();
+					list.setValueIsAdjusting(true);
 					for (final BundleConfig bc : confMap.values())
 						bc.reset();
+					list.setValueIsAdjusting(false);
 					list.setSelectedValue(sel, true);
 				} catch (IOException e) { e.printStackTrace(); }
 				break;
@@ -667,8 +671,11 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 	}
 	
 	public void configurationEvent(ConfigurationEvent event) {
-		if ((event.getType() & ConfigurationEvent.CM_UPDATED) == ConfigurationEvent.CM_UPDATED)
-			SwingUtilities.invokeLater(new ActionRunnable(Actions.REFRESH, confMap.get(event.getPid())));
+		if ((event.getType() & ConfigurationEvent.CM_UPDATED) == ConfigurationEvent.CM_UPDATED) {
+			final BundleConfig bc = confMap.get(event.getPid());
+			if (bc == list.getSelectedValue() && !list.getValueIsAdjusting())
+				SwingUtilities.invokeLater(new ActionRunnable(Actions.REFRESH, bc));
+		}
 	}
 	
 	private Map<String,BundleConfig> initConfMap(final Bundle[] bundles) {
