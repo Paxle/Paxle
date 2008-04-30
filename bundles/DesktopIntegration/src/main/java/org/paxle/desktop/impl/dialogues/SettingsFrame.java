@@ -14,12 +14,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.InputEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -27,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
@@ -45,6 +49,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
@@ -158,6 +163,8 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 				long lmin = 0L, lmax = 0L;
 				switch (ad.getType()) {
 					case AttributeDefinition.BOOLEAN: {
+						if (value instanceof String)
+							value = Boolean.valueOf((String)value);
 						final boolean val = ((Boolean)value).booleanValue();
 						final JPanel op = new JPanel(new GridLayout(1, 3, 5, 5));
 						final JRadioButton rbTrue = new JRadioButton("True", val);
@@ -400,7 +407,6 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 			for (final AttrConfig aconf : aconfs)
 				aconf.save(props);
 			getConfiguration().update(props);
-			SwingUtilities.invokeLater(new ActionRunnable(Actions.REFRESH, this));
 		}
 		
 		public void reset() throws IOException {
@@ -410,7 +416,6 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 			for (final AttrConfig aconf : aconfs)
 				aconf.reset(props);
 			getConfiguration().update(props);
-			SwingUtilities.invokeLater(new ActionRunnable(Actions.REFRESH, this));
 		}
 		
 		public void deinit() {
@@ -575,6 +580,14 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 	private static final String LOCALE = "en";
 	private static final int ICON_SIZE = 16;
 	
+	private static final String KE_CLOSE = new String();
+	private final Action AC_CLOSE = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e) {
+			SettingsFrame.this.dispose();
+		}
+	};
+	
 	private static enum Actions {
 		SAVE, RESET, REFRESH, LIST_SELECT
 	}
@@ -582,6 +595,7 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 	private final ConfigurationAdmin cadmin;
 	private final MetaTypeService metatype;
 	private final Map<String,BundleConfig> confMap;
+	private final EnumMap<Actions,ActionRunnable> acMap = new EnumMap<Actions,ActionRunnable>(Actions.class);
 	
 	private JList list;
 	private JScrollPane optViewPanel;
@@ -594,7 +608,11 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		new Thread(new ActionRunnable(Actions.valueOf(e.getActionCommand()))).start();
+		final Actions ac = Actions.valueOf(e.getActionCommand());
+		ActionRunnable ar = acMap.get(ac);
+		if (ar == null)
+			acMap.put(ac, ar = new ActionRunnable(ac));
+		SwingUtilities.invokeLater(ar);
 	}
 	
 	private final class ActionRunnable implements Runnable {
@@ -626,15 +644,19 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 				} break;
 				
 				case SAVE: try {
+					final BundleConfig sel = (BundleConfig)list.getSelectedValue();
 					for (final BundleConfig bc : confMap.values())
 						if (bc.isChanged())
 							bc.save();
+					list.setSelectedValue(sel, true);
 				} catch (IOException e) { e.printStackTrace(); }
 				break;
 				
 				case RESET: try {
+					final BundleConfig sel = (BundleConfig)list.getSelectedValue();
 					for (final BundleConfig bc : confMap.values())
 						bc.reset();
+					list.setSelectedValue(sel, true);
 				} catch (IOException e) { e.printStackTrace(); }
 				break;
 				
@@ -731,12 +753,14 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 		split.setDividerLocation(.3);
 		split.setDividerSize(4);
 		
+		super.rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke('W', InputEvent.CTRL_DOWN_MASK), KE_CLOSE);
+		super.rootPane.getActionMap().put(KE_CLOSE, AC_CLOSE);
 		super.setTitle("Paxle Settings");
 		super.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		super.setContentPane(split);
 		super.setResizable(true);
 		super.setLocationByPlatform(true);
 		super.pack();
-		super.setSize(1050, 600);
+		super.setSize(1000, 600);
 	}
 }

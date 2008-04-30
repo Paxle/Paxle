@@ -77,12 +77,8 @@ public class Activator implements BundleActivator {
 	public static BundleContext bc = null;
 	public static String libPath = null;
 	
-	public Method initMethod = null;
 	public Method shutdownMethod = null;
 	public Object initObject = null;
-	
-	public Object dibackend = null;
-	public Object trayIcon = null;
 	
 	public void start(final BundleContext context) throws Exception {
 		bc = context;
@@ -139,7 +135,6 @@ public class Activator implements BundleActivator {
 			shutdownMethod.invoke(initObject);
 			shutdownMethod = null;
 		}
-		initMethod = null;
 		initObject = null;
 		bc = null;
 	}
@@ -174,17 +169,20 @@ public class Activator implements BundleActivator {
 		final String diBackendCName = String.format("%s.%s.%s", BACKEND_IMPL_ROOT_PACKAGE, impl, "DIBackend");
 		logger.debug("Loading " + diBackendCName + " using class-loader " + uiClassLoader);
 		
-		this.dibackend = uiClassLoader.loadClass(diBackendCName).newInstance();
+		final Object dibackend = uiClassLoader.loadClass(diBackendCName).newInstance();
 		final Class<?> smC = uiClassLoader.loadClass("org.paxle.desktop.impl.ServiceManager");
 		final Object sm = smC.getConstructor(uiClassLoader.loadClass("org.osgi.framework.BundleContext")).newInstance(context);
 		
-		final Class<?> menuC = uiClassLoader.loadClass("org.paxle.desktop.impl.SystrayMenu2");
-		this.shutdownMethod = menuC.getMethod("shutdown");
+		// final Class<?> menuC = uiClassLoader.loadClass("org.paxle.desktop.impl.SystrayMenu");
+		// this.shutdownMethod = menuC.getMethod("shutdown");
 		
 		final Class<?> idibackendC = uiClassLoader.loadClass("org.paxle.desktop.backend.IDIBackend");
-		final Class<?> urlC = uiClassLoader.loadClass("java.net.URL");
-		final Object iconUrl = context.getBundle().getResource("/resources/trayIcon.png");
-		this.initObject = menuC.getConstructor(smC, idibackendC, urlC).newInstance(sm, this.dibackend, iconUrl);
+		final Class<?> desktopServicesC = uiClassLoader.loadClass("org.paxle.desktop.impl.DesktopServices");
+		initObject = desktopServicesC.getConstructor(smC, idibackendC).newInstance(sm, dibackend);
+		shutdownMethod = desktopServicesC.getMethod("shutdown");
+		// final Class<?> urlC = uiClassLoader.loadClass("java.net.URL");
+		// final Object iconUrl = context.getBundle().getResource("/resources/trayIcon.png");
+		// this.initObject = menuC.getConstructor(desktopServicesC, urlC).newInstance(desktopServices, iconUrl);
 	}
 	
 	private static Bundle findBundle(BundleContext context, String symbolicName) {

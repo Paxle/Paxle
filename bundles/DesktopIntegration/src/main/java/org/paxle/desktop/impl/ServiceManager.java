@@ -10,6 +10,8 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.paxle.core.prefs.IPropertiesStore;
+import org.paxle.core.prefs.Properties;
 
 public class ServiceManager {
 	
@@ -51,6 +53,13 @@ public class ServiceManager {
 		for (int i=0; i<clazzes.length; i++)
 			cnames[i] = clazzes[i].getName();
 		return context.registerService(cnames, service, properties);
+	}
+	
+	public Properties getServiceProperties() {
+		final IPropertiesStore propstore = getService(IPropertiesStore.class);
+		if (propstore == null)
+			return null;
+		return propstore.getProperties(this.context);
 	}
 	
 	public String getProperty(String key) {
@@ -109,6 +118,10 @@ public class ServiceManager {
     
     public Bundle[] getBundles() {
         return this.context.getBundles();
+    }
+    
+    public Bundle getBundle() {
+    	return context.getBundle();
     }
     
     public Bundle getBundle(long bundleID) {

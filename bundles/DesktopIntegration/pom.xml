@@ -30,20 +30,19 @@
 						<Export-Package>
 							org.paxle.desktop.backend,
 							org.paxle.desktop.backend.desktop,
-							org.paxle.desktop.backend.tray
+							org.paxle.desktop.backend.tray,
+							org.paxle.desktop
 						</Export-Package>
 						<Import-Package>
 							org.osgi.framework,
 							org.osgi.service.cm,
 							org.osgi.service.metatype,
 							org.apache.commons.logging,
-							org.paxle.core.data, 
-							org.paxle.se.search;resolution:=optional, 
 							org.paxle.core.queue, 
 							org.paxle.core.io,
-							org.paxle.gui;resolution:=optional,
 							org.osgi.service.http;resolution:=optional,
-							org.paxle.core
+							org.paxle.core,
+							org.paxle.core.prefs
 						</Import-Package>
 						<Private-Package>
 							org.paxle.desktop.impl,
