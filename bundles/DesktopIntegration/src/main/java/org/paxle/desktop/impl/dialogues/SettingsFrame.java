@@ -573,7 +573,7 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 	private static final int MAX_DET_MINMAX_ITERATIONS = 63;			// max. iterations needed for type long
 	private static final Insets STD_INSETS = new Insets(5, 5, 5, 5);
 	private static final String LOCALE = "en";
-	private static final int ICON_SIZE = 32;
+	private static final int ICON_SIZE = 16;
 	
 	private static enum Actions {
 		SAVE, RESET, REFRESH, LIST_SELECT

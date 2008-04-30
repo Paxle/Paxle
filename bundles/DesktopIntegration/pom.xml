@@ -52,6 +52,10 @@
 						<DynamicImport-Package>
 							javax.swing, 
 							javax.swing.*,
+							javax.swing.plaf,
+							javax.swing.plaf.*,
+							javax.swing.plaf.basic,
+							javax.swing.plaf.basic.*,
 							sun.awt,
 							sun.awt.X11							
 						</DynamicImport-Package>

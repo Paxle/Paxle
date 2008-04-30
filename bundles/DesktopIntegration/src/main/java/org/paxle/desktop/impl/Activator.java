@@ -14,6 +14,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.UIManager;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
@@ -84,6 +86,12 @@ public class Activator implements BundleActivator {
 	
 	public void start(final BundleContext context) throws Exception {
 		bc = context;
+		
+		/* 
+		 * Configuring the classloader to use by the UIManager.
+		 * ATTENTION: do not remove this, otherwise we get ClassNotFoundExceptions 
+		 */
+		UIManager.put("ClassLoader", this.getClass().getClassLoader());
 		
 		final float javaVersion = getJavaVersion();
 		logger.debug(String.format("Detected java version: %f", Float.valueOf(javaVersion)));
