@@ -385,7 +385,7 @@ public class SettingsView extends ALayoutServlet {
 			ImageIO.write(img, "png", response.getOutputStream());
 			return;
 
-		} catch (Exception e) {			
+		} catch (Throwable e) {			
 			response.sendError(404, e.getMessage());
 			return;
 		}

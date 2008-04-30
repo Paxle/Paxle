@@ -64,6 +64,8 @@
 							org.xml.sax,
 							org.xml.sax.*,
 							org.apache.velocity.*,
+							javax.imageio,
+							javax.imageio.*,
 							!*
 						</Import-Package>
 						<Private-Package>

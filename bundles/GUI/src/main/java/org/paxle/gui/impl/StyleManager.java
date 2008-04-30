@@ -199,7 +199,9 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 			}
 
 			public InputStream getIcon(int size) throws IOException {
-				return null;
+				return (size == 16) 
+					? this.getClass().getResourceAsStream("/resources/images/palette.png")
+					: null;
 			}
 
 			public String getName() {
