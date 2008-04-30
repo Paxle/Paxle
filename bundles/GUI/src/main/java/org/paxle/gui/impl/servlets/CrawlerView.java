@@ -202,7 +202,9 @@ public class CrawlerView extends ALayoutServlet {
 		if (depthStr == null) return 0;
 		
 		try {
-			return Integer.valueOf(depthStr);
+			int depth =  Integer.valueOf(depthStr);
+			if (depth < 0) return 0;
+			return depth;
 		} catch (NumberFormatException e){
 			return 0;
 		}

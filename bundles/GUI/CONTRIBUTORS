@@ -1,6 +1,11 @@
 Contributors for the Paxle Bundle GUI
 
-We would like to thank the following people for their work:
+We would like to thank the following people/organizations for their work:
 
 Armin Hausmann and Jean Victor Balin
 They placed the files http://openclipart.org/media/files/jean_victor_balin/869 and http://openclipart.org/media/files/get8k/5297 in the Public Domain, which are the basis for restart.png and shutdown.png in /src/main/resources/resources/images/. Combination by Roland Ramthun.
+
+A9.com
+They provide OpenSearch icons in file http://www.opensearch.org/downloads/opensearch-icon.zip, which we use in /src/main/resources/resources/images/opensearch-icon-16x16.png
+The license-statement is taken from http://www.opensearch.org/Community/OpenSearch_icons
+"The icons are made available by A9.com subject to the terms of the Creative Commons Attribution-ShareAlike 2.5 License."

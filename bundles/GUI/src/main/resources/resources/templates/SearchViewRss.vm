@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">
+<rss version="2.0" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">
    <channel>
       <title>Paxle-Search for $escTool.xml($paramParser.getString('query'))</title>
       <description>Paxle-Search for $escTool.xml($paramParser.getString('query'))</description>
-      <image>	 
-         <url></url>
-         <title></title>
-      </image>
-      <link></link>
-      <pubDate>$dateTool.get('EEE, dd MMM yyyy HH:mm:ss Z')</pubDate>
+      ##TODO
+      ##<image>	 
+         ##<url></url>
+         ##<title></title>
+      ##</image>
+      <link>$request.getScheme()://$request.getServerName():$request.getServerPort()/$escTool.xml($request.getQueryString())</link>
+      <atom:link href='$request.getScheme()://$request.getServerName():$request.getServerPort()/$escTool.xml($request.getQueryString())' rel="self" type="application/rss+xml" />
+      <atom:link rel="search" type="application/opensearchdescription+xml" href='$request.getScheme()://$request.getServerName():$request.getServerPort()/opensearch/osd.xml'/>
+      ##<pubDate>$dateTool.getSystemDate()</pubDate>
+      <pubDate>$dateTool.format('EEE, dd MMM yyyy HH:mm:ss Z', $dateTool.getSystemDate(),$localeUS)</pubDate>
+      ##<Query role="request" searchTerms='$escTool.xml($paramParser.getString('query')' />
    
    #if($searchError)
    	<!-- TODO -->
@@ -30,7 +35,7 @@
 		   #end
 		   
 		   #if($result.get($fieldManager.get("LastCrawled")))
-		   	<pubDate>$dateTool.format('EEE, dd MMM yyyy HH:mm:ss Z',$result.get($fieldManager.get("LastCrawled")))</pubDate>
+		   <pubDate>$dateTool.format('EEE, dd MMM yyyy HH:mm:ss Z',$result.get($fieldManager.get("LastCrawled")),$localeUS)</pubDate>
 		   #end		   
 		   
                    <description><![CDATA[
@@ -59,3 +64,5 @@
    #end		
    </channel>
 </rss>
+
+##To-Do: According to http://www.opensearch.org/Specifications/OpenSearch/1.1#Elements we _can_ add more data to this feed

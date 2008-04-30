@@ -13,8 +13,11 @@
 #else	
     #if( $searchResultList)	
     <script type="text/javascript" src="/js/wz_tooltip.js"></script>
-    <a class="rssFeedLink" href="?format=rss&amp;query=$escTool.url($searchQuery)" title="Display results as RSS-feed">
-		<img src="/images/feed.png" alt="RSS"/>
+    <a class="rssFeedLink" href="?format=rss&amp;query=$escTool.url($searchQuery)" title="Get results as RSS-feed">
+		<img src="/images/rssfeed.png" alt="RSS"/>
+	</a>
+	<a class="rssFeedLink" href="?format=rss&amp;query=$escTool.url($searchQuery)" title="Get results as OpenSearch Feed">
+		<img src="/images/opensearch-icon-16x16.png" alt="OpenSearch"/>
 	</a>
     #end
     <form action="">

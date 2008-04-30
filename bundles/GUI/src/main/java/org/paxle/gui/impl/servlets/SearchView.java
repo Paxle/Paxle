@@ -3,6 +3,7 @@ package org.paxle.gui.impl.servlets;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -76,6 +77,9 @@ public class SearchView extends ALayoutServlet {
 			// get the servlet-manager and determine if the favicon-servlet was installed
 			IServletManager servletManager = (IServletManager) manager.getService(IServletManager.class.getName());
 			context.put("showFavicons", servletManager == null ? Boolean.FALSE : Boolean.valueOf(servletManager.hasServlet("/favicon")));
+			
+			//We need this to format the days in the RSS RFC-822 compliant (example: "Wed, 02 Oct 2002 15:00:00 +0200")
+			context.put("localeUS", new Locale("us"));
 			
 			// add current context into itself (needed for render-tool)
 			context.put("ctx",context);

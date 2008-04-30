@@ -259,6 +259,7 @@ tr {
 
 a.rssFeedLink {
 	float:right;
+	padding: 10px 10px 10px 10px;
 }
 
 a.rssFeedLink > img {

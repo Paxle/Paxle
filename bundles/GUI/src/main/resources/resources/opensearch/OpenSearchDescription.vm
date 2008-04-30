@@ -4,6 +4,7 @@
 <Description>Paxle OpenSearch</Description>
 <Image height="16" width="16" type="image/x-icon">$request.getScheme()://$request.getServerName():$request.getServerPort()/images/favicon.ico</Image>
 <Url type="text/html" method="get" template="$request.getScheme()://$request.getServerName():$request.getServerPort()/?query={searchTerms}"/>
+<Url type="application/rss+xml" template="$request.getScheme()://$request.getServerName():$request.getServerPort()/search?format=rss&amp;query={searchTerms}}" />
 <OutputEncoding>UTF-8</OutputEncoding>
 <InputEncoding>UTF-8</InputEncoding>
 </OpenSearchDescription>
