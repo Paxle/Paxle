@@ -10,7 +10,7 @@ public class MappedArrayNode<E> extends ANode<E> {
 	
 	@SuppressWarnings("unchecked")
 	public MappedArrayNode(final byte[] asciiMap, final byte[] mapAscii) {
-		if (mapAscii.length >= (int)Byte.MAX_VALUE)
+		if (mapAscii.length >= Byte.MAX_VALUE)
 			throw new IllegalArgumentException("mapAscii.length >= 127: " + mapAscii.length);
 		mapLength = (byte)(mapAscii.length + 1);
 		paths = new ANode[mapLength];
@@ -18,6 +18,7 @@ public class MappedArrayNode<E> extends ANode<E> {
 		this.mapAscii = mapAscii;
 	}
 	
+	@Override
 	public byte[] getKeys() {
 		int num = 0;
 		for (int i=1; i<mapLength; i++)
@@ -31,20 +32,24 @@ public class MappedArrayNode<E> extends ANode<E> {
 		return r;
 	}
 	
+	@Override
 	public ANode<E> funcFail() {
 		return paths[0];
 	}
 	
+	@Override
 	public ANode<E> funcGoto(byte b) {
 		if (b < 0)
 			return null;
 		return paths[asciiMap[b]];
 	}
 	
+	@Override
 	public void setFail(ANode<E> node) {
 		paths[0] = node;
 	}
 	
+	@Override
 	public void setGoto(byte b, ANode<E> node) {
 		paths[asciiMap[b]] = node;
 	}

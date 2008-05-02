@@ -39,6 +39,7 @@ public class RAFOutStream extends OutputStream implements Seekable {
 		this._file.write(b, off, len);
 	}
 	
+	@Override
 	public void close() throws IOException {
 		_file.close();
 	}

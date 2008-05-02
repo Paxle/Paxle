@@ -15,36 +15,36 @@ import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 
 public class DataListener implements ServiceListener {
-	public static String DATASOURCE_CLASS = IDataSource.class.getName();
-	public static String DATASINK_CLASS = IDataSink.class.getName();
-	public static String DATAPROVIDER_CLASS = IDataProvider.class.getName();
-	public static String DATACONSUMER_CLASS = IDataConsumer.class.getName();
-	public static HashSet<String> INTERFACES = new HashSet<String>(Arrays.asList(new String[]{
+	public static final String DATASOURCE_CLASS = IDataSource.class.getName();
+	public static final String DATASINK_CLASS = IDataSink.class.getName();
+	public static final String DATAPROVIDER_CLASS = IDataProvider.class.getName();
+	public static final String DATACONSUMER_CLASS = IDataConsumer.class.getName();
+	public static final HashSet<String> INTERFACES = new HashSet<String>(Arrays.asList(new String[]{
 		DATASOURCE_CLASS,
 		DATASINK_CLASS,
 		DATAPROVIDER_CLASS,
 		DATACONSUMER_CLASS
 	}));
 	
-	public static String DATASOURCE_FILTER   = "(" + Constants.OBJECTCLASS + "=" + DATASOURCE_CLASS   +")";
-	public static String DATASINK_FILTER     = "(" + Constants.OBJECTCLASS + "=" + DATASINK_CLASS     +")";
-	public static String DATAPROVIDER_FILTER = "(" + Constants.OBJECTCLASS + "=" + DATAPROVIDER_CLASS +")";
-	public static String DATACONSUMER_FILTER = "(" + Constants.OBJECTCLASS + "=" + DATACONSUMER_CLASS +")";
-	public static String[] FILTERS = new String[]{
+	public static final String DATASOURCE_FILTER   = "(" + Constants.OBJECTCLASS + "=" + DATASOURCE_CLASS   +")";
+	public static final String DATASINK_FILTER     = "(" + Constants.OBJECTCLASS + "=" + DATASINK_CLASS     +")";
+	public static final String DATAPROVIDER_FILTER = "(" + Constants.OBJECTCLASS + "=" + DATAPROVIDER_CLASS +")";
+	public static final String DATACONSUMER_FILTER = "(" + Constants.OBJECTCLASS + "=" + DATACONSUMER_CLASS +")";
+	public static final String[] FILTERS = new String[]{
 		DATASOURCE_FILTER,
 		DATASINK_FILTER,
 		DATAPROVIDER_FILTER,
 		DATACONSUMER_FILTER
 	};
 	
-	private DataManager manager = null;
+	private DataManager<?> manager = null;
 	
 	/**
 	 * The {@link BundleContext osgi-bundle-context} of this bundle
 	 */
 	private BundleContext context = null;	
 	
-	public DataListener(DataManager dataManager, BundleContext context) throws InvalidSyntaxException {
+	public DataListener(DataManager<?> dataManager, BundleContext context) throws InvalidSyntaxException {
 		this.manager = dataManager;
 		this.context = context;
 		

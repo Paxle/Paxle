@@ -269,6 +269,10 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				logger.info("Proxy is disabled");
 				httpClient.getHostConfiguration().setProxyHost(null);
 				httpClient.getState().clearCredentials();
+				if (useProxy) {
+					configuration.put(PROP_PROXY_USE, Boolean.FALSE);
+					// TODO: Configuration.update(configuration)
+				}
 			}
 		} catch (Throwable e) {
 			logger.error("Internal exception during configuring", e);

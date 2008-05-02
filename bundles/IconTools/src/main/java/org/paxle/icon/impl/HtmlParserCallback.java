@@ -57,6 +57,7 @@ public class HtmlParserCallback extends HTMLEditorKit.ParserCallback {
 	/**
 	 * @see javax.swing.text.html.HTMLEditorKit.ParserCallback#handleSimpleTag(javax.swing.text.html.HTML.Tag, javax.swing.text.MutableAttributeSet, int)
 	 */
+	@Override
 	public void handleSimpleTag(HTML.Tag currentTag, MutableAttributeSet a, int pos) {
 		if (currentTag.equals(HTML.Tag.LINK) /* && this.tags.getLast().equals(HTML.Tag.HEAD) */) {
 			Object linkRel = a.getAttribute(HTML.Attribute.REL);

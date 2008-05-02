@@ -16,6 +16,7 @@ public class IconServlet extends HttpServlet {
 
 	private Log logger = LogFactory.getLog(this.getClass());
 
+	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse rsp) throws IOException {		
 		String url = null;
 		try {

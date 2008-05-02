@@ -200,6 +200,7 @@ public class ArrayByteBuffer extends OutputStream implements Cloneable {
 		final int[] bitmask = new int[256];
 		for (int i=off; i<m; i++)
 			bitmask[b[i] & 0xFF] |= 1 << (m - i - 1);
+		final byte[] buf = this.buf;
 		
 		// search
 		final int n = len - from;
@@ -236,6 +237,7 @@ public class ArrayByteBuffer extends OutputStream implements Cloneable {
 		final long[] bitmask = new long[256];
 		for (int i=off; i<m; i++)
 			bitmask[b[i] & 0xFF] |= 1L << (m - i - 1);
+		final byte[] buf = this.buf;
 		
 		// search
 		final int n = len - from;
@@ -272,6 +274,7 @@ public class ArrayByteBuffer extends OutputStream implements Cloneable {
 	}
 	
 	public int indexOf(final byte[] b, final int off, final int num, final int from) {
+		final byte[] buf = this.buf;
 		outer: for (int i=0; i<num; i++) {
 			if (buf[from + i] == b[off + i]) {
 				for (int j=1; j<num; j++)

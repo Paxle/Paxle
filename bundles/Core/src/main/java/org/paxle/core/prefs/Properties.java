@@ -111,7 +111,7 @@ public class Properties extends java.util.Properties {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Enumeration<String> propertyNames() {
-		return (Enumeration<String>)this.keys();
+		return this.keys();
 	}
 	
 	/**

@@ -16,21 +16,22 @@ public class TextCommandReader extends ACommandReader {
 		super(inputStream);
 	}
 	
-    protected void read(Reader reader) throws IOException {
-        if (reader == null) throw new NullPointerException("The reader is null");
-        
-        BufferedReader bufferedReader = new BufferedReader(reader);
-        String line = null;
-        while((line = bufferedReader.readLine())!=null) {
-        	line = line.trim();
-        	if (line.length() == 0) continue;
-        	else if (line.startsWith("#")) continue;
-        	try {
-	        	Command cmd = Command.createCommand(new URI(line));
-	        	this.enqueue(cmd);
-        	} catch (URISyntaxException e) {
-        		throw new IOException(String.format("location '%s' not a valid URI: %s", line, e.getMessage()));
-        	}
-        }
-    }	
+	@Override
+	protected void read(Reader reader) throws IOException {
+		if (reader == null) throw new NullPointerException("The reader is null");
+		
+		BufferedReader bufferedReader = new BufferedReader(reader);
+		String line = null;
+		while((line = bufferedReader.readLine())!=null) {
+			line = line.trim();
+			if (line.length() == 0) continue;
+			else if (line.startsWith("#")) continue;
+			try {
+				Command cmd = Command.createCommand(new URI(line));
+				this.enqueue(cmd);
+			} catch (URISyntaxException e) {
+				throw new IOException(String.format("location '%s' not a valid URI: %s", line, e.getMessage()));
+			}
+		}
+	}	
 }

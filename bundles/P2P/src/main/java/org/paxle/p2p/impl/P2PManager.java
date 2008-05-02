@@ -486,6 +486,7 @@ public class P2PManager extends Thread implements IP2PManager, RendezvousListene
 	private void doSomething() {
 		setupPipe();
 		new Thread("AppGroup Send Thread") {
+			@Override
 			public void run() {
 				int sleepy=10000;
 				while(true) {

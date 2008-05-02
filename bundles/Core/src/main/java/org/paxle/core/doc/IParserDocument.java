@@ -170,6 +170,12 @@ public interface IParserDocument extends Closeable {
 	 * @return a collection of all languages this document contains text in
 	 */
 	public abstract Set<String> getLanguages();
+	
+	/**
+	 * Sets the set of languages this {@link IParserDocument} contains
+	 * @see #addLanguage(String)
+	 * @param languages
+	 */
 	public void setLanguages(Set<String> languages);
 
 	/**

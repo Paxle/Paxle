@@ -17,6 +17,7 @@ public class FieldValueUserType extends SerializableType {
 		super(Serializable.class);
 	}
 
+	@Override
 	public Object get(ResultSet rs, String name) throws HibernateException, SQLException {
 		try {
 			return super.get(rs, name);

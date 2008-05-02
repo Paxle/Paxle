@@ -241,7 +241,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			final int port = ((Integer)configuration.get(PROP_PROXY_PORT)).intValue();
 			
 			if (useProxy && host.length() > 0) {
-				this.logger.info(String.format("Proxy is enabled: %s:%d",host,port));
+				this.logger.info(String.format("Proxy is enabled: %s:%d",host,Integer.valueOf(port)));
 				final ProxyHost proxyHost = new ProxyHost(host, port);
 				this.httpClient.getHostConfiguration().setProxyHost(proxyHost);
 				
@@ -276,7 +276,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		if (prot.equals("http") && port == -1) port = 80;
 		if (prot.equals("https") && port == -1) port = 443;
 
-		return String.format("%s:%d",host,port);
+		return String.format("%s:%d",host,Integer.valueOf(port));
 	}
 	
 	/**
@@ -765,10 +765,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 
 				logger.debug(String.format(
 						"Robots.txt check of %d URI hosted on '%s' took %d ms. Access to %d URI disallowed.",
-						this.uriList.size(),
+						Integer.valueOf(this.uriList.size()),
 						this.baseUri.toASCIIString(),
-						end-start,
-						(disallowedList==null)?0:disallowedList.size()
+						Long.valueOf(end-start),
+						Integer.valueOf((disallowedList==null)?0:disallowedList.size())
 				));
 
 				return disallowedList;

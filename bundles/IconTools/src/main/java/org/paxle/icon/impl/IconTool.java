@@ -207,7 +207,7 @@ public class IconTool {
 			IOTools.copy(iconInput, bout);
 			return bout.toByteArray();
 		} finally {
-			if (bout != null) bout.close();
+			bout.close();
 			if (iconInput != null) iconInput.close();
 		}
 	}

@@ -18,6 +18,7 @@ public class RAFInStream extends IInStream {
 		_file = new RandomAccessFile(filename, "r");
 	}
 	
+	@Override
 	public long Seek(long offset, int seekOrigin) throws IOException {
 		if (seekOrigin == STREAM_SEEK_SET) {
 			_file.seek(offset);
@@ -27,10 +28,12 @@ public class RAFInStream extends IInStream {
 		return _file.getFilePointer();
 	}
 	
+	@Override
 	public int read() throws IOException {
 		return _file.read();
 	}
 	
+	@Override
 	public int read(byte [] data, int off, int size) throws IOException {
 		return _file.read(data,off,size);
 	}
@@ -39,6 +42,7 @@ public class RAFInStream extends IInStream {
 		return _file.read(data,0,size);
 	}
 	
+	@Override
 	public void close() throws IOException {
 		_file.close();
 	}

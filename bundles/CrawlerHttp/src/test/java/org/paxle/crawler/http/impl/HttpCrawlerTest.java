@@ -18,6 +18,7 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 
 	private HttpCrawler crawler = null;
 	
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();		
 	}

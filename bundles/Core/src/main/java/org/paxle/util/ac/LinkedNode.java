@@ -20,6 +20,7 @@ public class LinkedNode<E> extends ANode<E> {
 	public LinkedNode() {
 	}
 	
+	@Override
 	public byte[] getKeys() {
 		Entry e = head;
 		int num = 0;
@@ -33,10 +34,12 @@ public class LinkedNode<E> extends ANode<E> {
 		return r;
 	}
 	
+	@Override
 	public ANode<E> funcFail() {
 		return head.node;
 	}
 	
+	@Override
 	public ANode<E> funcGoto(byte b) {
 		Entry e = head;
 		while ((e = e.next) != null)
@@ -45,6 +48,7 @@ public class LinkedNode<E> extends ANode<E> {
 		return null;
 	}
 	
+	@Override
 	public void setFail(ANode<E> node) {
 		head.node = node;
 	}
@@ -59,6 +63,7 @@ public class LinkedNode<E> extends ANode<E> {
 		}
 	}
 	
+	@Override
 	public void setGoto(byte b, ANode<E> node) {
 		if (node == null) {
 			removeGoto(b);

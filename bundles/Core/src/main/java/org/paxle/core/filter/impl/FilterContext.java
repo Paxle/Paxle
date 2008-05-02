@@ -173,7 +173,7 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 		if (comp != 0) return comp;
 		
 		// filter based on properties
-		comp = Integer.valueOf(this.props.size()).compareTo(o.props.size());
+		comp = Integer.valueOf(this.props.size()).compareTo(Integer.valueOf(o.props.size()));
 		if (comp != 0) return comp;
 		
 		// TODO: is this enough or should we even compare the property values?

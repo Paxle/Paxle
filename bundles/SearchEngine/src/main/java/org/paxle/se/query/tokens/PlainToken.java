@@ -13,6 +13,7 @@ public class PlainToken extends AToken {
 		return str;
 	}
 	
+	@Override
 	public String toString() {
 		return "(" + getClass().getSimpleName() + ") '" + this.str + "'";
 	}

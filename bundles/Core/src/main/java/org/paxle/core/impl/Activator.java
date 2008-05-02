@@ -159,7 +159,7 @@ public class Activator implements BundleActivator {
 		final Hashtable<String,String[]> props2 = new Hashtable<String,String[]>();
         props2.put(IFilter.PROP_FILTER_TARGET, new String[] {
         		// apply filter to the parser-output-queue at position 60
-        		String.format("org.paxle.parser.out; %s=%d;",IFilter.PROP_FILTER_TARGET_POSITION,60)
+        		String.format("org.paxle.parser.out; %s=%d;",IFilter.PROP_FILTER_TARGET_POSITION, Integer.valueOf(60))
         });
         bc.registerService(IFilter.class.getName(), new AscendingPathUrlExtractionFilter(), props2);
         

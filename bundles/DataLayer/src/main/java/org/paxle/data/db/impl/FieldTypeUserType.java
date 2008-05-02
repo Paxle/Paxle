@@ -44,13 +44,13 @@ public class FieldTypeUserType implements EnhancedUserType {
 	}
 
 	public Serializable disassemble(Object value) throws HibernateException {
-		return (Field) value;
+		return (Field<?>) value;
 	}
 
 	public boolean equals(Object x, Object y) throws HibernateException {
 		if (x == y) return true; 
 		if ((x == null) || (y == null)) return false; 
-		return ((Field) x).equals((Field) y); 
+		return ((Field<?>) x).equals(y); 
 	}
 
 	public int hashCode(Object x) throws HibernateException {
@@ -91,10 +91,10 @@ public class FieldTypeUserType implements EnhancedUserType {
 			st.setNull(index+2, Types.BIT);
 			st.setNull(index+3, Types.BIT);
 		} else {
-			st.setString(index+0, ((Field) value).getName());
-			st.setString(index+1, ((Field) value).getType().getName());
-			st.setBoolean(index+2, ((Field) value).isIndex());
-			st.setBoolean(index+3, ((Field) value).isSavePlain());			
+			st.setString(index+0, ((Field<?>) value).getName());
+			st.setString(index+1, ((Field<?>) value).getType().getName());
+			st.setBoolean(index+2, ((Field<?>) value).isIndex());
+			st.setBoolean(index+3, ((Field<?>) value).isSavePlain());			
 		}
 	}
 
@@ -102,7 +102,7 @@ public class FieldTypeUserType implements EnhancedUserType {
 		return original;
 	}
 
-	public Class returnedClass() {
+	public Class<?> returnedClass() {
 		return Field.class;
 	}
 

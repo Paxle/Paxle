@@ -131,6 +131,7 @@ public class Pool<Data> extends GenericObjectPool implements IPool<Data> {
 	 * @see IPool#close()
 	 * @see GenericObjectPool#close()
 	 */
+	@Override
 	public void close() throws Exception {
 		this.logger.debug("Closing thread-pool ...");
 		this.closed = true;

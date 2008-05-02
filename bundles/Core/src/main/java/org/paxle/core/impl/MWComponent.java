@@ -204,7 +204,8 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		  
 		return defaults;
 	}
-
+	
+	@SuppressWarnings("unchecked")
 	public void updated(Dictionary configuration) throws ConfigurationException {
 		if (configuration == null ) {
 			/*

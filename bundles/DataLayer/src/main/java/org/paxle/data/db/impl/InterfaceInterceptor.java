@@ -17,7 +17,8 @@ import org.paxle.core.queue.ICommandProfile;
 
 public class InterfaceInterceptor extends EmptyInterceptor {
 	private static final long serialVersionUID = 1L;
-
+	
+	@Override
 	public String getEntityName(Object object) {
         if (object instanceof ICommand) {
             return ICommand.class.getName();
@@ -32,27 +33,28 @@ public class InterfaceInterceptor extends EmptyInterceptor {
         }
         return super.getEntityName(object);
     }
-
+	
+	@Override
     public Object instantiate(String entityName, EntityMode entityMode, Serializable id) {
         if (entityName.equals(ICommand.class.getName())) {
         	Command cmd = new Command();
-        	cmd.setOID((Integer)id);
+        	cmd.setOID(((Integer)id).intValue());
             return cmd;
         } else if (entityName.equals(ICrawlerDocument.class.getName())) {
         	ICrawlerDocument crawlerDocument = new CrawlerDocument();
-        	crawlerDocument.setOID((Integer)id);
+        	crawlerDocument.setOID(((Integer)id).intValue());
             return crawlerDocument;
         } else if (entityName.equals(IParserDocument.class.getName())) {
         	IParserDocument parserDocument = new ParserDocument();
-        	parserDocument.setOID((Integer)id);
+        	parserDocument.setOID(((Integer)id).intValue());
         	return parserDocument;
         } else if (entityName.equals(IIndexerDocument.class.getName())) {
         	IIndexerDocument indexerDocument = new IndexerDocument();
-        	indexerDocument.setOID((Integer)id);
+        	indexerDocument.setOID(((Integer)id).intValue());
         	return indexerDocument;
         } else if (entityName.equals(ICommandProfile.class.getName())) {
         	ICommandProfile profile = new CommandProfile();
-        	profile.setOID((Integer)id);
+        	profile.setOID(((Integer)id).intValue());
         	return profile;
         }
         return super.instantiate(entityName, entityMode, id);

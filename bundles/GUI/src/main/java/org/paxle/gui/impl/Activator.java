@@ -144,6 +144,7 @@ public class Activator implements BundleActivator {
 		context.registerService(new String[]{ManagedService.class.getName(),MetaTypeProvider.class.getName()}, this.styleManager, styleManagerProps);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void initUserAdmin(BundleContext context) throws IOException {
 		// create a tracker used by the http-context
 		this.userAdminTracker = new ServiceTracker(context, UserAdmin.class.getName(),null);

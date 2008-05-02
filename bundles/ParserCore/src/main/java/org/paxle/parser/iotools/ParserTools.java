@@ -17,6 +17,7 @@ import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
+import org.paxle.parser.ParserNotFoundException;
 
 public class ParserTools {
 	
@@ -161,9 +162,11 @@ public class ParserTools {
 		if (context == null)
 			throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
 		
+		if (mimeType == null)
+			throw new ParserException("detected MIME type of file " + content + " is null, cannot parse it");
 		final ISubParser sp = context.getParser(mimeType);
 		if (sp == null)
-			throw new ParserException("No parser found for MIME type '" + mimeType + "'");
+			throw new ParserNotFoundException(mimeType);
 		
 		final IParserDocument pdoc = sp.parse(location, charset, content);
 		if (pdoc.getMimeType() == null)
@@ -185,10 +188,10 @@ public class ParserTools {
 				throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
 			
 			if (mimeType == null)
-				throw new ParserException("detected MIME type of file " + content + " is null, cannot parse it");
+				throw new ParserException("detected MIME type of contained file in " + location + " is null, cannot parse it");
 			final ISubParser sp = context.getParser(mimeType);
 			if (sp == null)
-				throw new ParserException("No parser found for MIME type '" + mimeType + "'");
+				throw new ParserNotFoundException(mimeType);
 			
 			final IParserDocument pdoc = sp.parse(location, charset, content);
 			if (pdoc.getMimeType() == null)

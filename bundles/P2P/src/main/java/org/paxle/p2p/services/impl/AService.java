@@ -116,6 +116,7 @@ public abstract class AService extends Thread implements IService {
 	 * This function is used to listen for new incoming messages. 
 	 * Received messages are then passed to function {@link #process(Message)}.
 	 */
+	@Override
 	public void run() {
 		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 		

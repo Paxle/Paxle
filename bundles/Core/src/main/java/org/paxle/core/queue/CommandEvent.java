@@ -1,6 +1,6 @@
+
 package org.paxle.core.queue;
 
-import java.net.URI;
 import java.util.Dictionary;
 import java.util.Hashtable;
 

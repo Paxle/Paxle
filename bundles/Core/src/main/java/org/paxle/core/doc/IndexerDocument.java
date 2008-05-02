@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class IndexerDocument extends HashMap<Field<? extends Serializable>,Object> implements IIndexerDocument {
+public class IndexerDocument extends HashMap<Field<?>,Object> implements IIndexerDocument {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -39,11 +39,11 @@ public class IndexerDocument extends HashMap<Field<? extends Serializable>,Objec
 		return (Type)super.get(prop);
 	}
 	
-	public Iterator<Field<? extends Serializable>> fieldIterator() {
+	public Iterator<Field<?>> fieldIterator() {
 		return super.keySet().iterator();
 	}
 	
-	public Iterator<Map.Entry<Field<? extends Serializable>,Object>> iterator() {
+	public Iterator<Map.Entry<Field<?>,Object>> iterator() {
 		return super.entrySet().iterator();
 	}
 	
@@ -67,12 +67,13 @@ public class IndexerDocument extends HashMap<Field<? extends Serializable>,Objec
 	public void setStatusText(String text) {
 		this.statusText = text;
 	}
-
-	public Map<Field<? extends Serializable>, ?> getFields() {
+	
+	@SuppressWarnings("unchecked")
+	public Map<Field<?>, ?> getFields() {
 		return (Map<Field<?>, ?>) this.clone();
 	}
 
-	public void setFields(Map<Field<? extends Serializable>, ?> fields) {
+	public void setFields(Map<Field<?>, ?> fields) {
 		this.clear();
 		this.putAll(fields);
 	}

@@ -44,7 +44,7 @@ public class LocatorTool {
 			e.printStackTrace();
 			return null;
 		} finally {
-			if (bout != null) try { bout.close(); } catch (Exception e) {/* ignore this */}
+			try { bout.close(); } catch (Exception e) {/* ignore this */}
 			if (iconInput != null) try { iconInput.close(); } catch (Exception e) {/* ignore this */}
 		}
 	}

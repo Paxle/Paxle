@@ -20,6 +20,7 @@ public class SearchView extends ALayoutServlet {
 	public static final String PARAM_FORMAT = "format";
 	public static final String PARAM_QUERY = "query";
 	
+	@Override
 	public Template handleRequest( 
 			HttpServletRequest request,
 			HttpServletResponse response,

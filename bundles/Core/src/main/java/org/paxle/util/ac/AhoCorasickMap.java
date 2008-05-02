@@ -82,9 +82,8 @@ public class AhoCorasickMap<E> extends AbstractMap<byte[],E> implements Map<byte
 	public E put(byte[] key, E value) {
 		if (key == null)
 			throw new NullPointerException("no null keys permitted");
-		final byte[] k = (byte[])key;
-		final E r = ac.match(k);
-		final boolean added = ac.addPattern(k, value);
+		final E r = ac.match(key);
+		final boolean added = ac.addPattern(key, value);
 		return (added) ? r : null;
 	}
 	

@@ -16,7 +16,7 @@ import org.paxle.core.queue.ICommandProfileManager;
  * XXX: This is just a fist step. later we'll split this filter into 
  * separate filters for crawler/parser/indexer-core-bundles
  */
-public class CommandProfileFilter implements IFilter {
+public class CommandProfileFilter implements IFilter<ICommand> {
 	private static final int DEFAULT_DEPTH = 0;
 
 	/**
@@ -59,7 +59,7 @@ public class CommandProfileFilter implements IFilter {
 				ICommandProfile profile = this.profileDB.getProfileByID(profileID);
 				if (profile == null) {
 					this.logger.error(String.format("Unable to fild profile '%d' for command '%s'.",
-							profileID,
+							Integer.valueOf(profileID),
 							command.getLocation().toASCIIString()
 					));
 					maxDepth = DEFAULT_DEPTH;

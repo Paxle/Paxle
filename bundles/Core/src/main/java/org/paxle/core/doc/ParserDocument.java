@@ -8,7 +8,6 @@ import java.io.Reader;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -150,15 +149,6 @@ public class ParserDocument implements IParserDocument {
 	
 	/**
 	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#setLanguages(java.lang.String[])
-	 */
-	public void setLanguages(String[] langs) {
-		this.languages.clear();
-		this.languages.addAll(Arrays.asList(langs));
-	}
-	
-	/**
-	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#setLastChanged(java.util.Date)
 	 */
 	public void setLastChanged(Date date) {
@@ -248,6 +238,7 @@ public class ParserDocument implements IParserDocument {
 	}
 	
 	/**
+	 * {@inheritDoc}
 	 * @see IParserDocument#setLanguages(Set)
 	 */
 	public void setLanguages(Set<String> languages) {
@@ -432,13 +423,10 @@ public class ParserDocument implements IParserDocument {
 		return sb.toString();
 	}
 	
-	private static void print(StringBuilder sb, Map map, String name) {
-		Iterator<Map.Entry<?,?>> it = map.entrySet().iterator();
+	private static void print(StringBuilder sb, Map<?,?> map, String name) {
 		sb.append(name).append(":").append('\n');
-		while (it.hasNext()) {
-			Map.Entry<?,?> e = it.next();
+		for (final Map.Entry<?,?> e : map.entrySet())
 			sb.append(" * ").append(e.getKey()).append(" -> ").append(e.getValue()).append('\n');
-		}
 	}
 	
 	private static void print(StringBuilder sb, Collection<String> col, String name) {

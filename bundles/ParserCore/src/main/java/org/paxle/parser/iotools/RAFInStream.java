@@ -29,10 +29,12 @@ public class RAFInStream extends InputStream implements Seekable {
 		return this._file.getFilePointer();
 	}
 	
+	@Override
 	public int read() throws IOException {
 		return _file.read();
 	}
 	
+	@Override
 	public int read(byte [] data, int off, int size) throws IOException {
 		return _file.read(data,off,size);
 	}
@@ -41,6 +43,7 @@ public class RAFInStream extends InputStream implements Seekable {
 		return _file.read(data,0,size);
 	}
 	
+	@Override
 	public void close() throws IOException {
 		_file.close();
 	}

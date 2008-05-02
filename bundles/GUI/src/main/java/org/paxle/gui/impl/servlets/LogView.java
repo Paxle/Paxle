@@ -25,15 +25,15 @@ public class LogView extends ALayoutServlet {
         		context.put( "filterLogLevel", new Integer( request.getParameter( "filterLogLevel")));
         	}
         	else {
-        		context.put( "filterLogLevel", 4);
+        		context.put( "filterLogLevel", Integer.valueOf(4));
         	}
         	
         	//HashMap to determine LogLevelName
         	HashMap<Integer, String> level = new HashMap<Integer, String>();
-        	level.put( LogService.LOG_ERROR , "error");
-        	level.put( LogService.LOG_WARNING, "warning");
-        	level.put( LogService.LOG_INFO, "info");
-        	level.put( LogService.LOG_DEBUG, "debug");
+        	level.put( Integer.valueOf(LogService.LOG_ERROR) , "error");
+        	level.put( Integer.valueOf(LogService.LOG_WARNING), "warning");
+        	level.put( Integer.valueOf(LogService.LOG_INFO), "info");
+        	level.put( Integer.valueOf(LogService.LOG_DEBUG), "debug");
         	context.put( "logLevelName" , level);
             
             template = this.getTemplate("/resources/templates/LogView.vm");

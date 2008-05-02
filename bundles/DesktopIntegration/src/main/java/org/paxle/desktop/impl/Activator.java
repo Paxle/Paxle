@@ -109,7 +109,7 @@ public class Activator implements BundleActivator {
 			
 			try {
 				// display icon				
-				initUI(context, impl.getValue(), false);
+				initUI(context, impl.getValue());
 				started = true;
 				logger.info(String.format("Successfully started bundle using backend '%s'", impl));
 				break;
@@ -139,7 +139,7 @@ public class Activator implements BundleActivator {
 		bc = null;
 	}
 	
-	private void initUI(BundleContext context, String impl, final boolean thelisMethod) throws Exception {
+	private void initUI(BundleContext context, String impl) throws Exception {
 		String bundleName = BACKEND_IMPL_ROOT_PACKAGE + '.' + impl;
 		Bundle bundle = findBundle(context, bundleName);
 		if (bundle != null) {

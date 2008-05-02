@@ -226,6 +226,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 	 * Updates the manager with the configuration changed by the user
 	 * @see ManagedService#updated(Dictionary)
 	 */
+	@SuppressWarnings("unchecked")
 	public void updated(Dictionary configuration) throws ConfigurationException {
 		if (configuration == null ) {
 			/*

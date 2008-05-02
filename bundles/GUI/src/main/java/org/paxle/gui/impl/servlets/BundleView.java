@@ -48,6 +48,7 @@ public class BundleView extends ALayoutServlet {
     	states.put(Integer.valueOf(Bundle.UNINSTALLED), "uninstalled");
     }
 	
+    @Override
     public Template handleRequest( HttpServletRequest request,
             HttpServletResponse response,
             Context context ) {

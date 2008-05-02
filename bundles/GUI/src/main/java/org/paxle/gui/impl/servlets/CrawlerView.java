@@ -85,7 +85,7 @@ public class CrawlerView extends ALayoutServlet {
 			this.storeProfile = this.profileDB.getClass().getMethod("storeProfile", ICommandProfile.class);
 			
 			robotsManager = manager.getService("org.paxle.filter.robots.IRobotsTxtManager");
-			if (robotsManager != null) isDisallowed = robotsManager.getClass().getMethod("isDisallowed", String.class);
+			if (robotsManager != null) isDisallowed = robotsManager.getClass().getMethod("isDisallowed", URI.class);
 			
 			this.crawlDepth = crawlDepth;
 			this.profileName = profileName;
@@ -97,10 +97,11 @@ public class CrawlerView extends ALayoutServlet {
 				putError(location, "URL '" + location + "' is not valid");
 				return;
 			}
+			final URI uri = new URI(url);
 			
 			// check if URL is blocked by robots-txt
 			if (robotsManager != null && isDisallowed != null) {
-				final Object result = isDisallowed.invoke(robotsManager, url);
+				final Object result = isDisallowed.invoke(robotsManager, uri);
 				if (result != null && ((Boolean)result).booleanValue()) {
 					final String msg = "Not allowed to begin crawling for the URL is blocked by robots.txt";
 					logger.info(msg);
@@ -110,7 +111,7 @@ public class CrawlerView extends ALayoutServlet {
 			}
 			
 			// check if URL is already known
-			final Object result = doubleURL.invoke(this.commandDB, URI.create(url));
+			final Object result = doubleURL.invoke(this.commandDB, uri);
 			if (result != null && ((Boolean)result).booleanValue()) {
 				final String msg = "URL rejected. URL was already crawled.";
 				logger.info(msg);
@@ -118,7 +119,7 @@ public class CrawlerView extends ALayoutServlet {
 				return;
 			}
 			
-			logger.info("Initiated crawl of URL '" + url + "'");
+			logger.info("Initiated crawl of URL '" + uri + "'");
 			if (this.profile == null) {
 				// create a new profile
 				this.profile = new CommandProfile();
@@ -130,7 +131,7 @@ public class CrawlerView extends ALayoutServlet {
 			}
 			
 			// store command into DB
-			this.enqueueCommand.invoke(this.commandDB, new URI(url), this.profile.getOID(), 0);
+			this.enqueueCommand.invoke(this.commandDB, uri, Integer.valueOf(this.profile.getOID()), Integer.valueOf(0));
 		}
 		
 		private void putError(final String url, final String err) {
@@ -144,7 +145,8 @@ public class CrawlerView extends ALayoutServlet {
 		}
 	}
 	
-	public Template handleRequest( 
+	@Override
+    public Template handleRequest( 
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Context context 
@@ -202,7 +204,7 @@ public class CrawlerView extends ALayoutServlet {
 		if (depthStr == null) return 0;
 		
 		try {
-			int depth =  Integer.valueOf(depthStr);
+			int depth =  Integer.parseInt(depthStr);
 			if (depth < 0) return 0;
 			return depth;
 		} catch (NumberFormatException e){

@@ -140,7 +140,7 @@ public class FilterListener implements ServiceListener {
 		
 		// the id's of the target queues
 		String targetIDs[] = this.getTargetIDs(reference.getProperty(IFilter.PROP_FILTER_TARGET));
-		if (serviceID == null) {
+		if (targetIDs == null) {
 			this.logger.error("Unable to (un)register filter. No target-id found!");
 			return;
 		}				

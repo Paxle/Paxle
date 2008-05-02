@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.StopAnalyzer;
 import org.paxle.core.doc.IIndexerDocument;
 
 public class StopwordsManager {
@@ -50,7 +50,7 @@ public class StopwordsManager {
 	
 	public PaxleAnalyzer getDefaultAnalyzer() {
 		if (defaultAnalyzer == null)
-			defaultAnalyzer = new PaxleAnalyzer(StandardAnalyzer.STOP_WORDS);
+			defaultAnalyzer = new PaxleAnalyzer(StopAnalyzer.ENGLISH_STOP_WORDS);
 		return defaultAnalyzer;
 	}
 }

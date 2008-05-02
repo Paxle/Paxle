@@ -37,7 +37,7 @@ public class Activator implements BundleActivator {
 				// apply filter to the crawler-input-queue
 				"org.paxle.crawler.in",
 				// apply filter to the parser-output-queue at pos 70
-				String.format("org.paxle.parser.out; %s=%d", IFilter.PROP_FILTER_TARGET_POSITION,70)
+				String.format("org.paxle.parser.out; %s=%d", IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(70))
 		});
 		bc.registerService(IFilter.class.getName(), new RobotsTxtFilter(robotsTxtManager), filterProps);		
 		

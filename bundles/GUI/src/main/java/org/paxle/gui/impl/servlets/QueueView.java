@@ -16,7 +16,8 @@ public class QueueView extends ALayoutServlet {
 	
 	private static final long serialVersionUID = 1L;
     
-    public Template handleRequest( 
+	@Override
+	public Template handleRequest( 
     		HttpServletRequest request,
             HttpServletResponse response,
             Context context 

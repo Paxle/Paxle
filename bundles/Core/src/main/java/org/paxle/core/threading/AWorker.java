@@ -268,6 +268,7 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
     /**
      * @see IWorker#destroy()
      */
+	@Override
     public void destroy() {
     	this.destroyed = true;
     }

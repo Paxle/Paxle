@@ -104,6 +104,7 @@ public abstract class AServiceServer extends AService implements IServiceServer 
 	 * Function to create the advertisement for an {@link #serviceInputPipe input-pipe} 
 	 * @return the advertisement for an {@link #serviceInputPipe input-pipe} 
 	 */
+	@Override
 	protected abstract PipeAdvertisement createPipeAdvertisement();
 	
 	/**
@@ -190,7 +191,7 @@ public abstract class AServiceServer extends AService implements IServiceServer 
 		if (pipeAdv == null) throw new IllegalArgumentException("The request message contains no pipe advertisement.");
 		
 		PipeAdvertisement adv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(
-				(XMLDocument) StructuredDocumentFactory.newStructuredDocument(pipeAdv)
+				(XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(pipeAdv)
 		);
 
 		// create an output pipe to send the request

@@ -62,6 +62,7 @@ public class MD5InputStream extends FilterInputStream {
 	 * 
 	 * @see java.io.FilterInputStream
 	 */
+	@Override
 	public int read() throws IOException {
 		int c = in.read();
 
@@ -83,6 +84,7 @@ public class MD5InputStream extends FilterInputStream {
 	 * 
 	 * @see java.io.FilterInputStream
 	 */
+	@Override
 	public int read(byte bytes[], int offset, int length) throws IOException {
 		int r;
 

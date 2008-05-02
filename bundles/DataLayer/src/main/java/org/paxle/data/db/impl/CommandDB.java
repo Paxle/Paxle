@@ -322,7 +322,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			result = (List<ICommand>) query.list();
 
 			/* This is a q&d hack to avoid double loading of enqueued commands. */
-			for (ICommand cmd : (List<ICommand>) result) {
+			for (ICommand cmd : result) {
 				// TODO: we need a better mechanism to decide if a command was enqueued
 				cmd.setResultText("Enqueued");
 				session.update(cmd);
@@ -514,14 +514,15 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	public ICommandProfile getProfileByID(int profileID) {		
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = null;
+		final Integer profileIDInt = Integer.valueOf(profileID);
 		try {
 			transaction = session.beginTransaction();
-			ICommandProfile profile = (ICommandProfile) session.load(ICommandProfile.class, profileID);
+			ICommandProfile profile = (ICommandProfile) session.load(ICommandProfile.class, profileIDInt);
 			transaction.commit();
 			return profile;
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-			this.logger.error(String.format("Error while writing profile with ID '%d' to db.", profileID),e);
+			this.logger.error(String.format("Error while writing profile with ID '%d' to db.", profileIDInt),e);
 			throw e;
 		}
 	}

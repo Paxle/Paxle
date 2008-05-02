@@ -11,7 +11,7 @@ import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 
 public class RootView extends ALayoutServlet {
-
+	
 	private static final long serialVersionUID = 1L;
 	
 	@Override
@@ -20,13 +20,14 @@ public class RootView extends ALayoutServlet {
 		response.sendRedirect("/search");
 	}
 	
-    public Template handleRequest( 
-    		HttpServletRequest request,
-            HttpServletResponse response,
-            Context context 
-    ) {
-    	// nothing todo here
-        return null;
-    }
-
+	@Override
+	public Template handleRequest( 
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Context context 
+	) {
+		// nothing todo here
+		return null;
+	}
+	
 }

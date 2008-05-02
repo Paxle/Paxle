@@ -191,14 +191,14 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 				
 		        // iterate through child elements of root
 		        for (Iterator<Element> i = xmlRoot.elementIterator(SearchServiceConstants.RESULT_ENTRY); i.hasNext(); ) {
-		            Element resultElement = (Element) i.next();
+		            Element resultElement = i.next();
 		            
 			        for (Iterator<Element> j = resultElement.elementIterator(SearchServiceConstants.RESULT_ENTRY_ITEM); j.hasNext(); ) {
-			        	Element resultItemElement = (Element) j.next();			        	
+			        	Element resultItemElement = j.next();			        	
 			        	IndexerDocument indexerDoc = new IndexerDocument();
 			        	
 			        	for (Iterator<Element> k = resultItemElement.elementIterator(); k.hasNext(); ) {
-			        		Element resultItemFieldElement = (Element) k.next();
+			        		Element resultItemFieldElement = k.next();
 			        		
 			        		String fieldName = resultItemFieldElement.getName();
 			        		String fieldValue = resultItemFieldElement.getText();

@@ -11,6 +11,7 @@ public class OpenSearchDescription extends ALayoutServlet {
 	
 	private static final long serialVersionUID = 1L;
 	
+	@Override
     public Template handleRequest( 
     		HttpServletRequest request,
             HttpServletResponse response,

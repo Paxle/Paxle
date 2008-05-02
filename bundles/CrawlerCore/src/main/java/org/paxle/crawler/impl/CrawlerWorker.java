@@ -65,7 +65,6 @@ public class CrawlerWorker extends AWorker<ICommand> {
 			// get a sub-crawler that is capable to handle the specified protocol
 			this.logger.debug(String.format("Getting crawler for protocol '%s' ...", protocol));			
 			ISubCrawler crawler = this.subCrawlerManager.getSubCrawler(protocol);
-			this.logger.debug(String.format("Crawler '%s' found for protocol '%s'.", crawler.getClass().getName(), protocol));
 						
 			if (crawler == null) {
 				this.logger.error(String.format("No crawler for resource '%s' and protocol '%s' found.", location, protocol));
@@ -74,7 +73,8 @@ public class CrawlerWorker extends AWorker<ICommand> {
 						String.format("No crawler for protocol '%s' found.", protocol)
 				);
 				return;
-			}			
+			}
+			this.logger.debug(String.format("Crawler '%s' found for protocol '%s'.", crawler.getClass().getName(), protocol));
 			
 			// pass the URL to the crawler
 			this.logger.info(String.format("Crawling resource '%s' using protocol '%s' ...", location, protocol));
@@ -138,7 +138,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 					"Finished crawling of resource '%s' (%d kb) in %d ms.\r\n" +
 					"\tCrawler-Status: '%s' %s",
 					command.getLocation(),
-					Long.valueOf(crawlerDoc.getSize() >> 10),
+					Long.valueOf((crawlerDoc == null) ? -1L : crawlerDoc.getSize() >> 10),
 					Long.valueOf(System.currentTimeMillis() - start),
 					(crawlerDoc == null) ? "unknown" : crawlerDoc.getStatus().toString(),
 					(crawlerDoc == null) ? "" : (crawlerDoc.getStatusText()==null)?"":crawlerDoc.getStatusText()

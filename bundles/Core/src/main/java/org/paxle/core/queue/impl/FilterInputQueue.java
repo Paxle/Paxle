@@ -111,7 +111,7 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 					this.logger.debug(String.format(
 							"[%s] Filter '%s' took %d ms processingh URL '%s'.",
 							this.filterQueueID,
-							(filter == null) ? "null" : filter.getClass().getSimpleName(),
+							filter.getClass().getSimpleName(),
 							Long.valueOf(System.currentTimeMillis() - start),
 							command.getLocation()
 					));

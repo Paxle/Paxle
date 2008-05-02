@@ -131,15 +131,15 @@ public class Activator implements BundleActivator {
 			// command-extraction filter
 			Hashtable<String, String[]> urlExtractorFilterProps = new Hashtable<String, String[]>();
 			urlExtractorFilterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{
-					String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.MAX_VALUE)
+					String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(Integer.MAX_VALUE))
 			});
 			bc.registerService(IFilter.class.getName(), new UrlExtractorFilter(commandDB), urlExtractorFilterProps);	
 			
 			// command-profile filter
 			Hashtable<String, String[]> profileFilterProps = new Hashtable<String, String[]>();
 			profileFilterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{
-					String.format("org.paxle.crawler.in; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.MIN_VALUE),
-					String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.MAX_VALUE-1)
+					String.format("org.paxle.crawler.in; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(Integer.MIN_VALUE)),
+					String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(Integer.MAX_VALUE-1))
 			});
 			bc.registerService(IFilter.class.getName(), new CommandProfileFilter(commandDB), profileFilterProps);	
 
@@ -184,7 +184,7 @@ public class Activator implements BundleActivator {
 	private void pipeConnect(String from, String to) {
 		this.logger.info(String.format("Create datapipe: %s -> %s",from,to));
 		
-		final DataPipe pipe = new DataPipe();
+		final DataPipe<?> pipe = new DataPipe();
 		pipe.setName(String.format("Datapipe: %s -> %s", from,to));
 		final Hashtable<String,String> props = new Hashtable<String,String>();
 		props.put(IDataConsumer.PROP_DATACONSUMER_ID, from);

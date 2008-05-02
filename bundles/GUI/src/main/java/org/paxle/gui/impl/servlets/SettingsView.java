@@ -1,3 +1,4 @@
+
 package org.paxle.gui.impl.servlets;
 
 import java.awt.image.BufferedImage;
@@ -8,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -47,7 +47,6 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IStyleManager;
 import org.paxle.gui.impl.HttpContextAuth;
 import org.paxle.gui.impl.ServiceManager;
-
 
 public class SettingsView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
@@ -333,14 +332,14 @@ public class SettingsView extends ALayoutServlet {
 		}
 		
 		ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
-		if (bundleID == null) {
+		if (manager == null) {
 			response.sendError(501, "No ServiceManager found.");
 			return;
 		}
 		
 		// getting the bundle the managed service belongs to
-		Bundle bundle = manager.getBundle(Long.valueOf(bundleID));
-		if (bundleID == null) {
+		Bundle bundle = manager.getBundle(Long.parseLong(bundleID));
+		if (bundle == null) {
 			response.sendError(501, String.format("No bundle with ID '%s' found.",bundleID));
 			return;
 		}
@@ -408,14 +407,14 @@ public class SettingsView extends ALayoutServlet {
 		}
 		
 		ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
-		if (bundleID == null) {
+		if (manager == null) {
 			context.put(ERROR_MSG, "No ServiceManager found.");
 			return;
 		}
 		
 		// getting the bundle the managed service belongs to
-		Bundle bundle = manager.getBundle(Long.valueOf(bundleID));
-		if (bundleID == null) {
+		Bundle bundle = manager.getBundle(Long.parseLong(bundleID));
+		if (bundle == null) {
 			context.put(ERROR_MSG, String.format("No bundle with ID '%s' found.",bundleID));
 			return;
 		}
@@ -524,7 +523,7 @@ public class SettingsView extends ALayoutServlet {
 		if (attribute == null) throw new NullPointerException("Attribute definition is null");
 		
 		String propertyKey = attribute.getID();
-		Dictionary props = (config==null)?null:config.getProperties();
+		Dictionary props = config.getProperties();
 		Object value = (props == null)?null:props.get(propertyKey);
 		String[] defaultValues = attribute.getDefaultValue();
 		

@@ -1,6 +1,5 @@
 package org.paxle.p2p.impl;
 
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,9 +16,6 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.paxle.p2p.services.IService;
-import org.paxle.p2p.services.IServiceClient;
-import org.paxle.p2p.services.IServiceServer;
 import org.paxle.p2p.services.impl.AService;
 
 public class P2PServiceManager implements ServiceListener {
@@ -89,7 +85,7 @@ public class P2PServiceManager implements ServiceListener {
 							this.startedServices.put(serviceClass, s);
 							
 							// getting the interfaces to export to the framework
-							String[] interfaces = (String[]) s.getExportedInterfaces().toArray(new String[0]);
+							String[] interfaces = s.getExportedInterfaces().toArray(new String[0]);
 							
 							// registering the service to the framework
 							ServiceRegistration sReg = context.registerService(interfaces, s, null);

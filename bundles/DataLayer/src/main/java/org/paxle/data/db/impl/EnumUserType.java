@@ -12,7 +12,7 @@ import org.hibernate.usertype.ParameterizedType;
 
 /**
  * @author Gavin King
- * @see http://swanbear.blogspot.com/2006/09/enum-type-in-hibernate-mapping.html
+ * @see <a href="http://swanbear.blogspot.com/2006/09/enum-type-in-hibernate-mapping.html">Enum type in Hibernate mapping</a>
  */
 public class EnumUserType implements EnhancedUserType, ParameterizedType {
 
@@ -61,7 +61,7 @@ public class EnumUserType implements EnhancedUserType, ParameterizedType {
       if (value == null) {
          st.setNull(index, Types.VARCHAR);
       } else {
-         st.setString(index, ((Enum) value).name());
+         st.setString(index, ((Enum<?>) value).name());
       }
    }
 
@@ -70,7 +70,7 @@ public class EnumUserType implements EnhancedUserType, ParameterizedType {
       return original;
    }
 
-   public Class returnedClass() {
+   public Class<?> returnedClass() {
       return enumClass;
    }
 
@@ -83,11 +83,11 @@ public class EnumUserType implements EnhancedUserType, ParameterizedType {
    }
 
    public String objectToSQLString(Object value) {
-      return '\'' + ((Enum) value).name() + '\'';
+      return '\'' + ((Enum<?>) value).name() + '\'';
    }
 
    public String toXMLString(Object value) {
-      return ((Enum) value).name();
+      return ((Enum<?>) value).name();
    }
 
 }

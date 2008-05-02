@@ -37,7 +37,7 @@ public class TempFileManager implements ITempFileManager {
 	}
 	
 	public File createTempFile() throws IOException {
-		final String className = new Exception().getStackTrace()[1].getClassName();
+		final String className = new Exception().getStackTrace()[1].getClassName();		// FIXME: slow!
 		ITempDir dir = this.classMap.get(className);
 		final File ret;
 		if (dir == null) {

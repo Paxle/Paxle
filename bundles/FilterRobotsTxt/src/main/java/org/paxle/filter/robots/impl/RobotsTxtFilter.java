@@ -96,7 +96,8 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 			}
 			
 			if (logger.isDebugEnabled()) {
-				this.logger.debug(String.format("%d URI removed from reference map:\r\n%s", disallowedURI.size(),debugMsg.toString()));
+				this.logger.debug(String.format("%d URI removed from reference map:\r\n%s",
+						Integer.valueOf(disallowedURI.size()),debugMsg.toString()));
 			}
 
 		}	

@@ -105,7 +105,7 @@ public class SearchServerImpl extends AServiceServer {
 			 * Process request
 			 * ================================================================ */
 		    // do a local search
-			List<ISearchResult> searchResults = this.searchProviderManager.search(queryString, queryMaxResults, queryTimeout);
+			List<ISearchResult> searchResults = this.searchProviderManager.search(queryString, queryMaxResults.intValue(), queryTimeout.longValue());
 			
 			// convert the result to XML
 			Document xmlDoc = DocumentHelper.createDocument();

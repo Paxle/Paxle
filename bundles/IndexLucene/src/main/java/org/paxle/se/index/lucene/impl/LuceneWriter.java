@@ -64,6 +64,7 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	 * (non-Javadoc)
 	 * @see java.lang.Thread#run()
 	 */
+	@Override
 	public void run() {
 		try {
 			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());

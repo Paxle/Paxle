@@ -75,6 +75,7 @@ public class TempFileManagerTest extends TestCase {
 
 	/**
 	 * TODO: this does now work jet
+	 * XXX: should this work?
 	 */
 	public void _testReleaseNullTempFile() throws IOException {
 		File temp = null;		

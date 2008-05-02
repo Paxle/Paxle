@@ -38,6 +38,7 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 		this.setPriority(Thread.MIN_PRIORITY);
 	}
 
+	@Override
 	public void run() { 
 		/** If set to false the thread terminates */
 		boolean go_on = true;
