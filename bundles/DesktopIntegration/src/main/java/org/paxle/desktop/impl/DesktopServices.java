@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import javax.swing.JFrame;
@@ -31,6 +32,7 @@ import org.paxle.core.IMWComponent;
 import org.paxle.core.prefs.Properties;
 import org.paxle.core.queue.CommandProfile;
 import org.paxle.core.queue.ICommandProfile;
+import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.desktop.IDesktopServices;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.impl.dialogues.SettingsFrame;
@@ -43,8 +45,10 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 	private static final String CRAWLER_QUERY = String.format("(%s=org.paxle.crawler)", IMWComponent.COMPONENT_ID);
 	
 	private static final String ICOMMANDDB = "org.paxle.data.db.ICommandDB";
-	private static final String IPROFILEM = "org.paxle.core.queue.ICommandProfileManager";
 	private static final String IROBOTSM = "org.paxle.filter.robots.IRobotsTxtManager";
+	
+	private static final int DEFAULT_PROFILE_MAX_DEPTH = 3;
+	private static final String DEFAULT_NAME = "desktop-crawl";
 	
 	private static final String PREF_PID = IDesktopServices.class.getName();
 	private static final String PREF_OPEN_BROWSER_STARTUP = "openBrowser";
@@ -52,13 +56,11 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 	
 	private static final int PROP_BROWSER_OPENABLE = 1;
 	
-	private static final String PROP_PROFILE_ID = "profileId";
-	
 	private final Log logger = LogFactory.getLog(DesktopServices.class);
 	private final ServiceManager manager;
 	private final IDIBackend backend;
+	private final HashMap<Integer,Integer> profileDepthMap = new HashMap<Integer,Integer>();
 	
-	private ICommandProfile profile = null;
 	private SettingsFrame settings = null;
 	private ServiceRegistration settingsRef = null;
 	private SystrayMenu trayMenu = null;
@@ -84,20 +86,6 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 				final int bp = Integer.parseInt((String)backendProps);
 				browserOpenable = (bp & PROP_BROWSER_OPENABLE) != 0;
 			}
-			
-			// get the crawl-profile saved for the DI-bundle
-			final Object profileIdProp = properties.get(PROP_PROFILE_ID);
-			if (profileIdProp != null) {
-				final Integer profileId = Integer.valueOf((String)profileIdProp);
-				final Object profileManager = manager.getService(IPROFILEM);
-				if (profileManager != null) try {
-					final Method getById = profileManager.getClass().getMethod("getProfileByID", int.class);
-					profile = (ICommandProfile)getById.invoke(profileManager, profileId);
-				} catch (Exception e) {
-					logger.warn(String.format("Unable to retrieve current desktop-crawl profile (#%d) from profile manager: [%s]: %s",
-							profileId, e.getClass().getName(), e.getMessage()));
-				}
-			}
 		}
 		
 		// check whether starting the browser on startup is set in the config and open it if necessary
@@ -113,7 +101,7 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 			if (browserOpenable) {
 				final Object openBrowserStartup = props.get(PREF_OPEN_BROWSER_STARTUP);
 				if (openBrowserStartup != null && ((Boolean)openBrowserStartup).booleanValue())
-					browseUrl(getPaxleUrl("/search"));
+					browseUrl(getPaxleUrl("/search"), false);
 			}
 		} catch (IOException e) { e.printStackTrace(); }
 	}
@@ -126,12 +114,6 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		int bp = 0;
 		bp |= (browserOpenable) ? PROP_BROWSER_OPENABLE : 0;
 		props.put(backend.getClass().getName(), Integer.toString(bp));
-		
-		if (profile == null) {
-			props.remove(PROP_PROFILE_ID);
-		} else {
-			props.put(PROP_PROFILE_ID, Integer.toString(profile.getOID()));
-		}
 		
 		closeSettingsDialog();
 		setTrayMenuVisible(false);
@@ -261,14 +243,12 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		}
 	}
 	
-	private static ICommandProfile createDefaultProfile() {
-		final ICommandProfile profile = new CommandProfile();
-		profile.setMaxDepth(3);
-		profile.setName("desktop-crawl");
-		return profile;
+	public void startDefaultCrawl(final URI uri) throws ServiceException {
+		startCrawl(uri, DEFAULT_PROFILE_MAX_DEPTH);
 	}
 	
-	public void startDefaultCrawl(final URI uri) throws ServiceException {
+	public void startCrawl(final URI uri, final int depth) throws ServiceException {
+		// get the command-db object and it's method to enqueue the URI
 		final Object commandDB;
 		final Method enqueueCommand;
 		try {
@@ -280,6 +260,7 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 			throw new ServiceException("Command-DB", "enqueue(URI, int, int)");
 		}
 		
+		// check uri against robots.txt
 		final Object robotsManager = manager.getService(IROBOTSM);
 		if (robotsManager != null) try {
 			final Method isDisallowed = robotsManager.getClass().getMethod("isDisallowed", URI.class);
@@ -296,30 +277,28 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 					uri.getHost(), e.getClass().getName(), e.getMessage()));
 		}
 		
+		// get or create the crawl profile to use for URI
+		ICommandProfile cp = null;
+		final ICommandProfileManager profileDB = manager.getService(ICommandProfileManager.class);
+		if (profileDB == null)
+			throw new ServiceException("Profile manager", ICommandProfileManager.class.getName());
+		
+		final Integer depthInt = Integer.valueOf(depth);
+		final Integer id = profileDepthMap.get(depthInt);
+		if (id != null)
+			cp = profileDB.getProfileByID(id.intValue());
+		if (cp == null) {
+			// create a new profile
+			cp = new CommandProfile();
+			cp.setMaxDepth(depth);
+			cp.setName(DEFAULT_NAME);
+			profileDB.storeProfile(cp);
+		}
+		if (id == null || cp.getOID() != id.intValue())
+			profileDepthMap.put(depthInt, Integer.valueOf(cp.getOID()));
+		
 		try {
-			int depth = 0;
-			if (profile == null) try {
-				final Object profileDB;
-				final Method storeProfile;
-				
-				profileDB = manager.getService(IPROFILEM);
-				if (profileDB == null)
-					throw new Exception("Profile manager not registered");
-				storeProfile = profileDB.getClass().getMethod("storeProfile", ICommandProfile.class);
-				
-				// create a new profile
-				profile = createDefaultProfile();
-				
-				// store it into the profile-db
-				storeProfile.invoke(profileDB, profile);
-				depth = profile.getMaxDepth();
-			} catch (Exception e) {
-				logger.warn(String.format("Unable to access profile manager: [%s] %s - starting crawl of URL '%s' with depth 0",
-						e.getClass().getName(), e.getMessage(), uri));
-				depth = 0;
-			}
-			
-			final Object result = enqueueCommand.invoke(commandDB, uri, Integer.valueOf(profile.getOID()), Integer.valueOf(depth));
+			final Object result = enqueueCommand.invoke(commandDB, uri, Integer.valueOf(cp.getOID()), Integer.valueOf(0));
 			if (((Boolean)result).booleanValue()) {
 				logger.info("Initiated crawl of URL '" + uri + "'");
 			} else {
@@ -343,12 +322,16 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 	}
 	
 	public boolean browseUrl(final String url) {
+		return browseUrl(url, true);
+	}
+	
+	public boolean browseUrl(final String url, final boolean displayErrMsg) {
 		if (url == null) {
 			JOptionPane.showMessageDialog(null, "HTTP service not accessible", "Error", JOptionPane.ERROR_MESSAGE);
 		} else if (browserOpenable) try {
 			if ((browserOpenable = backend.getDesktop().browse(url))) {
 				return true;
-			} else {
+			} else if (displayErrMsg) {
 				Utilities.showURLErrorMessage(
 						"Couldn't launch system browser due to an error in Paxle's system integration\n" +
 						"bundle. Please review the log for details. The requested URL was:", url);
