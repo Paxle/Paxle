@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.TreeSet;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -21,6 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -41,6 +44,7 @@ import org.paxle.data.db.ICommandDB;
 
 public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, ICommandProfileManager, EventHandler {
 	private static final int MAX_IDLE_SLEEP = 60000;
+	private static final boolean USE_DOMAIN_BALANCING = false;
 
 	/**
 	 * The cachemanager to use
@@ -94,6 +98,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 */
 	private Configuration config; 
 
+	private TreeSet<DomainInfo> domainBalancing = new TreeSet<DomainInfo>();
+	
 	private boolean closed = false;
 	
 	public CommandDB(URL configURL, List<URL> mappings, ICommandTracker commandTracker) {
@@ -118,14 +124,14 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 
 				// load the various mapping files
 				for (URL mapping : mappings) {
-					if (logger.isDebugEnabled()) this.logger.debug(String.format("Loading mapping file from URL '%s'.",mapping));
-					config.addURL(mapping);
+					if (this.logger.isDebugEnabled()) this.logger.debug(String.format("Loading mapping file from URL '%s'.",mapping));
+					this.config.addURL(mapping);
 				}
 
-				String[] sql = config.generateSchemaCreationScript( new org.hibernate.dialect.MySQLDialect());
+				// String[] sql = this.config.generateSchemaCreationScript( new org.hibernate.dialect.MySQLDialect());
 
 				// create the session factory
-				sessionFactory = config.buildSessionFactory();
+				this.sessionFactory = this.config.buildSessionFactory();
 			} catch (Throwable ex) {
 				// Make sure you log the exception, as it might be swallowed
 				this.logger.error("Initial SessionFactory creation failed.",ex);
@@ -177,10 +183,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				p.execute();
 				p.close();
 			}
-		} catch (SQLException e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 		} finally {
-			try { c.close(); } catch (SQLException e) {/* ignore this */}
+			if (c!=null) try { c.close(); } catch (SQLException e) {/* ignore this */}
 		}
 	}
 
@@ -263,9 +269,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		
 		boolean known = false;
 
-		Session session = sessionFactory.getCurrentSession();
+		Session session = null;
 		Transaction transaction = null;
 		try {
+			session = this.sessionFactory.openSession();
 			transaction = session.beginTransaction();
 
 			Query query = session.createQuery("SELECT count(location) FROM ICommand as cmd WHERE location = ?").setParameter(0, location);
@@ -280,7 +287,12 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 					e.getClass().getName(),
 					location.toASCIIString()
 			),e);
-		}	
+		} finally {
+			// closing session
+			if (session != null) try { session.close(); } catch (Exception e) { 
+				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
+			}			
+		}
 
 		return known;
 	}
@@ -304,49 +316,79 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 //	}	
 //	}
 
-	/**
-	 * TODO: we can speedup this by using cursors or iterators here ... 
-	 */
 	@SuppressWarnings("unchecked")
-	private List<ICommand> fetchNextCommands(int offset, int limit)  {		
-		List<ICommand> result = null;
-		Session session = sessionFactory.getCurrentSession();
+	private List<ICommand> fetchNextCommands(int limit)  {		
+		List<ICommand> result = new ArrayList<ICommand>();
+				
+		Session session = null;
 		Transaction transaction = null;
 		try {
+			session = this.sessionFactory.openSession();
 			transaction = session.beginTransaction();
+			
+			Query query = session.getNamedQuery("fromCrawlerQueue");			
+			ScrollableResults sr = query.scroll(ScrollMode.FORWARD_ONLY);
+			
+			// loop through the available commands
+			while(sr.next() && result.size() < limit) {
+				ICommand cmd = (ICommand) sr.get()[0];
 
-			Query query = session.getNamedQuery("fromCrawlerQueue");
-//			session.createQuery("FROM ICommand as cmd LEFT JOIN cmd.IndexerDocuments as indexerDoc WHERE AND (indexerDoc is null)");
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-			result = (List<ICommand>) query.list();
+				/* 
+				 * TODO: implementation of domain-balancing not finished yet
+				 */
+				if (USE_DOMAIN_BALANCING) {
+					// restrict max PPM/domain to 10PPM?
+					long maxdelay = System.currentTimeMillis() - 6000;
 
-			/* This is a q&d hack to avoid double loading of enqueued commands. */
-			for (ICommand cmd : result) {
-				// TODO: we need a better mechanism to decide if a command was enqueued
+					while (!this.domainBalancing.isEmpty() && this.domainBalancing.first().lastAccess < maxdelay) {
+						this.domainBalancing.remove(this.domainBalancing.first());
+					}
+
+					DomainInfo di = new DomainInfo(cmd.getLocation().getHost());				
+					if (this.domainBalancing.contains(di)) {
+						// skipping this domain for now
+						continue;
+					}
+					this.domainBalancing.add(di);
+				}
+				
+				/* mark command as enqueued
+				 * TODO: we need a better mechanism to decide if a command was enqueued
+				 */
 				cmd.setResultText("Enqueued");
 				session.update(cmd);
 				
 				// add command-location into cache
 				Element element = new Element(cmd.getLocation(), null);
 				this.urlExistsCache.put(element);
+				
+				result.add(cmd);
 			}
+			sr.close();
 
 			transaction.commit();
-		} catch (HibernateException e) {
+		} catch (Exception e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-			this.logger.error("Error while querying queue size",e);
-		}	
+			this.logger.error("Error while fetching commands",e);
+		} finally {
+			// closing session
+			if (session != null) try { session.close(); } catch (Exception e) { 
+				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
+			}
+		}
 
 		return result;
 	}
 
 	private synchronized void storeCommand(ICommand cmd) {
-		Session session = sessionFactory.getCurrentSession();
+		Session session = null;
 		Transaction transaction = null;
 		try {
+			// open session and transaction
+			session = this.sessionFactory.openSession();
 			transaction = session.beginTransaction();
 
+			// store command
 			session.saveOrUpdate(cmd);
 			
 			// add command-location into cache
@@ -360,6 +402,11 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
 			this.logger.error(String.format("Error while writing command with location '%s' to db.", cmd.getLocation()),e);
+		} finally {
+			// closing session
+			if (session != null) try { session.close(); } catch (Exception e) { 
+				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
+			}
 		}
 	}
 	
@@ -383,11 +430,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 */
 	int storeUnknownLocations(int profileID, int depth, ArrayList<URI> locations) {
 		if (locations == null || locations.size() == 0) return 0;
-		Session session = sessionFactory.getCurrentSession();
+		
+		Session session = null;
 		Transaction transaction = null;
 		try {
-			transaction = session.beginTransaction();
-
 			// check the cache for URL existance
 			Iterator<URI> locationIterator = locations.iterator();
 			while (locationIterator.hasNext()) {
@@ -397,6 +443,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			}
 			if (locations.size() == 0) return 0;
 
+			// open session and transaction
+			session = this.sessionFactory.openSession();
+			transaction = session.beginTransaction();			
+			
 			// check which URLs are already known
 			HashSet<String> knownLocations = new HashSet<String>();
 
@@ -449,7 +499,13 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 					e.getClass().getName(),
 					Integer.valueOf(locations.size())
 			),e);
+		} finally {
+			// closing session
+			if (session != null) try { session.close(); } catch (Exception e) { 
+				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
+			}			
 		}
+		
 		return 0;
 	}
 
@@ -470,11 +526,15 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	
 	private long size(String type) {
 		Long count = Long.valueOf(-1l);
-		Session session = sessionFactory.getCurrentSession();
+		
+		Session session = null;
 		Transaction transaction = null;
 		try {
+			// open session and transaction
+			session = this.sessionFactory.openSession();
 			transaction = session.beginTransaction();
 
+			// query size
 			String sqlString = "select count(*) from ICommand as cmd";
 			if (type != null && type.equals("enqueued")) {
 				sqlString += " WHERE (cmd.result = 'Passed') AND (cmd.resultText is null) AND (cmd.crawlerDocument is null)";
@@ -485,8 +545,15 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			transaction.commit();
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-			this.logger.error("Error while querying queue size",e);
-		}		
+			this.logger.error(String.format("Unexpected '%s' while getting size of command-db.",
+					e.getClass().getName()
+			),e);
+		} finally {
+			// closing session
+			if (session != null) try { session.close(); } catch (Exception e) { 
+				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
+			}			
+		}
 
 		return count.longValue();
 	}
@@ -497,26 +564,41 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 * Resets the command queue
 	 */
 	public void reset() {
-		Session session = sessionFactory.getCurrentSession();
+		Session session = null;
 		Transaction transaction = null;
 		try {
+			// open session and transaction
+			session = this.sessionFactory.openSession();
 			transaction = session.beginTransaction();
 
+			// delete all commands
 			session.createQuery("DELETE FROM ICommand").executeUpdate();
 
 			transaction.commit();
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
 			this.logger.error("Error while reseting queue.",e);
+		} finally {
+			// closing session
+			if (session != null) try { session.close(); } catch (Exception e) { 
+				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
+			}			
 		}
 	}
 	
+	/**
+	 * @see ICommandProfileManager#getProfileByID(int)
+	 */
 	public ICommandProfile getProfileByID(int profileID) {		
-		Session session = sessionFactory.getCurrentSession();
+		Session session = null;
 		Transaction transaction = null;
 		final Integer profileIDInt = Integer.valueOf(profileID);
 		try {
+			// open session and transaction
+			session = this.sessionFactory.openSession();
 			transaction = session.beginTransaction();
+			
+			// load profile
 			ICommandProfile profile = (ICommandProfile) session.load(ICommandProfile.class, profileIDInt);
 			transaction.commit();
 			return profile;
@@ -524,6 +606,11 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
 			this.logger.error(String.format("Error while writing profile with ID '%d' to db.", profileIDInt),e);
 			throw e;
+		} finally {
+			// closing session
+			if (session != null) try { session.close(); } catch (Exception e) { 
+				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
+			}			
 		}
 	}
 	
@@ -533,16 +620,25 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	public void storeProfile(ICommandProfile profile) {
 		if (profile == null) throw new NullPointerException("Profile was null");
 		
-		Session session = sessionFactory.getCurrentSession();
+		Session session = null;
 		Transaction transaction = null;
 		try {
+			// open session and transaction
+			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			session.saveOrUpdate(profile);
+			
+			// store profile
+			session.saveOrUpdate(profile);			
 			transaction.commit();		
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
 			this.logger.error(String.format("Error while writing profile '%s' to db.", profile.getName()),e);
 			throw e;
+		} finally {
+			// closing session
+			if (session != null) try { session.close(); } catch (Exception e) { 
+				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
+			}			
 		}
 	}
 
@@ -588,7 +684,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 
 				List<ICommand> commands = null;
 				while(!Thread.currentThread().isInterrupted()) {
-					commands = CommandDB.this.fetchNextCommands(0,10);
+					commands = CommandDB.this.fetchNextCommands(10);
 					if (commands != null && commands.size() > 0) {
 						for (ICommand command : commands) {
 							// notify the command-tracker about the creation of the command
@@ -658,5 +754,39 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				logger.info("CommandDB.Reader shutdown finished.");
 			}
 		}
+	}
+}
+
+class DomainInfo implements Comparable<DomainInfo> {
+	public String domainName;  
+	public long lastAccess;
+	
+	public DomainInfo(String domainName) {
+		this(domainName,System.currentTimeMillis());
+	}
+	
+	public DomainInfo(String domainName, long lastAccess) {
+		this.domainName = domainName;
+		this.lastAccess = lastAccess;
+	}
+	
+	@Override
+	public int hashCode() {
+		return domainName.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return this.domainName.equals(((DomainInfo)obj).domainName);
+	}
+
+	public int compareTo(DomainInfo obj) {
+		if (this.equals(obj)) return 0;
+		return (int) (this.lastAccess - obj.lastAccess);
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("[%d] %s", this.lastAccess, this.domainName);
 	}
 }
