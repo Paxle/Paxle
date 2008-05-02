@@ -43,7 +43,7 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 	private static final String CRAWLER_QUERY = String.format("(%s=org.paxle.crawler)", IMWComponent.COMPONENT_ID);
 	
 	private static final String ICOMMANDDB = "org.paxle.data.db.ICommandDB";
-	private static final String IPROFILEM = "org.paxle.core.queue.IComandProfileManager";
+	private static final String IPROFILEM = "org.paxle.core.queue.ICommandProfileManager";
 	private static final String IROBOTSM = "org.paxle.filter.robots.IRobotsTxtManager";
 	
 	private static final String PREF_PID = IDesktopServices.class.getName();
