@@ -2,18 +2,21 @@
 package org.paxle.core.norm.impl;
 
 import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -80,7 +83,9 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 	public URI normalizeReference(String reference, Charset charset) {
 		try {
 			// temporary "solution" until I've found a way to escape characters in different charsets than UTF-8
-			URI uri = new URI(reference);
+			URI uri;
+			// uri = new URI(reference);
+			uri = parseBaseUrlString(reference, charset);
 			uri = uri.normalize();		// resolve backpaths
 			return uri;
 		} catch (URISyntaxException e) {
@@ -129,7 +134,7 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 		int port = -1;
 		String path = "/";
 		String query = null;
-		String fragment = null;
+		// String fragment = null;
 		
 		// extract the protocol
 		int urlStart = 0;
@@ -201,7 +206,7 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 			if (qmark != -1) {
 				final int queryEnd = (hashmark == -1) ? url.length() : hashmark;
 				if (queryEnd > qmark + 1) {
-					final List<QueryEntry> queryList = new LinkedList<QueryEntry>();
+					final List<QueryEntry> queryList = new ArrayList<QueryEntry>();
 					int paramStart = qmark + 1;
 					do {
 						int paramEnd = url.indexOf('&', paramStart);
@@ -213,12 +218,10 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 								eq = paramEnd;
 							
 							try {
-								final String key = // urlDecode(url.substring(paramStart, eq).replace('+', ' '), charset);
-									/*URLDecoder.decode(*/url.substring(paramStart, eq)/*, "UTF-8")*/;
-								final String val = (eq < paramEnd) ?
-										// urlDecode(url.substring(eq + 1, paramEnd).replace('+', ' '), charset)
-										/*URLDecoder.decode(*/url.substring(eq + 1, paramEnd)/*, "UTF-8")*/
-										: null;
+								// urlDecode(url.substring(paramStart, eq).replace('+', ' '), charset);
+								final String key = URLDecoder.decode(url.substring(paramStart, eq), charset.name());
+								// urlDecode(url.substring(eq + 1, paramEnd).replace('+', ' '), charset)
+								final String val = (eq < paramEnd) ? URLDecoder.decode(url.substring(eq + 1, paramEnd), charset.name()) : null;
 								// System.out.println("query arg: " + key + " <-> " + val);
 								queryList.add(new QueryEntry(key, val));
 							} catch (Exception e) {
@@ -229,40 +232,61 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 					} while (paramStart < queryEnd);
 					if (sortQuery)
 						Collections.sort(queryList);
-					query = queryToString(queryList);
+					try {
+						final StringBuilder sb = new StringBuilder(queryEnd - qmark);
+						for (QueryEntry e : queryList) {
+							sb.append(URLEncoder.encode(e.key, "UTF-8"));
+							final String val = e.val;
+							if (val != null)
+								sb.append('=').append(URLEncoder.encode(val, "UTF-8"));
+							sb.append('&');
+						}
+						sb.deleteCharAt(sb.length() - 1);
+						query = sb.toString();
+					} catch (UnsupportedEncodingException e) { e.printStackTrace(); }
 				}
 			}
 			
 			// extract the fragment
 			if (hashmark != -1)
 				// XXX fragment = urlDecode(url.substring(hashmark + 1), charset);
-				fragment = url.substring(hashmark + 1);
+				// fragment = url.substring(hashmark + 1);
+				;
 		}
 		
 		// output
-		return new URI(
-				protocol,
-				(password == null) ? (username == null) ? null : username : username + ':' + password,
-				host,
-				port,
-				path,
-				query,
-				null);
+		try {
+			final StringBuilder sb = new StringBuilder();
+			sb.append(protocol).append("://");
+			if (username != null) {
+				sb.append(username);
+				if (password != null)
+					sb.append(':').append(password);
+				sb.append('@');
+			}
+			sb.append(host);
+			if (port != -1)
+				sb.append(':').append(port);
+			sb.append(path);
+			if (query != null)
+				sb.append('?').append(query);
+			
+			if (true) {
+				return new URI(sb.toString());
+			} else {
+				return new URI(
+						protocol,
+						(password == null) ? (username == null) ? null
+								: URLEncoder.encode(username, "UTF-8")
+								: URLEncoder.encode(username, "UTF-8") + ':' + URLEncoder.encode(password, "UTF-8"),
+						host,
+						port,
+						path,
+						query,
+						null);
+			}
+		} catch (UnsupportedEncodingException e) { e.printStackTrace(); return null; }
 	}
-	
-	private static String queryToString(final List<QueryEntry> query) {
-		final StringBuilder sb = new StringBuilder();
-		for (QueryEntry e : query) {
-			sb.append(e.key);
-			final String val = e.val;
-			if (val != null)
-				sb.append('=').append(val);
-			sb.append('&');
-		}
-		sb.deleteCharAt(sb.length() - 1);
-		return sb.toString();
-	}
-	
 	
 	public void filter(ICommand command, IFilterContext filterContext) {
 		final IParserDocument pdoc = command.getParserDocument();

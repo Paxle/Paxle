@@ -2,6 +2,7 @@
 package org.paxle.core.norm;
 
 import java.net.URI;
+import java.nio.charset.Charset;
 
 public interface IReferenceNormalizer {
 	
@@ -14,4 +15,5 @@ public interface IReferenceNormalizer {
 	 *         URL-decoding.
 	 */
 	public URI normalizeReference(String reference);
+	public URI normalizeReference(String reference, Charset charset);
 }

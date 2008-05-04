@@ -43,6 +43,11 @@ public class CrawlerView extends ALayoutServlet {
 		private final Object robotsManager;
 		
 		/**
+		 * @see org.paxle.core.norm.IReferenceNormalizer
+		 */
+		private final Object normalizer;
+		
+		/**
 		 * @see org.paxle.filter.robots.IRobotsTxtManager#isDisallowed(String)
 		 */
 		private Method isDisallowed = null;
@@ -61,6 +66,11 @@ public class CrawlerView extends ALayoutServlet {
 		 * @see org.paxle.core.queue.ICommandProfileManager#storeProfile(ICommandProfile)
 		 */
 		private Method storeProfile = null;
+		
+		/**
+		 * @see org.paxle.core.norm.IReferenceNormalizer#normalizeReference(String)
+		 */
+		private Method normalizeReference = null;
 		
 		/**
 		 * The crawling profile to use
@@ -87,6 +97,10 @@ public class CrawlerView extends ALayoutServlet {
 			robotsManager = manager.getService("org.paxle.filter.robots.IRobotsTxtManager");
 			if (robotsManager != null) isDisallowed = robotsManager.getClass().getMethod("isDisallowed", URI.class);
 			
+			normalizer = manager.getService("org.paxle.core.norm.IReferenceNormalizer");
+			if (normalizer == null) throw new Exception("ReferenceNormalizer not available");
+			normalizeReference = normalizer.getClass().getMethod("normalizeReference", String.class);
+			
 			this.crawlDepth = crawlDepth;
 			this.profileName = profileName;
 		}
@@ -97,7 +111,9 @@ public class CrawlerView extends ALayoutServlet {
 				putError(location, "URL '" + location + "' is not valid");
 				return;
 			}
-			final URI uri = new URI(url);
+			final URI uri;
+			// uri = new URI(location);
+			uri = (URI)normalizeReference.invoke(normalizer, location);
 			
 			// check if URL is blocked by robots-txt
 			if (robotsManager != null && isDisallowed != null) {
