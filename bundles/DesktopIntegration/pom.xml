@@ -42,7 +42,8 @@
 							org.paxle.core.io,
 							org.osgi.service.http;resolution:=optional,
 							org.paxle.core,
-							org.paxle.core.prefs
+							org.paxle.core.prefs,
+							org.paxle.core.norm
 						</Import-Package>
 						<Private-Package>
 							org.paxle.desktop.impl,

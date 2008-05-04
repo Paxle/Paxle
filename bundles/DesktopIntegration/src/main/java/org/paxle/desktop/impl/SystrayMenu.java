@@ -3,7 +3,6 @@ package org.paxle.desktop.impl;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -198,7 +197,7 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 					
 				case CRAWL:
 					if (data != null && data.length() > 0) try {
-						services.startDefaultCrawl(new URI(data));
+						services.startDefaultCrawl(data);
 					} catch (Exception ee) {
 						Utilities.showURLErrorMessage("Starting crawl failed: " + ee.getMessage(), data);
 						logger.error("Starting crawl of URL '" + data + "' failed: " + ee.getMessage(), ee);

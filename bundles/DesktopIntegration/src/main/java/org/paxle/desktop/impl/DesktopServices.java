@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -29,6 +30,7 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.metatype.MetaTypeService;
 
 import org.paxle.core.IMWComponent;
+import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.prefs.Properties;
 import org.paxle.core.queue.CommandProfile;
 import org.paxle.core.queue.ICommandProfile;
@@ -243,11 +245,11 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		}
 	}
 	
-	public void startDefaultCrawl(final URI uri) throws ServiceException {
-		startCrawl(uri, DEFAULT_PROFILE_MAX_DEPTH);
+	public void startDefaultCrawl(final String location) throws ServiceException {
+		startCrawl(location, DEFAULT_PROFILE_MAX_DEPTH);
 	}
 	
-	public void startCrawl(final URI uri, final int depth) throws ServiceException {
+	public void startCrawl(final String location, final int depth) throws ServiceException {
 		// get the command-db object and it's method to enqueue the URI
 		final Object commandDB;
 		final Method enqueueCommand;
@@ -259,6 +261,11 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		} catch (NoSuchMethodException e) {
 			throw new ServiceException("Command-DB", "enqueue(URI, int, int)");
 		}
+		
+		final IReferenceNormalizer refNormalizer = manager.getService(IReferenceNormalizer.class);
+		if (refNormalizer == null)
+			throw new ServiceException("Reference normalizer", IReferenceNormalizer.class.getName());
+		final URI uri = refNormalizer.normalizeReference(location, Charset.defaultCharset());
 		
 		// check uri against robots.txt
 		final Object robotsManager = manager.getService(IROBOTSM);
