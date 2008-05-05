@@ -38,6 +38,8 @@ public class PlainParser implements IPlainParser {
 		PRE_POST_FIX_MAP.put(Character.valueOf('"'), Character.valueOf('"'));
 		PRE_POST_FIX_MAP.put(Character.valueOf('\''), Character.valueOf('\''));
 	}
+	private static final String PRE_FIXES = "<([{\"'_";
+	private static final String POST_FIXES = ">)]}\"'_:.,;";
 	
 	private static final List<String> MIME_TYPES = Arrays.asList("text/plain");
 	
@@ -46,15 +48,14 @@ public class PlainParser implements IPlainParser {
 	}
 	
 	static String removePrePostFixes(final String ref) {
-		int l = 0, r = ref.length();
-		Character hi;
-		while (r - l > 1 &&
-				(hi = PRE_POST_FIX_MAP.get(Character.valueOf(ref.charAt(l)))) != null &&
-				ref.charAt(r - 1) == hi.charValue()) {
+		int l = 0, r = ref.length() - 1;
+		
+		while (l < r && PRE_FIXES.indexOf(ref.charAt(l)) > -1)
 			l++;
+		while (r > l && POST_FIXES.indexOf(ref.charAt(r)) > -1)
 			r--;
-		}
-		return ref.substring(l, r);
+		
+		return ref.substring(l, r + 1);
 	}
 	
 	static boolean parseTitle(final IParserDocument pdoc, final BufferedReader br, final IReferenceNormalizer refNorm) throws IOException {

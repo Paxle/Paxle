@@ -1,4 +1,5 @@
 <http://www.example.org/bla?blubb=#tmp>
+bli bla <http://lists.w3.org/Archives/Public/ietf-http-wg/> blo
 
 "CrawlerWorker" daemon prio=10 tid=0x081bb000 nid=0x286b in Object.wait() [0x97f1d000..0x97f1e030]
    java.lang.Thread.State: WAITING (on object monitor)
