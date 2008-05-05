@@ -9,11 +9,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.freedesktop.Tracker;
+import org.freedesktop.DBus.Error.NoReply;
 import org.freedesktop.Tracker.Metadata;
 import org.freedesktop.Tracker.Search;
 import org.freedesktop.dbus.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
+import org.freedesktop.dbus.exceptions.DBusExecutionException;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IndexerDocument;
@@ -72,6 +76,8 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 	 */
 	private DBusConnection conn = null;
 	
+	private Log logger = LogFactory.getLog(this.getClass());
+	
 	private Tracker tracker = null;
 	
 	private Search search = null;
@@ -83,15 +89,31 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 	private int searchID = 0;
 	
 	public TrackerSearchProvider() throws DBusException {
-		// connect to dbus
-		conn = DBusConnection.getConnection(DBusConnection.SESSION); 
-		
-		this.tracker = conn.getRemoteObject(TRACKER_BUSNAME, TRACKER_OBJECTPATH, Tracker.class);
-		// TODO: test if we are supporting the given tracker version
-		System.out.println(tracker.GetVersion());
-		
-		this.search = conn.getRemoteObject(TRACKER_BUSNAME, TRACKER_OBJECTPATH, Tracker.Search.class);	
-		this.metadata = conn.getRemoteObject(TRACKER_BUSNAME, TRACKER_OBJECTPATH, Tracker.Metadata.class);
+		try {
+			// connect to dbus
+			this.conn = DBusConnection.getConnection(DBusConnection.SESSION); 
+
+			this.tracker = conn.getRemoteObject(TRACKER_BUSNAME, TRACKER_OBJECTPATH, Tracker.class);
+			// TODO: test if we are supporting the given tracker version
+			System.out.println(tracker.GetVersion());
+
+			this.search = conn.getRemoteObject(TRACKER_BUSNAME, TRACKER_OBJECTPATH, Tracker.Search.class);	
+			this.metadata = conn.getRemoteObject(TRACKER_BUSNAME, TRACKER_OBJECTPATH, Tracker.Metadata.class);
+		} catch (DBusExecutionException e) {
+			if (e instanceof NoReply) {
+				this.logger.error(String.format("'%s' did not reply within specified time.", TRACKER_BUSNAME));
+			} else {
+				this.logger.warn(String.format(
+						"Unexpected '%s' while trying to connect to '%s'.",
+						e.getClass().getName(),
+						TRACKER_BUSNAME
+				),e);
+			}
+			
+			// disconnecting from dbus
+			if (this.conn != null) this.conn.disconnect();			
+			throw e;
+		}
 	}
 	
 	public void terminate() {

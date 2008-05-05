@@ -8,12 +8,14 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.freedesktop.NetworkManager;
+import org.freedesktop.DBus.Error.NoReply;
 import org.freedesktop.NetworkManager.DeviceSignal;
 import org.freedesktop.dbus.DBusConnection;
 import org.freedesktop.dbus.DBusSigHandler;
 import org.freedesktop.dbus.DBusSignal;
 import org.freedesktop.dbus.Path;
 import org.freedesktop.dbus.exceptions.DBusException;
+import org.freedesktop.dbus.exceptions.DBusExecutionException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
@@ -63,26 +65,42 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 	}));
 	
 	public NetworkManagerMonitor(BundleContext context) throws DBusException, InvalidSyntaxException {
-		// connecting to dbus
-		this.logger.info("Connecting to dbus ...");
-		this.conn = DBusConnection.getConnection(DBusConnection.SYSTEM);
-		
-		// registering an OSGi service tracker
-		this.context = context;
-		Filter filter = context.createFilter(String.format(
-				"(&(%s=%s)(component.ID=org.paxle.crawler))",
-				Constants.OBJECTCLASS, 
-				IMWComponent.class.getName())
-		);
-		this.tracker = new ServiceTracker(this.context,filter,this);
-		this.tracker.open();
-		
-		// getting the network-manager via dbus
-		NetworkManager nm = (NetworkManager) conn.getRemoteObject("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager", NetworkManager.class);
-		List<Path> deviceList = nm.getDevices();
-		if (deviceList != null) {
-			this.devices.addAll(deviceList);
+		try {
+			// connecting to dbus
+			this.logger.info("Connecting to dbus ...");
+			this.conn = DBusConnection.getConnection(DBusConnection.SYSTEM);
+
+			// registering an OSGi service tracker
+			this.context = context;
+			Filter filter = context.createFilter(String.format(
+					"(&(%s=%s)(component.ID=org.paxle.crawler))",
+					Constants.OBJECTCLASS, 
+					IMWComponent.class.getName())
+			);
+			this.tracker = new ServiceTracker(this.context,filter,this);
+			this.tracker.open();
+
+			// getting the network-manager via dbus
+			NetworkManager nm = (NetworkManager) conn.getRemoteObject("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager", NetworkManager.class);
+			List<Path> deviceList = nm.getDevices();
+			if (deviceList != null) {
+				this.devices.addAll(deviceList);
+			}
+		} catch (DBusExecutionException e) {
+			if (e instanceof NoReply) {
+				this.logger.error("'org.freedesktop.NetworkManager' did not reply within specified time.");
+			} else {
+				this.logger.warn(String.format(
+						"Unexpected '%s' while trying to connect to 'org.freedesktop.NetworkManager'.",
+						e.getClass().getName()
+				),e);
+			}
+
+			// disconnecting from dbus
+			this.terminate();		
+			throw e;
 		}
+
 	}
 	
 	/**
@@ -90,10 +108,10 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 	 */
 	public void terminate() {
 		// close tracker
-		this.tracker.close();
+		if (this.tracker != null) this.tracker.close();
 		
 		// disconnecting from dbus
-		this.conn.disconnect();
+		if (this.conn != null) this.conn.disconnect();
 	}
 	
 	private void registerSignalListener(IMWComponent crawler) {

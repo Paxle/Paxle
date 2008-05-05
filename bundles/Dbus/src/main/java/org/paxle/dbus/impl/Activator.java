@@ -4,6 +4,8 @@ package org.paxle.dbus.impl;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.dbus.IDbusService;
@@ -30,27 +32,38 @@ public class Activator implements BundleActivator {
 	public ArrayList<IDbusService> services = new ArrayList<IDbusService>();
 	
 	/**
+	 * For logging
+	 */
+	private Log logger = null;
+	
+	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext context) throws Exception { 
 		bc = context;
+		this.logger = LogFactory.getLog(this.getClass());
 		
 		/* ==========================================================
 		 * Register Service Listeners
 		 * ========================================================== */		
-		// registering a service listener to notice if a new sub-crawler was (un)deployed
-		NetworkManagerMonitor nmm = new NetworkManagerMonitor(context);
-		this.services.add(nmm);
+		try {
+			NetworkManagerMonitor nmm = new NetworkManagerMonitor(context);
+			this.services.add(nmm);
+		} catch (Exception e) {
+			this.logger.warn(String.format("Unable to start NetworkManagerMonitor: %s", e.getMessage()));
+		}
 		
 		/* ==========================================================
 		 * Register Services
-		 * ========================================================== */	
-		/*
-		TrackerSearchProvider tsp = new TrackerSearchProvider();
-		services.add(tsp);
-		bc.registerService(ISearchProvider.class.getName(), tsp, new Hashtable<String,String>());
-		*/
+		 * ========================================================== */
+		try {
+			TrackerSearchProvider tsp = new TrackerSearchProvider();
+			services.add(tsp);
+			bc.registerService(ISearchProvider.class.getName(), tsp, new Hashtable<String,String>());
+		} catch (Exception e) {
+			this.logger.warn(String.format("Unable to start TrackerSearchProvider: %s", e.getMessage()));
+		}
 	}
 
 	/**
