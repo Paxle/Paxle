@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 
 import junit.framework.TestCase;
 
@@ -38,6 +39,9 @@ public abstract class AParserTest extends TestCase {
 		}, new IReferenceNormalizer() {
 			public URI normalizeReference(String reference) {
 				return URI.create(reference);
+			}
+			public URI normalizeReference(String reference, Charset charset) {
+				return normalizeReference(reference);
 			}
 		});
 		ParserContext.setCurrentContext(this.parserContext);		

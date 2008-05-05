@@ -3,6 +3,7 @@ package org.paxle.parser;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,14 @@ import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 
 public abstract class ASubParser implements ISubParser {
+	
+	public IParserDocument parse(URI location, String charset, File content)
+			throws ParserException, UnsupportedEncodingException, IOException {
+		final FileInputStream fis = new FileInputStream(content);
+		try {
+			return parse(location, charset, fis);
+		} finally { fis.close(); }
+	}
 	
 	public IParserDocument parse(URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException {
