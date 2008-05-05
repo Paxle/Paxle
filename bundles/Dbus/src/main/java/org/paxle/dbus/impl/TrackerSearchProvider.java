@@ -19,7 +19,7 @@ import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IndexerDocument;
 import org.paxle.dbus.IDbusService;
 import org.paxle.se.index.IFieldManager;
-import org.paxle.se.query.ITokenFactory;
+import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
 
 public class TrackerSearchProvider implements ISearchProvider, IDbusService {
@@ -98,14 +98,12 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 		this.conn.disconnect();
 	}
 	
-	public ITokenFactory getTokenFactory() {
-		return new TrackerTokenFactor();
-	}
-
 	@SuppressWarnings("unchecked")
-	public void search(String request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
+	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
 		long start = System.currentTimeMillis();
 		try {
+			String request = TrackerQueryFactory.transformToken(token, new TrackerQueryFactory());
+			
 			List<String> result = this.search.Text(searchID++, Tracker.SERVICE_FILES, request, 0, maxCount);
 			if (result != null) {
 				for (String uri : result) {

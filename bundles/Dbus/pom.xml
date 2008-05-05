@@ -1,0 +1,116 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>Dbus</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - Dbus</name>
+	<url>http://wiki.paxle.net/dev/bundles/Dbus</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+
+	<repositories>
+		<repository>
+			<id>paxle-repository</id>
+			<url>http://repository2.paxle.net/</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.2.1</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Export-Package>
+							org.paxle.dbus
+						</Export-Package>
+						<Import-Package>
+							org.osgi.framework, 
+							org.apache.commons.logging, 							
+							org.paxle.core, 
+							org.paxle.core.doc, 
+							org.paxle.se.search, 
+							org.paxle.se.query, 
+							org.paxle.se.index, 
+							org.paxle.se.query.tokens
+						</Import-Package>
+						<DynamicImport-Package>
+						</DynamicImport-Package>
+						<Private-Package>
+							org.paxle.dbus.impl,
+							org.freedesktop;-split-package:=first,
+							org.gnome,
+							com.sun.security.auth.module
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.dbus.impl.Activator
+						</Bundle-Activator>
+
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							dbus;scope=compile|runtime,
+							debug-enable;scope=compile|runtime,
+							unix;scope=compile|runtime,
+							hexdump;scope=compile|runtime,
+						</Embed-Dependency>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
+		</dependency>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>SearchEngine</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+		</dependency>	
+
+		<dependency>
+			<groupId>org.freedesktop.dbus</groupId>
+			<artifactId>dbus</artifactId>
+			<version>2.3.1</version>
+		</dependency>	
+		<dependency>
+			<groupId>cx.ath.matthew</groupId>
+			<artifactId>debug-enable</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>cx.ath.matthew</groupId>
+			<artifactId>unix</artifactId>
+			<version>0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>cx.ath.matthew.utils</groupId>
+			<artifactId>hexdump</artifactId>
+			<version>0.1</version>
+		</dependency>					
+	</dependencies>
+</project>
