@@ -1,8 +1,6 @@
 
 package org.paxle.parser.tar.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -13,6 +11,7 @@ import java.util.List;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.io.IOTools;
+import org.paxle.parser.ASubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.iotools.SubParserDocOutputStream;
@@ -21,7 +20,7 @@ import org.paxle.parser.tar.ITarParser;
 import com.ice.tar.TarEntry;
 import com.ice.tar.TarInputStream;
 
-public class TarParser implements ITarParser {
+public class TarParser extends ASubParser implements ITarParser {
 	
 	private static final String[] MIMETYPES = {
 		"application/x-tar",
@@ -38,14 +37,7 @@ public class TarParser implements ITarParser {
 		return Arrays.asList(MIMETYPES);
 	}
 	
-	public IParserDocument parse(URI location, String charset, File content)
-			throws ParserException, UnsupportedEncodingException, IOException {
-		final FileInputStream fis = new FileInputStream(content);
-		try {
-			return parse(location, charset, fis);
-		} finally { fis.close(); }
-	}
-	
+	@Override
 	public IParserDocument parse(URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		final TarInputStream tis = new TarInputStream(is);
