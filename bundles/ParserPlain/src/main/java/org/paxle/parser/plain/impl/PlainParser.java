@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -27,7 +28,16 @@ public class PlainParser implements IPlainParser {
 	private static final int MAX_HEADLINE_LENTGH = 256;
 	
 	// From RFC 2396, Appendix B, changed to ensure a scheme- and host-part
-	private static final Pattern URI_PATTERN = Pattern.compile("^([A-Za-z\\.-]+)://([^/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?");
+	static final Pattern URI_PATTERN = Pattern.compile("([A-Za-z\\.-]+)://([^/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?");
+	private static final HashMap<Character,Character> PRE_POST_FIX_MAP = new HashMap<Character,Character>();
+	static {
+		PRE_POST_FIX_MAP.put(Character.valueOf('<'), Character.valueOf('>'));
+		PRE_POST_FIX_MAP.put(Character.valueOf('('), Character.valueOf('>'));
+		PRE_POST_FIX_MAP.put(Character.valueOf('['), Character.valueOf(']'));
+		PRE_POST_FIX_MAP.put(Character.valueOf('{'), Character.valueOf('}'));
+		PRE_POST_FIX_MAP.put(Character.valueOf('"'), Character.valueOf('"'));
+		PRE_POST_FIX_MAP.put(Character.valueOf('\''), Character.valueOf('\''));
+	}
 	
 	private static final List<String> MIME_TYPES = Arrays.asList("text/plain");
 	
@@ -35,34 +45,54 @@ public class PlainParser implements IPlainParser {
 		return MIME_TYPES;
 	}
 	
+	static String removePrePostFixes(final String ref) {
+		int l = 0, r = ref.length();
+		Character hi;
+		while (r - l > 1 &&
+				(hi = PRE_POST_FIX_MAP.get(Character.valueOf(ref.charAt(l)))) != null &&
+				ref.charAt(r - 1) == hi.charValue()) {
+			l++;
+			r--;
+		}
+		return ref.substring(l, r);
+	}
+	
 	static boolean parseTitle(final IParserDocument pdoc, final BufferedReader br, final IReferenceNormalizer refNorm) throws IOException {
 		while (true) {
-			String headline = br.readLine();
+			final String headline = br.readLine();
 			if (headline == null)
 				return false;
 			
-			headline = headline.trim();
-			if (headline.length() != 0) {
-				final Matcher m = URI_PATTERN.matcher(headline);
-				if (m.matches()) {
-					final URI uri = refNorm.normalizeReference(headline);
-					if (uri != null)
-						pdoc.addReference(uri, headline);
+			final String l = extractRefs(headline.trim(), refNorm, pdoc);
+			if (l.length() > 0) {
+				if (l.length() > MAX_HEADLINE_LENTGH) {
+					int ws = l.lastIndexOf(' ', MAX_HEADLINE_LENTGH);
+					if (ws == -1)
+						ws = MAX_HEADLINE_LENTGH;
+					pdoc.setTitle(l.substring(0, ws));
+					pdoc.addText(l.substring(ws));
 				} else {
-					if (headline.length() > MAX_HEADLINE_LENTGH) {
-						int ws = headline.lastIndexOf(' ', MAX_HEADLINE_LENTGH);
-						if (ws == -1)
-							ws = MAX_HEADLINE_LENTGH;
-						pdoc.setTitle(headline.substring(0, ws));
-						pdoc.addText(headline.substring(ws));
-						pdoc.addText(" ");
-					} else {
-						pdoc.setTitle(headline);
-					}
-					return true;
+					pdoc.setTitle(l);
 				}
+				return true;
 			}
 		}
+	}
+	
+	static String extractRefs(final String line, final IReferenceNormalizer refNorm, final IParserDocument pdoc) {
+		final StringBuilder sb = new StringBuilder();
+		final StringTokenizer st = new StringTokenizer(line, " \t\n\f\r");
+		while (st.hasMoreElements()) {
+			final String token = st.nextToken();
+			final Matcher m = URI_PATTERN.matcher(token);
+			URI uri;
+			if (m.find() && (uri = refNorm.normalizeReference(removePrePostFixes(token))) != null) {
+				pdoc.addReference(uri, token);
+			} else {
+				sb.append(token).append(' ');
+			}
+		}
+		return sb.toString();
 	}
 	
 	static void parseBody(final IParserDocument pdoc, final BufferedReader br, final IReferenceNormalizer refNorm) throws IOException {
@@ -72,19 +102,9 @@ public class PlainParser implements IPlainParser {
 			if (line.length() == 0)
 				continue;
 			
-			final StringTokenizer st = new StringTokenizer(line, " \t\n\\x0B\f\r");
-			while (st.hasMoreTokens()) {
-				final String token = st.nextToken();
-				final Matcher m = URI_PATTERN.matcher(token);
-				if (m.matches()) {
-					final URI uri = refNorm.normalizeReference(token);
-					if (uri != null)
-						pdoc.addReference(uri, token);
-				} else {
-					pdoc.addText(token);
-					pdoc.addText(" ");
-				}
-			}
+			final String l = extractRefs(line, refNorm, pdoc);
+			if (l.length() > 0)
+				pdoc.addText(l);
 		}
 	}
 	
