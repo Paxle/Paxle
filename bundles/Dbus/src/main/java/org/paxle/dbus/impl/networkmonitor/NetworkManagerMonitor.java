@@ -1,4 +1,4 @@
-package org.paxle.dbus.impl;
+package org.paxle.dbus.impl.networkmonitor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,15 +14,29 @@ import org.freedesktop.dbus.DBusSigHandler;
 import org.freedesktop.dbus.DBusSignal;
 import org.freedesktop.dbus.Path;
 import org.freedesktop.dbus.exceptions.DBusException;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.paxle.core.IMWComponent;
 import org.paxle.dbus.IDbusService;
 
 /**
  * A class to receive signals from the {@link NetworkManager}
  */
-public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbusService {
+public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbusService, ServiceTrackerCustomizer {
 	
 	private Log logger = LogFactory.getLog(this.getClass());
+	
+	private BundleContext context = null;
+	
+	/**
+	 * An OSGi {@link ServiceTracker} to track the paxle crawler service.
+	 */
+	private ServiceTracker tracker = null; 
 	
 	/**
 	 * Reference to the crawler component
@@ -48,10 +62,22 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 			NetworkManager.DevicesChanged.class
 	}));
 	
-	public NetworkManagerMonitor() throws DBusException {		
+	public NetworkManagerMonitor(BundleContext context) throws DBusException, InvalidSyntaxException {
+		// connecting to dbus
 		this.logger.info("Connecting to dbus ...");
 		this.conn = DBusConnection.getConnection(DBusConnection.SYSTEM);
 		
+		// registering an OSGi service tracker
+		this.context = context;
+		Filter filter = context.createFilter(String.format(
+				"(&(%s=%s)(component.ID=org.paxle.crawler))",
+				Constants.OBJECTCLASS, 
+				IMWComponent.class.getName())
+		);
+		this.tracker = new ServiceTracker(this.context,filter,this);
+		this.tracker.open();
+		
+		// getting the network-manager via dbus
 		NetworkManager nm = (NetworkManager) conn.getRemoteObject("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager", NetworkManager.class);
 		List<Path> deviceList = nm.getDevices();
 		if (deviceList != null) {
@@ -60,13 +86,17 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 	}
 	
 	/**
-	 * @see IDbusService#disconnect()
+	 * @see IDbusService#terminate()
 	 */
-	public void disconnect() {
+	public void terminate() {
+		// close tracker
+		this.tracker.close();
+		
+		// disconnecting from dbus
 		this.conn.disconnect();
 	}
 	
-	public void registerSignalListener(IMWComponent crawler) {
+	private void registerSignalListener(IMWComponent crawler) {
 		try {
 			this.crawler = crawler;
 			
@@ -79,7 +109,7 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 		}
 	}
 	
-	public void unregisterSignalListener() {
+	private void unregisterSignalListener() {
 		try {
 			this.crawler = null;
 			
@@ -99,22 +129,49 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 		Path device = signal.getDevice();
 		
 		if (signal instanceof NetworkManager.DeviceNoLongerActive) {
-			System.out.println(String.format("Device %s was deactivated.",signal.getDevice()));
+			this.logger.info(String.format("Device %s was deactivated.",signal.getDevice()));
 			this.devices.remove(device);
 			if (this.devices.size() == 0) {
-				System.out.println("No network device left. Pausing crawler ...");
+				this.logger.info("No network device left. Pausing crawler ...");
 				this.crawler.pause();
 			}
 		} else if (signal instanceof NetworkManager.DeviceNowActive) {
-			System.out.println(String.format("Device %s was activated.",signal.getDevice()));
+			this.logger.info(String.format("Device %s was activated.",signal.getDevice()));
 			this.devices.add(device);
 			if (this.devices.size() > 0) {
-				System.out.println("Network device found. Resuming crawler ...");
+				this.logger.info("Network device found. Resuming crawler ...");
 				this.crawler.resume();
 			}
 		} else if (signal instanceof NetworkManager.DevicesChanged) {
-			System.out.println("Device was changed: " + signal.toString());
+			this.logger.info("Device was changed: " + signal.toString());
 			// TODO: what todo here?
 		}
+	}
+
+	/**
+	 * @see ServiceTrackerCustomizer#addingService(ServiceReference)
+	 */
+	public Object addingService(ServiceReference reference) {
+		// a reference to the service
+		IMWComponent crawler = (IMWComponent) this.context.getService(reference);			
+		
+		// new service was installed
+		this.registerSignalListener(crawler);
+		return crawler;
+	}
+
+	/**
+	 * @see ServiceTrackerCustomizer#removedService(ServiceReference, Object)
+	 */
+	public void removedService(ServiceReference reference, Object service) {
+		// service was uninstalled
+		this.unregisterSignalListener();
+	}
+
+	/**
+	 * @see ServiceTrackerCustomizer#modifiedService(ServiceReference, Object)
+	 */
+	public void modifiedService(ServiceReference reference, Object service) {
+		// nothing todo here
 	}
 }

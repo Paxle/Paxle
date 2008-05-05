@@ -1,5 +1,8 @@
 package org.paxle.dbus;
 
 public interface IDbusService {
-	public void disconnect();
+	/**
+	 * Function to terminate the dbus service
+	 */
+	public void terminate();
 }

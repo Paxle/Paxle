@@ -38,8 +38,9 @@
 							org.paxle.dbus
 						</Export-Package>
 						<Import-Package>
-							org.osgi.framework, 
-							org.apache.commons.logging, 							
+							org.osgi.framework,
+							org.osgi.util.tracker,
+							org.apache.commons.logging,					
 							org.paxle.core, 
 							org.paxle.core.doc, 
 							org.paxle.se.search, 
@@ -48,16 +49,24 @@
 							org.paxle.se.query.tokens
 						</Import-Package>
 						<DynamicImport-Package>
+							com.sun.security.auth.module
 						</DynamicImport-Package>
 						<Private-Package>
 							org.paxle.dbus.impl,
+							org.paxle.dbus.impl.networkmonitor,
+							org.paxle.dbus.impl.screensaver,
+							org.paxle.dbus.impl.search,
+							org.paxle.dbus.impl.search.tracker,
 							org.freedesktop;-split-package:=first,
-							org.gnome,
-							com.sun.security.auth.module
+							org.gnome
 						</Private-Package>
 						<Bundle-Activator>
 							org.paxle.dbus.impl.Activator
 						</Bundle-Activator>
+
+						<Bundle-NativeCode>
+							libunix-java.so; processor=i386 ; osname=Linux
+						</Bundle-NativeCode>
 
 						<!-- embedding libs -->
 						<Embed-StripGroup>true</Embed-StripGroup>

@@ -1,4 +1,4 @@
-package org.paxle.dbus.impl;
+package org.paxle.dbus.impl.screensaver;
 
 import org.freedesktop.dbus.DBusSigHandler;
 import org.freedesktop.dbus.DBusSignal;

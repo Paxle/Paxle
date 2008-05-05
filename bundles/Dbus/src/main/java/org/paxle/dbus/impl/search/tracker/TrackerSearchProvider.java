@@ -1,4 +1,4 @@
-package org.paxle.dbus.impl;
+package org.paxle.dbus.impl.search.tracker;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -94,7 +94,7 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 		this.metadata = conn.getRemoteObject(TRACKER_BUSNAME, TRACKER_OBJECTPATH, Tracker.Metadata.class);
 	}
 	
-	public void disconnect() {
+	public void terminate() {
 		this.conn.disconnect();
 	}
 	

@@ -7,6 +7,8 @@ import java.util.Hashtable;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.dbus.IDbusService;
+import org.paxle.dbus.impl.networkmonitor.NetworkManagerMonitor;
+import org.paxle.dbus.impl.search.tracker.TrackerSearchProvider;
 import org.paxle.se.search.ISearchProvider;
 
 /**
@@ -38,16 +40,17 @@ public class Activator implements BundleActivator {
 		 * Register Service Listeners
 		 * ========================================================== */		
 		// registering a service listener to notice if a new sub-crawler was (un)deployed
-		NetworkManagerMonitor nmm = new NetworkManagerMonitor();
+		NetworkManagerMonitor nmm = new NetworkManagerMonitor(context);
 		this.services.add(nmm);
-		bc.addServiceListener(new CrawlerListener(bc,nmm),CrawlerListener.FILTER);
 		
 		/* ==========================================================
 		 * Register Services
 		 * ========================================================== */	
+		/*
 		TrackerSearchProvider tsp = new TrackerSearchProvider();
 		services.add(tsp);
 		bc.registerService(ISearchProvider.class.getName(), tsp, new Hashtable<String,String>());
+		*/
 	}
 
 	/**
@@ -61,7 +64,7 @@ public class Activator implements BundleActivator {
 		// loop through the registered services and disconnect
 		// them from DBus
 		for (IDbusService service : this.services) {
-			service.disconnect();
+			service.terminate();
 		}
 	}
 }

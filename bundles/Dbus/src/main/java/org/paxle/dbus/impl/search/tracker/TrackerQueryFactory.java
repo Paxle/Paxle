@@ -1,4 +1,4 @@
-package org.paxle.dbus.impl;
+package org.paxle.dbus.impl.search.tracker;
 
 import org.paxle.core.doc.Field;
 import org.paxle.se.query.IQueryFactory;
