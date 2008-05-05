@@ -13,153 +13,153 @@
 	<description>MP3</description>
 	<test type="beshort" offset="0" length="" bitmask="0xfffe" comparator="=">0xfffa</test>
 	<match-list>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 32 kBits</description>
-		<property name="bitrate" value="32"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x10</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 40 kBits</description>
-		<property name="bitrate" value="40"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x20</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 48 kBits</description>
-		<property name="bitrate" value="48"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x30</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 56 kBits</description>
-		<property name="bitrate" value="56"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x40</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 64 kBits</description>
-		<property name="bitrate" value="64"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x50</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 80 kBits</description>
-		<property name="bitrate" value="80"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x60</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 96 kBits</description>
-		<property name="bitrate" value="96"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x70</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 112 kBits</description>
-		<property name="bitrate" value="112"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x80</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 128 kBits</description>
-		<property name="bitrate" value="128"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x90</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 160 kBits</description>
-		<property name="bitrate" value="160"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0xA0</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 192 kBits</description>
-		<property name="bitrate" value="192"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0xB0</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 224 kBits</description>
-		<property name="bitrate" value="224"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0xC0</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 256 kBits</description>
-		<property name="bitrate" value="256"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0xD0</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 320 kBits</description>
-		<property name="bitrate" value="320"/>
-		<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0xE0</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 44.1 kHz</description>
-		<property name="samplingrate" value="44.1"/>
-		<test type="byte" offset="2" length="" bitmask="0x0C" comparator="=">0x00</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 48 kHz</description>
-		<property name="samplingrate" value="48"/>
-		<test type="byte" offset="2" length="" bitmask="0x0C" comparator="=">0x04</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, 32 kHz</description>
-		<property name="samplingrate" value="32"/>
-		<test type="byte" offset="2" length="" bitmask="0x0C" comparator="=">0x08</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, Stereo</description>
-		<property name="channels" value="stereo"/>
-		<test type="byte" offset="3" length="" bitmask="0xC0" comparator="=">0x00</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, JStereo</description>
-		<property name="channels" value="jstereo"/>
-		<test type="byte" offset="3" length="" bitmask="0xC0" comparator="=">0x40</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, Dual-Ch</description>
-		<property name="channels" value="dual"/>
-		<test type="byte" offset="3" length="" bitmask="0xC0" comparator="=">0x80</test>
-	</match>
-	<match>
-		<mimetype></mimetype>
-		<extension></extension>
-		<description>b, Mono</description>
-		<property name="channels" value="mono"/>
-		<test type="byte" offset="3" length="" bitmask="0xC0" comparator="=">0xC0</test>
-	</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 32 kBits</description>
+			<property name="bitrate" value="32"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x10</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 40 kBits</description>
+			<property name="bitrate" value="40"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x20</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 48 kBits</description>
+			<property name="bitrate" value="48"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x30</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 56 kBits</description>
+			<property name="bitrate" value="56"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x40</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 64 kBits</description>
+			<property name="bitrate" value="64"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x50</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 80 kBits</description>
+			<property name="bitrate" value="80"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x60</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 96 kBits</description>
+			<property name="bitrate" value="96"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x70</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 112 kBits</description>
+			<property name="bitrate" value="112"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x80</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 128 kBits</description>
+			<property name="bitrate" value="128"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0x90</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 160 kBits</description>
+			<property name="bitrate" value="160"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0xA0</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 192 kBits</description>
+			<property name="bitrate" value="192"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0xB0</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 224 kBits</description>
+			<property name="bitrate" value="224"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0xC0</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 256 kBits</description>
+			<property name="bitrate" value="256"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0xD0</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 320 kBits</description>
+			<property name="bitrate" value="320"/>
+			<test type="byte" offset="2" length="" bitmask="0xf0" comparator="=">0xE0</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 44.1 kHz</description>
+			<property name="samplingrate" value="44.1"/>
+			<test type="byte" offset="2" length="" bitmask="0x0C" comparator="=">0x00</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 48 kHz</description>
+			<property name="samplingrate" value="48"/>
+			<test type="byte" offset="2" length="" bitmask="0x0C" comparator="=">0x04</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, 32 kHz</description>
+			<property name="samplingrate" value="32"/>
+			<test type="byte" offset="2" length="" bitmask="0x0C" comparator="=">0x08</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, Stereo</description>
+			<property name="channels" value="stereo"/>
+			<test type="byte" offset="3" length="" bitmask="0xC0" comparator="=">0x00</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, JStereo</description>
+			<property name="channels" value="jstereo"/>
+			<test type="byte" offset="3" length="" bitmask="0xC0" comparator="=">0x40</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, Dual-Ch</description>
+			<property name="channels" value="dual"/>
+			<test type="byte" offset="3" length="" bitmask="0xC0" comparator="=">0x80</test>
+		</match>
+		<match>
+			<mimetype></mimetype>
+			<extension></extension>
+			<description>b, Mono</description>
+			<property name="channels" value="mono"/>
+			<test type="byte" offset="3" length="" bitmask="0xC0" comparator="=">0xC0</test>
+		</match>
 	</match-list>
 </match>
 <match>
@@ -168,18 +168,18 @@
 	<description>GIF image data</description>
 	<test type="string" offset="0" length="" bitmask="" comparator="=">GIF8</test>
 	<match-list>
-	<match>
-		<mimetype>b, version 8%s,</mimetype>
-		<extension></extension>
-		<description>b, version 8%s,</description>
-		<test type="string" offset="4" length="" bitmask="" comparator="=">7a</test>
-	</match>
-	<match>
-		<mimetype>b, version 8%s,</mimetype>
-		<extension></extension>
-		<description>b, version 8%s,</description>
-		<test type="string" offset="4" length="" bitmask="" comparator="=">9a</test>
-	</match>
+		<match>
+			<mimetype>b, version 8%s,</mimetype>
+			<extension></extension>
+			<description>b, version 8%s,</description>
+			<test type="string" offset="4" length="" bitmask="" comparator="=">7a</test>
+		</match>
+		<match>
+			<mimetype>b, version 8%s,</mimetype>
+			<extension></extension>
+			<description>b, version 8%s,</description>
+			<test type="string" offset="4" length="" bitmask="" comparator="=">9a</test>
+		</match>
 	</match-list>
 </match>
 <match>
@@ -3558,7 +3558,7 @@
 	<mimetype>application/x-lha</mimetype>
 	<extension>.lha</extension>
 	<description>Lha archive data</description>
-	<test offset="2" type="regex" comparator="=">/-lh\d-/</test>
+	<test offset="2" type="regex" comparator="=">/^-l(z[45s]|h[ d0-7])-/</test>
 </match>
 
 <match>
