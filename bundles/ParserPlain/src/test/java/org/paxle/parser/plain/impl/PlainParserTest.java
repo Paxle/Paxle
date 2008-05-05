@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempDir;
@@ -48,6 +49,10 @@ public class PlainParserTest extends TestCase {
 					e.printStackTrace();
 					return null;
 				}
+			}
+
+			public URI normalizeReference(String reference, Charset charset) {
+				return normalizeReference(reference);
 			}
 		});
 		ParserContext.setCurrentContext(this.parserContext);		
