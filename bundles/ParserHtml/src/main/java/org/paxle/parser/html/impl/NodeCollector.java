@@ -244,7 +244,7 @@ public class NodeCollector extends NodeVisitor {
 			else if (tag instanceof ImageTag)		process((ImageTag)tag);
 			else if (tag instanceof ItalicTag)		; // handled by visitStringNode(), TODO: extra weight
 			else if (tag instanceof JspTag)			this.noParse = true;
-			else if (tag instanceof LinkTag)		{ process((LinkTag)tag); noParse = true; }
+			else if (tag instanceof LinkTag)		{ process((LinkTag)tag); }
 			else if (tag instanceof MetaTag) 		this.mtm.addMetaTag((MetaTag)tag);
 			else if (tag instanceof ParagraphTag)	; // handled by visitStringNode()
 			else if (tag instanceof RemarkNode)		this.noParse = true;
@@ -268,7 +268,7 @@ public class NodeCollector extends NodeVisitor {
 			if (ntag instanceof AddressTag)			noParse = false;
 			else if (ntag instanceof HeadingTag)	noParse = false;
 			else if (ntag instanceof JspTag)		noParse = false;
-			else if (ntag instanceof LinkTag)		noParse = false;
+// 			else if (ntag instanceof LinkTag)		noParse = false;
 			else if (ntag instanceof RemarkNode)	noParse = false;
 			else if (ntag instanceof ScriptTag)		noParse = false;
 			else if (ntag instanceof StyleTag)		noParse = false;
