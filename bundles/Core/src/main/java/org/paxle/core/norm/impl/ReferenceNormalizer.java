@@ -144,7 +144,7 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 		protocol = url.substring(0, colonpos).toLowerCase();
 		
 		final int protocolEnd;
-		if (url.length()>= (colonpos+1) && url.charAt(colonpos + 1) == '/' && url.charAt(colonpos + 2) == '/') {
+		if (url.length() > (colonpos + 1) && url.charAt(colonpos + 1) == '/' && url.charAt(colonpos + 2) == '/') {
 			protocolEnd = colonpos + 3;
 		} else {
 			throw new URISyntaxException(url, "No valid protocol identifier given");
@@ -255,37 +255,22 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 		}
 		
 		// output
-		try {
-			final StringBuilder sb = new StringBuilder();
-			sb.append(protocol).append("://");
-			if (username != null) {
-				sb.append(username);
-				if (password != null)
-					sb.append(':').append(password);
-				sb.append('@');
-			}
-			sb.append(host);
-			if (port != -1)
-				sb.append(':').append(port);
-			sb.append(path);
-			if (query != null)
-				sb.append('?').append(query);
-			
-			if (true) {
-				return new URI(sb.toString());
-			} else {
-				return new URI(
-						protocol,
-						(password == null) ? (username == null) ? null
-								: URLEncoder.encode(username, "UTF-8")
-								: URLEncoder.encode(username, "UTF-8") + ':' + URLEncoder.encode(password, "UTF-8"),
-						host,
-						port,
-						path,
-						query,
-						null);
-			}
-		} catch (UnsupportedEncodingException e) { e.printStackTrace(); return null; }
+		final StringBuilder sb = new StringBuilder();
+		sb.append(protocol).append("://");
+		if (username != null) {
+			sb.append(username);
+			if (password != null)
+				sb.append(':').append(password);
+			sb.append('@');
+		}
+		sb.append(host);
+		if (port != -1)
+			sb.append(':').append(port);
+		sb.append(path);
+		if (query != null)
+			sb.append('?').append(query);
+		
+		return new URI(sb.toString());
 	}
 	
 	public void filter(ICommand command, IFilterContext filterContext) {

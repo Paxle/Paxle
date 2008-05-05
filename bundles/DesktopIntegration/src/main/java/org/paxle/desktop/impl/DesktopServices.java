@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -176,6 +175,7 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 					if (settingsRef != null)
 						settingsRef.unregister();
 					settingsRef = null;
+					settings = null;
 				}
 			});
 			settingsRef = manager.registerService(settings, new Hashtable<String,Object>(), ConfigurationListener.class);
@@ -265,7 +265,7 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		final IReferenceNormalizer refNormalizer = manager.getService(IReferenceNormalizer.class);
 		if (refNormalizer == null)
 			throw new ServiceException("Reference normalizer", IReferenceNormalizer.class.getName());
-		final URI uri = refNormalizer.normalizeReference(location, Charset.defaultCharset());
+		final URI uri = refNormalizer.normalizeReference(location);
 		
 		// check uri against robots.txt
 		final Object robotsManager = manager.getService(IROBOTSM);
