@@ -106,7 +106,6 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 	public void close() throws IOException {
 		this.wlock.lock();
 		try {
-			this.writer.optimize(true);
 			this.writer.close();
 			this.reader.close();
 		} finally { this.wlock.unlock(); }

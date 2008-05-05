@@ -4,6 +4,8 @@ package org.paxle.desktop.impl;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
@@ -14,8 +16,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.osgi.framework.BundleException;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.http.HttpService;
 
+import org.paxle.core.IMWComponent;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.backend.tray.IMenuItem;
 import org.paxle.desktop.backend.tray.IPopupMenu;
@@ -65,6 +69,8 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 		}
 	};
 	
+	private final Timer tooltipTimer = new Timer("DI-TooltipTimer");
+	
 	public SystrayMenu(final DesktopServices services, final URL iconResource) {
 		this.services = services;
 		final IDIBackend backend = services.getBackend();
@@ -84,6 +90,26 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 		systray = backend.getSystemTray();
 		ti = backend.createTrayIcon(new ImageIcon(iconResource), "Paxle Tray", pm);
 		systray.add(this.ti);
+		
+		tooltipTimer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					final IMWComponent<?>[] indexers = services.getServiceManager().getServices(IMWComponent.class,
+							String.format("(%s=%s)", IMWComponent.COMPONENT_ID, "org.paxle.indexer"));
+					if (indexers != null && indexers.length > 0) {
+						final StringBuilder sb = new StringBuilder("Paxle");
+						if (services.isCrawlerCorePaused()) {
+							sb.append(" - crawling paused");
+						} else {
+							final IMWComponent<?> indexer = indexers[0];
+							sb.append(" - crawling at ").append(indexer.getPPM()).append(" PPM");
+						}
+						ti.setToolTip(sb.toString());
+					}
+				} catch (InvalidSyntaxException e) { e.printStackTrace(); }
+			}
+		}, 0L, 1000L);
 		
 		// desktop integration needs to be quite responsive, therefore we impudently increase
 		// the EventQueue's dispatcher thread's priority
@@ -147,6 +173,7 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 	public void shutdown() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
+				tooltipTimer.cancel();
 				logger.debug("removing systray icon");
 				systray.remove(ti);
 				logger.debug("removed systray icon successfully");
