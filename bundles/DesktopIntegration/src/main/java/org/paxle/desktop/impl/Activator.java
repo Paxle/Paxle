@@ -143,9 +143,10 @@ public class Activator implements BundleActivator {
 		String bundleName = BACKEND_IMPL_ROOT_PACKAGE + '.' + impl;
 		Bundle bundle = findBundle(context, bundleName);
 		if (bundle != null) {
-			logger.info(String.format("Using implementation %s ...",impl));
+			logger.info(String.format("Using implementation %s ...", impl));
 		} else {
-			throw new ClassNotFoundException(String.format("Unable to find bundle '%s' for implementation %s, is the bundle resolved?", bundleName, impl));
+			throw new ClassNotFoundException(String.format(
+					"Unable to find bundle '%s' for implementation %s, is the bundle resolved?", bundleName, impl));
 		}
 		
 		if (impl == IMPL_JDIC) {
@@ -173,16 +174,10 @@ public class Activator implements BundleActivator {
 		final Class<?> smC = uiClassLoader.loadClass("org.paxle.desktop.impl.ServiceManager");
 		final Object sm = smC.getConstructor(uiClassLoader.loadClass("org.osgi.framework.BundleContext")).newInstance(context);
 		
-		// final Class<?> menuC = uiClassLoader.loadClass("org.paxle.desktop.impl.SystrayMenu");
-		// this.shutdownMethod = menuC.getMethod("shutdown");
-		
 		final Class<?> idibackendC = uiClassLoader.loadClass("org.paxle.desktop.backend.IDIBackend");
 		final Class<?> desktopServicesC = uiClassLoader.loadClass("org.paxle.desktop.impl.DesktopServices");
 		initObject = desktopServicesC.getConstructor(smC, idibackendC).newInstance(sm, dibackend);
 		shutdownMethod = desktopServicesC.getMethod("shutdown");
-		// final Class<?> urlC = uiClassLoader.loadClass("java.net.URL");
-		// final Object iconUrl = context.getBundle().getResource("/resources/trayIcon.png");
-		// this.initObject = menuC.getConstructor(desktopServicesC, urlC).newInstance(desktopServices, iconUrl);
 	}
 	
 	private static Bundle findBundle(BundleContext context, String symbolicName) {

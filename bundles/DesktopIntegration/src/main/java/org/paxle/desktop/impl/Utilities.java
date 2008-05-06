@@ -21,6 +21,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.EventListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -42,6 +45,9 @@ import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class Utilities {
 	
@@ -153,13 +159,17 @@ public class Utilities {
 		}
 	}
 	
-	public static JFrame wrapIntoFrame(
+	private static final Log logger = LogFactory.getLog(Utilities.class);
+	
+	public static void setFrameProps(
+			final JFrame frame,
 			final Container container,
 			final String title,
 			final Dimension size,
 			final boolean resizable,
-			final Point location) {
-		final JFrame frame = new JFrame(title);
+			final Point location,
+			final EventListener... listeners) {
+		frame.setTitle(title);
 		frame.setContentPane(container);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
@@ -171,6 +181,31 @@ public class Utilities {
 			}
 		});
 		frame.setResizable(resizable);
+		
+		if (listeners != null && listeners.length > 0) {
+			for (final Method m : frame.getClass().getMethods()) {
+				final String name = m.getName();
+				if (!name.startsWith("add") || !name.endsWith("Listener"))
+					continue;
+				logger.debug("found method '" + name + "'");
+				final String lName = name.substring(3);
+				try {
+					final Class<?> c = Class.forName("java.awt.event." + lName);
+					logger.debug("found class '" + c + "' for method '" + name + "'");
+					for (final EventListener l : listeners) {
+						if (l != null && c.isAssignableFrom(l.getClass())) try {
+							logger.debug("assigning '" + l.getClass() + "' to container");
+							m.invoke(frame, l);
+							break;
+						} catch (InvocationTargetException e) {
+							e.printStackTrace();
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();
+						}
+					}
+				} catch (ClassNotFoundException e) { continue; }
+			}
+		}
 		
 		if (size == null) {
 			frame.pack();
@@ -184,6 +219,17 @@ public class Utilities {
 		} else {
 			frame.setLocation(location);
 		}
+	}
+	
+	public static JFrame wrapIntoFrame(
+			final Container container,
+			final String title,
+			final Dimension size,
+			final boolean resizable,
+			final Point location,
+			final EventListener... listeners) {
+		final JFrame frame = new JFrame(title);
+		setFrameProps(frame, container, title, size, resizable, location, listeners);
 		return frame;
 	}
 	

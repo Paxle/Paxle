@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.http.HttpService;
 
 import org.paxle.core.IMWComponent;
+import org.paxle.desktop.IDesktopServices.Dialogues;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.backend.tray.IMenuItem;
 import org.paxle.desktop.backend.tray.IPopupMenu;
@@ -242,11 +243,11 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 				} break;
 				
 				case CCONSOLE:
-					services.openCrawlingConsole();
+					services.openDialogue(Dialogues.CCONSOLE);
 					break;
 					
 				case SETTINGS:
-					services.openSettingsDialog();
+					services.openDialogue(Dialogues.SETTINGS);
 					break;
 				
 				case RESTART:

@@ -10,8 +10,11 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Dictionary;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 
@@ -21,28 +24,22 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.cm.ManagedService;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.metatype.MetaTypeService;
 
 import org.paxle.core.IMWComponent;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.prefs.Properties;
-import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.CommandProfile;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
-import org.paxle.core.queue.ICommandTracker;
 import org.paxle.desktop.IDesktopServices;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.impl.dialogues.CrawlingConsole;
+import org.paxle.desktop.impl.dialogues.DIServicePanel;
 import org.paxle.desktop.impl.dialogues.SettingsFrame;
 
 public class DesktopServices implements IDesktopServices, ManagedService {
@@ -65,6 +62,23 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		}
 	}
 	
+	private class FrameDICloseListener extends WindowAdapter {
+		
+		private final Dialogues d;
+		private final DIComponent comp;
+		
+		public FrameDICloseListener(final Dialogues d, final DIComponent comp) {
+			this.d = d;
+			this.comp = comp;
+		}
+		
+		@Override
+		public void windowClosed(WindowEvent e) {
+			comp.shutdown();
+			dialogues.remove(d);
+		}
+	}
+	
 	private static final Class<IMWComponent> MWCOMP_CLASS = IMWComponent.class;
 	
 	private static final String ICOMMANDDB = "org.paxle.data.db.ICommandDB";
@@ -80,13 +94,16 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 	// backend-specific properties
 	private static final int PROP_BROWSER_OPENABLE = 1;
 	
+	private static final Dimension DIM_CCONSOLE = new Dimension(600, 400);
+	private static final Dimension DIM_SETTINGS = new Dimension(1000, 600);
+	
 	private final Log logger = LogFactory.getLog(DesktopServices.class);
 	private final ServiceManager manager;
 	private final IDIBackend backend;
 	private final HashMap<Integer,Integer> profileDepthMap = new HashMap<Integer,Integer>();
+	private final HashSet<DIComponent> comps = new HashSet<DIComponent>();
+	private final Map<Dialogues,Frame> dialogues = new EnumMap<Dialogues,Frame>(Dialogues.class);
 	
-	private SettingsFrame settings = null;
-	private ServiceRegistration settingsRef = null;
 	private SystrayMenu trayMenu = null;
 	
 	private boolean browserOpenable = true;
@@ -132,6 +149,10 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 	}
 	
 	public void shutdown() {
+		for (final DIComponent dic : comps) try {
+			dic.shutdown();
+		} catch (Throwable e) { e.printStackTrace(); }
+		
 		final Properties props = manager.getServiceProperties();
 		if (props == null)
 			return;
@@ -140,8 +161,10 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		bp |= (browserOpenable) ? PROP_BROWSER_OPENABLE : 0;
 		props.put(backend.getClass().getName(), Integer.toString(bp));
 		
-		closeSettingsDialog();
-		closeCrawlingConsole();
+		for (Frame f : dialogues.values())
+			f.dispose();
+		dialogues.clear();
+		
 		setTrayMenuVisible(false);
 	}
 	
@@ -198,43 +221,33 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		} catch (Throwable e) { e.printStackTrace(); }
 	}
 	
-	private static final Dimension DIM_CCONSOLE = new Dimension(600, 400);
-	private Frame ccframe = null;
-	private ServiceRegistration ccRef = null;
+	private Frame createDefaultFrame(final DIServicePanel container, final Dialogues d, final String title, final Dimension dim) {
+		return Utilities.wrapIntoFrame(container, title, dim, true, Utilities.LOCATION_CENTER, new FrameDICloseListener(d, container));
+	}
 	
 	@SuppressWarnings("unchecked")
-	public void openCrawlingConsole() {
+	public void openDialogue(final Dialogues d) {
+		Frame ccframe = dialogues.get(d);
 		if (ccframe == null) {
-			final ICommandTracker tracker = manager.getService(ICommandTracker.class);
-			if (tracker == null) {
-				// TODO: message
-				return;
+			final Frame frame;
+			switch (d) {
+				case CCONSOLE: frame = createDefaultFrame(new CrawlingConsole(this), d, "Crawling Console", DIM_CCONSOLE); break;
+				case SETTINGS: frame = createDefaultFrame(new SettingsFrame(this), d, "Paxle Settings", DIM_SETTINGS); break;
+				
+				default:
+					throw new RuntimeException("switch-statement does not cover " + d);
 			}
-			final CrawlingConsole cconsole = new CrawlingConsole(tracker);
-			ccframe = Utilities.wrapIntoFrame(cconsole, "Crawling Console", DIM_CCONSOLE, true, Utilities.LOCATION_CENTER);
-			ccframe.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosed(WindowEvent e) {
-					closeCrawlingConsole();
-				}
-			});
-			
-			final Hashtable<String,Object> properties = new Hashtable<String,Object>();
-			properties.put(EventConstants.EVENT_TOPIC, new String[] { CommandEvent.TOPIC_DEQUEUED });
-			properties.put(EventConstants.EVENT_FILTER, String.format("(%s=org.paxle.crawler.in)", CommandEvent.PROP_COMPONENT_ID));
-			ccRef = manager.registerService(cconsole, properties, EventHandler.class);
+			dialogues.put(d, frame);
+			ccframe = frame;
 		}
 		show(ccframe);
 	}
 	
-	public void closeCrawlingConsole() {
+	public void closeDialogue(final Dialogues d) {
+		final Frame ccframe = dialogues.get(d);
 		if (ccframe != null) {
 			ccframe.dispose();
-			ccframe = null;
-		}
-		if (ccRef != null) {
-			ccRef.unregister();
-			ccRef = null;
+			dialogues.remove(d);
 		}
 	}
 	
@@ -245,34 +258,6 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		if (!frame.isVisible())
 			frame.setVisible(true);
 		frame.toFront();
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void openSettingsDialog() {
-		if (settings == null) {
-			settings = new SettingsFrame(manager.getBundles(),
-					manager.getService(ConfigurationAdmin.class),
-					manager.getService(MetaTypeService.class));
-			settings.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosed(WindowEvent e) {
-					closeSettingsDialog();
-				}
-			});
-			settingsRef = manager.registerService(settings, new Hashtable<String,Object>(), ConfigurationListener.class);
-		}
-		show(settings);
-	}
-	
-	public void closeSettingsDialog() {
-		if (settings != null) {
-			settings.dispose();
-			settingsRef = null;
-		}
-		if (settingsRef != null) {
-			settingsRef.unregister();
-			settings = null;
-		}
 	}
 	
 	@SuppressWarnings("unchecked")

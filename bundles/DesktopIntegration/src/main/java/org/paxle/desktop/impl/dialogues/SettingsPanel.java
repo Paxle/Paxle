@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.InputEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,15 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -49,7 +45,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
-import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
@@ -69,9 +64,11 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
 import org.paxle.core.io.IOTools;
+import org.paxle.desktop.impl.DesktopServices;
+import org.paxle.desktop.impl.ServiceManager;
 import org.paxle.desktop.impl.Utilities;
 
-public class SettingsFrame extends JFrame implements ActionListener, ConfigurationListener {
+public class SettingsPanel extends DIServicePanel implements ActionListener, ConfigurationListener {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -580,14 +577,6 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 	private static final String LOCALE = "en";
 	private static final int ICON_SIZE = 16;
 	
-	private static final String KE_CLOSE = new String();
-	private final Action AC_CLOSE = new AbstractAction() {
-		private static final long serialVersionUID = 1L;
-		public void actionPerformed(ActionEvent e) {
-			SettingsFrame.this.dispose();
-		}
-	};
-	
 	private static enum Actions {
 		SAVE, RESET, REFRESH, LIST_SELECT
 	}
@@ -600,10 +589,12 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 	private JList list;
 	private JScrollPane optViewPanel;
 	
-	public SettingsFrame(final Bundle[] bundles, final ConfigurationAdmin cadmin, final MetaTypeService metatype) {
-		this.cadmin = cadmin;
-		this.metatype = metatype;
-		this.confMap = Collections.synchronizedMap(initConfMap(bundles));
+	public SettingsPanel(final DesktopServices services) {
+		super(services);
+		final ServiceManager manager = services.getServiceManager();
+		this.cadmin = manager.getService(ConfigurationAdmin.class);
+		this.metatype = manager.getService(MetaTypeService.class);
+		this.confMap = Collections.synchronizedMap(initConfMap(manager.getBundles()));
 		init();
 	}
 	
@@ -733,10 +724,10 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 		
 		final JButton save = new JButton("Save all changes");
 		save.setActionCommand(Actions.SAVE.name());
-		save.addActionListener(SettingsFrame.this);
+		save.addActionListener(this);
 		final JButton reset = new JButton("Reset all settings");
 		reset.setActionCommand(Actions.RESET.name());
-		reset.addActionListener(SettingsFrame.this);
+		reset.addActionListener(this);
 		reset.setEnabled(false);
 		final JPanel bpanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		bpanel.add(save);
@@ -760,14 +751,7 @@ public class SettingsFrame extends JFrame implements ActionListener, Configurati
 		split.setDividerLocation(.3);
 		split.setDividerSize(4);
 		
-		super.rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke('W', InputEvent.CTRL_DOWN_MASK), KE_CLOSE);
-		super.rootPane.getActionMap().put(KE_CLOSE, AC_CLOSE);
-		super.setTitle("Paxle Settings");
-		super.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		super.setContentPane(split);
-		super.setResizable(true);
-		super.setLocationByPlatform(true);
-		super.pack();
-		super.setSize(1000, 600);
+		super.setLayout(new BorderLayout());
+		super.add(split);
 	}
 }

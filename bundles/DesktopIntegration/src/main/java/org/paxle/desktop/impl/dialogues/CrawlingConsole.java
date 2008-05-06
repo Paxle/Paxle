@@ -9,8 +9,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.Hashtable;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -26,14 +28,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
+import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.Utilities;
 
-public class CrawlingConsole extends JPanel implements EventHandler, ActionListener {
+public class CrawlingConsole extends DIServicePanel implements EventHandler, ActionListener {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -127,9 +131,15 @@ public class CrawlingConsole extends JPanel implements EventHandler, ActionListe
 	
 	// TODO: save enc/normal
 	
-	public CrawlingConsole(final ICommandTracker tracker) {
-		this.tracker = tracker;
+	@SuppressWarnings("unchecked")
+	public CrawlingConsole(final DesktopServices services) {
+		super(services);
+		this.tracker = services.getServiceManager().getService(ICommandTracker.class);
 		init();
+		final Hashtable<String,Object> properties = new Hashtable<String,Object>();
+		properties.put(EventConstants.EVENT_TOPIC, new String[] { CommandEvent.TOPIC_DEQUEUED });
+		properties.put(EventConstants.EVENT_FILTER, String.format("(%s=org.paxle.crawler.in)", CommandEvent.PROP_COMPONENT_ID));
+		super.registerService(this, this, properties, EventHandler.class);
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -148,6 +158,8 @@ public class CrawlingConsole extends JPanel implements EventHandler, ActionListe
 		int i = -1;
 		int top = 0;
 		synchronized (sync) {
+			if (!appendLine)
+				buf.clear();
 			while ((i = val.indexOf('\n', j)) != -1) {
 				top += buf.push(i - j + 1);
 				j = i + 1;
@@ -160,7 +172,6 @@ public class CrawlingConsole extends JPanel implements EventHandler, ActionListe
 					top += buf.push(val.length() - j + 1);
 					text.getEditorKit().read(new StringReader(val + "\n"), doc, doc.getLength());
 				} else {
-					buf.clear();
 					text.setText(val);
 				}
 			} catch (BadLocationException e) {
@@ -213,6 +224,6 @@ public class CrawlingConsole extends JPanel implements EventHandler, ActionListe
 					updateText(true, uri);
 				}
 			});
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (UnsupportedEncodingException e) { /* cannot happen as we use the default charset here */ }
 	}
 }
