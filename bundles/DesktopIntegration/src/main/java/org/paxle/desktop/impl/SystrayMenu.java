@@ -15,8 +15,6 @@ import javax.swing.event.PopupMenuListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.osgi.framework.BundleException;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.http.HttpService;
 
 import org.paxle.core.IMWComponent;
@@ -34,7 +32,7 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 	private static final String CRAWL_RESUME = "Resume Crawling";
 	
 	private static enum Actions {
-		SEARCH, BROWSE, CRAWL, CRAWLPR, SETTINGS, RESTART, QUIT
+		SEARCH, BROWSE, CRAWL, CRAWLPR, CCONSOLE, SETTINGS, RESTART, QUIT
 	}
 	
 	private final Log logger = LogFactory.getLog(SystrayMenu.class);
@@ -46,6 +44,7 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 	private final IMenuItem browseItem;
 	private final IMenuItem crawlItem;
 	private final IMenuItem crawlprItem;
+	private final IMenuItem cconsoleItem;
 	private final IMenuItem settingsItem;
 	private final IMenuItem quitItem;
 	private final IMenuItem restartItem;
@@ -53,7 +52,8 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 	// instantiate this here to prevent delays when the popup shows up
 	private final Runnable refresh = new Runnable() {
 		public void run() {
-			final boolean hasCrawler = services.isCrawlerServiceAvailable();
+			final IMWComponent<?> crawler = services.getMWComponent(DesktopServices.MWComponents.CRAWLER);
+			final boolean hasCrawler = (crawler != null);
 			crawlItem.setEnabled(hasCrawler);
 			crawlprItem.setEnabled(hasCrawler);
 			
@@ -65,7 +65,8 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 			// remove "&& hasWebUi" if we have other methods of displaying the searchresults
 			searchItem.setEnabled(services.isBrowserOpenable() && hasSearch && hasWebui);
 			
-			crawlprItem.setText((services.isCrawlerCorePaused()) ? CRAWL_RESUME : CRAWL_PAUSE);
+			if (hasCrawler)
+				crawlprItem.setText((crawler.isPaused()) ? CRAWL_RESUME : CRAWL_PAUSE);
 		}
 	};
 	
@@ -75,18 +76,19 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 		this.services = services;
 		final IDIBackend backend = services.getBackend();
 		final IPopupMenu pm = backend.createPopupMenu(
-				this.searchItem 	= backend.createMenuItem("Search...", 		Actions.SEARCH.name(), 	 this),
+				this.searchItem 	= backend.createMenuItem("Search...", 		 Actions.SEARCH.name(),   this),
 				null,
-				this.browseItem		= backend.createMenuItem("Webinterface", 	Actions.BROWSE.name(),	 this),
+				this.browseItem		= backend.createMenuItem("Webinterface", 	 Actions.BROWSE.name(),	  this),
 				null,
-				this.crawlItem 		= backend.createMenuItem("Crawl...", 		Actions.CRAWL.name(), 	 this),
-				this.crawlprItem 	= backend.createMenuItem("Pause Crawling", 	Actions.CRAWLPR.name(),  this),
+				this.crawlItem 		= backend.createMenuItem("Crawl...", 		 Actions.CRAWL.name(), 	  this),
+				this.crawlprItem 	= backend.createMenuItem("Pause Crawling", 	 Actions.CRAWLPR.name(),  this),
 				null,
-				this.settingsItem   = backend.createMenuItem("Settings",        Actions.SETTINGS.name(), this),
-				this.restartItem 	= backend.createMenuItem("Restart", 		Actions.RESTART.name(),  this),
-				this.quitItem 		= backend.createMenuItem("Quit", 			Actions.QUIT.name(), 	 this));
+				this.cconsoleItem   = backend.createMenuItem("Crawling Console", Actions.CCONSOLE.name(), this),
+				this.settingsItem   = backend.createMenuItem("Settings",         Actions.SETTINGS.name(), this),
+				this.restartItem 	= backend.createMenuItem("Restart", 		 Actions.RESTART.name(),  this),
+				this.quitItem 		= backend.createMenuItem("Quit", 			 Actions.QUIT.name(), 	  this));
 		pm.addPopupMenuListener(this);
-
+		
 		systray = backend.getSystemTray();
 		ti = backend.createTrayIcon(new ImageIcon(iconResource), "Paxle Tray", pm);
 		systray.add(this.ti);
@@ -94,20 +96,20 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 		tooltipTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				try {
-					final IMWComponent<?>[] indexers = services.getServiceManager().getServices(IMWComponent.class,
-							String.format("(%s=%s)", IMWComponent.COMPONENT_ID, "org.paxle.indexer"));
-					if (indexers != null && indexers.length > 0) {
-						final StringBuilder sb = new StringBuilder("Paxle");
-						if (services.isCrawlerCorePaused()) {
-							sb.append(" - crawling paused");
-						} else {
-							final IMWComponent<?> indexer = indexers[0];
-							sb.append(" - crawling at ").append(indexer.getPPM()).append(" PPM");
-						}
-						ti.setToolTip(sb.toString());
+				final IMWComponent<?> indexer = services.getMWComponent(DesktopServices.MWComponents.INDEXER);
+				if (indexer != null) {
+					final StringBuilder sb = new StringBuilder("Paxle");
+					final IMWComponent<?> crawler = services.getMWComponent(DesktopServices.MWComponents.CRAWLER);
+					
+					if (crawler == null || !crawler.isPaused() && crawler.getEnqueuedJobCount() == 0) {
+						sb.append(" - idle");
+					} else if (crawler.isPaused()) {
+						sb.append(" - crawling paused");
+					} else {
+						sb.append(" - crawling at ").append(indexer.getPPM()).append(" PPM");
 					}
-				} catch (InvalidSyntaxException e) { e.printStackTrace(); }
+					ti.setToolTip(sb.toString());
+				}
 			}
 		}, 0L, 1000L);
 		
@@ -169,7 +171,7 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 			tmBecameVisible = System.currentTimeMillis();
 		}
 	}
-	*/
+	 */
 	public void shutdown() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -199,10 +201,10 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 			case CRAWL:
 				new SmallDialog(dr, "Enter URL:", "Crawl").setVisible(true);
 				break;
-			
+				
 			default:
 				new Thread(dr).start();
-				break;
+			break;
 		}
 	}
 	
@@ -223,40 +225,41 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 					break;
 					
 				case CRAWL:
-					if (data != null && data.length() > 0) try {
+					if (data != null && data.length() > 0)
 						services.startDefaultCrawl(data);
-					} catch (Exception ee) {
-						Utilities.showURLErrorMessage("Starting crawl failed: " + ee.getMessage(), data);
-						logger.error("Starting crawl of URL '" + data + "' failed: " + ee.getMessage(), ee);
-					}
 					break;
 					
 				case BROWSE:
 					services.browseUrl(services.getPaxleUrl("/"));
 					break;
 					
-				case CRAWLPR:
-					services.toggleCrawlersPR();
+				case CRAWLPR: {
+					final IMWComponent<?> crawler = services.getMWComponent(DesktopServices.MWComponents.CRAWLER);
+					if (crawler != null) {
+						if (crawler.isPaused()) {
+							crawler.resume();
+						} else {
+							crawler.pause();
+						}
+					}
+				} break;
+				
+				case CCONSOLE:
+					services.openCrawlingConsole();
+					break;
+					
+				case SETTINGS:
+					services.openSettingsDialog();
 					break;
 				
-				case SETTINGS: {
-					services.openSettingsDialog();
-				} break;
-					
-				case RESTART: try {
+				case RESTART:
 					services.restartFramework();
-				} catch (BundleException e) {
-					Utilities.showExceptionBox("error restarting framework", e);
-					logger.error("error restarting framework", e);
-				} break;
+					break;
 				
-				case QUIT: try {
+				case QUIT:
 					services.shutdownFramework();
-				} catch (BundleException e) {
-					Utilities.showExceptionBox("error shutting down framework", e);
-					logger.error("error shutting down framework", e);
-				} break;
-					
+					break;
+				
 				default:
 					throw new RuntimeException("switch-statement does not cover action '" + action + "'");
 			}

@@ -3,6 +3,7 @@ package org.paxle.desktop.impl;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -10,6 +11,7 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -17,23 +19,82 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.io.File;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 
 public class Utilities {
-
+	
+	public static final Point LOCATION_CENTER = new Point();
+	private static final String KE_CLOSE = new String();
+	
+	public static File chooseFile(
+			final Component parent,
+			final String title,
+			final boolean load,
+			final FileNameExtensionFilter fnef,
+			final boolean single) {
+		final JFileChooser fc = new JFileChooser();
+		fc.setDialogTitle(title);
+		if (fnef != null)
+			fc.setFileFilter(fnef);
+		fc.setMultiSelectionEnabled(!single);
+		final int result = (load) ? fc.showOpenDialog(parent) : fc.showSaveDialog(parent);
+		return (result == JFileChooser.APPROVE_OPTION) ? fc.getSelectedFile() : null;
+	}
+	
+	public static JFrame wrapIntoFrame(
+			final Container container,
+			final String title,
+			final Dimension size,
+			final boolean resizable,
+			final Point location) {
+		final JFrame frame = new JFrame(title);
+		frame.setContentPane(container);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+				KeyStroke.getKeyStroke('W', InputEvent.CTRL_DOWN_MASK), KE_CLOSE);
+		frame.getRootPane().getActionMap().put(KE_CLOSE, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+			public void actionPerformed(ActionEvent e) {
+				frame.dispose();
+			}
+		});
+		frame.setResizable(resizable);
+		
+		if (size == null) {
+			frame.pack();
+		} else {
+			frame.setSize(size);
+		}
+		if (location == null) {
+			frame.setLocationByPlatform(true);
+		} else if (location == LOCATION_CENTER) {
+			centerOnScreen(frame);
+		} else {
+			frame.setLocation(location);
+		}
+		return frame;
+	}
+	
 	/* 
 	 * Author: Franz Brauße
 	 * from YacyAdmin - relicensed

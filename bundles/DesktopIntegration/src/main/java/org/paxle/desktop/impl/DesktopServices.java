@@ -1,6 +1,8 @@
 
 package org.paxle.desktop.impl;
 
+import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -11,7 +13,6 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
@@ -26,24 +27,45 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.MetaTypeService;
 
 import org.paxle.core.IMWComponent;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.prefs.Properties;
+import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.CommandProfile;
+import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
+import org.paxle.core.queue.ICommandTracker;
 import org.paxle.desktop.IDesktopServices;
 import org.paxle.desktop.backend.IDIBackend;
+import org.paxle.desktop.impl.dialogues.CrawlingConsole;
 import org.paxle.desktop.impl.dialogues.SettingsFrame;
 
 public class DesktopServices implements IDesktopServices, ManagedService {
 	
 	private static final String TRAY_ICON_LOCATION = "/resources/trayIcon.png";
 	
+	public static enum MWComponents {
+		CRAWLER, PARSER, INDEXER
+		
+		;
+		
+		private final String query;
+		
+		private MWComponents() {
+			query = String.format("(%s=org.paxle.%s)", IMWComponent.COMPONENT_ID, name().toLowerCase());
+		}
+		
+		public String toQuery() {
+			return query;
+		}
+	}
+	
 	private static final Class<IMWComponent> MWCOMP_CLASS = IMWComponent.class;
-	private static final String CRAWLER_QUERY = String.format("(%s=org.paxle.crawler)", IMWComponent.COMPONENT_ID);
 	
 	private static final String ICOMMANDDB = "org.paxle.data.db.ICommandDB";
 	private static final String IROBOTSM = "org.paxle.filter.robots.IRobotsTxtManager";
@@ -74,6 +96,7 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		initDS();
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void initDS() {
 		final Hashtable<String,Object> regProps = new Hashtable<String,Object>();
 		regProps.put(Constants.SERVICE_PID, IDesktopServices.class.getName());
@@ -117,15 +140,26 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		props.put(backend.getClass().getName(), Integer.toString(bp));
 		
 		closeSettingsDialog();
+		closeCrawlingConsole();
 		setTrayMenuVisible(false);
 	}
 	
-	public void shutdownFramework() throws BundleException {
-		manager.shutdownFramework();
+	public void shutdownFramework() {
+		try {
+			manager.shutdownFramework();
+		} catch (BundleException e) {
+			Utilities.showExceptionBox("error restarting framework", e);
+			logger.error("error restarting framework", e);
+		}
 	}
 	
-	public void restartFramework() throws BundleException {
-		manager.restartFramework();
+	public void restartFramework() {
+		try {
+			manager.restartFramework();
+		} catch (BundleException e) {
+			Utilities.showExceptionBox("error restarting framework", e);
+			logger.error("error restarting framework", e);
+		}
 	}
 	
 	public void setTrayMenuVisible(final boolean yes) {
@@ -163,6 +197,49 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		} catch (Throwable e) { e.printStackTrace(); }
 	}
 	
+	private static final Dimension DIM_CCONSOLE = new Dimension(600, 400);
+	private Frame ccframe = null;
+	private ServiceRegistration ccRef = null;
+	
+	@SuppressWarnings("unchecked")
+	public void openCrawlingConsole() {
+		if (ccframe == null) {
+			final ICommandTracker tracker = manager.getService(ICommandTracker.class);
+			if (tracker == null) {
+				// TODO: message
+				return;
+			}
+			final CrawlingConsole cconsole = new CrawlingConsole(tracker);
+			ccframe = Utilities.wrapIntoFrame(cconsole, "Crawling Console", DIM_CCONSOLE, true, Utilities.LOCATION_CENTER);
+			
+			final Hashtable<String,Object> properties = new Hashtable<String,Object>();
+			properties.put(EventConstants.EVENT_TOPIC, new String[] { CommandEvent.TOPIC_DEQUEUED });
+			properties.put(EventConstants.EVENT_FILTER, String.format("(%s=org.paxle.crawler.in)", CommandEvent.PROP_COMPONENT_ID));
+			ccRef = manager.registerService(cconsole, properties, EventHandler.class);
+		}
+		show(ccframe);
+	}
+	
+	public void closeCrawlingConsole() {
+		if (ccframe != null) {
+			ccframe.dispose();
+			ccframe = null;
+		}
+		if (ccRef != null) {
+			ccRef.unregister();
+			ccRef = null;
+		}
+	}
+	
+	private static void show(final Frame frame) {
+		final int extstate = frame.getExtendedState();
+		if ((extstate & Frame.ICONIFIED) == Frame.ICONIFIED)
+			frame.setExtendedState(extstate ^ Frame.ICONIFIED);
+		if (!frame.isVisible())
+			frame.setVisible(true);
+		frame.toFront();
+	}
+	
 	@SuppressWarnings("unchecked")
 	public void openSettingsDialog() {
 		if (settings == null) {
@@ -180,27 +257,41 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 			});
 			settingsRef = manager.registerService(settings, new Hashtable<String,Object>(), ConfigurationListener.class);
 		}
-		final int extstate = settings.getExtendedState();
-		if ((extstate & JFrame.ICONIFIED) == JFrame.ICONIFIED)
-			settings.setExtendedState(extstate ^ JFrame.ICONIFIED);
-		if (!settings.isVisible())
-			settings.setVisible(true);
-		settings.toFront();
+		show(settings);
 	}
 	
 	public void closeSettingsDialog() {
-		if (settings != null)
+		if (settings != null) {
 			settings.dispose();
-		settings = null;
+			settingsRef = null;
+		}
+		if (settingsRef != null) {
+			settingsRef.unregister();
+			settings = null;
+		}
 	}
 	
-	public boolean isCrawlerServiceAvailable() {
+	@SuppressWarnings("unchecked")
+	public IMWComponent<ICommand> getMWComponent(final MWComponents comp) {
 		try {
-			return manager.hasService(MWCOMP_CLASS, CRAWLER_QUERY);
+			final IMWComponent<?>[] comps = manager.getServices(MWCOMP_CLASS, comp.toQuery());
+			if (comps != null && comps.length > 0)
+				return (IMWComponent<ICommand>)comps[0];
 		} catch (InvalidSyntaxException e) {
+			Utilities.showExceptionBox(e);
 			e.printStackTrace();
-			return false;
 		}
+		return null; 
+	}
+	
+	public boolean isServiceAvailable(MWComponents comp) {
+		try {
+			return manager.hasService(MWCOMP_CLASS, comp.toQuery());
+		} catch (InvalidSyntaxException e) {
+			Utilities.showExceptionBox(e);
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	public boolean isBrowserOpenable() {
@@ -215,38 +306,13 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		return backend;
 	}
 	
-	public boolean isCrawlerCorePaused() {
+	public void startDefaultCrawl(final String location) {
 		try {
-			final IMWComponent<?>[] crawlers = manager.getServices(MWCOMP_CLASS, CRAWLER_QUERY);
-			if (crawlers == null || crawlers.length == 0)
-				return false;
-			return crawlers[0].isPaused();
-		} catch (InvalidSyntaxException e) {
-			Utilities.showExceptionBox(e);
-			e.printStackTrace();
+			startCrawl(location, DEFAULT_PROFILE_MAX_DEPTH);
+		} catch (ServiceException ee) {
+			Utilities.showURLErrorMessage("Starting crawl failed: " + ee.getMessage(), location);
+			logger.error("Starting crawl of URL '" + location + "' failed: " + ee.getMessage(), ee);
 		}
-		return false;
-	}
-	
-	public void toggleCrawlersPR() {
-		try {
-			final IMWComponent<?>[] crawlers = manager.getServices(MWCOMP_CLASS, CRAWLER_QUERY);
-			if (crawlers == null || crawlers.length == 0)
-				return;
-			final IMWComponent<?> crawler = crawlers[0];
-			if (crawler.isPaused()) {
-				crawler.resume();
-			} else {
-				crawler.pause();
-			}
-		} catch (InvalidSyntaxException e) {
-			Utilities.showExceptionBox(e);
-			e.printStackTrace();
-		}
-	}
-	
-	public void startDefaultCrawl(final String location) throws ServiceException {
-		startCrawl(location, DEFAULT_PROFILE_MAX_DEPTH);
 	}
 	
 	public void startCrawl(final String location, final int depth) throws ServiceException {
