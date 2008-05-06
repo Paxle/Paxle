@@ -40,7 +40,7 @@ import org.paxle.desktop.IDesktopServices;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.impl.dialogues.CrawlingConsole;
 import org.paxle.desktop.impl.dialogues.DIServicePanel;
-import org.paxle.desktop.impl.dialogues.SettingsFrame;
+import org.paxle.desktop.impl.dialogues.SettingsPanel;
 
 public class DesktopServices implements IDesktopServices, ManagedService {
 	
@@ -232,7 +232,7 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 			final Frame frame;
 			switch (d) {
 				case CCONSOLE: frame = createDefaultFrame(new CrawlingConsole(this), d, "Crawling Console", DIM_CCONSOLE); break;
-				case SETTINGS: frame = createDefaultFrame(new SettingsFrame(this), d, "Paxle Settings", DIM_SETTINGS); break;
+				case SETTINGS: frame = createDefaultFrame(new SettingsPanel(this), d, "Paxle Settings", DIM_SETTINGS); break;
 				
 				default:
 					throw new RuntimeException("switch-statement does not cover " + d);
