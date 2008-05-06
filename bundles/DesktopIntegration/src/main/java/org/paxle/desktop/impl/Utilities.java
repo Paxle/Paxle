@@ -24,12 +24,14 @@ import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -46,19 +48,109 @@ public class Utilities {
 	public static final Point LOCATION_CENTER = new Point();
 	private static final String KE_CLOSE = new String();
 	
-	public static File chooseFile(
+	public static JButton createButton(final String text, final ActionListener al, final String actionCommand, final Icon icon) {
+		final JButton b = new JButton(text);
+		b.setActionCommand(actionCommand);
+		if (al != null)
+			b.addActionListener(al);
+		if (icon != null)
+			b.setIcon(icon);
+		return b;
+	}
+	
+	public static File chooseSingleFile(
 			final Component parent,
 			final String title,
 			final boolean load,
 			final FileNameExtensionFilter fnef,
-			final boolean single) {
+			final boolean tryAgain) {
 		final JFileChooser fc = new JFileChooser();
 		fc.setDialogTitle(title);
 		if (fnef != null)
 			fc.setFileFilter(fnef);
-		fc.setMultiSelectionEnabled(!single);
-		final int result = (load) ? fc.showOpenDialog(parent) : fc.showSaveDialog(parent);
-		return (result == JFileChooser.APPROVE_OPTION) ? fc.getSelectedFile() : null;
+		fc.setMultiSelectionEnabled(false);
+		
+		File file;
+		boolean ok;
+		boolean cont;
+		do {
+			ok = false;
+			final int result = (load) ? fc.showOpenDialog(parent) : fc.showSaveDialog(parent);
+			if (result != JFileChooser.APPROVE_OPTION)
+				return null;
+			file = fc.getSelectedFile();
+			
+			final String cmsg = "\nSelect another file?";
+			final String ctitle;
+			final String msg;
+			final boolean error;
+			
+			if (load) {
+				if (!file.exists()) {
+					msg = "File " + file + " does not exist.";
+					ctitle = "File does not exist";
+					error = true;
+				} else if (file.isDirectory()) {
+					msg = "File " + file + " is a directory";
+					ctitle = "Invalid file selected";
+					error = true;
+				} else if (!file.canRead()) {
+					msg = "Permissions to read file " + file + " not given";
+					ctitle = "Cannot access file";
+					error = true;
+				} else {
+					ok = true;
+					break;
+				}
+			} else {
+				if (file.exists()) {
+					if (file.isDirectory()) {
+						msg = "File " + file + " is a directory.";
+						ctitle = "Invalid file selected";
+						error = true;
+					} else if (!file.canWrite()) {
+						msg = "Permissions to write file " + file + " not given";
+						ctitle = "Cannot access file";
+						error = true;
+					} else {
+						msg = "File " + file + " already exists.";
+						ctitle = "File exists";
+						error = false;
+					}
+				} else {
+					ok = true;
+					break;
+				}
+			}
+			
+			final int answer = contChoose(parent, ctitle, msg + cmsg, msg, tryAgain, error);
+			cont = (answer == JOptionPane.YES_OPTION);
+			if (!error) {
+				if (answer == JOptionPane.CANCEL_OPTION) {
+					ok = false;
+					break;
+				} else {
+					ok = !cont;
+				}
+			}
+		} while (tryAgain && cont);
+		
+		return (ok) ? file : null;
+	}
+	
+	private static int contChoose(
+			final Component parent,
+			final String title,
+			final String message,
+			final String noContMsg,
+			boolean cont, boolean error) {
+		if (cont) {
+			return JOptionPane.showConfirmDialog(
+					parent, message, title, JOptionPane.YES_NO_CANCEL_OPTION, (error) ? JOptionPane.ERROR_MESSAGE : JOptionPane.WARNING_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(parent, noContMsg, title, (error) ? JOptionPane.ERROR_MESSAGE : JOptionPane.WARNING_MESSAGE);
+			return -1;
+		}
 	}
 	
 	public static JFrame wrapIntoFrame(

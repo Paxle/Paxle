@@ -3,25 +3,31 @@ package org.paxle.desktop.impl.dialogues;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
+
 import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
@@ -34,12 +40,92 @@ public class CrawlingConsole extends JPanel implements EventHandler, ActionListe
 	private static final String AC_CLEAR = new String();
 	private static final String AC_SAVE = new String();
 	
-	private final JScrollPane scroll = new JScrollPane();
-	private final JTextPane text = new JTextPane();
-	private final JButton clear = new JButton("Clear");
-	private final JButton save = new JButton("Save text");
+	private static class IntRingBuffer {
+		
+		private final int[] buf;
+		private final int size;
+		private int head;			// points to next free index
+		private int tail;			// points to last full index
+		private int num = 0;
+		
+		public IntRingBuffer(final int size) {
+			this.size = size;
+			buf = new int[size];
+			tail = size - 1;
+		}
+		
+		public IntRingBuffer copyToNew(final int size) {
+			final IntRingBuffer rb = new IntRingBuffer(size);
+			System.arraycopy(buf, 0, rb.buf, 0, Math.min(this.size, size));
+			rb.head = head;
+			rb.tail = tail;
+			rb.num = num;
+			return rb;
+		}
+		
+		public int push(final int x) {
+			final int r = (head == tail) ? pop() : -1;
+			buf[head++] = x;
+			if (head == size)
+				head = 0;
+			num++;
+			return r;
+		}
+		
+		public int pop() {
+			final int r = buf[tail++];
+			if (tail == size)
+				tail = 0;
+			num--;
+			return r;
+		}
+		
+		public int top() {
+			return buf[tail];
+		}
+		
+		public void clear() {
+			head = tail + 1;
+			if (head == size)
+				head = 0;
+			num = 0;
+		}
+		
+		public boolean isEmpty() {
+			return num == 0;
+		}
+	}
+	
+	private class SaveActionRunnable implements Runnable {
+		public void run() {
+			final File file = Utilities.chooseSingleFile(CrawlingConsole.this, "Save As", false, null, true);
+			if (file == null)
+				return;
+			FileWriter fw = null;
+			try {
+				fw = new FileWriter(file);
+				synchronized (sync) {
+					text.write(fw);
+				}
+			} catch (IOException e) {
+				logger.error("I/O-exception storing text contents", e);
+				Utilities.showExceptionBox("I/O-exception storing text contents", e);
+			} finally { if (fw != null) try { fw.close(); } catch (IOException e) { /* ignore */ } }
+		}
+	}
+	
+	private final Log           logger = LogFactory.getLog(CrawlingConsole.class);
+	private final JScrollPane   scroll = new JScrollPane();
+	private final JTextPane     text   = new JTextPane();
+	private final JButton       clear  = Utilities.createButton("Clear", this, AC_CLEAR, null);
+	private final JButton       save   = Utilities.createButton("Save ...", this, AC_SAVE, null);
+	private final JRadioButton  enc    = new JRadioButton("URL-encoded");
+	private final JRadioButton  normal = new JRadioButton("Original URLs");
+	private final Object        sync   = new Object();
+	private final IntRingBuffer buf    = new IntRingBuffer(100);
 	private final ICommandTracker tracker;
-	private final Object sync = new Object();
+	
+	// TODO: save enc/normal
 	
 	public CrawlingConsole(final ICommandTracker tracker) {
 		this.tracker = tracker;
@@ -53,73 +139,80 @@ public class CrawlingConsole extends JPanel implements EventHandler, ActionListe
 			clear.setEnabled(false);
 			save.setEnabled(false);
 		} else if (ac == AC_SAVE) {
-			new Thread() {
-				@Override
-				public void run() {
-					final File file = Utilities.chooseFile(CrawlingConsole.this, "Save As", false, null, true);
-					if (file == null)
-						return;
-					FileWriter fw = null;
-					try {
-						fw = new FileWriter(file);
-						synchronized (sync) {
-							text.write(fw);
-						}
-					} catch (IOException e) {
-						logger.error("I/O-exception storing text contents", e);
-						Utilities.showExceptionBox("I/O-exception storing text contents", e);
-					} finally { if (fw != null) try { fw.close(); } catch (IOException e) { /* ignore */ } }
-				}
-			}.start();
+			new Thread(new SaveActionRunnable()).start();
 		}
 	}
 	
-	public void updateText(final boolean append, final String val) {
+	public void updateText(final boolean appendLine, final String val) {
+		int j = 0;
+		int i = -1;
+		int top = 0;
 		synchronized (sync) {
-			if (append) try {
+			while ((i = val.indexOf('\n', j)) != -1) {
+				top += buf.push(i - j + 1);
+				j = i + 1;
+			}
+			
+			try {
 				final Document doc = text.getDocument();
-				text.getEditorKit().read(new StringReader(val), doc, doc.getLength());
+				
+				if (appendLine) {
+					top += buf.push(val.length() - j + 1);
+					text.getEditorKit().read(new StringReader(val + "\n"), doc, doc.getLength());
+				} else {
+					buf.clear();
+					text.setText(val);
+				}
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
-			} else {
-				text.setText(val);
 			}
 		}
-		text.invalidate();
-		scroll.getViewport().setViewPosition(new Point(scroll.getViewport().getViewPosition().x, text.getHeight()));
-		// scroll.revalidate();
-		clear.setEnabled(true);
-		save.setEnabled(true);
-		// updateUI();
+		if (!clear.isEnabled()) {
+			clear.setEnabled(true);
+			save.setEnabled(true);
+		}
 	}
 	
 	private void init() {
 		text.setEditable(false);
-		text.setAutoscrolls(true);
-		scroll.setViewportView(text);
+		scroll.getViewport().setView(text);
 		
-		final JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		clear.setActionCommand(AC_CLEAR);
-		clear.addActionListener(this);
-		bottom.add(clear);
-		save.setActionCommand(AC_SAVE);
-		save.addActionListener(this);
-		bottom.add(save);
+		enc.setSelected(true);
+		final ButtonGroup bg = new ButtonGroup();
+		bg.add(enc);
+		bg.add(normal);
+		final JPanel bottomRight = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		bottomRight.add(normal);
+		bottomRight.add(enc);
 		
-		super.setLayout(new BorderLayout(5, 5));
+		final JPanel bottomLeft = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		bottomLeft.add(save);
+		bottomLeft.add(clear);
+		
+		final JPanel bottom = new JPanel(new BorderLayout());
+		bottom.add(bottomRight, BorderLayout.WEST);
+		bottom.add(bottomLeft, BorderLayout.EAST);
+		
+		super.setLayout(new BorderLayout());
 		super.add(scroll, BorderLayout.CENTER);
 		super.add(bottom, BorderLayout.SOUTH);
 	}
-	
-	private final Log logger = LogFactory.getLog(CrawlingConsole.class);
 	
 	public void handleEvent(Event event) {
 		final Long id = (Long)event.getProperty(CommandEvent.PROP_COMMAND_ID);
 		final ICommand cmd = tracker.getCommandByID(id);
 		logger.debug("received event for command: " + cmd + " from component (ID): " + event.getProperty(CommandEvent.PROP_COMPONENT_ID));
-		if (cmd != null)
-			updateText(true, cmd.getLocation().toString() + "\n");
+		if (cmd != null) try {
+			final String uri = (enc.isSelected())
+					? URLDecoder.decode(cmd.getLocation().toString(), Charset.defaultCharset().name())
+					: cmd.getLocation().toASCIIString();
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					updateText(true, uri);
+				}
+			});
+		} catch (Exception e) { e.printStackTrace(); }
 	}
 }

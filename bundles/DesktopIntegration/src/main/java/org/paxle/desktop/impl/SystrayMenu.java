@@ -49,6 +49,8 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 	private final IMenuItem quitItem;
 	private final IMenuItem restartItem;
 	
+	private final Timer tooltipTimer = new Timer("DI-TooltipTimer");
+	
 	// instantiate this here to prevent delays when the popup shows up
 	private final Runnable refresh = new Runnable() {
 		public void run() {
@@ -70,8 +72,6 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 		}
 	};
 	
-	private final Timer tooltipTimer = new Timer("DI-TooltipTimer");
-	
 	public SystrayMenu(final DesktopServices services, final URL iconResource) {
 		this.services = services;
 		final IDIBackend backend = services.getBackend();
@@ -82,9 +82,10 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 				null,
 				this.crawlItem 		= backend.createMenuItem("Crawl...", 		 Actions.CRAWL.name(), 	  this),
 				this.crawlprItem 	= backend.createMenuItem("Pause Crawling", 	 Actions.CRAWLPR.name(),  this),
-				null,
 				this.cconsoleItem   = backend.createMenuItem("Crawling Console", Actions.CCONSOLE.name(), this),
+				null,
 				this.settingsItem   = backend.createMenuItem("Settings",         Actions.SETTINGS.name(), this),
+				null,
 				this.restartItem 	= backend.createMenuItem("Restart", 		 Actions.RESTART.name(),  this),
 				this.quitItem 		= backend.createMenuItem("Quit", 			 Actions.QUIT.name(), 	  this));
 		pm.addPopupMenuListener(this);
@@ -173,14 +174,10 @@ public class SystrayMenu implements ActionListener, PopupMenuListener {
 	}
 	 */
 	public void shutdown() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				tooltipTimer.cancel();
-				logger.debug("removing systray icon");
-				systray.remove(ti);
-				logger.debug("removed systray icon successfully");
-			}
-		});
+		tooltipTimer.cancel();
+		logger.debug("removing systray icon");
+		systray.remove(ti);
+		logger.debug("removed systray icon successfully");
 	}
 	
 	/* TODO:

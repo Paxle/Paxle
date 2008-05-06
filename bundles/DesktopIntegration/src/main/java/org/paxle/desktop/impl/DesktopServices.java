@@ -77,6 +77,7 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 	private static final String PREF_OPEN_BROWSER_STARTUP = "openBrowser";
 	private static final String PREF_SHOW_SYSTRAY = "showTrayMenu";
 	
+	// backend-specific properties
 	private static final int PROP_BROWSER_OPENABLE = 1;
 	
 	private final Log logger = LogFactory.getLog(DesktopServices.class);
@@ -211,6 +212,12 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 			}
 			final CrawlingConsole cconsole = new CrawlingConsole(tracker);
 			ccframe = Utilities.wrapIntoFrame(cconsole, "Crawling Console", DIM_CCONSOLE, true, Utilities.LOCATION_CENTER);
+			ccframe.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosed(WindowEvent e) {
+					closeCrawlingConsole();
+				}
+			});
 			
 			final Hashtable<String,Object> properties = new Hashtable<String,Object>();
 			properties.put(EventConstants.EVENT_TOPIC, new String[] { CommandEvent.TOPIC_DEQUEUED });
@@ -249,10 +256,7 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 			settings.addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosed(WindowEvent e) {
-					if (settingsRef != null)
-						settingsRef.unregister();
-					settingsRef = null;
-					settings = null;
+					closeSettingsDialog();
 				}
 			});
 			settingsRef = manager.registerService(settings, new Hashtable<String,Object>(), ConfigurationListener.class);
