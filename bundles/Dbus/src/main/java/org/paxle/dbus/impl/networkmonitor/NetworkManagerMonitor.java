@@ -30,6 +30,8 @@ import org.paxle.dbus.IDbusService;
  * A class to receive signals from the {@link NetworkManager}
  */
 public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbusService, ServiceTrackerCustomizer {
+	private static final String BUSNAME = "org.freedesktop.NetworkManager";
+	private static final String OBJECTPATH = "/org/freedesktop/NetworkManager";
 	
 	private Log logger = LogFactory.getLog(this.getClass());
 	
@@ -81,18 +83,21 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 			this.tracker.open();
 
 			// getting the network-manager via dbus
-			NetworkManager nm = (NetworkManager) conn.getRemoteObject("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager", NetworkManager.class);
+			this.logger.info(String.format("Getting reference to %s ...", BUSNAME));
+			NetworkManager nm = (NetworkManager) conn.getRemoteObject(BUSNAME, OBJECTPATH, NetworkManager.class);
 			List<Path> deviceList = nm.getDevices();
 			if (deviceList != null) {
+				this.logger.debug(String.format("%d device(s) detected: %s", deviceList.size(), deviceList.toString()));
 				this.devices.addAll(deviceList);
 			}
 		} catch (DBusExecutionException e) {
 			if (e instanceof NoReply) {
-				this.logger.error("'org.freedesktop.NetworkManager' did not reply within specified time.");
+				this.logger.error(String.format("'%s' did not reply within specified time.",BUSNAME));
 			} else {
 				this.logger.warn(String.format(
-						"Unexpected '%s' while trying to connect to 'org.freedesktop.NetworkManager'.",
-						e.getClass().getName()
+						"Unexpected '%s' while trying to connect to '%s'.",
+						e.getClass().getName(),
+						BUSNAME
 				),e);
 			}
 

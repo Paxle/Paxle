@@ -91,9 +91,12 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 	public TrackerSearchProvider() throws DBusException {
 		try {
 			// connect to dbus
+			this.logger.info(String.format("Connecting to dbus ..."));
 			this.conn = DBusConnection.getConnection(DBusConnection.SESSION); 
 
+			this.logger.info(String.format("Getting reference to %s ...",TRACKER_BUSNAME));
 			this.tracker = conn.getRemoteObject(TRACKER_BUSNAME, TRACKER_OBJECTPATH, Tracker.class);
+			this.logger.info(String.format("%s version %d detected.",TRACKER_BUSNAME,tracker.GetVersion()));
 			// TODO: test if we are supporting the given tracker version
 			System.out.println(tracker.GetVersion());
 
