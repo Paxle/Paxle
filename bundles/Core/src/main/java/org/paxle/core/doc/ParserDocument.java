@@ -65,7 +65,11 @@ public class ParserDocument implements IParserDocument {
 	 */
 	public Collection<String> getHeadlines() {
 		return this.headlines;
-	}    
+	}
+	
+	public void addImage(URI location, String description) {
+		images.put(location, whitespaces2Space(description));
+	}
     
 	/**
 	 * {@inheritDoc}

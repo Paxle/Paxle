@@ -32,6 +32,8 @@ public interface IParserDocument extends Closeable {
 	 *        may be added in the future
 	 */
 	public abstract void addHeadline(String headline);
+	
+	public void addImage(URI location, String description);
 
 	public void setHeadlines(Collection<String> headlines);
 	
