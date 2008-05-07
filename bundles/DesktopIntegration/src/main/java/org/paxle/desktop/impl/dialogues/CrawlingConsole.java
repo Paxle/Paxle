@@ -160,22 +160,24 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	}
 	
 	private void updateCpb(final boolean paused, final boolean getState, final boolean setState) {
+		if (getState && setState)
+			throw new IllegalArgumentException("cannot set and get state at the same time");
 		final IMWComponent<?> crawler = services.getMWComponent(DesktopServices.MWComponents.CRAWLER);
+		final boolean state = (getState && crawler != null) ? crawler.isPaused() : paused;
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				cpb.setVisible(crawler != null);
-				final boolean state = (getState && crawler != null) ? crawler.isPaused() : paused;
 				cpb.setSelected(state);
 				cpb.setText((state) ? LBL_CRAWLER_RESUME : LBL_CRAWLER_PAUSE);
-				if (setState && crawler != null) {
-					if (paused) {
-						crawler.pause();
-					} else {
-						crawler.resume();
-					}
-				}
 			}
 		});
+		if (setState && crawler != null) {
+			if (paused) {
+				crawler.pause();
+			} else {
+				crawler.resume();
+			}
+		}
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -212,6 +214,9 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 				} else {
 					text.setText(val);
 				}
+				if (top > 0)
+					doc.remove(0, top);
+				text.setCaretPosition(doc.getLength());
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -226,7 +231,9 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	
 	private void init() {
 		text.setEditable(false);
-		scroll.getViewport().setView(text);
+		final JPanel textPanel = new JPanel(new BorderLayout());
+		textPanel.add(text, BorderLayout.CENTER);
+		scroll.getViewport().setView(textPanel);
 		
 		updateCpb(false, true, false);
 		cpb.setActionCommand(AC_CRAWL);
