@@ -46,9 +46,6 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class Utilities {
 	
 	public static final Point LOCATION_CENTER = new Point();
@@ -159,8 +156,6 @@ public class Utilities {
 		}
 	}
 	
-	private static final Log logger = LogFactory.getLog(Utilities.class);
-	
 	public static void setFrameProps(
 			final JFrame frame,
 			final Container container,
@@ -187,14 +182,11 @@ public class Utilities {
 				final String name = m.getName();
 				if (!name.startsWith("add") || !name.endsWith("Listener"))
 					continue;
-				logger.debug("found method '" + name + "'");
 				final String lName = name.substring(3);
 				try {
 					final Class<?> c = Class.forName("java.awt.event." + lName);
-					logger.debug("found class '" + c + "' for method '" + name + "'");
 					for (final EventListener l : listeners) {
 						if (l != null && c.isAssignableFrom(l.getClass())) try {
-							logger.debug("assigning '" + l.getClass() + "' to container");
 							m.invoke(frame, l);
 							break;
 						} catch (InvocationTargetException e) {

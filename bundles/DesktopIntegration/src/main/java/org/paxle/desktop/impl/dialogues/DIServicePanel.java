@@ -26,7 +26,9 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 	}
 	
 	protected void unregisterService(final Object key) {
-		regs.get(key).unregister();
+		final ServiceRegistration reg = regs.remove(key);
+		if (reg != null)
+			reg.unregister();
 	}
 	
 	private void unregisterServices() {

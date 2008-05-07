@@ -27,7 +27,7 @@ import org.paxle.desktop.backend.tray.ITrayIcon;
 import org.paxle.desktop.impl.dialogues.AFinally;
 import org.paxle.desktop.impl.dialogues.SmallDialog;
 
-public class SystrayMenu implements ActionListener, PopupMenuListener {
+public class SystrayMenu implements ActionListener, PopupMenuListener, DIComponent {
 	
 	private static final String CRAWL_PAUSE = "Pause Crawling";
 	private static final String CRAWL_RESUME = "Resume Crawling";

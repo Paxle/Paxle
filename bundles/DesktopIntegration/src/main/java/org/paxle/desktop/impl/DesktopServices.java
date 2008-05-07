@@ -12,7 +12,6 @@ import java.net.URI;
 import java.util.Dictionary;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -74,8 +73,8 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		
 		@Override
 		public void windowClosed(WindowEvent e) {
-			comp.shutdown();
 			dialogues.remove(d);
+			comp.shutdown();
 		}
 	}
 	
@@ -101,7 +100,6 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 	private final ServiceManager manager;
 	private final IDIBackend backend;
 	private final HashMap<Integer,Integer> profileDepthMap = new HashMap<Integer,Integer>();
-	private final HashSet<DIComponent> comps = new HashSet<DIComponent>();
 	private final Map<Dialogues,Frame> dialogues = new EnumMap<Dialogues,Frame>(Dialogues.class);
 	
 	private SystrayMenu trayMenu = null;
@@ -149,10 +147,6 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 	}
 	
 	public void shutdown() {
-		for (final DIComponent dic : comps) try {
-			dic.shutdown();
-		} catch (Throwable e) { e.printStackTrace(); }
-		
 		final Properties props = manager.getServiceProperties();
 		if (props == null)
 			return;
