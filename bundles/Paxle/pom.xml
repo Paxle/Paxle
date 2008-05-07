@@ -758,8 +758,11 @@
 		<module>../ParserZip</module>
 		<module>../Parser7zip</module>
 		<module>../ParserBzip2</module>
+		<module>../ParserTar</module>
+		<module>../ParserLha</module>
 		<module>../ParserMsOffice</module>
 		<module>../ParserHtml</module>
+		<module>../ParserFeed</module>
 		
 		<!-- GUI bundle -->
 		<module>../GUI</module>
