@@ -15,6 +15,7 @@ import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.core.IMWComponent;
+import org.paxle.core.MWComponentEvent;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.queue.impl.InputQueue;
@@ -32,10 +33,10 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	public static final String PROP_POOL_MAX_ACTIVE = "pool.maxActive";
 	public static final String PROP_DELAY = "master.delay";
 	
-	private IMaster master;
-	private Pool<Data> pool;
-	private InputQueue<Data> inQueue;
-	private OutputQueue<Data> outQueue;
+	private final IMaster master;
+	private final Pool<Data> pool;
+	private final InputQueue<Data> inQueue;
+	private final OutputQueue<Data> outQueue;
 	
 	/**
 	 * The unique ID of this component.
@@ -54,6 +55,11 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	 * This is needed by CM.
 	 */
 	private String componentDescription;
+	
+	/**
+	 * A class to send {@link MWComponentEvent}s
+	 */
+	private MWComponentEventSender eventSender;
 	
 	public MWComponent(IMaster master, Pool<Data> pool, InputQueue<Data> inQueue, OutputQueue<Data> outQueue) {
 		if (master == null) throw new NullPointerException("The master thread is null.");
@@ -76,6 +82,10 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	
 	void setComponentDescription(String componentDescription) {
 		this.componentDescription = componentDescription;
+	}
+	
+	void setEventSender(MWComponentEventSender eventSender) {
+		this.eventSender = eventSender;
 	}
 	
 	/**
@@ -135,6 +145,9 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	 */	
 	public void pause(){
 		this.master.pauseMaster();
+		if (this.eventSender != null) {
+			this.eventSender.sendPausedEvent(this.componentID);
+		}
 	}
 	
 	/**
@@ -143,6 +156,9 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	 */	
 	public void resume() {
 		this.master.resumeMaster();
+		if (this.eventSender != null) {
+			this.eventSender.sendResumedEvent(this.componentID);
+		}
 	}
 	
 	/**

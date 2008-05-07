@@ -15,6 +15,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.MetaTypeProvider;
+import org.osgi.util.tracker.ServiceTracker;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.data.IDataSink;
@@ -142,6 +143,13 @@ public class MWComponentFactory implements IMWComponentFactory {
 			final IMWComponent<?> component, 
 			final BundleContext bc
 	) throws IOException {
+		// creating a service-tracker for the event-admin service
+		ServiceTracker eventServiceTracker = new ServiceTracker(bc,EventAdmin.class.getName(),null);
+		eventServiceTracker.open();
+				
+		/**
+		 * TODO: we should use the servicetracker instead!
+		 */
 		ServiceReference ref = bc.getServiceReference(EventAdmin.class.getName());
 		EventAdmin eventService = (EventAdmin) ((ref == null) ? null : bc.getService(ref));
 		if (eventService == null) {
@@ -203,6 +211,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 				
 		// configure some properties needed by CM
 		((MWComponent<?>)component).setComponentID(componentID);
+		((MWComponent<?>)component).setEventSender(new MWComponentEventSender(eventServiceTracker));
 		((MWComponent<?>)component).setComponentName(componentName==null?componentID:componentName);
 		((MWComponent<?>)component).setComponentDescription(componentDescription==null?"":componentDescription);		
 		
