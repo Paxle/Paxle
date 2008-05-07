@@ -43,7 +43,7 @@ import javax.swing.KeyStroke;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
 
 public class Utilities {
@@ -65,7 +65,7 @@ public class Utilities {
 			final Component parent,
 			final String title,
 			final boolean load,
-			final FileNameExtensionFilter fnef,
+			final FileFilter fnef,
 			final boolean tryAgain) {
 		final JFileChooser fc = new JFileChooser();
 		fc.setDialogTitle(title);
