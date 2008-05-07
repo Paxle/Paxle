@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -31,6 +32,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
+import org.paxle.core.IMWComponent;
+import org.paxle.core.MWComponentEvent;
 import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
@@ -40,9 +43,6 @@ import org.paxle.desktop.impl.Utilities;
 public class CrawlingConsole extends DIServicePanel implements EventHandler, ActionListener {
 	
 	private static final long serialVersionUID = 1L;
-	
-	private static final String AC_CLEAR = new String();
-	private static final String AC_SAVE = new String();
 	
 	private static class IntRingBuffer {
 		
@@ -118,6 +118,16 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		}
 	}
 	
+	private static final String AC_CLEAR = new String();
+	private static final String AC_SAVE = new String();
+	private static final String AC_CRAWL = new String();
+	
+	private static final Object EVENT_QUEUE = new Object();
+	private static final Object EVENT_MWCOMP = new Object();
+	
+	private static final String LBL_CRAWLER_PAUSE = "Pause crawler";
+	private static final String LBL_CRAWLER_RESUME = "Resume crawler";
+	
 	private final Log           logger = LogFactory.getLog(CrawlingConsole.class);
 	private final JScrollPane   scroll = new JScrollPane();
 	private final JTextPane     text   = new JTextPane();
@@ -127,6 +137,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private final JRadioButton  normal = new JRadioButton("Original URLs");
 	private final Object        sync   = new Object();
 	private final IntRingBuffer buf    = new IntRingBuffer(100);
+	private final JToggleButton cpb    = new JToggleButton();
 	private final ICommandTracker tracker;
 	
 	// TODO: save enc/normal
@@ -136,10 +147,35 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		super(services);
 		this.tracker = services.getServiceManager().getService(ICommandTracker.class);
 		init();
-		final Hashtable<String,Object> properties = new Hashtable<String,Object>();
-		properties.put(EventConstants.EVENT_TOPIC, new String[] { CommandEvent.TOPIC_DEQUEUED });
-		properties.put(EventConstants.EVENT_FILTER, String.format("(%s=org.paxle.crawler.in)", CommandEvent.PROP_COMPONENT_ID));
-		super.registerService(this, this, properties, EventHandler.class);
+		
+		final Hashtable<String,Object> propCrawler = new Hashtable<String,Object>();
+		propCrawler.put(EventConstants.EVENT_TOPIC, new String[] { CommandEvent.TOPIC_DEQUEUED });
+		propCrawler.put(EventConstants.EVENT_FILTER, String.format("(%s=org.paxle.crawler.in)", CommandEvent.PROP_COMPONENT_ID));
+		super.registerService(EVENT_QUEUE, this, propCrawler, EventHandler.class);
+		
+		final Hashtable<String,Object> propMW = new Hashtable<String,Object>();
+		propMW.put(EventConstants.EVENT_TOPIC, new String[] { MWComponentEvent.TOPIC_ALL });
+		propMW.put(EventConstants.EVENT_FILTER, String.format("(%s=org.paxle.crawler)", MWComponentEvent.PROP_COMPONENT_ID));
+		super.registerService(EVENT_MWCOMP, this, propMW, EventHandler.class);
+	}
+	
+	private void updateCpb(final boolean paused, final boolean getState, final boolean setState) {
+		final IMWComponent<?> crawler = services.getMWComponent(DesktopServices.MWComponents.CRAWLER);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				cpb.setVisible(crawler != null);
+				final boolean state = (getState && crawler != null) ? crawler.isPaused() : paused;
+				cpb.setSelected(state);
+				cpb.setText((state) ? LBL_CRAWLER_RESUME : LBL_CRAWLER_PAUSE);
+				if (setState && crawler != null) {
+					if (paused) {
+						crawler.pause();
+					} else {
+						crawler.resume();
+					}
+				}
+			}
+		});
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -150,6 +186,8 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 			save.setEnabled(false);
 		} else if (ac == AC_SAVE) {
 			new Thread(new SaveActionRunnable()).start();
+		} else if (ac == AC_CRAWL) {
+			updateCpb(cpb.isSelected(), false, true);
 		}
 	}
 	
@@ -190,6 +228,10 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		text.setEditable(false);
 		scroll.getViewport().setView(text);
 		
+		updateCpb(false, true, false);
+		cpb.setActionCommand(AC_CRAWL);
+		cpb.addActionListener(this);
+		
 		enc.setSelected(true);
 		final ButtonGroup bg = new ButtonGroup();
 		bg.add(enc);
@@ -199,6 +241,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		bottomRight.add(enc);
 		
 		final JPanel bottomLeft = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		bottomLeft.add(cpb);
 		bottomLeft.add(save);
 		bottomLeft.add(clear);
 		
@@ -212,18 +255,24 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	}
 	
 	public void handleEvent(Event event) {
-		final Long id = (Long)event.getProperty(CommandEvent.PROP_COMMAND_ID);
-		final ICommand cmd = tracker.getCommandByID(id);
-		logger.debug("received event for command: " + cmd + " from component (ID): " + event.getProperty(CommandEvent.PROP_COMPONENT_ID));
-		if (cmd != null) try {
-			final String uri = (enc.isSelected())
-					? URLDecoder.decode(cmd.getLocation().toString(), Charset.defaultCharset().name())
-					: cmd.getLocation().toASCIIString();
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					updateText(true, uri);
-				}
-			});
-		} catch (UnsupportedEncodingException e) { /* cannot happen as we use the default charset here */ }
+		final String topic = event.getTopic();
+		if (topic == CommandEvent.TOPIC_DEQUEUED) {
+			final Long id = (Long)event.getProperty(CommandEvent.PROP_COMMAND_ID);
+			final ICommand cmd = tracker.getCommandByID(id);
+			logger.debug("received event for command: " + cmd + " from component (ID): " + event.getProperty(CommandEvent.PROP_COMPONENT_ID));
+			if (cmd != null) try {
+				final String uri = (enc.isSelected())
+						? URLDecoder.decode(cmd.getLocation().toString(), Charset.defaultCharset().name())
+						: cmd.getLocation().toASCIIString();
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						updateText(true, uri);
+					}
+				});
+			} catch (UnsupportedEncodingException e) { /* cannot happen as we use the default charset here */ }
+			
+		} else if (topic.startsWith(MWComponentEvent.TOPIC_)) {
+			updateCpb(topic == MWComponentEvent.TOPIC_PAUSED, false, false);
+		}
 	}
 }
