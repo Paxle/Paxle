@@ -1,0 +1,11 @@
+#if( $indexSearcher)
+<fieldset class="infobox">
+	<legend>Index</legend>
+	<dl>
+		<dt>Documents known:</dt><dd>$indexSearcher.getDocCount()</dd>
+	</dl>
+</fieldset>
+#end
+
+
+

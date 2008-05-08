@@ -86,16 +86,6 @@
 	</table>
 </fieldset>
 
-#if( $indexSearcher)
-<fieldset class="infobox">
-	<legend>Index</legend>
-	<dl>
-		<dt>Documents known:</dt><dd>$indexSearcher.getDocCount()</dd>
-	</dl>
-</fieldset>
-#end
-
-
 <script type="text/javascript">
    var ajaxPopulater = function (id,reload){
     var url  = '/overview?reload=' + reload;
@@ -109,7 +99,13 @@
    };
    
    ajaxPopulater('infoBoxActivity','activity');
-  </script>
+	 ajaxPopulater('infoBoxKnownDocuments','knownDocuments');
+	 </script>
+
+	 <div id="infoBoxKnownDocuments">
+		#parse('/resources/templates/OverViewKnownDocuments.vm')
+	 </div>
+
   <div id="infoBoxActivity">
 	#parse('/resources/templates/OverViewActivity.vm')
   </div>

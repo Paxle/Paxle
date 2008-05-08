@@ -119,6 +119,12 @@ public class OverView extends ALayoutServlet {
 				
 				// just return the activity overview
 				template = getTemplate("/resources/templates/OverViewActivity.vm");
+			} else if (reload.equals("knownDocuments")) {
+				// we don't want full html 
+				context.put("layout", "plain.vm");
+				
+				// just return the knownDocuments overview
+				template = getTemplate("/resources/templates/OverViewKnownDocuments.vm");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
