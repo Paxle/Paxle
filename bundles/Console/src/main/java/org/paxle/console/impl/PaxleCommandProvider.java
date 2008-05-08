@@ -65,6 +65,11 @@ public class PaxleCommandProvider implements CommandProvider {
 			return;
 		}
 		
+		StringBuilder buf = new StringBuilder();
+		if (arg.equals("overview")) {
+			buf.append("Component: | Active: | Enqueued:\r\n");
+		}
+		
 		for (COMPONENT componentName : componentNames) {
 			IMWComponent<?> component = this.getMWComponent(componentName);
 			if (component == null) {
@@ -73,20 +78,29 @@ public class PaxleCommandProvider implements CommandProvider {
 			}
 
 			if (arg.equals("status")) {
-				ci.println(String.format("%s status:", componentName.name()));
-				ci.println(String.format(" Activity = %s",(component.isPaused())?"paused":"running"));
-				ci.println(String.format(" PPM = %d",component.getPPM()));
-				ci.println(String.format(" Active Jobs = %d",component.getActiveJobCount()));
-				ci.println(String.format(" Enqueued Jobs = %d",component.getEnqueuedJobCount()));
-				ci.println();
+				buf.append(String.format("%s status:\r\n", componentName.name()))
+				   .append(String.format(" Activity = %s\r\n",(component.isPaused())?"paused":"running"))
+				   .append(String.format(" PPM = %d\r\n",component.getPPM()))
+				   .append(String.format(" Active Jobs = %d\r\n",component.getActiveJobCount()))
+				   .append(String.format(" Enqueued Jobs = %d\r\n",component.getEnqueuedJobCount()))
+				   .append("\r\n");				
 			} else if (arg.equals("pause")) {
 				component.pause();
-				ci.println(String.format("%s paused.", componentName.name()));
+				buf.append(String.format("%s paused.\r\n", componentName.name()));
 			} else if (arg.equals("resume")) {
 				component.resume();
-				ci.println(String.format("%s resumed.", componentName.name()));
+				buf.append(String.format("%s resumed.\r\n", componentName.name()));
+			} else if (arg.equals("overview")) {
+				buf.append(String.format(
+						   "%10s | %7d | %7d\r\n",
+						   componentName.name(),
+						   component.getActiveJobCount(),
+						   component.getEnqueuedJobCount()
+				   ));
 			}
 		}
+		
+		ci.println(buf.toString());
 	}
 	
 	public String getHelp() {
@@ -96,6 +110,7 @@ public class PaxleCommandProvider implements CommandProvider {
 		   .append("---Controlling the Crawler/Parser/Indexer---\r\n")
 		   .append("\tcrawler|parser|indexer|components - Paxle component related commands\r\n")
 		   .append("\t   status - print current status\r\n")
+		   .append("\t   overview - display the amount of active and enqueued jobs")
 		   .append("\t   pause - pause component\r\n")
 		   .append("\t   resume - resume component\r\n");
 		
