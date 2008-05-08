@@ -96,12 +96,12 @@
     		#end
     	#end
     	</table>
-		<p>
     		<form method="post" action="">
+				<p>
     			<input class="btnAddUser" type="submit" name="newUser" value="New User" />
     			<input class="btnAddGroup" type="submit" name="newGroup" value="New Group" />
+					</p>
     		</form>
-		</p>
 	#end
 #else
 	<div class="bundleNotInstalled">User Administration bundle not installed!</div>

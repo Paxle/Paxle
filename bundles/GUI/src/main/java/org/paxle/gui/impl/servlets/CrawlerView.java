@@ -198,15 +198,14 @@ public class CrawlerView extends ALayoutServlet {
 				while ((line = startURLs.readLine()) != null)
 					tank.putUrl2Crawl(line);
 				context.put("errorUrls", tank.getErrorUrls());
-			} else {
-				// default values for input fields
-				context.put("defaultDepth", "3");
-				context.put("defaultName", "Crawl " + this.formatter.format(new Date()));
-			}
-			
+			}			
+
 			/*
 			 * Setting template parameters
 			 */
+			// default values for input fields
+			context.put("defaultDepth", "3");
+			context.put("defaultName", "Crawl " + this.formatter.format(new Date()));
 			template = this.getTemplate("/resources/templates/CrawlerView.vm");
 		} catch( Exception e ) {
 			logger.error("Error processing request: " + e.getMessage(), e);

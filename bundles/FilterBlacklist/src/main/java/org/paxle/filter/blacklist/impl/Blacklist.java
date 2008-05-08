@@ -1,22 +1,25 @@
 package org.paxle.filter.blacklist.impl;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Iterator;
-import java.util.Enumeration;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.regex.Matcher;
 import java.io.FileWriter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.IOException;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.apache.commons.io.FileUtils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * This is a RegExp-based Blacklist
@@ -71,17 +74,24 @@ public class Blacklist {
 		this.name = name;
 		this.listFile = new File(blacklistDir, this.name);
 		if (!(listFile.canRead() && listFile.canWrite())) throw new IllegalArgumentException("Unknown blacklist.");
+		boolean incorrectPattern = false;
 		try {
 			blacklist = new ConcurrentHashMap<String,Pattern>();
 			Iterator<?> patternIterator = FileUtils.readLines(this.listFile).iterator();
 			while (patternIterator.hasNext()) {
 				String pattern = (String) patternIterator.next();
-				blacklist.put(pattern, Pattern.compile(pattern));
+				try {
+					blacklist.put(pattern, Pattern.compile(pattern));
+				} catch (PatternSyntaxException e) {
+					logger.warn("Invalid blacklistpattern " + pattern + " in file " + name + ", it will be ignored and a version without this pattern will be saved");
+					incorrectPattern = true;
+					e.printStackTrace();
+				}
 			}
 			this.store();
+			if (incorrectPattern) // store a version of the list that does not contain invalid patterns anymore
+				FileUtils.writeLines(this.listFile, this.getPatternList());
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (PatternSyntaxException e) {
 			e.printStackTrace();
 		}
 	}

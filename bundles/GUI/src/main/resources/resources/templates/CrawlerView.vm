@@ -27,8 +27,8 @@
 <fieldset>
 	<legend>Profile</legend>
 	<table>
-	<tr><td>Profile Name:</td><td><input type="depth" id="crawlDepth" name="profileName" value="$!defaultName"/></td></tr>
-	<tr><td>Crawl Depth:</td><td><input type="depth" id="crawlDepth" name="crawlDepth" value="$!defaultDepth"/></td></tr>
+	<tr><td>Profile Name:</td><td><input type="text" id="crawlDepth" name="profileName" value="$!defaultName"/></td></tr>
+	<tr><td>Crawl Depth:</td><td><input type="text" id="crawlDepth" name="crawlDepth" value="$!defaultDepth"/></td></tr>
 	</table>
 </fieldset>
 

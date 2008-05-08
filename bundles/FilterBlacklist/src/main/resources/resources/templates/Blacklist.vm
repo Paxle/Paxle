@@ -24,30 +24,30 @@
 	#if ($action == "newList")
 		<h3>Create a new List</h3>
 		<form method="post" action="/blacklist">
-			<div>
+			<p>
 				<input type="text" name="listName" id="listName" value="" />
 				<input type="hidden" name="action" value="addList" />
 				<input type="submit" value="Create" />
-			</div>
+			</p>
 		</form>
 	#elseif ($action == "delList")
 		<h3>Delete this List?</h3>
 		<p class="warning"><strong>Warning:</strong> this will permanently delete this list. This operation can not be undone! <a href="/blacklist?list=$escTool.url($curList)">Cancel</a></p>
 		<form method="post" action="/blacklist">
-			<div>
+			<p>
 				<input type="hidden" name="action" value="removeList" />
 				<input type="hidden" name="list" value="$escTool.html( $curList.getName() )" />
 				<input type="submit" value="Delete!" />
-			</div>
+			</p>
 		</form>
 	#else
 		<form method="post" action="/blacklist">
-			<div>
+			<p>
 				<input type="hidden" name="action" value="addPattern" />
 				<input type="hidden" name="list" value="$escTool.html( $curList.getName() )" />
 				<input type="text" name="pattern" value="" />
 				<input type="submit" value="Add this pattern" />
-			</div>
+			</p>
 		</form>
 		<table>
 			<tr>

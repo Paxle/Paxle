@@ -20,7 +20,7 @@
 			<td>$entry.getCount()</td>	
 			<td>
 				<form method="get" action="">
-					<p>
+					<div>
 					#if( $entry.service.isPaused() == true)
 						<input type="hidden" name="service" value="$entry.getName()" />
 						<input class="btnResume" type="submit" name="resume" value="Resume" />
@@ -28,7 +28,7 @@
 						<input type="hidden" name="service" value="$entry.getName()" />
 						<input class="btnPause" type="submit" name="pause" value="Pause" />
 					#end
-					</p>
+					</div>
 				</form>
 			</td>
 			<td>

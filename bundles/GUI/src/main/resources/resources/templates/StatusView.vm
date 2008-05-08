@@ -63,7 +63,7 @@
 			#end
 			The crawler is 
 			#if( $crawler.isPaused() == true)
-				<p class="statusPaused">paused</p><br/>
+				<span class="statusPaused">paused</span>
 				<form method="get" action="#dcrawler">
 					<p>
 						<input class="btnResume" type="submit" name="resumeCrawl" value="Resume" />
@@ -71,15 +71,13 @@
 					</p>
 				</form>
 			#else 
-				<p class="statusRunning">running</p><br/>
+				<span class="statusRunning">running</span>
 				<form method="get" action="#dcrawler">
 					<p>
 						<input class="btnPause" type="submit" name="pauseCrawl" value="Pause" />
 					</p>
 				</form>
 			#end
-			<br />
-			
 			Current PPM: $crawler.getPPM()
 		#end
 	#end
@@ -89,7 +87,7 @@
 	<h3>Supported protocols:</h3>
 	#set($protocols = $subCrawlerManager.getProtocols())
 	#set($crawlers = $subCrawlerManager.getSubCrawlers())		
-	<b>$crawlers.size()</b> crawler(s) installed supporting <b>$protocols.size()</b> protocols.
+	<p><strong>$crawlers.size()</strong> crawler(s) installed supporting <strong>$protocols.size()</strong> protocols.</p>
 	
 	## Enable/Disable protocols if requested
 	#if( $paramParser.getString( "doEnableProtocol")) $subCrawlerManager.enableProtocol( $paramParser.getString( "enableProtocol"))#end
@@ -102,14 +100,14 @@
 			<tr>
 				<td>$protocol</td>
 				<td>#if( $disabledProtocols.contains( $protocol))
-					<p class="statusDisabled">disabled</p>
+					<span class="statusDisabled">disabled</span>
 				    #else
-					<p class="statusEnabled">enabled</p>
+					<span class="statusEnabled">enabled</span>
 				    #end
 				</td>
 				<td>
 					<form method="get" action="#dcrawler">
-						<p>
+						<div>
 							#if( $disabledProtocols.contains( $protocol))
 							<input class="btnEnable" type="submit" name="doEnableProtocol" value="enable" />
 							<input type="hidden" name="enableProtocol" value="$protocol" />
@@ -117,7 +115,7 @@
 							<input class="btnDisable" type="submit" name="doDisableProtocol" value="disable" />
 							<input type="hidden" name="disableProtocol" value="$protocol" />
 							#end
-						</p>
+						</div>
 					</form>
 				</td>
 			</tr>
@@ -150,12 +148,13 @@
 	#set( $parsers = $manager.getServices( "org.paxle.core.IMWComponent", "(component.ID=org.paxle.crawler)"))	
 	#if( $parsers)
 	#foreach( $parser in $parsers)
-		The parser is 
+		<p>The parser is 
 		#if( $parser.isPaused() == true)
-		<p class="statusPaused">paused</p>
+		<span class="statusPaused">paused</span>
 		#else 
-		<p class="statusRunning">running</p>
+		<span class="statusRunning">running</span>
 		#end.
+		</p>
 	#end
 	#end
 
@@ -163,7 +162,7 @@
 	<h3>Supported mimetypes:</h3>	
 	#set( $mimeTypes = $subParserManager.getMimeTypes())
 	#set( $parsers = $subParserManager.getSubParsers())		
-	<b>$parsers.size()</b> parser(s) installed supporting <b>$mimeTypes.size()</b> mime-types.
+	<p><strong>$parsers.size()</strong> parser(s) installed supporting <strong>$mimeTypes.size()</strong> mime-types.</p>
 	
 	## Enable/Disable mime-types if requested
 	#if( $paramParser.getString( "doEnableMimeType")) $subParserManager.enableMimeType( $paramParser.getString( "enableMimeType"))#end
@@ -177,14 +176,14 @@
 		<tr>
 			<td>$mimeType</td>
 			<td>#if( $disabledMimeTypes.contains( $mimeType))
-				<p class="statusDisabled">disabled</p>
+				<span class="statusDisabled">disabled</span>
 			    #else
-				<p class="statusEnabled">enabled</p>
+				<span class="statusEnabled">enabled</span>
 			    #end
 			</td>
 			<td>
 				<form method="get" action="#dparser">
-					<p>
+					<div>
 						#if( $disabledMimeTypes.contains( $mimeType))
 						<input class="btnEnable" type="submit" name="doEnableMimeType" value="enable" />
 						<input type="hidden" name="enableMimeType" value="$mimeType" />
@@ -192,7 +191,7 @@
 						<input class="btnDisable" type="submit" name="doDisableMimeType" value="disable" />
 						<input type="hidden" name="disableMimeType" value="$mimeType" />
 						#end
-					</p>
+					</div>
 				</form>
 			</td>
 		</tr>
@@ -249,7 +248,7 @@
 	<legend>Search</legend>
 		
 	<h3>Installed Search Providers:</h3>
-	$sp.getSearchProviders().size() provider(s) found:<br />
+	<p>$sp.getSearchProviders().size() provider(s) found:</p>
 	
 	## Enable/Disable providers
 	#if( $paramParser.getString( "doEnableSEProvider")) $sp.enableProvider( $paramParser.getString( "enableSEProvider"))#end
@@ -263,14 +262,14 @@
 		<tr>
 			<td>$searchprovider.getClass().getName()</td>
 			<td>#if( $disabledSEProviders.contains( $searchprovider.getClass().getName()))
-				<p class="statusDisabled">disabled</p>
+				<span class="statusDisabled">disabled</span>
 				#else
-				<p class="statusEnabled">enabled</p>
+				<span class="statusEnabled">enabled</span>
 				#end
 			</td>
 			<td>
 				<form method="get" action="#dsearch">
-					<p>
+					<div>
 						#if( $disabledSEProviders.contains( $searchprovider.getClass().getName()))
 						<input class="btnEnable" type="submit" name="doEnableSEProvider" value="enable" />
 						<input type="hidden" name="enableSEProvider" value="$searchprovider.getClass().getName()" />
@@ -278,7 +277,7 @@
 						<input class="btnDisable" type="submit" name="doDisableSEProvider" value="disable" />
 						<input type="hidden" name="disableSEProvider" value="$searchprovider.getClass().getName()" />
 						#end
-					</p>
+					</div>
 				</form>
 			</td>
 		</tr>			
@@ -303,7 +302,7 @@
 	<legend>GUI</legend>
 		
 	<h3>Installed Servlets:</h3>
-	$servletManager.getServlets().size() servlet(s) found:<p />
+	<p>$servletManager.getServlets().size() servlet(s) found:</p>
 	
 	<table>		
 		<tr><th>Path</th><th>Class</th></tr>

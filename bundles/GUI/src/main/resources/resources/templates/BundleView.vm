@@ -156,7 +156,7 @@
 		</td>
 		<td>
 			<form action="">
-				<p>
+				<div>
 					<input type="hidden" name="bundleID" value="$entry.key" />
 					<select name="action">
 						<option value="start">Start</option>
@@ -166,7 +166,7 @@
 						<option value="uninstall">Uninstall</option>
 					</select>
 					<input type="submit" name="OK" />
-				</p>
+				</div>
 			</form>
 		</td>
 	</tr>
