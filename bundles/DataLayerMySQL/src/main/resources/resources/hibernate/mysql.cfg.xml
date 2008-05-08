@@ -7,7 +7,7 @@
 	<session-factory>
         <!-- Database connection settings -->
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
-        <property name="connection.url">jdbc:mysql://192.168.0.2/paxle</property>
+        <property name="connection.url">jdbc:mysql://192.168.0.2/paxle-command-db</property>
         <property name="connection.username">paxle</property>
         <property name="connection.password">paxle</property>
 
