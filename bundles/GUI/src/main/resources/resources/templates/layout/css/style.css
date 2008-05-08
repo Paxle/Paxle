@@ -93,6 +93,7 @@ table {
 }
 
 th {
+	background-color: #e1d7b1;
 	border-left: 1px solid #96825F;
 	border-right: 1px solid #96825F;
 	border-bottom: 1px solid #96825F;
