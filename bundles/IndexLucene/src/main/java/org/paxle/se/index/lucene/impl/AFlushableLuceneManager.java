@@ -25,7 +25,7 @@ import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IIndexIteratable;
 
-public abstract class AFlushableLuceneManager implements IIndexIteratable {
+public class AFlushableLuceneManager implements IIndexIteratable {
 	
 	public final ReentrantReadWriteLock rwlock = new ReentrantReadWriteLock(true);
 	public final ReentrantReadWriteLock.ReadLock rlock = this.rwlock.readLock();
@@ -34,12 +34,14 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 	protected final String path;
 	protected final IndexWriter writer;
 	protected final Log logger = LogFactory.getLog(AFlushableLuceneManager.class);
+	protected final PaxleAnalyzer analyzer;
 	protected IndexReader reader;
 	
 	private boolean dirty = false;
 	
 	public AFlushableLuceneManager(final String path, final PaxleAnalyzer analyzer) throws IOException {
 		this.path = path;
+		this.analyzer = analyzer;
 		this.writer = new IndexWriter(path, analyzer);
 		this.writer.setMaxFieldLength(Integer.MAX_VALUE);
 		this.reader = IndexReader.open(path);
@@ -119,10 +121,9 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 	}
 	
 	public int getDocCount() throws IOException {
-		checkFlush();
 		this.rlock.lock();
 		try {
-			return this.reader.numDocs();
+			return writer.docCount();
 		} finally { this.rlock.unlock(); }
 	}
 	
@@ -147,15 +148,11 @@ public abstract class AFlushableLuceneManager implements IIndexIteratable {
 		} finally { wlock.unlock(); }
 	}
 	
-    public void write(Document document) throws IOException, CorruptIndexException {
-        this.wlock.lock();
-        try {
-            this.writer.addDocument(document);
-            this.dirty = true;
-        } finally { this.wlock.unlock(); }
-    }
-    
-    public void delete(Term term) throws IOException, CorruptIndexException {
+	public void write(Document document) throws IOException, CorruptIndexException {
+		write(document, analyzer);
+	}
+	
+	public void delete(Term term) throws IOException, CorruptIndexException {
 //        this.wlock.lock();
 //        try {
             this.writer.deleteDocuments(term);
