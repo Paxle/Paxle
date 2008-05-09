@@ -55,7 +55,14 @@
 		</tr>
 		<tr>
 			<td><b>Memory misc</b></td>
-			<td><a href="?gc=GC" class="btnGC">run Garbage Collection</a></td>
+			<td>
+				<form action="/overview" method="post">
+					<div>
+						<input type="hidden" name="gc" value="GC" />
+						<input type="submit" value="run Garbage Collection" />
+					</div>
+				</form>
+			</td>
 		</tr>
 	</table>
 </fieldset>

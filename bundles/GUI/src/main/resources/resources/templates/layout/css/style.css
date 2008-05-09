@@ -17,7 +17,7 @@ fieldset {
 }
 
 fieldset.infobox {
-	min-width: 24em;
+	width: 24em;
 	margin: 1em;
 	float: left;
 }
