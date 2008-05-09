@@ -7,7 +7,6 @@ import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,12 +18,20 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 { 
 	/** the directory where the robots.txt data is stored */
 	File dir = null;
+	
 	/** The time in minutes between each cleaning */
-	public static final String PROP_DELAY = "delay";
+	public static final String PROP_CLEANDELAY = "cleandelay";
+
+	/** The delay between each read-action on the stored robots.txt objects in seconds */
+	public static final String PROP_IODELAY = "iodelay";
 
 	/** The configuration data for this class */
 	private Dictionary<String, Object> config = null;
 
+	/** The start of the last run */
+	long tstart;
+
+	/** The logging facility */
 	Log logger = LogFactory.getLog(this.getClass());
 
 	/**
@@ -38,12 +45,25 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 		this.setPriority(Thread.MIN_PRIORITY);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Thread#run()
+	 */
 	@Override
-	public void run() { 
-		/** If set to false the thread terminates */
+	public void run() {
+		/* If set to false the thread terminates */
 		boolean go_on = true;
 
 		while (go_on) {
+
+			/* counter for number of files */
+			int ctr = 0;
+
+			/* counter for number of deleted files */
+			int delctr = 0;
+
+			/* timestamp of start */
+			tstart = System.currentTimeMillis();
+
 			logger.info("Cleaning cache...");
 
 			for ( File file : dir.listFiles() )  {
@@ -52,59 +72,82 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 				} else {
 					ObjectInputStream ois = null;
 					RobotsTxt robotsTxt = null;
+					ctr++;
 					try {
 						ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
 						robotsTxt = (RobotsTxt) ois.readObject();
 						ois.close();
 						ois = null;
-					} catch (InvalidClassException e) {
-						//Old type of class definition. Just delete it to avoid cruft.
-						file.delete();
-					} catch (ClassNotFoundException e) {
-						// class was refactored. just delete it
-						file.delete();
 					} catch (Exception e) {
-						logger.error("Error while reading file " + file.getName() + " - Removing it.", e);
-						file.delete();
+						if (e instanceof InvalidClassException) {
+							//Old type of class definition. Just delete it to avoid cruft.
+							file.delete();
+						} else if (e instanceof ClassNotFoundException) {
+							// class was refactored. Just delete it to avoid cruft.
+							file.delete();
+						} else {
+							logger.error("Error while reading file " + file.getName() + " - Removing it.", e);
+							file.delete();
+						}
+						delctr++;
 					} finally {
 						if (ois != null) try { ois.close(); } catch (Exception e) {/* ignore this */}
-					}					
+					}
 
 					if (robotsTxt != null && (robotsTxt.getExpirationDate().getTime() < System.currentTimeMillis())) {
 						logger.debug("Deleting cached robots.txt file for " + robotsTxt.getHostPort());
 						file.delete();
+						delctr++;
 					}
 				}
 				if (isInterrupted()) {
 					go_on=false;
 					break;
 				}
-				//Wait a moment to not overload the I/O
+				
+				checkConfig();
 				try {
-					TimeUnit.MILLISECONDS.sleep(500); 
+					//Wait a moment to not overload the I/O
+					synchronized(this) { this.wait(((Integer)config.get(PROP_IODELAY)).intValue()); }
 				} catch ( InterruptedException e ) {
 					go_on=false;
 					break;
 				}
 			}
-			logger.debug("Finished cleaning cache.");
 
-			if (isInterrupted()) {
-				go_on=false;
-			}
+			logger.debug("Finished cleaning cache.\n" +
+					"Total Runtime: " + ((System.currentTimeMillis() - tstart)/1000) + "s\n" +
+					"I/O-delay is configured to " + config.get(PROP_IODELAY) + "ms\n" + 
+					"I/O-delay accounted for " + (ctr * (Integer)config.get(PROP_IODELAY) / 1000) + "s of total time\n" +
+					"Processing time: " + (((System.currentTimeMillis() - tstart)/1000) - (ctr * (Integer)config.get(PROP_IODELAY) / 1000)) + "\n" +
+					"Files before: " + ctr + "\n" +
+					"Files deleted: " + delctr + "\n" +
+					"Files now: " + (ctr - delctr));
+
 			if (go_on) {
-				if (config.get(PROP_DELAY) == null) {
-					logger.warn("Delay for robots.txt cleaning is null. Loading defaults.");
-					updated(getDefaults());
-				}
+				checkConfig();
 				try {
-					TimeUnit.SECONDS.sleep(((Integer)config.get(PROP_DELAY)).intValue()*60); 
+					synchronized(this) { this.wait(((Integer)config.get(PROP_CLEANDELAY)).intValue()*60*1000); }
 				} catch ( InterruptedException e ) {
 					go_on=false;
-				} 
+				}
 			}
 		}
 		logger.info("Thread terminated.");
+	}
+
+	/**
+	 * Checks the configuration of the CleanupThread for completeness
+	 */
+	private void checkConfig() {
+		if (config.get(PROP_CLEANDELAY) == null) {
+			logger.warn("Delay for robots.txt cleaning is null. Loading defaults.");
+			updated(getDefaults());
+		}
+		if (config.get(PROP_IODELAY) == null) {
+			logger.warn("IO-Delay for robots.txt cleaning is null. Loading defaults.");
+			updated(getDefaults());
+		}
 	}
 
 	/**
@@ -112,7 +155,7 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 	 */
 	@SuppressWarnings("unchecked")		// we're only implementing an interface
 	public synchronized void updated(Dictionary configuration) {
-		logger.debug("Updating configuration");
+		logger.info("Updating configuration");
 		try {
 			if ( configuration == null ) {
 				logger.warn("Updated configuration is null. Using defaults.");
@@ -122,6 +165,17 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 		} catch (Throwable e) {
 			logger.error("Internal exception during configuring", e);
 		}
+
+		/*
+		 * Most probably the thread already slept some time.
+		 * If this time is greater than the newly configured time, start execution immediately
+		 */
+
+		if ((System.currentTimeMillis() - tstart) > (((Integer)config.get(PROP_CLEANDELAY)).longValue()*60l*1000l)) {
+			logger.debug("Newly configured run intervall is smaller than actual waiting time. Starting new run immediately.");
+			synchronized(this) { this.notify(); }
+		}
+
 	}
 
 	/**
@@ -130,7 +184,8 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 	public Hashtable<String,Object> getDefaults() {
 		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 
-		defaults.put(PROP_DELAY, Integer.valueOf(30));
+		defaults.put(PROP_CLEANDELAY, Integer.valueOf(30));
+		defaults.put(PROP_IODELAY, Integer.valueOf(500));
 		defaults.put(Constants.SERVICE_PID, RobotsTxtCleanupThread.class.getName());
 
 		return defaults;
