@@ -90,7 +90,7 @@ public class RobotsTxtManagerTest extends TestCase {
 	
 	public void _testDownloadAndParserRobotsTxt() throws IOException, URISyntaxException {
 		String uri = "http://www.hibernate.org/robots.txt";
-		RobotsTxt rtxt = this.manager.parseRobotsTxt(URI.create(uri));
+		RobotsTxt rtxt = this.manager.getFromWeb(URI.create(uri));
 		assertNotNull(rtxt);
 	}
 	

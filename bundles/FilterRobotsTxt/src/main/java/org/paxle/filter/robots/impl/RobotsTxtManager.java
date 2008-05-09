@@ -35,6 +35,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -78,6 +80,29 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		
 	private static final String ROBOTS_AGENT_PAXLE = "paxle";
 
+	/**
+	 * Lock object required to synchronize functions affected by {@link #updated(Dictionary)} 
+	 * 
+	 * @see #updated(Dictionary)
+	 * @see #getFromCache(String)
+	 * @see #putIntoCache(String, RobotsTxt)
+	 * @see #getFromWeb(URI)
+	 * 
+	 * @see #httpClient
+	 * @see #cache
+	 */
+	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+	
+	/**
+	 * @see #rwl
+	 */
+	private final Lock r = rwl.readLock();
+	
+	/**
+	 * @see #rwl
+	 */
+	private final Lock w = rwl.writeLock();
+	
 	/**
 	 * For logging
 	 */
@@ -154,25 +179,12 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	}
 
 	/**
-	 * This method is synchronized with {@link #updated(Dictionary)} to avoid
-	 * problems during configuration update.
-	 * 
+	 * This method is only used for testing.
 	 * @return the {@link Cache} to use
 	 */
-	synchronized Cache getCache() {
+	Cache getCache() {
 		return this.cache;
 	}
-	
-
-	/**
-	 * This method is synchronized with {@link #updated(Dictionary)} to avoid
-	 * problems during configuration update.
-	 * 
-	 * @return the {@link HttpClient} to use
-	 */
-	private synchronized HttpClient getHttpClient() {
-		return this.httpClient;
-	}	
 	
 	/**
 	 * @return the default configuration of this service
@@ -195,6 +207,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		defaults.put(PROP_PROXY_USER, "");
 		defaults.put(PROP_PROXY_PASSWORD, "");
 		
+		// a systemwidth unique ID needed by the CM
 		defaults.put(Constants.SERVICE_PID, IRobotsTxtManager.class.getName());
 		
 		return defaults;
@@ -204,17 +217,20 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	 * @see ManagedService#updated(Dictionary)
 	 */
 	@SuppressWarnings("unchecked")		// we're only implementing an interface
-	public synchronized void updated(Dictionary configuration) {
+	public void updated(Dictionary configuration) {
 		// our caller catches all runtime-exceptions and silently ignores them, leaving us confused behind,
 		// so this try/catch-block exists for debugging purposes
 		try {
-			if ( configuration == null ) {
+			if (configuration == null) {
 				logger.warn("updated configuration is null");
 				/*
 				 * Generate default configuration
 				 */
 				configuration = this.getDefaults();
 			}
+			
+			// enter critical section
+			this.w.lock();
 			
 			// remove old cache
 			this.manager.removeCache("robotsTxtCache");
@@ -260,8 +276,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			}			
 			
 		} catch (Throwable e) {
-			logger.error("Internal exception during configuring", e);
-		}			
+			this.logger.error("Internal exception during configuring", e);
+		} finally {
+			this.w.unlock();
+		}
 	}
 
 	/**
@@ -286,7 +304,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	 * @throws IOException
 	 * @throws URISyntaxException 
 	 */
-	RobotsTxt parseRobotsTxt(URI robotsURL) throws IOException, URISyntaxException {
+	RobotsTxt getFromWeb(URI robotsURL) throws IOException, URISyntaxException {
 		String hostPort = this.getHostPort(robotsURL);
 
 		String statusLine = null;
@@ -297,9 +315,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		InputStream inputStream = null;
 		HttpMethod getMethod = null;
 		try {
+			this.r.lock();
+			
 			getMethod = new GetMethod(robotsURL.toASCIIString());
-
-			int code = this.getHttpClient().executeMethod(getMethod);
+			int code = this.httpClient.executeMethod(getMethod);
 			statusLine = getMethod.getStatusLine().toString();
 
 			if (code == HttpStatus.SC_UNAUTHORIZED || code == HttpStatus.SC_FORBIDDEN) {
@@ -343,7 +362,8 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			return new RobotsTxt(hostPort, reloadInterval, status);
 		} finally {
 			if (inputStream != null) try { inputStream.close(); } catch (Exception e) {/* ignore this */}
-			if (getMethod != null) getMethod.releaseConnection();			
+			if (getMethod != null) getMethod.releaseConnection();
+			this.r.unlock();
 		}
 
 	}
@@ -627,39 +647,72 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		return disallowedList;
 	}
 
-	private RobotsTxt getRobotsTxt(URI baseUri) throws IOException, URISyntaxException {		
-		Cache theCache = this.getCache();
+	private RobotsTxt getRobotsTxt(URI baseUri) throws IOException, URISyntaxException {
 		String hostPort = this.getHostPort(baseUri);
 		
 		synchronized (hostPort.intern()) {
 			RobotsTxt robotsTxt = null;
 			
 			// trying to get the robots.txt from cache
-			Element element = theCache.get(hostPort);
-			if (element != null) robotsTxt = (RobotsTxt) element.getValue();
+			robotsTxt = this.getFromCache(hostPort);
 
 			// trying to get the robots.txt from file
 			if (robotsTxt == null) {
-				robotsTxt = this.loadRobotsTxt(hostPort);
+				robotsTxt = this.getFromFile(hostPort);
 				if (robotsTxt != null) {
-					element = new Element(hostPort, robotsTxt);
-					theCache.put(element);
+					this.putIntoCache(hostPort, robotsTxt);
 				}
 			}
 
 			// trying to download the robots.txt
 			if (robotsTxt == null || (System.currentTimeMillis() - robotsTxt.getLoadedDate().getTime() > robotsTxt.getReloadInterval())) {				
-				robotsTxt = this.parseRobotsTxt(URI.create(baseUri.toASCIIString() + "/robots.txt"));
-				element = new Element(hostPort, robotsTxt);
-				theCache.put(element);
-				this.storeRobotsTxt(robotsTxt);
+				robotsTxt = this.getFromWeb(URI.create(baseUri.toASCIIString() + "/robots.txt"));
+				this.putIntoCache(hostPort, robotsTxt);
+				this.putIntoFile(robotsTxt);
 			}
 			
 			return robotsTxt;
 		}
 	}
 	
-	void storeRobotsTxt(RobotsTxt robotsTxt) {
+	/**
+	 * Function to put a robots.txt file into the {@link #cache}
+	 * @param hostPort the <code>hostname:port</code> the robots.txt file belongs to
+	 * @param robotsTxt the robots.txt file
+	 */
+	private void putIntoCache(String hostPort, RobotsTxt robotsTxt) {
+		try {
+			/* Synchronize access to the cache with the update function
+			 * 
+			 * A r-lock is ok here, because writing to cache is synchronized internally.
+			 * A "write" in our situation is an update to the component via CM
+			 */
+			this.r.lock();
+			
+			Element element = new Element(hostPort, robotsTxt);
+			this.cache.put(element);
+		} finally {
+			this.r.unlock();
+		}
+	}
+	
+	/**
+	 * Function to get a robots.txt file from {@link #cache}
+	 * @param hostPort the <code>hostname:port</code> for which the robots.txt file should be fetched
+	 * @return the robots.txt file
+	 */
+	private RobotsTxt getFromCache(String hostPort) {
+		try {
+			this.r.lock();
+			
+			Element element = this.cache.get(hostPort);
+			return (element == null) ? null : (RobotsTxt) element.getValue();
+		} finally {
+			this.r.unlock();
+		}
+	}	
+	
+	void putIntoFile(RobotsTxt robotsTxt) {
 		ObjectOutputStream oos = null;
 		try {
 			// getting the host:port string
@@ -683,7 +736,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	 * @param hostPort
 	 * @return
 	 */
-	RobotsTxt loadRobotsTxt(String hostPort) {
+	RobotsTxt getFromFile(String hostPort) {
 		ObjectInputStream ois = null;
 		File robotsTxtFile = null;
 		try {
