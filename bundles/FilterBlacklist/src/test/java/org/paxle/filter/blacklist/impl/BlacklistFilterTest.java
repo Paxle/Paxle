@@ -57,6 +57,12 @@ public class BlacklistFilterTest extends TestCase {
 		assertTrue(new File(testDir,"testList2").exists());
 	}
 	
+	public void testIsListnameAllowed() throws Exception {
+		assertFalse(Blacklist.isListnameAllowed("../test"));
+		assertFalse(Blacklist.isListnameAllowed("./test"));
+		assertTrue(Blacklist.isListnameAllowed("test"));
+	}
+	
 	protected void tearDown() throws Exception {
 		new File(testDir,"testList").delete();
 		new File(testDir,"testList2").delete();

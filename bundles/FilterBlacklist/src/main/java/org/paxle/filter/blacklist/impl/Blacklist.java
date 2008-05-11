@@ -3,21 +3,17 @@ package org.paxle.filter.blacklist.impl;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.io.FileUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -105,6 +101,8 @@ public class Blacklist {
 			return getList(name);
 		else {
 			try {
+				if(!isListnameAllowed(name))
+					return null;
 				FileUtils.touch(new File(blacklistDir, name));
 				return new Blacklist(name);
 			} catch (IOException e) {
@@ -112,6 +110,25 @@ public class Blacklist {
 				return null;
 			}
 		}
+	}
+
+	static boolean isListnameAllowed(String name) {
+		final char allowedCharacters [] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','-','_','.','1','2','3','4','5','6','7','8','9','0'};
+		name = name.toLowerCase();
+		char temp [] = name.toCharArray();
+		boolean test;
+		for(int i=0; i<temp.length;i++) {
+			test = false;
+			for(int j=0;j<allowedCharacters.length;j++) {
+				if(temp[i]==allowedCharacters[j]) {
+					test = true;
+					break;
+				}
+			}
+			if(!test)
+				return false;
+		}
+		return true;
 	}
 
 	/**
