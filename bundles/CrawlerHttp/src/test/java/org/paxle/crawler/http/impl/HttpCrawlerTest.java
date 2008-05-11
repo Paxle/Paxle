@@ -28,7 +28,9 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 		threadLocal.getSupportedMimeTypes().add(mimeType);
 		threadLocal.setTempFileManager(new ITempFileManager() {
 			public File createTempFile() throws IOException {
-				return File.createTempFile("test", ".tmp");
+				File tmp = File.createTempFile("test", ".tmp");
+				tmp.deleteOnExit();
+				return tmp;
 			}
 			public void releaseTempFile(File arg0) throws FileNotFoundException, IOException {
 				arg0.delete();				
