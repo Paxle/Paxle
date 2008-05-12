@@ -11,6 +11,7 @@ import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.filter.blacklist.impl.BlacklistFilter;
 import org.paxle.filter.blacklist.impl.Blacklist;
+import org.paxle.filter.blacklist.impl.InvalidFilenameException;
 
 public class BlacklistServlet extends ALayoutServlet {
 
@@ -26,8 +27,9 @@ public class BlacklistServlet extends ALayoutServlet {
 	public Template handleRequest( HttpServletRequest request,
 			HttpServletResponse response,
 			Context context ) {
-		Template template = null;
+		Template template = null;;
 		try {
+			template = this.getTemplate("/resources/templates/Blacklist.vm");
 			List<String> listnames = this.blacklistFilter.getLists();
 			context.put("listnames", listnames);
 
@@ -39,11 +41,14 @@ public class BlacklistServlet extends ALayoutServlet {
 
 			// create a new list
 			if (request.getMethod().equals("POST") && action.equals("addList")) {
-				if ((request.getParameter("listName") == null) || (request.getParameter("listName").equals(""))) {
-					response.sendRedirect("/blacklist");
-					return null;
-				} else if  (! listnames.contains(request.getParameter("listName"))) {
-					blacklistFilter.createList(request.getParameter("listName"));
+				if ((request.getParameter("listName") != null) && (! listnames.contains(request.getParameter("listName")))) {
+					try{
+						blacklistFilter.createList(request.getParameter("listName"));
+					} catch (InvalidFilenameException e) {
+						logger.warn("Tried to add blacklist with invalid name '" + request.getParameter("listName") + "'");
+						context.put("InvalidFilenameException", e);
+						return template;
+					}
 					response.sendRedirect("/blacklist?list=" + URLEncoder.encode(request.getParameter("listName"), "UTF-8"));
 					return null;
 				}
@@ -80,7 +85,6 @@ public class BlacklistServlet extends ALayoutServlet {
 
 			context.put("curList", blacklist); 
 
-			template = this.getTemplate("/resources/templates/Blacklist.vm");
 		} catch( Exception e ) {
 			e.printStackTrace();
 		} catch (Error e) {

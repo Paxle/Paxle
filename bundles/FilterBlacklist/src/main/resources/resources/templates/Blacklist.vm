@@ -6,69 +6,75 @@
 #if($manager)
 	<ul class="tabs">
 		#foreach($list in $listnames)
-			#if ($curList.getName() == $list && $action != "newList")
+			#if ($curList && $curList.getName() == $list && $action != "newList")
 				<li><a class="active" href="/blacklist?list=$escTool.url($list)">$list</a></li>
 			#else
 				<li><a href="/blacklist?list=$escTool.url($list)">$list</a></li>
 			#end
 		#end
-		#if ($action == "newList")
-			<li><a class="active" href="/blacklist?action=newList">New list</a></li>
-		#else
-			<li><a href="/blacklist?action=newList">New List</a></li>
-		#end		
+		
+		
+			#if ($action == "newList")
+				<li><a class="active" href="/blacklist?action=newList">New list</a></li>
+			#else
+				<li><a href="/blacklist?action=newList">New List</a></li>
+			#end		
 	</ul>
-	#if ($action != "newList" && $action != "delList")
-		<p><a href="/blacklist?action=delList&list=$escTool.url( $curList.getName() )">Delete this list</a></p>
-	#end
-	#if ($action == "newList")
-		<h3>Create a new List</h3>
-		<form method="post" action="/blacklist">
-			<p>
-				<input type="text" name="listName" id="listName" value="" />
-				<input type="hidden" name="action" value="addList" />
-				<input type="submit" value="Create" />
-			</p>
-		</form>
-	#elseif ($action == "delList")
-		<h3>Delete this List?</h3>
-		<p class="warning"><strong>Warning:</strong> this will permanently delete this list. This operation can not be undone! <a href="/blacklist?list=$escTool.url($curList)">Cancel</a></p>
-		<form method="post" action="/blacklist">
-			<p>
-				<input type="hidden" name="action" value="removeList" />
-				<input type="hidden" name="list" value="$escTool.html( $curList.getName() )" />
-				<input type="submit" value="Delete!" />
-			</p>
-		</form>
+	#if ($InvalidFilenameException)
+	    <div class="error">$escTool.xml($InvalidFilenameException.getMessage())</div>
 	#else
-		<form method="post" action="/blacklist">
-			<p>
-				<input type="hidden" name="action" value="addPattern" />
-				<input type="hidden" name="list" value="$escTool.html( $curList.getName() )" />
-				<input type="text" name="pattern" value="" />
-				<input type="submit" value="Add this pattern" />
-			</p>
-		</form>
-		<table>
-			<tr>
-				<th>Pattern</th>
-				<th>Delete</th>
-			</tr>
-			#foreach ($pattern in $curList.getPatternList())
+		#if ($action != "newList" && $action != "delList")
+			<p><a href="/blacklist?action=delList&list=$escTool.url( $curList.getName() )">Delete this list</a></p>
+		#end
+		#if ($action == "newList")
+			<h3>Create a new List</h3>
+			<form method="post" action="/blacklist">
+				<p>
+					<input type="text" name="listName" id="listName" value="" />
+					<input type="hidden" name="action" value="addList" />
+					<input type="submit" value="Create" />
+				</p>
+			</form>
+		#elseif ($action == "delList")
+			<h3>Delete this List?</h3>
+			<p class="warning"><strong>Warning:</strong> this will permanently delete this list. This operation can not be undone! <a href="/blacklist?list=$escTool.url($curList)">Cancel</a></p>
+			<form method="post" action="/blacklist">
+				<p>
+					<input type="hidden" name="action" value="removeList" />
+					<input type="hidden" name="list" value="$escTool.html( $curList.getName() )" />
+					<input type="submit" value="Delete!" />
+				</p>
+			</form>
+		#else
+			<form method="post" action="/blacklist">
+				<p>
+					<input type="hidden" name="action" value="addPattern" />
+					<input type="hidden" name="list" value="$escTool.html( $curList.getName() )" />
+					<input type="text" name="pattern" value="" />
+					<input type="submit" value="Add this pattern" />
+				</p>
+			</form>
+			<table>
 				<tr>
-					<td>$escTool.html($pattern)</td>
-					<td>
-						<form method="post" action="/blacklist">
-							<div>
-								<input type="hidden" name="action" value="removePattern" />
-								<input type="hidden" name="list" value="$escTool.html($curList.getName())" />
-								<input type="hidden" name="pattern" value="$escTool.html($pattern)" />
-								<input type="submit" value="Delete Pattern" />
-							</div>
-						</form>
-					</td>
+					<th>Pattern</th>
+					<th>Delete</th>
 				</tr>
-			#end
-		</table>
+				#foreach ($pattern in $curList.getPatternList())
+					<tr>
+						<td>$escTool.html($pattern)</td>
+						<td>
+							<form method="post" action="/blacklist">
+								<div>
+									<input type="hidden" name="action" value="removePattern" />
+									<input type="hidden" name="list" value="$escTool.html($curList.getName())" />
+									<input type="hidden" name="pattern" value="$escTool.html($pattern)" />
+									<input type="submit" value="Delete Pattern" />
+								</div>
+							</form>
+						</td>
+					</tr>
+				#end
+			</table>
+		#end
 	#end
 #end

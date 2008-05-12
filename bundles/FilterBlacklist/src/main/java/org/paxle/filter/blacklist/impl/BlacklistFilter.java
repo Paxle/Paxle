@@ -95,8 +95,9 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 	 * creates a blacklist
 	 * @param name the name of the blacklist
 	 * @return the blacklist that was created, can be null when there is a failure
+	 * @throws InvalidFilenameException 
 	 */
-	public Blacklist createList(String name) {
+	public Blacklist createList(String name) throws InvalidFilenameException {
 		return Blacklist.create(name);
 	}
 
@@ -104,8 +105,10 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 	 * gets a blacklist
 	 * @param name the name of the blacklist
 	 * @return the blacklist, may be null when a blacklist with the given name does not exist
+	 * @throws InvalidFilenameException 
 	 */
-	public Blacklist getList(String name) {
+	public Blacklist getList(String name) throws InvalidFilenameException {
+		
 		return Blacklist.getList(name);
 	}
 }

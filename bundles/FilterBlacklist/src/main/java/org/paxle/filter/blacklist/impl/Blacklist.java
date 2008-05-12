@@ -57,8 +57,10 @@ public class Blacklist {
 	 * gets the blacklist, please note that you have to call init first
 	 * @param name the name of the list
 	 * @return the blacklist
+	 * @throws InvalidFilenameException 
 	 */
-	static Blacklist getList(String name) {
+	static Blacklist getList(String name) throws InvalidFilenameException {
+		validateBlacklistname(name);
 		return blacklists.get(name);
 	}
 
@@ -95,14 +97,16 @@ public class Blacklist {
 	/**
 	 * Adds a new empty blacklist-file
 	 * @param name name of the new blacklistfile
+	 * @throws InvalidFilenameException 
 	 */	
-	static Blacklist create(String name) {
+	static Blacklist create(String name) throws InvalidFilenameException {
+
+		validateBlacklistname(name);
+
 		if (getList(name) != null)
 			return getList(name);
 		else {
 			try {
-				if(!isListnameAllowed(name))
-					return null;
 				FileUtils.touch(new File(blacklistDir, name));
 				return new Blacklist(name);
 			} catch (IOException e) {
@@ -112,12 +116,30 @@ public class Blacklist {
 		}
 	}
 
-	static boolean isListnameAllowed(String name) {
-		final char allowedCharacters [] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','-','_','.','1','2','3','4','5','6','7','8','9','0'};
+	/**
+	 * This method checks a given name for attempts of a directory traversal, an empty name and for invalid characters
+	 * @throws InvalidFilenameException 
+	 */
+	private static void validateBlacklistname(String name) throws InvalidFilenameException {
+		String chars = "abcdefghijklmnopqrstuvwxyzöüäß";
+		String numbers = "0123456789";
+		String others = "+-_.&()=";
+		final char[] allowedCharacters = (chars + numbers + others).toCharArray();
+		
+		//Reduce all blank spaces to none for check. This ensure a file with name "       " isn't valid.
+		//A file named "              g" still is valid.
+		//In this check it will be threaded as "g", but the created file will be "              g"
+		name = name.replaceAll(" ", "");
+
+		if (name.equals("")) {
+			throw new InvalidFilenameException("The blacklist name is empty.");
+		}
+		
 		name = name.toLowerCase();
 		char temp [] = name.toCharArray();
 		boolean test;
-		for(int i=0; i<temp.length;i++) {
+		int i = 0;
+		for(i=0; i<temp.length;i++) {
 			test = false;
 			for(int j=0;j<allowedCharacters.length;j++) {
 				if(temp[i]==allowedCharacters[j]) {
@@ -126,9 +148,9 @@ public class Blacklist {
 				}
 			}
 			if(!test)
-				return false;
+				throw new InvalidFilenameException("The name '" + name + "' is not a valid name for a blacklist. Please remove all '" + temp[i] + "' characters.");
 		}
-		return true;
+		return;
 	}
 
 	/**

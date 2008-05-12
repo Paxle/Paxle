@@ -18,11 +18,11 @@
 		</tr>
 		<tr>
 			<td><b>OS</b></td>
-			<td>$sysprops.get( "os.arch") $sysprops.get( "os.name") $sysprops.get( "os.version")</td>
+			<td>$sysprops.get("os.arch") $sysprops.get("os.name") $sysprops.get("os.version")</td>
 		</tr>
 		<tr>
 			<td><b>JVM</b></td>
-			<td>$sysprops.get( "java.vendor")<br />$sysprops.get( "java.runtime.name")<br />$sysprops.get( "java.version")</td>
+			<td>$sysprops.get("java.vendor")<br />$sysprops.get("java.runtime.name")<br />$sysprops.get("java.version")</td>
 		</tr>
 		<tr>
 			<td><b>OSGi v$osgiVersion</b></td>
