@@ -63,6 +63,12 @@ public class HttpContextAuth implements HttpContext {
 		byte[] authBytes = Base64.decodeBase64(auth.substring("Basic ".length()).getBytes("UTF-8"));
 		auth = new String(authBytes,"UTF-8");		
 		String[] authData = auth.split(":");
+		if (authData.length == 0) {
+			this.logger.info(String.format("[%s] No user-authentication data found to access '%s'.", request.getRemoteHost(), request.getRequestURI()));
+			this.writeResponse(response);
+			return false;
+		}
+		
 		String userName = authData[0];
 		String password = authData.length==1?"":authData[1];
 
