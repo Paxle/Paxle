@@ -5,6 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandProfile;
+import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.parser.ISubParser;
 
 /**
@@ -32,5 +34,18 @@ public class MimeTypeFilter implements IFilter<ICommand> {
 			command.setResult(ICommand.Result.Rejected, String.format("MimeType '%s' not supported", mimeType));
 		}		
 		
+		// TODO: checking if the command-profile has additional restrictions
+		/*
+		int profileID = command.getProfileOID();
+		if (profileID >= 0) {
+			ICommandProfileManager profileManager = context.getCommandProfileManager();
+			if (profileManager != null) {
+				ICommandProfile profile = profileManager.getProfileByID(profileID);
+				if (profile != null) {
+					
+				}
+			}
+		}
+		*/		
 	}
 }
