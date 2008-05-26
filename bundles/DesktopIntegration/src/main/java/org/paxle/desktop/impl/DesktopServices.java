@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Dictionary;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -74,6 +73,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		
 		@Override
 		public void windowClosed(WindowEvent e) {
+			System.out.println("window closed for " + this);
 			final DIComponent c = servicePanels.remove(id);
 			if (c != null)
 				c.close();
@@ -101,7 +101,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	private final ServiceManager manager;
 	private final IDIBackend backend;
 	private final HashMap<Integer,Integer> profileDepthMap = new HashMap<Integer,Integer>();
-	private final Map<Dialogues,Frame> dialogues = new EnumMap<Dialogues,Frame>(Dialogues.class);
+	// private final Map<Dialogues,Frame> dialogues = new EnumMap<Dialogues,Frame>(Dialogues.class);
 	
 	private final Hashtable<Long,DIComponent> servicePanels = new Hashtable<Long,DIComponent>();
 	private final HashMap<DIComponent,Frame> serviceFrames = new HashMap<DIComponent,Frame>();
@@ -188,6 +188,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 					break;
 				}
 				panel.close();
+				manager.ungetService(ref);
 				// TODO
 			} break;
 			
@@ -205,9 +206,11 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		bp |= (browserOpenable) ? PROP_BROWSER_OPENABLE : 0;
 		props.put(backend.getClass().getName(), Integer.toString(bp));
 		
-		for (Frame f : dialogues.values())
-			f.dispose();
-		dialogues.clear();
+		for (Map.Entry<DIComponent,Frame> e : serviceFrames.entrySet()) {
+			e.getKey().close();
+			e.getValue().dispose();
+		}
+		serviceFrames.clear();
 		
 		setTrayMenuVisible(false);
 	}
@@ -278,8 +281,8 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	
 	@SuppressWarnings("unchecked")
 	public void openDialogue(final Dialogues d) {
-		Frame ccframe = dialogues.get(d);
-		if (ccframe == null) {
+		/* Frame ccframe = dialogues.get(d);
+		if (ccframe == null) { */
 			final DIComponent c;
 			switch (d) {
 				case CCONSOLE: c = new CrawlingConsole(this); break;
@@ -288,10 +291,11 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 				default:
 					throw new RuntimeException("switch-statement does not cover " + d);
 			}
-			dialogues.put(d, show(valueOf(d), c));
+			show(valueOf(d), c);
+		/*	dialogues.put(d, show(valueOf(d), c));
 		} else {
 			show(ccframe);
-		}
+		}*/
 	}
 	
 	public Frame show(final Long id) {
@@ -303,10 +307,8 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	
 	public Frame show(final Long id, final DIComponent c) {
 		Frame frame = serviceFrames.get(c);
-		if (frame == null) {
-			frame = createDefaultFrame(c, id);
-			serviceFrames.put(c, frame);
-		}
+		if (frame == null)
+			serviceFrames.put(c, frame = createDefaultFrame(c, id));
 		show(frame);
 		return frame;
 	}
@@ -325,11 +327,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	}
 	
 	public void closeDialogue(final Dialogues d) {
-		final Frame ccframe = dialogues.get(d);
-		if (ccframe != null) {
-			ccframe.dispose();
-			dialogues.remove(d);
-		}
+		close(valueOf(d));
 	}
 	
 	private static void show(final Frame frame) {

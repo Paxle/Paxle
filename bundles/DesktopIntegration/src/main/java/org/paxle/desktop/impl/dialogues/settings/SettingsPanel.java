@@ -156,12 +156,15 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 			for (final AbstractAttrConfig<?> aconf : aconfs)
 				aconf.reset(props);
 			getConfiguration().update(props);
+			changed = false;
 		}
 		
 		public void deinit() {
 			ocd = null;
-			mcl.removeOptionChangeListener(optionsComp);
-			optionsComp = null;
+			if (optionsComp != null) {
+				mcl.removeComp2Monitor(optionsComp);
+				optionsComp = null;
+			}
 			aconfs = null;
 			name = null;
 			icon = null;
