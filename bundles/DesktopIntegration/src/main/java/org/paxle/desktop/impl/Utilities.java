@@ -13,14 +13,16 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.EventListener;
@@ -40,15 +42,20 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.RootPaneContainer;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
 public class Utilities {
 	
 	public static final Point LOCATION_CENTER = new Point();
+	public static final Point LOCATION_BY_PLATFORM = new Point();
 	private static final String KE_CLOSE = new String();
 	
 	public static JButton createButton(final String text, final ActionListener al, final String actionCommand, final Icon icon) {
@@ -147,36 +154,45 @@ public class Utilities {
 			final String message,
 			final String noContMsg,
 			boolean cont, boolean error) {
+		final int optionType = (error) ? JOptionPane.ERROR_MESSAGE : JOptionPane.WARNING_MESSAGE;
 		if (cont) {
 			return JOptionPane.showConfirmDialog(
-					parent, message, title, JOptionPane.YES_NO_CANCEL_OPTION, (error) ? JOptionPane.ERROR_MESSAGE : JOptionPane.WARNING_MESSAGE);
+					parent, message, title, JOptionPane.YES_NO_CANCEL_OPTION, optionType);
 		} else {
-			JOptionPane.showMessageDialog(parent, noContMsg, title, (error) ? JOptionPane.ERROR_MESSAGE : JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(parent, noContMsg, title, optionType);
 			return -1;
 		}
 	}
 	
-	public static void setFrameProps(
-			final JFrame frame,
+	public static <E extends Window & RootPaneContainer> void setWindowProps(
+			final E frame,
 			final Container container,
-			final String title,
+			final JButton defaultButton,
 			final Dimension size,
-			final boolean resizable,
-			final Point location,
-			final EventListener... listeners) {
-		frame.setTitle(title);
-		frame.setContentPane(container);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			final Point location) {
+		if (defaultButton != null)
+			frame.getRootPane().setDefaultButton(defaultButton);
 		frame.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
 				KeyStroke.getKeyStroke('W', InputEvent.CTRL_DOWN_MASK), KE_CLOSE);
-		frame.getRootPane().getActionMap().put(KE_CLOSE, new AbstractAction() {
-			private static final long serialVersionUID = 1L;
-			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
-			}
-		});
-		frame.setResizable(resizable);
+		frame.getRootPane().getActionMap().put(KE_CLOSE, new WindowCloseAction(frame));
+		frame.setContentPane(container);
 		
+		if (size == null) {
+			frame.pack();
+		} else {
+			frame.setSize(size);
+		}
+		
+		if (location == null || location == LOCATION_BY_PLATFORM) {
+			frame.setLocationByPlatform(true);
+		} else if (location == LOCATION_CENTER) {
+			centerOnScreen(frame);
+		} else {
+			frame.setLocation(location);
+		}
+	}
+	
+	public static void addListeners(final Object frame, final EventListener... listeners) {
 		if (listeners != null && listeners.length > 0) {
 			for (final Method m : frame.getClass().getMethods()) {
 				final String name = m.getName();
@@ -198,19 +214,38 @@ public class Utilities {
 				} catch (ClassNotFoundException e) { continue; }
 			}
 		}
-		
-		if (size == null) {
-			frame.pack();
-		} else {
-			frame.setSize(size);
-		}
-		if (location == null) {
-			frame.setLocationByPlatform(true);
-		} else if (location == LOCATION_CENTER) {
-			centerOnScreen(frame);
-		} else {
-			frame.setLocation(location);
-		}
+	}
+	
+	public static void setFrameProps(
+			final JFrame frame,
+			final Container container,
+			final String title,
+			final Dimension size,
+			final boolean resizable,
+			final Point location,
+			final JButton defaultButton,
+			final EventListener... listeners) {
+		setWindowProps(frame, container, defaultButton, size, location);
+		frame.setTitle(title);
+		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		frame.setResizable(resizable);
+		addListeners(frame, listeners);
+	}
+	
+	public static void setDialogProps(
+			final JDialog frame,
+			final Container container,
+			final String title,
+			final Dimension size,
+			final boolean resizable,
+			final Point location,
+			final JButton defaultButton,
+			final EventListener... listeners) {
+		setWindowProps(frame, container, defaultButton, size, location);
+		frame.setTitle(title);
+		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		frame.setResizable(resizable);
+		addListeners(frame, listeners);
 	}
 	
 	public static JFrame wrapIntoFrame(
@@ -219,206 +254,36 @@ public class Utilities {
 			final Dimension size,
 			final boolean resizable,
 			final Point location,
+			final JButton defaultButton,
 			final EventListener... listeners) {
-		final JFrame frame = new JFrame(title);
-		setFrameProps(frame, container, title, size, resizable, location, listeners);
+		final JFrame frame = new JFrame();
+		setFrameProps(frame, container, title, size, resizable, location, defaultButton, listeners);
 		return frame;
 	}
 	
-	/* 
-	 * Author: Franz Brauße
-	 * from YacyAdmin - relicensed
-	 * License: CPL v1.0
-	 */
-	private static class ExceptionBox extends JDialog {
+	public static class WindowCloseAction extends AbstractAction {
 		
 		private static final long serialVersionUID = 1L;
 		
-		private static final String SHOW_TEXT 			= "Show stacktrace";
-		private static final String HIDE_TEXT 			= "Hide stacktrace";
-		private static final String LBL_TITLE 			= "An error occured";
-		private static final String ERR_MSG_ 			= "Error message:";
-		private static final String LBL_STACKTRACE_ 	= "Stacktrace:";
-		private static final String LBL_OK 				= "OK";
-		private static final String LBL_COPY2CLIPBRD 	= "Copy to clipboard";
-		private static final String __AT_ 				= "        at ";
+		private final Window window;
 		
-		private static final Dimension hiddenDim = new Dimension(500, 84);
-		private static final Dimension shownDim = new Dimension(500, 300);
-		
-		private JPanel 		content				= null;
-		private JButton 	btnShowHide 		= null;
-		private JButton 	btnCopyClipboard 	= null;
-		private JScrollPane	exceptionLog 		= null;
-		private JLabel 		lStackTrace 		= null;
-		private JTextArea 	textStacktrace 		= null;
-		
-		private final Throwable ex;
-		private final String detail;
-		private boolean hidden = true;
-		
-		public ExceptionBox(Frame parent, Throwable ex) {
-			this(parent, ex.getMessage(), ex);
+		public WindowCloseAction(final Window window) {
+			this.window = window;
 		}
 		
-		public ExceptionBox(Frame parent, String detail, Throwable ex) {
-			super(parent, LBL_TITLE, true);
-			this.ex = ex;
-			this.detail = detail;
-			initialize(parent);
-		}
-		
-		public static void showExceptionBox(final Frame parent, final Throwable ex) {
-			showExceptionBox(parent, ex.getMessage(), ex);
-		}
-		
-		public static void showExceptionBox(final Frame parent, final String detail, final Throwable ex) {
-			new ExceptionBox(parent, detail, ex).setVisible(true);
-		}
-		
-		private void initialize(Component parent) {
-			this.setSize(hiddenDim);
-			
-			// place dialog in the middle of the screen
-			Dimension dim = parent.getSize();
-			this.setLocation(((int)(dim.getWidth() - hiddenDim.width) / 2) + parent.getX(), ((int)(dim.getHeight() - shownDim.height) / 2) + parent.getY());
-			
-			this.setResizable(true);
-			this.setContentPane(getContent());
-			
-			StackTraceElement[] se = this.ex.getStackTrace();
-			StringBuffer s = new StringBuffer(100);
-			s.append(this.ex.toString()).append("\n");
-			for (int i=0; i<se.length; i++)
-				s.append(__AT_).append(se[i].toString()).append("\n");
-			textStacktrace.setText(s.toString());
-		}
-		
-		private JPanel getContent() {
-			if (content == null) {
-				content = new JPanel();
-				content.setLayout(new BorderLayout());
-				content.add(getDisplayPanel(), BorderLayout.CENTER);
-				content.add(getSubmitPanel(), BorderLayout.SOUTH);
-			}
-			return content;
-		}
-		
-		private JPanel getDisplayPanel() {
-			JPanel r = new JPanel(new GridBagLayout());
-			
-			GridBagConstraints gbc = new GridBagConstraints();
-			gbc.insets = new Insets(5, 5, 5, 5);
-			gbc.anchor = GridBagConstraints.NORTHEAST;
-			r.add(new JLabel(ERR_MSG_), gbc);
-			
-			gbc.gridx = 1;
-			gbc.weightx = 1D;
-			gbc.anchor = GridBagConstraints.WEST;
-			r.add(new JLabel(this.detail), gbc);
-			
-			gbc.weightx = 0D;
-			gbc.gridx = 0;
-			gbc.gridy = 1;
-			gbc.anchor = GridBagConstraints.NORTHEAST;
-			this.lStackTrace = new JLabel(LBL_STACKTRACE_);
-			lStackTrace.setVisible(false);
-			r.add(lStackTrace, gbc);
-			
-			gbc.gridx = 1;
-			gbc.fill = GridBagConstraints.BOTH;
-			gbc.weightx = 1D;
-			gbc.weighty = 1D;
-			r.add(getExceptionLog(), gbc);
-			
-			return r;
-		}
-		
-		private JPanel getSubmitPanel() {
-			JPanel r = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-			r.add(getBtnCopyToClipboard());
-			r.add(getBtnShowHide());
-			r.add(getBtnOK());
-			return r;
-		}
-		
-		private JScrollPane getExceptionLog() {
-			if (this.exceptionLog == null) {
-				textStacktrace = new JTextArea();
-				textStacktrace.setEditable(false);
-				textStacktrace.setBorder(null);
-				this.exceptionLog = new JScrollPane();
-				this.exceptionLog.setViewportView(textStacktrace);
-				this.exceptionLog.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-				this.exceptionLog.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-				this.exceptionLog.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-				this.exceptionLog.setVisible(false);
-			}
-			return this.exceptionLog;
-		}
-		
-		private JButton getBtnOK() {
-			JButton r = new JButton(LBL_OK);
-			this.getRootPane().setDefaultButton(r);
-			r.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					ExceptionBox.this.setVisible(false);
-				}
-			});
-			return r;
-		}
-		
-		private class clpbrdListener implements ActionListener, ClipboardOwner {
-			public void actionPerformed(ActionEvent e) {
-				Toolkit.getDefaultToolkit().getSystemClipboard()
-						.setContents(new StringSelection(ExceptionBox.this.textStacktrace.getText()), this);
-			}
-			public void lostOwnership(Clipboard arg0, Transferable arg1) { /* ignore this */ }
-		}
-		
-		private JButton getBtnCopyToClipboard() {
-			if (this.btnCopyClipboard == null) {
-				this.btnCopyClipboard = new JButton(LBL_COPY2CLIPBRD);
-				this.btnCopyClipboard.addActionListener(new clpbrdListener());
-			}
-			return this.btnCopyClipboard;
-		}
-		
-		private JButton getBtnShowHide() {
-			if (this.btnShowHide == null) {
-				this.btnShowHide = new JButton(SHOW_TEXT);
-				this.btnShowHide.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						hidden = !hidden;
-						ExceptionBox.this.btnShowHide.setText((hidden) ? SHOW_TEXT : HIDE_TEXT);
-						ExceptionBox.this.exceptionLog.setVisible(!hidden);
-						ExceptionBox.this.lStackTrace.setVisible(!hidden);
-						ExceptionBox.this.setSize((hidden) ? hiddenDim : shownDim);
-						ExceptionBox.this.exceptionLog.setViewportView((hidden) ? null : textStacktrace);
-						textStacktrace.updateUI();
-						ExceptionBox.this.lStackTrace.updateUI();
-					}
-				});
-			}
-			return this.btnShowHide;
+		public void actionPerformed(ActionEvent e) {
+			window.dispose();
 		}
 	}
 	
-	public static void showExceptionBox(final Frame parent, final String detail, final Throwable ex) {
-		ExceptionBox.showExceptionBox(parent, detail, ex);
-	}
-	
-	public static void showExceptionBox(final String detail, final Throwable ex) {
-		ExceptionBox.showExceptionBox(null, detail, ex);
-	}
-	
-	public static void showExceptionBox(final Throwable ex) {
-		ExceptionBox.showExceptionBox(null, ex.getMessage(), ex);
-	}
+	public static final Insets DEFAULT_INSETS = new Insets(5, 5, 5, 5);
 	
 	public static void showURLErrorMessage(final String message, final String url) {
-		final JFrame frame = new JFrame("Error");
+		final JButton close = new JButton("Close");
 		final JPanel panel = new JPanel(new GridBagLayout());
+		final JFrame frame = wrapIntoFrame(panel, "Error", null, false, LOCATION_CENTER, close);
+		close.setAction(new WindowCloseAction(frame));
+		
 		final GridBagConstraints gbc = new GridBagConstraints();
 		final UIDefaults def = UIManager.getLookAndFeelDefaults();
 		gbc.gridx = 0;
@@ -426,16 +291,8 @@ public class Utilities {
 		gbc.gridheight = 2;
 		gbc.fill = GridBagConstraints.VERTICAL;
 		gbc.weighty = 1.0;
-		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.insets = DEFAULT_INSETS;
 		panel.add(new JLabel(def.getIcon("OptionPane.errorIcon")), gbc);
-		final JButton close = new JButton("Close");
-		close.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frame.setVisible(false);
-				frame.dispose();
-			} });
-		frame.getRootPane().setDefaultButton(close);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		gbc.gridx = 0;
 		gbc.gridwidth = 2;
@@ -443,6 +300,7 @@ public class Utilities {
 		gbc.gridy = 2;
 		gbc.weighty = 0.0;
 		panel.add(close, gbc);
+		
 		gbc.gridx = 1;
 		gbc.gridwidth = 1;
 		gbc.gridy = 0;
@@ -452,6 +310,7 @@ public class Utilities {
 		final JTextArea textField = new JTextArea(message);
 		setTextLabelDefaults(textField);
 		panel.add(textField, gbc);
+		
 		final JTextField urlField = new JTextField(url);
 		setTextLabelDefaults(urlField);
 		urlField.setAutoscrolls(true);
@@ -462,9 +321,6 @@ public class Utilities {
 		gbc.weighty = 0.0;
 		panel.add(urlField, gbc);
 		
-		frame.setContentPane(panel);
-		frame.pack();
-		centerOnScreen(frame);
 		frame.setVisible(true);
 	}
 	
@@ -479,11 +335,151 @@ public class Utilities {
 	}
 	
 	public static void centerOnScreen(final Component component) {
-		centerOnScreen(component, component.getWidth(), component.getHeight());
+		centerOn(component, Toolkit.getDefaultToolkit().getScreenSize());
 	}
 	
-	public static void centerOnScreen(final Component component, final int compWidth, final int compHeight) {
-		final Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		component.setLocation(Math.max(0, (d.width - compWidth) / 2), Math.max(0, (d.height - compHeight) / 2));
+	public static void centerOn(final Component component, final Component parent) {
+		centerOn(component, parent.getSize());
+	}
+	
+	public static void centerOn(final Component component, final Dimension d) {
+		centerOn(component, component.getSize(), d);
+	}
+	
+	public static void centerOn(final Component component, final Dimension cdim, final Dimension d) {
+		component.setLocation(Math.max(0, (d.width - cdim.width) / 2), Math.max(0, (d.height - cdim.height) / 2));
+	}
+	
+	/* 
+	 * Code below (modified):
+	 * ~~~~~~~~~~
+	 * Author: Franz Brauße
+	 * from YacyAdmin - relicensed
+	 * License: CPL v1.0
+	 */
+	private static final String SHOW_TEXT 			= "Show stacktrace";
+	private static final String HIDE_TEXT 			= "Hide stacktrace";
+	private static final String LBL_TITLE 			= "An error occured";
+	private static final String ERR_MSG_ 			= "Error message:";
+	private static final String LBL_STACKTRACE_ 	= "Stacktrace:";
+	private static final String LBL_OK 				= "OK";
+	private static final String LBL_COPY2CLIPBRD 	= "Copy to clipboard";
+	
+	private static final Dimension hiddenDim = new Dimension(500, 84);
+	private static final Dimension shownDim = new Dimension(500, 300);
+	
+	private static final String AC_OK = new String();
+	private static final String AC_HIDE = new String();
+	private static final String AC_CPY = new String();
+	
+	public static void showExceptionBox(final Frame parent, final String detail, final Throwable ex) {
+		final JDialog eb = new JDialog(parent, LBL_TITLE, true);
+		final JPanel displayPanel = new JPanel(new GridBagLayout());
+		
+		final GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.anchor = GridBagConstraints.NORTHEAST;
+		displayPanel.add(new JLabel(ERR_MSG_), gbc);
+		
+		gbc.gridx = 1;
+		gbc.weightx = 1D;
+		gbc.anchor = GridBagConstraints.WEST;
+		displayPanel.add(new JLabel(detail), gbc);
+		
+		final JLabel lStackTrace = new JLabel(LBL_STACKTRACE_);
+		lStackTrace.setVisible(false);
+		gbc.weightx = 0D;
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.anchor = GridBagConstraints.NORTHEAST;
+		displayPanel.add(lStackTrace, gbc);
+		
+		final JTextArea textStacktrace = new JTextArea();
+		textStacktrace.setEditable(false);
+		textStacktrace.setBorder(null);
+		ex.printStackTrace(new PrintWriter(new Writer() {
+			
+			final Document doc = textStacktrace.getDocument();
+			
+			@Override public void close() throws IOException {  }
+			@Override public void flush() throws IOException {  }
+			
+			@Override
+			public void write(int c) throws IOException {
+				write(String.valueOf(c));
+			}
+			
+			@Override
+			public void write(char[] cbuf, int off, int len) throws IOException {
+				write(String.valueOf(cbuf, off, len));
+			}
+			
+			@Override
+			public void write(String str, int off, int len) throws IOException {
+				try { doc.insertString(doc.getLength(), str.substring(off, off + len), null); } catch (BadLocationException e) { e.printStackTrace(); }
+			}
+		}));
+		
+		final JScrollPane exceptionLog = new JScrollPane();
+		exceptionLog.setViewportView(textStacktrace);
+		exceptionLog.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+		exceptionLog.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		exceptionLog.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		exceptionLog.setVisible(false);
+		gbc.gridx = 1;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 1D;
+		gbc.weighty = 1D;
+		displayPanel.add(exceptionLog, gbc);
+		
+		final ActionListener l = new ActionListener() {
+			
+			private boolean hidden = true;
+			
+			public void actionPerformed(ActionEvent e) {
+				final String ac = e.getActionCommand();
+				if (ac == AC_CPY) {
+					final Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+					cb.setContents(new StringSelection(textStacktrace.getText()), null);
+				} else if (ac == AC_HIDE) {
+					hidden = !hidden;
+					((JButton)e.getSource()).setText((hidden) ? SHOW_TEXT : HIDE_TEXT);
+					exceptionLog.setVisible(!hidden);
+					lStackTrace.setVisible(!hidden);
+					eb.setSize((hidden) ? hiddenDim : shownDim);
+					exceptionLog.setViewportView((hidden) ? null : textStacktrace);
+					textStacktrace.updateUI();
+					lStackTrace.updateUI();
+				} else if (ac == AC_OK) {
+					eb.dispose();
+				}
+			}
+		};
+		
+		final JPanel submitPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+		submitPanel.add(createButton(LBL_COPY2CLIPBRD, l, AC_CPY, null));
+		submitPanel.add(createButton(SHOW_TEXT, l, AC_HIDE, null));
+		final JButton btnOk;
+		submitPanel.add(btnOk = createButton(LBL_OK, l, AC_OK, null));
+		
+		final JPanel content = new JPanel();
+		content.setLayout(new BorderLayout());
+		content.add(displayPanel, BorderLayout.CENTER);
+		content.add(submitPanel, BorderLayout.SOUTH);
+		
+		eb.setSize(hiddenDim);
+		eb.setResizable(true);
+		eb.setContentPane(content);
+		eb.getRootPane().setDefaultButton(btnOk);
+		centerOn(eb, parent);
+		eb.setVisible(true);
+	}
+	
+	public static void showExceptionBox(final String detail, final Throwable ex) {
+		showExceptionBox(null, detail, ex);
+	}
+	
+	public static void showExceptionBox(final Throwable ex) {
+		showExceptionBox(null, ex.getMessage(), ex);
 	}
 }

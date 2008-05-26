@@ -21,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.WindowConstants;
 
 import org.paxle.desktop.impl.Utilities;
 
@@ -71,15 +70,9 @@ public class SmallDialog extends JDialog implements Runnable {
 	private final JButton btn = new JButton();
 	private boolean aborted = false;
 	
-	public SmallDialog(AFinally af) {
-		super();
-		super.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		super.setResizable(false);
+	public SmallDialog(final AFinally af) {
 		super.setAlwaysOnTop(true);
 		super.setUndecorated(true);
-		super.addWindowListener(new DWindowListener());
-		super.setSize(DIALOG_DIMENSION);
-		super.getRootPane().setDefaultButton(this.btn);
 		this.af = af;
 		
 		final JPanel panel = createContentPanel();
@@ -87,11 +80,10 @@ public class SmallDialog extends JDialog implements Runnable {
 		panel.add(this.text, BorderLayout.CENTER);
 		panel.add(this.btn, BorderLayout.EAST);
 		super.setContentPane(panel);
+		Utilities.setDialogProps(this, panel, null, DIALOG_DIMENSION, false, Utilities.LOCATION_CENTER, btn, new DWindowListener());
 		
 		this.btn.addActionListener(new BtnListener());
 		this.text.addKeyListener(new TextListener());
-		
-		Utilities.centerOnScreen(this, DIALOG_DIMENSION.width, DIALOG_DIMENSION.height);
 	}
 	
 	public SmallDialog(AFinally af, String labelText, String buttonText) {

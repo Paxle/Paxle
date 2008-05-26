@@ -79,6 +79,14 @@ public class ServiceManager {
 		return (reference == null) ? null : service.cast(this.context.getService(reference));
 	}
 	
+	public <E> E getService(final ServiceReference ref, final Class<E> clazz) {
+		return clazz.cast(context.getService(ref));
+	}
+	
+	public void ungetService(final ServiceReference ref) {
+		context.ungetService(ref);
+	}
+	
 	public boolean hasService(Class<?> service) {
 		return hasService(service.getName());
 	}
@@ -105,6 +113,13 @@ public class ServiceManager {
 		}
 	}
 	
+	public <E> E[] getServices(final Class<E> service) {
+		try {
+			return getServices(service, null);
+		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
+		return null;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <E> E[] getServices(Class<E> service, String query) throws InvalidSyntaxException {
 		final ServiceReference[] references = this.context.getServiceReferences(service.getName(), query);
@@ -114,6 +129,10 @@ public class ServiceManager {
 		for (int i=0; i<references.length; i++)
 			services[i] = service.cast(this.context.getService(references[i]));
 		return services;
+	}
+	
+	public ServiceReference[] getServiceReferences(final String clazz, final String filter) throws InvalidSyntaxException {
+		return context.getServiceReferences(clazz, filter);
 	}
     
     public Bundle[] getBundles() {

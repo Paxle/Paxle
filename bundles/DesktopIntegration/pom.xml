@@ -48,7 +48,9 @@
 						</Import-Package>
 						<Private-Package>
 							org.paxle.desktop.impl,
-							org.paxle.desktop.impl.dialogues
+							org.paxle.desktop.impl.dialogues,
+							org.paxle.desktop.impl.dialogues.settings,
+							org.paxle.desktop.impl.event
 						</Private-Package>
 						<DynamicImport-Package>
 							javax.swing, 
@@ -58,7 +60,9 @@
 							javax.swing.plaf.basic,
 							javax.swing.plaf.basic.*,
 							sun.awt,
-							sun.awt.X11							
+							sun.awt.X11,
+							sun.awt.*,
+							sun.awt.motif.*
 						</DynamicImport-Package>
 						<Bundle-Activator>
 							org.paxle.desktop.impl.Activator

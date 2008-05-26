@@ -2,6 +2,8 @@
 package org.paxle.desktop.impl.dialogues;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -118,6 +120,8 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		}
 	}
 	
+	private static final Dimension DIM_CCONSOLE = new Dimension(600, 400);
+	
 	private static final String AC_CLEAR = new String();
 	private static final String AC_SAVE = new String();
 	private static final String AC_CRAWL = new String();
@@ -157,6 +161,20 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		propMW.put(EventConstants.EVENT_TOPIC, new String[] { MWComponentEvent.TOPIC_ALL });
 		propMW.put(EventConstants.EVENT_FILTER, String.format("(%s=org.paxle.crawler)", MWComponentEvent.PROP_COMPONENT_ID));
 		super.registerService(EVENT_MWCOMP, this, propMW, EventHandler.class);
+	}
+	
+	public Container getContainer() {
+		return this;
+	}
+	
+	@Override
+	public String getTitle() {
+		return "Crawling Console";
+	}
+	
+	@Override
+	public Dimension getWindowSize() {
+		return DIM_CCONSOLE;
 	}
 	
 	private void updateCpb(final boolean paused, final boolean getState, final boolean setState) {

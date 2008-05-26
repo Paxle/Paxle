@@ -12,10 +12,31 @@ public interface IPopupMenu {
 	public void add(IMenuItem menuItem);
 	
 	/**
+	 * Inserts an {@link IMenuItem} at the position (with <code>0</code> being the item
+	 * at the top of the menu)
+	 * @param menuItem the item to insert
+	 * @param index position at which to insert the item
+	 */
+	public void insert(IMenuItem menuItem, int index);
+	
+	/**
 	 * Adds a menu-separator to the bottom of this menu. Separators are used to separate
 	 * entries which do not belong together in a sense of categories.
 	 */
 	public void addSeparator();
+	
+	/**
+	 * Inserts a menu-separator at the specified position.
+	 * @param index the position at which to insert the menu-separator
+	 */
+	public void insertSeparator(int index);
+	
+	/**
+	 * Removes the {@link IMenuItem} at the given position (with <code>0</code> being the
+	 * item at the top of the menu) from this menu
+	 * @param index position from which to remove an item
+	 */
+	public void remove(int index);
 	
 	/**
 	 * Removes an {@link IMenuItem} from this menu.

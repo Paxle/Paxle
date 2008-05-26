@@ -4,6 +4,7 @@ package org.paxle.desktop.impl;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -18,16 +19,16 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.http.HttpService;
 
 import org.paxle.core.IMWComponent;
+import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.IDesktopServices.Dialogues;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.backend.tray.IMenuItem;
 import org.paxle.desktop.backend.tray.IPopupMenu;
 import org.paxle.desktop.backend.tray.ISystemTray;
 import org.paxle.desktop.backend.tray.ITrayIcon;
-import org.paxle.desktop.impl.dialogues.AFinally;
 import org.paxle.desktop.impl.dialogues.SmallDialog;
 
-public class SystrayMenu implements ActionListener, PopupMenuListener, DIComponent {
+public class SystrayMenu implements ActionListener {
 	
 	private static final String CRAWL_PAUSE = "Pause Crawling";
 	private static final String CRAWL_RESUME = "Resume Crawling";
@@ -36,7 +37,7 @@ public class SystrayMenu implements ActionListener, PopupMenuListener, DICompone
 		SEARCH, BROWSE, CRAWL, CRAWLPR, CCONSOLE, SETTINGS, RESTART, QUIT
 	}
 	
-	private final Log logger = LogFactory.getLog(SystrayMenu.class);
+	private static final Log logger = LogFactory.getLog(SystrayMenu.class);
 	private final DesktopServices services;
 	private final ITrayIcon ti;
 	private final ISystemTray systray;
@@ -53,47 +54,94 @@ public class SystrayMenu implements ActionListener, PopupMenuListener, DICompone
 	private final Timer tooltipTimer = new Timer("DI-TooltipTimer");
 	
 	// instantiate this here to prevent delays when the popup shows up
-	private final Runnable refresh = new Runnable() {
+	private class PopupMenuUpdater implements PopupMenuListener, ActionListener, Runnable {
+		
+		private final int startIdx;
+		private int end = 0;
+		
+		public PopupMenuUpdater(final int startIdx) {
+			this.startIdx = startIdx;
+		}
+		
+		public void popupMenuCanceled(PopupMenuEvent e) {
+		}
+		
+		public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+			final IPopupMenu pm = (IPopupMenu)e.getSource();
+			for (int i=startIdx; i<end; i++)
+				pm.remove(startIdx);
+		}
+		
+		public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+			logger.debug("popup becomes visible, refreshing menu-items");
+			SwingUtilities.invokeLater(this);
+			
+			final IPopupMenu pm = (IPopupMenu)e.getSource();
+			final Map<Long,DIComponent> additionalComps = services.getAdditionalComponents();
+			if (additionalComps != null && additionalComps.size() > 0) {
+				end = startIdx;
+				pm.insertSeparator(end++);
+				for (final Map.Entry<Long,DIComponent> en : additionalComps.entrySet())
+					pm.insert(services.getBackend().createMenuItem(en.getValue().getTitle(), en.getKey().toString(), this), end++); 
+			}
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			Long id = null;
+			try {
+				id = Long.valueOf(e.getActionCommand());
+			} catch (NumberFormatException ee) {  }
+			if (id == null) {
+				logger.warn("actionPerformed for unknown actionCommand '" + e.getActionCommand() + "'");
+				return;
+			}
+			
+			if (services.show(id) == null) {
+				logger.warn("actionPerformed for unknown di-component #" + id.toString() + "");
+				return;
+			}
+		}
+		
 		public void run() {
 			final IMWComponent<?> crawler = services.getMWComponent(DesktopServices.MWComponents.CRAWLER);
 			final boolean hasCrawler = (crawler != null);
 			crawlItem.setEnabled(hasCrawler);
 			crawlprItem.setEnabled(hasCrawler);
 			
-			final boolean hasWebui = (services.getServiceManager().hasService(HttpService.class) &&
-					services.getServiceManager().hasService("org.paxle.gui.IServletManager"));
+			final ServiceManager manager = services.getServiceManager();
+			final boolean hasWebServer = manager.hasService(HttpService.class);
+			final boolean hasWebui = manager.hasService("org.paxle.gui.IServiceManager") && hasWebServer;
 			browseItem.setEnabled(services.isBrowserOpenable() && hasWebui);
 			
-			final boolean hasSearch = services.getServiceManager().hasService("org.paxle.se.search.ISearchProviderManager");
+			final boolean hasSearch = manager.hasService("org.paxle.se.ISearchProviderManager");
 			// remove "&& hasWebUi" if we have other methods of displaying the searchresults
 			searchItem.setEnabled(services.isBrowserOpenable() && hasSearch && hasWebui);
 			
 			if (hasCrawler)
 				crawlprItem.setText((crawler.isPaused()) ? CRAWL_RESUME : CRAWL_PAUSE);
 		}
-	};
+	}
 	
 	public SystrayMenu(final DesktopServices services, final URL iconResource) {
 		this.services = services;
 		final IDIBackend backend = services.getBackend();
 		final IPopupMenu pm = backend.createPopupMenu(
-				this.searchItem 	= backend.createMenuItem("Search...", 		 Actions.SEARCH.name(),   this),
-				null,
-				this.browseItem		= backend.createMenuItem("Webinterface", 	 Actions.BROWSE.name(),	  this),
-				null,
-				this.crawlItem 		= backend.createMenuItem("Crawl...", 		 Actions.CRAWL.name(), 	  this),
-				this.crawlprItem 	= backend.createMenuItem("Pause Crawling", 	 Actions.CRAWLPR.name(),  this),
-				this.cconsoleItem   = backend.createMenuItem("Crawling Console", Actions.CCONSOLE.name(), this),
-				null,
-				this.settingsItem   = backend.createMenuItem("Settings",         Actions.SETTINGS.name(), this),
-				null,
+				this.searchItem 	= backend.createMenuItem("Search...", 		 Actions.SEARCH.name(),   this),		// 0
+				null,																									// 1
+				this.browseItem		= backend.createMenuItem("Webinterface", 	 Actions.BROWSE.name(),	  this),		// 2
+				null,																									// 3
+				this.crawlItem 		= backend.createMenuItem("Crawl...", 		 Actions.CRAWL.name(), 	  this),		// 4
+				this.crawlprItem 	= backend.createMenuItem("Pause Crawling", 	 Actions.CRAWLPR.name(),  this),		// 5
+				this.cconsoleItem   = backend.createMenuItem("Crawling Console", Actions.CCONSOLE.name(), this),		// 6
+				null,																									// 7
+				this.settingsItem   = backend.createMenuItem("Settings",         Actions.SETTINGS.name(), this),		// 8
+				null,																									// 9
 				this.restartItem 	= backend.createMenuItem("Restart", 		 Actions.RESTART.name(),  this),
 				this.quitItem 		= backend.createMenuItem("Quit", 			 Actions.QUIT.name(), 	  this));
-		pm.addPopupMenuListener(this);
+		pm.addPopupMenuListener(new PopupMenuUpdater(9));
 		
 		systray = backend.getSystemTray();
-		ti = backend.createTrayIcon(new ImageIcon(iconResource), "Paxle Tray", pm);
-		systray.add(this.ti);
+		systray.add(ti = backend.createTrayIcon(new ImageIcon(iconResource), "Paxle Tray", pm));
 		
 		tooltipTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
@@ -125,13 +173,6 @@ public class SystrayMenu implements ActionListener, PopupMenuListener, DICompone
 	}
 	
 	// private long tmBecameVisible = 0;
-	
-	public void popupMenuCanceled(PopupMenuEvent e) { /* ignore */ }
-	public void popupMenuWillBecomeInvisible(PopupMenuEvent e) { /* ignore */ }
-	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-		logger.debug("popup becomes visible, refreshing menu-items");
-		SwingUtilities.invokeLater(refresh);
-	}
 	
 	/*
 	public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
@@ -174,7 +215,7 @@ public class SystrayMenu implements ActionListener, PopupMenuListener, DICompone
 		}
 	}
 	 */
-	public void shutdown() {
+	public void close() {
 		tooltipTimer.cancel();
 		logger.debug("removing systray icon");
 		systray.remove(ti);
@@ -189,43 +230,30 @@ public class SystrayMenu implements ActionListener, PopupMenuListener, DICompone
 		final Actions action = Actions.valueOf(cmd);
 		if (action == null)
 			throw new RuntimeException("unknown action '" + cmd + "'");
-		
-		final TrayRunnable dr = new TrayRunnable(action);
-		
-		switch (action) {
-			case SEARCH:
-				new SmallDialog(dr, "Enter query:", "Search").setVisible(true);
-				break;
-			case CRAWL:
-				new SmallDialog(dr, "Enter URL:", "Crawl").setVisible(true);
-				break;
-				
-			default:
-				new Thread(dr).start();
-			break;
-		}
+		new TrayThread(action).start();
 	}
 	
-	private class TrayRunnable extends AFinally implements Runnable {
+	private class TrayThread extends Thread {
 		
 		private final Actions action;
 		
-		public TrayRunnable(final Actions action) {
+		public TrayThread(final Actions action) {
 			this.action = action;
 		}
 		
-		@Override
 		public void run() {
 			switch (action) {
-				case SEARCH:
+				case SEARCH: {
+					final String data = SmallDialog.showDialog("Enter query:", "Search");
 					if (data != null && data.length() > 0)
 						services.browseUrl(services.getPaxleUrl("/search?query=", data));
-					break;
+				} break;
 					
-				case CRAWL:
+				case CRAWL: {
+					final String data = SmallDialog.showDialog("Enter URL:", "Crawl");
 					if (data != null && data.length() > 0)
 						services.startDefaultCrawl(data);
-					break;
+				} break;
 					
 				case BROWSE:
 					services.browseUrl(services.getPaxleUrl("/"));

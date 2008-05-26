@@ -1,7 +1,6 @@
 
 package org.paxle.desktop.impl;
 
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -23,6 +22,9 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
@@ -35,13 +37,14 @@ import org.paxle.core.queue.CommandProfile;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
+import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.IDesktopServices;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.impl.dialogues.CrawlingConsole;
 import org.paxle.desktop.impl.dialogues.DIServicePanel;
-import org.paxle.desktop.impl.dialogues.SettingsPanel;
+import org.paxle.desktop.impl.dialogues.settings.SettingsPanel;
 
-public class DesktopServices implements IDesktopServices, ManagedService {
+public class DesktopServices implements IDesktopServices, ManagedService, ServiceListener {
 	
 	private static final String TRAY_ICON_LOCATION = "/resources/trayIcon.png";
 	
@@ -63,18 +66,17 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 	
 	private class FrameDICloseListener extends WindowAdapter {
 		
-		private final Dialogues d;
-		private final DIComponent comp;
+		private final Long id;
 		
-		public FrameDICloseListener(final Dialogues d, final DIComponent comp) {
-			this.d = d;
-			this.comp = comp;
+		public FrameDICloseListener(final Long id) {
+			this.id = id;
 		}
 		
 		@Override
 		public void windowClosed(WindowEvent e) {
-			dialogues.remove(d);
-			comp.shutdown();
+			final DIComponent c = servicePanels.remove(id);
+			if (c != null)
+				c.close();
 		}
 	}
 	
@@ -93,14 +95,16 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 	// backend-specific properties
 	private static final int PROP_BROWSER_OPENABLE = 1;
 	
-	private static final Dimension DIM_CCONSOLE = new Dimension(600, 400);
-	private static final Dimension DIM_SETTINGS = new Dimension(1000, 600);
+	private static final String FILTER = String.format("(%s=%s)", Constants.OBJECTCLASS, DIServicePanel.class);		// TODO
 	
 	private final Log logger = LogFactory.getLog(DesktopServices.class);
 	private final ServiceManager manager;
 	private final IDIBackend backend;
 	private final HashMap<Integer,Integer> profileDepthMap = new HashMap<Integer,Integer>();
 	private final Map<Dialogues,Frame> dialogues = new EnumMap<Dialogues,Frame>(Dialogues.class);
+	
+	private final Hashtable<Long,DIComponent> servicePanels = new Hashtable<Long,DIComponent>();
+	private final HashMap<DIComponent,Frame> serviceFrames = new HashMap<DIComponent,Frame>();
 	
 	private SystrayMenu trayMenu = null;
 	
@@ -144,6 +148,52 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 					browseUrl(getPaxleUrl("/search"), false);
 			}
 		} catch (IOException e) { e.printStackTrace(); }
+		
+		try {
+			final ServiceReference[] refs = manager.getServiceReferences(null, FILTER);
+			if (refs != null)
+				for (final ServiceReference ref : refs)
+					serviceChanged(ref, ServiceEvent.REGISTERED);
+		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
+	}
+	
+	public void serviceChanged(ServiceEvent event) {
+		serviceChanged(event.getServiceReference(), event.getType());
+	}
+	
+	public Map<Long,DIComponent> getAdditionalComponents() {
+		return servicePanels;
+	}
+	
+	private void serviceChanged(final ServiceReference ref, final int type) {
+		final Long id = (Long)ref.getProperty(Constants.SERVICE_ID);
+		if (id == null) {
+			logger.error("(un)registered DIServicePanel has no valid service-id: " + ref);
+			return;
+		}
+		switch (type) {
+			case ServiceEvent.REGISTERED: {
+				final DIServicePanel panel = manager.getService(ref, DIServicePanel.class);
+				if (panel == null) {
+					logger.error("tried to register DIServicePanel with null-reference");
+					break;
+				}
+				servicePanels.put(id, panel);
+			} break;
+			
+			case ServiceEvent.UNREGISTERING: {
+				final DIComponent panel = servicePanels.remove(id);
+				if (panel == null) {
+					logger.warn("unregistering DIServicePanel which is unknown to DesktopServices: " + ref);
+					break;
+				}
+				panel.close();
+				// TODO
+			} break;
+			
+			case ServiceEvent.MODIFIED: {
+			} break;
+		}
 	}
 	
 	public void shutdown() {
@@ -184,7 +234,7 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		if (yes && !isTrayMenuVisible()) {
 			trayMenu = new SystrayMenu(this, manager.getBundle().getResource(TRAY_ICON_LOCATION));
 		} else if (!yes && isTrayMenuVisible()) {
-			trayMenu.shutdown();
+			trayMenu.close();
 			trayMenu = null;
 		}
 	}
@@ -215,26 +265,63 @@ public class DesktopServices implements IDesktopServices, ManagedService {
 		} catch (Throwable e) { e.printStackTrace(); }
 	}
 	
-	private Frame createDefaultFrame(final DIServicePanel container, final Dialogues d, final String title, final Dimension dim) {
-		return Utilities.wrapIntoFrame(container, title, dim, true, Utilities.LOCATION_CENTER, new FrameDICloseListener(d, container));
+	private Frame createDefaultFrame(final DIComponent container, final Long id) {
+		return Utilities.wrapIntoFrame(
+				container.getContainer(),
+				container.getTitle(),
+				container.getWindowSize(),
+				true,
+				Utilities.LOCATION_CENTER,
+				null,
+				new FrameDICloseListener(id));
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void openDialogue(final Dialogues d) {
 		Frame ccframe = dialogues.get(d);
 		if (ccframe == null) {
-			final Frame frame;
+			final DIComponent c;
 			switch (d) {
-				case CCONSOLE: frame = createDefaultFrame(new CrawlingConsole(this), d, "Crawling Console", DIM_CCONSOLE); break;
-				case SETTINGS: frame = createDefaultFrame(new SettingsPanel(this), d, "Paxle Settings", DIM_SETTINGS); break;
+				case CCONSOLE: c = new CrawlingConsole(this); break;
+				case SETTINGS: c = new SettingsPanel(this); break;
 				
 				default:
 					throw new RuntimeException("switch-statement does not cover " + d);
 			}
-			dialogues.put(d, frame);
-			ccframe = frame;
+			dialogues.put(d, show(valueOf(d), c));
+		} else {
+			show(ccframe);
 		}
-		show(ccframe);
+	}
+	
+	public Frame show(final Long id) {
+		final DIComponent c = servicePanels.get(id);
+		if (c == null)
+			return null;
+		return show(id, c);
+	}
+	
+	public Frame show(final Long id, final DIComponent c) {
+		Frame frame = serviceFrames.get(c);
+		if (frame == null) {
+			frame = createDefaultFrame(c, id);
+			serviceFrames.put(c, frame);
+		}
+		show(frame);
+		return frame;
+	}
+	
+	public void close(final Long id) {
+		final DIComponent c = servicePanels.get(id);
+		if (c != null) {
+			final Frame frame = serviceFrames.remove(c);
+			if (frame != null)
+				frame.dispose();
+		}
+	}
+	
+	private static Long valueOf(final Dialogues d) {
+		return Long.valueOf(-d.ordinal() - 1L);
 	}
 	
 	public void closeDialogue(final Dialogues d) {

@@ -1,13 +1,14 @@
 
 package org.paxle.desktop.impl.dialogues;
 
+import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Hashtable;
 
 import javax.swing.JPanel;
 
 import org.osgi.framework.ServiceRegistration;
-import org.paxle.desktop.impl.DIComponent;
+import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.impl.DesktopServices;
 
 public abstract class DIServicePanel extends JPanel implements DIComponent {
@@ -38,7 +39,10 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 		regs.clear();
 	}
 	
-	public void shutdown() {
+	public abstract String getTitle();
+	public abstract Dimension getWindowSize();
+	
+	public void close() {
 		unregisterServices();
 	}
 }

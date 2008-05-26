@@ -1,0 +1,17 @@
+- crawling console:
+  - save properties (like last view, show urls encoded or not, etc.)
+  - switch to view other components/queues, not just the crawler
+  - allow user to additionally specify (combobox?) certain attributes to control the output
+    (i.e. only show URIs rejected due to malformedness, etc)
+
+- blacklist administration
+  - extend DesktopServices-interface to support adding or removing DIComponents dynamically
+
+- settings panel:
+  X JSpinners should react on mouse-scrollwheel-events
+  X implement setValue(Object)-method
+  X listen for changes on every config to be able to only save these
+  X display when saved
+
+- user admin
+- bundle installation/administration
