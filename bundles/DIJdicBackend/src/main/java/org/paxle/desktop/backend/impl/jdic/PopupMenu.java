@@ -22,6 +22,19 @@ public class PopupMenu extends JPopupMenu implements IPopupMenu {
 		super.add((JMenuItem)menuItem);
 	}
 	
+	public void insert(IMenuItem menuItem, int index) {
+		super.insert((JMenuItem)menuItem, index);
+	}
+	
+	public void insertSeparator(int index) {
+		super.insert(new Separator(), index);
+	}
+	
+	@Override
+	public void remove(int pos) {
+		super.remove(pos);
+	}
+	
 	public void remove(IMenuItem menuItem) {
 		super.remove((JMenuItem)menuItem);
 	}

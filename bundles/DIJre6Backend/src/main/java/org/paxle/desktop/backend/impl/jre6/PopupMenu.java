@@ -55,12 +55,31 @@ public class PopupMenu extends java.awt.PopupMenu implements IPopupMenu {
 		super.add((MenuItem)menuItem);
 	}
 	
+	@Override
+	public void addSeparator() {
+		super.addSeparator();
+	}
+	
+	public void insert(IMenuItem menuItem, int index) {
+		super.insert((MenuItem)menuItem, index);
+	}
+	
+	@Override
+	public void insertSeparator(int index) {
+		super.insertSeparator(index);
+	}
+	
 	public void init(String label) {
 		super.setLabel(label);
 	}
 	
 	public void remove(IMenuItem menuItem) {
 		super.remove((MenuItem)menuItem);
+	}
+	
+	@Override
+	public void remove(int index) {
+		super.remove(index);
 	}
 	
 	public void init(IMenuItem... items) {
