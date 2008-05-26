@@ -1,17 +1,20 @@
 
 package org.paxle.desktop.impl.dialogues.settings;
 
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.text.ParseException;
 
 import javax.swing.JComponent;
 import javax.swing.JSpinner;
+import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JSpinner.DefaultEditor;
 
 import org.osgi.service.metatype.AttributeDefinition;
 import org.paxle.desktop.impl.event.MultipleChangesListener;
 
-class NumAttrConfig extends AbstractAttrConfig<Number> {
+class NumAttrConfig extends AbstractAttrConfig<Number> implements MouseWheelListener {
 	
 	private JSpinner comp = new JSpinner();
 	
@@ -19,11 +22,19 @@ class NumAttrConfig extends AbstractAttrConfig<Number> {
 		super(ad);
 	}
 	
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		final SpinnerModel m = comp.getModel();
+		final Object nv = ((e.getWheelRotation() < 0) ? m.getNextValue() : m.getPreviousValue());
+		if (nv != null)
+			m.setValue(nv);
+	}
+	
 	@Override
 	protected JComponent createOptionComp(Object value, MultipleChangesListener mcl) {
 		long lmin = 0L, lmax = 0L;
 		double dmin = 0.0, dmax = 0.0;
 		comp = new JSpinner();
+		comp.addMouseWheelListener(this);
 		switch (ad.getType()) {
 			case AttributeDefinition.SHORT:
 				lmin = Short.MIN_VALUE;
