@@ -28,6 +28,7 @@ import java.lang.reflect.Method;
 import java.util.EventListener;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -41,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.RootPaneContainer;
 import javax.swing.UIDefaults;
@@ -58,8 +60,21 @@ public class Utilities {
 	public static final Point LOCATION_BY_PLATFORM = new Point();
 	private static final String KE_CLOSE = new String();
 	
+	public static JToggleButton createToggleButton(final String text, final ActionListener al, final String actionCommand, final Icon icon) {
+		return setButtonProps(new JToggleButton(), text, al, actionCommand, icon);
+	}
+	
 	public static JButton createButton(final String text, final ActionListener al, final String actionCommand, final Icon icon) {
-		final JButton b = new JButton(text);
+		return setButtonProps(new JButton(), text, al, actionCommand, icon);
+	}
+	
+	private static <E extends AbstractButton> E setButtonProps(
+			final E b,
+			final String text,
+			final ActionListener al,
+			final String actionCommand,
+			final Icon icon) {
+		b.setText(text);
 		b.setActionCommand(actionCommand);
 		if (al != null)
 			b.addActionListener(al);

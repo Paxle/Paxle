@@ -1,5 +1,5 @@
 - crawling console:
-  - save properties (like last view, show urls encoded or not, etc.)
+  X save properties (like last view, show urls encoded or not, etc.)
   X switch to view other components/queues, not just the crawler
   - allow user to additionally specify (combobox?) certain attributes to control the output
     (i.e. only show URIs rejected due to malformedness, etc)

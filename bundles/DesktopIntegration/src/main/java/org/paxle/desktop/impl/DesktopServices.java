@@ -71,6 +71,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 			return Character.toUpperCase(name().charAt(0)) + name().substring(1).toLowerCase();
 		}
 		
+		public static MWComponents valueOfHumanReadable(final String name) {
+			return valueOf(name.toUpperCase());
+		}
+		
 		public static String[] humanReadableNames() {
 			final MWComponents[] comps = values();
 			final String[] compStrs = new String[comps.length];
@@ -82,15 +86,20 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	
 	private class FrameDICloseListener extends WindowAdapter {
 		
-		private final Long id;
+		private Long id;
+		private DIComponent c;
 		
 		public FrameDICloseListener(final Long id) {
 			this.id = id;
 		}
 		
+		public FrameDICloseListener(final DIComponent c) {
+			this.c = c;
+		}
+		
 		@Override
 		public void windowClosed(WindowEvent e) {
-			final DIComponent c = servicePanels.remove(id);
+			final DIComponent c = (this.c != null) ? this.c : servicePanels.get(id);
 			if (c != null)
 				c.close();
 		}
@@ -215,12 +224,11 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	
 	public void shutdown() {
 		final Properties props = manager.getServiceProperties();
-		if (props == null)
-			return;
-		
-		int bp = 0;
-		bp |= (browserOpenable) ? PROP_BROWSER_OPENABLE : 0;
-		props.put(backend.getClass().getName(), Integer.toString(bp));
+		if (props != null) {
+			int bp = 0;
+			bp |= (browserOpenable) ? PROP_BROWSER_OPENABLE : 0;
+			props.put(backend.getClass().getName(), Integer.toString(bp));
+		}
 		
 		for (Map.Entry<DIComponent,Frame> e : serviceFrames.entrySet()) {
 			e.getKey().close();
@@ -292,7 +300,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 				true,
 				Utilities.LOCATION_CENTER,
 				null,
-				new FrameDICloseListener(id));
+				(id.longValue() < 0L) ? new FrameDICloseListener(container) : new FrameDICloseListener(id));
 	}
 	
 	@SuppressWarnings("unchecked")

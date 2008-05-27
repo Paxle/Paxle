@@ -2,6 +2,7 @@
 package org.paxle.desktop.impl.dialogues;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
 
@@ -22,6 +23,7 @@ public class ScrollablePanel extends JPanel implements Scrollable {
 	private int tracksWidth = 0;
 	
 	public ScrollablePanel() {
+		this(new FlowLayout(), MAXIMIZE, MAXIMIZE);
 	}
 	
 	public ScrollablePanel(final LayoutManager layout, final int tracksWidth, final int tracksHeight) {

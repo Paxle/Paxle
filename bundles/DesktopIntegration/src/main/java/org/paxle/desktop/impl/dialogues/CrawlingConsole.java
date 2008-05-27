@@ -37,6 +37,7 @@ import org.osgi.service.event.EventHandler;
 
 import org.paxle.core.IMWComponent;
 import org.paxle.core.MWComponentEvent;
+import org.paxle.core.prefs.Properties;
 import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
@@ -123,6 +124,9 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	
 	private static final Dimension DIM_CCONSOLE = new Dimension(700, 400);
 	
+	private static final String PROP_DISPLAYED_MWCOMP = "displayedMWComp";
+	private static final String PROP_URLS_ENCODED = "urlsEncoded";
+	
 	private static final String AC_CLEAR = new String();
 	private static final String AC_SAVE = new String();
 	private static final String AC_CRAWL = new String();
@@ -130,8 +134,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	
 	private static final String LBL_CRAWLER_PAUSE = "Pause crawler";
 	private static final String LBL_CRAWLER_RESUME = "Resume crawler";
-	
-	private static final DesktopServices.MWComponents DEFAULT = DesktopServices.MWComponents.CRAWLER;
 	
 	private static enum Events {
 		QUEUE, MWCOMP_STATE
@@ -146,18 +148,28 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private final JRadioButton  normal = new JRadioButton("Original URLs");
 	private final Object        sync   = new Object();
 	private final IntRingBuffer buf    = new IntRingBuffer(100);
-	private final JToggleButton cpb    = new JToggleButton();
+	private final JToggleButton cpb    = Utilities.createToggleButton(null, this, AC_CRAWL, null);
 	private final JComboBox     cbox;
 	private final ICommandTracker tracker;
-	
-	// TODO: save enc/normal, default
 	
 	public CrawlingConsole(final DesktopServices services) {
 		super(services);
 		cbox = new JComboBox(DesktopServices.MWComponents.humanReadableNames());
 		cbox.addActionListener(this);
 		this.tracker = services.getServiceManager().getService(ICommandTracker.class);
-		init();
+		
+		final Properties props = services.getServiceManager().getServiceProperties();
+		final String mwcomp = props.getProperty(PROP_DISPLAYED_MWCOMP, DesktopServices.MWComponents.CRAWLER.name());
+		final String urlsEncoded = props.getProperty(PROP_URLS_ENCODED, Boolean.TRUE.toString());
+		init(DesktopServices.MWComponents.valueOf(mwcomp), Boolean.parseBoolean(urlsEncoded));
+	}
+	
+	@Override
+	public void close() {
+		final Properties props = super.services.getServiceManager().getServiceProperties();
+		props.put(PROP_DISPLAYED_MWCOMP, DesktopServices.MWComponents.valueOfHumanReadable((String)cbox.getSelectedItem()).name());
+		props.put(PROP_URLS_ENCODED, Boolean.toString(enc.isSelected()));
+		super.close();
 	}
 	
 	private void changeListenersTo(final DesktopServices.MWComponents comp) {
@@ -226,7 +238,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 			updateCpb(cpb.isSelected(), false, true);
 		} else if (ac == AC_SELECT) {
 			clear();
-			changeListenersTo(DesktopServices.MWComponents.valueOf(((String)((JComboBox)e.getSource()).getSelectedItem()).toUpperCase()));
+			changeListenersTo(DesktopServices.MWComponents.valueOfHumanReadable((String)cbox.getSelectedItem()));
 		}
 	}
 	
@@ -272,26 +284,24 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		}
 	}
 	
-	private void init() {
+	private void init(final DesktopServices.MWComponents comp, final boolean showUrlsEncoded) {
 		text.setEditable(false);
-		final JPanel textPanel = new JPanel(new BorderLayout());
+		final JPanel textPanel = new ScrollablePanel(new BorderLayout(), ScrollablePanel.MAXIMIZE, ScrollablePanel.MAXIMIZE);
 		textPanel.add(text, BorderLayout.CENTER);
 		scroll.getViewport().setView(textPanel);
 		
 		updateCpb(false, true, false);
-		cpb.setActionCommand(AC_CRAWL);
-		cpb.addActionListener(this);
 		
-		enc.setSelected(true);
 		final ButtonGroup bg = new ButtonGroup();
 		bg.add(enc);
 		bg.add(normal);
+		((showUrlsEncoded) ? enc : normal).setSelected(true);
 		final JPanel bottomLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		bottomLeft.add(normal);
 		bottomLeft.add(enc);
 		
 		cbox.setActionCommand(AC_SELECT);
-		cbox.setSelectedIndex(DEFAULT.ordinal());
+		cbox.setSelectedIndex(comp.ordinal());
 		final JPanel bottomRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		bottomRight.add(cbox);
 		bottomRight.add(cpb);
