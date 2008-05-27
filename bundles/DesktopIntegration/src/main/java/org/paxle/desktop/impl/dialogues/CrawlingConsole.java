@@ -219,6 +219,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	public void actionPerformed(ActionEvent e) {
 		final String ac = e.getActionCommand();
 		if (ac == AC_CLEAR) {
+			clear();
 		} else if (ac == AC_SAVE) {
 			new Thread(new SaveActionRunnable()).start();
 		} else if (ac == AC_CRAWL) {
