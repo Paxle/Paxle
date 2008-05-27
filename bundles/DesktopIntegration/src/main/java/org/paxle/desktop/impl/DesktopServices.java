@@ -55,11 +55,28 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		private final String query;
 		
 		private MWComponents() {
-			query = String.format("(%s=org.paxle.%s)", IMWComponent.COMPONENT_ID, name().toLowerCase());
+			query = String.format("(%s=%s)", IMWComponent.COMPONENT_ID, getID());
 		}
 		
+		public String getID() {
+			return String.format("org.paxle.%s", name().toLowerCase());
+		}
+		 
 		public String toQuery() {
 			return query;
+		}
+		
+		@Override
+		public String toString() {
+			return Character.toUpperCase(name().charAt(0)) + name().substring(1).toLowerCase();
+		}
+		
+		public static String[] humanReadableNames() {
+			final MWComponents[] comps = values();
+			final String[] compStrs = new String[comps.length];
+			for (int i=0; i<comps.length; i++)
+				compStrs[i] = comps[i].toString();
+			return compStrs;
 		}
 	}
 	
@@ -73,7 +90,6 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		
 		@Override
 		public void windowClosed(WindowEvent e) {
-			System.out.println("window closed for " + this);
 			final DIComponent c = servicePanels.remove(id);
 			if (c != null)
 				c.close();

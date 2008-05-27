@@ -18,6 +18,7 @@ import java.util.Hashtable;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -120,17 +121,21 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		}
 	}
 	
-	private static final Dimension DIM_CCONSOLE = new Dimension(600, 400);
+	private static final Dimension DIM_CCONSOLE = new Dimension(700, 400);
 	
 	private static final String AC_CLEAR = new String();
 	private static final String AC_SAVE = new String();
 	private static final String AC_CRAWL = new String();
-	
-	private static final Object EVENT_QUEUE = new Object();
-	private static final Object EVENT_MWCOMP = new Object();
+	private static final String AC_SELECT = new String();
 	
 	private static final String LBL_CRAWLER_PAUSE = "Pause crawler";
 	private static final String LBL_CRAWLER_RESUME = "Resume crawler";
+	
+	private static final DesktopServices.MWComponents DEFAULT = DesktopServices.MWComponents.CRAWLER;
+	
+	private static enum Events {
+		QUEUE, MWCOMP_STATE
+	}
 	
 	private final Log           logger = LogFactory.getLog(CrawlingConsole.class);
 	private final JScrollPane   scroll = new JScrollPane();
@@ -142,25 +147,38 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private final Object        sync   = new Object();
 	private final IntRingBuffer buf    = new IntRingBuffer(100);
 	private final JToggleButton cpb    = new JToggleButton();
+	private final JComboBox     cbox;
 	private final ICommandTracker tracker;
 	
-	// TODO: save enc/normal
+	// TODO: save enc/normal, default
 	
-	@SuppressWarnings("unchecked")
 	public CrawlingConsole(final DesktopServices services) {
 		super(services);
+		cbox = new JComboBox(DesktopServices.MWComponents.humanReadableNames());
+		cbox.addActionListener(this);
 		this.tracker = services.getServiceManager().getService(ICommandTracker.class);
 		init();
+	}
+	
+	private void changeListenersTo(final DesktopServices.MWComponents comp) {
+		super.unregisterService(Events.QUEUE);
+		super.unregisterService(Events.MWCOMP_STATE);
+		registerListeners(comp);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void registerListeners(final DesktopServices.MWComponents comp) {
+		final String id = comp.getID();
 		
 		final Hashtable<String,Object> propCrawler = new Hashtable<String,Object>();
 		propCrawler.put(EventConstants.EVENT_TOPIC, new String[] { CommandEvent.TOPIC_DEQUEUED });
-		propCrawler.put(EventConstants.EVENT_FILTER, String.format("(%s=org.paxle.crawler.in)", CommandEvent.PROP_COMPONENT_ID));
-		super.registerService(EVENT_QUEUE, this, propCrawler, EventHandler.class);
+		propCrawler.put(EventConstants.EVENT_FILTER, String.format("(%s=%s.in)", CommandEvent.PROP_COMPONENT_ID, id));
+		super.registerService(Events.QUEUE, this, propCrawler, EventHandler.class);
 		
 		final Hashtable<String,Object> propMW = new Hashtable<String,Object>();
 		propMW.put(EventConstants.EVENT_TOPIC, new String[] { MWComponentEvent.TOPIC_ALL });
-		propMW.put(EventConstants.EVENT_FILTER, String.format("(%s=org.paxle.crawler)", MWComponentEvent.PROP_COMPONENT_ID));
-		super.registerService(EVENT_MWCOMP, this, propMW, EventHandler.class);
+		propMW.put(EventConstants.EVENT_FILTER, String.format("(%s=%s)", MWComponentEvent.PROP_COMPONENT_ID, id));
+		super.registerService(Events.MWCOMP_STATE, this, propMW, EventHandler.class);
 	}
 	
 	public Container getContainer() {
@@ -201,14 +219,20 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	public void actionPerformed(ActionEvent e) {
 		final String ac = e.getActionCommand();
 		if (ac == AC_CLEAR) {
-			updateText(false, "");
-			clear.setEnabled(false);
-			save.setEnabled(false);
 		} else if (ac == AC_SAVE) {
 			new Thread(new SaveActionRunnable()).start();
 		} else if (ac == AC_CRAWL) {
 			updateCpb(cpb.isSelected(), false, true);
+		} else if (ac == AC_SELECT) {
+			clear();
+			changeListenersTo(DesktopServices.MWComponents.valueOf(((String)((JComboBox)e.getSource()).getSelectedItem()).toUpperCase()));
 		}
+	}
+	
+	private void clear() {
+		updateText(false, "");
+		clear.setEnabled(false);
+		save.setEnabled(false);
 	}
 	
 	public void updateText(final boolean appendLine, final String val) {
@@ -261,18 +285,21 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		final ButtonGroup bg = new ButtonGroup();
 		bg.add(enc);
 		bg.add(normal);
-		final JPanel bottomRight = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		bottomRight.add(normal);
-		bottomRight.add(enc);
+		final JPanel bottomLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		bottomLeft.add(normal);
+		bottomLeft.add(enc);
 		
-		final JPanel bottomLeft = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		bottomLeft.add(cpb);
-		bottomLeft.add(save);
-		bottomLeft.add(clear);
+		cbox.setActionCommand(AC_SELECT);
+		cbox.setSelectedIndex(DEFAULT.ordinal());
+		final JPanel bottomRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		bottomRight.add(cbox);
+		bottomRight.add(cpb);
+		bottomRight.add(save);
+		bottomRight.add(clear);
 		
 		final JPanel bottom = new JPanel(new BorderLayout());
-		bottom.add(bottomRight, BorderLayout.WEST);
-		bottom.add(bottomLeft, BorderLayout.EAST);
+		bottom.add(bottomLeft, BorderLayout.WEST);
+		bottom.add(bottomRight, BorderLayout.EAST);
 		
 		super.setLayout(new BorderLayout());
 		super.add(scroll, BorderLayout.CENTER);

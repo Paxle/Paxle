@@ -126,14 +126,11 @@ public class MultipleChangesListener implements ChangeListener, ActionListener, 
 		reset.setEnabled(false);
 	}
 	
-	public JPanel layoutDefault(final boolean buttonsRight) {
+	public JPanel layoutButtonsDefault(final boolean buttonsRight) {
 		final JPanel buttonPanel = new JPanel(new FlowLayout((buttonsRight) ? FlowLayout.RIGHT : FlowLayout.LEFT, 5, 5));
-		buttonPanel.add(reset);
 		buttonPanel.add(save);
-		
-		final JPanel panel = new JPanel(new BorderLayout());
-		panel.add(buttonPanel, BorderLayout.SOUTH);
-		return panel;
+		buttonPanel.add(reset);
+		return buttonPanel;
 	}
 	
 	public JButton getSaveButton() {

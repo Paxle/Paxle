@@ -51,6 +51,7 @@ import org.paxle.core.io.IOTools;
 import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.ServiceManager;
 import org.paxle.desktop.impl.dialogues.DIServicePanel;
+import org.paxle.desktop.impl.dialogues.ScrollablePanel;
 import org.paxle.desktop.impl.event.MultipleChangesListener;
 
 public class SettingsPanel extends DIServicePanel implements ConfigurationListener {
@@ -249,7 +250,8 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 			mcl.addComp2Monitor(optionsComp);
 			optionsComp.getSaveButton().setText("Save");
 			optionsComp.getResetButton().setText("Reset");
-			optionsPanel = optionsComp.layoutDefault(true);
+			optionsPanel = new ScrollablePanel(new BorderLayout(), ScrollablePanel.ALWAYS_TRACK, ScrollablePanel.MAXIMIZE);
+			optionsPanel.add(optionsComp.layoutButtonsDefault(true), BorderLayout.SOUTH);
 			optionsPanel.add(panel);
 			
 			final GridBagConstraints gbcHead = createGbcHead();
@@ -449,6 +451,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		return confs;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void init() {
 		// initialize right view
 		final JPanel optPanel = new JPanel(new BorderLayout());
@@ -480,5 +483,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		super.setLayout(new BorderLayout());
 		super.add(split);
 		mcl.resetDefaults();
+		final Hashtable<String,Object> props = new Hashtable<String,Object>();
+		super.registerService(this, this, props, ConfigurationListener.class);
 	}
 }
