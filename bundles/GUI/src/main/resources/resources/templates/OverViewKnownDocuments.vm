@@ -1,6 +1,6 @@
 #if( $indexSearcher)
 <fieldset class="infobox">
-	<legend>Index</legend>
+	<legend class="ovDatabase">Index</legend>
 	<dl>
 		<dt>Documents known:</dt><dd>$indexSearcher.getDocCount()</dd>
 	</dl>
