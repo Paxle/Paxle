@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import org.osgi.service.metatype.AttributeDefinition;
-import org.paxle.desktop.impl.Utilities;
+import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.event.MultipleChangesListener;
 
 abstract class AbstractAttrConfig<E> {

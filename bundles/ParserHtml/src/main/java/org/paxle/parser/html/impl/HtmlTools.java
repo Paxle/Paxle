@@ -6,9 +6,9 @@ import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.paxle.util.ArrayByteBuffer;
 import org.paxle.util.ac.AhoCorasick;
 import org.paxle.util.ac.SearchResult;
+import org.paxle.util.buffer.ArrayByteBuffer;
 
 /* deReplace(String,String[]) and entity-lists from YaCy SVN 3802
  * XXX license? */

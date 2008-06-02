@@ -32,7 +32,6 @@ class NumAttrConfig extends AbstractAttrConfig<Number> implements MouseWheelList
 	@Override
 	protected JComponent createOptionComp(Object value, MultipleChangesListener mcl) {
 		long lmin = 0L, lmax = 0L;
-		double dmin = 0.0, dmax = 0.0;
 		comp = new JSpinner();
 		comp.addMouseWheelListener(this);
 		switch (ad.getType()) {
@@ -48,10 +47,7 @@ class NumAttrConfig extends AbstractAttrConfig<Number> implements MouseWheelList
 				if (lmin == 0L) lmin = Long.MIN_VALUE;
 				if (lmax == 0L) lmax = Long.MAX_VALUE;
 				
-				if (value instanceof String)
-					value = Long.valueOf((String)value);
-				
-				final long val = ((Number)value).longValue();
+				final long val = (value instanceof String) ? Long.parseLong((String)value) : ((Number)value).longValue();
 				if (ad.validate(Long.toString(val)) != null) {
 					final long[] minmax = getMinMax(lmin, lmax, val);
 					comp.setModel(new SpinnerNumberModel(
@@ -61,23 +57,24 @@ class NumAttrConfig extends AbstractAttrConfig<Number> implements MouseWheelList
 				}
 			} break;
 			
-			case AttributeDefinition.FLOAT:
-				dmin = Float.MIN_VALUE;
-				dmax = Float.MAX_VALUE;
-				// fall-through
-			case AttributeDefinition.DOUBLE: {
-				if (dmin == 0.0) dmin = Double.MIN_VALUE;
-				if (dmax == 0.0) dmax = Double.MAX_VALUE;
-				
-				if (value instanceof String)
-					value = Double.valueOf((String)value);
-				
-				final double val = ((Number)value).doubleValue();
-				if (ad.validate(Double.toString(val)) != null) {
-					final double[] minmax = getMinMax(dmin, dmax, val);
+			case AttributeDefinition.FLOAT: {
+				final float val = (value instanceof String) ? Float.parseFloat((String)value) : ((Number)value).floatValue();
+				if (ad.validate(String.valueOf(val)) != null) {
+					final float[] minmax = getMinMax(-Float.MAX_VALUE, Float.MAX_VALUE, val);
 					comp.setModel(new SpinnerNumberModel(
 							(Number)value,
-							toNumber(minmax[0]), toNumber(minmax[1]),
+							Float.valueOf(minmax[0]), Float.valueOf(minmax[1]),
+							Double.valueOf(0.1)));
+				}
+			} break;
+			
+			case AttributeDefinition.DOUBLE: {
+				final double val = (value instanceof String) ? Double.parseDouble((String)value) : ((Number)value).doubleValue();
+				if (ad.validate(String.valueOf(val)) != null) {
+					final double[] minmax = getMinMax(-Double.MAX_VALUE, Double.MAX_VALUE, val);
+					comp.setModel(new SpinnerNumberModel(
+							(Number)value,
+							Double.valueOf(minmax[0]), Double.valueOf(minmax[1]),
 							Double.valueOf(0.1)));
 				}
 			} break;
@@ -146,14 +143,44 @@ class NumAttrConfig extends AbstractAttrConfig<Number> implements MouseWheelList
 		}
 	}
 	
-	private Comparable<? extends Number> toNumber(final double n) {
-		switch (ad.getType()) {
-			case AttributeDefinition.FLOAT: return Float.valueOf((float)n);
-			case AttributeDefinition.DOUBLE: return Double.valueOf(n);
+	private static final int MINMAX_LONG_ITERATIONS = 63;			// max. iterations needed for type long
+	private static final int MINMAX_FLOAT_ITERATIONS =
+		(int)Math.ceil((Math.log(Float.MAX_VALUE) - Math.log(Float.MIN_VALUE)) / Math.log(2.0)); // 277
+	private static final int MINMAX_DOUBLE_ITERATIONS =
+		(int)Math.ceil((Math.log(Double.MAX_VALUE) - Math.log(Double.MIN_VALUE)) / Math.log(2.0)); // 2098
+	
+	private float[] getMinMax(final float min, final float max, final float mid) {
+		final boolean omitMin = (ad.validate(Float.toString(min)).length() == 0);
+		final boolean omitMax = (ad.validate(Float.toString(max)).length() == 0);
+		if (omitMin && omitMax)
+			return new float[] { min, max };
+		
+		float minlo = min;
+		float minhi = (omitMin) ? min : mid;
+		float maxlo = (omitMax) ? max : mid;
+		float maxhi = max;
+		
+		for (int i=0; i<MINMAX_FLOAT_ITERATIONS; i++) {
+			if (!omitMin) {
+				final float nextMin = minhi - (minhi - minlo) / 2;
+				if (ad.validate(Float.toString(nextMin)).length() == 0) {
+					minhi = nextMin;
+				} else {
+					minlo = nextMin;
+				}
+			}
 			
-			default:
-				throw new IllegalArgumentException("double is incompatible to attr-def-type: " + ad.getType());
+			if (!omitMax) {
+				final float nextMax = maxhi - (maxhi - maxlo) / 2;
+				if (ad.validate(Float.toString(nextMax)).length() == 0) {
+					maxlo = nextMax;
+				} else {
+					maxhi = nextMax;
+				}
+			}
 		}
+		
+		return new float[] { minhi, maxlo };
 	}
 	
 	private double[] getMinMax(final double min, final double max, final double mid) {
@@ -167,7 +194,7 @@ class NumAttrConfig extends AbstractAttrConfig<Number> implements MouseWheelList
 		double maxlo = (omitMax) ? max : mid;
 		double maxhi = max;
 		
-		for (int i=0; i<SettingsPanel.MAX_DET_MINMAX_ITERATIONS; i++) {
+		for (int i=0; i<MINMAX_DOUBLE_ITERATIONS; i++) {
 			if (!omitMin) {
 				final double nextMin = minhi - (minhi - minlo) / 2;
 				if (ad.validate(Double.toString(nextMin)).length() == 0) {
@@ -201,7 +228,7 @@ class NumAttrConfig extends AbstractAttrConfig<Number> implements MouseWheelList
 		long maxlo = (omitMax) ? max : mid;
 		long maxhi = max;
 		
-		for (int i=0; i<SettingsPanel.MAX_DET_MINMAX_ITERATIONS; i++) {
+		for (int i=0; i<MINMAX_LONG_ITERATIONS; i++) {
 			if (!omitMin) {
 				final long nextMin = minhi - (minhi - minlo) / 2;
 				if (ad.validate(Long.toString(nextMin)).length() == 0) {

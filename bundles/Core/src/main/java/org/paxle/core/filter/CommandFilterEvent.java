@@ -36,7 +36,7 @@ public class CommandFilterEvent extends CommandEvent {
 	public static final String PROP_FILTER_TARGET_POSITION = "filterPos";
 	
 	/**
-	 * The name of the class-filter
+	 * The class-name of the filter
 	 */
 	public static final String PROP_FILTER_NAME = "filterClassName";
 	

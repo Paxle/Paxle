@@ -60,15 +60,17 @@ public class NodeFactoryFactory {
 	 *        cause all nodes (including the root node) to be {@link LinkedNode}s
 	 */
 	public <E> INodeFactory<E> toNodeFactory(final int linkedDepthThreshold, final Class<E> clazz) {
+		final INodeFactory<E> nf;
 		if (c == Byte.MAX_VALUE || c < 0) {
-			return new DepthTSArrayLinkedNodeFactory<E>(linkedDepthThreshold);
+			nf = new ArrayPlainNodeFactory<E>();
 		} else {
 			final byte[] asciiMap = new byte[this.asciiMap.length];
 			System.arraycopy(this.asciiMap, 0, asciiMap, 0, this.asciiMap.length);
 			final byte[] mapAscii = new byte[c];
 			System.arraycopy(this.mapAscii, 0, mapAscii, 0, c);
-			return new DepthTSMappedNodeFactory<E>(linkedDepthThreshold, asciiMap, mapAscii);
+			return new ArrayMappedNodeFactory<E>(asciiMap, mapAscii);
 		}
+		return new DepthTSNodeFactory<E>(linkedDepthThreshold, nf, new TreeNodeFactory<E>());
 	}
 	
 	public static <E> INodeFactory<E> toNodeFactory(
@@ -81,23 +83,21 @@ public class NodeFactoryFactory {
 		byte b = 0;
 		for (byte idx=0; idx>=0; idx++)
 			asciiMap[idx] = (r.isAllowed(idx)) ? ++b : 0;
-		return new DepthTSMappedNodeFactory<E>(linkedDepthThreshold, asciiMap, b);
+		return new DepthTSNodeFactory<E>(linkedDepthThreshold,
+				new ArrayMappedNodeFactory<E>(asciiMap, b), new TreeNodeFactory<E>());
 	}
 	
-	public static final class DepthTSMappedNodeFactory<E> implements INodeFactory<E> {
+	public static final class ArrayMappedNodeFactory<E> implements INodeFactory<E> {
 		
-		private final int threshold;
 		private final byte[] asciiMap;
 		private final byte[] mapAscii;
 		
-		public DepthTSMappedNodeFactory(final int threshold, final byte[] asciiMap, final byte[] mapAscii) {
-			this.threshold = threshold;
+		public ArrayMappedNodeFactory(final byte[] asciiMap, final byte[] mapAscii) {
 			this.asciiMap = asciiMap;
 			this.mapAscii = mapAscii;
 		}
 		
-		public DepthTSMappedNodeFactory(final int threshold, final byte[] asciiMap, final byte mapLength) {
-			this.threshold = threshold;
+		public ArrayMappedNodeFactory(final byte[] asciiMap, final byte mapLength) {
 			this.asciiMap = asciiMap;
 			mapAscii = new byte[mapLength];
 			int c = 0;
@@ -111,7 +111,7 @@ public class NodeFactoryFactory {
 		}
 		
 		public ANode<E> createNode(int depth) {
-			return (depth < threshold) ? new MappedArrayNode<E>(asciiMap, mapAscii) : new LinkedNode<E>();
+			return new MappedArrayNode<E>(asciiMap, mapAscii);
 		}
 	}
 	
@@ -121,22 +121,31 @@ public class NodeFactoryFactory {
 		}
 	}
 	
-	public static final class PlainArrayNodeFactory<E> implements INodeFactory<E> {
+	public static final class ArrayPlainNodeFactory<E> implements INodeFactory<E> {
 		public ANode<E> createNode(int depth) {
 			return new ArrayNode<E>();
 		}
 	}
 	
-	public static final class DepthTSArrayLinkedNodeFactory<E> implements INodeFactory<E> {
+	public static final class TreeNodeFactory<E> implements INodeFactory<E> {
+		public ANode<E> createNode(int depth) {
+			return new TreeNode<E>();
+		}
+	}
+	
+	public static final class DepthTSNodeFactory<E> implements INodeFactory<E> {
 		
+		private final INodeFactory<E> lower, higher;
 		private final int threshold;
 		
-		public DepthTSArrayLinkedNodeFactory(final int threshold) {
+		public DepthTSNodeFactory(final int threshold, final INodeFactory<E> lower, final INodeFactory<E> higher) {
 			this.threshold = threshold;
+			this.lower = lower;
+			this.higher = higher;
 		}
 		
 		public ANode<E> createNode(int depth) {
-			return (depth < threshold) ? new ArrayNode<E>() : new LinkedNode<E>();
+			return (depth < threshold) ? lower.createNode(depth) : higher.createNode(depth);
 		}
 	}
 	
@@ -202,18 +211,18 @@ public class NodeFactoryFactory {
 			final Range[] ra = rset.toArray(new Range[rset.size()]);
 			rset = null;
 			
-			// FIXME quick-hack, please replace this, it's far too slow
 			return new Range() {
 				@Override
 				public boolean isAllowed(byte b) {
-					boolean touched = false;
-					boolean allowed = false;
-					for (final Range r : ra) {
-						allowed = r.isAllowed(b);
-						if (allowed ^ r.allowed)
-							touched = true;
+					boolean allowed = denyUndefined;
+					for (int i=0; i<ra.length; i++) {
+						final Range r = ra[i];
+						if (r.from > b)
+							break;
+						if (r.to >= b)
+							allowed = r.allowed;
 					}
-					return (touched) ? allowed : !denyUndefined;
+					return allowed;
 				}
 			};
 		}

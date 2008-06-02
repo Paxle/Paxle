@@ -4,8 +4,8 @@
   - allow user to additionally specify (combobox?) certain attributes to control the output
     (i.e. only show URIs rejected due to malformedness, etc)
 
-- blacklist administration
-  - extend DesktopServices-interface to support adding or removing DIComponents dynamically
+x blacklist administration
+  X extend DesktopServices-interface to support adding or removing DIComponents dynamically
 
 - settings panel:
   X JSpinners should react on mouse-scrollwheel-events

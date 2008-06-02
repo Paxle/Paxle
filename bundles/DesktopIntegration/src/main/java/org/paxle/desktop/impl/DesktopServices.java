@@ -38,9 +38,9 @@ import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.IDesktopServices;
+import org.paxle.desktop.Utilities;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.impl.dialogues.CrawlingConsole;
-import org.paxle.desktop.impl.dialogues.DIServicePanel;
 import org.paxle.desktop.impl.dialogues.settings.SettingsPanel;
 
 public class DesktopServices implements IDesktopServices, ManagedService, ServiceListener {
@@ -52,10 +52,11 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		
 		;
 		
-		private final String query;
+		private static final HashMap<String,MWComponents> ID_MAP = new HashMap<String,MWComponents>();
 		
-		private MWComponents() {
-			query = String.format("(%s=%s)", IMWComponent.COMPONENT_ID, getID());
+		static {
+			for (final MWComponents c : values())
+				ID_MAP.put(c.getID(), c);
 		}
 		
 		public String getID() {
@@ -63,12 +64,20 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		}
 		 
 		public String toQuery() {
-			return query;
+			return toQuery(IMWComponent.COMPONENT_ID);
+		}
+		
+		public String toQuery(final String key) {
+			return String.format("(%s=%s)", key, getID());
 		}
 		
 		@Override
 		public String toString() {
 			return Character.toUpperCase(name().charAt(0)) + name().substring(1).toLowerCase();
+		}
+		
+		public static MWComponents valueOfID(final String id) {
+			return ID_MAP.get(id);
 		}
 		
 		public static MWComponents valueOfHumanReadable(final String name) {
@@ -100,8 +109,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		@Override
 		public void windowClosed(WindowEvent e) {
 			final DIComponent c = (this.c != null) ? this.c : servicePanels.get(id);
-			if (c != null)
+			if (c != null) {
 				c.close();
+				serviceFrames.remove(c);
+			}
 		}
 	}
 	
@@ -120,7 +131,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	// backend-specific properties
 	private static final int PROP_BROWSER_OPENABLE = 1;
 	
-	private static final String FILTER = String.format("(%s=%s)", Constants.OBJECTCLASS, DIServicePanel.class);		// TODO
+	private static final String FILTER = String.format("(%s=%s)", Constants.OBJECTCLASS, DIComponent.class.getName());	// TODO
 	
 	private final Log logger = LogFactory.getLog(DesktopServices.class);
 	private final ServiceManager manager;
@@ -132,12 +143,12 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	private final HashMap<DIComponent,Frame> serviceFrames = new HashMap<DIComponent,Frame>();
 	
 	private SystrayMenu trayMenu = null;
-	
 	private boolean browserOpenable = true;
 	
 	public DesktopServices(final ServiceManager manager, final IDIBackend backend) {
 		this.manager = manager;
 		this.backend = backend;
+		try { manager.addServiceListener(this, FILTER); } catch (InvalidSyntaxException e) { e.printStackTrace(); }
 		initDS();
 	}
 	
@@ -193,28 +204,29 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	private void serviceChanged(final ServiceReference ref, final int type) {
 		final Long id = (Long)ref.getProperty(Constants.SERVICE_ID);
 		if (id == null) {
-			logger.error("(un)registered DIServicePanel has no valid service-id: " + ref);
+			logger.error("(un)registered DIComponent has no valid service-id: " + ref);
 			return;
 		}
 		switch (type) {
 			case ServiceEvent.REGISTERED: {
-				final DIServicePanel panel = manager.getService(ref, DIServicePanel.class);
+				final DIComponent panel = manager.getService(ref, DIComponent.class);
 				if (panel == null) {
-					logger.error("tried to register DIServicePanel with null-reference");
+					logger.error("tried to register DIComponent with null-reference");
 					break;
 				}
 				servicePanels.put(id, panel);
+				logger.info("registered DIComponent '" + panel.getTitle() + "' with service-ID " + id);
 			} break;
 			
 			case ServiceEvent.UNREGISTERING: {
+				close(id);
 				final DIComponent panel = servicePanels.remove(id);
 				if (panel == null) {
-					logger.warn("unregistering DIServicePanel which is unknown to DesktopServices: " + ref);
+					logger.warn("unregistering DIComponent which is unknown to DesktopServices: " + ref);
 					break;
 				}
-				panel.close();
+				logger.info("unregistered DIComponent '" + panel.getTitle() + "' with service-ID " + id);
 				manager.ungetService(ref);
-				// TODO
 			} break;
 			
 			case ServiceEvent.MODIFIED: {
@@ -230,10 +242,8 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 			props.put(backend.getClass().getName(), Integer.toString(bp));
 		}
 		
-		for (Map.Entry<DIComponent,Frame> e : serviceFrames.entrySet()) {
-			e.getKey().close();
-			e.getValue().dispose();
-		}
+		for (final Frame frame : serviceFrames.values())
+			frame.dispose();
 		serviceFrames.clear();
 		
 		setTrayMenuVisible(false);
@@ -305,21 +315,15 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	
 	@SuppressWarnings("unchecked")
 	public void openDialogue(final Dialogues d) {
-		/* Frame ccframe = dialogues.get(d);
-		if (ccframe == null) { */
-			final DIComponent c;
-			switch (d) {
-				case CCONSOLE: c = new CrawlingConsole(this); break;
-				case SETTINGS: c = new SettingsPanel(this); break;
-				
-				default:
-					throw new RuntimeException("switch-statement does not cover " + d);
-			}
-			show(valueOf(d), c);
-		/*	dialogues.put(d, show(valueOf(d), c));
-		} else {
-			show(ccframe);
-		}*/
+		final DIComponent c;
+		switch (d) {
+			case CCONSOLE: c = new CrawlingConsole(this); break;
+			case SETTINGS: c = new SettingsPanel(this); break;
+			
+			default:
+				throw new RuntimeException("switch-statement does not cover " + d);
+		}
+		show(valueOf(d), c);
 	}
 	
 	public Frame show(final Long id) {

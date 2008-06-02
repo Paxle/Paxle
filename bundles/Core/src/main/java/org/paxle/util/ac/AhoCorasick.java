@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
-import org.paxle.util.ArrayByteBuffer;
+import org.paxle.util.buffer.ArrayByteBuffer;
 
 public class AhoCorasick<E> {
 
@@ -286,7 +286,9 @@ public class AhoCorasick<E> {
 	}
 	
 	public AhoCorasick(final int threshold) {
-		this(new NodeFactoryFactory.DepthTSArrayLinkedNodeFactory<E>(threshold));
+		this(new NodeFactoryFactory.DepthTSNodeFactory<E>(threshold,
+				new NodeFactoryFactory.ArrayPlainNodeFactory<E>(),
+				new NodeFactoryFactory.LinkedNodeFactory<E>()));
 	}
 	
 	public AhoCorasick(final INodeFactory<E> factory) {
@@ -310,6 +312,20 @@ public class AhoCorasick<E> {
 			root.setGoto(b, null);
 		size = 0;
 		dirty = false;
+	}
+	
+	public AhoCorasick<E> compact() {
+		final AhoCorasick<E> ac = new AhoCorasick<E>(new INodeFactory<E>() {
+			public ANode<E> createNode(int depth) {
+				if (depth == -1) {
+					final byte[] k = root.getKeys();
+					
+				} else {
+				}
+				return null;
+			}
+		});
+		return null;
 	}
 	
 	/**

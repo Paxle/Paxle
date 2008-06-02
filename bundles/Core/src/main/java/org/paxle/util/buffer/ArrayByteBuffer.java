@@ -1,5 +1,5 @@
 
-package org.paxle.util;
+package org.paxle.util.buffer;
 
 import java.io.OutputStream;
 import java.nio.ByteBuffer;

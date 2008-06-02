@@ -78,11 +78,11 @@ public class SystrayMenu implements ActionListener {
 			
 			final IPopupMenu pm = (IPopupMenu)e.getSource();
 			final Map<Long,DIComponent> additionalComps = services.getAdditionalComponents();
+			end = startIdx;
 			if (additionalComps != null && additionalComps.size() > 0) {
-				end = startIdx;
 				pm.insertSeparator(end++);
 				for (final Map.Entry<Long,DIComponent> en : additionalComps.entrySet())
-					pm.insert(services.getBackend().createMenuItem(en.getValue().getTitle(), en.getKey().toString(), this), end++); 
+					pm.insert(services.getBackend().createMenuItem(en.getValue().getTitle(), en.getKey().toString(), this), end++);
 			}
 		}
 		

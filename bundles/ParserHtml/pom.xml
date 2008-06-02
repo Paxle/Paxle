@@ -35,7 +35,7 @@
 							org.paxle.core.doc, 
 							org.paxle.core.io.temp,
 							org.paxle.core.norm,
-							org.paxle.util,
+							org.paxle.util.buffer,
 							org.paxle.util.ac,
 							org.paxle.parser
 						</Import-Package>

@@ -246,7 +246,7 @@ public class ServletManager implements IServletManager {
 			String name = entry.getValue().getClass().getName();
 			String alias = entry.getKey();
 			try {			
-				this.logger.info(String.format("Unegistering servlet '%s' for alias '%s'.", name, alias));			
+				this.logger.info(String.format("Unregistering servlet '%s' for alias '%s'.", name, alias));			
 				this.http.unregister(entry.getKey());
 			} catch (Throwable e) {
 				this.logger.error(String.format(
@@ -272,7 +272,7 @@ public class ServletManager implements IServletManager {
 			String name = entry.getValue();
 			String alias = entry.getKey();
 			try {
-				this.logger.info(String.format("Unegistering resource '%s' for alias '%s'.", name, alias));			
+				this.logger.info(String.format("Unregistering resource '%s' for alias '%s'.", name, alias));			
 				this.http.unregister(entry.getKey());
 			} catch (Throwable e) {
 				this.logger.error(String.format(

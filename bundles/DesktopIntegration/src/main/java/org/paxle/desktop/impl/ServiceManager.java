@@ -8,6 +8,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.paxle.core.prefs.IPropertiesStore;
@@ -48,11 +49,23 @@ public class ServiceManager {
 		}
 	}
 	
+	public ServiceRegistration registerService(final Object service, final Hashtable<String,?> properties, final String cname) {
+		return context.registerService(cname, service, properties);
+	}
+	
 	public <E> ServiceRegistration registerService(final E service, final Hashtable<String,?> properties, final Class<? super E>... clazzes) {
 		final String[] cnames = new String[clazzes.length];
 		for (int i=0; i<clazzes.length; i++)
 			cnames[i] = clazzes[i].getName();
 		return context.registerService(cnames, service, properties);
+	}
+	
+	public void addServiceListener(final ServiceListener listener) {
+		try { addServiceListener(listener, null); } catch (InvalidSyntaxException e) { e.printStackTrace(); }
+	}
+	
+	public void addServiceListener(final ServiceListener listener, final String filter) throws InvalidSyntaxException {
+		context.addServiceListener(listener, filter);
 	}
 	
 	public Properties getServiceProperties() {
@@ -76,11 +89,52 @@ public class ServiceManager {
 	
 	public <E> E getService(String name, Class<E> service) {
 		ServiceReference reference = this.context.getServiceReference(name);
-		return (reference == null) ? null : service.cast(this.context.getService(reference));
+		return (reference == null) ? null : getService(reference, service);
 	}
 	
+	/**
+	 * This invocation handler simply redirects all method-calls to the corresponding method-calls on
+	 * the object given at instantiation. It therefore tries to solve the issues with different
+	 * incompatible class-loaders occuring specifically during interaction with the DI-bundle which
+	 * uses an own class-loader to handle JDIC-specifics.
+	 * 
+	 * @see org.paxle.desktop.impl.HelperClassLoader
+	 * @see DIJdicBundle for details regarding JDIC
+	 * @see ServiceManager#getService(ServiceReference, Class) for an example of how this class is used
+	 */
+	/* this stub is necessary because this class as well as the DIComponent-interface are loaded
+	 * by the HelperClassLoader which is incompatible to OSGi's default bundle class-loader. *//*
+	private final class RedirectingInvocationHandler implements InvocationHandler {
+		
+		private final Object s;
+		private final Class<?> clazz;
+		
+		public RedirectingInvocationHandler(final Object s) {
+			this.s = s;
+			clazz = s.getClass();
+		}
+		
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			// method represents the Method-object from the interface given at instantiation of our
+			// proxy object. This interface has been loaded by a classloader different from the one
+			// the object's class has been loaded and is therefore not compatible to it. That's why
+			// we have to retrieve and invoke the correct Method-object from the object's class here
+			return clazz.getMethod(method.getName(), method.getParameterTypes()).invoke(s, args);
+		}
+	}*/
+	
 	public <E> E getService(final ServiceReference ref, final Class<E> clazz) {
-		return clazz.cast(context.getService(ref));
+		final Object service = context.getService(ref);
+		try {
+			// if (clazz.isInstance(service)) {
+				return clazz.cast(service);
+			/*} else {
+				return clazz.cast(Proxy.newProxyInstance(
+						Thread.currentThread().getContextClassLoader(),
+						new Class<?>[] { clazz },
+						new RedirectingInvocationHandler(service)));
+			}*/
+		} catch (Throwable t) { t.printStackTrace(); return null; }
 	}
 	
 	public void ungetService(final ServiceReference ref) {
@@ -127,7 +181,7 @@ public class ServiceManager {
 		
 		final E[] services = (E[])Array.newInstance(service, references.length);
 		for (int i=0; i<references.length; i++)
-			services[i] = service.cast(this.context.getService(references[i]));
+			services[i] = getService(references[i], service);
 		return services;
 	}
 	

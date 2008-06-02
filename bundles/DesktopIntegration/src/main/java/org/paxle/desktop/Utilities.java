@@ -1,10 +1,11 @@
 
-package org.paxle.desktop.impl;
+package org.paxle.desktop;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
@@ -32,6 +33,7 @@ import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -39,6 +41,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -66,6 +69,10 @@ public class Utilities {
 	
 	public static JButton createButton(final String text, final ActionListener al, final String actionCommand, final Icon icon) {
 		return setButtonProps(new JButton(), text, al, actionCommand, icon);
+	}
+	
+	public static JCheckBox createCheckBox(final String text, final ActionListener al, final String actionCommand, final Icon icon) {
+		return setButtonProps(new JCheckBox(), text, al, actionCommand, icon);
 	}
 	
 	private static <E extends AbstractButton> E setButtonProps(
@@ -179,18 +186,22 @@ public class Utilities {
 		}
 	}
 	
-	public static <E extends Window & RootPaneContainer> void setWindowProps(
+	public static <E extends Window> void setWindowProps(
 			final E frame,
 			final Container container,
 			final JButton defaultButton,
 			final Dimension size,
 			final Point location) {
-		if (defaultButton != null)
-			frame.getRootPane().setDefaultButton(defaultButton);
-		frame.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
-				KeyStroke.getKeyStroke('W', InputEvent.CTRL_DOWN_MASK), KE_CLOSE);
-		frame.getRootPane().getActionMap().put(KE_CLOSE, new WindowCloseAction(frame));
-		frame.setContentPane(container);
+		if (frame instanceof RootPaneContainer) {
+			final RootPaneContainer rpc = (RootPaneContainer)frame;
+			final JRootPane rootPane = rpc.getRootPane();
+			if (defaultButton != null)
+				rootPane.setDefaultButton(defaultButton);
+			rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+					KeyStroke.getKeyStroke('W', InputEvent.CTRL_DOWN_MASK), KE_CLOSE);
+			rootPane.getActionMap().put(KE_CLOSE, new WindowCloseAction(frame));
+			rpc.setContentPane(container);
+		}
 		
 		if (size == null) {
 			frame.pack();
@@ -210,29 +221,27 @@ public class Utilities {
 	public static void addListeners(final Object frame, final EventListener... listeners) {
 		if (listeners != null && listeners.length > 0) {
 			for (final Method m : frame.getClass().getMethods()) {
+				final Class<?>[] pt = m.getParameterTypes();
+				if (pt.length != 1)
+					continue;
 				final String name = m.getName();
 				if (!name.startsWith("add") || !name.endsWith("Listener"))
 					continue;
-				final String lName = name.substring(3);
-				try {
-					final Class<?> c = Class.forName("java.awt.event." + lName);
-					for (final EventListener l : listeners) {
-						if (l != null && c.isAssignableFrom(l.getClass())) try {
-							m.invoke(frame, l);
-							break;
-						} catch (InvocationTargetException e) {
-							e.printStackTrace();
-						} catch (IllegalAccessException e) {
-							e.printStackTrace();
-						}
+				for (final EventListener l : listeners) {
+					if (l != null && pt[0].isAssignableFrom(l.getClass())) try {
+						m.invoke(frame, l);
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
 					}
-				} catch (ClassNotFoundException e) { continue; }
+				}
 			}
 		}
 	}
 	
 	public static void setFrameProps(
-			final JFrame frame,
+			final Frame frame,
 			final Container container,
 			final String title,
 			final Dimension size,
@@ -242,13 +251,14 @@ public class Utilities {
 			final EventListener... listeners) {
 		setWindowProps(frame, container, defaultButton, size, location);
 		frame.setTitle(title);
-		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		if (frame instanceof JFrame)
+			((JFrame)frame).setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		frame.setResizable(resizable);
 		addListeners(frame, listeners);
 	}
 	
 	public static void setDialogProps(
-			final JDialog frame,
+			final Dialog dialog,
 			final Container container,
 			final String title,
 			final Dimension size,
@@ -256,11 +266,12 @@ public class Utilities {
 			final Point location,
 			final JButton defaultButton,
 			final EventListener... listeners) {
-		setWindowProps(frame, container, defaultButton, size, location);
-		frame.setTitle(title);
-		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		frame.setResizable(resizable);
-		addListeners(frame, listeners);
+		setWindowProps(dialog, container, defaultButton, size, location);
+		dialog.setTitle(title);
+		if (dialog instanceof JDialog)
+			((JDialog)dialog).setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		dialog.setResizable(resizable);
+		addListeners(dialog, listeners);
 	}
 	
 	public static JFrame wrapIntoFrame(
@@ -354,7 +365,11 @@ public class Utilities {
 	}
 	
 	public static void centerOn(final Component component, final Component parent) {
-		centerOn(component, parent.getSize());
+		if (parent == null) {
+			centerOnScreen(component);
+		} else {
+			centerOn(component, parent.getSize());
+		}
 	}
 	
 	public static void centerOn(final Component component, final Dimension d) {
@@ -388,7 +403,6 @@ public class Utilities {
 	private static final String AC_CPY = new String();
 	
 	public static void showExceptionBox(final Frame parent, final String detail, final Throwable ex) {
-		final JDialog eb = new JDialog(parent, LBL_TITLE, true);
 		final JPanel displayPanel = new JPanel(new GridBagLayout());
 		
 		final GridBagConstraints gbc = new GridBagConstraints();
@@ -447,6 +461,7 @@ public class Utilities {
 		gbc.weighty = 1D;
 		displayPanel.add(exceptionLog, gbc);
 		
+		final JDialog eb = new JDialog(parent, true);
 		final ActionListener l = new ActionListener() {
 			
 			private boolean hidden = true;
@@ -482,10 +497,7 @@ public class Utilities {
 		content.add(displayPanel, BorderLayout.CENTER);
 		content.add(submitPanel, BorderLayout.SOUTH);
 		
-		eb.setSize(hiddenDim);
-		eb.setResizable(true);
-		eb.setContentPane(content);
-		eb.getRootPane().setDefaultButton(btnOk);
+		setDialogProps(eb, content, LBL_TITLE, hiddenDim, true, null, btnOk);
 		centerOn(eb, parent);
 		eb.setVisible(true);
 	}

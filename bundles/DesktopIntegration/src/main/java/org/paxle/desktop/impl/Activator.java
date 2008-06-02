@@ -177,6 +177,7 @@ public class Activator implements BundleActivator {
 		final Class<?> idibackendC = uiClassLoader.loadClass("org.paxle.desktop.backend.IDIBackend");
 		final Class<?> desktopServicesC = uiClassLoader.loadClass("org.paxle.desktop.impl.DesktopServices");
 		initObject = desktopServicesC.getConstructor(smC, idibackendC).newInstance(sm, dibackend);
+		context.registerService(desktopServicesC.getName(), initObject, null);
 		shutdownMethod = desktopServicesC.getMethod("shutdown");
 	}
 	

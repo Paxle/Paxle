@@ -41,7 +41,8 @@
 							org.paxle.core.io,
 							org.paxle.core.prefs,
 							org.paxle.util,
-							org.paxle.util.ac
+							org.paxle.util.ac,
+							org.paxle.util.buffer
 						</Export-Package>
 						<Import-Package>
 							org.apache.commons.logging,

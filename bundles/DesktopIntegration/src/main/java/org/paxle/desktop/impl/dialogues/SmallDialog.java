@@ -22,7 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.paxle.desktop.impl.Utilities;
+import org.paxle.desktop.Utilities;
 
 public class SmallDialog extends JDialog implements Runnable {
 	

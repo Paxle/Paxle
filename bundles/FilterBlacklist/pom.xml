@@ -40,8 +40,23 @@
 						    org.apache.commons.io;version="1.4",
 							org.apache.commons.io.*;version="1.4",
 							org.apache.velocity, 
-							org.apache.velocity.context
+							org.apache.velocity.context,
+							org.paxle.desktop
 						</Import-Package>
+						<DynamicImport-Package>
+							javax.swing, 
+							javax.swing.*,
+							javax.swing.plaf,
+							javax.swing.plaf.*,
+							javax.swing.plaf.basic,
+							javax.swing.plaf.basic.*,
+							javax.accessibility,
+							javax.accessibility.*,
+							sun.awt,
+							sun.awt.X11,
+							sun.awt.*,
+							sun.awt.motif.*
+						</DynamicImport-Package>
 						<Private-Package>
 							org.paxle.filter.blacklist.impl
 						</Private-Package>
@@ -59,7 +74,13 @@
 			<groupId>org.paxle</groupId>
 			<artifactId>GUI</artifactId>
 			<version>${project.version}</version>
-		</dependency>		
+		</dependency>
+		
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>DesktopIntegration</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>commons-io</groupId>

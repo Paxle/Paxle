@@ -47,11 +47,6 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 		if (this.eventSerivce != null) {
 			this.eventSerivce.postEvent(CommandEvent.createEvent(this.filterQueueID, CommandEvent.TOPIC_ENQUEUED, command));
 		} 	
-						
-		switch (command.getResult()) {
-			case Failure:
-			case Rejected:
-		}
 		
 		this.filter(command);
 		

@@ -115,13 +115,61 @@ public class Blacklist {
 			}
 		}
 	}
-
+	
+	static final int NAME_OK = -1;
+	static final int LENGTH_ZERO = -2;
+	
+	/**
+	 * Checks whether the given name is a valid blacklist name. First, all whitespace is removed, then the length
+	 * of the result is tested. If it is zero, {@link #LENGTH_ZERO} is returned. If the remaining characters are
+	 * valid, this method returns {@link #NAME_OK}, otherwise the first invalid character is returned.
+	 *   
+	 * @param name the blacklist name to check
+	 * @return {@link #NAME_OK} if the given name is a valid name for a blacklist, {@link #LENGTH_ZERO} if the
+	 *         name only consists of whitespace or is an empty string, the first invalid character otherwise.
+	 */
+	static int offendingChar(final String name) {
+		final String others = "+-_.&()=";
+		
+		final String nn = name.replace("\\s", "").toLowerCase();
+		if (nn.length() == 0)
+			return LENGTH_ZERO;
+		
+		for (int i=0; i<nn.length(); i++) {
+			final char c = nn.charAt(i);
+			if (!(c >= 'a' && c <= 'z' || c >= '0' && c <= '9') || others.indexOf(c) != -1)
+				return c;
+		}
+		return NAME_OK;
+	}
+	
+	/**
+	 * Uses {@link #offendingChar(String)} to test whether the name is a valid identifier for a blacklist.
+	 * @param name the name to check
+	 * @return whether the given name is a valid name for a blacklist or not
+	 */
+	static boolean isValidBlacklistName(final String name) {
+		return offendingChar(name) == NAME_OK;
+	}
+	
 	/**
 	 * This method checks a given name for attempts of a directory traversal, an empty name and for invalid characters
 	 * @throws InvalidFilenameException 
 	 */
+	private static void validateBlacklistname(final String name) throws InvalidFilenameException {
+		final int c = offendingChar(name);
+		switch (c) {
+			case NAME_OK: return;
+			case LENGTH_ZERO: throw new InvalidFilenameException("The blacklist name is empty.");
+			default:
+				throw new InvalidFilenameException(
+						"The name '" + name + "' is not a valid name for a blacklist. " +
+						"Please remove all '" + (char)c + "' characters.");
+		}
+	}
+	/*
 	private static void validateBlacklistname(String name) throws InvalidFilenameException {
-		String chars = "abcdefghijklmnopqrstuvwxyzöüäß";
+		String chars = "abcdefghijklmnopqrstuvwxyz";
 		String numbers = "0123456789";
 		String others = "+-_.&()=";
 		final char[] allowedCharacters = (chars + numbers + others).toCharArray();
@@ -151,7 +199,7 @@ public class Blacklist {
 				throw new InvalidFilenameException("The name '" + name + "' is not a valid name for a blacklist. Please remove all '" + temp[i] + "' characters.");
 		}
 		return;
-	}
+	}*/
 
 	/**
 	 * Deletes the blacklist

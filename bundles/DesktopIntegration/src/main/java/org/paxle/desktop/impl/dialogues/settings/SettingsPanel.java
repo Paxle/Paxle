@@ -294,8 +294,6 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		}
 	}
 	
-	static final int MAX_DET_MINMAX_ITERATIONS = 63;			// max. iterations needed for type long
-	
 	private static final Insets STD_INSETS = new Insets(5, 5, 5, 5);
 	private static final String LOCALE = "en";
 	private static final int ICON_SIZE = 16;

@@ -43,6 +43,7 @@
 							org.paxle.core.io,
 							org.osgi.service.http;resolution:=optional,
 							org.paxle.core,
+							org.paxle.core.filter,
 							org.paxle.core.prefs,
 							org.paxle.core.norm
 						</Import-Package>
