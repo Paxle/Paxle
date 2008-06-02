@@ -3,12 +3,15 @@ package org.paxle.crawler.proxy.impl;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.omg.CORBA.portable.ResponseHandler;
 import org.paxle.crawler.CrawlerContext;
-import org.paxle.crawler.proxy.impl.io.ExptenedPipedInputStream;
+import org.paxle.crawler.proxy.impl.io.ExtenedPipedInputStream;
 import org.paxle.crawler.proxy.impl.io.ExtendedPipedOutputStream;
 import org.xsocket.Execution;
 import org.xsocket.connection.IConnection.FlushMode;
@@ -19,7 +22,7 @@ import org.xsocket.connection.http.HttpResponse;
 import org.xsocket.connection.http.HttpResponseHeader;
 import org.xsocket.connection.http.client.IHttpResponseHandler;
 import org.xsocket.connection.http.client.IHttpResponseTimeoutHandler;
-import org.xsocket.connection.http.server.IHttpResponseContext;
+import org.xsocket.connection.http.server.HttpResponseContext;
 
 public class ProxyResponseHandler implements IHttpResponseHandler, IHttpResponseTimeoutHandler {
 	public static final String HTTPHEADER_CONTENT_LANGUAGE = "Content-Language";
@@ -54,9 +57,9 @@ public class ProxyResponseHandler implements IHttpResponseHandler, IHttpResponse
 	/**
 	 * Reponse-message context
 	 */
-	private final IHttpResponseContext responseCtx;
+	private final HttpResponseContext responseCtx;
 	
-	public ProxyResponseHandler(HttpRequest req, IHttpResponseContext responseCtx) {
+	public ProxyResponseHandler(HttpRequest req, HttpResponseContext responseCtx) {
 		this.req = req;
 		this.responseCtx = responseCtx;
 	}
@@ -81,7 +84,7 @@ public class ProxyResponseHandler implements IHttpResponseHandler, IHttpResponse
 			// check if crawling of this resource is allowed
 			boolean shouldCrawl = this.shouldCrawl(reqHdr, resHdr);
 			if (shouldCrawl) {
-				is = new ExptenedPipedInputStream();
+				is = new ExtenedPipedInputStream();
 				ps = new ExtendedPipedOutputStream(is);
 			}
 
@@ -98,7 +101,7 @@ public class ProxyResponseHandler implements IHttpResponseHandler, IHttpResponse
 				
 				if (shouldCrawl) {
 					// for some reason xsocket returns HTTP in upper letters
-					URI targetURI = reqHdr.getTargetURI();
+					URI targetURI = reqHdr.getTargetURL().toURI();
 					targetURI = new URI(
 							targetURI.getScheme().toLowerCase(),
 							null,
@@ -112,21 +115,14 @@ public class ProxyResponseHandler implements IHttpResponseHandler, IHttpResponse
 				}
 			}
 		} catch (Throwable e) {
-			String msg = String.format("Unexpected '%s' while requesting '%s': %s",e.getClass().getName(),reqHdr.getTargetURI() ,e.getMessage());
+			String msg = String.format("Unexpected '%s' while requesting '%s': %s",e.getClass().getName(),reqHdr.getTargetURL() ,e.getMessage());
 			this.logger.error(msg,e);
 			throw new IOException(msg);
 		}
 	}
-
-	/**
-	 * @see IHttpResponseTimeoutHandler#onResponseTimeout()
-	 */
-	public void onResponseTimeout() throws IOException {
-		responseCtx.sendError(504);
-	}
 	
 	private boolean shouldCrawl(final HttpRequestHeader reqHdr, final HttpResponseHeader resHdr) {
-		URI uri = reqHdr.getTargetURI();
+		URL uri = reqHdr.getTargetURL();
 		
 		/*
 		 * Only accept repsonse with 200/203
@@ -213,4 +209,25 @@ public class ProxyResponseHandler implements IHttpResponseHandler, IHttpResponse
 		
 		return true;
 	}
+
+	/**
+	 * @see IHttpResponseHandler#onException(IOException)
+	 */
+	public void onException(IOException ioe) {
+		responseCtx.sendError(504, ioe.getMessage());
+	}
+
+	/**
+	 * @see IHttpResponseTimeoutHandler#onException(SocketTimeoutException)
+	 */
+	public void onException(SocketTimeoutException stoe) {
+		responseCtx.sendError(504, stoe.getMessage());
+	}	
+
+	/**
+	 * @see IHttpResponseTimeoutHandler#onResponseTimeout()
+	 */
+	public void onResponseTimeout() throws IOException {
+		responseCtx.sendError(504);
+	}	
 }

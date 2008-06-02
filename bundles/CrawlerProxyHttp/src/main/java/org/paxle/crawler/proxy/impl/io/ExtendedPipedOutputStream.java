@@ -12,9 +12,9 @@ public class ExtendedPipedOutputStream extends PipedOutputStream {
       mySinc = in;
     }
     public void write(byte b[], int off, int len) throws IOException {
-        if (mySinc instanceof ExptenedPipedInputStream) {
+        if (mySinc instanceof ExtenedPipedInputStream) {
             for (int i = 0; i < len; i++) {
-                ((ExptenedPipedInputStream) mySinc).receive(b[off + i]);
+                ((ExtenedPipedInputStream) mySinc).receive(b[off + i]);
             }
         } else {
             super.write(b, off, len);

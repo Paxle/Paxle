@@ -3,7 +3,7 @@ package org.paxle.crawler.proxy.impl.io;
 import java.io.IOException;
 import java.io.PipedInputStream;
 
-public class ExptenedPipedInputStream extends PipedInputStream {
+public class ExtenedPipedInputStream extends PipedInputStream {
 	
     public synchronized void receive(int b) throws IOException {
         // extend buffer if needed.

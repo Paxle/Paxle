@@ -1,6 +1,7 @@
 package org.paxle.crawler.proxy.impl;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 import org.apache.commons.codec.binary.Base64;
@@ -17,11 +18,11 @@ import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 import org.xsocket.connection.http.HttpRequest;
 import org.xsocket.connection.http.HttpRequestHeader;
-import org.xsocket.connection.http.server.IHttpResponseContext;
+import org.xsocket.connection.http.server.HttpResponseContext;
 
 public class ProxyRequestHandlerTest extends MockObjectTestCase {
 	
-	private IHttpResponseContext responseCtx;
+	private HttpResponseContext responseCtx;
 	private ProxyRequestHandler handler;
 	
 	private BundleContext bundelCtx;
@@ -58,11 +59,11 @@ public class ProxyRequestHandlerTest extends MockObjectTestCase {
 		this.tracker.open();
 		
 		// init proxy stuff
-		this.responseCtx = mock(IHttpResponseContext.class);
+		this.responseCtx = mock(HttpResponseContext.class);
 		this.handler = new ProxyRequestHandler(this.tracker, Boolean.TRUE);
 	}
 	
-	private HttpRequest createHttpAuthRequest(String userName, String password) throws UnsupportedEncodingException, URISyntaxException {
+	private HttpRequest createHttpAuthRequest(String userName, String password) throws UnsupportedEncodingException, URISyntaxException, MalformedURLException {
 		final String userAuth = new String(Base64.encodeBase64((userName + ":" + password).getBytes("UTF-8")),"UTF-8");
 		
 		HttpRequestHeader reqHeader = new HttpRequestHeader("GET", "http://xxx.yyy");
@@ -96,7 +97,7 @@ public class ProxyRequestHandlerTest extends MockObjectTestCase {
 		}};
 	}
 	
-	public void testAuthenticationUser() throws URISyntaxException, UnsupportedEncodingException {
+	public void testAuthenticationUser() throws URISyntaxException, UnsupportedEncodingException, MalformedURLException {
 		final String userName = "test";
 		final String userPwd = "test";
 			
@@ -109,7 +110,7 @@ public class ProxyRequestHandlerTest extends MockObjectTestCase {
 		assertTrue(ok);
 	}
 
-	public void testUnknownUser() throws UnsupportedEncodingException, URISyntaxException {
+	public void testUnknownUser() throws UnsupportedEncodingException, URISyntaxException, MalformedURLException {
 		HttpRequest req = this.createHttpAuthRequest("xxxx","yyyy");
 		checking(this.createExpectation(null, null, true));
 		
@@ -117,7 +118,7 @@ public class ProxyRequestHandlerTest extends MockObjectTestCase {
 		assertFalse(ok);
 	}
 	
-	public void testInvalidPassword() throws UnsupportedEncodingException, URISyntaxException {
+	public void testInvalidPassword() throws UnsupportedEncodingException, URISyntaxException, MalformedURLException {
 		HttpRequest req = this.createHttpAuthRequest("xxxx","yyyy");
 		checking(this.createExpectation("xxxx", null, true));
 		
@@ -125,7 +126,7 @@ public class ProxyRequestHandlerTest extends MockObjectTestCase {
 		assertFalse(ok);
 	}
 	
-	public void testNoAuthorization() throws UnsupportedEncodingException, URISyntaxException {
+	public void testNoAuthorization() throws UnsupportedEncodingException, URISyntaxException, MalformedURLException {
 		HttpRequest req = this.createHttpAuthRequest("xxxx","yyyy");
 		checking(this.createExpectation("xxxx", "yyyy", false));
 		
@@ -133,7 +134,7 @@ public class ProxyRequestHandlerTest extends MockObjectTestCase {
 		assertFalse(ok);
 	}
 
-	public void testNoAuthorizationHeader() throws UnsupportedEncodingException, URISyntaxException {
+	public void testNoAuthorizationHeader() throws UnsupportedEncodingException, URISyntaxException, MalformedURLException {
 		HttpRequest req = new HttpRequest("GET", "http://xxx.yyy/");
 		checking(new Expectations() {{ ignoring(responseCtx); }});
 		

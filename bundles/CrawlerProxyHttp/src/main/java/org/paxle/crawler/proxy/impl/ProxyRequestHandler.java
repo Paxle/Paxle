@@ -16,8 +16,8 @@ import org.xsocket.connection.http.HttpRequest;
 import org.xsocket.connection.http.HttpResponse;
 import org.xsocket.connection.http.HttpResponseHeader;
 import org.xsocket.connection.http.client.HttpClient;
+import org.xsocket.connection.http.server.HttpResponseContext;
 import org.xsocket.connection.http.server.IHttpRequestHandler;
-import org.xsocket.connection.http.server.IHttpResponseContext;
 
 public class ProxyRequestHandler implements IHttpRequestHandler, ILifeCycle {
 
@@ -58,7 +58,7 @@ public class ProxyRequestHandler implements IHttpRequestHandler, ILifeCycle {
 	 * @see IHttpRequestHandler#onRequest(HttpRequest, IHttpResponseContext)
 	 */
 	@Execution(Execution.MULTITHREADED)
-	public void onRequest(HttpRequest request, IHttpResponseContext responseCtx) throws IOException {
+	public void onRequest(HttpRequest request, HttpResponseContext responseCtx) throws IOException {
 		try {			
 			if (!authenticationUser(request, responseCtx)) {
 				this.logger.info(String.format(
@@ -92,7 +92,7 @@ public class ProxyRequestHandler implements IHttpRequestHandler, ILifeCycle {
 	 * @see org.paxle.gui.impl.HttpContextAuth#USER_HTTP_LOGIN
 	 * @see org.paxle.gui.impl.HttpContextAuth#USER_HTTP_PASSWORD
 	 */
-	boolean authenticationUser(HttpRequest request, IHttpResponseContext responseCtx) {
+	boolean authenticationUser(HttpRequest request, HttpResponseContext responseCtx) {
 		if (!this.enableProxyAuthentication) return true;
 
 		try {			
@@ -160,12 +160,13 @@ public class ProxyRequestHandler implements IHttpRequestHandler, ILifeCycle {
 		}
 	}
 	
-	private void sendProxyAuthenticateResponse(IHttpResponseContext responseCtx, String responseMessage) throws IOException {
+	private void sendProxyAuthenticateResponse(HttpResponseContext responseCtx, String responseMessage) throws IOException {
 		HttpResponseHeader responseHeaders = new HttpResponseHeader(407, "text/plain");
 		responseHeaders.addHeader("Proxy-Authenticate", "Basic realm=\"Paxle Proxy log-in\"");
 		
-		HttpResponse response = new HttpResponse(responseHeaders);
-		if (responseMessage != null) response.setBodyDataSource(responseMessage);
+		HttpResponse response = (responseMessage == null)
+					? new HttpResponse(responseHeaders)
+					: new HttpResponse(responseHeaders,responseMessage);
 		
 		responseCtx.send(response);
 	}
