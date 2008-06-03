@@ -6,7 +6,7 @@
 #if($manager)
 	<ul class="tabs">
 		#foreach($list in $listnames)
-			#if ($curList && $curList.getName() == $list && $action != "newList")
+			#if ($curList && ($curList.getName() == $list) && $action != "newList")
 				<li><a class="active" href="/blacklist?list=$escTool.url($list)">$list</a></li>
 			#else
 				<li><a href="/blacklist?list=$escTool.url($list)">$list</a></li>

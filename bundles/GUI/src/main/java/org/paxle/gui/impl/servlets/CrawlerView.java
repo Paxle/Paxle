@@ -106,14 +106,14 @@ public class CrawlerView extends ALayoutServlet {
 		}
 		
 		public void putUrl2Crawl(final String location) throws Exception {
-			final String url = location.trim();
-			if (url.length() == 0) {
-				putError(location, "URL '" + location + "' is not valid");
-				return;
-			}
 			final URI uri;
 			// uri = new URI(location);
 			uri = (URI)normalizeReference.invoke(normalizer, location);
+			
+			if (location.trim().length() == 0 || uri == null) {
+				putError(location, "URL '" + location + "' is not valid");
+				return;
+			}
 			
 			// check if URL is blocked by robots-txt
 			if (robotsManager != null && isDisallowed != null) {

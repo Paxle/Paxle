@@ -533,7 +533,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	 * @return <code>true</code> if crawling of the {@link URI} is disallowed
 	 */
 	public boolean isDisallowed(URI location) {
-		String protocol = location.getScheme();
+		String protocol = location.getScheme().toLowerCase();
 		if (!protocol.startsWith("http")) {
 			this.logger.debug(String.format("Protocol of location '%s' not supported", location));
 			return false;

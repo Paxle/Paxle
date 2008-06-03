@@ -82,11 +82,11 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	private static final int PREF_NO_ENCODING = 1;
 	
 	/**
-	 * The MIME-type detection of some servers is not that mature, i.e. Apache oftenly tends to
+	 * The MIME-type detection of some servers is not that mature, i.e. Apache often tends to
 	 * report 'text/plain' for binary files or 'application/x-tar' for compressed tar-archives,
-	 * which do not help us at all. This set contains MIME-types, known to be reported erroneously
+	 * which does not help us at all. This set contains MIME-types, known to be reported erroneously
 	 * by servers in general.
-	 * Of course this list would be divisible further by extending it into a per-server map, but
+	 * Of course this list could be divided further by extending it into a per-server map, but
 	 * our means to determine the type (and possibly version) of the servers here are limited, so
 	 * this shall suffice for now.
 	 */
@@ -172,8 +172,10 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		hostSettings.put(host, Integer.valueOf(val));
 	}
 	
+	/**
+	 * cleanup old settings
+	 */
 	public void cleanup() {
-		// cleanup old settings
 		if (this.connectionManager != null) {
 			this.connectionManager.shutdown();
 			this.connectionManager = null;

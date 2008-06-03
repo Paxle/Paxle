@@ -8,7 +8,7 @@ public class ReferenceNormalizationFilterTest extends TestCase {
 	/**
 	 * Testcases to test
 	 */
-	private static final String[][] testCases = new String[][] {
+	private static final String[][] testCasesNotNull = new String[][] {
 		//don't touch "good" URLs
 		// {"http://www.example.org/bla?,","http://www.example.org/%2c"},
 		{"http://www.example.org/test/test.htm","http://www.example.org/test/test.htm"},
@@ -49,12 +49,15 @@ public class ReferenceNormalizationFilterTest extends TestCase {
 		{"http://ko.wikipedia.org/wiki/\ud68c\uc808", "http://ko.wikipedia.org/wiki/%ED%9A%8C%EC%A0%88"},
 	};
 	
+	private static final String[] testCasesException = new String[] {"", "example.org"};
+	
+	
 	public void testReferenceNormalisationFilter() throws Exception {
-		for (int x=0; x<testCases.length; x++) {
+		for (int x=0; x<testCasesNotNull.length; x++) {
 			final ReferenceNormalizer refNorm = new ReferenceNormalizer(false, false);
-			final String normalizationResult = refNorm.parseBaseUrlString(testCases[x][0], ReferenceNormalizer.UTF8).toASCIIString();
+			final String normalizationResult = refNorm.parseBaseUrlString(testCasesNotNull[x][0], ReferenceNormalizer.UTF8).toASCIIString();
 			assertNotNull(normalizationResult);
-			assertEquals(testCases[x][1], normalizationResult);
+			assertEquals(testCasesNotNull[x][1], normalizationResult);
 		}
 	}
 }

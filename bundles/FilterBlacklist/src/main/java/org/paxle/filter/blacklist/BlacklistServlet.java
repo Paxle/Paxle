@@ -27,7 +27,7 @@ public class BlacklistServlet extends ALayoutServlet {
 	public Template handleRequest( HttpServletRequest request,
 			HttpServletResponse response,
 			Context context ) {
-		Template template = null;;
+		Template template = null;
 		try {
 			template = this.getTemplate("/resources/templates/Blacklist.vm");
 			List<String> listnames = this.blacklistFilter.getLists();
@@ -86,9 +86,7 @@ public class BlacklistServlet extends ALayoutServlet {
 			context.put("curList", blacklist); 
 
 		} catch( Exception e ) {
-			e.printStackTrace();
-		} catch (Error e) {
-			e.printStackTrace();
+			logger.warn("Unexpected Error:", e);
 		}
 		return template;
 	}
