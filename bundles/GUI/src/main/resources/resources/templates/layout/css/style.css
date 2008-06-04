@@ -64,11 +64,11 @@ input {
 }
 
 input:hover {
-	border: 1px solid #730002;
+	border-color: #730002;
 	background-color: #F9F8E0;
 }
 
-input[type=text] , textarea {
+input, textarea {
 	margin: 0;
 	padding: 0.2em;
 	
@@ -78,11 +78,11 @@ input[type=text] , textarea {
 	border: 0.1em solid #96825F;
 }
 
-input[type=text]:focus, textarea:focus {
+input:focus, textarea:focus {
 	background-color: #FFFFFF;
 	color: #000000;
 	
-	border: 0.1em solid #730002;
+	border-color: #730002;
 }
 
 table {

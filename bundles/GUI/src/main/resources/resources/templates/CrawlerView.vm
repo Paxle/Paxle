@@ -35,7 +35,7 @@
 <fieldset id="dsinglecrawl">
 	<legend>Crawl URL</legend>	
 		<p>
-			<input type="text" id="startURL" name="startURL" />
+			<input type="text" id="startURL" name="startURL" value="http://" />
 			<input type="submit" name="crawlSingle" value="Start Crawl" />
 		</p>
 </fieldset>

@@ -1,6 +1,8 @@
 
 package org.paxle.core.norm.impl;
 
+import java.net.URISyntaxException;
+
 import junit.framework.TestCase;
 
 public class ReferenceNormalizationFilterTest extends TestCase {
@@ -58,6 +60,16 @@ public class ReferenceNormalizationFilterTest extends TestCase {
 			final String normalizationResult = refNorm.parseBaseUrlString(testCasesNotNull[x][0], ReferenceNormalizer.UTF8).toASCIIString();
 			assertNotNull(normalizationResult);
 			assertEquals(testCasesNotNull[x][1], normalizationResult);
+		}
+		
+		//test for URLs without protocol
+		for (int x=0; x<testCasesException.length; x++) {
+			try {
+				new ReferenceNormalizer(false, false).parseBaseUrlString(testCasesException[x], ReferenceNormalizer.UTF8).toASCIIString();
+				fail("Normalizing " + testCasesException[x] + " should have thrown an URISyntaxException exception!");
+			} catch (URISyntaxException exp) {
+				// expected, so ignore it
+			}
 		}
 	}
 }

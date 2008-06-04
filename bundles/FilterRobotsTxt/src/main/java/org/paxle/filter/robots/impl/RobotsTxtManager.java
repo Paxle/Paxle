@@ -529,11 +529,11 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	}
 
 	/**
-	 * Check weather the specified {@link URI} is blocked by the robots.txt of the server hosting the {@link URI}
+	 * Check whether the specified {@link URI} is blocked by the robots.txt of the server which hosts the {@link URI}
 	 * @return <code>true</code> if crawling of the {@link URI} is disallowed
 	 */
 	public boolean isDisallowed(URI location) {
-		String protocol = location.getScheme().toLowerCase();
+		String protocol = location.getScheme();
 		if (!protocol.startsWith("http")) {
 			this.logger.debug(String.format("Protocol of location '%s' not supported", location));
 			return false;
