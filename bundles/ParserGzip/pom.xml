@@ -30,7 +30,7 @@
 							org.paxle.parser.gzip
 						</Export-Package>
 						<Import-Package>
-							org.osgi.framework;version="1.3",
+							org.osgi.framework;version="1.4",
 							org.paxle.core.doc, 
 							org.paxle.core.charset, 
 							org.paxle.core.io.temp,

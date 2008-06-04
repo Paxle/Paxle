@@ -37,7 +37,7 @@
 							org.paxle.parser.bzip2
 						</Export-Package>
 						<Import-Package>
-							org.osgi.framework, 
+							org.osgi.framework;version="1.4", 
 							org.paxle.parser, 
 							org.paxle.core.doc, 
 							org.paxle.parser.iotools, 

@@ -30,11 +30,11 @@
 							org.paxle.crawler.smb
 						</Export-Package>
 						<Import-Package>
-							org.osgi.framework, 
+							org.osgi.framework;version="1.4", 
+							org.osgi.service.url;version="1.0",
 							org.paxle.crawler, 
 							org.apache.commons.logging, 
-							org.paxle.core.doc, 
-							org.osgi.service.url,
+							org.paxle.core.doc, 							
 							javax.servlet, 
 							javax.servlet.http
 						</Import-Package>

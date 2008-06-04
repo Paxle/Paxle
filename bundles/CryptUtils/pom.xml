@@ -27,7 +27,7 @@
 				<configuration>
 					<instructions>
 						<Import-Package>
-							org.osgi.framework, 
+							org.osgi.framework;version="1.4", 
 							org.paxle.core.crypt
 						</Import-Package>
 						<Private-Package>

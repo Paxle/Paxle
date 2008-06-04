@@ -33,7 +33,7 @@
 						</Fragment-Host>
 						<!-- 
 							<Import-Package>
-							org.osgi.framework,
+							org.osgi.framework;version="1.4",
 							org.apache.commons.logging
 							</Import-Package>
 							<Export-Package>

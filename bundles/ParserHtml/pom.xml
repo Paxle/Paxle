@@ -30,7 +30,7 @@
 							org.paxle.parser.html
 						</Export-Package>
 						<Import-Package>
-							org.osgi.framework;version="1.3",
+							org.osgi.framework;version="1.4",
 							org.apache.commons.logging,							
 							org.paxle.core.doc, 
 							org.paxle.core.io.temp,

@@ -31,11 +31,12 @@
 							org.paxle.indexer
 						</Export-Package>
 						<Import-Package>
+							org.osgi.framework;version="1.4",
+							org.apache.commons.logging,
 							org.paxle.core.doc,
 							org.paxle.core.threading,
-							org.paxle.core.queue, org.osgi.framework,
-							org.paxle.core,
-							org.apache.commons.logging
+							org.paxle.core.queue, 
+							org.paxle.core
 						</Import-Package>
 						<Private-Package>
 							org.paxle.indexer.impl

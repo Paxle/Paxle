@@ -32,8 +32,8 @@
 							org.paxle.parser.iotools
 						</Export-Package>
 						<Import-Package>
+							org.osgi.framework;version="1.4",
 							org.apache.commons.logging,
-							org.osgi.framework;version="1.3",							
 							org.paxle.core,
 							org.paxle.core.queue, 
 							org.paxle.core.threading, 

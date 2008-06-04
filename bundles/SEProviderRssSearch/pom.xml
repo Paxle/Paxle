@@ -28,12 +28,12 @@
 						<Export-Package>
 						</Export-Package>
 						<Import-Package>
+							org.osgi.framework;version="1.4",
+							org.apache.commons.logging,
 							org.paxle.core.doc,
 							org.paxle.se.search,
 							org.paxle.se.query,
 							org.paxle.se.query.tokens,
-							org.osgi.framework;version="1.3",
-							org.apache.commons.logging,
 							!net.sf.hibernate,
 							!net.sf.hibernate.*,
 							!org.apache.commons.collections,

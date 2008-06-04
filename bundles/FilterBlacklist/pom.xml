@@ -30,7 +30,7 @@
 							org.paxle.filter.blacklist
 						</Export-Package>
 						<Import-Package>
-							org.osgi.framework,
+							org.osgi.framework;version="1.4",
 							org.paxle.core.doc,
 							org.paxle.core.queue,
 							org.paxle.core.filter, 

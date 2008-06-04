@@ -30,20 +30,20 @@
 							org.paxle.parser.feed
 						</Export-Package>
 						<Import-Package>
-							org.osgi.framework;version="1.3",
+							org.osgi.framework;version="1.4",
+							org.apache.commons.logging,
 							org.paxle.core.doc, 
 							org.paxle.core.io.temp,
 							org.paxle.parser,
-							org.apache.commons.logging,
 							org.jdom,
 							org.jdom.input,
 							org.jdom.output,
-                                                        !net.sf.hibernate,
-                                                        !net.sf.hibernate.*,
-                                                        !org.apache.commons.collections,
-                                                        !org.apache.commons.collections.*,
-                                                        !org.apache.lucene.*,
-                                                        !org.apache.xml.resolver.*
+                            !net.sf.hibernate,
+                            !net.sf.hibernate.*,
+                            !org.apache.commons.collections,
+                            !org.apache.commons.collections.*,
+                            !org.apache.lucene.*,
+                            !org.apache.xml.resolver.*
 						</Import-Package>
 						<Private-Package>
 							org.paxle.parser.feed.impl

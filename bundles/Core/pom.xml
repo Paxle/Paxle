@@ -45,16 +45,16 @@
 							org.paxle.util.buffer
 						</Export-Package>
 						<Import-Package>
+							org.osgi.framework;version="1.4",
+							org.osgi.service.prefs;version="1.1",
+							org.osgi.service.url;version="1.0",
+							org.osgi.util.tracker;version="1.3",
+							org.osgi.service.cm;version="1.2",
+							org.osgi.service.metatype;version="1.1",
+							org.osgi.service.event;version="1.1",
 							org.apache.commons.logging,
 							org.apache.commons.pool;version="1.4",
-							org.apache.commons.pool.impl;version="1.4",
-							org.osgi.framework;version="1.3",
-							org.osgi.service.prefs;version="1.1",
-							org.osgi.service.url,
-							org.osgi.util.tracker,
-							org.osgi.service.cm,
-							org.osgi.service.metatype,
-							org.osgi.service.event
+							org.apache.commons.pool.impl;version="1.4"
 						</Import-Package>
 						<Private-Package>
 							org.paxle.core.impl,

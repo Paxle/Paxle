@@ -34,7 +34,7 @@
 				<configuration>
 					<instructions>
 						<Import-Package>
-							org.osgi.framework, 
+							org.osgi.framework;version="1.4", 
 							org.apache.commons.logging, 
 							org.eclipse.osgi.framework.console,
 							org.paxle.core
