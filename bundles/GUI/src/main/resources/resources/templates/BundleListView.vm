@@ -1,0 +1,73 @@
+## Activate onload
+#set ( $bodyonload = "initTabs('bundlelist');" )
+<h2>Bundle Controlpage</h2>
+
+<ul class="tabs">
+	<li><a href="#dbundlelist" onclick="fshow('bundlelist');" id="tbundlelist">Bundle List</a></li>	
+	<li><a href="#dbundleinstall" onclick="fshow('bundleinstall');" id="tbundleinstall">Install New Bundle</a></li>
+</ul>
+
+<br />
+<br />
+
+#if( $errorMsg)
+	<p class="error">$errorMsg</p>
+#end
+
+<fieldset id="dbundleinstall">
+	<legend>Install new Bundle</legend>
+
+    <h4>Install new Bundle from URL</h4><br/>
+    <form action="">
+    	<p>
+    		<input type="text" name="bundlePath" size="60" />
+    		<input type="submit" name="installURL" value="Install" />
+    	</p>
+    </form>
+    
+    <h4>Install new Bundle via File-Upload</h4>
+    <form enctype="multipart/form-data" method="post" action="">
+    	<p>
+    		<input type="file" name="bundleJar" size="60" />
+    		<input type="submit" name="installUpload" value="Install" />
+    	</p>
+    </form>
+</fieldset>
+
+
+<fieldset id="dbundlelist">
+	<legend>Bundle List</legend>
+
+    <table>
+    	<tr>
+			<th>ID</th>
+    		<th>Bundle Name</th>
+    		<th>Action</th>
+    	</tr>
+     	#if( $bundles)
+    	#foreach( $entry in $bundles.entrySet())
+    	<tr>
+			<td><a class="$states.get( $entry.value.state)" href="?bundleID=$entry.key&amp;action=details">$entry.key</a></td>
+    		<td>
+    			<a class="$states.get( $entry.value.state)" href="?bundleID=$entry.key&amp;action=details">$entry.value.symbolicName</a>
+    		</td>
+    		<td>
+    			<form action="">
+    				<div>
+    					<input type="hidden" name="bundleID" value="$entry.key" />
+    					<select name="action">
+    						<option value="start">Start</option>
+    						<option value="stop">Stop</option>
+    						<option value="restart">Restart</option>
+    						<option value="update">Update</option>
+    						<option value="uninstall">Uninstall</option>
+    					</select>
+    					<input type="submit" name="OK" />
+    				</div>
+    			</form>
+    		</td>
+    	</tr>
+    	#end
+    	#end
+    </table>
+</fieldset>
