@@ -36,6 +36,7 @@
 	#set($used = ( $runtime.totalMemory() - $runtime.freeMemory()) / ( 1024 * 1024))
 	#set($free = ( $runtime.maxMemory() - $runtime.totalMemory() + $runtime.freeMemory()) / ( 1024 * 1024))
 	#set($total = $runtime.maxMemory() / ( 1024 * 1024))
+	#set($disk = ${overview.getFreeDiskspaceKb()} / 1024)
 	<table>
 		<tr>
 			<th>Name</th>
@@ -53,6 +54,10 @@
 			<td><b>Memory total</b></td>
 			<td>$total MiB</td>
 		</tr>
+		<tr>
+			<td><b>Diskspace free</b></td>
+			<td>$disk MiB</td>
+		</tr>		
 		<tr>
 			<td><b>Memory misc</b></td>
 			<td>

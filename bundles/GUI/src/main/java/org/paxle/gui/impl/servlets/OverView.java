@@ -1,6 +1,8 @@
 
 package org.paxle.gui.impl.servlets;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -10,6 +12,7 @@ import java.util.LinkedList;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileSystemUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.framework.Constants;
@@ -110,6 +113,9 @@ public class OverView extends ALayoutServlet {
 			// set index searcher
 			context.put("indexSearcher", manager.getService("org.paxle.se.index.IIndexSearcher"));
 			
+			// put the class itself into the context
+			context.put("overview",this);
+			
 			String reload = request.getParameter("reload");
 			if (reload == null) {
 				template = getTemplate("/resources/templates/OverView.vm");
@@ -161,6 +167,15 @@ public class OverView extends ALayoutServlet {
 		
 		public int getCount() {
 			return count;
+		}
+	}
+	
+	public long getFreeDiskspaceKb() {
+		try {
+			// for now we just query the paxle directory
+			return FileSystemUtils.freeSpaceKb(new File("/").toString());
+		} catch (IOException e) {
+			return -1;
 		}
 	}
 }
