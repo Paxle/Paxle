@@ -1,0 +1,157 @@
+<!DOCTYPE xbel PUBLIC "+//IDN python.org//DTD XML Bookmark Exchange
+Language 1.0//EN//XML"
+"http://www.python.org/topics/xml/dtds/xbel-1.0.dtd">
+<xbel version="1.0">
+  <title>Some of David's Bookmarks</title>
+
+  <folder>
+    <title>HTTP Clients</title>
+
+    <bookmark href="http://www.netscape.com/download/">
+      <title>Netscape</title>
+
+      <desc>Netscape 6.2 is the latest update to the Internet
+      browsing, email and instant messagin software suite from
+      Netscape.</desc>
+    </bookmark>
+
+    <bookmark href="http://www.opera.com/">
+      <title>Opera</title>
+
+      <desc>Opera -- Simply the Best Internet Experience</desc>
+    </bookmark>
+
+    <bookmark href="http://www.microsoft.com/ie/">
+      <title>Microsoft Internet Explorer</title>
+
+      <desc>Internet Explorer 6 sets a new standard in privacy,
+      reliability, and flexibility. Come see how Internet Explorer
+      is leading the way on the Web.</desc>
+    </bookmark>
+
+    <bookmark href="http://lynx.browser.org/">
+      <title>Lynx</title>
+
+      <desc>Lynx is a fully-featured World Wide Web (WWW) client
+      for users running cursor-addressable, character-cell display
+      devices (e.g., vt100 terminals, vt100 emulators running on
+      PCs or Macs, or any other character-cell display). It will
+      display Hypertext Markup Language (HTML) documents containing
+      links to files on the local system, as well as files on
+      remote systems running http, gopher, ftp, wais, nntp, finger,
+      or cso/ph/qi servers, and services accessible via logins to
+      telnet, tn3270 or rlogin accounts. Current versions of Lynx
+      run on Unix, VMS, Windows95/NT, 386DOS and OS/2 EMX.</desc>
+    </bookmark>
+
+    <bookmark href="http://www.w3.org/Amaya/">
+      <title>Amaya</title>
+
+      <desc>Amaya is a browser/authoring tool that allows you to
+      publish documents on the Web. It is used to demonstrate and
+      test many of the new developments in Web protocols and data
+      formats. Given the very fast moving nature of Web technology,
+      Amaya has a central role to play. It is versatile and
+      extensible and is available on both Unix and Windows '95/NT
+      platforms.</desc>
+    </bookmark>
+  </folder>
+
+  <folder>
+    <title>Extensible Markup Language (XML)</title>
+
+    <bookmark
+    href="http://www.sciam.com/1999/0599issue/0599bosak.html">
+      <title>Scientific American: Feature Article: XML and the
+      Second Generation Web: May 1999</title>
+
+      <desc>The combination of hypertext and a global Internet
+      started a revolution. A new ingredient, XML, is poised to
+      finish the job. by Jon Bosak and Tim Bray</desc>
+    </bookmark>
+
+    <bookmark
+    href="http://www.sciam.com/2001/0501issue/0501berners-lee.html">
+
+      <title>Scientific American: Feature Article: The Semantic
+      Web: May 2001</title>
+
+      <desc>A new form of Web content that is meaningful to
+      computers will unleash a revolution of new possibilities . by
+      TIM BERNERS-LEE, JAMES HENDLER and ORA LASSILA</desc>
+    </bookmark>
+
+    <bookmark href="http://www.w3.org/XML/1999/XML-in-10-points">
+      <title>XML in 10 Points</title>
+    </bookmark>
+
+    <folder>
+      <title>Building XML Documents</title>
+
+      <bookmark
+      href="http://www.webreview.com/2000/08_04/webauthors/08_04_00_4.shtml">
+
+        <title>Well-Formed XML Documents (webreview.com)</title>
+
+        <desc>Still trying to tame the XML beast? Begin with this
+        tutorial that will show you in clear terms how to build a
+        simple XML document that is well-formed and valid.</desc>
+      </bookmark>
+    </folder>
+
+    <folder>
+      <title>RSS</title>
+
+      <bookmark
+      href="http://www.webreference.com/authoring/languages/xml/rss/intro/">
+
+        <title>Introduction to RSS - WebReference.com</title>
+
+        <desc>Rich Site Summary (RSS) is a lightweight XML format
+        designed for sharing headlines and other Web
+        content.</desc>
+      </bookmark>
+
+      <bookmark
+      href="http://www.WebReview.com/1999/10_29/webauthors/10_29_99_2a.shtml">
+
+        <title>WebReview.com: RSS Delivers the XML Promise</title>
+
+        <desc>RSS is a content syndication format that uses the
+        power of XML to share data over the Internet.</desc>
+      </bookmark>
+    </folder>
+
+    <folder>
+      <title>Extensible Stylesheet Language (XSL)</title>
+
+      <bookmark
+      href="http://www.webreview.com/2001/08_03/developers/index01.shtml">
+
+        <title>WebReview.com: August 3, 2001: Introduction to
+        XSLT</title>
+
+        <desc>An introduction to XSLT</desc>
+      </bookmark>
+    </folder>
+
+    <folder>
+      <title>Recommended Books</title>
+
+      <bookmark href="http://www.oreilly.com/catalog/learnxml/">
+        <title>Learning XML : (Guide to) Creating Self-Describing
+        Data</title>
+
+        <desc>Eric T. Ray, (O'Reilly)</desc>
+      </bookmark>
+
+      <bookmark
+      href="http://www.amazon.com/exec/obidos/ASIN/0789725045/">
+        <title>XML By Example</title>
+
+        <desc>Benoit Marchal</desc>
+      </bookmark>
+    </folder>
+  </folder>
+</xbel>
+

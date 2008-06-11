@@ -1,0 +1,134 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>ParserXbel</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - XBEL-Parser</name>
+	<url>http://wiki.paxle.net/dev/bundles/ParserXbel</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven2-repository.dev.java.net</id>
+			<url>http://download.java.net/maven/2</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Export-Package>
+							org.paxle.parser.xbel.api
+						</Export-Package>
+						<Import-Package>
+							org.osgi.framework;version="1.4",
+							org.paxle.core.doc, 
+							org.paxle.parser,
+							javax.xml.stream;resolution:=optional, 
+							javax.xml.namespace, 
+							javax.xml.parsers, 
+							javax.xml.transform, 
+							javax.xml.transform.dom, 
+							javax.xml.transform.sax, 
+							javax.xml.transform.stream, 
+							javax.xml.validation, 
+							org.w3c.dom, 
+							org.xml.sax, 
+							org.xml.sax.ext, 
+							org.xml.sax.helpers
+						</Import-Package>
+						<DynamicImport-Package>*</DynamicImport-Package>
+						<Private-Package>
+							org.paxle.parser.xbel.impl
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.parser.xbel.impl.Activator
+						</Bundle-Activator>					
+						
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							jaxb-api;scope=compile|runtime,
+							jaxb-impl;scope=compile|runtime,
+							geronimo-activation_1.0.2_spec;scope=compile|runtime,
+							jsr173;scope=compile|runtime
+						</Embed-Dependency>						
+					</instructions>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<generatePackage>org.paxle.parser.xbel.api</generatePackage>
+					<schemaDirectory>src/main/schema</schemaDirectory>
+					<schemaLanguage>DTD</schemaLanguage>
+					<schemaIncludes>
+						<include>*.dtd</include>
+					</schemaIncludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>ParserCore</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>ParserCore</artifactId>
+			<version>${project.version}</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+			<version>2.0.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-activation_1.0.2_spec</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.xml</groupId>
+			<artifactId>jsr173</artifactId>
+			<version>1.0</version>
+		</dependency>
+	</dependencies>
+</project>
