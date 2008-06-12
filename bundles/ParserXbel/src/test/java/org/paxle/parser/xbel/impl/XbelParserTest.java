@@ -7,6 +7,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import junitx.framework.ListAssert;
+
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.impl.AParserTest;
@@ -38,10 +40,10 @@ public class XbelParserTest extends AParserTest {
 
 			parserDoc = this.parser.parse(new URI("http://mydummylocation.at"), "UTF-8", testFile);
 			assertNotNull(parserDoc);
-//			assertEquals(IParserDocument.Status.OK, parserDoc.getStatus());		
-//			assertEquals("Paxle MsOffice Parser", parserDoc.getTitle());
-//			assertEquals("Martin Thelian", parserDoc.getAuthor());
-//			ListAssert.assertEquals(Arrays.asList(new String[]{"paxle","tests","junit"}), new ArrayList<String>(parserDoc.getKeywords()));
+			assertEquals(IParserDocument.Status.OK, parserDoc.getStatus());		
+			assertEquals("Some of David's Bookmarks", parserDoc.getTitle());
+			assertNotNull(parserDoc.getLinks());
+			assertEquals(14, parserDoc.getLinks().size());
 		} finally {
 			if (parserDoc != null) parserDoc.close();
 		}		

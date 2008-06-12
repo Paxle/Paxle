@@ -24,7 +24,8 @@ import org.paxle.parser.xbel.api.Xbel;
 public class XbelParser extends ASubParser implements ISubParser {
 
 	private static final String[] MIMETYPES = {
-		"application/xbel+xml"
+		"application/xbel+xml",
+		"application/x-xbel"
 	};	
 
 	private final JAXBContext jaxbContext;
@@ -61,6 +62,7 @@ public class XbelParser extends ASubParser implements ISubParser {
 			List<Object> items = xbelDoc.getBookmarkOrFolderOrAliasOrSeparator();
 			this.extract(items, pdoc);
 			
+			pdoc.setStatus(IParserDocument.Status.OK);
 			return pdoc;
 		} catch (Throwable e) {
 			throw new ParserException("Unable to parse xbel document", e);
