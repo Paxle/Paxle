@@ -10,7 +10,11 @@ import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.standard.StandardFilter;
-
+/**
+ * Filters a tokenizer, e.g. for stopwords
+ * 
+ * @see StandardAnalyzer
+ */
 public class PaxleAnalyzer extends StandardAnalyzer {
 	
 	private final String[] stopWords;

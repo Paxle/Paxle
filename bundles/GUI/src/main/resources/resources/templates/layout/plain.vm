@@ -2,6 +2,12 @@ $screen_content
 
 ## parse() directives must be processed "under" the screen content. 
 ## Otherwise blank lines appear in front of content, which may irritate browsers (e.g. FF and the OpenSearch description)
-#parse('/resources/templates/headers/ServerName.vm')
-#parse('/resources/templates/headers/NoCaching.vm')
-#parse('/resources/templates/headers/TextPlainContentType.vm')
+#parse('/resources/templates/headers/SetServerName.vm')
+#parse('/resources/templates/headers/SetNoCaching.vm')
+
+##see http://wiki.paxle.net/dev/bundles/gui
+#if($contenttype)
+	#parse('/resources/templates/headers/SetContentType.vm')
+#else
+	$response.setHeader("Content-Type","text/plain; charset=utf-8")
+#end

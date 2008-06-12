@@ -1,5 +1,5 @@
-#parse( '/resources/templates/headers/ServerName.vm' )
-#parse( '/resources/templates/headers/NoCaching.vm' )
+#parse( '/resources/templates/headers/SetServerName.vm' )
+#parse( '/resources/templates/headers/SetNoCaching.vm' )
 #parse( '/resources/templates/layout/header.vm' )
 
 <!-- left nav -->
@@ -10,3 +10,7 @@
 
 <div id="main">$screen_content</div>
 #parse( '/resources/templates/layout/footer.vm' )
+##see http://wiki.paxle.net/dev/bundles/gui
+#if($contenttype)
+	#parse('/resources/templates/headers/SetContentType.vm')
+#end

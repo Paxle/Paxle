@@ -17,20 +17,27 @@ public class StopwordsManager {
 	
 	private final HashMap<IIndexerDocument.Language,PaxleAnalyzer> map = new HashMap<IIndexerDocument.Language,PaxleAnalyzer>();
 	private final Log logger = LogFactory.getLog(StopwordsManager.class);
-	private final File root;
+	private final File rootdir;
 	private PaxleAnalyzer defaultAnalyzer = null;
 	
-	public StopwordsManager(final File root) {
-		this.root = root;
+	/**
+	 * @param rootdir The root-directory where the stopword files are in
+	 */
+	public StopwordsManager(final File rootdir) {
+		this.rootdir = rootdir;
 	}
 	
+	/**
+	 * Returns a PaxleAnalyzer for the given language
+	 * @param language
+	 */
 	public PaxleAnalyzer getAnalyzer(final IIndexerDocument.Language language) {
 		logger.debug("providing analyzer for language '" + language + "'");
 		if (language == null)
 			return getDefaultAnalyzer();
 		PaxleAnalyzer pa = map.get(language);
 		if (pa == null) {
-			final File swFile = new File(root, language.name() + STOPWORDS_FILE_EXT);
+			final File swFile = new File(rootdir, language.name() + STOPWORDS_FILE_EXT);
 			if (!swFile.exists()) {
 				logger.warn("no stopwords declaration file found for language '" + language + "', falling back to lucene's default");
 				return getDefaultAnalyzer();
@@ -48,6 +55,10 @@ public class StopwordsManager {
 		return pa;
 	}
 	
+	/**
+	 * Returns a very simple analyzer for English stopwords.
+	 * The stopwords are builtin!
+	 */
 	public PaxleAnalyzer getDefaultAnalyzer() {
 		if (defaultAnalyzer == null)
 			defaultAnalyzer = new PaxleAnalyzer(StopAnalyzer.ENGLISH_STOP_WORDS);

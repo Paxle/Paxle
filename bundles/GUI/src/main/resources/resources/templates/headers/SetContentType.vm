@@ -1,0 +1,3 @@
+#if($response && $contenttype)
+	$response.setHeader("Content-Type","$contenttype")
+#end

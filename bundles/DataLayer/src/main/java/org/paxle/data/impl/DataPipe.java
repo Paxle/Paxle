@@ -35,7 +35,7 @@ public class DataPipe<Data> extends Thread implements IDataProvider<Data>, IData
 	 * @see IDataProvider#setDataSink(IDataSink)
 	 */
 	public synchronized void setDataSink(IDataSink<Data> dataSink) {
-		if (dataSink == null) throw new NullPointerException("The data-sink is null-");
+		if (dataSink == null) throw new NullPointerException("The data-sink is null.");
 		if (this.sink != null) throw new IllegalStateException("The data-sink was already set.");
 		this.sink = dataSink;
 		this.notify();
