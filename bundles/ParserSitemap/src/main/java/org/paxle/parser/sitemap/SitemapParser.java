@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.paxle.parser.ISubParser;
 import org.paxle.parser.sitemap.api.Urlset;
 
 public interface SitemapParser {
