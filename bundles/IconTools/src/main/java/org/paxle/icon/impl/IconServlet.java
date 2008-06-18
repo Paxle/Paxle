@@ -45,7 +45,7 @@ public class IconServlet extends HttpServlet {
 					url,
 					e.getMessage()
 			));
-			rsp.setStatus(401);
+			rsp.setStatus(400);
 			return;
 		}
 	}
