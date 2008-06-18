@@ -44,7 +44,8 @@
               desktop="no"
               applications="no"
               startMenu="no"
-              startup="no"
-    />      
+              startup="no">      
+		<createForPack name="Http-GUI" />              
+	</shortcut>
 </shortcuts>
               

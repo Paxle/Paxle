@@ -26,7 +26,7 @@
 		type="Application"
 		encoding="UTF-8" 	     
 		description="This opens a WebBrowser to open the Paxle Web GUI">
-		<createForPack name="Paxle" />
+		<createForPack name="Http-GUI" />
 	</shortcut>
 
 	<shortcut name="Paxle-Uninstaller" programGroup="yes" desktop="no"
