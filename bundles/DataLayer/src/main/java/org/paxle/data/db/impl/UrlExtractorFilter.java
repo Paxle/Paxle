@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
@@ -47,7 +48,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		if (parserDoc == null) return;
 		
 		// getting the link map
-		Map<URI, String> linkMap = parserDoc.getLinks();
+		Map<URI, LinkInfo> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
 			this.extractLinks(command, linkMap, c);
 		}
@@ -60,7 +61,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		}
 	}
 	
-	private void extractLinks(final ICommand command, Map<URI, String> linkMap, final Counter c) {
+	private void extractLinks(final ICommand command, Map<URI, LinkInfo> linkMap, final Counter c) {
 		ArrayList<URI> locations = new ArrayList<URI>();
 		
 		for (URI ref : linkMap.keySet()) {
@@ -75,6 +76,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 
 		// store commands into DB
 		if (!db.isClosed()) {
+			// TODO: read out relevant URI metadata
 			c.known += db.storeUnknownLocations(
 					command.getProfileOID(),
 					command.getDepth()+1,

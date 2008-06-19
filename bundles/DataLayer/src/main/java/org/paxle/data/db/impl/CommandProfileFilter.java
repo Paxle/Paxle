@@ -6,6 +6,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.LinkInfo;
+import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
@@ -22,7 +24,7 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 	/**
 	 * Class to count rejected URI
 	 */
-	private static class Counter {		
+	static class Counter {		
 		public int c = 0;
 	}	
 
@@ -80,7 +82,7 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 			} else if (context.getTargetID().equals("org.paxle.parser.out")) {
 				final Counter c = new Counter();
 				IParserDocument parserDoc = command.getParserDocument();
-				this.extractLinks(maxDepth, currentDepth, parserDoc, c);
+				this.checkLinks(maxDepth, currentDepth, parserDoc, c);
 				logger.info(String.format("Removed %d URLs from reference map(s) of '%s'. Depth limit exceeded.", Integer.valueOf(c.c), command.getLocation())); 
 			}
 		} catch (Exception e) {
@@ -92,24 +94,27 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 		}
 	}
 
-	private void extractLinks(final int maxDepth, final int currentDepth, IParserDocument parserDoc, final Counter c) {
+	void checkLinks(final int maxDepth, final int currentDepth, IParserDocument parserDoc, final Counter c) {
 		if (parserDoc == null) return;
 
 		// getting the link map
-		Map<URI, String> linkMap = parserDoc.getLinks();
+		Map<URI, LinkInfo> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
 			if (currentDepth + 1 > maxDepth) {
 				c.c += linkMap.size();
 
-				// reject all links				
-				linkMap.clear();
+				// reject all links
+				for (LinkInfo meta : linkMap.values()) {
+					if (!meta.hasStatus(Status.OK)) continue;
+					meta.setStatus(Status.FILTERED,"Max. crawl-depth exceeded.");
+				}
 			}
 		}
 
 		Map<String,IParserDocument> subDocs = parserDoc.getSubDocs();
 		if (subDocs != null) {
 			for (IParserDocument subDoc : subDocs.values()) {
-				this.extractLinks(maxDepth, currentDepth, subDoc, c);
+				this.checkLinks(maxDepth, currentDepth, subDoc, c);
 			}
 		}
 	}
