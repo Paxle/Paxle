@@ -142,6 +142,12 @@ public class Command implements ICommand {
 		return this.result;
 	}	
 	
+	public boolean isResult(Result result) {
+		return (this.result == null) 
+			? Result.Passed.equals(result)
+			: this.result.equals(result);
+	}
+	
 	public String getResultText() {
 		return this.resultText;
 	}

@@ -139,4 +139,8 @@ public class FilterManager implements IFilterManager {
 		// pass it to the queue
 		queue.setFilters(temp);
 	}
+	
+	public SortedSet<FilterContext> getFilterContextSet(String queueID) {
+		return this.filters.get(queueID);
+	}
 }

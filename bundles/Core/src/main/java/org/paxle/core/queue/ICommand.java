@@ -54,15 +54,9 @@ public interface ICommand extends Closeable {
      * @param profileOID the ID of the {@link ICommandProfile} this command belongs to.
      */
     public void setProfileOID(int profileOID);
-	
-	/* TODO: reference a document containing metadata about the overall job
-	 * - job ID
-	 * - start location
-	 * - constraints such as
-     *   - reg.exp. filters, depth restriction, etc
-	 */	
-	
+
 	public Result getResult();
+	public boolean isResult(Result result);
 	public String getResultText();
 	public void setResultText(String description);
 	public void setResult(Result result);

@@ -1,5 +1,9 @@
 package org.paxle.core.filter;
 
-public interface IFilterManager {
+import java.util.SortedSet;
 
+import org.paxle.core.filter.impl.FilterContext;
+
+public interface IFilterManager {
+	public SortedSet<FilterContext> getFilterContextSet(String queueID);
 }
