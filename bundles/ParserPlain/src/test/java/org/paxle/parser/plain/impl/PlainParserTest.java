@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
@@ -84,7 +85,7 @@ public class PlainParserTest extends TestCase {
 		assertTrue(pdoc.getKeywords().size() == 0);
 		assertTrue(pdoc.getLanguages().size() == 0);
 		assertTrue(pdoc.getLinks().size() == 2);
-		final Iterator<Map.Entry<URI,String>> it = pdoc.getLinks().entrySet().iterator();
+		final Iterator<Map.Entry<URI,LinkInfo>> it = pdoc.getLinks().entrySet().iterator();
 		assertEquals(URI.create("http://www.example.org/bla?blubb=#tmp"), it.next().getKey());
 		assertEquals(URI.create("http://lists.w3.org/Archives/Public/ietf-http-wg/"), it.next().getKey());
 		assertTrue(pdoc.getSubDocs().size() == 0);

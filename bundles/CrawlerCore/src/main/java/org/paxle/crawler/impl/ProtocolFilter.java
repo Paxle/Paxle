@@ -3,28 +3,45 @@ package org.paxle.crawler.impl;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.LinkInfo;
+import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 import org.paxle.crawler.ISubCrawler;
+import org.paxle.crawler.ISubCrawlerManager;
 
 /**
  * Filters {@link ICommand commands} out if the protocol of the
  * resource is not supported by one of the available {@link ISubCrawler sub-crawlers}
  */
 public class ProtocolFilter implements IFilter<ICommand> {
-	
+
+	/* ==============================================================
+	 * CONSTANTS for error-messages
+	 * ============================================================== */
 	private static final String ERR_NOTSUPPORTED = "Protocol '%s' not supported";
 	private static final String ERR_NOPROT = "Malformed URL. No protocol was specified";
 	
+	/**
+	 * For logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
-	private SubCrawlerManager subCrawlerManager = null;
+	
+	/**
+	 * Component needed to determine if a given protocol is supported by one
+	 * of the installed {@link ISubCrawler}s.
+	 * 
+	 * @see ISubCrawlerManager#isSupported(String)
+	 */
+	private ISubCrawlerManager subCrawlerManager = null;
 
-	public ProtocolFilter(SubCrawlerManager subCrawlerManager) {
+	public ProtocolFilter(ISubCrawlerManager subCrawlerManager) {
 		this.subCrawlerManager = subCrawlerManager;
 	}
 
@@ -34,8 +51,9 @@ public class ProtocolFilter implements IFilter<ICommand> {
 	public void filter(ICommand command, IFilterContext context) {
 		try {
 			// check the command location
-			URI location = command.getLocation();
+			final URI location = command.getLocation();
 			final String scheme = location.getScheme();
+			
 			if (scheme.length() == 0) {
 				command.setResult(ICommand.Result.Rejected, ERR_NOPROT);
 			} else if (!this.subCrawlerManager.isSupported(scheme)) {
@@ -47,15 +65,20 @@ public class ProtocolFilter implements IFilter<ICommand> {
 			IParserDocument parserDoc = command.getParserDocument();
 			this.checkProtocol(parserDoc);
 		} catch (Exception e) {
-			this.logger.error(String.format("Unexpected %s while filtering command with location '%s'.",e.getClass().getName(),command.getLocation()),e);
+			this.logger.error(String.format(
+					"Unexpected %s while filtering command with location '%s'.",
+					e.getClass().getName(),
+					command.getLocation()),
+					e
+			);
 		}
 	}
 
-	private void checkProtocol(IParserDocument parserDoc) {
+	void checkProtocol(IParserDocument parserDoc) {
 		if (parserDoc == null) return;
 		
 		// getting the link map
-		Map<URI, String> linkMap = parserDoc.getLinks();
+		Map<URI, LinkInfo> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
 			this.checkProtocol(linkMap);
 		}
@@ -69,23 +92,29 @@ public class ProtocolFilter implements IFilter<ICommand> {
 		}
 	}	
 	
-	private void checkProtocol(Map<URI, String> linkMap) {
+	void checkProtocol(Map<URI, LinkInfo> linkMap) {
 		if (linkMap == null || linkMap.size() == 0) return;
 		
-		Iterator<URI> refs = linkMap.keySet().iterator();
+		Iterator<Entry<URI,LinkInfo>> refs = linkMap.entrySet().iterator();
 		while (refs.hasNext()) {
-			URI location = refs.next();
+			Entry<URI,LinkInfo> refEntry = refs.next();			
+			URI uri = refEntry.getKey();
+			LinkInfo uriMetadata = refEntry.getValue();
+			
+			// skip URI that are already marked as not OK
+			if (!uriMetadata.hasStatus(Status.OK)) continue;
 
+			// check the URI
 			try {
-				this.checkProtocol(location);
+				this.checkProtocol(uri);
 			} catch (ProtocolFilterException pe) {
-				refs.remove();
-				this.logger.info(String.format("URL '%s' removed from reference map. %s", location, pe.getMessage()));
+				uriMetadata.setStatus(Status.FILTERED, pe.getMessage());
+				this.logger.info(String.format("URL '%s' blocked: %s", uri, pe.getMessage()));
 			}	
 		}		
 	}
 	
-	private void checkProtocol(URI location) throws ProtocolFilterException {
+	void checkProtocol(URI location) throws ProtocolFilterException {
 		String protocol = location.getScheme();
 		if (protocol == null || protocol.length() == 0)
 			throw new ProtocolFilterException(ERR_NOPROT);

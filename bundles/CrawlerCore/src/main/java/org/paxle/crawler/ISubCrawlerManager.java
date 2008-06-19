@@ -30,4 +30,12 @@ public interface ISubCrawlerManager {
 	 * @return an unmodifiable collection of all protocols supported by the registered {@link ISubCrawler sub-crawlers}
 	 */
 	public Collection<String> getProtocols();
+	
+	/**
+	 * Determines if a given protocol is supported by one of the registered
+	 * {@link ISubCrawler sub-crawlers}.
+	 * @param protocol the protocol
+	 * @return <code>true</code> if the given protocol is supported or <code>false</code> otherwise
+	 */
+	public boolean isSupported(String protocol);
 }

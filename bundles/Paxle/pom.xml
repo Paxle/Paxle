@@ -736,23 +736,13 @@
 								</goals>
 								<configuration>
 									<headerType>gui</headerType>
-									<outfile>
-										target/${pom.artifactId}-${pom.version}-installer.exe
-									</outfile>
-									<jar>
-										target/${pom.artifactId}-${pom.version}-installer.jar
-									</jar>
+									<outfile>target/${pom.artifactId}-${pom.version}-installer.exe</outfile>
+									<jar>target/${pom.artifactId}-${pom.version}-installer.jar</jar>
 									<dontWrapJar>false</dontWrapJar>
-									<icon>
-										src/main/resources/img/icon.ico
-									</icon>
+									<icon>src/main/resources/img/icon.ico</icon>
 									<classPath>
-										<mainClass>
-											com.izforge.izpack.installer.Installer
-										</mainClass>
-										<addDependencies>
-											false
-										</addDependencies>
+										<mainClass>com.izforge.izpack.installer.Installer</mainClass>
+										<addDependencies>false</addDependencies>
 										<preCp>anything</preCp>
 									</classPath>
 									<jre>

@@ -5,10 +5,13 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.LinkInfo;
+import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 import org.paxle.filter.blacklist.IRegexpBlacklistFilter;
@@ -24,15 +27,15 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 
 	private Log logger = LogFactory.getLog(this.getClass());
 
-	public BlacklistFilter(File list) {
-		Blacklist.init(list);
+	public BlacklistFilter(File dir) {
+		if (dir == null) throw new NullPointerException("The file-object must not be null.");
+		Blacklist.init(dir);
 	}
 
 	public void filter(ICommand command, IFilterContext filterContext) {
 		FilterResult result = isListed(command.getLocation().toString());		// XXX should this be .toASCIIString()?
-		if(result.getStatus()==FilterResult.LOCATION_REJECTED) {
+		if(result.hasStatus(FilterResult.LOCATION_REJECTED)) {
 			command.setResult(ICommand.Result.Rejected, "rejected by blacklistentry: " + result.getRejectPattern());
-			//System.out.println(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
 			logger.info(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
 			return;
 		}
@@ -45,7 +48,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 		if (parserDoc == null) return;
 
 		// getting the link map
-		Map<URI, String> linkMap = parserDoc.getLinks();
+		Map<URI, LinkInfo> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
 			this.checkBlacklist(linkMap);
 		}
@@ -59,17 +62,23 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 		}
 	}   
 
-	private void checkBlacklist(Map<URI, String> linkMap) {
+	void checkBlacklist(Map<URI, LinkInfo> linkMap) {
 		if (linkMap == null || linkMap.size() == 0) return;
 
-		Iterator<URI> refs = linkMap.keySet().iterator();
+		Iterator<Entry<URI, LinkInfo>> refs = linkMap.entrySet().iterator();
 		while (refs.hasNext()) {
-			URI location = refs.next();
-			FilterResult result = isListed(location.toString());		// XXX should this be .toASCIIString()?
-			if (result.getStatus()==FilterResult.LOCATION_REJECTED) {
-				refs.remove();
-				//System.out.println(location + " rejected by blacklistentry: " + result.getRejectPattern());
-				this.logger.info(location + " rejected by blacklistentry: " + result.getRejectPattern());
+			Entry<URI,LinkInfo> next = refs.next();
+			URI location = next.getKey();
+			LinkInfo meta = next.getValue();
+			
+			// skip URI that are already marked as not OK
+			if (!meta.hasStatus(Status.OK)) continue;
+			
+			// check if URI is backlisted
+			FilterResult result = this.isListed(location.toString());		// XXX should this be .toASCIIString()?
+			if (result.hasStatus(FilterResult.LOCATION_REJECTED)) {
+				meta.setStatus(Status.FILTERED, "Rejected by blacklistentry: " + result.getRejectPattern());
+				this.logger.info(String.format("%s rejected by blacklistentry: %s", location, result.getRejectPattern()));
 			}
 		}       
 	}

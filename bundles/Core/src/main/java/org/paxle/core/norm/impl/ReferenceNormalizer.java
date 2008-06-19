@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.norm.IReferenceNormalizer;
@@ -273,37 +274,58 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 		return new URI(sb.toString());
 	}
 	
+	/**
+	 * @see IFilter#filter(ICommand, IFilterContext)
+	 */
 	public void filter(ICommand command, IFilterContext filterContext) {
 		final IParserDocument pdoc = command.getParserDocument();
-		if (pdoc != null)
-			normalizeParserDoc(pdoc);
+		if (pdoc != null) {
+			this.normalizeParserDoc(pdoc);
+		}
 	}
 	
+	/**
+	 * Normalizes all {@link IParserDocument#getLinks() links} contained in a
+	 * {@link IParserDocument parser-document}.
+	 * 
+	 * @param pdoc the {@link IParserDocument parser-document} 
+	 */
 	private void normalizeParserDoc(final IParserDocument pdoc) {
+		/* =============================================================
+		 * Normalize Sub-Documents
+		 * ============================================================= */
 		final Map<String,IParserDocument> subdocMap = pdoc.getSubDocs();
-		if (subdocMap != null && subdocMap.size() > 0)
-			for (final IParserDocument subdoc : subdocMap.values())
-				normalizeParserDoc(subdoc);
+		if (subdocMap != null && subdocMap.size() > 0) {
+			for (final IParserDocument subdoc : subdocMap.values()) {
+				this.normalizeParserDoc(subdoc);
+			}
+		}
 		
-		final Map<URI,String> linkMap = pdoc.getLinks();
-		if (linkMap == null || linkMap.size() == 0)
-			return;
-		final Iterator<Map.Entry<URI,String>> it = linkMap.entrySet().iterator();
-		final Map<URI,String> normalizedLinks = new HashMap<URI,String>();
+		/* =============================================================
+		 * Normalize Links
+		 * ============================================================= */		
+		final Map<URI,LinkInfo> linkMap = pdoc.getLinks();
+		if (linkMap == null || linkMap.size() == 0) return;
+				
+		final Map<URI,LinkInfo> normalizedLinks = new HashMap<URI,LinkInfo>();
 		final Charset charset = (pdoc.getCharset() == null) ? UTF8 : pdoc.getCharset();		// UTF-8 is a recommended fallback but not standard yet
+		
+		final Iterator<Map.Entry<URI,LinkInfo>> it = linkMap.entrySet().iterator();
 		while (it.hasNext()) {
-			final Map.Entry<URI,String> entry = it.next();
+			final Map.Entry<URI,LinkInfo> entry = it.next();
 			final URI locationURI = entry.getKey();
 			final String location = locationURI.toASCIIString();
-			final URI normalizedURI = normalizeReference(location, charset);
+			
+			final URI normalizedURI = this.normalizeReference(location, charset);
 			if (normalizedURI == null) {
-				logger.info("removing malformed reference: " + location);
+				this.logger.info("removing malformed reference: " + location);
+				// FIXME: shouldn't we call it.remove() here?
+				continue;
+			} else if (normalizedURI.equals(locationURI)) {
 				continue;
 			}
-			if (normalizedURI.equals(locationURI))
-				continue;
 			
-			logger.debug("normalized reference " + location + " to " + normalizedURI);
+			this.logger.debug("normalized reference " + location + " to " + normalizedURI);
 			normalizedLinks.put(normalizedURI, entry.getValue());
 			it.remove();
 		}

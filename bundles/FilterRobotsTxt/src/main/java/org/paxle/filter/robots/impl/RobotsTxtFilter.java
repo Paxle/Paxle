@@ -7,16 +7,19 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.LinkInfo;
+import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
+import org.paxle.filter.robots.IRobotsTxtManager;
 
 public class RobotsTxtFilter implements IFilter<ICommand> {
 	
 	/**
 	 * Class to count rejected URI
 	 */
-	private static class Counter {		
+	static class Counter {		
 		public int c = 0;
 	}
 	
@@ -28,12 +31,12 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 	/**
 	 * A component to check URLs against robots.txt files.
 	 */
-	private RobotsTxtManager robotsTxtManager = null;
+	private IRobotsTxtManager robotsTxtManager = null;
 	
 	/**
 	 * @param robotsTxtManager the robots.txt manager to use
 	 */
-	public RobotsTxtFilter(RobotsTxtManager robotsTxtManager) {
+	public RobotsTxtFilter(IRobotsTxtManager robotsTxtManager) {
 		this.robotsTxtManager = robotsTxtManager;
 	}
 	
@@ -56,7 +59,7 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 			final Counter c = new Counter();
 			IParserDocument parserDoc = command.getParserDocument();
 			this.checkRobotsTxt(parserDoc, c);
-			logger.info(String.format("Removed %d URLs from reference map(s) of '%s'", Integer.valueOf(c.c), command.getLocation())); 
+			logger.info(String.format("%d URLs blocked reference map(s) of '%s'", Integer.valueOf(c.c), command.getLocation())); 
 		} catch (Exception e) {
 			this.logger.error(String.format("Unexpected %s while filtering command with location '%s'.",e.getClass().getName(),location),e);
 		}
@@ -66,7 +69,7 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 		if (parserDoc == null) return;
 		
 		// getting the link map
-		Map<URI, String> linkMap = parserDoc.getLinks();
+		Map<URI, LinkInfo> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
 			this.checkRobotsTxt(linkMap, c);
 		}
@@ -80,15 +83,23 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 		}
 	}	
 	
-	private void checkRobotsTxt(Map<URI, String> linkMap, final Counter c) {
+	void checkRobotsTxt(Map<URI, LinkInfo> linkMap, final Counter c) {
 		if (linkMap == null || linkMap.size() == 0) return;
 		
-		Collection<URI> disallowedURI = this.robotsTxtManager.isDisallowed(linkMap.keySet());		
+		// TODO: we should pre-exclude URI with Status != OK to speedup checking
+		Collection<URI> disallowedURI = this.robotsTxtManager.isDisallowed(linkMap.keySet());
+		
+		// mark disallowed URI as blocked
 		if (disallowedURI != null && disallowedURI.size() > 0) {
 			StringBuffer debugMsg = new StringBuffer();
 			
 			for (URI location : disallowedURI) {
-				linkMap.remove(location);
+				// getting the metadata of the disallowed URI
+				LinkInfo meta = linkMap.get(location);
+				if (!meta.hasStatus(Status.OK)) continue;
+				
+				
+				meta.setStatus(Status.FILTERED, "Access disallowed by robots.txt");
 				c.c++;
 				if (logger.isDebugEnabled()) {
 					debugMsg.append(String.format("\t%s\r\n", location.toASCIIString()));
@@ -96,8 +107,11 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 			}
 			
 			if (logger.isDebugEnabled()) {
-				this.logger.debug(String.format("%d URI removed from reference map:\r\n%s",
-						Integer.valueOf(disallowedURI.size()),debugMsg.toString()));
+				this.logger.debug(String.format(
+						"%d URI blocked:\r\n%s",
+						Integer.valueOf(disallowedURI.size()),
+						debugMsg.toString()
+				));
 			}
 
 		}	

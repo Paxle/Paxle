@@ -60,6 +60,16 @@ public interface IParserDocument extends Closeable {
 	 * @param name the label of the reference if named, may be <code>null</code>
 	 */
 	public abstract void addReference(URI ref, String name);
+	
+	/**
+	 * Documents may reference other documents or locations in order to prove or underlay the
+	 * content with other writings. 
+	 *  
+	 * @param ref the URL or resource location referenced
+	 * @param info metadata about the reference. If <code>null</code> an empty {@link LinkInfo} object
+	 * is created and added
+	 */	
+	public void addReference(URI ref, LinkInfo info);
 
 	/**
 	 * Documents may contain or link to images which themselves are to be found via this
@@ -189,12 +199,12 @@ public interface IParserDocument extends Closeable {
 
 	/**
 	 * @see #addReference(String, String)
-	 * @return all references by this document exclusive images, mapping the location to it's
-	 *         (maybe non-existant) name or label
+	 * @return all references by this document exclusive images, mapping the location to 
+	 * 		   some metadata, e.g. names or labels
 	 */
-	public abstract Map<URI, String> getLinks();
+	public abstract Map<URI, LinkInfo> getLinks();
 	
-	public void setLinks(Map<URI,String> links);
+	public void setLinks(Map<URI,LinkInfo> links);
 	
 	public String getMimeType();
 	

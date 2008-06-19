@@ -29,7 +29,7 @@ public class ParserDocument implements IParserDocument {
 	protected Map<String,IParserDocument> subDocs = new HashMap<String,IParserDocument>();
 	protected Collection<String> headlines = new LinkedList<String>();
 	protected Collection<String> keywords = new LinkedList<String>();
-	protected Map<URI,String> links = new HashMap<URI,String>();
+	protected Map<URI,LinkInfo> links = new HashMap<URI,LinkInfo>();
 	protected Map<URI,String> images = new HashMap<URI,String>();
 	protected Set<String> languages = new HashSet<String>();	
 	protected String author;
@@ -104,10 +104,15 @@ public class ParserDocument implements IParserDocument {
 	 * @see org.paxle.parser.IParserDocument#addReference(java.lang.String, java.lang.String)
 	 */
 	public void addReference(URI ref, String name) {
+		if (ref == null) return;
 		name = whitespaces2Space(name);
-		if (ref != null) {
-			this.links.put(ref,name);
-		}
+		this.addReference(ref, new LinkInfo(name));
+	}
+	
+	public void addReference(URI ref, LinkInfo info) {
+		if (ref == null) return;
+		if (info == null) info = new LinkInfo();
+		this.links.put(ref,info);		
 	}
 	
 	/**
@@ -268,7 +273,7 @@ public class ParserDocument implements IParserDocument {
 	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getLinks()
 	 */
-	public Map<URI,String> getLinks() {
+	public Map<URI,LinkInfo> getLinks() {
 		return this.links;
 	}
 	
@@ -276,7 +281,7 @@ public class ParserDocument implements IParserDocument {
 	 * @see IParserDocument#setLinks(Map)
 	 * TODO: maybe we should loop through the list and trim all strings
 	 */
-	public void setLinks(Map<URI,String> links) {
+	public void setLinks(Map<URI,LinkInfo> links) {
 		this.links = links;
 	}
 	

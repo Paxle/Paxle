@@ -24,6 +24,10 @@ public class FilterResult {
 		return status;
 	}
 	
+	public boolean hasStatus(int status) {
+		return this.status == status;
+	}
+	
 	public void setRejectPattern(String rejectPattern) {
 		this.rejectPattern = rejectPattern;
 	}
