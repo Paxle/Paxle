@@ -5,21 +5,23 @@
 
 ## ---------------------------------------------------------------------------------------
 ## Define some macros 
-#macro( filterlist $queues)
-	#if( $queues)
-	   #foreach( $queue in $queues)
-		<p>$queue.getFilters().size() filter(s) found:</p>
+#macro(filterlist $filterManager $queueID)
+	#set($filters = ${filterManager.getFilterContextSet($queueID)})
+	#if($filters)
+		<p>${filters.size()} filter(s) found:</p>
+		
 		<table>
 		<tr>
+			<th>ID</th>
 			<th>Name</th>
 		</tr>
-		#foreach( $filter in $queue.getFilters())
+	    #foreach($filter in $filters)
 		<tr>
-		   <td>$filter.getFilter().getClass().getName()</td>
+		   <td>$velocityCount</td>
+		   <td>${filter.getFilter().getClass().getName()}</td>
 		</tr>
 		#end
 	   </table>
-	   #end
 	#end
 #end
 ## ---------------------------------------------------------------------------------------
@@ -124,11 +126,11 @@
 	
 	<hr />
 	<h3>Deployed crawler input-queue filters:</h3>
-	#filterlist( $manager.getServices( "org.paxle.core.filter.IFilterQueue", "(org.paxle.core.filter.IFilterQueue.id=org.paxle.crawler.in)"))
+	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"), "org.paxle.crawler.in")
 
 	<hr />
 	<h3>Deployed crawler output-queue filters:</h3>
-	#filterlist( $manager.getServices( "org.paxle.core.filter.IFilterQueue", "(org.paxle.core.filter.IFilterQueue.id=org.paxle.crawler.out)"))
+	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"), "org.paxle.crawler.out")
 </fieldset>
 #else
 <fieldset id="dcrawler">
@@ -200,11 +202,11 @@
 	
 	<hr />
 	<h3>Deployed parser input-queue filters:</h3>
-	#filterlist( $manager.getServices( "org.paxle.core.filter.IFilterQueue", "(org.paxle.core.filter.IFilterQueue.id=org.paxle.parser.in)"))
+	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"), "org.paxle.parser.in")
 	
 	<hr />
 	<h3>Deployed parser output-queue filters:</h3>
-	#filterlist( $manager.getServices( "org.paxle.core.filter.IFilterQueue", "(org.paxle.core.filter.IFilterQueue.id=org.paxle.parser.out)"))	
+	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"),"org.paxle.parser.out")	
 </fieldset>
 #else
 <fieldset id="dparser">
@@ -225,11 +227,11 @@
 		
 	<hr />
 	<h3>Deployed indexer input-queue filters:</h3>
-	#filterlist( $manager.getServices( "org.paxle.core.filter.IFilterQueue", "(org.paxle.core.filter.IFilterQueue.id=org.paxle.indexer.in)"))	
+	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"), "org.paxle.indexer.in")	
 	
 	<hr />
 	<h3>Deployed indexer output-queue filters:</h3>
-	#filterlist( $manager.getServices( "org.paxle.core.filter.IFilterQueue", "(org.paxle.core.filter.IFilterQueue.id=org.paxle.indexer.out)"))		
+	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"), "org.paxle.indexer.out")		
 </fieldset>
 #else
 <fieldset id="dindex">
