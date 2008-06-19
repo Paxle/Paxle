@@ -40,7 +40,6 @@
 							org.paxle.core.crypt, 
 							org.paxle.core.io,
 							org.paxle.core.prefs,
-							org.paxle.util,
 							org.paxle.util.ac,
 							org.paxle.util.buffer
 						</Export-Package>
