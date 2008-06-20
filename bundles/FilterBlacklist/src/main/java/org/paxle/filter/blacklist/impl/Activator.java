@@ -7,7 +7,9 @@ import java.util.Hashtable;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.core.filter.IFilter;
-import org.paxle.filter.blacklist.BlacklistServlet;
+import org.paxle.filter.blacklist.impl.desktop.DesktopIntegrationListener;
+import org.paxle.filter.blacklist.impl.gui.BlacklistServlet;
+import org.paxle.filter.blacklist.impl.gui.GuiListener;
 
 public class Activator implements BundleActivator {
 	/**
@@ -30,19 +32,10 @@ public class Activator implements BundleActivator {
 		bc.registerService(IFilter.class.getName(), blacklistFilter, filterProps);
 		
 		/*
-		 * Registering the bundle listener
+		 * Registering the bundle listeners
 		 */
 		bc.addBundleListener(new DesktopIntegrationListener(bc));
-		
-		/*
-		 * Registering the servlet
-		 */
-		BlacklistServlet servlet = new BlacklistServlet(blacklistFilter);
-		servlet.init(bc.getBundle().getEntry("/").toString(),"/blacklist");
-		Hashtable<String, String> props = new Hashtable<String, String>();
-		props.put("path", "/blacklist");
-		props.put("menu", "Blacklist");
-		bc.registerService("javax.servlet.Servlet", servlet, props);
+		bc.addBundleListener(new GuiListener(bc, blacklistFilter));
 	}
 	
 	/**

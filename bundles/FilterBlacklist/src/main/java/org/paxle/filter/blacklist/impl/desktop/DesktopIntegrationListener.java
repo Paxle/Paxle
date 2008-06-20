@@ -1,4 +1,4 @@
-package org.paxle.filter.blacklist.impl;
+package org.paxle.filter.blacklist.impl.desktop;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;

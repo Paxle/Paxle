@@ -49,7 +49,7 @@ public class Blacklist {
 	 * Gets all blacklistnames
 	 * @return all blacklistnames
 	 */
-	static	List<String> getLists() {
+	public static	List<String> getLists() {
 		return new ArrayList<String>(blacklists.keySet());
 	}
 
@@ -59,7 +59,7 @@ public class Blacklist {
 	 * @return the blacklist
 	 * @throws InvalidFilenameException 
 	 */
-	static Blacklist getList(String name) throws InvalidFilenameException {
+	public static Blacklist getList(String name) throws InvalidFilenameException {
 		validateBlacklistname(name);
 		return blacklists.get(name);
 	}
@@ -99,7 +99,7 @@ public class Blacklist {
 	 * @param name name of the new blacklistfile
 	 * @throws InvalidFilenameException 
 	 */	
-	static Blacklist create(String name) throws InvalidFilenameException {
+	public static Blacklist create(String name) throws InvalidFilenameException {
 
 		validateBlacklistname(name);
 

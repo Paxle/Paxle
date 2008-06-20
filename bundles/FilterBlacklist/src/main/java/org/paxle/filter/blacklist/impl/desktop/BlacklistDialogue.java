@@ -1,5 +1,5 @@
 
-package org.paxle.filter.blacklist.impl;
+package org.paxle.filter.blacklist.impl.desktop;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -30,6 +30,8 @@ import javax.swing.event.DocumentListener;
 
 import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.Utilities;
+import org.paxle.filter.blacklist.impl.Blacklist;
+import org.paxle.filter.blacklist.impl.InvalidFilenameException;
 
 public class BlacklistDialogue extends JPanel implements DIComponent, ActionListener, DocumentListener {
 	

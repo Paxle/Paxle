@@ -1,4 +1,4 @@
-package org.paxle.filter.blacklist;
+package org.paxle.filter.blacklist.impl.gui;
 
 import java.net.URLEncoder;
 import java.util.List;
@@ -8,10 +8,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.paxle.gui.ALayoutServlet;
-import org.paxle.filter.blacklist.impl.BlacklistFilter;
 import org.paxle.filter.blacklist.impl.Blacklist;
+import org.paxle.filter.blacklist.impl.BlacklistFilter;
 import org.paxle.filter.blacklist.impl.InvalidFilenameException;
+import org.paxle.gui.ALayoutServlet;
 
 public class BlacklistServlet extends ALayoutServlet {
 

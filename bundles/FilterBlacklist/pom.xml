@@ -37,10 +37,10 @@
 							org.apache.commons.logging,
 						    org.apache.commons.io;version="1.4",
 							org.apache.commons.io.*;version="1.4",
-							org.paxle.gui,
-							javax.servlet.http,
-							org.apache.velocity, 
-							org.apache.velocity.context,
+							org.paxle.gui;resolution:=optional,
+							javax.servlet.http;resolution:=optional,
+							org.apache.velocity;resolution:=optional, 
+							org.apache.velocity.context;resolution:=optional,
 							org.paxle.desktop;resolution:=optional
 						</Import-Package>
 						<DynamicImport-Package>
@@ -58,7 +58,9 @@
 							sun.awt.motif.*
 						</DynamicImport-Package>
 						<Private-Package>
-							org.paxle.filter.blacklist.impl
+							org.paxle.filter.blacklist.impl,
+							org.paxle.filter.blacklist.impl.desktop,
+							org.paxle.filter.blacklist.impl.gui
 						</Private-Package>
 						<Bundle-Activator>
 							org.paxle.filter.blacklist.impl.Activator
