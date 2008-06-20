@@ -198,7 +198,18 @@ public class CrawlerView extends ALayoutServlet {
 				while ((line = startURLs.readLine()) != null)
 					tank.putUrl2Crawl(line);
 				context.put("errorUrls", tank.getErrorUrls());
-			}			
+			} else if (request.getParameter("crawlQuick") != null) {
+				url = request.getParameter("startURL");
+				
+				// startURL denotes a single URL to crawl entered in an input-field
+				final UrlTank tank = new UrlTank(
+						(ServiceManager)context.get(SERVICE_MANAGER),
+						this.getDepth(request),
+						this.getProfileName(request)
+				);
+				tank.putUrl2Crawl(url);
+				context.put("errorUrls", tank.getErrorUrls());
+			}
 
 			/*
 			 * Setting template parameters

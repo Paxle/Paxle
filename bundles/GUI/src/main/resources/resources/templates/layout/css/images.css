@@ -114,3 +114,10 @@ input.btnDelGroup, input.btnDelGroup {
 	background-position: left center;
 	padding-left: 20px;	
 }
+
+a.quickCrawl {
+	background-image: url(/images/link_add.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	padding-left: 20px;	
+}

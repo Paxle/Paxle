@@ -9,7 +9,7 @@
 <ul class="tabs">
 	<li><a href="#dsinglecrawl" onclick="fshow('singlecrawl');" id="tsinglecrawl">Crawl URL</a></li>
 	<li><a href="#dmasscrawl" onclick="fshow('masscrawl');" id="tmasscrawl">Mass Crawl</a></li>
-	<li><a href="#dstatuscrawl" onclick="fshow('statuscrawl');" id="tstatuscrawl">Crawler Status</a></li>
+	<li><a href="#dquickcrawl" onclick="fshow('quickcrawl');" id="tquickcrawl">Crawler Bookmarklet</a></li>
 </ul>
 
 #if( $errorUrls && $errorUrls.size() > 0)
@@ -49,6 +49,15 @@
 </fieldset>
 </form>
 
-<fieldset id="dstatuscrawl">
-	<legend>Crawler Status</legend>
+<fieldset id="dquickcrawl">
+	<legend>Crawler Bookmarklet</legend>
+	
+	<div>
+		Simply drag and drop the link below into the bookmark-toolbar of your browser.<br/>
+		While browsing you can click on this bookmark to crawl the website that is currently viewed in your browser.
+	</div>
+	#set($rootPath = "${request.getScheme()}://${request.getServerName()}:${request.getServerPort()}${request.getServletPath()}")
+	<a class="quickCrawl" href="javascript:w = window.open('$rootPath?crawlQuick=&amp;profileName='+escape(document.title)+'&amp;startURL='+escape(location.href),'_blank','height=600,width=800,resizable=yes,scrollbar=no,directory=no,menubar=no,location=no');w.focus();">
+		Paxle-QuickCrawl
+	</a>
 </fieldset>
