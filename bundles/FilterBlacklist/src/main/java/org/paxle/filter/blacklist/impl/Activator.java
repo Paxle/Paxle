@@ -8,7 +8,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.paxle.core.filter.IFilter;
 import org.paxle.filter.blacklist.impl.desktop.DesktopIntegrationListener;
-import org.paxle.filter.blacklist.impl.gui.BlacklistServlet;
 import org.paxle.filter.blacklist.impl.gui.GuiListener;
 
 public class Activator implements BundleActivator {
@@ -18,7 +17,7 @@ public class Activator implements BundleActivator {
 	 */	
 	public void start(BundleContext bc) throws Exception {
 		
-//		File list = bc.getDataFile("../../../blacklist");
+		// creating blacklist data dir
 		File list = new File("blacklist");
 		list.mkdirs();
 		new File(list, "default.list");
