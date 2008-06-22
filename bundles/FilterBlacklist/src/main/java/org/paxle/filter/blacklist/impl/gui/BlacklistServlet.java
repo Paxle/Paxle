@@ -67,7 +67,7 @@ public class BlacklistServlet extends ALayoutServlet {
 					response.sendRedirect("/blacklist?action=newList");
 					return null;
 				}
-			} else if (request.getMethod().equals("POST")) { // these are non-save methods and should only be executed when there is a post-request and a valid list was given
+			} else if (request.getMethod().equals("POST")) { // these are non-safe methods and should only be executed when there is a post-request and a valid list was given
 				if (action.equals("removeList")) {
 					blacklist.destroy();
 					response.sendRedirect("/blacklist");
@@ -80,8 +80,13 @@ public class BlacklistServlet extends ALayoutServlet {
 					blacklist.removePattern(request.getParameter("pattern"));
 					response.sendRedirect("/blacklist?list=" + URLEncoder.encode(blacklist.name, "UTF-8"));
 					return null;
+				} else if (action.equals("editPattern") && request.getParameter("fromPattern") != null && request.getParameter("toPattern") != null) {
+					blacklist.editPattern(request.getParameter("fromPattern"), request.getParameter("toPattern"));
+					response.sendRedirect("/blacklist?list=" + URLEncoder.encode(blacklist.name, "UTF-8"));
+					return null;
 				}
-			}
+			} else if (request.getParameter("fromPattern") != null)
+				context.put("fromPattern", request.getParameter("fromPattern"));
 
 			context.put("curList", blacklist); 
 

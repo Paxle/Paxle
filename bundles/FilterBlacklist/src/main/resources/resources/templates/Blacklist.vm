@@ -45,6 +45,17 @@
 					<input type="submit" value="Delete!" />
 				</p>
 			</form>
+		#elseif($action == "editPattern")
+			<h3>Edit pattern $escTool.html($fromPattern)</h3>
+			<form method="post" action="/blacklist">
+				<p>
+					<input type="hidden" name="action" value="editPattern" />
+					<input type="hidden" name="list" value="$escTool.html($curList.getName())" />
+					<input type="hidden" name="fromPattern" value="$escTool.html($fromPattern)" />
+					<input type="text" name="toPattern" value="$escTool.html($fromPattern)" />
+					<input type="submit" value="Edit" />
+				</p>
+			</form>
 		#else
 			<form method="post" action="/blacklist">
 				<p>
@@ -57,7 +68,7 @@
 			<table>
 				<tr>
 					<th>Pattern</th>
-					<th>Delete</th>
+					<th colspan="2">Action</th>
 				</tr>
 				#foreach ($pattern in $curList.getPatternList())
 					<tr>
@@ -69,6 +80,16 @@
 									<input type="hidden" name="list" value="$escTool.html($curList.getName())" />
 									<input type="hidden" name="pattern" value="$escTool.html($pattern)" />
 									<input type="submit" value="Delete Pattern" />
+								</div>
+							</form>
+						</td>
+						<td>
+							<form method="get" action="/blacklist">
+								<div>
+									<input type="hidden" name="action" value="editPattern" />
+									<input type="hidden" name="list" value="$escTool.html($curList.getName())" />
+									<input type="hidden" name="fromPattern" value="$escTool.html($pattern)" />
+									<input type="submit" value="Edit Pattern" />
 								</div>
 							</form>
 						</td>
