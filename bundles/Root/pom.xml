@@ -88,20 +88,21 @@
 	<!-- plugin settings -->
 	<build>
 		<!-- resources that should be included automatically -->
+		<!--  
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
             </resource>
             
-            <!-- include license in all the jars -->
             <resource>
-                <directory>${basedir}/../Root/</directory>
+                <directory>../Root/</directory>
                 <includes>
                     <include>LICENSE.txt</include>
                 </includes>
                 <targetPath>META-INF</targetPath>
             </resource>
         </resources>
+        -->
 	
 		<!-- central plugin management to set the plugin versions to use -->
 		<pluginManagement>
