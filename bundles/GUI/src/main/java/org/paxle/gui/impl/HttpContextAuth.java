@@ -1,10 +1,12 @@
 package org.paxle.gui.impl;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -29,7 +31,7 @@ public class HttpContextAuth implements HttpContext {
 	/**
 	 * For logging
 	 */
-	private Log logger = LogFactory.getLog( this.getClass());
+	private static Log logger = LogFactory.getLog(HttpContextAuth.class);
 
 	private final Bundle bundle;
 
@@ -49,13 +51,44 @@ public class HttpContextAuth implements HttpContext {
 	}
 
 	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String auth = request.getHeader("Authorization");
-		if (auth == null) {
-			logger.info(String.format("[%s] Authentication needed to access '%s'.", request.getRemoteHost(), request.getRequestURI()));
-			this.writeResponse(response);
+		// check if there is any http-auth header
+		String httpAuth = request.getHeader("Authorization");
+		
+		// Get the session
+		HttpSession session = request.getSession(true);
+
+		// check if we are already authenticated
+		Object done = session.getAttribute("logon.isDone");  // marker object
+		
+		// determine if http-auth can be done
+		if (done == null) {
+			UserAdmin uAdmin = (UserAdmin) this.uAdminTracker.getService();
+			
+			if (httpAuth(uAdmin, request, httpAuth)) {
+				done = Boolean.TRUE;
+				session.setAttribute("logon.isDone", done);
+			}
+		}
+		
+		// if we are still not authenticated, try to use form-based login
+		if (done == null) {			
+			// No logon.isDone means he hasn't logged in.
+			// Save the request URL as the true target and redirect to the login page.
+			session.setAttribute("login.target", request.getRequestURL().toString());
+			response.sendRedirect(String.format(
+					"%s://%s:%d/login",
+					request.getScheme(),
+					request.getServerName(),
+					request.getServerPort()
+			));
 			return false;
-		} else if (auth.length() <= "Basic ".length()) {
-			response.setStatus(400);
+		}
+		return true;
+
+	}
+	
+	public static boolean httpAuth(final UserAdmin userAdmin, final HttpServletRequest request, String auth) throws UnsupportedEncodingException {
+		if (auth.length() <= "Basic ".length()) {
 			return false;
 		}
 
@@ -64,38 +97,41 @@ public class HttpContextAuth implements HttpContext {
 		auth = new String(authBytes,"UTF-8");		
 		String[] authData = auth.split(":");
 		if (authData.length == 0) {
-			this.logger.info(String.format("[%s] No user-authentication data found to access '%s'.", request.getRemoteHost(), request.getRequestURI()));
-			this.writeResponse(response);
+			logger.info(String.format("[%s] No user-authentication data found to access '%s'.", request.getRemoteHost(), request.getRequestURI()));
 			return false;
 		}
 		
 		String userName = authData[0];
 		String password = authData.length==1?"":authData[1];
 
-		UserAdmin userAdmin = (UserAdmin) this.uAdminTracker.getService();
 		if (userAdmin == null) {
-			this.logger.info(String.format("[%s] OSGi UserAdmin service not found", request.getRemoteHost()));
-			this.writeResponse(response);
+			logger.info(String.format("[%s] OSGi UserAdmin service not found", request.getRemoteHost()));
+			return false;
+		}
+		
+		return authenticated(userAdmin, request, userName, password);
+	}
+	
+	public static boolean authenticated(final UserAdmin userAdmin, final HttpServletRequest request, final String userName, final String password) {
+		if (userAdmin == null) {
+			logger.info(String.format("[%s] OSGi UserAdmin service not found", request.getRemoteHost()));
 			return false;
 		}
 
 		User user = userAdmin.getUser(USER_HTTP_LOGIN,userName);
 		if( user == null ) {
-			this.logger.info(String.format("[%s] No user found for username '%s'.", request.getRemoteHost(), userName));	
-			this.writeResponse(response);
+			logger.info(String.format("[%s] No user found for username '%s'.", request.getRemoteHost(), userName));	
 			return false;
 		}
 
 		if(!user.hasCredential(USER_HTTP_PASSWORD, password)) {
-			this.logger.info(String.format("[%s] Wrong password for username '%s'.", request.getRemoteHost(), userName));
-			this.writeResponse(response);
+			logger.info(String.format("[%s] Wrong password for username '%s'.", request.getRemoteHost(), userName));
 			return false;
 		}
 
 		Authorization authorization = userAdmin.getAuthorization(user);
 		if(authorization == null) {
-			this.logger.info(String.format("[%s] No authorization found for username '%s'.", request.getRemoteHost(), userName));
-			this.writeResponse(response);
+			logger.info(String.format("[%s] No authorization found for username '%s'.", request.getRemoteHost(), userName));
 			return false;
 		}
 		
@@ -104,15 +140,10 @@ public class HttpContextAuth implements HttpContext {
 		}
 
 		// according to the OSGi spec we need to set the following properties ...
-		request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
+		request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.FORM_AUTH);
 		request.setAttribute(HttpContext.AUTHORIZATION, authorization);
 		request.setAttribute(HttpContext.REMOTE_USER, user);
 
-		return true;
-	}
-
-	private void writeResponse(HttpServletResponse response) {
-		response.setStatus(401);
-		response.setHeader("WWW-Authenticate", "Basic realm=\"paxle log-in\"");
-	}
+		return true;		
+	}	
 }

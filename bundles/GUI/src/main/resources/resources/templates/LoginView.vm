@@ -1,0 +1,20 @@
+## Set the page title
+#set($page_title = "User Login")
+
+<form "" method="post">
+<div>
+	#if( $errorMsg)
+		<p class="error">$errorMsg</p>
+	#end
+	
+    <div>Welcome!  Please enter your Name and Password to log in.</div>
+    <div>
+        Username:<br/>    
+        <input type="text" class="inputtext" name="login.username" id="login.username-input" value="" title=""/>
+        
+        Password: <br/>
+        <input type="password" class="inputtext" name="login.password" id="login.password-input" value="" title=""/>
+        <input type="submit" class="submit" value="Login" id="login.login" name="doLogin"/>          
+    </div>
+</div>
+</form>

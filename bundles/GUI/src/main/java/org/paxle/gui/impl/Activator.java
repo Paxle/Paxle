@@ -26,6 +26,7 @@ import org.paxle.gui.IStyleManager;
 import org.paxle.gui.impl.servlets.BundleView;
 import org.paxle.gui.impl.servlets.CrawlerView;
 import org.paxle.gui.impl.servlets.LogView;
+import org.paxle.gui.impl.servlets.LoginView;
 import org.paxle.gui.impl.servlets.OpenSearchDescription;
 import org.paxle.gui.impl.servlets.OverView;
 import org.paxle.gui.impl.servlets.P2PView;
@@ -95,6 +96,7 @@ public class Activator implements BundleActivator {
 		registerServlet( "/threads", new TheaddumpView(), null);
 		registerServlet( "/overview", new OverView(), "Overview");
 		registerServlet( "/sysdown", new SysDown(), null, new HttpContextAuth(bc.getBundle() ,this.userAdminTracker));
+		registerServlet( "/login", new LoginView(), null);
 	}
 
 	private void registerServlet( final String location, final ALayoutServlet servlet, final String menuName) {
