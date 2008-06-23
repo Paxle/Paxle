@@ -160,14 +160,11 @@
 		</dependency>
 
 
-		<!-- Servlet Dependency:
-			 ATTENTION: do not replace this with javax.servlet.
-			 The equinox http-service just supports the servlet API 2.1
-		 -->
+		<!-- Servlet Dependency -->
 		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>javax.servlet</artifactId>
-			<version>1.0.0</version>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.4</version>
 		</dependency>
 		
 		<!-- 

@@ -213,13 +213,38 @@
 									<destFileName>log4j-osgi-1.2.13.v200706111418.jar</destFileName>
 								</artifactItem>								
 														
+								<!--  simple HTTP service 
 								<artifactItem>
-									<groupId>javax</groupId>
-									<artifactId>servlet</artifactId>
-									<version>2.4.0.v200706111738</version>
+									<groupId>org.eclipse.equinox</groupId>
+									<artifactId>http</artifactId>
+									<version>1.0.100.v20070423</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>javax.servlet_2.4.0.v200706111738.jar</destFileName>
+									<destFileName>org.eclipse.equinox.http_1.0.100.v20070423.jar</destFileName>
 								</artifactItem>
+								-->
+								
+								<!-- jetty based HTTP service -->
+								<artifactItem>
+									<groupId>org.eclipse.equinox</groupId>
+									<artifactId>http.jetty</artifactId>
+									<version>1.0.1.R33x_v20070816</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.eclipse.equinox.http.jetty_1.0.1.R33x_v20070816.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.eclipse.equinox</groupId>
+									<artifactId>http.servlet</artifactId>
+									<version>1.0.1.R33x_v20070816</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.eclipse.equinox.http.servlet_1.0.1.R33x_v20070816.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.mortbay.jetty</groupId>
+									<artifactId>jetty</artifactId>
+									<version>5.1.11.v200706111724</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.mortbay.jetty_5.1.11.v200706111724.jar</destFileName>
+								</artifactItem>	
 								
 								<!-- Apache commons pool dependencies -->
 								<artifactItem>
