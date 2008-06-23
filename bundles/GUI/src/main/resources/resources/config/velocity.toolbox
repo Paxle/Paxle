@@ -44,11 +44,14 @@
 	   <class>org.apache.velocity.tools.generic.MathTool</class>
    </tool>   
    
+   <!-- We can not use the linkTool because the equinox http service just supports
+        servlet-api 2.1 but this tool requires api version 2.3
    <tool>
       <key>linkTool</key>
       <scope>request</scope>
       <class>org.apache.velocity.tools.view.tools.LinkTool</class>
    </tool>
+   -->
    
    <tool>
       <key>paramParser</key>
