@@ -1,20 +1,45 @@
 ## Set the page title
 #set($page_title = "User Login")
 
-<form "" method="post">
-<div>
-	#if( $errorMsg)
-		<p class="error">$errorMsg</p>
+## Activate onload
+#set ( $bodyonload = "initTabs('formLogin');" )
+
+<ul class="tabs">
+	<li><a href="#dformLogin" onclick="fshow('formLogin');" id="tformLogin">Form Login</a></li>
+	<li><a href="#dopenIDLogin" onclick="fshow('openIDLogin');" id="topenIDLogin">OpenID Login</a></li>
+</ul>
+
+<fieldset id="dformLogin">
+	<legend>Log in with username and password</legend>
+    <form method="post">
+    <div>
+    	#if( $errorMsg)
+    		<p class="error">$errorMsg</p>
+    	#end
+    	
+        <div>Welcome!  Please enter your Name and Password to log in.</div>
+        <div id="login">
+            Username:<br/>    
+            <input type="text" class="inputtext" name="login.username" id="login.username-input" value="" title=""/>
+            
+            Password: <br/>
+            <input type="password" class="inputtext" name="login.password" id="login.password-input" value="" title=""/>
+            <input type="submit" class="submit" value="Log in" id="login.login" name="doLogin"/>          
+        </div>
+    </div>
+    </form>
+</fieldset>
+	
+<fieldset id="dopenIDLogin">
+	<legend>Log in with <span class="openid">OpenID</span></legend>
+	
+	#if($manager.hasBundle("org.paxle.gui.openid"))
+		<form action="/openid/auth" method="post">
+			<input type="text" class="openid" name="login.openid" id="login.openid-input" value="http://" title="" size="28"/>
+			<input type="submit" class="submit" value="Log in" id="login.login" name="doLogin"/>
+		</form>
+	#else
+		<p class="error bundleNotInstalled"><span class="openid">OpenID</span> Bundle not installed</p>
 	#end
 	
-    <div>Welcome!  Please enter your Name and Password to log in.</div>
-    <div id="login">
-        Username:<br/>    
-        <input type="text" class="inputtext" name="login.username" id="login.username-input" value="" title=""/>
-        
-        Password: <br/>
-        <input type="password" class="inputtext" name="login.password" id="login.password-input" value="" title=""/>
-        <input type="submit" class="submit" value="Login" id="login.login" name="doLogin"/>          
-    </div>
-</div>
-</form>
+</fieldset>

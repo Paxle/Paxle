@@ -121,3 +121,8 @@ a.quickCrawl {
 	background-position: left center;
 	padding-left: 20px;	
 }
+
+.openid {
+	background:transparent url(/images/openid_small_logo.png) no-repeat scroll 0pt 50%;
+	padding-left:18px !important;
+}

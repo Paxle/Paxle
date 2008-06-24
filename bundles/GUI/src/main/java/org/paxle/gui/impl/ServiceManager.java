@@ -113,6 +113,19 @@ public class ServiceManager implements IServiceManager {
     public Bundle getBundle(long bundleID) {
         return ServiceManager.context.getBundle(bundleID);
     }
+    
+    public boolean hasBundle(String bundleSymbolicName) {
+    	if (bundleSymbolicName == null) throw new NullPointerException("The symbolic name was null");
+    	
+    	Bundle[] bundles = this.getBundles();
+    	if (bundles != null) {
+    		for (Bundle bundle : bundles) {
+    			String currentSymbolicName = bundle.getSymbolicName();
+    			if (currentSymbolicName.equals(bundleSymbolicName)) return true;
+    		}
+    	}
+    	return false;
+    }
 
 	/* (non-Javadoc)
 	 * @see org.paxle.gui.IServiceManager#shutdownFrameworkDelayed(int)
