@@ -69,19 +69,25 @@ public class BundleView extends ALayoutServlet {
         			this.logger.warn(errorMsg);
         			context.put("errorMsg",errorMsg);
         		} else if (request.getParameter(PARAM_ACTION) != null) {
+        			boolean doRedirect = false;
         			String action = request.getParameter(PARAM_ACTION);
         			try {
         				if (action.equals( ACTION_UPDATE)) {
         					bundle.update();
+        					doRedirect = true;
         				} else if (action.equals( ACTION_START)) {
         					bundle.start();
+        					doRedirect = true;
         				} else if (action.equals( ACTION_STOP)) {
         					bundle.stop();
+        					doRedirect = true;
         				} else if (action.equals( ACTION_RESTART)) {
         					bundle.stop();
         					bundle.start();
+        					doRedirect = true;
         				}else if(action.equals( ACTION_UNINSTALL)){
         					bundle.uninstall();
+        					doRedirect = true;
         				}else if (action.equals(ACTION_DETAILS)) {
         					context.put("bundle", bundle);
         				}
@@ -93,6 +99,12 @@ public class BundleView extends ALayoutServlet {
             			);
             			this.logger.warn(errorMsg, e);
             			context.put("errorMsg",e.getMessage());
+        			}
+        			
+        			// redirect to the bundle view
+        			if (doRedirect) {
+        				response.sendRedirect(request.getRequestURI());
+        				return null;
         			}
         		}
             }else if(request.getParameter(PARAM_INSTALL_URL) != null && request.getParameter(PARAM_BUNDLE_PATH)!=null){

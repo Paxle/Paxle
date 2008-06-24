@@ -285,3 +285,12 @@ a.rssFeedLink > img {
 	font-style: italic;
 	margin-top: 10px;
 }
+
+#login {
+	margin-top: 5px;
+}
+
+#login input {
+	display: block;
+	margin-bottom: 5px;
+}

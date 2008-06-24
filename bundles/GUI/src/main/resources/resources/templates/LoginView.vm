@@ -8,7 +8,7 @@
 	#end
 	
     <div>Welcome!  Please enter your Name and Password to log in.</div>
-    <div>
+    <div id="login">
         Username:<br/>    
         <input type="text" class="inputtext" name="login.username" id="login.username-input" value="" title=""/>
         
