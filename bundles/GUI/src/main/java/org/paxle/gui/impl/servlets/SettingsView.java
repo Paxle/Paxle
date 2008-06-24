@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -182,6 +183,9 @@ public class SettingsView extends ALayoutServlet {
 		
 		String loginName = request.getParameter(HttpContextAuth.USER_HTTP_LOGIN);
 		
+		/* ===========================================================
+		 * USERNAME + PWD
+		 * =========================================================== */
 		// check if the login-name is not empty
 		if (loginName == null || loginName.length() == 0) {
 			String errorMsg = String.format("The login name must not be null or empty.");
@@ -199,7 +203,7 @@ public class SettingsView extends ALayoutServlet {
 			return;
 		}
 		
-		// check if the password is typed correclty
+		// check if the password is typed correctly
 		String pwd1 = request.getParameter(HttpContextAuth.USER_HTTP_PASSWORD);
 		String pwd2 = request.getParameter(HttpContextAuth.USER_HTTP_PASSWORD + "2");
 		if (pwd1 == null || pwd2 == null || !pwd1.equals(pwd2)) {
@@ -216,6 +220,31 @@ public class SettingsView extends ALayoutServlet {
 		Dictionary<String, Object> credentials = user.getCredentials();
 		credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, pwd1);
 		
+		/* ===========================================================
+		 * OPEN-ID
+		 * =========================================================== */
+		String openIdURL = request.getParameter("openid.url");
+		if (openIdURL != null && openIdURL.length() > 0) {
+			// check if URL is unique
+			roles = userAdmin.getRoles(String.format("(openid.url=%s)", openIdURL));
+			if (roles != null && (roles.length > 2 || (roles.length == 1 && !roles[0].equals(user)))) {
+				String errorMsg = String.format("The given OpenID URL '%s' is already used by a different user.", openIdURL);
+				this.logger.warn(errorMsg);
+				context.put("errorMsg",errorMsg);
+				return;
+			}
+			
+			// configure the OpenID URL
+			props = user.getProperties();
+			props.put("openid.url", openIdURL);			
+		} else {
+			// delete old URL
+			user.getProperties().remove("openid.url");
+		}
+		
+		/* ===========================================================
+		 * MEMBERSHIP
+		 * =========================================================== */
 		// process membership
 		Authorization auth = userAdmin.getAuthorization(user);		
 		String[] currentMembership = auth.getRoles();

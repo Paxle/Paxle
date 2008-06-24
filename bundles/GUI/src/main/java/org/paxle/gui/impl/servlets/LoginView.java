@@ -6,6 +6,8 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.osgi.service.http.HttpContext;
+import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.HttpContextAuth;
@@ -25,7 +27,7 @@ public class LoginView extends ALayoutServlet {
     		HttpSession session = request.getSession(true);
         	
         	if (request.getParameter("doLogin") != null) {
-        		// getting username + password
+        		// getting user-name + password
         		String userName = request.getParameter("login.username");
         		String password = request.getParameter("login.password");
         		
@@ -33,20 +35,30 @@ public class LoginView extends ALayoutServlet {
         		ServiceManager manager = (ServiceManager) context.get("manager");
         		UserAdmin uAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
         		
-        		if (HttpContextAuth.authenticated(uAdmin, request, userName, password)) {
+        		// auth user
+        		User user = HttpContextAuth.authenticatedAs(uAdmin, request, userName, password);        		
+        		if (user != null){
         			// remember login state
         			session.setAttribute("logon.isDone", Boolean.TRUE);
+        			
+    				// set user-data into the session
+    				session.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.FORM_AUTH);
+    				session.setAttribute(HttpContext.AUTHORIZATION, uAdmin.getAuthorization(user));
+    				session.setAttribute(HttpContext.REMOTE_USER, user);	        			
+        			
+    				// redirect to target
         			if (session.getAttribute("login.target") != null) {
         				response.sendRedirect((String) session.getAttribute("login.target"));
         			}
         		} else {
         			context.put("errorMsg","Unable to login. Username or password is invalid");
         		}
-        		
         	} else if (request.getParameter("doLogout") != null) {
         		session.removeAttribute("logon.isDone");
+        		session.removeAttribute(HttpContext.AUTHENTICATION_TYPE);
+        		session.removeAttribute(HttpContext.AUTHORIZATION);
+        		session.removeAttribute(HttpContext.REMOTE_USER);
         	}
-
             
             template = this.getTemplate("/resources/templates/LoginView.vm");
         } catch( Exception e ) {

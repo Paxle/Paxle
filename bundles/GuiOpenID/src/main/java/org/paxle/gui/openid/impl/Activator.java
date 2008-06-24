@@ -6,27 +6,28 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class Activator implements BundleActivator {
-	/**
-	 * A reference to the {@link BundleContext bundle-context}
-	 */
-	public static BundleContext bc;				
+	private ServiceTracker userAdminTracker = null;	
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */		
 	public void start(BundleContext context) throws Exception {
-		bc = context;
 		
-		ServiceReference sr  =  bc.getServiceReference(HttpService.class.getName());
-		HttpService http     = (HttpService)bc.getService(sr);
+		ServiceReference sr  =  context.getServiceReference(HttpService.class.getName());
+		HttpService http  = (HttpService)context.getService(sr);
+		
+		this.userAdminTracker = new ServiceTracker(context, UserAdmin.class.getName(),null);
+		this.userAdminTracker.open();		
 		
 		// register the servlet
 		ConsumerManager manager = new ConsumerManager();
 		http.registerServlet("/openid/auth",new AuthServlet(manager),null,null);
-		http.registerServlet("/openid/verify",new VerifyServlet(manager),null,null);
+		http.registerServlet("/openid/verify",new VerifyServlet(this.userAdminTracker, manager),null,null);
 	}
 
 	/**
@@ -34,7 +35,6 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#stop(BundleContext)
 	 */		
 	public void stop(BundleContext context) throws Exception {
-		// cleanup
-		bc = null;		
+	
 	}
 }

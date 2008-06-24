@@ -34,10 +34,17 @@
 	<legend>Log in with <span class="openid">OpenID</span></legend>
 	
 	#if($manager.hasBundle("org.paxle.gui.openid"))
-		<form action="/openid/auth" method="post">
-			<input type="text" class="openid" name="login.openid" id="login.openid-input" value="http://" title="" size="28"/>
-			<input type="submit" class="submit" value="Log in" id="login.login" name="doLogin"/>
-		</form>
+		<div id="login">
+    		<form action="/openid/auth" method="post">
+    			<input type="text" class="openid" name="login.openid" id="login.openid-input" value="http://" title="" size="28"/>
+    			<input type="submit" class="submit" value="Log in" id="login.login" name="doLogin"/>
+    		</form>
+		</div>
+		<div>
+			<a href="http://alexandria.wiki.sourceforge.net/OpenID">Learn more</a>
+			-
+			<a href="http://openid.net/get/">Get an OpenID</a>
+		</div>
 	#else
 		<p class="error bundleNotInstalled"><span class="openid">OpenID</span> Bundle not installed</p>
 	#end

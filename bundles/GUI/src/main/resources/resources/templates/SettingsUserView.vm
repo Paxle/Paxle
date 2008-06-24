@@ -55,6 +55,13 @@
 					<td><input name='http.password2' type='password' value='$!role.getCredentials().get("http.password")'/></td>
 					<td>&nbsp;</td>
 				</tr>
+            	#if($manager.hasBundle("org.paxle.gui.openid"))
+					<tr>
+						<td><span class="openid">OpenID</span> URL</td>
+    					<td><input name='openid.url' value='$!role.getProperties().get("openid.url")'/></td>
+    					<td>&nbsp;</td>
+    				</tr>
+            	#end				
 				<tr>
 					<td>Groups</td>
 					<td>

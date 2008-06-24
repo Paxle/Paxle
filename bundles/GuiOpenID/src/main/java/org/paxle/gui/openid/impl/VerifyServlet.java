@@ -6,18 +6,28 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openid4java.consumer.ConsumerManager;
 import org.openid4java.consumer.VerificationResult;
 import org.openid4java.discovery.DiscoveryInformation;
 import org.openid4java.discovery.Identifier;
 import org.openid4java.message.ParameterList;
+import org.osgi.service.http.HttpContext;
+import org.osgi.service.useradmin.Authorization;
+import org.osgi.service.useradmin.User;
+import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class VerifyServlet extends AbstractControllerServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private final ConsumerManager manager;
+	private final ServiceTracker userAdminTracker;
+	private final Log logger = LogFactory.getLog(this.getClass());
 	
-	public VerifyServlet(ConsumerManager manager) {
+	public VerifyServlet(final ServiceTracker userAdminTracker, final ConsumerManager manager) {
+		this.userAdminTracker = userAdminTracker;
 		this.manager = manager;
 	}
 
@@ -40,28 +50,34 @@ public class VerifyServlet extends AbstractControllerServlet {
 				receivingURL.append("?").append(request.getQueryString());
 			}
 
-			VerificationResult verification = null;
-			try{
-				verification = this.manager.verify(receivingURL.toString(), openidResp, discovered);
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-			Identifier verified = null;
-			if(verification!=null){
-				verified = verification.getVerifiedId();
-			}
+			VerificationResult verification = this.manager.verify(receivingURL.toString(), openidResp, discovered);
+			Identifier verified = verification.getVerifiedId();
+			
+			User user = null;
+			UserAdmin userAdmin = (UserAdmin) this.userAdminTracker.getService();
 			if (verified != null){
 				System.out.println("success");				
 				System.out.println(verified.getIdentifier());
+
+				// authenticate user
+				user = this.authenticatedAs(userAdmin, verified.getIdentifier());
+			} 
+			
+			if (user != null){
+				// remember login state
+				session.setAttribute("logon.isDone", Boolean.TRUE);
 				
-				// TODO: check if we have a user with this identifier via UserAdmin
+				// set user-data into the session
+				session.setAttribute(HttpContext.AUTHENTICATION_TYPE, "OPEN-ID");
+				session.setAttribute(HttpContext.AUTHORIZATION, userAdmin.getAuthorization(user));
+				session.setAttribute(HttpContext.REMOTE_USER, user);
 				
-    			// remember login state
-    			session.setAttribute("logon.isDone", Boolean.TRUE);				
-    			if (session.getAttribute("login.target") != null) {
-    				response.sendRedirect((String) session.getAttribute("login.target"));
-    			}
-			}else{
+				if (session.getAttribute("login.target") != null) {
+					response.sendRedirect((String) session.getAttribute("login.target"));
+				} else {
+					response.sendRedirect("/");
+				}
+			} else {
 //				forwardURL(req, res, "failed.jsp");
 				System.out.println("error");
 			}
@@ -69,4 +85,25 @@ public class VerifyServlet extends AbstractControllerServlet {
 			e.printStackTrace();
 		}
 	}
+	
+	public User authenticatedAs(final UserAdmin userAdmin, final String openIdURL) {
+		if (userAdmin == null) {
+			logger.info("OSGi UserAdmin service not found");
+			return null;
+		}
+
+		User user = userAdmin.getUser("openid.url",openIdURL);
+		if( user == null ) {
+			logger.info(String.format("No user found for OpenID-URL '%s'.", openIdURL));	
+			return null;
+		}
+
+		Authorization authorization = userAdmin.getAuthorization(user);
+		if(authorization == null) {
+			logger.info(String.format("No authorization found for user with OpenID-URL '%s'.", openIdURL));
+			return null;
+		}
+
+		return user;		
+	}		
 }

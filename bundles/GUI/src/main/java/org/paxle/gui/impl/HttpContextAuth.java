@@ -64,9 +64,16 @@ public class HttpContextAuth implements HttpContext {
 		if (done == null) {
 			UserAdmin uAdmin = (UserAdmin) this.uAdminTracker.getService();
 			
-			if (httpAuth(uAdmin, request, httpAuth)) {
+			// auth. user
+			User user = httpAuth(uAdmin, request, httpAuth);			
+			if (user != null) {
 				done = Boolean.TRUE;
 				session.setAttribute("logon.isDone", done);
+				
+				// set user-data into the session
+				session.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
+				session.setAttribute(HttpContext.AUTHORIZATION, uAdmin.getAuthorization(user));
+				session.setAttribute(HttpContext.REMOTE_USER, user);				
 			}
 		}
 		
@@ -82,14 +89,19 @@ public class HttpContextAuth implements HttpContext {
 					request.getServerPort()
 			));
 			return false;
-		}
-		return true;
+		} 
 
+		// according to the OSGi Spec. we need to set this.
+		request.setAttribute(HttpContext.AUTHENTICATION_TYPE, session.getAttribute(HttpContext.AUTHENTICATION_TYPE));
+		request.setAttribute(HttpContext.AUTHORIZATION, session.getAttribute(HttpContext.AUTHORIZATION));
+		request.setAttribute(HttpContext.REMOTE_USER, session.getAttribute(HttpContext.REMOTE_USER));
+
+		return true;
 	}
 	
-	public static boolean httpAuth(final UserAdmin userAdmin, final HttpServletRequest request, String auth) throws UnsupportedEncodingException {		
+	public static User httpAuth(final UserAdmin userAdmin, final HttpServletRequest request, String auth) throws UnsupportedEncodingException {		
 		if (auth == null || auth.length() <= "Basic ".length()) {
-			return false;
+			return null;
 		}
 
 		// base64 decode and get username + password
@@ -98,7 +110,7 @@ public class HttpContextAuth implements HttpContext {
 		String[] authData = auth.split(":");
 		if (authData.length == 0) {
 			logger.info(String.format("[%s] No user-authentication data found to access '%s'.", request.getRemoteHost(), request.getRequestURI()));
-			return false;
+			return null;
 		}
 		
 		String userName = authData[0];
@@ -106,44 +118,39 @@ public class HttpContextAuth implements HttpContext {
 
 		if (userAdmin == null) {
 			logger.info(String.format("[%s] OSGi UserAdmin service not found", request.getRemoteHost()));
-			return false;
+			return null;
 		}
 		
-		return authenticated(userAdmin, request, userName, password);
+		return authenticatedAs(userAdmin, request, userName, password);
 	}
 	
-	public static boolean authenticated(final UserAdmin userAdmin, final HttpServletRequest request, final String userName, final String password) {
+	public static User authenticatedAs(final UserAdmin userAdmin, final HttpServletRequest request, final String userName, final String password) {
 		if (userAdmin == null) {
 			logger.info(String.format("[%s] OSGi UserAdmin service not found", request.getRemoteHost()));
-			return false;
+			return null;
 		}
 
 		User user = userAdmin.getUser(USER_HTTP_LOGIN,userName);
 		if( user == null ) {
 			logger.info(String.format("[%s] No user found for username '%s'.", request.getRemoteHost(), userName));	
-			return false;
+			return null;
 		}
 
 		if(!user.hasCredential(USER_HTTP_PASSWORD, password)) {
 			logger.info(String.format("[%s] Wrong password for username '%s'.", request.getRemoteHost(), userName));
-			return false;
+			return null;
 		}
 
 		Authorization authorization = userAdmin.getAuthorization(user);
 		if(authorization == null) {
 			logger.info(String.format("[%s] No authorization found for username '%s'.", request.getRemoteHost(), userName));
-			return false;
+			return null;
 		}
 		
 		if (!authorization.hasRole("Administrators")) {
 //			this.logger.warn(String.format(""))
 		}
 
-		// according to the OSGi spec we need to set the following properties ...
-		request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.FORM_AUTH);
-		request.setAttribute(HttpContext.AUTHORIZATION, authorization);
-		request.setAttribute(HttpContext.REMOTE_USER, user);
-
-		return true;		
+		return user;		
 	}	
 }
