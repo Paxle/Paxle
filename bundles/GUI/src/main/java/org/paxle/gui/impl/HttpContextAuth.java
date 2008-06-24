@@ -87,8 +87,8 @@ public class HttpContextAuth implements HttpContext {
 
 	}
 	
-	public static boolean httpAuth(final UserAdmin userAdmin, final HttpServletRequest request, String auth) throws UnsupportedEncodingException {
-		if (auth.length() <= "Basic ".length()) {
+	public static boolean httpAuth(final UserAdmin userAdmin, final HttpServletRequest request, String auth) throws UnsupportedEncodingException {		
+		if (auth == null || auth.length() <= "Basic ".length()) {
 			return false;
 		}
 
