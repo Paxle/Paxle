@@ -4,8 +4,8 @@ package org.paxle.parser.iotools;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
@@ -56,7 +56,7 @@ public class CachedWriter extends Writer {
 		this.tfm = tfm;
 		if (initialSize > maxSize) {
 			this.ffile = tfm.createTempFile();
-			this.writer = new FileWriter(this.ffile);
+			this.writer = new OutputStreamWriter(new FileOutputStream(this.ffile),"UTF-8");
 		} else {
 			this.writer = new CAOS(initialSize);
 		}
@@ -89,7 +89,7 @@ public class CachedWriter extends Writer {
 		this.writer.close();
 		final CAOS caos = (CAOS)this.writer;
 		this.ffile = file;
-		this.writer = new FileWriter(file);
+		this.writer = new OutputStreamWriter(new FileOutputStream(file),"UTF-8");
 		IOTools.copy(new CharArrayReader(caos.getBuffer()), this.writer, this.written);
 	}
 	

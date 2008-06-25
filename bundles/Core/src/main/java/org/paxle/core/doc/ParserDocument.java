@@ -1,9 +1,10 @@
 package org.paxle.core.doc;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -39,7 +40,7 @@ public class ParserDocument implements IParserDocument {
 	protected IParserDocument.Status status;
 	protected String statusText;
 	protected File content;
-	protected FileWriter contentOut = null;
+	protected OutputStreamWriter contentOut = null;
 	protected String mimeType;
 	protected Charset charset = Charset.defaultCharset();
 	
@@ -143,7 +144,7 @@ public class ParserDocument implements IParserDocument {
 			this.content = IOTools.getTempFileManager().createTempFile();
 		}
 		if (this.contentOut == null) {
-			this.contentOut = new FileWriter(this.content);
+			this.contentOut = new OutputStreamWriter(new FileOutputStream(this.content),"UTF-8");
 		}
 		this.contentOut.write(text.toString());
 	}
