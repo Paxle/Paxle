@@ -10,6 +10,8 @@
 </ul>
 
 <br />
+#set($bundleName = $bundle.getHeaders().get("Bundle-Name"))
+<h3>#{if}($bundleName)$bundleName#{else}${bundle.getSymbolicName()}#{end}</h3>
 <br />
 
 <fieldset id="druntimeinformation">
