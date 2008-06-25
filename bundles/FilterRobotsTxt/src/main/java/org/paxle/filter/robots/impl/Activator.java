@@ -24,7 +24,7 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext bc) throws Exception {
-		this.robotsTxtManager = new RobotsTxtManager(new File(DB_PATH));
+		this.robotsTxtManager = new RobotsTxtManager(new RobotsTxtFileLoader(new File(DB_PATH)));
 		this.robotsTxtCleanupThread = new RobotsTxtCleanupThread(new File(DB_PATH)); 
 		
 		/* ==========================================================

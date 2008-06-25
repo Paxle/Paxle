@@ -26,7 +26,7 @@ public class RobotsTxtManagerTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		this.manager = new RobotsTxtManager(new File("target/temp"));
+		this.manager = new RobotsTxtManager(new RobotsTxtFileLoader(new File("target/temp")));
 	}
 
 	protected void tearDown() throws Exception {

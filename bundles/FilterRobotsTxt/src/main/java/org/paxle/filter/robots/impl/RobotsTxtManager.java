@@ -119,9 +119,9 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	private Cache cache = null;
 
 	/**
-	 * Path where {@link RobotsTxt} objects should be stored
+	 * Component to read and write {@link RobotsTxt} objects
 	 */
-	private File path = null;
+	private IRuleLoader loader;
 	
 	/**
 	 * Connection manager used for http connection pooling
@@ -140,10 +140,9 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	/**
 	 * @param path the path where the {@link RobotsTxt} objects should be stored
 	 */
-	public RobotsTxtManager(File path) {
-		// configure path where serialized robots-txt objects should be stored
-		this.path = path;
-		if (!this.path.exists()) this.path.mkdirs();
+	public RobotsTxtManager(IRuleLoader loader) {
+		// data storage
+		this.loader = loader;
 
 		// configure caching manager
 		this.manager = new CacheManager();
@@ -658,7 +657,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 
 			// trying to get the robots.txt from file
 			if (robotsTxt == null) {
-				robotsTxt = this.getFromFile(hostPort);
+				robotsTxt = this.loader.read(hostPort);
 				if (robotsTxt != null) {
 					this.putIntoCache(hostPort, robotsTxt);
 				}
@@ -668,7 +667,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			if (robotsTxt == null || (System.currentTimeMillis() - robotsTxt.getLoadedDate().getTime() > robotsTxt.getReloadInterval())) {				
 				robotsTxt = this.getFromWeb(URI.create(baseUri.toASCIIString() + "/robots.txt"));
 				this.putIntoCache(hostPort, robotsTxt);
-				this.putIntoFile(robotsTxt);
+				this.loader.write(robotsTxt);
 			}
 			
 			return robotsTxt;
@@ -711,58 +710,6 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			this.r.unlock();
 		}
 	}	
-	
-	void putIntoFile(RobotsTxt robotsTxt) {
-		ObjectOutputStream oos = null;
-		try {
-			// getting the host:port string
-			String hostPort = robotsTxt.getHostPort();
-			hostPort = hostPort.replace(':', '_');
-
-			// creating a file
-			File robotsTxtFile = new File(this.path,hostPort);
-			oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(robotsTxtFile)));
-			oos.writeObject(robotsTxt);
-			oos.flush();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (oos != null) try { oos.close(); } catch (Exception e) {/* ingore this */}
-		}
-	}
-
-	/**
-	 * Loads a robots.txt from HDD
-	 * @param hostPort
-	 * @return
-	 */
-	RobotsTxt getFromFile(String hostPort) {
-		ObjectInputStream ois = null;
-		File robotsTxtFile = null;
-		try {
-			// getting the host:port string
-			hostPort = hostPort.replace(':', '_');			
-
-			// getting the file
-			robotsTxtFile = new File(this.path,hostPort);
-			if (!robotsTxtFile.exists()) return null;
-
-			// loading object from file
-			ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(robotsTxtFile)));
-			RobotsTxt robotsTxt = (RobotsTxt) ois.readObject();
-			return robotsTxt;
-
-		} catch (InvalidClassException e) {
-			// just ignore this, class format has changed
-			if (robotsTxtFile != null && robotsTxtFile.exists()) robotsTxtFile.delete();
-			return null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		} finally {
-			if (ois != null) try { ois.close(); } catch (Exception e) {/* ingore this */}
-		}
-	}
 	
 	/**
 	 * Groups a list of {@link URI} into blocks hosted by a single server. 
