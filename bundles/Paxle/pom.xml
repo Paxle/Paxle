@@ -522,6 +522,72 @@
 			</modules>
 		</profile>
 
+		<!-- Profile to build all Parsers -->
+		<profile>
+			<id>all-parsers-profile</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>parsers</name>
+				</property>	
+			</activation>
+
+			<modules>
+				<module>../ParserGzip</module>
+				<module>../ParserPdf</module>
+				<module>../ParserZip</module>
+				<module>../Parser7zip</module>
+				<module>../ParserBzip2</module>
+				<module>../ParserTar</module>
+				<module>../ParserLha</module>
+				<module>../ParserMsOffice</module>
+				<module>../ParserFeed</module>
+				<module>../ParserXbel</module>
+				<module>../ParserSitemap</module>
+			</modules>			
+		</profile>
+		
+		<!-- Profile to build all Parsers -->
+		<profile>
+			<id>all-crawlers-profile</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>crawlers</name>
+				</property>	
+			</activation>
+			
+			<modules>
+				<!-- paxle crawler bundles -->
+				<module>../CrawlerFtp</module>
+				<module>../CrawlerSmb</module>
+				<module>../CrawlerProxyHttp</module>
+			</modules>			
+		</profile>
+
+		<!-- Profile to build all other bundles -->
+		<profile>
+			<id>all-others-profile</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>others</name>
+				</property>	
+			</activation>
+			
+			<modules>
+				<!-- paxle tool bundles -->
+				<module>../Console</module>
+				<module>../CryptUtils</module>
+				<module>../Dbus</module>
+				<module>../FilterPlaintextDumper</module>
+				<module>../GuiOpenID</module>
+				<module>../IconTools</module>
+				<module>../SEProviderRssSearch</module>
+				<module>../IPLocatorTools</module>
+			</modules>			
+		</profile>
+
 		<!--  debug profile -->
 		<profile>
 			<id>debug-profile</id>
@@ -782,30 +848,19 @@
 		</profile>
 	</profiles>
 
-	<!-- define modules -->
+	<!-- define default modules -->
 	<modules>
 		<!-- paxle core bundle  -->
 		<module>../Core</module>
 		
 		<!-- paxle crawler bundles -->
 		<module>../CrawlerCore</module>
-		<module>../CrawlerFtp</module>
 		<module>../CrawlerHttp</module>
-		<module>../CrawlerSmb</module>
 		
 		<!-- paxle parser bundles -->
 		<module>../ParserCore</module>
 		<module>../ParserPlain</module>
-		<module>../ParserGzip</module>
-		<module>../ParserPdf</module>
-		<module>../ParserZip</module>
-		<module>../Parser7zip</module>
-		<module>../ParserBzip2</module>
-		<module>../ParserTar</module>
-		<module>../ParserLha</module>
-		<module>../ParserMsOffice</module>
 		<module>../ParserHtml</module>
-		<module>../ParserFeed</module>
 		
 		<!-- GUI bundle -->
 		<module>../GUI</module>
@@ -813,18 +868,14 @@
 		<!-- some tools -->
 		<module>../CharsetDetector</module>
 		<module>../MimeType</module>
-		<module>../IconTools</module>
-		<module>../IPLocatorTools</module>
 		
 		<!-- search engine bundles -->
 		<module>../SearchEngine</module>
+		<module>../SEProviderPaxleInfrastructure</module>
 		
 		<!-- indexer bundles -->
 		<module>../Indexer</module>
 		<module>../IndexLucene</module>
-		
-		<!-- Sample SearchProvider -->
-		<module>../SEProviderPaxleInfrastructure</module>
 		
 		<!-- datalayer bundles -->
 		<module>../DataLayer</module>
