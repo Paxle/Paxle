@@ -18,6 +18,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.paxle.filter.robots.impl.rules.RobotsTxt;
+import org.paxle.filter.robots.impl.store.FileStore;
 
 public class RobotsTxtManagerTest extends TestCase {
 	
@@ -26,7 +27,7 @@ public class RobotsTxtManagerTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		this.manager = new RobotsTxtManager(new RobotsTxtFileLoader(new File("target/temp")));
+		this.manager = new RobotsTxtManager(new FileStore(new File("target/temp")));
 	}
 
 	protected void tearDown() throws Exception {

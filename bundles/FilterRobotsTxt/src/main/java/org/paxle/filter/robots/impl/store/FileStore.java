@@ -1,4 +1,4 @@
-package org.paxle.filter.robots.impl;
+package org.paxle.filter.robots.impl.store;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -12,14 +12,14 @@ import java.io.ObjectOutputStream;
 
 import org.paxle.filter.robots.impl.rules.RobotsTxt;
 
-public class RobotsTxtFileLoader implements IRuleLoader {
+public class FileStore implements IRuleStore {
 
 	/**
 	 * Path where {@link RobotsTxt} objects should be stored
 	 */
 	private final File path;
 	
-	public RobotsTxtFileLoader(File path) {
+	public FileStore(File path) {
 		this.path = path;
 		if (!this.path.exists()) this.path.mkdirs();
 	}
@@ -75,6 +75,10 @@ public class RobotsTxtFileLoader implements IRuleLoader {
 		} finally {
 			if (oos != null) try { oos.close(); } catch (Exception e) {/* ingore this */}
 		}
+	}
+
+	public void close() throws IOException {
+		// nothing todo here
 	}
 
 }

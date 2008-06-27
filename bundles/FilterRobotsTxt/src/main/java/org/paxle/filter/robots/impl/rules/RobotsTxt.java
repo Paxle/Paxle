@@ -21,7 +21,7 @@ public class RobotsTxt implements Serializable {
 	private boolean accessRestricted = false;
 	private String downloadStatus = "200 OK";
 	private String hostPort = null;
-	private Date loadedDate = null;
+	private Date loadedDate = new Date();
 	private long reloadInterval = RELOAD_INTERVAL_DEFAULT;	
 	
 	/**
@@ -46,7 +46,6 @@ public class RobotsTxt implements Serializable {
 	
 	public RobotsTxt(String hostPort, long reloadInterval, String downloadStatus, boolean accessRestricted) {
 		this.hostPort = hostPort;
-		this.loadedDate = new Date();
 		this.reloadInterval = (reloadInterval < 0) ? RELOAD_INTERVAL_DEFAULT : reloadInterval;
 		this.downloadStatus = downloadStatus;
 		this.accessRestricted = accessRestricted;

@@ -12,20 +12,42 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
 import org.paxle.core.filter.IFilter;
 import org.paxle.filter.robots.IRobotsTxtManager;
+import org.paxle.filter.robots.impl.store.Db4oStore;
+import org.paxle.filter.robots.impl.store.FileStore;
+import org.paxle.filter.robots.impl.store.IRuleStore;
+
+import com.db4o.osgi.Db4oService;
 
 public class Activator implements BundleActivator {
 	private static String DB_PATH = "robots-db";	
 	
 	private RobotsTxtManager robotsTxtManager = null;
 	private RobotsTxtCleanupThread robotsTxtCleanupThread = null;
+	private IRuleStore ruleStore = null;
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext bc) throws Exception {
-		this.robotsTxtManager = new RobotsTxtManager(new RobotsTxtFileLoader(new File(DB_PATH)));
-		this.robotsTxtCleanupThread = new RobotsTxtCleanupThread(new File(DB_PATH)); 
+		
+		
+		// testing if the DB4o Service is available
+		ServiceReference db4oServiceRef = bc.getServiceReference("com.db4o.osgi.Db4oService");
+		if (db4oServiceRef != null) {
+			// using DB4O
+			Db4oService dboService = (Db4oService) bc.getService(db4oServiceRef);
+			this.ruleStore = new Db4oStore(dboService, new File(DB_PATH));
+		} else {
+			// using a file-store
+			this.ruleStore = new FileStore(new File(DB_PATH));
+			
+			// init a cleanup thread
+			this.robotsTxtCleanupThread = new RobotsTxtCleanupThread(new File(DB_PATH)); 
+		}
+		
+		// init the robots.txt-manager
+		this.robotsTxtManager = new RobotsTxtManager(this.ruleStore);
 		
 		/* ==========================================================
 		 * Register Services provided by this bundle
@@ -55,9 +77,12 @@ public class Activator implements BundleActivator {
 			if (config.getProperties() == null) {
 				config.update(this.robotsTxtManager.getDefaults());
 			}
-			config = cm.getConfiguration(RobotsTxtCleanupThread.class.getName());
-			if (config.getProperties() == null) {
-				config.update(this.robotsTxtCleanupThread.getDefaults());
+			
+			if (this.robotsTxtCleanupThread != null) {
+				config = cm.getConfiguration(RobotsTxtCleanupThread.class.getName());
+				if (config.getProperties() == null) {
+					config.update(this.robotsTxtCleanupThread.getDefaults());
+				}
 			}
 		}
 		
@@ -69,12 +94,14 @@ public class Activator implements BundleActivator {
 		 */
 		Hashtable<String,Object> msProps = new Hashtable<String, Object>();
 		msProps.put(Constants.SERVICE_PID, IRobotsTxtManager.class.getName());
-		bc.registerService(ManagedService.class.getName(), this.robotsTxtManager, msProps);		
+		bc.registerService(ManagedService.class.getName(), this.robotsTxtManager, msProps);
 		
-		Hashtable<String,Object> msP = new Hashtable<String, Object>();
-		msP.put(Constants.SERVICE_PID, RobotsTxtCleanupThread.class.getName());
-		bc.registerService(ManagedService.class.getName(), this.robotsTxtCleanupThread, msP);
-		this.robotsTxtCleanupThread.start(); //we start it here, as the config is not available earlier
+		if (this.robotsTxtCleanupThread != null) {
+			Hashtable<String,Object> msP = new Hashtable<String, Object>();
+			msP.put(Constants.SERVICE_PID, RobotsTxtCleanupThread.class.getName());
+			bc.registerService(ManagedService.class.getName(), this.robotsTxtCleanupThread, msP);
+			this.robotsTxtCleanupThread.start(); //we start it here, as the config is not available earlier
+		}
 	}
 
 	/**
@@ -82,9 +109,17 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#stop(BundleContext)
 	 */	
 	public void stop(BundleContext context) throws Exception {
+		// terminate robots.txt  manager
 		this.robotsTxtManager.terminate();
 		this.robotsTxtManager = null;
-		this.robotsTxtCleanupThread.interrupt();
-		this.robotsTxtCleanupThread = null;
+		
+		// close store
+		this.ruleStore.close();
+		
+		// terminate cleanup-thread
+		if (this.robotsTxtCleanupThread != null) {
+			this.robotsTxtCleanupThread.interrupt();
+			this.robotsTxtCleanupThread = null;
+		}
 	}
 }

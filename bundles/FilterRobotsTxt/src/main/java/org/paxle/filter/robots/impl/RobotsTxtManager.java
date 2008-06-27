@@ -1,17 +1,9 @@
 package org.paxle.filter.robots.impl;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.InvalidClassException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -62,6 +54,7 @@ import org.paxle.filter.robots.impl.rules.AllowRule;
 import org.paxle.filter.robots.impl.rules.DisallowRule;
 import org.paxle.filter.robots.impl.rules.RobotsTxt;
 import org.paxle.filter.robots.impl.rules.RuleBlock;
+import org.paxle.filter.robots.impl.store.IRuleStore;
 
 public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	/* =========================================================
@@ -121,7 +114,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	/**
 	 * Component to read and write {@link RobotsTxt} objects
 	 */
-	private IRuleLoader loader;
+	private IRuleStore loader;
 	
 	/**
 	 * Connection manager used for http connection pooling
@@ -140,7 +133,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	/**
 	 * @param path the path where the {@link RobotsTxt} objects should be stored
 	 */
-	public RobotsTxtManager(IRuleLoader loader) {
+	public RobotsTxtManager(IRuleStore loader) {
 		// data storage
 		this.loader = loader;
 

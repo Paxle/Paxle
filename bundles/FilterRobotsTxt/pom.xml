@@ -34,6 +34,8 @@
 							org.paxle.core.filter, 
 							org.paxle.core.queue,
 							org.paxle.core.doc,
+							com.db4o;resolution:=optional,
+							com.db4o.*;resolution:=optional,
 							!javax.management, 
 							!javax.servlet, 
 							!javax.servlet.http, 
@@ -46,7 +48,8 @@
 						</Export-Package>
 						<Private-Package>
 							org.paxle.filter.robots.impl,
-							org.paxle.filter.robots.impl.rules
+							org.paxle.filter.robots.impl.rules,
+							org.paxle.filter.robots.impl.store
 						</Private-Package>
 						<DynamicImport-Package>
 							javax.xml.parsers, 
@@ -114,5 +117,16 @@
 		    <artifactId>backport-util-concurrent</artifactId>
 		</dependency>
 		
+		<!-- db4o dependencies -->
+		<dependency>
+			<groupId>com.db4o</groupId>
+			<artifactId>db4o-java5</artifactId>
+			<version>7.2.44.10827</version>
+		</dependency>
+		<dependency>
+			<groupId>com.db4o</groupId>
+			<artifactId>db4o-osgi</artifactId>
+			<version>7.2.44.10827</version>
+		</dependency>					
 	</dependencies>
 </project>
