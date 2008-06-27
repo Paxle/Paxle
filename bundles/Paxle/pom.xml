@@ -307,6 +307,14 @@
 									<destFileName>org.apache.commons.codec_1.2.0.v200711021015.jar</destFileName>
 								</artifactItem>								
 
+								<!-- DB4O -->
+								<artifactItem>
+									<groupId>com.db4o</groupId>
+									<artifactId>db4o-osgi</artifactId>
+									<version>7.2.44.10827</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>db4o-osgi-7.2.44.10827.jar</destFileName>
+								</artifactItem>		
 
 								<!-- ==================================================================-->
 								<!-- APACHE FELIX - Dependencies                                       -->
