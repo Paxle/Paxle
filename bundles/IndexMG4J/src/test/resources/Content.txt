@@ -1,0 +1,1 @@
+Indexing in MG4J is centered around documents, either exposed by means of sequences or of collections. For the time being, let us concentrate on collections, which are randomly addressable lists of documents.
