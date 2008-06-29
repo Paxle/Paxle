@@ -4,7 +4,7 @@ import it.unimi.dsi.mg4j.document.AbstractDocumentSequence;
 import it.unimi.dsi.mg4j.document.DocumentFactory;
 import it.unimi.dsi.mg4j.document.DocumentIterator;
 import it.unimi.dsi.mg4j.document.DocumentSequence;
-import it.unimi.dsi.mg4j.io.SafelyCloseable;
+import it.unimi.dsi.io.SafelyCloseable;
 
 import java.io.IOException;
 import java.util.List;

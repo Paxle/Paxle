@@ -8,9 +8,9 @@ import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.queue.ICommand;
 
 import it.unimi.dsi.mg4j.document.Document;
-import it.unimi.dsi.mg4j.io.FastBufferedReader;
-import it.unimi.dsi.mg4j.io.NullReader;
-import it.unimi.dsi.mg4j.io.WordReader;
+import it.unimi.dsi.io.FastBufferedReader;
+import it.unimi.dsi.io.NullReader;
+import it.unimi.dsi.io.WordReader;
 
 public class PaxleDocument implements Document {
 	private ICommand cmd = null;
