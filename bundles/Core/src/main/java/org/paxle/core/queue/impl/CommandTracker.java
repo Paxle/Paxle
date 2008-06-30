@@ -18,6 +18,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.paxle.core.filter.CommandFilterEvent;
 import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
@@ -180,15 +181,28 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	 * @see EventHandler#handleEvent(Event)
 	 */
 	public void handleEvent(Event event) {
-
+		// command and profile IDs
 		Long commandID = (Long) event.getProperty(CommandEvent.PROP_COMMAND_ID);
+		Long commandProfileID = (Long) event.getProperty(CommandEvent.PROP_PROFILE_ID);
+		
+		// Topic info
 		String fqTopic = (String)event.getProperty(EventConstants.EVENT_TOPIC);
 		String topic = fqTopic.substring(fqTopic.lastIndexOf('/')+1);
 
-		this.cmdEventLogger.debug(String.format("Command [%06d] %s (%s): %s",
-				event.getProperty(CommandEvent.PROP_COMMAND_ID),
+		// component/filter info
+		String component = (String) event.getProperty(CommandEvent.PROP_COMPONENT_ID);
+		String filter = (String) event.getProperty(CommandFilterEvent.PROP_FILTER_NAME);
+		String stageInfo = component;
+		if (filter != null) stageInfo += ", " + filter;
+		
+		/* Command-Event-Logging, e.g.
+		 * 2008-06-30 06:47:22 - P:131072 C:0163840 PRE_FILTER   (org.paxle.crawler.in, org.paxle.data.db.impl.CommandProfileFilter): http://mg4j.dsi.unimi.it/ 
+		 */
+		this.cmdEventLogger.debug(String.format("P:%05d C:%07d %-12s (%s): %s",
+				commandProfileID,
+				commandID,
 				topic,
-				event.getProperty(CommandEvent.PROP_COMPONENT_ID),
+				stageInfo,
 				event.getProperty(CommandEvent.PROP_COMMAND_LOCATION)
 		));
 		
