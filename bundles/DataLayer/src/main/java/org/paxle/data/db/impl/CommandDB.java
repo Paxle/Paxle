@@ -123,6 +123,9 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 
 				// register an interceptor (required to support our interface-based command model)
 				this.config.setInterceptor(new InterfaceInterceptor());
+				
+				// configure caching
+				this.config.setProperty("hibernate.cache.provider_class", "net.sf.ehcache.hibernate.SingletonEhCacheProvider");
 
 				// load the various mapping files
 				for (URL mapping : mappings) {

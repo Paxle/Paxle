@@ -2,6 +2,8 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping default-lazy="false">
 	<class name="org.paxle.core.queue.ICommandProfile" table="Profile" lazy="false">
+		<cache usage="read-write" />
+	
 		<!-- unique identifier needed for ORM mapping-->
 		<id name="OID" column="id">
 			<generator class="native" />

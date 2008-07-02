@@ -58,7 +58,8 @@
 							org.paxle.data.txt.impl
 						</Private-Package>
 						<Export-Package>
-							org.paxle.data.db
+							org.paxle.data.db,
+							org.hibernate.cache;version="3.2.6.ga"
 						</Export-Package>
 						<Bundle-Activator>
 							org.paxle.data.impl.Activator
