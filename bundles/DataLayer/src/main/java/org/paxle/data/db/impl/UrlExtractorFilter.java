@@ -81,6 +81,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 						meta.getStatusText(),
 						ref
 				));
+				continue;
 			}
 			
 			// add command into list
