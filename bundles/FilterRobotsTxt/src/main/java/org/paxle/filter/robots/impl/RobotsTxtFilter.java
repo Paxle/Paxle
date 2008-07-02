@@ -90,7 +90,10 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 		if (linkMap == null || linkMap.size() == 0) return;
 		
 		// check for blocking URIs
-		final Collection<URI> disallowedURI = this.robotsTxtManager.isDisallowed(this.getOkURI(linkMap));
+		final Collection<URI> uriToCheck = this.getOkURI(linkMap);
+		if (uriToCheck.size() == 0) return;
+		
+		final Collection<URI> disallowedURI = this.robotsTxtManager.isDisallowed(uriToCheck);
 		
 		// mark disallowed URI as blocked
 		if (disallowedURI != null && disallowedURI.size() > 0) {

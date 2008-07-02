@@ -8,6 +8,7 @@ import java.util.Map;
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.doc.LinkInfo;
+import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.filter.robots.IRobotsTxtManager;
 
 public class RobotsTxtFilterTest extends MockObjectTestCase {
@@ -47,5 +48,20 @@ public class RobotsTxtFilterTest extends MockObjectTestCase {
 		assertEquals(LinkInfo.Status.FILTERED, uriMap.get(link1).getStatus());
 		assertEquals(LinkInfo.Status.OK, uriMap.get(link2).getStatus());
 		assertEquals(LinkInfo.Status.FILTERED, uriMap.get(link3).getStatus());	
+	}
+	
+	public void testSkippNotOKURI() {
+		final URI link = URI.create("http://www.test1.at/");
+		
+		final Map<URI, LinkInfo> uriMap = new HashMap<URI, LinkInfo>();
+		uriMap.put(link, new LinkInfo("test", Status.FILTERED));
+		
+		// define mock conditions
+		checking(new Expectations() {{
+			never(manager);
+		}});
+		
+		// check URI by the filter
+		this.filter.checkRobotsTxt(uriMap, new RobotsTxtFilter.Counter());
 	}
 }
