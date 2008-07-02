@@ -175,6 +175,9 @@ public class OverView extends ALayoutServlet {
 			// for now we just query the paxle directory
 			return FileSystemUtils.freeSpaceKb(new File("/").toString());
 		} catch (IOException e) {
+			this.logger.error(String.format(
+					"Unexpected '%s' while checking free disk space: %s",e.getClass().getName(),e.getMessage()
+			), e);
 			return -1;
 		}
 	}
