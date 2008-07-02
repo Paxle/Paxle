@@ -84,7 +84,7 @@
 			<div id="specificProtocols">
     			#set($subCrawlerManager = $manager.getService( "org.paxle.crawler.ISubCrawlerManager"))
     			#set($protocols = $subCrawlerManager.getProtocols())
-    			<select name="protocols" size="5" multiple>
+    			<select name="protocols" size="5" multiple="multiple">
     				#foreach($protocol in $protocols)
     					<option selected="selected">$protocol</option>
     				#end
@@ -113,7 +113,7 @@
 			<div id="specificMimeTypes">
     			#set( $subParserManager = $manager.getService( "org.paxle.parser.ISubParserManager"))
     			#set( $mimeTypes = $subParserManager.getMimeTypes())
-    			<select name="mimetypes" size="5" multiple>
+    			<select name="mimetypes" size="5" multiple="multiple">
     				#foreach($mimeType in $mimeTypes)
     					<option selected="selected">$mimeType</option>
     				#end

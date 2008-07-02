@@ -36,6 +36,9 @@ public class StatusView extends ALayoutServlet {
 			} else if (request.getParameter("restart") != null) {
 				response.sendRedirect("/sysdown?restart=true");
 			} else {
+				// adding servlet to context
+				context.put("statusView",this);
+				
 				/*
 				 * Setting template parameters
 				 */             
@@ -47,5 +50,17 @@ public class StatusView extends ALayoutServlet {
 			e.printStackTrace();
 		}
 		return template;
+	}
+	
+	public Object getCacheManager() {
+		try {
+			return Thread.currentThread().getContextClassLoader()
+			.loadClass("net.sf.ehcache.CacheManager")
+			.getMethod("getInstance", (Class[]) null)
+			.invoke(null, (Object[]) null);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			return null;
+		}			
 	}
 }

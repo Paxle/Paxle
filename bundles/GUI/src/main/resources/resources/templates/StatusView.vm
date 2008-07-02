@@ -33,6 +33,7 @@
 	<li><a href="#dindex" onclick="fshow('index');" id="tindex">Index</a></li>
 	<li><a href="#dsearch" onclick="fshow('search');" id="tsearch">Search</a></li>
 	<li><a href="#dgui" onclick="fshow('gui');" id="tgui">GUI</a></li>
+	<li><a href="#dcache" onclick="fshow('cache');" id="tcache">Cache</a></li>
 </ul>
 
 ## the regular content
@@ -332,3 +333,31 @@
 </fieldset>
 #end
 
+## ==================================================================================
+## CACHE
+## ==================================================================================
+#set($cacheManager = $statusView.getCacheManager())
+#if($cacheManager)
+<fieldset id="dcache">
+	<legend>Cache</legend>
+		
+	<h3>Found Caches:</h3>
+	<p>$listTool.size(${cacheManager.getCacheNames()}) caches(s) found:</p>
+	
+	<table>		
+		<tr><th>Name</th><th>Status</th></tr>
+		#foreach($cacheName in ${cacheManager.getCacheNames()})
+		<tr>
+			#set($statistic = $cacheManager.getCache($cacheName).getStatistics())
+			<td>$cacheName</td>
+			<td>$statistic.toString()</td>
+		</tr>
+		#end
+	</table>		
+</fieldset>
+#else
+<fieldset id="dcache">
+	<legend>Cache</legend>
+	<p class="error notInstalled">Ehcache bundle not installed!</p>	
+</fieldset>	
+#end	
