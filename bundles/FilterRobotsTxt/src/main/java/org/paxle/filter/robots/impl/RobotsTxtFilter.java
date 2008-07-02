@@ -1,8 +1,11 @@
 package org.paxle.filter.robots.impl;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,11 +86,11 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 		}
 	}	
 	
-	void checkRobotsTxt(Map<URI, LinkInfo> linkMap, final Counter c) {
+	void checkRobotsTxt(final Map<URI, LinkInfo> linkMap, final Counter c) {
 		if (linkMap == null || linkMap.size() == 0) return;
 		
-		// TODO: we should pre-exclude URI with Status != OK to speedup checking
-		Collection<URI> disallowedURI = this.robotsTxtManager.isDisallowed(linkMap.keySet());
+		// check for blocking URIs
+		final Collection<URI> disallowedURI = this.robotsTxtManager.isDisallowed(this.getOkURI(linkMap));
 		
 		// mark disallowed URI as blocked
 		if (disallowedURI != null && disallowedURI.size() > 0) {
@@ -115,5 +118,26 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 			}
 
 		}	
+	}
+	
+	/**
+	 * This function returns all links with {@link LinkInfo.Status} <code>OK</code> from the delivered link-map.
+	 * 
+	 * @param linkMap the {@link IParserDocument#getLinks() link-map} of a {@link IParserDocument parser-document}
+	 * @return a collection containing all {@link URI} with status <code>OK</code>
+	 */
+	private Collection<URI> getOkURI(final Map<URI, LinkInfo> linkMap) {
+		if (linkMap == null) return Collections.emptyList();
+		
+		final ArrayList<URI> okLinks = new ArrayList<URI>();
+		for (Entry<URI, LinkInfo> link : linkMap.entrySet()) {
+			URI ref = link.getKey();
+			LinkInfo meta = link.getValue();
+			
+			if (meta.hasStatus(Status.OK)) {
+				okLinks.add(ref);
+			}
+		}
+		return okLinks;
 	}
 }
