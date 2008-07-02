@@ -40,7 +40,21 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 		crawlerDoc.setLocation(requestUri);
 		
 		try {
-			SmbFile smbFile = new SmbFile(requestUri.toURL());
+			/* 
+			 * Create a temp URI to ensure that the port is set properly
+			 * This is required otherwise jcifs throws an exception.
+			 */
+			URI temp = new URI(
+					requestUri.getScheme(),
+					requestUri.getUserInfo(),
+					requestUri.getHost(),
+					(requestUri.getPort()==-1)?445:requestUri.getPort(),
+					requestUri.getPath(),
+					requestUri.getQuery(),
+					requestUri.getFragment()
+			);
+			
+			SmbFile smbFile = new SmbFile(temp.toURL());
 			if (!smbFile.exists()) {
 				crawlerDoc.setStatus(ICrawlerDocument.Status.NOT_FOUND, "The resource does not exist");				
 				this.logger.info(String.format("The resource '%s' does not exit.",requestUri));			
@@ -93,7 +107,7 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 				
 			// finished
 			crawlerDoc.setStatus(ICrawlerDocument.Status.OK);
-		} catch(IOException e) {
+		} catch(Throwable e) {
 			crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, "Unexpected Exception: " + e.getMessage());
 			
 			this.logger.warn(String.format("Unexpected '%s' while trying to crawl resource '%s'.",
