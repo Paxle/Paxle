@@ -2,6 +2,7 @@ package org.paxle.filter.robots.impl;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public class RobotsTxtFilterTest extends MockObjectTestCase {
 		
 		// define mock conditions
 		checking(new Expectations() {{			
-			one(manager).isDisallowed(uriMap.keySet()); 
+			one(manager).isDisallowed(with(any(Collection.class))); 
 			will(returnValue(Arrays.asList(new URI[]{
 				link1,
 				link3
