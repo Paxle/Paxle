@@ -43,6 +43,8 @@
 							org.apache.commons.logging,
 							org.apache.commons.collections;version="3.2.1",
 							org.apache.commons.collections.*;version="3.2.1",
+							net.sf.ehcache;version="1.4.1",
+							net.sf.ehcache.*;version="1.4.1",
 							org.paxle.core.data, 
 							org.paxle.core.queue,
 							org.paxle.core.doc, 
@@ -51,7 +53,8 @@
 						</Import-Package>
 						<DynamicImport-Package>*</DynamicImport-Package>
 						<Private-Package>
-							org.paxle.data.impl, org.paxle.data.db.impl,
+							org.paxle.data.impl, 
+							org.paxle.data.db.impl,
 							org.paxle.data.txt.impl
 						</Private-Package>
 						<Export-Package>
@@ -67,8 +70,6 @@
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
-							ehcache;scope=compile|runtime,
-							backport-util-concurrent;scope=compile|runtime,
 							hibernate;scope=compile|runtime,
 							antlr;scope=compile|runtime,
 							asm;scope=compile|runtime,
@@ -111,10 +112,6 @@
 				    <artifactId>commons-collections</artifactId>
 				</exclusion>				
 			</exclusions>		    
-		</dependency>
-		 <dependency>
-		    <groupId>backport-util-concurrent</groupId>
-		    <artifactId>backport-util-concurrent</artifactId>
 		</dependency>
 		
 		<!-- hibernate dependencies -->

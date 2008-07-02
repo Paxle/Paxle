@@ -2,12 +2,17 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping default-lazy="false">
 	<class name="org.paxle.core.queue.ICommandProfile" table="Profile" lazy="false">
-		<!-- unique identifier -->
+		<!-- unique identifier needed for ORM mapping-->
 		<id name="OID" column="id">
 			<generator class="native" />
 		</id>
 		
+		<!-- name of this profile -->
 		<property name="name"/>
+		
+		<!-- max crawl depth -->
 		<property name="maxDepth"/>
+		
+		
 	</class>
 </hibernate-mapping>
