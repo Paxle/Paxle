@@ -22,9 +22,7 @@
 		<repository>
 			<id>apache.snapshots</id>
 			<name>Apache Snapshot Repository</name>
-			<url>
-				http://people.apache.org/repo/m2-snapshot-repository
-			</url>
+			<url>http://people.apache.org/repo/m2-snapshot-repository</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
@@ -34,6 +32,16 @@
 			<name>Akathist Repository</name>
 			<url>http://www.9stmaryrd.com/maven</url>
 		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases </name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>		
 	</repositories>
 
 	<pluginRepositories>
@@ -213,28 +221,28 @@
 								<!-- commons-logging over slf4j -->
 								<artifactItem>
 									<groupId>org.slf4j</groupId>
-									<artifactId>jcl104-over-slf4j</artifactId>
-									<version>1.5.0</version>
+									<artifactId>jcl-over-slf4j</artifactId>
+									<version>1.5.2</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>jcl104-over-slf4j-1.5.0.jar</destFileName>
+									<destFileName>jcl-over-slf4j-1.5.2.jar</destFileName>
 								</artifactItem>
 
 								<!-- pass slf4j logging to log4j -->
 								<artifactItem>
 									<groupId>org.slf4j</groupId>
 									<artifactId>slf4j-log4j12</artifactId>
-									<version>1.5.0</version>
+									<version>1.5.2</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>slf4j-log4j12-1.5.0.jar</destFileName>
+									<destFileName>slf4j-log4j12-1.5.2.jar</destFileName>
 								</artifactItem>
 								
 								<!--  slf4j api -->
 								<artifactItem>
 									<groupId>org.slf4j</groupId>
 									<artifactId>slf4j-api</artifactId>
-									<version>1.5.0</version>
+									<version>1.5.2</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>slf4j-api-1.5.0.jar</destFileName>
+									<destFileName>slf4j-api-1.5.2.jar</destFileName>
 								</artifactItem>		
 								
 								<!-- log4j dependency -->
@@ -315,6 +323,29 @@
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>db4o-osgi-7.2.44.10827.jar</destFileName>
 								</artifactItem>		
+
+								<!-- Ehcache dependencies -->
+								<artifactItem>
+									<groupId>net.sourceforge.ehcache</groupId>
+									<artifactId>com.springsource.net.sf.ehcache</artifactId>
+									<version>1.4.1</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>com.springsource.net.sf.ehcache-1.4.1.jar</destFileName>									
+								</artifactItem>
+								<artifactItem>
+									<groupId>net.sourceforge.jsr107cache</groupId>
+									<artifactId>com.springsource.net.sf.jsr107cache</artifactId>
+									<version>1.0.0</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>com.springsource.net.sf.jsr107cache-1.0.0.jar</destFileName>										
+								</artifactItem>
+								<artifactItem>
+									<groupId>edu.emory.mathcs.backport</groupId>
+									<artifactId>com.springsource.edu.emory.mathcs.backport</artifactId>
+									<version>3.1.0</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>com.springsource.edu.emory.mathcs.backport-3.1.0.jar</destFileName>										
+								</artifactItem>
 
 								<!-- ==================================================================-->
 								<!-- APACHE FELIX - Dependencies                                       -->
@@ -477,7 +508,39 @@
 									<version>1.2.0.v200711021015</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
 									<destFileName>org.apache.commons.codec_1.2.0.v200711021015.jar</destFileName>
-								</artifactItem>	
+								</artifactItem>
+								
+								<!-- DB4O -->
+								<artifactItem>
+									<groupId>com.db4o</groupId>
+									<artifactId>db4o-osgi</artifactId>
+									<version>7.2.44.10827</version>
+									<outputDirectory>${felix.dependencies}</outputDirectory>
+									<destFileName>db4o-osgi-7.2.44.10827.jar</destFileName>
+								</artifactItem>										
+								
+								<!-- Ehcache dependencies -->
+								<artifactItem>
+									<groupId>net.sourceforge.ehcache</groupId>
+									<artifactId>com.springsource.net.sf.ehcache</artifactId>
+									<version>1.4.1</version>
+									<outputDirectory>${felix.dependencies}</outputDirectory>
+									<destFileName>com.springsource.net.sf.ehcache-1.4.1.jar</destFileName>									
+								</artifactItem>
+								<artifactItem>
+									<groupId>net.sourceforge.jsr107cache</groupId>
+									<artifactId>com.springsource.net.sf.jsr107cache</artifactId>
+									<version>1.0.0</version>
+									<outputDirectory>${felix.dependencies}</outputDirectory>
+									<destFileName>com.springsource.net.sf.jsr107cache-1.0.0.jar</destFileName>										
+								</artifactItem>
+								<artifactItem>
+									<groupId>edu.emory.mathcs.backport</groupId>
+									<artifactId>com.springsource.edu.emory.mathcs.backport</artifactId>
+									<version>3.1.0</version>
+									<outputDirectory>${felix.dependencies}</outputDirectory>
+									<destFileName>com.springsource.edu.emory.mathcs.backport-3.1.0.jar</destFileName>										
+								</artifactItem>								
 							</artifactItems>
 						</configuration>
 					</execution>

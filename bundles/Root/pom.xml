@@ -19,13 +19,23 @@
 			<id>java.net</id>
 			<url>http://download.java.net/maven/2/</url>
 		</repository>
- 		<repository>
+		<repository>
 			<id>apache.snapshots</id>
 			<name>Apache Snapshot Repository</name>
 			<url>http://people.apache.org/repo/m2-snapshot-repository</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases </name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
 		</repository>
 	</repositories>
 
@@ -182,6 +192,18 @@
 				<version>3.1</version>
 			</dependency>
 
+			<!-- dbo4j dependencies -->
+			<dependency>
+				<groupId>com.db4o</groupId>
+				<artifactId>db4o-java5</artifactId>
+				<version>7.2.44.10827</version>
+			</dependency>
+			<dependency>
+				<groupId>com.db4o</groupId>
+				<artifactId>db4o-osgi</artifactId>
+				<version>7.2.44.10827</version>
+			</dependency>
+
 			<!-- jmock dependencies -->
 			<dependency>
 				<groupId>org.jmock</groupId>
@@ -283,9 +305,7 @@
 								</descriptor>
 							</descriptors>
 							<outputDirectory>../</outputDirectory>
-							<workDirectory>
-								target/assembly/debug
-							</workDirectory>	
+							<workDirectory>target/assembly/debug</workDirectory>	
 							<finalName>/Debug</finalName>				
 							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>	
 							<appendAssemblyId>false</appendAssemblyId>

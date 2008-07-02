@@ -36,12 +36,8 @@
 							org.paxle.core.doc,
 							com.db4o;resolution:=optional,
 							com.db4o.*;resolution:=optional,
-							!javax.management, 
-							!javax.servlet, 
-							!javax.servlet.http, 
-							!org.hibernate.*,
-							!org.apache.commons.collections.*,
-							!net.sf.jsr107cache
+							net.sf.ehcache;version="1.4.1",
+							net.sf.ehcache.*;version="1.4.1"
 						</Import-Package>
 						<Export-Package>
 							org.paxle.filter.robots
@@ -60,14 +56,6 @@
 						<Bundle-Activator>
 							org.paxle.filter.robots.impl.Activator
 						</Bundle-Activator>
-
-						<!-- embedding libs -->
-						<Embed-StripGroup>true</Embed-StripGroup>
-						<Embed-Directory>dependencies</Embed-Directory>
-						<Embed-Dependency>
-							ehcache;scope=compile|runtime,
-							backport-util-concurrent;scope=compile|runtime
-						</Embed-Dependency>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -112,21 +100,15 @@
 				</exclusion>				
 			</exclusions>		    
 		</dependency>
-		 <dependency>
-		    <groupId>backport-util-concurrent</groupId>
-		    <artifactId>backport-util-concurrent</artifactId>
-		</dependency>
 		
 		<!-- db4o dependencies -->
 		<dependency>
 			<groupId>com.db4o</groupId>
 			<artifactId>db4o-java5</artifactId>
-			<version>7.2.44.10827</version>
 		</dependency>
 		<dependency>
 			<groupId>com.db4o</groupId>
 			<artifactId>db4o-osgi</artifactId>
-			<version>7.2.44.10827</version>
 		</dependency>					
 	</dependencies>
 </project>
