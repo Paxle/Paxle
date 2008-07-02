@@ -57,6 +57,8 @@ import org.paxle.filter.robots.impl.rules.RuleBlock;
 import org.paxle.filter.robots.impl.store.IRuleStore;
 
 public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
+	private static final String CACHE_NAME = "robotsTxtCache";
+	
 	/* =========================================================
 	 * Config Properties
 	 * ========================================================= */
@@ -138,7 +140,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		this.loader = loader;
 
 		// configure caching manager
-		this.manager = new CacheManager();
+		this.manager = CacheManager.getInstance();
 		
 		// configure with default configuration
 		this.updated(this.getDefaults());
@@ -150,14 +152,9 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	
 	public void terminate() {
 		// clear cache
-		this.manager.clearAll();
+		this.manager.removeCache(CACHE_NAME);
+		this.manager = null;
 
-		// unregiser cache
-		this.manager.removalAll();
-
-		// shutdown cache manager
-		this.manager.shutdown();
-		
 		// cleanup http-client
 		if (this.connectionManager != null) {
 			this.connectionManager.shutdown();
@@ -225,11 +222,11 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			this.w.lock();
 			
 			// remove old cache
-			this.manager.removeCache("robotsTxtCache");
+			this.manager.removeCache(CACHE_NAME);
 			this.cache = null;
 			
 			// init a new cache 
-			this.cache = new Cache("robotsTxtCache", ((Integer) configuration.get(PROP_MAX_CACHE_SIZE)).intValue(), false, false, 60*60, 30*60);
+			this.cache = new Cache(CACHE_NAME, ((Integer) configuration.get(PROP_MAX_CACHE_SIZE)).intValue(), false, false, 60*60, 30*60);
 			this.manager.addCache(this.cache);
 			
 			// shutdown old connection-manager

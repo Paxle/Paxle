@@ -43,6 +43,8 @@ import org.paxle.core.queue.ICommandTracker;
 import org.paxle.data.db.ICommandDB;
 
 public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, ICommandProfileManager, EventHandler {
+	private static final String CACHE_NAME = "DoubleURLCache";
+	
 	private static final int MAX_IDLE_SLEEP = 60000;
 	private static final boolean USE_DOMAIN_BALANCING = false;
 
@@ -150,10 +152,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			 * Init Cache
 			 * =========================================================================== */		
 			// configure caching manager
-			this.manager = new CacheManager();
+			this.manager = CacheManager.getInstance();
 			
 			// init a new cache 
-			this.urlExistsCache = new Cache("DoubleURLCache", 100000, false, false, 60*60, 30*60);
+			this.urlExistsCache = new Cache(CACHE_NAME, 100000, false, false, 60*60, 30*60);
 			this.manager.addCache(this.urlExistsCache);
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -252,9 +254,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			}
 
 			// flush cache
-			this.manager.clearAll();
-			this.manager.removalAll();
-			this.manager.shutdown();
+			this.manager.removeCache(CACHE_NAME);
+			this.manager = null;
 		}finally {
 			this.closed = true;
 		}
