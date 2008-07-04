@@ -748,7 +748,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 
 		@SuppressWarnings("unchecked")
 		public Collection<URI> call() throws Exception {
+			String oldThreadName = Thread.currentThread().getName();
 			try {
+				Thread.currentThread().setName(String.format("Robots.txt: %s", this.baseUri));
+				
 				long start = System.currentTimeMillis(); 
 				Collection<URI> disallowedList = isDisallowed(this.baseUri, this.uriList);
 				long end = System.currentTimeMillis();
@@ -768,6 +771,8 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 						this.baseUri.toASCIIString()
 				),e);
 				return Collections.EMPTY_LIST;
+			} finally {
+				Thread.currentThread().setName(oldThreadName);
 			}
 		}
 
