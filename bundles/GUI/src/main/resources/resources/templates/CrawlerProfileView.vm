@@ -1,0 +1,117 @@
+#if(${manager.getService("org.paxle.core.queue.ICommandProfileManager")})
+<fieldset>
+	<legend>Command Profile</legend>
+	<table>
+	<tr>
+		<th>Name</th>
+		<th>Value</th>
+		<th>Description</th>
+	</tr>
+	
+	<tr>
+		<td>Profile Name:</td>
+		<td><input type="text" id="crawlDepth" name="profileName" value="$!defaultName"/></td>
+		<td>&nbsp;</td>
+	</tr>
+	
+	<tr>
+		<td>Crawl Depth:</td>
+		<td><input type="text" id="crawlDepth" name="crawlDepth" value="$!defaultDepth"/></td>
+		<td>&nbsp;</td>
+	</tr>
+	
+	<!-- restrict URIs -->
+	#set($toggleSpecificLinks = "Effect.toggle('specificLinks', 'appear', { delay: 0, duration: 0 });")
+	<tr>
+		<td>Filter URLs</td>
+		<td>
+			<input id="crawlAllLinks" type="radio" checked="checked" value="all" name="linkMode" onclick="$toggleSpecificLinks"/>
+			<label for="crawlAllLinks">All links</label>
+			<br/>
+			<input id="crawlSpecificLinks" type="radio" value="specific" name="linkMode" onclick="$toggleSpecificLinks"/>
+			<label for="crawlSpecificLinks">Restrict to  specific link(s)</label>
+			
+			<div id="specificLinks">
+				<input id="useRegexpFilter" type="radio" value="regexp" name="linkFilterMode" checked="checked"/>
+				<label for="useRegexpFilter">Use reg.exp Filter: </label>
+				<input type="text" id="links.regexpFilter" name="linkFilterExpressionRegexp" value=".*"/>
+			</div>
+		</td>
+		<td>&nbsp;</td>
+	</tr>
+    <script type="text/javascript" language="javascript">
+      // <![CDATA[
+	  	$toggleSpecificLinks
+      // ]]>
+    </script>		
+	
+	<!-- restrict protocols -->
+	#set($toggleSpecificProtocols = "Effect.toggle('specificProtocols', 'appear', { delay: 0, duration: 0 });")
+	<tr>
+		<td>Protocols:</td>
+		<td>				
+			<input id="crawlAllProtocols" type="radio" checked="checked" value="all" name="protocolMode" onclick="$toggleSpecificProtocols"/>
+			<label for="crawlAllProtocols">All supported protocols</label>
+			<br/>
+			<input id="crawlSpecificProtocols" type="radio" value="specific" name="protocolMode" onclick="$toggleSpecificProtocols"/>
+			<label for="crawlSpecificProtocols">
+				Restrict to  specific protocol(s)
+				<br/><font color="red">Not functional yet!</font>
+			</label>
+			
+			<div id="specificProtocols">
+    			#set($subCrawlerManager = $manager.getService( "org.paxle.crawler.ISubCrawlerManager"))
+    			#set($protocols = $subCrawlerManager.getProtocols())
+    			<select name="protocols" size="5" multiple="multiple">
+    				#foreach($protocol in $protocols)
+    					<option selected="selected">$protocol</option>
+    				#end
+    			</select>			
+			</div>
+		</td>
+		<td>Restrict crawling to a given set of protocols</td>
+	</tr>
+    <script type="text/javascript" language="javascript">
+      // <![CDATA[
+	  	$toggleSpecificProtocols
+      // ]]>
+    </script>		
+	
+	<!-- restrict mime-types -->
+	#set($toggleSpecificMimeTypes = "Effect.toggle('specificMimeTypes', 'appear', { delay: 0, duration: 0 });")
+	<tr>
+		<td>Mime-Types:</td>	
+		
+		<td>	
+			<input id="crawlAllMimetypes" type="radio" checked="checked" value="all" name="mimetypeMode"  onclick="$toggleSpecificMimeTypes"/>
+			<label for="crawlAllMimetypes">All supported mime-types</label>
+			<br/>
+			<input id="crawlSpecificMimetypes" type="radio" value="specific" name="mimetypeMode"  onclick="$toggleSpecificMimeTypes"/>
+			<label for="crawlSpecificMimetypes">
+				Restrict to specific mime-type(s).
+				<br/><font color="red">Not functional yet!</font>
+			</label>
+			
+			<div id="specificMimeTypes">
+    			#set( $subParserManager = $manager.getService( "org.paxle.parser.ISubParserManager"))
+    			#set( $mimeTypes = $subParserManager.getMimeTypes())
+    			<select name="mimetypes" size="5" multiple="multiple">
+    				#foreach($mimeType in $mimeTypes)
+    					<option selected="selected">$mimeType</option>
+    				#end
+    			</select>
+			</div>
+		</td>
+		<td>Restrict crawling to a given set of mime-types</td>
+	</tr>
+    <script type="text/javascript" language="javascript">
+      // <![CDATA[
+	  	$toggleSpecificMimeTypes
+      // ]]>
+    </script>	
+		
+	</table>
+</fieldset>
+#else
+	<p class="error notInstalled">No command-profile-manager found!</p>	
+#end	
