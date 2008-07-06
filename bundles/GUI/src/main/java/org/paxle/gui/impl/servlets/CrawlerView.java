@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,6 +19,7 @@ import org.apache.velocity.context.Context;
 import org.paxle.core.queue.CommandProfile;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
+import org.paxle.core.queue.ICommandProfile.LinkFilterMode;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
 
@@ -195,22 +197,46 @@ public class CrawlerView extends ALayoutServlet {
 		return template;
 	}
 	
-	private int getDepth(HttpServletRequest request) {
+	private void setProfileDepth(HttpServletRequest request, final CommandProfile profile) {
+		int depth = 0;
 		String depthStr = request.getParameter("crawlDepth");
-		if (depthStr == null) return 0;
 		
-		try {
-			int depth =  Integer.parseInt(depthStr);
-			if (depth < 0) return 0;
-			return depth;
-		} catch (NumberFormatException e){
-			return 0;
+		if (depthStr != null) {		
+			try {
+				depth =  Integer.parseInt(depthStr);
+				if (depth < 0) depth = 0;
+			} catch (NumberFormatException e){
+				depth = 0;
+			}
 		}
+		
+		profile.setMaxDepth(depth);
 	}
 	
-	private String getProfileName(HttpServletRequest request) {
+	private void setProfileName(HttpServletRequest request, final CommandProfile profile) {
 		String name = request.getParameter("profileName");
-		return (name == null) ? "Crawl " + this.formatter.format(new Date()) : name;
+		if (name == null) name = "Crawl " + this.formatter.format(new Date());
+		profile.setName(name);
+	}
+	
+	private void setProfileLinkFilterMode(HttpServletRequest request, final CommandProfile profile) {
+		LinkFilterMode filterMode = LinkFilterMode.none;
+		String filterExpression = null;
+		
+		String linkMode = request.getParameter("linkMode");
+		if (linkMode != null && linkMode.equals("specific")) {
+			String linkFilterMode = request.getParameter("linkFilterMode");
+			if (linkFilterMode != null && linkFilterMode.equals("regexp")) {
+				filterMode = LinkFilterMode.regexp;
+				filterExpression = request.getParameter("linkFilterExpressionRegexp");
+				
+				// check if the pattern is valid
+				Pattern.compile(filterExpression);
+			}
+		}
+		
+		profile.setLinkFilterMode(filterMode);
+		profile.setLinkFilterExpression(filterExpression);
 	}
 	
 	private ICommandProfile createProfile(HttpServletRequest request, Context context) {
@@ -224,8 +250,9 @@ public class CrawlerView extends ALayoutServlet {
 		
 		// create a new profile
 		final CommandProfile profile = new CommandProfile();
-		profile.setMaxDepth(this.getDepth(request));
-		profile.setName(this.getProfileName(request));
+		this.setProfileDepth(request, profile);
+		this.setProfileName(request, profile);
+		this.setProfileLinkFilterMode(request, profile);
 		
 		// store it into the profile-db
 		pm.storeProfile(profile);

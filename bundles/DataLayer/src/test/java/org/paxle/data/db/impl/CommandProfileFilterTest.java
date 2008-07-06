@@ -9,6 +9,10 @@ import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
+import org.paxle.core.queue.Command;
+import org.paxle.core.queue.CommandProfile;
+import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
 
 public class CommandProfileFilterTest extends MockObjectTestCase {
@@ -33,7 +37,13 @@ public class CommandProfileFilterTest extends MockObjectTestCase {
 		}});
 		
 		// check URIs: maxdepth > current-depth
-		this.filter.checkLinks(2, 1, pDoc, new CommandProfileFilter.Counter());
+		final ICommandProfile profile = new CommandProfile();
+		profile.setMaxDepth(2);
+		
+		final ICommand command1 = new Command();
+		command1.setDepth(1);
+		
+		this.filter.checkLinks(profile, command1, pDoc, new CommandProfileFilter.Counter());
 		
 		// no URI must be marked as filter now
 		for (LinkInfo meta: uriMap.values()) {
@@ -41,7 +51,9 @@ public class CommandProfileFilterTest extends MockObjectTestCase {
 		}
 		
 		// check URIs: maxdepth > current-depth
-		this.filter.checkLinks(2, 2, pDoc, new CommandProfileFilter.Counter());
+		final ICommand command2 = new Command();
+		command2.setDepth(2);		
+		this.filter.checkLinks(profile, command2, pDoc, new CommandProfileFilter.Counter());
 		
 		// all URI must be marked as filter now
 		for (LinkInfo meta: uriMap.values()) {

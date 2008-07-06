@@ -148,9 +148,9 @@ public class FilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> impl
 	/**
 	 * @see IFilterQueue#getFilters()
 	 */
-	@SuppressWarnings("unchecked")
 	public List<IFilterContext> getFilters() {
-		return (this.filterList==null)?Collections.EMPTY_LIST:this.filterList;
+		if (this.filterList==null) return Collections.emptyList();
+		return this.filterList;
 	}
 	
 	@Override

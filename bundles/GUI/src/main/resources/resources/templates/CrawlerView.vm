@@ -63,9 +63,9 @@
 			<label for="crawlSpecificLinks">Restrict to  specific link(s)</label>
 			
 			<div id="specificLinks">
-				<input id="useRegexpFilter" type="radio" value="regexp" name="linkFilter" checked="checked"/>
+				<input id="useRegexpFilter" type="radio" value="regexp" name="linkFilterMode" checked="checked"/>
 				<label for="useRegexpFilter">Use reg.exp Filter: </label>
-				<input type="text" id="links.regexpFilter" name="linkRegexpFilter" value=".*"/>
+				<input type="text" id="links.regexpFilter" name="linkFilterExpressionRegexp" value=".*"/>
 			</div>
 		</td>
 		<td>&nbsp;</td>

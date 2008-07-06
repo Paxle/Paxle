@@ -140,9 +140,9 @@ public class FilteringOutputQueue<Cmd extends ICommand> extends OutputQueue<Cmd>
 	/**
 	 * @see IFilterQueue#getFilters()
 	 */
-	@SuppressWarnings("unchecked")
 	public List<IFilterContext> getFilters() {
-		return (this.filterList==null)?Collections.EMPTY_LIST:this.filterList;
+		if (this.filterList==null) return Collections.emptyList();
+		return this.filterList;
 	}
 	
 	@Override

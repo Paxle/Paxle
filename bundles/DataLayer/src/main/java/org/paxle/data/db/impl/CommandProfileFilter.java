@@ -2,6 +2,9 @@ package org.paxle.data.db.impl;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,16 +13,26 @@ import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
+import org.paxle.core.queue.CommandProfile;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
+import org.paxle.core.queue.ICommandProfile.LinkFilterMode;
 
 /**
  * XXX: This is just a fist step. later we'll split this filter into 
  * separate filters for crawler/parser/indexer-core-bundles
  */
 public class CommandProfileFilter implements IFilter<ICommand> {
+	private static final String QUEUE_CRAWLER_IN = "org.paxle.crawler.in";
+	private static final String QUEUE_PARSER_OUT = "org.paxle.parser.out";
+	
+	/* 
+	 * CONSTANTS for default command-profile
+	 */
 	private static final int DEFAULT_DEPTH = 0;
+	private static final LinkFilterMode DEFAULT_LINKFILTER_MODE = LinkFilterMode.none;
+	private static final String DEFAULT_LINKFILTER_EXPR = null;
 
 	/**
 	 * Class to count rejected URI
@@ -50,40 +63,71 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 			// getting the command profile id
 			int profileID = command.getProfileOID();
 
-			int maxDepth;
-			int currentDepth = command.getDepth();
-
-			if (profileID == -1) {
-				// no profile was configured use default settings
-				maxDepth = DEFAULT_DEPTH;
-			} else {
+			// loading the command-profile
+			ICommandProfile profile = null;
+			if (profileID != -1) {
 				// loading profile data
-				ICommandProfile profile = this.profileDB.getProfileByID(profileID);
+				profile = this.profileDB.getProfileByID(profileID);
 				if (profile == null) {
 					this.logger.error(String.format("Unable to fild profile '%d' for command '%s'.",
 							Integer.valueOf(profileID),
 							command.getLocation().toASCIIString()
 					));
-					maxDepth = DEFAULT_DEPTH;
-				} else {	
-					maxDepth = profile.getMaxDepth();
-				}
-			}
+				} 
+			} 
+			
+			// create a dummy profile
+			if (profile == null) profile = createDummyProfile();
 
 			/* 
 			 * TODO: move this into separate filters
 			 */
-			if (context.getTargetID().equals("org.paxle.crawler.in")) {			
-				if (currentDepth > maxDepth) {
+			if (context.getTargetID().equals(QUEUE_CRAWLER_IN)) {
+				/* ================================================
+				 * Check CRAWL_DEPTH
+				 * ================================================ */
+				if (command.getDepth() > profile.getMaxDepth()) {
 					command.setResult(ICommand.Result.Rejected, "Max-depth exceeded.");
-					logger.info(command.getLocation() + " rejected. Max depth exceeded.");
+					logger.info(String.format(
+							"%s rejected. Max depth exceeded. %d > %d.",
+							command.getLocation(),
+							command.getDepth(),
+							profile.getMaxDepth()
+					));
 					return;
 				}
-			} else if (context.getTargetID().equals("org.paxle.parser.out")) {
+				
+				/* ================================================
+				 * Check LINK_FILTER match
+				 * ================================================ */
+				LinkFilterMode filterMode = profile.getLinkFilterMode();
+				String filterExpr = profile.getLinkFilterExpression();
+				
+				if (filterMode.equals(LinkFilterMode.regexp)) {
+					if (!command.getLocation().toASCIIString().matches(filterExpr)) {
+						command.setResult(ICommand.Result.Rejected, "Filtered by reg.exp filter.");
+						logger.info(String.format(
+								"%s rejected. Blocked by regex.filter: %s.",
+								command.getLocation(),
+								filterExpr
+						));
+						return;
+					}
+					
+				}
+			} else if (context.getTargetID().equals(QUEUE_PARSER_OUT)) {
 				final Counter c = new Counter();
-				IParserDocument parserDoc = command.getParserDocument();
-				this.checkLinks(maxDepth, currentDepth, parserDoc, c);
-				logger.info(String.format("Removed %d URLs from reference map(s) of '%s'. Depth limit exceeded.", Integer.valueOf(c.c), command.getLocation())); 
+				final IParserDocument parserDoc = command.getParserDocument();
+				
+				// check all contained links
+				this.checkLinks(profile, command, parserDoc, c);
+				
+				logger.info(String.format(
+						"Blocking %d URLs from reference map(s) of '%s' due to command-profile.", 
+						Integer.valueOf(c.c), 
+						command.getLocation(),
+						profile.getMaxDepth()
+				)); 
 			}
 		} catch (Exception e) {
 			this.logger.error(String.format(
@@ -94,13 +138,25 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 		}
 	}
 
-	void checkLinks(final int maxDepth, final int currentDepth, IParserDocument parserDoc, final Counter c) {
+	private ICommandProfile createDummyProfile() {
+		// create a dummy profile
+		CommandProfile profile = new CommandProfile();
+		profile.setMaxDepth(DEFAULT_DEPTH);
+		profile.setLinkFilterMode(DEFAULT_LINKFILTER_MODE);
+		profile.setLinkFilterExpression(DEFAULT_LINKFILTER_EXPR);
+		return profile;
+	}
+	
+	void checkLinks(final ICommandProfile profile, final ICommand command, IParserDocument parserDoc, final Counter c) {
 		if (parserDoc == null) return;
 
 		// getting the link map
 		Map<URI, LinkInfo> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
-			if (currentDepth + 1 > maxDepth) {
+			/* ================================================
+			 * Check CRAWL_DEPTH
+			 * ================================================ */
+			if (command.getDepth() + 1 > profile.getMaxDepth()) {
 				c.c += linkMap.size();
 
 				// reject all links
@@ -109,12 +165,40 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 					meta.setStatus(Status.FILTERED,"Max. crawl-depth exceeded.");
 				}
 			}
+			
+			/* ================================================
+			 * Check LINK_FILTER match
+			 * ================================================ */
+			LinkFilterMode filterMode = profile.getLinkFilterMode();
+			String filterExpr = profile.getLinkFilterExpression();
+			
+			if (filterMode.equals(LinkFilterMode.regexp)) {
+				Pattern regexpPattern = Pattern.compile(filterExpr);
+				
+				for (Entry<URI, LinkInfo> entry : linkMap.entrySet()) {
+					final URI link = entry.getKey();
+					final LinkInfo meta = entry.getValue();
+					
+					// skip already blocked links
+					if (!meta.hasStatus(Status.OK)) continue;
+					
+					// check against regexp
+			        Matcher m = regexpPattern.matcher(link.toASCIIString());
+			        if (!m.matches()) {
+			        	c.c++;
+			        	meta.setStatus(Status.FILTERED,"Blocked by regexp filter");
+			        }
+				}
+			}
 		}
 
+		/* ================================================
+		 * Check SUB-DOCUMENTS
+		 * ================================================ */	
 		Map<String,IParserDocument> subDocs = parserDoc.getSubDocs();
 		if (subDocs != null) {
 			for (IParserDocument subDoc : subDocs.values()) {
-				this.checkLinks(maxDepth, currentDepth, subDoc, c);
+				this.checkLinks(profile, command, subDoc, c);
 			}
 		}
 	}

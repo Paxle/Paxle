@@ -15,6 +15,14 @@
 		<!-- max crawl depth -->
 		<property name="maxDepth"/>
 		
-		
+		<!-- 
+			LINK FILTERING PROPERTIES
+		 -->
+		 <property name="linkFilterMode">
+			<type name="org.paxle.data.db.impl.EnumUserType">
+				<param name="enumClassName">org.paxle.core.queue.ICommandProfile$LinkFilterMode</param>
+			</type>		 
+		 </property>
+		 <property name="linkFilterExpression"/>
 	</class>
 </hibernate-mapping>

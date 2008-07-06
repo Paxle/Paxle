@@ -1,5 +1,7 @@
 package org.paxle.core.queue;
 
+import java.util.regex.Pattern;
+
 /**
  * TODO:
  *  
@@ -34,6 +36,22 @@ package org.paxle.core.queue;
  * 
  */
 public interface ICommandProfile {
+	
+	/**
+	 * Specifies which mode is used to filter links:
+	 * <table>
+	 * <tr><td><code>none</code></td><td>filtering disabled</td></tr>
+	 * <tr><td><code>regexp</code></td><td>filtering using regular expressions</td></tr>
+	 * </table>
+	 * 
+	 * @see ICommandProfile#setLinkFilterExpression(String)
+	 * @see ICommandProfile#getLinkFilterExpression()
+	 */	
+	public static enum LinkFilterMode {
+		none,
+		regexp
+	}
+	
 	/**
 	 * @return a unique profile-id (needed by Object-EER mapping)
 	 */
@@ -54,4 +72,14 @@ public interface ICommandProfile {
     public String getName();
     
     public void setName(String name);
+    
+    public void setLinkFilterMode(LinkFilterMode mode);
+    public LinkFilterMode getLinkFilterMode();
+    
+    /**
+     * @param filter the expression that is used to filter links. For {@link LinkFilterMode#none} this value is <code>null</code>, 
+	 * for {@link LinkFilterMode#regexp} this is a valid {@link Pattern} in {@link String}-format.
+     */
+    public void setLinkFilterExpression(String filter);
+    public String getLinkFilterExpression();
 }
