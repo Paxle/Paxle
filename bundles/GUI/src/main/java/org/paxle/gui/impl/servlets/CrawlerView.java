@@ -17,6 +17,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.core.queue.CommandProfile;
 import org.paxle.core.queue.ICommandProfile;
+import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
 
@@ -31,11 +32,6 @@ public class CrawlerView extends ALayoutServlet {
 		 * @see org.paxle.data.db.ICommandDB
 		 */
 		private final Object commandDB;
-		
-		/**
-		 * org.paxle.data.db.ICommandProfileDB
-		 */
-		private final Object profileDB;
 		
 		/**
 		 * @see org.paxle.filter.robots.IRobotsTxtManager
@@ -63,11 +59,6 @@ public class CrawlerView extends ALayoutServlet {
 		private Method enqueueCommand = null;
 		
 		/**
-		 * @see org.paxle.core.queue.ICommandProfileManager#storeProfile(ICommandProfile)
-		 */
-		private Method storeProfile = null;
-		
-		/**
 		 * @see org.paxle.core.norm.IReferenceNormalizer#normalizeReference(String)
 		 */
 		private Method normalizeReference = null;
@@ -77,22 +68,17 @@ public class CrawlerView extends ALayoutServlet {
 		 */
 		private ICommandProfile profile = null;
 		
-		private String profileName = null;
-		
-		private int crawlDepth = 0;		
-		
 		private HashMap<String,String> errorUrls = null;
 		
 		@SuppressWarnings("unchecked")
-		public UrlTank(final ServiceManager manager, int crawlDepth, String profileName) throws Exception {
+		public UrlTank(final ServiceManager manager, final ICommandProfile profile) throws Exception {
+			if (profile == null) throw new NullPointerException("The command-profile is null");
+			this.profile = profile;
+			
 			this.commandDB = manager.getService("org.paxle.data.db.ICommandDB");
 			if (this.commandDB == null) throw new Exception("Command-DB not available");
 			this.enqueueCommand = this.commandDB.getClass().getMethod("enqueue", URI.class, int.class, int.class);
 			this.doubleURL = this.commandDB.getClass().getMethod("isKnown", URI.class);
-			
-			this.profileDB = manager.getService("org.paxle.core.queue.ICommandProfileManager");
-			if (this.profileDB == null) throw new Exception("Profile-DB not available");
-			this.storeProfile = this.profileDB.getClass().getMethod("storeProfile", ICommandProfile.class);
 			
 			robotsManager = manager.getService("org.paxle.filter.robots.IRobotsTxtManager");
 			if (robotsManager != null) isDisallowed = robotsManager.getClass().getMethod("isDisallowed", URI.class);
@@ -100,9 +86,6 @@ public class CrawlerView extends ALayoutServlet {
 			normalizer = manager.getService("org.paxle.core.norm.IReferenceNormalizer");
 			if (normalizer == null) throw new Exception("ReferenceNormalizer not available");
 			normalizeReference = normalizer.getClass().getMethod("normalizeReference", String.class);
-			
-			this.crawlDepth = crawlDepth;
-			this.profileName = profileName;
 		}
 		
 		public void putUrl2Crawl(final String location) throws Exception {
@@ -135,18 +118,8 @@ public class CrawlerView extends ALayoutServlet {
 				return;
 			}
 			
-			logger.info("Initiated crawl of URL '" + uri + "'");
-			if (this.profile == null) {
-				// create a new profile
-				this.profile = new CommandProfile();
-				this.profile.setMaxDepth(this.crawlDepth);
-				this.profile.setName(this.profileName);
-				
-				// store it into the profile-db
-				this.storeProfile.invoke(this.profileDB, this.profile);
-			}
-			
 			// store command into DB
+			logger.info("Initiated crawl of URL '" + uri + "'");
 			this.enqueueCommand.invoke(this.commandDB, uri, Integer.valueOf(this.profile.getOID()), Integer.valueOf(0));
 		}
 		
@@ -178,8 +151,7 @@ public class CrawlerView extends ALayoutServlet {
 				// startURL denotes a single URL to crawl entered in an input-field
 				final UrlTank tank = new UrlTank(
 						(ServiceManager)context.get(SERVICE_MANAGER),
-						this.getDepth(request),
-						this.getProfileName(request)
+						this.createProfile(request, context)
 				);
 				tank.putUrl2Crawl(url);
 				context.put("errorUrls", tank.getErrorUrls());
@@ -190,8 +162,7 @@ public class CrawlerView extends ALayoutServlet {
 				// startURL2 contains a whole bunch of URLs to crawl entered in a textarea
 				final UrlTank tank = new UrlTank(
 						(ServiceManager)context.get(SERVICE_MANAGER),
-						this.getDepth(request),
-						this.getProfileName(request)
+						this.createProfile(request, context)
 				);
 				final BufferedReader startURLs = new BufferedReader(new StringReader(url));
 				String line;
@@ -204,8 +175,7 @@ public class CrawlerView extends ALayoutServlet {
 				// startURL denotes a single URL to crawl entered in an input-field
 				final UrlTank tank = new UrlTank(
 						(ServiceManager)context.get(SERVICE_MANAGER),
-						this.getDepth(request),
-						this.getProfileName(request)
+						this.createProfile(request, context)
 				);
 				tank.putUrl2Crawl(url);
 				context.put("errorUrls", tank.getErrorUrls());
@@ -241,5 +211,25 @@ public class CrawlerView extends ALayoutServlet {
 	private String getProfileName(HttpServletRequest request) {
 		String name = request.getParameter("profileName");
 		return (name == null) ? "Crawl " + this.formatter.format(new Date()) : name;
+	}
+	
+	private ICommandProfile createProfile(HttpServletRequest request, Context context) {
+		// getting the service manager
+		final ServiceManager sm = (ServiceManager)context.get(SERVICE_MANAGER);
+		if (sm == null) throw new NullPointerException("No service-manager found.");
+		
+		// getting the profile-manager
+		final ICommandProfileManager pm = (ICommandProfileManager) sm.getService(ICommandProfileManager.class.getName());
+		if (pm == null) throw new NullPointerException("No profile-manager found.");
+		
+		// create a new profile
+		final CommandProfile profile = new CommandProfile();
+		profile.setMaxDepth(this.getDepth(request));
+		profile.setName(this.getProfileName(request));
+		
+		// store it into the profile-db
+		pm.storeProfile(profile);
+		
+		return profile;
 	}
 }

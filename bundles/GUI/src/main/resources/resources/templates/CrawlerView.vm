@@ -29,6 +29,7 @@
 #end
 
 <form action="/crawler" method="post">
+#if(${manager.getService("org.paxle.core.queue.ICommandProfileManager")})
 <fieldset>
 	<legend>Profile</legend>
 	<table>
@@ -51,35 +52,43 @@
 	</tr>
 	
 	<!-- restrict URIs -->
+	#set($toggleSpecificLinks = "Effect.toggle('specificLinks', 'appear', { delay: 0, duration: 0 });")
 	<tr>
 		<td>Filter URLs</td>
 		<td>
-			<input id="crawlAllLinks" type="radio" checked="checked" value="all" name="linkMode" onclick="$('specificLinks').switchOff();"/>
+			<input id="crawlAllLinks" type="radio" checked="checked" value="all" name="linkMode" onclick="$toggleSpecificLinks"/>
 			<label for="crawlAllLinks">All links</label>
 			<br/>
-			<input id="crawlSpecificLinks" type="radio" value="specific" name="linkMode" onclick="$('specificLinks').appear();"/>
+			<input id="crawlSpecificLinks" type="radio" value="specific" name="linkMode" onclick="$toggleSpecificLinks"/>
 			<label for="crawlSpecificLinks">Restrict to  specific link(s)</label>
 			
 			<div id="specificLinks">
+				<input id="useRegexpFilter" type="radio" value="regexp" name="linkFilter" checked="checked"/>
+				<label for="useRegexpFilter">Use reg.exp Filter: </label>
+				<input type="text" id="links.regexpFilter" name="linkRegexpFilter" value=".*"/>
 			</div>
 		</td>
 		<td>&nbsp;</td>
 	</tr>
     <script type="text/javascript" language="javascript">
       // <![CDATA[
-	  	Effect.toggle('specificLinks', 'appear', { delay: 0, duration: 0 });
+	  	$toggleSpecificLinks
       // ]]>
     </script>		
 	
 	<!-- restrict protocols -->
+	#set($toggleSpecificProtocols = "Effect.toggle('specificProtocols', 'appear', { delay: 0, duration: 0 });")
 	<tr>
 		<td>Protocols:</td>
 		<td>				
-			<input id="crawlAllProtocols" type="radio" checked="checked" value="all" name="protocolMode" onclick="$('specificProtocols').switchOff();"/>
+			<input id="crawlAllProtocols" type="radio" checked="checked" value="all" name="protocolMode" onclick="$toggleSpecificProtocols"/>
 			<label for="crawlAllProtocols">All supported protocols</label>
 			<br/>
-			<input id="crawlSpecificProtocols" type="radio" value="specific" name="protocolMode" onclick="$('specificProtocols').appear();"/>
-			<label for="crawlSpecificProtocols">Restrict to  specific protocol(s)</label>
+			<input id="crawlSpecificProtocols" type="radio" value="specific" name="protocolMode" onclick="$toggleSpecificProtocols"/>
+			<label for="crawlSpecificProtocols">
+				Restrict to  specific protocol(s)
+				<br/><font color="red">Not functional yet!</font>
+			</label>
 			
 			<div id="specificProtocols">
     			#set($subCrawlerManager = $manager.getService( "org.paxle.crawler.ISubCrawlerManager"))
@@ -95,20 +104,24 @@
 	</tr>
     <script type="text/javascript" language="javascript">
       // <![CDATA[
-	  	Effect.toggle('specificProtocols', 'appear', { delay: 0, duration: 0 });
+	  	$toggleSpecificProtocols
       // ]]>
     </script>		
 	
 	<!-- restrict mime-types -->
+	#set($toggleSpecificMimeTypes = "Effect.toggle('specificMimeTypes', 'appear', { delay: 0, duration: 0 });")
 	<tr>
 		<td>Mime-Types:</td>	
 		
 		<td>	
-			<input id="crawlAllMimetypes" type="radio" checked="checked" value="all" name="mimetypeMode"  onclick="$('specificMimeTypes').switchOff();"/>
+			<input id="crawlAllMimetypes" type="radio" checked="checked" value="all" name="mimetypeMode"  onclick="$toggleSpecificMimeTypes"/>
 			<label for="crawlAllMimetypes">All supported mime-types</label>
 			<br/>
-			<input id="crawlSpecificMimetypes" type="radio" value="specific" name="mimetypeMode"  onclick="$('specificMimeTypes').appear();"/>
-			<label for="crawlSpecificMimetypes">Restrict to specific mime-type(s)</label>
+			<input id="crawlSpecificMimetypes" type="radio" value="specific" name="mimetypeMode"  onclick="$toggleSpecificMimeTypes"/>
+			<label for="crawlSpecificMimetypes">
+				Restrict to specific mime-type(s).
+				<br/><font color="red">Not functional yet!</font>
+			</label>
 			
 			<div id="specificMimeTypes">
     			#set( $subParserManager = $manager.getService( "org.paxle.parser.ISubParserManager"))
@@ -124,12 +137,15 @@
 	</tr>
     <script type="text/javascript" language="javascript">
       // <![CDATA[
-	  	Effect.toggle('specificMimeTypes', 'appear', { delay: 0, duration: 0 });
+	  	$toggleSpecificMimeTypes
       // ]]>
     </script>	
 		
 	</table>
 </fieldset>
+#else
+	<p class="error notInstalled">No command-profile-manager found!</p>	
+#end	
 
 <fieldset id="dsinglecrawl">
 	<legend>Crawl URL</legend>	

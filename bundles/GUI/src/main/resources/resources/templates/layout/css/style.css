@@ -294,3 +294,7 @@ a.rssFeedLink > img {
 	display: block;
 	margin-bottom: 5px;
 }
+
+#specificLinks, #specificProtocols, #specificMimeTypes {
+	margin-left: 20px;
+}
