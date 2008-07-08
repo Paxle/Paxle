@@ -42,6 +42,7 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.ProxyHost;
+import org.apache.commons.httpclient.RedirectException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -336,9 +337,9 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			if (e instanceof UnknownHostException) {
 				reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
 				status = "Unknown host";
-			} else if (e instanceof CircularRedirectException) {
+			} else if (e instanceof CircularRedirectException || e instanceof RedirectException) {
 				reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
-				logger.debug(String.format("Invalid redirection on host '%s'.",hostPort));
+				logger.debug(String.format("Invalid redirection on host '%s'.",hostPort));				
 			} else if (e instanceof SocketTimeoutException || e instanceof ConnectTimeoutException) {
 				logger.debug(String.format("TimeOut while loading robots.txt from host '%s'.",hostPort));
 			} else if (!(
