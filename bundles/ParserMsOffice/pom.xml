@@ -33,7 +33,8 @@
 							org.osgi.framework;version="1.4",
 							org.apache.commons.logging,
 							org.paxle.core.doc, 
-							org.paxle.core.io.temp, org.paxle.parser
+							org.paxle.core.io.temp, 
+							org.paxle.parser
 						</Import-Package>
 						<DynamicImport-Package>
 							javax.imageio, 
@@ -80,12 +81,12 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>3.0.2-FINAL</version>
+			<version>3.1-FINAL</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-scratchpad</artifactId>
-			<version>3.0.2-FINAL</version>
+			<version>3.1-FINAL</version>
 		</dependency>
 	</dependencies>
 </project>
