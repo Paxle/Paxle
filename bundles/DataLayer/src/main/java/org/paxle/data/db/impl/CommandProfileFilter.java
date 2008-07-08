@@ -1,6 +1,7 @@
 package org.paxle.data.db.impl;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -39,6 +40,21 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 	 */
 	static class Counter {		
 		public int c = 0;
+		public Map<URI, LinkInfo> blocked = new HashMap<URI, LinkInfo>();
+		
+		public String getBlockedURIList() {
+			StringBuilder buf = new StringBuilder();
+			
+			for (Entry<URI, LinkInfo> entry : blocked.entrySet()) {
+				String key = entry.getKey().toASCIIString();
+				LinkInfo meta = entry.getValue();
+				
+				buf.append("\n\t").append(key).append(" | ")
+				   .append(meta.getStatus()).append(" : ").append(meta.getStatusText());
+			}
+			
+			return buf.toString();
+		}
 	}	
 
 	/**
@@ -122,12 +138,18 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 				// check all contained links
 				this.checkLinks(profile, command, parserDoc, c);
 				
-				logger.info(String.format(
+				String logMessage = String.format(
 						"Blocking %d URLs from reference map(s) of '%s' due to command-profile.", 
 						Integer.valueOf(c.c), 
 						command.getLocation(),
 						profile.getMaxDepth()
-				)); 
+				);
+				
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(logMessage + c.getBlockedURIList());
+				} else if (this.logger.isInfoEnabled()) {
+					this.logger.info(logMessage); 
+				}
 			}
 		} catch (Exception e) {
 			this.logger.error(String.format(
@@ -157,13 +179,16 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 			 * Check CRAWL_DEPTH
 			 * ================================================ */
 			if (command.getDepth() + 1 > profile.getMaxDepth()) {
-				c.c += linkMap.size();
 
 				// reject all links
 				for (LinkInfo meta : linkMap.values()) {
 					if (!meta.hasStatus(Status.OK)) continue;
 					meta.setStatus(Status.FILTERED,"Max. crawl-depth exceeded.");
 				}
+				
+				// collect data
+				c.c += linkMap.size();
+				c.blocked.putAll(linkMap);
 			}
 			
 			/* ================================================
@@ -187,6 +212,7 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 			        if (!m.matches()) {
 			        	c.c++;
 			        	meta.setStatus(Status.FILTERED,"Blocked by regexp filter");
+			        	c.blocked.put(link, meta);
 			        }
 				}
 			}
