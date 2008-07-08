@@ -164,6 +164,31 @@ public class RobotsTxtManagerTest extends TestCase {
 		}
 	}
 	
+	/**
+	 * Testing if we correctly accept syntactically incorrect sitemaps directives like
+	 * <code>Sitemap: &lt;xxxx&gt;</code>
+	 */
+	public void testGetSitemapsWithSyntaxError() throws IOException {
+		String hostPort = "xxxxx:80";
+		this.parseAndPutIntoCache("src/test/resources/robots7.txt",hostPort);
+		
+		// expected list of sitemaps
+		ArrayList<URI> expectedSiteMapList = new ArrayList<URI>(Arrays.asList(new URI[]{
+				URI.create("http://textworker.ch/sitemap.xml"),
+				URI.create("http://textworker.ch/sitemap.xml.gz")
+		}));
+		
+		// get the sitemaps
+		Collection<URI> sitemaps = this.manager.getSitemaps("http://" + hostPort);
+		assertNotNull(sitemaps);
+		assertEquals(2, sitemaps.size());
+		
+		ArrayList<URI> actualSitemaps = new ArrayList<URI>(sitemaps);
+		for (URI sitemap : expectedSiteMapList) {
+			ListAssert.assertContains(actualSitemaps, sitemap);
+		}
+	}	
+	
 	public void testGetProperties() throws IOException {
 		String hostPort = "xxxxx:80";
 		this.parseAndPutIntoCache("src/test/resources/robots4.txt",hostPort);

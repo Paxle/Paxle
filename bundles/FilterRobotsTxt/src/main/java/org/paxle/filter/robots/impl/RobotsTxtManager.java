@@ -447,6 +447,11 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 				}
 			} else if (line.toLowerCase().startsWith("Sitemap:".toLowerCase())) {
 				line = line.substring("Sitemap:".length()).trim();
+				
+				// fix for uses that do not understand the syntax of the sitemap directive
+				if (line.startsWith("<") && line.endsWith(">") && line.length() > 2) {
+					line = line.substring(1, line.length()-1);
+				}
 
 				/* 
 				 * According to [1] this "should be the complete URL to the Sitemap" [1]

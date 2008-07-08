@@ -1,0 +1,8 @@
+Sitemap: <http://textworker.ch/sitemap.xml>
+
+User-agent: *
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-mobile.php# BEGIN XML-SITEMAP-PLUGIN
+Sitemap: http://textworker.ch/sitemap.xml.gz
+# END XML-SITEMAP-PLUGIN
