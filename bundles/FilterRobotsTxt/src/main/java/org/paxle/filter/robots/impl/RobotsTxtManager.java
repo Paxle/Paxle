@@ -338,9 +338,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			if (e instanceof UnknownHostException) {
 				reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
 				status = "Unknown host";
+				logger.info(String.format("Unknown host '%s'.",robotsURL.getHost()));	
 			} else if (e instanceof CircularRedirectException || e instanceof RedirectException || e instanceof InvalidRedirectLocationException) {
 				reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
-				logger.debug(String.format("Invalid redirection on host '%s'.",hostPort));				
+				logger.info(String.format("Invalid redirection on host '%s'.",hostPort));				
 			} else if (e instanceof SocketTimeoutException || e instanceof ConnectTimeoutException) {
 				logger.debug(String.format("TimeOut while loading robots.txt from host '%s'.",hostPort));
 			} else if (!(
