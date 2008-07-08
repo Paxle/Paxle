@@ -182,4 +182,19 @@ public class RobotsTxtManagerTest extends TestCase {
 		assertNotNull(props);
 		assertEquals(0, props.size());
 	}
+	
+	/**
+	 * Testing if a Crawl-Delay defined as float is read and rounded properly 
+	 * @throws IOException 
+	 */
+	public void testReatFloatCrawlDelay() throws IOException {
+		String hostPort = "xxxxx:80";
+		this.parseAndPutIntoCache("src/test/resources/robots6.txt",hostPort);
+		
+		Map<String,String> props = this.manager.getRobotsProperties("http://" + hostPort);
+		assertNotNull(props);
+		assertEquals(1, props.size());
+		assertTrue(props.containsKey("Crawl-Delay"));
+		assertEquals("3", props.get("Crawl-Delay"));
+	}
 }

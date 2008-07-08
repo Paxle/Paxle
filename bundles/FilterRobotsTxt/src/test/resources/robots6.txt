@@ -1,0 +1,7 @@
+User-agent: *
+Crawl-delay: 2.5
+Disallow: /cgi-bin/
+Disallow: /listmail_archive
+Disallow: /computing
+
+

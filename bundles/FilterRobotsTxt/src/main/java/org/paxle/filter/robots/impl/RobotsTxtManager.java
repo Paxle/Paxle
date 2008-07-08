@@ -429,14 +429,15 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 				 */
 				try {
 					// just test if it's a valid number
-                	Integer crawlDelay = Integer.valueOf(line);
+                	Float crawlDelayFloat = Float.valueOf(line);
+                	Integer crawlDelay = Integer.valueOf(Math.round(crawlDelayFloat));
                 	if (currentBlock != null) {
                 		currentBlock.addProperty("Crawl-Delay", crawlDelay.toString());
                 	} else {
                 		this.logger.warn(robotsTxt.getHostPort() + ": Crawl-Delay not within a rule block.");
                 	}
 				} catch (Exception e) {
-					this.logger.error(String.format("Invalid sitemaps directive '%s' in robots.txt from host '%s': %s",
+					this.logger.error(String.format("Invalid crawl delay directive '%s' in robots.txt from host '%s': %s",
 							line,
 							robotsTxt.getHostPort(),
 							e.getMessage()
