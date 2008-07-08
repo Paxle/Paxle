@@ -561,22 +561,22 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				respBody.close();
 			}
 		} catch (NoRouteToHostException e) {
-			this.logger.error(String.format("Error crawling %s: %s", requestUri, e.getMessage()));
+			this.logger.warn(String.format("Error crawling %s: %s", requestUri, e.getMessage()));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (UnknownHostException e) {
-			this.logger.error(String.format("Error crawling %s: Unknown host.", requestUri));
+			this.logger.warn(String.format("Error crawling %s: Unknown host.", requestUri));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());	
 		} catch (ConnectException e) {
-			this.logger.error(String.format("Error crawling %s: Unable to connect to host.", requestUri));
+			this.logger.warn(String.format("Error crawling %s: Unable to connect to host.", requestUri));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (ConnectTimeoutException e) {
-			this.logger.error(String.format("Error crawling %s: %s.", requestUri, e.getMessage()));
+			this.logger.warn(String.format("Error crawling %s: %s.", requestUri, e.getMessage()));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (SocketTimeoutException e) {
-			this.logger.error(String.format("Error crawling %s: Connection timeout.", requestUri));
+			this.logger.warn(String.format("Error crawling %s: Connection timeout.", requestUri));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (CircularRedirectException e) {
-			this.logger.error(String.format("Error crawling %s: %s", requestUri, e.getMessage()));
+			this.logger.warn(String.format("Error crawling %s: %s", requestUri, e.getMessage()));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (Throwable e) {
 			String errorMsg;
