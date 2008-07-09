@@ -40,7 +40,7 @@
     </class>
     
     <query name="fromCrawlerQueue"><![CDATA[
-		FROM ICommand as cmd left join fetch cmd.IndexerDocuments WHERE (cmd.result = 'Passed') AND (cmd.resultText is null) AND (cmd.crawlerDocument is null)
+		FROM ICommand as cmd WHERE (cmd.result = 'Passed') AND (cmd.resultText is null) AND (cmd.crawlerDocument is null)
 	]]></query>
 
     <query name="fromParserQueue"><![CDATA[
