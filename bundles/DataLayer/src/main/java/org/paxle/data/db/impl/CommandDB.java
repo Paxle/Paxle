@@ -330,8 +330,9 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			session = this.sessionFactory.openSession();
 			transaction = session.beginTransaction();
 			
-			Query query = session.getNamedQuery("fromCrawlerQueue");			
-			ScrollableResults sr = query.scroll(ScrollMode.FORWARD_ONLY);
+			Query query = session.getNamedQuery("fromCrawlerQueue");
+			query.setFetchSize(limit);
+			ScrollableResults sr = query.scroll(); // (ScrollMode.FORWARD_ONLY);
 			
 			// loop through the available commands
 			while(sr.next() && result.size() < limit) {
