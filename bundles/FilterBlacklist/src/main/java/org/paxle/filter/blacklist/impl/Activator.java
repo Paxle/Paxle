@@ -26,7 +26,7 @@ public class Activator implements BundleActivator {
 		 * Registering the filter
 		 */
 		Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
-		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in", "org.paxle.parser.out"});
+		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in", "org.paxle.parser.out; pos=62"});
 		BlacklistFilter blacklistFilter = new BlacklistFilter(list);
 		bc.registerService(IFilter.class.getName(), blacklistFilter, filterProps);
 		
