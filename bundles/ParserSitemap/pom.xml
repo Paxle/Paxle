@@ -33,12 +33,16 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+						<Bundle-SymbolicName>org.paxle.parser.sitemap</Bundle-SymbolicName>
 						<Export-Package>
 							org.paxle.parser.sitemap,
 							org.paxle.parser.sitemap.api
 						</Export-Package>
 						<Import-Package>
 							org.osgi.framework;version="1.4",
+							javax.servlet.http;resolution:=optional, 
+							org.apache.commons.logging, 
+							org.paxle.core.io.temp,
 							org.paxle.core.doc, 
 							org.paxle.parser,
 							javax.xml.transform, 
@@ -80,7 +84,15 @@
 			<classifier>tests</classifier>
 			<scope>test</scope>
 		</dependency>
+		
+		<!-- dependencies needed by the ping servlet -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.4</version>
+		</dependency>			
 
+		<!-- dependencies needed for parsing -->
 		<dependency>
 			<groupId>stax</groupId>
 			<artifactId>stax</artifactId>
