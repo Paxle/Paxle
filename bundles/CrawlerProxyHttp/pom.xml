@@ -18,6 +18,11 @@
 		<relativePath>../Root/pom.xml</relativePath>
 	</parent>
 
+	<!-- disable testing for this project -->
+	<properties>
+  	  <maven.test.skip>true</maven.test.skip>
+ 	</properties>
+
 	<build>
 		<plugins>
 			<plugin>
