@@ -13,7 +13,7 @@
 	<repositories>
 		<repository>
 			<id>paxle-repository</id>
-			<url>http://repository2.paxle.net/</url>
+			<url>http://maven.repository.paxle.net/</url>
 		</repository>
 		<repository>
 			<id>java.net</id>
@@ -38,6 +38,13 @@
 			<url>http://repository.springsource.com/maven/bundles/external</url>
 		</repository>
 	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven2-repository.dev.java.net</id>
+			<url>http://download.java.net/maven/2</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<properties>
 		<equinox.dependencies>

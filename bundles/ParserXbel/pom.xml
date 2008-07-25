@@ -18,13 +18,6 @@
 		<relativePath>../Root/pom.xml</relativePath>
 	</parent>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>maven2-repository.dev.java.net</id>
-			<url>http://download.java.net/maven/2</url>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -97,6 +90,11 @@
 	</build>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+		</dependency>	
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>ParserCore</artifactId>
