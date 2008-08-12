@@ -8,12 +8,14 @@
     		<th>Profile</th>
     		<th>Command</th>
 			<th>MimeType</th>
+			<th>Size</th>
     	</tr>		
 		#foreach($cmd in $cmdList)
 		<tr>
 			<td>${cmd.getProfileOID()}</td>
 			<td><a href="${cmd.getLocation()}">${cmd.getLocation()}</a></td>
 			<td>$!{cmd.getCrawlerDocument().getMimeType()}</td>
+			<td>$!{cmd.getCrawlerDocument().getSize()}</td>
 		</tr>
 		#end
 	</table>
