@@ -7,11 +7,13 @@
     	<tr>
     		<th>Profile</th>
     		<th>Command</th>
+			<th>MimeType</th>
     	</tr>		
 		#foreach($cmd in $cmdList)
 		<tr>
 			<td>${cmd.getProfileOID()}</td>
 			<td><a href="${cmd.getLocation()}">${cmd.getLocation()}</a></td>
+			<td>$!{cmd.getCrawlerDocument().getMimeType()}</td>
 		</tr>
 		#end
 	</table>
