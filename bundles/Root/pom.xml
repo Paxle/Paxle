@@ -47,10 +47,10 @@
 	</pluginRepositories>
 
 	<properties>
-		<equinox.dependencies>
-			target/dependency/equinox
-		</equinox.dependencies>
+		<equinox.dependencies>target/dependency/equinox</equinox.dependencies>
 		<felix.dependencies>target/dependency/felix</felix.dependencies>
+		<paxle.bundleDocUrl>http://wiki.paxle.net/dev/bundles</paxle.bundleDocUrl>
+		<paxle.bundleUpdateUrl>http://osgi.repository.paxle.net</paxle.bundleUpdateUrl>
 	</properties>
 
 	<issueManagement>

@@ -8,7 +8,7 @@
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
 	<name>Paxle - RSS/Atom/OPML-Feed-Parser</name>
-	<url>http://wiki.paxle.net/dev/bundles/ParserFeed</url>
+	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
 	<parent>
@@ -26,6 +26,9 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
+						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
+						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Export-Package>
 							org.paxle.parser.feed
 						</Export-Package>
