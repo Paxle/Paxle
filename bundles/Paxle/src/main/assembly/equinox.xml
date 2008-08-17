@@ -56,7 +56,7 @@
 			<fileMode>755</fileMode>
 			<source>src/main/resources/equinox/start.sh</source>
 			<outputDirectory>/</outputDirectory>
-			<filtered>false</filtered>
+			<filtered>true</filtered>
 		</file>			
 	</files>
 	<fileSets>

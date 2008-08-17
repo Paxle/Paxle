@@ -53,8 +53,11 @@
 	</pluginRepositories>
 
 	<properties>
-		<!-- Properties used by the dependency plugin to download bundles used by equinox/felix -->
+		<!-- Eclipse Equinox related Properties -->
 		<equinox.dependencies>target/dependency/equinox</equinox.dependencies>
+		<equinox.runtime.jar>org.eclipse.osgi_3.3.1.R33x_v20070828.jar</equinox.runtime.jar>
+		
+		<!-- Apache Felix related Properties -->
 		<felix.dependencies>target/dependency/felix</felix.dependencies>
 	</properties>
 
@@ -93,7 +96,7 @@
 									<artifactId>osgi</artifactId>
 									<version>3.3.1.R33x_v20070828</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.osgi_3.3.1.R33x_v20070828.jar</destFileName>
+									<destFileName>${equinox.runtime.jar}</destFileName>
 								</artifactItem>
 
 								<artifactItem>
@@ -785,8 +788,12 @@
 												<appversion>${pom.version}</appversion>
 												<url>${pom.url}</url>
 												<javaversion>1.5</javaversion>
-												<requiresjdk>yes</requiresjdk>
+												<requiresjdk>no</requiresjdk>
 											</info>
+											<variables>
+												<!-- The jar-name of the equinox runtime -->
+												<variable name="OSGI_RUNTIME_JAR" value="${equinox.runtime.jar}"/>
+											</variables>
 											<guiprefs width="640" height="480" resizable="no">
 												<laf name="looks">
 													<os family="unix" />
@@ -833,6 +840,7 @@
 													<!-- uninstaller shell script -->
 													<fileset dir="@{basedir}/src/main/resources/installers/" includes="uninstall.sh" targetdir="$INSTALL_PATH/Uninstaller"/>
 
+													<!-- open web-gui script -->
 													<fileset dir="@{basedir}/src/main/resources/bin/" includes="launchBrowser.sh" targetdir="$INSTALL_PATH/"/>
 													
 													<!-- make shell scripts executable -->
