@@ -173,7 +173,7 @@ public class OverView extends ALayoutServlet {
 	public long getFreeDiskspaceKb() {
 		try {
 			// for now we just query the paxle directory
-			return FileSystemUtils.freeSpaceKb(new File("/").toString());
+			return FileSystemUtils.freeSpaceKb(new File("/").getCanonicalPath().toString());
 		} catch (IOException e) {
 			this.logger.error(String.format(
 					"Unexpected '%s' while checking free disk space: %s",e.getClass().getName(),e.getMessage()
