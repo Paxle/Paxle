@@ -104,6 +104,12 @@
 
 	<!-- plugin settings -->
 	<build>
+		<!-- Output File Name:
+			The jar names should not include the version number. This is
+			required for bundle update via Bundle-UpdateLocation URL
+		-->
+		<finalName>${project.artifactId}</finalName>	
+	
 		<!-- resources that should be included automatically -->
 		<!--  
         <resources>

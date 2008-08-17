@@ -27,6 +27,7 @@
 		</file>			
 	</files>
 	
+	<!-- Equinox related OSGi bundles -->
 	<fileSets>
 		<fileSet>
 			<directory>${equinox.dependencies}</directory>

@@ -53,9 +53,8 @@
 	</pluginRepositories>
 
 	<properties>
-		<equinox.dependencies>
-			target/dependency/equinox
-		</equinox.dependencies>
+		<!-- Properties used by the dependency plugin to download bundles used by equinox/felix -->
+		<equinox.dependencies>target/dependency/equinox</equinox.dependencies>
 		<felix.dependencies>target/dependency/felix</felix.dependencies>
 	</properties>
 
@@ -725,15 +724,14 @@
 						<inherited>false</inherited>
 						<configuration>
 							<descriptors>
-								<descriptor>
-									src/main/assembly/bundles.xml
-								</descriptor>
-								<descriptor>
-									src/main/assembly/equinox.xml
-								</descriptor>
-								<descriptor>
-									src/main/assembly/felix.xml
-								</descriptor>
+								<!-- an assembly containing all bundles -->
+								<descriptor>src/main/assembly/bundles.xml</descriptor>
+								
+								<!-- an assembly containing all paxle-core-bundles and equinox bundles -->
+								<descriptor>src/main/assembly/equinox.xml</descriptor>
+								
+								<!-- an assembly containing all paxle-core-bundles and felix bundles -->
+								<descriptor>src/main/assembly/felix.xml</descriptor>
 							</descriptors>
 							<outputDirectory>target</outputDirectory>
 							<workDirectory>
