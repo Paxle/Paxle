@@ -750,7 +750,7 @@
 								</goals>
 							</execution>
 						</executions>
-					</plugin>
+					</plugin>				
 
 					<!-- ==================================================================-->
 					<!-- INSTALLER - JAVA                                                  -->
@@ -901,11 +901,34 @@
 					<!-- generated above                                                   -->
 					<!-- ==================================================================-->
 					<plugin>
-						<groupId>
-							com.akathist.maven.plugins.launch4j
-						</groupId>
+						<groupId>com.akathist.maven.plugins.launch4j</groupId>
 						<artifactId>launch4j-maven-plugin</artifactId>
 						<executions>
+							<execution>
+								<id>make-exe-windows</id>
+								<phase>package</phase>
+								<goals>
+									<goal>launch4j</goal>
+								</goals>
+								<configuration>
+									<headerType>gui</headerType>
+									<stayAlive>true</stayAlive>									
+									<outfile>${equinox.dependencies}/start.exe</outfile>
+									<jar>${equinox.dependencies}/${equinox.runtime.jar}</jar>
+									<cmdLine>-refresh -console</cmdLine>
+									<dontWrapJar>false</dontWrapJar>
+									<icon>src/main/resources/img/icon.ico</icon>									
+									<splash>
+										<file>src/main/resources/img/logo.bmp</file>
+										<waitForWindow>false</waitForWindow>
+										<timeout>20</timeout>
+									</splash>
+									<jre>
+										<minVersion>1.5.0</minVersion>
+									</jre>
+								</configuration>
+							</execution>						
+						
 							<execution>
 								<id>make-exe-installer</id>
 								<phase>install</phase>

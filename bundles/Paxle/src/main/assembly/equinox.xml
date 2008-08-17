@@ -45,18 +45,35 @@
 			<outputDirectory>/configuration/</outputDirectory>
 			<filtered>true</filtered>
 		</file>
+		
 		<!--  log4j config file -->
 		<file>
 			<source>src/main/resources/logging/log4j.properties</source>
 			<outputDirectory>/configuration/</outputDirectory>
 			<filtered>false</filtered>
 		</file>	
-		<!-- startup file -->	
+		
+		<!-- startup file - linux -->	
 		<file>
 			<fileMode>755</fileMode>
 			<source>src/main/resources/equinox/start.sh</source>
 			<outputDirectory>/</outputDirectory>
 			<filtered>true</filtered>
+		</file>
+		
+		<!-- startup file - windows -->	
+		<file>
+			<fileMode>755</fileMode>
+			<source>${equinox.dependencies}/start.exe</source>
+			<outputDirectory>/</outputDirectory>
+			<filtered>false</filtered>
+		</file>		
+		
+		<!-- startup config file for exe wrapper-->	
+		<file>
+			<source>src/main/resources/equinox/start.ini</source>
+			<outputDirectory>/</outputDirectory>
+			<filtered>false</filtered>
 		</file>			
 	</files>
 	<fileSets>
