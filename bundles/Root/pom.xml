@@ -123,7 +123,7 @@
 	
 		<!-- central plugin management to set the plugin versions to use -->
 		<pluginManagement>
-			<plugins>
+			<plugins>		
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
@@ -144,6 +144,16 @@
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>2.2</version>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.2-beta-2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-eclipse-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>				
 			</plugins>
 		</pluginManagement>
 
@@ -152,7 +162,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.4</version>
 				<configuration>
 					<downloadSources>true</downloadSources>
 				</configuration>
@@ -162,7 +171,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.2</version>
 				<configuration>
 					<source>1.5</source>
 					<target>1.5</target>
@@ -302,14 +310,12 @@
 			<build>
 				<plugins>
 					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-assembly-plugin</artifactId>
-						<version>2.2-beta-2</version>
 						<inherited>true</inherited>
 						<configuration>
 							<descriptors>
-								<descriptor>
-									../Root/src/main/assembly/debug.xml
-								</descriptor>
+								<descriptor>../Root/src/main/assembly/debug.xml</descriptor>
 							</descriptors>
 							<outputDirectory>../</outputDirectory>
 							<workDirectory>target/assembly/debug</workDirectory>	
