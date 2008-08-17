@@ -822,7 +822,7 @@
 												<panel classname="HelloPanel"/>
 												<panel classname="LicencePanel"/>
 												<panel classname="TargetPanel"/>
-												<panel classname="PacksPanel"/>
+												<panel classname="TreePacksPanel"/>
 												<panel classname="InstallPanel"/>
 												<panel classname="ShortcutPanel"/>
 												<panel classname="SimpleFinishPanel"/>
@@ -859,8 +859,12 @@
 													<singlefile src="@{basedir}/src/main/resources/img/icon.ico" target="$INSTALL_PATH/img/icon.ico" />
 												</pack>
 												
+												<pack id="GUIs" name="User Interfaces" required="no" preselected="yes">
+													<description>Paxle User Interfaces</description>
+												</pack>
+												
 												<!-- desktop integration -->
-												<pack id="DI" name="Desktop" required="no" preselected="yes">
+												<pack id="DI" name="Desktop" parent="GUIs" required="no" preselected="yes">
 													<description>Desktop Integration</description>
 													
 													<fileset dir="@{basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">
@@ -870,7 +874,7 @@
 												</pack>
 												
 												<!-- HTTP GUI -->
-												<pack id="GUI" name="Http-GUI" required="no" preselected="yes">
+												<pack id="GUI" name="Http-GUI" parent="GUIs" required="no" preselected="yes">
 													<description>Http GUI</description>
 													
 													<fileset dir="@{basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">
