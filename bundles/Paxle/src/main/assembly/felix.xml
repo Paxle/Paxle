@@ -29,6 +29,9 @@
 				<outputDirectory>/bundle/</outputDirectory>
 				<unpack>false</unpack>
 				<includeDependencies>false</includeDependencies>
+				
+				<!-- The bundle-names should not include the version number (required for update URL) -->
+				<outputFileNameMapping>${module.artifactId}.${module.extension}</outputFileNameMapping>				
 			</binaries>
 		</moduleSet>
 	</moduleSets>
