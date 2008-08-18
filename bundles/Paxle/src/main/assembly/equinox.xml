@@ -69,7 +69,7 @@
 			<filtered>false</filtered>
 		</file>		
 		
-		<!-- startup config file for exe wrapper-->	
+		<!-- startup config file for start.sh/start.exe -->	
 		<file>
 			<source>src/main/resources/equinox/start.ini</source>
 			<outputDirectory>/</outputDirectory>

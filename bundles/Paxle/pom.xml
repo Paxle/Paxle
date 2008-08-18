@@ -920,7 +920,7 @@
 									<icon>src/main/resources/img/icon.ico</icon>									
 									<splash>
 										<file>src/main/resources/img/logo.bmp</file>
-										<waitForWindow>false</waitForWindow>
+										<waitForWindow>true</waitForWindow>
 										<timeout>20</timeout>
 									</splash>
 									<jre>
