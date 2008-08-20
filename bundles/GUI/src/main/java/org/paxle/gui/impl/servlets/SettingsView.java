@@ -8,12 +8,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -461,13 +462,19 @@ public class SettingsView extends ALayoutServlet {
 			return;
 		}
 		
+		Configuration config = configAdmin.getConfiguration(pid, bundle.getLocation());
+		if (config == null) {
+			context.put(ERROR_MSG, "Configuration object not found.");
+			return;
+		}
+		
 		MetaTypeInformation metaTypeInfo = metaType.getMetaTypeInformation(bundle);
 		if (metaTypeInfo == null) {
 			context.put(ERROR_MSG, String.format("No MetaTypeInformation found for service with PID '%s'.",pid));
 			return;
 		}
 		
-		String locale = "en";
+		String locale = Locale.ENGLISH.getLanguage();
 		ObjectClassDefinition ocd = metaTypeInfo.getObjectClassDefinition(pid, locale);
 		if (ocd == null) {
 			context.put(ERROR_MSG, String.format("No ObjectClassDefinition found for service with PID '%s' and locale '%s'.",pid,locale));
@@ -481,69 +488,149 @@ public class SettingsView extends ALayoutServlet {
 		}
 		
 		for(AttributeDefinition attribute : attributes) {
+			// getting metadata
 			String attributeID = attribute.getID();
 			String[] attributeDefaults = attribute.getDefaultValue();
 			int attributeType = attribute.getType();
-			Object attributeValue = null;
+			int cardinality = attribute.getCardinality();			
 			
-			String attributeValueStr = request.getParameter(attributeID);
-			if (attributeValueStr == null && attributeDefaults != null && attributeDefaults.length == 1) {
-				attributeValueStr = attributeDefaults[0];
-			}
+			// getting configured values
+			String[] attributeValueStrings = request.getParameterValues(attributeID);
 			
-			if(attributeValueStr != null) {				
-				// validate value
-				String validationProblem = attribute.validate(attributeValueStr);
-				if (validationProblem != null && validationProblem.length() > 0) {
-					context.put(ERROR_MSG, String.format("Parameter '%s' has a wrong value: %s",attributeID,validationProblem));
-					return;
-				}
-				
-				try {
+			// if no values were found use defaults for the initial configuration
+			/*
+			if (attributeValueStrings == null && attributeDefaults != null && attributeDefaults.length > 0) {
+				attributeValueStrings = attributeDefaults;
+			}	
+			*/		
+			
+			// init result structure
+			Object finalAttributeValues = null;
+			if (cardinality != 0) {				
+				if (cardinality > 1) {
+					int valueArraySize = Math.min(cardinality, attributeValueStrings==null?0:attributeValueStrings.length);
+					
+					// the attribute-value-list must be an array of ....
 					switch (attributeType) {
 						case AttributeDefinition.BOOLEAN:
-							attributeValue = Boolean.valueOf(attributeValueStr);
+							finalAttributeValues = new boolean[valueArraySize];
 							break;
 						case AttributeDefinition.BYTE:
-							attributeValue = Byte.valueOf(attributeValueStr);
+							finalAttributeValues = new byte[valueArraySize];
 							break; 
 						case AttributeDefinition.CHARACTER:
-	//						attributeValue = Character.
+							finalAttributeValues = new char[valueArraySize];
 							break; 
 						case AttributeDefinition.DOUBLE:
-							attributeValue = Double.valueOf(attributeValueStr);
+							finalAttributeValues = new double[valueArraySize];
 							break; 
 						case AttributeDefinition.FLOAT:
-							attributeValue = Float.valueOf(attributeValueStr);
+							finalAttributeValues = new float[valueArraySize];
 							break; 
 						case AttributeDefinition.INTEGER:
-							attributeValue = Integer.valueOf(attributeValueStr);
+							finalAttributeValues = new int[valueArraySize];
 							break; 
 						case AttributeDefinition.LONG:
-							attributeValue = Long.valueOf(attributeValueStr);
+							finalAttributeValues = new long[valueArraySize];
 							break; 
 						case AttributeDefinition.SHORT:
-							attributeValue = Short.valueOf(attributeValueStr);
+							finalAttributeValues = new short[valueArraySize];
 							break; 
 						case AttributeDefinition.STRING:
-							attributeValue = attributeValueStr;
+							finalAttributeValues = new String[valueArraySize];
 							break; 
 						default:
 							break;
+					}
+				} else {
+					// the attribute-value list must be a vector
+					finalAttributeValues = new Vector<Object>();
+				}
+			}			
+			
+			if(attributeValueStrings != null) {								
+				try {
+					int counter = 0;
+					for (String attributeValueString : attributeValueStrings) {
+						if (cardinality != 0 && (counter + 1 > Math.abs(cardinality))) {
+							context.put(ERROR_MSG, String.format("Too many values found for parameter '%s': %d",attributeID,counter+1));
+							return;
+						}
+
+						// validate value
+						String validationProblem = attribute.validate(attributeValueString);
+						if (validationProblem != null && validationProblem.length() > 0) {
+							context.put(ERROR_MSG, String.format("Parameter '%s' has a wrong value: %s",attributeID,validationProblem));
+							return;
+						}
+
+						// convert value
+						Object finalAttributeValue = null;
+						switch (attributeType) {
+							case AttributeDefinition.BOOLEAN:
+								finalAttributeValue = Boolean.valueOf(attributeValueString);
+								if (cardinality >= 1) ((boolean[])finalAttributeValues)[counter] = ((Boolean)finalAttributeValue).booleanValue();
+								else if (cardinality <= -1) ((Vector<Boolean>)finalAttributeValues).add((Boolean)finalAttributeValue);
+								break;
+							case AttributeDefinition.BYTE:
+								finalAttributeValue = Byte.valueOf(attributeValueString);
+								if (cardinality >= 1) ((byte[])finalAttributeValues)[counter] = ((Byte)finalAttributeValue).byteValue();
+								else if (cardinality <= -1) ((Vector<Byte>)finalAttributeValues).add((Byte)finalAttributeValue);								
+								break; 
+							case AttributeDefinition.CHARACTER:
+								//						attributeValue = Character.
+								break; 
+							case AttributeDefinition.DOUBLE:
+								finalAttributeValue = Double.valueOf(attributeValueString);
+								if (cardinality >= 1) ((double[])finalAttributeValues)[counter] = ((Double)finalAttributeValue).doubleValue();
+								else if (cardinality <= -1) ((Vector<Double>)finalAttributeValues).add((Double)finalAttributeValue);							
+								break; 
+							case AttributeDefinition.FLOAT:
+								finalAttributeValue = Float.valueOf(attributeValueString);
+								if (cardinality >= 1) ((float[])finalAttributeValues)[counter] = ((Float)finalAttributeValue).floatValue();
+								else if (cardinality <= -1) ((Vector<Float>)finalAttributeValues).add((Float)finalAttributeValue);								
+								break; 
+							case AttributeDefinition.INTEGER:
+								finalAttributeValue = Integer.valueOf(attributeValueString);
+								if (cardinality >= 1) ((int[])finalAttributeValues)[counter] = ((Integer)finalAttributeValue).intValue();
+								else if (cardinality <= -1) ((Vector<Integer>)finalAttributeValues).add((Integer)finalAttributeValue);								
+								break; 
+							case AttributeDefinition.LONG:
+								finalAttributeValue = Long.valueOf(attributeValueString);
+								if (cardinality >= 1) ((long[])finalAttributeValues)[counter] = ((Long)finalAttributeValue).longValue();
+								else if (cardinality <= -1) ((Vector<Long>)finalAttributeValues).add((Long)finalAttributeValue);								
+								break; 
+							case AttributeDefinition.SHORT:
+								finalAttributeValue = Short.valueOf(attributeValueString);
+								if (cardinality >= 1) ((short[])finalAttributeValues)[counter] = ((Short)finalAttributeValue).shortValue();
+								else if (cardinality <= -1) ((Vector<Short>)finalAttributeValues).add((Short)finalAttributeValue);								
+								break; 
+							case AttributeDefinition.STRING:
+								finalAttributeValue = attributeValueString;
+								if (cardinality >= 1) ((String[])finalAttributeValues)[counter] = (String) attributeValueString;
+								else if (cardinality <= -1) ((Vector<String>)finalAttributeValues).add((String)finalAttributeValue);								
+								break; 
+							default:
+								break;
+						}
+						
+						if (cardinality == 0) {
+							finalAttributeValues = finalAttributeValue;
+						} 
+						counter++;
 					}
 				} catch (NumberFormatException e) {
 					context.put(ERROR_MSG, String.format("The supplied parameter has a wront format: %s",e.getMessage()));
 					return;
 				}
+			}
 				
-				if (attributeValue != null) {
-					props.put(attributeID, attributeValue);
-				}
-			}					
+			if (finalAttributeValues != null) {
+				props.put(attributeID, finalAttributeValues);
+			}				
 		}
 		
 		// update configuration		
-		Configuration config = configAdmin.getConfiguration(pid, bundle.getLocation());
 		config.update(props);			
 	}
 	
@@ -559,7 +646,7 @@ public class SettingsView extends ALayoutServlet {
 		if (value != null) {
 			return value;
 		} else if (defaultValues != null && defaultValues.length > 0){
-			return defaultValues[0];
+			return (attribute.getCardinality()==0)?defaultValues[0]:defaultValues;
 		} else {
 			return null;
 		}

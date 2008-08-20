@@ -10,6 +10,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -125,7 +126,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 	 * @see MetaTypeProvider#getLocales()
 	 */
 	public String[] getLocales() {
-		return new String[]{"en"};
+		return new String[]{Locale.ENGLISH.getLanguage()};
 	}
 
 	/**

@@ -62,8 +62,14 @@
 												>
 												#foreach($optionLabel in $optionLabels)
 													#set($idx = $velocityCount - 1)
-													#set($optionValue = ${listTool.get($optionValues,$idx)})
-													<option value="$optionValue" #if($optionValue==$attribValue)selected="selected"#end>$optionLabel</option>                                               
+													#set($optionValue = ${listTool.get($optionValues,$idx)})													
+													<option value="$optionValue"
+														#if(${listTool.isArray($attribValue)})
+															#if(${listTool.contains($attribValue,$optionValue)})selected="selected"#end
+														#else
+															#if($optionValue==$attribValue)selected="selected"#end
+														#end
+													>$optionLabel</option>                                               
 												#end
 												</select>
     										#else 
