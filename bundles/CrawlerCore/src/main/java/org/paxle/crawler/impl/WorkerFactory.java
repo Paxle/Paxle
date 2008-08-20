@@ -2,16 +2,17 @@ package org.paxle.crawler.impl;
 
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
+import org.paxle.crawler.ISubCrawlerManager;
 
 public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 	
-	private final SubCrawlerManager subCrawlerManager;
+	private final ISubCrawlerManager subCrawlerManager;
 
 	/**
 	 * @param subCrawlerManager a reference to the {@link SubCrawlerManager subcrawler-manager} which should
 	 * be passed to a newly created {@link CrawlerWorker}.
 	 */
-	public WorkerFactory(SubCrawlerManager subCrawlerManager) {
+	public WorkerFactory(ISubCrawlerManager subCrawlerManager) {
 		this.subCrawlerManager = subCrawlerManager;
 	}
 	

@@ -1,45 +1,73 @@
 package org.paxle.crawler.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.framework.ServiceReference;
-import org.paxle.core.prefs.Properties;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
+import org.osgi.service.metatype.AttributeDefinition;
+import org.osgi.service.metatype.MetaTypeProvider;
+import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.ISubCrawlerManager;
 
-public class SubCrawlerManager implements ISubCrawlerManager {
-	private static final String DISABLED_PROTOCOLS = ISubCrawlerManager.class.getName() + "." + "disabledProtocols";
+public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, ManagedService {
+	public static final String PID = ISubCrawlerManager.class.getName();
 	
-	private Log logger = LogFactory.getLog(this.getClass());
+	/* ==============================================================
+	 * CM properties
+	 * ============================================================== */
+	private static final String ENABLED_PROTOCOLS = PID + "." + "disabledProtocols";
 	
 	/**
-	 * A {@link HashMap} containing the protocol that is supported by the sub-crawler as key and
-	 * the {@link ServiceReference} as value.
+	 * For logging
 	 */
-	private HashMap<String, ISubCrawler> subCrawlerList = new HashMap<String, ISubCrawler>();
+	private final Log logger = LogFactory.getLog(this.getClass());
+	
+	/**
+	 * A {@link HashMap} containing the protocol that is supported by a sub-crawler as key and
+	 * the {@link ISubCrawler} as value.
+	 */
+	private final HashMap<String, ISubCrawler> subCrawlerList = new HashMap<String, ISubCrawler>();
 
 	/**
-	 * A list of disabled protocols
+	 * A list of enabled crawling protocols
 	 */
-	private Set<String> disabledProtocols = new HashSet<String>();
+	private final Set<String> enabledProtocols = new HashSet<String>();
 	
 	/**
-	 * The properties of this component
+	 * The CM configuration that belongs to this component
 	 */
-	private Properties props = null;
+	private final Configuration config;
 	
-	public SubCrawlerManager(Properties props) {
-		this.props = props;
-		if (this.props != null && this.props.containsKey(DISABLED_PROTOCOLS)) {
-			this.disabledProtocols = this.props.getSet(DISABLED_PROTOCOLS);
+	/**
+	 * @param config the CM configuration that belongs to this component
+	 * @throws IOException
+	 * @throws ConfigurationException
+	 */
+	public SubCrawlerManager(Configuration config) throws IOException, ConfigurationException {
+		if (config == null) throw new NullPointerException("The CM configuration is null");
+		this.config = config;
+		
+		// initialize CM values
+		if (config.getProperties() == null) {
+			config.update(this.getCMDefaults());
 		}
+		
+		// update configuration of this component
+		this.updated(config.getProperties());
 	}
 	
 	/**
@@ -58,7 +86,11 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 		protocol = protocol.toLowerCase();
 		
 		this.subCrawlerList.put(protocol, subCrawler);		
-		this.logger.info(String.format("Crawler for protocol '%s' was installed.",protocol));
+		this.logger.info(String.format(
+				"Crawler '%s' for protocol '%s' was installed.",
+				subCrawler.getClass().getName(),
+				protocol
+		));
 	}
 	
 	/**
@@ -74,8 +106,12 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 		if (protocol == null) throw new NullPointerException("The protocol must not be null");		
 		protocol = protocol.toLowerCase();
 		
-		this.subCrawlerList.remove(protocol);
-		this.logger.info(String.format("Crawler for protocol '%s' was uninstalled.",protocol));
+		ISubCrawler subCrawler = this.subCrawlerList.remove(protocol);
+		this.logger.info(String.format(
+				"Crawler for protocol '%s' was uninstalled.",
+				subCrawler==null?"unknown":subCrawler.getClass().getName(),
+				protocol
+		));
 	}		
 	
 	/**
@@ -89,7 +125,7 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 		if (protocol == null) return null;
 		protocol = protocol.toLowerCase();
 		
-		if (this.disabledProtocols.contains(protocol)) return null;
+		if (!this.enabledProtocols.contains(protocol)) return null;
 		return this.subCrawlerList.get(protocol);
 	}	
 	
@@ -103,7 +139,7 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 		if (protocol == null) return false;
 		protocol = protocol.toLowerCase();
 		
-		if (this.disabledProtocols.contains(protocol)) return false; 
+		if (!this.enabledProtocols.contains(protocol)) return false; 
 		return this.subCrawlerList.containsKey(protocol);
 	}
 
@@ -126,29 +162,164 @@ public class SubCrawlerManager implements ISubCrawlerManager {
 	/**
 	 * @see ISubCrawlerManager#disableProtocol(String)
 	 */
+	@SuppressWarnings("unchecked")
 	public void disableProtocol(String protocol) {
-		if (protocol == null) return;
-		protocol = protocol.toLowerCase();
-		
-		this.disabledProtocols.add(protocol);
-		if (this.props != null) this.props.setSet(DISABLED_PROTOCOLS, this.disabledProtocols);
+		try {
+			if (protocol == null) return;
+			protocol = protocol.toLowerCase();
+
+			// update enabled protocol list
+			this.enabledProtocols.remove(protocol);
+			
+			// updating CM
+			Dictionary<String,Object> props = this.config.getProperties();			
+			props.put(ENABLED_PROTOCOLS, this.enabledProtocols.toArray(new String[this.enabledProtocols.size()]));
+			this.config.update(props);
+		} catch (IOException e) {
+			this.logger.error(e);
+		}
 	}
 
 	/**
 	 * @see ISubCrawlerManager#enableProtocol(String)
 	 */
+	@SuppressWarnings("unchecked")
 	public void enableProtocol(String protocol) {
-		if (protocol == null) return;
-		protocol = protocol.toLowerCase();
-		
-		this.disabledProtocols.remove(protocol);		
-		if (this.props != null) this.props.setSet(DISABLED_PROTOCOLS, this.disabledProtocols);
+		try {
+			if (protocol == null) return;
+			protocol = protocol.toLowerCase();
+
+			// updating enabled protocol list
+			this.enabledProtocols.add(protocol);
+
+			// updating CM
+			Dictionary<String,Object> props = this.config.getProperties();			
+			props.put(ENABLED_PROTOCOLS, this.enabledProtocols.toArray(new String[this.enabledProtocols.size()]));
+			this.config.update(props);
+		} catch (IOException e) {
+			this.logger.error(e);
+		}
 	}
 
 	/**
 	 * @see ISubCrawlerManager#disabledProtocols()
 	 */
 	public Set<String> disabledProtocols() {
-		return Collections.unmodifiableSet(this.disabledProtocols);
+		// get all available protocols and remove enabled protocols
+		HashSet<String> protocols = new HashSet<String>(this.subCrawlerList.keySet());
+		protocols.removeAll(this.enabledProtocols);		
+		return protocols;
+	}
+
+	/**
+	 * @see MetaTypeProvider#getLocales()
+	 */
+	public String[] getLocales() {
+		return new String[]{Locale.ENGLISH.getLanguage()};
+	}
+
+	/**
+	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
+	 */
+	@SuppressWarnings("unchecked")
+	public ObjectClassDefinition getObjectClassDefinition(String id, String locale) {
+		final HashMap<String, ISubCrawler> crawlers = (HashMap<String, ISubCrawler>) this.subCrawlerList.clone();	
+		
+		return new ObjectClassDefinition() {
+			public AttributeDefinition[] getAttributeDefinitions(int filter) {
+				return new AttributeDefinition[]{
+					// Attribute definition for ENABLED_PROTOCOLS
+					new AttributeDefinition(){
+						private String[] getSupportedProtocols() {
+							// get all supported protocols and sort them
+							String[] protocols = crawlers.keySet().toArray(new String[crawlers.size()]);
+							Arrays.sort(protocols);							
+							return protocols;							
+						}
+						
+						public int getCardinality() {
+							return crawlers.size();
+						}
+
+						public String[] getDefaultValue() {
+							return this.getSupportedProtocols();
+						}
+
+						public String getDescription() {
+							return "Crawler protocols that should be enabled";
+						}
+
+						public String getID() {
+							return ENABLED_PROTOCOLS;
+						}
+
+						public String getName() {
+							return "Enabled Protocols";
+						}
+
+						public String[] getOptionLabels() {
+							return this.getSupportedProtocols();
+						}
+
+						public String[] getOptionValues() {
+							return this.getSupportedProtocols();
+						}
+
+						public int getType() {
+							return AttributeDefinition.STRING;
+						}
+
+						public String validate(String value) {
+							return null;
+						}						
+					}	
+				};
+			}
+
+			public String getDescription() {
+				return "Component to manage the available crawlers";
+			}
+
+			public String getID() {
+				return ISubCrawlerManager.class.getName();
+			}
+
+			public InputStream getIcon(int size) throws IOException {
+				return null;
+			}
+
+			public String getName() {				
+				return "Subcrawler Manager";
+			}			
+		};
+	}
+
+	private Hashtable<String,Object> getCMDefaults() {
+		final Hashtable<String,Object> defaults = new Hashtable<String,Object>();
+		
+		// per default http and https should be enabled
+		defaults.put(ENABLED_PROTOCOLS, new String[]{"http","https"});
+		
+		return defaults;
+	}
+	
+	/**
+	 * @see ManagedService#updated(Dictionary)
+	 */
+	public void updated(Dictionary properties) throws ConfigurationException {
+		if (properties == null ) {
+			logger.warn("updated configuration is null");
+			/*
+			 * Generate default configuration
+			 */
+			properties = this.getCMDefaults();
+		}
+		
+		// configuring enabled protocols
+		String[] enabledProtocols = (String[]) properties.get(ENABLED_PROTOCOLS);
+		if (enabledProtocols != null) {
+			this.enabledProtocols.clear();
+			this.enabledProtocols.addAll(Arrays.asList(enabledProtocols));
+		}
 	}
 }

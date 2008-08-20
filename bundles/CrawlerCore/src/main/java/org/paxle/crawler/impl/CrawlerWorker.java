@@ -10,6 +10,7 @@ import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.ISubCrawler;
+import org.paxle.crawler.ISubCrawlerManager;
 
 public class CrawlerWorker extends AWorker<ICommand> {
 	
@@ -18,9 +19,9 @@ public class CrawlerWorker extends AWorker<ICommand> {
 	/**
 	 * A class to manage {@link ISubCrawler sub-crawlers}
 	 */
-	private SubCrawlerManager subCrawlerManager = null;
+	private final ISubCrawlerManager subCrawlerManager;
 		
-	public CrawlerWorker(SubCrawlerManager subCrawlerManager) {
+	public CrawlerWorker(ISubCrawlerManager subCrawlerManager) {
 		this.subCrawlerManager = subCrawlerManager;
 	}
 

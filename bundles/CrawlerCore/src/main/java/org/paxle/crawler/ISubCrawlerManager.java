@@ -10,6 +10,12 @@ public interface ISubCrawlerManager {
 	public Collection<ISubCrawler> getSubCrawlers();
 	
 	/**
+	 * @param protocol the crawling-protocol
+	 * @return a {@link ISubCrawler crawler) supporting the given protocol.
+	 */
+	public ISubCrawler getSubCrawler(String protocol);
+	
+	/**
 	 * @return a list of known but disabled protocols
 	 */
 	public Set<String> disabledProtocols();
