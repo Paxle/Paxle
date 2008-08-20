@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
@@ -244,7 +245,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	}
 
 	public String[] getLocales() {
-		return new String[]{"en"};
+		return new String[]{Locale.ENGLISH.getLanguage()};
 	}
 
 	public ObjectClassDefinition getObjectClassDefinition(String id, String locale) {
