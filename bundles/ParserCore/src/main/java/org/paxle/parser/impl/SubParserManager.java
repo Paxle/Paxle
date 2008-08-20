@@ -1,48 +1,74 @@
 package org.paxle.parser.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceReference;
-import org.paxle.core.prefs.Properties;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
+import org.osgi.service.metatype.AttributeDefinition;
+import org.osgi.service.metatype.MetaTypeProvider;
+import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ISubParserManager;
 
-public class SubParserManager implements ISubParserManager {
-	private static final String DISABLED_MIMETYPES = ISubParserManager.class.getName() + "." + "disabledMimeTypes";
+public class SubParserManager implements ISubParserManager, MetaTypeProvider, ManagedService {
+	public static final String PID = ISubParserManager.class.getName();
+	
+	/* ==============================================================
+	 * CM properties
+	 * ============================================================== */	
+	private static final String ENABLED_MIMETYPES = PID + "." + "disabledMimeTypes";
 	
 	/**
 	 * A {@link HashMap} containing the mime-types that is supported by the sub-parser as key and
 	 * the {@link ServiceReference} as value.
 	 */
-	private HashMap<String, ISubParser> subParserList = new HashMap<String, ISubParser>();
+	private final HashMap<String, ISubParser> subParserList = new HashMap<String, ISubParser>();
 	
 	/**
-	 * A list of disabled mime-types
+	 * A list of enabled mime-types
 	 */
-	private Set<String> disabledMimeTypes = new HashSet<String>();	
-	
-	/**
-	 * The properties of this component
-	 */
-	private Properties props = null;	
-	
+	private final Set<String> enabledMimeTypes = new HashSet<String>();	
+		
 	/**
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
-	public SubParserManager(Properties props) {
-		this.props = props;
-		if (this.props != null && this.props.containsKey(DISABLED_MIMETYPES)) {
-			this.disabledMimeTypes = this.props.getSet(DISABLED_MIMETYPES);
+	/**
+	 * The CM configuration that belongs to this component
+	 */
+	private final Configuration config;	
+	
+	/**
+	 * @param config the CM configuration that belongs to this component
+	 * @throws IOException
+	 * @throws ConfigurationException
+	 */	
+	public SubParserManager(Configuration config) throws IOException, ConfigurationException {
+		if (config == null) throw new NullPointerException("The CM configuration is null");
+		this.config = config;
+		
+		// initialize CM values
+		if (config.getProperties() == null) {
+			config.update(this.getCMDefaults());
 		}
+		
+		// update configuration of this component
+		this.updated(config.getProperties());
 	}
 	
 	/**
@@ -100,7 +126,7 @@ public class SubParserManager implements ISubParserManager {
 	 */
 	public ISubParser getSubParser(String mimeType) {
 		if (mimeType == null) return null;
-		if (this.disabledMimeTypes.contains(mimeType)) return null;
+		if (!this.enabledMimeTypes.contains(mimeType)) return null;
 		return this.subParserList.get(mimeType);
 	}
 	
@@ -111,7 +137,7 @@ public class SubParserManager implements ISubParserManager {
 	 * @return <code>true</code> if the given mime-tpye is supported or <code>false</code> otherwise
 	 */
 	public boolean isSupported(String mimeType) {
-		if (this.disabledMimeTypes.contains(mimeType)) return false;
+		if (!this.enabledMimeTypes.contains(mimeType)) return false;
 		return this.subParserList.containsKey(mimeType);
 	}
 
@@ -135,23 +161,164 @@ public class SubParserManager implements ISubParserManager {
 	/**
 	 * @see ISubParserManager#disableMimeType(String)
 	 */
+	@SuppressWarnings("unchecked")
 	public void disableMimeType(String mimeType) {
-		this.disabledMimeTypes.add(mimeType);
-		if (this.props != null) this.props.setSet(DISABLED_MIMETYPES, this.disabledMimeTypes);
+		try {
+			if (mimeType == null) return;
+			mimeType = mimeType.toLowerCase();
+
+			// update enabled mimetype list
+			this.enabledMimeTypes.remove(mimeType);
+			
+			// updating CM
+			Dictionary<String,Object> props = this.config.getProperties();			
+			props.put(ENABLED_MIMETYPES, this.enabledMimeTypes.toArray(new String[this.enabledMimeTypes.size()]));
+			this.config.update(props);
+		} catch (IOException e) {
+			this.logger.error(e);
+		}
 	}
 
 	/**
 	 * @see ISubParserManager#enableMimeType(String)
 	 */
+	@SuppressWarnings("unchecked")
 	public void enableMimeType(String mimeType) {
-		this.disabledMimeTypes.remove(mimeType);		
-		if (this.props != null) this.props.setSet(DISABLED_MIMETYPES, this.disabledMimeTypes);
+		try {
+			if (mimeType == null) return;
+			mimeType = mimeType.toLowerCase();
+
+			// updating enabled mimetype list
+			this.enabledMimeTypes.add(mimeType);
+
+			// updating CM
+			Dictionary<String,Object> props = this.config.getProperties();			
+			props.put(ENABLED_MIMETYPES, this.enabledMimeTypes.toArray(new String[this.enabledMimeTypes.size()]));
+			this.config.update(props);
+		} catch (IOException e) {
+			this.logger.error(e);
+		}
 	}
 
 	/**
 	 * @see ISubParserManager#disabledMimeType()
 	 */
 	public Set<String> disabledMimeTypes() {
-		return Collections.unmodifiableSet(this.disabledMimeTypes);
+		// get all available protocols and remove enabled protocols
+		HashSet<String> mimeTypes = new HashSet<String>(this.subParserList.keySet());
+		mimeTypes.removeAll(this.enabledMimeTypes);		
+		return mimeTypes;
+	}
+
+	/**
+	 * @see MetaTypeProvider#getLocales()
+	 */
+	public String[] getLocales() {
+		return new String[]{Locale.ENGLISH.getLanguage()};
+	}
+
+	/**
+	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
+	 */
+	@SuppressWarnings("unchecked")
+	public ObjectClassDefinition getObjectClassDefinition(String id, String locale) {
+		final HashMap<String, ISubParser> parsers = (HashMap<String, ISubParser>) this.subParserList.clone();
+		
+		return new ObjectClassDefinition() {
+			public AttributeDefinition[] getAttributeDefinitions(int filter) {
+				return new AttributeDefinition[]{
+					// Attribute definition for ENABLED_MIMETYPES
+					new AttributeDefinition(){
+						private String[] getSupportedMimeTypes() {
+							// get all supported protocols and sort them
+							String[] protocols = parsers.keySet().toArray(new String[parsers.size()]);
+							Arrays.sort(protocols);							
+							return protocols;							
+						}
+						
+						public int getCardinality() {
+							return parsers.size();
+						}
+
+						public String[] getDefaultValue() {
+							return this.getSupportedMimeTypes();
+						}
+
+						public String getDescription() {
+							return "Parser mimetypes that should be enabled";
+						}
+
+						public String getID() {
+							return ENABLED_MIMETYPES;
+						}
+
+						public String getName() {
+							return "Enabled MimeTypes";
+						}
+
+						public String[] getOptionLabels() {
+							return this.getSupportedMimeTypes();
+						}
+
+						public String[] getOptionValues() {
+							return this.getSupportedMimeTypes();
+						}
+
+						public int getType() {
+							return AttributeDefinition.STRING;
+						}
+
+						public String validate(String value) {
+							return null;
+						}						
+					}	
+				};
+			}
+
+			public String getDescription() {
+				return "Component to manage the available parsers";
+			}
+
+			public String getID() {
+				return PID;
+			}
+
+			public InputStream getIcon(int size) throws IOException {
+				return null;
+			}
+
+			public String getName() {				
+				return "Subparser Manager";
+			}			
+		};
+	}
+
+	private Hashtable<String,Object> getCMDefaults() {
+		final Hashtable<String,Object> defaults = new Hashtable<String,Object>();
+		
+		// per default parsing of html and plain-text should be enabled
+		defaults.put(ENABLED_MIMETYPES, new String[]{"text/html","text/plain"});
+		
+		return defaults;
 	}	
+	
+	/**
+	 * @see ManagedService#updated(Dictionary)
+	 */
+	public void updated(Dictionary properties) throws ConfigurationException {
+		if (properties == null ) {
+			logger.warn("updated configuration is null");
+			/*
+			 * Generate default configuration
+			 */
+			properties = this.getCMDefaults();
+		}
+		
+		// configuring enabled protocols
+		String[] enabledMimeTypes = (String[]) properties.get(ENABLED_MIMETYPES);
+		if (enabledMimeTypes != null) {
+			this.enabledMimeTypes.clear();
+			this.enabledMimeTypes.addAll(Arrays.asList(enabledMimeTypes));
+		}
+	}
 }

@@ -5,9 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandProfile;
-import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.parser.ISubParser;
+import org.paxle.parser.ISubParserManager;
 
 /**
  * Filters {@link ICommand commands} out if the mime-type of the
@@ -15,9 +14,9 @@ import org.paxle.parser.ISubParser;
  */
 public class MimeTypeFilter implements IFilter<ICommand> {
 	private Log logger = LogFactory.getLog(this.getClass());
-	private SubParserManager subParserManager = null;
+	private ISubParserManager subParserManager = null;
 	
-	public MimeTypeFilter(SubParserManager subParserManager) {
+	public MimeTypeFilter(ISubParserManager subParserManager) {
 		this.subParserManager = subParserManager;
 	}
 

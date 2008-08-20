@@ -6,10 +6,11 @@ import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
+import org.paxle.parser.ISubParserManager;
 
 public class WorkerFactory implements IWorkerFactory<ParserWorker> {
 	
-	private final SubParserManager subParserManager;
+	private final ISubParserManager subParserManager;
 	private ITempFileManager tempFileManager;
 	private IReferenceNormalizer referenceNormalizer;
 	private IMimeTypeDetector mimeTypeDetector = null; 
@@ -20,7 +21,7 @@ public class WorkerFactory implements IWorkerFactory<ParserWorker> {
 	 *        to the {@link ParserWorker worker-thread} on {@link #createWorker() worker-creation}
 	 */
 	public WorkerFactory(
-			SubParserManager subParserManager,
+			ISubParserManager subParserManager,
 			ITempFileManager tempFileManager,
 			IReferenceNormalizer referenceNormalizer) {
 		this.subParserManager = subParserManager;

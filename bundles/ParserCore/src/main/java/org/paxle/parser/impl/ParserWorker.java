@@ -12,6 +12,7 @@ import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 import org.paxle.parser.ISubParser;
+import org.paxle.parser.ISubParserManager;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 
@@ -20,7 +21,7 @@ public class ParserWorker extends AWorker<ICommand> {
 	/**
 	 * A class to manage {@link ISubParser sub-parsers}
 	 */
-	private SubParserManager subParserManager = null;
+	private ISubParserManager subParserManager = null;
 	
 	/**
 	 * A class to detect mimetypes
@@ -41,7 +42,7 @@ public class ParserWorker extends AWorker<ICommand> {
 	 */
 	private final Log logger = LogFactory.getLog(ParserWorker.class);
 	
-	public ParserWorker(SubParserManager subParserManager) {
+	public ParserWorker(ISubParserManager subParserManager) {
 		this.subParserManager = subParserManager;
 	}
 	

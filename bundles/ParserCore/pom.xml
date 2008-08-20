@@ -36,6 +36,8 @@
 						</Export-Package>
 						<Import-Package>
 							org.osgi.framework;version="1.4",
+							org.osgi.service.cm;version="1.2",
+							org.osgi.service.metatype;version="1.1",							
 							org.apache.commons.logging,
 							org.paxle.core,
 							org.paxle.core.queue, 
