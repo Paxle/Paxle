@@ -93,6 +93,11 @@ public class LhaParserTest extends TestCase {
 				// TODO Auto-generated method stub
 				return null;
 			}
+
+			public boolean isSupported(String mimeType) {
+				// TODO Auto-generated method stub
+				return true;
+			}
 		}, new IMimeTypeDetector() {
 			public String getMimeType(byte[] arg0, String arg1) throws Exception {
 				return EXT_TABLE.get(arg1.substring(arg1.lastIndexOf('.') + 1));
