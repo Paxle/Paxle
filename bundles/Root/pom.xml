@@ -48,7 +48,9 @@
 
 	<properties>
 		<equinox.dependencies>target/dependency/equinox</equinox.dependencies>
+		<equinox.bundledir>bundles</equinox.bundledir>
 		<felix.dependencies>target/dependency/felix</felix.dependencies>
+		
 		<paxle.bundleDocUrl>http://wiki.paxle.net/dev/bundles</paxle.bundleDocUrl>
 		<paxle.bundleUpdateUrl>http://osgi.repository.paxle.net</paxle.bundleUpdateUrl>
 	</properties>

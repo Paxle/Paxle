@@ -31,11 +31,14 @@
 						<Export-Package>
 						</Export-Package>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
-							org.paxle.core.doc,
-							org.paxle.se.search,
-							org.paxle.se.query,
-							org.paxle.se.query.tokens
+							<!-- Paxle Core Bundle -->
+							org.paxle.core.doc;version="[0.1.0,0.2.0)",
+							<!-- Paxle Search-Engine Bundle -->
+							org.paxle.se.search;version="[0.1.0,0.2.0)",
+							org.paxle.se.query;version="[0.1.0,0.2.0)",
+							org.paxle.se.query.tokens;version="[0.1.0,0.2.0)"
 						</Import-Package>
 						<Private-Package>
 							org.paxle.se.provider.paxleinfrastructure.impl
@@ -56,19 +59,20 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.paxle</groupId>
-			<artifactId>SearchEngine</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
+			<version>[,0.2.0)</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-pool</groupId>
 					<artifactId>commons-pool</artifactId>
 				</exclusion>
 			</exclusions>				
+		</dependency>
+		
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>SearchEngine</artifactId>
+			<version>[,0.2.0)</version>
 		</dependency>
 	</dependencies>
 </project>

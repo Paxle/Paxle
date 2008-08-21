@@ -29,24 +29,25 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>					
 						<Export-Package>
-							org.paxle.core.queue,
-							org.paxle.core.threading, 
-							org.paxle.core,
-							org.paxle.core.filter, 
-							org.paxle.core.data,
-							org.paxle.core.doc, 
-							org.paxle.core.mimetype,
-							org.paxle.core.charset, 
-							org.paxle.core.service, 
-							org.paxle.core.io.temp,
-							org.paxle.core.norm,
-							org.paxle.core.crypt, 
-							org.paxle.core.io,
-							org.paxle.core.prefs,
-							org.paxle.util.ac,
-							org.paxle.util.buffer
+							org.paxle.core.queue;version="${pom.version}",
+							org.paxle.core.threading;version="${pom.version}", 
+							org.paxle.core;version="${pom.version}",
+							org.paxle.core.filter;version="${pom.version}", 
+							org.paxle.core.data;version="${pom.version}",
+							org.paxle.core.doc;version="${pom.version}", 
+							org.paxle.core.mimetype;version="${pom.version}",
+							org.paxle.core.charset;version="${pom.version}", 
+							org.paxle.core.service;version="${pom.version}", 
+							org.paxle.core.io.temp;version="${pom.version}",
+							org.paxle.core.norm;version="${pom.version}",
+							org.paxle.core.crypt;version="${pom.version}", 
+							org.paxle.core.io;version="${pom.version}",
+							org.paxle.core.prefs;version="${pom.version}",
+							org.paxle.util.ac;version="${pom.version}",
+							org.paxle.util.buffer;version="${pom.version}"
 						</Export-Package>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.prefs;version="1.1",
 							org.osgi.service.url;version="1.0",
@@ -54,7 +55,9 @@
 							org.osgi.service.cm;version="1.2",
 							org.osgi.service.metatype;version="1.1",
 							org.osgi.service.event;version="1.1",
+							<!-- Logging framework -->
 							org.apache.commons.logging,
+							<!-- Apache Commons Pool -->
 							org.apache.commons.pool;version="1.4",
 							org.apache.commons.pool.impl;version="1.4"
 						</Import-Package>

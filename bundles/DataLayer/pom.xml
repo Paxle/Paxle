@@ -30,17 +30,23 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.event;version="1.1",
+							<!-- Logging framework -->
 							org.apache.commons.logging,
+							<!-- Apache Commons Collection -->
 							org.apache.commons.collections;version="3.2.1",
 							org.apache.commons.collections.*;version="3.2.1",
+							<!-- EhCache -->
 							net.sf.ehcache;version="1.4.1",
 							net.sf.ehcache.*;version="1.4.1",
-							org.paxle.core.data, 
-							org.paxle.core.queue,
-							org.paxle.core.doc, 
-							org.paxle.core.filter,
+							<!-- Paxle Core Bundle -->
+							org.paxle.core.data;version="[0.1.0,0.2.0)", 
+							org.paxle.core.queue;version="[0.1.0,0.2.0)",
+							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
+							org.paxle.core.filter;version="[0.1.0,0.2.0)",
+							<!-- ignoring others -->
 							!*
 						</Import-Package>
 						<DynamicImport-Package>*</DynamicImport-Package>
@@ -50,7 +56,7 @@
 							org.paxle.data.txt.impl
 						</Private-Package>
 						<Export-Package>
-							org.paxle.data.db,
+							org.paxle.data.db;version="${pom.version}",
 							org.hibernate.cache;version="3.2.6.ga"
 						</Export-Package>
 						<Bundle-Activator>
@@ -79,10 +85,11 @@
 	</build>
 
 	<dependencies>
+		<!-- Paxle Core Bundle -->
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>${project.version}</version>
+			<version>[,0.2.0)</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-pool</groupId>

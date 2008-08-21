@@ -7,7 +7,7 @@
 	<artifactId>FilterPlaintextDumper</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - FilterPlaintextDumper</name>
+	<name>Paxle - Filter: PlaintextDumper</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
@@ -30,14 +30,18 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
-							org.paxle.core.doc,
-							org.paxle.core.queue,
-							org.paxle.core.filter, 
-							org.paxle.core.io,
+							<!-- Logging framework -->
 							org.apache.commons.logging,
-						    	org.apache.commons.io;version="1.4",
-							org.apache.commons.io.*;version="1.4"
+							<!-- Apache Commons IO -->
+						    org.apache.commons.io;version="1.4",
+							org.apache.commons.io.*;version="1.4",
+							<!-- Paxle Core Bundle -->
+							org.paxle.core.doc;version="[0.1.0,0.2.0)",
+							org.paxle.core.queue;version="[0.1.0,0.2.0)",
+							org.paxle.core.filter;version="[0.1.0,0.2.0)", 
+							org.paxle.core.io;version="[0.1.0,0.2.0)"
 						</Import-Package>
 						<DynamicImport-Package>
 						</DynamicImport-Package>
@@ -57,7 +61,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
+			<version>[,0.2.0)</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-pool</groupId>

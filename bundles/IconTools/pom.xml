@@ -30,13 +30,18 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4", 
+							<!-- Logging framework -->
 							org.apache.commons.logging,
-							org.paxle.core.io, 							
+							org.apache.log4j,
+							<!-- Apache Commons HttpClient -->
+							org.apache.commons.httpclient.*;version="3.1.0",
+							<!-- Servlet API -->
 							javax.servlet, 
 							javax.servlet.http,
-							org.apache.log4j,
-							org.apache.commons.httpclient.*;version="3.1.0"
+							<!-- Paxle Core Bundle -->
+							org.paxle.core.io;version="[0.1.0,0.2.0)"
 						</Import-Package>
 						<DynamicImport-Package>
 							javax.imageio, 
@@ -77,7 +82,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>${project.version}</version>
+			<version>[,0.2.0)</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-pool</groupId>

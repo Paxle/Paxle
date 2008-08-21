@@ -7,7 +7,7 @@
 	<artifactId>ParserMsOffice</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - MsOffice-Parser</name>
+	<name>Paxle - Parser: MsOffice</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
@@ -30,14 +30,18 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Export-Package>
-							org.paxle.parser.msoffice
+							org.paxle.parser.msoffice;version="${pom.version}"
 						</Export-Package>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
+							<!-- Logging framework -->
 							org.apache.commons.logging,
-							org.paxle.core.doc, 
-							org.paxle.core.io.temp, 
-							org.paxle.parser
+							<!-- Paxle Core -->
+							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
+							org.paxle.core.io.temp;version="[0.1.0,0.2.0)", 
+							<!-- Paxle Parser Core -->
+							org.paxle.parser;version="[0.1.0,0.2.0)"
 						</Import-Package>
 						<DynamicImport-Package>
 							javax.imageio, 
@@ -70,13 +74,26 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.paxle</groupId>
-			<artifactId>ParserCore</artifactId>
-			<version>${project.version}</version>
+			<artifactId>Core</artifactId>
+			<version>[,0.2.0)</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
 		</dependency>
+	
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>ParserCore</artifactId>
-			<version>${project.version}</version>
+			<version>[,0.2.0)</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>ParserCore</artifactId>
+			<version>[,0.2.0)</version>
 			<classifier>tests</classifier>
 			<scope>test</scope>
 		</dependency>

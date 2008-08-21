@@ -7,7 +7,7 @@
 	<artifactId>ParserSitemap</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - Sitemap-Parser</name>
+	<name>Paxle - Parser: Sitemap</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
@@ -31,16 +31,22 @@
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Bundle-SymbolicName>org.paxle.parser.sitemap</Bundle-SymbolicName>
 						<Export-Package>
-							org.paxle.parser.sitemap,
-							org.paxle.parser.sitemap.api
+							org.paxle.parser.sitemap;version="${pom.version}",
+							org.paxle.parser.sitemap.api;version="${pom.version}"
 						</Export-Package>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
-							javax.servlet.http;resolution:=optional, 
+							<!-- Logging framework -->
 							org.apache.commons.logging, 
-							org.paxle.core.io.temp,
-							org.paxle.core.doc, 
-							org.paxle.parser,
+							<!-- Servlet API -->
+							javax.servlet.http;resolution:=optional, 
+							<!-- Paxle Core -->
+							org.paxle.core.io.temp;version="[0.1.0,0.2.0)",
+							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
+							<!-- Paxle Parser Core -->
+							org.paxle.parser;version="[0.1.0,0.2.0)",
+							<!-- XML Parsing API -->
 							javax.xml.transform, 
 							javax.xml.transform.dom, 
 							javax.xml.transform.sax, 
@@ -70,13 +76,25 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>[,0.2.0)</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
+		</dependency>
+		
+		<dependency>
+			<groupId>org.paxle</groupId>
 			<artifactId>ParserCore</artifactId>
-			<version>${project.version}</version>
+			<version>[,0.2.0)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>ParserCore</artifactId>
-			<version>${project.version}</version>
+			<version>[,0.2.0)</version>
 			<classifier>tests</classifier>
 			<scope>test</scope>
 		</dependency>

@@ -7,7 +7,7 @@
 	<artifactId>CryptUtils</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - CryptUtils</name>
+	<name>Paxle - Tools: CryptUtils</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
@@ -30,8 +30,10 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4", 
-							org.paxle.core.crypt
+							<!-- Paxle Core Bundle -->
+							org.paxle.core.crypt;version="[0.1.0,0.2.0)"
 						</Import-Package>
 						<Private-Package>
 							org.paxle.crypt.impl,
@@ -50,7 +52,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>${project.version}</version>
+			<version>[0.1.0-SNAPSHOT,0.2.0)</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-pool</groupId>

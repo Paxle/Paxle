@@ -7,7 +7,7 @@
 	<artifactId>ParserCore</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - ParserCore</name>
+	<name>Paxle - Parser: Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
@@ -31,25 +31,28 @@
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Bundle-SymbolicName>org.paxle.parser</Bundle-SymbolicName>
 						<Export-Package>
-							org.paxle.parser, 
-							org.paxle.parser.iotools
+							org.paxle.parser;version="${pom.version}", 
+							org.paxle.parser.iotools;version="${pom.version}"
 						</Export-Package>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.cm;version="1.2",
 							org.osgi.service.metatype;version="1.1",							
+							<!-- Logging Framework -->
 							org.apache.commons.logging,
-							org.paxle.core,
-							org.paxle.core.queue, 
-							org.paxle.core.threading, 
-							org.paxle.core.filter, 
-							org.paxle.core.doc, 
-							org.paxle.core.charset, 
-							org.paxle.core.io.temp, 
-							org.paxle.core.io, 
-							org.paxle.core.mimetype, 
-							org.paxle.core.norm,
-							org.paxle.core.prefs							
+							<!-- Paxle Core -->
+							org.paxle.core;version="[0.1.0,0.2.0)",
+							org.paxle.core.queue;version="[0.1.0,0.2.0)", 
+							org.paxle.core.threading;version="[0.1.0,0.2.0)", 
+							org.paxle.core.filter;version="[0.1.0,0.2.0)", 
+							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
+							org.paxle.core.charset;version="[0.1.0,0.2.0)", 
+							org.paxle.core.io.temp;version="[0.1.0,0.2.0)", 
+							org.paxle.core.io;version="[0.1.0,0.2.0)", 
+							org.paxle.core.mimetype;version="[0.1.0,0.2.0)", 
+							org.paxle.core.norm;version="[0.1.0,0.2.0)",
+							org.paxle.core.prefs;version="[0.1.0,0.2.0)"							
 						</Import-Package>
 						<Private-Package>
 							org.paxle.parser.impl
@@ -80,7 +83,13 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>${project.version}</version>
+			<version>[,0.2.0)</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 </project>

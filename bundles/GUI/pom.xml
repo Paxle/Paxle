@@ -7,7 +7,7 @@
 	<artifactId>GUI</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - GUI</name>
+	<name>Paxle - UI: Browser</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
@@ -31,10 +31,12 @@
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Bundle-SymbolicName>org.paxle.gui</Bundle-SymbolicName>
 						<Export-Package>
-							org.paxle.gui,
+							org.paxle.gui;version="${pom.version}",
+							<!-- Apache Velocity (Template Engine) -->
 							org.apache.velocity.*
 						</Export-Package>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.http;version="1.2",
 							org.osgi.util.tracker;version="1.3",
@@ -42,28 +44,41 @@
 							org.osgi.service.cm;version="1.2";resolution:=optional,
 							org.osgi.service.metatype;version="1.1";resolution:=optional,
 							org.osgi.service.useradmin;version="1.1";resolution:=optional,
+							<!-- Logging framework -->
 							org.apache.commons.logging, 
+							<!-- Apache Commons Codec -->
 							org.apache.commons.codec.binary,
+							<!-- Apache Commons Collection -->
 							org.apache.commons.collections;version="3.2.1",
 							org.apache.commons.collections.*;version="3.2.1",
+							<!-- Apache Commons IO -->
 							org.apache.commons.io;version="1.4",
+							<!-- Apache Commons FileUpload -->
 							org.apache.commons.fileupload;version="1.2.1",
 						    org.apache.commons.fileupload.disk;version="1.2.1",
 						    org.apache.commons.fileupload.servlet;version="1.2.1",
+						    <!-- Apache Commons Lang -->
 						    org.apache.commons.lang;version="2.4",
 						    org.apache.commons.lang.*;version="2.4",
-						    net.sf.ehcache;version="1.4.1";resolution:=optional,					
+						    <!-- EhCache -->
+						    net.sf.ehcache;version="1.4.1";resolution:=optional,
+						    <!-- Servlet API -->		
 							javax.servlet,
 							javax.servlet.http, 
-							org.paxle.core.data,
-							org.paxle.core.queue, 							
-							org.paxle.p2p;resolution:=optional,
-							org.paxle.se.search;resolution:=optional,
-							org.paxle.se.query;resolution:=optional,
-							org.paxle.core.doc,
-							org.paxle.core,
-							org.paxle.p2p.services;resolution:=optional,
-							org.paxle.data.db;resolution:=optional,
+							<!-- Paxle Core Bundle -->
+							org.paxle.core.data;version="[0.1.0,0.2.0)",
+							org.paxle.core.queue;version="[0.1.0,0.2.0)",
+							org.paxle.core.doc;version="[0.1.0,0.2.0)",
+							org.paxle.core;version="[0.1.0,0.2.0)",
+							<!-- Paxle P2P Bundle -->		
+							org.paxle.p2p;version="[0.1.0,0.2.0)";resolution:=optional,
+							org.paxle.p2p.services;version="[0.1.0,0.2.0)";resolution:=optional,
+							<!-- Paxle Search-Engine Bundle -->
+							org.paxle.se.search;version="[0.1.0,0.2.0)";resolution:=optional,
+							org.paxle.se.query;version="[0.1.0,0.2.0)";resolution:=optional,
+							<!-- Paxle DataLayer Bundle -->
+							org.paxle.data.db;version="[0.1.0,0.2.0)";resolution:=optional,
+							<!-- Other Java classes -->
 							javax.xml,
 							javax.xml.*,
 							org.xml.sax,
@@ -71,6 +86,7 @@
 							org.apache.velocity.*,
 							javax.imageio,
 							javax.imageio.*,
+							<!-- ignore others -->
 							!*
 						</Import-Package>
 						<Private-Package>
@@ -99,7 +115,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>${project.version}</version>
+			<version>[,0.2.0)</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-pool</groupId>
@@ -107,6 +123,13 @@
 				</exclusion>
 			</exclusions>				
 		</dependency>
+		
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>SearchEngine</artifactId>
+			<version>[,0.2.0)</version>
+			<scope>test</scope>
+		</dependency>	
 
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
@@ -203,12 +226,6 @@
 			<groupId>org.jmock</groupId>
 			<artifactId>jmock-junit3</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.paxle</groupId>
-			<artifactId>SearchEngine</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>				
+		</dependency>			
 	</dependencies>
 </project>

@@ -31,15 +31,22 @@
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 					    <Bundle-SymbolicName>org.paxle.gui.openid</Bundle-SymbolicName>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.http;version="1.2", 
+							<!-- Logging framework -->
 							org.apache.commons.logging,
-							org.apache.commons.httpclient.*,
-							org.apache.commons.codec.*,
 							org.apache.log4j,
+							<!-- Apache Commons HttpClient -->
+							org.apache.commons.httpclient.*,
+							<!-- Apache Commons Codec -->
+							org.apache.commons.codec.*,
+							<!-- Servlet API -->
 							javax.servlet, 
 							javax.servlet.http,
+							<!-- Crypto API -->
 							javax.crypto.*,
+							<!-- ignore others -->
 							!*
 						</Import-Package>
 						<DynamicImport-Package>

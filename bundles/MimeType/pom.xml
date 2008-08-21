@@ -7,7 +7,7 @@
 	<artifactId>MimeType</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - MimeType</name>
+	<name>Paxle - Tools: MimeType</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
@@ -30,13 +30,17 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Export-Package>
-							org.paxle.mimetype
+							org.paxle.mimetype;version="${pom.version}"
 						</Export-Package>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4", 
+							<!-- Logging framework -->
 							org.apache.commons.logging,
-							org.paxle.core.mimetype,
-							org.paxle.core.io,
+							<!-- Paxle Core Bundle -->
+							org.paxle.core.mimetype;version="[0.1.0,0.2.0)",
+							org.paxle.core.io;version="[0.1.0,0.2.0)",
+							<!-- Other java classes (needed for XML-parsing) -->
 							org.xml.sax,
 							org.xml.sax.helpers
 						</Import-Package>
@@ -66,7 +70,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>${project.version}</version>
+			<version>[,0.2.0)</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-pool</groupId>

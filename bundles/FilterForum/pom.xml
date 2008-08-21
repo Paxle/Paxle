@@ -7,8 +7,8 @@
 	<artifactId>FilterForum</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - FilterForum</name>
-	<url>http://wiki.paxle.net/dev/bundles/FilterForum</url>
+	<name>Paxle - Filter: Forum</name>
+	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
 	<parent>
@@ -26,11 +26,15 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
+						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
+						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Import-Package>
-							org.osgi.framework,
-							org.paxle.core.filter,
-							org.paxle.core.queue,
-							org.paxle.core.doc
+							<!-- OSGi framework -->
+							org.osgi.framework;version="1.4",
+							org.paxle.core.filter;version="[0.1.0,0.2.0)",
+							org.paxle.core.queue;version="[0.1.0,0.2.0)",
+							org.paxle.core.doc;version="[0.1.0,0.2.0)"
 						</Import-Package>
 						<Private-Package>
 							org.paxle.filter.forum.impl,
@@ -52,7 +56,13 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>${project.version}</version>
-		</dependency>		
+			<version>[0.1.0-SNAPSHOT,0.2.0)</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
+		</dependency>	
 	</dependencies>
 </project>

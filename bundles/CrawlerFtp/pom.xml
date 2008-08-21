@@ -7,7 +7,7 @@
 	<artifactId>CrawlerFtp</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - FTP-Crawler</name>
+	<name>Paxle - Crawler: FTP</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
@@ -30,14 +30,19 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Export-Package>
-							org.paxle.crawler.ftp
+							org.paxle.crawler.ftp;version="${pom.version}"
 						</Export-Package>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.url;version="1.0",
+							<!-- Logging framework -->
 							org.apache.commons.logging,
-							org.paxle.core.doc, 
-							org.paxle.crawler,							
+							<!-- Paxle Core Bundle -->
+							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
+							<!-- Paxle Crawler-Core Bundle -->
+							org.paxle.crawler;version="[0.1.0,0.2.0)",
+							<!-- ignoring others -->						
 							!*
 						</Import-Package>
 						<Private-Package>
@@ -63,8 +68,20 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>[,0.2.0)</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
+		</dependency>	
+	
+		<dependency>
+			<groupId>org.paxle</groupId>
 			<artifactId>CrawlerCore</artifactId>
-			<version>${project.version}</version>
+			<version>[,0.2.0)</version>
 		</dependency>
 
 		<dependency>

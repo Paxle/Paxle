@@ -7,7 +7,7 @@
 	<artifactId>CrawlerProxyHttp</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - Http-Proxy</name>
+	<name>Paxle - Crawler: HTTP-Proxy</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
@@ -35,20 +35,26 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Export-Package>	
-							org.paxle.crawler.proxy
+							org.paxle.crawler.proxy;version="${pom.version}"
 						</Export-Package>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.cm;version="1.2",
 							org.osgi.util.tracker;version="1.3",
 							org.osgi.service.useradmin;version="1.1",
-							org.paxle.crawler, 
-							org.paxle.core.doc,
-							org.paxle.core.data, 
-							org.paxle.core.prefs, 
-							org.paxle.core.queue,							
+							<!-- Logging framework -->
 							org.apache.commons.logging,
-							org.apache.commons.codec.binary,
+							<!-- Paxle Core Bundle -->
+							org.paxle.core.doc;version="[0.1.0,0.2.0)",
+							org.paxle.core.data;version="[0.1.0,0.2.0)", 
+							org.paxle.core.prefs;version="[0.1.0,0.2.0)", 
+							org.paxle.core.queue;version="[0.1.0,0.2.0)",
+							<!-- Paxle Core Crawler Bundle -->
+							org.paxle.crawler;version="[0.1.0,0.2.0)",
+							<!-- Apache Commons Codec (Used for base64 encoding) -->
+							org.apache.commons.codec.binary;version="1.2.0",
+							<!-- other java runtime classes/interfaces -->
 							javax.net.ssl;resolution:=optional,
 							javax.management;resolution:=optional
 						</Import-Package>
@@ -78,10 +84,23 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.paxle</groupId>
-			<artifactId>CrawlerCore</artifactId>
-			<version>${project.version}</version>
+			<artifactId>Core</artifactId>
+			<version>[,0.2.0)</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
 		</dependency>	
 	
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>CrawlerCore</artifactId>
+			<version>[,0.2.0)</version>
+		</dependency>	
+	
+		<!-- XSocket dependencies -->
 		<dependency>
 			<groupId>org.xsocket</groupId>
 			<artifactId>xSocket-http</artifactId>
@@ -93,6 +112,7 @@
 			<version>2.0</version>
 		</dependency>
 		
+		<!-- Apache Commons Codec (used for Base64 encoding) -->
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>

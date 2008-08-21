@@ -56,6 +56,7 @@
 		<!-- Eclipse Equinox related Properties -->
 		<equinox.dependencies>target/dependency/equinox</equinox.dependencies>
 		<equinox.runtime.jar>org.eclipse.osgi_3.3.1.R33x_v20070828.jar</equinox.runtime.jar>
+		<equinox.bundledir>bundles</equinox.bundledir>
 		
 		<!-- Apache Felix related Properties -->
 		<felix.dependencies>target/dependency/felix</felix.dependencies>
@@ -913,11 +914,11 @@
 								<configuration>
 									<headerType>gui</headerType>
 									<stayAlive>true</stayAlive>									
-									<outfile>${equinox.dependencies}/start.exe</outfile>
 									<jar>${equinox.dependencies}/${equinox.runtime.jar}</jar>
+									<outfile>${equinox.dependencies}/start.exe</outfile>
 									<cmdLine>-refresh -console</cmdLine>
 									<dontWrapJar>false</dontWrapJar>
-									<icon>src/main/resources/img/icon.ico</icon>									
+									<icon>src/main/resources/img/icon.ico</icon>								
 									<splash>
 										<file>src/main/resources/img/logo.bmp</file>
 										<waitForWindow>true</waitForWindow>
@@ -972,13 +973,6 @@
 		<module>../ParserPlain</module>
 		<module>../ParserHtml</module>
 		
-		<!-- GUI bundle -->
-		<module>../GUI</module>
-
-		<!-- some tools -->
-		<module>../CharsetDetector</module>
-		<module>../MimeType</module>
-		
 		<!-- search engine bundles -->
 		<module>../SearchEngine</module>
 		<module>../SEProviderPaxleInfrastructure</module>
@@ -986,14 +980,21 @@
 		<!-- indexer bundles -->
 		<module>../Indexer</module>
 		<module>../IndexLucene</module>
+
+		<!-- some tools -->
+		<module>../CharsetDetector</module>
+		<module>../MimeType</module>
 		
 		<!-- datalayer bundles -->
 		<module>../DataLayer</module>
 		<module>../DataLayerDerby</module>
-		
+								
 		<!-- some filters -->
 		<module>../FilterBlacklist</module>
-		<module>../FilterRobotsTxt</module>
+		<module>../FilterRobotsTxt</module>						
+		
+		<!-- GUI bundle -->
+		<module>../GUI</module>		
 		
 		<!-- Desktop Integration -->
 		<module>../DesktopIntegration</module>

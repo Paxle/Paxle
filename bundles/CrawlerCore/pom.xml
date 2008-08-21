@@ -7,7 +7,7 @@
 	<artifactId>CrawlerCore</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - CrawlerCore</name>
+	<name>Paxle - Crawler: Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
@@ -31,24 +31,27 @@
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						<Bundle-SymbolicName>org.paxle.crawler</Bundle-SymbolicName>
 						<Export-Package>
-							org.paxle.crawler
+							org.paxle.crawler;version="${pom.version}"
 						</Export-Package>
 						<Import-Package>
+							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.cm;version="1.2",
 							org.osgi.service.metatype;version="1.1",						
+							<!-- Logging framework -->
 							org.apache.commons.logging,
-							org.paxle.core,
-							org.paxle.core.queue, 
-							org.paxle.core.threading, 
-							org.paxle.core.filter, 
-							org.paxle.core.doc, 
-							org.paxle.core.charset, 
-							org.paxle.core.io.temp, 
-							org.paxle.core.crypt, 
-							org.paxle.core.io, 
-							org.paxle.core.mimetype, 
-							org.paxle.core.prefs							
+							<!-- Paxle Core bundle -->
+							org.paxle.core;version="[0.1.0,0.2.0)",
+							org.paxle.core.queue;version="[0.1.0,0.2.0)", 
+							org.paxle.core.threading;version="[0.1.0,0.2.0)", 
+							org.paxle.core.filter;version="[0.1.0,0.2.0)", 
+							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
+							org.paxle.core.io;version="[0.1.0,0.2.0)",
+							org.paxle.core.io.temp;version="[0.1.0,0.2.0)",
+							org.paxle.core.mimetype;version="[0.1.0,0.2.0)",
+							org.paxle.core.charset;version="[0.1.0,0.2.0)",  
+							org.paxle.core.crypt;version="[0.1.0,0.2.0)",
+							org.paxle.core.prefs;version="[0.1.0,0.2.0)"							
 						</Import-Package>
 						<Private-Package>
 							org.paxle.crawler.impl
@@ -66,7 +69,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>${project.version}</version>
+			<version>[,0.2.0)</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-pool</groupId>
