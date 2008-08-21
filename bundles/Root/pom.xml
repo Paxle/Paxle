@@ -60,6 +60,18 @@
 		<url>https://bugs.pxl.li/</url>
 	</issueManagement>
 
+	<distributionManagement>
+		<snapshotRepository>
+			<id>paxle-snapshot-repository</id>
+			<url>scp://theli@192.168.10.201/home/theli/temp/snapshots</url>
+		</snapshotRepository>
+	
+<!--		<repository>-->
+<!--			<id>paxle-release-repository</id>-->
+<!--			<url>scpexe://theli@tantal.xenim.de:2066/home/users/theli/osgi/m2/</url>-->
+<!--		</repository>-->
+	</distributionManagement>
+
 	<licenses>
 		<license>
 			<name>CPL 1.0</name>

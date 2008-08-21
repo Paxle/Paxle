@@ -70,6 +70,18 @@
 			<comments>Ask if you need an alternative license.</comments>
 		</license>
 	</licenses>
+	
+	<distributionManagement>
+		<snapshotRepository>
+			<id>paxle-snapshot-repository</id>
+			<url>scp://brain/home/theli/temp/snapshots</url>
+		</snapshotRepository>
+	
+<!--		<repository>-->
+<!--			<id>paxle-release-repository</id>-->
+<!--			<url>scpexe://tantal.xenim.de:2066/home/users/theli/osgi/m2/</url>-->
+<!--		</repository>-->
+	</distributionManagement>
 
 	<!-- plugin settings -->
 	<build>
@@ -950,6 +962,36 @@
 									<jre>
 										<minVersion>1.5.0</minVersion>
 									</jre>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- add the installers to the projects artifacts list so that they can be deployed-->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>1.2</version>
+						<executions>
+							<execution>
+								<id>installer-attach-artifacts</id>
+								<phase>install</phase>
+								<goals>
+									<goal>attach-artifact</goal>
+								</goals>
+								<configuration>
+									<artifacts>
+										<artifact>
+											<file>target/${pom.artifactId}-${pom.version}-installer.jar</file>
+											<classifier>installer</classifier>
+											<type>jar</type>
+										</artifact>
+										<artifact>
+											<file>target/${pom.artifactId}-${pom.version}-installer.exe</file>
+											<classifier>installer</classifier>
+											<type>exe</type>
+										</artifact>
+									</artifacts>
 								</configuration>
 							</execution>
 						</executions>
