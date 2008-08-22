@@ -44,6 +44,7 @@
 			<source>src/main/resources/equinox/configuration/config.ini</source>
 			<outputDirectory>/configuration/</outputDirectory>
 			<filtered>true</filtered>
+			<lineEnding>dos</lineEnding>
 		</file>
 		
 		<!--  log4j config file -->
@@ -51,6 +52,7 @@
 			<source>src/main/resources/logging/log4j.properties</source>
 			<outputDirectory>/configuration/</outputDirectory>
 			<filtered>false</filtered>
+			<lineEnding>dos</lineEnding>
 		</file>	
 		
 		<!-- startup file - linux -->	
@@ -74,6 +76,7 @@
 			<source>src/main/resources/equinox/start.ini</source>
 			<outputDirectory>/</outputDirectory>
 			<filtered>false</filtered>
+			<lineEnding>dos</lineEnding>
 		</file>			
 	</files>
 	<fileSets>
