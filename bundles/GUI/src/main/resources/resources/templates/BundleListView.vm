@@ -47,9 +47,15 @@
      	#if( $bundles)
     	#foreach( $entry in $bundles.entrySet())
     	<tr>
-			<td><a class="$states.get( $entry.value.state)" href="?bundleID=$entry.key&amp;action=details">$entry.key</a></td>
-    		<td>
-    			<a class="$states.get( $entry.value.state)" href="?bundleID=$entry.key&amp;action=details">$entry.value.symbolicName</a>
+			#set($bundleState = $states.get($entry.value.state))
+			#set($bundleHeaders = $entry.value.getHeaders())
+			
+			<td><a class="$bundleState" href="?bundleID=$entry.key&amp;action=details">$entry.key</a></td>
+    		<td class="bundle_$bundleState">
+    			<a class="$bundleState" href="?bundleID=$entry.key&amp;action=details">$entry.value.symbolicName</a>
+				#if(($bundleState == 'resolved' || $bundleState == 'installed') && ($bundleHeaders.get("Bundle-Activator")))
+					<br/><font color="red">Bundle installed but not started</font>
+				#end
     		</td>
     		<td>
     			<form action="">
