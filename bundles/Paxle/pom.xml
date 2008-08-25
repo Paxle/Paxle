@@ -74,7 +74,7 @@
 	<distributionManagement>
 		<snapshotRepository>
 			<id>paxle-snapshot-repository</id>
-			<url>scp://brain/home/theli/temp/snapshots</url>
+			<url>${mvn-deploy-url}</url>
 		</snapshotRepository>
 	
 <!--		<repository>-->

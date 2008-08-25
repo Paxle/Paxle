@@ -63,7 +63,7 @@
 	<distributionManagement>
 		<snapshotRepository>
 			<id>paxle-snapshot-repository</id>
-			<url>scp://theli@192.168.10.201/home/theli/temp/snapshots</url>
+			<url>${mvn-deploy-url}</url>
 		</snapshotRepository>
 	
 <!--		<repository>-->
