@@ -564,36 +564,6 @@
 		</plugins>
 	</build>
 
-	<!-- define global dependendies -->
-	<dependencies>
-		<!-- OSGi API -->
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>osgi_R4_core</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>osgi_R4_compendium</artifactId>
-			<version>1.0</version>
-		</dependency>
-
-		<!-- Commons Logging API -->
-		<dependency>
-			<artifactId>commons-logging</artifactId>
-			<groupId>commons-logging</groupId>
-			<version>1.0.4</version>
-		</dependency>
-
-		<!-- Junit Testing -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
 	<profiles>
 		<!-- JRE 6.0 modules -->
 		<profile>
@@ -692,18 +662,12 @@
 						<inherited>false</inherited>
 						<configuration>
 							<descriptors>
-								<descriptor>
-									src/main/assembly/debug.xml
-								</descriptor>
+								<descriptor>src/main/assembly/debug.xml</descriptor>
 							</descriptors>
 							<outputDirectory>../</outputDirectory>
-							<workDirectory>
-								target/assembly/debug
-							</workDirectory>
+							<workDirectory>target/assembly/debug</workDirectory>
 							<finalName>/Debug</finalName>
-							<ignoreDirFormatExtensions>
-								true
-							</ignoreDirFormatExtensions>
+							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
 							<appendAssemblyId>false</appendAssemblyId>
 						</configuration>
 						<executions>
