@@ -38,28 +38,28 @@ input.btnPause, input.btnPause:hover {
 	padding-left: 20px;
 }
 
-input.btnAddUser, input.btnAddUser {
+input.btnAddUser {
 	background-image: url(/images/user_add.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;
 }
 
-input.btnDelUser, input.btnDelUser {
+input.btnDelUser {
 	background-image: url(/images/user_delete.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;
 }
 
-input.btnAddGroup, input.btnAddGroup {
+input.btnAddGroup {
 	background-image: url(/images/group_add.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;
 }
 
-input.btnDelGroup, input.btnDelGroup {
+input.btnDelGroup {
 	background-image: url(/images/group_delete.png);
 	background-repeat: no-repeat;
 	background-position: left center;

@@ -4,7 +4,8 @@
 	
 	#if($paramParser.getString("roleName") || $paramParser.getString("newUser") || $paramParser.getString("newGroup"))
 		#if($paramParser.getString("roleName"))
-			#set($role = $userAdmin.getRole($paramParser.getString("roleName")))
+			#set($roleName = $paramParser.getString("roleName"))
+			#set($role = $userAdmin.getRole($roleName))
 			#if(${role.getType()}==1)
 				#set($roleType = "User")
 			#else
@@ -17,7 +18,7 @@
 				#set($roleType = "Group")
 			#end
 		#else
-			<p class="box error">No role with name $paramParser.getString("roleName") found!</p>
+			<p class="box error">No role with name $roleName found!</p>
 			#stop()			
 		#end
 		
@@ -80,6 +81,9 @@
 				<tr><td>&nbsp;</td>
 					<td>
 						<input class="btnAddUser" type="submit" name="do#if(!$role)Create#{else}Update#{end}$roleType" value="#if(!$role)Create#{else}Update#{end}" />
+						#if($role || $roleName=="Administrator")
+							<input class="btnDelUser" type="submit" name="doDelete$roleType" value="Delete"/>
+						#end
 					</td>
 					<td>&nbsp;</td>
 				</tr>
@@ -105,9 +109,9 @@
     	</table>
     		<form method="post" action="">
 				<p>
-    			<input class="btnAddUser" type="submit" name="newUser" value="New User" />
-    			<input class="btnAddGroup" type="submit" name="newGroup" value="New Group" />
-					</p>
+					<input class="btnAddUser" type="submit" name="newUser" value="New User" />
+					<input class="btnAddGroup" type="submit" name="newGroup" value="New Group" />
+				</p>
     		</form>
 	#end
 #else

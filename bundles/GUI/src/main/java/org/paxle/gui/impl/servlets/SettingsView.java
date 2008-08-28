@@ -117,7 +117,7 @@ public class SettingsView extends ALayoutServlet {
 							this.logger.warn(errorMsg);
 							context.put("errorMsg",errorMsg);
 						}
-					} else {
+					} else if (request.getParameter("doUpdateUser") != null) {
 						user = userAdmin.getRole(name);
 						if (user == null) {
 							String errorMsg = String.format("Unable to find user with name '%s'.",name);
@@ -133,23 +133,35 @@ public class SettingsView extends ALayoutServlet {
 				UserAdmin userAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
 				if (userAdmin != null) {
 					String name = request.getParameter("roleName");
-					Role user = null;
+					Role group = null;
 					if (request.getParameter("doCreateGroup") != null) {
-						user = userAdmin.createRole(name, Role.GROUP);
-						if (user == null) {
+						group = userAdmin.createRole(name, Role.GROUP);
+						if (group == null) {
 							String errorMsg = String.format("Role with name '%s' already exists.",name);
 							this.logger.warn(errorMsg);
 							context.put("errorMsg",errorMsg);
 						}
-					} else {
-						user = userAdmin.getRole(name);
-						if (user == null) {
+					} else if (request.getParameter("doUpdateGroup") != null) {
+						group = userAdmin.getRole(name);
+						if (group == null) {
 							String errorMsg = String.format("Unable to find group with name '%s'.",name);
 							this.logger.warn(errorMsg);
 							context.put("errorMsg",errorMsg);
 						}
 						
 						// XXX nothing to edit at the moment
+					}
+				}
+			} else if (request.getParameter("doDeleteGroup") != null || request.getParameter("doDeleteUser") != null) {
+				UserAdmin userAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
+				if (userAdmin != null) {
+					String name = request.getParameter("roleName");
+					Role role = userAdmin.getRole(name);
+					if (!role.getName().equals("Administrator")) {
+						boolean done = userAdmin.removeRole(name);
+						if (!done) context.put("errorMsg","Unable to delete role");
+					} else {
+						context.put("errorMsg","The administrator can not be deleted.");
 					}
 				}
 				response.sendRedirect("/config?settings=user");
