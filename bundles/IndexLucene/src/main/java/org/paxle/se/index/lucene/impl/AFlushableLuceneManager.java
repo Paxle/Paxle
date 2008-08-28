@@ -143,6 +143,21 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	public void write(final Document document, final Analyzer analyzer) throws IOException, CorruptIndexException {
 		wlock.lock();
 		try {
+			//writer.addDocument(document, analyzer);
+			
+			String location = document.getField(IIndexerDocument.LOCATION.getName()).stringValue();
+			Term term = new Term(IIndexerDocument.LOCATION.getName(), location);
+			System.out.println(IIndexerDocument.LOCATION.getName());
+			System.out.println(document.getField(IIndexerDocument.LOCATION.getName()).stringValue());
+			//writer.updateDocument(term, document, analyzer);
+			TermDocs tmp = reader.termDocs();
+			tmp.skipTo(3);
+			System.out.println("test"+tmp.doc());
+			while(tmp.next()) {
+				System.out.println("test"+tmp.doc());
+			}
+			int deleteCount = reader.deleteDocuments(term);
+			System.out.println(deleteCount);
 			writer.addDocument(document, analyzer);
 			dirty = true;
 		} finally { wlock.unlock(); }
