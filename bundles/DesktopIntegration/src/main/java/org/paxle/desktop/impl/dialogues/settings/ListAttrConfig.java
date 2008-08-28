@@ -26,7 +26,13 @@ class ListAttrConfig extends AbstractMultiAttrConfig {
 	
 	@Override
 	public Object getValue() {
-		return comp.getSelectedValues();
+		Object[] temp = comp.getSelectedValues();
+		
+		// convert values into proper format
+		// XXX: we have a problem here if the required target-value-type is a String
+		String[] val = new String[temp==null?0:temp.length];
+		System.arraycopy(temp, 0, val, 0, val.length);
+		return val;
 	}
 	
 	@Override
