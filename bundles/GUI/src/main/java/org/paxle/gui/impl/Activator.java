@@ -86,7 +86,7 @@ public class Activator implements BundleActivator {
 		registerServlet( "/", new RootView(), null);
 		registerServlet( "/search", new SearchView(), "Search");
 		registerServlet( "/status", new StatusView(), "Status");
-		registerServlet( "/p2p", new P2PView(), "P2P");
+//		registerServlet( "/p2p", new P2PView(), "P2P");
 		registerServlet( "/crawler", new CrawlerView(), "Crawler", new HttpContextAuth(bc.getBundle() ,this.userAdminTracker));
 		registerServlet( "/bundle", new BundleView(), "Bundles");
 		registerServlet( "/log", new LogView(), "Logging");

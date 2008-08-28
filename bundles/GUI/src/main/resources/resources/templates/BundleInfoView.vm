@@ -11,7 +11,8 @@
 
 <br />
 #set($bundleName = $bundle.getHeaders().get("Bundle-Name"))
-<h3>#{if}($bundleName)$bundleName#{else}${bundle.getSymbolicName()}#{end}</h3>
+#set($bundleVersion = $bundle.getHeaders().get("Bundle-Version"))
+<h3>#{if}($bundleName)$bundleName#{else}${bundle.getSymbolicName()}#{end} ($bundleVersion)</h3>
 <br />
 
 <fieldset id="druntimeinformation">
