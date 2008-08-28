@@ -246,8 +246,13 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			// set new http client
 			this.httpClient = new HttpClient(connectionManager);		
 			
-			this.maxDownloadSize = ((Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE)).intValue();
+			// the crawler should request and accept content-encoded data
 			this.acceptEncoding = ((Boolean)configuration.get(PROP_ACCEPT_ENCODING)).booleanValue();
+			
+			// download limit in bytes
+			this.maxDownloadSize = ((Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE)).intValue();
+			
+			// limit data transfer rate
 			int limitKBps = ((Integer)configuration.get(PROP_TRANSFER_LIMIT)).intValue();
 			logger.debug("transfer rate limit: " + limitKBps + " kb/s");
 			lrc = (limitKBps > 0) ? new CrawlerTools.LimitedRateCopier(limitKBps) : null;
@@ -429,7 +434,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			if (contentLength > maxDownloadSize) {
 				// reject the document
 				final String msg = String.format(
-						"Content-length %d of resource '%s' is larger than the max. allowed size of %d.",
+						"Content-length '%d' of resource '%s' is larger than the max. allowed size of '%d' bytes.",
 						Integer.valueOf(contentLength),
 						doc.getLocation(),
 						Integer.valueOf(maxDownloadSize));
