@@ -3,15 +3,18 @@
 
 ## the regular content
 <h2>View Log</h2>
-#set( $logReader = $manager.getService("org.osgi.service.log.LogReaderService"))
-#if( $logReader)
+#if($logReader)
 <form class="filter" action="">
 	<p>
 		<select name="filterLogLevel">
-			<option value="1">Error</option>
-			<option value="2">Warning</option>
-			<option value="3">Info</option>
-			<option value="4">Debug</option>
+			<option value="1" #if($filterLogLevel == 1)selected="selected"#end>Error</option>
+			<option value="2" #if($filterLogLevel == 2)selected="selected"#end>Warning</option>
+			<option value="3" #if($filterLogLevel == 3)selected="selected"#end>Info</option>
+			<option value="4" #if($filterLogLevel == 4)selected="selected"#end>Debug</option>
+		</select>
+		<select name="logType">
+			<option value="log4j" #if($logType == "log4j")selected="selected"#end>log4j</option>
+			<option value="osgi" #if($logType == "osgi")selected="selected"#end>OSGI</option>
 		</select>
 	 	<input type="submit" value="Apply" />
 	 </p>
@@ -25,17 +28,18 @@
 		<th>Time</th>
 		<th>Message</th>
 	</tr>
-	#foreach( $logEntry in $logReader.getLog())
-	#set( $level = $logEntry.getLevel())
-	#if( $level <= $filterLogLevel)
-	#set( $levelName = $logLevelName.get( $level))
-	<tr>
-		<td class="log$levelName">$levelName</td>
-		<td>$dateTool.format("HH:mm:ss z - dd.MM.yy",$logEntry.getTime())</td>
-		<td>$logEntry.getMessage()#if( $logEntry.getException()) <p class="exception">$logEntry.getException()</p> #end
-		</td>
-	</tr>
-	#end
+	#foreach($logEntry in $logReader.getLog())
+		## $logReader.getLog())
+    	#set( $level = $logEntry.getLevel())
+    	#if( $level <= $filterLogLevel)
+        	#set($levelName = $logLevelNames.get( $level))
+        	<tr>
+        		<td class="log$levelName">$levelName</td>
+        		<td><tt>$dateTool.format("HH:mm:ss dd.MM.yy",$logEntry.getTime())</tt></td>
+        		<td><tt>$logEntry.getMessage()#if( $logEntry.getException()) <p class="exception">$logEntry.getException()</p></tt>#end
+        		</td>
+        	</tr>
+    	#end
 	#end
 </table>
 #else
