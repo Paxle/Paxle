@@ -1,8 +1,11 @@
 package org.paxle.gui.impl;
 
+import java.util.ArrayList;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.paxle.gui.IServiceManager;
@@ -100,20 +103,23 @@ public class ServiceManager implements IServiceManager {
 		return (services != null && services.length > 0);
 	}
 	
-    /* (non-Javadoc)
-	 * @see org.paxle.gui.impl.IServiceManager#getBundles()
-	 */
+    /**
+     * Get all currently installed {@link Bundle OGSi-bundles}
+     */
     public Bundle[] getBundles() {
         return ServiceManager.context.getBundles();
     }
 
-    /* (non-Javadoc)
-	 * @see org.paxle.gui.impl.IServiceManager#getBundle(long)
-	 */
+    /**
+     * Get {@link Bundle OGSi-bundle} by {@link Bundle#getBundleId() ID}
+     */
     public Bundle getBundle(long bundleID) {
         return ServiceManager.context.getBundle(bundleID);
     }
     
+    /**
+     * Get {@link Bundle OGSi-bundle} by {@link Bundle#getSymbolicName() symbolic-name}
+     */
     public boolean hasBundle(String bundleSymbolicName) {
     	if (bundleSymbolicName == null) throw new NullPointerException("The symbolic name was null");
     	
@@ -125,6 +131,19 @@ public class ServiceManager implements IServiceManager {
     		}
     	}
     	return false;
+    }
+    
+    public Bundle[] getBundles(String filterString) throws InvalidSyntaxException {
+    	Filter filter = ServiceManager.context.createFilter(filterString);
+    	
+    	ArrayList<Bundle> results = new ArrayList<Bundle>();
+    	for (Bundle bundle : this.getBundles()) {
+    		if (filter.match(bundle.getHeaders())) {
+    			results.add(bundle);
+    		}
+    	}
+    	
+    	return results.toArray(new Bundle[results.size()]);
     }
 
 	/* (non-Javadoc)

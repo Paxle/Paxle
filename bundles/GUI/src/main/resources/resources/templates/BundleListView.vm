@@ -37,30 +37,53 @@
 
 <fieldset id="dbundlelist">
 	<legend>Bundle List</legend>
+	
+	<form action="">
+		<p>
+			#set( $filters = { 'All':'(Bundle-SymbolicName=*)', 'Paxle: All bundles':'(Bundle-SymbolicName=org.paxle.*)', 'Paxle: All Crawlers':'(Bundle-SymbolicName=org.paxle.Crawler*)', 'Paxle: All Parsers':'(Bundle-SymbolicName=org.paxle.Parser*)'})
+			Filter bundles: 			
+    		<select name="filter">
+				#foreach($entry in $sortTool.sort(${filters.entrySet()}, ["key:asc"]))
+					<option value="${entry.value}" #if($filter == ${entry.value})selected="selected"#end>${entry.key}</option>
+				#end
+			</select>
+			<input type="submit" name="OK" />
+		</p>
+	</form>
 
     <table>
     	<tr>
 			<th>ID</th>
     		<th>Bundle Name</th>
+			<th>Version</th>
     		<th>Action</th>
     	</tr>
      	#if( $bundles)
     	#foreach( $entry in $bundles.entrySet())
     	<tr>
+			#set($bundleID = $entry.key)
+			#set($bundleSymbolicName = $entry.value.symbolicName)
 			#set($bundleState = $states.get($entry.value.state))
 			#set($bundleHeaders = $entry.value.getHeaders())
 			
-			<td><a class="$bundleState" href="?bundleID=$entry.key&amp;action=details">$entry.key</a></td>
+			<td><a class="$bundleState" href="?bundleID=$bundleID&amp;action=details">$bundleID</a></td>
     		<td class="bundle_$bundleState">
-    			<a class="$bundleState" href="?bundleID=$entry.key&amp;action=details">$entry.value.symbolicName</a>
+				<a class="$bundleState" href="?bundleID=$bundleID&amp;action=details">
+					$bundleHeaders.get('Bundle-Name')
+				</a><br/>				
+    			<tt>[$bundleSymbolicName]</tt>
+				#if($bundleHeaders.get('Bundle-Description'))
+					<i><br/>$bundleHeaders.get('Bundle-Description')</i>
+				#end
 				#if(($bundleState == 'resolved' || $bundleState == 'installed') && ($bundleHeaders.get("Bundle-Activator")))
 					<br/><font color="red">Bundle installed but not started</font>
 				#end
     		</td>
+			<td><tt>$bundleHeaders.get('Bundle-Version')</tt></td>
     		<td>
     			<form action="">
     				<div>
-    					<input type="hidden" name="bundleID" value="$entry.key" />
+    					<input type="hidden" name="bundleID" value="$bundleID" />
     					<select name="action">
     						<option value="start">Start</option>
     						<option value="stop">Stop</option>
@@ -68,7 +91,7 @@
     						<option value="update">Update</option>
     						<option value="uninstall">Uninstall</option>
     					</select>
-    					<input type="submit" name="OK" />
+    					<input type="submit" name="OK" value="GO"/>
     				</div>
     			</form>
     		</td>

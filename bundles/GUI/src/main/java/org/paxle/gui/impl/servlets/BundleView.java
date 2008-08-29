@@ -170,8 +170,16 @@ public class BundleView extends ALayoutServlet {
 
             }
             
+            String filter = (request.getParameter("filter") != null) 
+            			  ? request.getParameter("filter")
+            			  : "(Bundle-SymbolicName=org.paxle.*)";
+            context.put("filter", filter);
             
-            context.put("bundles", bundles2map(manager.getBundles()));
+            if (filter.equals("(Bundle-SymbolicName=*)")) {
+            	context.put("bundles", bundles2map(manager.getBundles()));
+            } else {
+            	context.put("bundles", bundles2map(manager.getBundles(filter)));
+            }
             context.put("states", states);
         } catch (Throwable e) {
             System.err.println("Exception caught: " + e.getMessage());
