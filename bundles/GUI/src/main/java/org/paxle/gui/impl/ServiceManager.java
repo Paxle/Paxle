@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -24,20 +25,34 @@ public class ServiceManager implements IServiceManager {
 	 * @see org.paxle.gui.impl.IServiceManager#shutdownFramework()
 	 */
 	public void shutdownFramework() throws BundleException {
+		String osgiFrameworkVendor = context.getProperty(Constants.FRAMEWORK_VENDOR);
+		if (osgiFrameworkVendor.equalsIgnoreCase("Eclipse")) {
+			// try to find an application launcher and shutdown
+			Object app = this.getService("org.eclipse.osgi.service.runnable.ApplicationLauncher");
+			if (app != null) {
+				try {
+					app.getClass().getMethod("shutdown", (Class[])null).invoke(app, (Object[])null);
+					return;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
 		Bundle framework = ServiceManager.context.getBundle(0);
 		if (framework != null) {
 			framework.stop();
 		}
 		
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		// wait a few seconds, then try a System.exit
-		System.err.println("System.exit");
-		System.exit(0);
+//		try {
+//			Thread.sleep(20000);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		// wait a few seconds, then try a System.exit
+//		System.err.println("System.exit");
+//		System.exit(0);
 	}
 	
 	/* (non-Javadoc)

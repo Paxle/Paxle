@@ -1,6 +1,9 @@
 
 package org.paxle.core.impl;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Hashtable;
 
 import org.apache.commons.logging.Log;
@@ -40,7 +43,7 @@ import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.core.queue.impl.CommandTracker;
 
-public class Activator implements BundleActivator {
+public class Activator implements BundleActivator, InvocationHandler {
 	
 	/**
 	 * A class to manage {@link IFilter filters}
@@ -181,8 +184,38 @@ public class Activator implements BundleActivator {
         } else {
         	this.logger.warn("No EventAdmin-service found. Command-tracking will not work.");
         }
+        
+        this.initEclipseApplication(bc);
 	}
 
+	private void initEclipseApplication(BundleContext bc) {
+		String osgiFrameworkVendor = bc.getProperty(Constants.FRAMEWORK_VENDOR);
+		if (osgiFrameworkVendor.equalsIgnoreCase("Eclipse")) {
+			 final Hashtable<String,Object> props = new Hashtable<String,Object>();
+			 props.put("eclipse.application", "org.paxle.app");
+			
+			 try {
+				 // we need to load the inferface classes we will implement from the system bundle
+				 Class applicationRunnable = bc.getBundle(0).loadClass("org.eclipse.osgi.service.runnable.ApplicationRunnable");
+				 Class parameterizedRunnable = bc.getBundle(0).loadClass("org.eclipse.osgi.service.runnable.ParameterizedRunnable");
+				 
+				 // now we play the role of an eclipse application
+				 Object proxy = Proxy.newProxyInstance(
+						 bc.getClass().getClassLoader(),
+						 new Class[]{applicationRunnable, parameterizedRunnable},
+						 (InvocationHandler)this);
+			        				 
+				 // registering as Equinox application	        
+				 bc.registerService(new String[]{
+						 "org.eclipse.osgi.service.runnable.ApplicationRunnable",
+						 "org.eclipse.osgi.service.runnable.ParameterizedRunnable"
+				 }, proxy, props);
+			 } catch (Exception e) {
+				 e.printStackTrace();
+			 }
+		}
+	}
+	
 	/**
 	 * This function is called by the osgi-framework to stop the bundle.
 	 * @see BundleActivator#stop(BundleContext)
@@ -198,5 +231,30 @@ public class Activator implements BundleActivator {
 			this.commandTracker.terminate();
 		}
 		this.commandReleaser = null;
+	}
+
+	/**
+	 * @see {@link org.eclipse.osgi.service.runnable.ParameterizedRunnable#run(Object)}
+	 * @see {@link org.eclipse.osgi.service.runnable.ApplicationRunnable#stop()}
+	 */
+	public synchronized Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		if (method.getName().equals("run")) {
+			// wait until we need to shutdown
+			this.wait();
+			
+			// return exit code
+			return Integer.valueOf(0);
+		} else if (method.getName().equals("stop")) {
+			// signal equinox to shutdown
+			System.setProperty("osgi.noShutdown", "false");
+			
+			// wakeup main thread
+			this.notifyAll();
+			
+			// return void
+			return null;
+		} else {
+			throw new IllegalArgumentException(String.format("Unknown function call %s", method.toString()));
+		}
 	}
 }
