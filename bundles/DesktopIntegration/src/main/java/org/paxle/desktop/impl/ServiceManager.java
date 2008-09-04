@@ -7,6 +7,7 @@ import java.util.Hashtable;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
@@ -25,21 +26,24 @@ public class ServiceManager {
 	}
 	
 	public void shutdownFramework() throws BundleException {
+		String osgiFrameworkVendor = context.getProperty(Constants.FRAMEWORK_VENDOR);
+		if (osgiFrameworkVendor.equalsIgnoreCase("Eclipse")) {
+			// try to find an application launcher and shutdown
+			Object app = this.getService("org.eclipse.osgi.service.runnable.ApplicationLauncher");
+			if (app != null) {
+				try {
+					app.getClass().getMethod("shutdown", (Class[])null).invoke(app, (Object[])null);
+					return;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}		
+		
 		final Bundle framework = this.context.getBundle(FRAMEWORK_BUNDLE_ID);
 		if (framework != null) {
 			framework.stop();
 		}
-		
-		// TODO: replace this with a better solution
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		// wait a view seconds, then try a System.exit
-		System.err.println("System.exit");
-		System.exit(0);		
 	}
 	
 	public void restartFramework() throws BundleException {
