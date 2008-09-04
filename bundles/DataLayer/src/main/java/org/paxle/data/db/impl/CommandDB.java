@@ -17,12 +17,12 @@ import java.util.TreeSet;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -257,9 +257,18 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			}
 
 			// flush cache
-			this.manager.removeCache(CACHE_NAME);
-			this.manager = null;
-		}finally {
+			if (this.manager.getStatus().equals(Status.STATUS_ALIVE)) {
+				this.manager.removeCache(CACHE_NAME);
+				this.manager = null;
+			}
+		} catch (Throwable e) {
+			this.logger.error(String.format(
+					"Unexpected '%s' while tryping to shutdown %s: %s",
+					e.getClass().getName(),
+					this.getClass().getSimpleName(),
+					e.getMessage()
+			),e);
+		} finally {
 			this.closed = true;
 		}
 	}

@@ -46,6 +46,9 @@
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
 							org.paxle.core.filter;version="[0.1.0,0.2.0)",
+							<!-- re-importing exported packages -->
+							org.hibernate.cache;version="3.2.6.ga",
+							org.paxle.data.db;version="${pom.version}",
 							<!-- ignoring others -->
 							!*
 						</Import-Package>
