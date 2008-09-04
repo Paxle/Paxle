@@ -862,7 +862,7 @@
 									<stayAlive>true</stayAlive>									
 									<jar>${equinox.dependencies}/${equinox.runtime.jar}</jar>
 									<outfile>${equinox.dependencies}/start.exe</outfile>
-									<cmdLine>-refresh -console</cmdLine>
+									<cmdLine></cmdLine>
 									<dontWrapJar>false</dontWrapJar>
 									<icon>src/main/resources/img/icon.ico</icon>								
 									<splash>
