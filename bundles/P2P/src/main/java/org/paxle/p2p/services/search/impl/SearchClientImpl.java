@@ -174,7 +174,7 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 		synchronized (this.resultMap) {				
 			if (!this.resultMap.containsKey(Integer.valueOf(reqMessage.getMessageNumber()))) {
 				this.logger.warn("Unknown requestID: " + reqMessage.getMessageNumber());
-				messageList = Collections.EMPTY_LIST;
+				messageList = Collections.emptyList();
 			} else {
 				// remove the request from the result-list
 				messageList = this.resultMap.remove(Integer.valueOf(reqMessage.getMessageNumber()));
