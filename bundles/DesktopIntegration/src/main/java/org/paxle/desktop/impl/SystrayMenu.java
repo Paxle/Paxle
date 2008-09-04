@@ -110,10 +110,10 @@ public class SystrayMenu implements ActionListener {
 			
 			final ServiceManager manager = services.getServiceManager();
 			final boolean hasWebServer = manager.hasService(HttpService.class);
-			final boolean hasWebui = manager.hasService("org.paxle.gui.IServiceManager") && hasWebServer;
+			final boolean hasWebui = manager.hasService("org.paxle.gui.IServletManager") && hasWebServer;
 			browseItem.setEnabled(services.isBrowserOpenable() && hasWebui);
 			
-			final boolean hasSearch = manager.hasService("org.paxle.se.ISearchProviderManager");
+			final boolean hasSearch = manager.hasService("org.paxle.se.search.ISearchProviderManager");
 			// remove "&& hasWebUi" if we have other methods of displaying the searchresults
 			searchItem.setEnabled(services.isBrowserOpenable() && hasSearch && hasWebui);
 			
