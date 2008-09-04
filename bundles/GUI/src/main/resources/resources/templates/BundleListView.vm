@@ -73,7 +73,7 @@
 				</a><br/>				
     			<tt>[$bundleSymbolicName]</tt>
 				#if($bundleHeaders.get('Bundle-Description'))
-					<i><br/>$bundleHeaders.get('Bundle-Description')</i>
+					<br/><div class="descriptionText">$bundleHeaders.get('Bundle-Description')</div>
 				#end
 				#if(($bundleState == 'resolved' || $bundleState == 'installed') && ($bundleHeaders.get("Bundle-Activator")))
 					<br/><font color="red">Bundle installed but not started</font>

@@ -365,6 +365,7 @@
 								<!-- ==================================================================-->
 								<!-- APACHE FELIX - Dependencies                                       -->
 								<!-- ==================================================================-->
+								<!-- 
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
 									<artifactId>org.apache.felix.main</artifactId>
@@ -464,7 +465,6 @@
 									<outputDirectory>${felix.dependencies}</outputDirectory>
 								</artifactItem>
 
-								<!-- Apache commons pool dependencies -->
 								<artifactItem>
 									<groupId>commons-pool</groupId>
 									<artifactId>commons-pool</artifactId>
@@ -473,7 +473,6 @@
 									<destFileName>org.apache.commons.pool_1.4.jar</destFileName>
 								</artifactItem>								
 
-								<!-- Apache commons collection dependencies -->
 								<artifactItem>
 									<groupId>commons-collections</groupId>
 									<artifactId>commons-collections</artifactId>
@@ -482,7 +481,6 @@
 									<destFileName>org.apache.commons.collections_3.2.1.jar</destFileName>
 								</artifactItem>
 								
-								<!-- Apache commons IO dependencies -->
 								<artifactItem>
 									<groupId>commons-io</groupId>
 									<artifactId>commons-io</artifactId>
@@ -491,7 +489,6 @@
 									<destFileName>org.apache.commons.io_1.4.jar</destFileName>
 								</artifactItem>
 								
-								<!-- Apache commons fileupload dependencies -->
 								<artifactItem>
 									<groupId>commons-fileupload</groupId>
 									<artifactId>commons-fileupload</artifactId>
@@ -500,7 +497,6 @@
 									<destFileName>org.apache.commons.fileupload_1.2.1.jar</destFileName>
 								</artifactItem>
 								
-								<!-- Apache commons fileupload dependencies -->
 								<artifactItem>
 									<groupId>commons-lang</groupId>
 									<artifactId>commons-lang</artifactId>
@@ -509,7 +505,6 @@
 									<destFileName>org.apache.commons.lang_2.4.jar</destFileName>
 								</artifactItem>															
 
-								<!-- HTTP Client dependencies -->
 								<artifactItem>
 									<groupId>commons-httpclient</groupId>
 									<artifactId>commons-httpclient-osgi</artifactId>
@@ -525,7 +520,6 @@
 									<destFileName>org.apache.commons.codec_1.2.0.v200711021015.jar</destFileName>
 								</artifactItem>
 								
-								<!-- DB4O -->
 								<artifactItem>
 									<groupId>com.db4o</groupId>
 									<artifactId>db4o-osgi</artifactId>
@@ -534,7 +528,6 @@
 									<destFileName>db4o-osgi-7.2.44.10827.jar</destFileName>
 								</artifactItem>										
 								
-								<!-- Ehcache dependencies -->
 								<artifactItem>
 									<groupId>net.sourceforge.ehcache</groupId>
 									<artifactId>com.springsource.net.sf.ehcache</artifactId>
@@ -556,6 +549,7 @@
 									<outputDirectory>${felix.dependencies}</outputDirectory>
 									<destFileName>com.springsource.edu.emory.mathcs.backport-3.1.0.jar</destFileName>										
 								</artifactItem>								
+								-->
 							</artifactItems>
 						</configuration>
 					</execution>
@@ -711,7 +705,9 @@
 								<descriptor>src/main/assembly/equinox.xml</descriptor>
 								
 								<!-- an assembly containing all paxle-core-bundles and felix bundles -->
-								<descriptor>src/main/assembly/felix.xml</descriptor>
+								<!-- 
+									<descriptor>src/main/assembly/felix.xml</descriptor>
+								 -->
 							</descriptors>
 							<outputDirectory>target</outputDirectory>
 							<workDirectory>
@@ -990,6 +986,7 @@
 		<!-- some tools -->
 		<module>../CharsetDetector</module>
 		<module>../MimeType</module>
+		<module>../ToolsIExport</module>
 		
 		<!-- datalayer bundles -->
 		<module>../DataLayer</module>

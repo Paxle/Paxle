@@ -2,35 +2,48 @@
 #set( $metaTypeService = $manager.getService( "org.osgi.service.metatype.MetaTypeService"))
 
 #if( $metaTypeService && $configAdmin)
-	<h3>Configuration Management</h3>
-	#if( $paramParser.getString("bundleID") && $paramParser.getString( "pid"))
-		#set( $bundleID = $paramParser.getString( "bundleID"))
-		#set( $PID = $paramParser.getString( "pid"))
-		#set( $bundle = $manager.getBundle( $mathTool.toInteger( $bundleID)))
+	<h3>Configuration Management #if($paramParser.getString("viewImportedConfig"))- Import#end</h3>
+	#if( $paramParser.getString("bundleID") && $paramParser.getString("pid"))
+		## the service-PID for which the configuration should be displayed
+		#set($PID = $paramParser.getString("pid"))
+		
+		## the bundle the give service belongs to
+		#set($bundleID = $paramParser.getString("bundleID"))		
+		#set($bundle = $manager.getBundle($mathTool.toInteger($bundleID)))
 		
 		## searching for metatype info
-		#set( $metaType = $metaTypeService.getMetaTypeInformation($bundle))
-		#if( $metaType)
-			#if( $bundle.getBundleId() == $metaType.getBundle().getBundleId())
-    			#set( $ocd = $metaType.getObjectClassDefinition( $PID, "en"))
-    			#if( $ocd)
+		#set($metaType = $metaTypeService.getMetaTypeInformation($bundle))
+		#if($metaType)
+			#if($bundle.getBundleId() == $metaType.getBundle().getBundleId())
+    			#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
+    			#if($ocd)
     				<p>
 						<p>
-        					<b>Name:&nbsp;$ocd.getName()</b><br/>
-        					<i>Bundle:&nbsp;</i><a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a><br/>
-        					<i>Description:</i> $ocd.getDescription()<br/>
-						</p>
-						
-    					## 	getting the current configuration
-    					#set($config = $configAdmin.getConfiguration($PID,${bundle.getLocation()}))
+        					<strong>Service-Name:</strong>&nbsp;$ocd.getName()<br/>
+        					<strong>Bundle:</strong>&nbsp;<a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a><br/>
+        					<strong>Description:</strong>&nbsp;<div class="descriptionText">$ocd.getDescription()</div></br>
+						</p>						
+						    					
+						#if($paramParser.getString("viewImportedConfig"))
+							<div>Uploaded Configuration values that could be imported for this service</div>
+							
+							## getting configuration properties that can be imported
+							#set($configProps = ${importedConfigProps.get($PID)})
+						#else
+							<div>The current configuration of this service:</div>
+							
+							## getting the current configuration
+							#set($configProps = $configAdmin.getConfiguration($PID,${bundle.getLocation()}).getProperties())
+						#end
     					
     					## getting the configuration attributes
     					#set($attributes = $ocd.getAttributeDefinitions(-1))
     					#if($attributes)
 							<form action="">
-								<input type="hidden" name="pid" value="$PID">
-								<input type="hidden" name="bundleID" value="${bundle.getBundleId()}">
-								</ins>
+								<input type="hidden" name="settings" value="config"/>
+								<input type="hidden" name="pid" value="$PID"/>
+								<input type="hidden" name="bundleID" value="${bundle.getBundleId()}"/>
+								
                             	<table>
                             	<tr>
                             		<th>Name</th>
@@ -40,7 +53,7 @@
                             	</tr>
                             	#foreach($attribute in $attributes)
     								#set($attributeID = ${attribute.getID()})								
-    								#set($attribValue = ${settingsView.getPropertyValue($config,$attribute)})
+    								#set($attribValue = ${settingsView.getPropertyValue($configProps,$attribute)})
     								#set($attribType = ${dataTypes.get($attribute.getType())})
 									#set($optionLabels = ${attribute.getOptionLabels()})
 									#set($optionValues = ${attribute.getOptionValues()})
@@ -48,7 +61,7 @@
     								
                             		<tr class="$color">
                             			<td>$attribute.getName()</td>
-        								<td>$attribType</td>
+        								<td><tt>$attribType</tt></td>
                             			<td>
 											#if($optionLabels && $listTool.size($optionLabels) > 0)
 												<select name="$attributeID"
@@ -84,7 +97,7 @@
         										#end	
 											#end
     									</td>
-    									<td>
+    									<td class="descriptionText">
     										${attribute.getDescription()}
     										#if($attributeID.toLowerCase().contains("password"))
     											<p><em>Be aware that this password is being saved unencrypted.</em></p>
@@ -93,7 +106,14 @@
                             		</tr>                            		
                             	#end
                             	</table>
-    							<input type="submit" name="doEditConfig" value="Change"/>
+								#if(!$paramParser.getString("viewImportedConfig"))
+									<input type="submit" name="doEditConfig" value="Change"/>									
+									<input type="submit" name="doExportConfig" value="Export"/>
+								#else
+									<input type="submit" name="doImportConfig" value="Import"/>
+									<input type="hidden" name="viewImportedConfig"/>
+								#end
+								<a class="button" href="?settings=config#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">Back to Overview</a>
 							</form>
     					#end
     					<hr/>
@@ -102,7 +122,7 @@
 				
 				#if($PID == "org.paxle.gui.IStyleManager")
 					<b>Upload new styles jar</b>
-                    <form enctype="multipart/form-data" method="post" action="">
+                    <form enctype="multipart/form-data" method="post" action="?doInstallStyle=">
                     	<p>
                     		<input type="file" name="styleJar" size="60" />
                     		<input type="submit" name="doUpload" value="Install" />
@@ -112,12 +132,20 @@
 		    #end	
 		#end
 	#else 
-    		
+		#if($paramParser.getString("viewImportedConfig"))
+			#if(${importedConfigProps.size()} > 0)
+				<div class="descriptionText">The uploaded configuration file contains settings for the following services:</div>
+			#else
+				<div class="descriptionText" style="color:red;">No settings left to import.</div>
+			#end
+		#else
+			<div class="descriptionText">The following list shows all services installed on the system that can be configured by the user:</div>
+		#end
 		<table>
 		<tr>
 			<th>&nbsp;</th>
 			<th>Name</th>
-			<th>PID</th>
+			<th>Description</th>
 		</tr>
 		#set($color = $alternatorTool.auto('r1','r2'))
 		
@@ -125,19 +153,22 @@
     	#foreach($bundle in $manager.getBundles())
     		#set($metaType = $metaTypeService.getMetaTypeInformation($bundle))
     		#if($metaType)
-				#if($bundle.getBundleId() == $metaType.getBundle().getBundleId())
+				#if(${bundle.getBundleId()} == ${metaType.getBundle().getBundleId()})					
         			## get the PIDs of all managed services
-        			#set($PIDs = $metaType.getPids())
-        			#if($PIDs)					
+        			#set($PIDs = ${metaType.getPids()})
+        			#if($PIDs)
         				## loop through all managed services and fetch the
         				## corresponding ObjectClassDefinitions
         				#foreach($PID in $PIDs)
         					#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
-        					#if($ocd)
+        					#if($ocd && (!$paramParser.getString("viewImportedConfig") || ${importedConfigProps.containsKey($PID)}))
     							<tr class="$color">
-									<td><img src="?settings=config&amp;bundleID=$bundle.getBundleId()&amp;pid=$PID&amp;getImage=" alt="$ocd.getName()"/></td>
-    								<td><a href="?settings=config&amp;bundleID=$bundle.getBundleId()&amp;pid=$PID">$ocd.getName()</a></td>
-    								<td>$PID</td>
+									<td><img src="?settings=config&amp;bundleID=${bundle.getBundleId()}&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/></td>
+    								<td>
+										<a href="?settings=config&amp;bundleID=${bundle.getBundleId()}&amp;pid=$PID#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${ocd.getName()}</a><br/>
+										<tt>[$PID]</tt>
+									</td>
+    								<td class="descriptionText">${ocd.getDescription()}</td>
     							</tr>							
         					#end
         				#end
@@ -165,6 +196,33 @@
     		#end
 		#end
 		</table>
+		
+		#if(!$paramParser.getString("viewImportedConfig"))
+		<p>
+			<b>Export Configuration</b>
+			<div class="descriptionText">
+				Use this function to export the configuration of all services listed above into a zip file.
+			</div>
+		    <form action="?settings=config">
+           	<p>
+           		<input type="submit" name="doExportConfig" value="Export Configuration" />
+           	</p>
+			</form>	
+		</p>
+				
+		<p>
+    		<b>Import Configuration</b>
+			<div class="descriptionText">
+				Use this function to import the configuration of services you have previously exported.
+			</div>
+            <form enctype="multipart/form-data" method="post" action="?settings=config&amp;viewImportedConfig=">
+            	<p>
+            		<input type="file" name="configFile" size="60" />
+            		<input type="submit" name="doUpload" value="Upload" />
+            	</p>
+            </form>	
+		</p>
+		#end
 	#end
 #else 
 	#if(!$configAdmin)<div class="bundleNotInstalled">Configuration Administration bundle not installed!</div>#end

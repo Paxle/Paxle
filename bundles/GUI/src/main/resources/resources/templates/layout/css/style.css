@@ -68,7 +68,7 @@ input:hover {
 	background-color: #F9F8E0;
 }
 
-input, textarea {
+input, textarea  {
 	margin: 0;
 	padding: 0.2em;
 	
@@ -76,6 +76,15 @@ input, textarea {
 	color: #444444;
 	
 	border: 0.1em solid #96825F;
+	font-size:13px;
+}
+
+a.button {
+	color: #444444;
+	text-decoration: none;
+	border: 0.1em solid #96825F;
+	font-size:13px;
+	padding:0.26em;
 }
 
 input:focus, textarea:focus {
@@ -297,4 +306,12 @@ a.rssFeedLink > img {
 
 #specificLinks, #specificProtocols, #specificMimeTypes {
 	margin-left: 20px;
+}
+
+.descriptionText {
+	font-style: italic;
+}
+
+div.descriptionText {
+	margin: 5px 0 5px 0;
 }

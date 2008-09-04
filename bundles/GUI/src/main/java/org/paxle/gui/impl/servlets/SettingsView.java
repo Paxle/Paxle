@@ -2,11 +2,15 @@
 package org.paxle.gui.impl.servlets;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -20,12 +24,14 @@ import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.Template;
@@ -49,6 +55,7 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IStyleManager;
 import org.paxle.gui.impl.HttpContextAuth;
 import org.paxle.gui.impl.ServiceManager;
+import org.paxle.tools.ieporter.cm.IConfigurationIEPorter;
 
 public class SettingsView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
@@ -75,9 +82,50 @@ public class SettingsView extends ALayoutServlet {
      * For logging
      */
 	private Log logger = LogFactory.getLog( this.getClass());
+
+	/**
+	 * @param context
+	 * @return a map required by the {@link IConfigurationIEPorter} to export {@link Configuration#getProperties() configuration-properties}
+	 */
+	private Map<String, String> generatePidBundleLocationMap(HttpServletRequest request, Context context) {
+		// getting the service manager
+		ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+		if (manager == null) throw new IllegalStateException("ServiceManager not found");
+		
+		// getting the metatype service
+		MetaTypeService metaTypeService = (MetaTypeService) manager.getService(MetaTypeService.class.getName());
+		if (metaTypeService == null) throw new IllegalStateException("MetaTypeService not found");
+
+		String bundleID = request.getParameter("bundleID");
+		String pid = request.getParameter("pid");
+		
+		Map<String, String> pidBundleLocationTupel = new HashMap<String, String>();
+		if (bundleID != null && pid != null) {
+			Bundle bundle = manager.getBundle(Integer.valueOf(bundleID));
+			pidBundleLocationTupel.put(pid, bundle.getLocation());
+		} else {		
+			// loop through all bundles to see if they contain manageable services			
+			for (Bundle bundle: manager.getBundles()) {
+				// getting the metatypeinformation of the bundle
+				MetaTypeInformation metaType = metaTypeService.getMetaTypeInformation(bundle);
+							
+				// the bundleID comparison is necessary due to a bug in knopflerfish
+				if (metaType != null && metaType.getBundle().getBundleId() == bundle.getBundleId()) {
+					String[] pids = metaType.getPids();
+					if (pids != null && pids.length > 0) {
+						for (String nextPid : pids) {
+							pidBundleLocationTupel.put(nextPid, bundle.getLocation());
+						}
+					}
+				}
+			}
+		}
+		
+		return pidBundleLocationTupel;
+	}
 	
 	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		if (request.getParameter("getImage") != null) {	
 			try {
 				/*
@@ -89,6 +137,34 @@ public class SettingsView extends ALayoutServlet {
 				this.writeImage(request, response, context);
 			} catch (Exception e) {
 				throw new IOException(e.getMessage());
+			}
+		} else if (request.getParameter("doExportConfig") != null) {
+			InputStream fileIn = null;
+			File tempFile = null;
+			try {
+				// create context
+				Context context = this.createContext(request, response);
+
+				// getting the config-exporter
+				ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+				IConfigurationIEPorter exporter = (IConfigurationIEPorter) manager.getService(IConfigurationIEPorter.class.getName());
+
+				// export configuration
+				response.setContentType("application/zip");
+				response.setHeader("Content-Disposition", "attachment; filename=paxleConfig" + new SimpleDateFormat("yyyyMMdd").format(new Date()) + ".zip");
+				
+				tempFile = exporter.exportConfigsAsZip(this.generatePidBundleLocationMap(request, context));
+				fileIn = new BufferedInputStream(new FileInputStream(tempFile));
+
+				IOUtils.copy(fileIn, response.getOutputStream());
+
+				fileIn.close();
+				tempFile.delete();
+			} catch (Exception e) {
+				throw new IOException(e.getMessage());
+			} finally {
+				if (fileIn != null) try { fileIn.close(); } catch (Exception e) {/* ignore this */}
+				if (tempFile != null) try { tempFile.delete(); } catch (Exception e) {/* ignore this */}
 			}
 		} else {
 			super.doGet(request, response);
@@ -103,9 +179,10 @@ public class SettingsView extends ALayoutServlet {
 			// getting the servicemanager
 			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
 			
-			if (request.getParameter("doEditConfig") != null) {
-				this.setPropertyValues(request, response, context);
-			} else if (request.getParameter("doCreateUser") != null || request.getParameter("doUpdateUser") != null) {
+			/* ====================================================================================
+			 * USER MANAGEMENT 
+			 * ==================================================================================== */
+			if (request.getParameter("doCreateUser") != null || request.getParameter("doUpdateUser") != null) {
 				UserAdmin userAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
 				if (userAdmin != null) {
 					String name = request.getParameter("roleName");
@@ -165,7 +242,44 @@ public class SettingsView extends ALayoutServlet {
 					}
 				}
 				response.sendRedirect("/config?settings=user");
-			} else if (ServletFileUpload.isMultipartContent(request)) {
+				
+			/* ====================================================================================
+			 * CONFIGURATION MANAGEMENT 
+			 * ==================================================================================== */
+				
+			} else if (request.getParameter("doEditConfig") != null) {
+				this.setPropertyValues(request, response, context);
+				response.sendRedirect("/config?settings=config");
+			} else if (request.getParameter("viewImportedConfig") != null) {
+				if (ServletFileUpload.isMultipartContent(request)) {
+					// import config from file
+					Map<String, Dictionary<String, Object>> propsMap = this.importConfig(request, context);
+					
+					// add it into the context so that the servlet can read it
+					context.put("importedConfigProps", propsMap);
+					
+					// add it into the session so that the servlet can read it lateron
+					HttpSession session = request.getSession(true);
+					session.setAttribute("importedConfigProps", propsMap);
+				} else {
+					// read the imported-config from session into context so that the sevlet can read it
+					HttpSession session = request.getSession(true);
+										
+					Map<String, Dictionary<String, Object>> propsMap = (Map<String, Dictionary<String, Object>>) session.getAttribute("importedConfigProps");
+					context.put("importedConfigProps", propsMap);
+					
+					if (request.getParameter("doImportConfig") != null) {
+						// configure properties
+						this.setPropertyValues(request, response, context);
+						
+						// remove already imported properties from map
+						propsMap.remove(request.getParameter("pid"));
+						
+						// redirect to overview
+						response.sendRedirect("/config?settings=config&viewImportedConfig=");
+					}
+				}
+			} else if (request.getParameter("doInstallStyle") != null && ServletFileUpload.isMultipartContent(request)) {
 				// getting a reference to the stylemanager
 				IStyleManager styleManager = (IStyleManager) manager.getService(IStyleManager.class.getName());
 				
@@ -308,6 +422,58 @@ public class SettingsView extends ALayoutServlet {
 		}
 		
 		return groups.toArray(new Group[groups.size()]);
+	}
+	
+	private Map<String, Dictionary<String, Object>> importConfig(HttpServletRequest request, Context context) throws Exception {
+
+		// Create a factory for disk-based file items
+		FileItemFactory factory = new DiskFileItemFactory();
+
+		// Create a new file upload handler
+		ServletFileUpload upload = new ServletFileUpload(factory);
+
+		// Parse the request
+		List<FileItem> items = upload.parseRequest(request);
+
+		// Process the uploaded items
+		Iterator<FileItem> iter = items.iterator();
+		while (iter.hasNext()) {
+			FileItem item = iter.next();
+
+			if (!item.isFormField()) {
+				if (!item.getFieldName().equals("configFile")) {
+					String errorMsg = String.format("Unknown file-upload field '%s'.",item.getFieldName());
+					this.logger.warn(errorMsg);
+					context.put("errorMsg",errorMsg);
+					continue;
+				}
+
+				String fileName = item.getName();
+				if (fileName != null) {
+					fileName = FilenameUtils.getName(fileName);
+				} else {
+					String errorMsg = String.format("Fileupload field '%s' has no valid filename.", item.getFieldName());
+					this.logger.warn(errorMsg);
+					context.put("errorMsg",errorMsg);
+					continue;
+				}
+
+				// write the bundle to disk
+				File targetFile = File.createTempFile(fileName, ".tmp");      		    
+				item.write(targetFile);
+
+				// cleanup
+				item.delete();
+				
+				// read Settings
+				ServiceManager manager = (ServiceManager) context.get("manager");
+				IConfigurationIEPorter importer = (IConfigurationIEPorter) manager.getService(IConfigurationIEPorter.class.getName());
+				Map<String, Dictionary<String, Object>> propsMap = importer.importConfigurations(targetFile);
+				return propsMap;
+			}
+		}
+		
+		return null;
 	}
 	
 	private void installStyle(IStyleManager styleManager, HttpServletRequest request, Context context) throws Exception {
@@ -646,12 +812,10 @@ public class SettingsView extends ALayoutServlet {
 		config.update(props);			
 	}
 	
-	public Object getPropertyValue(Configuration config, AttributeDefinition attribute) {
-		if (config == null) throw new NullPointerException("Configuration object is null");
+	public Object getPropertyValue(Dictionary props, AttributeDefinition attribute) {
 		if (attribute == null) throw new NullPointerException("Attribute definition is null");
 		
 		String propertyKey = attribute.getID();
-		Dictionary props = config.getProperties();
 		Object value = (props == null)?null:props.get(propertyKey);
 		String[] defaultValues = attribute.getDefaultValue();
 		
