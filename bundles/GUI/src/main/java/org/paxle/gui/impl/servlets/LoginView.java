@@ -30,13 +30,14 @@ public class LoginView extends ALayoutServlet {
         		// getting user-name + password
         		String userName = request.getParameter("login.username");
         		String password = request.getParameter("login.password");
+        		if (password == null) password = "";
         		
         		// getting the userAdmin service
         		ServiceManager manager = (ServiceManager) context.get("manager");
         		UserAdmin uAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
         		
         		// auth user
-        		User user = HttpContextAuth.authenticatedAs(uAdmin, request, userName, password);        		
+        		User user = HttpContextAuth.authenticatedAs(uAdmin, request, userName, password.getBytes("UTF-8"));        		
         		if (user != null){
         			// remember login state
         			session.setAttribute("logon.isDone", Boolean.TRUE);

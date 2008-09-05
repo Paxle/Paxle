@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -305,7 +306,7 @@ public class SettingsView extends ALayoutServlet {
 		return template;
 	}
 	
-	private void updateUser(UserAdmin userAdmin, User user, HttpServletRequest request, Context context) throws InvalidSyntaxException {
+	private void updateUser(UserAdmin userAdmin, User user, HttpServletRequest request, Context context) throws InvalidSyntaxException, UnsupportedEncodingException {
 		if (user == null) return;
 		
 		String loginName = request.getParameter(HttpContextAuth.USER_HTTP_LOGIN);
@@ -345,7 +346,7 @@ public class SettingsView extends ALayoutServlet {
 		props.put(HttpContextAuth.USER_HTTP_LOGIN, loginName);
 		
 		Dictionary<String, Object> credentials = user.getCredentials();
-		credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, pwd1);
+		credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, pwd1.getBytes("UTF-8"));
 		
 		/* ===========================================================
 		 * OPEN-ID

@@ -29,7 +29,6 @@ import org.paxle.gui.impl.servlets.LogView;
 import org.paxle.gui.impl.servlets.LoginView;
 import org.paxle.gui.impl.servlets.OpenSearchDescription;
 import org.paxle.gui.impl.servlets.OverView;
-import org.paxle.gui.impl.servlets.P2PView;
 import org.paxle.gui.impl.servlets.QueueView;
 import org.paxle.gui.impl.servlets.RootView;
 import org.paxle.gui.impl.servlets.SearchView;
@@ -38,76 +37,76 @@ import org.paxle.gui.impl.servlets.StatusView;
 import org.paxle.gui.impl.servlets.SysDown;
 import org.paxle.gui.impl.servlets.TheaddumpView;
 
-
 public class Activator implements BundleActivator {
 
 	private MenuManager menuManager = null;
 
 	private StyleManager styleManager = null;
-	
+
 	private ServletManager servletManager = null;
-	
+
 	private ServiceTracker userAdminTracker = null;
 
-	public void start( BundleContext bc) throws Exception {
+	public void start(BundleContext bc) throws Exception {
 		// initialize service Manager for toolbox usage (don't remove this!)
 		ServiceManager.context = bc;
 
 		// init user administration
 		this.initUserAdmin(bc);
-		
+
 		// GUI menu manager
 		this.menuManager = new MenuManager();
-		bc.registerService( IMenuManager.class.getName(), this.menuManager, null);
+		bc.registerService(IMenuManager.class.getName(),this.menuManager, null);
 
 		// servlet manager
 		this.servletManager = new ServletManager(bc.getBundle().getEntry("/").toString());
-		bc.registerService( IServletManager.class.getName(), this.servletManager, null);
+		bc.registerService(IServletManager.class.getName(),this.servletManager, null);
 
 		// style manager
 		this.initStyleManager(bc);
-		
+
 		// register classloader
-		Thread.currentThread().setContextClassLoader( this.getClass().getClassLoader());
+		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 
 		/*
 		 * ========================================================== Register
 		 * Service Listeners
 		 * ==========================================================
 		 */
-		bc.addServiceListener( new ServletListener( servletManager, menuManager, bc), ServletListener.FILTER);
-		bc.addServiceListener( new HttpServiceListener( servletManager, bc), HttpServiceListener.FILTER);
+		bc.addServiceListener(new ServletListener(servletManager, menuManager,
+				bc), ServletListener.FILTER);
+		bc.addServiceListener(new HttpServiceListener(servletManager, bc),
+				HttpServiceListener.FILTER);
 
 		/*
-		 * ==========================================================
-		 * Register Servlets
-		 * ==========================================================
+		 * ========================================================== Register
+		 * Servlets ==========================================================
 		 */
-		registerServlet( "/", new RootView(), null);
-		registerServlet( "/search", new SearchView(), "Search");
-		registerServlet( "/status", new StatusView(), "Status");
-//		registerServlet( "/p2p", new P2PView(), "P2P");
-		registerServlet( "/crawler", new CrawlerView(), "Crawler", new HttpContextAuth(bc.getBundle() ,this.userAdminTracker));
-		registerServlet( "/bundle", new BundleView(), "Bundles");
-		registerServlet( "/log", new LogView(), "Logging");
-		registerServlet( "/queue", new QueueView(), "Queues");
-		registerServlet( "/opensearch/osd.xml", new OpenSearchDescription(), null);
-		registerServlet( "/config", new SettingsView(), "Settings", new HttpContextAuth(bc.getBundle() ,this.userAdminTracker));
-		registerServlet( "/threads", new TheaddumpView(), null);
-		registerServlet( "/overview", new OverView(), "Overview");
-		registerServlet( "/sysdown", new SysDown(), null, new HttpContextAuth(bc.getBundle() ,this.userAdminTracker));
-		registerServlet( "/login", new LoginView(), null);
+		registerServlet("/", new RootView(), null);
+		registerServlet("/search", new SearchView(), "Search");
+		registerServlet("/status", new StatusView(), "Status");
+		// registerServlet( "/p2p", new P2PView(), "P2P");
+		registerServlet("/crawler", new CrawlerView(), "Crawler", new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
+		registerServlet("/bundle", new BundleView(), "Bundles");
+		registerServlet("/log", new LogView(), "Logging");
+		registerServlet("/queue", new QueueView(), "Queues");
+		registerServlet("/opensearch/osd.xml", new OpenSearchDescription(),null);
+		registerServlet("/config", new SettingsView(), "Settings",new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
+		registerServlet("/threads", new TheaddumpView(), null);
+		registerServlet("/overview", new OverView(), "Overview");
+		registerServlet("/sysdown", new SysDown(), null, new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
+		registerServlet("/login", new LoginView(), null);
 	}
 
-	private void registerServlet( final String location, final ALayoutServlet servlet, final String menuName) {
-		this.registerServlet(location, servlet, menuName,null);
+	private void registerServlet(final String location, final ALayoutServlet servlet, final String menuName) {
+		this.registerServlet(location, servlet, menuName, null);
 	}
 
-	private void registerServlet( final String location, final ALayoutServlet servlet, final String menuName, HttpContext context) {
-		servlet.init( null, location);
+	private void registerServlet(final String location, final ALayoutServlet servlet, final String menuName, HttpContext context) {
+		servlet.init(null, location);
 		servletManager.addServlet(location, servlet, context);
 		if (menuName != null) {
-			menuManager.addItem( location, menuName);
+			menuManager.addItem(location, menuName);
 		}
 	}
 
@@ -115,19 +114,23 @@ public class Activator implements BundleActivator {
 	 * This function
 	 * <ul>
 	 * <li>initialized the {@link StyleManager}</li>
-	 * <li>creates a default {@link Configuration} if no {@link Configuration} exists</li>
+	 * <li>creates a default {@link Configuration} if no {@link Configuration}
+	 * exists</li>
 	 * <li>registers the {@link StyleManager} as {@link ManagedService}</li>
 	 * <li>registers the {@link StyleManager} as {@link MetaTypeProvider}</li>
 	 * </ul>
 	 * 
-	 * @param context the bundle context needed for service registration
+	 * @param context
+	 *            the bundle context needed for service registration
 	 * @throws IOException
 	 */
 	private void initStyleManager(BundleContext context) throws IOException {
 		// create the style manager
-		this.styleManager = new StyleManager(new File("styles"),this.servletManager);
-		
-		// get the config-admin service and set the default configuration if not available
+		this.styleManager = new StyleManager(new File("styles"),
+				this.servletManager);
+
+		// get the config-admin service and set the default configuration if not
+		// available
 		ServiceReference cmRef = context.getServiceReference(ConfigurationAdmin.class.getName());
 		if (cmRef != null) {
 			ConfigurationAdmin cm = (ConfigurationAdmin) context.getService(cmRef);
@@ -135,52 +138,52 @@ public class Activator implements BundleActivator {
 			if (config.getProperties() == null) {
 				config.update(this.styleManager.getDefaults());
 			}
-		}		
-		
+		}
+
 		// service properties for registration
 		Hashtable<String, Object> styleManagerProps = new Hashtable<String, Object>();
 		styleManagerProps.put(Constants.SERVICE_PID, StyleManager.PID);
-		
+
 		// register as services
-		context.registerService(IStyleManager.class.getName(), this.styleManager, null);
-		context.registerService(new String[]{ManagedService.class.getName(),MetaTypeProvider.class.getName()}, this.styleManager, styleManagerProps);
+		context.registerService(IStyleManager.class.getName(),this.styleManager, null);
+		context.registerService(new String[] { ManagedService.class.getName(),MetaTypeProvider.class.getName() }, this.styleManager, styleManagerProps);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void initUserAdmin(BundleContext context) throws IOException {
 		// create a tracker used by the http-context
-		this.userAdminTracker = new ServiceTracker(context, UserAdmin.class.getName(),null);
+		this.userAdminTracker = new ServiceTracker(context, UserAdmin.class.getName(), null);
 		this.userAdminTracker.open();
-		
+
 		// create a admin role if needed
 		UserAdmin userAdmin = (UserAdmin) this.userAdminTracker.getService();
 		if (userAdmin != null) {
 			// check if an Administrator group is already available
 			Group admins = (Group) userAdmin.getRole("Administrators");
 			if (admins == null) {
-				admins = (Group) userAdmin.createRole("Administrators", Role.GROUP);
+				admins = (Group) userAdmin.createRole("Administrators",Role.GROUP);
 			}
-			
+
 			User admin = (User) userAdmin.getRole("Administrator");
 			if (admin == null) {
 				// create a default admin user
 				admin = (User) userAdmin.createRole("Administrator", Role.USER);
 				admins.addMember(admin);
-				
+
 				// configure http-login data
 				Dictionary<String, Object> props = admin.getProperties();
 				props.put(HttpContextAuth.USER_HTTP_LOGIN, "admin");
-				
+
 				Dictionary<String, Object> credentials = admin.getCredentials();
-				credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, "");
+				credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, "".getBytes("UTF-8"));
 			}
 		}
 	}
 
-	public void stop( BundleContext context) throws Exception {
+	public void stop(BundleContext context) throws Exception {
 		// unregister all servlets
 		servletManager.close();
-		
+
 		this.userAdminTracker.close();
 
 		// cleanup
