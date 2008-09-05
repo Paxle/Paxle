@@ -15,7 +15,9 @@
 	<li><a href="#dsinglecrawl" onclick="fshow('singlecrawl');" id="tsinglecrawl">Crawl URL</a></li>
 	<li><a href="#dmasscrawl" onclick="fshow('masscrawl');" id="tmasscrawl">Mass Crawl</a></li>
 	<li><a href="#dquickcrawl" onclick="fshow('quickcrawl');" id="tquickcrawl">Crawler Bookmarklet</a></li>
+	#if($manager.hasBundle("org.paxle.parser.sitemap"))
 	<li><a href="#dsitemapcrawl" onclick="fshow('sitemapcrawl');" id="tsitemapcrawl">Sitemap Crawl</a></li>
+	#end
 </ul>
 
 #if( $errorUrls && $errorUrls.size() > 0)

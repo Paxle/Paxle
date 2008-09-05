@@ -9,8 +9,11 @@
 #parse( '/resources/templates/layout/menu.vm' )
     #if($user)
 		<li id="loginStatus">
-			Logged in:<br/>
-			$user.getProperties().get("http.login")
+			<a href="login?doLogout="><img src="/images/logout.png" width="16px" height="16px" alt="Logout"/>$user.getProperties().get("http.login")</a> 
+		</li>
+	#else
+		<li id="loginStatus">
+			<a href="/login"><img src="/images/login.png" width="16px" height="16px" alt="Login"/>Not logged in</a> 
 		</li>
     #end	
 </ul>
