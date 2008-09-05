@@ -33,6 +33,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 
 import org.apache.commons.httpclient.CircularRedirectException;
 import org.apache.commons.httpclient.ConnectTimeoutException;
@@ -153,9 +154,12 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	}
 	
 	public void terminate() {
-		// clear cache
-		this.manager.removeCache(CACHE_NAME);
+		if (this.manager.getStatus().equals(Status.STATUS_ALIVE)) {
+			// clear cache
+			this.manager.removeCache(CACHE_NAME);
+		}
 		this.manager = null;
+		
 
 		// cleanup http-client
 		if (this.connectionManager != null) {
