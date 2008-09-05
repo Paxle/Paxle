@@ -2,9 +2,17 @@
 #parse( '/resources/templates/headers/SetNoCaching.vm' )
 #parse( '/resources/templates/layout/header.vm' )
 
+#set($user = $context.get("session").getAttribute("org.osgi.service.http.authentication.remote.user"))
+
 <!-- left nav -->
 <ul id="nav">
 #parse( '/resources/templates/layout/menu.vm' )
+    #if($user)
+		<li id="loginStatus">
+			Logged in:<br/>
+			$user.getProperties().get("http.login")
+		</li>
+    #end	
 </ul>
 <!-- end left nav -->
 
