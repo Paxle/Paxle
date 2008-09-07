@@ -2,13 +2,13 @@
 <metatype:MetaData 
 	xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	localization="/localization/IDesktopService">
+	localization="/OSGI-INF/l10n/IDesktopService">
 
 	<OCD description="%desktopService.desc" 
 			name="%desktopService.name"
 			id="1.1.1.1">
 		
-		<Icon resource="/images/systemtray.png" size="16"/>
+		<Icon resource="/OSGI-INF/images/systemtray.png" size="16"/>
 		
 		<AD name="%desktopService.openBrowser.name"
 				type="Boolean"
