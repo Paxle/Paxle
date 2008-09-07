@@ -2,7 +2,7 @@
 <metatype:MetaData 
 	xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	localization="/localization/IHttpCrawler">
+	localization="/OSGI-INF/l10n/IHttpCrawler">
 
 	<OCD description="%httpCrawler.desc" 
 			name="%httpCrawler.name"
