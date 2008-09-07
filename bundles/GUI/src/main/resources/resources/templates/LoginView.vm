@@ -1,32 +1,35 @@
+## getting resourcebundle to translate site
+#set( $text = $resourceTool.bundle('OSGI-INF/l10n/loginview'))
+
 ## Set the page title
-#set($page_title = "User Login")
+#set($page_title = ${text.browser.title})
 
 ## Activate onload
 #set ( $bodyonload = "initTabs('formLogin');" )
 
 <ul class="tabs">
-	<li><a href="#dformLogin" onclick="fshow('formLogin');" id="tformLogin">Form Login</a></li>
+	<li><a href="#dformLogin" onclick="fshow('formLogin');" id="tformLogin">${text.tabs.formLogin}</a></li>
 	#if($manager.hasBundle("org.paxle.gui.openid"))
-		<li><a href="#dopenIDLogin" onclick="fshow('openIDLogin');" id="topenIDLogin">OpenID Login</a></li>
+		<li><a href="#dopenIDLogin" onclick="fshow('openIDLogin');" id="topenIDLogin">${text.tabs.openIDLogin}</a></li>
 	#end
 </ul>
 
 <fieldset id="dformLogin">
-	<legend>Log in with username and password</legend>
+	<legend>${text.legend.formLogin}</legend>
     <form method="post">
     <div>
     	#if( $errorMsg)
     		<p class="error">$errorMsg</p>
     	#end
     	
-        <div>Welcome!  Please enter your Name and Password to log in.</div>
+        <div>${text.formLogin.welcome}</div>
         <div id="login">
-            Username:<br/>    
+            ${text.formLogin.username}:<br/>    
             <input type="text" class="inputtext" name="login.username" id="login.username-input" value="" title=""/>
             
-            Password: <br/>
+            ${text.formLogin.userpwd}:<br/>
             <input type="password" class="inputtext" name="login.password" id="login.password-input" value="" title=""/>
-            <input type="submit" class="submit" value="Log in" id="login.login" name="doLogin"/>          
+            <input type="submit" class="submit" value="${text.formLogin.doLogin}" id="login.login" name="doLogin"/>          
         </div>
     </div>
     </form>
@@ -34,18 +37,18 @@
 	
 #if($manager.hasBundle("org.paxle.gui.openid"))
 <fieldset id="dopenIDLogin">
-	<legend>Log in with <span class="openid">OpenID</span></legend>
+	<legend>${text.legend.openIDLogin}</legend>
 		
 		<div id="login">
     		<form action="/openid/auth" method="post">
     			<input type="text" class="openid" name="login.openid" id="login.openid-input" value="http://" title="" size="28"/>
-    			<input type="submit" class="submit" value="Log in" id="login.login" name="doLogin"/>
+    			<input type="submit" class="submit" value="${text.openIDLogin.doLogin}" id="login.login" name="doLogin"/>
     		</form>
 		</div>
 		<div>
-			<a href="http://alexandria.wiki.sourceforge.net/OpenID">Learn more</a>
+			<a href="http://alexandria.wiki.sourceforge.net/OpenID">${text.openIDLogin.learnMore}</a>
 			-
-			<a href="http://openid.net/get/">Get an OpenID</a>
+			<a href="http://openid.net/get/">${text.openIDLogin.getOpenID}</a>
 		</div>
 </fieldset>
 #end

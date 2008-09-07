@@ -1,5 +1,8 @@
+## getting resourcebundle to translate site
+#set( $text = $resourceTool.bundle('OSGI-INF/l10n/statusview'))
+
 ## Set the page title
-#set( $page_title = "Paxle Status Page" )
+#set( $page_title = ${text.browser.title})
 ## Activate onload
 #set ( $bodyonload = "initTabs('general');" )
 
@@ -8,12 +11,12 @@
 #macro(filterlist $filterManager $queueID)
 	#set($filters = ${filterManager.getFilterContextSet($queueID)})
 	#if($filters)
-		<p>${filters.size()} filter(s) found:</p>
+		<p>${text.filters.found.insert(${filters.size()})}:</p>
 		
 		<table>
 		<tr>
-			<th>ID</th>
-			<th>Name</th>
+			<th>${text.filters.id}</th>
+			<th>${text.filters.name}</th>
 		</tr>
 	    #foreach($filter in $filters)
 		<tr>
@@ -27,22 +30,22 @@
 ## ---------------------------------------------------------------------------------------
 
 <ul class="tabs">
-	<li><a href="#dgeneral" onclick="fshow('general');" id="tgeneral">General</a></li>
-	<li><a href="#dcrawler" onclick="fshow('crawler');" id="tcrawler">Crawler</a></li>
-	<li><a href="#dparser" onclick="fshow('parser');" id="tparser">Parser</a></li>
-	<li><a href="#dindex" onclick="fshow('index');" id="tindex">Index</a></li>
-	<li><a href="#dsearch" onclick="fshow('search');" id="tsearch">Search</a></li>
-	<li><a href="#dgui" onclick="fshow('gui');" id="tgui">GUI</a></li>
-	<li><a href="#dcache" onclick="fshow('cache');" id="tcache">Cache</a></li>
+	<li><a href="#dgeneral" onclick="fshow('general');" id="tgeneral">${text.tab.general}</a></li>
+	<li><a href="#dcrawler" onclick="fshow('crawler');" id="tcrawler">${text.tab.crawler}</a></li>
+	<li><a href="#dparser" onclick="fshow('parser');" id="tparser">${text.tab.parser}</a></li>
+	<li><a href="#dindex" onclick="fshow('index');" id="tindex">${text.tab.indexer}</a></li>
+	<li><a href="#dsearch" onclick="fshow('search');" id="tsearch">${text.tab.searchEngine}</a></li>
+	<li><a href="#dgui" onclick="fshow('gui');" id="tgui">${text.tab.gui}</a></li>
+	<li><a href="#dcache" onclick="fshow('cache');" id="tcache">${text.tab.cache}</a></li>
 </ul>
 
 ## the regular content
 <form method="post" action="">
 <fieldset id="dgeneral">
-<legend>General</legend>
+<legend>${text.legend.general}</legend>
 	<p>
-		<input class="btnShutdown" type="submit" name="shutdown" value="Shutdown" />
-		<input class="btnRestart" type="submit" name="restart" value="Restart" />
+		<input class="btnShutdown" type="submit" name="shutdown" value="${text.general.doShutdown}" />
+		<input class="btnRestart" type="submit" name="restart" value="${text.general.doRestart}" />
 	</p>
 </fieldset>
 </form>
@@ -53,7 +56,7 @@
 #set($subCrawlerManager = $manager.getService( "org.paxle.crawler.ISubCrawlerManager"))
 #if($subCrawlerManager)
 <fieldset id="dcrawler">
-	<legend>Crawler</legend>
+	<legend>${text.legend.crawler}</legend>
 	#set( $crawlers = $manager.getServices( "org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
 	#if ( $crawlers)
 		#foreach( $crawler in $crawlers)
@@ -64,58 +67,58 @@
 			#elseif( $doProcessNextCrawl && $doProcessNextCrawl == true)				
 				$crawler.processNext()
 			#end
-			The crawler is 
+			
 			#if( $crawler.isPaused() == true)
-				<span class="statusPaused">paused</span>
+				${text.crawler.status.paused.insert('statusPaused')}				
 				<form method="get" action="#dcrawler">
 					<p>
-						<input class="btnResume" type="submit" name="resumeCrawl" value="Resume" />
-						<input type="submit" name="processNextCrawl" value="Process Next" />
+						<input class="btnResume" type="submit" name="resumeCrawl" value="${text.crawler.doResume}" />
+						<input type="submit" name="processNextCrawl" value="${text.crawler.doNext}" />
 					</p>
 				</form>
 			#else 
-				<span class="statusRunning">running</span>
+				${text.crawler.status.running.insert('statusRunning')}
 				<form method="get" action="#dcrawler">
 					<p>
-						<input class="btnPause" type="submit" name="pauseCrawl" value="Pause" />
+						<input class="btnPause" type="submit" name="pauseCrawl" value="${text.crawler.doPause}" />
 					</p>
 				</form>
 			#end
-			Current PPM: $crawler.getPPM()
+			${text.crawler.currentPPM.insert($crawler.getPPM())}
 		#end
 	#end
 
 
 	<hr />		
-	<h3>Supported protocols:</h3>
+	<h3>${text.crawler.supportedPrototocols.title}</h3>
 	#set($protocols = $subCrawlerManager.getProtocols())
 	#set($crawlers = $subCrawlerManager.getSubCrawlers())		
-	<p><strong>$crawlers.size()</strong> crawler(s) installed supporting <strong>$protocols.size()</strong> protocols.</p>
+	<p>${text.crawler.supportedPrototocols.status.insert("<strong>$crawlers.size()</strong>", "<strong>$protocols.size()</strong>")}</p>
 	
 	## Enable/Disable protocols if requested
 	#if( $paramParser.getString( "doEnableProtocol")) $subCrawlerManager.enableProtocol( $paramParser.getString( "enableProtocol"))#end
 	#if( $paramParser.getString( "doDisableProtocol")) $subCrawlerManager.disableProtocol( $paramParser.getString( "disableProtocol"))#end
 
 	<table>
-		<tr><th>Protocol</th><th colspan="2">Status</th></tr>
+		<tr><th>${text.crawler.protocol}</th><th colspan="2">${text.crawler.status}</th></tr>
 		#set( $disabledProtocols = $subCrawlerManager.disabledProtocols())
 		#foreach($protocol in $protocols)
 			<tr>
 				<td>$protocol</td>
 				<td>#if( $disabledProtocols.contains( $protocol))
-					<span class="statusDisabled">disabled</span>
+					<span class="statusDisabled">${text.status.disabled}</span>
 				    #else
-					<span class="statusEnabled">enabled</span>
+					<span class="statusEnabled">${text.status.enabled}</span>
 				    #end
 				</td>
 				<td>
 					<form method="get" action="#dcrawler">
 						<div>
 							#if( $disabledProtocols.contains( $protocol))
-							<input class="btnEnable" type="submit" name="doEnableProtocol" value="enable" />
+							<input class="btnEnable" type="submit" name="doEnableProtocol" value="${text.status.doEnable}" />
 							<input type="hidden" name="enableProtocol" value="$protocol" />
 							#else
-							<input class="btnDisable" type="submit" name="doDisableProtocol" value="disable" />
+							<input class="btnDisable" type="submit" name="doDisableProtocol" value="${text.status.doDisable}" />
 							<input type="hidden" name="disableProtocol" value="$protocol" />
 							#end
 						</div>
@@ -126,17 +129,17 @@
 	</table>
 	
 	<hr />
-	<h3>Deployed crawler input-queue filters:</h3>
+	<h3>${text.crawler.inFilters}:</h3>
 	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"), "org.paxle.crawler.in")
 
 	<hr />
-	<h3>Deployed crawler output-queue filters:</h3>
+	<h3>${text.crawler.outFilters}:</h3>
 	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"), "org.paxle.crawler.out")
 </fieldset>
 #else
 <fieldset id="dcrawler">
-	<legend>Crawler</legend>	
-	<p class="error bundleNotInstalled">Crawler bundle not installed!</p>
+	<legend>${text.legend.crawler}</legend>	
+	<p class="error bundleNotInstalled">${text.crawler.notInstalled}</p>
 </fieldset>	
 #end
 
@@ -147,51 +150,50 @@
 #set( $subParserManager = $manager.getService( "org.paxle.parser.ISubParserManager"))
 #if( $subParserManager)
 <fieldset id="dparser">
-	<legend>Parser</legend>
+	<legend>${text.legend.parser}</legend>
 	#set( $parsers = $manager.getServices( "org.paxle.core.IMWComponent", "(component.ID=org.paxle.crawler)"))	
 	#if( $parsers)
-	#foreach( $parser in $parsers)
-		<p>The parser is 
-		#if( $parser.isPaused() == true)
-		<span class="statusPaused">paused</span>
-		#else 
-		<span class="statusRunning">running</span>
-		#end.
-		</p>
-	#end
+    	#foreach( $parser in $parsers)
+    		<p>
+    		#if( $parser.isPaused() == true)
+    			${text.parser.status.paused.insert("statusPaused")}
+    		#else
+    			${text.parser.status.running.insert("statusPaused")}
+    		#end
+    		</p>
+    	#end
 	#end
 
 	<hr />
-	<h3>Supported mimetypes:</h3>	
+	<h3>${text.parser.supportedMimeTypes.title}:</h3>	
 	#set( $mimeTypes = $subParserManager.getMimeTypes())
 	#set( $parsers = $subParserManager.getSubParsers())		
-	<p><strong>$parsers.size()</strong> parser(s) installed supporting <strong>$mimeTypes.size()</strong> mime-types.</p>
+	<p>${text.parser.supportedMimeTypes.status.insert("<strong>$parsers.size()</strong>","<strong>$mimeTypes.size()</strong>")}</p>
 	
 	## Enable/Disable mime-types if requested
 	#if( $paramParser.getString( "doEnableMimeType")) $subParserManager.enableMimeType( $paramParser.getString( "enableMimeType"))#end
-	#if( $paramParser.getString( "doDisableMimeType")) $subParserManager.disableMimeType( $paramParser.getString( "disableMimeType"))#end	
-	
+	#if( $paramParser.getString( "doDisableMimeType")) $subParserManager.disableMimeType( $paramParser.getString( "disableMimeType"))#end		
 
 	<table>
-		<tr><th>Mime-Type</th><th colspan="2">Status</th></tr>
+		<tr><th>${text.parser.mimeType}</th><th colspan="2">${text.parser.status}</th></tr>
 		#set( $disabledMimeTypes = $subParserManager.disabledMimeTypes())
 		#foreach( $mimeType in $mimeTypes)
 		<tr>
 			<td>$mimeType</td>
 			<td>#if( $disabledMimeTypes.contains( $mimeType))
-				<span class="statusDisabled">disabled</span>
+				<span class="statusDisabled">${text.status.disabled}</span>
 			    #else
-				<span class="statusEnabled">enabled</span>
+				<span class="statusEnabled">${text.status.enabled}</span>
 			    #end
 			</td>
 			<td>
 				<form method="get" action="#dparser">
 					<div>
 						#if( $disabledMimeTypes.contains( $mimeType))
-						<input class="btnEnable" type="submit" name="doEnableMimeType" value="enable" />
+						<input class="btnEnable" type="submit" name="doEnableMimeType" value="${text.status.doEnable}" />
 						<input type="hidden" name="enableMimeType" value="$mimeType" />
 						#else
-						<input class="btnDisable" type="submit" name="doDisableMimeType" value="disable" />
+						<input class="btnDisable" type="submit" name="doDisableMimeType" value="${text.status.doDisable}" />
 						<input type="hidden" name="disableMimeType" value="$mimeType" />
 						#end
 					</div>
@@ -202,17 +204,17 @@
 	</table>		
 	
 	<hr />
-	<h3>Deployed parser input-queue filters:</h3>
+	<h3>${text.parser.inFilters}:</h3>
 	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"), "org.paxle.parser.in")
 	
 	<hr />
-	<h3>Deployed parser output-queue filters:</h3>
+	<h3>${text.parser.outFilters}:</h3>
 	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"),"org.paxle.parser.out")	
 </fieldset>
 #else
 <fieldset id="dparser">
-	<legend>Parser</legend>
-	<p class="error notInstalled">Parser bundle not installed!</p>
+	<legend>${text.legend.parser}</legend>
+	<p class="error notInstalled">${text.parser.notInstalled}</p>
 </fieldset>	
 #end	
 
@@ -223,21 +225,21 @@
 #set( $se = $manager.getService( "org.paxle.se.index.IIndexSearcher"))
 #if( $se)
 <fieldset id="dindex">
-	<legend>Index</legend>
-	<p>Known documents: $se.docCount</p>
+	<legend>${text.legend.indexer}</legend>
+	<p>${text.indexer.status.insert($se.docCount)}</p>
 		
 	<hr />
-	<h3>Deployed indexer input-queue filters:</h3>
+	<h3>${text.indexer.inFilters}:</h3>
 	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"), "org.paxle.indexer.in")	
 	
 	<hr />
-	<h3>Deployed indexer output-queue filters:</h3>
+	<h3>${text.indexer.outFilters}:</h3>
 	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"), "org.paxle.indexer.out")		
 </fieldset>
 #else
 <fieldset id="dindex">
-	<legend>Index</legend>
-	<p class="error notInstalled">Indexer bundle not installed!</p>	
+	<legend>${text.legend.indexer}</legend>
+	<p class="error notInstalled">${text.indexer.notInstalled}</p>	
 </fieldset>	
 #end
 
@@ -248,10 +250,10 @@
 #set( $sp = $manager.getService( "org.paxle.se.search.ISearchProviderManager"))
 #if( $sp)
 <fieldset id="dsearch">
-	<legend>Search</legend>
+	<legend>${text.legend.searchEngine}</legend>
 		
-	<h3>Installed Search Providers:</h3>
-	<p>$sp.getSearchProviders().size() provider(s) found:</p>
+	<h3>${text.se.supportedProviders.title}:</h3>
+	<p>${text.se.supportedProviders.status.insert($sp.getSearchProviders().size())}:</p>
 	
 	## Enable/Disable providers
 	#if( $paramParser.getString( "doEnableSEProvider")) $sp.enableProvider( $paramParser.getString( "enableSEProvider"))#end
@@ -259,25 +261,25 @@
 	
 
 	<table>
-		<tr><th>Provider</th><th colspan="2">Status</th></tr>
+		<tr><th>${text.se.provider}</th><th colspan="2">${text.se.status}</th></tr>
 		#set( $disabledSEProviders = $sp.disabledProviders())
 		#foreach( $searchprovider in $sp.getSearchProviders())
 		<tr>
 			<td>$searchprovider.getClass().getName()</td>
 			<td>#if( $disabledSEProviders.contains( $searchprovider.getClass().getName()))
-				<span class="statusDisabled">disabled</span>
+				<span class="statusDisabled">${ŧext.status.disabled}</span>
 				#else
-				<span class="statusEnabled">enabled</span>
+				<span class="statusEnabled">${text.status.enabled}</span>
 				#end
 			</td>
 			<td>
 				<form method="get" action="#dsearch">
 					<div>
 						#if( $disabledSEProviders.contains( $searchprovider.getClass().getName()))
-						<input class="btnEnable" type="submit" name="doEnableSEProvider" value="enable" />
+						<input class="btnEnable" type="submit" name="doEnableSEProvider" value="${text.status.doEnable}" />
 						<input type="hidden" name="enableSEProvider" value="$searchprovider.getClass().getName()" />
 						#else
-						<input class="btnDisable" type="submit" name="doDisableSEProvider" value="disable" />
+						<input class="btnDisable" type="submit" name="doDisableSEProvider" value="${text.status.doDisable}" />
 						<input type="hidden" name="disableSEProvider" value="$searchprovider.getClass().getName()" />
 						#end
 					</div>
@@ -290,8 +292,8 @@
 </fieldset>
 #else
 <fieldset id="dsearch">
-	<legend>Search</legend>
-	<p class="error notInstalled">Search-Engine bundle not installed!</p>	
+	<legend>${text.legend.searchEngine}</legend>
+	<p class="error notInstalled">${text.se.notInstalled}</p>	
 </fieldset>	
 #end
 
@@ -302,13 +304,13 @@
 #set( $servletManager = $manager.getService( "org.paxle.gui.IServletManager"))
 #if( $servletManager)
 <fieldset id="dgui">
-	<legend>GUI</legend>
+	<legend>${text.legend.gui}</legend>
 		
-	<h3>Installed Servlets:</h3>
-	<p>$servletManager.getServlets().size() servlet(s) found:</p>
+	<h3>${text.gui.supportedServlets.title}:</h3>
+	<p>${text.gui.supportedServlets.status.insert($servletManager.getServlets().size())}:</p>
 	
 	<table>		
-		<tr><th>Path</th><th>Class</th></tr>
+		<tr><th>${text.gui.path}</th><th>${text.gui.class}</th></tr>
 		#foreach( $servlet in $sortTool.sort( $servletManager.getServlets().entrySet(), ["key"]))
 		<tr>
 			<td><a href="$servlet.getKey()">$servlet.getKey()</a></td>
@@ -318,15 +320,15 @@
 	</table>		
 	<hr />
 	
-	<h3>Registered Resources:</h3>
-	$servletManager.getResources().size() resource(s) found:<p />
+	<h3>${text.gui.supportedResources.title}:</h3>
+	<p>${text.gui.supportedResources.status.insert($servletManager.getResources().size())}:<p />
 	
 	<table>		
 		<tr><th>Path</th><th>Class</th></tr>
 		#foreach( $resources in $sortTool.sort( $servletManager.getResources().entrySet(), ["key"]))
 		<tr>
-			<td><a href="$resources.getKey()">$resources.getKey()</a></td>
-			<td>$resources.getValue()</td>
+			<td><a href="$resources.getKey()">${resources.getKey()}</a></td>
+			<td>${resources.getValue()}</td>
 		</tr>
 		#end
 	</table>	
@@ -339,13 +341,13 @@
 #set($cacheManager = $statusView.getCacheManager())
 #if($cacheManager)
 <fieldset id="dcache">
-	<legend>Cache</legend>
+	<legend>${text.legend.cache}</legend>
 		
-	<h3>Found Caches:</h3>
-	<p>$listTool.size(${cacheManager.getCacheNames()}) caches(s) found:</p>
+	<h3>${text.cache.foundCaches.title}:</h3>
+	<p>${text.cache.foundCaches.status.insert($listTool.size($cacheManager.getCacheNames()))}:</p>
 	
 	<table>		
-		<tr><th>Name</th><th>Status</th></tr>
+		<tr><th>${text.cache.name}</th><th>${text.cache.status}</th></tr>
 		#foreach($cacheName in ${cacheManager.getCacheNames()})
 		<tr>
 			#set($statistic = $cacheManager.getCache($cacheName).getStatistics())
@@ -357,7 +359,7 @@
 </fieldset>
 #else
 <fieldset id="dcache">
-	<legend>Cache</legend>
-	<p class="error notInstalled">Ehcache bundle not installed!</p>	
+	<legend>${text.legend.cache}</legend>
+	<p class="error notInstalled">${text.cache.notInstalled}</p>	
 </fieldset>	
 #end	
