@@ -1,32 +1,36 @@
 #if( $services.size() > 0)
+    #if(!$text)
+    	#set($text = $resourceTool.bundle('OSGI-INF/l10n/overview'))
+    #end		
+	
 <fieldset class="infobox">
-	<legend class="ovActivity">Activity</legend>
+	<legend class="ovActivity">${text.legend.ovActivity}</legend>
 	<table>
 		<tr>
 			<th>#</th>
-			<th>Status</th>
-			<th>Component</th>
-			<th>PPM</th>
-			<th>Active</th>
-			<th>Enqueued</th>
+			<th>${text.ovActivity.status}</th>
+			<th>${text.ovActivity.component}</th>
+			<th>${text.ovActivity.ppm}</th>
+			<th>${text.ovActivity.active}</th>
+			<th>${text.ovActivity.enqueued}</th>
 		</tr>
-		#foreach( $entry in $services)
-		#if ( $entry.getCount() == 1)
-			#set( $name = $entry.getName())
+		#foreach($entry in $services)
+		#if ($entry.getCount() == 1)
+			#set($name = $entry.getName())
 		#else
-			#set( $name = $entry.getName() + "s")
+			#set($name = $entry.getName() + "s")
 		#end
 		<tr>
-			<td>$entry.getCount()</td>	
+			<td>${entry.getCount()}</td>	
 			<td>
 				<form method="get" action="">
 					<div>
 					#if( $entry.service.isPaused() == true)
 						<input type="hidden" name="service" value="$entry.getName()" />
-						<input class="btnResume" type="submit" name="resume" value="Resume" />
+						<input class="btnResume" type="submit" name="resume" value="${text.ovActivity.doResume}" />
 					#else 
 						<input type="hidden" name="service" value="$entry.getName()" />
-						<input class="btnPause" type="submit" name="pause" value="Pause" />
+						<input class="btnPause" type="submit" name="pause" value="${text.ovActivity.doPause}" />
 					#end
 					</div>
 				</form>

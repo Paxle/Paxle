@@ -1,70 +1,73 @@
+## getting resourcebundle to translate site
+#set( $text = $resourceTool.bundle('OSGI-INF/l10n/overview'))
+
 ## Page title
-#set($page_title = "Paxle Peer Status")
+#set($page_title = ${text.browser.title})
 
 #set( $h1 = "<script src='/js/prototype.js' type='text/javascript'></script>")
 #set( $page_headers = [$h1] )
 
 ## Content
 <fieldset class="infobox" id="dsystem">
-	<legend class="ovSystem">System</legend>
+	<legend class="ovSystem">${text.legend.ovSystem}</legend>
 	<table>
 		<tr>
-			<th>Name</th>
-			<th>Value</th>
+			<th>${text.table.name}</th>
+			<th>${text.table.value}</th>
 		</tr>
 		<tr>
-			<td><b>CPUs</b></td>
-			<td>$runtime.availableProcessors()</td>
+			<td><b>${text.ovSystem.cpus}</b></td>
+			<td>${runtime.availableProcessors()}</td>
 		</tr>
 		<tr>
-			<td><b>OS</b></td>
+			<td><b>${text.ovSystem.os}</b></td>
 			<td>$sysprops.get("os.arch") $sysprops.get("os.name") $sysprops.get("os.version")</td>
 		</tr>
 		<tr>
-			<td><b>JVM</b></td>
+			<td><b>${text.ovSystem.jvm}</b></td>
 			<td>$sysprops.get("java.vendor")<br />$sysprops.get("java.runtime.name")<br />$sysprops.get("java.version")</td>
 		</tr>
 		<tr>
-			<td><b>OSGi v$osgiVersion</b></td>
+			<td><b>${text.ovSystem.osgi.insert($osgiVersion)}</b></td>
 			<td>by $frameworkVendor,<br />version $frameworkVersion</td>
 		</tr>
 	</table>
 </fieldset>
 
 <fieldset class="infobox" id="dmemory">
-	<legend class="ovMemory">Memory</legend>
+	<legend class="ovMemory">${text.legend.ovMemory}</legend>
 	#set($used = ( $runtime.totalMemory() - $runtime.freeMemory()) / ( 1024 * 1024))
 	#set($free = ( $runtime.maxMemory() - $runtime.totalMemory() + $runtime.freeMemory()) / ( 1024 * 1024))
 	#set($total = $runtime.maxMemory() / ( 1024 * 1024))
 	#set($disk = ${overview.getFreeDiskspaceKb()} / 1024)
 	<table>
 		<tr>
-			<th>Name</th>
-			<th>Value</th>
+			<th>${text.table.name}</th>
+			<th>${text.table.value}</th>
 		</tr>
 		<tr>
-			<td><b>Memory used</b></td>
+			<td><b>${text.ovMemory.memUsed}</b></td>
 			<td>$used MiB</td>
 	    </tr>
 	    <tr>
-			<td><b>Memory free</b></td>
+			<td><b>${text.ovMemory.memFree}</b></td>
 			<td>$free MiB</td>
 		</tr>
 		<tr>
-			<td><b>Memory total</b></td>
+			<td><b>${text.ovMemory.memTotal}</b></td>
 			<td>$total MiB</td>
 		</tr>
 		<tr>
-			<td><b>Diskspace free</b></td>
+			<td><b>${text.ovMemory.diskFree}</b></td>
 			<td>$disk MiB</td>
 		</tr>		
 		<tr>
-			<td><b>Memory misc</b></td>
+			<td><b>${text.ovMemory.memMisc}</b></td>
 			<td>
 				<form action="/overview" method="post">
 					<div>
 						<input type="hidden" name="gc" value="GC" />
-						<input type="submit" value="run Garbage Collection" />
+						<input type="submit" value="${text.ovMemory.memMisc.runGC}" />
 					</div>
 				</form>
 			</td>
@@ -73,18 +76,18 @@
 </fieldset>
 
 <fieldset class="infobox" id="dhost">
-	<legend class="ovHost">Host</legend>
+	<legend class="ovHost">${text.legend.ovHost}</legend>
 	<table>
 		<tr>
-			<th>Name</th>
-			<th>Value</th>
+			<th>${text.table.name}</th>
+			<th>${text.table.value}</th>
 		</tr>
 		<tr>
-			<td><b>Hostname</b></td>
+			<td><b>${text.ovHost.hostname}</b></td>
 			<td>$hostname</td>
 		</tr>
 		<tr>
-			<td><b>IP</b></td>
+			<td><b>${text.ovHost.ip}</b></td>
 			<td>$ip:$port</td>
 		</tr>
 	</table>

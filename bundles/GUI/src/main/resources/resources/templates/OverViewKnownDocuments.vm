@@ -1,10 +1,13 @@
 #if( $indexSearcher)
-<fieldset class="infobox">
-	<legend class="ovDatabase">Index</legend>
-	<dl>
-		<dt>Documents known:</dt><dd>$indexSearcher.getDocCount()</dd>
-	</dl>
-</fieldset>
+    #if(!$text)
+    	#set($text = $resourceTool.bundle('OSGI-INF/l10n/overview'))
+    #end	
+    <fieldset class="infobox">
+    	<legend class="ovDatabase">${text.legend.ovDatabase}</legend>
+    	<dl>
+    		<dt>${text.ovDatabase.knownDocs}:</dt><dd>$indexSearcher.getDocCount()</dd>
+    	</dl>
+    </fieldset>
 #end
 
 
