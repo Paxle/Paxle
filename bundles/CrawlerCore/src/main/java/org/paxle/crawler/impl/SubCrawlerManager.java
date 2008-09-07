@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -29,7 +30,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 	/* ==============================================================
 	 * CM properties
 	 * ============================================================== */
-	private static final String ENABLED_PROTOCOLS = PID + "." + "disabledProtocols";
+	private static final String ENABLED_PROTOCOLS = PID + "." + "enabledProtocols";
 	
 	/**
 	 * For logging
@@ -222,8 +223,11 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
 	 */
 	@SuppressWarnings("unchecked")
-	public ObjectClassDefinition getObjectClassDefinition(String id, String locale) {
+	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
 		final HashMap<String, ISubCrawler> crawlers = (HashMap<String, ISubCrawler>) this.subCrawlerList.clone();	
+		
+		Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
+		final ResourceBundle rb = ResourceBundle.getBundle("localization/" + ISubCrawlerManager.class.getSimpleName(), locale);		
 		
 		return new ObjectClassDefinition() {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {
@@ -246,7 +250,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 						}
 
 						public String getDescription() {
-							return "Crawler protocols that should be enabled";
+							return rb.getString("subcrawlerManager.enabledProtocols.desc");
 						}
 
 						public String getID() {
@@ -254,7 +258,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 						}
 
 						public String getName() {
-							return "Enabled Protocols";
+							return rb.getString("subcrawlerManager.enabledProtocols.name");
 						}
 
 						public String[] getOptionLabels() {
@@ -277,7 +281,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 			}
 
 			public String getDescription() {
-				return "Component to manage the available crawlers";
+				return rb.getString("subcrawlerManager.desc");
 			}
 
 			public String getID() {
@@ -285,11 +289,13 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 			}
 
 			public InputStream getIcon(int size) throws IOException {
-				return null;
+				return (size == 16) 
+				? this.getClass().getResourceAsStream("/images/network.png")
+				: null;
 			}
 
 			public String getName() {				
-				return "Subcrawler Manager";
+				return rb.getString("subcrawlerManager.name");
 			}			
 		};
 	}

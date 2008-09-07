@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -30,7 +31,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	/* ==============================================================
 	 * CM properties
 	 * ============================================================== */	
-	private static final String ENABLED_MIMETYPES = PID + "." + "disabledMimeTypes";
+	private static final String ENABLED_MIMETYPES = PID + "." + "enabledMimeTypes";
 	
 	/**
 	 * A {@link HashMap} containing the mime-types that is supported by the sub-parser as key and
@@ -221,8 +222,11 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
 	 */
 	@SuppressWarnings("unchecked")
-	public ObjectClassDefinition getObjectClassDefinition(String id, String locale) {
+	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
 		final HashMap<String, ISubParser> parsers = (HashMap<String, ISubParser>) this.subParserList.clone();
+		
+		Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
+		final ResourceBundle rb = ResourceBundle.getBundle("localization/" + ISubParserManager.class.getSimpleName(), locale);	
 		
 		return new ObjectClassDefinition() {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {
@@ -245,7 +249,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 						}
 
 						public String getDescription() {
-							return "Parser mimetypes that should be enabled";
+							return rb.getString("subparserManager.enabledMimeTypes.desc");
 						}
 
 						public String getID() {
@@ -253,7 +257,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 						}
 
 						public String getName() {
-							return "Enabled MimeTypes";
+							return rb.getString("subparserManager.enabledMimeTypes.name");
 						}
 
 						public String[] getOptionLabels() {
@@ -276,7 +280,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 			}
 
 			public String getDescription() {
-				return "Component to manage the available parsers";
+				return rb.getString("subparserManager.desc");
 			}
 
 			public String getID() {
@@ -284,11 +288,13 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 			}
 
 			public InputStream getIcon(int size) throws IOException {
-				return null;
+				return (size == 16) 
+				? this.getClass().getResourceAsStream("/images/filetypes.png")
+				: null;
 			}
 
 			public String getName() {				
-				return "Subparser Manager";
+				return rb.getString("subparserManager.name");
 			}			
 		};
 	}
