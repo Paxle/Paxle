@@ -226,7 +226,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		final HashMap<String, ISubParser> parsers = (HashMap<String, ISubParser>) this.subParserList.clone();
 		
 		Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
-		final ResourceBundle rb = ResourceBundle.getBundle("localization/" + ISubParserManager.class.getSimpleName(), locale);	
+		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + ISubParserManager.class.getSimpleName(), locale);	
 		
 		return new ObjectClassDefinition() {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {
@@ -289,7 +289,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 
 			public InputStream getIcon(int size) throws IOException {
 				return (size == 16) 
-				? this.getClass().getResourceAsStream("/images/filetypes.png")
+				? this.getClass().getResourceAsStream("/OSGI-INF/images/filetypes.png")
 				: null;
 			}
 
