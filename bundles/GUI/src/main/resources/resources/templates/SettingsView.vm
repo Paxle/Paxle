@@ -1,10 +1,13 @@
+## getting resourcebundle to translate site
+#set( $text = $resourceTool.bundle('OSGI-INF/l10n/settingsview'))
+
 ## Set the page title
-#set( $page_title = "Settings Controlpage" )
+#set( $page_title = ${text.browser.pageTitle} )
 
 
 <ul class="tabs">
-	<li><a href="?settings=config" #if($paramParser.getString("settings") && $paramParser.getString("settings") == "config")class="active"#end>Config-Management</a></li>
-	<li><a href="?settings=user" #if($paramParser.getString("settings") && $paramParser.getString("settings") == "user")class="active"#end>User-Management</a></li>
+	<li><a href="?settings=config" #if($paramParser.getString("settings") && $paramParser.getString("settings") == "config")class="active"#end>${text.tab.configManagement}</a></li>
+	<li><a href="?settings=user" #if($paramParser.getString("settings") && $paramParser.getString("settings") == "user")class="active"#end>${text.tab.userManagement}</a></li>
 </ul>
 
 #if($errorMsg)

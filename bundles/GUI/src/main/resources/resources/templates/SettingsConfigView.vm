@@ -1,8 +1,9 @@
-#set( $configAdmin = $manager.getService( "org.osgi.service.cm.ConfigurationAdmin"))
-#set( $metaTypeService = $manager.getService( "org.osgi.service.metatype.MetaTypeService"))
+#set($configAdmin = $manager.getService( "org.osgi.service.cm.ConfigurationAdmin"))
+#set($metaTypeService = $manager.getService( "org.osgi.service.metatype.MetaTypeService"))
+#set($requestLocale = $request.getLocale().getLanguage())
 
 #if( $metaTypeService && $configAdmin)
-	<h3>Configuration Management #if($paramParser.getString("viewImportedConfig"))- Import#end</h3>
+	<h3>${text.tab.configManagement} #if($paramParser.getString("viewImportedConfig"))- ${text.import.title}#end</h3>
 	#if( $paramParser.getString("bundleID") && $paramParser.getString("pid"))
 		## the service-PID for which the configuration should be displayed
 		#set($PID = $paramParser.getString("pid"))
@@ -15,8 +16,15 @@
 		#set($metaType = $metaTypeService.getMetaTypeInformation($bundle))
 		#if($metaType)
 			#if($bundle.getBundleId() == $metaType.getBundle().getBundleId())
-    			#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
-    			#if($ocd)
+
+				#if($listTool.contains($metaType.getLocales(),$requestLocale))
+					#set($language = $requestLocale)
+				#else
+					#set($language = "en")
+				#end
+				
+    			#set($ocd = $metaType.getObjectClassDefinition($PID, $language))
+    			#if($ocd)										
     				<p>
 						<p>
 							<img src="?settings=config&amp;bundleID=$bundleID&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/>
@@ -25,12 +33,12 @@
 						</p>						
 						    					
 						#if($paramParser.getString("viewImportedConfig"))
-							<div>Uploaded Configuration values that could be imported for this service</div>
+							<div>${text.import.viewDetailedConfig}:</div>
 							
 							## getting configuration properties that can be imported
 							#set($configProps = ${importedConfigProps.get($PID)})
 						#else
-							<div>The current configuration of this service:</div>
+							<div>${text.listConfig.viewDetailedConfig}:</div>
 							
 							## getting the current configuration
 							#set($configProps = $configAdmin.getConfiguration($PID,${bundle.getLocation()}).getProperties())
@@ -46,10 +54,10 @@
 								
                             	<table>
                             	<tr>
-                            		<th>Name</th>
-        							<th>Type</th>
-                            		<th>Value</th>
-    								<th>Description</th>
+                            		<th>${text.listConfig.name}</th>
+        							<th>${text.listConfig.type}</th>
+                            		<th>${text.listConfig.value}</th>
+    								<th>${text.listConfig.desc}</th>
                             	</tr>
                             	#foreach($attribute in $attributes)
     								#set($attributeID = ${attribute.getID()})								
@@ -88,10 +96,10 @@
     										#else 
         										#if($attribType == "Boolean")
     												<input type="radio" name="$attributeID" id="true$attributeID" value="true" #if($attribValue)checked="checked"#end>
-    												<label for="true$attributeID">Yes</label>
+    												<label for="true$attributeID">${text.listConfig.lable.yes}</label>
     												&nbsp;
     												<input type="radio" name="$attributeID" id="false$attributeID" value="false" #if(!$attribValue)checked="checked"#end>
-    												<label for="false$attributeID">No</label> 
+    												<label for="false$attributeID">${text.listConfig.lable.no}</label> 
         										#else
         											<input type="#if($attributeID.toLowerCase().contains("password"))password#else{text}#end" name="$attributeID" value="$!attribValue"/>
         										#end	
@@ -100,20 +108,20 @@
     									<td class="descriptionText">
     										${attribute.getDescription()}
     										#if($attributeID.toLowerCase().contains("password"))
-    											<p><em>Be aware that this password is being saved unencrypted.</em></p>
+    											<p><em>${text.listConfig.passwordPlaintextWarning}</em></p>
     										#end
     									</td>
                             		</tr>                            		
                             	#end
                             	</table>
 								#if(!$paramParser.getString("viewImportedConfig"))
-									<input type="submit" name="doEditConfig" value="Change"/>									
-									<input type="submit" name="doExportConfig" value="Export"/>
+									<input type="submit" name="doEditConfig" value="${text.listConfig.doChange}"/>									
+									<input type="submit" name="doExportConfig" value="${text.listConfig.doExport}"/>
 								#else
-									<input type="submit" name="doImportConfig" value="Import"/>
+									<input type="submit" name="doImportConfig" value="${text.listConfig.doImport}"/>
 									<input type="hidden" name="viewImportedConfig"/>
 								#end
-								<a class="button" href="?settings=config#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">Back to Overview</a>
+								<a class="button" href="?settings=config#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${text.listConfig.goBackToOverview}</a>
 							</form>
     					#end
     					<hr/>
@@ -121,11 +129,11 @@
 				#end
 				
 				#if($PID == "org.paxle.gui.IStyleManager")
-					<b>Upload new styles jar</b>
+					<b>${text.styleManager.uploadStyles}</b>
                     <form enctype="multipart/form-data" method="post" action="?doInstallStyle=">
                     	<p>
                     		<input type="file" name="styleJar" size="60" />
-                    		<input type="submit" name="doUpload" value="Install" />
+                    		<input type="submit" name="doUpload" value="${text.styleManager.doInstall}" />
                     	</p>
                     </form>
 				#end
@@ -134,18 +142,18 @@
 	#else 
 		#if($paramParser.getString("viewImportedConfig"))
 			#if(${importedConfigProps.size()} > 0)
-				<div class="descriptionText">The uploaded configuration file contains settings for the following services:</div>
+				<div class="descriptionText">${text.import.settingsAvailable}:</div>
 			#else
-				<div class="descriptionText" style="color:red;">No settings left to import.</div>
+				<div class="descriptionText" style="color:red;">${text.import.settingsUnavailable}</div>
 			#end
 		#else
-			<div class="descriptionText">The following list shows all services installed on the system that can be configured by the user:</div>
+			<div class="descriptionText">${text.listConfig.settingsAvailable}</div>
 		#end
 		<table>
 		<tr>
 			<th>&nbsp;</th>
-			<th>Name</th>
-			<th>Description</th>
+			<th>${text.listConfig.name}</th>
+			<th>${text.listConfig.desc}</th>
 		</tr>
 		#set($color = $alternatorTool.auto('r1','r2'))
 		
@@ -160,7 +168,14 @@
         				## loop through all managed services and fetch the
         				## corresponding ObjectClassDefinitions
         				#foreach($PID in $PIDs)
-        					#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
+							## determine the language to use
+            				#if($listTool.contains($metaType.getLocales(),$requestLocale))
+            					#set($language = $requestLocale)
+            				#else
+            					#set($language = "en")
+            				#end							
+							
+        					#set($ocd = $metaType.getObjectClassDefinition($PID, $language))
         					#if($ocd && (!$paramParser.getString("viewImportedConfig") || ${importedConfigProps.containsKey($PID)}))
     							<tr class="$color">
 									<td><img src="?settings=config&amp;bundleID=${bundle.getBundleId()}&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/></td>
@@ -199,32 +214,28 @@
 		
 		#if(!$paramParser.getString("viewImportedConfig"))
 		<p>
-			<b>Export Configuration</b>
-			<div class="descriptionText">
-				Use this function to export the configuration of all services listed above into a zip file.
-			</div>
+			<b>${text.export.title}</b>
+			<div class="descriptionText">${text.export.desc}</div>
 		    <form action="?settings=config">
-           	<p>
-           		<input type="submit" name="doExportConfig" value="Export Configuration" />
-           	</p>
+               	<p>
+               		<input type="submit" name="doExportConfig" value="${text.export.doExport}" />
+               	</p>
 			</form>	
 		</p>
 				
 		<p>
-    		<b>Import Configuration</b>
-			<div class="descriptionText">
-				Use this function to import the configuration of services you have previously exported.
-			</div>
+    		<b>${text.import.title}</b>
+			<div class="descriptionText">${text.import.desc}</div>
             <form enctype="multipart/form-data" method="post" action="?settings=config&amp;viewImportedConfig=">
             	<p>
             		<input type="file" name="configFile" size="60" />
-            		<input type="submit" name="doUpload" value="Upload" />
+            		<input type="submit" name="doUpload" value="${text.import.doUpload}" />
             	</p>
             </form>	
 		</p>
 		#end
 	#end
 #else 
-	#if(!$configAdmin)<div class="bundleNotInstalled">Configuration Administration bundle not installed!</div>#end
-	#if(!$metaTypeService)<div class="bundleNotInstalled">Metatype bundle not installed!</div>#end
+	#if(!$configAdmin)<div class="bundleNotInstalled">${text.cmBundle.notInstalled}</div>#end
+	#if(!$metaTypeService)<div class="bundleNotInstalled">${text.metaTypeBundle.notInstalled}</div>#end
 #end
