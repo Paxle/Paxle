@@ -227,7 +227,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 		final HashMap<String, ISubCrawler> crawlers = (HashMap<String, ISubCrawler>) this.subCrawlerList.clone();	
 		
 		Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
-		final ResourceBundle rb = ResourceBundle.getBundle("localization/" + ISubCrawlerManager.class.getSimpleName(), locale);		
+		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + ISubCrawlerManager.class.getSimpleName(), locale);		
 		
 		return new ObjectClassDefinition() {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {
@@ -290,7 +290,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 
 			public InputStream getIcon(int size) throws IOException {
 				return (size == 16) 
-				? this.getClass().getResourceAsStream("/images/network.png")
+				? this.getClass().getResourceAsStream("/OSGI-INF/images/network.png")
 				: null;
 			}
 
