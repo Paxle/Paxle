@@ -12,8 +12,8 @@
 
 #if( $restart )
 <img src="../images/restart.png">
-<h2>${text.shutdownMsg}</h2>
+<h2>${text.restartMsg}</h2>
 #else
 <img src="../images/shutdown.png">
-<h2>${text.restartMsg}</h2>
+<h2>${text.shutdownMsg}</h2>
 #end
