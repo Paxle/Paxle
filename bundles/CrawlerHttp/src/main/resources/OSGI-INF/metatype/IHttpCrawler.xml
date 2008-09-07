@@ -1,82 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<metatype:MetaData 
+	xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	localization="/localization/IHttpCrawler">
 
-	<OCD description="Crawler to download http resources" 
-			name="HTTP Crawler"
+	<OCD description="%httpCrawler.desc" 
+			name="%httpCrawler.name"
 			id="1.1.1.1">
 		
-		<AD name="Max Connections per Host"
+		<AD name="%httpCrawler.maxConnectionsPerHost.name"
 				type="Integer"
 				id="maxConnectionsPerHost"
 				default="10"
 				min="1" 
-				description="Defines the maximum number of connections allowed per host configuration."/>
+				description="%httpCrawler.maxConnectionsPerHost.desc"/>
 		
-		<AD name="Socket Timeout"
+		<AD name="%httpCrawler.socketTimeout.name"
 				type="Integer"
 				id="socketTimeout"
 				default="15000"
 				min="1000"
-				description="Defines the socket timeout in milliseconds which is the timeout for waiting for data."/>
+				description="%httpCrawler.socketTimeout.desc"/>
 		
-		<AD name="Connection Timeout"
+		<AD name="%httpCrawler.connectionTimeout.name"
 				type="Integer"
 				id="connectionTimeout"
 				default="15000"
 				min="1000"
-				description="Determines the timeout in milliseconds until a connection is etablished."/>
+				description="%httpCrawler.connectionTimeout.desc"/>
 		
-		<AD name="Maximum download size"
+		<AD name="%httpCrawler.maxDownloadSize.name"
 				type="Integer"
 				id="maxDownloadSize"
 				default="-1"
 				min="-1"
-				description="Defines a size limit for documents to fetch in bytes. A value of -1 allows every file-size. Only in effect if supported by the server."/>
+				description="%httpCrawler.maxDownloadSize.desc"/>
 		
-		<AD name="Use Accept Encoding"
+		<AD name="%httpCrawler.useAcceptEncoding.name"
 				type="Boolean"
 				id="acceptEncodings"
 				default="true"
-				description="Specifies whether the crawler should use AcceptEncoding and encourage servers to send compressed responses" />
+				description="%httpCrawler.useAcceptEncoding.desc" />
 		
-		<AD name="Transfer rate limit"
+		<AD name="%httpCrawler.transferRateLimit.name"
 				type="Integer"
 				id="transferLimit"
 				default="-1"
 				min="-1"
-				description="Limits the maximum transfer rate in KB/s, -1 to disable a limit" />
+				description="%httpCrawler.transferRateLimit.desc" />
 		
-		<AD name="Use Proxy"
+		<AD name="%httpCrawler.proxyEnabled.name"
 				type="Boolean"
 				id="useProxy"
 				default="false"
-				description="Enables or disables use of the proxy specified" />
+				description="%httpCrawler.proxyEnabled.desc" />
 		
-		<AD name="Proxy Host"
+		<AD name="%httpCrawler.proxyHost.name"
 				type="String"
 				id="proxyHost"
 				default=""
-				description="Name or IP of the host where the proxy resides" />
+				description="%httpCrawler.proxyHost.desc" />
 		
-		<AD name="Proxy Port"
+		<AD name="%httpCrawler.proxyPort.name"
 				type="Integer"
 				id="proxyPort"
 				min="-1"
 				max="65535"
 				default="3128"
-				description="Port on which the proxy listens for connections (-1 for the default protocol port)" />
+				description="%httpCrawler.proxyPort.desc" />
 		
-		<AD name="Proxy User"
+		<AD name="%httpCrawler.proxyUser.name"
 				type="String"
 				id="proxyUser"
 				default=""
-				description="Username (if needed) used to authenticate at the proxy" />
+				description="%httpCrawler.proxyUser.desc" />
 		
-		<AD name="Proxy Password"
+		<AD name="%httpCrawler.proxyPwd.name"
 				type="String"
 				id="proxyPassword"
 				default=""
-				description="Password (if needed) used to authenticate at the proxy" />
+				description="%httpCrawler.proxyPwd.desc" />
 	</OCD>
 	
 	<Designate
