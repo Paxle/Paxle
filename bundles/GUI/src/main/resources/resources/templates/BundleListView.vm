@@ -1,10 +1,10 @@
 ## Activate onload
 #set ( $bodyonload = "initTabs('bundlelist');" )
-<h2>Bundle Controlpage</h2>
+<h2>${text.bundlelist.title}</h2>
 
 <ul class="tabs">
-	<li><a href="#dbundlelist" onclick="fshow('bundlelist');" id="tbundlelist">Bundle List</a></li>	
-	<li><a href="#dbundleinstall" onclick="fshow('bundleinstall');" id="tbundleinstall">Install New Bundle</a></li>
+	<li><a href="#dbundlelist" onclick="fshow('bundlelist');" id="tbundlelist">${text.tab.listBundles}</a></li>	
+	<li><a href="#dbundleinstall" onclick="fshow('bundleinstall');" id="tbundleinstall">${text.tab.installBundles}</a></li>
 </ul>
 
 <br />
@@ -15,48 +15,48 @@
 #end
 
 <fieldset id="dbundleinstall">
-	<legend>Install new Bundle</legend>
+	<legend>${text.legend.installBundles}</legend>
 
-    <h4>Install new Bundle from URL</h4><br/>
+    <h4>${text.installBundles.fromURL.title}</h4><br/>
     <form action="">
     	<p>
     		<input type="text" name="bundlePath" size="60" />
-    		<input type="submit" name="installURL" value="Install" />
+    		<input type="submit" name="installURL" value="${text.installBundles.doInstall}" />
     	</p>
     </form>
     
-    <h4>Install new Bundle via File-Upload</h4>
+    <h4>${text.installBundles.fromFile.title}</h4>
     <form enctype="multipart/form-data" method="post" action="">
     	<p>
     		<input type="file" name="bundleJar" size="60" />
-    		<input type="submit" name="installUpload" value="Install" />
+    		<input type="submit" name="installUpload" value="${text.installBundles.doInstall}" />
     	</p>
     </form>
 </fieldset>
 
 
 <fieldset id="dbundlelist">
-	<legend>Bundle List</legend>
+	<legend>${text.legend.listBundles}</legend>
 	
 	<form action="">
 		<p>
-			#set( $filters = { 'All':'(Bundle-SymbolicName=*)', 'Paxle: All bundles':'(Bundle-SymbolicName=org.paxle.*)', 'Paxle: All Crawlers':'(Bundle-SymbolicName=org.paxle.Crawler*)', 'Paxle: All Parsers':'(Bundle-SymbolicName=org.paxle.Parser*)'})
-			Filter bundles: 			
+			#set( $filters = {"${text.listBundles.filter.all}":'(Bundle-SymbolicName=*)', "${text.listBundles.filter.allPaxle}":'(Bundle-SymbolicName=org.paxle.*)', "${text.listBundles.filter.allPaxleCrawlers}":'(Bundle-SymbolicName=org.paxle.Crawler*)', "${text.listBundles.filter.allPaxleParsers}":'(Bundle-SymbolicName=org.paxle.Parser*)'})
+			${text.listBundles.filterBundles}:			
     		<select name="filter">
 				#foreach($entry in $sortTool.sort(${filters.entrySet()}, ["key:asc"]))
 					<option value="${entry.value}" #if($filter == ${entry.value})selected="selected"#end>${entry.key}</option>
 				#end
 			</select>
-			<input type="submit" name="OK" />
+			<input type="submit" name="doFilter" value="${text.listBundles.doFilter}" />
 		</p>
 	</form>
 
     <table>
     	<tr>
-			<th>ID</th>
-    		<th>Bundle Name</th>
-			<th>Version</th>
-    		<th>Action</th>
+			<th>${text.listBundles.id}</th>
+    		<th>${text.listBundles.bundleName}</th>
+			<th>${text.listBundles.bundleVersion}</th>
+    		<th>${text.listBundles.action}</th>
     	</tr>
      	#if( $bundles)
     	#foreach( $entry in $bundles.entrySet())
@@ -76,7 +76,7 @@
 					<br/><div class="descriptionText">$bundleHeaders.get('Bundle-Description')</div>
 				#end
 				#if(($bundleState == 'resolved' || $bundleState == 'installed') && ($bundleHeaders.get("Bundle-Activator")))
-					<br/><font color="red">Bundle installed but not started</font>
+					<br/><font color="red">${text.listBundles.bundleNotStarted}</font>
 				#end
     		</td>
 			<td><tt>$bundleHeaders.get('Bundle-Version')</tt></td>
@@ -85,13 +85,13 @@
     				<div>
     					<input type="hidden" name="bundleID" value="$bundleID" />
     					<select name="action">
-    						<option value="start">Start</option>
-    						<option value="stop">Stop</option>
-    						<option value="restart">Restart</option>
-    						<option value="update">Update</option>
-    						<option value="uninstall">Uninstall</option>
+    						<option value="start">${text.listBundles.actionStart}</option>
+    						<option value="stop">${text.listBundles.actionStop}</option>
+    						<option value="restart">${text.listBundles.actionRestart}</option>
+    						<option value="update">${text.listBundles.actionUpdate}</option>
+    						<option value="uninstall">${text.listBundles.actionUninstall}</option>
     					</select>
-    					<input type="submit" name="OK" value="GO"/>
+    					<input type="submit" name="OK" value="${text.listBundles.doAction}"/>
     				</div>
     			</form>
     		</td>

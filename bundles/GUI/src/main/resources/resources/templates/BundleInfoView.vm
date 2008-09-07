@@ -1,12 +1,12 @@
 ## Activate onload
 #set ( $bodyonload = "initTabs('runtimeinformation');" )
-<h2>Bundle Info</h2>
+<h2>${text.bundleinfo.title}</h2>
 
 <ul class="tabs">
-	<li><a href="#druntimeinformation" onclick="fshow('runtimeinformation');" id="truntimeinformation">Runtime Information</a></li>
-	<li><a href="#dbundlemanifest" onclick="fshow('bundlemanifest');" id="tbundlemanifest">Bundle Manifest</a></li>
-	<li><a href="#dexportedservices" onclick="fshow('exportedservices');" id="texportedservices">Exported Services</a></li>
-	<li><a href="#dimportedservices" onclick="fshow('importedservices');" id="timportedservices">Imported Services</a></li>
+	<li><a href="#druntimeinformation" onclick="fshow('runtimeinformation');" id="truntimeinformation">${text.tab.runtimeInfo}</a></li>
+	<li><a href="#dbundlemanifest" onclick="fshow('bundlemanifest');" id="tbundlemanifest">${text.tab.bundleManifest}</a></li>
+	<li><a href="#dexportedservices" onclick="fshow('exportedservices');" id="texportedservices">${text.tab.exportedServices}</a></li>
+	<li><a href="#dimportedservices" onclick="fshow('importedservices');" id="timportedservices">${text.tab.importedServices}</a></li>
 </ul>
 
 <br />
@@ -16,20 +16,20 @@
 <br />
 
 <fieldset id="druntimeinformation">
-	<legend>Runtime Information</legend>
+	<legend>${text.legend.runtimeInfo}</legend>
 	<table>
-		<tr><th>Name</th><th>Value</th></tr>
-		<tr><td><b>ID</b></td><td>$bundle.BundleId</td></tr>
-		<tr><td><b>Location</b></td><td>$bundle.Location</td></tr>
-		<tr><td><b>State</b></td><td>$states.get($bundle.state)</td></tr>
-		<tr><td><b>Last Modified</b></td><td>$dateTool.format('medium',$bundle.LastModified)</td></tr>
+		<tr><th>${text.runtimeInfo.name}</th><th>${text.bundleManifest.name}</th></tr>
+		<tr><td><b>${text.runtimeInfo.id}</b></td><td>$bundle.BundleId</td></tr>
+		<tr><td><b>${text.runtimeInfo.location}</b></td><td>$bundle.Location</td></tr>
+		<tr><td><b>${text.runtimeInfo.state}</b></td><td>$states.get($bundle.state)</td></tr>
+		<tr><td><b>${text.runtimeInfo.lastMod}</b></td><td>$dateTool.format('medium',$bundle.LastModified)</td></tr>
 	</table>
 </fieldset>
 
 <fieldset id="dbundlemanifest">
-	<legend>Bundle Manifest</legend>
+	<legend>${text.legend.bundleManifest}</legend>
 	<table>
-		<tr><th>Name</th><th>Value</th></tr>
+		<tr><th>${text.bundleManifest.name}</th><th>${text.bundleManifest.value}</th></tr>
 		#set($headers = $bundle.getHeaders())	
 		#foreach($name in $headers.keys())		
 		<tr>
@@ -54,13 +54,13 @@
 </fieldset>
 
 <fieldset id="dexportedservices">
-	<legend>Exported Services</legend>
+	<legend>${text.legend.exportedServices}</legend>
 	<table>
 	#set( $services = $bundle.getRegisteredServices())
 		<tr>
-			<th>Servicd ID</th>
-			<th>Object Classes</th>
-			<th>Properties</th>
+			<th>${text.exportedServices.id}</th>
+			<th>${text.exportedServices.object}</th>
+			<th>${text.exportedServices.props}</th>
 		</tr>
 		#foreach( $service in $services)
 		<tr>
@@ -83,14 +83,14 @@
 </fieldset>
 
 <fieldset id="dimportedservices">
-	<legend>Imported Services</legend>
+	<legend>${text.legend.importedServices}</legend>
 	<table>
 	#set( $services = $bundle.getServicesInUse())
 		<tr>
-			<th>Bundle ID</th>
-			<th>Service ID</th>
-			<th>Object Classes</th>
-			<th>Properties</th>
+			<th>${text.importedServices.bundleid}</th>
+			<th>${text.importedServices.id}</th>
+			<th>${text.importedServices.object}</th>
+			<th>${text.importedServices.props}</th>
 		</tr>	
 		#foreach( $service in $services)
 		<tr>

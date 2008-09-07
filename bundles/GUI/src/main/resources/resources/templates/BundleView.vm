@@ -1,5 +1,8 @@
+## getting resourcebundle to translate site
+#set( $text = $resourceTool.bundle('OSGI-INF/l10n/bundleview'))
+
 ## Set the page title
-#set( $page_title = "Bundle Controlpage" )
+#set( $page_title = ${text.browser.title} )
 
 ## the regular content
 #if( $bundle)
