@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<metatype:MetaData 
+	xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	localization="/localization/IDesktopService">
 
-	<OCD description="Desktop integration, provides access to browser and system-tray" 
-			name="Desktop integration"
+	<OCD description="%desktopService.desc" 
+			name="%desktopService.name"
 			id="1.1.1.1">
 		
-		<AD name="Open browser on startup"
+		<Icon resource="/images/systemtray.png" size="16"/>
+		
+		<AD name="%desktopService.openBrowser.name"
 				type="Boolean"
 				id="openBrowser"
 				default="true"
-				description="Defines whether to open the browser displaying Paxle's search-page on startup" />
+				description="%desktopService.openBrowser.desc" />
 		
-		<AD name="Show tray menu"
+		<AD name="%desktopService.showTrayMenu.name"
 				type="Boolean"
 				id="showTrayMenu"
 				default="true"
-				description="Defines whether the tray-menu should be displayed in the system tray bar" />
+				description="%desktopService.showTrayMenu.desc" />
 	</OCD>
 	
 	<Designate

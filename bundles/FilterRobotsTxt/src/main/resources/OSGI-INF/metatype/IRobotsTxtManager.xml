@@ -7,6 +7,8 @@
 	<OCD description="%robotsManager.desc" 
 			name="%robotsManager.name"
 			id="org.paxle.filter.robots.IRobotsTxtManager">
+			
+		<Icon resource="/images/apply.png" size="16"/>
 		
 		<AD name="%robotsManager.maxTotalConnections.name"
 				type="Integer"

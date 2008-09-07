@@ -19,9 +19,9 @@
     			#if($ocd)
     				<p>
 						<p>
-        					<strong>Service-Name:</strong>&nbsp;$ocd.getName()<br/>
-        					<strong>Bundle:</strong>&nbsp;<a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a><br/>
-        					<strong>Description:</strong>&nbsp;<div class="descriptionText">$ocd.getDescription()</div></br>
+							<img src="?settings=config&amp;bundleID=$bundleID&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/>
+        					<strong>$ocd.getName()</strong>&nbsp;[Bundle <a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a>]</br>
+							<div class="descriptionText">$ocd.getDescription()</div>
 						</p>						
 						    					
 						#if($paramParser.getString("viewImportedConfig"))
