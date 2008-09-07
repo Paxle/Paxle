@@ -1,3 +1,6 @@
+## getting resourcebundle to translate site
+#set( $text = $resourceTool.bundle('OSGI-INF/l10n/queueview'))
+
 ## ---------------------------------------------------------------------------------------
 ## Define some macros 
 ## ---------------------------------------------------------------------------------------
@@ -5,10 +8,10 @@
 	#if($cmdList && ${listTool.size($cmdList)} > 0)
 	<table>
     	<tr>
-    		<th>Profile</th>
-    		<th>Command</th>
-			<th>MimeType</th>
-			<th>Size</th>
+    		<th>${text.table.profile}</th>
+    		<th>${text.table.command}</th>
+			<th>${text.table.mimetype}</th>
+			<th>${text.table.size}</th>
     	</tr>		
 		#foreach($cmd in $cmdList)
 		<tr>
@@ -20,18 +23,18 @@
 		#end
 	</table>
 	#else
-		<p>empty queue</p>
+		<p>${text.emptyQueue}</p>
 	#end	
 #end
 ## --------------------------------------------------------------------------------------
 
 <fieldset>
-	<legend>Active Jobs</legend>	
+	<legend>${text.activeJob.legend}</legend>	
 	#listCommands($activeJobs)
 </fieldset>
 
 <fieldset>
-	<legend>Enqueued Jobs</legend>
+	<legend>${text.enqueuedJob.legend}</legend>
 	#listCommands($enqueuedJobs)
 </fieldset>
 	

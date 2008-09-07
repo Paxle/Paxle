@@ -55,7 +55,7 @@ public class LogView extends ALayoutServlet {
         	//HashMap to determine LogLevelName
         	HashMap<Integer, String> logLevelName = new HashMap<Integer, String>();
         	logLevelName.put(Integer.valueOf(LogService.LOG_ERROR) , "error");
-        	logLevelName.put(Integer.valueOf(LogService.LOG_WARNING), "warning");
+        	logLevelName.put(Integer.valueOf(LogService.LOG_WARNING), "warn");
         	logLevelName.put(Integer.valueOf(LogService.LOG_INFO), "info");
         	logLevelName.put(Integer.valueOf(LogService.LOG_DEBUG), "debug");
         	context.put( "logLevelNames" , logLevelName);

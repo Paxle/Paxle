@@ -1,15 +1,18 @@
+## getting resourcebundle to translate site
+#set( $text = $resourceTool.bundle('OSGI-INF/l10n/queueview'))
+
 ## Set the page title
-#set( $page_title = "Queue View Page" )	
+#set( $page_title = ${text.browser.title} )	
 
 ## load prototypes
 #set( $h1 = "<script src='/js/prototype.js' type='text/javascript'></script>")
 #set( $page_headers = [$h1] )
 
 <ul class="tabs">
-	<li><a href="/queue">Overview</a></li>
-	<li><a href="?queue=org.paxle.crawler">Crawler</a></li>
-	<li><a href="?queue=org.paxle.parser">Parser</a></li>
-	<li><a href="?queue=org.paxle.indexer">Indexer</a></li>
+	<li><a href="/queue">${text.tab.overview}</a></li>
+	<li><a href="?queue=org.paxle.crawler">${text.tab.crawler}</a></li>
+	<li><a href="?queue=org.paxle.parser">${text.tab.parser}</a></li>
+	<li><a href="?queue=org.paxle.indexer">${text.tab.indexer}</a></li>
 </ul>
 
 <script type="text/javascript">

@@ -1,5 +1,5 @@
 ## getting resourcebundle to translate site
-#set( $text = $resourceTool.bundle('localization/logview'))
+#set( $text = $resourceTool.bundle('OSGI-INF/l10n/logview'))
 
 ## Set the page title
 #set( $page_title = ${text.browser.title} )

@@ -143,7 +143,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 		this.searchForStyles();
 		
 		Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
-		final ResourceBundle rb = ResourceBundle.getBundle("localization/" + IStyleManager.class.getSimpleName(), locale);
+		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + IStyleManager.class.getSimpleName(), locale);
 		
 		// create metadata
 		ObjectClassDefinition ocd = new ObjectClassDefinition() {
@@ -205,7 +205,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 
 			public InputStream getIcon(int size) throws IOException {
 				return (size == 16) 
-					? this.getClass().getResourceAsStream("/resources/images/palette.png")
+					? this.getClass().getResourceAsStream("/OSGI-INF/images/palette.png")
 					: null;
 			}
 
