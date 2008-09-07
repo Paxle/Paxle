@@ -17,7 +17,6 @@ public class BlacklistFilterTest extends TestCase {
 		super.setUp();
 		testDir = new File("testDir");
 		testDir.mkdir();
-		testDir.deleteOnExit();
 		System.out.println(testDir.getAbsolutePath());
 		new File(testDir, "testList").createNewFile();
 		testFilter = new BlacklistFilter(testDir);
@@ -103,5 +102,7 @@ public class BlacklistFilterTest extends TestCase {
 	protected void tearDown() throws Exception {
 		new File(testDir,"testList").delete();
 		new File(testDir,"testList2").delete();
+		new File(testDir,"test").delete();
+		testDir.delete();
 	}
 }
