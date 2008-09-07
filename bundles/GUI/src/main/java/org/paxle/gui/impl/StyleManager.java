@@ -11,6 +11,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -137,9 +138,12 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 	 * 
 	 * TODO: localization required here
 	 */
-	public ObjectClassDefinition getObjectClassDefinition(String id, String locale) {
+	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
 		// refresh the style list
 		this.searchForStyles();
+		
+		Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
+		final ResourceBundle rb = ResourceBundle.getBundle("localization/" + IStyleManager.class.getSimpleName(), locale);
 		
 		// create metadata
 		ObjectClassDefinition ocd = new ObjectClassDefinition() {
@@ -155,7 +159,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 							}
 
 							public String getDescription() {
-								return "The style that should be used by the GUI";
+								return rb.getString("styleManager.style.desc");
 							}
 
 							public String getID() {
@@ -163,13 +167,13 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 							}
 
 							public String getName() {
-								return "Style";
+								return rb.getString("styleManager.style.name");
 							}
 
 							public String[] getOptionLabels() {
 								ArrayList<String> labels = new ArrayList<String>();
 								labels.addAll(styles.keySet());
-								labels.add("default");
+								labels.add(rb.getString("styleManager.style.default.name"));
 								return labels.toArray(new String[styles.size()]);
 							}
 
@@ -192,7 +196,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 			}
 
 			public String getDescription() {
-				return "Component to manage the available styles for the GUI";
+				return rb.getString("styleManager.desc");
 			}
 
 			public String getID() {
@@ -206,7 +210,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 			}
 
 			public String getName() {
-				return "Style Manager";
+				return rb.getString("styleManager.name");
 			}
 		};
 
