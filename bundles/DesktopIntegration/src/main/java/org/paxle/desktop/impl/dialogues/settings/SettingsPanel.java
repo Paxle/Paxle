@@ -193,9 +193,11 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		
 		public ImageIcon getIcon() {
 			if (icon == null) try {
-				final InputStream is = getOCD().getIcon(iconSize);
-				if (is == null)
-					return null;
+				InputStream is = getOCD().getIcon(iconSize);
+				if (is == null) {
+					// fallback to default icon
+					is = this.getClass().getResourceAsStream("/images/cog.png");
+				}					
 				final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				IOTools.copy(is, baos);
 				is.close();
