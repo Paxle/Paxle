@@ -65,6 +65,13 @@
       <class>org.apache.velocity.tools.view.tools.ContextTool</class>
    </tool>
    
+   <tool>
+      <key>resourceTool</key>
+      <scope>request</scope>
+      <class>org.apache.velocity.tools.generic.ResourceTool</class>
+      <!--<parameter name="locale" value="en"/>-->
+   </tool>
+   
    <!-- Custom paxle tools -->
    <tool>
       <key>manager</key>

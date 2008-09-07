@@ -1,8 +1,8 @@
 ## Set the page title
 #if( $restart )
-#set( $page_title = "Paxle is restarting..." )
+	#set( $page_title = "Paxle is restarting..." )
 #else
-#set( $page_title = "Paxle is shutting down..." )
+	#set( $page_title = "Paxle is shutting down..." )
 #end
 
 ## the regular content

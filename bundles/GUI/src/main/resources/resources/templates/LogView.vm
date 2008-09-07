@@ -1,16 +1,19 @@
+## getting resourcebundle to translate site
+#set( $text = $resourceTool.bundle('localization/logview'))
+
 ## Set the page title
-#set( $page_title = "Log View" )
+#set( $page_title = ${text.browser.title} )
 
 ## the regular content
-<h2>View Log</h2>
+<h2>${text.page.title}</h2>
 #if($logReader)
 <form class="filter" action="">
 	<p>
 		<select name="filterLogLevel">
-			<option value="1" #if($filterLogLevel == 1)selected="selected"#end>Error</option>
-			<option value="2" #if($filterLogLevel == 2)selected="selected"#end>Warning</option>
-			<option value="3" #if($filterLogLevel == 3)selected="selected"#end>Info</option>
-			<option value="4" #if($filterLogLevel == 4)selected="selected"#end>Debug</option>
+			<option value="1" #if($filterLogLevel == 1)selected="selected"#end>${text.loglevel.error}</option>
+			<option value="2" #if($filterLogLevel == 2)selected="selected"#end>${text.loglevel.warn}</option>
+			<option value="3" #if($filterLogLevel == 3)selected="selected"#end>${text.loglevel.info}</option>
+			<option value="4" #if($filterLogLevel == 4)selected="selected"#end>${text.loglevel.debug}</option>
 		</select>
 		<select name="logType">
 			<option value="log4j" #if($logType == "log4j")selected="selected"#end>log4j</option>
@@ -24,18 +27,20 @@
 
 <table>
 	<tr>
-		<th>Level</th>
-		<th>Time</th>
-		<th>Message</th>
+		<th>${text.logmsg.level}</th>
+		<th>${text.logmsg.time}</th>
+		<th>${text.logmsg.text}</th>
 	</tr>
-	#foreach($logEntry in $logReader.getLog())
+	#foreach($logEntry in ${logReader.getLog()})
 		## $logReader.getLog())
-    	#set( $level = $logEntry.getLevel())
+    	#set($level = ${logEntry.getLevel()})
+		#set($dateFormat = ${text.logmsg.time.format})
+		
     	#if( $level <= $filterLogLevel)
-        	#set($levelName = $logLevelNames.get( $level))
+        	#set($levelName = $logLevelNames.get($level))
         	<tr>
-        		<td class="log$levelName">$levelName</td>
-        		<td><tt>$dateTool.format("HH:mm:ss dd.MM.yy",$logEntry.getTime())</tt></td>
+        		<td class="log$levelName">$text.get("loglevel.$levelName")</td>
+        		<td><tt>$dateTool.format("$dateFormat",$logEntry.getTime())</tt></td>
         		<td><tt>$logEntry.getMessage()#if( $logEntry.getException()) <p class="exception">$logEntry.getException()</p></tt>#end
         		</td>
         	</tr>
@@ -43,5 +48,5 @@
 	#end
 </table>
 #else
-<p class="error bundleNotInstalled">No LogReaderService found</p>
+<p class="error bundleNotInstalled">${text.error.noLogReaderService}</p>
 #end
