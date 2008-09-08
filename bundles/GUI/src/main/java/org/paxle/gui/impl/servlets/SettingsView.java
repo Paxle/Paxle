@@ -11,9 +11,12 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -527,6 +530,7 @@ public class SettingsView extends ALayoutServlet {
 		}	
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void writeImage(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {	
 		String pid = request.getParameter("pid");
 		if (pid == null) {
@@ -566,10 +570,22 @@ public class SettingsView extends ALayoutServlet {
 			return;
 		}
 		
-		String locale = "en";		
-		ObjectClassDefinition ocd = metaTypeInfo.getObjectClassDefinition(pid, locale);
+		// determine the locale to use
+		String localeToUse = "en";
+		String[] supportedLocalesArray = metaTypeInfo.getLocales();
+		HashSet<String> supportedLocale = new HashSet<String>(Arrays.asList(supportedLocalesArray==null?new String[0]:supportedLocalesArray));
+		List<Locale> preferedLocales = Collections.list(request.getLocales());
+		for (Locale preferedLocale : preferedLocales) {
+			if (supportedLocale.contains(preferedLocale.toString())) {
+				localeToUse = preferedLocale.toString();
+				break;
+			}
+		}
+		
+		// loading metadata
+		ObjectClassDefinition ocd = metaTypeInfo.getObjectClassDefinition(pid, localeToUse);
 		if (ocd == null) {
-			response.sendError(501, String.format("No ObjectClassDefinition found for service with PID '%s' and locale '%s'.",pid,locale));
+			response.sendError(501, String.format("No ObjectClassDefinition found for service with PID '%s' and locale '%s'.",pid,localeToUse));
 			return;
 		}		
 		
