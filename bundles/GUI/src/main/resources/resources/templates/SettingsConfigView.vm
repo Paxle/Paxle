@@ -1,6 +1,5 @@
 #set($configAdmin = $manager.getService( "org.osgi.service.cm.ConfigurationAdmin"))
 #set($metaTypeService = $manager.getService( "org.osgi.service.metatype.MetaTypeService"))
-#set($requestLocale = $request.getLocale().getLanguage())
 
 #if( $metaTypeService && $configAdmin)
 	<h3>${text.tab.configManagement} #if($paramParser.getString("viewImportedConfig"))- ${text.import.title}#end</h3>
@@ -17,12 +16,7 @@
 		#if($metaType)
 			#if($bundle.getBundleId() == $metaType.getBundle().getBundleId())
 
-				#if($listTool.contains($metaType.getLocales(),$requestLocale))
-					#set($language = $requestLocale)
-				#else
-					#set($language = "en")
-				#end
-				
+				#set($language = $settingsView.getPreferedLocale($request,$metaType))
     			#set($ocd = $metaType.getObjectClassDefinition($PID, $language))
     			#if($ocd)										
     				<p>
@@ -169,12 +163,9 @@
         				## corresponding ObjectClassDefinitions
         				#foreach($PID in $PIDs)
 							## determine the language to use
-            				#if($listTool.contains($metaType.getLocales(),$requestLocale))
-            					#set($language = $requestLocale)
-            				#else
-            					#set($language = "en")
-            				#end							
+							#set($language = $settingsView.getPreferedLocale($request,$metaType))						
 							
+							## load service metatypes
         					#set($ocd = $metaType.getObjectClassDefinition($PID, $language))
         					#if($ocd && (!$paramParser.getString("viewImportedConfig") || ${importedConfigProps.containsKey($PID)}))
     							<tr class="$color">

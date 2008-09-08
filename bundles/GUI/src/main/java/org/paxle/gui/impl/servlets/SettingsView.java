@@ -571,16 +571,7 @@ public class SettingsView extends ALayoutServlet {
 		}
 		
 		// determine the locale to use
-		String localeToUse = "en";
-		String[] supportedLocalesArray = metaTypeInfo.getLocales();
-		HashSet<String> supportedLocale = new HashSet<String>(Arrays.asList(supportedLocalesArray==null?new String[0]:supportedLocalesArray));
-		List<Locale> preferedLocales = Collections.list(request.getLocales());
-		for (Locale preferedLocale : preferedLocales) {
-			if (supportedLocale.contains(preferedLocale.toString())) {
-				localeToUse = preferedLocale.toString();
-				break;
-			}
-		}
+		String localeToUse = this.getPreferedLocale(request, metaTypeInfo);
 		
 		// loading metadata
 		ObjectClassDefinition ocd = metaTypeInfo.getObjectClassDefinition(pid, localeToUse);
@@ -613,6 +604,28 @@ public class SettingsView extends ALayoutServlet {
 			response.sendError(404, e.getMessage());
 			return;
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public String getPreferedLocale(HttpServletRequest request, MetaTypeInformation metaTypeInfo) {
+		String localeToUse = Locale.ENGLISH.getLanguage();
+		
+		// getting languages provided by the available metatypes
+		String[] supportedLocalesArray = metaTypeInfo.getLocales();
+		HashSet<String> supportedLocale = new HashSet<String>(Arrays.asList(supportedLocalesArray==null?new String[0]:supportedLocalesArray));
+		
+		// getting the prefered languages specified by the user (via browser header)
+		List<Locale> preferedLocales = Collections.list(request.getLocales());
+		
+		// find best match
+		for (Locale preferedLocale : preferedLocales) {
+			if (supportedLocale.contains(preferedLocale.toString())) {
+				localeToUse = preferedLocale.toString();
+				break;
+			}
+		}
+		
+		return localeToUse;
 	}
 		
 	
