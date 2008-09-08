@@ -2,6 +2,8 @@ package org.paxle.crawler.impl;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -15,6 +17,7 @@ import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
 import org.paxle.crawler.ISubCrawler;
@@ -96,8 +99,17 @@ public class Activator implements BundleActivator {
 		final ServiceReference cmRef = bc.getServiceReference(ConfigurationAdmin.class.getName());
 		final ConfigurationAdmin cm = (ConfigurationAdmin) bc.getService(cmRef);
 		
+		final ServiceReference btRef = bc.getServiceReference(IResourceBundleTool.class.getName());
+		final IResourceBundleTool bt = (IResourceBundleTool) bc.getService(btRef); 
+		
+		// find available locales for metatye-translation
+		List<String> supportedLocale = bt.getLocaleList(ISubCrawlerManager.class.getSimpleName(), Locale.ENGLISH);
+		 
 		// creating class
-		SubCrawlerManager subCrawlerManager = new SubCrawlerManager(cm.getConfiguration(SubCrawlerManager.PID));		
+		SubCrawlerManager subCrawlerManager = new SubCrawlerManager(
+					cm.getConfiguration(SubCrawlerManager.PID), 
+					supportedLocale.toArray(new String[supportedLocale.size()])
+		);		
 		
 		// initializing service registration properties
 		Hashtable<String, Object> crawlerManagerProps = new Hashtable<String, Object>();
@@ -109,6 +121,8 @@ public class Activator implements BundleActivator {
 				
 		return subCrawlerManager;
 	}
+	
+
 	
 	/**
 	 * This function is called by the osgi-framework to stop the bundle.

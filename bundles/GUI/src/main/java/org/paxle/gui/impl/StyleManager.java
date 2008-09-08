@@ -47,12 +47,19 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 	 */
 	private File dataPath = null;
 
+	/**
+	 * A list of {@link Locale} for which a {@link ResourceBundle} exists
+	 * @see MetaTypeProvider#getLocales()
+	 */
+	private String[] locales;	
+	
 	/** HashMap containing available styles */
 	private final HashMap<String, File> styles = new HashMap<String, File>();	
 
-	public StyleManager(File dataPath, ServletManager servletManager) {
+	public StyleManager(File dataPath, ServletManager servletManager, String[] locales) {
 		if (dataPath == null) throw new NullPointerException("The datapath is null");
 		if (servletManager == null) throw new NullPointerException("ServletManager is null");
+		if (locales == null) throw new NullPointerException("The locale array is null");
 		
 		if (!dataPath.exists()) dataPath.mkdirs();
 		this.dataPath = dataPath;
@@ -127,7 +134,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 	 * @see MetaTypeProvider#getLocales()
 	 */
 	public String[] getLocales() {
-		return new String[]{Locale.ENGLISH.getLanguage()};
+		return this.locales;
 	}
 
 	/**

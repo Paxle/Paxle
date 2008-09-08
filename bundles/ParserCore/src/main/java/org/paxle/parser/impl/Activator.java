@@ -2,6 +2,8 @@ package org.paxle.parser.impl;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -15,6 +17,7 @@ import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
@@ -105,8 +108,17 @@ public class Activator implements BundleActivator {
 		final ServiceReference cmRef = bc.getServiceReference(ConfigurationAdmin.class.getName());
 		final ConfigurationAdmin cm = (ConfigurationAdmin) bc.getService(cmRef);
 		
+		final ServiceReference btRef = bc.getServiceReference(IResourceBundleTool.class.getName());
+		final IResourceBundleTool bt = (IResourceBundleTool) bc.getService(btRef); 
+		
+		// find available locales for metatye-translation
+		List<String> supportedLocale = bt.getLocaleList(ISubParserManager.class.getSimpleName(), Locale.ENGLISH);		
+		
 		// creating class
-		SubParserManager subParserManager = new SubParserManager(cm.getConfiguration(SubParserManager.PID));		
+		SubParserManager subParserManager = new SubParserManager(
+				cm.getConfiguration(SubParserManager.PID),
+				 supportedLocale.toArray(new String[supportedLocale.size()])
+		);		
 		
 		// initializing service registration properties
 		Hashtable<String, Object> parserManagerProps = new Hashtable<String, Object>();

@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -19,6 +21,7 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
+import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IMenuManager;
 import org.paxle.gui.IServletManager;
@@ -125,9 +128,18 @@ public class Activator implements BundleActivator {
 	 * @throws IOException
 	 */
 	private void initStyleManager(BundleContext context) throws IOException {
+		final ServiceReference btRef = context.getServiceReference(IResourceBundleTool.class.getName());
+		final IResourceBundleTool bt = (IResourceBundleTool) context.getService(btRef); 
+		
+		// find available locales for metatye-translation
+		List<String> supportedLocale = bt.getLocaleList(IStyleManager.class.getSimpleName(), Locale.ENGLISH);		
+		
 		// create the style manager
-		this.styleManager = new StyleManager(new File("styles"),
-				this.servletManager);
+		this.styleManager = new StyleManager(
+				new File("styles"),
+				this.servletManager,
+				supportedLocale.toArray(new String[supportedLocale.size()])
+		);
 
 		// get the config-admin service and set the default configuration if not
 		// available

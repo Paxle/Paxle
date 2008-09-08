@@ -54,13 +54,22 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 	private final Configuration config;
 	
 	/**
+	 * A list of {@link Locale} for which a {@link ResourceBundle} exists
+	 * @see MetaTypeProvider#getLocales()
+	 */
+	private String[] locales;
+	
+	/**
 	 * @param config the CM configuration that belongs to this component
 	 * @throws IOException
 	 * @throws ConfigurationException
 	 */
-	public SubCrawlerManager(Configuration config) throws IOException, ConfigurationException {
+	public SubCrawlerManager(Configuration config, String[] locales) throws IOException, ConfigurationException {
 		if (config == null) throw new NullPointerException("The CM configuration is null");
+		if (locales == null) throw new NullPointerException("The locale array is null");
+		
 		this.config = config;
+		this.locales = locales;
 		
 		// initialize CM values
 		if (config.getProperties() == null) {
@@ -216,7 +225,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 	 * @see MetaTypeProvider#getLocales()
 	 */
 	public String[] getLocales() {
-		return new String[]{Locale.ENGLISH.getLanguage()};
+		return this.locales;
 	}
 
 	/**

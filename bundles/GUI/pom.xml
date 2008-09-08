@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>GUI</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<name>Paxle - UI: Browser</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -71,6 +71,7 @@
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
 							org.paxle.core.doc;version="[0.1.0,0.2.0)",
 							org.paxle.core;version="[0.1.0,0.2.0)",
+							org.paxle.core.io;version="[0.1.0,0.2.0)",
 							<!-- Paxle Importer/Exporter Bundle -->
 							org.paxle.tools.ieporter.cm;version="[0.1.0,0.2.0)",
 							<!-- Paxle P2P Bundle -->		

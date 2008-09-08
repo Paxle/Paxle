@@ -31,6 +31,8 @@ import org.paxle.core.filter.impl.AscendingPathUrlExtractionFilter;
 import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
 import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IResourceBundleTool;
+import org.paxle.core.io.impl.ResourceBundleToolFactory;
 import org.paxle.core.io.temp.impl.CommandTempReleaser;
 import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
@@ -157,6 +159,9 @@ public class Activator implements BundleActivator, InvocationHandler {
 		
 		// add reference normalizer service
         bc.registerService(IReferenceNormalizer.class.getName(), this.referenceNormalizer, null);
+        
+        // register rb-tool
+        bc.registerService(IResourceBundleTool.class.getName(), new ResourceBundleToolFactory(), null);
         
         // add AscendingPathUrlExtraction filter
 		final Hashtable<String,String[]> props2 = new Hashtable<String,String[]>();
