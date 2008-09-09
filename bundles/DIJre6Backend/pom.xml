@@ -7,7 +7,7 @@
 	<artifactId>DIJre6Backend</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - DesktopIntegration JRE6</name>
+	<name>Paxle - UI: DesktopIntegration (JRE6)</name>
 	<url>http://wiki.paxle.net/dev/bundles/DIJre6Backend</url>
 
 	<!-- Parent Project -->
@@ -26,10 +26,15 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Fragment-Host>
-							org.paxle.desktop
-						</Fragment-Host>
+						<Fragment-Host>org.paxle.desktop</Fragment-Host>
 						<Bundle-SymbolicName>org.paxle.desktop.backend.impl.jre6</Bundle-SymbolicName>
+					
+						<!-- localized bundle headers -->
+						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Name>%bundleName</Bundle-Name>
+						<Bundle-Description>%bundleDesc</Bundle-Description>
+						
+						<Bundle-Category>ui</Bundle-Category>										
 						<Import-Package>!*</Import-Package>
 						<Export-Package>!*</Export-Package>
 						<Private-Package>

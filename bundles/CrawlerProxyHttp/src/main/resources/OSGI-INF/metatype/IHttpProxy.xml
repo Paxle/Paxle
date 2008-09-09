@@ -1,30 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<metatype:MetaData 
+	xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	localization="/OSGI-INF/l10n/IHttpProxy">
 
-	<OCD description="HTTP Proxy" 
-			name="Paxle - HTTP Proxy"
+	<OCD description="%httpProxy.desc" 
+			name="%httpProxy.name"
 			id="org.paxle.crawler.proxy.IHttpProxy">
 		
-		<AD name="Proxy Port"
+		<AD name="%httpProxy.port.name"
 				type="Integer"
 				id="proxyPort"
 				min="-1"
 				max="65535"
 				default="8081"
-				description="Port on which the proxy listens for connections (-1 for the default protocol port 8081)" />
+				description="%httpProxy.port.desc" />
 				
-		<AD name="Transfer rate limit"
+		<AD name="%httpProxy.transfRate.name"
 				type="Integer"
 				id="transferLimit"
 				default="-1"
 				min="-1"
-				description="Limits the maximum transfer rate in KB/s, -1 to disable a limit" />				
+				description="%httpProxy.transfRate.desc" />				
 				
-		<AD name="Enable Proxy Authentication"
+		<AD name="%httpProxy.proxyauth.enabled.name"
 				type="Boolean"
 				id="enableProxyAuthentication"
 				default="true"
-				description="Specifies that the user needs to authenticate itself against the proxy." />				
+				description="%httpProxy.proxyauth.enabled.desc" />				
 	</OCD>
 	
 	<Designate

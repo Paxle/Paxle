@@ -26,9 +26,18 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+						<Bundle-SymbolicName>org.paxle.DataLayer</Bundle-SymbolicName>					
+					
+						<!-- localized bundle headers -->
+						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Name>%bundleName</Bundle-Name>
+						<Bundle-Description>%bundleDesc</Bundle-Description>
+						
+						<Bundle-Category>database</Bundle-Category>										
 						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+						
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
@@ -65,8 +74,6 @@
 						<Bundle-Activator>
 							org.paxle.data.impl.Activator
 						</Bundle-Activator>
-						<Bundle-SymbolicName>org.paxle.DataLayer</Bundle-SymbolicName>
-						<Bundle-Name>org.paxle.DataLayer</Bundle-Name>
 						
 						<!-- embedding libs -->
 						<Embed-StripGroup>true</Embed-StripGroup>

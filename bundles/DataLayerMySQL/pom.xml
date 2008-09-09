@@ -26,6 +26,12 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+						<!-- localized bundle headers -->
+						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Name>%bundleName</Bundle-Name>
+						<Bundle-Description>%bundleDesc</Bundle-Description>
+						
+						<Bundle-Category>database</Bundle-Category>					
 						<Import-Package>!*</Import-Package>
 						<Export-Package>!*</Export-Package>
 						<Fragment-Host>org.paxle.DataLayer</Fragment-Host>
