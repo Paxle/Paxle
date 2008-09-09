@@ -30,7 +30,7 @@
 						<Bundle-SymbolicName>org.paxle.desktop.backend.impl.jdic</Bundle-SymbolicName>					
 					
 						<!-- localized bundle headers -->
-						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Localization>OSGI-INF/l10n/bundleJdic</Bundle-Localization>
 						<Bundle-Name>%bundleName</Bundle-Name>
 						<Bundle-Description>%bundleDesc</Bundle-Description>
 						
