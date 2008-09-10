@@ -26,9 +26,16 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+						<!-- localized bundle headers -->
+						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Name>%bundleName</Bundle-Name>
+						<Bundle-Description>%bundleDesc</Bundle-Description>
+						
+						<Bundle-Category>parser</Bundle-Category>
 						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+						
 						<Export-Package>
 							org.paxle.parser.plain;version="${pom.version}"
 						</Export-Package>
