@@ -38,7 +38,4 @@ Used External Libraries:
 - JavaScript, DHTML Tooltips
   Files: resources/js/wz_tooltip.js
   See: http://www.walterzorn.de/tooltip/tooltip.htm
-- http://www.prototypejs.org/
-- Silk-Icons: a free icon set
-  Files: /resources/images/*
-  See: http://famfamfam.com/lab/icons/silk/      
+- http://www.prototypejs.org/  
