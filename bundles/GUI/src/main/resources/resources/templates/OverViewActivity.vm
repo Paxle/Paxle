@@ -5,6 +5,9 @@
 	
 <fieldset class="infobox">
 	<legend class="ovActivity">${text.legend.ovActivity}</legend>
+	#if($manager.getService('org.paxle.gui.IServletManager').hasServlet('/chart'))
+		<img class="chart" id="ovActivityChart" src="/chart?t=ppm&w=385&h=200&t=${dateTool.get('yyyy-M-d H:m')}" height="200" width="385"/>
+	#end
 	<table>
 		<tr>
 			<th>#</th>

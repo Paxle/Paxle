@@ -7,8 +7,11 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
@@ -27,6 +30,7 @@ import org.paxle.gui.IMenuManager;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.IStyleManager;
 import org.paxle.gui.impl.servlets.BundleView;
+import org.paxle.gui.impl.servlets.ChartServlet;
 import org.paxle.gui.impl.servlets.CrawlerView;
 import org.paxle.gui.impl.servlets.LogView;
 import org.paxle.gui.impl.servlets.LoginView;
@@ -99,7 +103,11 @@ public class Activator implements BundleActivator {
 		registerServlet("/overview", new OverView(), "Overview");
 		registerServlet("/sysdown", new SysDown(), null, new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
 		registerServlet("/login", new LoginView(), null);
+		
+		this.initChartServlet(bc);
 	}
+	
+	
 
 	private void registerServlet(final String location, final ALayoutServlet servlet, final String menuName) {
 		this.registerServlet(location, servlet, menuName, null);
@@ -190,6 +198,38 @@ public class Activator implements BundleActivator {
 				credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, "".getBytes("UTF-8"));
 			}
 		}
+	}
+	
+	/**
+	 * The external library jfreechart is optional. Therfore we need to wait until the
+	 * bundle containing this library is available
+	 * 
+	 * @param context
+	 */
+	private void initChartServlet(final BundleContext context) {
+		Bundle[] bundles = context.getBundles();
+		for (Bundle bundle : bundles) {
+			// register the servlet if the jfree bundle is already installed
+			if (bundle.getSymbolicName().equalsIgnoreCase("com.springsource.org.jfree")) {
+				servletManager.addServlet("/chart", new ChartServlet(context), null);
+				break;
+			}
+		}		
+		
+		// register a bundle-listener to detect if the jfree-bundle will be removed
+		context.addBundleListener(new BundleListener() {
+			public void bundleChanged(BundleEvent event) {
+				if (event.getBundle().getSymbolicName().equals("com.springsource.org.jfree")) {
+					if (event.getType() == BundleEvent.RESOLVED) {
+						// register the servlet
+						servletManager.addServlet("/chart", new ChartServlet(context), null);
+					} else if (event.getType() == BundleEvent.STOPPED || event.getType() == BundleEvent.UNINSTALLED) {
+						// unregister servlet
+						servletManager.removeServlet("/chart");
+					}
+				}				
+			}			
+		});
 	}
 
 	public void stop(BundleContext context) throws Exception {

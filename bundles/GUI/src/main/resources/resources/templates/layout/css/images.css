@@ -154,3 +154,7 @@ a.quickCrawl {
 	background:transparent url(/images/openid_small_logo.png) no-repeat scroll 0pt 50%;
 	padding-left:18px !important;
 }
+
+img.chart {
+	margin-bottom: 3px;
+}

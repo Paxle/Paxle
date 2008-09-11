@@ -336,6 +336,22 @@
 									<destFileName>com.springsource.edu.emory.mathcs.backport-3.1.0.jar</destFileName>										
 								</artifactItem>
 
+								<!-- JFreeChart dependencies -->
+								<artifactItem>
+									<groupId>org.jfree.chart</groupId>
+									<artifactId>com.springsource.org.jfree.chart</artifactId>
+									<version>1.0.9</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>com.springsource.org.jfree.chart-1.0.9.jar</destFileName>										
+								</artifactItem>				
+								<artifactItem>
+									<groupId>org.jfree</groupId>
+									<artifactId>com.springsource.org.jfree</artifactId>
+									<version>1.0.12</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>com.springsource.org.jfree-1.0.9.jar</destFileName>										
+								</artifactItem>													
+
 								<!-- ==================================================================-->
 								<!-- APACHE FELIX - Dependencies                                       -->
 								<!-- ==================================================================-->

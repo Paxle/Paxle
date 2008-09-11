@@ -22,8 +22,12 @@ import org.paxle.gui.IServletManager;
 import org.paxle.gui.impl.ServiceManager;
 
 public class OverView extends ALayoutServlet {
-	
 	private static final long serialVersionUID = 1L;
+
+	
+	private static final String RELOAD_MEMORY = "memory";
+	private static final String RELOAD_KNOWN_DOCUMENTS = "knownDocuments";
+	private static final String RELOAD_ACTIVITY = "activity";
 	
 	private static final String Q_CRAWLER = "crawler";
 	private static final String Q_PARSER = "parser";
@@ -119,19 +123,25 @@ public class OverView extends ALayoutServlet {
 			String reload = request.getParameter("reload");
 			if (reload == null) {
 				template = getTemplate("/resources/templates/OverView.vm");
-			} else if (reload.equals("activity")) {
+			} else if (reload.equals(RELOAD_ACTIVITY)) {
 				// we don't want full html 
 				context.put("layout", "plain.vm");
 				
 				// just return the activity overview
 				template = getTemplate("/resources/templates/OverViewActivity.vm");
-			} else if (reload.equals("knownDocuments")) {
+			} else if (reload.equals(RELOAD_KNOWN_DOCUMENTS)) {
 				// we don't want full html 
 				context.put("layout", "plain.vm");
 				
 				// just return the knownDocuments overview
 				template = getTemplate("/resources/templates/OverViewKnownDocuments.vm");
-			}
+			} else if (reload.equals(RELOAD_MEMORY)) {
+				// we don't want full html 
+				context.put("layout", "plain.vm");
+				
+				// just return the knownDocuments overview
+				template = getTemplate("/resources/templates/OverViewMemory.vm");
+			} 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

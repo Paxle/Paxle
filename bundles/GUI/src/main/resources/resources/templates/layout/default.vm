@@ -4,6 +4,7 @@
 
 #set($user = $context.get("session").getAttribute("org.osgi.service.http.authentication.remote.user"))
 
+
 <!-- left nav -->
 <ul id="nav">
 #parse( '/resources/templates/layout/menu.vm' )
