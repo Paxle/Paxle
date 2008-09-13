@@ -4,6 +4,7 @@ package org.paxle.desktop.impl.dialogues;
 import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import javax.swing.JPanel;
 
@@ -22,25 +23,31 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 		this.services = services;
 	}
 	
-	protected <E> void registerService(final Object key, final E service, final Hashtable<String,?> properties, final Class<? super E>... clazzes) {
+	protected synchronized <E> void registerService(final Object key, final E service, final Hashtable<String,?> properties, final Class<? super E>... clazzes) {
 		regs.put(key, services.getServiceManager().registerService(service, properties, clazzes));
 	}
 	
-	protected void unregisterService(final Object key) {
+	protected synchronized void unregisterService(final Object key) {
 		final ServiceRegistration reg = regs.remove(key);
 		if (reg != null)
 			reg.unregister();
 	}
 	
-	private void unregisterServices() {
-		for (final ServiceRegistration reg : regs.values()) try {
-			reg.unregister();
-		} catch (IllegalStateException e) { e.printStackTrace(); }
-		regs.clear();
+	private synchronized void unregisterServices() {
+		final Iterator<ServiceRegistration> it = regs.values().iterator();
+		while (it.hasNext()) {
+			try {
+				it.next().unregister();
+			} catch (IllegalStateException e) { e.printStackTrace(); }
+			it.remove();
+		}
 	}
 	
 	public abstract String getTitle();
-	public abstract Dimension getWindowSize();
+	
+	public Dimension getWindowSize() {
+		return super.getPreferredSize();
+	}
 	
 	public void close() {
 		unregisterServices();

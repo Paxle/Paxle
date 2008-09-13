@@ -241,6 +241,7 @@ public class SystrayMenu implements ActionListener {
 			this.action = action;
 		}
 		
+		@Override
 		public void run() {
 			switch (action) {
 				case SEARCH: {

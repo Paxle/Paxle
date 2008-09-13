@@ -12,7 +12,7 @@ public interface ISubParserManager {
 	
 	/**
 	 * @param mimeType the mimetype
-	 * @return a {@link ISubParser parser) supporting the given mimetype.
+	 * @return a {@link ISubParser parser} supporting the given mimetype.
 	 */	
 	public ISubParser getSubParser(String mimeType);	
 	

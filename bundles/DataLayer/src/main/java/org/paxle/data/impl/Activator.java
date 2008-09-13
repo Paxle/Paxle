@@ -83,7 +83,7 @@ public class Activator implements BundleActivator {
 			Enumeration<URL> configFileEnum = context.getBundle().findEntries("/resources/hibernate/", "*.cfg.xml", true);
 			if (configFileEnum != null) {				
 				ArrayList<URL> configFiles = Collections.list(configFileEnum);
-				this.logger.info(String.format("%d config-files found.",configFiles.size()));
+				this.logger.info(String.format("%d config-files found.", Integer.valueOf(configFiles.size())));
 			} else {
 				this.logger.info("No config files found");
 			}
@@ -184,6 +184,7 @@ public class Activator implements BundleActivator {
 	private void pipeConnect(String from, String to) {
 		this.logger.info(String.format("Create datapipe: %s -> %s",from,to));
 		
+		@SuppressWarnings("unchecked")
 		final DataPipe<?> pipe = new DataPipe();
 		pipe.setName(String.format("Datapipe: %s -> %s", from,to));
 		final Hashtable<String,String> props = new Hashtable<String,String>();

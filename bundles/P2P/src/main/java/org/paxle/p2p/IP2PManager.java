@@ -2,7 +2,6 @@ package org.paxle.p2p;
 
 import java.util.List;
 
-import net.jxta.peer.PeerID;
 import net.jxta.protocol.PeerAdvertisement;
 
 

@@ -248,7 +248,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 					 * This should only occur if a component has forgotten to call
 					 * ICommandTracker.commandDestroyed(...)
 					 */
-					Reference<? extends ICommand> commandRef = this.refQueue.remove(CLEANUP_DELAY);
+					Reference<? extends ICommand> commandRef = this.refQueue.remove(CLEANUP_DELAY.longValue());
 					if (commandRef != null) {
 						this.logger.error("Command was destroyed without calling ICommandTracker.commandDestroyed(...)");
 
@@ -295,11 +295,11 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 					 * 
 					 */
 					if (!this.destroyedCommandMap.isEmpty()) {
-						long maxage = System.currentTimeMillis() - MAX_HOLDBACK_TIME;
+						long maxage = System.currentTimeMillis() - MAX_HOLDBACK_TIME.longValue();
 
 						synchronized (this.destroyedCommandMap) {
 							
-							while (!this.destroyedCommandMap.isEmpty() && this.destroyedCommandMap.getFirst().destroyedTime < maxage) {
+							while (!this.destroyedCommandMap.isEmpty() && this.destroyedCommandMap.getFirst().destroyedTime.longValue() < maxage) {
 								// remove the next command
 								DestroyedCommandData destoryedCommand = this.destroyedCommandMap.removeFirst();
 
@@ -410,7 +410,7 @@ class DestroyedCommandData {
 	public String toString() {
 		StringBuilder buf = new StringBuilder();
 
-		buf.append(new Date(this.destroyedTime))
+		buf.append(new Date(this.destroyedTime.longValue()))
 		.append(": ")
 		.append(this.command.getLocation());
 

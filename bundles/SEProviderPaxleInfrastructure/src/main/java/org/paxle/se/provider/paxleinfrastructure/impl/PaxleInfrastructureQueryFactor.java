@@ -10,6 +10,7 @@ import org.paxle.se.query.tokens.AToken;
  * @author allo
  */
 public class PaxleInfrastructureQueryFactor extends IQueryFactory<String> {
+		@Override
 		public String and(AToken[] token){
 			String result=new String(transformToken(token[0], this));
 			for(int i=1;i<token.length;i++)

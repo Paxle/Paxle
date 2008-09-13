@@ -107,8 +107,8 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 					logger.info(String.format(
 							"%s rejected. Max depth exceeded. %d > %d.",
 							command.getLocation(),
-							command.getDepth(),
-							profile.getMaxDepth()
+							Integer.valueOf(command.getDepth()),
+							Integer.valueOf(profile.getMaxDepth())
 					));
 					return;
 				}
@@ -142,7 +142,7 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 						"Blocking %d URLs from reference map(s) of '%s' due to command-profile.", 
 						Integer.valueOf(c.c), 
 						command.getLocation(),
-						profile.getMaxDepth()
+						Integer.valueOf(profile.getMaxDepth())
 				);
 				
 				if (this.logger.isDebugEnabled()) {

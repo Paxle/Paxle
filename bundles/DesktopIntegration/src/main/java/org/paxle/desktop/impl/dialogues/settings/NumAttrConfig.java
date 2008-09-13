@@ -86,17 +86,7 @@ class NumAttrConfig extends AbstractAttrConfig<Number> implements MouseWheelList
 	
 	@Override
 	public Number getValue() {
-		switch (ad.getType()) {
-			case AttributeDefinition.SHORT: return Short.valueOf(getSpinnerValue(true));
-			case AttributeDefinition.INTEGER: return Integer.valueOf(getSpinnerValue(true));
-			case AttributeDefinition.LONG: return Long.valueOf(getSpinnerValue(true));
-			
-			case AttributeDefinition.FLOAT: return Float.valueOf(getSpinnerValue(false));
-			case AttributeDefinition.DOUBLE: return Double.valueOf(getSpinnerValue(false));
-			
-			default:
-				throw new IllegalStateException("attr-type: " + ad.getType() + " invalid for " + NumAttrConfig.class.getSimpleName());
-		}
+		return fromObject(getSpinnerValue());
 	}
 	
 	@Override
@@ -121,15 +111,19 @@ class NumAttrConfig extends AbstractAttrConfig<Number> implements MouseWheelList
 		}
 	}
 	
-	private String getSpinnerValue(final boolean dec) {
+	private String getSpinnerValue() {
 		try { comp.commitEdit(); } catch (ParseException e) {
 			final JComponent editor = comp.getEditor();
 			if (editor instanceof DefaultEditor)
 				((DefaultEditor)editor).getTextField().setText(comp.getValue().toString());
 		}
-		final String val = comp.getValue().toString();
-		final int idx = (dec) ? val.indexOf('.') : -1;
-		return (idx == -1) ? val : val.substring(0, idx);
+		String val = comp.getValue().toString();
+		if (ad.getType() == AttributeDefinition.FLOAT || ad.getType() == AttributeDefinition.DOUBLE) {
+			final int idx = val.indexOf('.');
+			if (idx > -1)
+				val = val.substring(0, idx);
+		}
+		return val;
 	}
 	
 	private Comparable<? extends Number> toNumber(final long n) {

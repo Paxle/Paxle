@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -29,15 +28,6 @@ public class PlainParser implements IPlainParser {
 	
 	// From RFC 2396, Appendix B, changed to ensure a scheme- and host-part
 	static final Pattern URI_PATTERN = Pattern.compile("([A-Za-z\\.-]+)://([^/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?");
-	private static final HashMap<Character,Character> PRE_POST_FIX_MAP = new HashMap<Character,Character>();
-	static {
-		PRE_POST_FIX_MAP.put(Character.valueOf('<'), Character.valueOf('>'));
-		PRE_POST_FIX_MAP.put(Character.valueOf('('), Character.valueOf('>'));
-		PRE_POST_FIX_MAP.put(Character.valueOf('['), Character.valueOf(']'));
-		PRE_POST_FIX_MAP.put(Character.valueOf('{'), Character.valueOf('}'));
-		PRE_POST_FIX_MAP.put(Character.valueOf('"'), Character.valueOf('"'));
-		PRE_POST_FIX_MAP.put(Character.valueOf('\''), Character.valueOf('\''));
-	}
 	private static final String PRE_FIXES = "<([{\"'_";
 	private static final String POST_FIXES = ">)]}\"'_:.,;";
 	

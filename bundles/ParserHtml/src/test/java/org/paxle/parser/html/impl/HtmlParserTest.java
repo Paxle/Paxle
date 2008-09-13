@@ -18,6 +18,8 @@ public class HtmlParserTest extends TestCase {
 		"javascript_test.html"
 	};
 	
+	// FIXME: <a name="#bla" /> is only recognized as a starting not an ending a-tag
+	
 	/** does not work as expected yet */
 	public static void _testHtmlParser() throws Exception {
 		final File testResources = new File("src/test/resources/");

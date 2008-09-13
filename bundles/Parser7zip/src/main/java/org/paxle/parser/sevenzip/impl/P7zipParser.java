@@ -25,6 +25,7 @@ public class P7zipParser extends ASubParser implements I7zipParser {
 		return MimeTypes;
 	}
 	
+	@Override
 	public IParserDocument parse(URI location, String charset, File content) throws
 			ParserException, UnsupportedEncodingException, IOException {
 		final Handler archive = new Handler();

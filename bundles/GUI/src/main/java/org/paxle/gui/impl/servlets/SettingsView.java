@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -842,7 +841,7 @@ public class SettingsView extends ALayoutServlet {
 		config.update(props);			
 	}
 	
-	public Object getPropertyValue(Dictionary props, AttributeDefinition attribute) {
+	public Object getPropertyValue(@SuppressWarnings("unchecked") Dictionary props, AttributeDefinition attribute) {
 		if (attribute == null) throw new NullPointerException("Attribute definition is null");
 		
 		String propertyKey = attribute.getID();

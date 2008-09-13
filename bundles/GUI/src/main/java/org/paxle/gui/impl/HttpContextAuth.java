@@ -86,7 +86,7 @@ public class HttpContextAuth implements HttpContext {
 					"%s://%s:%d/login",
 					request.getScheme(),
 					request.getServerName(),
-					request.getServerPort()
+					Integer.valueOf(request.getServerPort())
 			));
 			return false;
 		} 

@@ -201,14 +201,14 @@ public class Activator implements BundleActivator, InvocationHandler {
 			
 			 try {
 				 // we need to load the inferface classes we will implement from the system bundle
-				 Class applicationRunnable = bc.getBundle(0).loadClass("org.eclipse.osgi.service.runnable.ApplicationRunnable");
-				 Class parameterizedRunnable = bc.getBundle(0).loadClass("org.eclipse.osgi.service.runnable.ParameterizedRunnable");
+				 Class<?> applicationRunnable = bc.getBundle(0).loadClass("org.eclipse.osgi.service.runnable.ApplicationRunnable");
+				 Class<?> parameterizedRunnable = bc.getBundle(0).loadClass("org.eclipse.osgi.service.runnable.ParameterizedRunnable");
 				 
 				 // now we play the role of an eclipse application
 				 Object proxy = Proxy.newProxyInstance(
 						 bc.getClass().getClassLoader(),
 						 new Class[]{applicationRunnable, parameterizedRunnable},
-						 (InvocationHandler)this);
+						 this);
 			        				 
 				 // registering as Equinox application	        
 				 bc.registerService(new String[]{

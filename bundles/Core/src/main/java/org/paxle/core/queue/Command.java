@@ -65,7 +65,7 @@ public class Command implements ICommand {
 
 	/**
 	 * @param location the location of the document to process.
-	 * @return
+	 * @return a new {@link CommandEvent} object representing the job for processing the given {@link URI}
 	 */
 	public static Command createCommand(URI location) {
 		return createCommand(location, -1);

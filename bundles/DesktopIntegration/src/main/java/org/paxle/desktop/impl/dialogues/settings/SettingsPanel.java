@@ -258,7 +258,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 			
 			final GridBagConstraints gbcHead = createGbcHead();
 			final JLabel heading = new JLabel(ocd.getName());
-			heading.setFont(new Font(heading.getFont().getName(), Font.BOLD, 16));
+			heading.setFont(heading.getFont().deriveFont(Font.BOLD, 20f));
 			panel.add(heading, gbcHead);
 			incGridY(gbcHead);
 			

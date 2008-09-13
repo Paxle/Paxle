@@ -153,34 +153,34 @@ public class MD5 {
 		 */
 
 		// unrolled loop (original loop shown above)
-		out[0] = ((int) (buffer[shift] & 0xff))
-				| (((int) (buffer[shift + 1] & 0xff)) << 8)
-				| (((int) (buffer[shift + 2] & 0xff)) << 16)
-				| (((int) buffer[shift + 3]) << 24);
-		out[1] = ((int) (buffer[shift + 4] & 0xff))
-				| (((int) (buffer[shift + 5] & 0xff)) << 8)
-				| (((int) (buffer[shift + 6] & 0xff)) << 16)
-				| (((int) buffer[shift + 7]) << 24);
-		out[2] = ((int) (buffer[shift + 8] & 0xff))
-				| (((int) (buffer[shift + 9] & 0xff)) << 8)
-				| (((int) (buffer[shift + 10] & 0xff)) << 16)
-				| (((int) buffer[shift + 11]) << 24);
-		out[3] = ((int) (buffer[shift + 12] & 0xff))
-				| (((int) (buffer[shift + 13] & 0xff)) << 8)
-				| (((int) (buffer[shift + 14] & 0xff)) << 16)
-				| (((int) buffer[shift + 15]) << 24);
-		out[4] = ((int) (buffer[shift + 16] & 0xff))
-				| (((int) (buffer[shift + 17] & 0xff)) << 8)
-				| (((int) (buffer[shift + 18] & 0xff)) << 16)
-				| (((int) buffer[shift + 19]) << 24);
-		out[5] = ((int) (buffer[shift + 20] & 0xff))
-				| (((int) (buffer[shift + 21] & 0xff)) << 8)
-				| (((int) (buffer[shift + 22] & 0xff)) << 16)
-				| (((int) buffer[shift + 23]) << 24);
-		out[6] = ((int) (buffer[shift + 24] & 0xff))
-				| (((int) (buffer[shift + 25] & 0xff)) << 8)
-				| (((int) (buffer[shift + 26] & 0xff)) << 16)
-				| (((int) buffer[shift + 27]) << 24);
+		out[0] = (buffer[shift] & 0xff)
+				| ((buffer[shift + 1] & 0xff) << 8)
+				| ((buffer[shift + 2] & 0xff) << 16)
+				| (buffer[shift + 3] << 24);
+		out[1] = (buffer[shift + 4] & 0xff)
+				| ((buffer[shift + 5] & 0xff) << 8)
+				| ((buffer[shift + 6] & 0xff) << 16)
+				| (buffer[shift + 7] << 24);
+		out[2] = (buffer[shift + 8] & 0xff)
+				| ((buffer[shift + 9] & 0xff) << 8)
+				| ((buffer[shift + 10] & 0xff) << 16)
+				| (buffer[shift + 11] << 24);
+		out[3] = (buffer[shift + 12] & 0xff)
+				| ((buffer[shift + 13] & 0xff) << 8)
+				| ((buffer[shift + 14] & 0xff) << 16)
+				| (buffer[shift + 15] << 24);
+		out[4] = (buffer[shift + 16] & 0xff)
+				| ((buffer[shift + 17] & 0xff) << 8)
+				| ((buffer[shift + 18] & 0xff) << 16)
+				| (buffer[shift + 19] << 24);
+		out[5] = (buffer[shift + 20] & 0xff)
+				| ((buffer[shift + 21] & 0xff) << 8)
+				| ((buffer[shift + 22] & 0xff) << 16)
+				| (buffer[shift + 23] << 24);
+		out[6] = (buffer[shift + 24] & 0xff)
+				| ((buffer[shift + 25] & 0xff) << 8)
+				| ((buffer[shift + 26] & 0xff) << 16)
+				| (buffer[shift + 27] << 24);
 		out[7] = ((int) (buffer[shift + 28] & 0xff))
 				| (((int) (buffer[shift + 29] & 0xff)) << 8)
 				| (((int) (buffer[shift + 30] & 0xff)) << 16)
@@ -607,10 +607,10 @@ public class MD5 {
 		int i;
 
 		for (i = 0; i < hash.length; i++) {
-			if (((int) hash[i] & 0xff) < 0x10)
+			if ((hash[i] & 0xff) < 0x10)
 				buf.append("0");
 
-			buf.append(Long.toString((int) hash[i] & 0xff, 16));
+			buf.append(Long.toString(hash[i] & 0xff, 16));
 		}
 
 		return buf.toString();

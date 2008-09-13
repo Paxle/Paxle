@@ -320,7 +320,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	/**
 	 * @see ManagedService#updated(Dictionary)
 	 */
-	public void updated(Dictionary properties) throws ConfigurationException {
+	public void updated(@SuppressWarnings("unchecked") Dictionary properties) throws ConfigurationException {
 		if (properties == null ) {
 			logger.warn("updated configuration is null");
 			/*

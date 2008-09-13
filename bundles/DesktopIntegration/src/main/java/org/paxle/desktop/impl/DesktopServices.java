@@ -116,6 +116,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static final Class<IMWComponent> MWCOMP_CLASS = IMWComponent.class;
 	
 	private static final String ICOMMANDDB = "org.paxle.data.db.ICommandDB";
