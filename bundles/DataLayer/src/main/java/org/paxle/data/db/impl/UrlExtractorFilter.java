@@ -41,6 +41,10 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 	 */
 	private final BlockingQueue<URIQueueEntry> extractedUriQueue;
 
+	/**
+	 * A {@link Thread} used to listen for newly {@link #extractedUriQueue extracted-URI}
+	 * that should be stored into the {@link #db command-db}
+	 */
 	private final URIStorageThread storageThread;
 	
 	public UrlExtractorFilter(CommandDB db) {
@@ -135,7 +139,10 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 			
 			// wait for shutdown
 			this.storageThread.join(1000);
-		}			
+		}
+		
+		// clear URI queue
+		this.extractedUriQueue.clear();
 	}
 	
 	private class URIQueueEntry {
@@ -209,7 +216,12 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 							Integer.valueOf(extractedUriQueue.size())
 					));
 					return;
-				} 
+				} catch (Throwable e) {
+					logger.error(String.format(
+							"Unexpected '%s' while trying to store new URI into the command-db.",
+							e.getClass().getName()
+					), e);
+				}
 			}
 		}
 	}
