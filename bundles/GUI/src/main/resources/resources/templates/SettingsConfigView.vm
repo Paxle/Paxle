@@ -204,26 +204,22 @@
 		</table>
 		
 		#if(!$paramParser.getString("viewImportedConfig"))
-		<p>
-			<b>${text.export.title}</b>
-			<div class="descriptionText">${text.export.desc}</div>
-		    <form action="?settings=config">
-               	<p>
-               		<input type="submit" name="doExportConfig" value="${text.export.doExport}" />
-               	</p>
-			</form>	
-		</p>
+		<p><b>${text.export.title}</b></p>
+		<div class="descriptionText">${text.export.desc}</div>
+			<form action="?settings=config">
+							<p>
+								<input type="submit" name="doExportConfig" value="${text.export.doExport}" />
+							</p>
+		</form>	
 				
-		<p>
-    		<b>${text.import.title}</b>
-			<div class="descriptionText">${text.import.desc}</div>
-            <form enctype="multipart/form-data" method="post" action="?settings=config&amp;viewImportedConfig=">
-            	<p>
-            		<input type="file" name="configFile" size="60" />
-            		<input type="submit" name="doUpload" value="${text.import.doUpload}" />
-            	</p>
-            </form>	
-		</p>
+		<p><b>${text.import.title}</b></p>
+		<div class="descriptionText">${text.import.desc}</div>
+		<form enctype="multipart/form-data" method="post" action="?settings=config&amp;viewImportedConfig=">
+			<p>
+				<input type="file" name="configFile" size="60" />
+				<input type="submit" name="doUpload" value="${text.import.doUpload}" />
+			</p>
+		</form>	
 		#end
 	#end
 #else 

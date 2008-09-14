@@ -321,7 +321,7 @@
 	<hr />
 	
 	<h3>${text.gui.supportedResources.title}:</h3>
-	<p>${text.gui.supportedResources.status.insert($servletManager.getResources().size())}:<p />
+	<p>${text.gui.supportedResources.status.insert($servletManager.getResources().size())}:</p>
 	
 	<table>		
 		<tr><th>Path</th><th>Class</th></tr>

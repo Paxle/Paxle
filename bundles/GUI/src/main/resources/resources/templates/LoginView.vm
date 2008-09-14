@@ -16,7 +16,7 @@
 
 <fieldset id="dformLogin">
 	<legend>${text.legend.formLogin}</legend>
-    <form method="post">
+    <form action="" method="post">
     <div>
     	#if( $errorMsg)
     		<p class="error">$errorMsg</p>

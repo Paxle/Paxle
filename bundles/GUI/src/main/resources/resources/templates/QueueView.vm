@@ -16,6 +16,7 @@
 </ul>
 
 <script type="text/javascript">
+			/*<![CDATA[*/
       var ajaxPopulater = function (id,reload) {
          var url  = '/queue?#{if}($paramParser.getString("queue"))queue=${paramParser.getString("queue")}&#{end}reload=' + reload;
          new Ajax.PeriodicalUpdater(id, url, {
@@ -25,6 +26,7 @@
             decay: 1
          });
       };
+			/*]]>*/
 </script>
 	  
 #if($paramParser.getString("queue"))

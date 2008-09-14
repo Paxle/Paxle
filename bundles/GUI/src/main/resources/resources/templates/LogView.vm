@@ -41,7 +41,7 @@
         	<tr>
         		<td class="log$levelName">$text.get("loglevel.$levelName")</td>
         		<td><tt>$dateTool.format("$dateFormat",$logEntry.getTime())</tt></td>
-        		<td><tt>$logEntry.getMessage()#if( $logEntry.getException()) <p class="exception">$logEntry.getException()</p></tt>#end
+        		<td><tt>$logEntry.getMessage()#if( $logEntry.getException()) <span class="exception">$logEntry.getException()</span>#end</tt>
         		</td>
         	</tr>
     	#end

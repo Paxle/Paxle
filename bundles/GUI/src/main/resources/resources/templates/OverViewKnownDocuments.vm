@@ -5,7 +5,7 @@
     <fieldset class="infobox">
     	<legend class="ovDatabase">${text.legend.ovDatabase}</legend>
 		#if($manager.getService('org.paxle.gui.IServletManager').hasServlet('/chart'))
-			<img class="chart" id="ovDatabaseChart" src="/chart?t=index&w=385&h=200&t=${dateTool.get('yyyy-M-d H:m')}" height="200" width="385"/>
+			<img class="chart" id="ovDatabaseChart" src="/chart?t=index&amp;w=385&amp;h=200&amp;t=${dateTool.get('yyyy-M-dH:m')}" height="200" width="385" alt="${text.chart.alt.ovDatabase}"/>
 		#end
     	<dl>
     		<dt>${text.ovDatabase.knownDocs}:</dt><dd>$indexSearcher.getDocCount()</dd>

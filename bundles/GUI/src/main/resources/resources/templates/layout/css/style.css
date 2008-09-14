@@ -238,6 +238,12 @@ td {
 	background-repeat: no-repeat;
 }
 
+span.error {
+	padding: 0;
+	font-size: 1em;
+	background-image: none;
+}
+
 .exception {
 	background-color: #FFEEFF;
 }
@@ -296,7 +302,7 @@ a.rssFeedLink {
 	padding: 10px 10px 10px 10px;
 }
 
-a.rssFeedLink > img {
+img {
 	border: 0;
 }
 

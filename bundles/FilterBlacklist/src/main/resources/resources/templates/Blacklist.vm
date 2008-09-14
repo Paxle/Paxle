@@ -24,7 +24,7 @@
 	    <div class="error">$escTool.xml($InvalidFilenameException.getMessage())</div>
 	#else
 		#if ($action != "newList" && $action != "delList")
-			<p><a href="/blacklist?action=delList&list=$escTool.url( $curList.getName() )">Delete this list</a></p>
+			<p><a href="/blacklist?action=delList&amp;list=$escTool.url( $curList.getName() )">Delete this list</a></p>
 		#end
 		#if ($action == "newList")
 			<h3>Create a new List</h3>

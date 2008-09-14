@@ -10,7 +10,7 @@
 	
 	<tr>
 		<td>Profile Name:</td>
-		<td><input type="text" id="crawlDepth" name="profileName" value="$!defaultName"/></td>
+		<td><input type="text" id="profileName" name="profileName" value="$!defaultName"/></td>
 		<td>&nbsp;</td>
 	</tr>
 	
@@ -36,14 +36,14 @@
 				<label for="useRegexpFilter">Use reg.exp Filter: </label>
 				<input type="text" id="links.regexpFilter" name="linkFilterExpressionRegexp" value=".*"/>
 			</div>
+			<script type="text/javascript">
+				// <![CDATA[
+				$toggleSpecificLinks
+				// ]]>
+			</script>		
 		</td>
 		<td>&nbsp;</td>
 	</tr>
-    <script type="text/javascript" language="javascript">
-      // <![CDATA[
-	  	$toggleSpecificLinks
-      // ]]>
-    </script>		
 	
 	<!-- restrict protocols -->
 	#set($toggleSpecificProtocols = "Effect.toggle('specificProtocols', 'appear', { delay: 0, duration: 0 });")
@@ -56,7 +56,7 @@
 			<input id="crawlSpecificProtocols" type="radio" value="specific" name="protocolMode" onclick="$toggleSpecificProtocols"/>
 			<label for="crawlSpecificProtocols">
 				Restrict to  specific protocol(s)
-				<br/><font color="red">Not functional yet!</font>
+				<br/><span class="error">Not functional yet!</span>
 			</label>
 			
 			<div id="specificProtocols">
@@ -68,14 +68,14 @@
     				#end
     			</select>			
 			</div>
+			<script type="text/javascript">
+				// <![CDATA[
+				$toggleSpecificProtocols
+				// ]]>
+			</script>		
 		</td>
 		<td>Restrict crawling to a given set of protocols</td>
 	</tr>
-    <script type="text/javascript" language="javascript">
-      // <![CDATA[
-	  	$toggleSpecificProtocols
-      // ]]>
-    </script>		
 	
 	<!-- restrict mime-types -->
 	#set($toggleSpecificMimeTypes = "Effect.toggle('specificMimeTypes', 'appear', { delay: 0, duration: 0 });")
@@ -89,7 +89,7 @@
 			<input id="crawlSpecificMimetypes" type="radio" value="specific" name="mimetypeMode"  onclick="$toggleSpecificMimeTypes"/>
 			<label for="crawlSpecificMimetypes">
 				Restrict to specific mime-type(s).
-				<br/><font color="red">Not functional yet!</font>
+				<br/><span class="error">Not functional yet!</span>
 			</label>
 			
 			<div id="specificMimeTypes">
@@ -101,15 +101,14 @@
     				#end
     			</select>
 			</div>
+			<script type="text/javascript">
+				// <![CDATA[
+				$toggleSpecificMimeTypes
+				// ]]>
+			</script>	
 		</td>
 		<td>Restrict crawling to a given set of mime-types</td>
 	</tr>
-    <script type="text/javascript" language="javascript">
-      // <![CDATA[
-	  	$toggleSpecificMimeTypes
-      // ]]>
-    </script>	
-		
 	</table>
 </fieldset>
 #else

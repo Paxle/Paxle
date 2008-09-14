@@ -102,7 +102,7 @@
     		<tr>
     			<td><img src="/images/#{if}(${role.getType()}==2)group.png" alt="Group"#{else}user.png" alt="User"#{end}/></td>
     			<td>${role.getName()}</td>
-				<td><a href="?settings=user&amp;roleName=${role.getName()}"><img src="/images/#{if}(${role.getType()}==2)group_edit.png" alt="Edit Group" title="Edit Group"#{else}user_edit.png" alt="Edit User" title="Edit User"#{end} border="0"/></a></td>
+				<td><a href="?settings=user&amp;roleName=${role.getName()}"><img src="/images/#{if}(${role.getType()}==2)group_edit.png" alt="Edit Group" title="Edit Group"#{else}user_edit.png" alt="Edit User" title="Edit User"#{end} /></a></td>
     		</tr>
     		#end
     	#end
