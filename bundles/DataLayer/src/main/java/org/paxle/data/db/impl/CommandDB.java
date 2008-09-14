@@ -444,7 +444,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 */
 	int storeUnknownLocations(int profileID, int depth, ArrayList<URI> locations) {
 		if (locations == null || locations.size() == 0) return 0;
-		
+				
+		int known = 0;
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -453,6 +454,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			while (locationIterator.hasNext()) {
 				if (this.urlExistsCache.get(locationIterator.next()) != null) {
 					locationIterator.remove();
+					known++;
 				}
 			}
 			if (locations.size() == 0) return 0;
@@ -482,8 +484,6 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 					knownLocations.addAll(query.list());			
 				}
 			}
-			
-			int known = 0;
 			
 			// add new commands into DB
 			for (URI location : locations) {

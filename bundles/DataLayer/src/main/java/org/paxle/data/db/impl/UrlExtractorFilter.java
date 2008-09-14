@@ -5,6 +5,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,17 +19,39 @@ import org.paxle.core.queue.ICommand;
 
 public class UrlExtractorFilter implements IFilter<ICommand> {
 	
-	private static class Counter {		
-		public int c = 0;
-		public int known = 0;
+	private static class Counter {
+		public int total = 0;
+		public int enqueued = 0;
 	}
 	
-	private CommandDB db;
+	/**
+	 * A database to store known {@link ICommand commands}
+	 */
+	private final CommandDB db;
 	
-	private Log logger = LogFactory.getLog(this.getClass());
+	/**
+	 * For logging
+	 */
+	private final Log logger = LogFactory.getLog(this.getClass());
+	
+	/**
+	 * A queue to buffer all {@link URI} that were recently extracted
+	 * from an {@link IParserDocument} and are enqueued for insertion
+	 * into the {@link #db command-db} 
+	 */
+	private final BlockingQueue<URIQueueEntry> extractedUriQueue;
 
+	private final URIStorageThread storageThread;
+	
 	public UrlExtractorFilter(CommandDB db) {
 		this.db = db;
+		
+		// create the URI queue 
+		this.extractedUriQueue = new LinkedBlockingQueue<URIQueueEntry>();
+		
+		// create and start the worker thread
+		this.storageThread = new URIStorageThread();
+		this.storageThread.start();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -42,8 +66,11 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		final Counter c = new Counter();
 		this.extractLinks(command, parserDoc, c);
 		logger.info(String.format(
-				"Extracted %d new and %d already known URIs from '%s'",
-				Integer.valueOf(c.c - c.known), Integer.valueOf(c.known), command.getLocation()));
+				"Selected %d URI out of %d URI from '%s' for storage to DB.",
+				Integer.valueOf(c.enqueued), 
+				Integer.valueOf(c.total), 
+				command.getLocation()
+		));
 	}
 	
 	private void extractLinks(final ICommand command, IParserDocument parserDoc, final Counter c) {
@@ -64,11 +91,13 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 	}
 	
 	private void extractLinks(final ICommand command, Map<URI, LinkInfo> linkMap, final Counter c) {
-		ArrayList<URI> validLocations = new ArrayList<URI>();
+		if (linkMap == null) return;
 		
+		final ArrayList<URI> refs = new ArrayList<URI>();		
 		for (Entry<URI, LinkInfo> link : linkMap.entrySet()) {
 			URI ref = link.getKey();
 			LinkInfo meta = link.getValue();
+			c.total++;
 			
 			// check if the URI exceeds max length
 			if (ref.toString().length() > 512) {
@@ -84,26 +113,104 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 				continue;
 			}
 			
-			// add command into list
-			validLocations.add(ref);
+			c.enqueued++;
+			refs.add(ref);
 		}
-
-
-		// store commands into DB
-		if (!db.isClosed()) {
-			// TODO: read out relevant URI metadata
-			c.known += db.storeUnknownLocations(
+				
+		if (refs.size() > 0) {
+			// add command into URI queue
+			this.extractedUriQueue.add(new URIQueueEntry(
+					command.getLocation(),
 					command.getProfileOID(),
-					command.getDepth()+1,
-					validLocations
-			);
-			c.c += validLocations.size();
-		} else {
-			this.logger.error(String.format(
-					"Unable to write linkmap of location '%s' to db. Database already closed.",
-					command.getLocation().toASCIIString()
+					command.getDepth() + 1,
+					refs
 			));
 		}
 	}
+	
+	public void terminate() throws InterruptedException {
+		if (this.storageThread != null) {
+			// interrupt thread
+			this.storageThread.interrupt();
+			
+			// wait for shutdown
+			this.storageThread.join(1000);
+		}			
+	}
+	
+	private class URIQueueEntry {
+		private final int profileID;
+		private final int commandDepth;
+		private final URI rootUri;
+		private final ArrayList<URI> refs;
 
+		public URIQueueEntry(URI rootUri, int profileID, int commandDepth, ArrayList<URI> refs) {
+			this.rootUri = rootUri;
+			this.profileID = profileID;
+			this.commandDepth = commandDepth;
+			this.refs = refs;
+		}
+
+		public int getProfileID() {
+			return this.profileID;
+		}
+
+		public int getDepth() {
+			return this.commandDepth;
+		}
+
+		public URI getRootURI() {
+			return this.rootUri;
+		}
+
+		public ArrayList<URI> getReferences() {
+			return this.refs;
+		}
+	}
+
+	private class URIStorageThread extends Thread {
+		public URIStorageThread() {
+			this.setName(this.getClass().getSimpleName());
+		}
+		
+		@Override
+		public void run() {
+			
+			while(!db.isClosed() && !this.isInterrupted()) {
+				try {
+					// waiting for the next job
+					URIQueueEntry entry = extractedUriQueue.take();
+
+					// store unknown URI
+					if (!db.isClosed()) {
+						int known = db.storeUnknownLocations(
+								entry.getProfileID(),
+								entry.getDepth(),
+								entry.getReferences()
+						);
+						
+						logger.info(String.format(
+								"Extracted %d new and %d already known URIs from '%s'",
+								Integer.valueOf(entry.getReferences().size() - known), 
+								Integer.valueOf(known), 
+								entry.getRootURI().toASCIIString()
+						));
+					} else {
+						logger.error(String.format(
+								"Unable to write linkmap of location '%s' to db. Database already closed.",
+								entry.getRootURI().toASCIIString()
+						));
+					}					
+					
+				} catch (InterruptedException e) {
+					logger.info(String.format(
+							"Shutdown of' %s' finished. '%d' could not be stored.",
+							this.getName(),
+							Integer.valueOf(extractedUriQueue.size())
+					));
+					return;
+				} 
+			}
+		}
+	}
 }

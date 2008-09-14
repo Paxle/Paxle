@@ -39,6 +39,8 @@ public class Activator implements BundleActivator {
 	
 	private CommandDB commandDB = null;
 	
+	private UrlExtractorFilter urlExtractor = null;
+	
 	private ArrayList<DataPipe<?>> pipes = null;
 	
 	/**
@@ -133,7 +135,7 @@ public class Activator implements BundleActivator {
 			urlExtractorFilterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{
 					String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(Integer.MAX_VALUE))
 			});
-			bc.registerService(IFilter.class.getName(), new UrlExtractorFilter(commandDB), urlExtractorFilterProps);	
+			bc.registerService(IFilter.class.getName(), urlExtractor = new UrlExtractorFilter(commandDB), urlExtractorFilterProps);	
 			
 			// command-profile filter
 			Hashtable<String, String[]> profileFilterProps = new Hashtable<String, String[]>();
@@ -158,7 +160,12 @@ public class Activator implements BundleActivator {
 	 * This function is called by the osgi-framework to stop the bundle.
 	 * @see BundleActivator#stop(BundleContext)
 	 */		
-	public void stop(BundleContext context) throws Exception {		
+	public void stop(BundleContext context) throws Exception {
+		// shutdown URL-extractor
+		if (this.urlExtractor != null) {
+			this.urlExtractor.terminate();
+		}
+		
 		// shutdown command DB
 		if (this.commandDB != null) {
 			this.commandDB.close();
