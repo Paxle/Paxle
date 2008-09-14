@@ -33,44 +33,95 @@ import org.osgi.framework.ServiceReference;
 
 public class ChartServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+	private static final String TSERIES_INDEX_SIZE = "series.indexSize";
+	private static final String TSERIES_MEMORY_USAGE = "series.memoryUsage";
+	private static final String TSERIES_DISK_USAGE = "series.diskUsage";
+	private static final String TSERIES_PPM = "series.ppm.%s"; 
+	
 
+	/**
+	 * An OSGi bundle-context used to access other services registered to the system
+	 */
 	private final BundleContext context;
+	
+	/**
+	 * For logging
+	 */
 	private final Log logger = LogFactory.getLog(this.getClass());
 	
-	private final TimeSeries indexSizeSeries = new TimeSeries("Index Size", Minute.class);
-	private final TimeSeries usedmemSeries = new TimeSeries("Used MEM", Minute.class);
-	private final TimeSeries freeDiskSeries = new TimeSeries("Free Disk", Minute.class);
+	/**
+	 * A {@link Thread} to collect data for the various charts
+	 */
+	private DataCollector collectorThread;
 	
-	private final HashMap<String,TimeSeries> ppmSeries = new HashMap<String,TimeSeries>();
-	{
-		ppmSeries.put("org.paxle.crawler",new TimeSeries("Crawler PPM", Minute.class));
-		ppmSeries.put("org.paxle.parser",new TimeSeries("Parser PPM", Minute.class));
-		ppmSeries.put("org.paxle.indexer",new TimeSeries("Indexer PPM", Minute.class));
-	}
-	
-	private final JFreeChart memChart;
-	private final JFreeChart ppmChart;
-	private final JFreeChart indexChart;
-	
+	/**
+	 * A map containing all {@link TimeSeries} that are filled by the {@link DataCollector}-thread
+	 */
+	private HashMap<String,TimeSeries> seriesMap = new HashMap<String,TimeSeries>();
+
+	private JFreeChart memChart;
+	private JFreeChart ppmChart;
+	private JFreeChart indexChart;	
 	
 	public ChartServlet(BundleContext context) {
 		this.context = context;
-		
+	}
+	
+	@Override
+	public void init() throws ServletException {
+		super.init();
+				
 		// create charts
 		this.memChart = this.createMemoryChart();
 		this.ppmChart = this.createPPMChart();
 		this.indexChart = this.createIndexChart();
         
         // start thread
-        new DataCollector().start();
+		this.collectorThread = new DataCollector();
+		this.collectorThread.start();		
+	}
+	
+	@Override
+	public void destroy() {
+		// shutdown the collector thread
+		if (this.collectorThread != null) {
+			// interrupt the thread
+			collectorThread.interrupt();
+			
+			// wait for the thread to shutdown
+			try {
+				this.collectorThread.join(1000);
+			} catch (InterruptedException e) {/* ignore this */}
+		}
+	
+		// clear series map
+		this.seriesMap.clear();
+		
+		super.destroy();
 	}
 	
 	private JFreeChart createPPMChart() {
+		/*
+		 * INIT TIME-SERIES 
+		 */
         final TimeSeriesCollection dataset = new TimeSeriesCollection();
-        for (TimeSeries series : this.ppmSeries.values()) {
-        	dataset.addSeries(series);
-        }
         
+        TimeSeries crawlerPPM = new TimeSeries("Crawler PPM", Minute.class);
+        dataset.addSeries(crawlerPPM);
+        this.seriesMap.put(String.format(TSERIES_PPM,"org.paxle.crawler"), crawlerPPM);
+
+        TimeSeries parserPPM = new TimeSeries("Parser PPM", Minute.class);
+        dataset.addSeries(parserPPM);
+        this.seriesMap.put(String.format(TSERIES_PPM,"org.paxle.parser"), parserPPM);
+        
+        TimeSeries indexerPPM = new TimeSeries("Indexer PPM", Minute.class);
+        dataset.addSeries(indexerPPM);
+        this.seriesMap.put(String.format(TSERIES_PPM,"org.paxle.indexer"), indexerPPM);
+        
+		/*
+		 * INIT CHART
+		 */        
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
                 null,
                 "Time", 
@@ -81,11 +132,17 @@ public class ChartServlet extends HttpServlet {
                 false
             );
         
+        // change axis data format
 		((DateAxis) chart.getXYPlot().getDomainAxis()).setDateFormatOverride(new SimpleDateFormat("HH:mm"));
 		return chart;        
 	}
 	
 	private JFreeChart createIndexChart() {
+		// init Time-Series
+		TimeSeries indexSizeSeries = new TimeSeries("Index Size", Minute.class);
+		this.seriesMap.put(TSERIES_INDEX_SIZE, indexSizeSeries);
+		
+		// init chart
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
                 null,
                 "Time", 
@@ -95,11 +152,19 @@ public class ChartServlet extends HttpServlet {
                 true,
                 false
             );
+		
+		// change axis date format
 		((DateAxis) chart.getXYPlot().getDomainAxis()).setDateFormatOverride(new SimpleDateFormat("HH:mm"));
 		return chart;
 	}
 
 	private JFreeChart createMemoryChart() {
+    	// init time series
+    	TimeSeries usedmemSeries = new TimeSeries("Used MEM", Minute.class);
+    	this.seriesMap.put(TSERIES_MEMORY_USAGE, usedmemSeries);
+    	TimeSeries freeDiskSeries = new TimeSeries("Free Disk", Minute.class);
+    	this.seriesMap.put(TSERIES_DISK_USAGE, freeDiskSeries);
+		
 		// init collections and chart
         final TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(usedmemSeries);
@@ -164,12 +229,20 @@ public class ChartServlet extends HttpServlet {
 			freeDisk = FileSystemUtils.freeSpaceKb(new File("/").getCanonicalPath().toString());
 			freeDisk = freeDisk / 1024;
 		} catch (IOException e) {
-			e.printStackTrace();
+			this.logger.error(e);
 		}
 		
 		Minute minute = new Minute(new Date());
-		this.usedmemSeries.addOrUpdate(minute,Long.valueOf(usedMem));	
-		this.freeDiskSeries.addOrUpdate(minute, Long.valueOf(freeDisk));		
+		
+		TimeSeries usedmemSeries = this.seriesMap.get(TSERIES_MEMORY_USAGE);
+		if (usedmemSeries != null) {
+			usedmemSeries.addOrUpdate(minute,Long.valueOf(usedMem));
+		}
+		
+		TimeSeries freeDiskSeries = this.seriesMap.get(TSERIES_DISK_USAGE);
+		if (freeDiskSeries != null) {
+			freeDiskSeries.addOrUpdate(minute, Long.valueOf(freeDisk));
+		}
 	}
 	
 	private void updatePPMChart() {	
@@ -182,7 +255,7 @@ public class ChartServlet extends HttpServlet {
 					String componentID = (String) ref.getProperty("component.ID");
 					Object mw = this.context.getService(ref);
 					if (mw != null) {
-						TimeSeries series = this.ppmSeries.get(componentID);
+						TimeSeries series = this.seriesMap.get(String.format(TSERIES_PPM,componentID)); 
 						if (series != null) {
 							Integer ppm = (Integer) mw.getClass().getMethod("getPPM", (Class[])null).invoke(mw, (Object[])null);
 							series.add(minute, ppm);
@@ -201,7 +274,10 @@ public class ChartServlet extends HttpServlet {
 			if (ref != null) {
 				Object service = this.context.getService(ref);
 				Integer docCount = (Integer) service.getClass().getMethod("getDocCount", (Class[])null).invoke(service, (Object[])null);
-				this.indexSizeSeries.add(new Minute(new Date()), docCount);
+				
+				TimeSeries indexSizeSeries = this.seriesMap.get(TSERIES_INDEX_SIZE); {
+					if (indexSizeSeries != null) indexSizeSeries.add(new Minute(new Date()), docCount);	
+				}				
 			}
 		} catch (Throwable e) {
 			this.logger.error(e);
@@ -211,6 +287,8 @@ public class ChartServlet extends HttpServlet {
 	class DataCollector extends Thread {
 		@Override
 		public void run() {
+			this.setName(this.getClass().getSimpleName());
+			
 			while(true) {
 				try {
 					// update charts
@@ -221,7 +299,8 @@ public class ChartServlet extends HttpServlet {
 					// sleep for a while
 					Thread.sleep(60000);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					logger.info(String.format("Interruption detected. Shutdown of %s finished.",this.getClass().getSimpleName()));
+					return;
 				}
 			}
 		}
