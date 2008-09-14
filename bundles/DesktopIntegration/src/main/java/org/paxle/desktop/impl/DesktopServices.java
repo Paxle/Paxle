@@ -254,8 +254,8 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		try {
 			manager.shutdownFramework();
 		} catch (BundleException e) {
-			Utilities.showExceptionBox("error restarting framework", e);
-			logger.error("error restarting framework", e);
+			Utilities.showExceptionBox("error shutting down framework", e);
+			logger.error("error shutting down framework", e);
 		}
 	}
 	

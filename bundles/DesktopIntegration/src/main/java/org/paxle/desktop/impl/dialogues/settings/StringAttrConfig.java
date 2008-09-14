@@ -9,6 +9,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import org.osgi.service.metatype.AttributeDefinition;
+import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.event.MultipleChangesListener;
 
 class StringAttrConfig extends AbstractAttrConfig<String> {
@@ -22,11 +23,11 @@ class StringAttrConfig extends AbstractAttrConfig<String> {
 	
 	@Override
 	protected JTextArea createDescription(String desc) {
-		isPassword = ad.getID().toLowerCase().contains("password");
+		isPassword = ad.getID().toLowerCase().contains("password"); //$NON-NLS-1$
 		final JTextArea a = super.createDescription(desc);
 		if (isPassword) try {
 			final Document doc = a.getDocument();
-			doc.insertString(doc.getLength(), "\nBe aware that this password is being saved unencrypted.", null);
+			doc.insertString(doc.getLength(), Messages.getString("stringAttrConfig.pwdSavedUnencrypted"), null); //$NON-NLS-1$
 		} catch (BadLocationException e) { e.printStackTrace(); }
 		return a;
 	}

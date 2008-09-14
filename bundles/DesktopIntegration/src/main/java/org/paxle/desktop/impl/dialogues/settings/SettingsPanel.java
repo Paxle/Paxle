@@ -49,6 +49,7 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 
 import org.paxle.core.io.IOTools;
 import org.paxle.desktop.impl.DesktopServices;
+import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
 import org.paxle.desktop.impl.dialogues.DIServicePanel;
 import org.paxle.desktop.impl.dialogues.ScrollablePanel;
@@ -141,7 +142,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		
 		public void save() throws IOException {
 			if (aconfs == null)
-				throw new RuntimeException("not initialized");
+				throw new RuntimeException("not initialized"); //$NON-NLS-1$
 			final Hashtable<String,Object> props = new Hashtable<String,Object>();
 			for (final AbstractAttrConfig<?> aconf : aconfs)
 				aconf.save(props);
@@ -196,7 +197,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 				InputStream is = getOCD().getIcon(iconSize);
 				if (is == null) {
 					// fallback to default icon
-					is = this.getClass().getResourceAsStream("/OSGI-INF/images/cog.png");
+					is = this.getClass().getResourceAsStream("/OSGI-INF/images/cog.png"); //$NON-NLS-1$
 				}					
 				final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				IOTools.copy(is, baos);
@@ -250,8 +251,8 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 			final JPanel panel = new JPanel(new GridBagLayout());
 			optionsComp = new MultipleChangesListener(this, Actions.SAVE.name(), Actions.RESET.name());
 			mcl.addComp2Monitor(optionsComp);
-			optionsComp.getSaveButton().setText("Save");
-			optionsComp.getResetButton().setText("Reset");
+			optionsComp.getSaveButton().setText(Messages.getString("settingsPanel.save")); //$NON-NLS-1$
+			optionsComp.getResetButton().setText(Messages.getString("settingsPanel.reset")); //$NON-NLS-1$
 			optionsPanel = new ScrollablePanel(new BorderLayout(), ScrollablePanel.ALWAYS_TRACK, ScrollablePanel.MAXIMIZE);
 			optionsPanel.add(optionsComp.layoutButtonsDefault(true), BorderLayout.SOUTH);
 			optionsPanel.add(panel);
@@ -269,10 +270,10 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 			final GridBagConstraints gbcOptMulti = createGbcOptMulti(y);
 			final GridBagConstraints gbcDesc = createGbcDesc(y);
 			
-			panel.add(new JLabel("Description"), gbcLabel);
+			panel.add(new JLabel(Messages.getString("settingsPanel.description")), gbcLabel); //$NON-NLS-1$
 			panel.add(new JLabel(ocd.getDescription()), gbcHeader);
 			incGridY(gbcHeader, gbcLabel, gbcOptSingle, gbcOptMulti, gbcDesc);
-			panel.add(new JLabel("Bundle"), gbcLabel);
+			panel.add(new JLabel(Messages.getString("settingsPanel.bundle")), gbcLabel); //$NON-NLS-1$
 			panel.add(new JLabel(bundle.getSymbolicName()), gbcHeader);
 			incGridY(gbcHeader, gbcLabel, gbcOptSingle, gbcOptMulti, gbcDesc);
 			
@@ -297,7 +298,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 	}
 	
 	private static final Insets STD_INSETS = new Insets(5, 5, 5, 5);
-	private static final String LOCALE = "en";
+	private static final String LOCALE = "en"; //$NON-NLS-1$
 	private static final int ICON_SIZE = 16;
 	
 	private static final Dimension DIM_SETTINGS = new Dimension(1000, 600);
@@ -332,7 +333,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 	
 	@Override
 	public String getTitle() {
-		return "Paxle Settings";
+		return Messages.getString("settingsPanel.title"); //$NON-NLS-1$
 	}
 	
 	@Override
@@ -405,7 +406,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 				break;
 				
 				default:
-					throw new RuntimeException("switch-statement does not cover action '" + cmd + "'");
+					throw new RuntimeException("switch-statement does not cover action '" + cmd + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		
@@ -460,9 +461,9 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		optPanel.add(optViewPanel, BorderLayout.CENTER);
 		
 		final JButton save = mcl.getSaveButton();
-		save.setText("Save all changes");
+		save.setText(Messages.getString("settingsPanel.saveAll")); //$NON-NLS-1$
 		final JButton reset = mcl.getResetButton();
-		reset.setText("Reset all settings");
+		reset.setText(Messages.getString("settingsPanel.resetAll")); //$NON-NLS-1$
 		final JPanel bpanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		bpanel.add(save);
 		bpanel.add(reset);

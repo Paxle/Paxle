@@ -30,8 +30,8 @@ import org.paxle.desktop.impl.dialogues.SmallDialog;
 
 public class SystrayMenu implements ActionListener {
 	
-	private static final String CRAWL_PAUSE = "Pause Crawling";
-	private static final String CRAWL_RESUME = "Resume Crawling";
+	private static final String CRAWL_PAUSE = Messages.getString("systrayMenu.crawlPause"); //$NON-NLS-1$
+	private static final String CRAWL_RESUME = Messages.getString("systrayMenu.crawlResume"); //$NON-NLS-1$
 	
 	private static enum Actions {
 		SEARCH, BROWSE, CRAWL, CRAWLPR, CCONSOLE, SETTINGS, RESTART, QUIT
@@ -46,12 +46,8 @@ public class SystrayMenu implements ActionListener {
 	private final IMenuItem browseItem;
 	private final IMenuItem crawlItem;
 	private final IMenuItem crawlprItem;
-	private final IMenuItem cconsoleItem;
-	private final IMenuItem settingsItem;
-	private final IMenuItem quitItem;
-	private final IMenuItem restartItem;
 	
-	private final Timer tooltipTimer = new Timer("DI-TooltipTimer");
+	private final Timer tooltipTimer = new Timer("DI-TooltipTimer"); //$NON-NLS-1$
 	
 	// instantiate this here to prevent delays when the popup shows up
 	private class PopupMenuUpdater implements PopupMenuListener, ActionListener, Runnable {
@@ -73,7 +69,7 @@ public class SystrayMenu implements ActionListener {
 		}
 		
 		public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-			logger.debug("popup becomes visible, refreshing menu-items");
+			logger.debug("popup becomes visible, refreshing menu-items"); //$NON-NLS-1$
 			SwingUtilities.invokeLater(this);
 			
 			final IPopupMenu pm = (IPopupMenu)e.getSource();
@@ -92,12 +88,12 @@ public class SystrayMenu implements ActionListener {
 				id = Long.valueOf(e.getActionCommand());
 			} catch (NumberFormatException ee) {  }
 			if (id == null) {
-				logger.warn("actionPerformed for unknown actionCommand '" + e.getActionCommand() + "'");
+				logger.warn("actionPerformed for unknown actionCommand '" + e.getActionCommand() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 				return;
 			}
 			
 			if (services.show(id) == null) {
-				logger.warn("actionPerformed for unknown di-component #" + id.toString() + "");
+				logger.warn("actionPerformed for unknown di-component #" + id.toString() + ""); //$NON-NLS-1$ //$NON-NLS-2$
 				return;
 			}
 		}
@@ -110,10 +106,10 @@ public class SystrayMenu implements ActionListener {
 			
 			final ServiceManager manager = services.getServiceManager();
 			final boolean hasWebServer = manager.hasService(HttpService.class);
-			final boolean hasWebui = manager.hasService("org.paxle.gui.IServletManager") && hasWebServer;
+			final boolean hasWebui = manager.hasService("org.paxle.gui.IServletManager") && hasWebServer; //$NON-NLS-1$
 			browseItem.setEnabled(services.isBrowserOpenable() && hasWebui);
 			
-			final boolean hasSearch = manager.hasService("org.paxle.se.search.ISearchProviderManager");
+			final boolean hasSearch = manager.hasService("org.paxle.se.search.ISearchProviderManager"); //$NON-NLS-1$
 			// remove "&& hasWebUi" if we have other methods of displaying the searchresults
 			searchItem.setEnabled(services.isBrowserOpenable() && hasSearch && hasWebui);
 			
@@ -126,37 +122,37 @@ public class SystrayMenu implements ActionListener {
 		this.services = services;
 		final IDIBackend backend = services.getBackend();
 		final IPopupMenu pm = backend.createPopupMenu(
-				this.searchItem 	= backend.createMenuItem("Search...", 		 Actions.SEARCH.name(),   this),		// 0
-				null,																									// 1
-				this.browseItem		= backend.createMenuItem("Webinterface", 	 Actions.BROWSE.name(),	  this),		// 2
-				null,																									// 3
-				this.crawlItem 		= backend.createMenuItem("Crawl...", 		 Actions.CRAWL.name(), 	  this),		// 4
-				this.crawlprItem 	= backend.createMenuItem("Pause Crawling", 	 Actions.CRAWLPR.name(),  this),		// 5
-				this.cconsoleItem   = backend.createMenuItem("Crawling Console", Actions.CCONSOLE.name(), this),		// 6
-				null,																									// 7
-				this.settingsItem   = backend.createMenuItem("Settings",         Actions.SETTINGS.name(), this),		// 8
-				null,																									// 9
-				this.restartItem 	= backend.createMenuItem("Restart", 		 Actions.RESTART.name(),  this),
-				this.quitItem 		= backend.createMenuItem("Quit", 			 Actions.QUIT.name(), 	  this));
+				this.searchItem 	= backend.createMenuItem(Messages.getString("systrayMenu.search"), Actions.SEARCH.name(), this),		// 0 //$NON-NLS-1$
+				null,																														// 1
+				this.browseItem		= backend.createMenuItem(Messages.getString("systrayMenu.webinterface"), Actions.BROWSE.name(), this),	// 2 //$NON-NLS-1$
+				null,																														// 3
+				this.crawlItem 		= backend.createMenuItem(Messages.getString("systrayMenu.crawl"), Actions.CRAWL.name(), this),			// 4 //$NON-NLS-1$
+				this.crawlprItem 	= backend.createMenuItem(CRAWL_PAUSE,    Actions.CRAWLPR.name(),  this),								// 5
+				backend.createMenuItem(Messages.getString("systrayMenu.crawlingConsole"), Actions.CCONSOLE.name(), this),					// 6 //$NON-NLS-1$
+				null,																														// 7
+				backend.createMenuItem(Messages.getString("systrayMenu.settings"),        Actions.SETTINGS.name(), this),					// 8 //$NON-NLS-1$
+				null,																														// 9
+				backend.createMenuItem(Messages.getString("systrayMenu.restart"), 		  Actions.RESTART.name(),  this), //$NON-NLS-1$
+				backend.createMenuItem(Messages.getString("systrayMenu.quit"), 			  Actions.QUIT.name(),     this)); //$NON-NLS-1$
 		pm.addPopupMenuListener(new PopupMenuUpdater(9));
 		
 		systray = backend.getSystemTray();
-		systray.add(ti = backend.createTrayIcon(new ImageIcon(iconResource), "Paxle Tray", pm));
+		systray.add(ti = backend.createTrayIcon(new ImageIcon(iconResource), Messages.getString("systrayMenu.tray"), pm)); //$NON-NLS-1$
 		
 		tooltipTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				final IMWComponent<?> indexer = services.getMWComponent(DesktopServices.MWComponents.INDEXER);
 				if (indexer != null) {
-					final StringBuilder sb = new StringBuilder("Paxle");
+					final StringBuilder sb = new StringBuilder("Paxle"); //$NON-NLS-1$
 					final IMWComponent<?> crawler = services.getMWComponent(DesktopServices.MWComponents.CRAWLER);
 					
 					if (crawler == null || !crawler.isPaused() && crawler.getEnqueuedJobCount() == 0) {
-						sb.append(" - idle");
+						sb.append(Messages.getString("systrayMenu.idle")); //$NON-NLS-1$
 					} else if (crawler.isPaused()) {
-						sb.append(" - crawling paused");
+						sb.append(Messages.getString("systrayMenu.crawlingPaused")); //$NON-NLS-1$
 					} else {
-						sb.append(" - crawling at ").append(indexer.getPPM()).append(" PPM");
+						sb.append(Messages.getString("systrayMenu.crawling")).append(indexer.getPPM()).append(Messages.getString("systrayMenu.ppm")); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 					ti.setToolTip(sb.toString());
 				}
@@ -217,9 +213,9 @@ public class SystrayMenu implements ActionListener {
 	 */
 	public void close() {
 		tooltipTimer.cancel();
-		logger.debug("removing systray icon");
+		logger.debug("removing systray icon"); //$NON-NLS-1$
 		systray.remove(ti);
-		logger.debug("removed systray icon successfully");
+		logger.debug("removed systray icon successfully"); //$NON-NLS-1$
 	}
 	
 	/* TODO:
@@ -229,7 +225,7 @@ public class SystrayMenu implements ActionListener {
 		final String cmd = e.getActionCommand();
 		final Actions action = Actions.valueOf(cmd);
 		if (action == null)
-			throw new RuntimeException("unknown action '" + cmd + "'");
+			throw new RuntimeException("unknown action '" + cmd + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 		new TrayThread(action).start();
 	}
 	
@@ -245,19 +241,19 @@ public class SystrayMenu implements ActionListener {
 		public void run() {
 			switch (action) {
 				case SEARCH: {
-					final String data = SmallDialog.showDialog("Enter query:", "Search");
+					final String data = SmallDialog.showDialog(Messages.getString("systrayMenu.enterQuery"), Messages.getString("systrayMenu.searchButton")); //$NON-NLS-1$ //$NON-NLS-2$
 					if (data != null && data.length() > 0)
-						services.browseUrl(services.getPaxleUrl("/search?query=", data));
+						services.browseUrl(services.getPaxleUrl("/search?query=", data)); //$NON-NLS-1$
 				} break;
 					
 				case CRAWL: {
-					final String data = SmallDialog.showDialog("Enter URL:", "Crawl");
+					final String data = SmallDialog.showDialog(Messages.getString("systrayMenu.enterUrl"), Messages.getString("systrayMenu.crawlButton")); //$NON-NLS-1$ //$NON-NLS-2$
 					if (data != null && data.length() > 0)
 						services.startDefaultCrawl(data);
 				} break;
 					
 				case BROWSE:
-					services.browseUrl(services.getPaxleUrl("/"));
+					services.browseUrl(services.getPaxleUrl("/")); //$NON-NLS-1$
 					break;
 					
 				case CRAWLPR: {
@@ -288,7 +284,7 @@ public class SystrayMenu implements ActionListener {
 					break;
 				
 				default:
-					throw new RuntimeException("switch-statement does not cover action '" + action + "'");
+					throw new RuntimeException("switch-statement does not cover action '" + action + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}

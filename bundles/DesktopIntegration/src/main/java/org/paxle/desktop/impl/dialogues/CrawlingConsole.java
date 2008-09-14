@@ -52,6 +52,7 @@ import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.DesktopServices;
+import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.DesktopServices.MWComponents;
 
 public class CrawlingConsole extends DIServicePanel implements EventHandler, ActionListener {
@@ -60,7 +61,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	
 	private class SaveActionRunnable implements Runnable {
 		public void run() {
-			final File file = Utilities.chooseSingleFile(CrawlingConsole.this, "Save As", false, null, true);
+			final File file = Utilities.chooseSingleFile(CrawlingConsole.this, Messages.getString("crawlingConsole.saveAs"), false, null, true); //$NON-NLS-1$
 			if (file == null)
 				return;
 			FileWriter fw = null;
@@ -70,19 +71,19 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 					text.write(fw);
 				}
 			} catch (IOException e) {
-				logger.error("I/O-exception storing text contents", e);
-				Utilities.showExceptionBox("I/O-exception storing text contents", e);
+				logger.error("I/O-exception storing text contents", e); //$NON-NLS-1$
+				Utilities.showExceptionBox(Messages.getString("crawlingConsole.storeIOError"), e); //$NON-NLS-1$
 			} finally { if (fw != null) try { fw.close(); } catch (IOException e) { /* ignore */ } }
 		}
 	}
 	
 	private static final Dimension DIM_CCONSOLE = new Dimension(500, 400);
 	
-	private static final String PROP_DISPLAYED_MWCOMP = "displayedMWComp";
-	private static final String PROP_URLS_ENCODED = "urlsEncoded";
-	private static final String PROP_TABLE_DISPLAY = "tableDisplay";
-	private static final String PROP_SHOW_ENQUEUED = "showEnqueued";
-	private static final String PROP_SHOW_DESTROYED = "showDestroyed";
+	private static final String PROP_DISPLAYED_MWCOMP = "displayedMWComp"; //$NON-NLS-1$
+	private static final String PROP_URLS_ENCODED = "urlsEncoded"; //$NON-NLS-1$
+	private static final String PROP_TABLE_DISPLAY = "tableDisplay"; //$NON-NLS-1$
+	private static final String PROP_SHOW_ENQUEUED = "showEnqueued"; //$NON-NLS-1$
+	private static final String PROP_SHOW_DESTROYED = "showDestroyed"; //$NON-NLS-1$
 	
 	private static final String AC_CLEAR = new String();
 	private static final String AC_SAVE = new String();
@@ -91,12 +92,12 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private static final String AC_ENQUEUED = new String();
 	private static final String AC_DESTROYED = new String();
 	
-	private static final String LBL_PAUSE_ = "Pause %s";
-	private static final String LBL_RESUME_ = "Resume %s";
+	private static final String LBL_PAUSE_ = Messages.getString("crawlingConsole.pause"); //$NON-NLS-1$
+	private static final String LBL_RESUME_ = Messages.getString("crawlingConsole.resume"); //$NON-NLS-1$
 	
 	private static enum TableDisplay {
-		WORKING_ON("Comp", "Result", "URI"),
-		REJECTED("Comp", "Result", "Filter", "Reason", "URI");
+		WORKING_ON(Messages.getString("crawlingConsole.tbl1.comp"), Messages.getString("crawlingConsole.tbl1.result"), Messages.getString("crawlingConsole.tbl1.uri")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		REJECTED(Messages.getString("crawlingConsole.tbl2.comp"), Messages.getString("crawlingConsole.tbl2.result"), Messages.getString("crawlingConsole.tbl2.filter"), Messages.getString("crawlingConsole.tbl2.reason"), Messages.getString("crawlingConsole.tbl2.uri")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		
 		final Object[] columnHeaders;
 		
@@ -114,12 +115,12 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private final Log           logger = LogFactory.getLog(CrawlingConsole.class);
 	private final JScrollPane   scroll = new JScrollPane();
 	private final JTextPane     text   = new JTextPane();
-	private final JButton       clear  = Utilities.createButton("Clear", this, AC_CLEAR, null);
-	private final JButton       save   = Utilities.createButton("Save ...", this, AC_SAVE, null);
-	private final JRadioButton  enc    = new JRadioButton("URL-encoded");
-	private final JRadioButton  normal = new JRadioButton("Original URLs");
-	private final JCheckBox     cbEnq  = Utilities.createCheckBox("Enqueued", this, AC_ENQUEUED, null);
-	private final JCheckBox     cbDstr = Utilities.createCheckBox("Rejected", this, AC_DESTROYED, null);
+	private final JButton       clear  = Utilities.createButton(Messages.getString("crawlingConsole.clear"), this, AC_CLEAR, null); //$NON-NLS-1$
+	private final JButton       save   = Utilities.createButton(Messages.getString("crawlingConsole.save"), this, AC_SAVE, null); //$NON-NLS-1$
+	private final JRadioButton  enc    = new JRadioButton(Messages.getString("crawlingConsole.urlEncoded")); //$NON-NLS-1$
+	private final JRadioButton  normal = new JRadioButton(Messages.getString("crawlingConsole.urlOriginal")); //$NON-NLS-1$
+	private final JCheckBox     cbEnq  = Utilities.createCheckBox(Messages.getString("crawlingConsole.enqueued"), this, AC_ENQUEUED, null); //$NON-NLS-1$
+	private final JCheckBox     cbDstr = Utilities.createCheckBox(Messages.getString("crawlingConsole.rejected"), this, AC_DESTROYED, null); //$NON-NLS-1$
 	private final Object        sync   = new Object();
 	// private final IntRingBuffer buf    = new IntRingBuffer(100);
 	private final JToggleButton cpb    = Utilities.createToggleButton(null, this, AC_CRAWL, null);
@@ -160,7 +161,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		props.put(PROP_TABLE_DISPLAY, model.type.name());
 		props.put(PROP_SHOW_ENQUEUED, Boolean.toString(cbEnq.isSelected()));
 		props.put(PROP_SHOW_DESTROYED, Boolean.toString(cbDstr.isSelected()));
-		System.out.println("closed CrawlingConsole: " + new Exception().getStackTrace()[1].toString());
+		System.out.println("closed CrawlingConsole: " + new Exception().getStackTrace()[1].toString()); //$NON-NLS-1$
 		super.close();
 	}
 	
@@ -182,7 +183,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 				super.unregisterService(Events.IN_QUEUE);
 			if (enqueued)
 				registerEventListener(Events.IN_QUEUE,
-						CommandEvent.PROP_COMPONENT_ID, id + ".in",
+						CommandEvent.PROP_COMPONENT_ID, id + ".in", //$NON-NLS-1$
 						CommandEvent.TOPIC_DEQUEUED);
 			currentEnq = enqueued;
 		}
@@ -191,7 +192,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 				super.unregisterService(Events.OUT_QUEUE);
 			if (destroyed)
 				registerEventListener(Events.OUT_QUEUE,
-						CommandEvent.PROP_COMPONENT_ID, id + ".out",
+						CommandEvent.PROP_COMPONENT_ID, id + ".out", //$NON-NLS-1$
 						CommandFilterEvent.TOPIC_POST_FILTER, CommandEvent.TOPIC_DESTROYED);
 			currentDstr = destroyed;
 		}
@@ -202,7 +203,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		final Hashtable<String,Object> props = new Hashtable<String,Object>();
 		if (topics.length > 0)
 			props.put(EventConstants.EVENT_TOPIC, topics);
-		props.put(EventConstants.EVENT_FILTER, String.format("(%s=%s)", filterKey, filterVal));
+		props.put(EventConstants.EVENT_FILTER, String.format("(%s=%s)", filterKey, filterVal)); //$NON-NLS-1$
 		super.registerService(key, this, props, EventHandler.class);
 	}
 	
@@ -212,7 +213,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	
 	@Override
 	public String getTitle() {
-		return "Crawling Console";
+		return Messages.getString("crawlingConsole.title"); //$NON-NLS-1$
 	}
 	
 	@Override
@@ -222,7 +223,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	
 	private void updateCpb(final boolean paused, final boolean getState, final boolean setState) {
 		if (getState && setState)
-			throw new IllegalArgumentException("cannot set and get state at the same time");
+			throw new IllegalArgumentException("cannot set and get state at the same time"); //$NON-NLS-1$
 		final String item = (String)cbox.getSelectedItem();
 		final IMWComponent<?> mwComp = services.getMWComponent(DesktopServices.MWComponents.valueOfHumanReadable(item));
 		final boolean state = (getState && mwComp != null) ? mwComp.isPaused() : paused;
@@ -387,26 +388,26 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 			final Vector<String> row = new Vector<String>();
 			final String uri = (String)event.getProperty(CommandEvent.PROP_COMMAND_LOCATION);
 			String compId = (String)event.getProperty(CommandEvent.PROP_COMPONENT_ID);
-			if (compId.endsWith(".in")) {
-				compId = compId.substring(0, compId.length() - ".in".length());
-			} else if (compId.endsWith(".out")) {
-				compId = compId.substring(0, compId.length() - ".out".length());
+			if (compId.endsWith(".in")) { //$NON-NLS-1$
+				compId = compId.substring(0, compId.length() - ".in".length()); //$NON-NLS-1$
+			} else if (compId.endsWith(".out")) { //$NON-NLS-1$
+				compId = compId.substring(0, compId.length() - ".out".length()); //$NON-NLS-1$
 			}
 			final MWComponents mwc = MWComponents.valueOfID(compId);
-			System.out.println("mwc: " + ((mwc == null) ? compId : mwc.toString()));
+			System.out.println("mwc: " + ((mwc == null) ? compId : mwc.toString())); //$NON-NLS-1$
 			row.add((mwc == null) ? compId : mwc.toString());
-			row.add((cmd == null) ? "unknown" : cmd.getResult().name());
+			row.add((cmd == null) ? Messages.getString("crawlingConsole.unknown") : cmd.getResult().name()); //$NON-NLS-1$
 			switch (type) {
 				case WORKING_ON:
 					break;
 				case REJECTED:
 					final String lastFilter = lastFilters.get(cmd);
-					row.add((lastFilter == null) ? "unknown" : lastFilter);
-					row.add((cmd == null) ? "unknown" : cmd.getResultText());
+					row.add((lastFilter == null) ? Messages.getString("crawlingConsole.unknown") : lastFilter); //$NON-NLS-1$
+					row.add((cmd == null) ? Messages.getString("crawlingConsole.unknown") : cmd.getResultText()); //$NON-NLS-1$
 					break;
 			}
 			try {
-				System.out.println("uri: " + ((enc.isSelected()) ? URLDecoder.decode(uri, Charset.defaultCharset().name()) : uri));
+				System.out.println("uri: " + ((enc.isSelected()) ? URLDecoder.decode(uri, Charset.defaultCharset().name()) : uri)); //$NON-NLS-1$
 				row.add((enc.isSelected()) ? URLDecoder.decode(uri, Charset.defaultCharset().name()) : uri);
 			} catch (UnsupportedEncodingException e) { /* cannot happen as we use the default charset here */ }
 			
