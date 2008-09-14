@@ -1,6 +1,7 @@
 
 package org.paxle.desktop.impl;
 
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -82,6 +83,12 @@ public class Activator implements BundleActivator {
 	
 	public void start(final BundleContext context) throws Exception {
 		bc = context;
+		
+		// first we check whether the DI-bundle will able to work on the system
+		if (GraphicsEnvironment.isHeadless()) {
+			logger.fatal("Java runs in a headless environment, cannot initialize any graphical user interfaces, aborting");
+			return;
+		}
 		
 		/* 
 		 * Configuring the classloader to use by the UIManager.
