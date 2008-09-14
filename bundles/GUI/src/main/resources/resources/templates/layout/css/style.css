@@ -243,7 +243,7 @@ td {
 	background-repeat: no-repeat;
 }
 
-.logwarning {
+.logwarn {
 	padding: 0 0 0 22px;
 	background-color: #A0A000;
 	background-image: url('/images/log-warning.png');
