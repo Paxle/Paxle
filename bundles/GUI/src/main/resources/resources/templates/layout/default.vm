@@ -4,25 +4,28 @@
 
 #set($user = $context.get("session").getAttribute("org.osgi.service.http.authentication.remote.user"))
 
+<div id="wrapper">
 
-<!-- left nav -->
-<ul id="nav">
-#parse( '/resources/templates/layout/menu.vm' )
-    #if($user)
-		<li id="loginStatus">
-			<a href="login?doLogout="><img src="/images/logout.png" width="16px" height="16px" alt="Logout"/>$user.getProperties().get("http.login")</a> 
-		</li>
-	#else
-		<li id="loginStatus">
-			<a href="/login"><img src="/images/login.png" width="16px" height="16px" alt="Login"/>Not logged in</a> 
-		</li>
-    #end	
-</ul>
-<!-- end left nav -->
+	<!-- left nav -->
+	<ul id="nav">
+	#parse( '/resources/templates/layout/menu.vm' )
+			#if($user)
+			<li id="loginStatus">
+				<a href="login?doLogout="><img src="/images/logout.png" width="16px" height="16px" alt="Logout"/>$user.getProperties().get("http.login")</a> 
+			</li>
+		#else
+			<li id="loginStatus">
+				<a href="/login"><img src="/images/login.png" width="16px" height="16px" alt="Login"/>Not logged in</a> 
+			</li>
+			#end	
+	</ul>
+	<!-- end left nav -->
 
-<div id="main">$screen_content</div>
-#parse( '/resources/templates/layout/footer.vm' )
-##see http://wiki.paxle.net/dev/bundles/gui
-#if($contenttype)
-	#parse('/resources/templates/headers/SetContentType.vm')
-#end
+	<div id="main">$screen_content</div>
+	#parse( '/resources/templates/layout/footer.vm' )
+	##see http://wiki.paxle.net/dev/bundles/gui
+	#if($contenttype)
+		#parse('/resources/templates/headers/SetContentType.vm')
+	#end
+
+</div>
