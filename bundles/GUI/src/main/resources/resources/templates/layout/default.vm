@@ -22,10 +22,10 @@
 	<!-- end left nav -->
 
 	<div id="main">$screen_content</div>
-	#parse( '/resources/templates/layout/footer.vm' )
-	##see http://wiki.paxle.net/dev/bundles/gui
-	#if($contenttype)
-		#parse('/resources/templates/headers/SetContentType.vm')
-	#end
-
 </div>
+
+#parse( '/resources/templates/layout/footer.vm' )
+##see http://wiki.paxle.net/dev/bundles/gui
+#if($contenttype)
+	#parse('/resources/templates/headers/SetContentType.vm')
+#end
