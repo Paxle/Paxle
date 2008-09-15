@@ -109,7 +109,8 @@
                             	#end
                             	</table>
 								#if(!$paramParser.getString("viewImportedConfig"))
-									<input type="submit" name="doEditConfig" value="${text.listConfig.doChange}"/>									
+									<input type="submit" name="doEditConfig" value="${text.listConfig.doChange}"/>
+									<input type="submit" name="doResetConfig" value="${text.listConfig.doReset}" />
 									<input type="submit" name="doExportConfig" value="${text.listConfig.doExport}"/>
 								#else
 									<input type="submit" name="doImportConfig" value="${text.listConfig.doImport}"/>

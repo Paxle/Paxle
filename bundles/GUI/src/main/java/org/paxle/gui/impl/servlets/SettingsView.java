@@ -251,8 +251,13 @@ public class SettingsView extends ALayoutServlet {
 			 * ==================================================================================== */
 				
 			} else if (request.getParameter("doEditConfig") != null) {
-				this.setPropertyValues(request, response, context);
+				this.setPropertyValues(request, response, context, false);
 				response.sendRedirect("/config?settings=config");
+				
+			} else if (request.getParameter("doResetConfig") != null) {
+				this.setPropertyValues(request, response, context, true);
+				response.sendRedirect("/config?settings=config");
+				
 			} else if (request.getParameter("viewImportedConfig") != null) {
 				if (ServletFileUpload.isMultipartContent(request)) {
 					// import config from file
@@ -273,7 +278,7 @@ public class SettingsView extends ALayoutServlet {
 					
 					if (request.getParameter("doImportConfig") != null) {
 						// configure properties
-						this.setPropertyValues(request, response, context);
+						this.setPropertyValues(request, response, context, false);
 						
 						// remove already imported properties from map
 						propsMap.remove(request.getParameter("pid"));
@@ -529,7 +534,6 @@ public class SettingsView extends ALayoutServlet {
 		}	
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void writeImage(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {	
 		String pid = request.getParameter("pid");
 		if (pid == null) {
@@ -628,9 +632,9 @@ public class SettingsView extends ALayoutServlet {
 	}
 		
 	
-	public void setPropertyValues(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {		
+	public void setPropertyValues(HttpServletRequest request, HttpServletResponse response, Context context, final boolean reset) throws Exception {		
 		Dictionary<String, Object> props = new Hashtable<String, Object>();		
-		
+
 		String pid = request.getParameter("pid");
 		if (pid == null) {
 			context.put(ERROR_MSG, "No pid supplied.");
@@ -695,13 +699,10 @@ public class SettingsView extends ALayoutServlet {
 		}
 		
 		for(AttributeDefinition attribute : attributes) {
-			// getting metadata
-			String attributeID = attribute.getID();
 			String[] attributeDefaults = attribute.getDefaultValue();
-			int attributeType = attribute.getType();
-			int cardinality = attribute.getCardinality();			
 			
 			// getting configured values
+			String attributeID = attribute.getID();	
 			String[] attributeValueStrings = request.getParameterValues(attributeID);
 			
 			// if no values were found use defaults for the initial configuration
@@ -709,129 +710,13 @@ public class SettingsView extends ALayoutServlet {
 			if (attributeValueStrings == null && attributeDefaults != null && attributeDefaults.length > 0) {
 				attributeValueStrings = attributeDefaults;
 			}	
-			*/		
+			*/
 			
-			// init result structure
-			Object finalAttributeValues = null;
-			if (cardinality != 0) {				
-				if (cardinality > 1) {
-					int valueArraySize = Math.min(cardinality, attributeValueStrings==null?0:attributeValueStrings.length);
-					
-					// the attribute-value-list must be an array of ....
-					switch (attributeType) {
-						case AttributeDefinition.BOOLEAN:
-							finalAttributeValues = new boolean[valueArraySize];
-							break;
-						case AttributeDefinition.BYTE:
-							finalAttributeValues = new byte[valueArraySize];
-							break; 
-						case AttributeDefinition.CHARACTER:
-							finalAttributeValues = new char[valueArraySize];
-							break; 
-						case AttributeDefinition.DOUBLE:
-							finalAttributeValues = new double[valueArraySize];
-							break; 
-						case AttributeDefinition.FLOAT:
-							finalAttributeValues = new float[valueArraySize];
-							break; 
-						case AttributeDefinition.INTEGER:
-							finalAttributeValues = new int[valueArraySize];
-							break; 
-						case AttributeDefinition.LONG:
-							finalAttributeValues = new long[valueArraySize];
-							break; 
-						case AttributeDefinition.SHORT:
-							finalAttributeValues = new short[valueArraySize];
-							break; 
-						case AttributeDefinition.STRING:
-							finalAttributeValues = new String[valueArraySize];
-							break; 
-						default:
-							break;
-					}
-				} else {
-					// the attribute-value list must be a vector
-					finalAttributeValues = new Vector<Object>();
-				}
-			}			
+			final Object finalAttributeValues = convertAttributeValues(
+					attribute,
+					(reset) ? attributeDefaults : attributeValueStrings,
+					context);
 			
-			if(attributeValueStrings != null) {								
-				try {
-					int counter = 0;
-					for (String attributeValueString : attributeValueStrings) {
-						if (cardinality != 0 && (counter + 1 > Math.abs(cardinality))) {
-							context.put(ERROR_MSG, String.format("Too many values found for parameter '%s': %d",attributeID,counter+1));
-							return;
-						}
-
-						// validate value
-						String validationProblem = attribute.validate(attributeValueString);
-						if (validationProblem != null && validationProblem.length() > 0) {
-							context.put(ERROR_MSG, String.format("Parameter '%s' has a wrong value: %s",attributeID,validationProblem));
-							return;
-						}
-
-						// convert value
-						Object finalAttributeValue = null;
-						switch (attributeType) {
-							case AttributeDefinition.BOOLEAN:
-								finalAttributeValue = Boolean.valueOf(attributeValueString);
-								if (cardinality >= 1) ((boolean[])finalAttributeValues)[counter] = ((Boolean)finalAttributeValue).booleanValue();
-								else if (cardinality <= -1) ((Vector<Boolean>)finalAttributeValues).add((Boolean)finalAttributeValue);
-								break;
-							case AttributeDefinition.BYTE:
-								finalAttributeValue = Byte.valueOf(attributeValueString);
-								if (cardinality >= 1) ((byte[])finalAttributeValues)[counter] = ((Byte)finalAttributeValue).byteValue();
-								else if (cardinality <= -1) ((Vector<Byte>)finalAttributeValues).add((Byte)finalAttributeValue);								
-								break; 
-							case AttributeDefinition.CHARACTER:
-								//						attributeValue = Character.
-								break; 
-							case AttributeDefinition.DOUBLE:
-								finalAttributeValue = Double.valueOf(attributeValueString);
-								if (cardinality >= 1) ((double[])finalAttributeValues)[counter] = ((Double)finalAttributeValue).doubleValue();
-								else if (cardinality <= -1) ((Vector<Double>)finalAttributeValues).add((Double)finalAttributeValue);							
-								break; 
-							case AttributeDefinition.FLOAT:
-								finalAttributeValue = Float.valueOf(attributeValueString);
-								if (cardinality >= 1) ((float[])finalAttributeValues)[counter] = ((Float)finalAttributeValue).floatValue();
-								else if (cardinality <= -1) ((Vector<Float>)finalAttributeValues).add((Float)finalAttributeValue);								
-								break; 
-							case AttributeDefinition.INTEGER:
-								finalAttributeValue = Integer.valueOf(attributeValueString);
-								if (cardinality >= 1) ((int[])finalAttributeValues)[counter] = ((Integer)finalAttributeValue).intValue();
-								else if (cardinality <= -1) ((Vector<Integer>)finalAttributeValues).add((Integer)finalAttributeValue);								
-								break; 
-							case AttributeDefinition.LONG:
-								finalAttributeValue = Long.valueOf(attributeValueString);
-								if (cardinality >= 1) ((long[])finalAttributeValues)[counter] = ((Long)finalAttributeValue).longValue();
-								else if (cardinality <= -1) ((Vector<Long>)finalAttributeValues).add((Long)finalAttributeValue);								
-								break; 
-							case AttributeDefinition.SHORT:
-								finalAttributeValue = Short.valueOf(attributeValueString);
-								if (cardinality >= 1) ((short[])finalAttributeValues)[counter] = ((Short)finalAttributeValue).shortValue();
-								else if (cardinality <= -1) ((Vector<Short>)finalAttributeValues).add((Short)finalAttributeValue);								
-								break; 
-							case AttributeDefinition.STRING:
-								finalAttributeValue = attributeValueString;
-								if (cardinality >= 1) ((String[])finalAttributeValues)[counter] = (String) attributeValueString;
-								else if (cardinality <= -1) ((Vector<String>)finalAttributeValues).add((String)finalAttributeValue);								
-								break; 
-							default:
-								break;
-						}
-						
-						if (cardinality == 0) {
-							finalAttributeValues = finalAttributeValue;
-						} 
-						counter++;
-					}
-				} catch (NumberFormatException e) {
-					context.put(ERROR_MSG, String.format("The supplied parameter has a wront format: %s",e.getMessage()));
-					return;
-				}
-			}
-				
 			if (finalAttributeValues != null) {
 				props.put(attributeID, finalAttributeValues);
 			}				
@@ -839,6 +724,140 @@ public class SettingsView extends ALayoutServlet {
 		
 		// update configuration		
 		config.update(props);			
+	}
+	
+	private static Object convertAttributeValues(
+			final AttributeDefinition attribute,
+			final String[] attributeValueStrings,
+			final Context context) {
+		
+		// getting metadata
+		String attributeID = attribute.getID();	
+		int attributeType = attribute.getType();
+		int cardinality = attribute.getCardinality();		
+		
+		// init result structure
+		Object finalAttributeValues = null;
+		if (cardinality != 0) {				
+			if (cardinality > 1) {
+				int valueArraySize = Math.min(cardinality, (attributeValueStrings == null) ? 0 : attributeValueStrings.length);
+				
+				// the attribute-value-list must be an array of ....
+				switch (attributeType) {
+					case AttributeDefinition.BOOLEAN:
+						finalAttributeValues = new boolean[valueArraySize];
+						break;
+					case AttributeDefinition.BYTE:
+						finalAttributeValues = new byte[valueArraySize];
+						break; 
+					case AttributeDefinition.CHARACTER:
+						finalAttributeValues = new char[valueArraySize];
+						break; 
+					case AttributeDefinition.DOUBLE:
+						finalAttributeValues = new double[valueArraySize];
+						break; 
+					case AttributeDefinition.FLOAT:
+						finalAttributeValues = new float[valueArraySize];
+						break; 
+					case AttributeDefinition.INTEGER:
+						finalAttributeValues = new int[valueArraySize];
+						break; 
+					case AttributeDefinition.LONG:
+						finalAttributeValues = new long[valueArraySize];
+						break; 
+					case AttributeDefinition.SHORT:
+						finalAttributeValues = new short[valueArraySize];
+						break; 
+					case AttributeDefinition.STRING:
+						finalAttributeValues = new String[valueArraySize];
+						break; 
+					default:
+						break;
+				}
+			} else {
+				// the attribute-value list must be a vector
+				finalAttributeValues = new Vector<Object>();
+			}
+		}			
+		
+		if(attributeValueStrings != null) {								
+			try {
+				int counter = 0;
+				for (String attributeValueString : attributeValueStrings) {
+					if (cardinality != 0 && (counter + 1 > Math.abs(cardinality))) {
+						context.put(ERROR_MSG, String.format("Too many values found for parameter '%s': %d",attributeID,counter+1));
+						return null;
+					}
+
+					// validate value
+					String validationProblem = attribute.validate(attributeValueString);
+					if (validationProblem != null && validationProblem.length() > 0) {
+						context.put(ERROR_MSG, String.format("Parameter '%s' has a wrong value: %s",attributeID,validationProblem));
+						return null;
+					}
+
+					// convert value
+					Object finalAttributeValue = null;
+					switch (attributeType) {
+						case AttributeDefinition.BOOLEAN:
+							finalAttributeValue = Boolean.valueOf(attributeValueString);
+							if (cardinality >= 1) ((boolean[])finalAttributeValues)[counter] = ((Boolean)finalAttributeValue).booleanValue();
+							else if (cardinality <= -1) ((Vector<Boolean>)finalAttributeValues).add((Boolean)finalAttributeValue);
+							break;
+						case AttributeDefinition.BYTE:
+							finalAttributeValue = Byte.valueOf(attributeValueString);
+							if (cardinality >= 1) ((byte[])finalAttributeValues)[counter] = ((Byte)finalAttributeValue).byteValue();
+							else if (cardinality <= -1) ((Vector<Byte>)finalAttributeValues).add((Byte)finalAttributeValue);								
+							break; 
+						case AttributeDefinition.CHARACTER:
+							//						attributeValue = Character.
+							break; 
+						case AttributeDefinition.DOUBLE:
+							finalAttributeValue = Double.valueOf(attributeValueString);
+							if (cardinality >= 1) ((double[])finalAttributeValues)[counter] = ((Double)finalAttributeValue).doubleValue();
+							else if (cardinality <= -1) ((Vector<Double>)finalAttributeValues).add((Double)finalAttributeValue);							
+							break; 
+						case AttributeDefinition.FLOAT:
+							finalAttributeValue = Float.valueOf(attributeValueString);
+							if (cardinality >= 1) ((float[])finalAttributeValues)[counter] = ((Float)finalAttributeValue).floatValue();
+							else if (cardinality <= -1) ((Vector<Float>)finalAttributeValues).add((Float)finalAttributeValue);								
+							break; 
+						case AttributeDefinition.INTEGER:
+							finalAttributeValue = Integer.valueOf(attributeValueString);
+							if (cardinality >= 1) ((int[])finalAttributeValues)[counter] = ((Integer)finalAttributeValue).intValue();
+							else if (cardinality <= -1) ((Vector<Integer>)finalAttributeValues).add((Integer)finalAttributeValue);								
+							break; 
+						case AttributeDefinition.LONG:
+							finalAttributeValue = Long.valueOf(attributeValueString);
+							if (cardinality >= 1) ((long[])finalAttributeValues)[counter] = ((Long)finalAttributeValue).longValue();
+							else if (cardinality <= -1) ((Vector<Long>)finalAttributeValues).add((Long)finalAttributeValue);								
+							break; 
+						case AttributeDefinition.SHORT:
+							finalAttributeValue = Short.valueOf(attributeValueString);
+							if (cardinality >= 1) ((short[])finalAttributeValues)[counter] = ((Short)finalAttributeValue).shortValue();
+							else if (cardinality <= -1) ((Vector<Short>)finalAttributeValues).add((Short)finalAttributeValue);								
+							break; 
+						case AttributeDefinition.STRING:
+							finalAttributeValue = attributeValueString;
+							if (cardinality >= 1) ((String[])finalAttributeValues)[counter] = (String) attributeValueString;
+							else if (cardinality <= -1) ((Vector<String>)finalAttributeValues).add((String)finalAttributeValue);								
+							break; 
+						default:
+							break;
+					}
+					
+					if (cardinality == 0) {
+						finalAttributeValues = finalAttributeValue;
+					} 
+					counter++;
+				}
+			} catch (NumberFormatException e) {
+				context.put(ERROR_MSG, String.format("The supplied parameter has a wrong format: %s",e.getMessage()));
+				return null;
+			}
+		}
+		
+		return finalAttributeValues;
 	}
 	
 	public Object getPropertyValue(@SuppressWarnings("unchecked") Dictionary props, AttributeDefinition attribute) {
