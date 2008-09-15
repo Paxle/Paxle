@@ -9,10 +9,10 @@
 #set( $page_headers = [$h1] )
 
 <ul class="tabs">
-	<li><a href="/queue">${text.tab.overview}</a></li>
-	<li><a href="?queue=org.paxle.crawler">${text.tab.crawler}</a></li>
-	<li><a href="?queue=org.paxle.parser">${text.tab.parser}</a></li>
-	<li><a href="?queue=org.paxle.indexer">${text.tab.indexer}</a></li>
+	<li><a href="/queue" #if(!$paramParser.getString("queue"))class="active"#end>${text.tab.overview}</a></li>
+	<li><a href="?queue=org.paxle.crawler" #if($paramParser.getString("queue","")=="org.paxle.crawler")class="active"#end>${text.tab.crawler}</a></li>
+	<li><a href="?queue=org.paxle.parser" #if($paramParser.getString("queue","")=="org.paxle.parser") class="active"#end>${text.tab.parser}</a></li>
+	<li><a href="?queue=org.paxle.indexer" #if($paramParser.getString("queue","")=="org.paxle.indexer") class="active"#end>${text.tab.indexer}</a></li>
 </ul>
 
 <script type="text/javascript">
