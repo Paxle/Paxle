@@ -13,14 +13,14 @@
 		<AD name="%robotsManager.maxTotalConnections.name"
 				type="Integer"
 				id="maxConnectionsTotal"
-				default="10"
+				default="20"
 				min="1" 
 				description="%robotsManager.maxTotalConnections.desc"/>
 		
 		<AD name="%robotsManager.cacheSize.name"
 				type="Integer"
 				id="maxCacheSize"
-				default="50"
+				default="500"
 				min="0" 
 				description="%robotsManager.cacheSize.desc"/>		
 		
