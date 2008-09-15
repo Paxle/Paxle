@@ -356,12 +356,17 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			}
 
 			return new RobotsTxt(hostPort, reloadInterval, status);
+		} catch (IllegalArgumentException e) {
+			// occurs if redirected to an invalid URI, see https://bugs.pxl.li/view.php?id=172
+			// we treat it like a 404, see above
+			logger.info(String.format("Invalid redirection URI on host '%s'.", hostPort));
+			return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_DEFAULT, "Redirected to illegal URI");
+			
 		} finally {
 			if (inputStream != null) try { inputStream.close(); } catch (Exception e) {/* ignore this */}
 			if (getMethod != null) getMethod.releaseConnection();
 			this.r.unlock();
 		}
-
 	}
 
 	/**
