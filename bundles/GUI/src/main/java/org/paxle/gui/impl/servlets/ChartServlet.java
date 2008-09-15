@@ -108,14 +108,17 @@ public class ChartServlet extends HttpServlet {
         final TimeSeriesCollection dataset = new TimeSeriesCollection();
         
         TimeSeries crawlerPPM = new TimeSeries("Crawler PPM", Minute.class);
+        crawlerPPM.setMaximumItemAge(24*60);
         dataset.addSeries(crawlerPPM);
         this.seriesMap.put(String.format(TSERIES_PPM,"org.paxle.crawler"), crawlerPPM);
 
         TimeSeries parserPPM = new TimeSeries("Parser PPM", Minute.class);
+        parserPPM.setMaximumItemAge(24*60);
         dataset.addSeries(parserPPM);
         this.seriesMap.put(String.format(TSERIES_PPM,"org.paxle.parser"), parserPPM);
         
         TimeSeries indexerPPM = new TimeSeries("Indexer PPM", Minute.class);
+        indexerPPM.setMaximumItemAge(24*60);
         dataset.addSeries(indexerPPM);
         this.seriesMap.put(String.format(TSERIES_PPM,"org.paxle.indexer"), indexerPPM);
         
@@ -140,6 +143,7 @@ public class ChartServlet extends HttpServlet {
 	private JFreeChart createIndexChart() {
 		// init Time-Series
 		TimeSeries indexSizeSeries = new TimeSeries("Index Size", Minute.class);
+		indexSizeSeries.setMaximumItemAge(24*60);
 		this.seriesMap.put(TSERIES_INDEX_SIZE, indexSizeSeries);
 		
 		// init chart
@@ -161,8 +165,10 @@ public class ChartServlet extends HttpServlet {
 	private JFreeChart createMemoryChart() {
     	// init time series
     	TimeSeries usedmemSeries = new TimeSeries("Used MEM", Minute.class);
+    	usedmemSeries.setMaximumItemAge(24*60);
     	this.seriesMap.put(TSERIES_MEMORY_USAGE, usedmemSeries);
     	TimeSeries freeDiskSeries = new TimeSeries("Free Disk", Minute.class);
+    	freeDiskSeries.setMaximumItemAge(24*60);
     	this.seriesMap.put(TSERIES_DISK_USAGE, freeDiskSeries);
 		
 		// init collections and chart
