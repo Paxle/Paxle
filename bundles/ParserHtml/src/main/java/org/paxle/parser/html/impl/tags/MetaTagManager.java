@@ -114,25 +114,27 @@ public class MetaTagManager {
 		this.logger = logger;
 	}
 	
-	static final Pattern REFRESH_PATTERN = Pattern.compile("\\s*(\\d+[\\s;,]*)?([^ ]*=)?(\\S*).*");
+	static final Pattern REFRESH_PATTERN = Pattern.compile("\\s*(\\d+)?[\\s;,]*([^ ]*=)?(\\S*).*");
 	
-	private void add(Names n, String v, final Tag tag) {
+	private void add(Names n, final String v, final Tag tag) {
 		if (v == null || v.length() == 0)
 			return;
 		
-		if (n == Names.Refresh) {
-			final Matcher m = REFRESH_PATTERN.matcher(v);
-			if (!m.find()) {
-				logger.logError("Unable to process META refresh string '" + v + "'", tag.getStartingLineNumber());
-				return;
-			} else {
-				v = m.group(3);
-			}
-		}
 		Collection<String> col = tags.get(n);
 		if (col == null)
 			tags.put(n, col = new LinkedList<String>());
-		col.add(v);
+		
+		final String[] vals = v.split("[;,]");
+		if (n == Names.Refresh) {
+			if (vals.length > 1)
+				col.add(vals[1].trim());
+		} else {
+			for (int i=0; i<vals.length; i++) {
+				final String val = vals[i].trim();
+				if (val.length() > 0)
+					col.add(val);
+			}	
+		}
 	}
 	
 	public void addMetaTag(MetaTag tag) {

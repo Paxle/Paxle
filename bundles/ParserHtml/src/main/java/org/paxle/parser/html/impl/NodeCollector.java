@@ -12,7 +12,6 @@ import org.htmlparser.Tag;
 import org.htmlparser.Text;
 import org.htmlparser.lexer.Page;
 import org.htmlparser.nodes.RemarkNode;
-import org.htmlparser.tags.DoctypeTag;
 import org.htmlparser.tags.HeadingTag;
 import org.htmlparser.tags.Html;
 import org.htmlparser.tags.ImageTag;
@@ -29,6 +28,7 @@ import org.htmlparser.util.ParserException;
 import org.htmlparser.visitors.NodeVisitor;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.html.impl.tags.AddressTag;
 import org.paxle.parser.html.impl.tags.BoldTag;
@@ -83,6 +83,7 @@ public class NodeCollector extends NodeVisitor {
 	private final Page page;
 	private final IReferenceNormalizer refNorm;
 	private boolean noParse = false;
+	private boolean noFollowLinks = false;
 	
 	public NodeCollector(final IParserDocument doc, final ParserLogger logger, final Page page, final IReferenceNormalizer refNorm) {
 		super(true, true);
@@ -238,14 +239,21 @@ public class NodeCollector extends NodeVisitor {
 			}
 			else if (tag instanceof AddressTag)		{ process((AddressTag)tag); noParse = true; }
 			else if (tag instanceof BoldTag)		; // handled by visitStringNode(), TODO: extra weight
-			else if (tag instanceof DoctypeTag)     process((DoctypeTag)tag);
+		//	else if (tag instanceof DoctypeTag)     process((DoctypeTag)tag);
 			else if (tag instanceof HeadingTag)		{ process((HeadingTag)tag); noParse = true; }
 			else if (tag instanceof Html)			process((Html)tag);
 			else if (tag instanceof ImageTag)		process((ImageTag)tag);
 			else if (tag instanceof ItalicTag)		; // handled by visitStringNode(), TODO: extra weight
 			else if (tag instanceof JspTag)			this.noParse = true;
 			else if (tag instanceof LinkTag)		{ process((LinkTag)tag); }
-			else if (tag instanceof MetaTag) 		this.mtm.addMetaTag((MetaTag)tag);
+			else if (tag instanceof MetaTag) 		{
+				this.mtm.addMetaTag((MetaTag)tag);
+				if (!noFollowLinks) {
+					final Collection<String> robotsVals = mtm.get(MetaTagManager.Names.Robots);
+					if (robotsVals != null)
+						noFollowLinks = robotsVals.contains("noindex") || robotsVals.contains("nofollow");
+				}
+			}
 			else if (tag instanceof ParagraphTag)	; // handled by visitStringNode()
 			else if (tag instanceof RemarkNode)		this.noParse = true;
 			else if (tag instanceof ScriptTag)		this.noParse = true;
@@ -295,15 +303,15 @@ public class NodeCollector extends NodeVisitor {
 	//			"\\s+\\[([^\\]]*)\\]" +	// inline definitions
 	//		")" +
 			"\\s*>", Pattern.MULTILINE);
-	*/
+	*//*
 	private void process(DoctypeTag tag) {
-		/*
+		
 		final Matcher m = DoctypePattern.matcher(tag.toHtml());
 		if (m.matches()) {
 			TODO: process entities
 		}
-		*/
-	}
+		
+	}*/
 	
 	private void process(TitleTag tag) {
 		this.doc.setTitle(HtmlTools.deReplaceHTML(tag.getTitle()));
@@ -319,8 +327,12 @@ public class NodeCollector extends NodeVisitor {
 		}
 		
 		final URI uri = refNorm.normalizeReference(HtmlTools.deReplaceHTML(link));
-		if (uri != null)
-			this.doc.addReference(uri, HtmlTools.deReplaceHTML(tag.getLinkText().trim()));
+		if (uri != null) {
+			final LinkInfo linkInfo = new LinkInfo(HtmlTools.deReplaceHTML(tag.getLinkText().trim()));
+			if (noFollowLinks)
+				linkInfo.setStatus(LinkInfo.Status.FILTERED, "forbidden by HTML meta tag");
+			this.doc.addReference(uri, linkInfo);
+		}
 	}
 	
 	private void process(HeadingTag tag) {
