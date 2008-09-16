@@ -81,7 +81,7 @@
 				<tr><td>&nbsp;</td>
 					<td>
 						<input class="btnAddUser" type="submit" name="do#if(!$role)Create#{else}Update#{end}$roleType" value="#if(!$role)Create#{else}Update#{end}" />
-						#if($role || ($roleName && $roleName=="Administrator"))
+						#if($role && ($roleName && $roleName!="Administrator"))
 							<input class="btnDelUser" type="submit" name="doDelete$roleType" value="Delete"/>
 						#end
 					</td>
