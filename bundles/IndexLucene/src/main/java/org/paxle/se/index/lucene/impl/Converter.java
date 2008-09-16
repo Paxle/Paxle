@@ -60,11 +60,16 @@ public class Converter {
 	public Document iindexerDoc2LuceneDoc(IIndexerDocument document) {
 		final Document doc = new Document();
 		for (final Map.Entry<org.paxle.core.doc.Field<?>,Object> entry : document) {
-			Fieldable field = any2field(entry.getKey(), entry.getValue());
-			if (field == null) {
-				logger.error("Found null-field: " + entry.getKey() + " / " + entry.getValue());
+			org.paxle.core.doc.Field<?> key = entry.getKey();
+			if (key == IIndexerDocument.LOCATION) {
+				doc.add(new Field(IIndexerDocument.LOCATION.getName(), (String)entry.getValue(), Field.Store.YES, Field.Index.UN_TOKENIZED));
 			} else {
-				doc.add(field);
+				Fieldable field = any2field(key, entry.getValue());
+				if (field == null) {
+					logger.error("Found null-field: " + entry.getKey() + " / " + entry.getValue());
+				} else {
+					doc.add(field);
+				}
 			}
 		}
 		return doc;
