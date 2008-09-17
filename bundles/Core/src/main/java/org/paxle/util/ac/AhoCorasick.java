@@ -47,7 +47,7 @@ public class AhoCorasick<E> {
         "\u00BC","&frac14;",   //fraction 1/4
         "\u00BD","&frac12;",   //fraction 1/2
         "\u00BE","&frac34;",   //fraction 3/4
-        "\u00BF","&iquest;",   //inverted (spanisch) questionmark
+        "\u00BF","&iquest;",   //inverted (spanish) questionmark
         "\u00C0","&Agrave;",
         "\u00C1","&Aacute;",
         "\u00C2","&Acirc;",
