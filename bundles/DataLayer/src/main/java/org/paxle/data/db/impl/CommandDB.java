@@ -87,6 +87,11 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 * and write it into the {@link #sink data-sink}.
 	 */
 	private Writer writerThread = null;
+	
+	/**
+	 * A {@link Thread thread} to populate the double URLs cache from database.
+	 */
+	private PopulateThread populateThread = null;
 
 	/**
 	 * The logger
@@ -202,47 +207,58 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				bloomFilter.readFields(dataIs);
 			} finally { fileIs.close(); }
 		} else {
-			logger.info("Serialized double URL set not found, populating cache from DB ...");
+			logger.info("Serialized double URL set not found, populating cache from DB (this may take some minutes) ...");
 			bloomFilter = new DynamicBloomFilter(1437764, 10, 100000);	// creating a maximum false positive rate of 0.1 %
-			final long time = System.currentTimeMillis();
-			final int count = populateDoubleURLSet();
-			logger.info("Initialized the double URL cache with " + count + " entries in " + (System.currentTimeMillis() - time) + " ms");
+			populateThread = new PopulateThread();
+			populateThread.start();
 		}
 	}
 	
-	private int populateDoubleURLSet() {
-		Session session = null;
-		Transaction transaction = null;
-		int count = 0;
-		
-		try {
-			session = this.sessionFactory.openSession();
-			transaction = session.beginTransaction();
-			
-			final Query query = session.createQuery("SELECT location FROM ICommand as cmd");
-			final Iterator<?> it = query.iterate();
-			final Key key = new Key();
-			while (it.hasNext()) {
-				final URI location = (URI)it.next();
-				key.set(location.toString().getBytes(UTF8), 1.0);
-				bloomFilter.add(key);
-				count++;
-			}
-			
-			transaction.commit();
-		} catch (Exception e) {
-			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-			this.logger.error(String.format(
-					"Unexpected '%s' while populating the double URLs cache from the DB.",
-					e.getClass().getName()
-			),e);
-		} finally {
-			// closing session
-			if (session != null) try { session.close(); } catch (Exception e) { 
-				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
-			}
+	private class PopulateThread extends Thread {
+		@Override
+		public void run() {
+			final long time = System.currentTimeMillis();
+			final int count = populateDoubleURLSet();
+			logger.info("Initialized the double URL cache with " + count + " entries in " +
+					((System.currentTimeMillis() - time) / 1000) + " seconds");
 		}
-		return count;
+		
+		private int populateDoubleURLSet() {
+			Session session = null;
+			Transaction transaction = null;
+			int count = 0;
+			
+			try {
+				session = sessionFactory.openSession();
+				transaction = session.beginTransaction();
+				
+				final Query query = session.createQuery("SELECT location FROM ICommand as cmd");
+				
+				final Iterator<?> it = query.iterate();
+				
+				final Key key = new Key();
+				while (it.hasNext() && !super.isInterrupted()) {
+					final URI location = (URI)it.next();
+					key.set(location.toString().getBytes(UTF8), 1.0);
+					bloomFilter.add(key);
+					count++;
+				}
+				
+				transaction.commit();
+			} catch (Exception e) {
+				if (transaction != null && transaction.isActive()) transaction.rollback(); 
+				logger.error(String.format(
+						"Unexpected '%s' while populating the double URLs cache from the DB.",
+						e.getClass().getName()
+				),e);
+			} finally {
+				// closing session
+				if (session != null) try { session.close(); } catch (Exception e) { 
+					logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
+				}
+			}
+			return count;
+		}
 	}
 	
 	/**
@@ -399,10 +415,18 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			// interrupt reader and writer
 			this.readerThread.interrupt();
 			this.writerThread.interrupt();
+			
+			boolean saveDoubleURLsCache = true;
+			if (populateThread != null && populateThread.isAlive()) {
+				populateThread.interrupt();
+				// don't save the cache as it has not been populated completely
+				saveDoubleURLsCache = false;
+			}
 
 			// wait for the threads to shutdown
 			this.readerThread.join(2000);
 			this.writerThread.join(2000);
+			populateThread.join(2000);
 
 			// close the DB
 			this.sessionFactory.close();
@@ -419,9 +443,11 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 					this.logger.error("Unable to shutdown database.",e);
 				}
 			}
-
-			// flush cache
-			closeDoubleURLSet();
+			
+			if (saveDoubleURLsCache) {
+				// flush cache
+				closeDoubleURLSet();
+			}
 		} catch (Throwable e) {
 			this.logger.error(String.format(
 					"Unexpected '%s' while tryping to shutdown %s: %s",
