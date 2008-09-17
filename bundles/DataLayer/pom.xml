@@ -48,9 +48,7 @@
 							org.apache.commons.collections;version="3.2.1",
 							org.apache.commons.collections.*;version="3.2.1",
 							<!-- Bloomfilter -->
-							org.onelab.filter;version="1.0",
-							org.apache.hadoop.io;version="1.0",
-							org.apache.hadoop.hbase.util;version="1.0",
+							org.onelab.filter,
 							<!-- Paxle Core Bundle -->
 							org.paxle.core.data;version="[0.1.0,0.2.0)", 
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
