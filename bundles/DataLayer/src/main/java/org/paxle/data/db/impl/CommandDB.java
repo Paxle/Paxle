@@ -10,11 +10,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -54,12 +54,12 @@ import org.paxle.data.db.ICommandDB;
 
 public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, ICommandProfileManager, EventHandler {
 	
-	private static final String CACHE_FILE = "command-db/doubleURLsCache.ser";
+	private static final String CACHE_FILE = "doubleURLsCache.ser";
 	
 	private static final int MAX_IDLE_SLEEP = 60000;
 	private static final boolean USE_DOMAIN_BALANCING = false;
 	
-	private static final Charset UTF8 = Charset.forName("UTF-8");
+	private static final String UTF8 = "UTF-8";
 	
 	/**
 	 * Component to track {@link ICommand commands}
@@ -170,12 +170,20 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		}
 	}
 	
+	public String getDatabaseLocation() {
+		final String connection = config.getProperty("connection.url");
+		final int semicolon = connection.indexOf(';');
+		return connection.substring(
+				connection.lastIndexOf(':') + 1,
+				(semicolon == -1) ? connection.length() : semicolon);
+	}
+	
 	/* =========================================================================
 	 * Management for the double URLs cache
 	 * ========================================================================= */
 	
 	private void closeDoubleURLSet() throws IOException {
-		final OutputStream fileOs = new FileOutputStream(new File(CACHE_FILE));
+		final OutputStream fileOs = new FileOutputStream(new File(getDatabaseLocation(), CACHE_FILE));
 		DataOutputStream dataOs = null;
 		try {
 			dataOs = new DataOutputStream(new BufferedOutputStream(fileOs));
@@ -184,7 +192,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	}
 	
 	private void openDoubleURLSet() throws IOException {
-		final File serializedFile = new File(CACHE_FILE);
+		final File serializedFile = new File(getDatabaseLocation(), CACHE_FILE);
 		if (serializedFile.exists() && serializedFile.canRead() && serializedFile.isFile()) {
 			logger.info("Serialized double URL set found, reading data");
 			final InputStream fileIs = new FileInputStream(serializedFile);
@@ -281,7 +289,13 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 * @see DynamicBloomFilter
 	 */
 	private final boolean isKnownInDoubleURLs(final URI location) {
-		final Key key = new Key(location.toString().getBytes(UTF8));
+		final Key key;
+		try {
+			key = new Key(location.toString().getBytes(UTF8));
+		} catch (UnsupportedEncodingException e) {
+			/* UTF-8 support should be implemented in the JVM */
+			throw new RuntimeException(e);
+		}
 		return this.bloomFilter.membershipTest(key);
 	}
 	
@@ -302,7 +316,13 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 * @see DynamicBloomFilter
 	 */
 	private final void putInDoubleURLs(final URI location) {
-		final Key key = new Key(location.toString().getBytes(UTF8));
+		final Key key;
+		try {
+			key = new Key(location.toString().getBytes(UTF8));
+		} catch (UnsupportedEncodingException e) {
+			/* UTF-8 support should be implemented in the JVM */
+			throw new RuntimeException(e);
+		}
 		bloomFilter.add(key);
 	}
 	
@@ -596,7 +616,12 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			final Key key = new Key();
 			while (locationIterator.hasNext()) {
 				final URI loc = locationIterator.next();
-				key.set(loc.toString().getBytes(UTF8), 1.0);
+				try {
+					key.set(loc.toString().getBytes(UTF8), 1.0);
+				} catch (UnsupportedEncodingException e) {
+					/* UTF-8 support should be implemented in the JVM */
+					throw new RuntimeException(e);
+				}
 				if (!bloomFilter.membershipTest(key)) {
 					// We put the locations into the cache in this initial iteration loop,
 					// because the key has been set up already.
