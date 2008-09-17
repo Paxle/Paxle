@@ -23,9 +23,19 @@ import org.apache.lucene.search.Query;
 
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.core.prefs.Properties;
 import org.paxle.se.index.IIndexIteratable;
 
 public class AFlushableLuceneManager implements IIndexIteratable {
+	
+	private static final String DOC_COUNT = "docCount";
+	
+	/**
+	 * A {@link Term}-object with the {@link IIndexerDocument#LOCATION}-field and a <code>null</code>-value.
+	 * It is used to minimize the overhead when creating a new Term-object to update documents.
+	 * @see #write(Document, Analyzer) 
+	 */
+	static final Term CACHED_LOCATION_TERM = new Term(IIndexerDocument.LOCATION.getName(), null);
 	
 	public final ReentrantReadWriteLock rwlock = new ReentrantReadWriteLock(true);
 	public final ReentrantReadWriteLock.ReadLock rlock = this.rwlock.readLock();
@@ -35,16 +45,27 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	protected final IndexWriter writer;
 	protected final Log logger = LogFactory.getLog(AFlushableLuceneManager.class);
 	protected final PaxleAnalyzer analyzer;
+	protected final Properties properties;
 	protected IndexReader reader;
 	
 	private boolean dirty = false;
+	private int docCount = -1;
 	
-	public AFlushableLuceneManager(final String path, final PaxleAnalyzer analyzer) throws IOException {
+	public AFlushableLuceneManager(final String path, final PaxleAnalyzer analyzer, final Properties properties) throws IOException {
 		this.path = path;
 		this.analyzer = analyzer;
 		this.writer = new IndexWriter(path, analyzer);
 		this.writer.setMaxFieldLength(Integer.MAX_VALUE);
 		this.reader = IndexReader.open(path);
+		
+		this.properties = properties;
+		if (properties != null) {
+			final String docCountProp = properties.getProperty(DOC_COUNT);
+			if (docCountProp != null)
+				docCount = Integer.parseInt(docCountProp);
+		}
+		if (docCount < 0)
+			docCount = reader.numDocs();
 	}
 	
 	/**
@@ -110,6 +131,7 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 		try {
 			this.writer.close();
 			this.reader.close();
+			this.properties.setProperty(DOC_COUNT, Integer.toString(this.docCount));
 		} finally { this.wlock.unlock(); }
 	}
 	
@@ -121,10 +143,7 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	}
 	
 	public int getDocCount() throws IOException {
-		this.rlock.lock();
-		try {
-			return writer.docCount();
-		} finally { this.rlock.unlock(); }
+		return this.docCount;
 	}
 	
 	public void search(Query query, AHitCollector collector) throws IOException {
@@ -144,9 +163,10 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 		wlock.lock();
 		try {
 			String location = document.getField(IIndexerDocument.LOCATION.getName()).stringValue();
-			Term term = new Term(IIndexerDocument.LOCATION.getName(), location);
+			Term term = CACHED_LOCATION_TERM.createTerm(location);
 			writer.updateDocument(term, document, analyzer);
 			dirty = true;
+			docCount++;
 		} finally { wlock.unlock(); }
 	}
 	
@@ -155,13 +175,14 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	}
 	
 	public void delete(Term term) throws IOException, CorruptIndexException {
-//        this.wlock.lock();
-//        try {
-            this.writer.deleteDocuments(term);
-            this.dirty = true;
-//        } finally { this.wlock.unlock(); }
-    }
-    
+		this.wlock.lock();
+		try {
+			this.writer.deleteDocuments(term);
+			this.dirty = true;
+			this.docCount--;
+		} finally { this.wlock.unlock(); }
+	}
+	
 	/* ================================================================================
 	 * Iterators
 	 * ================================================================================ */
