@@ -335,6 +335,15 @@
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>com.springsource.edu.emory.mathcs.backport-3.1.0.jar</destFileName>										
 								</artifactItem>
+								
+								<!-- Bloomfilter dependencies -->
+								<artifactItem>
+									<groupId>org.onelab.filter</groupId>
+									<artifactId>bloomfilter</artifactId>
+									<version>1.0</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.onelab.filter.bloomfilter-1.0.jar</destFileName>
+								</artifactItem>
 
 								<!-- JFreeChart dependencies -->
 								<artifactItem>
@@ -983,6 +992,7 @@
 		<module>../DataLayerDerby</module>
 								
 		<!-- some filters -->
+		<!--<module>../FilterACBlacklist</module>-->
 		<module>../FilterBlacklist</module>
 		<module>../FilterRobotsTxt</module>						
 		

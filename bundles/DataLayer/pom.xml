@@ -47,9 +47,10 @@
 							<!-- Apache Commons Collection -->
 							org.apache.commons.collections;version="3.2.1",
 							org.apache.commons.collections.*;version="3.2.1",
-							<!-- EhCache -->
-							net.sf.ehcache;version="1.4.1",
-							net.sf.ehcache.*;version="1.4.1",
+							<!-- Bloomfilter -->
+							org.onelab.filter;version="1.0",
+							org.apache.hadoop.io;version="1.0",
+							org.apache.hadoop.hbase.util;version="1.0",
 							<!-- Paxle Core Bundle -->
 							org.paxle.core.data;version="[0.1.0,0.2.0)", 
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
@@ -86,7 +87,7 @@
 							cglib;scope=compile|runtime,
 							dom4j;scope=compile|runtime,
 							jta;scope=compile|runtime,
-							c3p0;scope=compile|runtime							
+							c3p0;scope=compile|runtime					
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
@@ -108,20 +109,11 @@
 			</exclusions>				
 		</dependency>
 
-		<!-- cache dependencies -->
+		<!-- bloom filter dependencies -->
 		<dependency>
-		    <groupId>net.sf.ehcache</groupId>
-		    <artifactId>ehcache</artifactId>
-			<exclusions>
-				<exclusion>
-				    <groupId>net.sf.jsr107cache</groupId>
-				    <artifactId>jsr107cache</artifactId>
-				</exclusion>
-				<exclusion>
-				    <groupId>commons-collections</groupId>
-				    <artifactId>commons-collections</artifactId>
-				</exclusion>				
-			</exclusions>		    
+			<groupId>org.onelab.filter</groupId>
+			<artifactId>bloomfilter</artifactId>
+			<version>1.0</version>
 		</dependency>
 		
 		<!-- hibernate dependencies -->
