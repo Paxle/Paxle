@@ -47,6 +47,9 @@
 							<!-- Apache Commons Collection -->
 							org.apache.commons.collections;version="3.2.1",
 							org.apache.commons.collections.*;version="3.2.1",
+							<!-- EhCache -->
+							net.sf.ehcache;version="1.4.1",
+							net.sf.ehcache.*;version="1.4.1",
 							<!-- Bloomfilter -->
 							org.onelab.filter,
 							<!-- Paxle Core Bundle -->
@@ -85,7 +88,7 @@
 							cglib;scope=compile|runtime,
 							dom4j;scope=compile|runtime,
 							jta;scope=compile|runtime,
-							c3p0;scope=compile|runtime					
+							c3p0;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
@@ -105,6 +108,22 @@
 					<artifactId>commons-pool</artifactId>
 				</exclusion>
 			</exclusions>				
+		</dependency>
+
+		<!-- cache dependencies -->
+		<dependency>
+		    <groupId>net.sf.ehcache</groupId>
+		    <artifactId>ehcache</artifactId>
+			<exclusions>
+				<exclusion>
+				    <groupId>net.sf.jsr107cache</groupId>
+				    <artifactId>jsr107cache</artifactId>
+				</exclusion>
+				<exclusion>
+				    <groupId>commons-collections</groupId>
+				    <artifactId>commons-collections</artifactId>
+				</exclusion>				
+			</exclusions>		    
 		</dependency>
 
 		<!-- bloom filter dependencies -->
