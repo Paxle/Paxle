@@ -62,7 +62,7 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 	/**
 	 * All {@link Class classes} that are supported by the {@link ConfigurationAdmin} service.
 	 */
-	private static final HashSet<Class> SUPPORTED_CLASSES =  new HashSet<Class>(Arrays.asList(new Class[]{
+	private static final HashSet<Class<?>> SUPPORTED_CLASSES =  new HashSet<Class<?>>(Arrays.asList(new Class<?>[]{
 			String.class,
 			Long.class,
 			Integer.class,
@@ -74,10 +74,10 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 			Boolean.class
 	}));
 	
-	private static final HashMap<String, Class> WRAPPERS =  new HashMap<String, Class>();
-	private static final HashMap<String, Class> NAMELOOKUP = new HashMap<String, Class>();
+	private static final HashMap<String, Class<?>> WRAPPERS =  new HashMap<String, Class<?>>();
+	private static final HashMap<String, Class<?>> NAMELOOKUP = new HashMap<String, Class<?>>();
 	static {
-		for (Class clazz : SUPPORTED_CLASSES) {
+		for (Class<?> clazz : SUPPORTED_CLASSES) {
 			try {
 				// add wrapper class
 				NAMELOOKUP.put(clazz.getSimpleName(), clazz);
@@ -88,7 +88,7 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 
 				// add primitive type
 				Field primitiveTypeField = clazz.getDeclaredField("TYPE");
-				Class primitiveType = (Class) primitiveTypeField.get(null);
+				Class<?> primitiveType = (Class<?>) primitiveTypeField.get(null);
 
 				NAMELOOKUP.put(primitiveType.getSimpleName(), primitiveType);
 				WRAPPERS.put(primitiveType.getSimpleName(), clazz);
@@ -116,7 +116,7 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 
 		if (rootElementName != null) {
 			// creating the xml root document
-			Element rootElement = (rootElementName != null) 
+			Element rootElement = (namespaceURI != null) 
 							    ? newXMLDocument.createElementNS(namespaceURI, rootElementName)
 							    : newXMLDocument.createElement(rootElementName);
 			newXMLDocument.appendChild(rootElement);
@@ -207,12 +207,10 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 		return configs;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Map<String, Dictionary<String, Object>> importConfigurations(Document doc) {
 		return this.importConfigurations(new Document[]{doc});
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Map<String, Dictionary<String, Object>> importConfigurations(Document[] docs) {
 		if (docs == null) return null;
 		
@@ -354,7 +352,7 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 	}
 	
 	Object valueOf(String type, Element valueElement) throws SecurityException, NoSuchMethodException, IllegalArgumentException, DOMException, IllegalAccessException, InvocationTargetException {
-		Class clazz = null;
+		Class<?> clazz = null;
 		if (type.endsWith("[]")) {
 			clazz = WRAPPERS.get(type.substring(0, type.length()-2));
 		} else {
