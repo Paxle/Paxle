@@ -50,7 +50,9 @@ public class LoginView extends ALayoutServlet {
     				// redirect to target
         			if (session.getAttribute("login.target") != null) {
         				response.sendRedirect((String) session.getAttribute("login.target"));
-        			}
+        			} else {
+                response.sendRedirect("/");
+              }
         		} else {
         			context.put("errorMsg","Unable to login. Username or password is invalid");
         		}
