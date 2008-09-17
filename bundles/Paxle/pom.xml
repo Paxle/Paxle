@@ -992,7 +992,6 @@
 		<module>../DataLayerDerby</module>
 								
 		<!-- some filters -->
-		<!--<module>../FilterACBlacklist</module>-->
 		<module>../FilterBlacklist</module>
 		<module>../FilterRobotsTxt</module>						
 		

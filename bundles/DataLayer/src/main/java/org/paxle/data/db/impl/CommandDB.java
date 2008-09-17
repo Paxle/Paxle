@@ -216,7 +216,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			final Key key = new Key();
 			while (it.hasNext()) {
 				final URI location = (URI)it.next();
-				key.set(location.toString().getBytes(), 1.0);
+				key.set(location.toString().getBytes(UTF8), 1.0);
 				bloomFilter.add(key);
 				count++;
 			}
