@@ -190,6 +190,8 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 
 					// store unknown URI
 					if (!db.isClosed()) {
+						// the map is being modified by db.storeUnknownLocations, so we need to save the size first
+						final int totalLocations = entry.getReferences().size();
 						int known = db.storeUnknownLocations(
 								entry.getProfileID(),
 								entry.getDepth(),
@@ -198,7 +200,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 						
 						logger.info(String.format(
 								"Extracted %d new and %d already known URIs from '%s'",
-								Integer.valueOf(entry.getReferences().size() - known), 
+								Integer.valueOf(totalLocations - known), 
 								Integer.valueOf(known), 
 								entry.getRootURI().toASCIIString()
 						));
