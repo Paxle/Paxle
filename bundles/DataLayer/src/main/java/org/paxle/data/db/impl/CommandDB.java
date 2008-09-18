@@ -27,6 +27,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.TreeSet;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -55,11 +60,21 @@ import org.paxle.data.db.ICommandDB;
 public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, ICommandProfileManager, EventHandler {
 	
 	private static final String CACHE_FILE = "doubleURLsCache.ser";
+	private static final String CACHE_NAME = "DoubleURLCache";
 	
 	private static final int MAX_IDLE_SLEEP = 60000;
 	private static final boolean USE_DOMAIN_BALANCING = false;
 	
 	private static final String UTF8 = "UTF-8";
+	/**
+      * The cachemanager to use
+      */
+	private CacheManager manager = null;
+	
+	/**
+	  * A cach to hold {@link RobotsTxt} objects in memory
+	  */
+	private Cache urlExistsCache = null;
 	
 	/**
 	 * Component to track {@link ICommand commands}
@@ -167,6 +182,13 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			/* ===========================================================================
 			 * Init Cache
 			 * =========================================================================== */
+			// configure caching manager
+			this.manager = CacheManager.getInstance();
+			
+			// init a new cache 
+			this.urlExistsCache = new Cache(CACHE_NAME, 100000, false, false, 60*60, 30*60);
+			this.manager.addCache(this.urlExistsCache);
+			 
 			// init/open the double URLs cache, initializes the bloom-filter
 			openDoubleURLSet();
 		} catch (Throwable e) {
@@ -450,9 +472,12 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				}
 			}
 			
-			if (saveDoubleURLsCache) {
-				// flush cache
+			// flush cache
+			if (saveDoubleURLsCache)
 				closeDoubleURLSet();
+			if (this.manager.getStatus().equals(Status.STATUS_ALIVE)) {
+				this.manager.removeCache(CACHE_NAME);
+				this.manager = null;
 			}
 		} catch (Throwable e) {
 			this.logger.error(String.format(
@@ -471,7 +496,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 */
 	public boolean isKnown(URI location) {
 		if (location == null) return false;
-		if ((populateThread == null || !populateThread.isAlive()) && !isKnownInDoubleURLs(location)) return false;
+		if ((populateThread == null || !populateThread.isAlive()) && !isKnownInDoubleURLs(location))
+			return false;
+		if (this.urlExistsCache.get(location) != null)
+			return true;
 		
 		boolean known = false;
 
@@ -564,8 +592,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				cmd.setResultText("Enqueued");
 				session.update(cmd);
 				
-				// add command-location into cache
+				// add command-location into caches
 				putInDoubleURLs(cmd.getLocation());
+				Element element = new Element(cmd.getLocation(), null);
+				this.urlExistsCache.put(element);
 				
 				result.add(cmd);
 			}
@@ -596,9 +626,11 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			// store command
 			session.saveOrUpdate(cmd);
 			
-			// add command-location into cache
+			// add command-location into caches
 			putInDoubleURLs(cmd.getLocation());
-
+			Element element = new Element(cmd.getLocation(), null);
+			this.urlExistsCache.put(element);
+			
 			transaction.commit();
 
 			// signal writer that a new URL is available
@@ -632,6 +664,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		final long time = System.currentTimeMillis();
 		final Key key = new Key();
 		int cacheChecked = 0;
+		int known = 0;
 		
 		while (locationIterator.hasNext()) {
 			final URI loc = locationIterator.next();
@@ -647,21 +680,22 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				// cache does not return false negatives
 				bloomFilter.add(key);
 				session.saveOrUpdate(Command.createCommand(loc, profileID, depth));
+				Element element = new Element(loc, null);
+				this.urlExistsCache.put(element);
 				locationIterator.remove();
 				cacheChecked++;
-			}
-			/* this code is unusable due to the false positives probability of the underlying bloomfilter
-			if (isKnownInDoubleURLs(locationIterator.next())) {
+				
+			} else if (urlExistsCache.get(loc) != null) {
 				locationIterator.remove();
 				known++;
-			}*/
+			}
 		}
 		if (logger.isDebugEnabled())
 			logger.debug("storeUnknownLocations: locations left to check: " + locations.size() +
-					", cache checked: " + cacheChecked +
+					", cache checked: " + cacheChecked + ", known: " + known +
 					" in " + (System.currentTimeMillis() - time) + " ms" +
 					", cache size: " + cacheSize());
-		return cacheChecked;
+		return known;
 	}
 	
 	private int storeUnknownInDB(
@@ -697,11 +731,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		for (int i=0; i<locations.size(); i++) {
 			final URI location = locations.get(i);
 			if (knownLocations.contains(location)) {
-				// not needed to put into cache as these URIs already have been recognized as member of the cache
-				/*
+				// not needed to put into 1st cache as these URIs already have been recognized as member of the cache
 				// add command-location into cache
-				putInDoubleURLs(location);
-				*/
+				Element element = new Element(location, null);
+				this.urlExistsCache.put(element);
 				
 				known++;
 				continue;
@@ -709,11 +742,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			logger.debug("storeUnknownLocations: adding false positive #" + i + " to DB: '" + location + "'");
 			session.saveOrUpdate(Command.createCommand(location,profileID,depth));	
 			
-			// not needed to put into cache as these URIs already have been recognized as member of the cache
-			/*
+			// not needed to put into 1st cache as these URIs already have been recognized as member of the cache
 			// add command-location into cache
-			putInDoubleURLs(location);
-			*/
+			Element element = new Element(location, null);
+			this.urlExistsCache.put(element);
 		}
 		return known;
 	}
@@ -731,7 +763,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	int storeUnknownLocations(int profileID, int depth, ArrayList<URI> locations) {
 		if (locations == null || locations.size() == 0) return 0;
 				
-		int known = 0, unknown = 0;
+		int known = 0;
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -743,17 +775,16 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			// cache into another list and remove them from the list which is checked
 			// against the DB below
 			if (populateThread == null || !populateThread.isAlive())
-				unknown = storeUnknownInDoubleCache(profileID, depth, locations, session);
+				known += storeUnknownInDoubleCache(profileID, depth, locations, session);
 			
 			// check which URLs are already known against the DB
 			if (locations.size() > 0)
-				known = storeUnknownInDB(profileID, depth, locations, session, 10);
+				known += storeUnknownInDB(profileID, depth, locations, session, 10);
 			
 			transaction.commit();
 
 			// signal writer that a new URL is available
-			if (unknown > 0 || known < locations.size())
-				this.writerThread.signalNewDbData();
+			this.writerThread.signalNewDbData();
 			
 			return known;
 		} catch (HibernateException e) {
