@@ -10,7 +10,8 @@ import org.mozilla.intl.chardet.nsPSMDetector;
 import org.paxle.core.charset.ACharsetDetectorInputStream;
 
 public class CharsetDetectorInputStream extends ACharsetDetectorInputStream implements nsICharsetDetectionObserver {
-
+	
+	private final byte[] buffer = new byte[1];
 	private String charset = null;
 	private nsDetector det = null;
 	private boolean done = false;	
@@ -27,7 +28,10 @@ public class CharsetDetectorInputStream extends ACharsetDetectorInputStream impl
 	@Override
 	public int read() throws IOException {
 		int b = super.read();
-		if (b != -1) this.det.DoIt(new byte[]{(byte)b},1, false);
+		if (b != -1 && !done) {
+			buffer[0] = (byte)b;
+			this.det.DoIt(buffer, 1, false);
+		}
 		return b;
 	}
 	
@@ -37,7 +41,7 @@ public class CharsetDetectorInputStream extends ACharsetDetectorInputStream impl
 	@Override
 	public int read(byte b[]) throws IOException {
 		return this.read(b, 0, b.length);
-	}	
+	}
 
 	/**
 	 * @see FilterInputStream
@@ -45,13 +49,13 @@ public class CharsetDetectorInputStream extends ACharsetDetectorInputStream impl
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 		int read = super.read(b, off, len);
-		if (read != -1) {
+		if (read != -1 && !done) {
 			if (off != 0) {
-				byte[] write = null;
+				byte[] write = new byte[read];
 				System.arraycopy(b, off, write, 0, read);
 				this.det.DoIt(write, read, false);
 			} else {
-				this.det.DoIt(b,read, false);
+				this.det.DoIt(b, read, false);
 			}
 		}
 		return read;
