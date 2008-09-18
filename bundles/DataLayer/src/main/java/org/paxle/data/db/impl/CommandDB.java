@@ -188,11 +188,16 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 * ========================================================================= */
 	
 	private void closeDoubleURLSet() throws IOException {
+		final long start = System.currentTimeMillis();
 		final OutputStream fileOs = new FileOutputStream(new File(getDatabaseLocation(), CACHE_FILE));
 		DataOutputStream dataOs = null;
 		try {
 			dataOs = new DataOutputStream(new BufferedOutputStream(fileOs));
 			bloomFilter.write(dataOs);
+			dataOs.flush();
+			final long end = System.currentTimeMillis();
+			final int size = cacheSize();
+			logger.info("Flushed double URLs cache (" + size + " entries) to disk in " + (end - start) + " ms");
 		} finally { ((dataOs == null) ? fileOs : dataOs).close(); }
 	}
 	
@@ -426,7 +431,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			// wait for the threads to shutdown
 			this.readerThread.join(2000);
 			this.writerThread.join(2000);
-			populateThread.join(2000);
+			if (populateThread != null)
+				populateThread.join(2000);
 
 			// close the DB
 			this.sessionFactory.close();
