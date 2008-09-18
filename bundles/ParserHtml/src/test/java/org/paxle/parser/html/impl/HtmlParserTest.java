@@ -3,6 +3,7 @@ package org.paxle.parser.html.impl;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Iterator;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.impl.TempFileManager;
@@ -19,6 +20,17 @@ public class HtmlParserTest extends TestCase {
 	};
 	
 	// FIXME: <a name="#bla" /> is only recognized as a starting not an ending a-tag
+	
+	public static void testHtmlBaseHref() throws Exception {
+		final File testResource = new File("src/test/resources/", "baseHrefTest.html");
+		final HtmlParser parser = new HtmlParser();
+		ParserContext.setCurrentContext(new ParserContext(null, null, null, new TempFileManager(), new ReferenceNormalizer()));
+		final IParserDocument pdoc = parser.parse(URI.create("http://www.example.org/baseHrefTest.html"), null, testResource);
+		assertNotNull(pdoc);
+		final Iterator<URI> it = pdoc.getLinks().keySet().iterator();
+		assertTrue(it.hasNext());
+		assertEquals(URI.create("http://www.example.net/test/blubb"), it.next());
+	}
 	
 	/** does not work as expected yet */
 	public static void _testHtmlParser() throws Exception {

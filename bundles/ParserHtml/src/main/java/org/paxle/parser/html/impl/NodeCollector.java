@@ -245,15 +245,8 @@ public class NodeCollector extends NodeVisitor {
 			else if (tag instanceof ImageTag)		process((ImageTag)tag);
 			else if (tag instanceof ItalicTag)		; // handled by visitStringNode(), TODO: extra weight
 			else if (tag instanceof JspTag)			this.noParse = true;
-			else if (tag instanceof LinkTag)		{ process((LinkTag)tag); }
-			else if (tag instanceof MetaTag) 		{
-				this.mtm.addMetaTag((MetaTag)tag);
-				if (!noFollowLinks) {
-					final Collection<String> robotsVals = mtm.get(MetaTagManager.Names.Robots);
-					if (robotsVals != null)
-						noFollowLinks = robotsVals.contains("noindex") || robotsVals.contains("nofollow");
-				}
-			}
+			else if (tag instanceof LinkTag)		process((LinkTag)tag);
+			else if (tag instanceof MetaTag) 		process((MetaTag)tag);
 			else if (tag instanceof ParagraphTag)	; // handled by visitStringNode()
 			else if (tag instanceof RemarkNode)		this.noParse = true;
 			else if (tag instanceof ScriptTag)		this.noParse = true;
@@ -281,6 +274,15 @@ public class NodeCollector extends NodeVisitor {
 			else if (ntag instanceof ScriptTag)		noParse = false;
 			else if (ntag instanceof StyleTag)		noParse = false;
 			else if (ntag instanceof TitleTag)		noParse = false;
+		}
+	}
+	
+	private void process(MetaTag tag) {
+		this.mtm.addMetaTag(tag);
+		if (!noFollowLinks) {
+			final Collection<String> robotsVals = mtm.get(MetaTagManager.Names.Robots);
+			if (robotsVals != null)
+				noFollowLinks = robotsVals.contains("noindex") || robotsVals.contains("nofollow");
 		}
 	}
 	
