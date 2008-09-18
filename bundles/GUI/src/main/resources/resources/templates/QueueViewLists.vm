@@ -9,6 +9,7 @@
 	<table>
     	<tr>
     		<th>${text.table.profile}</th>
+    		<th>${text.table.crawlingdepth}</th>
     		<th>${text.table.command}</th>
 			<th>${text.table.mimetype}</th>
 			<th>${text.table.size}</th>
@@ -16,6 +17,7 @@
 		#foreach($cmd in $cmdList)
 		<tr>
 			<td>${cmd.getProfileOID()}</td>
+			<td>${cmd.getDepth()}</td>
 			<td><a href="${cmd.getLocation()}">${cmd.getLocation()}</a></td>
 			<td>$!{cmd.getCrawlerDocument().getMimeType()}</td>
 			<td>$!{cmd.getCrawlerDocument().getSize()}</td>
