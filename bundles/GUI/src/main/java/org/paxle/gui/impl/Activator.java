@@ -37,6 +37,7 @@ import org.paxle.gui.impl.servlets.LoginView;
 import org.paxle.gui.impl.servlets.OpenSearchDescription;
 import org.paxle.gui.impl.servlets.OverView;
 import org.paxle.gui.impl.servlets.QueueView;
+import org.paxle.gui.impl.servlets.RobotsTxt;
 import org.paxle.gui.impl.servlets.RootView;
 import org.paxle.gui.impl.servlets.SearchView;
 import org.paxle.gui.impl.servlets.SettingsView;
@@ -76,8 +77,8 @@ public class Activator implements BundleActivator {
 		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 
 		/*
-		 * ========================================================== Register
-		 * Service Listeners
+		 * ========================================================== 
+		 * Register Service Listeners
 		 * ==========================================================
 		 */
 		bc.addServiceListener(new ServletListener(servletManager, menuManager,
@@ -86,8 +87,9 @@ public class Activator implements BundleActivator {
 				HttpServiceListener.FILTER);
 
 		/*
-		 * ========================================================== Register
-		 * Servlets ==========================================================
+		 * ========================================================== 
+		 * Register Servlets 
+		 * ==========================================================
 		 */
 		registerServlet("/", new RootView(), null);
 		registerServlet("/search", new SearchView(), "Search");
@@ -103,7 +105,30 @@ public class Activator implements BundleActivator {
 		registerServlet("/overview", new OverView(), "Overview");
 		registerServlet("/sysdown", new SysDown(), null, new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
 		registerServlet("/login", new LoginView(), null);
+		RobotsTxt rt = new RobotsTxt();
+		registerServlet("/robots.txt", rt, null);
 		
+		/*
+		 * Create configuration if not available
+		 */
+		ServiceReference cmRef = bc.getServiceReference(ConfigurationAdmin.class.getName());
+		if (cmRef != null) {
+			ConfigurationAdmin cm = (ConfigurationAdmin) bc.getService(cmRef);
+			
+			Configuration config = cm.getConfiguration(RobotsTxt.class.getName());
+			if (config.getProperties() == null) {
+				config.update(rt.getDefaults());
+			}
+		}
+		
+		/* 
+		 * Register as managed service
+		 */
+		Hashtable<String,Object> msProps = new Hashtable<String, Object>();
+		msProps.put(Constants.SERVICE_PID, RobotsTxt.class.getName());
+		bc.registerService(ManagedService.class.getName(), rt, msProps);
+		
+		//this servlet may register with delay and is therefore registered at the end
 		this.initChartServlet(bc);
 	}
 	

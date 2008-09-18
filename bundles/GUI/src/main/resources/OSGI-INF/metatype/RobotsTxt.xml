@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<OCD description="This controls the servlet which serves /robots.txt"
+		name="robots.txt-Servlet" id="org.paxle.gui.impl.servlets.RobotsTxt">
+
+		<AD name="RobotsTxt" type="String" id="robotstxt-txt" default="User-agent: *\nDisallow: /"
+			description="The content of the robots.txt file"/>
+			
+	</OCD>
+
+	<Designate pid="org.paxle.gui.impl.servlets.RobotsTxt" bundle="ignored">
+		<Object ocdref="org.paxle.gui.impl.servlets.RobotsTxt"/>
+	</Designate>
+
+</metatype:MetaData>
