@@ -465,7 +465,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 */
 	public boolean isKnown(URI location) {
 		if (location == null) return false;
-		if (!isKnownInDoubleURLs(location)) return false;
+		if ((populateThread == null || !populateThread.isAlive()) && !isKnownInDoubleURLs(location)) return false;
 		
 		boolean known = false;
 
@@ -616,6 +616,102 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		return this.storeUnknownLocations(profileID, depth, new ArrayList<URI>(Arrays.asList(new URI[]{location}))) == 0;
 	}
 	
+	private int storeUnknownInDoubleCache(
+			final int profileID,
+			final int depth,
+			final ArrayList<URI> locations,
+			final Session session) {
+		
+		final Iterator<URI> locationIterator = locations.iterator();
+		final long time = System.currentTimeMillis();
+		final Key key = new Key();
+		int cacheChecked = 0;
+		
+		while (locationIterator.hasNext()) {
+			final URI loc = locationIterator.next();
+			try {
+				key.set(loc.toString().getBytes(UTF8), 1.0);
+			} catch (UnsupportedEncodingException e) {
+				/* UTF-8 support should be implemented in the JVM */
+				throw new RuntimeException(e);
+			}
+			if (!bloomFilter.membershipTest(key)) {
+				// process all URIs which are not known to the double-URIs-cache;
+				// these URIs don't have to be checked against the DB again for the
+				// cache does not return false negatives
+				bloomFilter.add(key);
+				session.saveOrUpdate(Command.createCommand(loc, profileID, depth));
+				locationIterator.remove();
+				cacheChecked++;
+			}
+			/* this code is unusable due to the false positives probability of the underlying bloomfilter
+			if (isKnownInDoubleURLs(locationIterator.next())) {
+				locationIterator.remove();
+				known++;
+			}*/
+		}
+		if (logger.isDebugEnabled())
+			logger.debug("storeUnknownLocations: locations left to check: " + locations.size() +
+					", cache checked: " + cacheChecked +
+					" in " + (System.currentTimeMillis() - time) + " ms" +
+					", cache size: " + cacheSize());
+		return cacheChecked;
+	}
+	
+	private int storeUnknownInDB(
+			final int profileID,
+			final int depth,
+			final ArrayList<URI> locations,
+			final Session session,
+			final int chunkSize) {
+		
+		int known = 0;
+		HashSet<String> knownLocations = new HashSet<String>();
+		
+		if (locations.size() <= chunkSize) {
+			Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",locations);
+			knownLocations.addAll(query.list());
+		} else {
+			int i = 0, oldI;
+			while (i < (locations.size())) {
+				oldI = i;
+				if ((i + chunkSize) > locations.size()) {
+					i = (locations.size());
+				} else {
+					i += chunkSize;
+				}
+				List<URI> miniLocations = locations.subList(oldI, i);
+				Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",miniLocations);
+				knownLocations.addAll(query.list());			
+			}
+		}
+		
+		// add new commands into DB
+		// process all URIs which have been checked against the DB
+		for (int i=0; i<locations.size(); i++) {
+			final URI location = locations.get(i);
+			if (knownLocations.contains(location)) {
+				// not needed to put into cache as these URIs already have been recognized as member of the cache
+				/*
+				// add command-location into cache
+				putInDoubleURLs(location);
+				*/
+				
+				known++;
+				continue;
+			}
+			logger.debug("storeUnknownLocations: adding false positive #" + i + " to DB: '" + location + "'");
+			session.saveOrUpdate(Command.createCommand(location,profileID,depth));	
+			
+			// not needed to put into cache as these URIs already have been recognized as member of the cache
+			/*
+			// add command-location into cache
+			putInDoubleURLs(location);
+			*/
+		}
+		return known;
+	}
+	
 	/**
 	 * First queries the DB to remove all known locations from the list and then updates
 	 * it with the new list.
@@ -629,112 +725,30 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	int storeUnknownLocations(int profileID, int depth, ArrayList<URI> locations) {
 		if (locations == null || locations.size() == 0) return 0;
 				
-		int known = 0;
+		int known = 0, unknown = 0;
 		Session session = null;
 		Transaction transaction = null;
 		try {
+			// open session and transaction
+			session = this.sessionFactory.openSession();
+			transaction = session.beginTransaction();		
+			
 			// check the cache for URL existance and put the ones not known to the
 			// cache into another list and remove them from the list which is checked
 			// against the DB below
-			Iterator<URI> locationIterator = locations.iterator();
-			final ArrayList<URI> cacheCheckedLocations = new ArrayList<URI>();
-			final long time = System.currentTimeMillis();
-			final Key key = new Key();
-			while (locationIterator.hasNext()) {
-				final URI loc = locationIterator.next();
-				try {
-					key.set(loc.toString().getBytes(UTF8), 1.0);
-				} catch (UnsupportedEncodingException e) {
-					/* UTF-8 support should be implemented in the JVM */
-					throw new RuntimeException(e);
-				}
-				if (!bloomFilter.membershipTest(key)) {
-					// We put the locations into the cache in this initial iteration loop,
-					// because the key has been set up already.
-					// Drawback: if we are being interrupted before, the locations are
-					// marked as known although they've not been added to the DB.
-					// On the other hand, if we are being interrupted, we probably don't
-					// have time to serialize the cache to disk.
-					bloomFilter.add(key);
-					cacheCheckedLocations.add(loc);
-					locationIterator.remove();
-				}
-				/* this code is unusable due to the false positives probability of the underlying bloomfilter
-				if (isKnownInDoubleURLs(locationIterator.next())) {
-					locationIterator.remove();
-					known++;
-				}*/
-			}
-			if (logger.isDebugEnabled())
-				logger.debug("storeUnknownLocations: locations to check: " + locations.size() +
-						", cache checked: " + cacheCheckedLocations.size() +
-						" in " + (System.currentTimeMillis() - time) + " ms");
-			
-			// open session and transaction
-			session = this.sessionFactory.openSession();
-			transaction = session.beginTransaction();			
+			if (populateThread == null || !populateThread.isAlive())
+				unknown = storeUnknownInDoubleCache(profileID, depth, locations, session);
 			
 			// check which URLs are already known against the DB
-			if (locations.size() > 0) {
-				HashSet<String> knownLocations = new HashSet<String>();
-				
-				int chunkSize = 10;
-				if (locations.size() <= chunkSize) {
-					Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",locations);
-					knownLocations.addAll(query.list());
-				} else {
-					int i = 0, oldI;
-					while (i < (locations.size())) {
-						oldI = i;
-						if ((i + chunkSize) > locations.size()) {
-							i = (locations.size());
-						} else {
-							i += chunkSize;
-						}
-						List<URI> miniLocations = locations.subList(oldI, i);
-						Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",miniLocations);
-						knownLocations.addAll(query.list());			
-					}
-				}
-				
-				// add new commands into DB
-				// process all URIs which have been checked against the DB
-				for (int i=0; i<locations.size(); i++) {
-					final URI location = locations.get(i);
-					if (knownLocations.contains(location)) {
-						// not needed to put into cache as these URIs already have been recognized as member of the cache
-						/*
-						// add command-location into cache
-						putInDoubleURLs(location);
-						*/
-						
-						known++;
-						continue;
-					}
-					logger.debug("storeUnknownLocations: adding false positive #" + i + " to DB: '" + location + "'");
-					session.saveOrUpdate(Command.createCommand(location,profileID,depth));	
-					
-					// not needed to put into cache as these URIs already have been recognized as member of the cache
-					/*
-					// add command-location into cache
-					putInDoubleURLs(location);
-					*/
-				}
-			}
-			
-			// process all URIs which are not known to the double-URIs-cache;
-			// these URIs don't have to be checked against the DB again for the
-			// cache does not return false negatives
-			for (final URI location : cacheCheckedLocations) {
-				session.saveOrUpdate(Command.createCommand(location, profileID, depth));
-			}
-			if (logger.isDebugEnabled())
-				logger.debug("storeUnknownLocations: cacheSize: " + cacheSize());
+			if (locations.size() > 0)
+				known = storeUnknownInDB(profileID, depth, locations, session, 10);
 			
 			transaction.commit();
 
 			// signal writer that a new URL is available
-			this.writerThread.signalNewDbData();
+			if (unknown > 0 || known < locations.size())
+				this.writerThread.signalNewDbData();
+			
 			return known;
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
