@@ -33,7 +33,7 @@ public class Activator implements BundleActivator {
 		/*
 		 * Registering the bundle listeners
 		 */
-		bc.addBundleListener(new DesktopIntegrationListener(bc));
+		bc.addBundleListener(new DesktopIntegrationListener(bc, blacklistFilter));
 		bc.addBundleListener(new GuiListener(bc, blacklistFilter));
 	}
 	

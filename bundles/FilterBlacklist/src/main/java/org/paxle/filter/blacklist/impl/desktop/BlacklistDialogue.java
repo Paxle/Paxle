@@ -31,11 +31,14 @@ import javax.swing.event.DocumentListener;
 import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.Utilities;
 import org.paxle.filter.blacklist.impl.Blacklist;
+import org.paxle.filter.blacklist.impl.BlacklistFilter;
 import org.paxle.filter.blacklist.impl.InvalidFilenameException;
 
 public class BlacklistDialogue extends JPanel implements DIComponent, ActionListener, DocumentListener {
 	
 	private static final long serialVersionUID = 1L;
+
+  private final BlacklistFilter blacklistFilter;
 	
 	private static final Dimension DIM = new Dimension(400, 400);
 	
@@ -67,7 +70,8 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	
 	private ItemListModel ilm = null;
 	
-	public BlacklistDialogue() {
+	public BlacklistDialogue(BlacklistFilter blacklistFilter) {
+    this.blacklistFilter = blacklistFilter;
 		init();
 	}
 	
@@ -127,7 +131,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 			if (ac == AC_LIST_CREATE) {
 				final Object name = listSelCBox.getSelectedItem();
 				if (name != null) {
-					itemList.setModel(ilm = new ItemListModel(Blacklist.create(name.toString())));
+					itemList.setModel(ilm = new ItemListModel(blacklistFilter.createList(name.toString())));
 					flm.update();
 					listSelCBox.setSelectedItem(name.toString());
 				}
@@ -135,7 +139,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 				final int selected = listSelCBox.getSelectedIndex();
 				final Object name = listSelCBox.getSelectedItem();
 				if (name != null) {
-					final Blacklist bl = Blacklist.getList(name.toString());
+					final Blacklist bl = blacklistFilter.getList(name.toString());
 					if (bl != null)
 						bl.destroy();
 					flm.update();
@@ -144,7 +148,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 			} else if (ac == AC_LIST_SELECT) {
 				final Object name = listSelCBox.getSelectedItem();
 				final Blacklist bl;
-				if (name != null && (bl = Blacklist.getList(name.toString())) != null) {
+				if (name != null && (bl = blacklistFilter.getList(name.toString())) != null) {
 					itemList.setModel(ilm = new ItemListModel(bl));
 				} else {
 					ilm = null;
@@ -268,17 +272,17 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 		}
 		
 		private int indexOf(final Object item) {
-			final List<String> lists = Blacklist.getLists();
+			final List<String> lists = blacklistFilter.getLists();
 			Collections.sort(lists);
 			return Collections.binarySearch(lists, (String)item);
 		}
 		
 		public int getSize() {
-			return Blacklist.getLists().size();
+			return blacklistFilter.getLists().size();
 		}
 		
 		public Object getElementAt(int index) {
-			final List<String> lists = Blacklist.getLists();
+			final List<String> lists = blacklistFilter.getLists();
 			Collections.sort(lists);
 			return lists.get(index);
 		}
