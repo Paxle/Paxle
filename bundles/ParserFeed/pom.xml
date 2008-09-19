@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserFeed</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<name>Paxle - Parser: RSS/Atom/OPML</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -50,17 +50,19 @@
 							<!-- Paxle Parser Core -->
 							org.paxle.parser;version="[0.1.0,0.2.0)",
 							<!-- Classes required for XML Parsing -->
-							org.jdom, org.jdom.input, org.jdom.output,
+							<!-- org.jdom, org.jdom.input, org.jdom.output, -->
 							<!-- ignoring the rest -->
 							!net.sf.hibernate, 
 							!net.sf.hibernate.*,
 							!org.apache.commons.collections,
 							!org.apache.commons.collections.*,
 							!org.apache.lucene.*,
-							!org.apache.xml.resolver.*
+							!org.apache.xml.resolver.*,
+							!oracle.*,!org.jaxen.*,!org.saxpath.*
 						</Import-Package>
 						<Private-Package>
-							org.paxle.parser.feed.impl
+							org.paxle.parser.feed.impl,
+							org.jdom, org.jdom.*
 						</Private-Package>
 						<Bundle-Activator>
 							org.paxle.parser.feed.impl.Activator

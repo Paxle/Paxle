@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.feed.IFeedParser;
+import org.xml.sax.InputSource;
 
 import de.nava.informa.core.ChannelIF;
 import de.nava.informa.core.ImageIF;
@@ -53,9 +55,12 @@ public class FeedParser extends ASubParser implements IFeedParser {
 		final IParserDocument pdoc = new CachedParserDocument(context.getTempFileManager());
 		
 		try {
-			final ChannelIF channel = de.nava.informa.parsers.FeedParser.parse(builder, is);
+			final ChannelIF channel = de.nava.informa.parsers.FeedParser.parse(builder, new InputSource(is), location.toURL());
 			pdoc.setTitle(channel.getTitle());
 			pdoc.setSummary(channel.getDescription());
+			final String language = channel.getLanguage();
+			if (language != null)
+				pdoc.setLanguages(new HashSet<String>(Arrays.asList(channel.getLanguage().split(","))));
 			
 			final ImageIF image = channel.getImage();
 			if (image != null) try {
@@ -78,7 +83,9 @@ public class FeedParser extends ASubParser implements IFeedParser {
 					final String itemCreator = item.getCreator();
 					
 					IParserDocument idoc = null;
-					final String itemContent = item.getElementValue("content");
+					String itemContent = item.getElementValue("content");
+					if (itemContent == null || itemContent.length() == 0)
+						itemContent = item.getElementValue("content:encoded");
 					if ((itemContent != null) && (itemContent.length() > 0)) {
 						final ISubParser htmlParser = context.getParser("text/html");
 						final URI itemLocation = (itemURL == null) ? location : itemURL;
@@ -99,7 +106,8 @@ public class FeedParser extends ASubParser implements IFeedParser {
 					if (itemURL != null)
 						idoc.addReference(itemURL, itemTitle);
 					
-					idoc.addText(itemDescr);
+					if (itemDescr != null)
+						idoc.addText(itemDescr);
 					
 					pdoc.addSubDocument(itemTitle, idoc);
 				}
