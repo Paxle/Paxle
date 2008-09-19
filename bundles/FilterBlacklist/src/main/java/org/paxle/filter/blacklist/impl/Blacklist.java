@@ -24,54 +24,27 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class Blacklist {
-	private static File blacklistDir;
 	private File listFile;
+	private BlacklistFilter blacklistFilter;
 	private ConcurrentHashMap<String,Pattern> blacklist;
 	public String name;
 	private Log logger = LogFactory.getLog(this.getClass());
-	private static ConcurrentHashMap<String,Blacklist> blacklists = new ConcurrentHashMap<String,Blacklist>();
 
 	private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
 	/**
-	 * initializes the blacklist
-	 * @param dir the directory where all blacklistfiles are stored
-	 */
-	static void init(File dir) {
-		blacklistDir = dir;
-		Iterator<?> eter = FileUtils.iterateFiles(blacklistDir, null, false);
-		while(eter.hasNext()) {
-			new Blacklist(((File) eter.next()).getName());
-		}
-	}
-
-	/**
-	 * Gets all blacklistnames
-	 * @return all blacklistnames
-	 */
-	public static	List<String> getLists() {
-		return new ArrayList<String>(blacklists.keySet());
-	}
-
-	/**
-	 * gets the blacklist, please note that you have to call init first
-	 * @param name the name of the list
-	 * @return the blacklist
-	 * @throws InvalidFilenameException 
-	 */
-	public static Blacklist getList(String name) throws InvalidFilenameException {
-		validateBlacklistname(name);
-		return blacklists.get(name);
-	}
-
-	/**
 	 * New blacklist object for existing blacklistfile
 	 * @param name the name of the blacklist
+	 * @param listFile the file to read or store the blacklist
+	 * @param blacklistFilter the BlacklistFilter-object
 	 */
-	private Blacklist(String name) {
+	public Blacklist(String name, File listFile, BlacklistFilter blacklistFilter) throws InvalidFilenameException {
 		this.name = name;
-		this.listFile = new File(blacklistDir, this.name);
+		this.listFile = listFile;
+		this.blacklistFilter = blacklistFilter;
 		if (!(listFile.canRead() && listFile.canWrite())) throw new IllegalArgumentException("Unknown blacklist.");
+		// check for uniqueness of this object
+		if (this.blacklistFilter.getList(this.name) != null) throw new IllegalArgumentException("Blacklist-object does already exist!");
 		boolean incorrectPattern = false;
 		try {
 			blacklist = new ConcurrentHashMap<String,Pattern>();
@@ -94,112 +67,6 @@ public class Blacklist {
 		}
 	}
 
-	/**
-	 * Adds a new empty blacklist-file
-	 * @param name name of the new blacklistfile
-	 * @throws InvalidFilenameException 
-	 */	
-	public static Blacklist create(String name) throws InvalidFilenameException {
-
-		validateBlacklistname(name);
-
-		if (getList(name) != null)
-			return getList(name);
-		else {
-			try {
-				FileUtils.touch(new File(blacklistDir, name));
-				return new Blacklist(name);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
-	}
-	
-	static final int NAME_OK = -1;
-	static final int LENGTH_ZERO = -2;
-	
-	/**
-	 * Checks whether the given name is a valid blacklist name. First, all whitespace is removed, then the length
-	 * of the result is tested. If it is zero, {@link #LENGTH_ZERO} is returned. If the remaining characters are
-	 * valid, this method returns {@link #NAME_OK}, otherwise the first invalid character is returned.
-	 *   
-	 * @param name the blacklist name to check
-	 * @return {@link #NAME_OK} if the given name is a valid name for a blacklist, {@link #LENGTH_ZERO} if the
-	 *         name only consists of whitespace or is an empty string, the first invalid character otherwise.
-	 */
-	static int offendingChar(final String name) {
-		final String others = "+-_.&()=";
-		
-		final String nn = name.replace("\\s", "").toLowerCase();
-		if (nn.length() == 0)
-			return LENGTH_ZERO;
-		
-		for (int i=0; i<nn.length(); i++) {
-			final char c = nn.charAt(i);
-			if (!(c >= 'a' && c <= 'z' || c >= '0' && c <= '9') || others.indexOf(c) != -1)
-				return c;
-		}
-		return NAME_OK;
-	}
-	
-	/**
-	 * Uses {@link #offendingChar(String)} to test whether the name is a valid identifier for a blacklist.
-	 * @param name the name to check
-	 * @return whether the given name is a valid name for a blacklist or not
-	 */
-	static boolean isValidBlacklistName(final String name) {
-		return offendingChar(name) == NAME_OK;
-	}
-	
-	/**
-	 * This method checks a given name for attempts of a directory traversal, an empty name and for invalid characters
-	 * @throws InvalidFilenameException 
-	 */
-	private static void validateBlacklistname(final String name) throws InvalidFilenameException {
-		final int c = offendingChar(name);
-		switch (c) {
-			case NAME_OK: return;
-			case LENGTH_ZERO: throw new InvalidFilenameException("The blacklist name is empty.");
-			default:
-				throw new InvalidFilenameException(
-						"The name '" + name + "' is not a valid name for a blacklist. " +
-						"Please remove all '" + (char)c + "' characters.");
-		}
-	}
-	/*
-	private static void validateBlacklistname(String name) throws InvalidFilenameException {
-		String chars = "abcdefghijklmnopqrstuvwxyz";
-		String numbers = "0123456789";
-		String others = "+-_.&()=";
-		final char[] allowedCharacters = (chars + numbers + others).toCharArray();
-		
-		//Reduce all blank spaces to none for check. This ensure a file with name "       " isn't valid.
-		//A file named "              g" still is valid.
-		//In this check it will be threaded as "g", but the created file will be "              g"
-		name = name.replaceAll(" ", "");
-
-		if (name.equals("")) {
-			throw new InvalidFilenameException("The blacklist name is empty.");
-		}
-		
-		name = name.toLowerCase();
-		char temp [] = name.toCharArray();
-		boolean test;
-		int i = 0;
-		for(i=0; i<temp.length;i++) {
-			test = false;
-			for(int j=0;j<allowedCharacters.length;j++) {
-				if(temp[i]==allowedCharacters[j]) {
-					test = true;
-					break;
-				}
-			}
-			if(!test)
-				throw new InvalidFilenameException("The name '" + name + "' is not a valid name for a blacklist. Please remove all '" + temp[i] + "' characters.");
-		}
-		return;
-	}*/
 
 	/**
 	 * Deletes the blacklist
@@ -222,7 +89,7 @@ public class Blacklist {
 	 * store this blacklist so that it can be derived using getList
 	 */
 	private void store() {
-		blacklists.put(this.name, this);
+		blacklistFilter.storeList(this);
 	}
 
 	/**
@@ -230,7 +97,7 @@ public class Blacklist {
 	 * please note that this does not delete the blacklist
 	 */
 	private void unstore() {
-		blacklists.remove(this.name);
+		blacklistFilter.unstoreList(this);
 	}
 
 	/**
@@ -264,22 +131,6 @@ public class Blacklist {
 		logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
 		return FilterResult.LOCATION_OKAY_RESULT;
 	}
-
-	/**
-	 * Checks if an URL is listed in any blacklist
-	 * @param url URL to be checked against blacklists
-	 * @return returns the FilterResult which contains the pattern which blacklists the URL
-	 */
-	public static FilterResult isListedInAnyList(String url) {
-		Iterator<Blacklist> allLists = blacklists.values().iterator();
-		while (allLists.hasNext()) {
-			FilterResult result = allLists.next().isListed(url);
-			if (result.getStatus() == FilterResult.LOCATION_REJECTED)
-				return result;
-		}
-		return FilterResult.LOCATION_OKAY_RESULT;
-	}
-
 
 	/**
 	 * Returns all entries in the list as Strings

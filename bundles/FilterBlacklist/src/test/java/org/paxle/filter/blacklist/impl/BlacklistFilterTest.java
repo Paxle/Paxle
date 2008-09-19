@@ -60,7 +60,7 @@ public class BlacklistFilterTest extends TestCase {
 		InvalidFilenameException ex = null;
 
 		try  {
-			Blacklist.create("../test");
+			testFilter.createList("../test");
 		} catch (InvalidFilenameException e) {
 			ex = e;
 		}
@@ -68,7 +68,7 @@ public class BlacklistFilterTest extends TestCase {
 		ex = null;
 
 		try  {
-			Blacklist.create("./test");
+			testFilter.createList("./test");
 		} catch (InvalidFilenameException e) {
 			ex = e;
 		}
@@ -76,7 +76,7 @@ public class BlacklistFilterTest extends TestCase {
 		ex = null;
 
 		try  {
-			Blacklist.create("");
+			testFilter.createList("");
 		} catch (InvalidFilenameException e) {
 			ex = e;
 		}
@@ -84,7 +84,7 @@ public class BlacklistFilterTest extends TestCase {
 		ex = null;
 
 		try  {
-			Blacklist.create("     ");
+			testFilter.createList("     ");
 		} catch (InvalidFilenameException e) {
 			ex = e;
 		}
@@ -92,7 +92,7 @@ public class BlacklistFilterTest extends TestCase {
 		ex = null;
 
 		try {
-			Blacklist.create("test");
+			testFilter.createList("test");
 		} catch (InvalidFilenameException e) {
 			ex = e;
 		}
