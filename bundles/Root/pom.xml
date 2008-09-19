@@ -242,12 +242,12 @@
 			<dependency>
 				<groupId>com.db4o</groupId>
 				<artifactId>db4o-java5</artifactId>
-				<version>7.2.44.10827</version>
+				<version>7.4.58.11547</version>
 			</dependency>
 			<dependency>
 				<groupId>com.db4o</groupId>
 				<artifactId>db4o-osgi</artifactId>
-				<version>7.2.44.10827</version>
+				<version>7.4.58.11547</version>
 			</dependency>
 
 			<!-- jmock dependencies -->
