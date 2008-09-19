@@ -35,9 +35,6 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 
 	private Log logger = LogFactory.getLog(this.getClass());
 
-	/**
-	 * @TODO check that there is no other BlacklistFilter with the same directory
-	 */
 	public BlacklistFilter(File dir) throws InvalidFilenameException {
 		if (dir == null) throw new NullPointerException("The file-object must not be null.");
 		this.blacklistDir = dir;
@@ -155,9 +152,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 			try {
 				File listFile = new File(blacklistDir, name);
 				FileUtils.touch(listFile);
-				Blacklist blacklist = new Blacklist(name, listFile, this);
-				blacklists.put(name, blacklist);
-				return blacklist;
+				return new Blacklist(name, listFile, this);
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;
