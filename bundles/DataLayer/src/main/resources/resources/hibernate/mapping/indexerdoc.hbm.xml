@@ -23,6 +23,7 @@
 				<column name="clazz"/>
 				<column name="isIndex"/>
 				<column name="isSavePlain"/>
+				<column name="isTokenize"/>
             </index>
             <element column="fieldValue" type="org.paxle.data.db.impl.FieldValueUserType" length="4096"/>
         </map>		

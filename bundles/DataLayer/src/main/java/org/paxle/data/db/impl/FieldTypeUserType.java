@@ -13,11 +13,11 @@ import org.paxle.core.doc.Field;
 public class FieldTypeUserType implements EnhancedUserType {
 
 	private static final String[] PROP_NAMES = new String[] { 
-		"name", "clazz", "isIndex", "isSavePlain" 
+		"name", "clazz", "isIndex", "isSavePlain", "isTokenize"
 	};
 
 	private static final int[] PROP_TYPES = new int[] {
-		Types.VARCHAR, Types.VARCHAR, Types.BIT, Types.BIT
+		Types.VARCHAR, Types.VARCHAR, Types.BIT, Types.BIT, Types.BIT
 	};
 
 	/**
@@ -25,6 +25,7 @@ public class FieldTypeUserType implements EnhancedUserType {
 	 *	<column name="clazz"/>
 	 *	<column name="isIndex"/>
 	 *	<column name="isSavePlain"/>
+	 *  <column name="isTokenize"/>
 	 */
 	public int[] sqlTypes() {
 		return PROP_TYPES;
@@ -69,13 +70,16 @@ public class FieldTypeUserType implements EnhancedUserType {
 		if (rs.wasNull()) return null;
 		boolean isIndex = rs.getBoolean(names[2]);
 		if (rs.wasNull()) return null;
-		boolean sSavePlain = rs.getBoolean(names[3]);
+		boolean isSavePlain = rs.getBoolean(names[3]);
+		if (rs.wasNull()) return null;
+		boolean isTokenize = rs.getBoolean(names[4]);
 		if (rs.wasNull()) return null;
 		
 		try {
 			return new Field(
 					isIndex,
-					sSavePlain,
+					isSavePlain,
+					isTokenize,
 					name,
 					Thread.currentThread().getContextClassLoader().loadClass(clazz)
 			);
