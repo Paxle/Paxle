@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class RobotsTxt implements Serializable {
+	private static final long serialVersionUID = 1L;
 	
 	public static final long RELOAD_INTERVAL_DEFAULT = TimeUnit.SECONDS.toMillis(7*24*60*60);
 	/** The reload interval used if an error occurred, which may last for some time */
