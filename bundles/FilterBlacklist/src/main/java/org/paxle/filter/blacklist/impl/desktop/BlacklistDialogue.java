@@ -38,7 +38,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	
 	private static final long serialVersionUID = 1L;
 
-  private final BlacklistFilter blacklistFilter;
+	private final BlacklistFilter blacklistFilter;
 	
 	private static final Dimension DIM = new Dimension(400, 400);
 	
@@ -49,8 +49,8 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	private static final String AC_ITEM_DEL = new String();
 	private static final String AC_ITEM_EDIT = new String();
 	
-	private final FilterListsComboBoxModel flm = new FilterListsComboBoxModel();
-	private final JComboBox listSelCBox = new JComboBox(flm);
+	private final FilterListsComboBoxModel flm;
+	private final JComboBox listSelCBox;
 	private final JList itemList = new JList();
 	private final JButton listAddB = Utilities.createButton("Create", this, AC_LIST_CREATE, null);
 	private final JButton listDelB = Utilities.createButton("Delete", this, AC_LIST_DELETE, null);
@@ -71,7 +71,9 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	private ItemListModel ilm = null;
 	
 	public BlacklistDialogue(BlacklistFilter blacklistFilter) {
-    this.blacklistFilter = blacklistFilter;
+		this.blacklistFilter = blacklistFilter;
+		this.flm = new FilterListsComboBoxModel(blacklistFilter);
+		this.listSelCBox = new JComboBox(flm);
 		init();
 	}
 	
@@ -254,6 +256,12 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	private class FilterListsComboBoxModel extends AbstractListModel implements ComboBoxModel {
 		
 		private static final long serialVersionUID = 1L;
+
+		private final BlacklistFilter blacklistFilter;
+
+		public FilterListsComboBoxModel(final BlacklistFilter blacklistFilter) {
+			this.blacklistFilter = blacklistFilter;
+		}
 		
 		private Object selected = null;
 		
