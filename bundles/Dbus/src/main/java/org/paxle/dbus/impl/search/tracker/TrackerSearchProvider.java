@@ -44,7 +44,7 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 			FILE_MODIFIED
 	}));
 	
-	public static HashMap<String, Field> propToFieldMapper = new HashMap<String, Field>();
+	public static HashMap<String, Field<?>> propToFieldMapper = new HashMap<String, Field<?>>();
 	static {
 		propToFieldMapper.put(FILE_NAME, IIndexerDocument.TITLE);
 		propToFieldMapper.put(FILE_MIME, IIndexerDocument.MIME_TYPE);
@@ -96,7 +96,7 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 
 			this.logger.info(String.format("Getting reference to %s ...",TRACKER_BUSNAME));
 			this.tracker = conn.getRemoteObject(TRACKER_BUSNAME, TRACKER_OBJECTPATH, Tracker.class);
-			this.logger.info(String.format("%s version %d detected.",TRACKER_BUSNAME,tracker.GetVersion()));
+			this.logger.info(String.format("%s version %d detected.",TRACKER_BUSNAME, Integer.valueOf(tracker.GetVersion())));
 			// TODO: test if we are supporting the given tracker version
 			System.out.println(tracker.GetVersion());
 

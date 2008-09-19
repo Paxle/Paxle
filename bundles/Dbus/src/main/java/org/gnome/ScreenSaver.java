@@ -6,7 +6,7 @@ import org.freedesktop.dbus.DBusSignal;
 import org.freedesktop.dbus.exceptions.DBusException;
 
 /**
- * @see http://lists.freedesktop.org/archives/xdg/2006-June/006523.html
+ * @see "http://lists.freedesktop.org/archives/xdg/2006-June/006523.html"
  */
 public interface ScreenSaver extends DBusInterface {
 	public static class SessionIdleChanged extends DBusSignal {
@@ -18,7 +18,7 @@ public interface ScreenSaver extends DBusInterface {
 		 * @throws DBusException
 		 */
 		public SessionIdleChanged(String path, boolean isIdle) throws DBusException {
-			super(path, isIdle);
+			super(path, Boolean.valueOf(isIdle));
 			this.isIdle = isIdle;
 		}
 	}		
@@ -33,7 +33,7 @@ public interface ScreenSaver extends DBusInterface {
 		 * @throws DBusException
 		 */
 		public ActiveChanged(String path, boolean isActive) throws DBusException {
-			super(path, isActive);
+			super(path, Boolean.valueOf(isActive));
 			this.isActive = isActive;
 		}
 	}	

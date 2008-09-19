@@ -8,6 +8,7 @@ import org.paxle.se.query.tokens.AToken;
  * The {@link TrackerQueryFactory} only supports AND operation.
  */
 public class TrackerQueryFactory extends IQueryFactory<String> {
+		@Override
 		public String and(AToken[] token){
 			String result=new String(transformToken(token[0], this));
 			for(int i=1;i<token.length;i++) {

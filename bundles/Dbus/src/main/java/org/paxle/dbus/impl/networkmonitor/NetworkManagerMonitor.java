@@ -45,7 +45,7 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 	/**
 	 * Reference to the crawler component
 	 */
-	private IMWComponent crawler = null;
+	private IMWComponent<?> crawler = null;
 	
 	/**
 	 * The connection to the dbus
@@ -60,6 +60,7 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 	/**
 	 * The list of {@link DBusSignal signals} to (un)register.
 	 */
+	@SuppressWarnings("unchecked")
 	private static ArrayList<Class> signals = new ArrayList<Class>(Arrays.asList(new Class[]{
 			NetworkManager.DeviceNoLongerActive.class,
 			NetworkManager.DeviceNowActive.class,
@@ -84,10 +85,10 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 
 			// getting the network-manager via dbus
 			this.logger.info(String.format("Getting reference to %s ...", BUSNAME));
-			NetworkManager nm = (NetworkManager) conn.getRemoteObject(BUSNAME, OBJECTPATH, NetworkManager.class);
+			NetworkManager nm = conn.getRemoteObject(BUSNAME, OBJECTPATH, NetworkManager.class);
 			List<Path> deviceList = nm.getDevices();
 			if (deviceList != null) {
-				this.logger.debug(String.format("%d device(s) detected: %s", deviceList.size(), deviceList.toString()));
+				this.logger.debug(String.format("%d device(s) detected: %s", Integer.valueOf(deviceList.size()), deviceList.toString()));
 				this.devices.addAll(deviceList);
 			}
 		} catch (DBusExecutionException e) {
@@ -119,7 +120,7 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 		if (this.conn != null) this.conn.disconnect();
 	}
 	
-	private void registerSignalListener(IMWComponent crawler) {
+	private void registerSignalListener(IMWComponent<?> crawler) {
 		try {
 			this.crawler = crawler;
 			
@@ -176,7 +177,7 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 	 */
 	public Object addingService(ServiceReference reference) {
 		// a reference to the service
-		IMWComponent crawler = (IMWComponent) this.context.getService(reference);			
+		IMWComponent<?> crawler = (IMWComponent<?>) this.context.getService(reference);			
 		
 		// new service was installed
 		this.registerSignalListener(crawler);

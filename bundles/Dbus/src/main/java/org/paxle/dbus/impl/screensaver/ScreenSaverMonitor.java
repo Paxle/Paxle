@@ -4,7 +4,7 @@ import org.freedesktop.dbus.DBusSigHandler;
 import org.freedesktop.dbus.DBusSignal;
 import org.gnome.ScreenSaver;
 
-public class ScreenSaverMonitor implements DBusSigHandler {
+public class ScreenSaverMonitor implements DBusSigHandler<DBusSignal> {
 
 	public void handle(DBusSignal signal) {
 		if (signal instanceof ScreenSaver.ActiveChanged) {
