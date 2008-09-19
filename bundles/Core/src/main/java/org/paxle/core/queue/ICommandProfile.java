@@ -1,5 +1,7 @@
 package org.paxle.core.queue;
 
+import java.io.Serializable;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -82,4 +84,11 @@ public interface ICommandProfile {
      */
     public void setLinkFilterExpression(String filter);
     public String getLinkFilterExpression();
+    
+    public void setProperties(Map<String, Serializable> props);
+    public Map<String, Serializable> getProperties();
+    
+    public Serializable getProperty(String propertyName);
+    public Serializable removeProperty(String propertyName);
+    public void setProperty(String propertyName, Serializable propertyValue);
 }

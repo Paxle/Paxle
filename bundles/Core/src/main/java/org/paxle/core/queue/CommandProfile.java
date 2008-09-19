@@ -1,6 +1,9 @@
 package org.paxle.core.queue;
 
+import java.io.Serializable;
 import java.net.URI;
+import java.util.Collections;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class CommandProfile implements ICommandProfile {
@@ -34,6 +37,11 @@ public class CommandProfile implements ICommandProfile {
 	 * for {@link LinkFilterMode#regexp} this is a valid {@link Pattern} in {@link String}-format.
 	 */
 	private String linkFilterExpression = null;
+	
+	/**
+	 * Other properties, e.g. special properties for command-filters
+	 */
+	private Map<String, Serializable> properties = Collections.emptyMap();
 	
     public int getOID(){ 
     	return _oid; 
@@ -77,6 +85,30 @@ public class CommandProfile implements ICommandProfile {
 		this.linkFilterExpression = expression;
 	}	
 	
+	public Map<String, Serializable> getProperties() {
+		return this.properties;
+	}
+
+	public void setProperties(Map<String, Serializable> props) {
+		if (props == null) props = Collections.emptyMap();
+		this.properties = props;
+	}		
+	
+	public Serializable getProperty(String propertyName) {
+		if (propertyName == null) return null;
+		return this.properties.get(propertyName);
+	}
+
+	public void setProperty(String propertyName, Serializable propertyValue) {
+		if (propertyName == null) throw new NullPointerException("The property-name must not be null");
+		this.properties.put(propertyName, propertyValue);
+	}	
+	
+	public Serializable removeProperty(String propertyName) {
+		if (propertyName == null) throw new NullPointerException("The property-name must not be null");
+		return this.properties.remove(propertyName);
+	}	
+	
 	@Override
 	public String toString() {
 		StringBuilder buf = new StringBuilder();
@@ -85,8 +117,9 @@ public class CommandProfile implements ICommandProfile {
 		   .append(this.name).append(": ")
 		   .append("maxDepth=").append(this.maxDepth).append(", ")
 		   .append("filter=").append(this.linkFilterMode).append(", ")
-		   .append("filterExp=").append(this.linkFilterExpression==null?"":this.linkFilterExpression);
+		   .append("filterExp=").append(this.linkFilterExpression==null?"":this.linkFilterExpression).append(", ")
+		   .append("props=").append(this.properties==null?"{}":this.properties.toString());
 		
 		return buf.toString();
-	}	
+	}
 }

@@ -14,6 +14,8 @@ import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandProfile;
+import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.filter.blacklist.IRegexpBlacklistFilter;
 
 /**
@@ -39,6 +41,23 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 			logger.info(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
 			return;
 		}
+		
+		// checking if the command-profile has additional restrictions
+		int profileID = command.getProfileOID();
+		if (profileID >= 0) {
+			ICommandProfileManager profileManager = filterContext.getCommandProfileManager();
+			if (profileManager != null) {
+				ICommandProfile profile = profileManager.getProfileByID(profileID);
+				if (profile != null) {
+					// TODO: read blacklist-filter-specific properties
+					String enabledBlacklistNames = (String) profile.getProperty(this.getClass().getSimpleName() + ".additionalBlacklistNames");
+					if (enabledBlacklistNames != null) {
+						// TODO: enabledBlacklistNames.split("[;]");
+					}
+				}
+			}
+		}	
+		
 		// check the extracted links
 		IParserDocument parserDoc = command.getParserDocument();
 		this.checkBlacklist(parserDoc);

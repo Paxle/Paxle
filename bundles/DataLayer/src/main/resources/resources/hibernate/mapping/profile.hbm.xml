@@ -24,5 +24,12 @@
 			</type>		 
 		 </property>
 		 <property name="linkFilterExpression"/>
+		 
+		 <!-- other properties -->
+        <map name="properties">
+            <key column="id"/>
+            <index column="property_name" type="string"/>
+            <element column="property_value" type="string"/>
+        </map>
 	</class>
 </hibernate-mapping>
