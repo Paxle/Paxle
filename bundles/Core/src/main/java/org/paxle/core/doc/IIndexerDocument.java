@@ -8,22 +8,22 @@ import java.util.Map;
 
 public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	
-	public static final Field<String>                   AUTHOR        = new Field<String>                   (true,  true,  "Author",       String.class);
-	public static final Field<String>                   INTERNAL_NAME = new Field<String>                   (true,  true,  "InternalName", String.class);
-	public static final Field<String[]>                 KEYWORDS      = new Field<String[]>                 (true,  true,  "Keywords",     String[].class);
-	public static final Field<Date>                     LAST_CRAWLED  = new Field<Date>	                    (false, true,  "LastCrawled",  Date.class);
-	public static final Field<Date>                     LAST_MODIFIED = new Field<Date>	                    (true,  true,  "LastModified", Date.class);
-	public static final Field<Language[]>               LANGUAGES     = new Field<Language[]>               (true,  true,  "Languages",    Language[].class);
-	public static final Field<String>                   LOCATION      = new Field<String>                   (true,  true,  "Location",     String.class);
-	public static final Field<byte[]>                   MD5           = new Field<byte[]>                   (false, true,  "MD5",          byte[].class);
-	public static final Field<String>                   MIME_TYPE     = new Field<String>                   (true,  false, "MimeType",     String.class);
-	public static final Field<String>                   PROTOCOL      = new Field<String>                   (true,  false, "Protocol",     String.class);
-	public static final Field<Long>                     SIZE          = new Field<Long>	                    (false, true,  "Size",         Long.class);
-	public static final Field<String>                   SUMMARY       = new Field<String>                   (true,  true,  "Summary",      String.class);
-	public static final Field<File>                     TEXT          = new Field<File>                     (true,  false, "Text",         File.class);
-	public static final Field<String>                   TITLE         = new Field<String>                   (true,  true,  "Title",        String.class);
-	public static final Field<IIndexerDocument.Topic[]> TOPICS        = new Field<IIndexerDocument.Topic[]> (true,  true,  "Topics",       Topic[].class);
-	public static final Field<String>                   SNIPPET       = new Field<String>                   (true,  true,  "Snippet",      String.class);
+	public static final Field<String>                   AUTHOR        = new Field<String>                   (true,  true,  true,  "Author",       String.class);
+	public static final Field<String>                   INTERNAL_NAME = new Field<String>                   (true,  true,  true, "InternalName", String.class);
+	public static final Field<String[]>                 KEYWORDS      = new Field<String[]>                 (true,  true,  true, "Keywords",     String[].class);
+	public static final Field<Date>                     LAST_CRAWLED  = new Field<Date>	                    (false, true,  false, "LastCrawled",  Date.class);
+	public static final Field<Date>                     LAST_MODIFIED = new Field<Date>	                    (true,  true,  false, "LastModified", Date.class);
+	public static final Field<Language[]>               LANGUAGES     = new Field<Language[]>               (true,  true,  false, "Languages",    Language[].class);
+	public static final Field<String>                   LOCATION      = new Field<String>                   (true,  true,  false, "Location",     String.class);
+	public static final Field<byte[]>                   MD5           = new Field<byte[]>                   (false, true,  false, "MD5",          byte[].class);
+	public static final Field<String>                   MIME_TYPE     = new Field<String>                   (true,  false, false, "MimeType",     String.class);
+	public static final Field<String>                   PROTOCOL      = new Field<String>                   (true,  false, false, "Protocol",     String.class);
+	public static final Field<Long>                     SIZE          = new Field<Long>	                    (false, true,  false, "Size",         Long.class);
+	public static final Field<String>                   SUMMARY       = new Field<String>                   (true,  true,  true,  "Summary",      String.class);
+	public static final Field<File>                     TEXT          = new Field<File>                     (true,  false, true,  "Text",         File.class);
+	public static final Field<String>                   TITLE         = new Field<String>                   (true,  true,  true,  "Title",        String.class);
+	public static final Field<IIndexerDocument.Topic[]> TOPICS        = new Field<IIndexerDocument.Topic[]> (true,  true,  false, "Topics",       Topic[].class);
+	public static final Field<String>                   SNIPPET       = new Field<String>                   (true,  true,  true,  "Snippet",      String.class);
 	
 	public static final String xyz = "ddadfda";
 	

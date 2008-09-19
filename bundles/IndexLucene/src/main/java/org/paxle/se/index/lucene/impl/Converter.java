@@ -61,15 +61,11 @@ public class Converter {
 		final Document doc = new Document();
 		for (final Map.Entry<org.paxle.core.doc.Field<?>,Object> entry : document) {
 			org.paxle.core.doc.Field<?> key = entry.getKey();
-			if (key == IIndexerDocument.LOCATION) {
-				doc.add(new Field(IIndexerDocument.LOCATION.getName(), (String)entry.getValue(), Field.Store.YES, Field.Index.UN_TOKENIZED));
+			Fieldable field = any2field(key, entry.getValue());
+			if (field == null) {
+				logger.error("Found null-field: " + entry.getKey() + " / " + entry.getValue());
 			} else {
-				Fieldable field = any2field(key, entry.getValue());
-				if (field == null) {
-					logger.error("Found null-field: " + entry.getKey() + " / " + entry.getValue());
-				} else {
-					doc.add(field);
-				}
+				doc.add(field);
 			}
 		}
 		return doc;
@@ -167,7 +163,7 @@ public class Converter {
 					field.getName(),
 					PaxleNumberTools.longToString(num),
 					store(field, false),
-					Field.Index.UN_TOKENIZED);
+					index(field));
 		} else {
 			return new Field(
 					field.getName(),
@@ -228,7 +224,10 @@ public class Converter {
 	}
 	
 	private static Field.Index index(org.paxle.core.doc.Field<?> field) {
-		return (field.isIndex()) ? Field.Index.TOKENIZED : Field.Index.NO;
+		return ((field.isIndex())
+				? (field.isTokenize()) ? Field.Index.TOKENIZED : Field.Index.UN_TOKENIZED
+				: Field.Index.NO
+		);
 	}
 	
 	private static Field.Store store(org.paxle.core.doc.Field<?> field, boolean compress) {

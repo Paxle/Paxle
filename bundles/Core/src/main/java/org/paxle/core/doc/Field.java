@@ -8,24 +8,27 @@ import java.util.regex.Pattern;
 public final class Field<Type extends Serializable> implements Comparable<Field<?>>, Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private static Pattern pattern = Pattern.compile("(\\w+)\\s\\(([^)]+)\\)(?:\\s(indexed))?(?:\\s(savedPlain))?");
+	private static final Pattern pattern = Pattern.compile("(\\w+)\\s\\(([^)]+)\\)(?:\\s(indexed))?(?:\\s(savedPlain))?(?:\\s(tokenize))?");
 	
 	private final boolean index;
 	private final boolean savePlain;
+	private final boolean tokenize;
 	private final Class<Type> clazz;
 	private final String name;
 	
 	/**
 	 * @param index specifies that the value of the field is made <i>searchable</i>
 	 * @param savePlain specifies that the value of the field is <i>stored as-is</i> in the index
+	 * @param tokenize specifies whether the value of the field is being split up into tokens during indexing
 	 * @param name the name of the field
 	 * @param clazz the field value type, which must be {@link Serializable serializable}
 	 */
-	public Field(final boolean index, final boolean savePlain, String name, Class<Type> clazz) {
+	public Field(final boolean index, final boolean savePlain, final boolean tokenize, String name, Class<Type> clazz) {
 		if (!Serializable.class.isAssignableFrom(clazz)) throw new IllegalArgumentException("Class must be serializable");
 		if (name.length() > 80) throw new IllegalArgumentException("The name is too long. A maximum of 80 chars is allowed.");
 		this.index = index;
 		this.savePlain = savePlain;
+		this.tokenize = tokenize;
 		this.name = name;
 		this.clazz = clazz; 
 	}
@@ -36,6 +39,10 @@ public final class Field<Type extends Serializable> implements Comparable<Field<
 	
 	public final boolean isSavePlain() {
 		return this.savePlain;
+	}
+	
+	public final boolean isTokenize() {
+		return this.tokenize;
 	}
 	
 	public final Class<Type> getType() {
@@ -71,6 +78,8 @@ public final class Field<Type extends Serializable> implements Comparable<Field<
 			sb.append(" indexed");
 		if (this.savePlain)
 			sb.append(" savedPlain");
+		if (this.tokenize)
+			sb.append(" tokenize");
 		return sb.toString();
 	}
 	
@@ -83,11 +92,13 @@ public final class Field<Type extends Serializable> implements Comparable<Field<
 		String clazzName = m.group(2);
 		boolean index = m.group(3) != null;
 		boolean savePlain = m.group(4) != null;
+		boolean tokenize = m.group(5) != null;
 		
 		try {
 			return new Field(
 					index,
 					savePlain,
+					tokenize,
 					name,
 					Thread.currentThread().getContextClassLoader().loadClass(clazzName)
 			);
