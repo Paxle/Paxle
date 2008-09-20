@@ -982,9 +982,18 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 					while (CommandDB.this.sink == null) this.wait();
 				}			
 				
+				final int chunkSize = 10;
 				List<ICommand> commands = null;
 				while(!Thread.currentThread().isInterrupted()) {
-					commands = CommandDB.this.fetchNextCommands(10);
+					
+					final long time = System.currentTimeMillis();
+					commands = CommandDB.this.fetchNextCommands(chunkSize);
+					if (logger.isDebugEnabled())
+						logger.debug(String.format("fetched new chunk of %d (%d requested) new URLs to crawl in %d ms",
+								Integer.valueOf(commands.size()),
+								Integer.valueOf(chunkSize),
+								Long.valueOf(System.currentTimeMillis() - time)));
+					
 					if (commands != null && commands.size() > 0) {
 						for (ICommand command : commands) {
 							// notify the command-tracker about the creation of the command
