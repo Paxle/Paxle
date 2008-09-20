@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>DesktopIntegration</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - UI: DesktopIntegration</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -65,6 +65,7 @@
 							org.paxle.desktop.impl,
 							org.paxle.desktop.impl.dialogues,
 							org.paxle.desktop.impl.dialogues.settings,
+							org.paxle.desktop.impl.dialogues.stats,
 							org.paxle.desktop.impl.event
 						</Private-Package>
 						<DynamicImport-Package>

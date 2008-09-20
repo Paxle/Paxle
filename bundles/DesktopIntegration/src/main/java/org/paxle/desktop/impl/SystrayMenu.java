@@ -34,7 +34,7 @@ public class SystrayMenu implements ActionListener {
 	private static final String CRAWL_RESUME = Messages.getString("systrayMenu.crawlResume"); //$NON-NLS-1$
 	
 	private static enum Actions {
-		SEARCH, BROWSE, CRAWL, CRAWLPR, CCONSOLE, SETTINGS, RESTART, QUIT
+		SEARCH, BROWSE, CRAWL, CRAWLPR, STATS, CCONSOLE, SETTINGS, RESTART, QUIT
 	}
 	
 	private static final Log logger = LogFactory.getLog(SystrayMenu.class);
@@ -122,19 +122,20 @@ public class SystrayMenu implements ActionListener {
 		this.services = services;
 		final IDIBackend backend = services.getBackend();
 		final IPopupMenu pm = backend.createPopupMenu(
-				this.searchItem 	= backend.createMenuItem(Messages.getString("systrayMenu.search"), Actions.SEARCH.name(), this),		// 0 //$NON-NLS-1$
-				null,																														// 1
-				this.browseItem		= backend.createMenuItem(Messages.getString("systrayMenu.webinterface"), Actions.BROWSE.name(), this),	// 2 //$NON-NLS-1$
-				null,																														// 3
-				this.crawlItem 		= backend.createMenuItem(Messages.getString("systrayMenu.crawl"), Actions.CRAWL.name(), this),			// 4 //$NON-NLS-1$
-				this.crawlprItem 	= backend.createMenuItem(CRAWL_PAUSE,    Actions.CRAWLPR.name(),  this),								// 5
-				backend.createMenuItem(Messages.getString("systrayMenu.crawlingConsole"), Actions.CCONSOLE.name(), this),					// 6 //$NON-NLS-1$
-				null,																														// 7
-				backend.createMenuItem(Messages.getString("systrayMenu.settings"),        Actions.SETTINGS.name(), this),					// 8 //$NON-NLS-1$
-				null,																														// 9
+				this.searchItem 	= backend.createMenuItem(Messages.getString("systrayMenu.search"), Actions.SEARCH.name(), this),		//  0 //$NON-NLS-1$
+				null,																														//  1
+				this.browseItem		= backend.createMenuItem(Messages.getString("systrayMenu.webinterface"), Actions.BROWSE.name(), this),	//  2 //$NON-NLS-1$
+				null,																														//  3
+				this.crawlItem 		= backend.createMenuItem(Messages.getString("systrayMenu.crawl"), Actions.CRAWL.name(), this),			//  4 //$NON-NLS-1$
+				this.crawlprItem 	= backend.createMenuItem(CRAWL_PAUSE,    Actions.CRAWLPR.name(),  this),								//  5
+				backend.createMenuItem(Messages.getString("systrayMenu.crawlingConsole"), Actions.CCONSOLE.name(), this),					//  6 //$NON-NLS-1$
+				null,																														//  7
+				backend.createMenuItem(Messages.getString("systrayMenu.statistics"),      Actions.STATS.name(),    this),					//  8 //$NON-NLS-1$
+				backend.createMenuItem(Messages.getString("systrayMenu.settings"),        Actions.SETTINGS.name(), this),					//  9 //$NON-NLS-1$
+				null,																														// 10
 				backend.createMenuItem(Messages.getString("systrayMenu.restart"), 		  Actions.RESTART.name(),  this), //$NON-NLS-1$
 				backend.createMenuItem(Messages.getString("systrayMenu.quit"), 			  Actions.QUIT.name(),     this)); //$NON-NLS-1$
-		pm.addPopupMenuListener(new PopupMenuUpdater(9));
+		pm.addPopupMenuListener(new PopupMenuUpdater(10));
 		
 		systray = backend.getSystemTray();
 		systray.add(ti = backend.createTrayIcon(new ImageIcon(iconResource), Messages.getString("systrayMenu.tray"), pm)); //$NON-NLS-1$
@@ -266,6 +267,10 @@ public class SystrayMenu implements ActionListener {
 						}
 					}
 				} break;
+				
+				case STATS:
+					services.openDialogue(Dialogues.STATS);
+					break;
 				
 				case CCONSOLE:
 					services.openDialogue(Dialogues.CCONSOLE);

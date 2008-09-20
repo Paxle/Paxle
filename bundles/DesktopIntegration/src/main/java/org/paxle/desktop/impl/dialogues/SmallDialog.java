@@ -80,7 +80,7 @@ public class SmallDialog extends JDialog implements Runnable {
 		panel.add(this.text, BorderLayout.CENTER);
 		panel.add(this.btn, BorderLayout.EAST);
 		super.setContentPane(panel);
-		Utilities.setDialogProps(this, panel, null, DIALOG_DIMENSION, false, Utilities.LOCATION_CENTER, btn, new DWindowListener());
+		Utilities.setDialogProps(this, panel, null, DIALOG_DIMENSION, false, Utilities.LOCATION_CENTER, btn, null, false, new DWindowListener());
 		
 		this.btn.addActionListener(new BtnListener());
 		this.text.addKeyListener(new TextListener());

@@ -52,11 +52,11 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	private final FilterListsComboBoxModel flm;
 	private final JComboBox listSelCBox;
 	private final JList itemList = new JList();
-	private final JButton listAddB = Utilities.createButton("Create", this, AC_LIST_CREATE, null);
-	private final JButton listDelB = Utilities.createButton("Delete", this, AC_LIST_DELETE, null);
-	private final JButton itemAddB = Utilities.createButton("Add Entry", this, AC_ITEM_ADD, null);
-	private final JButton itemDelB = Utilities.createButton("Remove Entry", this, AC_ITEM_DEL, null);
-	private final JButton itemEditB = Utilities.createButton("Edit Entry", this, AC_ITEM_EDIT, null);
+	private final JButton listAddB = Utilities.setButtonProps(new JButton(), "Create", this, AC_LIST_CREATE, -1, null);
+	private final JButton listDelB = Utilities.setButtonProps(new JButton(), "Delete", this, AC_LIST_DELETE, -1, null);
+	private final JButton itemAddB = Utilities.setButtonProps(new JButton(), "Add Entry", this, AC_ITEM_ADD, -1, null);
+	private final JButton itemDelB = Utilities.setButtonProps(new JButton(), "Remove Entry", this, AC_ITEM_DEL, -1, null);
+	private final JButton itemEditB = Utilities.setButtonProps(new JButton(), "Edit Entry", this, AC_ITEM_EDIT, -1, null);
 	private final JTextField itemF = new JTextField();
 	private final ListModel nullModel = new AbstractListModel() {
 		private static final long serialVersionUID = 1L;

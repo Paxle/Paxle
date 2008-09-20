@@ -13,6 +13,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
@@ -33,7 +34,6 @@ import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -45,7 +45,6 @@ import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.RootPaneContainer;
 import javax.swing.UIDefaults;
@@ -59,30 +58,23 @@ import javax.swing.text.JTextComponent;
 
 public class Utilities {
 	
-	public static final Point LOCATION_CENTER = new Point();
-	public static final Point LOCATION_BY_PLATFORM = new Point();
+	public static final Object LOCATION_CENTER = new Object();
+	public static final Object LOCATION_BY_PLATFORM = new Object();
 	private static final String KE_CLOSE = new String();
+	private static final String KE_CANCEL = new String();
+	private static final Point POINT_ORIGIN = new Point();
 	
-	public static JToggleButton createToggleButton(final String text, final ActionListener al, final String actionCommand, final Icon icon) {
-		return setButtonProps(new JToggleButton(), text, al, actionCommand, icon);
-	}
-	
-	public static JButton createButton(final String text, final ActionListener al, final String actionCommand, final Icon icon) {
-		return setButtonProps(new JButton(), text, al, actionCommand, icon);
-	}
-	
-	public static JCheckBox createCheckBox(final String text, final ActionListener al, final String actionCommand, final Icon icon) {
-		return setButtonProps(new JCheckBox(), text, al, actionCommand, icon);
-	}
-	
-	private static <E extends AbstractButton> E setButtonProps(
+	public static <E extends AbstractButton> E setButtonProps(
 			final E b,
 			final String text,
 			final ActionListener al,
 			final String actionCommand,
+			final int mnemonic,
 			final Icon icon) {
 		b.setText(text);
 		b.setActionCommand(actionCommand);
+		if (mnemonic > 0)
+			b.setMnemonic(mnemonic);
 		if (al != null)
 			b.addActionListener(al);
 		if (icon != null)
@@ -135,7 +127,11 @@ public class Utilities {
 					break;
 				}
 			} else {
-				if (file.exists()) {
+				if (!file.getParentFile().canWrite()) {
+					msg = "Directory " + file.getParent() + " not writable";
+					ctitle = "Cannot access directory";
+					error = true;
+				} else if (file.exists()) {
 					if (file.isDirectory()) {
 						msg = "File " + file + " is a directory.";
 						ctitle = "Invalid file selected";
@@ -190,16 +186,24 @@ public class Utilities {
 			final E frame,
 			final Container container,
 			final JButton defaultButton,
+			final JButton cancelButton,
 			final Dimension size,
-			final Point location) {
+			final Object location,
+			final boolean isMainWindow) {
 		if (frame instanceof RootPaneContainer) {
 			final RootPaneContainer rpc = (RootPaneContainer)frame;
 			final JRootPane rootPane = rpc.getRootPane();
 			if (defaultButton != null)
 				rootPane.setDefaultButton(defaultButton);
-			rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
-					KeyStroke.getKeyStroke('W', InputEvent.CTRL_DOWN_MASK), KE_CLOSE);
-			rootPane.getActionMap().put(KE_CLOSE, new WindowCloseAction(frame));
+			if (cancelButton == null) {
+				rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+						KeyStroke.getKeyStroke((isMainWindow) ? 'Q' : 'W', InputEvent.CTRL_DOWN_MASK), KE_CLOSE);
+				rootPane.getActionMap().put(KE_CLOSE, new WindowCloseAction(frame));
+			} else {
+				rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+						KeyStroke.getKeyStroke((isMainWindow) ? 'Q' : (char)27), KE_CANCEL);
+				rootPane.getActionMap().put(KE_CANCEL, new ButtonPressAction(cancelButton));
+			}
 			rpc.setContentPane(container);
 		}
 		
@@ -213,8 +217,15 @@ public class Utilities {
 			frame.setLocationByPlatform(true);
 		} else if (location == LOCATION_CENTER) {
 			centerOnScreen(frame);
+		} else if (location instanceof Point) {
+			frame.setLocation((Point)location);
+		} else if (location instanceof Rectangle) {
+			final Rectangle r = (Rectangle)location;
+			centerOn(frame, r.getSize(), r.getLocation());
+		} else if (location instanceof Component) {
+			centerOn(frame, (Component)location);
 		} else {
-			frame.setLocation(location);
+			throw new IllegalArgumentException("location is not of type java.awt.Component, java.awt.Dimension or java.awt.Point: " + location.getClass());
 		}
 	}
 	
@@ -227,8 +238,9 @@ public class Utilities {
 				final String name = m.getName();
 				if (!name.startsWith("add") || !name.endsWith("Listener"))
 					continue;
+				final Class<?> marg = pt[0];
 				for (final EventListener l : listeners) {
-					if (l != null && pt[0].isAssignableFrom(l.getClass())) try {
+					if (marg.isInstance(l)) try {
 						m.invoke(frame, l);
 					} catch (InvocationTargetException e) {
 						e.printStackTrace();
@@ -240,51 +252,43 @@ public class Utilities {
 		}
 	}
 	
-	public static void setFrameProps(
-			final Frame frame,
+	public static <E extends Frame> E setFrameProps(
+			final E frame,
 			final Container container,
 			final String title,
 			final Dimension size,
 			final boolean resizable,
-			final Point location,
+			final Object location,
 			final JButton defaultButton,
+			final boolean isMainWindow,
 			final EventListener... listeners) {
-		setWindowProps(frame, container, defaultButton, size, location);
+		setWindowProps(frame, container, defaultButton, null, size, location, isMainWindow);
 		frame.setTitle(title);
 		if (frame instanceof JFrame)
 			((JFrame)frame).setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		frame.setResizable(resizable);
 		addListeners(frame, listeners);
+		return frame;
 	}
 	
-	public static void setDialogProps(
-			final Dialog dialog,
+	public static <E extends Dialog> E setDialogProps(
+			final E dialog,
 			final Container container,
 			final String title,
 			final Dimension size,
 			final boolean resizable,
-			final Point location,
+			final Object location,
 			final JButton defaultButton,
+			final JButton cancelButton,
+			final boolean isMainWindow,
 			final EventListener... listeners) {
-		setWindowProps(dialog, container, defaultButton, size, location);
+		setWindowProps(dialog, container, defaultButton, cancelButton, size, location, isMainWindow);
 		dialog.setTitle(title);
 		if (dialog instanceof JDialog)
 			((JDialog)dialog).setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		dialog.setResizable(resizable);
 		addListeners(dialog, listeners);
-	}
-	
-	public static JFrame wrapIntoFrame(
-			final Container container,
-			final String title,
-			final Dimension size,
-			final boolean resizable,
-			final Point location,
-			final JButton defaultButton,
-			final EventListener... listeners) {
-		final JFrame frame = new JFrame();
-		setFrameProps(frame, container, title, size, resizable, location, defaultButton, listeners);
-		return frame;
+		return dialog;
 	}
 	
 	public static class WindowCloseAction extends AbstractAction {
@@ -302,12 +306,60 @@ public class Utilities {
 		}
 	}
 	
-	public static final Insets DEFAULT_INSETS = new Insets(5, 5, 5, 5);
+	public static class ButtonPressAction extends AbstractAction {
+		
+		private static final long serialVersionUID = 1L;
+		
+		private final JButton btn;
+		private final int pressTime;
+		
+		public ButtonPressAction(final JButton btn) {
+			this(btn, 100);
+		}
+		
+		public ButtonPressAction(final JButton btn, final int pressTime) {
+			this.btn = btn;
+			this.pressTime = pressTime;
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			btn.doClick(pressTime);
+		}
+	}
+	
+	private static final GridBagConstraints gbc = new GridBagConstraints();
+	public static final Insets INSETS_DEFAULT = new Insets(5, 5, 5, 5);
+	public static final Insets INSETS_ZERO = gbc.insets;
+	static {
+		gbc.insets = INSETS_DEFAULT;
+	}
+	
+	public static <E extends Component> E addGridbag(final JComponent comp, final E obj, final int x, final int y) {
+		return addGridbag(comp, obj, x, y, gbc.gridwidth, gbc.gridheight, gbc.anchor, gbc.fill, 0.0, 0.0);
+	}
+	
+	public static JPanel addGridbagSpacer(final JComponent comp, final int x, final int y) {
+		return addGridbag(comp, new JPanel(), x, y, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, 1.0, 1.0);
+	}
+	
+	public static <E extends Component> E addGridbag(final JComponent comp, final E obj, final int x, final int y, final int width, final int height, final int align, final int fill, final double weightx, final double weighty) {
+		return addGridbag(comp, obj, x, y, width, height, align, fill, weightx, weighty, INSETS_DEFAULT);
+	}
+	
+	public static <E extends Component> E addGridbag(final JComponent comp, final E obj, final int x, final int y, final int width, final int height, final int align, final int fill, final double weightx, final double weighty, final Insets insets) {
+		gbc.gridx = x; gbc.gridy = y;
+		gbc.gridwidth = width; gbc.gridheight = height;
+		gbc.anchor = align; gbc.fill = fill;
+		gbc.weightx = weightx; gbc.weighty = weighty;
+		gbc.insets = insets;
+		comp.add(obj, gbc);
+		return obj;
+	}
 	
 	public static void showURLErrorMessage(final String message, final String url) {
 		final JButton close = new JButton("Close");
 		final JPanel panel = new JPanel(new GridBagLayout());
-		final JFrame frame = wrapIntoFrame(panel, "Error", null, false, LOCATION_CENTER, close);
+		final JFrame frame = setFrameProps(new JFrame(), panel, "Error", null, false, LOCATION_CENTER, close, false);
 		close.setAction(new WindowCloseAction(frame));
 		
 		final GridBagConstraints gbc = new GridBagConstraints();
@@ -317,7 +369,7 @@ public class Utilities {
 		gbc.gridheight = 2;
 		gbc.fill = GridBagConstraints.VERTICAL;
 		gbc.weighty = 1.0;
-		gbc.insets = DEFAULT_INSETS;
+		gbc.insets = INSETS_DEFAULT;
 		panel.add(new JLabel(def.getIcon("OptionPane.errorIcon")), gbc);
 		
 		gbc.gridx = 0;
@@ -350,7 +402,7 @@ public class Utilities {
 		frame.setVisible(true);
 	}
 	
-	public static void setTextLabelDefaults(final JTextComponent textComponent) {
+	public static <E extends JTextComponent> E setTextLabelDefaults(final E textComponent) {
 		final UIDefaults def = UIManager.getLookAndFeelDefaults();
 		textComponent.setFont(def.getFont("OptionPane.font"));
 		textComponent.setBackground(def.getColor("OptionPane.background"));
@@ -358,26 +410,31 @@ public class Utilities {
 		textComponent.setBorder(null);
 		textComponent.setEditable(false);
 		textComponent.setFocusable(false);
+		return textComponent;
 	}
 	
 	public static void centerOnScreen(final Component component) {
-		centerOn(component, Toolkit.getDefaultToolkit().getScreenSize());
+		centerOn(component, Toolkit.getDefaultToolkit().getScreenSize(), POINT_ORIGIN);
 	}
 	
 	public static void centerOn(final Component component, final Component parent) {
 		if (parent == null) {
 			centerOnScreen(component);
 		} else {
-			centerOn(component, parent.getSize());
+			centerOn(component, parent.getSize(), parent.getLocation());
 		}
 	}
 	
-	public static void centerOn(final Component component, final Dimension d) {
-		centerOn(component, component.getSize(), d);
+	public static void centerOn(final Component component, final Rectangle r) {
+		centerOn(component, r.getSize(), r.getLocation());
 	}
 	
-	public static void centerOn(final Component component, final Dimension cdim, final Dimension d) {
-		component.setLocation(Math.max(0, (d.width - cdim.width) / 2), Math.max(0, (d.height - cdim.height) / 2));
+	public static void centerOn(final Component component, final Dimension d, final Point off) {
+		centerOn(component, component.getSize(), d, off);
+	}
+	
+	public static void centerOn(final Component component, final Dimension cdim, final Dimension d, final Point off) {
+		component.setLocation(off.x + Math.max(0, (d.width - cdim.width) / 2), off.y + Math.max(0, (d.height - cdim.height) / 2));
 	}
 	
 	/* 
@@ -487,17 +544,17 @@ public class Utilities {
 		};
 		
 		final JPanel submitPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-		submitPanel.add(createButton(LBL_COPY2CLIPBRD, l, AC_CPY, null));
-		submitPanel.add(createButton(SHOW_TEXT, l, AC_HIDE, null));
+		submitPanel.add(setButtonProps(new JButton(), LBL_COPY2CLIPBRD, l, AC_CPY, -1, null));
+		submitPanel.add(setButtonProps(new JButton(), SHOW_TEXT, l, AC_HIDE, -1, null));
 		final JButton btnOk;
-		submitPanel.add(btnOk = createButton(LBL_OK, l, AC_OK, null));
+		submitPanel.add(btnOk = setButtonProps(new JButton(), LBL_OK, l, AC_OK, -1, null));
 		
 		final JPanel content = new JPanel();
 		content.setLayout(new BorderLayout());
 		content.add(displayPanel, BorderLayout.CENTER);
 		content.add(submitPanel, BorderLayout.SOUTH);
 		
-		setDialogProps(eb, content, LBL_TITLE, hiddenDim, true, null, btnOk);
+		setDialogProps(eb, content, LBL_TITLE, hiddenDim, true, null, btnOk, null, false);
 		centerOn(eb, parent);
 		eb.setVisible(true);
 	}

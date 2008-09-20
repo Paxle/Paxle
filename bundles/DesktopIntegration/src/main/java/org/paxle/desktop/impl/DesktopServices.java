@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
@@ -42,6 +43,7 @@ import org.paxle.desktop.Utilities;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.impl.dialogues.CrawlingConsole;
 import org.paxle.desktop.impl.dialogues.settings.SettingsPanel;
+import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel;
 
 public class DesktopServices implements IDesktopServices, ManagedService, ServiceListener {
 	
@@ -62,7 +64,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		public String getID() {
 			return String.format("org.paxle.%s", name().toLowerCase());
 		}
-		 
+		
 		public String toQuery() {
 			return toQuery(IMWComponent.COMPONENT_ID);
 		}
@@ -149,7 +151,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	public DesktopServices(final ServiceManager manager, final IDIBackend backend) {
 		this.manager = manager;
 		this.backend = backend;
-		try { manager.addServiceListener(this, FILTER); } catch (InvalidSyntaxException e) { e.printStackTrace(); }
+		try {
+			manager.addServiceListener(this, FILTER);
+			logger.info("added desktop-integration as service-listener for '" + FILTER  + "'");
+		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
 		initDS();
 	}
 	
@@ -204,6 +209,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	
 	private void serviceChanged(final ServiceReference ref, final int type) {
 		final Long id = (Long)ref.getProperty(Constants.SERVICE_ID);
+		logger.info("received service changed event for " + ref);
 		if (id == null) {
 			logger.error("(un)registered DIComponent has no valid service-id: " + ref);
 			return;
@@ -304,22 +310,24 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	}
 	
 	private Frame createDefaultFrame(final DIComponent container, final Long id) {
-		return Utilities.wrapIntoFrame(
+		return Utilities.setFrameProps(
+				new JFrame(),
 				container.getContainer(),
 				container.getTitle(),
 				container.getWindowSize(),
 				true,
 				Utilities.LOCATION_CENTER,
 				null,
+				false,
 				(id.longValue() < 0L) ? new FrameDICloseListener(container) : new FrameDICloseListener(id));
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void openDialogue(final Dialogues d) {
 		final DIComponent c;
 		switch (d) {
 			case CCONSOLE: c = new CrawlingConsole(this); break;
 			case SETTINGS: c = new SettingsPanel(this); break;
+			case STATS: c = new StatisticsPanel(this); break;
 			
 			default:
 				throw new RuntimeException("switch-statement does not cover " + d);
