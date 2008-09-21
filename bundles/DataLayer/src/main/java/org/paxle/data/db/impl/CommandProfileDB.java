@@ -136,4 +136,18 @@ public class CommandProfileDB implements ICommandProfileManager {
 			}			
 		}
 	}
+	
+	public void close() throws InterruptedException {
+		try {		
+			// close the DB
+			this.sessionFactory.close();
+		} catch (Throwable e) {
+			this.logger.error(String.format(
+					"Unexpected '%s' while tryping to shutdown %s: %s",
+					e.getClass().getName(),
+					this.getClass().getSimpleName(),
+					e.getMessage()
+			),e);
+		}		
+	}
 }
