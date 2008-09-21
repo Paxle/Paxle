@@ -595,13 +595,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 					}
 					this.domainBalancing.add(di);
 				}
-				
-				/* mark command as enqueued
-				 * TODO: we need a better mechanism to decide if a command was enqueued
-				 */
-				cmd.setResultText("Enqueued");
-				session.update(cmd);
-				
+
 				// add command-location into caches
 				this.putInDoubleURLs(cmd.getLocation());
 				Element element = new Element(cmd.getLocation(), null);
@@ -610,6 +604,16 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				result.add(cmd);
 			}
 			sr.close();
+			
+			/* 
+			 * Mark command as enqueued
+			 * TODO: we need a better mechanism to decide if a command was enqueued
+			 */			
+			if (result.size() > 0) {
+				session.createQuery(
+						"UPDATE ICommand cmd SET cmd.resultText = 'Enqueued' WHERE cmd in (:commands)"
+				).setParameterList("commands",result).executeUpdate();
+			}
 			
 			transaction.commit();
 		} catch (Exception e) {
