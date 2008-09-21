@@ -158,7 +158,7 @@
     		#if( $parser.isPaused() == true)
     			${text.parser.status.paused.insert("statusPaused")}
     		#else
-    			${text.parser.status.running.insert("statusPaused")}
+    			${text.parser.status.running.insert("statusRunning")}
     		#end
     		</p>
     	#end
