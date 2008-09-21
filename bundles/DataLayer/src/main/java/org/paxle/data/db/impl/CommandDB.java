@@ -34,8 +34,10 @@ import net.sf.ehcache.Status;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.CacheMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -559,7 +561,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			
 			Query query = session.getNamedQuery("fromCrawlerQueue");
 			query.setFetchSize(limit);
-			ScrollableResults sr = query.scroll(); // (ScrollMode.FORWARD_ONLY);
+			query.setCacheMode(CacheMode.IGNORE);
+			ScrollableResults sr = query.scroll(ScrollMode.FORWARD_ONLY); // (ScrollMode.FORWARD_ONLY);
 			
 			// loop through the available commands
 			while(sr.next() && result.size() < limit) {
@@ -591,7 +594,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				session.update(cmd);
 				
 				// add command-location into caches
-				putInDoubleURLs(cmd.getLocation());
+				this.putInDoubleURLs(cmd.getLocation());
 				Element element = new Element(cmd.getLocation(), null);
 				this.urlExistsCache.put(element);
 				
