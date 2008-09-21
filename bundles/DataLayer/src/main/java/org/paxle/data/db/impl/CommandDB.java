@@ -52,12 +52,10 @@ import org.paxle.core.data.IDataSource;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandProfile;
-import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.data.db.ICommandDB;
 
-public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, ICommandProfileManager, EventHandler {
+public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, EventHandler {
 	
 	private static final String CACHE_FILE = "doubleURLsCache.ser";
 	private static final String CACHE_NAME = "DoubleURLCache";
@@ -152,9 +150,6 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				// register an interceptor (required to support our interface-based command model)
 				this.config.setInterceptor(new InterfaceInterceptor());
 				
-				// configure caching
-				this.config.setProperty("hibernate.cache.provider_class", "net.sf.ehcache.hibernate.SingletonEhCacheProvider");
-				
 				// load the various mapping files
 				for (URL mapping : mappings) {
 					if (this.logger.isDebugEnabled()) this.logger.debug(String.format("Loading mapping file from URL '%s'.",mapping));
@@ -192,7 +187,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			// init/open the double URLs cache, initializes the bloom-filter
 			openDoubleURLSet();
 		} catch (Throwable e) {
-			e.printStackTrace();
+			this.logger.error(String.format(
+					"Unexpected '%s' while initializing the command-DB.",
+					e.getClass().getName()
+			),e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -878,62 +876,6 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
 			this.logger.error("Error while reseting queue.",e);
-		} finally {
-			// closing session
-			if (session != null) try { session.close(); } catch (Exception e) { 
-				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
-			}			
-		}
-	}
-	
-	/**
-	 * @see ICommandProfileManager#getProfileByID(int)
-	 */
-	public ICommandProfile getProfileByID(int profileID) {		
-		Session session = null;
-		Transaction transaction = null;
-		final Integer profileIDInt = Integer.valueOf(profileID);
-		try {
-			// open session and transaction
-			session = this.sessionFactory.openSession();
-			transaction = session.beginTransaction();
-			
-			// load profile
-			ICommandProfile profile = (ICommandProfile) session.load(ICommandProfile.class, profileIDInt);
-			transaction.commit();
-			return profile;
-		} catch (HibernateException e) {
-			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-			this.logger.error(String.format("Error while writing profile with ID '%d' to db.", profileIDInt),e);
-			throw e;
-		} finally {
-			// closing session
-			if (session != null) try { session.close(); } catch (Exception e) { 
-				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
-			}			
-		}
-	}
-	
-	/**
-	 * @see ICommandProfileManager#storeProfile(ICommandProfile)
-	 */
-	public void storeProfile(ICommandProfile profile) {
-		if (profile == null) throw new NullPointerException("Profile was null");
-		
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			// open session and transaction
-			session = sessionFactory.openSession();
-			transaction = session.beginTransaction();
-			
-			// store profile
-			session.saveOrUpdate(profile);			
-			transaction.commit();		
-		} catch (HibernateException e) {
-			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-			this.logger.error(String.format("Error while writing profile '%s' to db.", profile.getName()),e);
-			throw e;
 		} finally {
 			// closing session
 			if (session != null) try { session.close(); } catch (Exception e) { 
