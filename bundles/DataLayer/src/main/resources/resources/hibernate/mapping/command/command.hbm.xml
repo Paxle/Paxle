@@ -27,18 +27,21 @@
     	</property>
         
         <!-- the crawler document -->
-	    <many-to-one name="crawlerDocument" column="crawlerDocId" unique="true" cascade="all" embed-xml="true"/>
+<!--	    <many-to-one name="crawlerDocument" column="crawlerDocId" unique="true" cascade="all" embed-xml="true"/>-->
 	    
 	    <!-- the parser document -->
-	    <many-to-one name="parserDocument" column="parserDocId" unique="true" cascade="all" embed-xml="true"/>
+<!--	    <many-to-one name="parserDocument" column="parserDocId" unique="true" cascade="all" embed-xml="true"/>-->
 	    
+<!-- 
 	    <array name="IndexerDocuments" cascade="all" embed-xml="true">
       		<key column="commandId"/>
       		<list-index column="indexerDocIdx"/>
       		<one-to-many class="org.paxle.core.doc.IIndexerDocument"/>
     	</array>
+ -->	        	
     </class>
     
+<!-- 
     <query name="fromCrawlerQueue"><![CDATA[
 		FROM ICommand as cmd WHERE (cmd.result = 'Passed') AND (cmd.resultText is null) AND (cmd.crawlerDocument is null)
 	]]></query>
@@ -50,5 +53,10 @@
     <query name="fromIndexerQueue"><![CDATA[	
 		FROM ICommand as cmd LEFT JOIN cmd.IndexerDocuments as indexerDoc WHERE (cmd.parserDocument is not null) AND (indexerDoc is null)
 	]]></query>
+-->   	
+		
+    <query name="fromCrawlerQueue"><![CDATA[
+		FROM ICommand as cmd WHERE (cmd.result = 'Passed') AND (cmd.resultText is null)
+	]]></query>		
 		
 </hibernate-mapping>
