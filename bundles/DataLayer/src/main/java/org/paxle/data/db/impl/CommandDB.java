@@ -133,6 +133,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	private DynamicBloomFilter bloomFilter = null;
 	
 	public CommandDB(URL configURL, List<URL> mappings, ICommandTracker commandTracker) {
+		this(configURL, mappings, null, commandTracker);
+	}
+	
+	public CommandDB(URL configURL, List<URL> mappings, Properties extraProperties, ICommandTracker commandTracker) {
 		if (configURL == null) throw new NullPointerException("The URL to the hibernate config file is null.");
 		if (mappings == null) throw new NullPointerException("The list of mapping files was null.");
 		
@@ -151,6 +155,11 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				
 				// register an interceptor (required to support our interface-based command model)
 				this.config.setInterceptor(new InterfaceInterceptor());
+				
+				// merge weith additional properties
+				if (extraProperties != null) {
+					this.config.addProperties(extraProperties);
+				}
 				
 				// load the various mapping files
 				for (URL mapping : mappings) {
@@ -946,9 +955,9 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 								CommandDB.this.commandTracker.commandCreated(ICommandDB.class.getName(), command);
 							}
 							
-							//							System.out.println(CommandDB.this.isKnown(command.getLocation()));
+							// System.out.println(CommandDB.this.isKnown(command.getLocation()));
 							CommandDB.this.sink.putData(command);
-							//							commandToXML(command);
+							// commandToXML(command);
 						} 
 					} else {
 						// sleep for a while
