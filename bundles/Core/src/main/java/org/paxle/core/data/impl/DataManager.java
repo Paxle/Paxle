@@ -13,12 +13,37 @@ import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 
 public class DataManager<Data> implements IDataManager {
+	// TODO: we should make this configurable via CM
+	private static String[][] DATAPIPES = new String[][]{
+		{"org.paxle.crawler.source", "org.paxle.parser.sink"},
+		{"org.paxle.parser.source", "org.paxle.indexer.sink"}
+	};	
+	
+	private ArrayList<DataPipe<?>> dataPipes = new ArrayList<DataPipe<?>>();
 	private Hashtable<String, IDataSource<Data>> dataSources = new Hashtable<String, IDataSource<Data>>();
 	private Hashtable<String, IDataSink<Data>> dataSinks = new Hashtable<String, IDataSink<Data>>();
 	private Hashtable<String, List<IDataProvider<Data>>> dataProviders = new Hashtable<String, List<IDataProvider<Data>>>();
 	private Hashtable<String, List<IDataConsumer<Data>>> dataConsumers = new Hashtable<String, List<IDataConsumer<Data>>>();
 	
 	private Log logger = LogFactory.getLog(this.getClass());
+	
+	public DataManager() {
+		this.logger.info("Initializing pipes ...");
+		
+		// init data pipes
+		// TODO: this should be configurable via CM
+		for (String[] datapipe : DATAPIPES) {
+			this.pipeConnect(datapipe[0], datapipe[1]);
+		}
+	}
+	
+	public void close() throws InterruptedException {
+		// shutdown pipes
+		for (DataPipe<?> pipe : this.dataPipes) {
+			pipe.terminate();
+		}
+		this.dataPipes.clear();
+	}
 	
 	@SuppressWarnings("unchecked")
 	public void add(String ID, String interfaceName, Object service) {		
@@ -105,4 +130,24 @@ public class DataManager<Data> implements IDataManager {
 	public void remove(String ID) {
 		this.logger.error(String.format("Unable to remove %s. NOT IMPLEMENTED!",ID));
 	}
+	
+	
+	private void pipeConnect(String from, String to) {
+		this.logger.info(String.format("Create datapipe: %s -> %s",from,to));
+		
+		// create pipe
+		final DataPipe<Data> pipe = new DataPipe();
+		pipe.setName(String.format("Datapipe: %s -> %s", from,to));
+		this.dataPipes.add(pipe);
+		
+		// registering the pipes
+		this.add(from, IDataConsumer.class.getName(), pipe);
+		this.add(to, IDataProvider.class.getName(), pipe);
+		
+		// register it to the OSGi framework
+//		final Hashtable<String,String> props = new Hashtable<String,String>();
+//		props.put(IDataConsumer.PROP_DATACONSUMER_ID, from);
+//		props.put(IDataProvider.PROP_DATAPROVIDER_ID, to);
+//		context.registerService(new String[]{IDataConsumer.class.getName(),IDataProvider.class.getName()}, pipe, props);
+	}	
 }

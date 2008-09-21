@@ -56,8 +56,6 @@ public class Activator implements BundleActivator {
 	
 	private CommandProfileFilter profileFilter = null;
 	
-	private ArrayList<DataPipe<?>> pipes = new ArrayList<DataPipe<?>>();
-	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
@@ -65,11 +63,6 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		// init logger
 		this.logger = LogFactory.getLog(this.getClass());
-
-		/* =========================================================
-		 * INIT DATA-PIPES
-		 * ========================================================= */
-		this.createAndRegisterDataPipes(context);
 
 		/* =========================================================
 		 * INIT DATABASES
@@ -135,19 +128,6 @@ public class Activator implements BundleActivator {
 		}		
 		
 		return config;
-	}
-	
-	/**
-	 * TODO: we should move this into paxle-core
-	 */
-	private void createAndRegisterDataPipes(BundleContext context) {
-		this.logger.info("Initializing pipes ...");
-		
-		// this pipe connects the Crawler-Outqueue with the Parser-InQueue
-		this.pipeConnect(context, "org.paxle.crawler.source", "org.paxle.parser.sink");
-
-		// another pipe to connect the Parser-OutQueue with the Indexer-InQueue
-		this.pipeConnect(context, "org.paxle.parser.source", "org.paxle.indexer.sink");
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -225,27 +205,7 @@ public class Activator implements BundleActivator {
 		// shutdown command DB
 		if (this.commandDB != null) {
 			this.commandDB.close();
-		}
-		
-		// shutdown pipes
-		for (DataPipe<?> pipe : this.pipes) {
-			pipe.terminate();
-		}
-		this.pipes.clear();
+		}		
 	}
-	
-	private void pipeConnect(BundleContext context, String from, String to) {
-		this.logger.info(String.format("Create datapipe: %s -> %s",from,to));
-		
-		// create pipe
-		final DataPipe<?> pipe = new DataPipe();
-		pipe.setName(String.format("Datapipe: %s -> %s", from,to));
-		this.pipes.add(pipe);
-		
-		// register it to the OSGi framework
-		final Hashtable<String,String> props = new Hashtable<String,String>();
-		props.put(IDataConsumer.PROP_DATACONSUMER_ID, from);
-		props.put(IDataProvider.PROP_DATAPROVIDER_ID, to);
-		context.registerService(new String[]{IDataConsumer.class.getName(),IDataProvider.class.getName()}, pipe, props);
-	}
+
 }

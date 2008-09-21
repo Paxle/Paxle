@@ -1,4 +1,4 @@
-package org.paxle.data.impl;
+package org.paxle.core.data.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

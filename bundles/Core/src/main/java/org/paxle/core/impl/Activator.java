@@ -230,6 +230,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		// cleanup
 		this.tempFileManager = null;
 		this.referenceNormalizer = null;
+		this.dataManager.close();
 		this.dataManager = null;
 		this.filterManager = null;
 		if (this.commandTracker != null) {
