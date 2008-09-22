@@ -359,7 +359,15 @@
 									<version>1.0.12</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>com.springsource.org.jfree-1.0.9.jar</destFileName>										
-								</artifactItem>													
+								</artifactItem>
+								
+								<artifactItem>
+									<groupId>org.karlchenofhell</groupId>
+									<artifactId>swf</artifactId>
+									<version>0.1</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.karlchenofhell.swf-0.1.jar</destFileName>
+								</artifactItem>												
 
 								<!-- ==================================================================-->
 								<!-- APACHE FELIX - Dependencies                                       -->
@@ -547,7 +555,7 @@
 									<version>3.1.0</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
 									<destFileName>com.springsource.edu.emory.mathcs.backport-3.1.0.jar</destFileName>										
-								</artifactItem>								
+								</artifactItem>
 								-->
 							</artifactItems>
 						</configuration>
@@ -593,6 +601,7 @@
 				<module>../ParserFeed</module>
 				<module>../ParserXbel</module>
 				<module>../ParserSitemap</module>
+				<module>../ParserSWF</module>
 			</modules>			
 		</profile>
 		
