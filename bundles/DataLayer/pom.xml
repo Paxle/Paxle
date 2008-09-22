@@ -206,7 +206,14 @@
 			<artifactId>derby</artifactId>
 			<version>10.4.2.0</version>
 			<scope>test</scope>
-		</dependency>		
+		</dependency>
+		
+	<dependency>
+ 	   <groupId>com.h2database</groupId>
+ 	   <artifactId>h2</artifactId>
+	   <version>1.0.78</version>
+	   <scope>test</scope>
+	</dependency>
 		
 		<dependency>
 			<groupId>commons-io</groupId>

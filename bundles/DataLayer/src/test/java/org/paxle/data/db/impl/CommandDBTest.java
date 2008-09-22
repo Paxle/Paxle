@@ -28,7 +28,8 @@ public class CommandDBTest extends MockObjectTestCase {
 	 * @throws MalformedURLException 
 	 */
 	private URL getConfigFile() throws MalformedURLException {
-		final File derbyConfigFile = new File("../DataLayerDerby/src/main/resources/resources/hibernate/derby.cfg.xml");
+		//final File derbyConfigFile = new File("../DataLayerDerby/src/main/resources/resources/hibernate/derby.cfg.xml");
+		final File derbyConfigFile = new File("../DataLayerH2/src/main/resources/resources/hibernate/H2.cfg.xml");
 		assertTrue(derbyConfigFile.exists());
 		return derbyConfigFile.toURL();
 	}
@@ -59,8 +60,10 @@ public class CommandDBTest extends MockObjectTestCase {
 	 */
 	private Properties getExtraProperties() {
 		Properties props = new Properties();
-		props.put("connection.url", String.format("jdbc:derby:target/command-db;create=true"));
-		props.put("hibernate.connection.url", String.format("jdbc:derby:target/command-db;create=true"));
+		//props.put("connection.url", String.format("jdbc:derby:target/command-db;create=true"));
+		//props.put("hibernate.connection.url", String.format("jdbc:derby:target/command-db;create=true"));
+		props.put("connection.url", String.format("jdbc:h2:target/command-db/cdb"));
+		props.put("hibernate.connection.url", String.format("jdbc:h2:target/command-db/cdb"));
 		return props;
 	}
 	
