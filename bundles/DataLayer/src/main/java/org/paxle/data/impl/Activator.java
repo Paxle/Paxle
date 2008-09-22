@@ -140,7 +140,7 @@ public class Activator implements BundleActivator {
         }		
 		
 		// getting the mapping files to use
-		Enumeration<URL> mappingFileEnum = context.getBundle().findEntries("/resources/hibernate/mapping/command/", "*.hbm.xml", true);
+		Enumeration<URL> mappingFileEnum = context.getBundle().findEntries("/resources/hibernate/mapping/command/", "command.hbm.xml", true);
 		ArrayList<URL> mappings = Collections.list(mappingFileEnum);
 
 		// init command DB
