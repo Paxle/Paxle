@@ -24,6 +24,7 @@ public class BlacklistServlet extends ALayoutServlet {
 
 
 
+	@Override
 	public Template handleRequest( HttpServletRequest request,
 			HttpServletResponse response,
 			Context context ) {

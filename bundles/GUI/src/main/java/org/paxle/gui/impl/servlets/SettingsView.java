@@ -104,7 +104,7 @@ public class SettingsView extends ALayoutServlet {
 		
 		Map<String, String> pidBundleLocationTupel = new HashMap<String, String>();
 		if (bundleID != null && pid != null) {
-			Bundle bundle = manager.getBundle(Integer.valueOf(bundleID));
+			Bundle bundle = manager.getBundle(Integer.parseInt(bundleID));
 			pidBundleLocationTupel.put(pid, bundle.getLocation());
 		} else {		
 			// loop through all bundles to see if they contain manageable services			

@@ -174,7 +174,7 @@ public class JdicManager {
 				Method addURLMethod = URLClassLoader.class.getDeclaredMethod(
 						"addURL", new Class[] { URL.class });
 				addURLMethod.setAccessible(true);
-				addURLMethod.invoke(urlCl, new Object[] { jdicStubJarFile.toURL() });
+				addURLMethod.invoke(urlCl, new Object[] { jdicStubJarFile.toURI().toURL() });
 				return architecturePath;//return the native lib path
 			} catch (Throwable t) {
 				t.printStackTrace();

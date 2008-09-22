@@ -38,7 +38,7 @@ public class Log4jMemoryAppender extends AppenderSkeleton {
 		return false;
 	}
 
-	public Iterator getLog() {
+	public Iterator<?> getLog() {
 		return fifo.iterator();
 	}
 

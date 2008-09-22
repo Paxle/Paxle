@@ -58,7 +58,6 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		this.storageThread.start();
 	}
 
-	@SuppressWarnings("unchecked")
 	public void filter(ICommand command, IFilterContext context) {
 		if (command == null) return;
 

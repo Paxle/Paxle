@@ -11,7 +11,7 @@ public interface ISubCrawlerManager {
 	
 	/**
 	 * @param protocol the crawling-protocol
-	 * @return a {@link ISubCrawler crawler) supporting the given protocol.
+	 * @return a {@link ISubCrawler crawler} supporting the given protocol.
 	 */
 	public ISubCrawler getSubCrawler(String protocol);
 	
