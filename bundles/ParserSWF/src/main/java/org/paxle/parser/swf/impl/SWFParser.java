@@ -52,7 +52,7 @@ public class SWFParser extends ASubParser implements ISWFParser {
 			public void addText(String text, boolean isHTML) {
 				try {
 					if (isHTML) {
-						final ISubParser htmlParser = context.getParser("html/text");
+						final ISubParser htmlParser = context.getParser("text/html");
 						if (htmlParser == null) {
 							logger.warn("Cannot parse HTML content of SWF-file due to missing HTML-parser");
 						} else {
