@@ -75,7 +75,7 @@ class DatabasePanel extends Stats {
 			final Object docCount = getDocCount.invoke(indexSearcher);
 			lblDocsKnown.setText(String.format("%,d", docCount)); //$NON-NLS-1$
 			if (sds != null)
-				sds.addOrUpdate((Integer)docCount);
+				sds.addOrUpdate((Number)docCount);
 			return true;
 		} catch (Exception e) { e.printStackTrace(); }
 		return false;

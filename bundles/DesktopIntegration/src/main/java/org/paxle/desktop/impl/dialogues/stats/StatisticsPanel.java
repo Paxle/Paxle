@@ -4,7 +4,6 @@ package org.paxle.desktop.impl.dialogues.stats;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
@@ -73,9 +72,18 @@ public class StatisticsPanel extends TimerTask implements DIComponent {
 	}
 	
 	static interface StatsDataSink {
+		public static enum Locations {
+			TOP_OR_LEFT, BOTTOM_OR_LEFT, TOP_OR_RIGHT, BOTTOM_OR_RIGHT
+		}
+		public static enum Orientation {
+			HORIZONTAL, VERTICAL;
+		}
+		public void addOrUpdate(int idx, Number... data);
 		public void addOrUpdate(Number... data);
 		public void init(String title, String yDesc, String... names);
-		public BufferedImage getChartImage(int width, int height);
+		public Image getChartImage(int width, int height);
+		public void addPlot(final String yDesc, final long min, final long max, final Locations loc, final String... names);
+		public void finish(final String title, final Orientation orientation);
 	}
 	
 	private final List<? extends Stats> stats;
@@ -126,7 +134,7 @@ public class StatisticsPanel extends TimerTask implements DIComponent {
 		for (Bundle bundle : bundles) {
 			// create charts now if the jfree bundle is already installed
 			if (bundle.getSymbolicName().equalsIgnoreCase("com.springsource.org.jfree")) {
-				addCharts(services);
+				addCharts();
 				break;
 			}
 		}		
@@ -137,7 +145,7 @@ public class StatisticsPanel extends TimerTask implements DIComponent {
 				if (event.getBundle().getSymbolicName().equals("com.springsource.org.jfree")) {
 					if (event.getType() == BundleEvent.RESOLVED) {
 						// create the charts
-						addCharts(services);
+						addCharts();
 					} else if (event.getType() == BundleEvent.STOPPED || event.getType() == BundleEvent.UNINSTALLED) {
 						// remove the charts
 						removeCharts();
@@ -147,8 +155,8 @@ public class StatisticsPanel extends TimerTask implements DIComponent {
 		});
 	}
 	
-	private void addCharts(final DesktopServices services) {
-		final Charts charts = new Charts(services, MAX_AGE);
+	private void addCharts() {
+		final Charts charts = new Charts(MAX_AGE);
 		for (final Stats stat : stats)
 			if (stat.isStatsDataSupported())
 				stat.setStatsDataSink(charts.createDataSink());

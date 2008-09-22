@@ -421,18 +421,6 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	}
 	
 	public void startCrawl(final String location, final int depth) throws ServiceException {
-		// get the command-db object and it's method to enqueue the URI
-		final Object commandDB;
-		final Method enqueueCommand;
-		try {
-			commandDB = manager.getService(ICOMMANDDB);
-			if (commandDB == null)
-				throw new ServiceException("Command-DB", ICOMMANDDB);
-			enqueueCommand = commandDB.getClass().getMethod("enqueue", URI.class, int.class, int.class);
-		} catch (NoSuchMethodException e) {
-			throw new ServiceException("Command-DB", "enqueue(URI, int, int)");
-		}
-		
 		final IReferenceNormalizer refNormalizer = manager.getService(IReferenceNormalizer.class);
 		if (refNormalizer == null)
 			throw new ServiceException("Reference normalizer", IReferenceNormalizer.class.getName());
@@ -475,7 +463,15 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		if (id == null || cp.getOID() != id.intValue())
 			profileDepthMap.put(depthInt, Integer.valueOf(cp.getOID()));
 		
+		// get the command-db object and it's method to enqueue the URI
+		final Object commandDB;
+		final Method enqueueCommand;
 		try {
+			commandDB = manager.getService(ICOMMANDDB);
+			if (commandDB == null)
+				throw new ServiceException("Command-DB", ICOMMANDDB);
+			enqueueCommand = commandDB.getClass().getMethod("enqueue", URI.class, int.class, int.class);
+			
 			final Object result = enqueueCommand.invoke(commandDB, uri, Integer.valueOf(cp.getOID()), Integer.valueOf(0));
 			if (((Boolean)result).booleanValue()) {
 				logger.info("Initiated crawl of URL '" + uri + "'");

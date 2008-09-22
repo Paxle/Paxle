@@ -69,10 +69,11 @@ class MemoryPanel extends Stats implements ActionListener {
 	@Override
 	public void initChart() {
 		if (sds != null) {
-			sds.init(
-					Messages.getString("statisticsPanel.memory.chart.title"),
+			sds.addPlot(
 					Messages.getString("statisticsPanel.memory.chart.yDesc"),
-					Messages.getString("statisticsPanel.memory.chart.memUsed"));
+					0L, Runtime.getRuntime().maxMemory() / 1024 / 1024,
+					null, Messages.getString("statisticsPanel.memory.chart.memUsed"));
+			sds.finish(Messages.getString("statisticsPanel.memory.chart.title"), null);
 		}
 	}
 	

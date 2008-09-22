@@ -3,15 +3,11 @@ package org.paxle.desktop.impl.dialogues.stats;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
 
-import org.apache.commons.io.FileSystemUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;
@@ -21,36 +17,46 @@ import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.data.time.Minute;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.osgi.framework.ServiceReference;
-import org.paxle.core.IMWComponent;
-import org.paxle.desktop.impl.DesktopServices;
+import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel.StatsDataSink;
 
 public class Charts {
 	
-	private static final String TSERIES_INDEX_SIZE = "series.indexSize";
-	private static final String TSERIES_MEMORY_USAGE = "series.memoryUsage";
-	private static final String TSERIES_DISK_USAGE = "series.diskUsage";
-	private static final String TSERIES_PPM = "series.ppm.%s";
-	
 	private final class ChartsDataSink implements StatsDataSink {
 		
-		private final TimeSeriesCollection dataset = new TimeSeriesCollection();
+		private final List<TimeSeriesCollection> datasets = new ArrayList<TimeSeriesCollection>();
 		private JFreeChart chart = null;
+		private ArrayList<XYPlot> plots = new ArrayList<XYPlot>();
 		
-		public void addOrUpdate(final Number... data) {
+		public void addOrUpdate(final int idx, final Number... data) {
 			final Second second = new Second(new Date());
+			final TimeSeriesCollection dataset = datasets.get(idx);
 			for (int i=0; i<data.length; i++)
 				dataset.getSeries(i).addOrUpdate(second, data[i]);
 		}
 		
+		public void addOrUpdate(final Number... data) {
+			addOrUpdate(0, data);
+		}
+		
 		public void init(final String title, final String yDesc, final String... names) {
+			addPlot(yDesc, Long.MIN_VALUE, Long.MAX_VALUE, null, names);
+			finish(title, null);
+			
+		}
+		
+		public void addPlot(
+				final String yDesc,
+				final long min, final long max,
+				final Locations loc, final String... names) {
 			if (chart != null)
 				throw new IllegalStateException("already initialized");
+			
+			final TimeSeriesCollection dataset = new TimeSeriesCollection();
+			datasets.add(dataset);
 			
 			for (int i=0; i<names.length; i++) {
 				final TimeSeries ts = new TimeSeries(names[i], Second.class);
@@ -58,21 +64,65 @@ public class Charts {
 				dataset.addSeries(ts);
 			}
 			
-			/*
-			 * INIT CHART
-			 */        
-			chart = ChartFactory.createTimeSeriesChart(
-					title,
-					"Time", 
-					yDesc,
-					dataset,
-					true,
-					true,
-					false
-			);
-	        
-	        // change axis data format
-			((DateAxis) chart.getXYPlot().getDomainAxis()).setDateFormatOverride(new SimpleDateFormat("HH:mm"));
+			final NumberAxis memYAxis = new NumberAxis(yDesc);
+			if (min != Long.MIN_VALUE && max != Long.MAX_VALUE)
+				memYAxis.setRange(min, max);
+			
+			final XYPlot subplot = new XYPlot(dataset, null, memYAxis, new StandardXYItemRenderer());
+			if (loc != null) {
+				final AxisLocation al;
+				switch (loc) {
+					case BOTTOM_OR_LEFT: al = AxisLocation.BOTTOM_OR_LEFT; break;
+					case TOP_OR_LEFT: al = AxisLocation.TOP_OR_LEFT; break;
+					case BOTTOM_OR_RIGHT: al = AxisLocation.BOTTOM_OR_RIGHT; break;
+					case TOP_OR_RIGHT: al = AxisLocation.TOP_OR_RIGHT; break;
+					default:
+						throw new RuntimeException("unhandled case of location: " + loc);
+				}
+				subplot.setRangeAxisLocation(al);
+			}
+			plots.add(subplot);
+		}
+		
+		public void finish(final String title, final Orientation orientation) {
+			if (plots.size() == 0) {
+				return;
+			} else if (plots.size() == 1) {
+				chart = ChartFactory.createTimeSeriesChart(
+						title,
+						Messages.getString("statisticsPanel.chart.time"), 
+						plots.get(0).getRangeAxis().getLabel(),
+						plots.get(0).getDataset(),
+						true,
+						true,
+						false
+				);
+		        
+				// change axis data format
+				((DateAxis) chart.getXYPlot().getDomainAxis()).setDateFormatOverride(new SimpleDateFormat("HH:mm"));
+			} else {
+		        // parent plot...
+				final DateAxis dateAxis = new DateAxis(Messages.getString("statisticsPanel.chart.time"));
+				dateAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
+				final CombinedDomainXYPlot plot = new CombinedDomainXYPlot(dateAxis);
+		        plot.setBackgroundPaint(Color.white);
+		        plot.setGap(10.0);
+		        
+		        // add the subplots...
+		        for (final XYPlot subplot : plots)
+		        	plot.add(subplot);
+				
+		        if (orientation != null)
+		        	switch (orientation) {
+		        		case HORIZONTAL: plot.setOrientation(PlotOrientation.HORIZONTAL); break;
+		        		case VERTICAL: plot.setOrientation(PlotOrientation.VERTICAL); break;
+						default:
+							throw new RuntimeException("unhandled case of orientation: " + orientation);
+		        	}
+		        
+				chart = new JFreeChart(title, null, plot, true);
+			}
+			plots = null;
 		}
 		
 		public BufferedImage getChartImage(final int width, final int height) {
@@ -123,108 +173,13 @@ public class Charts {
 	}
 	*/
 	
-	private final DesktopServices services;
-	
-	/**
-	 * For logging
-	 */
-	private final Log logger = LogFactory.getLog(this.getClass());
-	
-	/**
-	 * A map containing all {@link TimeSeries} that are filled by the {@link DataCollector}-thread
-	 */
-	private HashMap<String,TimeSeries> seriesMap = new HashMap<String,TimeSeries>();
-	
 	private final long maxAge;
 	
-	public Charts(final DesktopServices services, final long maxAge) {
-		this.services = services;
+	public Charts(final long maxAge) {
 		this.maxAge = maxAge;
 	}
 	
 	public StatsDataSink createDataSink() {
 		return new ChartsDataSink();
 	}
-	
-	private void updateMemoryChart() {
-		Runtime rt = Runtime.getRuntime();
-		long usedMem = (rt.totalMemory() - rt.freeMemory()) / ( 1024 * 1024);
-		long freeDisk = 0;
-		try {
-			freeDisk = FileSystemUtils.freeSpaceKb(new File("/").getCanonicalPath().toString());
-			freeDisk = freeDisk / 1024;
-		} catch (IOException e) {
-			this.logger.error(e);
-		}
-		
-		Minute minute = new Minute(new Date());
-		
-		TimeSeries usedmemSeries = this.seriesMap.get(TSERIES_MEMORY_USAGE);
-		if (usedmemSeries != null) {
-			usedmemSeries.addOrUpdate(minute,Long.valueOf(usedMem));
-		}
-		
-		TimeSeries freeDiskSeries = this.seriesMap.get(TSERIES_DISK_USAGE);
-		if (freeDiskSeries != null) {
-			freeDiskSeries.addOrUpdate(minute, Long.valueOf(freeDisk));
-		}
-	}
-	
-	private void updateIndexChart() {
-		try {
-			Object service = this.services.getServiceManager().getService("org.paxle.se.index.IIndexSearcher");
-			Integer docCount = (Integer) service.getClass().getMethod("getDocCount", (Class[])null).invoke(service, (Object[])null);
-			
-			TimeSeries indexSizeSeries = this.seriesMap.get(TSERIES_INDEX_SIZE); {
-				if (indexSizeSeries != null) indexSizeSeries.add(new Minute(new Date()), docCount);	
-			}
-		} catch (Throwable e) {
-			this.logger.error(e);
-		}
-	}
-	
-	private void updatePPMChart() {	
-		try {
-			Minute minute = new Minute(new Date());
-			
-			ServiceReference[] refs = this.services.getServiceManager().getServiceReferences("org.paxle.core.IMWComponent", "(component.ID=*)");
-			if (refs != null) {
-				for (ServiceReference ref : refs) {
-					String componentID = (String) ref.getProperty("component.ID");
-					IMWComponent<?> mw = this.services.getServiceManager().getService(ref, IMWComponent.class);
-					if (mw != null) {
-						TimeSeries series = this.seriesMap.get(String.format(TSERIES_PPM,componentID)); 
-						if (series != null) {
-							series.add(minute, mw.getPPM());
-						}
-					}
-				}
-			}	
-		} catch (Throwable e) {
-			this.logger.error(e);
-		}	
-	}
-	
-	class DataCollector extends Thread {
-		@Override
-		public void run() {
-			this.setName(this.getClass().getSimpleName());
-			
-			while(true) {
-				try {
-					// update charts
-					updateMemoryChart();
-					updatePPMChart();
-					updateIndexChart();
-					
-					// sleep for a while
-					Thread.sleep(60000);
-				} catch (InterruptedException e) {
-					logger.info(String.format("Interruption detected. Shutdown of %s finished.",this.getClass().getSimpleName()));
-					return;
-				}
-			}
-		}
-	}
-
 }
