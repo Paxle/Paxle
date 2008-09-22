@@ -7,6 +7,7 @@ import java.util.Hashtable;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.BundleListener;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceListener;
@@ -204,4 +205,12 @@ public class ServiceManager {
     public Bundle getBundle(long bundleID) {
         return this.context.getBundle(bundleID);
     }
+
+	public void addBundleListener(final BundleListener bundleListener) {
+		this.context.addBundleListener(bundleListener);
+	}
+	
+	public void removeBundleListener(final BundleListener bundleListener) {
+		this.context.removeBundleListener(bundleListener);
+	}
 }

@@ -54,26 +54,35 @@ class ActivityPanel extends Stats implements ActionListener {
 				BorderFactory.createEtchedBorder(),
 				Messages.getString("statisticsPanel.activity"))); //$NON-NLS-1$
 		
+		final GridBagConstraints gbcChart = new GridBagConstraints();
 		final GridBagConstraints gbcNums = new GridBagConstraints();
 		final GridBagConstraints gbcBtns = new GridBagConstraints();
 		final GridBagConstraints gbcDesc = new GridBagConstraints();
 		final GridBagConstraints gbcVals = new GridBagConstraints();
 		
-		gbcNums.gridx = 0; gbcNums.gridy = 0;
+		gbcChart.gridx = 0; gbcChart.gridy = 0;
+		gbcChart.gridwidth = 6;
+		gbcChart.insets = Utilities.INSETS_DEFAULT;
+		gbcChart.anchor = GridBagConstraints.CENTER;
+		
+		gbcNums.gridx = 0; gbcNums.gridy = 1;
 		gbcNums.insets = Utilities.INSETS_DEFAULT;
 		gbcNums.anchor = GridBagConstraints.CENTER;
 		
-		gbcBtns.gridx = 1; gbcBtns.gridy = 0;
+		gbcBtns.gridx = 1; gbcBtns.gridy = 1;
 		gbcBtns.insets = Utilities.INSETS_DEFAULT;
 		gbcBtns.anchor = GridBagConstraints.CENTER;
 		
-		gbcDesc.gridx = 2; gbcDesc.gridy = 0;
+		gbcDesc.gridx = 2; gbcDesc.gridy = 1;
 		gbcDesc.insets = Utilities.INSETS_DEFAULT;
 		gbcDesc.anchor = GridBagConstraints.WEST;
 		
-		gbcVals.gridx = 3; gbcVals.gridy = 0;
+		gbcVals.gridx = 3; gbcVals.gridy = 1;
 		gbcVals.insets = Utilities.INSETS_DEFAULT;
 		gbcVals.anchor = GridBagConstraints.WEST;
+		
+		// add chart
+		super.add(chart, gbcChart);
 		
 		// set title
 		super.add(new JLabel(Messages.getString("statisticsPanel.activity.num")), 		gbcNums); gbcNums.gridy++; //$NON-NLS-1$
@@ -98,6 +107,23 @@ class ActivityPanel extends Stats implements ActionListener {
 		}
 	}
 	
+	@Override
+	public boolean isStatsDataSupported() {
+		return true;
+	}
+	
+	@Override
+	public void initChart() {
+		if (sds != null) {
+			sds.init(
+					Messages.getString("statisticsPanel.activity.chart.title"),
+					Messages.getString("statisticsPanel.activity.chart.yDesc"),
+					Messages.getString("statisticsPanel.activity.chart.crawler"),
+					Messages.getString("statisticsPanel.activity.chart.parser"),
+					Messages.getString("statisticsPanel.activity.chart.indexer"));
+		}
+	}
+	
 	public void actionPerformed(ActionEvent e) {
 		final MWComponents mwComp = MWComponents.valueOf(e.getActionCommand());
 		final IMWComponent<?> comp = services.getMWComponent(mwComp);
@@ -116,6 +142,7 @@ class ActivityPanel extends Stats implements ActionListener {
 		
 		final MWComponents[] comps = MWComponents.values();
 		boolean anyOk = false;
+		final Number[] ppms = new Number[comps.length];
 		for (int i=0; i<comps.length; i++) {
 			lblsComp[i].setText(comps[i].toString());
 			
@@ -141,7 +168,9 @@ class ActivityPanel extends Stats implements ActionListener {
 					lblsStatus[i].setText((mwComps[0].isPaused())
 							? Messages.getString("statisticsPanel.activity.start")		//$NON-NLS-1$ 
 							: Messages.getString("statisticsPanel.activity.pause"));	//$NON-NLS-1$
-					lblsPPM[i].setText(Integer.toString(mwComps[0].getPPM()));
+					final int ppm = mwComps[0].getPPM();
+					lblsPPM[i].setText(Integer.toString(ppm));
+					ppms[i] = Integer.valueOf(ppm);
 					lblsActive[i].setText(Integer.toString(mwComps[0].getActiveJobCount()));
 					lblsEnqueued[i].setText(Integer.toString(mwComps[0].getEnqueuedJobCount()));
 					ok = true;
@@ -157,7 +186,10 @@ class ActivityPanel extends Stats implements ActionListener {
 			}
 			anyOk |= ok;
 		}
-			
+		
+		if (sds != null)
+			sds.addOrUpdate(ppms);
+		
 		return anyOk;
 	}
 }

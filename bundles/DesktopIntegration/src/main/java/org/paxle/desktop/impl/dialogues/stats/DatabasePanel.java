@@ -1,6 +1,4 @@
-/**
- * 
- */
+
 package org.paxle.desktop.impl.dialogues.stats;
 
 import java.awt.GridBagConstraints;
@@ -19,6 +17,8 @@ class DatabasePanel extends Stats {
 	
 	private static final long serialVersionUID = 1L;
 	
+	private static final String IINDEXER_SEARCHER = "org.paxle.se.index.IIndexSearcher"; //$NON-NLS-1$
+	
 	private final JLabel lblDocsKnown = new JLabel();
 	
 	private final DesktopServices services;
@@ -33,25 +33,49 @@ class DatabasePanel extends Stats {
 		super.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), Messages.getString("statisticsPanel.database"))); //$NON-NLS-1$
 		
 		final GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0; gbc.gridy = 0;
-		gbc.insets = Utilities.INSETS_DEFAULT;
-		gbc.anchor = GridBagConstraints.EAST;
 		
+		gbc.gridx = 0; gbc.gridy = 0;
+		gbc.gridwidth = 2;
+		gbc.insets = Utilities.INSETS_DEFAULT;
+		gbc.anchor = GridBagConstraints.CENTER;
+		super.add(chart, gbc);
+		
+		gbc.gridy++;
+		gbc.gridwidth = 1;
+		gbc.anchor = GridBagConstraints.EAST;
 		super.add(new JLabel(Messages.getString("statisticsPanel.database.docsKnown")), gbc); //$NON-NLS-1$
+		
 		gbc.gridx++;
 		gbc.anchor = GridBagConstraints.WEST;
 		super.add(lblDocsKnown, gbc);
 	}
 	
 	@Override
+	public boolean isStatsDataSupported() {
+		return services.getServiceManager().getService(IINDEXER_SEARCHER) != null;
+	}
+	
+	@Override
+	public void initChart() {
+		if (sds != null) {
+			sds.init(
+					Messages.getString("statisticsPanel.database.chart.title"),
+					Messages.getString("statisticsPanel.database.chart.yDesc"),
+					Messages.getString("statisticsPanel.database.chart.numDocs"));
+		}
+	}
+	
+	@Override
 	public boolean update() {
-		final Object indexSearcher = services.getServiceManager().getService("org.paxle.se.index.IIndexSearcher"); //$NON-NLS-1$
+		final Object indexSearcher = services.getServiceManager().getService(IINDEXER_SEARCHER);
 		if (indexSearcher == null)
 			return false;
 		try {
 			final Method getDocCount = indexSearcher.getClass().getMethod("getDocCount"); //$NON-NLS-1$
 			final Object docCount = getDocCount.invoke(indexSearcher);
 			lblDocsKnown.setText(String.format("%,d", docCount)); //$NON-NLS-1$
+			if (sds != null)
+				sds.addOrUpdate((Integer)docCount);
 			return true;
 		} catch (Exception e) { e.printStackTrace(); }
 		return false;
