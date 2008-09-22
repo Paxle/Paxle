@@ -15,6 +15,8 @@ import org.paxle.se.query.tokens.AToken;
 //TODO: how much more tokens can be supported with intelligen api-use? 
 //Need to split the Factory for different Sites?
 public class RssSearchQueryFactor extends IQueryFactory<String> {
+	
+	@Override
 	public String and(AToken[] token){
 		String result=new String(transformToken(token[0], this));
 		for(int i=1;i<token.length;i++)

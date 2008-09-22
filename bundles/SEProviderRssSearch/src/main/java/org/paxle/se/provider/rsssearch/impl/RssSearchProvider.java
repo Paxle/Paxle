@@ -1,5 +1,5 @@
-package org.paxle.se.provider.rsssearch.impl;
 
+package org.paxle.se.provider.rsssearch.impl;
 
 import java.io.IOException;
 import java.net.URL;
@@ -19,7 +19,12 @@ import de.nava.informa.impl.basic.Item;
 import de.nava.informa.parsers.FeedParser;
 
 public class RssSearchProvider implements ISearchProvider {
+	
+	// the paxle default
+	private static final String DEFAULT_CHARSET = "UTF-8";
+	
 	String feedURL;
+	
 	public RssSearchProvider(String feedURL){
 		this.feedURL=feedURL;
 		System.out.println(feedURL);
@@ -33,7 +38,7 @@ public class RssSearchProvider implements ISearchProvider {
 	        ChannelBuilder builder = new ChannelBuilder();   
 	        
 	        // parsing the rss/atom feed
-	        ChannelIF channel = FeedParser.parse(builder, new URL(String.format(feedURL, URLEncoder.encode(request))));
+	        ChannelIF channel = FeedParser.parse(builder, new URL(String.format(feedURL, URLEncoder.encode(request, DEFAULT_CHARSET))));
 	        Collection<Item> items = channel.getItems();
 	        Iterator<Item> it=items.iterator();
 	        int count=0;
