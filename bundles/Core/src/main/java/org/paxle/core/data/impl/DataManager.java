@@ -124,7 +124,9 @@ public class DataManager<Data> implements IDataManager {
 			List<IDataConsumer<Data>> consumerList = this.dataConsumers.get(ID);
 			if (consumerList == null) this.dataConsumers.put(ID, consumerList = new ArrayList<IDataConsumer<Data>>());
 			consumerList.add((IDataConsumer<Data>)service);
-		}		
+		} else {
+			throw new IllegalArgumentException("Unsupported interface detected: " + interfaceName);
+		}
 	}
 	
 	public void remove(String ID) {
@@ -136,18 +138,12 @@ public class DataManager<Data> implements IDataManager {
 		this.logger.info(String.format("Create datapipe: %s -> %s",from,to));
 		
 		// create pipe
-		final DataPipe<Data> pipe = new DataPipe();
+		final DataPipe<Data> pipe = new DataPipe<Data>();
 		pipe.setName(String.format("Datapipe: %s -> %s", from,to));
 		this.dataPipes.add(pipe);
 		
 		// registering the pipes
 		this.add(from, IDataConsumer.class.getName(), pipe);
 		this.add(to, IDataProvider.class.getName(), pipe);
-		
-		// register it to the OSGi framework
-//		final Hashtable<String,String> props = new Hashtable<String,String>();
-//		props.put(IDataConsumer.PROP_DATACONSUMER_ID, from);
-//		props.put(IDataProvider.PROP_DATAPROVIDER_ID, to);
-//		context.registerService(new String[]{IDataConsumer.class.getName(),IDataProvider.class.getName()}, pipe, props);
 	}	
 }
