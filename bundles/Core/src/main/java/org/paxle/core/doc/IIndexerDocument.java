@@ -24,9 +24,7 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	public static final Field<String>                   TITLE         = new Field<String>                   (true,  true,  true,  "Title",        String.class);
 	public static final Field<IIndexerDocument.Topic[]> TOPICS        = new Field<IIndexerDocument.Topic[]> (true,  true,  false, "Topics",       Topic[].class);
 	public static final Field<String>                   SNIPPET       = new Field<String>                   (true,  true,  true,  "Snippet",      String.class);
-	
-	public static final String xyz = "ddadfda";
-	
+		
     public int getOID(); 
     public void setOID(int OID);	
 	

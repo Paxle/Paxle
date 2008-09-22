@@ -254,7 +254,7 @@ public class ParserDocument implements IParserDocument {
 	public void setLanguages(Set<String> languages) {
 		HashSet<String> languageSet = new HashSet<String>(languages==null?0:languages.size());
 		if (languages != null) {
-			// loop throught the languages ant trim
+			// loop through the languages and trim
 			for(String language: languages) {
 				languageSet.add(language.trim());
 			}
