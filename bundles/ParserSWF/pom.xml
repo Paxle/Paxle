@@ -1,0 +1,108 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>ParserSWF</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - Parser: Shockwave Flash</name>
+	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>				
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<!-- localized bundle headers -->
+						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Name>%bundleName</Bundle-Name>
+						<Bundle-Description>%bundleDesc</Bundle-Description>
+						
+						<Bundle-Category>parser</Bundle-Category>
+						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
+						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
+						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+						
+						<Export-Package>
+							org.paxle.parser.swf;version="${pom.version}"
+						</Export-Package>
+						<Import-Package>
+							<!-- OSGi framework -->
+							org.osgi.framework;version="1.4",
+							<!-- Logging framework -->
+							org.apache.commons.logging,
+							<!-- Paxle Core -->
+							org.paxle.core.doc;version="[0.1.0,0.2.0)",
+							org.paxle.core.io;version="[0.1.0,0.2.0)",
+							org.paxle.core.io.temp;version="[0.1.0,0.2.0)", 
+							<!-- Paxle Parser Core -->
+							org.paxle.parser;version="[0.1.0,0.2.0)"
+						</Import-Package>
+						<DynamicImport-Package>
+							javax.imageio, 
+							javax.imageio.metadata, 
+							javax.imageio.stream,
+							javax.imageio.plugins.jpeg,
+							javax.swing,
+							javax.xml.parsers,
+							javax.xml.transform.*,
+							org.w3c.dom
+						</DynamicImport-Package>
+						<Private-Package>
+							org.paxle.parser.swf.impl
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.parser.swf.impl.Activator
+						</Bundle-Activator>
+						
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							swf;scope=compile|runtime
+						</Embed-Dependency>						
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>[,0.2.0)</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
+		</dependency>
+	
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>ParserCore</artifactId>
+			<version>[,0.2.0)</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.karlchenofhell</groupId>
+			<artifactId>swf</artifactId>
+			<version>0.1</version>
+		</dependency>
+	</dependencies>
+</project>
