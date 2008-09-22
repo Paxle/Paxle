@@ -271,6 +271,7 @@ span.error {
 }
 
 .logdebug {
+	color: white;
 	padding: 0 0 0 22px;
 	background-color: #0000A0;
 	background-image: url('/images/log-debug.png');
