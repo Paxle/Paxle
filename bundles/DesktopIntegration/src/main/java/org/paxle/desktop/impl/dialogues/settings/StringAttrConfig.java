@@ -27,7 +27,7 @@ class StringAttrConfig extends AbstractAttrConfig<String> {
 		final JTextArea a = super.createDescription(desc);
 		if (isPassword) try {
 			final Document doc = a.getDocument();
-			doc.insertString(doc.getLength(), Messages.getString("stringAttrConfig.pwdSavedUnencrypted"), null); //$NON-NLS-1$
+			doc.insertString(doc.getLength(), Messages.getString("settingsPanel.attrString.pwdSavedUnencrypted"), null); //$NON-NLS-1$
 		} catch (BadLocationException e) { e.printStackTrace(); }
 		return a;
 	}
