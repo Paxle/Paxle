@@ -57,7 +57,7 @@ public class LinkInfo {
 	public Status getStatus() {
 		String status = (String)this.props.get(STATUS);
 		if (status == null) return Status.OK;
-		return (Status) Status.valueOf(status);
+		return Status.valueOf(status);
 	}
 	
 	public boolean hasStatus(Status status) {

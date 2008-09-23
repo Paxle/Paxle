@@ -311,7 +311,8 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 								WeakReference<ICommand> cmdRef = null;
 								this.commandLocationTable.remove(commandURI);
 								cmdRef = this.commandIDTable.remove(commandID);
-								cmdRef.clear();
+								if (cmdRef != null)
+									cmdRef.clear();
 
 								this.logger.debug(String.format("Command [%06d] removed from destroyed map: %s",
 										commandID,

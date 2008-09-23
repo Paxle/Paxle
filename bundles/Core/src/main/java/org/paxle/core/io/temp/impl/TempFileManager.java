@@ -21,9 +21,12 @@ public class TempFileManager implements ITempFileManager {
 		this.deleteOnExit = deleteOnExit;
 	}
 	
+	public TempFileManager(final boolean deleteOnExit) {
+		this(new DefaultTempDir(), deleteOnExit);
+	}
+	
 	public TempFileManager() {
-		this.defaultDir = new DefaultTempDir();
-		this.deleteOnExit = true;
+		this(true);
 	}
 	
 	public void removeTempDirFor(String... classNames) {

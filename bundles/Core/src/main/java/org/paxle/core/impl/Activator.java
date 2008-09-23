@@ -104,7 +104,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		
 		filterManager = new FilterManager();
 		dataManager = new DataManager<ICommand>();
-		tempFileManager = new TempFileManager();
+		tempFileManager = new TempFileManager(false);
 		cryptManager = new CryptManager();
 		referenceNormalizer = new ReferenceNormalizer();
 				

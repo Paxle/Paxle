@@ -36,7 +36,6 @@ public class ResourceBundleTool implements IResourceBundleTool {
 	 * @param the locale of the default {@link ResourceBundle} file
 	 * @return a list of locale strings available for the given base-name
 	 */
-	@SuppressWarnings("unchecked")
 	public List<String> getLocaleList(String resourceBundleBase, Locale defaultLocale) {
 		if (resourceBundleBase == null) return Collections.emptyList();
 		
