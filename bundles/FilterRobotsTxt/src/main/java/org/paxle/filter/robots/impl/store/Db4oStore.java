@@ -132,6 +132,7 @@ public class Db4oStore implements IRuleStore {
 		@Override
 		public void run() {
 			try {
+				this.logger.info("Starting robots.txt DB cleanup.");
 				this.canceled = false;
 				final Date now = new Date();
 
@@ -161,7 +162,7 @@ public class Db4oStore implements IRuleStore {
 				}
 				db.commit();
 				
-				this.logger.debug(String.format(
+				this.logger.info(String.format(
 						"Robots.txt DB cleanup finished. %d entries removed.",
 						outdatedRobotsTxts.size()
 				));
