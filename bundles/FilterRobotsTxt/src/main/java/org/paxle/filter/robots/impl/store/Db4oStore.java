@@ -52,12 +52,12 @@ public class Db4oStore implements IRuleStore {
 	/**
 	 * A task to remove outdated {@link RobotsTxt} from the {@link #db}
 	 */
-	private final DBCleanupTask dbCleanupTask;
+	private DBCleanupTask dbCleanupTask;
 	
 	/**
 	 * {@link Timer} for the {@link #dbCleanupTask}
 	 */
-	private final Timer dbCleanupTimer;
+	private Timer dbCleanupTimer;
 	
 	public Db4oStore(Db4oService dboService, File path) {
 		this.dboService = dboService;
@@ -80,10 +80,14 @@ public class Db4oStore implements IRuleStore {
 				? Db4o.openFile(config, dbFile.toString())
 				: this.dboService.openFile(config, dbFile.toString());
 				
-		// create and init cleanup task
-		this.dbCleanupTask = new DBCleanupTask();
-		this.dbCleanupTimer = new Timer();
-		this.dbCleanupTimer.scheduleAtFixedRate(this.dbCleanupTask, 0, 30*60*1000);
+		// robots.txt cleanup can be skipped via variable
+		Boolean skipCleanup = Boolean.valueOf(System.getProperty("robots.Db4oStore.skipCleanup","false"));
+		if (!skipCleanup) {
+			// create and init cleanup task
+			this.dbCleanupTask = new DBCleanupTask();
+			this.dbCleanupTimer = new Timer();
+			this.dbCleanupTimer.scheduleAtFixedRate(this.dbCleanupTask, 0, 30*60*1000);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -103,8 +107,8 @@ public class Db4oStore implements IRuleStore {
 	}
 
 	public void close() throws IOException {
-		this.dbCleanupTimer.cancel();
-		this.dbCleanupTask.cancel();
+		if (this.dbCleanupTimer != null) this.dbCleanupTimer.cancel();
+		if (this.dbCleanupTask != null) this.dbCleanupTask.cancel();
 		db.close();
 	}
 	
