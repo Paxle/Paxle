@@ -999,7 +999,8 @@
 		<!-- datalayer bundles -->
 		<module>../DataLayer</module>
 		<module>../DataLayerDerby</module>
-								
+		<module>../DataLayerH2</module>	
+		
 		<!-- some filters -->
 		<module>../FilterBlacklist</module>
 		<module>../FilterRobotsTxt</module>						

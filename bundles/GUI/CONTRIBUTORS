@@ -51,11 +51,17 @@ user_add.png
 user_delete.png
 user_edit.png
 
-UNKNOWN, FIXME:
-button
-button_pressed
-favicon.ico
-header_bg
-nav-background
-reload
-openid_small_logo
+Randy Reddig
+He designed the logo for OpenID, wich can be used freely in advertising context, see http://openid.net/logos/
+We use it in /src/main/resources/resources/images/openid_small_logo.png.
+
+Markus Grotz
+He designed these graphics for Paxle. Distributed as PD, all in /src/main/resources/resources/images/:
+button.png
+button_pressed.png
+header_bg.png
+nav-background.png
+reload.png
+
+Martin Thelian
+He created the Paxle favicon in /src/main/resources/resources/images/favicon.ico. Distributed as PD. 

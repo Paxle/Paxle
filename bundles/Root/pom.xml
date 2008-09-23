@@ -104,9 +104,13 @@
 <!--					<aggregate>true</aggregate>-->
 					<tags>
                         <tag>TODO</tag>
+                        <tag>TO-DO</tag>
                         <tag>TODO:</tag>
+                        <tag>TO-DO:</tag>
+                        <tag>FIXME</tag>
+                        <tag>FIX-ME</tag>
                         <tag>FIXME:</tag>
-                        <tag>FIXME:</tag>
+                        <tag>FIX-ME:</tag>
                         <tag>XXX</tag>
                         <tag>XXX:</tag>
                         <tag>@deprecated</tag>						
