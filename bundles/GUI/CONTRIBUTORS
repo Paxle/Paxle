@@ -17,5 +17,45 @@ The license-statement is taken from http://www.opensearch.org/Community/OpenSear
 Mark James
 He distributes his Silk-Iconset under the Creative Commons Attribution 2.5 License.
 See his website: http://famfamfam.com/lab/icons/silk/
-The following icons are used or derived from his set:
+The following icons in /src/main/resources/resources/images/ are used or derived from his set:
+bullet_arrow_up.png
+chart_curve.png
+chart_pie.png
+cog.png
+computer.png
+control_pause.png
+control_play.png
+control_stop.png
+database.png
+group.png
+group_add.png
+group_delete.png
+group_edit.png
+link_add.png
+log-debug.png
+log-error.png
+log-info.png
+log-warning.png
+plugin.png
+plugin_add.png
+plugin_delete.png
+plugin_disabled.png
+plugin_edit.png
+plugin_error.png
+plugin_go.png
+plugin_link.png
+rssfeed.png
+server.png
+user.png
+user_add.png
+user_delete.png
+user_edit.png
 
+UNKNOWN, FIXME:
+button
+button_pressed
+favicon.ico
+header_bg
+nav-background
+reload
+openid_small_logo

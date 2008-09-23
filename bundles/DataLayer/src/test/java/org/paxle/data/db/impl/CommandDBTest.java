@@ -165,7 +165,7 @@ public class CommandDBTest extends MockObjectTestCase {
 		this.storeUnknownLocation();
 	}
 	
-	public void _testStoreUnknownLocationH2() throws MalformedURLException, InterruptedException {
+	public void testStoreUnknownLocationH2() throws MalformedURLException, InterruptedException {
 		// setup DB
 		this.setupDB(H2_CONFIG_FILE, H2_CONNECTION_URL);
 		
