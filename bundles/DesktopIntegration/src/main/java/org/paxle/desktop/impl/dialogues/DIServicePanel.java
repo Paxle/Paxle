@@ -1,6 +1,7 @@
 
 package org.paxle.desktop.impl.dialogues;
 
+import java.awt.Container;
 import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -16,11 +17,29 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 	
 	private static final long serialVersionUID = 1L;
 	
+	public static final String PANEL_SIZE = "windowSize";
+	
 	protected final DesktopServices services;
 	private final HashMap<Object,ServiceRegistration> regs = new HashMap<Object,ServiceRegistration>();
 	
 	public DIServicePanel(final DesktopServices services) {
+		this(services, null);
+	}
+	
+	public DIServicePanel(final DesktopServices services, final Dimension defaultWindowSize) {
 		this.services = services;
+		final String dimProp = services.getServiceManager().getServiceProperties().getProperty(getClass().getName() + "_" + PANEL_SIZE);
+		Dimension dim = null;
+		if (dimProp != null) {
+			final int sep = dimProp.indexOf(',');
+			if (sep != -1)
+				dim = new Dimension(
+						Integer.parseInt(dimProp.substring(0, sep)),
+						Integer.parseInt(dimProp.substring(sep + 1)));
+		}
+		if (dim == null)
+			dim = defaultWindowSize;
+		super.setPreferredSize(dim);
 	}
 	
 	protected synchronized <E> void registerService(final Object key, final E service, final Hashtable<String,?> properties, final Class<? super E>... clazzes) {
@@ -43,6 +62,10 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 		}
 	}
 	
+	public Container getContainer() {
+		return this;
+	}
+	
 	public abstract String getTitle();
 	
 	public Dimension getWindowSize() {
@@ -50,6 +73,8 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 	}
 	
 	public void close() {
+		final String dim = String.format("%d,%d", Integer.valueOf(super.getWidth()), Integer.valueOf(super.getHeight()));
+		services.getServiceManager().getServiceProperties().setProperty(getClass().getName() + "_" + PANEL_SIZE, dim);
 		unregisterServices();
 	}
 }

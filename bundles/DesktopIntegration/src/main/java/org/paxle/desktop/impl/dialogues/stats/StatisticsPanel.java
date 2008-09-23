@@ -1,8 +1,8 @@
 
 package org.paxle.desktop.impl.dialogues.stats;
 
-import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Image;
 import java.util.Arrays;
 import java.util.List;
@@ -21,14 +21,14 @@ import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
+import org.paxle.desktop.impl.dialogues.DIServicePanel;
 
-public class StatisticsPanel extends TimerTask implements DIComponent {
+public class StatisticsPanel extends DIServicePanel implements DIComponent, Runnable {
 	
 	private static final long serialVersionUID = 1L;
 	
 	static final String NA = Messages.getString("statisticsPanel.notAvailable"); //$NON-NLS-1$
 	
-	// TODO: automatically calculate these values based on the preferred size of the Stats-panels
 	private static final Dimension WINDOW_SIZE = new Dimension(700, 800);
 	
 	// TODO: make the values below configurable via CM
@@ -87,17 +87,19 @@ public class StatisticsPanel extends TimerTask implements DIComponent {
 	}
 	
 	private final List<? extends Stats> stats;
-	private final JPanel panel = new JPanel();
 	private final Timer timer = new Timer();
 	
 	public StatisticsPanel(final DesktopServices services) {
+		super(services, WINDOW_SIZE);
 		stats = Arrays.asList(
 				new MemoryPanel(),
 				new DatabasePanel(services),
 				new ActivityPanel(services));
 		initChartServlet(services);
+		((FlowLayout)super.getLayout()).setHgap(0);
+		((FlowLayout)super.getLayout()).setVgap(0);
 		for (final Stats s : stats)
-			panel.add(s);
+			super.add(s);
 		timer.schedule(new TimerTask() {
 			
 			private long lastUpdate = 0;
@@ -115,7 +117,6 @@ public class StatisticsPanel extends TimerTask implements DIComponent {
 	}
 	
 	// the update run method
-	@Override
 	public void run() {
 		for (final Stats s : stats)
 			s.update0();
@@ -168,19 +169,14 @@ public class StatisticsPanel extends TimerTask implements DIComponent {
 				stat.setStatsDataSink(null);
 	}
 	
-	public Dimension getWindowSize() {
-		return WINDOW_SIZE;
-	}
-	
+	@Override
 	public String getTitle() {
 		return Messages.getString("statisticsPanel.title"); //$NON-NLS-1$
 	}
 	
-	public Container getContainer() {
-		return panel;
-	}
-	
+	@Override
 	public void close() {
 		timer.cancel();
+		super.close();
 	}
 }

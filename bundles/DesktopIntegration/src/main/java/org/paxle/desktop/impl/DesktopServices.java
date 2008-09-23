@@ -314,7 +314,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 				new JFrame(),
 				container.getContainer(),
 				container.getTitle(),
-				container.getWindowSize(),
+				Utilities.SIZE_PACK,
 				true,
 				Utilities.LOCATION_CENTER,
 				null,

@@ -2,15 +2,11 @@
 package org.paxle.desktop.impl.dialogues;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
@@ -26,7 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
@@ -59,24 +54,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	
 	private static final long serialVersionUID = 1L;
 	
-	private class SaveActionRunnable implements Runnable {
-		public void run() {
-			final File file = Utilities.chooseSingleFile(CrawlingConsole.this, Messages.getString("crawlingConsole.saveAs"), false, null, true); //$NON-NLS-1$
-			if (file == null)
-				return;
-			FileWriter fw = null;
-			try {
-				fw = new FileWriter(file);
-				synchronized (sync) {
-					text.write(fw);
-				}
-			} catch (IOException e) {
-				logger.error("I/O-exception storing text contents", e); //$NON-NLS-1$
-				Utilities.showExceptionBox(Messages.getString("crawlingConsole.storeIOError"), e); //$NON-NLS-1$
-			} finally { if (fw != null) try { fw.close(); } catch (IOException e) { /* ignore */ } }
-		}
-	}
-	
 	private static final Dimension DIM_CCONSOLE = new Dimension(500, 400);
 	
 	private static final String PROP_DISPLAYED_MWCOMP = "displayedMWComp"; //$NON-NLS-1$
@@ -86,7 +63,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private static final String PROP_SHOW_DESTROYED = "showDestroyed"; //$NON-NLS-1$
 	
 	private static final String AC_CLEAR = new String();
-	private static final String AC_SAVE = new String();
 	private static final String AC_CRAWL = new String();
 	private static final String AC_SELECT = new String();
 	private static final String AC_ENQUEUED = new String();
@@ -114,15 +90,12 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	
 	private final Log           logger = LogFactory.getLog(CrawlingConsole.class);
 	private final JScrollPane   scroll = new JScrollPane();
-	private final JTextPane     text   = new JTextPane();
 	private final JButton       clear  = Utilities.setButtonProps(new JButton(), Messages.getString("crawlingConsole.clear"), this, AC_CLEAR, -1, null); //$NON-NLS-1$
-	private final JButton       save   = Utilities.setButtonProps(new JButton(), Messages.getString("crawlingConsole.save"), this, AC_SAVE, -1, null); //$NON-NLS-1$
 	private final JRadioButton  enc    = new JRadioButton(Messages.getString("crawlingConsole.urlEncoded")); //$NON-NLS-1$
 	private final JRadioButton  normal = new JRadioButton(Messages.getString("crawlingConsole.urlOriginal")); //$NON-NLS-1$
 	private final JCheckBox     cbEnq  = Utilities.setButtonProps(new JCheckBox(), Messages.getString("crawlingConsole.enqueued"), this, AC_ENQUEUED, -1, null); //$NON-NLS-1$
 	private final JCheckBox     cbDstr = Utilities.setButtonProps(new JCheckBox(), Messages.getString("crawlingConsole.rejected"), this, AC_DESTROYED, -1, null); //$NON-NLS-1$
-	private final Object        sync   = new Object();
-	// private final IntRingBuffer buf    = new IntRingBuffer(100);
+	
 	private final JToggleButton cpb    = Utilities.setButtonProps(new JToggleButton(), null, this, AC_CRAWL, -1, null);
 	private final JTable        table;
 	private final ConsoleTableModel model;
@@ -133,7 +106,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private boolean currentEnq, currentDstr;
 	
 	public CrawlingConsole(final DesktopServices services) {
-		super(services);
+		super(services, DIM_CCONSOLE);
 		cbox = new JComboBox(DesktopServices.MWComponents.humanReadableNames());
 		cbox.addActionListener(this);
 		tracker = services.getServiceManager().getService(ICommandTracker.class);
@@ -161,7 +134,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		props.put(PROP_TABLE_DISPLAY, model.type.name());
 		props.put(PROP_SHOW_ENQUEUED, Boolean.toString(cbEnq.isSelected()));
 		props.put(PROP_SHOW_DESTROYED, Boolean.toString(cbDstr.isSelected()));
-		System.out.println("closed CrawlingConsole: " + new Exception().getStackTrace()[1].toString()); //$NON-NLS-1$
+		logger.debug("closed CrawlingConsole: " + new Exception().getStackTrace()[1].toString()); //$NON-NLS-1$
 		super.close();
 	}
 	
@@ -207,18 +180,9 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		super.registerService(key, this, props, EventHandler.class);
 	}
 	
-	public Container getContainer() {
-		return this;
-	}
-	
 	@Override
 	public String getTitle() {
 		return Messages.getString("crawlingConsole.title"); //$NON-NLS-1$
-	}
-	
-	@Override
-	public Dimension getWindowSize() {
-		return DIM_CCONSOLE;
 	}
 	
 	private void updateCpb(final boolean paused, final boolean getState, final boolean setState) {
@@ -247,8 +211,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		final String ac = e.getActionCommand();
 		if (ac == AC_CLEAR) {
 			clear();
-		} else if (ac == AC_SAVE) {
-			new Thread(new SaveActionRunnable()).start();
 		} else if (ac == AC_CRAWL) {
 			updateCpb(cpb.isSelected(), false, true);
 		} else if (ac == AC_SELECT) {
@@ -266,7 +228,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private void clear() {
 		model.clear();
 		clear.setEnabled(false);
-		save.setEnabled(false);
 	}
 	
 	private void init(
@@ -291,7 +252,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		cbox.setActionCommand(AC_SELECT);
 		cbox.setSelectedIndex(comp.ordinal());
 		final JPanel bRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		bRight.add(save);
 		bRight.add(clear);
 		
 		final JPanel bbLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -407,7 +367,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 					break;
 			}
 			try {
-				System.out.println("uri: " + ((enc.isSelected()) ? URLDecoder.decode(uri, Charset.defaultCharset().name()) : uri)); //$NON-NLS-1$
+				logger.debug("uri: " + ((enc.isSelected()) ? URLDecoder.decode(uri, Charset.defaultCharset().name()) : uri)); //$NON-NLS-1$
 				row.add((enc.isSelected()) ? URLDecoder.decode(uri, Charset.defaultCharset().name()) : uri);
 			} catch (UnsupportedEncodingException e) { /* cannot happen as we use the default charset here */ }
 			
@@ -420,10 +380,8 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 					final Rectangle r = vp.getVisibleRect();
 					r.setLocation(0, table.getHeight());
 					vp.scrollRectToVisible(r);
-					if (!clear.isEnabled()) {
+					if (!clear.isEnabled())
 						clear.setEnabled(true);
-						save.setEnabled(true);
-					}
 				}
 			});
 		}

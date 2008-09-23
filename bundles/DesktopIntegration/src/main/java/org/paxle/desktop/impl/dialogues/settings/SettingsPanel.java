@@ -3,7 +3,6 @@ package org.paxle.desktop.impl.dialogues.settings;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -319,7 +318,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 	private JScrollPane optViewPanel;
 	
 	public SettingsPanel(final DesktopServices services) {
-		super(services);
+		super(services, DIM_SETTINGS);
 		final ServiceManager manager = services.getServiceManager();
 		this.cadmin = manager.getService(ConfigurationAdmin.class);
 		this.metatype = manager.getService(MetaTypeService.class);
@@ -327,18 +326,9 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		init();
 	}
 	
-	public Container getContainer() {
-		return this;
-	}
-	
 	@Override
 	public String getTitle() {
 		return Messages.getString("settingsPanel.title"); //$NON-NLS-1$
-	}
-	
-	@Override
-	public Dimension getWindowSize() {
-		return DIM_SETTINGS;
 	}
 	
 	private final class ActionRunnable extends DefaultListCellRenderer implements ListCellRenderer, ListSelectionListener, Runnable, ActionListener {

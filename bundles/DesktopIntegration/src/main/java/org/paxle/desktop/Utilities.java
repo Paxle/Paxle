@@ -60,6 +60,7 @@ public class Utilities {
 	
 	public static final Object LOCATION_CENTER = new Object();
 	public static final Object LOCATION_BY_PLATFORM = new Object();
+	public static final Dimension SIZE_PACK = new Dimension();
 	private static final String KE_CLOSE = new String();
 	private static final String KE_CANCEL = new String();
 	private static final Point POINT_ORIGIN = new Point();
@@ -207,10 +208,12 @@ public class Utilities {
 			rpc.setContentPane(container);
 		}
 		
-		if (size == null) {
-			frame.pack();
-		} else {
-			frame.setSize(size);
+		if (size != null) {
+			if (size == SIZE_PACK) {
+				frame.pack();
+			} else {
+				frame.setSize(size);
+			}
 		}
 		
 		if (location == null || location == LOCATION_BY_PLATFORM) {
@@ -359,7 +362,7 @@ public class Utilities {
 	public static void showURLErrorMessage(final String message, final String url) {
 		final JButton close = new JButton("Close");
 		final JPanel panel = new JPanel(new GridBagLayout());
-		final JFrame frame = setFrameProps(new JFrame(), panel, "Error", null, false, LOCATION_CENTER, close, false);
+		final JFrame frame = setFrameProps(new JFrame(), panel, "Error", Utilities.SIZE_PACK, false, LOCATION_CENTER, close, false);
 		close.setAction(new WindowCloseAction(frame));
 		
 		final GridBagConstraints gbc = new GridBagConstraints();
