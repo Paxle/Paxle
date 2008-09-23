@@ -6,5 +6,9 @@ package org.paxle.core.data;
 public interface IDataSource<Data> {
 	public static final String PROP_DATASOURCE_ID = IDataSource.class.getName() + ".id";	
 	
+	/**
+	 * Reads the next element from the data-source, waiting if no elements 
+	 * are available.
+	 */
 	public Data getData() throws Exception;
 }

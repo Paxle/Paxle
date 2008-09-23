@@ -22,11 +22,15 @@ public class OutputQueue<Data> extends AQueue<Data> implements IOutputQueue<Data
 	 */
 	public void enqueue(Data command) throws InterruptedException {
 		if (command == null) throw new NullPointerException("Command is null.");
+		
 		// add it to the out buffer
-		super.put(command);
+		this.queue.put(command);
 	}
 
+	/**
+	 * @see IDataSource#getData()
+	 */
 	public Data getData() throws InterruptedException {
-		return super.take();
+		return this.queue.take();
 	}
 }

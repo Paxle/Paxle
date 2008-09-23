@@ -117,6 +117,19 @@ public class CommandDBTest extends MockObjectTestCase {
 			System.out.println("New Command enqueued: " + cmd.getLocation().toASCIIString());
 			this.semaphore.release();
 		}
+
+		public int freeCapacity() throws Exception {
+			return -1;
+		}
+
+		public boolean freeCapacitySupported() {
+			return false;
+		}
+
+		public boolean offerData(ICommand cmd) throws Exception {
+			this.putData(cmd);
+			return true;
+		}
 	}
 
 	private void storeUnknownLocation() throws InterruptedException {
