@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import org.apache.commons.logging.Log;
@@ -96,37 +97,71 @@ public class Activator implements BundleActivator {
 		*/
 	}
 	
+	/**
+	 * We may have multiple datalayer-fragment-bundles installed. We try to find all available
+	 * config files here
+	 */
 	@SuppressWarnings("unchecked")
-	private URL getConfigURL(BundleContext context) throws MalformedURLException {
-		URL config = null;
+	private HashMap<String, URL> getAvailableConfigFiles(BundleContext context) {		
+		HashMap<String, URL> availableConfigs = new HashMap<String, URL>();
+		
 		this.logger.info("Trying to find db config files ...");
-
-		// we may have multiple datalayer-fragment-bundles installed
 		Enumeration<URL> configFileEnum = context.getBundle().findEntries("/resources/hibernate/", "*.cfg.xml", true);
 		if (configFileEnum != null) {				
-			ArrayList<URL> configFiles = Collections.list(configFileEnum);
-			this.logger.info(String.format("%d config-files found.", Integer.valueOf(configFiles.size())));
-		} else {
-			this.logger.info("No config files found");
+			ArrayList<URL> configFileURLs = Collections.list(configFileEnum);			
+			this.logger.info(String.format("%d config-file(s) found.", Integer.valueOf(configFileURLs.size())));
+			
+			for (URL configFileURL : configFileURLs) {
+				String file = configFileURL.getFile();
+				int idx = file.lastIndexOf("/");
+				if (idx != -1) file = file.substring(idx+1);
+				idx = file.indexOf(".");
+				if (idx != -1) file = file.substring(0,idx);
+				
+				availableConfigs.put(file, configFileURL);
+			}
 		}
+		
+		return availableConfigs;
+	}
+		
+	private URL getConfigURL(BundleContext context) throws MalformedURLException {
+		URL config = null;		
 
+		HashMap<String, URL> availableConfigs = this.getAvailableConfigFiles(context);
+		if (availableConfigs.size() == 0) {
+			String errorMsg = "No config files found";
+			this.logger.error(errorMsg);
+			throw new ExceptionInInitializerError(errorMsg);
+		}
 
 		/* 
 		 * Getting the config file to use 
 		 */
-		String configStr = System.getProperty("org.paxle.data.db.impl.CommandDB");
+		String configStr = System.getProperty("CommandDB.configFile");
 		if (configStr != null) {
-			this.logger.info("Loading db configuration from '" + configStr + "' ...");
-			config = new URL(configStr);				
+			// the user has choosen a custom config file via system-properties
+			if (availableConfigs.containsKey(configStr)) {
+				// the props value is a key (e.g. "derby")
+				config = availableConfigs.get(configStr);
+			} else {
+				// the props value is an URL
+				config = new URL(configStr);	
+			}
 		} else {						
-			this.logger.info("Loading db configuration from /resources/hibernate/derby.cfg.xml ...");
-//			System.err.println("class-getResource: " + this.getClass().getResource("/resources/hibernate/derby.cfg.xml"));
-//			System.err.println("context-getEntry: " + context.getBundle().getEntry("/resources/hibernate/derby.cfg.xml"));
-//			System.err.println("context-getEntry: " + context.getBundle().getResource("/resources/hibernate/derby.cfg.xml"));
-			config = context.getBundle().getResource("/resources/hibernate/derby.cfg.xml");
-//			config = new URL("bundle://15.0:1/resources/hibernate/derby.cfg.xml");
+			// using the default config file
+			if (availableConfigs.containsKey("derby")) {
+				config = availableConfigs.get("derby");
+			} else {
+				// just use the first found file
+				config = availableConfigs.values().iterator().next();
+			}
 		}		
 		
+		this.logger.info(String.format(
+				"Loading db configuration from '%s' ...",
+				config.toString()
+		));
 		return config;
 	}
 	
