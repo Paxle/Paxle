@@ -20,19 +20,14 @@ import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
 
 public class CommandDBTest extends MockObjectTestCase {
+	private static final String DERBY_CONFIG_FILE = "../DataLayerDerby/src/main/resources/resources/hibernate/derby.cfg.xml";
+	private static final String H2_CONFIG_FILE = "../DataLayerH2/src/main/resources/resources/hibernate/H2.cfg.xml";
+	
+	private static final String DERBY_CONNECTION_URL = "jdbc:derby:target/command-db;create=true";
+	private static final String H2_CONNECTION_URL = "jdbc:h2:target/command-db/cdb";
+	
 	private ICommandTracker cmdTracker;
 	private CommandDB cmdDB;
-	
-	/**
-	 * @return the hibernate config file to use
-	 * @throws MalformedURLException 
-	 */
-	private URL getConfigFile() throws MalformedURLException {
-		//final File derbyConfigFile = new File("../DataLayerDerby/src/main/resources/resources/hibernate/derby.cfg.xml");
-		final File derbyConfigFile = new File("../DataLayerH2/src/main/resources/resources/hibernate/H2.cfg.xml");
-		assertTrue(derbyConfigFile.exists());
-		return derbyConfigFile.toURL();
-	}
 	
 	/**
 	 * @return the hibernate mapping files to use
@@ -54,16 +49,24 @@ public class CommandDBTest extends MockObjectTestCase {
 		
 		return mappingFileURLs;
 	}
+		
+	/**
+	 * @return the hibernate config file to use
+	 * @throws MalformedURLException 
+	 */
+	private URL getConfigFile(String configFile) throws MalformedURLException {
+		final File derbyConfigFile = new File(configFile);
+		assertTrue(derbyConfigFile.exists());
+		return derbyConfigFile.toURL();
+	}	
 	
 	/**
 	 * @return additional properties that should be passed to hibernate
 	 */
-	private Properties getExtraProperties() {
+	private Properties getExtraProperties(String connectionString) {
 		Properties props = new Properties();
-		//props.put("connection.url", String.format("jdbc:derby:target/command-db;create=true"));
-		//props.put("hibernate.connection.url", String.format("jdbc:derby:target/command-db;create=true"));
-		props.put("connection.url", String.format("jdbc:h2:target/command-db/cdb"));
-		props.put("hibernate.connection.url", String.format("jdbc:h2:target/command-db/cdb"));
+		props.put("connection.url", connectionString);
+		props.put("hibernate.connection.url", connectionString);
 		return props;
 	}
 	
@@ -73,12 +76,14 @@ public class CommandDBTest extends MockObjectTestCase {
 		
 		// create a dummy command tracker
 		this.cmdTracker = mock(ICommandTracker.class);
-		
+	}
+	
+	private void setupDB(String hibernateConfigFile, String connectionURL) throws MalformedURLException {		
 		// create and init the command-db
 		this.cmdDB = new CommandDB(
-				this.getConfigFile(),
+				this.getConfigFile(hibernateConfigFile),
 				this.getMappingFiles(),
-				this.getExtraProperties(),
+				this.getExtraProperties(connectionURL),
 				this.cmdTracker		
 		);
 		
@@ -89,7 +94,7 @@ public class CommandDBTest extends MockObjectTestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		// close DB
-		this.cmdDB.close();
+		if (cmdDB != null) this.cmdDB.close();
 		
 		// delete data directory
 		File dbDir = new File("target/command-db");
@@ -114,7 +119,7 @@ public class CommandDBTest extends MockObjectTestCase {
 		}
 	}
 
-	public void testStoreUnknownLocation() throws InterruptedException {
+	private void storeUnknownLocation() throws InterruptedException {
 		final int MAX = 10;
 		
 		// command-tracker must be called MAX times
@@ -138,4 +143,20 @@ public class CommandDBTest extends MockObjectTestCase {
 		boolean acquired = s.tryAcquire(3, TimeUnit.SECONDS);
 		assertTrue(acquired);
 	}
+	
+	public void testStoreUnknonwLocationDerby() throws MalformedURLException, InterruptedException {
+		// setup DB
+		this.setupDB(DERBY_CONFIG_FILE, DERBY_CONNECTION_URL);
+		
+		// start test
+		this.storeUnknownLocation();
+	}
+	
+	public void _testStoreUnknonwLocationH2() throws MalformedURLException, InterruptedException {
+		// setup DB
+		this.setupDB(H2_CONFIG_FILE, H2_CONNECTION_URL);
+		
+		// start test
+		this.storeUnknownLocation();
+	}	
 }
