@@ -59,8 +59,9 @@ import org.paxle.data.db.ICommandDB;
 
 public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, EventHandler {
 	
-	private static final String CACHE_FILE = "doubleURLsCache.ser";
-	private static final String CACHE_NAME = "DoubleURLCache";
+	private static final String CACHE_DIR = "double-urls-caches";
+	private static final String BLOOM_CACHE_FILE = "doubleURLsCache.ser";
+	private static final String EHCACHE_NAME = "DoubleURLCache";
 	
 	private static final int MAX_IDLE_SLEEP = 60000;
 	private static final boolean USE_DOMAIN_BALANCING = false;
@@ -192,7 +193,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			this.manager = CacheManager.getInstance();
 			
 			// init a new cache 
-			this.urlExistsCache = new Cache(CACHE_NAME, 100000, false, false, 60*60, 30*60);
+			this.urlExistsCache = new Cache(EHCACHE_NAME, 100000, false, false, 60*60, 30*60);
 			this.manager.addCache(this.urlExistsCache);
 			
 			// init/open the double URLs cache, initializes the bloom-filter
@@ -220,7 +221,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	
 	private void closeDoubleURLSet() throws IOException {
 		final long start = System.currentTimeMillis();
-		final OutputStream fileOs = new FileOutputStream(new File(getDatabaseLocation(), CACHE_FILE));
+		final OutputStream fileOs = new FileOutputStream(new File(getCreateCacheDir(), BLOOM_CACHE_FILE));
 		DataOutputStream dataOs = null;
 		try {
 			dataOs = new DataOutputStream(new BufferedOutputStream(fileOs));
@@ -232,8 +233,28 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		} finally { ((dataOs == null) ? fileOs : dataOs).close(); }
 	}
 	
+	private File getCreateCacheDir() {
+		final File cacheDir = new File(CACHE_DIR);
+		if (!cacheDir.exists())
+			cacheDir.mkdirs();
+		return cacheDir;
+	}
+	
 	private void openDoubleURLSet() throws IOException {
-		final File serializedFile = new File(getDatabaseLocation(), CACHE_FILE);
+		File serializedFile = new File(getCreateCacheDir(), BLOOM_CACHE_FILE);
+		
+		if (!(serializedFile.exists() && serializedFile.canRead() && serializedFile.isFile())) {
+			final File oldFile = new File(getDatabaseLocation(), BLOOM_CACHE_FILE);
+			if (oldFile.exists() && oldFile.canRead() && oldFile.isFile()) {
+				serializedFile = oldFile;
+				oldFile.deleteOnExit();
+			} else {
+				logger.info("Serialized double URL set not found, populating cache from DB (this may take some minutes) ...");
+				bloomFilter = new DynamicBloomFilter(1437764, 10, 100000);	// creating a maximum false positive rate of 0.1 %
+				populateThread = new PopulateThread();
+				populateThread.start();
+			}	
+		}
 		if (serializedFile.exists() && serializedFile.canRead() && serializedFile.isFile()) {
 			logger.info("Serialized double URL set found, reading data");
 			final InputStream fileIs = new FileInputStream(serializedFile);
@@ -242,11 +263,6 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				bloomFilter = new DynamicBloomFilter();
 				bloomFilter.readFields(dataIs);
 			} finally { fileIs.close(); }
-		} else {
-			logger.info("Serialized double URL set not found, populating cache from DB (this may take some minutes) ...");
-			bloomFilter = new DynamicBloomFilter(1437764, 10, 100000);	// creating a maximum false positive rate of 0.1 %
-			populateThread = new PopulateThread();
-			populateThread.start();
 		}
 	}
 	
@@ -485,7 +501,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			if (saveDoubleURLsCache)
 				closeDoubleURLSet();
 			if (this.manager.getStatus().equals(Status.STATUS_ALIVE)) {
-				this.manager.removeCache(CACHE_NAME);
+				this.manager.removeCache(EHCACHE_NAME);
 				this.manager = null;
 			}
 		} catch (Throwable e) {
