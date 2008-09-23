@@ -157,7 +157,7 @@ public class CommandDBTest extends MockObjectTestCase {
 		assertTrue(acquired);
 	}
 	
-	public void testStoreUnknonwLocationDerby() throws MalformedURLException, InterruptedException {
+	public void testStoreUnknownLocationDerby() throws MalformedURLException, InterruptedException {
 		// setup DB
 		this.setupDB(DERBY_CONFIG_FILE, DERBY_CONNECTION_URL);
 		
@@ -165,7 +165,7 @@ public class CommandDBTest extends MockObjectTestCase {
 		this.storeUnknownLocation();
 	}
 	
-	public void _testStoreUnknonwLocationH2() throws MalformedURLException, InterruptedException {
+	public void _testStoreUnknownLocationH2() throws MalformedURLException, InterruptedException {
 		// setup DB
 		this.setupDB(H2_CONFIG_FILE, H2_CONNECTION_URL);
 		
