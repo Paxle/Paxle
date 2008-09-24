@@ -1,6 +1,7 @@
 package org.paxle.core.filter.impl;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.SortedSet;
@@ -9,12 +10,16 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Constants;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
+import org.osgi.service.metatype.MetaTypeProvider;
+import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.IFilterQueue;
 
-public class FilterManager implements IFilterManager {
+public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedService {
 	/**
 	 * A map containing a sorted list of {@link FilterContext filters} for each {@link IFilterQueue targer}-id 
 	 */
@@ -142,5 +147,20 @@ public class FilterManager implements IFilterManager {
 	
 	public SortedSet<FilterContext> getFilterContextSet(String queueID) {
 		return this.filters.get(queueID);
+	}
+
+	public String[] getLocales() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ObjectClassDefinition getObjectClassDefinition(String id, String locale) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void updated(Dictionary properties) throws ConfigurationException {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -149,9 +149,21 @@ public class FilterListener implements ServiceListener {
 			// get a reference to the filter
 			IFilter<ICommand> filter = (IFilter<ICommand>) this.context.getService(reference);	
 
+			// getting the filter PID
+			String filterPID = (String) reference.getProperty(Constants.SERVICE_PID);
+			if (filterPID == null) {
+				// generating a PID
+				filterPID = reference.getBundle().getSymbolicName() + "#" + filter.getClass().getName();
+			}
+			
 			// adding the filter to multiple targets
 			for (String targetID : targetIDs) {
-				this.filterManager.addFilter(this.generateFilterMetadata(serviceID,targetID, filter));
+				this.filterManager.addFilter(this.generateFilterMetadata(
+						filterPID,
+						serviceID,
+						targetID, 
+						filter
+				));
 			}
 
 			this.logger.info(String.format("Filter '%s' with serviceID '%s' registered.",filter.getClass().getName(), serviceID.toString()));			
@@ -207,8 +219,20 @@ public class FilterListener implements ServiceListener {
 		
 		return targetIDs.toArray(new String[targetIDs.size()]);
 	}
-
-	private FilterContext generateFilterMetadata(Long serviceID, String target, IFilter<ICommand> filter) {
+	
+	/**
+	 * @param filterPID persistent unique identifier for the filter 
+	 * @param serviceID temp. unique servicer ID needed for unregistration of the filter
+	 * @param target unique ID of the {@link IFilterQueue} the filter should be applied to
+	 * @param filter
+	 * @return
+	 */
+	private FilterContext generateFilterMetadata(
+			String filterPID,
+			Long serviceID, 
+			String target, 
+			IFilter<ICommand> filter
+	) {
 		Properties filterProps = new Properties();
 		String[] params = target.split(";");
 		String targetID = params[0].trim();
@@ -243,16 +267,19 @@ public class FilterListener implements ServiceListener {
 			}
 		}
 
-		FilterContext filterContext = new FilterContext(
+		final FilterContext filterContext = new FilterContext(
+				filterPID,
 				serviceID,
 				filter,
 				targetID,
 				filterPos,
 				filterProps
 		);
+		
 		filterContext.setTempFileManager(this.tempFileManager);
 		filterContext.setReferenceNormalizer(this.referenceNormalizer);
 		filterContext.setCommandProfileManagerTracker(this.cmdProfileManagerTracker);
+		
 		return filterContext;
 	}
 }

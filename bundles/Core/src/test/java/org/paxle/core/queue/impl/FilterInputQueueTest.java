@@ -22,6 +22,7 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 		final ICommand command = mock(ICommand.class);
 		final IFilter<ICommand> filter = mock(IFilter.class);
 		final IFilterContext filtercontext = new FilterContext(
+				Long.toString(System.currentTimeMillis()),
 				Long.valueOf(System.currentTimeMillis()),
 				filter,
 				"test",
@@ -72,6 +73,7 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 		final ICommand command = mock(ICommand.class);
 		final IFilter<ICommand> filter = mock(IFilter.class);
 		final IFilterContext filtercontext = new FilterContext(
+				Long.toString(System.currentTimeMillis()),
 				Long.valueOf(System.currentTimeMillis()),
 				filter,
 				"test",
