@@ -191,12 +191,27 @@
 		<plugins>
 			<!-- plugin to build eclipse-projects -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<configuration>
-					<downloadSources>true</downloadSources>
-				</configuration>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-eclipse-plugin</artifactId>
+			    <inherited>false</inherited>
+			
+			    <!--plugin configuration for the parent project -->
+			    <configuration>
+			        <!-- Workaround for http://jira.codehaus.org/browse/MECLIPSE-94 [^] -->
+			        <eclipseProjectDir>..</eclipseProjectDir>
+			    </configuration>
 			</plugin>
+			
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-eclipse-plugin</artifactId>
+			    <inherited>true</inherited>
+			
+			    <!--plugin configuration for inherited projects -->
+			    <configuration>
+			        <downloadSources>true</downloadSources>
+			    </configuration>
+			</plugin> 
 
 			<!-- java compiler -->
 			<plugin>
