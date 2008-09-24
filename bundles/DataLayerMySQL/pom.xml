@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>${project.version}</version>
+			<version>[,0.2.0)</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-pool</groupId>
