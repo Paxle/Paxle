@@ -237,6 +237,7 @@ public class FilterListener implements ServiceListener {
 		String[] params = target.split(";");
 		String targetID = params[0].trim();
 		int filterPos = 0;
+		boolean enabled = true;
 
 		if (params.length > 1) {
 			for (int i=1; i < params.length; i++) {
@@ -258,6 +259,9 @@ public class FilterListener implements ServiceListener {
 					 * add position to the filter-properties
 					 */
 					filterProps.setProperty(IFilter.PROP_FILTER_TARGET_POSITION, Integer.toString(filterPos));
+				} else if (key.equals(IFilter.PROP_FILTER_TARGET_DISABLED)) {
+					// defines if the filter is disabled per default
+					enabled = !Boolean.valueOf(val).booleanValue();
 				} else {
 					/*
 					 * Just take over the rest of the parameters
@@ -273,7 +277,7 @@ public class FilterListener implements ServiceListener {
 				filter,
 				targetID,
 				filterPos,
-				true,
+				enabled,
 				filterProps
 		);
 		

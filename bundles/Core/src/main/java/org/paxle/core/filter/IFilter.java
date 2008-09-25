@@ -35,6 +35,23 @@ public interface IFilter<C extends ICommand> {
 	public static final String PROP_FILTER_TARGET_POSITION = "pos";
 	
 	/**
+	 * Sub-property of {@link #PROP_FILTER_TARGET}. This can be used
+	 * to specify if the {@link IFilter filter} should be inactive by default
+	 * for the given {@link #PROP_FILTER_TARGET_POSITION position} within the 
+	 * filters-list of a {@link IFilterQueue}.
+	 * 
+	 * e.g.
+	 * <pre>
+	 * Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
+	 * filterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{String.format("org.paxle.parser.out; %s=%b", IFilter.PROP_FILTER_TARGET_DISABLED,Boolean.TRUE)});
+	 * bc.registerService(IFilter.class.getName(), new MyFilter(), filterProps);	
+	 * </pre>
+	 * 
+	 * If this sub-parameter is not defined the default value is <code>disabled=false</code>
+	 */
+	public static final String PROP_FILTER_TARGET_DISABLED = "diabled";
+	
+	/**
 	 * Function to process a given {@link ICommand} by a filter.
 	 * 
 	 * @param command the {@link ICommand} to process. Note that a filter receives all {@link ICommand}, 
