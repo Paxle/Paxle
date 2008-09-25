@@ -9,22 +9,31 @@
 ## ---------------------------------------------------------------------------------------
 ## Define some macros 
 #macro(filterlist $filterManager $queueID)
-	#set($filters = ${filterManager.getFilterContextSet($queueID)})
-	#if($filters)
+	#if(${filterManager.hasFilters($queueID)})
+		#set($filters = ${filterManager.getFilters($queueID)})
 		<p>${text.filters.found.insert(${filters.size()})}:</p>
 		
 		<table>
 		<tr>
 			<th>${text.filters.id}</th>
 			<th>${text.filters.name}</th>
+			<th>${text.filters.status}</th>
 		</tr>
 	    #foreach($filter in $filters)
 		<tr>
 		   <td>$velocityCount</td>
 		   <td>${filter.getFilter().getClass().getName()}</td>
+		   <td>#if(${filter.isEnabled()})
+					<span class="statusEnabled">${text.status.enabled}</span>
+				#else
+					<span class="statusDisabled">${text.status.disabled}</span>
+			    #end			
+		   </td>
 		</tr>
 		#end
 	   </table>
+	#else
+		<p>${text.filters.found.insert(0)}</p>
 	#end
 #end
 ## ---------------------------------------------------------------------------------------

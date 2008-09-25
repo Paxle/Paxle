@@ -68,7 +68,7 @@
 											#if($optionLabels && $listTool.size($optionLabels) > 0)
 												<select name="$attributeID"
 												#set($numOptions = $listTool.size($optionLabels))
-												#if($attribCardinality == 0 || $numOptions == 1)
+												#if($attribCardinality == 0)
 													size="1"
 												#else
 													multiple="multiple"

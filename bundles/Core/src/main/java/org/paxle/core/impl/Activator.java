@@ -1,10 +1,15 @@
 
 package org.paxle.core.impl;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,10 +18,14 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
-
+import org.osgi.service.metatype.MetaTypeProvider;
+import org.osgi.service.prefs.PreferencesService;
 import org.paxle.core.ICryptManager;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.data.IDataConsumer;
@@ -32,6 +41,7 @@ import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.IResourceBundleTool;
+import org.paxle.core.io.impl.ResourceBundleTool;
 import org.paxle.core.io.impl.ResourceBundleToolFactory;
 import org.paxle.core.io.temp.impl.CommandTempReleaser;
 import org.paxle.core.io.temp.impl.TempFileManager;
@@ -95,18 +105,28 @@ public class Activator implements BundleActivator, InvocationHandler {
 	private Log logger;
 	
 	/**
+	 * A tool to get all {@link Locale} for which a translation file exists for a given
+	 * {@link ResourceBundle} basename.
+	 */
+	private IResourceBundleTool rbTool = null;
+	
+	/**
+	 * A wrapper around the OSGI {@link PreferencesService}
+	 */
+	private IPropertiesStore propertyStore = null;
+	
+	/**
+	 * Properties of the core bundle.
+	 */
+	private Properties properties = null;
+	
+	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext bc) throws Exception {
 		// init logger
 		this.logger = LogFactory.getLog(this.getClass());
-		
-		filterManager = new FilterManager();
-		dataManager = new DataManager<ICommand>();
-		tempFileManager = new TempFileManager(false);
-		cryptManager = new CryptManager();
-		referenceNormalizer = new ReferenceNormalizer();
 				
 		logger.info("Starting ...");
 		System.out.println(
@@ -117,7 +137,18 @@ public class Activator implements BundleActivator, InvocationHandler {
 			    "\t/_/    \\__,_/_/|_/_/\\___/ \r\n" +
 			    "\r\n" +
 				"\tVersion: " + bc.getBundle().getHeaders().get(Constants.BUNDLE_VERSION)
-		);
+		);		
+		
+		this.rbTool = new ResourceBundleTool(bc.getBundle());
+						
+		this.propertyStore = this.createAndRegisterPropertyStore(bc);
+		
+		this.filterManager = this.createAndRegisterFilterManager(bc, this.rbTool, this.propertyStore);
+		
+		dataManager = new DataManager<ICommand>();
+		tempFileManager = new TempFileManager(false);
+		cryptManager = new CryptManager();
+		referenceNormalizer = new ReferenceNormalizer();
 
 		
 		/* ==========================================================
@@ -143,15 +174,9 @@ public class Activator implements BundleActivator, InvocationHandler {
 		// register the master-worker-factory as a service
 		bc.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(), null);
 		
-		// register the filter-manager as service
-		bc.registerService(IFilterManager.class.getName(), this.filterManager, null);
-		
 		// register crypt-manager
 		bc.registerService(ICryptManager.class.getName(), this.cryptManager, null);
 		IOTools.setTempFileManager(this.tempFileManager);
-		
-		// register property store
-		bc.registerService(IPropertiesStore.class.getName(), new PropertiesStore(), null);
 		
 		// register protocol-handlers listener which updates the table of known protocols for the reference normalization filter below
 		final ServiceListener protocolUpdater = new URLStreamHandlerListener(bc, ReferenceNormalizer.DEFAULT_PORTS);
@@ -191,6 +216,45 @@ public class Activator implements BundleActivator, InvocationHandler {
         }
         
         this.initEclipseApplication(bc);
+	}
+	
+	private IPropertiesStore createAndRegisterPropertyStore(BundleContext bc) {
+		// create a new store
+		IPropertiesStore propStore = new PropertiesStore();
+		
+		// register as OSGI service
+		bc.registerService(IPropertiesStore.class.getName(), propStore, null);
+				
+		return propStore;
+	}
+	
+	private FilterManager createAndRegisterFilterManager(BundleContext bc, IResourceBundleTool rbTool, IPropertiesStore propStore) throws IOException, ConfigurationException {
+		// getting the CM service
+		final ServiceReference cmRef = bc.getServiceReference(ConfigurationAdmin.class.getName());
+		final ConfigurationAdmin cm = (ConfigurationAdmin) bc.getService(cmRef);		
+		
+		// getting all locale for the manager
+		List<String> localeList = rbTool.getLocaleList(IFilterManager.class.getSimpleName(),Locale.ENGLISH);
+		
+		// getting the core-bundle properties
+		Properties coreProps = propStore.getProperties(bc);
+		
+		// creating filter-manager
+		FilterManager fManager = new FilterManager(
+				localeList.toArray(new String[localeList.size()]), 
+				cm.getConfiguration(FilterManager.PID),
+				coreProps
+		);
+		
+		// managed- and metatype-provider-service properties
+		Hashtable<String, Object> fManagerProps = new Hashtable<String, Object>();
+		fManagerProps.put(Constants.SERVICE_PID, FilterManager.PID);		
+		
+		// register the filter-manager as service
+		bc.registerService(IFilterManager.class.getName(), fManager, null);
+		bc.registerService(new String[]{ManagedService.class.getName(), MetaTypeProvider.class.getName()}, fManager, fManagerProps);
+		
+		return fManager;
 	}
 
 	private void initEclipseApplication(BundleContext bc) {
@@ -232,6 +296,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		this.referenceNormalizer = null;
 		this.dataManager.close();
 		this.dataManager = null;
+		this.filterManager.close();
 		this.filterManager = null;
 		if (this.commandTracker != null) {
 			this.commandTracker.terminate();

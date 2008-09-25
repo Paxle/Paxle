@@ -3,11 +3,15 @@ package org.paxle.core.filter;
 import java.net.URI;
 import java.util.Properties;
 
+import org.paxle.core.filter.impl.FilterContext;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfileManager;
 
+/**
+ * A {@link IFilterContext} is a {@link IFilter} applied to a specific {@link IFilterQueue} at a specific {@link #getFilterPosition() position}.
+ */
 public interface IFilterContext {	
 	/**
 	 * @return the position of the {@link #getFilter() filter} within the
@@ -31,6 +35,12 @@ public interface IFilterContext {
 	 * belongs to.
 	 */
 	public IFilter<ICommand> getFilter();
+	
+	/**
+	 * Specifies if this {@link FilterContext} was disabled by the user via configuration.
+	 * @return <code>true<code> if this {@link FilterContext} is active
+	 */
+	public boolean isEnabled();
 	
 	/**
 	 * @return some {@link #getTargetID() target-} and {@link #getFilterPosition() position-}

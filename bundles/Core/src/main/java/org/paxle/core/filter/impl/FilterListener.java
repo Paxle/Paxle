@@ -273,6 +273,7 @@ public class FilterListener implements ServiceListener {
 				filter,
 				targetID,
 				filterPos,
+				true,
 				filterProps
 		);
 		

@@ -30,6 +30,7 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 				filter,
 				"test",
 				0,
+				true,
 				null
 		);
 	}

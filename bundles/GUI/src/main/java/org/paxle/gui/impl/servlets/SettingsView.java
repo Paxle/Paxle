@@ -739,7 +739,7 @@ public class SettingsView extends ALayoutServlet {
 		// init result structure
 		Object finalAttributeValues = null;
 		if (cardinality != 0) {				
-			if (cardinality > 1) {
+			if (cardinality >= 1) {
 				int valueArraySize = Math.min(cardinality, (attributeValueStrings == null) ? 0 : attributeValueStrings.length);
 				
 				// the attribute-value-list must be an array of ....

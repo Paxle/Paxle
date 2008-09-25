@@ -71,13 +71,27 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	 */
 	private int pos = 0;
 	
+	/**
+	 * Specifies if this filterContext was disabled by the user via configuration
+	 */
+	private boolean enabled = true;
 	
+	/**
+	 * @param filterPID
+	 * @param serviceID
+	 * @param filterImpl
+	 * @param targetID
+	 * @param filterPos
+	 * @param enabled specifies if the {@link FilterContext} should be enabled by default
+	 * @param props additional properties accessible by the {@link Filter} via {@link #getFilterProperties()}
+	 */
 	public FilterContext(
 			String filterPID,
 			Long serviceID, 
 			IFilter<ICommand> filterImpl, 
 			String targetID, 
 			int filterPos, 
+			boolean enabled,
 			Properties props
 	) {
 		if (filterPID == null) throw new NullPointerException("The filterPID must not be null");
@@ -90,6 +104,7 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 		this.filterImpl = filterImpl;
 		this.targetID = targetID;
 		this.pos = filterPos;
+		this.enabled = enabled;
 		this.props = (props == null) ? new Properties() : props;
 	}
 	
@@ -102,13 +117,28 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	}
 	
 	/**
+	 * @return the unique PID of the {@link #filterImpl filter}. 
+	 */
+	String getFilterPID() {
+		return this.filterPID;
+	}
+	
+	public boolean isEnabled() {
+		return this.enabled;
+	}
+	
+	void setEnabled (boolean enabled) {
+		this.enabled = enabled;
+	}
+	
+	/**
 	 * @return the persistent unique PID of this {@link FilterContext} which is build in the following way:
 	 * <pre>
-	 * 	{@link #filterPID} + "#" + {@link #pos}
+	 * 	{@link #filterPID} + "@" + {@link #targetID} + "#" + {@link #pos}
 	 * </pre>
 	 */
 	String getFilterContextPID() {
-		return this.filterPID + "#" + Integer.toString(this.pos);
+		return this.filterPID + "#" + targetID + "#" + Integer.toString(this.pos);
 	}
 	
 	/**
