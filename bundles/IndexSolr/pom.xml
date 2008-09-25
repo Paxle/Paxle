@@ -1,0 +1,142 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>IndexSolr</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - Indexer: Solr</name>
+	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<!-- localized bundle headers -->
+						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Name>%bundleName</Bundle-Name>
+						<Bundle-Description>%bundleDesc</Bundle-Description>
+						
+						<Bundle-Category>indexer,searchengine-provider</Bundle-Category>										
+						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
+						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
+						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+						
+						<Export-Package>
+						</Export-Package>
+						<Import-Package>
+							<!-- OSGi framework -->
+							org.osgi.framework;version="1.4",
+							<!-- Logging framework -->
+							org.apache.commons.logging,
+							<!-- Paxle Core bundle -->
+							org.paxle.core.doc;version="[0.1.0,0.2.0)",
+							org.paxle.core.data;version="[0.1.0,0.2.0)",
+							org.paxle.core.queue;version="[0.1.0,0.2.0)",
+							org.paxle.core.io;version="[0.1.0,0.2.0)",
+							<!-- Paxle SearchEngine bundle -->
+							org.paxle.se.query;version="[0.1.0,0.2.0)", 
+							org.paxle.se.query.tokens;version="[0.1.0,0.2.0)", 
+							org.paxle.se.index;version="[0.1.0,0.2.0)", 
+							org.paxle.se.search;version="[0.1.0,0.2.0)",
+							<!-- Apache http-client -->
+							org.apache.commons.httpclient, 
+							org.apache.commons.httpclient.methods, 
+							org.apache.commons.httpclient.methods.multipart, 
+							org.apache.commons.httpclient.params, 
+							org.apache.commons.httpclient.util, 
+							<!-- Apache commons io -->
+							org.apache.commons.io, 
+							<!-- ignoring others -->
+							!javax.servlet.http, 
+							!javax.xml.stream, 
+							!org.apache.solr.core, 
+							!org.apache.solr.handler.admin, 
+							!org.apache.solr.request, 
+							!org.apache.solr.servlet, 
+							!org.mortbay.jetty, 
+							!org.mortbay.jetty.servlet, 
+							!org.mortbay.log, 
+							!org.w3c.dom							
+						</Import-Package>
+						<Private-Package>
+							org.paxle.se.index.solr.impl
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.se.index.solr.impl.Activator
+						</Bundle-Activator>
+
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							solr-solrj;scope=compile|runtime,
+							solr-common;scope=compile|runtime
+						</Embed-Dependency>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<!-- Paxle dependencies -->
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Indexer</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>SearchEngine</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!-- Apache Solr dependencies -->
+		<dependency>
+			<groupId>org.apache.solr</groupId>
+			<artifactId>solr-solrj</artifactId>
+			<version>1.3.0</version>
+		</dependency>		
+		<dependency>
+			<groupId>org.apache.solr</groupId>
+			<artifactId>solr-common</artifactId>
+			<version>1.3.0</version>
+		</dependency>
+		
+		<!-- Apache Commons HttpClient dependencies -->
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient-osgi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec-osgi</artifactId>
+		</dependency>
+	</dependencies>
+</project>
