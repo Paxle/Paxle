@@ -230,7 +230,8 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 					filterContext.setEnabled(false);
 				}
 			} else {
-				// nothind todo 
+				boolean enabled = enabledFilters.contains(filterContextPID);
+				filterContext.setEnabled(enabled);
 			}
 
 			// if the queue is already registered pass the filters to it
