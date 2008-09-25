@@ -4,11 +4,17 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.hamcrest.Description;
 import org.jmock.Expectations;
+import org.jmock.api.Action;
+import org.jmock.api.Invocation;
 import org.jmock.integration.junit3.MockObjectTestCase;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.impl.FilterContext;
+import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 
 public class FilterInputQueueTest extends MockObjectTestCase {
@@ -16,12 +22,9 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 	}
-
-	@SuppressWarnings("unchecked")
-	public void testDequeueRejectedCommand() throws Exception {
-		final ICommand command = mock(ICommand.class);
-		final IFilter<ICommand> filter = mock(IFilter.class);
-		final IFilterContext filtercontext = new FilterContext(
+	
+	private IFilterContext createDummyFilterContext(IFilter<ICommand> filter) {
+		return new FilterContext(
 				Long.toString(System.currentTimeMillis()),
 				Long.valueOf(System.currentTimeMillis()),
 				filter,
@@ -29,36 +32,42 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 				0,
 				null
 		);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void testDequeueRejectedCommand() throws Exception {
+		final ICommand command = new Command();
+		command.setLocation(URI.create("http://testxyz.de"));
 		
-		final URI result = new URI("http://test.xyz");
+		final IFilter<ICommand> filter = mock(IFilter.class);
+		final EventAdmin eventService = mock(EventAdmin.class);
+		final IFilterContext filtercontext = this.createDummyFilterContext(filter);
 
 		// define expectations
 		checking(new Expectations(){{
-			/* 
-			 * Command statis is "passed" before filtering
-			 * and "rejected" afterwards.
-			 */
-			atLeast(1).of(command).getResult();
-			will(onConsecutiveCalls(
-				returnValue(ICommand.Result.Passed),
-				returnValue(ICommand.Result.Rejected),
-				returnValue(ICommand.Result.Rejected)
-			));			
-			
-			allowing(command).getResultText(); 
-			will(returnValue("Rejected by Test"));
 			
 			// filtering should be called exactly once
-			one(filter).filter(with(same(command)), with(same(filtercontext)));
+			one(filter).filter(with(same(command)), with(same(filtercontext))); will(new Action(){
+				public void describeTo(Description arg0) {}
+
+				public Object invoke(Invocation invocation) throws Throwable {
+					((ICommand)invocation.getParameter(0)).setResult(ICommand.Result.Rejected, "Rejected by Test");
+					return null;
+				}
+				
+			});
 			
-			// metadata about command
-			allowing(command).getLocation(); will(returnValue(result));
-			ignoring(command);
+			// event service must be called 3 times
+			// once for the rejected cmd
+			exactly(3).of(eventService).postEvent(with(any(Event.class)));
+			one(eventService).sendEvent(with(any(Event.class)));
 		}});		
 
 		// init queue and set filters
 		FilterInputQueue<ICommand> queue = new FilterInputQueue<ICommand>(8);
 		queue.setFilters(new ArrayList<IFilterContext>(Arrays.asList(filtercontext)));
+		queue.setFilterQueueID("FilterQUEUE-ID");
+		queue.setEventService(eventService);
 		
 		// enqueue a command
 		queue.putData(command);
@@ -70,39 +79,28 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 	
 	@SuppressWarnings("unchecked")
 	public void testDequeuePassedCommand() throws InterruptedException {
-		final ICommand command = mock(ICommand.class);
+		final ICommand command = new Command();
+		command.setLocation(URI.create("http://testxyz.de"));
+		
 		final IFilter<ICommand> filter = mock(IFilter.class);
-		final IFilterContext filtercontext = new FilterContext(
-				Long.toString(System.currentTimeMillis()),
-				Long.valueOf(System.currentTimeMillis()),
-				filter,
-				"test",
-				0,
-				null
-		);
+		final EventAdmin eventService = mock(EventAdmin.class);
+		final IFilterContext filtercontext = this.createDummyFilterContext(filter);
 
 		// define expectations
 		checking(new Expectations(){{
-			/* 
-			 * Command status is "passed"
-			 */
-			atLeast(1).of(command).getResult();
-			will(returnValue(ICommand.Result.Passed));			
-			
-			allowing(command).getResultText(); 
-			will(returnValue("OK"));
-			
 			// filtering should be called exactly once
 			one(filter).filter(with(same(command)), with(same(filtercontext)));
 			
-			// metadata about command
-			allowing(command).getLocation(); will(returnValue("http://test.xyz"));
-			ignoring(command);
+			// event service must be called 3 times
+			// once for the rejected cmd
+			exactly(3).of(eventService).postEvent(with(any(Event.class)));			
 		}});		
 
 		// init queue and set filters
 		FilterInputQueue<ICommand> queue = new FilterInputQueue<ICommand>(8);
 		queue.setFilters(new ArrayList<IFilterContext>(Arrays.asList(filtercontext)));
+		queue.setFilterQueueID("FilterQUEUE-ID");
+		queue.setEventService(eventService);		
 		
 		// enqueue a command
 		queue.putData(command);
@@ -114,13 +112,10 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 	}
 	
 	public void testWaitForNext() throws InterruptedException {
-		final ICommand command = mock(ICommand.class);
+		final ICommand command = new Command();
+		command.setLocation(URI.create("http://testxyz.de"));
+		
 		final FilterInputQueue<ICommand> queue = new FilterInputQueue<ICommand>(8);
-		// define expectations
-		checking(new Expectations(){{
-			atLeast(1).of(command).getResult();
-			will(returnValue(ICommand.Result.Passed));	
-		}});
 		
 		// start a thread to wait for a next message in the queue
 		final Thread queueFetcher = new Thread() {
