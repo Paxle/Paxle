@@ -10,7 +10,6 @@ import java.awt.event.KeyEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -107,6 +106,12 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 	private final JPanel btnsPanel = new JPanel();
 	private final JPanel infoMainPanel = new JPanel(new GridBagLayout());
 	private final JPanel[] infoPanels = new JPanel[4];
+	private final JToggleButton[] infoBtns = new JToggleButton[] {
+			Utilities.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.runtime"), this, AC_SHOW_RUNTIME_INFO, -1, null),
+			Utilities.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.manifest"), this, AC_SHOW_MANIFEST, -1, null),
+			Utilities.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.exported"), this, AC_SHOW_EXPORTED, -1, null),
+			Utilities.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.imported"), this, AC_SHOW_IMPORTED, -1, null)
+	};
 	private int infoPanelsInitialized = 0;
 	
 	private final BundleListModel model;
@@ -166,6 +171,12 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 		symbolicName.setText(bundle.getSymbolicName());
 		description.setText((desc == null) ? "" : desc.toString());
 		version.setText((vers == null) ? "" : vers.toString());
+		
+		infoPanelsInitialized = 0;
+		for (int i=0; i<infoPanels.length; i++) {
+			infoPanels[i].removeAll();
+			setInfoPanelVisible(i, infoBtns[i].isSelected());
+		}
 	}
 	
 	public void removeRow(final JComponent comp) {
@@ -182,6 +193,7 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 	}
 	
 	public void invalidate() {
+		updateBundleStatus();
 		id.invalidate();
 		icon.invalidate();
 		title.invalidate();
@@ -196,10 +208,10 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 	public void setRow(final JComponent comp, final int y) {
 		// title.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		
-		btnsPanel.add(Utilities.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.runtime"), this, AC_SHOW_RUNTIME_INFO, -1, null));
-		btnsPanel.add(Utilities.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.manifest"), this, AC_SHOW_MANIFEST, -1, null));
-		btnsPanel.add(Utilities.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.exported"), this, AC_SHOW_EXPORTED, -1, null));
-		btnsPanel.add(Utilities.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.imported"), this, AC_SHOW_IMPORTED, -1, null));
+		btnsPanel.add(infoBtns[0]);
+		btnsPanel.add(infoBtns[1]);
+		btnsPanel.add(infoBtns[2]);
+		btnsPanel.add(infoBtns[3]);
 		
 		// super.setLayout(new GridBagLayout());
 		
@@ -268,7 +280,6 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 		if (yes && (infoPanelsInitialized & (1 << num)) == 0)
 			initInfo(num);
 		infoPanels[num].setVisible(yes);
-		model.cellChanged(this);
 	}
 	
 	private void initInfo(final int num) {

@@ -163,7 +163,7 @@ public final class BundleListModel implements BundleListener {
 			
 			default:
 				// update the corresponding cell of this list
-				update(bundle);
+				cellChanged(bundleMap.get(Long.valueOf(bundle.getBundleId())));
 				break;
 		}
 	}

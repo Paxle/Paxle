@@ -45,13 +45,18 @@ public class BundlePanel extends DIServicePanel implements DIComponent, Document
 	
 	boolean multipleChanged = false;
 	
-	@SuppressWarnings("unchecked")
 	public BundlePanel(final DesktopServices services) {
 		super(services);
-		super.registerService(bundleListModel, bundleListModel, null, BundleListener.class);
+		super.services.getServiceManager().addBundleListener(bundleListModel);
 		init();
 		for (final Bundle bundle : services.getServiceManager().getBundles())
 			bundleListModel.bundleChanged(bundle, BundleEvent.RESOLVED);
+	}
+	
+	@Override
+	public void close() {
+		super.services.getServiceManager().removeBundleListener(bundleListModel);
+		super.close();
 	}
 	
 	public void modelDataChanged(final int type, final int idx, final List<BundleListRow> data) {
