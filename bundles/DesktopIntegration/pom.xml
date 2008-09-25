@@ -74,6 +74,7 @@
 						<Private-Package>
 							org.paxle.desktop.impl,
 							org.paxle.desktop.impl.dialogues,
+							org.paxle.desktop.impl.dialogues.bundles,
 							org.paxle.desktop.impl.dialogues.settings,
 							org.paxle.desktop.impl.dialogues.stats,
 							org.paxle.desktop.impl.event

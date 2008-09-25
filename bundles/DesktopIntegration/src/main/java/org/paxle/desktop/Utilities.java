@@ -197,11 +197,11 @@ public class Utilities {
 			if (defaultButton != null)
 				rootPane.setDefaultButton(defaultButton);
 			if (cancelButton == null) {
-				rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+				rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
 						KeyStroke.getKeyStroke((isMainWindow) ? 'Q' : 'W', InputEvent.CTRL_DOWN_MASK), KE_CLOSE);
 				rootPane.getActionMap().put(KE_CLOSE, new WindowCloseAction(frame));
 			} else {
-				rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+				rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
 						KeyStroke.getKeyStroke((isMainWindow) ? 'Q' : (char)27), KE_CANCEL);
 				rootPane.getActionMap().put(KE_CANCEL, new ButtonPressAction(cancelButton));
 			}

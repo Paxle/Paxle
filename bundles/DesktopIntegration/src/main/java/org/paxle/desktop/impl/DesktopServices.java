@@ -42,6 +42,7 @@ import org.paxle.desktop.IDesktopServices;
 import org.paxle.desktop.Utilities;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.impl.dialogues.CrawlingConsole;
+import org.paxle.desktop.impl.dialogues.bundles.BundlePanel;
 import org.paxle.desktop.impl.dialogues.settings.SettingsPanel;
 import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel;
 
@@ -148,6 +149,8 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	private SystrayMenu trayMenu = null;
 	private boolean browserOpenable = true;
 	
+	// TODO: get desktop-services working without a backend, dialogues can still be useful and
+	//       may be started in different ways than using the tray-menu
 	public DesktopServices(final ServiceManager manager, final IDIBackend backend) {
 		this.manager = manager;
 		this.backend = backend;
@@ -328,6 +331,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 			case CCONSOLE: c = new CrawlingConsole(this); break;
 			case SETTINGS: c = new SettingsPanel(this); break;
 			case STATS: c = new StatisticsPanel(this); break;
+			case BUNDLES: c = new BundlePanel(this); break;
 			
 			default:
 				throw new RuntimeException("switch-statement does not cover " + d);

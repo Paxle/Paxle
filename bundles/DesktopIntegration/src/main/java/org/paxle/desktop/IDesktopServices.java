@@ -4,7 +4,7 @@ package org.paxle.desktop;
 public interface IDesktopServices {
 	
 	public static enum Dialogues {
-		SETTINGS, STATS, CCONSOLE
+		SETTINGS, STATS, CCONSOLE, BUNDLES
 	}
 	
 	public void openDialogue(Dialogues d);

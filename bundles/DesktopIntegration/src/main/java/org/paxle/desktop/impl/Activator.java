@@ -63,6 +63,23 @@ public class Activator implements BundleActivator {
 		KNOWN_IMPLS.put(Float.valueOf(1.4f), IMPL_JDIC);
 	}
 	
+	private static final String CLASS_IDI_BACKEND 			= "org.paxle.desktop.backend.IDIBackend";
+	private static final String CLASS_DESKTOP_SERVICES 		= "org.paxle.desktop.impl.DesktopServices";
+	private static final String CLASS_IDESKTOP_SERVICES		= "org.paxle.desktop.IDesktopServices";
+	private static final String CLASS_SERVICE_MANAGER 		= "org.paxle.desktop.impl.ServiceManager";
+	private static final String CLASS_BUNDLE_CONTEXT 		= "org.osgi.framework.BundleContext";
+	private static final String CLASS_JDIC_MANAGER 			= "org.jdesktop.jdic.init.JdicManager";
+	
+	private static final String CLASSSIMPLE_DI_BACKEND 		= "DIBackend";
+	
+	private static final String METHOD_SHUTDOWN 			= "shutdown";
+	private static final String METHOD_GET_MANAGER 			= "getManager";
+	private static final String METHOD_INIT_SHARE_NATIVE 	= "initShareNative";
+	
+	private static final String FIELD_JDIC_STUB_JAR_FILE 	= "jdicStubJarFile";
+	
+	private static final String PATH_JDIC_LIBS 				= "/binaries/libs/";
+	
 	private static float getJavaVersion() {
 		String version = System.getProperty("java.version");
 		int dot = version.indexOf('.');
@@ -161,31 +178,31 @@ public class Activator implements BundleActivator {
 			copyNatives(context);
 			
 			// JdicManager.getManager().initShareNative();
-			final Class<?> jdicManagerC = uiClassLoader.loadClass("org.jdesktop.jdic.init.JdicManager");
-			final Object jdicManager = jdicManagerC.getMethod("getManager").invoke(null);
-			jdicManagerC.getMethod("initShareNative").invoke(jdicManager);
+			final Class<?> jdicManagerC = uiClassLoader.loadClass(CLASS_JDIC_MANAGER);
+			final Object jdicManager = jdicManagerC.getMethod(METHOD_GET_MANAGER).invoke(null);
+			jdicManagerC.getMethod(METHOD_INIT_SHARE_NATIVE).invoke(jdicManager);
 			
 			if (!(uiClassLoader instanceof HelperClassLoader)) {
 				logger.debug("Wrapping the classloader into a HelperClassLoader for JDIC classes");
-				final File jdicStubJarFile = (File)jdicManagerC.getField("jdicStubJarFile").get(jdicManager);
+				final File jdicStubJarFile = (File)jdicManagerC.getField(FIELD_JDIC_STUB_JAR_FILE).get(jdicManager);
 				final URL[] helperClassloaderURLs = { jdicStubJarFile.toURI().toURL() };
 				uiClassLoader = new HelperClassLoader(helperClassloaderURLs, uiClassLoader);
 			}
 		}
 		
 		// use org.paxle.desktop.backend.*-tree and dialogues.Menu
-		final String diBackendCName = String.format("%s.%s.%s", BACKEND_IMPL_ROOT_PACKAGE, impl, "DIBackend");
+		final String diBackendCName = String.format("%s.%s.%s", BACKEND_IMPL_ROOT_PACKAGE, impl, CLASSSIMPLE_DI_BACKEND);
 		logger.debug("Loading " + diBackendCName + " using class-loader " + uiClassLoader);
 		
 		final Object dibackend = uiClassLoader.loadClass(diBackendCName).newInstance();
-		final Class<?> smC = uiClassLoader.loadClass("org.paxle.desktop.impl.ServiceManager");
-		final Object sm = smC.getConstructor(uiClassLoader.loadClass("org.osgi.framework.BundleContext")).newInstance(context);
+		final Class<?> smC = uiClassLoader.loadClass(CLASS_SERVICE_MANAGER);
+		final Object sm = smC.getConstructor(uiClassLoader.loadClass(CLASS_BUNDLE_CONTEXT)).newInstance(context);
 		
-		final Class<?> idibackendC = uiClassLoader.loadClass("org.paxle.desktop.backend.IDIBackend");
-		final Class<?> desktopServicesC = uiClassLoader.loadClass("org.paxle.desktop.impl.DesktopServices");
+		final Class<?> idibackendC = uiClassLoader.loadClass(CLASS_IDI_BACKEND);
+		final Class<?> desktopServicesC = uiClassLoader.loadClass(CLASS_DESKTOP_SERVICES);
 		initObject = desktopServicesC.getConstructor(smC, idibackendC).newInstance(sm, dibackend);
-		context.registerService(desktopServicesC.getName(), initObject, null);
-		shutdownMethod = desktopServicesC.getMethod("shutdown");
+		context.registerService(CLASS_IDESKTOP_SERVICES, initObject, null);
+		shutdownMethod = desktopServicesC.getMethod(METHOD_SHUTDOWN);
 	}
 	
 	private static Bundle findBundle(BundleContext context, String symbolicName) {
@@ -205,7 +222,7 @@ public class Activator implements BundleActivator {
 
 		File libFile = null;
 		
-		Enumeration<URL> libs = findBundle(context, BACKEND_IMPL_ROOT_PACKAGE + '.' + IMPL_JDIC).findEntries("/binaries/libs/","*",true);
+		Enumeration<URL> libs = findBundle(context, BACKEND_IMPL_ROOT_PACKAGE + '.' + IMPL_JDIC).findEntries(PATH_JDIC_LIBS, "*", true);
 		while (libs.hasMoreElements()) {
 			
 			// open the URL
@@ -215,8 +232,8 @@ public class Activator implements BundleActivator {
 			
 			// open a file
 			String fileName = lib.getFile();
-			int idx = fileName.lastIndexOf("/binaries/libs/");
-			fileName = fileName.substring(idx+"/binaries/libs/".length());			
+			int idx = fileName.lastIndexOf(PATH_JDIC_LIBS);
+			fileName = fileName.substring(idx + PATH_JDIC_LIBS.length());			
 			libFile = context.getDataFile(fileName);			
 			
 			if (!libFile.exists() && !fileName.endsWith("/")) {
