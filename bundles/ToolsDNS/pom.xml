@@ -36,6 +36,8 @@
 							org.xbill.*;version="2.0.6"
 						</Export-Package>						
 						<Import-Package>
+							org.paxle.core.queue;version="[0.1.0,0.2.0)",
+							org.paxle.core.filter;version="[0.1.0,0.2.0)",
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4", 
 							<!-- Logging framework -->
@@ -68,6 +70,18 @@
 	</build>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>[0.1.0,0.2.0)</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
+		</dependency>
+		
 		<dependency>
 			<groupId>org.xbill.dns</groupId>
 			<artifactId>dnsjava</artifactId>
