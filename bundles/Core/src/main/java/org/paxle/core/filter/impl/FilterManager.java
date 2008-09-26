@@ -229,7 +229,7 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 				} else {
 					filterContext.setEnabled(false);
 				}
-			} else {
+			} else if (props.get(CM_FILTER_ENABLED_FILTERS + queueID) != null) {
 				boolean enabled = enabledFilters.contains(filterContextPID);
 				filterContext.setEnabled(enabled);
 			}
