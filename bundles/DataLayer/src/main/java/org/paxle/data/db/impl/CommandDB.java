@@ -586,6 +586,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			
 			Query query = session.getNamedQuery("fromCrawlerQueue");
 			query.setFetchSize(limit);
+			query.setMaxResults(limit);
 			query.setCacheMode(CacheMode.IGNORE);
 			ScrollableResults sr = query.scroll(ScrollMode.FORWARD_ONLY); // (ScrollMode.FORWARD_ONLY);
 			
