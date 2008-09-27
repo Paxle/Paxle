@@ -87,7 +87,7 @@ public class StatisticsPanel extends DIServicePanel implements DIComponent, Runn
 	}
 	
 	private final List<? extends Stats> stats;
-	private final Timer timer = new Timer();
+	private final Timer timer = new Timer("Desktop_StatsUpdater", true);
 	
 	public StatisticsPanel(final DesktopServices services) {
 		super(services, WINDOW_SIZE);

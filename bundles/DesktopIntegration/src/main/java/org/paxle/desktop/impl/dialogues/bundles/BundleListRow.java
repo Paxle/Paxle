@@ -94,6 +94,11 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 				new StateTupel(Messages.getString("bundlePanel.cell.bundle.uninstalled"), 	Color.DARK_GRAY, 	"plugin_delete.png"));
 	}
 	
+	static final int DIMX = 7;
+	static final int DIMY = 4;
+	
+	private final JPanel bg = new JPanel();
+	
 	private final JLabel id = new JLabel();
 	private final JLabel icon = new JLabel();
 	private final JLabel title = new JLabel();
@@ -135,6 +140,14 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 		}
 		// btnsPanel.setVisible(false);
 		// infoMainPanel.setVisible(false);
+		
+		btnsPanel.add(infoBtns[0]);
+		btnsPanel.add(infoBtns[1]);
+		btnsPanel.add(infoBtns[2]);
+		btnsPanel.add(infoBtns[3]);
+		
+		btnsPanel.setBackground(new Color(0,0,0,0));
+		description.setBackground(new Color(0,0,0,0));
 		
 		updateBundleStatus();
 	}
@@ -190,6 +203,7 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 		comp.remove(actions);
 		comp.remove(btnGo);
 		comp.remove(infoMainPanel);
+		comp.remove(bg);
 	}
 	
 	public void invalidate() {
@@ -206,15 +220,6 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 	}
 	
 	public void setRow(final JComponent comp, final int y) {
-		// title.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-		
-		btnsPanel.add(infoBtns[0]);
-		btnsPanel.add(infoBtns[1]);
-		btnsPanel.add(infoBtns[2]);
-		btnsPanel.add(infoBtns[3]);
-		
-		// super.setLayout(new GridBagLayout());
-		
 		final GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0; gbc.gridy = y;
 		gbc.insets = Utilities.INSETS_DEFAULT;
@@ -255,6 +260,18 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 		gbcInfo.weightx = 1.0;
 		gbcInfo.insets = Utilities.INSETS_ZERO;
 		comp.add(infoMainPanel, gbcInfo);
+		
+		final GridBagConstraints gbcbg = new GridBagConstraints();
+		gbcbg.gridx = 0;
+		gbcbg.gridy = y;
+		gbcbg.fill = GridBagConstraints.BOTH;
+		gbcbg.gridwidth = DIMX;
+		gbcbg.gridheight = DIMY;
+		gbcbg.weightx = 1.0;
+		gbcbg.weighty = 1.0;
+		gbcbg.insets = Utilities.INSETS_ZERO;
+		bg.setBackground(((y & DIMY) == 0) ? new Color(238,238,238) : new Color(218,218,218));		// TODO: generate the values
+		comp.add(bg, gbcbg);
 	}
 	
 	public void actionPerformed(ActionEvent e) {

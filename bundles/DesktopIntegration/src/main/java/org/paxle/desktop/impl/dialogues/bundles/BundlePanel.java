@@ -18,7 +18,6 @@ import javax.swing.text.JTextComponent;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleListener;
 
 import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.Utilities;
@@ -34,7 +33,7 @@ public class BundlePanel extends DIServicePanel implements DIComponent, Document
 	private final JTextComponent searchField = new JTextField();
 	private final BundleListModel bundleListModel = new BundleListModel(this);
 	private final GridBagLayout layout = new GridBagLayout();
-	private final JPanel bundlePanel = new ScrollablePanel(layout, ScrollablePanel.ALWAYS_TRACK, ScrollablePanel.MAXIMIZE);
+	private final JPanel bundlePanel = new ScrollablePanel(layout, ScrollablePanel.ALWAYS_TRACK, ScrollablePanel.NO_TRACK);
 	private final JScrollPane scroll = new JScrollPane();
 	private final Runnable updater = new Runnable() {
 		public void run() {
