@@ -17,10 +17,6 @@ import org.osgi.service.log.LogService;
 public class Log4jMemoryAppender extends AppenderSkeleton {
 	final Buffer fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(200));
 
-	public Log4jMemoryAppender() {
-		System.out.println("hier");
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void append(LoggingEvent event) {

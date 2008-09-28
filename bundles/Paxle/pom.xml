@@ -1029,7 +1029,8 @@
 		
 		<!-- some filters -->
 		<module>../FilterBlacklist</module>
-		<module>../FilterRobotsTxt</module>						
+		<module>../FilterRobotsTxt</module>
+		<module>../FilterLanguageIdentification</module>
 		
 		<!-- GUI bundle -->
 		<module>../GUI</module>		

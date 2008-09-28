@@ -22,6 +22,7 @@
 				<include>org.paxle:DataLayerH2</include>
 				<include>org.paxle:FilterBlacklist</include>
 				<include>org.paxle:FilterRobotsTxt</include>
+				<include>org.paxle:FilterLanguageIdentification</include>
 				<include>org.paxle:CharsetDetector</include>
 				<include>org.paxle:MimeType</include>
 				<include>org.paxle.tools:ToolsIExport</include>
