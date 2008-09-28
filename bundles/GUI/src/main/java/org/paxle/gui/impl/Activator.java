@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Locale;
 
 import org.osgi.framework.Bundle;
@@ -62,13 +61,12 @@ public class Activator implements BundleActivator {
 		// init user administration
 		this.initUserAdmin(bc);
 
-		// GUI menu manager
-		this.menuManager = new MenuManager();
-		bc.registerService(IMenuManager.class.getName(),this.menuManager, null);
-
 		// servlet manager
-		this.servletManager = new ServletManager(bc.getBundle().getEntry("/").toString());
-		bc.registerService(IServletManager.class.getName(),this.servletManager, null);
+		this.servletManager = this.createAndInitServletManager(bc);
+		
+		// menu manager
+		this.menuManager = new MenuManager(this.servletManager);
+		bc.registerService(IMenuManager.class.getName(),this.menuManager, null);		
 
 		// style manager
 		this.initStyleManager(bc);
@@ -215,6 +213,21 @@ public class Activator implements BundleActivator {
 				credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, "".getBytes("UTF-8"));
 			}
 		}
+	}
+	
+	private ServletManager createAndInitServletManager(BundleContext bc) {
+		// creating component
+		ServletManager sManager = new ServletManager(bc.getBundle().getEntry("/").toString());
+		
+		// managed- and metatype-provider-service properties
+		Hashtable<String, Object> props = new Hashtable<String, Object>();
+		props.put(Constants.SERVICE_PID, ServletManager.PID);		
+		
+		// register the filter-manager as service
+		bc.registerService(IServletManager.class.getName(), sManager, null);
+		bc.registerService(new String[]{ManagedService.class.getName()}, sManager, props);				
+		
+		return sManager;
 	}
 	
 	/**

@@ -1,6 +1,8 @@
 package org.paxle.gui.impl;
 
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -9,11 +11,19 @@ import javax.servlet.Servlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.paxle.gui.IServletManager;
 
-public class ServletManager implements IServletManager {
+public class ServletManager implements IServletManager, ManagedService {
+	public static final String PID = IServletManager.class.getName();
+	
+	/* ================================================================
+	 * Properties configurable via CM
+	 * ================================================================ */
+	private static final String CM_PROPERTY_PATH = PID + ".pathPrefix";
 	
 	/**
 	 * All registeres {@link Servlet servlets}
@@ -58,23 +68,27 @@ public class ServletManager implements IServletManager {
 	 */
 	private String pathPrefix = "";
 	
-	public ServletManager(String bundleLocation) {
-		if (bundleLocation != null && bundleLocation.endsWith("/")) {
-			bundleLocation = bundleLocation.substring(0,bundleLocation.length()-1);
+	public ServletManager(String defaultBundleLocation) {
+		if (defaultBundleLocation != null && defaultBundleLocation.endsWith("/")) {
+			defaultBundleLocation = defaultBundleLocation.substring(0,defaultBundleLocation.length()-1);
 		}
 		
 		// add some properties to the servlet props
 		this.defaultProps = new Hashtable<String, String>();
 		this.defaultProps.put("org.apache.velocity.properties", "/resources/config/velocity.properties");
 		this.defaultProps.put("org.apache.velocity.toolbox", "/resources/config/velocity.toolbox");
-//		this.defaultProps.put("bundle.location",context.getBundle().getLocation());
-		this.defaultProps.put("bundle.location",bundleLocation);
+		// this.defaultProps.put("bundle.location",context.getBundle().getLocation());
+		this.defaultProps.put("bundle.location",defaultBundleLocation);
 		
 		this.logger = LogFactory.getLog(this.getClass());
 	}
 	
-	private String generateFullAlias(String alias) {
-		return (this.pathPrefix == null) ? alias : this.pathPrefix + alias;
+	public String getFullAlias(String alias) {
+		String fullAlias = (this.pathPrefix == null) ? alias : this.pathPrefix + alias;
+		if (fullAlias.length() > 1 && fullAlias.endsWith("/")) {
+			fullAlias = fullAlias.substring(0,fullAlias.length()-1);
+		}
+		return fullAlias;
 	}
 	
 	public void addServlet( String alias, Servlet servlet) {
@@ -101,7 +115,7 @@ public class ServletManager implements IServletManager {
 				 */
 //				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());						
 				
-				final String fullAlias = this.generateFullAlias(alias);
+				final String fullAlias = this.getFullAlias(alias);
 				this.logger.info(String.format(
 						"Registering servlet '%s' for alias '%s'.", 
 						servlet.getClass().getName(), 
@@ -129,7 +143,7 @@ public class ServletManager implements IServletManager {
 			this.httpContexts.remove(alias);
 		}
 		
-		final String fullAlias = this.generateFullAlias(alias);
+		final String fullAlias = this.getFullAlias(alias);
 		this.logger.info(String.format(
 				"Unregistering servlet '%s' for alias '%s'.", 
 				servlet.getClass().getName(), 
@@ -137,7 +151,15 @@ public class ServletManager implements IServletManager {
 		));
 		
 		if (this.http != null) {
-			this.http.unregister(fullAlias);
+			try {
+				this.http.unregister(fullAlias);
+			} catch (Throwable e) {
+				this.logger.error(String.format("Unexpected '%s' while unregistering servlet '%s' for alias '%s'.",
+						e.getClass().getName(),
+						servlet.getClass().getName(),
+						alias
+				),e);
+			}
 		}
 	}
 	
@@ -157,7 +179,7 @@ public class ServletManager implements IServletManager {
 		
 		if (this.http != null) {
 			try {
-				String fullAlias = this.generateFullAlias(alias);
+				String fullAlias = this.getFullAlias(alias);
 				this.logger.info(String.format(
 						"Registering resource '%s' for alias '%s'.", 
 						name, 
@@ -186,7 +208,7 @@ public class ServletManager implements IServletManager {
 			this.httpContexts.remove(alias);
 		}
 		
-		final String fullAlias = this.generateFullAlias(alias);
+		final String fullAlias = this.getFullAlias(alias);
 		this.logger.info(String.format(
 				"Unregistering resource '%s' for alias '%s'.", 
 				name, 
@@ -194,7 +216,16 @@ public class ServletManager implements IServletManager {
 		));		
 		
 		if (this.http != null) {
-			this.http.unregister(fullAlias);
+			try {
+				this.http.unregister(fullAlias);
+			} catch (Throwable e) {
+				this.logger.error(String.format(
+						"Unexpected '%s' while unregistering resource '%s' for alias '%s'.",
+						e.getClass().getName(),
+						name,
+						alias
+				),e);
+			}			
 		}
 	}
 	
@@ -336,5 +367,35 @@ public class ServletManager implements IServletManager {
 	 */
 	public boolean hasServlet(String alias) {
 		return this.servlets.containsKey(alias);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void updated(Dictionary properties) throws ConfigurationException {
+		if (properties == null) return;
+		
+		boolean settingsChanged = false;
+		String newPathPrefix = null;
+		
+		Enumeration<String> keys = properties.keys();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			if (key.equals(CM_PROPERTY_PATH)) {
+				String path = (String) properties.get(key);
+				if (path == null) path = "";
+				if (path.endsWith("/")) path = path.substring(0, path.length() - 1);
+				if (!path.startsWith("/")) path = "/" + path;
+				
+				if (!this.pathPrefix.equals(path)) {
+					newPathPrefix = path;
+					settingsChanged = true;
+				}
+			}
+		}
+		
+		if (settingsChanged) {
+			this.unregisterAll();
+			this.pathPrefix = newPathPrefix;
+			this.registerAll();
+		}
 	}
 }

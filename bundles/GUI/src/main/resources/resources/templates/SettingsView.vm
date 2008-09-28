@@ -1,6 +1,12 @@
 ## getting resourcebundle to translate site
 #set( $text = $resourceTool.bundle('OSGI-INF/l10n/settingsview'))
 
+## TODO redirect browser if the servlet path-prefix has changed
+#if($delayedRedirect)
+	#set( $h1 = "<meta http-equiv='Refresh' content='3; url=$delayedRedirect'>")
+	#set( $page_headers = [$h1])
+#end
+
 ## Set the page title
 #set( $page_title = ${text.browser.pageTitle} )
 

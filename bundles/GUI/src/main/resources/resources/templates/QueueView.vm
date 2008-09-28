@@ -5,8 +5,10 @@
 #set( $page_title = ${text.browser.title} )	
 
 ## load prototypes
-#set( $h1 = "<script src='/js/prototype.js' type='text/javascript'></script>")
-#set( $page_headers = [$h1] )
+#set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
+#set($jsPrefix = ${servletManager.getFullAlias('/js')})
+#set($h1 = "<script src='$jsPrefix/prototype.js' type='text/javascript'></script>")
+#set($page_headers = [$h1] )
 
 <ul class="tabs">
 	<li><a href="/queue" #if(!$paramParser.getString("queue"))class="active"#end>${text.tab.overview}</a></li>
@@ -15,10 +17,11 @@
 	<li><a href="?queue=org.paxle.indexer" #if($paramParser.getString("queue","")=="org.paxle.indexer") class="active"#end>${text.tab.indexer}</a></li>
 </ul>
 
+
 <script type="text/javascript">
 			/*<![CDATA[*/
       var ajaxPopulater = function (id,reload) {
-         var url  = '/queue?#{if}($paramParser.getString("queue"))queue=${paramParser.getString("queue")}&#{end}reload=' + reload;
+         var url  = '${servletManager.getFullAlias("/queue")}?#{if}($paramParser.getString("queue"))queue=${paramParser.getString("queue")}&#{end}reload=' + reload;
          new Ajax.PeriodicalUpdater(id, url, {
             method: 'post',
             frequency: 5,

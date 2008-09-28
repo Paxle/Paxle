@@ -11,7 +11,9 @@
 	<link rel="icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico" /> 
 	<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="$request.getScheme()://$request.getServerName():$request.getServerPort()/opensearch/osd.xml" />
 
-	<script type="text/javascript" src="/js/tabs.js"></script>
+	#set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
+	#set($jsPrefix = ${servletManager.getFullAlias('/js')})
+	<script type="text/javascript" src="$jsPrefix/tabs.js"></script>
  
 	## append custom headers
 	#if( $page_headers)

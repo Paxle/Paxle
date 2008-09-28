@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData 
+	xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	localization="/OSGI-INF/l10n/IServletManager">
+
+	<OCD description="%servletManager.desc"
+		name="%servletManager.name" id="org.paxle.gui.IServletManager">
+
+		<AD name="%servletManager.path.name" type="String" 
+			id="org.paxle.gui.IServletManager.pathPrefix" 
+			default=""
+			description="%servletManager.path.desc"/>
+			
+	</OCD>
+
+	<Designate pid="org.paxle.gui.IServletManager" bundle="ignored">
+		<Object ocdref="org.paxle.gui.IServletManager"/>
+	</Designate>
+
+</metatype:MetaData>

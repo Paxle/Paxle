@@ -43,7 +43,6 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -213,7 +212,7 @@ public class SettingsView extends ALayoutServlet {
 					
 					this.updateUser(userAdmin, (User) user, request, context);
 				}
-				response.sendRedirect("/config?settings=user");
+				response.sendRedirect(request.getServletPath() + "?settings=user");
 			} else if (request.getParameter("doCreateGroup") != null || request.getParameter("doUpdateGroup") != null) {
 				UserAdmin userAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
 				if (userAdmin != null) {
@@ -249,19 +248,18 @@ public class SettingsView extends ALayoutServlet {
 						context.put("errorMsg","The administrator can not be deleted.");
 					}
 				}
-				response.sendRedirect("/config?settings=user");
+				response.sendRedirect(request.getServletPath() + "?settings=user");
 				
 			/* ====================================================================================
 			 * CONFIGURATION MANAGEMENT 
 			 * ==================================================================================== */
 				
 			} else if (request.getParameter("doEditConfig") != null) {
-				this.setPropertyValues(request, response, context, false);
-				response.sendRedirect("/config?settings=config");
-				
+				this.setPropertyValues(request, response, context, false);				
+				response.sendRedirect(request.getServletPath() + "?settings=config");				
 			} else if (request.getParameter("doResetConfig") != null) {
 				this.setPropertyValues(request, response, context, true);
-				response.sendRedirect("/config?settings=config");
+				response.sendRedirect(request.getServletPath() + "?settings=config");
 				
 			} else if (request.getParameter("viewImportedConfig") != null) {
 				if (ServletFileUpload.isMultipartContent(request)) {
@@ -289,7 +287,7 @@ public class SettingsView extends ALayoutServlet {
 						propsMap.remove(request.getParameter("pid"));
 						
 						// redirect to overview
-						response.sendRedirect("/config?settings=config&viewImportedConfig=");
+						response.sendRedirect(request.getServletPath() + "?settings=config&viewImportedConfig=");
 					}
 				}
 			} else if (request.getParameter("doInstallStyle") != null && ServletFileUpload.isMultipartContent(request)) {

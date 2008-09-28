@@ -19,4 +19,9 @@ public interface IServletManager {
 	 * @return <code>true</code> if a servlet was registered using the specified path
 	 */
 	public boolean hasServlet(String path);
+	
+	/**
+	 * @return the servlet-path-prefix + the given servlet-alias
+	 */
+	public String getFullAlias(String alias);
 }

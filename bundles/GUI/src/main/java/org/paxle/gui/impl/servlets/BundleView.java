@@ -103,7 +103,7 @@ public class BundleView extends ALayoutServlet {
         			
         			// redirect to the bundle view
         			if (doRedirect) {
-        				response.sendRedirect(request.getRequestURI());
+        				response.sendRedirect(request.getServletPath());
         				return null;
         			}
         		}
