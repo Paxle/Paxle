@@ -2,6 +2,10 @@
 #parse( '/resources/templates/headers/SetNoCaching.vm' )
 #parse( '/resources/templates/layout/header.vm' )
 
+#set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
+#set($cssPrefix = ${servletManager.getFullAlias('/css')})
+#set($jsPrefix = ${servletManager.getFullAlias('/js')})
+#set($imgPrefix = ${servletManager.getFullAlias('/images')})
 #set($user = $context.get("session").getAttribute("org.osgi.service.http.authentication.remote.user"))
 
 <div id="wrapper">
@@ -11,11 +15,11 @@
 	#parse( '/resources/templates/layout/menu.vm' )
 			#if($user)
 			<li id="loginStatus">
-				<a href="login?doLogout="><img src="/images/logout.png" width="16" height="16" alt="Logout"/>$user.getProperties().get("http.login")</a> 
+				<a href="${servletManager.getFullAlias('/login')}?doLogout="><img src="$imgPrefix/logout.png" width="16" height="16" alt="Logout"/>$user.getProperties().get("http.login")</a> 
 			</li>
 		#else
 			<li id="loginStatus">
-				<a href="/login"><img src="/images/login.png" width="16" height="16" alt="Login"/>Not logged in</a> 
+				<a href="${servletManager.getFullAlias('/login')}"><img src="$imgPrefix/login.png" width="16" height="16" alt="Login"/>Not logged in</a> 
 			</li>
 			#end	
 	</ul>

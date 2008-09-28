@@ -59,9 +59,11 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IServletManager;
 import org.paxle.gui.IStyleManager;
 import org.paxle.gui.impl.HttpContextAuth;
 import org.paxle.gui.impl.ServiceManager;
+import org.paxle.gui.impl.ServletManager;
 import org.paxle.tools.ieporter.cm.IConfigurationIEPorter;
 
 public class SettingsView extends ALayoutServlet {
@@ -185,6 +187,7 @@ public class SettingsView extends ALayoutServlet {
 		try {
 			// getting the servicemanager
 			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+			ServletManager sManager = (ServletManager) manager.getService(IServletManager.class.getName());
 			
 			/* ====================================================================================
 			 * USER MANAGEMENT 
@@ -255,11 +258,21 @@ public class SettingsView extends ALayoutServlet {
 			 * ==================================================================================== */
 				
 			} else if (request.getParameter("doEditConfig") != null) {
-				this.setPropertyValues(request, response, context, false);				
-				response.sendRedirect(request.getServletPath() + "?settings=config");				
+				this.setPropertyValues(request, response, context, false);
+				if (ServletManager.PID.equals(request.getParameter("pid"))) {
+					String newPrefix = request.getParameter("org.paxle.gui.IServletManager.pathPrefix");
+					context.put("delayedRedirect",sManager.getFullAlias(newPrefix, "/config"));
+				} else {
+					response.sendRedirect(request.getServletPath() + "?settings=config");
+				}
 			} else if (request.getParameter("doResetConfig") != null) {
 				this.setPropertyValues(request, response, context, true);
-				response.sendRedirect(request.getServletPath() + "?settings=config");
+				if (ServletManager.PID.equals(request.getParameter("pid"))) {
+					String newPrefix = request.getParameter("org.paxle.gui.IServletManager.pathPrefix");
+					context.put("delayedRedirect",sManager.getFullAlias(newPrefix, "/config"));
+				} else {
+					response.sendRedirect(request.getServletPath() + "?settings=config");
+				}
 				
 			} else if (request.getParameter("viewImportedConfig") != null) {
 				if (ServletFileUpload.isMultipartContent(request)) {

@@ -78,7 +78,7 @@ public class HttpContextAuth implements HttpContext {
 		}
 		
 		// if we are still not authenticated, try to use form-based login
-		if (done == null) {			
+		if (done == null) {
 			// No logon.isDone means he hasn't logged in.
 			// Save the request URL as the true target and redirect to the login page.
 			session.setAttribute("login.target", request.getRequestURL().toString());

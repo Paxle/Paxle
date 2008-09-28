@@ -24,4 +24,5 @@ public interface IServletManager {
 	 * @return the servlet-path-prefix + the given servlet-alias
 	 */
 	public String getFullAlias(String alias);
+	public String getFullAlias(String prefix, String alias);
 }

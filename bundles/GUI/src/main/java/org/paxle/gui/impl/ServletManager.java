@@ -84,7 +84,15 @@ public class ServletManager implements IServletManager, ManagedService {
 	}
 	
 	public String getFullAlias(String alias) {
-		String fullAlias = (this.pathPrefix == null) ? alias : this.pathPrefix + alias;
+		return this.getFullAlias(this.pathPrefix,alias);
+	}
+	
+	public String getFullAlias(String path, String alias) {
+		if (path == null) path = "";
+		if (path.length() > 1 && !path.startsWith("/")) path = "/" + path;
+		if (path.endsWith("/")) path = path.substring(0, path.length() - 1);					
+		
+		String fullAlias = path + alias;
 		if (fullAlias.length() > 1 && fullAlias.endsWith("/")) {
 			fullAlias = fullAlias.substring(0,fullAlias.length()-1);
 		}
@@ -382,8 +390,8 @@ public class ServletManager implements IServletManager, ManagedService {
 			if (key.equals(CM_PROPERTY_PATH)) {
 				String path = (String) properties.get(key);
 				if (path == null) path = "";
-				if (path.endsWith("/")) path = path.substring(0, path.length() - 1);
-				if (!path.startsWith("/")) path = "/" + path;
+				if (path.length() > 1 && !path.startsWith("/")) path = "/" + path;
+				if (path.endsWith("/")) path = path.substring(0, path.length() - 1);				
 				
 				if (!this.pathPrefix.equals(path)) {
 					newPathPrefix = path;
@@ -393,6 +401,13 @@ public class ServletManager implements IServletManager, ManagedService {
 		}
 		
 		if (settingsChanged) {
+			try {
+				// allow the config-servlet to finish redirect
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
 			this.unregisterAll();
 			this.pathPrefix = newPathPrefix;
 			this.registerAll();

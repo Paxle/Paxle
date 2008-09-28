@@ -37,7 +37,7 @@ h1 {
 	font-size: 4em;
 	text-align: left;
 	
-	background-image: url('/images/header_bg.png');
+	background-image: url('../images/header_bg.png');
 	background-repeat: no-repeat;
 }
 
@@ -148,7 +148,7 @@ td {
 	
 	border-top: solid 1em #444444;
 	
-	background-image: url('/images/nav-background.png');
+	background-image: url('../images/nav-background.png');
 }
 
 #nav li {
@@ -234,7 +234,7 @@ td {
 	
 	font-size: 1.2em;
 	
-	background-image: url('/images/error.png');
+	background-image: url('../images/error.png');
 	background-repeat: no-repeat;
 }
 
@@ -252,21 +252,21 @@ span.error {
 .logerror {
 	padding: 0 0 0 22px;
 	background-color: #A00000;
-	background-image: url('/images/log-error.png');
+	background-image: url('../images/log-error.png');
 	background-repeat: no-repeat;
 }
 
 .logwarn {
 	padding: 0 0 0 22px;
 	background-color: #A0A000;
-	background-image: url('/images/log-warning.png');
+	background-image: url('../images/log-warning.png');
 	background-repeat: no-repeat;
 }
 
 .loginfo {
 	padding: 0 0 0 22px;
 	background-color: #00A000;
-	background-image: url('/images/log-info.png');
+	background-image: url('../images/log-info.png');
 	background-repeat: no-repeat;
 }
 
@@ -274,7 +274,7 @@ span.error {
 	color: white;
 	padding: 0 0 0 22px;
 	background-color: #0000A0;
-	background-image: url('/images/log-debug.png');
+	background-image: url('../images/log-debug.png');
 	background-repeat: no-repeat;
 }
 

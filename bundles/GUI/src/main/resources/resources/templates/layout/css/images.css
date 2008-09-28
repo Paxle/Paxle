@@ -1,18 +1,18 @@
 .btnreload {
-	background-image: url('/images/reload.png') !important;
+	background-image: url('../images/reload.png') !important;
 	min-width: 33px !important;
 	min-height: 22px !important;
 }
 
 input.btnEnable, input.btnEnable:hover {
-	background-image: url(/images/control_play.png);
+	background-image: url(../images/control_play.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 15px;
 }
 
 input.btnDisable, input.btnDisable:hover {
-	background-image: url(/images/control_stop.png);
+	background-image: url(../images/control_stop.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 15px;
@@ -25,133 +25,133 @@ input.btnRestart {
 }
 
 input.btnResume, input.btnResume:hover {
-	background-image: url(/images/control_play.png);
+	background-image: url(../images/control_play.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;
 }
 
 input.btnPause, input.btnPause:hover {
-	background-image: url(/images/control_pause.png);
+	background-image: url(../images/control_pause.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;
 }
 
 input.btnAddUser {
-	background-image: url(/images/user_add.png);
+	background-image: url(../images/user_add.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;
 }
 
 input.btnDelUser {
-	background-image: url(/images/user_delete.png);
+	background-image: url(../images/user_delete.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;
 }
 
 input.btnAddGroup {
-	background-image: url(/images/group_add.png);
+	background-image: url(../images/group_add.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;
 }
 
 input.btnDelGroup {
-	background-image: url(/images/group_delete.png);
+	background-image: url(../images/group_delete.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;
 }
 
 .btnGC {
-	background-image: url(/images/cog.png);
+	background-image: url(../images/cog.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;
 }
 
 .ovSystem {
-	background-image: url(/images/computer.png);
+	background-image: url(../images/computer.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;	
 }
 
 .ovMemory {
-	background-image: url(/images/chart_pie.png);
+	background-image: url(../images/chart_pie.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;	
 }
 
 .ovHost {
-	background-image: url(/images/server.png);
+	background-image: url(../images/server.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;	
 }
 
 .ovDatabase {
-	background-image: url(/images/database.png);
+	background-image: url(../images/database.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;	
 }
 
 .ovActivity {
-	background-image: url(/images/chart_curve.png);
+	background-image: url(../images/chart_curve.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;	
 }
 
 .bundleNotInstalled, .bundle_error {
-	background-image: url(/images/plugin_error.png);
+	background-image: url(../images/plugin_error.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;	
 }
 
 .bundle_active, .bundle_starting {
-	background-image: url(/images/plugin_go.png);
+	background-image: url(../images/plugin_go.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;	
 }
 
 .bundle_installed {
-	background-image: url(/images/plugin_disabled.png);
+	background-image: url(../images/plugin_disabled.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;	
 }
 
 .bundle_resolved {
-	background-image: url(/images/plugin_link.png);
+	background-image: url(../images/plugin_link.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;	
 }
 
 .bundle_stopping, .bundle_uninstalled {
-	background-image: url(/images/plugin_delete.png);
+	background-image: url(../images/plugin_delete.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;	
 }
 
 a.quickCrawl {
-	background-image: url(/images/link_add.png);
+	background-image: url(../images/link_add.png);
 	background-repeat: no-repeat;
 	background-position: left center;
 	padding-left: 20px;	
 }
 
 .openid {
-	background:transparent url(/images/openid_small_logo.png) no-repeat scroll 0pt 50%;
+	background:transparent url(../images/openid_small_logo.png) no-repeat scroll 0pt 50%;
 	padding-left:18px !important;
 }
 
