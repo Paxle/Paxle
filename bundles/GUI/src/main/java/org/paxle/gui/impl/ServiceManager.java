@@ -109,6 +109,10 @@ public class ServiceManager implements IServiceManager {
 		
 		return services;
 	}
+	
+	public Object getService(ServiceReference ref) {
+		return context.getService(ref);
+	}
     
 	/* (non-Javadoc)
 	 * @see org.paxle.gui.impl.IServiceManager#hasSerivce(java.lang.String, java.lang.String)

@@ -3,7 +3,6 @@ package org.paxle.gui.impl;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.Servlet;
@@ -17,7 +16,7 @@ import org.paxle.gui.IServletManager;
 public class ServletManager implements IServletManager {
 	
 	/**
-	 * All registeres servlets
+	 * All registeres {@link Servlet servlets}
 	 */
 	private HashMap<String, Servlet> servlets = new HashMap<String, Servlet>();
 	
@@ -33,14 +32,14 @@ public class ServletManager implements IServletManager {
 	private HashMap<String, HttpContext> httpContexts = new HashMap<String, HttpContext>();
 	
 	/**
-	 * Http Service
+	 * The OSGI {@link HttpService Http-Service}
 	 */
 	private HttpService http = null;
 	
 	/**
 	 * Default Servlet properties
 	 */
-	private Hashtable<String, String> defaultProps = null;
+	private final Hashtable<String, String> defaultProps;
 	
 	/**
 	 * The default context that is used to register servlets and resources.
@@ -49,7 +48,15 @@ public class ServletManager implements IServletManager {
 	 */
 	private HttpContext defaultContext = null;
 	
-	private Log logger = null;
+	/**
+	 * For logging
+	 */
+	private final Log logger;
+	
+	/**
+	 * A prefix that should be used for each servlet- and resource-alias
+	 */
+	private String pathPrefix = "";
 	
 	public ServletManager(String bundleLocation) {
 		if (bundleLocation != null && bundleLocation.endsWith("/")) {
@@ -66,13 +73,24 @@ public class ServletManager implements IServletManager {
 		this.logger = LogFactory.getLog(this.getClass());
 	}
 	
-	public synchronized void addServlet( String alias, Servlet servlet) {
+	private String generateFullAlias(String alias) {
+		return (this.pathPrefix == null) ? alias : this.pathPrefix + alias;
+	}
+	
+	public void addServlet( String alias, Servlet servlet) {
 		this.addServlet(alias, servlet, this.defaultContext);	
 	}
 	
-	public synchronized void addServlet( String alias, Servlet servlet, HttpContext httpContext) {
-		this.servlets.put(alias, servlet);
-		this.httpContexts.put(alias, httpContext);
+	public void addServlet(String alias, Servlet servlet, HttpContext httpContext) {
+		this.addServlet(alias, servlet, httpContext, false);
+		
+	}
+	
+	private synchronized void addServlet(String alias, Servlet servlet, HttpContext httpContext, boolean intern) {
+		if (!intern) {
+			this.servlets.put(alias, servlet);
+			this.httpContexts.put(alias, httpContext);
+		}
 		
 		if (this.http != null) {
 			try {
@@ -83,8 +101,13 @@ public class ServletManager implements IServletManager {
 				 */
 //				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());						
 				
-				this.logger.info(String.format("Registering servlet '%s' for alias '%s'.", servlet.getClass().getName(), alias));
-				this.http.registerServlet(alias, servlet, defaultProps, httpContext);
+				final String fullAlias = this.generateFullAlias(alias);
+				this.logger.info(String.format(
+						"Registering servlet '%s' for alias '%s'.", 
+						servlet.getClass().getName(), 
+						fullAlias
+				));
+				this.http.registerServlet(fullAlias, servlet, this.defaultProps, httpContext);
 			} catch (Throwable e) {
 				this.logger.error(String.format("Unexpected '%s' while registering servlet '%s' for alias '%s'.",
 						e.getClass().getName(),
@@ -95,30 +118,55 @@ public class ServletManager implements IServletManager {
 		}
 	}
 	
-	public synchronized void removeServlet( String alias) {		
-		Servlet servlet = this.servlets.remove(alias);		
-		this.httpContexts.remove(alias);
-		this.logger.info(String.format("Unregistering servlet '%s' for alias '%s'.", servlet.getClass().getName(), alias));
+	public void removeServlet(String alias) {	
+		this.removeServlet(alias, false);
+	}
+	
+	private synchronized void removeServlet(String alias, boolean intern) {
+		final Servlet servlet = this.servlets.get(alias);
+		if (!intern) {
+			this.servlets.remove(alias);		
+			this.httpContexts.remove(alias);
+		}
+		
+		final String fullAlias = this.generateFullAlias(alias);
+		this.logger.info(String.format(
+				"Unregistering servlet '%s' for alias '%s'.", 
+				servlet.getClass().getName(), 
+				fullAlias
+		));
 		
 		if (this.http != null) {
-			this.http.unregister(alias);
+			this.http.unregister(fullAlias);
 		}
 	}
 	
-	public synchronized void addResources( String alias, String name) {
+	public void addResources(String alias, String name) {
 		this.addResources(alias, name, this.defaultContext);
 	}
 	
-	public synchronized void addResources( String alias, String name, HttpContext httpContext) {
-		this.resources.put(alias, name);
-		this.httpContexts.put(alias, httpContext);
+	public void addResources(String alias, String name, HttpContext httpContext) {
+		this.addResources(alias, name, httpContext, false);
+	}
+	
+	private synchronized void addResources(String alias, String name, HttpContext httpContext, boolean intern) {
+		if (!intern) {
+			this.resources.put(alias, name);
+			this.httpContexts.put(alias, httpContext);
+		}
 		
 		if (this.http != null) {
 			try {
-				this.logger.info(String.format("Registering resource '%s' for alias '%s'.", name, alias));
-				this.http.registerResources(alias, name, httpContext);
+				String fullAlias = this.generateFullAlias(alias);
+				this.logger.info(String.format(
+						"Registering resource '%s' for alias '%s'.", 
+						name, 
+						fullAlias
+				));
+				this.http.registerResources(fullAlias, name, httpContext);
 			} catch (Throwable e) {
-				this.logger.error(String.format("Unexpected '%s' while registering resource '%s' for alias '%s'.",
+				this.logger.error(String.format(
+						"Unexpected '%s' while registering resource '%s' for alias '%s'.",
 						e.getClass().getName(),
 						name,
 						alias
@@ -127,13 +175,26 @@ public class ServletManager implements IServletManager {
 		}
 	}
 	
-	public synchronized void removeResource( String alias) {
-		String name = this.resources.remove(alias);
-		this.httpContexts.remove(alias);
-		this.logger.info(String.format("Unregistering resource '%s' for alias '%s'.", name, alias));
+	public void removeResource( String alias) {
+		this.removeResource(alias, false);
+	}
+	
+	private synchronized void removeResource(String alias, boolean intern) {
+		final String name = this.resources.get(alias);
+		if (!intern) {
+			this.resources.remove(alias);
+			this.httpContexts.remove(alias);
+		}
+		
+		final String fullAlias = this.generateFullAlias(alias);
+		this.logger.info(String.format(
+				"Unregistering resource '%s' for alias '%s'.", 
+				name, 
+				fullAlias
+		));		
 		
 		if (this.http != null) {
-			this.http.unregister(alias);
+			this.http.unregister(fullAlias);
 		}
 	}
 	
@@ -159,7 +220,9 @@ public class ServletManager implements IServletManager {
 	}
 	
 	/**
-	 * Function to register all known servlets
+	 * Function to register all known servlets. 
+	 * This function loops through {@link #servlets} and calls 
+	 * {@link #addServlet(String, Servlet, HttpContext, boolean)} for each entry.
 	 */
 	private void registerAllServlets() {
 		if (this.http == null) return;
@@ -172,55 +235,37 @@ public class ServletManager implements IServletManager {
 //		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());		
 		
 		// register all servlets
-		Iterator<Map.Entry<String, Servlet>> i = this.servlets.entrySet().iterator();
-		while (i.hasNext()) {
-			Map.Entry<String, Servlet> entry = i.next();
-			String name = entry.getValue().getClass().getName();
+		for (Map.Entry<String, Servlet> entry: this.servlets.entrySet()) {
 			String alias = entry.getKey();
+			Servlet servlet =  entry.getValue();
+			
 			HttpContext context = this.httpContexts.containsKey(alias)
 				? this.httpContexts.get(alias)
 				: defaultContext;			
-			
-			try {
-				this.logger.info(String.format("Registering servlet '%s' for alias '%s'.", name, alias));
-				this.http.registerServlet(entry.getKey(), entry.getValue(), defaultProps, context);
-			} catch (Throwable e) {
-				this.logger.error(String.format("Unexpected '%s' while registering servlet '%s' for alias '%s'.",
-						e.getClass().getName(),
-						name,
-						alias
-				),e);				
-			}
+
+			this.addServlet(alias, servlet, context, true);
 		}	
 	}
 	
 	/**
-	 * Function to register all resources that were added to
-	 * {@link #resources}
+	 * Function to register all resources.
+	 * This function loops through {@link #resources} and calls
+	 * {@link #addResources(String, String, HttpContext, boolean)} for each entry.
+	 * 
 	 */
 	private void registerAllResources() {
 		if (this.http == null) return;
 		
 		// register all servlets
-		Iterator<Map.Entry<String, String>> i = this.resources.entrySet().iterator();
-		while (i.hasNext()) {
-			Map.Entry<String, String> entry = i.next();
+		for (Map.Entry<String, String> entry : this.resources.entrySet()) {
 			String name = entry.getValue();
 			String alias = entry.getKey();
+			
 			HttpContext context = this.httpContexts.containsKey(alias)
 				? this.httpContexts.get(alias)
 				: defaultContext;
 			
-			try {
-				this.logger.info(String.format("Registering resource '%s' for alias '%s'.", name, alias));
-				this.http.registerResources(entry.getKey(), entry.getValue(), context);
-			} catch (Throwable e) {
-				this.logger.error(String.format("Unexpected '%s' while registering resource '%s' for alias '%s'.",
-						e.getClass().getName(),
-						name,
-						alias
-				),e);	
-			}
+			this.addResources(alias, name, context, true);
 		}			
 	}
 		
@@ -240,22 +285,9 @@ public class ServletManager implements IServletManager {
 	private synchronized void unregisterAllServlets() {
 		if (this.http == null) return;
 		
-		Iterator<Map.Entry<String, Servlet>> i = this.servlets.entrySet().iterator();
-		while (i.hasNext()) {				
-			Map.Entry<String, Servlet> entry = i.next();
-			String name = entry.getValue().getClass().getName();
+		for (Map.Entry<String, Servlet> entry : this.servlets.entrySet()) {
 			String alias = entry.getKey();
-			try {			
-				this.logger.info(String.format("Unregistering servlet '%s' for alias '%s'.", name, alias));			
-				this.http.unregister(entry.getKey());
-			} catch (Throwable e) {
-				this.logger.error(String.format(
-						"Unexpected '%s' while unregistering servlet '%s' with alias '%s'.",
-						e.getClass().getName(),
-						name,
-						alias
-				));
-			}
+			this.removeServlet(alias, true);
 		}
 	}	
 	
@@ -266,22 +298,9 @@ public class ServletManager implements IServletManager {
 	public synchronized void unregisterAllResources() {
 		if (this.http == null) return;
 
-		Iterator<Map.Entry<String, String>> i = this.resources.entrySet().iterator();
-		while (i.hasNext()) {
-			Map.Entry<String, String> entry = i.next();
-			String name = entry.getValue();
+		for (Map.Entry<String, String> entry : this.resources.entrySet()) {
 			String alias = entry.getKey();
-			try {
-				this.logger.info(String.format("Unregistering resource '%s' for alias '%s'.", name, alias));			
-				this.http.unregister(entry.getKey());
-			} catch (Throwable e) {
-				this.logger.error(String.format(
-						"Unexpected '%s' while unregistering resource '%s' with alias '%s'.",
-						e.getClass().getName(),
-						name,
-						alias
-				));
-			}
+			this.removeResource(alias, true);
 		}		
 	}
 	

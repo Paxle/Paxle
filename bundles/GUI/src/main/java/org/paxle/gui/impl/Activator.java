@@ -165,25 +165,14 @@ public class Activator implements BundleActivator {
 		final IResourceBundleTool bt = (IResourceBundleTool) context.getService(btRef); 
 		
 		// find available locales for metatye-translation
-		List<String> supportedLocale = bt.getLocaleList(IStyleManager.class.getSimpleName(), Locale.ENGLISH);		
+		String[] supportedLocale = bt.getLocaleArray(IStyleManager.class.getSimpleName(), Locale.ENGLISH);		
 		
 		// create the style manager
 		this.styleManager = new StyleManager(
 				new File("styles"),
 				this.servletManager,
-				supportedLocale.toArray(new String[supportedLocale.size()])
+				supportedLocale
 		);
-
-		// get the config-admin service and set the default configuration if not
-		// available
-		ServiceReference cmRef = context.getServiceReference(ConfigurationAdmin.class.getName());
-		if (cmRef != null) {
-			ConfigurationAdmin cm = (ConfigurationAdmin) context.getService(cmRef);
-			Configuration config = cm.getConfiguration(StyleManager.PID);
-			if (config.getProperties() == null) {
-				config.update(this.styleManager.getDefaults());
-			}
-		}
 
 		// service properties for registration
 		Hashtable<String, Object> styleManagerProps = new Hashtable<String, Object>();
@@ -191,7 +180,10 @@ public class Activator implements BundleActivator {
 
 		// register as services
 		context.registerService(IStyleManager.class.getName(),this.styleManager, null);
-		context.registerService(new String[] { ManagedService.class.getName(),MetaTypeProvider.class.getName() }, this.styleManager, styleManagerProps);
+		context.registerService(new String[] {
+				ManagedService.class.getName(),
+				MetaTypeProvider.class.getName() 
+		}, this.styleManager, styleManagerProps);
 	}
 
 	@SuppressWarnings("unchecked")

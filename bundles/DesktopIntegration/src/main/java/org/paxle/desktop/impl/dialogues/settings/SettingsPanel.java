@@ -14,8 +14,11 @@ import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,12 +40,16 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeInformation;
+import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
@@ -120,6 +127,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		
 		boolean changed = false;
 		
+		private final MetaTypeProvider metaTypeProvider;
 		private final Bundle bundle;
 		private final String pid;
 		private final int iconSize;
@@ -134,9 +142,14 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		private ImageIcon icon = null;
 		
 		public BundleConfig(final int iconSize, final Bundle bundle, final String pid) {
+			this(iconSize, bundle, pid, null);
+		}
+		
+		public BundleConfig(final int iconSize, final Bundle bundle, final String pid, final MetaTypeProvider metaProvider) {
 			this.iconSize = iconSize;
 			this.bundle = bundle;
 			this.pid = pid;
+			this.metaTypeProvider = metaProvider;
 		}
 		
 		public void save() throws IOException {
@@ -220,8 +233,12 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		
 		private ObjectClassDefinition getOCD() {
 			if (ocd == null) {
-				final MetaTypeInformation mtinfo = metatype.getMetaTypeInformation(bundle);
-				ocd = mtinfo.getObjectClassDefinition(pid, locale);
+				if (metaTypeProvider != null) {
+					ocd = metaTypeProvider.getObjectClassDefinition(pid, locale);
+				} else {
+					final MetaTypeInformation mtinfo = metatypeService.getMetaTypeInformation(bundle);
+					ocd = mtinfo.getObjectClassDefinition(pid, locale);
+				}
 			}
 			return ocd;
 		}
@@ -306,8 +323,9 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		SAVE, RESET, REFRESH, LIST_SELECT
 	}
 	
+	private final ServiceManager manager; 
 	private final ConfigurationAdmin cadmin;
-	private final MetaTypeService metatype;
+	private final MetaTypeService metatypeService;
 	private final Map<String,BundleConfig> confMap;
 	private final ActionRunnable saveRunnable = new ActionRunnable(Actions.SAVE);
 	private final ActionRunnable resetRunnable = new ActionRunnable(Actions.RESET);
@@ -319,9 +337,9 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 	
 	public SettingsPanel(final DesktopServices services) {
 		super(services, DIM_SETTINGS);
-		final ServiceManager manager = services.getServiceManager();
+		this.manager = services.getServiceManager();
 		this.cadmin = manager.getService(ConfigurationAdmin.class);
-		this.metatype = manager.getService(MetaTypeService.class);
+		this.metatypeService = manager.getService(MetaTypeService.class);
 		this.confMap = Collections.synchronizedMap(initConfMap(manager.getBundles()));
 		init();
 	}
@@ -428,16 +446,30 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 	private Map<String,BundleConfig> initConfMap(final Bundle[] bundles) {
 		final Map<String,BundleConfig> confs = new TreeMap<String,BundleConfig>();
 		for (final Bundle bundle : bundles) {
-			final MetaTypeInformation mtinfo = metatype.getMetaTypeInformation(bundle);
-			if (mtinfo == null)
-				continue;
-			if (bundle.getBundleId() != mtinfo.getBundle().getBundleId())
-				continue;
-			final String[] pids = mtinfo.getPids();
-			if (pids == null || pids.length == 0)
-				continue;
-			for (final String pid : pids)
-				confs.put(pid, new BundleConfig(ICON_SIZE, bundle, pid));
+			
+			// lookup metatypes by metatype-servcie
+			final MetaTypeInformation mtinfo = this.metatypeService.getMetaTypeInformation(bundle);			
+			if (mtinfo != null && bundle.getBundleId() == mtinfo.getBundle().getBundleId()) {
+				final String[] pids = mtinfo.getPids();
+				for (final String pid : pids) {
+					confs.put(pid, new BundleConfig(ICON_SIZE, bundle, pid));
+				}
+			}
+			
+			// loopup metatypes by metatype-providers
+			ServiceReference[] serviceRefs = bundle.getRegisteredServices();
+			if (serviceRefs != null) {
+				for (ServiceReference ref : serviceRefs) {
+					// a managed-service always has a PID
+					String pid = (String) ref.getProperty(Constants.SERVICE_PID);
+					if (pid!= null) {			
+						HashSet<String> objectClassSet = new HashSet<String>(Arrays.asList((String[])ref.getProperty(Constants.OBJECTCLASS)));
+						if (objectClassSet.contains(MetaTypeProvider.class.getName()) && !confs.containsKey(pid)) {
+							confs.put(pid, new BundleConfig(ICON_SIZE, bundle, pid, manager.getService(ref, MetaTypeProvider.class)));
+						}
+					}
+				}
+			}
 		}
 		return confs;
 	}

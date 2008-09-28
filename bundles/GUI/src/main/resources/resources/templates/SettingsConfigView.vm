@@ -11,129 +11,122 @@
 		#set($bundleID = $paramParser.getString("bundleID"))		
 		#set($bundle = $manager.getBundle($mathTool.toInteger($bundleID)))
 		
-		## searching for metatype info
-		#set($metaType = $metaTypeService.getMetaTypeInformation($bundle))
-		#if($metaType)
-			#if($bundle.getBundleId() == $metaType.getBundle().getBundleId())
-
-				#set($language = $settingsView.getPreferedLocale($request,$metaType))
-    			#set($ocd = $metaType.getObjectClassDefinition($PID, $language))
-    			#if($ocd)										
-    				<p>
-						<p>
-							<img src="?settings=config&amp;bundleID=$bundleID&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/>
-        					<strong>$ocd.getName()</strong>&nbsp;[Bundle <a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a>]</br>
-							<div class="descriptionText">$ocd.getDescription()</div>
-						</p>						
-						    					
-						#if($paramParser.getString("viewImportedConfig"))
-							<div>${text.import.viewDetailedConfig}:</div>
-							
-							## getting configuration properties that can be imported
-							#set($configProps = ${importedConfigProps.get($PID)})
-						#else
-							<div>${text.listConfig.viewDetailedConfig}:</div>
-							
-							## getting the current configuration
-							#set($configProps = $configAdmin.getConfiguration($PID,${bundle.getLocation()}).getProperties())
-						#end
-    					
-    					## getting the configuration attributes
-    					#set($attributes = $ocd.getAttributeDefinitions(-1))
-    					#if($attributes)
-							<form action="">
-								<input type="hidden" name="settings" value="config"/>
-								<input type="hidden" name="pid" value="$PID"/>
-								<input type="hidden" name="bundleID" value="${bundle.getBundleId()}"/>
-								
-                            	<table>
-                            	<tr>
-                            		<th>${text.listConfig.name}</th>
-        							<th>${text.listConfig.type}</th>
-                            		<th>${text.listConfig.value}</th>
-    								<th>${text.listConfig.desc}</th>
-                            	</tr>
-                            	#foreach($attribute in $attributes)
-    								#set($attributeID = ${attribute.getID()})								
-    								#set($attribValue = ${settingsView.getPropertyValue($configProps,$attribute)})
-    								#set($attribType = ${dataTypes.get($attribute.getType())})
-									#set($optionLabels = ${attribute.getOptionLabels()})
-									#set($optionValues = ${attribute.getOptionValues()})
-									#set($attribCardinality = ${attribute.getCardinality()})
-    								
-                            		<tr class="$color">
-                            			<td>$attribute.getName()</td>
-        								<td><tt>$attribType</tt></td>
-                            			<td>
-											#if($optionLabels && $listTool.size($optionLabels) > 0)
-												<select name="$attributeID"
-												#set($numOptions = $listTool.size($optionLabels))
-												#if($attribCardinality == 0)
-													size="1"
-												#else
-													multiple="multiple"
-													size="#if($attribCardinality > 5)5#else${numOptions}#end"
-												#end
-												>
-												#foreach($optionLabel in $optionLabels)
-													#set($idx = $velocityCount - 1)
-													#set($optionValue = ${listTool.get($optionValues,$idx)})													
-													<option value="$optionValue"
-														#if(${listTool.isArray($attribValue)})
-															#if(${listTool.contains($attribValue,$optionValue)})selected="selected"#end
-														#else
-															#if($optionValue==$attribValue)selected="selected"#end
-														#end
-													>$optionLabel</option>                                               
-												#end
-												</select>
-    										#else 
-        										#if($attribType == "Boolean")
-    												<input type="radio" name="$attributeID" id="true$attributeID" value="true" #if($attribValue)checked="checked"#end>
-    												<label for="true$attributeID">${text.listConfig.lable.yes}</label>
-    												&nbsp;
-    												<input type="radio" name="$attributeID" id="false$attributeID" value="false" #if(!$attribValue)checked="checked"#end>
-    												<label for="false$attributeID">${text.listConfig.lable.no}</label> 
-        										#else
-        											<input type="#if($attributeID.toLowerCase().contains("password"))password#else{text}#end" name="$attributeID" value="$!attribValue"/>
-        										#end	
-											#end
-    									</td>
-    									<td class="descriptionText">
-    										${attribute.getDescription()}
-    										#if($attributeID.toLowerCase().contains("password"))
-    											<p><em>${text.listConfig.passwordPlaintextWarning}</em></p>
-    										#end
-    									</td>
-                            		</tr>                            		
-                            	#end
-                            	</table>
-								#if(!$paramParser.getString("viewImportedConfig"))
-									<input type="submit" name="doEditConfig" value="${text.listConfig.doChange}"/>
-									<input type="submit" name="doResetConfig" value="${text.listConfig.doReset}" />
-									<input type="submit" name="doExportConfig" value="${text.listConfig.doExport}"/>
-								#else
-									<input type="submit" name="doImportConfig" value="${text.listConfig.doImport}"/>
-									<input type="hidden" name="viewImportedConfig"/>
-								#end
-								<a class="button" href="?settings=config#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${text.listConfig.goBackToOverview}</a>
-							</form>
-    					#end
-    					<hr/>
-    				</p>
+		## load service metatypes
+		#set($ocd = ${settingsView.getObjectClassDefinition($request, $manager,$bundle,$PID)})
+		#if($ocd)										
+			<p>
+				<p>
+					<img src="?settings=config&amp;bundleID=$bundleID&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/>
+					<strong>$ocd.getName()</strong>&nbsp;[Bundle <a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a>]</br>
+					<div class="descriptionText">$ocd.getDescription()</div>
+				</p>						
+				    					
+				#if($paramParser.getString("viewImportedConfig"))
+					<div>${text.import.viewDetailedConfig}:</div>
+					
+					## getting configuration properties that can be imported
+					#set($configProps = ${importedConfigProps.get($PID)})
+				#else
+					<div>${text.listConfig.viewDetailedConfig}:</div>
+					
+					## getting the current configuration
+					#set($configProps = $configAdmin.getConfiguration($PID,${bundle.getLocation()}).getProperties())
 				#end
 				
-				#if($PID == "org.paxle.gui.IStyleManager")
-					<b>${text.styleManager.uploadStyles}</b>
-                    <form enctype="multipart/form-data" method="post" action="?doInstallStyle=">
-                    	<p>
-                    		<input type="file" name="styleJar" size="60" />
-                    		<input type="submit" name="doUpload" value="${text.styleManager.doInstall}" />
-                    	</p>
-                    </form>
+				## getting the configuration attributes
+				#set($attributes = $ocd.getAttributeDefinitions(-1))
+				#if($attributes)
+					<form action="">
+						<input type="hidden" name="settings" value="config"/>
+						<input type="hidden" name="pid" value="$PID"/>
+						<input type="hidden" name="bundleID" value="${bundle.getBundleId()}"/>
+						
+                    	<table>
+                    	<tr>
+                    		<th>${text.listConfig.name}</th>
+							<th>${text.listConfig.type}</th>
+                    		<th>${text.listConfig.value}</th>
+							<th>${text.listConfig.desc}</th>
+                    	</tr>
+                    	#foreach($attribute in $attributes)
+							#set($attributeID = ${attribute.getID()})								
+							#set($attribValue = ${settingsView.getPropertyValue($configProps,$attribute)})
+							#set($attribType = ${dataTypes.get($attribute.getType())})
+							#set($optionLabels = ${attribute.getOptionLabels()})
+							#set($optionValues = ${attribute.getOptionValues()})
+							#set($attribCardinality = ${attribute.getCardinality()})
+							
+                    		<tr class="$color">
+                    			<td>$attribute.getName()</td>
+								<td><tt>$attribType</tt></td>
+                    			<td>
+									#if($optionLabels && $listTool.size($optionLabels) > 0)
+										<select name="$attributeID"
+										#set($numOptions = $listTool.size($optionLabels))
+										#if($attribCardinality == 0)
+											size="1"
+										#else
+											multiple="multiple"
+											size="#if($attribCardinality > 5)5#else${numOptions}#end"
+										#end
+										>
+										#foreach($optionLabel in $optionLabels)
+											#set($idx = $velocityCount - 1)
+											#set($optionValue = ${listTool.get($optionValues,$idx)})													
+											<option value="$optionValue"
+												#if(${listTool.isArray($attribValue)})
+													#if(${listTool.contains($attribValue,$optionValue)})selected="selected"#end
+												#else
+													#if($optionValue==$attribValue)selected="selected"#end
+												#end
+											>$optionLabel</option>                                               
+										#end
+										</select>
+									#else 
+										#if($attribType == "Boolean")
+											<input type="radio" name="$attributeID" id="true$attributeID" value="true" #if($attribValue)checked="checked"#end>
+											<label for="true$attributeID">${text.listConfig.lable.yes}</label>
+											&nbsp;
+											<input type="radio" name="$attributeID" id="false$attributeID" value="false" #if(!$attribValue)checked="checked"#end>
+											<label for="false$attributeID">${text.listConfig.lable.no}</label> 
+										#else
+											<input type="#if($attributeID.toLowerCase().contains("password"))password#else{text}#end" name="$attributeID" value="$!attribValue"/>
+										#end	
+									#end
+								</td>
+								<td class="descriptionText">
+									${attribute.getDescription()}
+									#if($attributeID.toLowerCase().contains("password"))
+										<p><em>${text.listConfig.passwordPlaintextWarning}</em></p>
+									#end
+								</td>
+                    		</tr>                            		
+                    	#end
+                    	</table>
+						#if(!$paramParser.getString("viewImportedConfig"))
+							<input type="submit" name="doEditConfig" value="${text.listConfig.doChange}"/>
+							<input type="submit" name="doResetConfig" value="${text.listConfig.doReset}" />
+							<input type="submit" name="doExportConfig" value="${text.listConfig.doExport}"/>
+						#else
+							<input type="submit" name="doImportConfig" value="${text.listConfig.doImport}"/>
+							<input type="hidden" name="viewImportedConfig"/>
+						#end
+						<a class="button" href="?settings=config#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${text.listConfig.goBackToOverview}</a>
+					</form>
 				#end
-		    #end	
+				<hr/>
+			</p>
 		#end
+		
+		#if($PID == "org.paxle.gui.IStyleManager")
+			<b>${text.styleManager.uploadStyles}</b>
+            <form enctype="multipart/form-data" method="post" action="?doInstallStyle=">
+            	<p>
+            		<input type="file" name="styleJar" size="60" />
+            		<input type="submit" name="doUpload" value="${text.styleManager.doInstall}" />
+            	</p>
+            </form>
+		#end	
 	#else 
 		#if($paramParser.getString("viewImportedConfig"))
 			#if(${importedConfigProps.size()} > 0)
@@ -153,52 +146,22 @@
 		#set($color = $alternatorTool.auto('r1','r2'))
 		
     	## loop through each bundle to see if there are any metatypes	
-    	#foreach($bundle in $manager.getBundles())
-    		#set($metaType = $metaTypeService.getMetaTypeInformation($bundle))
-    		#if($metaType)
-				#if(${bundle.getBundleId()} == ${metaType.getBundle().getBundleId()})					
-        			## get the PIDs of all managed services
-        			#set($PIDs = ${metaType.getPids()})
-        			#if($PIDs)
-        				## loop through all managed services and fetch the
-        				## corresponding ObjectClassDefinitions
-        				#foreach($PID in $PIDs)
-							## determine the language to use
-							#set($language = $settingsView.getPreferedLocale($request,$metaType))						
-							
-							## load service metatypes
-        					#set($ocd = $metaType.getObjectClassDefinition($PID, $language))
-        					#if($ocd && (!$paramParser.getString("viewImportedConfig") || ${importedConfigProps.containsKey($PID)}))
-    							<tr class="$color">
-									<td><img src="?settings=config&amp;bundleID=${bundle.getBundleId()}&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/></td>
-    								<td>
-										<a href="?settings=config&amp;bundleID=${bundle.getBundleId()}&amp;pid=$PID#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${ocd.getName()}</a><br/>
-										<tt>[$PID]</tt>
-									</td>
-    								<td class="descriptionText">${ocd.getDescription()}</td>
-    							</tr>							
-        					#end
-        				#end
-        			#end	
-					
-					#*
-        			## get the PIDs of all managed services factories
-        			#set($PIDs = $metaType.getFactoryPids())
-        			#if($PIDs)					
-        				## loop through all managed services and fetch the
-        				## corresponding ObjectClassDefinitions
-        				#foreach($PID in $PIDs)
-        					#set($ocd = $metaType.getObjectClassDefinition($PID, "en"))
-        					#if($ocd)
-    							<tr class="$color">
-    								<td>$ocd.getName()</td>
-    								<td>$PID</td>
-    								<td><a href="?bundleID=$bundle.getBundleId()&amp;pid=$PID&amp;factory=">View</a></td>
-    							</tr>							
-        					#end
-        				#end
-        			#end		
-					*#
+    	#foreach($bundle in $manager.getBundles())    		
+			#foreach($PID in ${settingsView.getMetaTypePIDs($manager,$bundle)})
+
+				## load service metatypes
+				#set($ocd = ${settingsView.getObjectClassDefinition($request, $manager,$bundle,$PID)})
+
+				## display data
+				#if($ocd && (!$paramParser.getString("viewImportedConfig") || ${importedConfigProps.containsKey($PID)}))
+					<tr class="$color">
+						<td><img src="?settings=config&amp;bundleID=${bundle.getBundleId()}&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/></td>
+						<td>
+							<a href="?settings=config&amp;bundleID=${bundle.getBundleId()}&amp;pid=$PID#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${ocd.getName()}</a><br/>
+							<tt>[$PID]</tt>
+						</td>
+						<td class="descriptionText">${ocd.getDescription()}</td>
+					</tr>							
 				#end
     		#end
 		#end

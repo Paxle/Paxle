@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -42,11 +43,15 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeInformation;
+import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.osgi.service.useradmin.Authorization;
@@ -560,26 +565,10 @@ public class SettingsView extends ALayoutServlet {
 			return;
 		}
 		
-		// getting configuration meta-data
-		MetaTypeService metaType = (MetaTypeService) manager.getService(MetaTypeService.class.getName());
-		if (metaType == null) {
-			response.sendError(501, "Metatype service not found.");
-			return;
-		}
-		
-		MetaTypeInformation metaTypeInfo = metaType.getMetaTypeInformation(bundle);
-		if (metaTypeInfo == null) {
-			response.sendError(501, String.format("No MetaTypeInformation found for service with PID '%s'.",pid));
-			return;
-		}
-		
-		// determine the locale to use
-		String localeToUse = this.getPreferedLocale(request, metaTypeInfo);
-		
 		// loading metadata
-		ObjectClassDefinition ocd = metaTypeInfo.getObjectClassDefinition(pid, localeToUse);
+		ObjectClassDefinition ocd = this.getObjectClassDefinition(request, manager, bundle, pid);
 		if (ocd == null) {
-			response.sendError(501, String.format("No ObjectClassDefinition found for service with PID '%s' and locale '%s'.",pid,localeToUse));
+			response.sendError(501, String.format("No ObjectClassDefinition found for service with PID '%s'.",pid));
 			return;
 		}		
 		
@@ -610,15 +599,11 @@ public class SettingsView extends ALayoutServlet {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public String getPreferedLocale(HttpServletRequest request, MetaTypeInformation metaTypeInfo) {
+	public String getPreferedLocale(List<Locale> preferedLocales, String[] supportedLocalesArray) {
 		String localeToUse = Locale.ENGLISH.getLanguage();
 		
 		// getting languages provided by the available metatypes
-		String[] supportedLocalesArray = metaTypeInfo.getLocales();
 		HashSet<String> supportedLocale = new HashSet<String>(Arrays.asList(supportedLocalesArray==null?new String[0]:supportedLocalesArray));
-		
-		// getting the prefered languages specified by the user (via browser header)
-		List<Locale> preferedLocales = Collections.list(request.getLocales());
 		
 		// find best match
 		for (Locale preferedLocale : preferedLocales) {
@@ -659,14 +644,7 @@ public class SettingsView extends ALayoutServlet {
 			context.put(ERROR_MSG, String.format("No bundle with ID '%s' found.",bundleID));
 			return;
 		}
-		
-		// getting configuration meta-data
-		MetaTypeService metaType = (MetaTypeService) manager.getService(MetaTypeService.class.getName());
-		if (metaType == null) {
-			context.put(ERROR_MSG, "Metatype service not found.");
-			return;
-		}
-		
+
 		ConfigurationAdmin configAdmin = (ConfigurationAdmin) manager.getService(ConfigurationAdmin.class.getName());
 		if (configAdmin == null) {
 			context.put(ERROR_MSG, "ConfigurationAdmin service not found.");
@@ -679,22 +657,15 @@ public class SettingsView extends ALayoutServlet {
 			return;
 		}
 		
-		MetaTypeInformation metaTypeInfo = metaType.getMetaTypeInformation(bundle);
-		if (metaTypeInfo == null) {
-			context.put(ERROR_MSG, String.format("No MetaTypeInformation found for service with PID '%s'.",pid));
-			return;
-		}
-		
-		String locale = Locale.ENGLISH.getLanguage();
-		ObjectClassDefinition ocd = metaTypeInfo.getObjectClassDefinition(pid, locale);
+		ObjectClassDefinition ocd = this.getObjectClassDefinition(request, manager, bundle, pid);
 		if (ocd == null) {
-			context.put(ERROR_MSG, String.format("No ObjectClassDefinition found for service with PID '%s' and locale '%s'.",pid,locale));
+			context.put(ERROR_MSG, String.format("No ObjectClassDefinition found for service with PID '%s'.",pid));
 			return;
 		}
 		
 		AttributeDefinition[] attributes = ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
 		if (attributes == null) {
-			context.put(ERROR_MSG, String.format("No AttributeDefinitions found for service with PID '%s' and locale '%s'.",pid,locale));
+			context.put(ERROR_MSG, String.format("No AttributeDefinitions found for service with PID '%s' and locale '%s'.",pid));
 			return;
 		}
 		
@@ -874,5 +845,91 @@ public class SettingsView extends ALayoutServlet {
 		} else {
 			return null;
 		}
+	}
+	
+	private Set<String> getMetaTypeServicePIDs(ServiceManager manager, Bundle bundle) {		
+		MetaTypeService metaTypeService = (MetaTypeService) manager.getService(MetaTypeService.class.getName());
+		if (metaTypeService == null) throw new NullPointerException("Unable to find the metatype service");	
+		
+		MetaTypeInformation mti = metaTypeService.getMetaTypeInformation(bundle);
+		String[] pidArray = (mti==null)?null:mti.getPids();
+		if (pidArray != null) {
+			return new HashSet<String>(Arrays.asList(pidArray));
+		} else {
+			return Collections.emptySet();
+		}
+	}
+	
+	private Set<String> getMetaTypeProviderPIDs(Bundle bundle) {
+		HashSet<String> metaTypePIDs = new HashSet<String>();
+		
+		ServiceReference[] serviceRefs = bundle.getRegisteredServices();
+		if (serviceRefs != null) {
+			for (ServiceReference ref : serviceRefs) {
+				// a managed-service always has a PID
+				String pid = (String) ref.getProperty(Constants.SERVICE_PID);
+				if (pid!= null) {			
+					HashSet<String> objectClassSet = new HashSet<String>(Arrays.asList((String[])ref.getProperty(Constants.OBJECTCLASS)));
+					if (objectClassSet.contains(MetaTypeProvider.class.getName()) && !metaTypePIDs.contains(pid)) {
+						metaTypePIDs.add(pid);
+					}
+				}
+			}
+		}
+		
+		return metaTypePIDs;
+	}
+	
+	public String[] getMetaTypePIDs(ServiceManager manager, Bundle bundle) {
+		HashSet<String> metaTypePIDs = new HashSet<String>();
+
+		// Loopup the PIDs of all metatypes provided via the metatype-service
+		metaTypePIDs.addAll(this.getMetaTypeServicePIDs(manager, bundle));		
+		
+		// search for additional metatype-providers
+		metaTypePIDs.addAll(this.getMetaTypeProviderPIDs(bundle));
+		
+		return metaTypePIDs.toArray(new String[metaTypePIDs.size()]);
+	}	
+	
+	private ObjectClassDefinition getObjectClassDefinitionFromMetaTypeService(ServiceManager manager, Bundle bundle, String PID, List<Locale> locales) {
+		MetaTypeService metaTypeService = (MetaTypeService) manager.getService(MetaTypeService.class.getName());
+		if (metaTypeService == null) throw new NullPointerException("Unable to find the metatype service");	
+		
+		if (this.getMetaTypeServicePIDs(manager, bundle).contains(PID)) { 
+			MetaTypeInformation mti = metaTypeService.getMetaTypeInformation(bundle);			
+			String locale = this.getPreferedLocale(locales, mti.getLocales());			
+			return mti.getObjectClassDefinition(PID, locale);
+		} else {
+			return null;
+		}
+	}
+	
+	private ObjectClassDefinition getObjectClassDefinitionFromMetaTypeProvider(ServiceManager manager, Bundle bundle, String PID, List<Locale> locales) {
+		ServiceReference[] serviceRefs = bundle.getRegisteredServices();
+		if (serviceRefs != null) {
+			for (ServiceReference ref : serviceRefs) {
+				// a managed-service always has a PID
+				String nextPID = (String) ref.getProperty(Constants.SERVICE_PID);
+				if (nextPID!= null && nextPID.equals(PID)) {
+					MetaTypeProvider mProvider = (MetaTypeProvider) manager.getService(ref);
+					String locale = this.getPreferedLocale(locales, mProvider.getLocales());
+					return mProvider.getObjectClassDefinition(PID, locale);
+				}
+			}
+		}
+		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public ObjectClassDefinition getObjectClassDefinition(HttpServletRequest request, ServiceManager manager, Bundle bundle, String PID) {
+		final List<Locale> preferedLocale = Collections.list(request.getLocales());
+		
+		// try to find ocd via metatype-service
+		ObjectClassDefinition ocd = this.getObjectClassDefinitionFromMetaTypeService(manager, bundle, PID, preferedLocale);
+		if (ocd != null) return ocd;
+		
+		// try to find ocd via metatype-provider 
+		return this.getObjectClassDefinitionFromMetaTypeProvider(manager, bundle, PID, preferedLocale);
 	}
 }

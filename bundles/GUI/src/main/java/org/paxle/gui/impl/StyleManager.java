@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.jar.JarEntry;
@@ -17,7 +16,6 @@ import java.util.jar.JarFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.http.HttpContext;
@@ -98,7 +96,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 
 
 	public void setStyle(String name) {
-		if( name.equals( "default")) {
+		if(name.equals( "default")) {
 
 			this.servletManager.unregisterAllResources();			
 			this.servletManager.addResources("/css","/resources/templates/layout/css");
@@ -223,16 +221,6 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 
 		return ocd;
 	}
-
-	/**
-	 * @return the default configuration of this service
-	 */
-	public Hashtable<String,Object> getDefaults() {
-		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
-		defaults.put(PROP_STYLE, "default");
-		defaults.put(Constants.SERVICE_PID, PID);
-		return defaults;
-	}
 	
 	/**
 	 * Updates the manager with the configuration changed by the user
@@ -240,16 +228,13 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 	 */
 	@SuppressWarnings("unchecked")
 	public void updated(Dictionary configuration) throws ConfigurationException {
-		if (configuration == null ) {
-			/*
-			 * Generate default configuration
-			 */
-			configuration = this.getDefaults();
-		}
+		if (configuration == null ) return;
 		
 		// getting the configured style
 		String style = (String) configuration.get(PROP_STYLE);
-		this.setStyle(style);
+		if (style != null) {
+			this.setStyle(style);
+		}
 	}
 
 }

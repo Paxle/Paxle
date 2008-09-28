@@ -193,7 +193,7 @@ public class ServiceManager {
 	public ServiceReference[] getServiceReferences(final String clazz, final String filter) throws InvalidSyntaxException {
 		return context.getServiceReferences(clazz, filter);
 	}
-    
+	
     public Bundle[] getBundles() {
         return this.context.getBundles();
     }
