@@ -28,6 +28,8 @@
     <h4>${text.installBundles.fromFile.title}</h4>
     <form enctype="multipart/form-data" method="post" action="">
     	<p>
+			<input type="checkbox" name="replaceExisting" id="replaceExisting" />
+			<label for="replaceExisting">${text.installBundles.replaceExisting}</label><br />
     		<input type="file" name="bundleJar" size="60" />
     		<input type="submit" name="installUpload" value="${text.installBundles.doInstall}" />
     	</p>
@@ -44,7 +46,7 @@
 			${text.listBundles.filterBundles}:			
     		<select name="filter">
 				#foreach($entry in $sortTool.sort(${filters.entrySet()}, ["key:asc"]))
-					<option value="${entry.value}" #if($filter == ${entry.value})selected="selected"#end>${entry.key}</option>
+					<option value="${entry.value}" #if($filter && $filter == ${entry.value})selected="selected"#end>${entry.key}</option>
 				#end
 			</select>
 			<input type="submit" name="doFilter" value="${text.listBundles.doFilter}" />

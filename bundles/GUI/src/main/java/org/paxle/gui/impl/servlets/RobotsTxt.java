@@ -39,7 +39,7 @@ public class RobotsTxt extends ALayoutServlet implements ManagedService {
 
 		context.put("layout", "plain.vm");
 		
-		context.put("robotstxt", (String) config.get(ROBOTSTXT));
+		context.put("robotstxt", config.get(ROBOTSTXT));
 		
 		return template;
 	}

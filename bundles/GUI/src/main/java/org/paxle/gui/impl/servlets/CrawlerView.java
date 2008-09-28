@@ -72,7 +72,6 @@ public class CrawlerView extends ALayoutServlet {
 		
 		private HashMap<String,String> errorUrls = null;
 		
-		@SuppressWarnings("unchecked")
 		public UrlTank(final ServiceManager manager, final ICommandProfile profile) throws Exception {
 			if (profile == null) throw new NullPointerException("The command-profile is null");
 			this.profile = profile;
