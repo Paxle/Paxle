@@ -26,7 +26,7 @@ public class GuiListener implements BundleListener {
 				 * Registering the servlet
 				 */
 				BlacklistServlet servlet = new BlacklistServlet(blacklistFilter);
-				servlet.init(bc.getBundle().getEntry("/").toString(),"/blacklist");
+				servlet.setBundleLocation(bc.getBundle().getEntry("/").toString());
 				Hashtable<String, String> props = new Hashtable<String, String>();
 				props.put("path", "/blacklist");
 				props.put("menu", "Blacklist");

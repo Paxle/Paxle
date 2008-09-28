@@ -139,7 +139,7 @@ public class Activator implements BundleActivator {
 	}
 
 	private void registerServlet(final String location, final ALayoutServlet servlet, final String menuName, HttpContext context) {
-		servlet.init(null, location);
+		servlet.setBundleLocation(null);
 		servletManager.addServlet(location, servlet, context);
 		if (menuName != null) {
 			menuManager.addItem(location, menuName);

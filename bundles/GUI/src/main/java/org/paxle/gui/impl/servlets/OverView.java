@@ -44,7 +44,7 @@ public class OverView extends ALayoutServlet {
 			
 			if (request.getParameter("gc") != null) {
 				System.gc();
-				response.sendRedirect(super.servletLocation + "#dmemory");
+				response.sendRedirect(request.getServletPath() + "#dmemory");
 			}
 			
 			// set system
@@ -77,10 +77,10 @@ public class OverView extends ALayoutServlet {
 					if (request.getParameter("service") != null && request.getParameter("service").equals(name)) {
 						if (request.getParameter("pause") != null) {
 							((IMWComponent<?>)services[0]).pause();
-							response.sendRedirect(super.servletLocation);
+							response.sendRedirect(request.getServletPath());
 						} else if (request.getParameter("resume") != null) {
 							((IMWComponent<?>)services[0]).resume();
-							response.sendRedirect(super.servletLocation);
+							response.sendRedirect(request.getServletPath());
 						}
 					}
 					

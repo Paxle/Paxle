@@ -22,13 +22,13 @@ public class StatusView extends ALayoutServlet {
 		try {        	
 			if (request.getParameter("pauseCrawl") != null) {
 				context.put("doPause", Boolean.TRUE);
-				response.sendRedirect(super.servletLocation + "#dcrawler");
+				response.sendRedirect(request.getServletPath() + "#dcrawler");
 			} else if (request.getParameter("resumeCrawl") != null) {
 				context.put("doResume", Boolean.TRUE);
-				response.sendRedirect(super.servletLocation + "#dcrawler");
+				response.sendRedirect(request.getServletPath() + "#dcrawler");
 			} else if (request.getParameter("processNextCrawl") != null) {
 				context.put("doProcessNextCrawl", Boolean.TRUE);
-				response.sendRedirect(super.servletLocation + "#dcrawler");
+				response.sendRedirect(request.getServletPath() + "#dcrawler");
 			} 
 
 			if (request.getParameter("shutdown") != null) {
