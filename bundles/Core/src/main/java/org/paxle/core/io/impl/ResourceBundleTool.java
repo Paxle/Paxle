@@ -32,6 +32,11 @@ public class ResourceBundleTool implements IResourceBundleTool {
 		return resourceBundleURLs;
 	}
 	
+	public String[] getLocaleArray(String resourceBundleBase, Locale defaultLocale) {
+		List<String> localeList = this.getLocaleList(resourceBundleBase, defaultLocale);
+		return localeList.toArray(new String[localeList.size()]);
+	}
+	
 	/**
 	 * @param defaultLocale the locale of the default {@link ResourceBundle} file
 	 * @return a list of locale strings available for the given base-name

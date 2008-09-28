@@ -1,6 +1,7 @@
 
 package org.paxle.core.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -145,6 +146,8 @@ public class Activator implements BundleActivator, InvocationHandler {
 		
 		this.filterManager = this.createAndRegisterFilterManager(bc, this.rbTool, this.propertyStore);
 		
+		this.createAndRegisterRuntimeSettings(bc);
+		
 		dataManager = new DataManager<ICommand>();
 		tempFileManager = new TempFileManager(false);
 		cryptManager = new CryptManager();
@@ -234,16 +237,16 @@ public class Activator implements BundleActivator, InvocationHandler {
 		final ConfigurationAdmin cm = (ConfigurationAdmin) bc.getService(cmRef);		
 		
 		// getting all locale for the manager
-		List<String> localeList = rbTool.getLocaleList(IFilterManager.class.getSimpleName(),Locale.ENGLISH);
+		String[] localeArray = rbTool.getLocaleArray(IFilterManager.class.getSimpleName(),Locale.ENGLISH);
 		
 		// getting the core-bundle properties
-		Properties coreProps = propStore.getProperties(bc);
+		Properties props = propStore.getProperties(bc);
 		
 		// creating filter-manager
 		FilterManager fManager = new FilterManager(
-				localeList.toArray(new String[localeList.size()]), 
+				localeArray, 
 				cm.getConfiguration(FilterManager.PID),
-				coreProps
+				props
 		);
 		
 		// managed- and metatype-provider-service properties
@@ -255,6 +258,23 @@ public class Activator implements BundleActivator, InvocationHandler {
 		bc.registerService(new String[]{ManagedService.class.getName(), MetaTypeProvider.class.getName()}, fManager, fManagerProps);
 		
 		return fManager;
+	}
+	
+	private void createAndRegisterRuntimeSettings(BundleContext bc) {
+		File iniFile = new File("start.ini");
+		
+		// getting all locale for the manager
+		String[] localeArray = rbTool.getLocaleArray(RuntimeSettings.class.getSimpleName(),Locale.ENGLISH);
+		
+		// creating component
+		final RuntimeSettings rts = new RuntimeSettings(localeArray, iniFile);
+		
+		// managed- and metatype-provider-service properties
+		Hashtable<String, Object> props = new Hashtable<String, Object>();
+		props.put(Constants.SERVICE_PID, RuntimeSettings.PID);		
+		
+		// register as service
+		bc.registerService(new String[]{ManagedService.class.getName(), MetaTypeProvider.class.getName()}, rts, props);		
 	}
 
 	private void initEclipseApplication(BundleContext bc) {
