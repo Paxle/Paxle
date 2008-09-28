@@ -941,6 +941,24 @@
 								</configuration>
 							</execution>
 						</executions>
+						<!-- XXX we need to change the version of foxtrot because version 2.0 seems 
+						     not to be available in a maven repository at the moment:
+						     
+						     See: 
+								[ERROR] BUILD ERROR
+								[INFO] Failed to resolve artifact.
+								
+								Missing:
+								1) foxtrot:foxtrot:jar:3.0
+						     
+						-->
+						<dependencies>
+							<dependency>
+								<groupId>foxtrot</groupId>
+								<artifactId>foxtrot</artifactId>
+								<version>2.0</version>
+							</dependency>
+						</dependencies>
 					</plugin>
 
 					<!-- add the installers to the projects artifacts list so that they can be deployed-->
