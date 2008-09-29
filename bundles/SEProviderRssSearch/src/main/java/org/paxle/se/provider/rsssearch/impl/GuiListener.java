@@ -24,7 +24,7 @@ public class GuiListener implements BundleListener {
 				 * Registering the servlet
 				 */
 				ConfigServlet servlet=new ConfigServlet();
-				servlet.init(bc.getBundle().getEntry("/").toString(),"/rsssearchconfig");
+				servlet.setBundleLocation(bc.getBundle().getEntry("/").toString());
 				Hashtable<String, String> props = new Hashtable<String, String>();
 				props.put("path", "/rsssearchconfig");
 				props.put("menu", "RSS search sources");
