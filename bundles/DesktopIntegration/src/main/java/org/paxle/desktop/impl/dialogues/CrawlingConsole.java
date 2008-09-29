@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.WeakHashMap;
@@ -134,7 +135,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		props.put(PROP_TABLE_DISPLAY, model.type.name());
 		props.put(PROP_SHOW_ENQUEUED, Boolean.toString(cbEnq.isSelected()));
 		props.put(PROP_SHOW_DESTROYED, Boolean.toString(cbDstr.isSelected()));
-		logger.debug("closed CrawlingConsole: " + new Exception().getStackTrace()[1].toString()); //$NON-NLS-1$
 		super.close();
 	}
 	
@@ -150,6 +150,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 			registerEventListener(Events.MWCOMP_STATE,
 					MWComponentEvent.PROP_COMPONENT_ID, id,
 					MWComponentEvent.TOPIC_ALL);
+			currentComp = comp;
 		}
 		if (enqUpdate) {
 			if (currentEnq)
@@ -217,9 +218,12 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 			updateCpb(false, true, false);
 		}
 		if (ac == AC_SELECT || ac == AC_ENQUEUED || ac == AC_DESTROYED) {
-			updateListeners(
-					MWComponents.valueOfHumanReadable((String)cbox.getSelectedItem()),
-					cbEnq.isSelected(), cbDstr.isSelected());
+			final String compItem = (String)cbox.getSelectedItem();
+			final boolean enq = cbEnq.isSelected();
+			final boolean dstr = cbDstr.isSelected();
+			if (logger.isDebugEnabled())
+				logger.debug("received ActionEvent, item: '" + compItem + "', enq: " + enq + ", dstr: " + dstr);
+			updateListeners(MWComponents.valueOfHumanReadable(compItem), enq, dstr);
 			
 			model.setType((cbDstr.isSelected()) ? TableDisplay.REJECTED : (cbEnq.isSelected()) ? TableDisplay.WORKING_ON : null);
 		}
@@ -252,6 +256,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		cbox.setActionCommand(AC_SELECT);
 		cbox.setSelectedIndex(comp.ordinal());
 		final JPanel bRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		clear.setEnabled(false);
 		bRight.add(clear);
 		
 		final JPanel bbLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -354,7 +359,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 				compId = compId.substring(0, compId.length() - ".out".length()); //$NON-NLS-1$
 			}
 			final MWComponents mwc = MWComponents.valueOfID(compId);
-			System.out.println("mwc: " + ((mwc == null) ? compId : mwc.toString())); //$NON-NLS-1$
+			// System.out.println("mwc: " + ((mwc == null) ? compId : mwc.toString())); //$NON-NLS-1$
 			row.add((mwc == null) ? compId : mwc.toString());
 			row.add((cmd == null) ? Messages.getString("crawlingConsole.unknown") : cmd.getResult().name()); //$NON-NLS-1$
 			switch (type) {
@@ -402,8 +407,17 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		updateCpb(event.getTopic() == MWComponentEvent.TOPIC_PAUSED, false, false);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.osgi.service.event.EventHandler#handleEvent(Event)
+	 */
 	public void handleEvent(Event event) {
 		final String topic = event.getTopic();
+		if (logger.isDebugEnabled())
+			logger.debug("Received event '" + event +
+					"', topic: '" + topic +
+					"', keys: " + Arrays.toString(event.getPropertyNames()) +
+					", componentID: '" + event.getProperty("componentID"));
 		if (topic.startsWith(CommandEvent.TOPIC_)) {
 			handleCommandEvent(event);
 		} else if (topic.startsWith(MWComponentEvent.TOPIC_)) {

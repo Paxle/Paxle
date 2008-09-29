@@ -1,7 +1,6 @@
 package org.paxle.core.impl;
 
 import java.io.IOException;
-import java.util.AbstractQueue;
 import java.util.Hashtable;
 
 import org.apache.commons.logging.Log;
@@ -181,7 +180,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 			((IFilterQueue)compDataSource).setFilterQueueID(filterQueueID);
 			
 			// set the event-admin service
-			if (eventService != null && compDataSource instanceof AbstractQueue) {
+			if (eventService != null && compDataSource instanceof AQueue) {
 				((AQueue<?>)compDataSource).setEventService(eventService);
 			}
 			
@@ -200,7 +199,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 			((IFilterQueue)compDataSink).setFilterQueueID(filterQueueID);	
 			
 			// set the event-admin service
-			if (eventService != null && compDataSink instanceof AbstractQueue) {
+			if (eventService != null && compDataSink instanceof AQueue) {
 				((AQueue<?>)compDataSink).setEventService(eventService);
 			}			
 			
