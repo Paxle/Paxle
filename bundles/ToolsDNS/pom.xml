@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ToolsDNS</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<name>Paxle - Tools: DNS</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -38,6 +38,7 @@
 						<Import-Package>
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
 							org.paxle.core.filter;version="[0.1.0,0.2.0)",
+							org.paxle.core.doc;version="[0.1.0,0.2.0)",
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4", 
 							<!-- Logging framework -->

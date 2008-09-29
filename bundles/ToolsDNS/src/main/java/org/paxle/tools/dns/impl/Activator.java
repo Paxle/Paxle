@@ -18,7 +18,7 @@ public class Activator implements BundleActivator {
 		context.registerService(IAddressTool.class.getName(), new AddressTool(), null);
 		
 		Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
-		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{String.format("org.paxle.crawler.in; %s=%b", IFilter.PROP_FILTER_TARGET_DISABLED,Boolean.TRUE)});
+		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{String.format("org.paxle.crawler.in; %s=%b,org.paxle.parser.out", IFilter.PROP_FILTER_TARGET_DISABLED,Boolean.TRUE)});
 		context.registerService(IFilter.class.getName(), new DNSFilter(), filterProps);
 	}
 
