@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -33,6 +32,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -41,7 +41,6 @@ import javax.swing.event.ListSelectionListener;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -54,6 +53,7 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
 import org.paxle.core.io.IOTools;
+import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
@@ -120,6 +120,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		final GridBagConstraints gbc = createGbcDesc(y);
 		gbc.gridx = 1;
 		gbc.gridwidth = 2;
+		gbc.anchor = GridBagConstraints.NORTHWEST;
 		return gbc;
 	}
 	
@@ -287,7 +288,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 			final GridBagConstraints gbcDesc = createGbcDesc(y);
 			
 			panel.add(new JLabel(Messages.getString("settingsPanel.description")), gbcLabel); //$NON-NLS-1$
-			panel.add(new JLabel(ocd.getDescription()), gbcHeader);
+			panel.add(Utilities.setTextLabelDefaults(new JTextArea(ocd.getDescription())), gbcHeader);
 			incGridY(gbcHeader, gbcLabel, gbcOptSingle, gbcOptMulti, gbcDesc);
 			panel.add(new JLabel(Messages.getString("settingsPanel.bundle")), gbcLabel); //$NON-NLS-1$
 			panel.add(new JLabel(bundle.getSymbolicName()), gbcHeader);
