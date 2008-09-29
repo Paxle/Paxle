@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.WeakHashMap;
@@ -31,6 +32,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,6 +64,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private static final String PROP_TABLE_DISPLAY = "tableDisplay"; //$NON-NLS-1$
 	private static final String PROP_SHOW_ENQUEUED = "showEnqueued"; //$NON-NLS-1$
 	private static final String PROP_SHOW_DESTROYED = "showDestroyed"; //$NON-NLS-1$
+	private static final String PROP_COL_WIDTHS = "columnWidths"; //$NON-NLS-1$
 	
 	private static final String AC_CLEAR = new String();
 	private static final String AC_CRAWL = new String();
@@ -102,12 +105,14 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private final ConsoleTableModel model;
 	private final JComboBox     cbox;
 	private final ICommandTracker tracker;
+	private final EnumMap<TableDisplay,int[]> columnWidths = new EnumMap<TableDisplay,int[]>(TableDisplay.class);
 	
 	private MWComponents currentComp;
 	private boolean currentEnq, currentDstr;
 	
 	public CrawlingConsole(final DesktopServices services) {
 		super(services, DIM_CCONSOLE);
+		
 		cbox = new JComboBox(DesktopServices.MWComponents.humanReadableNames());
 		cbox.addActionListener(this);
 		tracker = services.getServiceManager().getService(ICommandTracker.class);
@@ -118,13 +123,45 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		final String tableDisplay = props.getProperty(PROP_TABLE_DISPLAY, TableDisplay.WORKING_ON.name());
 		final String showEnqueued = props.getProperty(PROP_SHOW_ENQUEUED, Boolean.TRUE.toString());
 		final String showDestroyed = props.getProperty(PROP_SHOW_DESTROYED, Boolean.FALSE.toString());
-		model = new ConsoleTableModel(TableDisplay.valueOf(tableDisplay));
+		initColumnWidthsMap(props);
+		
+		model = new ConsoleTableModel();
 		table = new JTable(model, new ConsoleTableColumnModel());
 		table.setAutoCreateColumnsFromModel(true);
+		model.setType(TableDisplay.valueOf(tableDisplay));
 		init(DesktopServices.MWComponents.valueOf(mwcomp),
 				Boolean.parseBoolean(urlsEncoded),
 				Boolean.parseBoolean(showEnqueued),
 				Boolean.parseBoolean(showDestroyed));
+	}
+	
+	private void initColumnWidthsMap(final Properties props) {
+		for (final TableDisplay td : TableDisplay.values()) {
+			final String widthsProp = props.getProperty(PROP_COL_WIDTHS + td.name(), null);
+			if (widthsProp == null || widthsProp.length() == 0)
+				continue;
+			final String[] propSplit = widthsProp.split("[,]");
+			final int[] widths = new int[propSplit.length];
+			for (int i=0; i<propSplit.length; i++)
+				widths[i] = Integer.parseInt(propSplit[i]);
+			columnWidths.put(td, widths);
+		}
+	}
+	
+	private void saveColumnWidthsMap(final Properties props) {
+		final TableDisplay type = model.type;
+		for (final TableDisplay td : TableDisplay.values()) {
+			final int[] widths = (td == type) ? getCurrentWidths() : columnWidths.get(td);
+			if (widths == null || widths.length == 0)
+				continue;
+			final StringBuilder sb = new StringBuilder();
+			for (int i=0; i<widths.length;) {
+				sb.append(Integer.toString(widths[i]));
+				if (++i < widths.length)
+					sb.append(',');
+			}
+			props.put(PROP_COL_WIDTHS + td.name(), sb.toString());	
+		}
 	}
 	
 	@Override
@@ -135,6 +172,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		props.put(PROP_TABLE_DISPLAY, model.type.name());
 		props.put(PROP_SHOW_ENQUEUED, Boolean.toString(cbEnq.isSelected()));
 		props.put(PROP_SHOW_DESTROYED, Boolean.toString(cbDstr.isSelected()));
+		saveColumnWidthsMap(props);
 		super.close();
 	}
 	
@@ -310,6 +348,14 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		}
 	}
 	
+	private final int[] getCurrentWidths() {
+		final TableColumnModel tcm = table.getTableHeader().getColumnModel();
+		final int[] widths = new int[tcm.getColumnCount()];
+		for (int i=0; i<widths.length; i++)
+			widths[i] = tcm.getColumn(i).getWidth();
+		return widths;
+	}
+	
 	private final class ConsoleTableModel extends DefaultTableModel {
 		
 		private static final long serialVersionUID = 1L;
@@ -317,14 +363,30 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		private TableDisplay type;
 		private int maxSize = 100;
 		
-		public ConsoleTableModel(final TableDisplay type) {
-			setType(type);
+		public ConsoleTableModel() {
 		}
 		
 		public void setType(final TableDisplay type) {
 			if (this.type != type) {
-				if (type != null)
+				if (type != null) {
+					if (this.type != null) {
+						// save old widths
+						final int[] oldWidths = getCurrentWidths();
+						columnWidths.put(this.type, oldWidths);
+						logger.debug("Saving old widths: " + Arrays.toString(oldWidths));
+					}
+					
+					// set identifiers
 					super.setColumnIdentifiers(type.columnHeaders);
+					// set new widths
+					final int[] newWidths = columnWidths.get(type);
+					logger.debug("New widhts: " + Arrays.toString(newWidths));
+					final TableColumnModel headerCols = table.getTableHeader().getColumnModel();
+					if (newWidths != null && headerCols.getColumnCount() > 0) {
+						for (int i=0; i<newWidths.length; i++)
+							headerCols.getColumn(i).setPreferredWidth(newWidths[i]);
+					}
+				}
 				this.type = type;
 			}
 		}
