@@ -18,7 +18,12 @@
 				<p>
 					<img src="?settings=config&amp;bundleID=$bundleID&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/>
 					<strong>$ocd.getName()</strong>&nbsp;[Bundle <a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a>]</br>
-					<div class="descriptionText">$ocd.getDescription()</div>
+					<div class="descriptionText">
+						#if($ocd.getDescription())
+							#set($desc = $ocd.getDescription())
+							$desc.replaceAll("\n", "<br />")
+						#end
+					</div>
 				</p>						
 				    					
 				#if($paramParser.getString("viewImportedConfig"))
@@ -95,8 +100,10 @@
 									#end
 								</td>
 								<td class="descriptionText">
-									#set($desc = ${attribute.getDescription()})
-									$desc.replaceAll("\n", "<br />")
+									#if($ocd.getDescription())
+    									#set($desc = ${attribute.getDescription()})
+    									$desc.replaceAll("\n", "<br />")
+									#end
 									#if($attributeID.toLowerCase().contains("password"))
 										<p><em>${text.listConfig.passwordPlaintextWarning}</em></p>
 									#end
@@ -162,8 +169,10 @@
 							<tt>[$PID]</tt>
 						</td>
 						<td class="descriptionText">
-							#set($desc = ${ocd.getDescription()})
-							$desc.replaceAll("\n", "<br />")
+							#if($ocd.getDescription())
+    							#set($desc = ${ocd.getDescription()})
+    							$desc.replaceAll("\n", "<br />")
+							#end
 						</td>
 					</tr>							
 				#end
