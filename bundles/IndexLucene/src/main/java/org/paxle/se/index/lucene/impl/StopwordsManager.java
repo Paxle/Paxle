@@ -9,13 +9,12 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.StopAnalyzer;
-import org.paxle.core.doc.IIndexerDocument;
 
 public class StopwordsManager {
 	
 	public static final String STOPWORDS_FILE_EXT = ".stopwords";
 	
-	private final HashMap<IIndexerDocument.Language,PaxleAnalyzer> map = new HashMap<IIndexerDocument.Language,PaxleAnalyzer>();
+	private final HashMap<String,PaxleAnalyzer> map = new HashMap<String,PaxleAnalyzer>();
 	private final Log logger = LogFactory.getLog(StopwordsManager.class);
 	private final File rootdir;
 	private PaxleAnalyzer defaultAnalyzer = null;
@@ -31,13 +30,13 @@ public class StopwordsManager {
 	 * Returns a PaxleAnalyzer for the given language
 	 * @param language
 	 */
-	public PaxleAnalyzer getAnalyzer(final IIndexerDocument.Language language) {
+	public PaxleAnalyzer getAnalyzer(final String language) {
 		logger.debug("providing analyzer for language '" + language + "'");
 		if (language == null)
 			return getDefaultAnalyzer();
 		PaxleAnalyzer pa = map.get(language);
 		if (pa == null) {
-			final File swFile = new File(rootdir, language.name() + STOPWORDS_FILE_EXT);
+			final File swFile = new File(rootdir, language + STOPWORDS_FILE_EXT);
 			if (!swFile.exists()) {
 				logger.warn("no stopwords declaration file found for language '" + language + "', falling back to lucene's default");
 				return getDefaultAnalyzer();

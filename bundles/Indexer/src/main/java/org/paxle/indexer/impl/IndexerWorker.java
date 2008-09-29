@@ -6,8 +6,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -198,7 +196,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 		try {
 			final Collection<String> kw = pdoc.getKeywords();
 			final Set<String> langs = pdoc.getLanguages();
-
+			
 			String protocol = location.getScheme();
 			
 			/* this non-standard format has been chosen intentionally to allow an easy overview about which fields
@@ -209,7 +207,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 			if (pdoc.getAuthor() != null)      idoc.set(IIndexerDocument.AUTHOR,        pdoc.getAuthor());
 			if (name != null)                  idoc.set(IIndexerDocument.INTERNAL_NAME, name);
 			if (kw.size() > 0)                 idoc.set(IIndexerDocument.KEYWORDS,      kw.toArray(new String[kw.size()]));
-			if (langs.size() > 0)              idoc.set(IIndexerDocument.LANGUAGES,     toLanguages(langs));
+			if (langs.size() > 0)              idoc.set(IIndexerDocument.LANGUAGES,     langs.toArray(new String[langs.size()]));
 			                                   idoc.set(IIndexerDocument.LAST_CRAWLED,  (lastCrawled == null) ? new Date(System.currentTimeMillis()) : lastCrawled);
 			if (pdoc.getLastChanged() != null) idoc.set(IIndexerDocument.LAST_MODIFIED, pdoc.getLastChanged());
 			                                   idoc.set(IIndexerDocument.LOCATION,      location.toString());
@@ -226,18 +224,5 @@ public class IndexerWorker extends AWorker<ICommand> {
 			idoc.setStatus((e instanceof IOException) ? IIndexerDocument.Status.IOError : IIndexerDocument.Status.IndexerError, e.getMessage());
 		}
 		return idoc;
-	}
-	
-	private static IIndexerDocument.Language[] toLanguages(Set<String> langs) {
-		final Set<IIndexerDocument.Language> result = new HashSet<IIndexerDocument.Language>();
-		final Iterator<String> it = langs.iterator();
-		while (it.hasNext()) {
-			final String lng = it.next();
-			if (lng.length() < 2)
-				continue;
-			if (lng.length() == 2 || lng.charAt(2) == '.')
-				result.add(IIndexerDocument.Language.valueOf(lng.substring(0, 2).toLowerCase()));
-		}
-		return result.toArray(new IIndexerDocument.Language[result.size()]);
 	}
 }

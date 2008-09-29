@@ -78,7 +78,7 @@ public class Converter {
 				
 			} else if (Reader.class.isAssignableFrom(field.getType())) {
 				return reader2field(field, (Reader)data);
-	
+				
 			} else if (File.class.isAssignableFrom(field.getType())) {
 				return file2field(field, (File)data);
 				

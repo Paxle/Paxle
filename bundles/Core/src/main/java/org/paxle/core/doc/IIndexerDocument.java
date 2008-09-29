@@ -9,11 +9,11 @@ import java.util.Map;
 public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	
 	public static final Field<String>                   AUTHOR        = new Field<String>                   (true,  true,  true,  "Author",       String.class);
-	public static final Field<String>                   INTERNAL_NAME = new Field<String>                   (true,  true,  true, "InternalName", String.class);
-	public static final Field<String[]>                 KEYWORDS      = new Field<String[]>                 (true,  true,  true, "Keywords",     String[].class);
+	public static final Field<String>                   INTERNAL_NAME = new Field<String>                   (true,  true,  true,  "InternalName", String.class);
+	public static final Field<String[]>                 KEYWORDS      = new Field<String[]>                 (true,  true,  true,  "Keywords",     String[].class);
 	public static final Field<Date>                     LAST_CRAWLED  = new Field<Date>	                    (false, true,  false, "LastCrawled",  Date.class);
 	public static final Field<Date>                     LAST_MODIFIED = new Field<Date>	                    (true,  true,  false, "LastModified", Date.class);
-	public static final Field<Language[]>               LANGUAGES     = new Field<Language[]>               (true,  true,  false, "Languages",    Language[].class);
+	public static final Field<String[]>                 LANGUAGES     = new Field<String[]>                 (true,  true,  false, "Languages",    String[].class);
 	public static final Field<String>                   LOCATION      = new Field<String>                   (true,  true,  false, "Location",     String.class);
 	public static final Field<byte[]>                   MD5           = new Field<byte[]>                   (false, true,  false, "MD5",          byte[].class);
 	public static final Field<String>                   MIME_TYPE     = new Field<String>                   (true,  false, false, "MimeType",     String.class);
@@ -78,6 +78,7 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	 */
 	/* When you change the names of the constants, please be aware that the
 	 * org.paxle.se.index.lucene.impl.StopwordManager depends on them */
+	/* Obsolete
 	public static enum Language {
 		aa, //	Afar 
 		ab, //	Abkhazian 
@@ -221,5 +222,5 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 		za, //	Zhuang 
 		zh, //	Chinese 
 		zu, //	Zulu
-	}
+	}*/
 }

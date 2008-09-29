@@ -136,7 +136,7 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 		try {
 			final long time = System.currentTimeMillis();
 			
-			final IIndexerDocument.Language[] langs = document.get(IIndexerDocument.LANGUAGES);
+			final String[] langs = document.get(IIndexerDocument.LANGUAGES);
 			
 			// depending on whether the document has set a valid language or not, either the
 			// default stop-words set of Lucene is used or - if available for the language -
@@ -146,7 +146,7 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 			//
 			// TODO: extend the StopwordsManager to store the Converters for the languages
 			//       to not always having to create a new instance
-			final IIndexerDocument.Language lang;
+			final String lang;
 			final Converter cv;
 			if (langs == null || langs.length == 0) {
 				lang = null;
