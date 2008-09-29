@@ -161,7 +161,10 @@
 							<a href="?settings=config&amp;bundleID=${bundle.getBundleId()}&amp;pid=$PID#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${ocd.getName()}</a><br/>
 							<tt>[$PID]</tt>
 						</td>
-						<td class="descriptionText">${ocd.getDescription()}</td>
+						<td class="descriptionText">
+							#set($desc = ${ocd.getDescription()})
+							$desc.replaceAll("\n", "<br />")
+						</td>
 					</tr>							
 				#end
     		#end
