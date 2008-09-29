@@ -192,7 +192,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		defaults.put(PROP_CONNECTION_TIMEOUT, Integer.valueOf(15000));
 		defaults.put(PROP_SOCKET_TIMEOUT, Integer.valueOf(15000));
 		defaults.put(PROP_MAXCONNECTIONS_PER_HOST, Integer.valueOf(10));
-		defaults.put(PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(-1));
+		defaults.put(PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(10485760));
 		defaults.put(PROP_ACCEPT_ENCODING, Boolean.TRUE);
 		defaults.put(PROP_TRANSFER_LIMIT, Integer.valueOf(-1));
 		

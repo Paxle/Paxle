@@ -32,7 +32,7 @@
 		<AD name="%httpCrawler.maxDownloadSize.name"
 				type="Integer"
 				id="maxDownloadSize"
-				default="-1"
+				default="10485760"
 				min="-1"
 				description="%httpCrawler.maxDownloadSize.desc"/>
 		
