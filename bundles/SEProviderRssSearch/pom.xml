@@ -40,6 +40,7 @@
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
+							org.osgi.service.cm;,
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Paxle Core Bundle -->
@@ -48,6 +49,13 @@
 							org.paxle.se.search;version="[0.1.0,0.2.0)",
 							org.paxle.se.query;version="[0.1.0,0.2.0)",
 							org.paxle.se.query.tokens;version="[0.1.0,0.2.0)",
+							<!-- GUI -->
+							javax.servlet.http;resultion=optional,
+							<!-- Apache Velocity (used by Paxle GUI bundle) -->
+							org.apache.velocity;resolution:=optional, 
+							org.apache.velocity.context;resolution:=optional,
+							<!-- Paxle GUI Bundle -->
+							org.paxle.gui;version="[0.1.0,0.2.0)";resolution:=optional,
 							<!-- Ignoring other classes -->
 							!net.sf.hibernate,
 							!net.sf.hibernate.*,
@@ -57,10 +65,11 @@
 							!oracle.*,
 							!org.jaxen.*,
 							!org.saxpath.*,
-							!org.apache.xml.resolver.*
+							!org.apache.xml.resolver.*,
 						</Import-Package>
 						<Private-Package>
 							org.paxle.se.provider.rsssearch.impl,
+							org.paxle.se.provider.rsssearch.impl.gui,
 							org.jdom,
 							org.jdom.*
 						</Private-Package>
@@ -107,6 +116,12 @@
 			<artifactId>SearchEngine</artifactId>
 			<version>[,0.2.0)</version>
 		</dependency>		
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>GUI</artifactId>
+			<version>[,0.2.0)</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>informa</groupId>

@@ -1,13 +1,23 @@
 
 package org.paxle.se.provider.rsssearch.impl;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IndexerDocument;
 import org.paxle.se.query.tokens.AToken;
@@ -18,7 +28,7 @@ import de.nava.informa.impl.basic.ChannelBuilder;
 import de.nava.informa.impl.basic.Item;
 import de.nava.informa.parsers.FeedParser;
 
-public class RssSearchProvider implements ISearchProvider {
+public class RssSearchProvider implements ISearchProvider,ManagedService {
 	
 	// the paxle default
 	private static final String DEFAULT_CHARSET = "UTF-8";
@@ -30,6 +40,7 @@ public class RssSearchProvider implements ISearchProvider {
 		System.out.println(feedURL);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
 		try {
 			String request=RssSearchQueryFactor.transformToken(token, new RssSearchQueryFactor());
@@ -58,6 +69,46 @@ public class RssSearchProvider implements ISearchProvider {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void updated(Dictionary properties) throws ConfigurationException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * read the list of RSS-URLs
+	 * @return an ArrayList with URLs
+	 * @throws IOException
+	 */
+	public static ArrayList<String> getUrls() throws IOException{
+		File rssList=new File("rssProviders.txt");
+		if(!rssList.exists()){
+			ArrayList<String> defaults=new ArrayList<String>();
+			defaults.add("http://del.icio.us/rss/tag/%s");
+			defaults.add("http://www.mister-wong.com/rss/tags/%s");
+			setUrls(defaults);
+		}
+		BufferedReader is=new BufferedReader(new InputStreamReader(new FileInputStream(rssList)));
+		String line;
+		ArrayList<String> list=new ArrayList<String>();
+		while((line=is.readLine())!=null){
+			list.add(line);
+		}
+		is.close();
+		return list;
+	}
+	public static void setUrls(ArrayList<String> urls) throws IOException{
+		File rssList=new File("rssProviders.txt");
+		if(!rssList.exists()){
+			rssList.createNewFile();
+		}
+		BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(rssList));
+		Iterator<String> it = urls.iterator();
+		while(it.hasNext()){
+			os.write((it.next()+"\n").getBytes());
+		}
+		os.close();
 	}
 
 }

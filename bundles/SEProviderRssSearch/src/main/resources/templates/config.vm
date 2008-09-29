@@ -1,0 +1,15 @@
+## Set the page title
+#set( $page_title = "Paxle RSS search providers" )
+
+<h2>RSS search providers</h2>
+
+#if($manager)
+    <dl>
+    <dt>RSS-URLs (%s will be replaces by search-phrase)</dt>
+    <dl><textarea name="urls" id="urls">
+    #foreach ($url in $urls)
+    $url
+    #end
+    </textarea></dd>
+    </dl>
+#end
