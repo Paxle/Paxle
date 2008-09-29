@@ -95,7 +95,8 @@
 									#end
 								</td>
 								<td class="descriptionText">
-									${attribute.getDescription()}
+									#set($desc = ${attribute.getDescription()})
+									$desc.replaceAll("\n", "<br />")
 									#if($attributeID.toLowerCase().contains("password"))
 										<p><em>${text.listConfig.passwordPlaintextWarning}</em></p>
 									#end
