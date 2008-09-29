@@ -1,6 +1,10 @@
 
 package org.paxle.desktop.impl.dialogues.settings;
 
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Insets;
+
 import javax.swing.JComponent;
 import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
@@ -13,6 +17,8 @@ import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.event.MultipleChangesListener;
 
 class StringAttrConfig extends AbstractAttrConfig<String> {
+	
+	private static final int MIN_CHARS = 10;
 	
 	private JTextField comp;
 	private boolean isPassword;
@@ -35,6 +41,11 @@ class StringAttrConfig extends AbstractAttrConfig<String> {
 	@Override
 	protected JComponent createOptionComp(Object value, final MultipleChangesListener mcl) {
 		comp = (isPassword) ? new JPasswordField() : new JTextField();
+		final Insets insets = comp.getInsets();
+		final FontMetrics metrics = comp.getFontMetrics(comp.getFont());
+		comp.setMinimumSize(new Dimension(
+				MIN_CHARS * metrics.charWidth('m') + insets.left + insets.right,
+				metrics.getHeight() + insets.bottom + insets.top));
 		mcl.addComp2Monitor(comp);
 		return comp;
 	}
