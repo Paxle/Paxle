@@ -14,7 +14,7 @@ import org.paxle.gui.impl.Log4jMemoryAppender;
 import org.paxle.gui.impl.ServiceManager;
 
 public class LogView extends ALayoutServlet {
-
+	
 	private static final long serialVersionUID = 1L;
 	
 	private final Log4jMemoryAppender log4jAppender;
@@ -33,41 +33,46 @@ public class LogView extends ALayoutServlet {
 	@Override
 	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context)
 	{
-        Template template = null;
-
-        try {
-        	
-        	if( request.getParameter("filterLogLevel") != null) {
-        		context.put( "filterLogLevel", new Integer(request.getParameter( "filterLogLevel")));
-        	} else {
-        		context.put( "filterLogLevel", Integer.valueOf(4));
-        	}
-        	
-        	if(request.getParameter("logType") == null || request.getParameter("logType").equals("log4j")) {
-          		context.put("logType", "log4j");
-        		context.put("logReader",this.log4jAppender);
-        	} else {
-        		context.put("logType", request.getParameter( "logType"));
-        		context.put("logReader",((ServiceManager)context.get("manager")).getService("org.osgi.service.log.LogReaderService"));
-  
-        	}
-        	
-        	//HashMap to determine LogLevelName
-        	HashMap<Integer, String> logLevelName = new HashMap<Integer, String>();
-        	logLevelName.put(Integer.valueOf(LogService.LOG_ERROR) , "error");
-        	logLevelName.put(Integer.valueOf(LogService.LOG_WARNING), "warn");
-        	logLevelName.put(Integer.valueOf(LogService.LOG_INFO), "info");
-        	logLevelName.put(Integer.valueOf(LogService.LOG_DEBUG), "debug");
-        	context.put( "logLevelNames" , logLevelName);
-        	
-            template = this.getTemplate("/resources/templates/LogView.vm");
-        } catch( Exception e ) {
-          System.err.println("Exception caught: " + e.getMessage());
-        } catch (Error e) {
-        	e.printStackTrace();
-        }
-
-        return template;
+		Template template = null;
+		
+		try {
+			if( request.getParameter("filterLogLevel") != null) {
+				context.put( "filterLogLevel", new Integer(request.getParameter( "filterLogLevel")));
+			} else {
+				context.put( "filterLogLevel", Integer.valueOf(4));
+			}
+			
+			if(request.getParameter("logType") == null || request.getParameter("logType").equals("log4j")) {
+				context.put("logType", "log4j");
+				context.put("logReader",this.log4jAppender);
+			} else {
+				context.put("logType", request.getParameter( "logType"));
+				context.put("logReader",((ServiceManager)context.get("manager")).getService("org.osgi.service.log.LogReaderService"));
+			}
+			
+			//HashMap to determine LogLevelName
+			HashMap<Integer, String> logLevelName = new HashMap<Integer, String>();
+			logLevelName.put(Integer.valueOf(LogService.LOG_ERROR) , "error");
+			logLevelName.put(Integer.valueOf(LogService.LOG_WARNING), "warn");
+			logLevelName.put(Integer.valueOf(LogService.LOG_INFO), "info");
+			logLevelName.put(Integer.valueOf(LogService.LOG_DEBUG), "debug");
+			context.put( "logLevelNames" , logLevelName);
+			
+			final String type = request.getParameter("type");
+			if (type == null || type.equals("default")) {
+				// nothing to do
+			} else if (type.equals("plain")) {
+				context.put("layout", "plain.vm");
+				context.put("type", type);
+			}
+			
+			template = this.getTemplate("/resources/templates/LogView.vm");
+		} catch( Exception e ) {
+			System.err.println("Exception caught: " + e.getMessage());
+		} catch (Error e) {
+			e.printStackTrace();
+		}
+		
+		return template;
 	}
-
 }
