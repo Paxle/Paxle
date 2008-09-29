@@ -9,7 +9,6 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.omg.CORBA.portable.ResponseHandler;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.proxy.impl.io.ExtenedPipedInputStream;
 import org.paxle.crawler.proxy.impl.io.ExtendedPipedOutputStream;
@@ -128,7 +127,7 @@ public class ProxyResponseHandler implements IHttpResponseHandler, IHttpResponse
 		 * Only accept repsonse with 200/203
 		 */
 		if (resHdr.getStatus() != 200 && resHdr.getStatus() != 203) {
-			this.logger.info(String.format("Crawling of '%s' disallowed: Invalid statuscode %d.",uri,resHdr.getStatus()));
+			this.logger.info(String.format("Crawling of '%s' disallowed: Invalid statuscode %d.",uri, Integer.valueOf(resHdr.getStatus())));
 			return false;
 		}
 		

@@ -51,7 +51,7 @@ public class ProxyRequestHandler implements IHttpRequestHandler, ILifeCycle {
 		if (userAgentTracker == null) throw new NullPointerException("The user-agent-tracker must not be null.");
 		
 		this.userAgentTracker = userAgentTracker;
-		this.enableProxyAuthentication = (enableProxyAuthentication == null) ? true : enableProxyAuthentication;
+		this.enableProxyAuthentication = (enableProxyAuthentication == null) ? true : enableProxyAuthentication.booleanValue();
 	}
 	
 	/**

@@ -86,7 +86,7 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 		// read preferences
 		if (props != null) {
 			this.props = props;
-			this.commandProfileID = Integer.valueOf(props.getProperty(PREF_PROFILE_ID,"-1"));
+			this.commandProfileID = Integer.parseInt(props.getProperty(PREF_PROFILE_ID,"-1"));
 		}
 		
 		// starting up the thread
@@ -149,7 +149,7 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 							this.logger.warn(String.format(
 									"Command with location '%s' has an invalid OID '%d'. ORM mapping seems not to work. Command is not enqueued.",									
 									cmd.getLocation(),
-									cmd.getOID()
+									Integer.valueOf(cmd.getOID())
 							));
 						} else {
 							cmd.setCrawlerDocument(crawlerDoc);
