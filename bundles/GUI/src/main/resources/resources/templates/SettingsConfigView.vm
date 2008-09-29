@@ -100,7 +100,7 @@
 									#end
 								</td>
 								<td class="descriptionText">
-									#if($ocd.getDescription())
+									#if($attribute.getDescription())
     									#set($desc = ${attribute.getDescription()})
     									$desc.replaceAll("\n", "<br />")
 									#end
