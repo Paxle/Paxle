@@ -3,7 +3,9 @@ package org.paxle.filterlanguageidentification.impl;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,10 +18,10 @@ import org.paxle.core.queue.ICommand;
  * This class stores the available language-profiles, determines the language of a document and inserts its finding into a parser-doc
  */
 public class LanguageManager implements IFilter<ICommand> {
-	
+
 	private ArrayList<TrigramSet> lngs = new ArrayList<TrigramSet>();
 	private Log logger = LogFactory.getLog(this.getClass());
-	
+
 	/**
 	 * Loads a language profile from a URL
 	 * @param definition
@@ -40,29 +42,32 @@ public class LanguageManager implements IFilter<ICommand> {
 	public int getNumberOfRegisteredProfile() {
 		return this.lngs.size();
 	}
-	
+
 	/**
-	 * Inserts the ISO 639-2 code of the primary document language into the parser doc
+	 * Sets the language for the given ParserDocument and all its sub pDocs
+	 * @param parserDoc
 	 */
-	public void filter(ICommand arg0, IFilterContext arg1) {
-		if (arg0 == null) throw new NullPointerException("The command object is null.");
-		
-		if (arg0.getResult() != ICommand.Result.Passed) return;
-		
-		IParserDocument pDoc = arg0.getParserDocument();
-		if (pDoc.getStatus() != IParserDocument.Status.OK) return;
-		
+	private void getLanguage(IParserDocument parserDoc) {
+
+		Map<String,IParserDocument> subDocs = parserDoc.getSubDocs();
+		if (subDocs != null) {
+			for (IParserDocument subDoc : subDocs.values()) {
+				this.getLanguage(subDoc);
+			}
+		}
+
 		TrigramSet test = new TrigramSet();
 		String winner = null;
 		double winvalue = Double.MAX_VALUE;
-		
+
 		double start = System.currentTimeMillis();
-		
+
 		try {
-			test.init(pDoc.getTextFile(), 10);
-			Iterator<TrigramSet> i = this.lngs.iterator();
-			while (i.hasNext()) {
-				TrigramSet ref = i.next();
+			test.init(parserDoc.getTextFile(), 10);
+
+			Iterator<TrigramSet> it = this.lngs.iterator();
+			while (it.hasNext()) {
+				TrigramSet ref = it.next();
 				double diff = ref.getDifference(test);
 				logger.debug("Difference from " + ref.getLanguageName() + ": " + diff);
 				if (diff < winvalue) {
@@ -71,19 +76,45 @@ public class LanguageManager implements IFilter<ICommand> {
 				}
 			}
 		} catch (IOException e) {
-			logger.warn("Exception while trying to determine language of document '" + arg0.getLocation() + "' : ", e);
+			logger.warn("Exception while trying to determine language of document '" +  parserDoc.getOID(), e);
 			winner = "unknown";
 		}
-		
+
 		double end = System.currentTimeMillis();
-		
+
 		logger.debug("Language detection took " + (end - start) + "ms");
-		
+
+		HashSet<String> lngs = new HashSet<String>(1);
 		if (winvalue < 50) {
-			logger.info("Primary language of document '" + arg0.getLocation() + "' is: " + winner + ", " + winvalue);
+			logger.debug("Primary language of document '" + parserDoc.getOID() + "' is: " + winner + ", " + winvalue);
+			lngs.add(winner);
+			parserDoc.setLanguages(lngs);
 		} else {
-			logger.warn("Primary language of document '" + arg0.getLocation() + "' is unknown");
+			logger.debug("Primary language of document '" + parserDoc.getOID() + "' is unknown");
+			lngs.add("unknown");
+			parserDoc.setLanguages(lngs);
 		}
 	}
-	
+
+	/**
+	 * Inserts the ISO 639-2 code of the primary document language into the parser and subparser docs
+	 */
+	public void filter(ICommand arg0, IFilterContext arg1) {
+		if (arg0 == null) throw new NullPointerException("The command object is null.");
+
+		if (arg0.getResult() != ICommand.Result.Passed) {
+			logger.debug("Command didn't pass, aborting language detection.");
+			return;
+		}
+		
+		IParserDocument pdoc = arg0.getParserDocument();
+		
+		if (pdoc == null || pdoc.getStatus() != IParserDocument.Status.OK) {
+			logger.debug("Language of pDoc '" + pdoc.getOID() + "' can't be determined");
+			return;
+		}
+		
+		getLanguage(arg0.getParserDocument());
+	}
+
 }
