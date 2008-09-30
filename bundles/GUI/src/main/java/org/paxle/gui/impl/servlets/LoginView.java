@@ -18,8 +18,7 @@ public class LoginView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
 	@Override
-	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context)
-	{
+	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
         Template template = null;
 
         try {
@@ -64,10 +63,13 @@ public class LoginView extends ALayoutServlet {
         	}
             
             template = this.getTemplate("/resources/templates/LoginView.vm");
-        } catch( Exception e ) {
-          System.err.println("Exception caught: " + e.getMessage());
-        } catch (Error e) {
-        	e.printStackTrace();
+        } catch (Exception e ) {
+        	this.logger.error(String.format(
+        			"Unexpected '%s': %s",
+        			e.getClass().getName(),
+        			e.getMessage()
+        	), e);
+        	throw e;
         }
 
         return template;
