@@ -25,6 +25,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
@@ -125,6 +126,9 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	private static final String ICOMMANDDB = "org.paxle.data.db.ICommandDB";
 	private static final String IROBOTSM = "org.paxle.filter.robots.IRobotsTxtManager";
 	
+	private static final String DI_COMMAND_PROVIDER = "org.paxle.desktop.impl.DICommandProvider";
+	private static final String COMMAND_PROVIDER = "org.eclipse.osgi.framework.console.CommandProvider";
+	
 	private static final int DEFAULT_PROFILE_MAX_DEPTH = 3;
 	private static final String DEFAULT_NAME = "desktop-crawl";
 	
@@ -146,27 +150,51 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	private final Hashtable<Long,DIComponent> servicePanels = new Hashtable<Long,DIComponent>();
 	private final HashMap<DIComponent,Frame> serviceFrames = new HashMap<DIComponent,Frame>();
 	
+	private final ServiceRegistration regManagedService;
+	private final ServiceRegistration regConsoleCmdProvider;
+	
 	private SystrayMenu trayMenu = null;
 	private boolean browserOpenable = true;
 	
 	// TODO: get desktop-services working without a backend, dialogues can still be useful and
 	//       may be started in different ways than using the tray-menu
+	@SuppressWarnings("unchecked")
 	public DesktopServices(final ServiceManager manager, final IDIBackend backend) {
 		this.manager = manager;
 		this.backend = backend;
 		try {
 			manager.addServiceListener(this, FILTER);
-			logger.info("added desktop-integration as service-listener for '" + FILTER  + "'");
+			logger.info("added desktop-integration as service-listener for '" + FILTER + "'");
 		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
+		
+		final Hashtable<String,Object> regProps = new Hashtable<String,Object>();
+		regProps.put(Constants.SERVICE_PID, IDesktopServices.class.getName());
+		regManagedService = manager.registerService(this, regProps, ManagedService.class);
+		regConsoleCmdProvider = registerDICommandProvider();
 		initDS();
 	}
 	
 	@SuppressWarnings("unchecked")
+	private ServiceRegistration registerDICommandProvider() {
+		try {
+			final Class cmdProviderC = Class.forName(COMMAND_PROVIDER);
+			final Class<?> diCmdProviderC = Class.forName(DI_COMMAND_PROVIDER);
+			return manager.registerService(
+					diCmdProviderC.getConstructor(getClass()).newInstance(this),
+					new Hashtable<String,Object>(),
+					cmdProviderC);
+		} catch (ClassNotFoundException e) {
+			final String msg = "Not running in Equinox, Paxle desktop command provider won't be available.";
+			if (logger.isDebugEnabled()) {
+				logger.debug(msg, e);
+			} else {
+				logger.info(msg);
+			}
+		} catch (Exception e) { e.printStackTrace(); }
+		return null;
+	}
+	
 	private void initDS() {
-		final Hashtable<String,Object> regProps = new Hashtable<String,Object>();
-		regProps.put(Constants.SERVICE_PID, IDesktopServices.class.getName());
-		manager.registerService(this, regProps, ManagedService.class);
-		
 		final Properties properties = manager.getServiceProperties();
 		if (properties != null) {
 			// get the backend properties, i.e. whether the browser can be opened by the backend
@@ -212,7 +240,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	
 	private void serviceChanged(final ServiceReference ref, final int type) {
 		final Long id = (Long)ref.getProperty(Constants.SERVICE_ID);
-		logger.info("received service changed event for " + ref);
+		logger.debug("received service changed event for " + ref + ", type: " + type);
 		if (id == null) {
 			logger.error("(un)registered DIComponent has no valid service-id: " + ref);
 			return;
@@ -257,6 +285,12 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		serviceFrames.clear();
 		
 		setTrayMenuVisible(false);
+		
+		if (regManagedService != null)
+			regManagedService.unregister();
+		if (regConsoleCmdProvider != null)
+			regConsoleCmdProvider.unregister();
+		manager.removeServiceListener(this);
 	}
 	
 	public void shutdownFramework() {

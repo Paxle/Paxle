@@ -73,6 +73,10 @@ public class ServiceManager {
 		context.addServiceListener(listener, filter);
 	}
 	
+	public void removeServiceListener(final ServiceListener listener) {
+		context.removeServiceListener(listener);
+	}
+	
 	public Properties getServiceProperties() {
 		final IPropertiesStore propstore = getService(IPropertiesStore.class);
 		if (propstore == null)

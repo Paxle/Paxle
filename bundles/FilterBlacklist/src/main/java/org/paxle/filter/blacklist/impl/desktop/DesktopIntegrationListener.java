@@ -1,5 +1,6 @@
 package org.paxle.filter.blacklist.impl.desktop;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
@@ -16,16 +17,23 @@ public class DesktopIntegrationListener implements BundleListener {
 	public DesktopIntegrationListener(BundleContext bc, BlacklistFilter blacklistFilter) {
 		this.bc = bc;
 		this.blacklistFilter = blacklistFilter;
+		for (final Bundle bundle : bc.getBundles())
+			if (bundle.getState() == Bundle.ACTIVE)
+				bundleChanged(bundle, BundleEvent.STARTED);
 	}
 	
-	public void bundleChanged(BundleEvent event) {
-		if (event.getBundle().getHeaders().get(Constants.BUNDLE_SYMBOLICNAME).equals("org.paxle.desktop")) {
-			if (event.getType() == BundleEvent.STARTED) {
+	private void bundleChanged(final Bundle bundle, final int type) {
+		if (bundle.getHeaders().get(Constants.BUNDLE_SYMBOLICNAME).equals("org.paxle.desktop")) {
+			if (type == BundleEvent.STARTED) {
 				this.dialogueReg = this.bc.registerService(DIComponent.class.getName(), new BlacklistDialogue(blacklistFilter), null);
-			} else if (event.getType() == BundleEvent.STOPPED && this.dialogueReg != null) {
+			} else if (type == BundleEvent.STOPPED && this.dialogueReg != null) {
 				this.dialogueReg.unregister();
 				this.dialogueReg = null;
 			}
 		}
+	}
+	
+	public void bundleChanged(BundleEvent event) {
+		bundleChanged(event.getBundle(), event.getType());
 	}
 }

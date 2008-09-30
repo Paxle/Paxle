@@ -2,6 +2,7 @@ package org.paxle.filter.blacklist.impl.gui;
 
 import java.util.Hashtable;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
@@ -17,11 +18,14 @@ public class GuiListener implements BundleListener {
 	public GuiListener(BundleContext bc, BlacklistFilter blacklistFilter) {
 		this.bc = bc;
 		this.blacklistFilter = blacklistFilter;
+		for (final Bundle bundle : bc.getBundles())
+			if (bundle.getState() == Bundle.ACTIVE)
+				bundleChanged(bundle, BundleEvent.STARTED);
 	}
 	
-	public void bundleChanged(BundleEvent event) {
-		if (event.getBundle().getHeaders().get(Constants.BUNDLE_SYMBOLICNAME).equals("org.paxle.gui")) {
-			if (event.getType() == BundleEvent.STARTED) {
+	private void bundleChanged(final Bundle bundle, final int type) {
+		if (bundle.getHeaders().get(Constants.BUNDLE_SYMBOLICNAME).equals("org.paxle.gui")) {
+			if (type == BundleEvent.STARTED) {
 				/*
 				 * Registering the servlet
 				 */
@@ -31,10 +35,14 @@ public class GuiListener implements BundleListener {
 				props.put("path", "/blacklist");
 				props.put("menu", "Blacklist");
 				this.serviceReg = bc.registerService("javax.servlet.Servlet", servlet, props);
-			} else if (event.getType() == BundleEvent.STOPPED && this.serviceReg != null) {
+			} else if (type == BundleEvent.STOPPED && this.serviceReg != null) {
 				this.serviceReg.unregister();
 				this.serviceReg = null;
 			}
 		}
+	}
+	
+	public void bundleChanged(BundleEvent event) {
+		bundleChanged(event.getBundle(), event.getType());
 	}
 }
