@@ -63,7 +63,11 @@ public class LanguageManager implements IFilter<ICommand> {
 		double start = System.currentTimeMillis();
 
 		try {
+			if (parserDoc.getTextFile() != null) {
 			test.init(parserDoc.getTextFile(), 10);
+			} else {
+				logger.info("No language for document '" + parserDoc.getOID() + "', as it contins no text");
+			}
 
 			Iterator<TrigramSet> it = this.lngs.iterator();
 			while (it.hasNext()) {
@@ -76,7 +80,7 @@ public class LanguageManager implements IFilter<ICommand> {
 				}
 			}
 		} catch (IOException e) {
-			logger.warn("Exception while trying to determine language of document '" +  parserDoc.getOID(), e);
+			logger.warn("Exception while trying to determine language of document '" +  parserDoc.getOID() + "'", e);
 			winner = "unknown";
 		}
 

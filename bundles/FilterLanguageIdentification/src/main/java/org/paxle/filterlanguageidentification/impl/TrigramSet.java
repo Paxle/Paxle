@@ -23,7 +23,7 @@ public class TrigramSet {
 	 * String is the trigram
 	 * Integer is its rank
 	 */
-	private HashMap<String, Integer> trigrams = new HashMap<String, Integer>();
+	private HashMap<String, Integer> trigrams = null;
 
 	/**
 	 * Defines how many ranks are stored. The actual number of trigrams stored has not much to do with this setting!
@@ -60,7 +60,8 @@ public class TrigramSet {
 	 * @param cutoff The number of different ranks stored
 	 */
 	public void init(String text, int cutoff) {
-
+		
+		this.trigrams = new HashMap<String, Integer>();
 		this.cutofflevel = cutoff;
 
 		//one or more blanks
@@ -71,11 +72,11 @@ public class TrigramSet {
 		text = text.replaceAll("\\d", "_");
 		//compact underscores
 		text = text.replaceAll("_+", "_");
-				
+
 		int i = 0;
 		//zerlege den text in trigramme und speichere in der map
 		//die <String trigram, int count> zuordnung
-		while (i+3 < text.length()) {
+		while (i+3 <= text.length()) {
 			String trigram = text.substring(i, i+3);
 			i++;
 			if (trigrams.get(trigram) == null) {
@@ -94,7 +95,7 @@ public class TrigramSet {
 		while (i2.hasNext()) {
 			counts.add(trigrams.get(i2.next()));
 		}
-
+		
 		//der treeset ist sortiert, also kann man jetzt nacheinander einfach die ränge in die neue map eintragen
 		int rang = counts.size();
 		Iterator<Integer> c1 = counts.iterator();
@@ -113,7 +114,7 @@ public class TrigramSet {
 		}
 		trigrams = newmap;
 
-		if (this.cutofflevel > -1) {
+		if ((this.cutofflevel > -1) && (this.getNumberOfRanks() > this.cutofflevel)) {
 			Iterator<String> c4 = trigrams.keySet().iterator();
 			while (c4.hasNext()) {
 				String trigram = c4.next();
@@ -187,7 +188,7 @@ public class TrigramSet {
 		URLConnection connection = definition_file.openConnection();
 		InputStream connectionIn = connection.getInputStream();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(connectionIn));
-		StringBuffer sb = new StringBuffer(2048);
+		StringBuffer sb = new StringBuffer(1024);
 		String line = null;  
 		while ((line = reader.readLine())!=null) {
 			sb.append(line + ' ');
