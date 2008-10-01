@@ -20,7 +20,15 @@ public interface IParserDocument extends Closeable {
 		FAILURE
 	}
 
+	/**
+	 * Returns the ID of this pDoc. It is unique across the command DB.
+	 * @return the ID of this document 
+	 */
     public int getOID(); 
+    /**
+     * Sets the ID of this pDoc. It must be unique across the command DB.
+     * @param OID
+     */
     public void setOID(int OID); 
 	
 	/**
@@ -112,9 +120,9 @@ public interface IParserDocument extends Closeable {
 
 	/**
 	 * The last-modified date provides interesting long-term information regarding how often this
-	 * document is being updated. Therefore this date could increase crawling efficency.
+	 * document is being updated. Therefore this date could increase crawling efficiency.
 	 * 
-	 * @param date the date of the last modification of this document in GMT (Greenwhich Mean Time),
+	 * @param date the date of the last modification of this document in GMT (Greenwich Mean Time),
 	 *        which is used persistently in Paxle
 	 */
 	public abstract void setLastChanged(Date date);
@@ -163,7 +171,7 @@ public interface IParserDocument extends Closeable {
 	/**
 	 * @see #addReferenceImage(String, String)
 	 * @return all referenced images by this document, mapping the location to it's (maybe
-	 *         non-existant) name or label 
+	 *         non-existent) name or label 
 	 */
 	public abstract Map<URI, String> getImages();
 
@@ -215,7 +223,7 @@ public interface IParserDocument extends Closeable {
 	public abstract Status getStatus();
 
 	/**
-	 * @see #addSubDocument(String) for a more detailed description of what sub-documents are
+	 * @see #addSubDocument(String, IParserDocument) for a more detailed description of what sub-documents are
 	 * @return a collection referencing all sub-documents of this document, mapping their
 	 *         respective locations to the parsed sub-document. Note that the returned {@link Map}
 	 *         is the internal map of this document and adding/removal operations directly affect
@@ -236,6 +244,11 @@ public interface IParserDocument extends Closeable {
 	 */
 	public abstract Reader getTextAsReader() throws IOException;
 	
+	/**
+	 * Gets the content of this document as File.
+	 * @return File if addText() has been used with this document, null otherwise (i.e. archives)
+	 * @throws IOException
+	 */
 	public abstract File getTextFile() throws IOException;
 
 	/**

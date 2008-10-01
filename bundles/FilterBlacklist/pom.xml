@@ -45,8 +45,8 @@
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Apache Commons IO -->
-						    org.apache.commons.io;version="1.4",
-							org.apache.commons.io.*;version="1.4",
+							org.apache.commons.io;version="1.4",
+						   	org.apache.commons.io.*;version="1.4",
 							<!-- Servlet API -->
 							javax.servlet.http;resolution:=optional,
 							<!-- Apache Velocity (used by Paxle GUI bundle) -->

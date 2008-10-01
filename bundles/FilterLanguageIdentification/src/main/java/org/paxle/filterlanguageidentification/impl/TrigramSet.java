@@ -14,6 +14,7 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class TrigramSet {
@@ -34,7 +35,7 @@ public class TrigramSet {
 	 * The name of the language as ISO-639-2 code, e.g. "eng", "deu", ...
 	 */
 	private String language_name = null;
-	
+
 	/**
 	 * Initializes the trigrams with the given file.
 	 * @param textfile
@@ -60,7 +61,7 @@ public class TrigramSet {
 	 * @param cutoff The number of different ranks stored
 	 */
 	public void init(String text, int cutoff) {
-		
+
 		this.trigrams = new HashMap<String, Integer>();
 		this.cutofflevel = cutoff;
 
@@ -95,7 +96,7 @@ public class TrigramSet {
 		while (i2.hasNext()) {
 			counts.add(trigrams.get(i2.next()));
 		}
-		
+
 		//der treeset ist sortiert, also kann man jetzt nacheinander einfach die ränge in die neue map eintragen
 		int rang = counts.size();
 		Iterator<Integer> c1 = counts.iterator();
@@ -131,11 +132,20 @@ public class TrigramSet {
 	 * @throws IOException
 	 */
 	public void store(File out) throws IOException {
-		Iterator<String> i = trigrams.keySet().iterator();
+
+		int rrank = 1;
 		BufferedWriter bw = new BufferedWriter(new FileWriter(out));
-		while (i.hasNext()) {
-			String key = i.next();
-			bw.write(key + " " + trigrams.get(key) + "\n");
+
+		while (rrank <= this.cutofflevel) {
+			Iterator<String> i = trigrams.keySet().iterator();
+			while (i.hasNext()) {
+				String trigram = i.next();
+				int crank = trigrams.get(trigram);
+				if (crank == rrank) {
+					bw.write(trigram + " " + crank + "\n");
+				}
+			}
+			rrank++;
 		}
 		bw.close();
 	}
@@ -150,7 +160,7 @@ public class TrigramSet {
 			System.out.println(key + " " + trigrams.get(key));
 		}
 	}
-	
+
 	/**
 	 * Loads a previously stored trigram set
 	 * @param in
@@ -269,7 +279,7 @@ public class TrigramSet {
 	public int getCutoffLevel() {
 		return this.cutofflevel;
 	}
-	
+
 	/**
 	 * Return the number of real different counts/ranks in this set. This may be less than the result of getCutoffLevel().
 	 * @see TrigramSet#getNumberOfTrigrams()
@@ -283,7 +293,7 @@ public class TrigramSet {
 		}
 		return counts.size();
 	}
-	
+
 	/**
 	 * Sets the name for this language profile to the given String.
 	 * @see TrigramSet#getLanguageName()
@@ -291,7 +301,7 @@ public class TrigramSet {
 	public void setLanguageName(String name) {
 		this.language_name = name;
 	}
-	
+
 	/**
 	 * Return the name of the language for this set or null, if not set.
 	 * @see TrigramSet#setLanguageName(String name)
