@@ -152,7 +152,7 @@ public class CommandDBTest extends MockObjectTestCase {
 		Semaphore s = null;
 		this.cmdDB.setDataSink(new DummyDataSink(s = new Semaphore(-MAX + 1)));		
 		
-		// wait for all commans to be enqueued
+		// wait for all commands to be enqueued
 		boolean acquired = s.tryAcquire(3, TimeUnit.SECONDS);
 		assertTrue(acquired);
 	}
