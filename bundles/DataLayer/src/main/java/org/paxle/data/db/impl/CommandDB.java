@@ -249,7 +249,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				serializedFile = oldFile;
 				oldFile.deleteOnExit();
 			} else {
-				logger.info("Serialized double URL set not found, populating cache from DB (this may take some minutes) ...");
+				logger.info("Serialized double URL set not found, populating cache from DB (this may take some time) ...");
 				bloomFilter = new DynamicBloomFilter(1437764, 10, 100000);	// creating a maximum false positive rate of 0.1 %
 				populateThread = new PopulateThread();
 				populateThread.start();
