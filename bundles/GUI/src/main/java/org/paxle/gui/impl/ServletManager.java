@@ -11,10 +11,12 @@ import javax.servlet.Servlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.velocity.tools.view.VelocityView;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
+import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServletManager;
 
 public class ServletManager implements IServletManager, ManagedService {
@@ -75,11 +77,12 @@ public class ServletManager implements IServletManager, ManagedService {
 		
 		// add some properties to the servlet props
 		this.defaultProps = new Hashtable<String, String>();
-		this.defaultProps.put("org.apache.velocity.properties", "/resources/config/velocity.properties");
-		this.defaultProps.put("org.apache.velocity.toolbox", "/resources/config/velocity.toolbox");
-		// this.defaultProps.put("bundle.location",context.getBundle().getLocation());
-		this.defaultProps.put("bundle.location",defaultBundleLocation);
 		
+		this.defaultProps.put(VelocityView.PROPERTIES_KEY, "/resources/config/velocity.properties");
+		this.defaultProps.put(VelocityView.TOOLS_KEY, "/resources/config/velocity-toolbox.xml");
+		this.defaultProps.put(VelocityView.LOAD_DEFAULTS_KEY,"false");
+		
+		this.defaultProps.put("bundle.location.default",defaultBundleLocation);		
 		this.logger = LogFactory.getLog(this.getClass());
 	}
 	
@@ -129,7 +132,11 @@ public class ServletManager implements IServletManager, ManagedService {
 						servlet.getClass().getName(), 
 						fullAlias
 				));
-				this.http.registerServlet(fullAlias, servlet, this.defaultProps, httpContext);
+				Hashtable<String, String> props = (Hashtable<String, String>) this.defaultProps.clone();
+				if (servlet instanceof ALayoutServlet && ((ALayoutServlet)servlet).getBundleLocation() != null) {
+					props.put("bundle.location", ((ALayoutServlet)servlet).getBundleLocation());
+				}
+				this.http.registerServlet(fullAlias, servlet, props, httpContext);
 			} catch (Throwable e) {
 				this.logger.error(String.format("Unexpected '%s' while registering servlet '%s' for alias '%s'.",
 						e.getClass().getName(),

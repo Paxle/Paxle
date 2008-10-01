@@ -1,17 +1,16 @@
 package org.paxle.gui;
 
-import java.io.IOException;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.collections.ExtendedProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.apache.velocity.tools.view.servlet.VelocityLayoutServlet;
+import org.apache.velocity.tools.view.JeeConfig;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
+import org.apache.velocity.tools.view.VelocityView;
 
 public abstract class ALayoutServlet extends VelocityLayoutServlet {
     private static final long serialVersionUID = 1L;
@@ -43,25 +42,26 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 		}
 	}
 	
-	/**
-	 * This function is required to set the velocity jar-resource-loader path to the bundle location
-	 * Don't remove this!
-	 */
-	@Override
-	protected ExtendedProperties loadConfiguration(ServletConfig config) throws IOException {
-		ExtendedProperties props = super.loadConfiguration(config);
-		
-		if (this.bundleLocation != null) {
-//			props.addProperty("jar.resource.loader.path", "jar:" + this.bundleLocation + ",jar:" + config.getInitParameter("bundle.location"));
-			props.addProperty("url.resource.loader.root", this.bundleLocation);
-		} 
-		if (config.getInitParameter("bundle.location") != null) {
-//			props.addProperty("jar.resource.loader.path", "jar:" + config.getInitParameter("bundle.location"));
-			props.addProperty("url.resource.loader.root",this.bundleLocation+ "," + config.getInitParameter("bundle.location"));
-		}
-		return props;
+	public String getBundleLocation() {
+		return this.bundleLocation;
 	}
+
+	private VelocityView view;
 	
+	@Override
+	protected VelocityView getVelocityView() {
+		return this.view;
+	}
+
+	@Override
+	public void init(ServletConfig config) throws javax.servlet.ServletException {	
+		this.view = new PaxleVelocityView(new JeeConfig(config));		
+		super.init(config);			
+	};
+	
+	/**
+	 * @deprecated This will be removed in VelocityTools 2.1.
+	 */
 	@Override
 	public abstract Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception;
 }
