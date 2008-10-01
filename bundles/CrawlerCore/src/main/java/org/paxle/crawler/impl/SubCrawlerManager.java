@@ -118,7 +118,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 		
 		ISubCrawler subCrawler = this.subCrawlerList.remove(protocol);
 		this.logger.info(String.format(
-				"Crawler for protocol '%s' was uninstalled.",
+				"Crawler '%s' for protocol '%s' was uninstalled.",
 				subCrawler==null?"unknown":subCrawler.getClass().getName(),
 				protocol
 		));

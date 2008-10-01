@@ -17,12 +17,14 @@
 		<tr>
 			<th>${text.filters.id}</th>
 			<th>${text.filters.name}</th>
+			<th>${text.filters.pos}</th>
 			<th>${text.filters.status}</th>
 		</tr>
 	    #foreach($filter in $filters)
 		<tr>
 		   <td>$velocityCount</td>
 		   <td>${filter.getFilter().getClass().getName()}</td>
+		   <td>${filter.getFilterPosition()}</td>
 		   <td>#if(${filter.isEnabled()})
 					<span class="statusEnabled">${text.status.enabled}</span>
 				#else

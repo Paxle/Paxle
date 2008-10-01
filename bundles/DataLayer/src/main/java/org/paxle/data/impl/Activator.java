@@ -220,7 +220,7 @@ public class Activator implements BundleActivator {
 		Hashtable<String, String[]> profileFilterProps = new Hashtable<String, String[]>();
 		profileFilterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{
 				String.format("org.paxle.crawler.in; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(Integer.MIN_VALUE)),
-				String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(Integer.MAX_VALUE-1))
+				String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(65))
 		});
 		
 		this.profileFilter = new CommandProfileFilter(this.profileDB);
