@@ -21,7 +21,9 @@ public class Activator implements BundleActivator {
 		// specifying filter properties
 		final Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
 		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {
-				"${targetQueue}#if($targetQueuePosition); pos=${targetQueuePosition}#end"
+			#foreach($targetQueue in $targetQueues.split(","))
+				"#{if}($velocityCount > 1),#{end}$targetQueue#{if}($targetQueuePosition); pos=${targetQueuePosition}#{end}"
+			#end
 		});
 		
 		// registering filter

@@ -10,7 +10,7 @@
 	</fileSets>
 
 	<requiredProperties>
-		<requiredProperty key="targetQueue">
+		<requiredProperty key="targetQueues">
 			<defaultValue>org.paxle.parser.out</defaultValue>
 		</requiredProperty>
 		<requiredProperty key="targetQueuePosition">

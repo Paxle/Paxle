@@ -6,7 +6,7 @@ import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 
-public class MyFilter implements IFilter {
+public class MyFilter implements IFilter<ICommand> {
 	/**
 	 * For logging
 	 */
