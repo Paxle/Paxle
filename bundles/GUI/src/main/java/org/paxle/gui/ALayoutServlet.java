@@ -8,7 +8,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.apache.velocity.tools.view.JeeConfig;
 import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.apache.velocity.tools.view.VelocityView;
 
@@ -48,14 +47,20 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 
 	private VelocityView view;
 	
+	private IVelocityViewFactory viewFactory;
+	
 	@Override
 	protected VelocityView getVelocityView() {
 		return this.view;
 	}
+	
+	public void setVelocityViewFactory(IVelocityViewFactory viewFactory) {
+		this.viewFactory = viewFactory;
+	}
 
 	@Override
 	public void init(ServletConfig config) throws javax.servlet.ServletException {	
-		this.view = new PaxleVelocityView(new JeeConfig(config));		
+		this.view = this.viewFactory.createVelocityView(config);	
 		super.init(config);			
 	};
 	
