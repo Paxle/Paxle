@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>GUI</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>Paxle - UI: Browser</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -56,6 +56,9 @@
 							org.apache.commons.logging, 
 							<!-- Apache Commons Codec -->
 							org.apache.commons.codec.binary,
+							<!-- Apache Commons Beanutils -->
+							org.apache.commons.beanutils;version="1.7.0",
+							org.apache.commons.beanutils.*;version="1.7.0",
 							<!-- Apache Commons Collection -->
 							org.apache.commons.collections;version="3.2.1",
 							org.apache.commons.collections.*;version="3.2.1",
@@ -126,8 +129,7 @@
 						<Embed-Dependency>
 							velocity;scope=compile|runtime,
 							velocity-tools;scope=compile|runtime,
-							commons-digester;scope=compile|runtime,
-							commons-beanutils;scope=compile|runtime
+							commons-digester;scope=compile|runtime
 						</Embed-Dependency>						
 					</instructions>
 				</configuration>
@@ -202,9 +204,9 @@
 			<version>1.8</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<version>1.6</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>com.springsource.org.apache.commons.beanutils</artifactId>
+			<version>1.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>

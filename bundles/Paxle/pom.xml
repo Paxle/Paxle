@@ -287,14 +287,23 @@
 									<destFileName>org.apache.commons.fileupload_1.2.1.jar</destFileName>
 								</artifactItem>
 								
-								<!-- Apache commons fileupload dependencies -->
+								<!-- Apache commons Lang dependencies -->
 								<artifactItem>
 									<groupId>commons-lang</groupId>
 									<artifactId>commons-lang</artifactId>
 									<version>2.4</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>org.apache.commons.lang_2.4.jar</destFileName>
-								</artifactItem>																															
+								</artifactItem>		
+								
+								<!-- Apache commons beanutils dependencies -->																													
+								<artifactItem>
+									<groupId>org.apache.commons</groupId>
+									<artifactId>com.springsource.org.apache.commons.beanutils</artifactId>
+									<version>1.7.0</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>com.springsource.org.apache.commons.beanutils_1.7.0.jar</destFileName>
+								</artifactItem>									
 								
 								<!-- HTTP Client dependencies -->
 								<artifactItem>
