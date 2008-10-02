@@ -1,12 +1,17 @@
 
 *) Variant 1:
-mvn archetype:create \
+mvn archetype:generate \
   -DarchetypeGroupId=org.paxle \
   -DarchetypeArtifactId=ArchetypeFilter \
   -DarchetypeVersion=0.1.0-SNAPSHOT \
   -DgroupId=org.test \
   -DartifactId=myfilter \
-  -DpackageName=org.test.myfilter
+  -Dpackage=org.test.myfilter
+  
+If the archetype is not available in a official maven repository the parameter -DarchetypeRepository   
+e.g.
+   -DarchetypeRepository=http://snapshots.mvn.repos.pxl.li/
+can be used.
   
 *) Variant 2:
 mvn archetype:generate -DarchetypeCatalog=file:///home/theli/paxle/archetypes

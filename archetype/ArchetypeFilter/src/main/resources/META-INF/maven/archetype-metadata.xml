@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor name="ArchetypeFilter">
+	<fileSets>
+		<fileSet filtered="true" packaged="true">
+			<directory>src/main/java</directory>
+			<includes>
+				<include>**/*.java</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+
+	<requiredProperties>
+		<requiredProperty key="targetQueue">
+			<defaultValue>org.paxle.parser.out</defaultValue>
+		</requiredProperty>
+		<requiredProperty key="targetQueuePosition">
+			<defaultValue>0</defaultValue>
+		</requiredProperty>	
+	</requiredProperties>
+</archetype-descriptor>

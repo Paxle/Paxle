@@ -21,7 +21,7 @@ public class Activator implements BundleActivator {
 		// specifying filter properties
 		final Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
 		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {
-				"org.paxle.parser.out; " + IFilter.PROP_FILTER_TARGET_POSITION + "=" + (Integer.MAX_VALUE-1000)
+				"${targetQueue}#if($targetQueuePosition); pos=${targetQueuePosition}#end"
 		});
 		
 		// registering filter
