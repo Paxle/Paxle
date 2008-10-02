@@ -712,6 +712,11 @@
 					<name>!debug</name>
 				</property>
 			</activation>
+			
+			<modules>
+				<module>../Root</module>
+			</modules>			
+			
 			<build>
 				<plugins>
 					<!-- ==================================================================-->
