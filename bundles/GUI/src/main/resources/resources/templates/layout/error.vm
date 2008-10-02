@@ -1,0 +1,8 @@
+#parse( '/resources/templates/layout/header.vm' )
+
+<div id="main">
+$error_cause
+<tt>$stack_trace</tt>
+</div>
+
+#parse( '/resources/templates/layout/footer.vm' ) 

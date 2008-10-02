@@ -128,8 +128,7 @@
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
 							velocity;scope=compile|runtime,
-							velocity-tools;scope=compile|runtime,
-							commons-digester;scope=compile|runtime
+							velocity-tools;scope=compile|runtime
 						</Embed-Dependency>						
 					</instructions>
 				</configuration>
@@ -197,11 +196,6 @@
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
 			<version>3.2.1</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-digester</groupId>
-			<artifactId>commons-digester</artifactId>
-			<version>1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

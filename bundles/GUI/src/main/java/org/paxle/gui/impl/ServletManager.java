@@ -79,7 +79,7 @@ public class ServletManager implements IServletManager, ManagedService {
 		this.defaultProps = new Hashtable<String, String>();
 		
 		this.defaultProps.put(VelocityView.PROPERTIES_KEY, "/resources/config/velocity.properties");
-		this.defaultProps.put(VelocityView.TOOLS_KEY, "/resources/config/velocity-toolbox.xml");
+		this.defaultProps.put(VelocityView.TOOLS_KEY, "/resources/config/velocity-toolbox.properties");
 		this.defaultProps.put(VelocityView.LOAD_DEFAULTS_KEY,"false");
 		
 		this.defaultProps.put("bundle.location.default",defaultBundleLocation);		

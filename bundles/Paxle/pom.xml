@@ -303,8 +303,8 @@
 									<version>1.7.0</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>com.springsource.org.apache.commons.beanutils_1.7.0.jar</destFileName>
-								</artifactItem>									
-								
+								</artifactItem>
+
 								<!-- HTTP Client dependencies -->
 								<artifactItem>
 									<groupId>commons-httpclient</groupId>
