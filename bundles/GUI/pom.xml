@@ -111,6 +111,8 @@
 							org.xml.sax,
 							org.xml.sax.*,
 							org.apache.velocity.*,
+							org.paxle.gui;
+							org.paxle.gui.*;
 							javax.imageio,
 							javax.imageio.*,
 							<!-- ignore others -->

@@ -132,10 +132,16 @@ public class ServletManager implements IServletManager, ManagedService {
 						servlet.getClass().getName(), 
 						fullAlias
 				));
+				
+				// init servlet properties
 				Hashtable<String, String> props = (Hashtable<String, String>) this.defaultProps.clone();
-				if (servlet instanceof ALayoutServlet && ((ALayoutServlet)servlet).getBundleLocation() != null) {
-					props.put("bundle.location", ((ALayoutServlet)servlet).getBundleLocation());
+				if (servlet instanceof ALayoutServlet) {
+					if (((ALayoutServlet)servlet).getBundleLocation() != null) {
+						props.put("bundle.location", ((ALayoutServlet)servlet).getBundleLocation());
+					}
+					((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory());
 				}
+				
 				this.http.registerServlet(fullAlias, servlet, props, httpContext);
 			} catch (Throwable e) {
 				this.logger.error(String.format("Unexpected '%s' while registering servlet '%s' for alias '%s'.",
