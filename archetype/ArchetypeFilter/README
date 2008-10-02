@@ -1,0 +1,7 @@
+mvn archetype:create \
+  -DarchetypeGroupId=org.paxle \
+  -DarchetypeArtifactId=ArchetypeFilter \
+  -DarchetypeVersion=0.1.0-SNAPSHOT \
+  -DgroupId=org.test \
+  -DartifactId=myfilter \
+  -DpackageName=org.test.myfilter
