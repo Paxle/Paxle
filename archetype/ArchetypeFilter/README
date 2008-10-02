@@ -1,3 +1,5 @@
+
+*) Variant 1:
 mvn archetype:create \
   -DarchetypeGroupId=org.paxle \
   -DarchetypeArtifactId=ArchetypeFilter \
@@ -5,3 +7,6 @@ mvn archetype:create \
   -DgroupId=org.test \
   -DartifactId=myfilter \
   -DpackageName=org.test.myfilter
+  
+*) Variant 2:
+mvn archetype:generate -DarchetypeCatalog=file:///home/theli/paxle/archetypes

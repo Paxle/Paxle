@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-catalog>
+	<archetypes>
+		<archetype>
+			<groupId>org.paxle</groupId>
+			<artifactId>ArchetypeFilter</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+			<description>
+				Creates a template for a Paxle command-filter
+			</description>
+		</archetype>
+	</archetypes>
+</archetype-catalog>
