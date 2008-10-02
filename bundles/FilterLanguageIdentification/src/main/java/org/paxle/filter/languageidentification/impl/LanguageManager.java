@@ -1,4 +1,4 @@
-package org.paxle.filterlanguageidentification.impl;
+package org.paxle.filter.languageidentification.impl;
 
 import java.io.IOException;
 import java.net.URL;
@@ -19,6 +19,9 @@ import org.paxle.core.queue.ICommand;
  */
 public class LanguageManager implements IFilter<ICommand> {
 
+	/**
+	 * The list of all available language profiles
+	 */
 	private ArrayList<TrigramSet> lngs = new ArrayList<TrigramSet>();
 	private Log logger = LogFactory.getLog(this.getClass());
 
@@ -28,6 +31,10 @@ public class LanguageManager implements IFilter<ICommand> {
 	 * @throws IOException
 	 */
 	public void loadNewLanguage(URL definition) throws IOException {
+		if (definition == null) {
+			logger.warn("URL for language definition is null!");
+			return;
+		}
 		TrigramSet nlng = new TrigramSet();
 		nlng.load(definition);
 		//set name to xxx from filename /profiles/xxx.txt
@@ -64,7 +71,7 @@ public class LanguageManager implements IFilter<ICommand> {
 
 		try {
 			if (parserDoc.getTextFile() != null) {
-			test.init(parserDoc.getTextFile(), 10);
+				test.init(parserDoc.getTextFile(), 10);
 			} else {
 				logger.info("No language for document '" + parserDoc.getOID() + "', as it contins no text");
 			}
@@ -110,14 +117,14 @@ public class LanguageManager implements IFilter<ICommand> {
 			logger.debug("Command didn't pass, aborting language detection.");
 			return;
 		}
-		
+
 		IParserDocument pdoc = arg0.getParserDocument();
-		
+
 		if (pdoc == null || pdoc.getStatus() != IParserDocument.Status.OK) {
 			logger.debug("Language of pDoc '" + pdoc.getOID() + "' can't be determined");
 			return;
 		}
-		
+
 		getLanguage(arg0.getParserDocument());
 	}
 

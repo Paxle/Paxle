@@ -5,3 +5,4 @@ http://www.tensegrity.hellblazer.com/2007/03/distrubuting_osgi.html
 http://www.osgi.org/blog/2006/01/eclipse-corona-project-distributed.html
 http://www.ibm.com/developerworks/java/library/j-p2pint2/
 http://totheriver.com/learn/xml/xmltutorial.html
+http://www.azrul.com/articles/holiday_season.html

@@ -1,4 +1,4 @@
-package org.paxle.filterlanguageidentification.impl;
+package org.paxle.filter.languageidentification.impl;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -1,6 +1,6 @@
 package org.paxle.filterlanguagedetection.impl;
 
-import org.paxle.filterlanguageidentification.impl.TrigramSet;
+import org.paxle.filter.languageidentification.impl.TrigramSet;
 
 import junit.framework.TestCase;
 

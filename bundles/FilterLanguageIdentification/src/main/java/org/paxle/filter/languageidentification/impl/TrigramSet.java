@@ -1,4 +1,4 @@
-package org.paxle.filterlanguageidentification.impl;
+package org.paxle.filter.languageidentification.impl;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,10 +14,25 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
-import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class TrigramSet {
+
+	//one or more blanks
+	static final Pattern WHITESPACES = Pattern.compile("\\s+");
+	//numbers
+	static final Pattern NUMBERS = Pattern.compile("\\d");
+	//newline
+	static final Pattern NEWLINES = Pattern.compile("\n");
+	//compact underscores
+	static final Pattern UNDERSCORES = Pattern.compile("_+");
+	//collection of all replace patterns. Keep UNERSCORES as last one!
+	static final Pattern[] REPLACE_PATTERNS = { WHITESPACES, NUMBERS, NEWLINES, UNDERSCORES};
 
 	/**
 	 * Contains the trigrams
@@ -52,7 +67,7 @@ public class TrigramSet {
 		while ((line = br.readLine()) != null) {
 			text.append(line + ' ');
 		}
-		init(text.toString(), cutoff);
+		init(text, cutoff);
 	}
 
 	/**
@@ -61,24 +76,45 @@ public class TrigramSet {
 	 * @param cutoff The number of different ranks stored
 	 */
 	public void init(String text, int cutoff) {
+		this.init(new StringBuffer(text), cutoff);
+	}
+
+	/**
+	 * Initializes the trigrams with the given test.
+	 * @param sb
+	 * @param cutoff The number of different ranks stored
+	 */
+	public void init(StringBuffer sb, int cutoff) {
 
 		this.trigrams = new HashMap<String, Integer>();
 		this.cutofflevel = cutoff;
 
+		for (final Pattern p : REPLACE_PATTERNS) { 
+			final Matcher m = p.matcher(sb); 
+			boolean found = m.find(); 
+			if (found) { 
+				final StringBuffer newSb = new StringBuffer(sb.length()); 
+				do { 
+					m.appendReplacement(newSb, "_"); 
+				} while (found = m.find()); 
+				m.appendTail(newSb); sb = newSb; 
+			} 
+		}
+
 		//one or more blanks
-		text = text.replaceAll("\\s+", "_");
+		//WHITESPACES.matcher(sb).replaceAll("_");
 		//newline
-		text = text.replaceAll("\n", "_");
+		//NEWLINES.matcher(sb).replaceAll("_");
 		//numbers
-		text = text.replaceAll("\\d", "_");
+		//NUMBERS.matcher(sb).replaceAll("_");
 		//compact underscores
-		text = text.replaceAll("_+", "_");
+		//UNDERSCORES.matcher(sb).replaceAll("_");
 
 		int i = 0;
 		//zerlege den text in trigramme und speichere in der map
 		//die <String trigram, int count> zuordnung
-		while (i+3 <= text.length()) {
-			String trigram = text.substring(i, i+3);
+		while (i+3 <= sb.length()) {
+			String trigram = sb.substring(i, i+3);
 			i++;
 			if (trigrams.get(trigram) == null) {
 				trigrams.put(trigram,1);
@@ -182,6 +218,7 @@ public class TrigramSet {
 	 * @param in
 	 */
 	public void load(String in) {
+		this.trigrams = new HashMap<String, Integer>(100);
 		StringTokenizer tokenizer = new StringTokenizer(in);
 		while (tokenizer.hasMoreTokens()) {
 			trigrams.put(tokenizer.nextToken(), Integer.valueOf(tokenizer.nextToken()));
@@ -220,7 +257,7 @@ public class TrigramSet {
 	 */
 	public double getDifference(String text) {
 		TrigramSet ts = new TrigramSet();
-		ts.init(text, this.cutofflevel);
+		ts.init(new StringBuffer(text), this.cutofflevel);
 		return getDifference(ts);
 	}
 
