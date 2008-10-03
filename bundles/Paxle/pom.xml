@@ -176,12 +176,16 @@
 									<destFileName>org.eclipse.equinox.metatype_1.0.0.v20070827.jar</destFileName>
 								</artifactItem>		
 								
+								<!-- 
+									 A patched version of the useradmin bundle including 
+								     a patch from: https://bugs.eclipse.org/bugs/show_bug.cgi?id=241663
+								-->
 								<artifactItem>
 									<groupId>org.eclipse.equinox</groupId>
 									<artifactId>useradmin</artifactId>
-									<version>1.1.0.v20080508-1815</version>
+									<version>1.1.100.200810030655</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.equinox.useradmin_1.1.0.v20080508-1815.jar</destFileName>
+									<destFileName>org.eclipse.equinox.useradmin_1.1.100.200810030655.jar</destFileName>
 								</artifactItem>																											
 																								
 								<!-- jetty based HTTP service -->
