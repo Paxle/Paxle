@@ -58,8 +58,16 @@
 							org.apache.velocity.context;resolution:=optional,
 							<!-- Paxle GUI Bundle -->
 							org.paxle.gui;version="[0.1.0,0.2.0)";resolution:=optional,
-							org.w3c.dom.*,
-							org.w3c.dom.ranges,
+							<!-- XML parsing -->
+							javax.xml.parsers,
+							javax.xml.transform,
+							javax.xml.transform.dom, 
+							javax.xml.transform.stream,
+							javax.xml.transform.sax,
+							org.xml.sax, 
+							org.xml.sax.ext, 
+							org.xml.sax.helpers,
+							org.w3c.dom,
 							<!-- Ignoring other classes -->
 							!net.sf.hibernate,
 							!net.sf.hibernate.*,
@@ -70,6 +78,8 @@
 							!org.jaxen.*,
 							!org.saxpath.*,
 							!org.apache.xml.resolver.*,
+							!org.apache.xerces.dom, 
+							!org.apache.xerces.parsers
 						</Import-Package>
 						<Private-Package>
 							org.paxle.se.provider.rsssearch.impl,
@@ -79,8 +89,6 @@
 						</Private-Package>
 						
 						<DynamicImport-Package>
-							javax.xml.*,
-							org.xml.*,
 							sun.io.*
 						</DynamicImport-Package>
 						
@@ -92,8 +100,7 @@
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
 							informa;scope=compile|runtime,
-							jdom;scope=compile|runtime,
-							xercesImpl;scope=compile|runtime
+							jdom;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
