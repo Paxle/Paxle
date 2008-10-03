@@ -135,7 +135,10 @@ public class RssSearchProvider implements ISearchProvider,ManagedService {
 	public static void registerSearchers(ArrayList<String> urls){
 		Iterator<ServiceRegistration> prov_it=providers.iterator();
 		while(prov_it.hasNext()){
-			prov_it.next().unregister();
+			ServiceRegistration sr=prov_it.next();
+			try{
+				sr.unregister();
+			}catch(IllegalStateException e){} //service is already unregistered
 		}
 		Iterator<String> it=urls.iterator();
 		while(it.hasNext()){
