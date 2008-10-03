@@ -17,6 +17,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
@@ -48,13 +51,24 @@ public class RssSearchProvider implements ISearchProvider,ManagedService {
 	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
 		try {
 			String request=RssSearchQueryFactor.transformToken(token, new RssSearchQueryFactor());
-			System.out.println(this.feedURL+" suche nach "+request);
 			//creating a channel-builder
 	        ChannelBuilder builder = new ChannelBuilder();   
 	        
 	        // parsing the rss/atom feed
-	        ChannelIF channel = FeedParser.parse(builder, new URL(String.format(feedURL, URLEncoder.encode(request, DEFAULT_CHARSET))));
-	        Collection<Item> items = channel.getItems();
+			try {
+				// opening an http connection
+				HttpMethod hm = new GetMethod(new URL(String.format(feedURL, URLEncoder.encode(request, DEFAULT_CHARSET))).toExternalForm());
+				HttpClient hc = new HttpClient();
+				int status = hc.executeMethod(hm);
+				if (status != 200) {
+					// TODO: errormessage
+					return;
+				}
+
+				// parsing the rss/atom feed
+				ChannelIF channel = FeedParser.parse(builder, hm.getResponseBodyAsStream());
+				hm.releaseConnection();
+				Collection<Item> items = channel.getItems();
 	        Iterator<Item> it=items.iterator();
 	        int count=0;
 	        IIndexerDocument indexerDoc;
@@ -68,6 +82,9 @@ public class RssSearchProvider implements ISearchProvider,ManagedService {
 				indexerDoc.set(IIndexerDocument.AUTHOR, item.getCreator());
 				indexerDoc.set(IIndexerDocument.LAST_MODIFIED, item.getDate());
 				results.add(indexerDoc);
+	        }
+	        }catch (IOException e){
+	        	//do nothing, it just not worked (offline or rss-site problem)
 	        }
 
 		} catch (Exception e) {
