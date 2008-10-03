@@ -210,7 +210,7 @@ public class Activator implements BundleActivator {
 				props.put(HttpContextAuth.USER_HTTP_LOGIN, "admin");
 
 				Dictionary<String, Object> credentials = admin.getCredentials();
-				credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, "".getBytes("UTF-8"));
+				credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, "");
 			}
 		}
 	}

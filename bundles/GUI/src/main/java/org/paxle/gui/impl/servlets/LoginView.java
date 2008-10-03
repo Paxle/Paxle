@@ -36,7 +36,7 @@ public class LoginView extends ALayoutServlet {
         		UserAdmin uAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
         		
         		// auth user
-        		User user = HttpContextAuth.authenticatedAs(uAdmin, request, userName, password.getBytes("UTF-8"));        		
+        		User user = HttpContextAuth.authenticatedAs(uAdmin, request, userName, password);        		
         		if (user != null){
         			// remember login state
         			session.setAttribute("logon.isDone", Boolean.TRUE);

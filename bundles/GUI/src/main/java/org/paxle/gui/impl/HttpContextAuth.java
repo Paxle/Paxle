@@ -121,10 +121,10 @@ public class HttpContextAuth implements HttpContext {
 			return null;
 		}
 		
-		return authenticatedAs(userAdmin, request, userName, password.getBytes("UTF-8"));
+		return authenticatedAs(userAdmin, request, userName, password);
 	}
 	
-	public static User authenticatedAs(final UserAdmin userAdmin, final HttpServletRequest request, final String userName, final byte[] password) throws UnsupportedEncodingException {
+	public static User authenticatedAs(final UserAdmin userAdmin, final HttpServletRequest request, final String userName, String password) throws UnsupportedEncodingException {
 		if (userAdmin == null) {
 			logger.info(String.format("[%s] OSGi UserAdmin service not found", request.getRemoteHost()));
 			return null;

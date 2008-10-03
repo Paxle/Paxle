@@ -369,7 +369,7 @@ public class SettingsView extends ALayoutServlet {
 		props.put(HttpContextAuth.USER_HTTP_LOGIN, loginName);
 		
 		Dictionary<String, Object> credentials = user.getCredentials();
-		credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, pwd1.getBytes("UTF-8"));
+		credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, pwd1);
 		
 		/* ===========================================================
 		 * OPEN-ID
