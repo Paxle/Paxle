@@ -51,11 +51,15 @@
 							org.paxle.se.query.tokens;version="[0.1.0,0.2.0)",
 							<!-- GUI -->
 							javax.servlet.http;resultion:=optional,
+							<!-- Apache Commons HttpClient (for http downloads) -->
+							org.apache.commons.httpclient.*;version="3.1.0",
 							<!-- Apache Velocity (used by Paxle GUI bundle) -->
 							org.apache.velocity;resolution:=optional, 
 							org.apache.velocity.context;resolution:=optional,
 							<!-- Paxle GUI Bundle -->
 							org.paxle.gui;version="[0.1.0,0.2.0)";resolution:=optional,
+							org.w3c.dom.*,
+							org.w3c.dom.ranges,
 							<!-- Ignoring other classes -->
 							!net.sf.hibernate,
 							!net.sf.hibernate.*,
@@ -76,7 +80,6 @@
 						
 						<DynamicImport-Package>
 							javax.xml.*,
-							org.w3c.*,
 							org.xml.*,
 							sun.io.*
 						</DynamicImport-Package>
@@ -109,6 +112,10 @@
 					<artifactId>commons-pool</artifactId>
 				</exclusion>
 			</exclusions>				
+		</dependency>
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient-osgi</artifactId>
 		</dependency>
 	
 		<dependency>
