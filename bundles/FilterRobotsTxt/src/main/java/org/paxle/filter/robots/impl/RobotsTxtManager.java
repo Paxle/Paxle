@@ -547,7 +547,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		}
 
 		// check if the URI is blocked
-		return this.isDisallowed(new ArrayList<URI>(Arrays.asList(new URI[]{location}))).size() == 1;
+		return this.isDisallowed(Arrays.asList(location)).size() == 1;
 	}
 	
 	/**

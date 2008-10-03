@@ -3,6 +3,7 @@ package org.paxle.filter.robots.impl.store;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -15,7 +16,10 @@ import com.db4o.Db4o;
 import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
 import com.db4o.config.Configuration;
+import com.db4o.config.QueryConfiguration;
+import com.db4o.config.QueryEvaluationMode;
 import com.db4o.ext.DatabaseClosedException;
+import com.db4o.ext.ExtObjectContainer;
 import com.db4o.osgi.Db4oService;
 import com.db4o.query.Predicate;
 import com.db4o.query.Query;
@@ -81,11 +85,11 @@ public class Db4oStore implements IRuleStore {
 				: this.dboService.openFile(config, dbFile.toString());
 				
 		// robots.txt cleanup can be skipped via variable
-		Boolean skipCleanup = Boolean.valueOf(System.getProperty("robots.Db4oStore.skipCleanup","false"));
+		boolean skipCleanup = Boolean.parseBoolean(System.getProperty("robots.Db4oStore.skipCleanup","false"));
 		if (!skipCleanup) {
 			// create and init cleanup task
 			this.dbCleanupTask = new DBCleanupTask();
-			this.dbCleanupTimer = new Timer();
+			this.dbCleanupTimer = new Timer("Robots.txt Cleanup Timer");
 			this.dbCleanupTimer.scheduleAtFixedRate(this.dbCleanupTask, 0, 30*60*1000);
 		}
 	}
@@ -135,40 +139,57 @@ public class Db4oStore implements IRuleStore {
 		
 		@Override
 		public void run() {
+			final int oldPriority = Thread.currentThread().getPriority();
 			try {
+				Thread.currentThread().setPriority(3);
 				this.logger.info("Starting robots.txt DB cleanup.");
 				this.canceled = false;
 				final Date now = new Date();
-
+				
 				// query for outdated robots.txt entries
 				long start = System.currentTimeMillis();
-				List <RobotsTxt> outdatedRobotsTxts = db.query(new Predicate<RobotsTxt>() {
+				List <RobotsTxt> outdatedRobotsTxts;
+				final Predicate<RobotsTxt> predicate = new Predicate<RobotsTxt>() {
 					private static final long serialVersionUID = 1L;
-
+					
+					@Override
 					public boolean match(RobotsTxt robotsTxt) {
 						return robotsTxt.getExpirationDate().before(now);
 					}
-				});
-				if (outdatedRobotsTxts == null || outdatedRobotsTxts.size() == 0) {
+				};
+				
+				final ExtObjectContainer ext = db.ext();
+				final QueryConfiguration queryConfig = ext.configure().queries();
+				synchronized (ext.lock()) {
+					queryConfig.evaluationMode(QueryEvaluationMode.LAZY);
+					try {
+						outdatedRobotsTxts = ext.query(predicate);
+					} finally { queryConfig.evaluationMode(QueryEvaluationMode.IMMEDIATE); }
+				}
+				
+				final Iterator<RobotsTxt> it;
+				
+				if (outdatedRobotsTxts == null || !(it = outdatedRobotsTxts.iterator()).hasNext()) {
 					this.logger.debug("No outdated robots.txt entries found in DB.");
 					return;
 				} else {
 					this.logger.debug(String.format(
 							"Querying of outdated robots.txt entries took %d ms.",
-							(System.currentTimeMillis()-start)
+							Long.valueOf(System.currentTimeMillis() - start)
 					));
 				}
 				
 				// loop through the list and delete all entries
-				for (RobotsTxt outdatedRobotsTxt : outdatedRobotsTxts) {
-					if (this.canceled) break;
-					db.delete(outdatedRobotsTxt);
+				int c = 0;
+				while (!this.canceled && it.hasNext()) {
+					db.delete(it.next());
+					c++;
 				}
 				db.commit();
 				
 				this.logger.info(String.format(
 						"Robots.txt DB cleanup finished. %d entries removed.",
-						outdatedRobotsTxts.size()
+						Integer.valueOf(c)
 				));
 			} catch (Exception e) {
 				if (e instanceof DatabaseClosedException && this.canceled) {
@@ -179,8 +200,7 @@ public class Db4oStore implements IRuleStore {
 							e.getClass().getName()
 					),e);
 				}
-			}
+			} finally { Thread.currentThread().setPriority(oldPriority); }
 		}
-		
 	}
 }
