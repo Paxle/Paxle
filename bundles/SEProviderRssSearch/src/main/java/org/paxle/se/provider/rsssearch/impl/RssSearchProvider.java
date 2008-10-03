@@ -13,9 +13,11 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.paxle.core.doc.IIndexerDocument;
@@ -34,6 +36,8 @@ public class RssSearchProvider implements ISearchProvider,ManagedService {
 	private static final String DEFAULT_CHARSET = "UTF-8";
 	
 	String feedURL;
+	public static List<ServiceRegistration> providers;
+
 	
 	public RssSearchProvider(String feedURL){
 		this.feedURL=feedURL;
@@ -111,4 +115,16 @@ public class RssSearchProvider implements ISearchProvider,ManagedService {
 		os.close();
 	}
 
+	public static void registerSearchers(ArrayList<String> urls){
+		Iterator<ServiceRegistration> prov_it=providers.iterator();
+		while(prov_it.hasNext()){
+			prov_it.next().unregister();
+		}
+		Iterator<String> it=urls.iterator();
+		while(it.hasNext()){
+			providers.add(Activator.bc.registerService(ISearchProvider.class.getName(),
+				new RssSearchProvider(it.next()), new Hashtable<String,String>())
+			);
+		}
+	}
 }

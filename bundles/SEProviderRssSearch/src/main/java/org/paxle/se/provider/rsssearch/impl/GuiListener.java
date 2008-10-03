@@ -23,16 +23,20 @@ public class GuiListener implements BundleListener {
 				/*
 				 * Registering the servlet
 				 */
-				ConfigServlet servlet=new ConfigServlet();
-				servlet.setBundleLocation(bc.getBundle().getEntry("/").toString());
-				Hashtable<String, String> props = new Hashtable<String, String>();
-				props.put("path", "/rsssearchconfig");
-				props.put("menu", "RSS search sources");
-				this.serviceReg = bc.registerService("javax.servlet.Servlet", servlet, props);
+				registerServlet();
 			} else if (event.getType() == BundleEvent.STOPPED && this.serviceReg != null) {
 				this.serviceReg.unregister();
 				this.serviceReg = null;
 			}
 		}
+	}
+
+	public void registerServlet() {
+		ConfigServlet servlet=new ConfigServlet();
+		servlet.setBundleLocation(bc.getBundle().getEntry("/").toString());
+		Hashtable<String, String> props = new Hashtable<String, String>();
+		props.put("path", "/rsssearchconfig");
+		props.put("menu", "RSS search sources");
+		this.serviceReg = bc.registerService("javax.servlet.Servlet", servlet, props);
 	}
 }

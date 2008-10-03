@@ -50,7 +50,7 @@
 							org.paxle.se.query;version="[0.1.0,0.2.0)",
 							org.paxle.se.query.tokens;version="[0.1.0,0.2.0)",
 							<!-- GUI -->
-							javax.servlet.http;resultion=optional,
+							javax.servlet.http;resultion:=optional,
 							<!-- Apache Velocity (used by Paxle GUI bundle) -->
 							org.apache.velocity;resolution:=optional, 
 							org.apache.velocity.context;resolution:=optional,
