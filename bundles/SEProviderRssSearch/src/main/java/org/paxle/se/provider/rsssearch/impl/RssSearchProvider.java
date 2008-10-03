@@ -61,13 +61,12 @@ public class RssSearchProvider implements ISearchProvider,ManagedService {
 				HttpClient hc = new HttpClient();
 				int status = hc.executeMethod(hm);
 				if (status != 200) {
-					// TODO: errormessage
+					System.out.println("no status 200 - maybe something went wrong");
 					return;
 				}
 
 				// parsing the rss/atom feed
 				ChannelIF channel = FeedParser.parse(builder, hm.getResponseBodyAsStream());
-				hm.releaseConnection();
 				Collection<Item> items = channel.getItems();
 	        Iterator<Item> it=items.iterator();
 	        int count=0;
@@ -79,10 +78,11 @@ public class RssSearchProvider implements ISearchProvider,ManagedService {
 				indexerDoc.set(IIndexerDocument.TITLE, item.getTitle());
 				indexerDoc.set(IIndexerDocument.PROTOCOL, item.getLink().getProtocol());
 				indexerDoc.set(IIndexerDocument.SUMMARY, item.getDescription());
-				indexerDoc.set(IIndexerDocument.AUTHOR, item.getCreator());
+				indexerDoc.set(IIndexerDocument.AUTHOR, item.getCreator()==null?"":item.getCreator());
 				indexerDoc.set(IIndexerDocument.LAST_MODIFIED, item.getDate());
 				results.add(indexerDoc);
 	        }
+			hm.releaseConnection();
 	        }catch (IOException e){
 	        	//do nothing, it just not worked (offline or rss-site problem)
 	        }
