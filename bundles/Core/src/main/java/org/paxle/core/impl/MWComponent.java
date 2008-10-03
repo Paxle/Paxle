@@ -8,10 +8,13 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 import org.osgi.framework.Constants;
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.event.Event;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.ObjectClassDefinition;
@@ -33,6 +36,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	public static final String PROP_POOL_MAX_IDLE = "pool.maxIdle";
 	public static final String PROP_POOL_MAX_ACTIVE = "pool.maxActive";
 	public static final String PROP_DELAY = "master.delay";
+	public static final String PROP_ACTIVATED = "master.activated";
 	
 	private final IMaster master;
 	private final Pool<Data> pool;
@@ -62,7 +66,11 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	 */
 	private MWComponentEventSender eventSender;
 	
-	public MWComponent(IMaster master, Pool<Data> pool, InputQueue<Data> inQueue, OutputQueue<Data> outQueue) {
+	private Configuration configuration;
+	
+	private final String[] locales;
+	
+	public MWComponent(IMaster master, Pool<Data> pool, InputQueue<Data> inQueue, OutputQueue<Data> outQueue, final String[] locales) {
 		if (master == null) throw new NullPointerException("The master thread is null.");
 		if (pool == null) throw new NullPointerException("The thread-pool is null");
 		if (inQueue == null) throw new NullPointerException("The input-queue is null");
@@ -70,7 +78,8 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		this.master = master;
 		this.pool = pool;
 		this.inQueue = inQueue;
-		this.outQueue = outQueue;		
+		this.outQueue = outQueue;
+		this.locales = locales;
 	}
 
 	void setComponentID(String componentID) {
@@ -87,6 +96,10 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	
 	void setEventSender(MWComponentEventSender eventSender) {
 		this.eventSender = eventSender;
+	}
+	
+	void setConfiguration(final Configuration configuration) {
+		this.configuration = configuration;
 	}
 	
 	/**
@@ -143,9 +156,15 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	/**
 	 * {@inheritDoc}
 	 * @see IMWComponent#pause()
-	 */	
+	 */
+	@SuppressWarnings("unchecked")
 	public void pause(){
 		this.master.pauseMaster();
+		final Dictionary props = configuration.getProperties();
+		props.put(PROP_STATE_ACTIVE, Boolean.FALSE.toString());
+		try {
+			configuration.update(props);
+		} catch (IOException e) { e.printStackTrace(); }
 		if (this.eventSender != null) {
 			this.eventSender.sendPausedEvent(this.componentID);
 		}
@@ -154,9 +173,15 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	/**
 	 * {@inheritDoc}
 	 * @see IMWComponent#resume()
-	 */	
+	 */
+	@SuppressWarnings("unchecked")
 	public void resume() {
 		this.master.resumeMaster();
+		final Dictionary props = configuration.getProperties();
+		props.put(PROP_STATE_ACTIVE, Boolean.TRUE.toString());
+		try {
+			configuration.update(props);
+		} catch (IOException e) { e.printStackTrace(); }
 		if (this.eventSender != null) {
 			this.eventSender.sendResumedEvent(this.componentID);
 		}
@@ -214,11 +239,12 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 		
 		defaults.put(Constants.SERVICE_PID, this.componentID);
-		defaults.put(PROP_POOL_MIN_IDLE, new Integer(0));
-		defaults.put(PROP_POOL_MAX_IDLE, new Integer(8));
-		defaults.put(PROP_POOL_MAX_ACTIVE, new Integer(8));
-		defaults.put(PROP_DELAY, new Integer(-1));
-		  
+		defaults.put(PROP_POOL_MIN_IDLE, Integer.valueOf(0));
+		defaults.put(PROP_POOL_MAX_IDLE, Integer.valueOf(8));
+		defaults.put(PROP_POOL_MAX_ACTIVE, Integer.valueOf(8));
+		defaults.put(PROP_DELAY, Integer.valueOf(-1));
+		defaults.put(PROP_STATE_ACTIVE, Boolean.TRUE);
+		
 		return defaults;
 	}
 	
@@ -242,18 +268,59 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		
 		Integer delay = (Integer)configuration.get(PROP_DELAY);
 		this.master.setDelay((delay == null) ? -1 : delay.intValue());
+		
+		final Boolean active = (Boolean)configuration.get(PROP_STATE_ACTIVE);
+		if (active != null) {
+			if (active.booleanValue() && this.isPaused()) {
+				this.resume();
+			} else if (!this.isPaused()) {
+				this.pause();
+			}
+		}
 	}
-
+	
 	public String[] getLocales() {
-		return new String[]{Locale.ENGLISH.getLanguage()};
+		return locales;
 	}
-
-	public ObjectClassDefinition getObjectClassDefinition(String id, String locale) {
-		final ArrayList<AD> ads = new ArrayList<AD>();
-		ads.add(new AD(PROP_POOL_MIN_IDLE, "Min. idle threads","The minimum number of threads", new String[]{"0"}));
-		ads.add(new AD(PROP_POOL_MAX_IDLE, "Max. idle threads","The number of 'idle' threads in the pool. Use a negative value to indicate an unlimited number of idle threads", new String[]{"8"}));
-		ads.add(new AD(PROP_POOL_MAX_ACTIVE, "Max. active threads","Total number of active threads from my pool. Use a negative value for an infinite number of threads.", new String[]{"8"}));
-		ads.add(new AD(PROP_DELAY, "Delay", "Delay between busy loops in ms", new String[]{"0"}));
+	
+	private static final String PROP_STATE_ACTIVE = "state.active";
+	
+	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
+		final ArrayList<AttributeDefinition> ads = new ArrayList<AttributeDefinition>();
+		final Locale locale = (localeStr == null) ? Locale.ENGLISH : new Locale(localeStr);
+		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + MWComponent.class.getSimpleName(), locale);
+		
+		ads.add(new AD(
+				PROP_POOL_MIN_IDLE,
+				rb.getString("threads.idle.min.name"),
+				rb.getString("threads.idle.min.desc"),
+				new String[] { Integer.toString(0) }));
+		ads.add(new AD(
+				PROP_POOL_MAX_IDLE,
+				rb.getString("threads.idle.max.name"),
+				rb.getString("threads.idle.max.desc"),
+				new String[] { Integer.toString(8) }));
+		ads.add(new AD(
+				PROP_POOL_MAX_ACTIVE,
+				rb.getString("threads.active.max.name"),
+				rb.getString("threads.active.max.desc"),
+				new String[] { Integer.toString(8) }));
+		ads.add(new AD(
+				PROP_DELAY,
+				rb.getString("threads.active.delay.name"),
+				rb.getString("threads.active.delay.desc"),
+				new String[] { Integer.toString(-1) }));
+		ads.add(new AttributeDefinition() {
+			public int getCardinality() { return 0; }
+			public String[] getDefaultValue() { return new String[] { Boolean.TRUE.toString() }; }
+			public String getDescription() { return rb.getString("state.active.desc"); }
+			public String getID() { return PROP_STATE_ACTIVE; }
+			public String getName() { return rb.getString("state.active.name"); }
+			public String[] getOptionLabels() { return new String[] { rb.getString("state.active.running"), rb.getString("state.active.paused") }; }
+			public String[] getOptionValues() { return new String[] { Boolean.TRUE.toString(), Boolean.FALSE.toString() }; }
+			public int getType() { return AttributeDefinition.BOOLEAN; }
+			public String validate(String value) { return null; }
+		});
 		
 		final String PID = this.componentID;
 		final String mame = this.componentName;
@@ -262,7 +329,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		// create metadata
 		ObjectClassDefinition ocd = new ObjectClassDefinition() {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {
-				return ads.toArray(new MWComponent.AD[ads.size()]);
+				return ads.toArray(new AttributeDefinition[ads.size()]);
 			}
 
 			public String getDescription() {

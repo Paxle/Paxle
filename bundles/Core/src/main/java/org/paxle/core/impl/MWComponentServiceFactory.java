@@ -12,12 +12,18 @@ import org.paxle.core.IMWComponentFactory;
  * Please note that each created {@link MWComponentFactory} is bundle specific. 
  */
 public class MWComponentServiceFactory implements ServiceFactory {
-
+	
+	private final String[] locales;
+	
+	public MWComponentServiceFactory(final String[] locales) {
+		this.locales = locales;
+	}
+	
 	/**
 	 * @see ServiceFactory#getService(Bundle, ServiceRegistration)
 	 */
-	public Object getService(Bundle bundle, ServiceRegistration registration) {
-		return new MWComponentFactory(bundle);
+	public IMWComponentFactory getService(Bundle bundle, ServiceRegistration registration) {
+		return new MWComponentFactory(bundle, locales);
 	}
 
 	/**

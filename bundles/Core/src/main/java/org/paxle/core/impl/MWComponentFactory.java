@@ -54,12 +54,15 @@ public class MWComponentFactory implements IMWComponentFactory {
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
+	private final String[] locales;
+	
 	/**
 	 * @param bundle reference to the {@link Bundle} which has requested the
 	 * {@link IMWComponentFactory}-service.
 	 */
-	MWComponentFactory(Bundle bundle) {
+	MWComponentFactory(Bundle bundle, final String[] locales) {
 		this.bundle = bundle;
+		this.locales = locales;
 	}
 	
 	/**
@@ -120,7 +123,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 		((Master<?>)master).setName(this.bundle.getSymbolicName() + ".Master");
 		
 		// create the component and return it
-		MWComponent<Data> component = new MWComponent<Data>(master,pool,inQueue,outQueue);
+		MWComponent<Data> component = new MWComponent<Data>(master,pool,inQueue,outQueue, locales);
 		this.components.put(clazz, component);
 		return component;
 	}
@@ -219,6 +222,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 		if (cmRef != null) {
 			ConfigurationAdmin cm = (ConfigurationAdmin) bc.getService(cmRef);
 			Configuration config = cm.getConfiguration(componentID);
+			((MWComponent<?>)component).setConfiguration(config);
 			if (config.getProperties() == null) {
 				config.update(((MWComponent<?>)component).getDefaults());
 			}

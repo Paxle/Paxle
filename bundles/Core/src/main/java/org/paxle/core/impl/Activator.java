@@ -7,7 +7,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -141,7 +140,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		);		
 		
 		this.rbTool = new ResourceBundleTool(bc.getBundle());
-						
+		
 		this.propertyStore = this.createAndRegisterPropertyStore(bc);
 		
 		this.filterManager = this.createAndRegisterFilterManager(bc, this.rbTool, this.propertyStore);
@@ -175,7 +174,8 @@ public class Activator implements BundleActivator, InvocationHandler {
 		 * Register Services
 		 * ========================================================== */		
 		// register the master-worker-factory as a service
-		bc.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(), null);
+		bc.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(
+				rbTool.getLocaleArray(MWComponent.class.getSimpleName(), Locale.ENGLISH)), null);
 		
 		// register crypt-manager
 		bc.registerService(ICryptManager.class.getName(), this.cryptManager, null);
