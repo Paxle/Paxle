@@ -131,7 +131,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	 */
 	private HttpClient httpClient = null;	
 	
-	private boolean useAsyncExecution = true;
+	private final boolean useAsyncExecution = true;
 	
 	private ExecutorService execService;
 	
@@ -361,6 +361,11 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			// we treat it like a 404, see above
 			logger.info(String.format("Invalid redirection URI on host '%s'.", hostPort));
 			return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_DEFAULT, "Redirected to illegal URI");
+		} catch (IllegalStateException e) {
+			// occurs if redirected to an URI with an invalid protocol, see https://bugs.pxl.li/view.php?id=169
+			// we treat it like a 404, see above
+			logger.info(String.format("Invalid redirection URI on host '%s'.", hostPort));
+			return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_DEFAULT, "Redirected to illegal URI");
 			
 		} finally {
 			if (inputStream != null) try { inputStream.close(); } catch (Exception e) {/* ignore this */}
@@ -440,10 +445,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 				 */
 				try {
 					// just test if it's a valid number
-                	Float crawlDelayFloat = Float.valueOf(line);
-                	Integer crawlDelay = Integer.valueOf(Math.round(crawlDelayFloat));
+                	float crawlDelayFloat = Float.parseFloat(line);
+                	int crawlDelay = Math.round(crawlDelayFloat);
                 	if (currentBlock != null) {
-                		currentBlock.addProperty("Crawl-Delay", crawlDelay.toString());
+                		currentBlock.addProperty("Crawl-Delay", Integer.toString(crawlDelay));
                 	} else {
                 		this.logger.warn(robotsTxt.getHostPort() + ": Crawl-Delay not within a rule block.");
                 	}
