@@ -59,6 +59,7 @@ public class ConfigServlet extends ALayoutServlet {
 						if(oslc.found()){
 							addRssUrlFromOpensearchXMLUrl(oslc.getURL());
 						}
+						page.close();
 					}
 				}
 			} else {
