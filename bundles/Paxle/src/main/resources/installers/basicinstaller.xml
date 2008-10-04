@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<installation version="1.0">
+<!-- 
+	Documnetation: http://izpack.org/documentation/ 
+-->
+	<info>
+		<appname>Paxle</appname>
+		<appversion>${pom.version}</appversion>
+		<url>${pom.url}</url>
+		<javaversion>1.5</javaversion>
+		<requiresjdk>no</requiresjdk>
+	</info>
+	<variables>
+		<!-- The jar-name of the equinox runtime -->
+		<variable name="OSGI_RUNTIME_JAR" value="${equinox.runtime.jar}" />
+	</variables>
+	<guiprefs width="640" height="480" resizable="no">
+		<laf name="looks">
+			<os family="unix" />
+		</laf>
+		<modifier key="langDisplayType" value="native" />
+	</guiprefs>
+	<locale>
+		<langpack iso3="eng" />
+		<langpack iso3="deu" />
+	</locale>
+	<resources>
+		<res id="InfoPanel.info" src="${basedir}/README.txt" parse="yes" />
+		<res id="LicencePanel.licence" src="${basedir}/LICENSE.txt" />
+		<res id="installer.langsel.img" src="${basedir}/src/main/resources/img/logo.png" />
+		<res id="shortcutSpec.xml" src="${basedir}/src/main/resources/installers/winShortcutSpec.xml" />
+		<res id="Unix_shortcutSpec.xml" src="${basedir}/src/main/resources/installers/unixShortcutSpec.xml" />
+	</resources>
+	<native type="izpack" name="ShellLink.dll" />
+	<panels>
+		<panel classname="HelloPanel" />
+		<panel classname="LicencePanel" />
+		<panel classname="TargetPanel" />
+		<panel classname="TreePacksPanel" />
+		<panel classname="InstallPanel" />
+		<panel classname="ShortcutPanel" />
+		<panel classname="SimpleFinishPanel" />
+	</panels>
+	<packs>
+		<pack id="Core" name="Paxle" required="yes">
+			<description>Core package</description>
+
+			<!-- core OSGi bundles -->
+			<fileset dir="${basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">
+				<include name="**" />
+
+				<!-- excluding DI jars -->
+				<exclude name="DesktopIntegration*.jar" />
+				<exclude name="DI*Backend*.jar" />
+
+				<!-- excluding GUI jar(s) -->
+				<exclude name="GUI*.jar" />
+			</fileset>
+
+			<!-- uninstaller shell script -->
+			<fileset dir="${basedir}/src/main/resources/installers/" includes="uninstall.sh" targetdir="$INSTALL_PATH/Uninstaller" />
+
+			<!-- open web-gui script -->
+			<fileset dir="${basedir}/src/main/resources/bin/" includes="launchBrowser.sh" targetdir="$INSTALL_PATH/" />
+
+			<!-- make shell scripts executable -->
+			<executable targetfile="$INSTALL_PATH/start.sh" stage="never" keep="true" os="unix" />
+			<executable targetfile="$INSTALL_PATH/Uninstaller/uninstall.sh" stage="never" keep="true" os="unix" />
+			<executable targetfile="$INSTALL_PATH/launchBrowser.sh" stage="never" keep="true" os="unix" />
+
+			<!-- icon files -->
+			<singlefile src="${basedir}/src/main/resources/img/icon.xpm" target="$INSTALL_PATH/img/icon.xpm" />
+			<singlefile src="${basedir}/src/main/resources/img/icon.ico" target="$INSTALL_PATH/img/icon.ico" />
+		</pack>
+
+		<pack id="GUIs" name="User Interfaces" required="no" preselected="yes">
+			<description>Paxle User Interfaces</description>
+		</pack>
+
+		<!-- desktop integration -->
+		<pack id="DI" name="Desktop" parent="GUIs" required="no" preselected="yes">
+			<description>Desktop Integration</description>
+
+			<fileset dir="${basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">
+				<include name="DesktopIntegration*.jar" />
+				<include name="DI*Backend*.jar" />
+			</fileset>
+		</pack>
+
+		<!-- HTTP GUI -->
+		<pack id="GUI" name="Http-GUI" parent="GUIs" required="no" preselected="yes">
+			<description>Http GUI</description>
+
+			<fileset dir="${basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">
+				<include name="GUI*.jar" />
+			</fileset>
+		</pack>
+	</packs>
+</installation>

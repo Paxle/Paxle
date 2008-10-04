@@ -722,7 +722,14 @@
 			</modules>			
 			
 			<build>
-				<plugins>
+			    <resources>
+			    	<resource>
+			    		<directory>src/main/resources/</directory>
+			    		<filtering>true</filtering>
+			    	</resource>
+			    </resources>
+	
+			    <plugins>
 					<!-- ==================================================================-->
 					<!-- RELEASE - FILES                                                   -->
 					<!-- ==================================================================-->
@@ -744,9 +751,7 @@
 								 -->
 							</descriptors>
 							<outputDirectory>target</outputDirectory>
-							<workDirectory>
-								target/assembly/work
-							</workDirectory>
+							<workDirectory>target/assembly/work</workDirectory>
 						</configuration>
 						<executions>
 							<execution>
@@ -765,134 +770,14 @@
 					<!-- ==================================================================-->
 					<plugin>
 						<artifactId>maven-antrun-plugin</artifactId>
-						<dependencies>
-							<dependency>
-								<groupId>org.codehaus.izpack</groupId>
-								<artifactId>izpack-standalone-compiler</artifactId>
-								<version>4.0.1</version>
-							</dependency>
-						</dependencies>
 						<executions>
 							<execution>
-								<id>make-java-installer</id>
+								<id>make-java-installer-unzip</id>
 								<phase>install</phase>
 								<configuration>
 									<tasks>
 										<echo message="${basedir}" />
-
-										<taskdef name="izpack"
-											classname="com.izforge.izpack.ant.IzPackTask"/>
-
-										<!-- untar archive -->
-										<untar compression="gzip"
-											src="target/${pom.artifactId}-${pom.version}-equinox.tar.gz"
-											dest="target/izpack" />
-
-										<!-- create installer -->
-										<izpack
-											output="target/${pom.artifactId}-${pom.version}-installer.jar"
-											installerType="standard" basedir="target/izpack/"
-											izpackdir="src/main/resources/installers/">
-											<config>
-												<![CDATA[
-										<installation version="1.0">
-											<info>
-												<appname>Paxle</appname>
-												<appversion>${pom.version}</appversion>
-												<url>${pom.url}</url>
-												<javaversion>1.5</javaversion>
-												<requiresjdk>no</requiresjdk>
-											</info>
-											<variables>
-												<!-- The jar-name of the equinox runtime -->
-												<variable name="OSGI_RUNTIME_JAR" value="${equinox.runtime.jar}"/>
-											</variables>
-											<guiprefs width="640" height="480" resizable="no">
-												<laf name="looks">
-													<os family="unix" />
-						 						</laf>
-												<modifier key="langDisplayType" value="native"/>
-						 					</guiprefs>						 						
-											<locale>
-						                        <langpack iso3="eng"/>
-						                        <langpack iso3="deu"/>
-											</locale>
-						                    <resources>
-												<res id="InfoPanel.info" src="@{basedir}/README.txt" parse="yes"/>
-												<res id="LicencePanel.licence" src="@{basedir}/LICENSE.txt"/>
-												<res id="installer.langsel.img" src="@{basedir}/src/main/resources/img/logo.png"/>
-												<res id="shortcutSpec.xml" src="@{basedir}/src/main/resources/installers/winShortcutSpec.xml"/>
-												<res id="Unix_shortcutSpec.xml" src="@{basedir}/src/main/resources/installers/unixShortcutSpec.xml"/>	
-						                    </resources>
-						                    <native type="izpack" name="ShellLink.dll"/>
-											<panels>
-												<panel classname="HelloPanel"/>
-												<panel classname="LicencePanel"/>
-												<panel classname="TargetPanel"/>
-												<panel classname="TreePacksPanel"/>
-												<panel classname="InstallPanel"/>
-												<panel classname="ShortcutPanel"/>
-												<panel classname="SimpleFinishPanel"/>
-											</panels>	
-											<packs>
-												<pack id="Core" name="Paxle" required="yes">
-													<description>Core package</description>
-													
-													<!-- core OSGi bundles -->
-													<fileset dir="@{basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">
-														<include name="**"/>
-														
-														<!-- excluding DI jars -->
-														<exclude name="DesktopIntegration*.jar"/>
-														<exclude name="DI*Backend*.jar"/>
-														
-														<!-- excluding GUI jar(s) -->
-														<exclude name="GUI*.jar"/>
-													</fileset>
-													
-													<!-- uninstaller shell script -->
-													<fileset dir="@{basedir}/src/main/resources/installers/" includes="uninstall.sh" targetdir="$INSTALL_PATH/Uninstaller"/>
-
-													<!-- open web-gui script -->
-													<fileset dir="@{basedir}/src/main/resources/bin/" includes="launchBrowser.sh" targetdir="$INSTALL_PATH/"/>
-													
-													<!-- make shell scripts executable -->
-													<executable targetfile="$INSTALL_PATH/start.sh" stage="never" keep="true" os="unix"/>
-													<executable targetfile="$INSTALL_PATH/Uninstaller/uninstall.sh" stage="never" keep="true" os="unix"/>
-													<executable targetfile="$INSTALL_PATH/launchBrowser.sh" stage="never" keep="true" os="unix"/>
-													
-													<!-- icon files -->
-													<singlefile src="@{basedir}/src/main/resources/img/icon.xpm" target="$INSTALL_PATH/img/icon.xpm" />
-													<singlefile src="@{basedir}/src/main/resources/img/icon.ico" target="$INSTALL_PATH/img/icon.ico" />
-												</pack>
-												
-												<pack id="GUIs" name="User Interfaces" required="no" preselected="yes">
-													<description>Paxle User Interfaces</description>
-												</pack>
-												
-												<!-- desktop integration -->
-												<pack id="DI" name="Desktop" parent="GUIs" required="no" preselected="yes">
-													<description>Desktop Integration</description>
-													
-													<fileset dir="@{basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">
-														<include name="DesktopIntegration*.jar"/>
-														<include name="DI*Backend*.jar"/>
-													</fileset>
-												</pack>
-												
-												<!-- HTTP GUI -->
-												<pack id="GUI" name="Http-GUI" parent="GUIs" required="no" preselected="yes">
-													<description>Http GUI</description>
-													
-													<fileset dir="@{basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">
-														<include name="GUI*.jar"/>
-													</fileset>
-												</pack>												
-											</packs>
-										</installation>
-									]]>
-											</config>
-										</izpack>
+										<untar compression="gzip" src="target/${pom.artifactId}-${pom.version}-equinox.tar.gz" dest="target/izpack" />
 									</tasks>
 								</configuration>
 								<goals>
@@ -901,6 +786,26 @@
 							</execution>
 						</executions>
 					</plugin>
+					<plugin>
+						<groupId>org.codehaus.izpack</groupId>
+						<artifactId>izpack-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>make-java-installer</id>
+								<phase>install</phase>
+								<goals>
+									<goal>izpack</goal>
+								</goals>
+								<configuration>
+									<!-- <izpackBasedir>${your.staging.dir}</izpackBasedir>-->
+									<descriptor>${basedir}/src/main/resources/installers/basicinstaller.xml</descriptor>
+									<installerFile>target/${pom.artifactId}-${pom.version}-installer.jar</installerFile>
+									<kind>standard</kind>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
 
 					<!-- ==================================================================-->
 					<!-- INSTALLER - EXE                                                   -->
