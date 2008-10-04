@@ -77,7 +77,6 @@
 							!oracle.*,
 							!org.jaxen.*,
 							!org.saxpath.*,
-							!org.apache.xml.resolver.*,
 							!org.apache.xerces.dom, 
 							!org.apache.xerces.parsers
 						</Import-Package>
@@ -89,7 +88,9 @@
 						</Private-Package>
 						
 						<DynamicImport-Package>
-							sun.io.*
+							sun.io.*,
+							javax.swing, 
+							javax.swing.text
 						</DynamicImport-Package>
 						
 						<Bundle-Activator>
@@ -100,7 +101,9 @@
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
 							informa;scope=compile|runtime,
-							jdom;scope=compile|runtime
+							jdom;scope=compile|runtime,
+							htmlparser;scope=compile|runtime,
+							htmllexer;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
@@ -119,6 +122,16 @@
 					<artifactId>commons-pool</artifactId>
 				</exclusion>
 			</exclusions>				
+		</dependency>
+		<dependency>
+			<groupId>org.htmlparser</groupId>
+			<artifactId>htmlparser</artifactId>
+			<version>2.0-20060923</version>
+		</dependency>
+		<dependency>
+			<groupId>org.htmlparser</groupId>
+			<artifactId>htmllexer</artifactId>
+			<version>2.0-20060923</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-httpclient</groupId>

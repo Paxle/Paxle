@@ -2,16 +2,12 @@
 package org.paxle.se.provider.rsssearch.impl;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
-import org.paxle.se.search.ISearchProvider;
 
 public class Activator implements BundleActivator {
 

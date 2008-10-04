@@ -8,6 +8,11 @@
 Opensearch XML import: <input type="text" name="opensearchurl" /><br />
 <input type="submit" value="import" />
 </form>
+<br />
+<form action="#" method="POST">
+Opensearch import from webpage: <input type="text" name="opensearchhtmlurl" /><br />
+<input type="submit" value="import" />
+</form>
 <form action="#" method="POST">
     <dl>
     <dt>RSS-URLs (%s will be replaced by search-phrase)</dt>
