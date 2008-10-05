@@ -11,10 +11,14 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
@@ -31,10 +35,16 @@ import org.osgi.service.metatype.ObjectClassDefinition;
  */
 public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 	public static final String PID = RuntimeSettings.class.getName();
-	private static final String CM_XMX = PID + ".jvm.xmx";
-	private static final String CM_XMS = PID + ".jvm.xms";
-	private static final String CM_XMX_DEFAULT = "128m";
-	private static final String CM_XMS_DEFAULT = "64m";
+	private static final String CM_XMX = "jvm.xmx";
+	private static final String CM_XMS = "jvm.xms";
+	
+	private static final Map<String,String[]> OPTIONS;
+	static {
+		final Map<String,String[]> options = new HashMap<String,String[]>();
+		options.put(CM_XMX, new String[] { "-Xmx", "128m" });
+		options.put(CM_XMS, new String[] { "-Xms", "64m" });
+		OPTIONS = Collections.unmodifiableMap(options);
+	}
 
 	/**
 	 * For logging
@@ -128,33 +138,22 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 				List<String> runtimeSettings = readSettings();
 				if (runtimeSettings != null) {
 					
-					for (String setting : runtimeSettings) {
-						if (setting.startsWith("-Xms")) {
-							attribs.add(new AttributeDefinition(){						
-								public String getID() { return CM_XMS ; }										
-								public int getCardinality() { return 0; }
-								public String[] getDefaultValue() { return new String[]{CM_XMS_DEFAULT}; }
-								public String getDescription() { return rb.getString("jvm.xms.desc"); }
-								public String getName() { return rb.getString("jvm.xms.name"); }
-								public String[] getOptionLabels() { return null; }
-								public String[] getOptionValues() { return null; }
-								public int getType() { return AttributeDefinition.STRING; }
-								public String validate(String value) { return null; }
-							});							
-						} else if (setting.startsWith("-Xmx")) {
-							attribs.add(new AttributeDefinition(){						
-								public String getID() { return CM_XMX; }										
-								public int getCardinality() { return 0; }
-								public String[] getDefaultValue() { return new String[]{CM_XMX_DEFAULT}; }
-								public String getDescription() { return rb.getString("jvm.xmx.desc"); }
-								public String getName() { return rb.getString("jvm.xmx.name"); }
-								public String[] getOptionLabels() { return null; }
-								public String[] getOptionValues() { return null; }
-								public int getType() { return AttributeDefinition.STRING; }
-								public String validate(String value) { return null; }
-							});	
-						}
-					}
+					for (String setting : runtimeSettings)
+						for (final Map.Entry<String,String[]> e : OPTIONS.entrySet())
+							if (setting.startsWith(e.getValue()[0])) {
+								attribs.add(new AttributeDefinition(){						
+									public String getID() { return PID + '.' + e.getKey(); }
+									public int getCardinality() { return 0; }
+									public String[] getDefaultValue() { return new String[] { e.getValue()[1] }; }
+									public String getDescription() { return rb.getString(e.getKey() + ".desc"); }
+									public String getName() { return rb.getString(e.getKey() + ".name"); }
+									public String[] getOptionLabels() { return null; }
+									public String[] getOptionValues() { return null; }
+									public int getType() { return AttributeDefinition.STRING; }
+									public String validate(String value) { return null; }
+								});
+								break;
+							}
 				}
 				
 				return attribs.toArray(new AttributeDefinition[attribs.size()]);
@@ -198,21 +197,39 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 		
 		boolean changesDetected = false;
 		Enumeration<String> keys = properties.keys();
-		while(keys.hasMoreElements()) {
+		outer: while(keys.hasMoreElements()) {
 			String key = keys.nextElement();
 			Object value = properties.get(key);
 			
-			if (key.equals(CM_XMS)) {
-				changesDetected |= this.updateSetting(currentSettings, "-Xms", (String) value);
-			} else if (key.equals(CM_XMX)) {
-				changesDetected |= this.updateSetting(currentSettings, "-Xmx", (String) value);
+			for (final Map.Entry<String,String[]> e : OPTIONS.entrySet()) {
+				if (key.equals(PID + '.' + e.getKey())) {
+					changesDetected |= this.updateSetting(currentSettings, e.getValue()[0], (String)value);
+					continue outer;
+				}
 			}
+			
+			// entry not known
 		}
 		
 		if (changesDetected) {
 			// write changes into file
 			this.writeSettings(currentSettings);
 		}
+	}
+	
+	public Dictionary<?,?> getCurrentIniSettings() {
+		final Dictionary<String,Object> props = new Hashtable<String,Object>();
+		final List<String> iniSettings = readSettings();
+		outer: for (final String s : iniSettings) {
+			for (final Map.Entry<String,String[]> e : OPTIONS.entrySet())
+				if (s.startsWith(e.getValue()[0])) {
+					props.put(PID + '.' + e.getKey(), s.substring(e.getValue()[0].length()));
+					continue outer;
+				}
+			
+			// entry not known
+		}
+		return props;
 	}
 
 	private boolean updateSetting(List<String> currentSettings, String prefix, String value) {

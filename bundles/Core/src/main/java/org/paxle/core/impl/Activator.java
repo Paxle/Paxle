@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Properties;
@@ -260,7 +261,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		return fManager;
 	}
 	
-	private void createAndRegisterRuntimeSettings(BundleContext bc) {
+	private void createAndRegisterRuntimeSettings(BundleContext bc) throws IOException {
 		File iniFile = new File("start.ini");
 		
 		// getting all locale for the manager
@@ -274,7 +275,15 @@ public class Activator implements BundleActivator, InvocationHandler {
 		props.put(Constants.SERVICE_PID, RuntimeSettings.PID);		
 		
 		// register as service
-		bc.registerService(new String[]{ManagedService.class.getName(), MetaTypeProvider.class.getName()}, rts, props);		
+		bc.registerService(new String[]{ManagedService.class.getName(), MetaTypeProvider.class.getName()}, rts, props);
+		
+		// getting the CM service
+		final ServiceReference cmRef = bc.getServiceReference(ConfigurationAdmin.class.getName());
+		final ConfigurationAdmin cm = (ConfigurationAdmin) bc.getService(cmRef);
+		
+		// updating the props with the current ini-file settings
+		final Dictionary<?,?> iniProps = rts.getCurrentIniSettings();
+		cm.getConfiguration(RuntimeSettings.PID).update(iniProps);
 	}
 
 	private void initEclipseApplication(BundleContext bc) {
