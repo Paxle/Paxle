@@ -34,6 +34,7 @@
 							org.osgi.framework;version="1.4",
 							<!-- Logging framework -->
 							org.apache.commons.logging,							
+							org.apache.commons.collections.map,
 							<!-- Paxle Core -->
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
 							org.paxle.core.io.temp;version="[0.1.0,0.2.0)",

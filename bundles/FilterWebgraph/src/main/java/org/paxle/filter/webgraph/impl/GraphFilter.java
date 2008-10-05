@@ -3,12 +3,11 @@
 package org.paxle.filter.webgraph.impl;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.LinkInfo;
@@ -21,7 +20,7 @@ public class GraphFilter implements IFilter<ICommand> {
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
-	private HashMap<String, Set<String>> domainRelations=new HashMap<String, Set<String>>();
+	private LRUMap domainRelations=new LRUMap(5000);
 	
 	public void filter(ICommand command, IFilterContext context) {
 		if (command == null) throw new NullPointerException("The command object is null.");
@@ -46,7 +45,7 @@ public class GraphFilter implements IFilter<ICommand> {
 			),e);
 		}			
 	}
-	public Map<String, Set<String>> getRelations(){
+	public LRUMap getRelations(){
 		return domainRelations;
 	}
 }

@@ -2,13 +2,13 @@ package org.paxle.filter.webgraph.gui;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.map.LRUMap;
 import org.paxle.filter.webgraph.impl.GraphFilter;
 
 public class SourceServlet extends HttpServlet{
@@ -19,12 +19,13 @@ public class SourceServlet extends HttpServlet{
 	}
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		Map<String, Set<String>> relations=this.filter.getRelations();
-		StringBuffer result=new StringBuffer("digraph domains{\n");
-		Iterator<String> it=relations.keySet().iterator();
+		LRUMap relations=this.filter.getRelations();
+		StringBuffer result=new StringBuffer("digraph domains{\nedge [color=\"#00000080\"]\n");
+		Iterator it=relations.keySet().iterator();
 		while(it.hasNext()){
-			String domain1=it.next();
-			Iterator it2=relations.get(domain1).iterator();
+			Object o=it.next(); //String domain1=(String)it.next() gives a ConcurrentModificationException
+			String domain1=(String)o;
+			Iterator it2=((Set)relations.get(domain1)).iterator();
 			while(it2.hasNext()){
 				result.append("\"").append(domain1).append("\"").append("->").append("\"").append(it2.next()).append("\";\n");
 			}
