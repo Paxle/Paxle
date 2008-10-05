@@ -27,11 +27,17 @@ public class GraphFilter implements IFilter<ICommand> {
 		try {
 			if (command.getResult() != ICommand.Result.Passed) return;
 			String domain1=command.getLocation().getHost();
+			if(domain1.startsWith("www."))
+				domain1=domain1.substring(4);
 			Map<URI, LinkInfo> links=command.getParserDocument().getLinks();
 			Iterator<URI> it = links.keySet().iterator();
 			HashSet<String> domains=new HashSet<String>();
+			String domain2;
 			while(it.hasNext()){
-				domains.add(it.next().getHost());
+				domain2=it.next().getHost();
+				if(domain2.startsWith("www."))
+					domain2=domain1.substring(4);
+				domains.add(domain2);
 			}
 			domainRelations.put(domain1, domains);
 			//TODO some filtering for importance, so the graph does not get too big.
