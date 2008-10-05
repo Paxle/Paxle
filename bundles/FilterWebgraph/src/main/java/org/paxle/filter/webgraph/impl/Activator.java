@@ -24,7 +24,7 @@ public class Activator implements BundleActivator {
 		// specifying filter properties
 		final Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
 		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {
-							"org.paxle.parser.out; pos=0"
+							"org.paxle.parser.out; pos=0; disabled=true"
 					});
 		
 		// registering filter
