@@ -36,7 +36,7 @@ public class GraphFilter implements IFilter<ICommand> {
 			while(it.hasNext()){
 				domain2=it.next().getHost();
 				if(domain2.startsWith("www."))
-					domain2=domain1.substring(4);
+					domain2=domain2.substring(4);
 				domains.add(domain2);
 			}
 			domainRelations.put(domain1, domains);
