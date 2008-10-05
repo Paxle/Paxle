@@ -15,8 +15,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.io.IOTools;
-import org.paxle.core.prefs.IPropertiesStore;
-import org.paxle.core.prefs.Properties;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.se.index.IFieldManager;
 import org.paxle.se.index.IIndexIteratable;
@@ -62,15 +60,7 @@ public class Activator implements BundleActivator {
 		copyNatives(context, "/stopwords/snowball/", stopwordsRoot);
 		final StopwordsManager stopwordsManager = new StopwordsManager(stopwordsRoot);
 		
-		/*
-		 * Load the properties of this bundle
-		 */
-		Properties properties = null;
-		final ServiceReference ref = context.getServiceReference(IPropertiesStore.class.getName());
-		if (ref != null)
-			properties = ((IPropertiesStore)context.getService(ref)).getProperties(context);
-		
-		lmanager = new AFlushableLuceneManager(DB_PATH, stopwordsManager.getDefaultAnalyzer(), properties);
+		lmanager = new AFlushableLuceneManager(DB_PATH, stopwordsManager.getDefaultAnalyzer());
 		indexWriterThread = new LuceneWriter(lmanager, stopwordsManager, commandTracker);
 		indexWriterThread.setPriority(3);
 		indexSearcher = new LuceneSearcher(lmanager);

@@ -23,12 +23,9 @@ import org.apache.lucene.search.Query;
 
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.core.prefs.Properties;
 import org.paxle.se.index.IIndexIteratable;
 
 public class AFlushableLuceneManager implements IIndexIteratable {
-	
-	private static final String DOC_COUNT = "docCount";
 	
 	/**
 	 * A {@link Term}-object with the {@link IIndexerDocument#LOCATION}-field and a <code>null</code>-value.
@@ -45,27 +42,19 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	protected final IndexWriter writer;
 	protected final Log logger = LogFactory.getLog(AFlushableLuceneManager.class);
 	protected final PaxleAnalyzer analyzer;
-	protected final Properties properties;
 	protected IndexReader reader;
 	
 	private boolean dirty = false;
 	private int docCount = -1;
 	
-	public AFlushableLuceneManager(final String path, final PaxleAnalyzer analyzer, final Properties properties) throws IOException {
+	public AFlushableLuceneManager(final String path, final PaxleAnalyzer analyzer) throws IOException {
 		this.path = path;
 		this.analyzer = analyzer;
 		this.writer = new IndexWriter(path, analyzer);
 		this.writer.setMaxFieldLength(Integer.MAX_VALUE);
 		this.reader = IndexReader.open(path);
 		
-		this.properties = properties;
-		if (properties != null) {
-			final String docCountProp = properties.getProperty(DOC_COUNT);
-			if (docCountProp != null)
-				docCount = Integer.parseInt(docCountProp);
-		}
-		if (docCount < 0)
-			docCount = reader.numDocs();
+		docCount = reader.numDocs();
 	}
 	
 	/**
@@ -131,7 +120,6 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 		try {
 			this.writer.close();
 			this.reader.close();
-			this.properties.setProperty(DOC_COUNT, Integer.toString(this.docCount));
 		} finally { this.wlock.unlock(); }
 	}
 	
