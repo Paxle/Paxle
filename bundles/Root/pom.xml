@@ -7,7 +7,7 @@
 	<artifactId>Root</artifactId>
 	<packaging>pom</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle</name>
+	<name>Paxle - Root</name>
 	<url>http://www.paxle.net/</url>
 
 	<repositories>
@@ -222,7 +222,6 @@
 					<target>1.5</target>
 				</configuration>
 			</plugin>
-
 		</plugins>
 	</build>
 
@@ -348,6 +347,9 @@
 		</dependency>				
 	</dependencies>
 
+	<!-- ==================================================================== -->
+	<!-- DEBUG PROFILE                                                        -->
+	<!-- ==================================================================== -->
 	<profiles>
 		<profile>
 			<id>bundle-debug-profile</id>
@@ -363,16 +365,6 @@
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-assembly-plugin</artifactId>
 						<inherited>true</inherited>
-						<configuration>
-							<descriptors>
-								<descriptor>../Root/src/main/assembly/debug.xml</descriptor>
-							</descriptors>
-							<outputDirectory>../</outputDirectory>
-							<workDirectory>target/assembly/debug</workDirectory>	
-							<finalName>/Debug</finalName>				
-							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>	
-							<appendAssemblyId>false</appendAssemblyId>
-						</configuration>
 						<executions>
 							<execution>
 								<id>make-debug-assembly</id>
@@ -380,13 +372,98 @@
 								<goals>
 									<goal>directory-inline</goal>
 								</goals>
+								
+								<configuration>
+									<descriptors>
+										<descriptor>../Root/src/main/assembly/debug.xml</descriptor>
+									</descriptors>
+									<outputDirectory>../</outputDirectory>
+									<workDirectory>target/assembly/debug</workDirectory>	
+									<finalName>/Debug</finalName>				
+									<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>	
+									<appendAssemblyId>false</appendAssemblyId>
+								</configuration>								
 							</execution>
 						</executions>
 					</plugin>
 				</plugins>
 			</build>
-		</profile>		
-	</profiles>
+		</profile>
 
+
+		<!-- ==================================================================== -->
+		<!-- WEBINSTALLER PROFILE                                                    -->
+		<!-- ==================================================================== -->
+		<profile>
+			<id>webinstaller-profile</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>webinstaller</name>
+				</property>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-enforcer-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>webinstaller-enforce-property</id>
+								<phase>validate</phase>
+								<goals><goal>enforce</goal></goals>
+								<configuration>
+									<rules>
+										<requireProperty>
+											<property>webinstallerURL</property>
+											<message>"Webinstaller Download-URL is missing. e.g. -DwebinstallerURL=http://snapshots.mvn.repos.pxl.li/webinstaller/"</message>
+										</requireProperty>
+										<requireProperty>
+											<property>webinstallerUploadURL</property>
+											<message>"Webinstaller Upload-URL is missing. e.g. -DwebinstallerUploadURL=file:///home/user/temp/webinstaller"</message>
+										</requireProperty>
+									</rules>
+									<fail>true</fail>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<inherited>true</inherited>
+						<executions>
+							<execution>
+								<id>webinstaller-assembly</id>
+								<phase>install</phase>
+								<goals>
+									<goal>directory-inline</goal>
+								</goals>
+								
+								<configuration>
+									<!-- try to find an asselby descriptor but don't fail if missing -->
+									<ignoreMissingDescriptor>true</ignoreMissingDescriptor>
+									<descriptors>
+										<descriptor>src/main/assembly/webinstaller.xml</descriptor>
+									</descriptors>
+									
+									<!-- copy files to  Paxle/target/installer/ -->
+									<outputDirectory>${project.build.directory}</outputDirectory>
+									<finalName>/webinstaller/</finalName>
+									<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>	
+									<appendAssemblyId>false</appendAssemblyId>							
+		
+									<!-- temp woring dir -->
+									<workDirectory>target/assembly/webinstaller</workDirectory>					
+								</configuration>								
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
