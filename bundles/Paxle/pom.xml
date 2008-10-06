@@ -50,6 +50,12 @@
 			<name>Akathist Repository</name>
 			<url>http://www.9stmaryrd.com/maven</url>
 		</pluginRepository>
+		
+		<pluginRepository>
+			<id>atlassian-repository</id>
+			<name>Atlassian Repository</name>
+			<url>http://repository.atlassian.com/maven2/</url>
+		</pluginRepository>		
 	</pluginRepositories>
 
 	<properties>
@@ -610,6 +616,28 @@
 				</property>	
 			</activation>
 
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>webinstaller-copy-parser-fragment</id>
+								<phase>package</phase>
+								<configuration>
+									<tasks>
+										<echo message="Copying IZPack-fragment for parsers-profile ..." />
+										<copy file="${basedir}/src/main/resources/installers/fragments/parsers.xml" 
+										      todir="${basedir}/target/webinstaller/fragments/"/>
+									</tasks>
+								</configuration>
+								<goals><goal>run</goal></goals>
+							</execution>
+						</executions>
+					</plugin>					
+				</plugins>
+			</build>
+
 			<modules>
 				<module>../ParserGzip</module>
 				<module>../ParserPdf</module>
@@ -636,6 +664,28 @@
 				</property>	
 			</activation>
 			
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>webinstaller-copy-crawlers-fragment</id>
+								<phase>package</phase>
+								<configuration>
+									<tasks>
+										<echo message="Copying IZPack-fragment for crawlers-profile ..." />
+										<copy file="${basedir}/src/main/resources/installers/fragments/crawlers.xml" 
+										      todir="${basedir}/target/webinstaller/fragments/"/>
+									</tasks>
+								</configuration>
+								<goals><goal>run</goal></goals>
+							</execution>
+						</executions>
+					</plugin>					
+				</plugins>
+			</build>
+
 			<modules>
 				<!-- paxle crawler bundles -->
 				<module>../CrawlerFtp</module>
@@ -654,16 +704,51 @@
 				</property>	
 			</activation>
 			
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>webinstaller-copy-others-fragment</id>
+								<phase>package</phase>
+								<configuration>
+									<tasks>
+										<echo message="Copying IZPack-fragment for others-profile ..." />
+										<copy file="${basedir}/src/main/resources/installers/fragments/others.xml" 
+										      todir="${basedir}/target/webinstaller/fragments/"/>
+									</tasks>
+								</configuration>
+								<goals><goal>run</goal></goals>
+							</execution>
+						</executions>
+					</plugin>					
+				</plugins>
+			</build>
+
 			<modules>
 				<!-- paxle tool bundles -->
-				<module>../Console</module>
 				<module>../CryptUtils</module>
-				<module>../Dbus</module>
-				<module>../FilterPlaintextDumper</module>
+	
+				<!-- Optional DL bundles -->
+				<module>../DataLayerMySQL</module>
+				<module>../DataLayerPostgreSQL</module>
+
+				<!-- GUI Addons -->
 				<module>../GuiOpenID</module>
 				<module>../IconTools</module>
-				<module>../SEProviderRssSearch</module>
 				<module>../IPLocatorTools</module>
+
+				<!-- Optional SE bundles -->
+				<module>../SEProviderRssSearch</module>	
+
+				<!-- Optional Filter bundles -->
+				<module>../FilterPlaintextDumper</module>
+				<module>../ToolsDNS</module>
+
+				<!-- Misc -->
+				<module>../Console</module>
+				<module>../Dbus</module>			
 			</modules>			
 		</profile>
 
@@ -722,13 +807,6 @@
 			</modules>			
 			
 			<build>
-			    <resources>
-			    	<resource>
-			    		<directory>src/main/resources/</directory>
-			    		<filtering>true</filtering>
-			    	</resource>
-			    </resources>
-	
 			    <plugins>
 					<!-- ==================================================================-->
 					<!-- RELEASE - FILES                                                   -->
@@ -737,22 +815,6 @@
 						<artifactId>maven-assembly-plugin</artifactId>
 						<version>2.2-beta-2</version>
 						<inherited>false</inherited>
-						<configuration>
-							<descriptors>
-								<!-- an assembly containing all bundles -->
-								<descriptor>src/main/assembly/bundles.xml</descriptor>
-								
-								<!-- an assembly containing all paxle-core-bundles and equinox bundles -->
-								<descriptor>src/main/assembly/equinox.xml</descriptor>
-								
-								<!-- an assembly containing all paxle-core-bundles and felix bundles -->
-								<!-- 
-									<descriptor>src/main/assembly/felix.xml</descriptor>
-								 -->
-							</descriptors>
-							<outputDirectory>target</outputDirectory>
-							<workDirectory>target/assembly/work</workDirectory>
-						</configuration>
 						<executions>
 							<execution>
 								<id>make-assembly</id>
@@ -760,6 +822,22 @@
 								<goals>
 									<goal>attached</goal>
 								</goals>
+								<configuration>
+									<descriptors>
+										<!-- an assembly containing all bundles -->
+										<descriptor>src/main/assembly/bundles.xml</descriptor>
+										
+										<!-- an assembly containing all paxle-core-bundles and equinox bundles -->
+										<descriptor>src/main/assembly/installer_basic.xml</descriptor>
+										
+										<!-- an assembly containing all paxle-core-bundles and felix bundles -->
+										<!-- 
+											<descriptor>src/main/assembly/felix.xml</descriptor>
+										 -->
+									</descriptors>
+									<outputDirectory>target</outputDirectory>
+									<workDirectory>target/assembly/work</workDirectory>
+								</configuration>								
 							</execution>
 						</executions>
 					</plugin>				
@@ -916,6 +994,102 @@
 				</plugins>
 			</build>
 		</profile>
+		
+		<!-- ====================================================================
+		     WEB-INSTALLER PROFILE                                           
+		     Example Call:
+			mvn -Dwebinstaller \
+			    -DwebinstallerURL=http://snapshots.mvn.repos.pxl.li/webinstaller \
+			    -DwebinstallerUploadURL=file:///mnt/paxle_repos/webinstaller \
+			    clean install
+		     ==================================================================== -->
+		<profile>
+			<id>webinstaller-profile</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>webinstaller</name>
+				</property>
+			</activation>
+
+			<build>
+				<plugins>
+					<!-- collect all required files -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<inherited>false</inherited>
+						<executions>
+							<execution>
+								<id>webinstaller-assembly</id>
+								<phase>install</phase>
+								<goals>
+									<goal>directory-inline</goal>
+								</goals>
+								<configuration>
+									<descriptors>
+										<descriptor>src/main/assembly/installer_web.xml</descriptor>
+									</descriptors>
+									
+									<!-- copy files to  Paxle/target/installer/ -->
+									<outputDirectory>${basedir}/target/webinstaller/temp/</outputDirectory>
+									<finalName>/Equinox</finalName>
+									<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>	
+									<appendAssemblyId>false</appendAssemblyId>							
+		
+									<!-- temp woring dir -->
+									<workDirectory>target/assembly/webinstaller</workDirectory>					
+								</configuration>								
+							</execution>
+						</executions>
+					</plugin>				
+				
+					<!-- build the installer jars -->
+					<plugin>
+						<groupId>org.codehaus.izpack</groupId>
+						<artifactId>izpack-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>webinstaller-izpack</id>
+								<phase>install</phase>
+								<goals>
+									<goal>izpack</goal>
+								</goals>
+								<configuration>
+									<attach>false</attach>
+									<izpackBasedir>target/webinstaller/temp</izpackBasedir>
+									<descriptor>${basedir}/src/main/resources/installers/webinstaller.xml</descriptor>
+									<installerFile>target/webinstaller/dist/${pom.artifactId}-${pom.version}-webinstaller.jar</installerFile>
+									<kind>web</kind>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- Upload the installer jars -->
+					<plugin>
+						<groupId>com.atlassian.maven.plugins</groupId>
+						<artifactId>maven-upload-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<id>webinstaller-upload</id>
+								<phase>install</phase>
+								<goals>
+									<goal>upload</goal>
+								</goals>
+								<configuration>
+		                            <resourceSrc>${project.build.directory}/webinstaller/dist/*</resourceSrc>
+		                            <resourceDest />
+		                            <serverId>webinstall-server</serverId>
+		                            <url>${webinstallerUploadURL}</url>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>		
 	</profiles>
 
 	<!-- define default modules -->
