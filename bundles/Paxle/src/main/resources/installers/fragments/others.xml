@@ -10,7 +10,7 @@
 	<!-- GUI Addons -->
 	<refpack file="GuiOpenID/pack.xml" />
 	<refpack file="IconTools/pack.xml" />
-	<refpack file="IPLocatorTool/pack.xml" />
+	<refpack file="IPLocatorTools/pack.xml" />
 
 	<!-- Optional SE bundles -->
 	<refpack file="SEProviderRssSearch/pack.xml" />
