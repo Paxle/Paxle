@@ -1,0 +1,27 @@
+<assembly>
+	<id>installer-assembly</id>
+	<formats>
+		<format>dir</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+
+	<files>
+		<!-- ==================================================================== -->
+		<!-- | OSGI BUNDLE                                                      | -->
+		<!-- ==================================================================== -->
+		<file>
+			<source>target/${project.artifactId}.jar</source>
+			<outputDirectory>/${pom.artifactId}/</outputDirectory>		
+		</file>
+
+		<!-- ==================================================================== -->
+		<!-- | IZPACK - INSTALL FILES                                           | -->
+		<!-- ==================================================================== -->
+		<file>
+			<source>src/main/izpack/pack.xml</source>
+			<destName>pack.xml</destName>
+			<outputDirectory>/${pom.artifactId}/</outputDirectory>
+			<filtered>true</filtered>			
+		</file>			
+	</files>
+</assembly>

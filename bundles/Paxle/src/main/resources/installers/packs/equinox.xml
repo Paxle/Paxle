@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<installation version="1.0">
+	<packs>
+		<pack id="OSGI" name="OSGI" required="yes">
+			<description>OSGi Runtime Package</description>
+
+			<!-- core OSGi bundles -->
+			<fileset dir="Equinox/" targetdir="$INSTALL_PATH">
+				<include name="**" />
+			</fileset>
+
+			<!-- uninstaller shell script -->
+			<fileset dir="${basedir}/src/main/resources/installers/" includes="uninstall.sh" targetdir="$INSTALL_PATH/Uninstaller" />
+
+			<!-- open web-gui script -->
+			<fileset dir="${basedir}/src/main/resources/bin/" includes="launchBrowser.sh" targetdir="$INSTALL_PATH/" />
+
+			<!-- make shell scripts executable -->
+			<executable targetfile="$INSTALL_PATH/start.sh" stage="never" keep="true" os="unix" />
+			<executable targetfile="$INSTALL_PATH/Uninstaller/uninstall.sh" stage="never" keep="true" os="unix" />
+			<executable targetfile="$INSTALL_PATH/launchBrowser.sh" stage="never" keep="true" os="unix" />
+
+			<!-- icon files -->
+			<singlefile src="${basedir}/src/main/resources/img/icon.xpm" target="$INSTALL_PATH/img/icon.xpm" />
+			<singlefile src="${basedir}/src/main/resources/img/icon.ico" target="$INSTALL_PATH/img/icon.ico" />
+		</pack>
+	</packs>
+</installation>	

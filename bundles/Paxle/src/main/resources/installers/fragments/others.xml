@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<xfragment>
+	<!-- Optional Tools -->
+	<refpack file="CryptUtils/pack.xml" />
+	
+	<!-- Optional DL bundles -->
+	<refpack file="DataLayerMySQL/pack.xml" />
+	<refpack file="DataLayerPostgreSQL/pack.xml" />
+
+	<!-- GUI Addons -->
+	<refpack file="GuiOpenID/pack.xml" />
+	<refpack file="IconTools/pack.xml" />
+	<refpack file="IPLocatorTool/pack.xml" />
+
+	<!-- Optional SE bundles -->
+	<refpack file="SEProviderRssSearch/pack.xml" />
+
+	<!-- Optional Filter bundles -->
+	<refpack file="FilterPlaintextDumper/pack.xml" />
+	<refpack file="ToolsDNS/pack.xml" />
+</xfragment>

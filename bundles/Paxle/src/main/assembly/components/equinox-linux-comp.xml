@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<component>
+	<files>		
+		<!-- startup file - linux -->	
+		<file>
+			<fileMode>755</fileMode>
+			<source>src/main/resources/equinox/start.sh</source>
+			<outputDirectory>/</outputDirectory>
+			<filtered>true</filtered>
+		</file>		
+	</files>		
+</component>

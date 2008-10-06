@@ -1,9 +1,18 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
 <assembly>
 	<id>equinox</id>
 	<formats>
 		<format>tar.gz</format>
 	</formats>
 	<includeBaseDirectory>true</includeBaseDirectory>
+
+	<componentDescriptors>
+		<!-- Eclipse equinox related bundles and files -->
+		<componentDescriptor>src/main/assembly/components/equinox-all-comp.xml</componentDescriptor>
+		<componentDescriptor>src/main/assembly/components/equinox-win-comp.xml</componentDescriptor>
+		<componentDescriptor>src/main/assembly/components/equinox-linux-comp.xml</componentDescriptor>			
+	</componentDescriptors>
+	
 	<moduleSets>
 		<moduleSet>
 			<includes>
@@ -40,55 +49,5 @@
 				<outputFileNameMapping>${module.artifactId}.${module.extension}</outputFileNameMapping>
 			</binaries>
 		</moduleSet>
-	</moduleSets>
-	<files>
-		<!-- equinox config file -->
-		<file>
-			<source>src/main/resources/equinox/configuration/config.ini</source>
-			<outputDirectory>/configuration/</outputDirectory>
-			<filtered>true</filtered>
-			<lineEnding>dos</lineEnding>
-		</file>
-		
-		<!--  log4j config file -->
-		<file>
-			<source>src/main/resources/logging/log4j.properties</source>
-			<outputDirectory>/configuration/</outputDirectory>
-			<filtered>false</filtered>
-			<lineEnding>dos</lineEnding>
-		</file>	
-		
-		<!-- startup file - linux -->	
-		<file>
-			<fileMode>755</fileMode>
-			<source>src/main/resources/equinox/start.sh</source>
-			<outputDirectory>/</outputDirectory>
-			<filtered>true</filtered>
-		</file>
-		
-		<!-- startup file - windows -->	
-		<file>
-			<fileMode>755</fileMode>
-			<source>${equinox.dependencies}/start.exe</source>
-			<outputDirectory>/</outputDirectory>
-			<filtered>false</filtered>
-		</file>		
-		
-		<!-- startup config file for start.sh/start.exe -->	
-		<file>
-			<source>src/main/resources/equinox/start.ini</source>
-			<outputDirectory>/</outputDirectory>
-			<filtered>false</filtered>
-			<lineEnding>dos</lineEnding>
-		</file>			
-	</files>
-	<fileSets>
-		<fileSet>
-			<directory>${equinox.dependencies}</directory>
-			<outputDirectory>/</outputDirectory>
-			<includes>
-				<include>*.jar</include>
-			</includes>
-		</fileSet>
-	</fileSets>
+	</moduleSets>	
 </assembly>

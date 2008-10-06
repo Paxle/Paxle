@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
 <assembly>
 	<id>debug</id>
 	<formats>
@@ -5,48 +6,8 @@
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
 
-	<files>
-		<!-- equinox config file -->
-		<file>
-			<source>src/main/resources/equinox/configuration/config.ini</source>
-			<outputDirectory>/configuration/</outputDirectory>
-			<filtered>true</filtered>
-			<lineEnding>dos</lineEnding>
-		</file>
-		
-		<!--  log4j config file -->
-		<file>
-			<source>src/main/resources/logging/log4j.properties</source>
-			<outputDirectory>/configuration/</outputDirectory>
-			<filtered>false</filtered>
-			<lineEnding>dos</lineEnding>
-		</file>	
-		
-		<!-- startup file linux-->	
-		<file>
-			<fileMode>755</fileMode>
-			<source>src/main/resources/equinox/start.sh</source>
-			<outputDirectory>/</outputDirectory>
-			<filtered>true</filtered>
-		</file>			
-		
-		<!-- startup config file for start.sh/start.exe -->	
-		<file>
-			<source>src/main/resources/equinox/start.ini</source>
-			<outputDirectory>/</outputDirectory>
-			<filtered>false</filtered>
-			<lineEnding>dos</lineEnding>
-		</file>		
-	</files>
-	
-	<!-- Equinox related OSGi bundles -->
-	<fileSets>
-		<fileSet>
-			<directory>${equinox.dependencies}</directory>
-			<outputDirectory>/</outputDirectory>
-			<includes>
-				<include>*.jar</include>
-			</includes>
-		</fileSet>
-	</fileSets>	
+	<componentDescriptors>
+		<componentDescriptor>src/main/assembly/components/equinox-all-comp.xml</componentDescriptor>
+		<componentDescriptor>src/main/assembly/components/equinox-linux-comp.xml</componentDescriptor>
+	</componentDescriptors>	
 </assembly>

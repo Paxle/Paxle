@@ -1,9 +1,11 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
 <assembly>
 	<id>bundles</id>
 	<formats>
 		<format>tar.gz</format>
 	</formats>
 	<includeBaseDirectory>true</includeBaseDirectory>
+
 	<moduleSets>
 		<moduleSet>
 			<!-- include all bundles -->
@@ -12,7 +14,7 @@
 			</includes>
 
 			<binaries>
-				<outputDirectory>bundles/</outputDirectory>
+				<outputDirectory>/</outputDirectory>
 				<unpack>false</unpack>
 				<includeDependencies>false</includeDependencies>
 			</binaries>

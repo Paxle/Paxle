@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<component>
+	<files>	
+		<!-- startup file - windows -->	
+		<file>
+			<fileMode>755</fileMode>
+			<source>${equinox.dependencies}/start.exe</source>
+			<outputDirectory>/</outputDirectory>
+			<filtered>false</filtered>
+		</file>			
+
+	</files>		
+</component>
