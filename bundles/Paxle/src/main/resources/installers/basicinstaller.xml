@@ -42,7 +42,7 @@
 		<panel classname="SimpleFinishPanel" />
 	</panels>
 	<packs>
-		<pack id="Core" name="Paxle" required="yes">
+		<pack id="Core" name="Core" required="yes">
 			<description>Core package</description>
 
 			<!-- core OSGi bundles -->
@@ -88,7 +88,7 @@
 		</pack>
 
 		<!-- HTTP GUI -->
-		<pack id="GUI" name="Http-GUI" parent="GUIs" required="no" preselected="yes">
+		<pack id="GUI" name="Webinterface" parent="GUIs" required="no" preselected="yes">
 			<description>Http GUI</description>
 
 			<fileset dir="${basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">

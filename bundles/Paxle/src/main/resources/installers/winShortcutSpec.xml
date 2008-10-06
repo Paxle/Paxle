@@ -62,7 +62,7 @@
               applications="no"
               startMenu="no"
               startup="no">      
-		<createForPack name="Http-GUI" />              
+		<createForPack name="Webinterface" />              
 	</shortcut>
 </shortcuts>
               

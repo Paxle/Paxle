@@ -13,7 +13,7 @@
 		description="Starts Paxle" type="Application" encoding="UTF-8"
 		terminal="true" KdeSubstUID="false" initialState="maximized"
 		categories="" createForAll="true">
-		<createForPack name="Paxle" />
+		<createForPack name="Core" />
 	</shortcut>
 
 	<shortcut name="Paxle-Web-GUI"
@@ -26,7 +26,7 @@
 		type="Application"
 		encoding="UTF-8" 	     
 		description="This opens a WebBrowser to open the Paxle Web GUI">
-		<createForPack name="Http-GUI" />
+		<createForPack name="Webinterface" />
 	</shortcut>
 
 	<shortcut name="Paxle-Uninstaller" programGroup="yes" desktop="no"
@@ -37,6 +37,6 @@
 		description="Uninstall Paxle" type="Application" encoding="UTF-8"
 		terminal="false" KdeSubstUID="false" initialState="noShow"
 		categories="" createForAll="false">
-		<createForPack name="Paxle" />
+		<createForPack name="Core" />
 	</shortcut>
 </shortcuts>
