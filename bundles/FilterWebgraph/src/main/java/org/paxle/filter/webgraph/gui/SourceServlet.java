@@ -31,7 +31,8 @@ public class SourceServlet extends HttpServlet{
 		LRUMap relations=this.filter.getRelations();
 		StringBuffer result=new StringBuffer("digraph domains{\nedge [color=\"#80808080\"]\n");
 		Iterator it=(new HashSet(relations.keySet())).iterator();
-		int maxDomains=100;
+		int maxDomains=1000;
+		int maxChildDomains=5;
 		int numDomains=0;
 		HashSet<String> domains=new HashSet<String>();
 		while(it.hasNext()){
@@ -50,7 +51,7 @@ public class SourceServlet extends HttpServlet{
 				if(!domains.contains(domain2)){
 					if(numDomains >= maxDomains) 
 						continue;
-					if(count<5)
+					if(count<maxChildDomains)
 						continue;
 					numDomains++;
 					domains.add(domain2);
