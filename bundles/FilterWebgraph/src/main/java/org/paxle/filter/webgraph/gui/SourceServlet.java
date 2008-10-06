@@ -34,6 +34,7 @@ public class SourceServlet extends HttpServlet{
 		int maxDomains=1000;
 		int maxChildDomains=5;
 		int numDomains=0;
+		int minReferences=3;
 		HashSet<String> domains=new HashSet<String>();
 		while(it.hasNext()){
 			String domain1=(String)it.next();
@@ -44,6 +45,8 @@ public class SourceServlet extends HttpServlet{
 				domains.add(domain1);
 				numDomains++;
 			}
+			//only nodes with at least minReferences ChildNodes (no lonely nodes)
+			if(((Set)relations.get(domain1)).size()<minReferences) continue;
 			Iterator<String> it2=((Set)relations.get(domain1)).iterator();
 			int count=0; //new domains from this parent-node
 			while(it2.hasNext()){
@@ -51,7 +54,7 @@ public class SourceServlet extends HttpServlet{
 				if(!domains.contains(domain2)){
 					if(numDomains >= maxDomains) 
 						continue;
-					if(count<maxChildDomains)
+					if(count > maxChildDomains)
 						continue;
 					numDomains++;
 					domains.add(domain2);
