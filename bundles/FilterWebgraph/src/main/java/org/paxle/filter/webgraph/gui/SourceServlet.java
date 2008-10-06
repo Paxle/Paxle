@@ -20,14 +20,43 @@ public class SourceServlet extends HttpServlet{
 	}
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		/*
+		 * Okay, we have a lot of relations here. the filter stores up to 5000 domains with all relations,
+		 * if we graph this, the graph gets big and there is no overview.
+		 * What we do at the moment is this:
+		 * - limit the maximum Number of Nodes(Domains) to maxDomains(=100)
+		 * - limit the number of new domains introduced by a parent-domain to count(=5)
+		 * this keeps the graph small.
+		 */
 		LRUMap relations=this.filter.getRelations();
 		StringBuffer result=new StringBuffer("digraph domains{\nedge [color=\"#80808080\"]\n");
 		Iterator it=(new HashSet(relations.keySet())).iterator();
+		int maxDomains=100;
+		int numDomains=0;
+		HashSet<String> domains=new HashSet<String>();
 		while(it.hasNext()){
 			String domain1=(String)it.next();
-			Iterator it2=((Set)relations.get(domain1)).iterator();
+			//skip if the domain is new and we already know maxDomains
+			if(!domains.contains(domain1)){
+				if(numDomains >= maxDomains) 
+					continue;
+				domains.add(domain1);
+				numDomains++;
+			}
+			Iterator<String> it2=((Set)relations.get(domain1)).iterator();
+			int count=0; //new domains from this parent-node
 			while(it2.hasNext()){
-				result.append("\"").append(domain1).append("\"").append("->").append("\"").append(it2.next()).append("\";\n");
+				String domain2=(String) it2.next();
+				if(!domains.contains(domain2)){
+					if(numDomains >= maxDomains) 
+						continue;
+					if(count<5)
+						continue;
+					numDomains++;
+					domains.add(domain2);
+					count++;
+				}
+				result.append("\"").append(domain1).append("\"").append("->").append("\"").append(domain2).append("\";\n");
 			}
 		}
 		result.append("}");
