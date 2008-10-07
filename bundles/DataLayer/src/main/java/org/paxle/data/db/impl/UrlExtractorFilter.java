@@ -10,24 +10,22 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.data.IDataProvider;
+import org.paxle.core.data.IDataSink;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
+import org.paxle.data.db.URIQueueEntry;
 
-public class UrlExtractorFilter implements IFilter<ICommand> {
+public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQueueEntry> {
 	
 	private static class Counter {
 		public int total = 0;
 		public int enqueued = 0;
 	}
-	
-	/**
-	 * A database to store known {@link ICommand commands}
-	 */
-	private final CommandDB db;
 	
 	/**
 	 * For logging
@@ -47,9 +45,9 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 	 */
 	private final URIStorageThread storageThread;
 	
-	public UrlExtractorFilter(CommandDB db) {
-		this.db = db;
-		
+	private IDataSink<URIQueueEntry> sink = null;
+	
+	public UrlExtractorFilter() {
 		// create the URI queue 
 		this.extractedUriQueue = new LinkedBlockingQueue<URIQueueEntry>();
 		
@@ -57,14 +55,21 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		this.storageThread = new URIStorageThread();
 		this.storageThread.start();
 	}
-
+	
+	public synchronized void setDataSink(IDataSink<URIQueueEntry> dataSink) {
+		if (dataSink == null) throw new NullPointerException("The data-sink is null.");
+		if (this.sink != null) throw new IllegalStateException("The data-sink was already set.");
+		this.sink = dataSink;
+		this.notify();
+	}
+	
 	public void filter(ICommand command, IFilterContext context) {
 		if (command == null) return;
-
+		
 		// getting the parser-doc
 		IParserDocument parserDoc = command.getParserDocument();
 		if (parserDoc == null) return;
-
+		
 		// getting the link map
 		final Counter c = new Counter();
 		this.extractLinks(command, parserDoc, c);
@@ -119,7 +124,7 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 			c.enqueued++;
 			refs.add(ref);
 		}
-				
+		
 		if (refs.size() > 0) {
 			// add command into URI queue
 			this.extractedUriQueue.add(new URIQueueEntry(
@@ -143,36 +148,6 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		// clear URI queue
 		this.extractedUriQueue.clear();
 	}
-	
-	private class URIQueueEntry {
-		private final int profileID;
-		private final int commandDepth;
-		private final URI rootUri;
-		private final ArrayList<URI> refs;
-
-		public URIQueueEntry(URI rootUri, int profileID, int commandDepth, ArrayList<URI> refs) {
-			this.rootUri = rootUri;
-			this.profileID = profileID;
-			this.commandDepth = commandDepth;
-			this.refs = refs;
-		}
-
-		public int getProfileID() {
-			return this.profileID;
-		}
-
-		public int getDepth() {
-			return this.commandDepth;
-		}
-
-		public URI getRootURI() {
-			return this.rootUri;
-		}
-
-		public ArrayList<URI> getReferences() {
-			return this.refs;
-		}
-	}
 
 	private class URIStorageThread extends Thread {
 		public URIStorageThread() {
@@ -181,48 +156,45 @@ public class UrlExtractorFilter implements IFilter<ICommand> {
 		
 		@Override
 		public void run() {
-			
-			while(!db.isClosed() && !this.isInterrupted()) {
-				try {
-					// waiting for the next job
-					URIQueueEntry entry = extractedUriQueue.take();
-
-					// store unknown URI
-					if (!db.isClosed()) {
-						// the map is being modified by db.storeUnknownLocations, so we need to save the size first
+			try {
+				
+				synchronized (UrlExtractorFilter.this) {
+					while (sink == null) UrlExtractorFilter.this.wait();
+				}
+				
+				while(!this.isInterrupted()) {
+					try {
+						
+						// waiting for the next job
+						URIQueueEntry entry = extractedUriQueue.take();
+						
+						// store unknown URIs
+						
+						// the list is being modified by CommandDB#storeUnknownLocations, so we need to save the size first
 						final int totalLocations = entry.getReferences().size();
-						int known = db.storeUnknownLocations(
-								entry.getProfileID(),
-								entry.getDepth(),
-								entry.getReferences()
-						);
+						sink.putData(entry);
 						
 						logger.info(String.format(
 								"Extracted %d new and %d already known URIs from '%s'",
-								Integer.valueOf(totalLocations - known), 
-								Integer.valueOf(known), 
+								Integer.valueOf(totalLocations - entry.getKnown()), 
+								Integer.valueOf(entry.getKnown()), 
 								entry.getRootURI().toASCIIString()
 						));
-					} else {
+						
+					} catch (Throwable e) {
 						logger.error(String.format(
-								"Unable to write linkmap of location '%s' to db. Database already closed.",
-								entry.getRootURI().toASCIIString()
-						));
-					}					
-					
-				} catch (InterruptedException e) {
-					logger.info(String.format(
-							"Shutdown of' %s' finished. '%d' could not be stored.",
-							this.getName(),
-							Integer.valueOf(extractedUriQueue.size())
-					));
-					return;
-				} catch (Throwable e) {
-					logger.error(String.format(
-							"Unexpected '%s' while trying to store new URI into the command-db.",
-							e.getClass().getName()
-					), e);
+								"Unexpected '%s' while trying to store new URI into the command-db.",
+								e.getClass().getName()
+						), e);
+					}
 				}
+			} catch (InterruptedException e) {
+				logger.info(String.format(
+						"Shutdown of' %s' finished. '%d' could not be stored.",
+						this.getName(),
+						Integer.valueOf(extractedUriQueue.size())
+				));
+				return;
 			}
 		}
 	}

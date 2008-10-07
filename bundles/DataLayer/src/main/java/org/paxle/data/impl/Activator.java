@@ -17,6 +17,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
+import org.paxle.core.data.IDataSink;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
@@ -182,11 +183,11 @@ public class Activator implements BundleActivator {
 		this.commandDB = new CommandDB(hibernateConfigFile, mappings, commandTracker);		
 		
 		final Hashtable<String,Object> props = new Hashtable<String,Object>();
-//		props.put(IDataConsumer.PROP_DATACONSUMER_ID, "org.paxle.indexer.source");
-		props.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.crawler.sink");		
+		props.put(IDataSink.PROP_DATASINK_ID, ICommandDB.PROP_URL_ENQUEUE_SINK);
+		props.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.crawler.sink");
 		props.put(EventConstants.EVENT_TOPIC, new String[]{CommandEvent.TOPIC_OID_REQUIRED});
 		context.registerService(new String[]{
-				IDataConsumer.class.getName(),
+				IDataSink.class.getName(),
 				IDataProvider.class.getName(),
 				ICommandDB.class.getName(),
 				EventHandler.class.getName()
@@ -205,15 +206,20 @@ public class Activator implements BundleActivator {
 		// register it to the framework
 		context.registerService(ICommandProfileManager.class.getName(), this.profileDB, null);
 	}
-
+	
 	private void createAndRegisterUrlExtractorFilter(BundleContext context) {		
-		Hashtable<String, String[]> urlExtractorFilterProps = new Hashtable<String, String[]>();
+		Hashtable<String,Object> urlExtractorFilterProps = new Hashtable<String,Object>();
 		urlExtractorFilterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{
 				String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(Integer.MAX_VALUE))
 		});
+		urlExtractorFilterProps.put(IDataProvider.PROP_DATAPROVIDER_ID, ICommandDB.PROP_URL_ENQUEUE_SINK);
 		
-		this.urlExtractor = new UrlExtractorFilter(this.commandDB);
-		context.registerService(IFilter.class.getName(), this.urlExtractor, urlExtractorFilterProps);
+		this.urlExtractor = new UrlExtractorFilter();
+		
+		context.registerService(new String[] {
+				IFilter.class.getName(),
+				IDataProvider.class.getName()
+		}, this.urlExtractor, urlExtractorFilterProps);
 	}
 	
 	private void createAndRegisterCommandProfileFilter(BundleContext context) {		
@@ -234,7 +240,7 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 		// shutdown URL-extractor
 		if (this.urlExtractor != null) {
-			this.urlExtractor.terminate();
+			// this.urlExtractor.terminate();
 		}
 		
 		// shutdown command DB

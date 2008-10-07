@@ -3,6 +3,9 @@ package org.paxle.data.db;
 import java.net.URI;
 
 public interface ICommandDB {
+	
+	public static final String PROP_URL_ENQUEUE_SINK = "org.paxle.data.command-db.sink";
+	
 	/**
 	 * @return the total size of the command db
 	 */

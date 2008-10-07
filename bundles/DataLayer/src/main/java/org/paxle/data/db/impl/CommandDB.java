@@ -47,17 +47,16 @@ import org.onelab.filter.DynamicBloomFilter;
 import org.onelab.filter.Key;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
-import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
-import org.paxle.core.data.IDataSource;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.data.db.ICommandDB;
+import org.paxle.data.db.URIQueueEntry;
 
-public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<ICommand>, ICommandDB, EventHandler {
+public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEntry>, ICommandDB, EventHandler {
 	
 	private static final String CACHE_DIR = "double-urls-caches";
 	private static final String BLOOM_CACHE_FILE = "doubleURLsCache.ser";
@@ -86,17 +85,6 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 * A {@link IDataSink data-sink} to write the loaded {@link ICommand commands} out
 	 */
 	private IDataSink<ICommand> sink = null;	
-	
-	/**
-	 * A {@link IDataSource data-source} to fetch {@link ICommand commands} from
-	 */
-	private IDataSource<ICommand> source = null;	
-	
-	/**
-	 * A {@link Thread thread} to read {@link ICommand commands} from the {@link #source data-source}
-	 * and write it into the {@link #db database}. 
-	 */
-	private Reader readerThread = null;
 	
 	/**
 	 * A {@link Thread thread} to read {@link ICommand commands} from the {@link #db database}
@@ -132,6 +120,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	 * A set holding all known URLs
 	 */
 	private DynamicBloomFilter bloomFilter = null;
+	
+	private long cntTotal, cntCrawlerQueue;
 	
 	public CommandDB(URL configURL, List<URL> mappings, ICommandTracker commandTracker) {
 		this(configURL, mappings, null, commandTracker);
@@ -178,13 +168,14 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				throw new ExceptionInInitializerError(ex);
 			}
 			this.manipulateDbSchema();
-			System.out.println(this.size());
+			cntTotal = this.size();
+			cntCrawlerQueue = this.size("enqueued");
+			System.out.println("command-db size: " + cntTotal + ", to crawl: " + cntCrawlerQueue);
 			
 			/* ===========================================================================
 			 * Init Reader/Writer Threads
 			 * =========================================================================== */
 			this.writerThread = new Writer();
-			this.readerThread = new Reader();
 			
 			/* ===========================================================================
 			 * Init Cache
@@ -427,29 +418,45 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		}
 	}
 	
-	public void start() {		
-		this.writerThread.start();
-		this.readerThread.start();		
+	public int freeCapacity() throws Exception {
+		return -1;
 	}
 	
-	/**
-	 * @see IDataConsumer#setDataSource(IDataSource)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setDataSource(IDataSource dataSource) {
-		if (dataSource == null) throw new NullPointerException("The data-source is null-");
-		if (this.source != null) throw new IllegalStateException("The data-source was already set.");
-		synchronized (this.readerThread) {
-			this.source = dataSource;
-			this.readerThread.notify();			
+	public boolean freeCapacitySupported() {
+		return false;
+	}
+	
+	public boolean offerData(final URIQueueEntry data) throws Exception {
+		putData(data);
+		return true;
+	}
+	
+	public void putData(final URIQueueEntry entry) throws Exception {
+		// store unknown URI
+		if (!isClosed()) {
+			// the map is being modified by db.storeUnknownLocations, so we need to save the size first
+			final int known = storeUnknownLocations(
+					entry.getProfileID(),
+					entry.getDepth(),
+					entry.getReferences()
+			);
+			entry.setKnown(known);
+		} else {
+			logger.error(String.format(
+					"Unable to write linkmap of location '%s' to db. Database already closed.",
+					entry.getRootURI().toASCIIString()
+			));
 		}
+	}
+	
+	public void start() {		
+		this.writerThread.start();
 	}
 	
 	/**
 	 * @see IDataProvider#setDataSink(IDataSink)
 	 */
-	@SuppressWarnings("unchecked")
-	public void setDataSink(IDataSink dataSink) {
+	public void setDataSink(IDataSink<ICommand> dataSink) {
 		if (dataSink == null) throw new NullPointerException("The data-sink is null-");
 		if (this.sink != null) throw new IllegalStateException("The data-sink was already set.");
 		synchronized (this.writerThread) {
@@ -465,7 +472,6 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 	public void close() throws InterruptedException {
 		try {
 			// interrupt reader and writer
-			this.readerThread.interrupt();
 			this.writerThread.interrupt();
 			
 			boolean saveDoubleURLsCache = true;
@@ -476,7 +482,6 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			}
 			
 			// wait for the threads to shutdown
-			this.readerThread.join(2000);
 			this.writerThread.join(2000);
 			if (populateThread != null)
 				populateThread.join(2000);
@@ -618,6 +623,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 				*/
 				cmd.setResultText("Enqueued");
 				session.update(cmd);
+				cntCrawlerQueue--;
 				
 				// add command-location into caches
 				this.putInDoubleURLs(cmd.getLocation());
@@ -652,6 +658,9 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			
 			// store command
 			session.saveOrUpdate(cmd);
+			
+			if (cmd.getResultText().equals("Enqueued"))
+				cntCrawlerQueue++;
 			
 			// add command-location into caches
 			putInDoubleURLs(cmd.getLocation());
@@ -710,6 +719,9 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 					// cache does not return false negatives
 					bloomFilter.add(key);
 					session.saveOrUpdate(Command.createCommand(loc, profileID, depth));
+					cntCrawlerQueue++;
+					cntTotal++;
+					
 					Element element = new Element(loc, null);
 					this.urlExistsCache.put(element);
 					locationIterator.remove();
@@ -765,16 +777,13 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		for (int i=0; i<locations.size(); i++) {
 			final URI location = locations.get(i);
 			if (knownLocations.contains(location)) {
-				// not needed to put into 1st cache as these URIs already have been recognized as member of the cache
-				// add command-location into cache
-				Element element = new Element(location, null);
-				this.urlExistsCache.put(element);
-				
 				known++;
-				continue;
+			} else {
+				logger.debug("storeUnknownLocations: adding false positive #" + i + " to DB: '" + location + "'");
+				session.saveOrUpdate(Command.createCommand(location,profileID,depth));	
+				cntTotal++;
+				cntCrawlerQueue++;
 			}
-			logger.debug("storeUnknownLocations: adding false positive #" + i + " to DB: '" + location + "'");
-			session.saveOrUpdate(Command.createCommand(location,profileID,depth));	
 			
 			// not needed to put into 1st cache as these URIs already have been recognized as member of the cache
 			// add command-location into cache
@@ -864,7 +873,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			// query size
 			String sqlString = "select count(*) from ICommand as cmd";
 			if (type != null && type.equals("enqueued")) {
-				sqlString += " WHERE (cmd.result = 'Passed') AND (cmd.resultText is null) AND (cmd.crawlerDocument is null)";
+				sqlString += " WHERE (cmd.result = 'Passed') AND (cmd.resultText is null)";
 			}
 			
 			count = (Long) session.createQuery(sqlString).uniqueResult();
@@ -900,6 +909,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 			
 			// delete all commands
 			session.createQuery("DELETE FROM ICommand").executeUpdate();
+			
+			cntCrawlerQueue = cntTotal = 0L;
 			
 			transaction.commit();
 		} catch (HibernateException e) {
@@ -953,17 +964,19 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 					while (CommandDB.this.sink == null) this.wait();
 				}			
 				
-				final int chunkSize = 10;
+				final int chunkSize = 1000;
 				List<ICommand> commands = null;
 				while(!Thread.currentThread().isInterrupted()) {
 					
 					final long time = System.currentTimeMillis();
 					commands = CommandDB.this.fetchNextCommands(chunkSize);
 					if (logger.isDebugEnabled())
-						logger.debug(String.format("fetched new chunk of %d (%d requested) new URLs to crawl in %d ms",
+						logger.debug(String.format("fetched new chunk of %d (%d requested) new URLs to crawl in %d ms, %d queued / %d total",
 								Integer.valueOf(commands.size()),
 								Integer.valueOf(chunkSize),
-								Long.valueOf(System.currentTimeMillis() - time)));
+								Long.valueOf(System.currentTimeMillis() - time),
+								Long.valueOf(cntCrawlerQueue),
+								Long.valueOf(cntTotal)));
 					
 					if (commands != null && commands.size() > 0) {
 						for (ICommand command : commands) {
@@ -996,43 +1009,6 @@ public class CommandDB implements IDataProvider<ICommand>, IDataConsumer<IComman
 		
 		public synchronized void signalNewDbData() {
 			this.notify();
-		}
-	}
-	
-	/**
-	 * A {@link Thread} to read {@link ICommand commands} from the {@link CommandDB#source data-source}
-	 * and to write it into the {@link CommandDB#db}.
-	 */	
-	class Reader extends Thread {
-		public Reader() {
-			super("CommandDB.Reader");
-		}
-		
-		@Override
-		public void run() {
-			try {
-				
-				synchronized (this) {
-					while (CommandDB.this.source == null) this.wait();
-				}		
-				
-				while(!Thread.currentThread().isInterrupted()) {
-					ICommand command = CommandDB.this.source.getData();
-					if (command != null) {
-						// store data into db
-						CommandDB.this.storeCommand(command);
-						//						CommandDB.this.commandToXML(command);						
-					}
-				}				
-			} catch (Exception e) {
-				if (!(e instanceof InterruptedException)) {
-					logger.error(String.format("Unexpected '%s' while waiting for a new command.",
-							e.getClass().getName()
-					),e);
-				}
-			} finally {
-				logger.info("CommandDB.Reader shutdown finished.");
-			}
 		}
 	}
 }
