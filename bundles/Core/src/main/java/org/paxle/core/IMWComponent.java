@@ -23,6 +23,7 @@ import org.paxle.core.threading.IWorker;
  */
 public interface IMWComponent<Data> {
 	public static final String COMPONENT_ID = "component.ID";
+	public static final String POSTFIX_SOURCE_ID = ".source";
 	public static final String POSTFIX_SINK_ID = ".sink";
 	
 	/**
@@ -34,7 +35,7 @@ public interface IMWComponent<Data> {
 	 * @return the {@link IWorker worker-thread}-{@link IPool pool} of the component
 	 */
 	public IPool<Data> getPool();
-
+	
 	/**
 	 * This function returns a {@link IDataSink data-sink} that can be used to 
 	 * write {@link ICommand commands} into the input-queue of the  Master/Worker Component.
@@ -102,7 +103,7 @@ public interface IMWComponent<Data> {
 	 * @return the list of currently enqueued jobs
 	 */
 	public List<Data> getEnqueuedJobs();
-
+	
 	/**
 	 * @return the size of the enqueued-job queue
 	 */

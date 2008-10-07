@@ -1,7 +1,5 @@
 package org.paxle.core.queue.impl;
 
-import org.paxle.core.IMWComponent;
-import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.IOutputQueue;

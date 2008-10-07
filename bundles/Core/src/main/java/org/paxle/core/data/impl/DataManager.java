@@ -120,7 +120,7 @@ public class DataManager<Data> implements IDataManager {
 			}
 			
 			
-			// add the provider into our list
+			// add the consumer into our list
 			List<IDataConsumer<Data>> consumerList = this.dataConsumers.get(ID);
 			if (consumerList == null) this.dataConsumers.put(ID, consumerList = new ArrayList<IDataConsumer<Data>>());
 			consumerList.add((IDataConsumer<Data>)service);
@@ -134,7 +134,7 @@ public class DataManager<Data> implements IDataManager {
 	}
 	
 	
-	private void pipeConnect(String from, String to) {
+	public void pipeConnect(String from, String to) {
 		this.logger.info(String.format("Create datapipe: %s -> %s",from,to));
 		
 		// create pipe

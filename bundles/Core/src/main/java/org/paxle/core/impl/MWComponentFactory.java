@@ -165,12 +165,12 @@ public class MWComponentFactory implements IMWComponentFactory {
 		
 		// register data-sink
 		Hashtable<String,String> dataSinkProps = new Hashtable<String, String>();
-		dataSinkProps.put(IDataSink.PROP_DATASINK_ID, componentID + ".sink");		
+		dataSinkProps.put(IDataSink.PROP_DATASINK_ID, componentID + IMWComponent.POSTFIX_SINK_ID);		
 		bc.registerService(IDataSink.class.getName(), component.getDataSink(), dataSinkProps);
 		
 		// register data-source
 		Hashtable<String,String> dataSourceProps = new Hashtable<String, String>();
-		dataSourceProps.put(IDataSource.PROP_DATASOURCE_ID, componentID + ".source");			
+		dataSourceProps.put(IDataSource.PROP_DATASOURCE_ID, componentID + IMWComponent.POSTFIX_SOURCE_ID);
 		bc.registerService(IDataSource.class.getName(), component.getDataSource(), dataSourceProps);
 		
 		// register filter queues
