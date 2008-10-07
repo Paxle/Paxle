@@ -5,6 +5,7 @@
 		<format>tar.gz</format>
 	</formats>
 	<includeBaseDirectory>true</includeBaseDirectory>
+	<baseDirectory>${project.build.finalName}</baseDirectory>
 
 	<componentDescriptors>
 		<!-- Eclipse equinox related bundles and files -->

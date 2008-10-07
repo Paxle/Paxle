@@ -1054,12 +1054,13 @@
 								</goals>
 								<configuration>
 									<descriptors>
-										<descriptor>src/main/assembly/installer_web.xml</descriptor>
+										<descriptor>src/main/assembly/installer_web_core.xml</descriptor>
+										<descriptor>src/main/assembly/installer_web_packs.xml</descriptor>
 									</descriptors>
 									
 									<!-- copy files to  Paxle/target/installer/ -->
-									<outputDirectory>${basedir}/target/webinstaller/temp/</outputDirectory>
-									<finalName>/Equinox</finalName>
+									<outputDirectory>${basedir}/target/</outputDirectory>
+									<finalName>/webinstaller/</finalName>
 									<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>	
 									<appendAssemblyId>false</appendAssemblyId>							
 		
