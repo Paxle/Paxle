@@ -50,6 +50,7 @@
 		<panel classname="HelloPanel" />
 		<panel classname="LicencePanel" />
 		<panel classname="TargetPanel" />
+		<panel classname="InstallationGroupPanel"/>
 		<panel classname="TreePacksPanel" />
 		<panel classname="SummaryPanel"/>
 		<panel classname="InstallPanel" />

@@ -51,6 +51,9 @@
 			<includes>
 				<include>org.paxle.*:*</include>
 			</includes>
+			<excludes>
+				<exclude>org.paxle:Paxle</exclude>
+			</excludes>			
 
 			<sources>
 				<includeModuleDirectory>false</includeModuleDirectory>				

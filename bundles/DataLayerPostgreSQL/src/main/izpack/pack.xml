@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
 <installation version="1.0">
 	<packs>
-		<pack id="${artifact.artifactId}" name="${artifact.artifactId}" parent="DataLayers" required="no" preselected="no">
+		<pack id="${artifact.artifactId}" name="${artifact.artifactId}" parent="DataLayers" installGroups="all" required="no" preselected="no">
 			<description>${artifact.name}</description>
 			
 			<!-- ==================================================== 
