@@ -91,7 +91,37 @@
 
 	<!-- plugin settings -->
 	<build>
-		<plugins>
+	    <pluginManagement>
+	    	<plugins>
+	    		<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>2.0</version>
+	    		</plugin>
+	    		<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.2-beta-2</version>
+	    		</plugin>
+	    		<plugin>
+	    			<groupId>com.atlassian.maven.plugins</groupId>
+	    			<artifactId>maven-upload-plugin</artifactId>
+	    			<version>1.1</version>
+	    		</plugin>
+	    		<plugin>
+	    			<groupId>org.codehaus.izpack</groupId>
+	    			<artifactId>izpack-maven-plugin</artifactId>
+	    			<version>1.0-alpha-3</version>
+	    		</plugin>
+	    		<plugin>
+	    			<groupId>org.codehaus.mojo</groupId>
+	    			<artifactId>build-helper-maven-plugin</artifactId>
+	    			<version>1.2</version>
+	    		</plugin>
+	    	</plugins>
+	    </pluginManagement>
+
+	    <plugins>
 			<plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
 			    <artifactId>maven-eclipse-plugin</artifactId>
@@ -104,7 +134,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.0</version>
 				<executions>
 					<execution>
 						<id>copy</id>
@@ -766,7 +795,6 @@
 				<plugins>
 					<plugin>
 						<artifactId>maven-assembly-plugin</artifactId>
-						<version>2.2-beta-2</version>
 						<inherited>false</inherited>
 						<configuration>
 							<descriptors>
@@ -813,7 +841,6 @@
 					<!-- ==================================================================-->
 					<plugin>
 						<artifactId>maven-assembly-plugin</artifactId>
-						<version>2.2-beta-2</version>
 						<inherited>false</inherited>
 						<executions>
 							<execution>
@@ -966,7 +993,6 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>build-helper-maven-plugin</artifactId>
-						<version>1.2</version>
 						<executions>
 							<execution>
 								<id>installer-attach-artifacts</id>
@@ -1018,7 +1044,6 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-assembly-plugin</artifactId>
-						<version>2.2-beta-2</version>
 						<inherited>false</inherited>
 						<executions>
 							<execution>
@@ -1071,7 +1096,6 @@
 					<plugin>
 						<groupId>com.atlassian.maven.plugins</groupId>
 						<artifactId>maven-upload-plugin</artifactId>
-						<version>1.1</version>
 						<executions>
 							<execution>
 								<id>webinstaller-upload</id>
