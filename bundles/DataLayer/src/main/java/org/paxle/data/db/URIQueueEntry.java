@@ -4,7 +4,7 @@ package org.paxle.data.db;
 import java.net.URI;
 import java.util.ArrayList;
 
-class URIQueueEntry {
+public class URIQueueEntry {
 	private final int profileID;
 	private final int commandDepth;
 	private final URI rootUri;

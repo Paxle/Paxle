@@ -964,7 +964,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					while (CommandDB.this.sink == null) this.wait();
 				}			
 				
-				final int chunkSize = 1000;
+				final int chunkSize = 10;
 				List<ICommand> commands = null;
 				while(!Thread.currentThread().isInterrupted()) {
 					

@@ -240,7 +240,7 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 		// shutdown URL-extractor
 		if (this.urlExtractor != null) {
-			// this.urlExtractor.terminate();
+			this.urlExtractor.terminate();
 		}
 		
 		// shutdown command DB
