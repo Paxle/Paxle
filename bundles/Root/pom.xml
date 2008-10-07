@@ -423,9 +423,6 @@
 											<property>webinstallerUploadURL</property>
 											<message>"Webinstaller Upload-URL is missing. e.g. -DwebinstallerUploadURL=file:///home/user/temp/webinstaller"</message>
 										</requireProperty>
-										<requireMavenVersion>
-											<version>[2.0.9,)</version>
-										</requireMavenVersion>
 									</rules>
 									<fail>true</fail>
 								</configuration>
