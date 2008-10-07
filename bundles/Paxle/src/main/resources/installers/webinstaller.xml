@@ -18,6 +18,9 @@
 		<variable name="OSGI_RUNTIME_JAR" value="${equinox.runtime.jar}" />
 		<!-- maven project base dir -->
 		<variable name="PAXLE_DIR" value="${basedir}"/>
+		
+		<!-- the default installation-group is "default" -->
+		<variable name="InstallationGroupPanel.defaultGroup" value="default"/>
 	</variables>
 
 	<guiprefs width="640" height="480" resizable="no">
