@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
 <assembly>
-	<id>installer-web-assembly</id>
+	<id>installer-web-packs-assembly</id>
 	<formats>
 		<format>dir</format>
 	</formats>
