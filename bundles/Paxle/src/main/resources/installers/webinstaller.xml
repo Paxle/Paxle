@@ -44,6 +44,7 @@
 		<res id="shortcutSpec.xml" src="${basedir}/src/main/resources/installers/winShortcutSpec.xml" />
 		<res id="Unix_shortcutSpec.xml" src="${basedir}/src/main/resources/installers/unixShortcutSpec.xml" />
 
+		<!-- left border images -->
 		<res src="${basedir}/src/main/resources/installers/img/border1.png" id="Installer.image.0"/>
 		<res src="${basedir}/src/main/resources/installers/img/border2.png" id="Installer.image.1"/>
 		<res src="${basedir}/src/main/resources/installers/img/border3.png" id="Installer.image.2"/>
@@ -57,9 +58,22 @@
 	<!-- The native libraries to add. This is required for creating shortcuts on Windows -->
 	<native type="izpack" name="ShellLink.dll" />
 	
+	<!-- for registry access on windows -->
+    <native type="3rdparty" name="COIOSHelper.dll" stage="both">
+        <os family="windows"/>
+    </native>	
+    
+    <!-- adding windows registry support -->
+	<listeners>
+	    <listener installer="RegistryInstallerListener"
+	        uninstaller="RegistryUninstallerListener" >
+	        <os family="windows"/>
+	    </listener>
+	</listeners>    
+	
 	<!-- panels to display -->
 	<panels>
-		<panel classname="HelloPanel" />
+		<panel classname="CheckedHelloPanel" />
 		<panel classname="LicencePanel" />
 		<panel classname="TargetPanel" />
 		<panel classname="InstallationGroupPanel"/>
