@@ -89,6 +89,10 @@
 <!--		</repository>-->
 	</distributionManagement>
 
+	<scm>
+		<url>http://svn.paxle.net/</url>
+	</scm>
+
 	<!-- plugin settings -->
 	<build>
 	    <pluginManagement>
@@ -1091,6 +1095,54 @@
 								</configuration>
 							</execution>
 						</executions>
+					</plugin>
+
+					<!-- building an installer exe -->
+					<plugin>
+						<groupId>com.akathist.maven.plugins.launch4j</groupId>
+						<artifactId>launch4j-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>webinstaller-exe</id>
+								<phase>install</phase>
+								<goals>
+									<goal>launch4j</goal>
+								</goals>
+								<configuration>
+									<headerType>gui</headerType>
+									<outfile>target/webinstaller/dist/${pom.artifactId}-${pom.version}-webinstaller.exe</outfile>
+									<jar>target/webinstaller/dist/${pom.artifactId}-${pom.version}-webinstaller.jar</jar>
+									<dontWrapJar>false</dontWrapJar>
+									<icon>src/main/resources/img/icon.ico</icon>
+									<classPath>
+										<mainClass>com.izforge.izpack.installer.Installer</mainClass>
+										<addDependencies>false</addDependencies>
+										<preCp>anything</preCp>
+									</classPath>
+									<jre>
+										<minVersion>1.5.0</minVersion>
+									</jre>
+								</configuration>
+							</execution>
+						</executions>
+						<!-- XXX we need to change the version of foxtrot because version 2.0 seems 
+						     not to be available in a maven repository at the moment:
+						     
+						     See: 
+								[ERROR] BUILD ERROR
+								[INFO] Failed to resolve artifact.
+								
+								Missing:
+								1) foxtrot:foxtrot:jar:3.0
+						     
+						-->
+						<dependencies>
+							<dependency>
+								<groupId>foxtrot</groupId>
+								<artifactId>foxtrot</artifactId>
+								<version>2.0</version>
+							</dependency>
+						</dependencies>
 					</plugin>
 
 					<!-- Upload the installer jars -->
