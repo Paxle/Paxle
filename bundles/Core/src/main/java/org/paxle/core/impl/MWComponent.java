@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationException;
@@ -36,6 +38,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	public static final String PROP_POOL_MAX_ACTIVE = "pool.maxActive";
 	public static final String PROP_DELAY = "master.delay";
 	public static final String PROP_ACTIVATED = "master.activated";
+	private static final String PROP_STATE_ACTIVE = "state.active";
 	
 	private final IMaster master;
 	private final Pool<Data> pool;
@@ -64,6 +67,11 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	 * A class to send {@link MWComponentEvent}s
 	 */
 	private MWComponentEventSender eventSender;
+	
+	/**
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
 	
 	private Configuration configuration;
 	
@@ -158,14 +166,12 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	 */
 	@SuppressWarnings("unchecked")
 	public void pause(){
-		this.master.pauseMaster();
-		final Dictionary props = configuration.getProperties();
-		props.put(PROP_STATE_ACTIVE, Boolean.FALSE.toString());
 		try {
-			configuration.update(props);
-		} catch (IOException e) { e.printStackTrace(); }
-		if (this.eventSender != null) {
-			this.eventSender.sendPausedEvent(this.componentID);
+			final Dictionary props = configuration.getProperties();
+			props.put(PROP_STATE_ACTIVE, Boolean.FALSE);
+			this.configuration.update(props);
+		} catch (IOException e) { 
+			this.logger.error(e);
 		}
 	}
 	
@@ -175,14 +181,27 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	 */
 	@SuppressWarnings("unchecked")
 	public void resume() {
-		this.master.resumeMaster();
-		final Dictionary props = configuration.getProperties();
-		props.put(PROP_STATE_ACTIVE, Boolean.TRUE.toString());
 		try {
-			configuration.update(props);
-		} catch (IOException e) { e.printStackTrace(); }
-		if (this.eventSender != null) {
-			this.eventSender.sendResumedEvent(this.componentID);
+			final Dictionary props = configuration.getProperties();
+			props.put(PROP_STATE_ACTIVE, Boolean.TRUE);
+			this.configuration.update(props);
+		} catch (IOException e) { 
+			this.logger.error(e);
+		}
+
+	}
+	
+	private void setActiveState(Boolean active) {
+		if (active.booleanValue()) {
+			this.master.resumeMaster();
+			if (this.eventSender != null) {
+				this.eventSender.sendResumedEvent(this.componentID);
+			}			
+		} else {
+			this.master.pauseMaster();
+			if (this.eventSender != null) {
+				this.eventSender.sendPausedEvent(this.componentID);
+			}
 		}
 	}
 	
@@ -270,19 +289,13 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		
 		final Boolean active = (Boolean)configuration.get(PROP_STATE_ACTIVE);
 		if (active != null) {
-			if (active.booleanValue() && this.isPaused()) {
-				this.resume();
-			} else if (!this.isPaused()) {
-				this.pause();
-			}
+			this.setActiveState(active);
 		}
 	}
 	
 	public String[] getLocales() {
 		return locales;
 	}
-	
-	private static final String PROP_STATE_ACTIVE = "state.active";
 	
 	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
 		final ArrayList<AttributeDefinition> ads = new ArrayList<AttributeDefinition>();
@@ -366,7 +379,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		
 		public String[] getDefaultValue() { return this.defaultValue; }
 		public String getDescription() { return this.description; }
-		public String getID() { return ID; }
+		public String getID() { return this.ID; }
 		public String getName() { return this.name; }
 		public int getCardinality() { return 0; }
 		public String[] getOptionLabels() { return null; }
