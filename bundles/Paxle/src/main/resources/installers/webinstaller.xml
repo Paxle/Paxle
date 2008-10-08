@@ -9,7 +9,7 @@
 		<url>${pom.url}</url>
 		<javaversion>1.5</javaversion>
 		<requiresjdk>no</requiresjdk>
-		<webdir>${webinstallerURL}</webdir>
+		<webdir>${webinstaller.url}</webdir>
 	</info>
 	
 	<!-- some variables required later -->

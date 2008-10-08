@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase="${webinstaller.url}">
+    <information>
+        <title>Paxle ${pom.version} - Webinstaller</title>
+        <vendor>Paxle</vendor>
+        <homepage href="http://www.paxle.net/" />
+        <description>Paxle ${pom.version} - Webinstaller</description>
+    </information>
+    <offline-allowed/>
+    <security>
+      <all-permissions/>
+    </security>
+    <resources>
+        <j2se version="1.5+" />
+        <jar href="${pom.artifactId}-${pom.version}-webinstaller.jar"/>
+    </resources>
+    <application-desc main-class="com.izforge.izpack.installer.Installer" />
+</jnlp>

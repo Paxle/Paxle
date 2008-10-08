@@ -736,7 +736,7 @@
 					<name>others</name>
 				</property>	
 			</activation>
-			
+
 			<build>
 				<plugins>
 					<plugin>
@@ -1042,6 +1042,11 @@
 				</property>
 			</activation>
 
+			<properties>
+				<webinstaller.url>${webinstallerURL}</webinstaller.url>
+				<webinstaller.upload.url>${webinstallerUploadURL}</webinstaller.upload.url>
+			</properties>
+
 			<build>
 				<plugins>
 					<!-- collect all required files -->
@@ -1160,7 +1165,7 @@
 		                            <resourceSrc>${project.build.directory}/webinstaller/dist/*</resourceSrc>
 		                            <resourceDest />
 		                            <serverId>webinstall-server</serverId>
-		                            <url>${webinstallerUploadURL}</url>
+		                            <url>${webinstaller.upload.url}</url>
 								</configuration>
 							</execution>
 						</executions>
