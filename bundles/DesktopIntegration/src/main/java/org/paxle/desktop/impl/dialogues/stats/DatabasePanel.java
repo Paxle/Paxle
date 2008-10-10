@@ -18,8 +18,11 @@ class DatabasePanel extends Stats {
 	private static final long serialVersionUID = 1L;
 	
 	private static final String IINDEXER_SEARCHER = "org.paxle.se.index.IIndexSearcher"; //$NON-NLS-1$
+	private static final String ICOMMAND_DB = "org.paxle.data.db.ICommandDB";
 	
 	private final JLabel lblDocsKnown = new JLabel();
+	private final JLabel lblUrisKnown = new JLabel();
+	private final JLabel lblEnqueued = new JLabel();
 	
 	private final DesktopServices services;
 	
@@ -40,14 +43,9 @@ class DatabasePanel extends Stats {
 		gbc.anchor = GridBagConstraints.CENTER;
 		super.add(chart, gbc);
 		
-		gbc.gridy++;
-		gbc.gridwidth = 1;
-		gbc.anchor = GridBagConstraints.EAST;
-		super.add(new JLabel(Messages.getString("statisticsPanel.database.docsKnown")), gbc); //$NON-NLS-1$
-		
-		gbc.gridx++;
-		gbc.anchor = GridBagConstraints.WEST;
-		super.add(lblDocsKnown, gbc);
+		Utilities.addGridbagLine(this, new JLabel(Messages.getString("statisticsPanel.database.docsKnown")), lblDocsKnown, ++gbc.gridy);
+		Utilities.addGridbagLine(this, new JLabel(Messages.getString("statisticsPanel.database.urisKnown")), lblUrisKnown, ++gbc.gridy);
+		Utilities.addGridbagLine(this, new JLabel(Messages.getString("statisticsPanel.database.enqueued")), lblEnqueued, ++gbc.gridy);
 	}
 	
 	@Override
@@ -58,26 +56,47 @@ class DatabasePanel extends Stats {
 	@Override
 	public void initChart() {
 		if (sds != null) {
-			sds.init(
-					Messages.getString("statisticsPanel.database.chart.title"),
-					Messages.getString("statisticsPanel.database.chart.yDesc"),
-					Messages.getString("statisticsPanel.database.chart.numDocs"));
+			final String yDesc = Messages.getString("statisticsPanel.database.chart.yDesc");
+			sds.addPlot(yDesc, Long.MIN_VALUE, Long.MAX_VALUE, null,
+					Messages.getString("statisticsPanel.database.chart.numDocs"),
+					Messages.getString("statisticsPanel.database.chart.numUris"));
+			sds.addPlot(yDesc, Long.MIN_VALUE, Long.MAX_VALUE, null,
+					Messages.getString("statisticsPanel.database.chart.numEnqueued"));
+			sds.finish(Messages.getString("statisticsPanel.database.chart.title"), null);
 		}
 	}
 	
 	@Override
 	public boolean update() {
+		Object docCount = null, size = null, enqueued = null;
+		
 		final Object indexSearcher = services.getServiceManager().getService(IINDEXER_SEARCHER);
-		if (indexSearcher == null)
-			return false;
-		try {
+		if (indexSearcher != null) try {
 			final Method getDocCount = indexSearcher.getClass().getMethod("getDocCount"); //$NON-NLS-1$
-			final Object docCount = getDocCount.invoke(indexSearcher);
-			lblDocsKnown.setText(String.format("%,d", docCount)); //$NON-NLS-1$
-			if (sds != null)
-				sds.addOrUpdate((Number)docCount);
-			return true;
+			docCount = getDocCount.invoke(indexSearcher);
 		} catch (Exception e) { e.printStackTrace(); }
-		return false;
+		
+		final Object cmddb = services.getServiceManager().getService(ICOMMAND_DB);
+		if (cmddb != null) try {
+			final Class<?> clazz = cmddb.getClass();
+			final Method mSize = clazz.getMethod("size");
+			final Method mEnqueued = clazz.getMethod("enqueuedSize");
+			size = mSize.invoke(cmddb);
+			enqueued = mEnqueued.invoke(cmddb);
+		} catch (Exception e) { e.printStackTrace(); }
+		
+		if (docCount != null || size != null) {
+			lblDocsKnown.setText(String.format("%,d", docCount)); //$NON-NLS-1$
+			lblUrisKnown.setText(String.format("%,d", size));
+			if (sds != null)
+				sds.addOrUpdate(0, new Number[] { (Number)docCount, (Number)size });
+		}
+		if (enqueued != null) {
+			lblEnqueued.setText(String.format("%,d", enqueued));
+			if (sds != null)
+				sds.addOrUpdate(1, new Number[] { (Number)enqueued });
+		}
+		
+		return (docCount != null || size != null || enqueued != null);
 	}
 }

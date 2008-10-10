@@ -209,10 +209,19 @@ public class Utilities {
 		}
 		
 		if (size != null) {
+			final Dimension setSize;
 			if (size == SIZE_PACK) {
 				frame.pack();
+				setSize = frame.getSize();
 			} else {
-				frame.setSize(size);
+				setSize = size;
+			}
+			
+			final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			if (setSize.width > screenSize.width || setSize.height > screenSize.height || size != SIZE_PACK) {
+				setSize.width = Math.min(setSize.width, screenSize.width);
+				setSize.height = Math.min(setSize.height, screenSize.height);
+				frame.setSize(setSize);
 			}
 		}
 		
@@ -357,6 +366,19 @@ public class Utilities {
 		gbc.insets = insets;
 		comp.add(obj, gbc);
 		return obj;
+	}
+	
+	public static void addGridbagLine(final JComponent comp, final JComponent left, final JComponent right, int y) {
+		gbc.gridx = 0; gbc.gridy = y;
+		gbc.anchor = GridBagConstraints.EAST;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.gridwidth = gbc.gridheight = 1;
+		gbc.weightx = gbc.weighty = 0.0;
+		gbc.insets = INSETS_DEFAULT;
+		comp.add(left, gbc);
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.gridx++;
+		comp.add(right, gbc);
 	}
 	
 	public static void showURLErrorMessage(final String message, final String url) {

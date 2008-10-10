@@ -47,7 +47,7 @@ public class StatisticsPanel extends DIServicePanel implements DIComponent, Runn
 		public abstract boolean isStatsDataSupported();
 		public abstract void initChart();
 		protected Dimension getChartSize() {
-			return new Dimension(300, 200);
+			return (sds == null) ? null : new Dimension(300, 70 + 130 * sds.numPlots());
 		}
 		
 		private void setStatsDataSink(final StatsDataSink sink) {
@@ -84,6 +84,7 @@ public class StatisticsPanel extends DIServicePanel implements DIComponent, Runn
 		public Image getChartImage(int width, int height);
 		public void addPlot(final String yDesc, final long min, final long max, final Locations loc, final String... names);
 		public void finish(final String title, final Orientation orientation);
+		public int numPlots();
 	}
 	
 	private final List<? extends Stats> stats;

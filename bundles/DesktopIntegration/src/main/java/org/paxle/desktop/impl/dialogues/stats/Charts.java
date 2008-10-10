@@ -45,7 +45,10 @@ public class Charts {
 		public void init(final String title, final String yDesc, final String... names) {
 			addPlot(yDesc, Long.MIN_VALUE, Long.MAX_VALUE, null, names);
 			finish(title, null);
-			
+		}
+		
+		public int numPlots() {
+			return datasets.size();
 		}
 		
 		public void addPlot(
@@ -65,8 +68,12 @@ public class Charts {
 			}
 			
 			final NumberAxis memYAxis = new NumberAxis(yDesc);
-			if (min != Long.MIN_VALUE && max != Long.MAX_VALUE)
+			if (min != Long.MIN_VALUE && max != Long.MAX_VALUE) {
 				memYAxis.setRange(min, max);
+			} else {
+				memYAxis.setAutoRange(true);
+				memYAxis.setAutoRangeIncludesZero(false);
+			}
 			
 			final XYPlot subplot = new XYPlot(dataset, null, memYAxis, new StandardXYItemRenderer());
 			if (loc != null) {

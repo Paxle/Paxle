@@ -16,12 +16,10 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.WeakHashMap;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
@@ -60,7 +58,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private static final Dimension DIM_CCONSOLE = new Dimension(500, 400);
 	
 	private static final String PROP_DISPLAYED_MWCOMP = "displayedMWComp"; //$NON-NLS-1$
-	private static final String PROP_URLS_ENCODED = "urlsEncoded"; //$NON-NLS-1$
 	private static final String PROP_TABLE_DISPLAY = "tableDisplay"; //$NON-NLS-1$
 	private static final String PROP_SHOW_ENQUEUED = "showEnqueued"; //$NON-NLS-1$
 	private static final String PROP_SHOW_DESTROYED = "showDestroyed"; //$NON-NLS-1$
@@ -76,8 +73,16 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private static final String LBL_RESUME_ = Messages.getString("crawlingConsole.resume"); //$NON-NLS-1$
 	
 	private static enum TableDisplay {
-		WORKING_ON(Messages.getString("crawlingConsole.tbl1.comp"), Messages.getString("crawlingConsole.tbl1.result"), Messages.getString("crawlingConsole.tbl1.uri")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		REJECTED(Messages.getString("crawlingConsole.tbl2.comp"), Messages.getString("crawlingConsole.tbl2.result"), Messages.getString("crawlingConsole.tbl2.filter"), Messages.getString("crawlingConsole.tbl2.reason"), Messages.getString("crawlingConsole.tbl2.uri")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		WORKING_ON(
+				Messages.getString("crawlingConsole.tbl1.comp"), //$NON-NLS-1$
+				Messages.getString("crawlingConsole.tbl1.result"), //$NON-NLS-2$
+				Messages.getString("crawlingConsole.tbl1.uri")), //$NON-NLS-3$
+		REJECTED(
+				Messages.getString("crawlingConsole.tbl2.comp"), //$NON-NLS-1$
+				Messages.getString("crawlingConsole.tbl2.result"), //$NON-NLS-2$
+				Messages.getString("crawlingConsole.tbl2.filter"), //$NON-NLS-3$
+				Messages.getString("crawlingConsole.tbl2.reason"), //$NON-NLS-4$
+				Messages.getString("crawlingConsole.tbl2.uri")); //$NON-NLS-5$
 		
 		final Object[] columnHeaders;
 		
@@ -95,8 +100,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private final Log           logger = LogFactory.getLog(CrawlingConsole.class);
 	private final JScrollPane   scroll = new JScrollPane();
 	private final JButton       clear  = Utilities.setButtonProps(new JButton(), Messages.getString("crawlingConsole.clear"), this, AC_CLEAR, -1, null); //$NON-NLS-1$
-	private final JRadioButton  enc    = new JRadioButton(Messages.getString("crawlingConsole.urlEncoded")); //$NON-NLS-1$
-	private final JRadioButton  normal = new JRadioButton(Messages.getString("crawlingConsole.urlOriginal")); //$NON-NLS-1$
 	private final JCheckBox     cbEnq  = Utilities.setButtonProps(new JCheckBox(), Messages.getString("crawlingConsole.enqueued"), this, AC_ENQUEUED, -1, null); //$NON-NLS-1$
 	private final JCheckBox     cbDstr = Utilities.setButtonProps(new JCheckBox(), Messages.getString("crawlingConsole.rejected"), this, AC_DESTROYED, -1, null); //$NON-NLS-1$
 	
@@ -119,7 +122,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		
 		final Properties props = services.getServiceManager().getServiceProperties();
 		final String mwcomp = props.getProperty(PROP_DISPLAYED_MWCOMP, MWComponents.CRAWLER.name());
-		final String urlsEncoded = props.getProperty(PROP_URLS_ENCODED, Boolean.TRUE.toString());
 		final String tableDisplay = props.getProperty(PROP_TABLE_DISPLAY, TableDisplay.WORKING_ON.name());
 		final String showEnqueued = props.getProperty(PROP_SHOW_ENQUEUED, Boolean.TRUE.toString());
 		final String showDestroyed = props.getProperty(PROP_SHOW_DESTROYED, Boolean.FALSE.toString());
@@ -130,7 +132,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		table.setAutoCreateColumnsFromModel(true);
 		model.setType(TableDisplay.valueOf(tableDisplay));
 		init(DesktopServices.MWComponents.valueOf(mwcomp),
-				Boolean.parseBoolean(urlsEncoded),
 				Boolean.parseBoolean(showEnqueued),
 				Boolean.parseBoolean(showDestroyed));
 	}
@@ -168,7 +169,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	public void close() {
 		final Properties props = super.services.getServiceManager().getServiceProperties();
 		props.put(PROP_DISPLAYED_MWCOMP, MWComponents.valueOfHumanReadable((String)cbox.getSelectedItem()).name());
-		props.put(PROP_URLS_ENCODED, Boolean.toString(enc.isSelected()));
 		props.put(PROP_TABLE_DISPLAY, model.type.name());
 		props.put(PROP_SHOW_ENQUEUED, Boolean.toString(cbEnq.isSelected()));
 		props.put(PROP_SHOW_DESTROYED, Boolean.toString(cbDstr.isSelected()));
@@ -274,19 +274,10 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	
 	private void init(
 			final DesktopServices.MWComponents comp,
-			final boolean showUrlsEncoded,
 			final boolean showEnqueued,
 			final boolean showDestroyed) {
 		scroll.setViewportView(table);
 		updateCpb(false, true, false);
-		
-		final ButtonGroup bg = new ButtonGroup();
-		bg.add(enc);
-		bg.add(normal);
-		((showUrlsEncoded) ? enc : normal).setSelected(true);
-		final JPanel bLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		bLeft.add(normal);
-		bLeft.add(enc);
 		
 		cbEnq.setSelected(showEnqueued);
 		cbDstr.setSelected(showDestroyed);
@@ -306,7 +297,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		bbRight.add(cpb);
 		
 		final JPanel b = new JPanel(new BorderLayout());
-		b.add(bLeft, BorderLayout.WEST);
 		b.add(bRight, BorderLayout.EAST);
 		final JPanel bb = new JPanel(new BorderLayout());
 		bb.add(bbLeft, BorderLayout.WEST);
@@ -434,8 +424,9 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 					break;
 			}
 			try {
-				logger.debug("uri: " + ((enc.isSelected()) ? URLDecoder.decode(uri, Charset.defaultCharset().name()) : uri)); //$NON-NLS-1$
-				row.add((enc.isSelected()) ? URLDecoder.decode(uri, Charset.defaultCharset().name()) : uri);
+				final String uriDec = URLDecoder.decode(uri, Charset.defaultCharset().name());
+				logger.debug("uri: " + uriDec); //$NON-NLS-1$
+				row.add(uriDec);
 			} catch (UnsupportedEncodingException e) { /* cannot happen as we use the default charset here */ }
 			
 			SwingUtilities.invokeLater(new Runnable() {
