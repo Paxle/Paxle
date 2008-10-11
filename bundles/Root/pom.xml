@@ -156,6 +156,9 @@
                 	<exclude>**/l10n/*</exclude>
                 </excludes>
             </resource>
+            <resource>
+            	<directory>target/native2ascii</directory>
+            </resource>
         </resources>
 
 		<!-- central plugin management to set the plugin versions to use -->
@@ -230,20 +233,20 @@
 					<artifactId>maven-antrun-plugin</artifactId>
 					<executions>
 						<execution>
-							<id>resources</id>
-							<phase>process-resources</phase>
+							<id>native2ascii</id>
+							<phase>compile</phase>
 							<configuration>
 								<tasks>
 									<!-- adds the ant-contrib tasks (if/then/else used below) -->
 									<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
 
-									<available file="${basedir}/src/main/resources/OSGI-INF/l10n/" property="langfile.exists" value="true" />
+									<available file="${basedir}/src/main/resources/OSGI-INF/l10n/" property="file.exists" value="true" />
 									<if>
-										<isset property="langfile.exists" />
+										<isset property="file.exists" />
 										<then>
 											<native2ascii
 												encoding="UTF8" src="src/main/resources/OSGI-INF/l10n/"
-												dest="target/classes/OSGI-INF/l10n/"
+												dest="target/native2ascii/OSGI-INF/l10n/"
 												includes="**/*.properties" ext=".properties" />
 										</then>
 									</if>
