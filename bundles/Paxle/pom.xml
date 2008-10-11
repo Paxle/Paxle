@@ -13,11 +13,11 @@
 	<repositories>
 		<repository>
 			<id>paxle-repository</id>
-			<url>http://maven.repository.paxle.net/</url>
+			<url>http://maven.repository.paxle.net</url>
 		</repository>
 		<repository>
 			<id>java.net</id>
-			<url>http://download.java.net/maven/2/</url>
+			<url>http://download.java.net/maven/2</url>
 		</repository>
 		<repository>
 			<id>apache.snapshots</id>

@@ -216,9 +216,9 @@ public class ParserWorker extends AWorker<ICommand> {
 				logger.info(String.format("Finished parsing of resource '%s' with mime-type '%s' in %d ms.\r\n" +
 						"\tParser-Status:  '%s' %s",
 						command.getLocation(),
-						(command.getCrawlerDocument() == null) ? "unknown" : command.getCrawlerDocument().getMimeType(),
+						(command.getCrawlerDocument() == null || command.getCrawlerDocument().getMimeType() == null) ? "unknown" : command.getCrawlerDocument().getMimeType(),
 						Long.valueOf(System.currentTimeMillis() - start),
-						(parserDoc == null)  ? "unknown" : parserDoc.getStatus().toString(),
+						(parserDoc == null || parserDoc.getStatus() == null)  ? "unknown" : parserDoc.getStatus().toString(),
 						(parserDoc == null)  ? "" : (parserDoc.getStatusText()==null)?"":parserDoc.getStatusText()));
 			}
 		}

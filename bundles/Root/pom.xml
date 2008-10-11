@@ -13,7 +13,7 @@
 	<repositories>
 		<repository>
 			<id>paxle-repository</id>
-			<url>http://maven.repository.paxle.net/</url>
+			<url>http://maven.repository.paxle.net</url>
 		</repository>
 		<repository>
 			<id>java.net</id>
