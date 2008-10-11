@@ -1,0 +1,105 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>DomainBalancer</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - Domain Balancer</name>
+	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>org.paxle.data.balancer</Bundle-SymbolicName>
+					
+						<!-- localized bundle headers -->
+						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Name>%bundleName</Bundle-Name>
+						<Bundle-Description>%bundleDesc</Bundle-Description>
+						
+						<Bundle-Category>tools</Bundle-Category>					
+						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
+						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
+						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+						
+						<Export-Package>
+							org.paxle.data.balancer;version="${pom.version}"
+						</Export-Package>
+						<Import-Package>
+							<!-- OSGi framework -->
+							org.osgi.framework;version="1.4",
+							<!-- Logging framework -->
+							org.apache.commons.logging,
+							<!-- Paxle Core Bundle -->
+							org.paxle.core.doc;version="[0.1.0,0.2.0)",
+							org.paxle.core.data;version="[0.1.0,0.2.0)",
+							org.paxle.core.threading;version="[0.1.0,0.2.0)",
+							org.paxle.core.queue;version="[0.1.0,0.2.0)", 
+							org.paxle.core;version="[0.1.0,0.2.0)",
+							<!-- Paxle DataLayer Bundle -->
+							org.paxle.data.db;version="[0.1.0,0.2.0)",
+							<!-- ignoring others -->
+							!*
+						</Import-Package>
+						<Private-Package>
+							org.paxle.data.balancer.impl
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.data.balancer.impl.Activator
+						</Bundle-Activator>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>[,0.2.0)</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>			
+		</dependency>
+		
+		<!--
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>DataLayer</artifactId>
+			<version>[,0.2.0)</version>
+			<exclusions>
+				<exclusion><groupId>org.onelab.filter</groupId><artifactId>bloomfilter</artifactId></exclusion>
+				<exclusion><groupId>org.hibernate</groupId><artifactId>hibernate</artifactId></exclusion>
+				<exclusion><groupId>antlr</groupId><artifactId>antlr</artifactId></exclusion>
+				<exclusion><groupId>asm</groupId><artifactId>asm</artifactId></exclusion>
+				<exclusion><groupId>cglib</groupId><artifactId>cglib</artifactId></exclusion>
+				<exclusion><groupId>dom4j</groupId><artifactId>dom4j</artifactId></exclusion>
+				<exclusion><groupId>javax.transaction</groupId><artifactId>jta</artifactId></exclusion>
+				<exclusion><groupId>c3p0</groupId><artifactId>c3p0</artifactId></exclusion>
+				<exclusion><groupId>commons-io</groupId><artifactId>commons-io</artifactId></exclusion>
+				<exclusion><groupId>net.sf.ehcache</groupId><artifactId>ehcache</artifactId></exclusion>
+			</exclusions>
+		</dependency>
+		-->
+	</dependencies>
+</project>
