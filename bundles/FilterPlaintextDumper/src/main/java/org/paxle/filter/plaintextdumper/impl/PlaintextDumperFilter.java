@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,39 +29,52 @@ public class PlaintextDumperFilter implements IFilter {
 	private Log logger = LogFactory.getLog(this.getClass());
 
 	public PlaintextDumperFilter(File dir) {
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
 		this.dataDir = dir;
 	}
 
-	public void filter(ICommand command, IFilterContext context) {
-		if (command == null) throw new NullPointerException("The command object is null.");
-
+	public File store(IParserDocument pDoc) {
+		
+		Map<String,IParserDocument> subDocs = pDoc.getSubDocs();
+		if (subDocs != null) {
+			for (IParserDocument subDoc : subDocs.values()) {
+				this.store(subDoc);
+			}
+		}
+		
 		BufferedReader br = null;
-		BufferedWriter bw = null;		
+		BufferedWriter bw = null;
+		File targetFile = null;
+		
 		try {
-			if (command.getResult() != ICommand.Result.Passed) return;
-			
-			IParserDocument pDoc = command.getParserDocument();
-			if (pDoc.getStatus() != IParserDocument.Status.OK) return;
+			if (pDoc.getStatus() != IParserDocument.Status.OK) return targetFile;
 			
 			// getting source file, create target
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(pDoc.getTextFile()), "UTF-8"));
-			File targetFile = File.createTempFile("datadumper", ".txt", this.dataDir);
+			targetFile = File.createTempFile("datadumper-", ".txt", this.dataDir);
 			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile),"UTF-8"));
 			
 			// copy files
 			IOTools.copy(br, bw);
 
-			
 		} catch (Exception e) {
 			this.logger.error(String.format(
-					"Unexpected %s while dumping plain-text of URI '%s' into file.",
-					e.getClass().getName(),
-					command.getLocation().toASCIIString()
+					"Unexpected %s while dumping plain-text of URI into file.",
+					e.getClass().getName()
 			),e);
 		} finally {
             if (br != null) try { br.close(); } catch (Exception e) {/* ignore this */}
             if (bw != null) try { bw.close();	} catch (Exception e) {/* ignore this */}	
 		}
+		return targetFile;
+	}
+	
+	public void filter(ICommand command, IFilterContext context) {
+		if (command == null) throw new NullPointerException("The command object is null.");
+		if (command.getResult() != ICommand.Result.Passed) return;
+		store(command.getParserDocument());
 	}
 
 }
