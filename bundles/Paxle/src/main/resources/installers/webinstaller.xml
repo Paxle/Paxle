@@ -211,6 +211,20 @@
 
 
 		<!-- ========================================================== 
+			OPTIONAL PAXLE JDK6 BUNDLES
+			See: Profile jdk1.6-profile
+		     ========================================================== -->
+		<xinclude href="jdk6.xml" parse="xml">
+			<!-- 
+				 Note:
+				 We need to use an xinclude with a fallback here because a refpack
+				 causes the whole build process to fail if the referenced pack
+				 (and the included bundles) are not available.
+			 -->
+			<xfallback></xfallback>
+		</xinclude>
+
+		<!-- ========================================================== 
 			OTHER OPTIONAL PAXLE BUNDLES
 			See: Profile "mvn -Dothers"
 		     ========================================================== -->

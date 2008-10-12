@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<xfragment>
+	<!-- An installer fragment for the jdk1.6-profile -->
+
+	<refpack file="DIJre6Backend/pack.xml" />
+
+</xfragment>
