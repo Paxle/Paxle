@@ -1,0 +1,15 @@
+# robots.txt von Multimedia & Internet Service [www.roskothen.com]
+# firma:	Multimedia & Internet Service
+# strasse:	Waldstr. 2
+# plz/ort:	99706 Sondershausen
+# domain:	http://www.roskothen.com
+# eMail:	info@roskothen.com
+# telefon:	0 36 32 / 667 454
+# telefax:	0 36 32 / 667 696
+# mobil:	0170 565 0586
+
+User-agent: *		# Alle Robots
+Disallow:		# Ganze Site indexieren
+Disallow: /cgi/		# Verzeichnis /cgi/ vorm indexieren schützen
+Disallow: /cgi-bin/	# Verzeichnis /cgi-bin/ vorm indexieren schützen
+Disallow: /report	# Verzeichnis /report/ vorm indexieren schützen

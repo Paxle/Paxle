@@ -142,6 +142,17 @@ public class RobotsTxtManagerTest extends TestCase {
 		assertEquals(1,disallowedURIs.size());
 		ListAssert.assertContains(disallowedURIs, URI.create("http://xxxxx/secret/"));
 	}
+		
+	public void testRobotsWithTabs() throws IOException {
+		String hostPort = "xxxxx:80";
+		this.parseAndPutIntoCache("src/test/resources/robots8.txt",hostPort);
+		
+		assertTrue(this.manager.isDisallowed("http://" + hostPort + "/cgi/"));
+		assertTrue(this.manager.isDisallowed("http://" + hostPort + "/cgi-bin/"));
+		assertTrue(this.manager.isDisallowed("http://" + hostPort + "/cgi/"));
+		assertTrue(this.manager.isDisallowed("http://" + hostPort + "/report"));		
+		assertFalse(this.manager.isDisallowed("http://" + hostPort + "/xyz"));
+	}	
 	
 	public void testGetSitemaps() throws IOException {
 		String hostPort = "xxxxx:80";
