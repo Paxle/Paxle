@@ -43,6 +43,9 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 	}
 	
 	protected synchronized <E> void registerService(final Object key, final E service, final Hashtable<String,?> properties, final Class<? super E>... clazzes) {
+		final ServiceRegistration reg = regs.get(key);
+		if (reg != null)
+			reg.unregister();
 		regs.put(key, services.getServiceManager().registerService(service, properties, clazzes));
 	}
 	
