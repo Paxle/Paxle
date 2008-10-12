@@ -2,7 +2,7 @@
 <installation version="1.0">
 	<packs>
 		<pack id="${artifact.artifactId}" name="${artifact.artifactId}" parent="SEProviders" installGroups="default,all" required="no" preselected="yes">
-			<description>${artifact.name}</description>
+			<description>${artifact.name} [${artifact.version}]</description>
 			
 			<!-- ==================================================== 
 				 The bundle file(s) 

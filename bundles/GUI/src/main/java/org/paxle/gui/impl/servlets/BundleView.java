@@ -130,8 +130,8 @@ public class BundleView extends ALayoutServlet {
 			}
 			
 			String filter = (request.getParameter("filter") != null) 
-			? request.getParameter("filter")
-					: "(Bundle-SymbolicName=org.paxle.*)";
+						  ? request.getParameter("filter")
+						  : "(Bundle-SymbolicName=org.paxle.*)";
 			context.put("filter", filter);
 			
 			if (filter.equals("(Bundle-SymbolicName=*)")) {

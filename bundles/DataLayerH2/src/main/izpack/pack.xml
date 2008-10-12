@@ -2,7 +2,7 @@
 <installation version="1.0">
 	<packs>
 		<pack id="${artifact.artifactId}" name="${artifact.artifactId}" parent="DataLayers" installGroups="default,all" required="no" preselected="no">
-			<description>${artifact.name}</description>
+			<description>${artifact.name} [${artifact.version}]</description>
 			
 			<!-- ==================================================== 
 				 The bundle file(s) 

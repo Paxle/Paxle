@@ -82,7 +82,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	}
 	
 	/**
-	 * Adds a newly detected {@link ISubParser} to the {@link Activator#subParserList subparser-list}
+	 * Adds a newly detected {@link ISubParser} to the {@link #subParserList subparser-list}
 	 * @param mimeTypes a list of mimeTypes supported by the sub-parser
 	 * @param subParser the newly detected sub-parser
 	 */
@@ -108,7 +108,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	}
 	
 	/**
-	 * Removes a uninstalled {@link ISubParser} from the {@link Activator#subParserList subparser-list}
+	 * Removes a uninstalled {@link ISubParser} from the {@link #subParserList subparser-list}
 	 * @param mimeTypes a list of mimeTypes supported by the sub-parser
 	 */
 	public void removeSubParser(String mimeTypes) {
