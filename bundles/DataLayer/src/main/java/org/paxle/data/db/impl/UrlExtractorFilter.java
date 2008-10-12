@@ -182,6 +182,7 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 						));
 						
 					} catch (Throwable e) {
+						if (e instanceof InterruptedException) throw (InterruptedException) e;
 						logger.error(String.format(
 								"Unexpected '%s' while trying to store new URI into the command-db.",
 								e.getClass().getName()
