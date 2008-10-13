@@ -86,57 +86,6 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		public void insertValues(final Vector<String> row, final Event event, final ICommand cmd, final String lastFilter);
 	}
 	
-	private static enum TableDisplay implements TableColumnSpecs {
-		WORKING_ON(
-				Messages.getString("crawlingConsole.tbl1.comp"), //$NON-NLS-1$
-				Messages.getString("crawlingConsole.tbl1.depth"), //$NON-NLS-1$
-				Messages.getString("crawlingConsole.tbl1.result"), //$NON-NLS-2$
-				Messages.getString("crawlingConsole.tbl1.uri")), //$NON-NLS-3$
-		REJECTED(
-				Messages.getString("crawlingConsole.tbl2.comp"), //$NON-NLS-1$
-				Messages.getString("crawlingConsole.tbl2.depth"), //$NON-NLS-1$
-				Messages.getString("crawlingConsole.tbl2.result"), //$NON-NLS-2$
-				Messages.getString("crawlingConsole.tbl2.filter"), //$NON-NLS-3$
-				Messages.getString("crawlingConsole.tbl2.reason"), //$NON-NLS-4$
-				Messages.getString("crawlingConsole.tbl2.uri")); //$NON-NLS-5$
-		
-		private final Object[] columnHeaders;
-		
-		private TableDisplay(final Object... columnHeaders) {
-			this.columnHeaders = columnHeaders;
-		}
-		
-		public Object[] getColumnHeaders() {
-			return columnHeaders;
-		}
-		
-		public void insertValues(Vector<String> row, Event event, ICommand cmd, final String lastFilter) {
-			final String uri = (String)event.getProperty(CommandEvent.PROP_COMMAND_LOCATION);
-			String compId = (String)event.getProperty(CommandEvent.PROP_COMPONENT_ID);
-			if (compId.endsWith(".in")) { //$NON-NLS-1$
-				compId = compId.substring(0, compId.length() - ".in".length()); //$NON-NLS-1$
-			} else if (compId.endsWith(".out")) { //$NON-NLS-1$
-				compId = compId.substring(0, compId.length() - ".out".length()); //$NON-NLS-1$
-			}
-			final MWComponents mwc = MWComponents.valueOfID(compId);
-			// System.out.println("mwc: " + ((mwc == null) ? compId : mwc.toString())); //$NON-NLS-1$
-			row.add((mwc == null) ? compId : mwc.toString());
-			row.add((cmd == null) ? "-" : Integer.toString(cmd.getDepth()));
-			row.add((cmd == null) ? Messages.getString("crawlingConsole.unknown") : cmd.getResult().name()); //$NON-NLS-1$
-			switch (this) {
-				case WORKING_ON:
-					break;
-				case REJECTED:
-					row.add((lastFilter == null) ? Messages.getString("crawlingConsole.unknown") : lastFilter); //$NON-NLS-1$
-					row.add((cmd == null) ? Messages.getString("crawlingConsole.unknown") : cmd.getResultText()); //$NON-NLS-1$
-					break;
-			}
-			try {
-				row.add(URLDecoder.decode(uri, Charset.defaultCharset().name()));
-			} catch (UnsupportedEncodingException e) { /* cannot happen as we use the default charset here */ }
-		}
-	}
-	
 	private static enum Events {
 		IN_QUEUE, OUT_QUEUE, MWCOMP_STATE
 	}
@@ -304,9 +253,21 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 			updateCpb(false, true, false);
 		} else if (ac == AC_SETTINGS) {
 			final boolean sel = ((JToggleButton)e.getSource()).isSelected();
-			if (sel && options.getComponentCount() == 0)
+			final boolean notInitialized = sel && options.getComponentCount() == 0;
+			if (notInitialized)
 				initOptions();
+			final Runnable sr = new Runnable() {
+				public void run() {
+					int height = options.getHeight();
+					frame.setSize(frame.getWidth(), frame.getHeight() + ((sel) ? height : -height));
+				}
+			};
+			if (!notInitialized)
+				sr.run();
 			options.setVisible(sel);
+			if (notInitialized)
+				SwingUtilities.invokeLater(sr);
+				
 		}
 		if (ac == AC_SELECT || ac == AC_ENQUEUED || ac == AC_DESTROYED) {
 			final String compItem = (String)cbox.getSelectedItem();
@@ -640,7 +601,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 					
 					case C_DATE: {
 						final ICrawlerDocument cdoc = (cmd == null) ? null : cmd.getCrawlerDocument();
-						row.add((cdoc == null) ? unknown : DateFormat.getDateTimeInstance().format(cdoc.getCrawlerDate()));
+						row.add((cdoc == null || cdoc.getCrawlerDate() == null) ? unknown : DateFormat.getDateTimeInstance().format(cdoc.getCrawlerDate()));
 					} break;
 					
 					case C_LANGS: {
@@ -650,7 +611,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 					
 					case C_LASTMOD: {
 						final ICrawlerDocument cdoc = (cmd == null) ? null : cmd.getCrawlerDocument();
-						row.add((cdoc == null) ? unknown : DateFormat.getDateTimeInstance().format(cdoc.getLastModDate()));
+						row.add((cdoc == null || cdoc.getLastModDate() == null) ? unknown : DateFormat.getDateTimeInstance().format(cdoc.getLastModDate()));
 					} break;
 					
 					case C_MD5: {
@@ -723,7 +684,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 					
 					case P_LASTMOD: {
 						final IParserDocument pdoc = (cmd == null) ? null : cmd.getParserDocument();
-						row.add((pdoc == null) ? unknown : DateFormat.getDateTimeInstance().format(pdoc.getLastChanged()));
+						row.add((pdoc == null || pdoc.getLastChanged() == null) ? unknown : DateFormat.getDateTimeInstance().format(pdoc.getLastChanged()));
 					} break;
 					
 					case P_LINKS: {

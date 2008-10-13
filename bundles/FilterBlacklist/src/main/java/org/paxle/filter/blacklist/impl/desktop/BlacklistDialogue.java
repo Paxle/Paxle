@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -75,6 +76,9 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 		this.flm = new FilterListsComboBoxModel(blacklistFilter);
 		this.listSelCBox = new JComboBox(flm);
 		init();
+	}
+	
+	public void setFrame(Frame frame) {
 	}
 	
 	private void init() {

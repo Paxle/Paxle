@@ -384,6 +384,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		Frame frame = serviceFrames.get(c);
 		if (frame == null)
 			serviceFrames.put(c, frame = createDefaultFrame(c, id));
+		c.setFrame(frame);
 		show(frame);
 		return frame;
 	}

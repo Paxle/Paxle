@@ -3,6 +3,7 @@ package org.paxle.desktop.impl.dialogues;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -20,6 +21,7 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 	public static final String PANEL_SIZE = "windowSize";
 	
 	protected final DesktopServices services;
+	protected Frame frame;
 	private final HashMap<Object,ServiceRegistration> regs = new HashMap<Object,ServiceRegistration>();
 	
 	public DIServicePanel(final DesktopServices services) {
@@ -63,6 +65,10 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 			} catch (IllegalStateException e) { e.printStackTrace(); }
 			it.remove();
 		}
+	}
+	
+	public void setFrame(final Frame frame) {
+		this.frame = frame;
 	}
 	
 	public Container getContainer() {
