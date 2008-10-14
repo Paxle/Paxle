@@ -33,6 +33,8 @@ import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.IFilterQueue;
+import org.paxle.core.metadata.IMetaData;
+import org.paxle.core.metadata.IMetaDataProvider;
 
 public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedService {
 	public static final String PID = IFilterManager.class.getName();
@@ -400,12 +402,21 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 		return filterContextPIDs.toArray(new String[filterContextPIDs.size()]);
 	}
 
-	private String[] getFilterNames(SortedSet<FilterContext> filtersForTarget, boolean inclDisabled) {
+	private String[] getFilterNames(Locale locale, SortedSet<FilterContext> filtersForTarget, boolean inclDisabled) {
 		ArrayList<String> filterNames = new ArrayList<String>(filtersForTarget.size());
 		
 		for (FilterContext fContext : filtersForTarget) {
-			// XXX: we have no real filter-name at the moment
-			filterNames.add(fContext.getFilter().getClass().getName());
+			String name = null;
+			final IFilter<?> filter = fContext.getFilter();
+			if (filter instanceof IMetaDataProvider) {
+				final IMetaData metadata = ((IMetaDataProvider)filter).getMetadata(locale);
+				if (metadata != null)
+					name = metadata.getName();
+			}
+			if (name == null)
+				// we have no real filter-name at the moment
+				name = filter.getClass().getName();
+			filterNames.add(name);
 		}
 		
 		return filterNames.toArray(new String[filterNames.size()]);
@@ -463,7 +474,7 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 							}
 	
 							public String[] getOptionLabels() {
-								return getFilterNames(filtersForTarget, true);
+								return getFilterNames(locale, filtersForTarget, true);
 							}
 	
 							public String[] getOptionValues() {
