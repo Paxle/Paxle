@@ -5,7 +5,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>Paxle - Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -49,6 +49,7 @@
 							org.paxle.core.crypt;version="${pom.version}", 
 							org.paxle.core.io;version="${pom.version}",
 							org.paxle.core.prefs;version="${pom.version}",
+							org.paxle.core.metadata;version="${pom.version}",
 							org.paxle.util.ac;version="${pom.version}",
 							org.paxle.util.buffer;version="${pom.version}"
 						</Export-Package>

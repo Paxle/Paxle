@@ -55,6 +55,8 @@ public class DataManager<Data> implements IDataManager {
 			 * DATA SOURCES
 			 * ================================================================ */
 			
+			logger.debug("DataSource '" + service + "' registering as '" + ID + "'");
+			
 			// ensure that we have only one data-source with the given ID
 			if (this.dataSources.contains(ID)) {
 				throw new IllegalArgumentException("The DataSource ID must be unique.");
@@ -65,6 +67,7 @@ public class DataManager<Data> implements IDataManager {
 			if (consumers != null) {
 				for (IDataConsumer<Data> consumer : consumers) {
 					consumer.setDataSource((IDataSource<Data>) service);
+					logger.debug("Set DataSource for DataConsumer '" + consumer + "': " + service);
 				}
 			}			
 			
@@ -74,7 +77,9 @@ public class DataManager<Data> implements IDataManager {
 		} else if (interfaceName.equals(IDataSink.class.getName())) {
 			/* ================================================================
 			 * DATA SINKS
-			 * ================================================================ */			
+			 * ================================================================ */		
+			
+			logger.debug("DataSink '" + service + "' registering as '" + ID + "'");	
 			
 			// ensure that we have only one data-sink with the given ID
 			if (this.dataSinks.contains(ID)) {
@@ -86,6 +91,7 @@ public class DataManager<Data> implements IDataManager {
 			if (providers != null) {
 				for (IDataProvider<Data> provider : providers) {
 					provider.setDataSink((IDataSink<Data>)service);
+					logger.debug("Set DataSink for DataProvider '" + provider + "': " + service);
 				}
 			}
 			
@@ -97,10 +103,13 @@ public class DataManager<Data> implements IDataManager {
 			 * DATA PROVIDERS
 			 * ================================================================ */			
 			
+			logger.debug("DataProvider '" + service + "' registering as '" + ID + "'");
+			
 			// determine if the data-sink that is required by this provider is already registered
 			IDataSink<Data> sink = this.dataSinks.get(ID);
 			if (sink != null) {
 				((IDataProvider<Data>)service).setDataSink(sink);
+				logger.debug("Set DataSink for DataProvider '" + service + "': " + sink);
 			}
 			
 			// add the provider into our list
@@ -113,12 +122,14 @@ public class DataManager<Data> implements IDataManager {
 			 * DATA CONSUMER
 			 * ================================================================ */			
 			
+			logger.debug("DataConsumer '" + service + "' registering as '" + ID + "'");
+			
 			// determine if the data-source that is required by this consumer is already registered
 			IDataSource<Data> source = this.dataSources.get(ID);
 			if (source != null) {
 				((IDataConsumer<Data>)service).setDataSource(source);
+				logger.debug("Set DataSource for DataConsumer '" + service + "': " + source);
 			}
-			
 			
 			// add the consumer into our list
 			List<IDataConsumer<Data>> consumerList = this.dataConsumers.get(ID);
