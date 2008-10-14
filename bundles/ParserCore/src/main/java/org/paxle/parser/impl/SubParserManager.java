@@ -140,6 +140,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void addSubParser(final ServiceReference ref) {
 		final String[] mimeTypes = getMimeTypes(ref);
 		if (mimeTypes == null)
@@ -157,10 +158,13 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 			));
 		}
 		if (this.enableDefault) try {
-			config.update();
+			final Dictionary props = config.getProperties();
+			props.put(ENABLED_MIMETYPES, this.enabledServices.toArray(new String[this.enabledServices.size()]));
+			config.update(props);
 		} catch (IOException e) { logger.error("error updating configuration", e); }
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void removeSubParser(final ServiceReference ref) {
 		final String[] mimeTypes = getMimeTypes(ref);
 		if (mimeTypes == null)
@@ -178,7 +182,9 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 			));
 		}
 		if (this.enableDefault) try {
-			config.update();
+			final Dictionary props = config.getProperties();
+			props.put(ENABLED_MIMETYPES, this.enabledServices.toArray(new String[this.enabledServices.size()]));
+			config.update(props);
 		} catch (IOException e) { logger.error("error updating configuration", e); }
 	}
 	
@@ -207,7 +213,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		final TreeSet<ServiceReference> refs = this.subParserList.get(mimeType);
 		if (refs == null)
 			return null;
-		final ArrayList<ISubParser> list = new ArrayList<ISubParser>();
+		final ArrayList<ISubParser> list = new ArrayList<ISubParser>(refs.size());
 		for (final ServiceReference ref : refs)
 			if (isEnabled(mimeType, ref))
 				list.add((ISubParser)context.getService(ref));

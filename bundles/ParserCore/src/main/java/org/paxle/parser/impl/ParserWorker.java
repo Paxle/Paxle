@@ -1,5 +1,8 @@
 package org.paxle.parser.impl;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.charset.ICharsetDetector;
@@ -118,10 +121,10 @@ public class ParserWorker extends AWorker<ICommand> {
 			}
 
 			// get appropriate parser
-			this.logger.debug(String.format("Getting parser for mime-type '%s' ...", mimeType));
-			ISubParser parser = this.subParserManager.getSubParser(mimeType);
+			this.logger.debug(String.format("Getting parsers for mime-type '%s' ...", mimeType));
+			final Collection<ISubParser> parsers = this.subParserManager.getSubParsers(mimeType);
 			
-			if (parser == null) {
+			if (parsers == null || parsers.size() == 0) {
 				// document not parsable
 				this.logger.error(String.format("No parser for resource '%s' and mime-type '%s' found.",command.getLocation(),mimeType));
 				command.setResult(
@@ -130,20 +133,41 @@ public class ParserWorker extends AWorker<ICommand> {
 				);
 				return;
 			}
-			this.logger.debug(String.format("Parser '%s' found for mime-type '%s'.", parser.getClass().getName(), mimeType));
-
+			this.logger.debug(String.format("Parsers found for mime-type '%s': %s", mimeType, parsers));
+			
 			// parse resource
-			try {
-				this.logger.info(String.format("Parsing resource '%s' with mime-type '%s' ...", command.getLocation(), mimeType));
-				parserDoc = parser.parse(
-						command.getLocation(), 
-						command.getCrawlerDocument().getCharset(), 
-						command.getCrawlerDocument().getContent()
-				);
-			} catch (ParserException e) {
-				parserDoc = new ParserDocument();
-				parserDoc.setStatus(IParserDocument.Status.FAILURE, e.getMessage());
-			}
+			final Iterator<ISubParser> it = parsers.iterator();
+			ISubParser parser;
+			do {
+				parser = it.next();
+				this.logger.info(String.format("Parsing resource '%s' (%s) with parser '%s' ...",
+						command.getLocation(), mimeType, parser.getClass().getName()));
+				try {
+					parserDoc = parser.parse(
+							command.getLocation(), 
+							command.getCrawlerDocument().getCharset(), 
+							command.getCrawlerDocument().getContent()
+					);
+					if (parserDoc == null || parserDoc.getStatus() == null || parserDoc.getStatus() != IParserDocument.Status.OK) {
+						logger.info(String.format("Unknown error parsing '%s' (%s) with parser '%s'",
+								command.getLocation(), mimeType, parser.getClass().getName()));
+						continue;
+					}
+					break;
+				} catch (ParserException e) {
+					final String msg = String.format("Error parsing '%s' (%s) with parser '%s': %s",
+							command.getLocation(), mimeType, parser.getClass().getName(), e.getMessage());
+					if (logger.isDebugEnabled()) {
+						logger.warn(msg, e);
+					} else {
+						logger.warn(msg);
+					}
+					if (!it.hasNext()) {
+						parserDoc = new ParserDocument();
+						parserDoc.setStatus(IParserDocument.Status.FAILURE, e.getMessage());
+					}
+				}
+			} while (it.hasNext());
 			
 			/* ================================================================
 			 * Process parser response
@@ -152,7 +176,7 @@ public class ParserWorker extends AWorker<ICommand> {
 			if (parserDoc == null) {
 				command.setResult(
 						ICommand.Result.Failure, 
-						String.format("Parser '%s' returned no parser-document.",parserDoc.getClass().getName())
+						String.format("Parser '%s' returned no parser-document.",parser.getClass().getName())
 				);
 				return;
 			} else if (parserDoc.getStatus() == null || parserDoc.getStatus() != IParserDocument.Status.OK) {

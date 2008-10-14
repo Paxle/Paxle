@@ -12,6 +12,12 @@ public interface ISubParserManager {
 	
 	/**
 	 * @param mimeType the mimetype
+	 * @return a collection of all available {@link ISubParser sub-parsers} for the mime-type
+	 */
+	public Collection<ISubParser> getSubParsers(String mimeType);
+	
+	/**
+	 * @param mimeType the mimetype
 	 * @return a {@link ISubParser parser} supporting the given mimetype.
 	 */	
 	public ISubParser getSubParser(String mimeType);	
