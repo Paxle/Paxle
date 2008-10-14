@@ -121,7 +121,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	 */
 	private DynamicBloomFilter bloomFilter = null;
 	
-	private long cntTotal, cntCrawlerQueue;
+	private volatile long cntTotal, cntCrawlerQueue;
 	
 	public CommandDB(URL configURL, List<URL> mappings, ICommandTracker commandTracker) {
 		this(configURL, mappings, null, commandTracker);
@@ -168,7 +168,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				throw new ExceptionInInitializerError(ex);
 			}
 			this.manipulateDbSchema();
-			cntTotal = this.size();
+			cntTotal = this.size(null);
 			cntCrawlerQueue = this.size("enqueued");
 			System.out.println("command-db size: " + cntTotal + ", to crawl: " + cntCrawlerQueue);
 			
@@ -280,10 +280,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				final Iterator<?> it = query.iterate();
 				
 				final Key key = new Key();
+				final DynamicBloomFilter bf = bloomFilter;
 				while (it.hasNext() && !super.isInterrupted()) {
-					final URI location = (URI)it.next();
-					key.set(location.toString().getBytes(UTF8), 1.0);
-					bloomFilter.add(key);
+					key.set(it.next().toString().getBytes(UTF8), 1.0);
+					bf.add(key);
 					count++;
 				}
 				
@@ -408,6 +408,11 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				
 				// create index on command-status
 				p = c.prepareStatement("CREATE INDEX RESULT_IDX on COMMAND (result)");
+				p.execute();
+				p.close();
+				
+				// create index on command-status text
+				p = c.prepareStatement("CREATE INDEX RESULTTEXT_IDX on COMMAND (resulttext)");
 				p.execute();
 				p.close();
 			}
@@ -595,6 +600,9 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			query.setCacheMode(CacheMode.IGNORE);
 			ScrollableResults sr = query.scroll(ScrollMode.FORWARD_ONLY); // (ScrollMode.FORWARD_ONLY);
 			
+			final Key key = new Key();
+			final DynamicBloomFilter bloomFilter = this.bloomFilter;
+			final Cache urlExistsCache = this.urlExistsCache;
 			// loop through the available commands
 			while(sr.next() && result.size() < limit) {
 				ICommand cmd = (ICommand) sr.get()[0];
@@ -623,12 +631,12 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				*/
 				cmd.setResultText("Enqueued");
 				session.update(cmd);
-				cntCrawlerQueue--;
 				
 				// add command-location into caches
-				this.putInDoubleURLs(cmd.getLocation());
+				key.set(cmd.getLocation().toString().getBytes(UTF8), 1.0);
+				bloomFilter.add(key);
 				Element element = new Element(cmd.getLocation(), null);
-				this.urlExistsCache.put(element);
+				urlExistsCache.put(element);
 				
 				result.add(cmd);
 			}
@@ -704,6 +712,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		
 		final boolean checkBloom = (populateThread == null || !populateThread.isAlive());
 		
+		final DynamicBloomFilter bloomFilter = this.bloomFilter;
+		final Cache urlExistsCache = this.urlExistsCache;
 		while (locationIterator.hasNext()) {
 			final URI loc = locationIterator.next();
 			if (checkBloom) {
@@ -774,6 +784,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		
 		// add new commands into DB
 		// process all URIs which have been checked against the DB
+		final Cache urlExistsCache = this.urlExistsCache;
 		for (int i=0; i<locations.size(); i++) {
 			final URI location = locations.get(i);
 			if (knownLocations.contains(location)) {
@@ -788,7 +799,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			// not needed to put into 1st cache as these URIs already have been recognized as member of the cache
 			// add command-location into cache
 			Element element = new Element(location, null);
-			this.urlExistsCache.put(element);
+			urlExistsCache.put(element);
 		}
 		return known;
 	}
@@ -850,14 +861,16 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	 * @see ICommandDB#size()
 	 */
 	public long size() {
-		return this.size(null);
+		// return this.size(null);
+		return cntTotal;
 	}
 	
 	/**
 	 * @see ICommandDB#enqueuedSize()
 	 */
 	public long enqueuedSize() {
-		return this.size("enqueued");
+		// return this.size("enqueued");
+		return cntCrawlerQueue;
 	}
 	
 	private long size(String type) {
@@ -979,15 +992,18 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 								Long.valueOf(cntTotal)));
 					
 					if (commands != null && commands.size() > 0) {
+						final ICommandTracker commandTracker = CommandDB.this.commandTracker;
+						final IDataSink<ICommand> sink = CommandDB.this.sink;
 						for (ICommand command : commands) {
 							// notify the command-tracker about the creation of the command
-							if (CommandDB.this.commandTracker != null) {
-								CommandDB.this.commandTracker.commandCreated(ICommandDB.class.getName(), command);
+							if (commandTracker != null) {
+								commandTracker.commandCreated(ICommandDB.class.getName(), command);
 							}
 							
 							// System.out.println(CommandDB.this.isKnown(command.getLocation()));
-							CommandDB.this.sink.putData(command);
+							sink.putData(command);
 							// commandToXML(command);
+							cntCrawlerQueue--;
 						} 
 					} else {
 						// sleep for a while
