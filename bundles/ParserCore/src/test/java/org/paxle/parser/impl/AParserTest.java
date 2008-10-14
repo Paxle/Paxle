@@ -43,6 +43,10 @@ public abstract class AParserTest extends TestCase {
 			public URI normalizeReference(String reference, Charset charset) {
 				return normalizeReference(reference);
 			}
+			public int getDefaultPort(String protocol) {
+				// TODO Auto-generated method stub
+				return 0;
+			}
 		});
 		ParserContext.setCurrentContext(this.parserContext);		
 	}

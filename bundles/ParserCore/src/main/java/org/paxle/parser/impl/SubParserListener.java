@@ -21,17 +21,13 @@ public class SubParserListener implements ServiceListener {
 	 */	
 	private SubParserManager subParserManager = null;
 	
-	/**
-	 * The {@link BundleContext osgi-bundle-context} of this bundle
-	 */	
-	private BundleContext context = null;
-	
 	public SubParserListener(SubParserManager subParserManager, BundleContext context) throws InvalidSyntaxException {
-		this.context = context;
 		this.subParserManager = subParserManager;
 		
 		ServiceReference[] services = context.getServiceReferences(null,FILTER);
-		if (services != null) for (ServiceReference service : services) serviceChanged(service, ServiceEvent.REGISTERED);	
+		if (services != null)
+			for (ServiceReference service : services)
+				serviceChanged(service, ServiceEvent.REGISTERED);
 	}
 	
 	/**
@@ -45,25 +41,13 @@ public class SubParserListener implements ServiceListener {
 	
 	private void serviceChanged(ServiceReference reference, int eventType) {
 		if (reference == null) return;		
-				
-		// the protocol supported by the detected sub-crawler
-		Object mimeTypes = reference.getProperty(ISubParser.PROP_MIMETYPES);		
 		
-		if (eventType == ServiceEvent.REGISTERED) {			
-			// a reference to the service
-			ISubParser subParser = (ISubParser) this.context.getService(reference);				
-			
+		if (eventType == ServiceEvent.REGISTERED) {
 			// new service was installed
-			if (mimeTypes instanceof String[])
-				this.subParserManager.addSubParser((String[])mimeTypes, subParser);
-			else if (mimeTypes instanceof String) 
-				this.subParserManager.addSubParser((String)mimeTypes, subParser);
+			this.subParserManager.addSubParser(reference);
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			// service was uninstalled
-			if (mimeTypes instanceof String[])
-				this.subParserManager.removeSubParser((String[])mimeTypes);
-			else if (mimeTypes instanceof String) 
-				this.subParserManager.removeSubParser((String)mimeTypes);
+			this.subParserManager.removeSubParser(reference);
 		} else if (eventType == ServiceEvent.MODIFIED) {
 			// service properties have changed
 		}		

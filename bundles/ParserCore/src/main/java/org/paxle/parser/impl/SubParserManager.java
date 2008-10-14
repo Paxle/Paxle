@@ -2,6 +2,7 @@ package org.paxle.parser.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,11 +11,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationException;
@@ -22,55 +28,65 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.ObjectClassDefinition;
+import org.paxle.core.metadata.IMetaData;
+import org.paxle.core.metadata.IMetaDataProvider;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ISubParserManager;
 
-public class SubParserManager implements ISubParserManager, MetaTypeProvider, ManagedService {
+public class SubParserManager implements ISubParserManager, MetaTypeProvider, ManagedService, IMetaDataProvider {
 	public static final String PID = ISubParserManager.class.getName();
 	
 	/* ==============================================================
 	 * CM properties
 	 * ============================================================== */	
 	private static final String ENABLED_MIMETYPES = PID + "." + "enabledMimeTypes";
+	private static final String ENABLE_DEFAULT = PID + "." + "enableDefault";
 	
 	/**
 	 * A {@link HashMap} containing the mime-types that is supported by the sub-parser as key and
 	 * the {@link ServiceReference} as value.
 	 */
-	private final HashMap<String, ISubParser> subParserList = new HashMap<String, ISubParser>();
+	private final HashMap<String,TreeSet<ServiceReference>> subParserList = new HashMap<String,TreeSet<ServiceReference>>();
 	
 	/**
-	 * A list of enabled mime-types
+	 * A list of enabled sub-parsers. The list contains values in the form of
+	 * <code>${bundle-symbolic-name}.${service-pid}.${mime-type}</code> or
+	 * <code>${bundle-symbolic-name}.${service-class-name}.${mime-type}</code>
 	 */
-	private final Set<String> enabledMimeTypes = new HashSet<String>();	
-		
+	private final Set<String> enabledServices = new HashSet<String>();	
+	
 	/**
 	 * For logging
 	 */
-	private Log logger = LogFactory.getLog(this.getClass());
+	private final Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
 	 * The CM configuration that belongs to this component
 	 */
 	private final Configuration config;	
-		
+	
 	/**
 	 * A list of {@link Locale} for which a {@link ResourceBundle} exists
 	 * @see MetaTypeProvider#getLocales()
 	 */
-	private String[] locales;	
+	private final String[] locales;
+	
+	private boolean enableDefault = true;
+	
+	private final BundleContext context;
 	
 	/**
 	 * @param config the CM configuration that belongs to this component
 	 * @throws IOException
 	 * @throws ConfigurationException
 	 */	
-	public SubParserManager(Configuration config, String[] locales) throws IOException, ConfigurationException {
+	public SubParserManager(Configuration config, String[] locales, final BundleContext context) throws IOException, ConfigurationException {
 		if (config == null) throw new NullPointerException("The CM configuration is null");
 		if (locales == null) throw new NullPointerException("The locale array is null");
 		
 		this.config = config;
 		this.locales = locales;
+		this.context = context;
 		
 		// initialize CM values
 		if (config.getProperties() == null) {
@@ -81,52 +97,89 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		this.updated(config.getProperties());
 	}
 	
-	/**
-	 * Adds a newly detected {@link ISubParser} to the {@link #subParserList subparser-list}
-	 * @param mimeTypes a list of mimeTypes supported by the sub-parser
-	 * @param subParser the newly detected sub-parser
-	 */
-	public void addSubParser(String mimeTypes, ISubParser subParser) {
-		if (mimeTypes == null) throw new NullPointerException("The mimetypes string must not be null.");
-		if (subParser == null) throw new NullPointerException("The parser object must not be null.");
-		
-		this.addSubParser(mimeTypes.split(";|,"), subParser);
+	private String[] getMimeTypes(final ServiceReference ref) {
+		final Object mimeTypesObj = ref.getProperty(ISubParser.PROP_MIMETYPES);
+		if (mimeTypesObj instanceof String) {
+			return ((String)mimeTypesObj).split(";|,");
+		} else if (mimeTypesObj instanceof String[]) {
+			return (String[])mimeTypesObj;
+		} else {
+			final ISubParser p = (ISubParser)context.getService(ref);
+			logger.warn(String.format("Parser '%s' registered with no mime-types to the framework", p.getClass().getName()));
+			final Collection<String> mimeTypes = p.getMimeTypes();
+			if (mimeTypes == null || mimeTypes.size() == 0) {
+				logger.error(String.format("Parser '%s' does not provide support for any mime-types", p.getClass().getName()));
+				return null;
+			}
+			context.ungetService(ref);
+			return mimeTypes.toArray(new String[mimeTypes.size()]);
+		}
 	}
 	
-	public void addSubParser(String[] mimeTypes, ISubParser subParser) {
-		if (mimeTypes == null) throw new NullPointerException("The mimetype-array must not be null.");
-		if (subParser == null) throw new NullPointerException("The parser object must not be null.");
-		
+	private String keyFor(final String mimeType, final ServiceReference ref) {
+		final String bundle = (String)ref.getBundle().getHeaders().get(Constants.BUNDLE_SYMBOLICNAME);
+		String pid = (String)ref.getProperty(Constants.SERVICE_PID);
+		if (pid == null)
+			pid = context.getService(ref).getClass().getName();
+		final StringBuilder key = new StringBuilder(mimeType.length() + bundle.length() + pid.length() + 2);
+		key.append(bundle).append('.')
+		.append(pid).append('.')
+		.append(mimeType);
+		return key.toString().intern();
+	}
+	
+	private boolean isEnabled(final String mimeType, final ServiceReference ref) {
+		return this.enabledServices.contains(keyFor(mimeType, ref));
+	}
+	
+	private void setEnabled(final String mimeType, final ServiceReference ref, final boolean enabled) {
+		if (enabled) {
+			this.enabledServices.add(keyFor(mimeType, ref));
+		} else {
+			this.enabledServices.remove(keyFor(mimeType, ref));
+		}
+	}
+	
+	public void addSubParser(final ServiceReference ref) {
+		final String[] mimeTypes = getMimeTypes(ref);
+		if (mimeTypes == null)
+			return;
 		for (String mimeType : mimeTypes) {
-			this.subParserList.put(mimeType.trim(), subParser);
-			this.logger.info(String.format(
-					"Parser '%s' for mimetypes '%s' was installed.",
-					subParser.getClass().getName(),
-					mimeType
-			));
-		}			
-	}
-	
-	/**
-	 * Removes a uninstalled {@link ISubParser} from the {@link #subParserList subparser-list}
-	 * @param mimeTypes a list of mimeTypes supported by the sub-parser
-	 */
-	public void removeSubParser(String mimeTypes) {
-		if (mimeTypes == null) throw new NullPointerException("The mimetypes string must not be null.");
-		
-		this.removeSubParser(mimeTypes.split(";|,"));
-	}	
-	
-	public void removeSubParser(String[] mimeTypes) {
-		if (mimeTypes == null) throw new NullPointerException("The mimetype-array must not be null.");
-		
-		for (String mimeType : mimeTypes) {			
-			this.subParserList.remove(mimeType.trim());
+			mimeType = mimeType.trim();
+			TreeSet<ServiceReference> refs = this.subParserList.get(mimeType);
+			if (refs == null)
+				this.subParserList.put(mimeType, refs = new TreeSet<ServiceReference>());
+			refs.add(ref);
+			setEnabled(mimeType, ref, this.enableDefault);
 			this.logger.info(String.format(
 					"Parser for mimetypes '%s' was installed.",
 					mimeType
 			));
-		}			
+		}
+		if (this.enableDefault) try {
+			config.update();
+		} catch (IOException e) { logger.error("error updating configuration", e); }
+	}
+	
+	public void removeSubParser(final ServiceReference ref) {
+		final String[] mimeTypes = getMimeTypes(ref);
+		if (mimeTypes == null)
+			return;
+		for (String mimeType : mimeTypes) {
+			mimeType = mimeType.trim();
+			TreeSet<ServiceReference> refs = this.subParserList.get(mimeType);
+			if (refs == null)
+				continue;
+			refs.remove(ref);
+			setEnabled(mimeType, ref, false);
+			this.logger.info(String.format(
+					"Parser for mimetypes '%s' was uninstalled.",
+					mimeType
+			));
+		}
+		if (this.enableDefault) try {
+			config.update();
+		} catch (IOException e) { logger.error("error updating configuration", e); }
 	}
 	
 	/**
@@ -135,9 +188,30 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	 * @return a {@link ISubParser} which is capable to parse a document with the given mime-type
 	 */
 	public ISubParser getSubParser(String mimeType) {
-		if (mimeType == null) return null;
-		if (!this.enabledMimeTypes.contains(mimeType)) return null;
-		return this.subParserList.get(mimeType);
+		if (mimeType == null)
+			return null;
+		mimeType = mimeType.trim();
+		final TreeSet<ServiceReference> refs = this.subParserList.get(mimeType);
+		if (refs == null)
+			return null;
+		for (final ServiceReference ref : refs)
+			if (isEnabled(mimeType, ref))
+				return (ISubParser)context.getService(ref);
+		return null;
+	}
+	
+	public Collection<ISubParser> getSubParsers(String mimeType) {
+		if (mimeType == null)
+			return null;
+		mimeType = mimeType.trim();
+		final TreeSet<ServiceReference> refs = this.subParserList.get(mimeType);
+		if (refs == null)
+			return null;
+		final ArrayList<ISubParser> list = new ArrayList<ISubParser>();
+		for (final ServiceReference ref : refs)
+			if (isEnabled(mimeType, ref))
+				list.add((ISubParser)context.getService(ref));
+		return list;
 	}
 	
 	/**
@@ -147,15 +221,27 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	 * @return <code>true</code> if the given mime-tpye is supported or <code>false</code> otherwise
 	 */
 	public boolean isSupported(String mimeType) {
-		if (!this.enabledMimeTypes.contains(mimeType)) return false;
-		return this.subParserList.containsKey(mimeType);
+		if (mimeType == null)
+			return false;
+		mimeType = mimeType.trim();
+		final TreeSet<ServiceReference> refs = this.subParserList.get(mimeType);
+		if (refs == null)
+			return false;
+		for (final ServiceReference ref : refs)
+			if (isEnabled(mimeType, ref))
+				return true;
+		return false;
 	}
-
+	
 	/**
 	 * @see ISubParserManager#getSubParsers()
 	 */
 	public Collection<ISubParser> getSubParsers() {
-		return Collections.unmodifiableCollection(this.subParserList.values());
+		final ArrayList<ISubParser> list = new ArrayList<ISubParser>();
+		for (final TreeSet<ServiceReference> refs : this.subParserList.values())
+			for (final ServiceReference ref : refs)
+				list.add((ISubParser)context.getService(ref));
+		return Collections.unmodifiableCollection(list);
 	}
 	
 	/**
@@ -167,7 +253,6 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		return Collections.unmodifiableCollection(Arrays.asList(keyArray));
 	}
 	
-
 	/**
 	 * @see ISubParserManager#disableMimeType(String)
 	 */
@@ -176,19 +261,23 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		try {
 			if (mimeType == null) return;
 			mimeType = mimeType.toLowerCase();
-
+			
 			// update enabled mimetype list
-			this.enabledMimeTypes.remove(mimeType);
+			final TreeSet<ServiceReference> refs = this.subParserList.get(mimeType.trim());
+			if (refs != null)
+				for (final ServiceReference ref : refs)
+					setEnabled(mimeType, ref, false);
 			
 			// updating CM
-			Dictionary<String,Object> props = this.config.getProperties();			
-			props.put(ENABLED_MIMETYPES, this.enabledMimeTypes.toArray(new String[this.enabledMimeTypes.size()]));
+			Dictionary<String,Object> props = this.config.getProperties();
+			System.out.println("disabled '" + mimeType + "': " + enabledServices);
+			props.put(ENABLED_MIMETYPES, enabledServices.toArray(new String[enabledServices.size()]));
 			this.config.update(props);
 		} catch (IOException e) {
 			this.logger.error(e);
 		}
 	}
-
+	
 	/**
 	 * @see ISubParserManager#enableMimeType(String)
 	 */
@@ -197,123 +286,197 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		try {
 			if (mimeType == null) return;
 			mimeType = mimeType.toLowerCase();
-
+			
 			// updating enabled mimetype list
-			this.enabledMimeTypes.add(mimeType);
-
+			final TreeSet<ServiceReference> refs = this.subParserList.get(mimeType.trim());
+			if (refs != null)
+				for (final ServiceReference ref : refs)
+					setEnabled(mimeType, ref, true);
+			
 			// updating CM
-			Dictionary<String,Object> props = this.config.getProperties();			
-			props.put(ENABLED_MIMETYPES, this.enabledMimeTypes.toArray(new String[this.enabledMimeTypes.size()]));
+			Dictionary<String,Object> props = this.config.getProperties();
+			System.out.println("enabled '" + mimeType + "': " + enabledServices);
+			props.put(ENABLED_MIMETYPES, enabledServices.toArray(new String[enabledServices.size()]));
 			this.config.update(props);
 		} catch (IOException e) {
 			this.logger.error(e);
 		}
 	}
-
+	
+	public Set<String> enabledMimeTypes() {
+		HashSet<String> mimeTypes = new HashSet<String>();
+		for (final String enabledService : this.enabledServices) {
+			final String mimeType = enabledService.substring(enabledService.lastIndexOf('.') + 1);
+			if (this.subParserList.containsKey(mimeType))
+				mimeTypes.add(mimeType);
+		}
+		
+		return mimeTypes;
+	}
+	
 	/**
 	 * @see ISubParserManager#disabledMimeType()
 	 */
 	public Set<String> disabledMimeTypes() {
-		// get all available protocols and remove enabled protocols
+		// get all available mime-types and remove enabled mime-types
 		HashSet<String> mimeTypes = new HashSet<String>(this.subParserList.keySet());
-		mimeTypes.removeAll(this.enabledMimeTypes);		
+		mimeTypes.removeAll(enabledMimeTypes());
 		return mimeTypes;
 	}
-
+	
 	/**
 	 * @see MetaTypeProvider#getLocales()
 	 */
 	public String[] getLocales() {
 		return this.locales;
 	}
-
-	/**
-	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
-	 */
-	@SuppressWarnings("unchecked")
-	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
-		final HashMap<String, ISubParser> parsers = (HashMap<String, ISubParser>) this.subParserList.clone();
+	
+	private final class OCD implements ObjectClassDefinition, IMetaData {
 		
-		Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
-		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + ISubParserManager.class.getSimpleName(), locale);	
+		@SuppressWarnings("unchecked")
+		private final HashMap<String,TreeSet<ServiceReference>> parsers = (HashMap<String,TreeSet<ServiceReference>>)subParserList.clone();
+		private final Locale locale;
+		private final ResourceBundle rb;
 		
-		return new ObjectClassDefinition() {
-			public AttributeDefinition[] getAttributeDefinitions(int filter) {
-				return new AttributeDefinition[]{
+		public OCD(final Locale locale) {
+			this.locale = locale;
+			this.rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + ISubParserManager.class.getSimpleName(), locale);
+		}
+		
+		public AttributeDefinition[] getAttributeDefinitions(int filter) {
+			return new AttributeDefinition[] {
+					// Attribute definition for ENABLE_DEFAULT
+					new AttributeDefinition() {
+						public int getCardinality() 		{ return 0; }
+						public String[] getDefaultValue() 	{ return new String[] { Boolean.TRUE.toString() }; }
+						public String getDescription() 		{ return rb.getString("subparserManager.enableDefault.desc"); }
+						public String getID() 				{ return ENABLE_DEFAULT; }
+						public String getName() 			{ return rb.getString("subparserManager.enableDefault.name"); }
+						public String[] getOptionLabels() 	{ return new String[] {
+								rb.getString("subparserManager.enableDefault.val.true"),
+								rb.getString("subparserManager.enableDefault.val.false")
+						}; }
+						public String[] getOptionValues() 	{ return new String[] { Boolean.TRUE.toString(), Boolean.FALSE.toString() }; }
+						public int getType() 				{ return BOOLEAN; }
+						public String validate(String value) { return null; }
+					},
+					
 					// Attribute definition for ENABLED_MIMETYPES
-					new AttributeDefinition(){
-						private String[] getSupportedMimeTypes() {
-							// get all supported protocols and sort them
-							String[] protocols = parsers.keySet().toArray(new String[parsers.size()]);
-							Arrays.sort(protocols);							
-							return protocols;							
+					new AttributeDefinition() {
+						
+						private final String[] optionValues, optionLabels; {
+							
+							final TreeMap<String,String> options = new TreeMap<String,String>();
+							for (final Map.Entry<String,TreeSet<ServiceReference>> entry : parsers.entrySet())
+								for (final ServiceReference ref : entry.getValue()) {
+									final String key = keyFor(entry.getKey(), ref);
+									
+									final Object service = context.getService(ref);
+									IMetaData metadata = null; 
+									if (service instanceof IMetaDataProvider)
+										metadata = ((IMetaDataProvider)service).getMetadata(locale);
+									
+									String name = null;
+									if (metadata != null)
+										name = metadata.getName();
+									if (name == null)
+										name = service.getClass().getName();
+									context.ungetService(ref);
+									
+									options.put(key, name + " (" + entry.getKey() + ")");
+								}
+							
+							optionValues = options.keySet().toArray(new String[options.size()]);
+							optionLabels = options.values().toArray(new String[options.size()]);
 						}
 						
 						public int getCardinality() {
 							return parsers.size();
 						}
-
+						
 						public String[] getDefaultValue() {
-							return this.getSupportedMimeTypes();
+							return this.optionValues;
 						}
-
+						
 						public String getDescription() {
 							return rb.getString("subparserManager.enabledMimeTypes.desc");
 						}
-
+						
 						public String getID() {
 							return ENABLED_MIMETYPES;
 						}
-
+						
 						public String getName() {
 							return rb.getString("subparserManager.enabledMimeTypes.name");
 						}
-
+						
 						public String[] getOptionLabels() {
-							return this.getSupportedMimeTypes();
+							return this.optionLabels;
 						}
-
+						
 						public String[] getOptionValues() {
-							return this.getSupportedMimeTypes();
+							return this.optionValues;
 						}
-
+						
 						public int getType() {
 							return AttributeDefinition.STRING;
 						}
-
+						
 						public String validate(String value) {
 							return null;
 						}						
-					}	
-				};
-			}
-
-			public String getDescription() {
-				return rb.getString("subparserManager.desc");
-			}
-
-			public String getID() {
-				return PID;
-			}
-
-			public InputStream getIcon(int size) throws IOException {
-				return (size == 16) 
-				? this.getClass().getResourceAsStream("/OSGI-INF/images/filetypes.png")
-				: null;
-			}
-
-			public String getName() {				
-				return rb.getString("subparserManager.name");
-			}			
-		};
+					}
+			};
+		}
+		
+		public String getDescription() {
+			return rb.getString("subparserManager.desc");
+		}
+		
+		public String getID() {
+			return PID;
+		}
+		
+		public InputStream getIcon(int size) throws IOException {
+			return (size == 16) 
+					? this.getClass().getResourceAsStream("/OSGI-INF/images/filetypes.png")
+					: null;
+		}
+		
+		public String getName() {				
+			return rb.getString("subparserManager.name");
+		}
+		
+		public String getVersion() {
+			return null;
+		}
 	}
-
+	
+	/**
+	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
+	 */
+	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
+		return new OCD((localeStr == null) ? Locale.ENGLISH : new Locale(localeStr));
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.core.metadata.IMetaDataProvider#getMetadata(java.util.Locale)
+	 */
+	public IMetaData getMetadata(final Locale locale) {
+		return new OCD(locale);
+	}
+	
 	private Hashtable<String,Object> getCMDefaults() {
 		final Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 		
 		// per default parsing of html and plain-text should be enabled
-		defaults.put(ENABLED_MIMETYPES, new String[]{"text/html","text/plain"});
-		
+		// FIXME: this setting is dependant on the HtmlParser and PlainParser to be installed
+		defaults.put(ENABLED_MIMETYPES, new String[] {
+				"org.paxle.ParserHtml.org.paxle.parser.html.impl.HtmlParser.text/html",
+				"org.paxle.ParserPlain.org.paxle.parser.plain.impl.PlainParser.text/plain"
+		});
+		defaults.put(ENABLE_DEFAULT, Boolean.TRUE);
 		return defaults;
 	}	
 	
@@ -332,8 +495,16 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		// configuring enabled protocols
 		String[] enabledMimeTypes = (String[]) properties.get(ENABLED_MIMETYPES);
 		if (enabledMimeTypes != null) {
-			this.enabledMimeTypes.clear();
-			this.enabledMimeTypes.addAll(Arrays.asList(enabledMimeTypes));
+			this.enabledServices.clear();
+			this.enabledServices.addAll(Arrays.asList(enabledMimeTypes));
 		}
+		
+		final Object enableDefault = properties.get(ENABLE_DEFAULT);
+		if (enableDefault != null)
+			if (enableDefault instanceof String) {
+				this.enableDefault = Boolean.parseBoolean((String)enableDefault);
+			} else {
+				this.enableDefault = ((Boolean)enableDefault).booleanValue();
+			}
 	}
 }

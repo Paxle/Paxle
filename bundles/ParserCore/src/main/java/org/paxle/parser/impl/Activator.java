@@ -50,7 +50,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bc) throws Exception {
 		// init the sub-parser manager
 		this.subParserManager = this.createAndRegisterSubParserManager(bc);
-
+		
 		ServiceReference ref = bc.getServiceReference(IReferenceNormalizer.class.getName());
 		IReferenceNormalizer refNorm = null;
 		if (ref != null) refNorm = (IReferenceNormalizer)bc.getService(ref);		
@@ -73,7 +73,7 @@ public class Activator implements BundleActivator {
 		 * ========================================================== */			
 		// getting a reference to the threadpack generator service
 		ServiceReference reference = bc.getServiceReference(IMWComponentFactory.class.getName());
-
+		
 		if (reference != null) {
 			// getting the service class instance
 			IMWComponentFactory componentFactory = (IMWComponentFactory)bc.getService(reference);			
@@ -92,7 +92,7 @@ public class Activator implements BundleActivator {
 		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{"org.paxle.parser.in"});
 		bc.registerService(IFilter.class.getName(), new MimeTypeFilter(subParserManager), filterProps);				
 	}
-
+	
 	/**
 	 *  Creates a {@link ISubParserManager subparser-manager} and registeres it as
 	 *  <ul>
@@ -117,7 +117,8 @@ public class Activator implements BundleActivator {
 		// creating class
 		SubParserManager subParserManager = new SubParserManager(
 				cm.getConfiguration(SubParserManager.PID),
-				 supportedLocale.toArray(new String[supportedLocale.size()])
+				supportedLocale.toArray(new String[supportedLocale.size()]),
+				bc
 		);		
 		
 		// initializing service registration properties
@@ -127,7 +128,7 @@ public class Activator implements BundleActivator {
 		// registering as services to the OSGi framework
 		bc.registerService(new String[]{ManagedService.class.getName(), MetaTypeProvider.class.getName()}, subParserManager, parserManagerProps);
 		bc.registerService(ISubParserManager.class.getName(), subParserManager, null);
-				
+		
 		return subParserManager;
 	}	
 	
