@@ -41,20 +41,24 @@ public class LhaParser extends ASubParser implements ILhaParser {
 	}
 	
 	@Override
-	public IParserDocument parse(URI location, String charset, File content)
-			throws ParserException, UnsupportedEncodingException, IOException {
-		final LhaFile lhaf = new LhaFile(content);
-		final IParserDocument pdoc = new ParserDocument();
+	public IParserDocument parse(URI location, String charset, File content) throws ParserException, UnsupportedEncodingException, IOException {
+		// some helper tools required for parsing
 		final ParserContext context = ParserContext.getCurrentContext();
 		final ITempFileManager tfm = context.getTempFileManager();
 		final ICharsetDetector cd = context.getCharsetDetector();
+
+		// the result object
+		final IParserDocument pdoc = new ParserDocument();
 		
+		// open the file and loop through all entries
+		final LhaFile lhaf = new LhaFile(content);
 		final Enumeration<?> eenum = lhaf.entries();
 		while (eenum.hasMoreElements()) {
 			final LhaEntry e = (LhaEntry)eenum.nextElement();
+			
 			final File ef = e.getFile();
-			if (ef.isDirectory())
-				continue;
+			if (ef.isDirectory()) continue;
+			
 			final SubParserDocOutputStream spdos = new SubParserDocOutputStream(tfm, cd, pdoc, location, ef.getPath(), e.getOriginalSize());
 			final InputStream lis = lhaf.getInputStream(e);
 			try {
@@ -63,9 +67,10 @@ public class LhaParser extends ASubParser implements ILhaParser {
 				try { lis.close(); } catch (IOException ex) { /* ignore */ }
 				try { spdos.close(); } catch (IOException ex) { /* ignore */ }
 			}
-		}
+		}		
 		lhaf.close();
-		pdoc.setStatus(IParserDocument.Status.OK);
+				
+		pdoc.setStatus(IParserDocument.Status.OK);		
 		return pdoc;
 	}
 }
