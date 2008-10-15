@@ -39,11 +39,13 @@ public class LhaParserTest extends AParserTest {
 				
 		final IParserDocument pdoc = this.parser.parse(location, charset, testFile);
 		assertNotNull(pdoc);
+		assertEquals(IParserDocument.Status.OK, pdoc.getStatus());
 		assertNotNull(pdoc.getSubDocs());
 		assertEquals(1, pdoc.getSubDocs().size());
 
 		IParserDocument subDoc = pdoc.getSubDocs().get("test.txt");
 		assertNotNull(subDoc);
+		assertEquals(IParserDocument.Status.OK, subDoc.getStatus());
 		assertEquals("text/plain", subDoc.getMimeType());
 	}
 }

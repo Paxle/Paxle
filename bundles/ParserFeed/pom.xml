@@ -161,5 +161,21 @@
 			<version>2.0.2</version>
 			<scope>compile</scope>
 		</dependency>
+		
+		<!-- Additional dependencies for testing -->
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>ParserCore</artifactId>
+			<version>[,0.2.0)</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>ParserHtml</artifactId>
+			<version>[,0.2.0)</version>
+			<scope>test</scope>
+		</dependency>		
 	</dependencies>
 </project>

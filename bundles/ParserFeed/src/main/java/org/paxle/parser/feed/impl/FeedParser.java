@@ -47,15 +47,17 @@ public class FeedParser extends ASubParser implements IFeedParser {
 	}
 	
 	@Override
-	public IParserDocument parse(URI location, String charset, InputStream is)
-	throws ParserException, UnsupportedEncodingException, IOException {
-		
-		final ChannelBuilder builder = new ChannelBuilder();
+	public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException {				
 		final ParserContext context = ParserContext.getCurrentContext();
-		final IParserDocument pdoc = new CachedParserDocument(context.getTempFileManager());
 		
+		// the result object
+		final IParserDocument pdoc = new CachedParserDocument(context.getTempFileManager());		
 		try {
+			// parse the feed
+			final ChannelBuilder builder = new ChannelBuilder();
 			final ChannelIF channel = de.nava.informa.parsers.FeedParser.parse(builder, new InputSource(is), location.toURL());
+			
+			// extracting title/summary/language
 			pdoc.setTitle(channel.getTitle());
 			pdoc.setSummary(channel.getDescription());
 			final String language = channel.getLanguage();
@@ -65,35 +67,50 @@ public class FeedParser extends ASubParser implements IFeedParser {
 			final ImageIF image = channel.getImage();
 			if (image != null) try {
 				pdoc.addImage(image.getLink().toURI(), image.getTitle());
-			} catch (URISyntaxException e) { logger.warn("image-link is not valid: '" + image.getLink() + "': " + e.getMessage()); }
+			} catch (URISyntaxException e) { 
+				logger.warn("image-link is not valid: '" + image.getLink() + "': " + e.getMessage()); 
+			}
 			
 			final Collection<?> items = channel.getItems();
 			if (!items.isEmpty()) {
-				final Iterator<?> it = items.iterator();
 				final StringBuilder authors = new StringBuilder();
+				
+				// loop through all items
+				final Iterator<?> it = items.iterator();				
 				while (it.hasNext()) {
 					final Item item = (Item)it.next();
 					
 					final String itemTitle = item.getTitle();
-					URI    itemURL   = null;
-					try {
-						itemURL = new URI(item.getLink().toExternalForm());
-					} catch (URISyntaxException e) { logger.warn("item-link is not valid: '" + itemURL + "': " + e.getMessage()); }
 					final String itemDescr = item.getDescription();
 					final String itemCreator = item.getCreator();
+					
+					URI   itemURL   = null;
+					try {
+						itemURL = new URI(item.getLink().toExternalForm());
+					} catch (URISyntaxException e) { 
+						logger.warn("item-link is not valid: '" + itemURL + "': " + e.getMessage()); 
+					}
 					
 					IParserDocument idoc = null;
 					String itemContent = item.getElementValue("content");
 					if (itemContent == null || itemContent.length() == 0)
 						itemContent = item.getElementValue("content:encoded");
-					if ((itemContent != null) && (itemContent.length() > 0)) {
-						final ISubParser htmlParser = context.getParser("text/html");
+					if ((itemContent != null) && (itemContent.length() > 0)) {						
 						final URI itemLocation = (itemURL == null) ? location : itemURL;
-						if (htmlParser != null) try {
-							idoc = htmlParser.parse(itemLocation, charset,
-									new ByteArrayInputStream(itemContent.getBytes()));
-							
-						} catch (Exception e) { logger.warn("error parsing feed-item '" + itemLocation + "', ignoring", e); }
+						
+						// parsing the html content
+						final ISubParser htmlParser = context.getParser("text/html");
+						if (htmlParser != null) {
+							try {
+								idoc = htmlParser.parse(
+										itemLocation, 
+										charset,
+										new ByteArrayInputStream(itemContent.getBytes())
+								);							
+							} catch (Exception e) { 
+								logger.warn("error parsing feed-item '" + itemLocation + "', ignoring", e); 
+							}
+						}
 					}
 					if (idoc == null)
 						idoc = new ParserDocument();
@@ -113,6 +130,7 @@ public class FeedParser extends ASubParser implements IFeedParser {
 				}
 			}
 			
+			pdoc.setStatus(IParserDocument.Status.OK);
 			return pdoc;
 		} catch (ParseException e) {
 			throw new ParserException("error parsing feed", e);
