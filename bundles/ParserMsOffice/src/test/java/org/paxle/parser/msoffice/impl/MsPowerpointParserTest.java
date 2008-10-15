@@ -11,10 +11,11 @@ import java.util.List;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserException;
+import org.paxle.parser.impl.AParserTest;
 
 import junitx.framework.ListAssert;
 
-public class MsPowerpointParserTest extends AMsOfficeParserTest {
+public class MsPowerpointParserTest extends AParserTest {
 
 	private MsPowerpointParser parser = null;
 	

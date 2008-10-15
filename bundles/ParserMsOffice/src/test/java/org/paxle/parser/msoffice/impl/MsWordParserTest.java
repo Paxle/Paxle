@@ -12,9 +12,10 @@ import junitx.framework.ListAssert;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserException;
+import org.paxle.parser.impl.AParserTest;
 
 
-public class MsWordParserTest extends AMsOfficeParserTest {
+public class MsWordParserTest extends AParserTest {
 
 	private MsWordParser parser = null;
 
