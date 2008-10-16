@@ -27,14 +27,14 @@ public class P7zipParserTest extends AParserTest {
 		super.setUp();
 		
 		// the archive contains a simple text-file
-		this.fileNameToMimeTypeMap.put(TEST_LOCATION, "text/plain");
+		this.fileNameToMimeTypeMap.put("test.txt", "text/plain");
 		this.mimeTypeToParserMap.put("text/plain",new PlainParser());
 		
 		// create the parser(s)
 		this.parser = new P7zipParser();		
 	}
 	
-	public void _testParseFile() throws Exception {
+	public void testParseFile() throws Exception {
 		final String charset = null;
 		final URI location = URI.create(TEST_LOCATION);	
 		final File testFile = new File(resourcesDir, "test.7z");
