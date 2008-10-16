@@ -105,6 +105,26 @@ public abstract class AParserTest extends MockObjectTestCase {
 			public boolean isSupported(String mimeType) {
 				return true;
 			}
+			
+			public void disableParser(String service) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			public void enableParser(String service) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			public Set<String> enabledParsers() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			public Map<String,Set<String>> getParsers() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 		};
 		
 		// create a parser context with a dummy temp-file-manager
