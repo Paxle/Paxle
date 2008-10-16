@@ -14,4 +14,6 @@ e.g.
 can be used.
   
 *) Variant 2:
-mvn archetype:generate -DarchetypeCatalog=file:///home/theli/paxle/archetypes
+mvn archetype:generate \
+	-DarchetypeRepository=http://snapshots.mvn.repos.pxl.li/ \
+	-DarchetypeCatalog=http://snapshots.mvn.repos.pxl.li/archetype-catalog.xml
