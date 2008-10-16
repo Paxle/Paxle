@@ -94,11 +94,11 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	
 	private final Log           logger = LogFactory.getLog(CrawlingConsole.class);
 	private final JScrollPane   scroll = new JScrollPane();
-	private final JButton       clear  = Utilities.setButtonProps(new JButton(), Messages.getString("crawlingConsole.clear"), this, AC_CLEAR, -1, null); //$NON-NLS-1$
+	private final JButton       clear  = Utilities.setButtonProps(new JButton(), Messages.getString("crawlingConsole.clear"), this, AC_CLEAR, KeyEvent.VK_C, null); //$NON-NLS-1$
 	private final JCheckBox     cbEnq  = Utilities.setButtonProps(new JCheckBox(), Messages.getString("crawlingConsole.enqueued"), this, AC_ENQUEUED, -1, null); //$NON-NLS-1$
 	private final JCheckBox     cbDstr = Utilities.setButtonProps(new JCheckBox(), Messages.getString("crawlingConsole.rejected"), this, AC_DESTROYED, -1, null); //$NON-NLS-1$
 	
-	private final JToggleButton cpb    = Utilities.setButtonProps(new JToggleButton(), null, this, AC_CRAWL, -1, null);
+	private final JToggleButton cpb    = Utilities.setButtonProps(new JToggleButton(), null, this, AC_CRAWL, KeyEvent.VK_S, null);
 	private final JTable        table;
 	private final ConsoleTableModel model;
 	private final JComboBox     cbox;

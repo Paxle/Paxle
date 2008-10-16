@@ -43,9 +43,11 @@ class StringAttrConfig extends AbstractAttrConfig<String> {
 		comp = (isPassword) ? new JPasswordField() : new JTextField();
 		final Insets insets = comp.getInsets();
 		final FontMetrics metrics = comp.getFontMetrics(comp.getFont());
-		comp.setMinimumSize(new Dimension(
+		final Dimension minSize = new Dimension(
 				MIN_CHARS * metrics.charWidth('m') + insets.left + insets.right,
-				metrics.getHeight() + insets.bottom + insets.top));
+				metrics.getHeight() + insets.bottom + insets.top);
+		comp.setMinimumSize(minSize);
+		comp.setPreferredSize(minSize);
 		mcl.addComp2Monitor(comp);
 		return comp;
 	}

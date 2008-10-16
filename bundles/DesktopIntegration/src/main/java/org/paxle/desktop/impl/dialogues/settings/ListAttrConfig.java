@@ -1,6 +1,8 @@
 
 package org.paxle.desktop.impl.dialogues.settings;
 
+import java.util.Arrays;
+
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
@@ -10,6 +12,24 @@ import org.paxle.desktop.impl.event.MultipleChangesListener;
 
 class ListAttrConfig extends AbstractMultiAttrConfig {
 	
+	private final class Entry {
+		
+		private final int idx;
+		
+		public Entry(final int idx) {
+			this.idx = idx;
+		}
+		
+		public String getValue() {
+			return values[idx];
+		}
+		
+		@Override
+		public String toString() {
+			return labels[idx];
+		}
+	}
+	
 	private JList comp;
 	
 	public ListAttrConfig(final AttributeDefinition ad) {
@@ -18,7 +38,10 @@ class ListAttrConfig extends AbstractMultiAttrConfig {
 	
 	@Override
 	protected JComponent createOptionComp(Object value, MultipleChangesListener mcl) {
-		comp = new JList(labels);
+		final Entry[] entries = new Entry[labels.length];
+		for (int i=0; i<entries.length; i++)
+			entries[i] = new Entry(i);
+		comp = new JList(entries);
 		comp.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		mcl.addComp2Monitor(comp);
 		return comp;
@@ -26,12 +49,15 @@ class ListAttrConfig extends AbstractMultiAttrConfig {
 	
 	@Override
 	public Object getValue() {
-		Object[] temp = comp.getSelectedValues();
+		final Object[] temp = comp.getSelectedValues();
 		
 		// convert values into proper format
-		// XXX: we have a problem here if the required target-value-type is a String
-		String[] val = new String[temp==null?0:temp.length];
-		System.arraycopy(temp, 0, val, 0, val.length);
+		// XXX: we have a problem here if the required target-value-type is not a String
+		// XXX: we should be able to use the indices directly now, but since all the sub-configs are being recreated on update,
+		//      we have no other choice currently
+		String[] val = new String[(temp == null) ? 0 : temp.length];
+		for (int i=0; i<val.length; i++)
+			val[i] = ((Entry)temp[i]).getValue();
 		return val;
 	}
 	

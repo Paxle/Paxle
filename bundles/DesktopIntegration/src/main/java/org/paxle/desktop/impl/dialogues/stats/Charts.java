@@ -20,6 +20,7 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
+
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel.StatsDataSink;
 
@@ -111,6 +112,8 @@ public class Charts {
 		        // parent plot...
 				final DateAxis dateAxis = new DateAxis(Messages.getString("statisticsPanel.chart.time"));
 				dateAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
+		        dateAxis.setLowerMargin(0.02);  // reduce the default margins 
+		        dateAxis.setUpperMargin(0.02);
 				final CombinedDomainXYPlot plot = new CombinedDomainXYPlot(dateAxis);
 		        plot.setBackgroundPaint(Color.white);
 		        plot.setGap(10.0);

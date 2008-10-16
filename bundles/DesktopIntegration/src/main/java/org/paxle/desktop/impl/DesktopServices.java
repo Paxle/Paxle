@@ -353,7 +353,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 				container.getTitle(),
 				Utilities.SIZE_PACK,
 				true,
-				Utilities.LOCATION_CENTER,
+				Utilities.LOCATION_BY_PLATFORM,
 				null,
 				false,
 				(id.longValue() < 0L) ? new FrameDICloseListener(container) : new FrameDICloseListener(id));

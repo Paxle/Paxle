@@ -18,6 +18,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.paxle.desktop.DIComponent;
+import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
@@ -33,7 +34,7 @@ public class StatisticsPanel extends DIServicePanel implements DIComponent, Runn
 	
 	// TODO: make the values below configurable via CM
 	private static final long UPDATE_DELAY = 2000;	// in milliseconds
-	private static final long MAX_AGE = 10 * 60;	// in seconds
+	private static final long MAX_AGE = 5 * 60;	// in seconds
 	
 	static abstract class Stats extends JPanel {
 		
@@ -107,12 +108,14 @@ public class StatisticsPanel extends DIServicePanel implements DIComponent, Runn
 			
 			@Override
 			public void run() {
-				SwingUtilities.invokeLater(StatisticsPanel.this);
-				if (System.currentTimeMillis() - lastUpdate > UPDATE_DELAY) {
-					lastUpdate = System.currentTimeMillis();
-					for (final Stats s : stats)
-						s.generateImage();
-				}
+				try {
+					SwingUtilities.invokeAndWait(StatisticsPanel.this);
+					if (System.currentTimeMillis() - lastUpdate > UPDATE_DELAY) {
+						lastUpdate = System.currentTimeMillis();
+						for (final Stats s : stats)
+							s.generateImage();
+					}
+				} catch (Throwable e) { Utilities.showExceptionBox(frame, "Error during run of Statistics-update-timer", e); }
 			}
 		}, 0, 1000L);
 	}
