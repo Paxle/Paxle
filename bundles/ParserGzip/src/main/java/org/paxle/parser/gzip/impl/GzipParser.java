@@ -12,6 +12,7 @@ import java.util.zip.GZIPInputStream;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.IOTools;
+import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.gzip.IGzipParser;
@@ -23,10 +24,16 @@ public class GzipParser implements IGzipParser {
 			"application/x-gzip",
 			"application/gzip");
 	
+	/**
+	 * @see ISubParser#getMimeTypes()
+	 */
 	public List<String> getMimeTypes() {
 		return MIME_TYPES;
 	}
 	
+	/**
+	 * @see ISubParser#parse(URI, String, InputStream)
+	 */
 	public IParserDocument parse(URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		final GZIPInputStream cfis = new GZIPInputStream(is);
@@ -44,8 +51,10 @@ public class GzipParser implements IGzipParser {
 		return doc;
 	}
 	
-	public IParserDocument parse(URI location, String charset, File content)
-			throws ParserException, UnsupportedEncodingException, IOException {
+	/**
+	 * @see ISubParser#parse(URI, String, File)
+	 */
+	public IParserDocument parse(URI location, String charset, File content) throws ParserException, UnsupportedEncodingException, IOException {
 		final FileInputStream fis = new FileInputStream(content);
 		try {
 			return parse(location, charset, fis);
