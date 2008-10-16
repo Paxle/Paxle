@@ -19,6 +19,7 @@ import org.paxle.core.filter.IFilter;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorkerFactory;
@@ -114,11 +115,15 @@ public class Activator implements BundleActivator {
 		// find available locales for metatye-translation
 		List<String> supportedLocale = bt.getLocaleList(ISubParserManager.class.getSimpleName(), Locale.ENGLISH);		
 		
+		final ServiceReference propertiesRef = bc.getServiceReference(IPropertiesStore.class.getName());
+		final IPropertiesStore propsStore = (IPropertiesStore)bc.getService(propertiesRef);
+		
 		// creating class
 		SubParserManager subParserManager = new SubParserManager(
 				cm.getConfiguration(SubParserManager.PID),
 				supportedLocale.toArray(new String[supportedLocale.size()]),
-				bc
+				bc,
+				propsStore.getProperties(bc)
 		);		
 		
 		// initializing service registration properties
@@ -141,6 +146,10 @@ public class Activator implements BundleActivator {
 		if (this.mwComponent != null) {
 			IMaster master = this.mwComponent.getMaster();
 			master.terminate();
+		}
+		if (this.subParserManager != null) {
+			this.subParserManager.close();
+			this.subParserManager = null;
 		}
 		
 		// cleanup

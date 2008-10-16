@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
@@ -34,6 +35,7 @@ import org.paxle.parser.ISubParser;
 import org.paxle.parser.ISubParserManager;
 
 public class SubParserManager implements ISubParserManager, MetaTypeProvider, ManagedService, IMetaDataProvider {
+	
 	public static final String PID = ISubParserManager.class.getName();
 	private static final char SUBPARSER_PID_SEP = '#';	
 	
@@ -42,6 +44,11 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	 * ============================================================== */	
 	private static final String ENABLED_MIMETYPES = PID + "." + "enabledMimeTypes";
 	private static final String ENABLE_DEFAULT = PID + "." + "enableDefault";
+	
+	/* ==============================================================
+	 * Property keys
+	 * ============================================================== */	
+	private static final String PROPS_KNOWN_PARSER_PIDS = PID + "." + "knownParserPids";
 	
 	/**
 	 * A {@link HashMap} containing the mime-types that is supported by the sub-parser as key and
@@ -56,7 +63,9 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	 * <code>${bundle-symbolic-name}#${service-pid}#${mime-type}</code> or
 	 * <code>${bundle-symbolic-name}#${service-class-name}#${mime-type}</code>
 	 */
-	private final Set<String> enabledServices = new HashSet<String>();	
+	private final Set<String> enabledServices = new HashSet<String>();
+	
+	private final Set<String> knownServicePids = new HashSet<String>();
 	
 	/**
 	 * For logging
@@ -77,19 +86,27 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	private boolean enableDefault = true;
 	
 	private final BundleContext context;
+	private final Properties props;
 	
 	/**
 	 * @param config the CM configuration that belongs to this component
 	 * @throws IOException
 	 * @throws ConfigurationException
 	 */	
-	public SubParserManager(Configuration config, String[] locales, final BundleContext context) throws IOException, ConfigurationException {
+	public SubParserManager(Configuration config, String[] locales, final BundleContext context, final Properties props) throws IOException, ConfigurationException {
 		if (config == null) throw new NullPointerException("The CM configuration is null");
 		if (locales == null) throw new NullPointerException("The locale array is null");
 		
 		this.config = config;
 		this.locales = locales;
 		this.context = context;
+		this.props = props;
+		if (props.get(PROPS_KNOWN_PARSER_PIDS) != null) {
+			final String knownStr = props.getProperty(PROPS_KNOWN_PARSER_PIDS);
+			if (knownStr.length() > 2)
+				for (final String parserPid : knownStr.substring(1, knownStr.length() - 1).split(","))
+					this.knownServicePids.add(parserPid.trim());
+		}
 		
 		// initialize CM values
 		if (config.getProperties() == null) {
@@ -98,6 +115,10 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		
 		// update configuration of this component
 		this.updated(config.getProperties());
+	}
+	
+	public void close() {
+		this.props.put(PROPS_KNOWN_PARSER_PIDS, this.knownServicePids.toString());
 	}
 	
 	private String[] getMimeTypes(final ServiceReference ref) {
@@ -159,8 +180,12 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 			if (refs == null)
 				this.subParserList.put(mimeType, refs = new TreeSet<ServiceReference>());
 			refs.add(ref);
-			this.services.put(keyFor(mimeType, ref), ref);
-			setEnabled(mimeType, ref, this.enableDefault);
+			final String parserPid = keyFor(mimeType, ref);
+			this.services.put(parserPid, ref);
+			if (!this.knownServicePids.contains(parserPid)) {
+				this.knownServicePids.add(parserPid);
+				setEnabled(mimeType, ref, this.enableDefault);
+			}
 			this.logger.info(String.format(
 					"Parser for mimetypes '%s' was installed.",
 					mimeType
@@ -310,6 +335,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void enableParser(final String service) {
 		if (service == null) return;
 		try {
@@ -325,6 +351,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void disableParser(final String service) {
 		if (service == null) return;
 		try {
@@ -406,11 +433,8 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 						public String getDescription() 		{ return rb.getString("subparserManager.enableDefault.desc"); }
 						public String getID() 				{ return ENABLE_DEFAULT; }
 						public String getName() 			{ return rb.getString("subparserManager.enableDefault.name"); }
-						public String[] getOptionLabels() 	{ return new String[] {
-								rb.getString("subparserManager.enableDefault.val.true"),
-								rb.getString("subparserManager.enableDefault.val.false")
-						}; }
-						public String[] getOptionValues() 	{ return new String[] { Boolean.TRUE.toString(), Boolean.FALSE.toString() }; }
+						public String[] getOptionLabels() 	{ return null; }
+						public String[] getOptionValues() 	{ return null; }
 						public int getType() 				{ return BOOLEAN; }
 						public String validate(String value) { return null; }
 					},
@@ -555,10 +579,6 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		
 		final Object enableDefault = properties.get(ENABLE_DEFAULT);
 		if (enableDefault != null)
-			if (enableDefault instanceof String) {
-				this.enableDefault = Boolean.parseBoolean((String)enableDefault);
-			} else {
-				this.enableDefault = ((Boolean)enableDefault).booleanValue();
-			}
+			this.enableDefault = ((Boolean)enableDefault).booleanValue();
 	}
 }

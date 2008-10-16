@@ -75,4 +75,9 @@ public interface ISubParserManager {
 	 * @return <code>true</code> if the given mimetype is supported or <code>false</code> otherwise
 	 */	
 	public boolean isSupported(String mimeType);
+	
+	/**
+	 * Releases all resources this {@link ISubParserManager} uses, saves the local state and closes the manager.
+	 */
+	public void close();
 }
