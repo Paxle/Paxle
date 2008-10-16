@@ -35,6 +35,7 @@ import org.paxle.parser.ISubParserManager;
 
 public class SubParserManager implements ISubParserManager, MetaTypeProvider, ManagedService, IMetaDataProvider {
 	public static final String PID = ISubParserManager.class.getName();
+	private static final char SUBPARSER_PID_SEP = '#';	
 	
 	/* ==============================================================
 	 * CM properties
@@ -52,8 +53,8 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	
 	/**
 	 * A list of enabled sub-parsers. The list contains values in the form of
-	 * <code>${bundle-symbolic-name}.${service-pid}.${mime-type}</code> or
-	 * <code>${bundle-symbolic-name}.${service-class-name}.${mime-type}</code>
+	 * <code>${bundle-symbolic-name}#${service-pid}#${mime-type}</code> or
+	 * <code>${bundle-symbolic-name}#${service-class-name}#${mime-type}</code>
 	 */
 	private final Set<String> enabledServices = new HashSet<String>();	
 	
@@ -121,13 +122,18 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	private String keyFor(final String mimeType, final ServiceReference ref) {
 		final String bundle = (String)ref.getBundle().getHeaders().get(Constants.BUNDLE_SYMBOLICNAME);
 		String pid = (String)ref.getProperty(Constants.SERVICE_PID);
-		if (pid == null)
-			pid = context.getService(ref).getClass().getName();
+		if (pid == null) pid = context.getService(ref).getClass().getName();
+		
 		final StringBuilder key = new StringBuilder(mimeType.length() + bundle.length() + pid.length() + 2);
-		key.append(bundle).append('.')
-		   .append(pid).append('.')
+		key.append(bundle).append(SUBPARSER_PID_SEP)
+		   .append(pid).append(SUBPARSER_PID_SEP)
 		   .append(mimeType);
+		
 		return key.toString().intern();
+	}
+	
+	private String extractMimeType(String servicePID) {
+		return servicePID.substring(servicePID.lastIndexOf(SUBPARSER_PID_SEP) + 1);
 	}
 	
 	private boolean isEnabled(final String mimeType, final ServiceReference ref) {
@@ -305,11 +311,9 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	}
 	
 	public void enableParser(final String service) {
+		if (service == null) return;
 		try {
-			if (service == null)
-				return;
-			
-			final String mimeType = service.substring(service.lastIndexOf('.') + 1);
+			final String mimeType = this.extractMimeType(service);
 			setEnabled(mimeType, this.services.get(service), true);
 			
 			// updating CM
@@ -322,11 +326,9 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	}
 	
 	public void disableParser(final String service) {
+		if (service == null) return;
 		try {
-			if (service == null)
-				return;
-			
-			final String mimeType = service.substring(service.lastIndexOf('.') + 1);
+			final String mimeType = this.extractMimeType(service);
 			setEnabled(mimeType, this.services.get(service), false);
 			
 			// updating CM
@@ -358,7 +360,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	public Set<String> enabledMimeTypes() {
 		HashSet<String> mimeTypes = new HashSet<String>();
 		for (final String enabledService : this.enabledServices) {
-			final String mimeType = enabledService.substring(enabledService.lastIndexOf('.') + 1);
+			final String mimeType = this.extractMimeType(enabledService);
 			if (this.subParserList.containsKey(mimeType))
 				mimeTypes.add(mimeType);
 		}
@@ -525,8 +527,8 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		// per default parsing of html and plain-text should be enabled
 		// FIXME: this setting is dependant on the HtmlParser and PlainParser to be installed
 		defaults.put(ENABLED_MIMETYPES, new String[] {
-				"org.paxle.ParserHtml.org.paxle.parser.html.impl.HtmlParser.text/html",
-				"org.paxle.ParserPlain.org.paxle.parser.plain.impl.PlainParser.text/plain"
+				"org.paxle.ParserHtml" + SUBPARSER_PID_SEP + "org.paxle.parser.html.impl.HtmlParser" + SUBPARSER_PID_SEP + "text/html",
+				"org.paxle.ParserPlain" + SUBPARSER_PID_SEP + "org.paxle.parser.plain.impl.PlainParser" + SUBPARSER_PID_SEP + "text/plain"
 		});
 		defaults.put(ENABLE_DEFAULT, Boolean.TRUE);
 		return defaults;

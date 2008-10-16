@@ -64,12 +64,13 @@ public interface ISubParserManager {
 	
 	/**
 	 * @return an unmodifiable collection of all mime-types supported by the registered {@link ISubParser sub-parsers}
+	 * 	This list also includes the {@link #disabledMimeTypes() disabled-mimeTypes}
 	 */
 	public Collection<String> getMimeTypes();
 	
 	/**
-	 * Determines if a given mimeType is supported by one of the registered
-	 * {@link ISubParser sub-parser}.
+	 * Determines if a given mimeType is supported by at least one of the registered {@link ISubParser sub-parser}.
+	 * 
 	 * @param mimeType the mime-type
 	 * @return <code>true</code> if the given mimetype is supported or <code>false</code> otherwise
 	 */	
