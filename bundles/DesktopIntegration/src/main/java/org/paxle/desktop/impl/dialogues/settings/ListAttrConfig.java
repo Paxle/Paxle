@@ -1,8 +1,7 @@
 
 package org.paxle.desktop.impl.dialogues.settings;
 
-import java.util.Arrays;
-
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
@@ -42,6 +41,7 @@ class ListAttrConfig extends AbstractMultiAttrConfig {
 		for (int i=0; i<entries.length; i++)
 			entries[i] = new Entry(i);
 		comp = new JList(entries);
+		comp.setBorder(BorderFactory.createEtchedBorder());
 		comp.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		mcl.addComp2Monitor(comp);
 		return comp;

@@ -252,7 +252,9 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		} else if (ac == AC_SELECT) {
 			updateCpb(false, true, false);
 		} else if (ac == AC_SETTINGS) {
-			final boolean sel = ((JToggleButton)e.getSource()).isSelected();
+			final JToggleButton btn = (JToggleButton)e.getSource();
+			final boolean sel = btn.isSelected();
+			btn.setText(((sel) ? '\u2191' : '\u2193') + btn.getText().substring(1));
 			final boolean notInitialized = sel && options.getComponentCount() == 0;
 			if (notInitialized)
 				initOptions();
@@ -309,7 +311,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		
 		final JPanel bbRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		clear.setEnabled(false);
-		bbRight.add(Utilities.setButtonProps(new JToggleButton(), Messages.getString("crawlingConsole.settings"), this, AC_SETTINGS, KeyEvent.VK_S, null));
+		bbRight.add(Utilities.setButtonProps(new JToggleButton(), "\u2193 " + Messages.getString("crawlingConsole.settings"), this, AC_SETTINGS, KeyEvent.VK_S, null));
 		bbRight.add(clear);
 		
 		
