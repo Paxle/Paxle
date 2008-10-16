@@ -10,6 +10,13 @@
 
 	<packaging>maven-archetype</packaging>
 
+	<distributionManagement>
+		<snapshotRepository>
+			<id>paxle-snapshot-repository</id>
+			<url>${mvn-deploy-url}</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<build>
 		<extensions>
 			<extension>
