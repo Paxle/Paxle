@@ -44,6 +44,16 @@
 			<id>maven2-repository.dev.java.net</id>
 			<url>http://download.java.net/maven/2</url>
 		</pluginRepository>
+		<pluginRepository>
+			<id>snapshots.repository.codehaus.org</id>
+			<url>http://snapshots.repository.codehaus.org/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
 	</pluginRepositories>
 
 	<properties>
@@ -134,32 +144,37 @@
 	
 		<!-- resources that should be included automatically -->
 		<!--  
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-            
-            <resource>
-                <directory>../Root/</directory>
-                <includes>
-                    <include>LICENSE.txt</include>
-                </includes>
-                <targetPath>META-INF</targetPath>
-            </resource>
-        </resources>
-        -->
+	        <resources>
+	            <resource>
+	                <directory>src/main/resources</directory>
+	            </resource>
+	            
+	            <resource>
+	                <directory>../Root/</directory>
+	                <includes>
+	                    <include>LICENSE.txt</include>
+	                </includes>
+	                <targetPath>META-INF</targetPath>
+	            </resource>
+	        </resources>
+	        -->
 
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <excludes>
-                	<exclude>**/l10n/*</exclude>
-                </excludes>
-            </resource>
-            <resource>
-            	<directory>target/native2ascii</directory>
-            </resource>
-        </resources>
+	        <resources>
+	            <resource>
+	                <directory>src/main/resources</directory>
+	                <excludes>
+	                	<!-- excluding language files with UTF-8 encoding  -->
+	                	<exclude>**/l10n/*</exclude>
+	                </excludes>
+	            </resource>
+	            <resource>
+	            	<!-- 
+	            		including language files with converted ASCII encoding 
+	            		(see native2ascii plugin) 
+	            	-->
+	            	<directory>target/native2ascii</directory>
+	            </resource>
+	        </resources>
 
 		<!-- central plugin management to set the plugin versions to use -->
 		<pluginManagement>
@@ -205,12 +220,10 @@
 		</pluginManagement>
 
 		<plugins>
-			 <!-- this seens not wo work property and copies our files
-			      to ${project.build.directory}/classes/ 
-			      and ${project.build.directory}/classes/OSGI-INF/l10n/
 			 <plugin>
 			 	<groupId>org.codehaus.mojo</groupId>
 			 	<artifactId>native2ascii-maven-plugin</artifactId>
+				<version>1.0-alpha-2-SNAPSHOT</version>
 			 	<executions>
 				 	<execution>
 				 		<goals>
@@ -218,99 +231,53 @@
 				 		</goals>
 				 		<phase>validate</phase>
 				 		<configuration>
-				 			<src>${basedir}/src/main/resources/OSGI-INF/l10n/</src>				 			
-					 		<dest>${project.build.directory}/</dest>
+				 			<src>${basedir}/src/main/resources/</src>				 			
+					 		<dest>${project.build.directory}/native2ascii</dest>
+						        <includes>**/l10n/*</includes>
+							<excludes>*</excludes>
 				 			<encoding>UTF8</encoding>
 				 			<ext>.properties</ext>
+							<failonerror>false</failonerror>
 				 		</configuration>
 				 	</execution>
 			 	</executions>
 			 </plugin>
-			 -->
 
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-antrun-plugin</artifactId>
-					<executions>
-						<execution>
-							<id>native2ascii</id>
-							<phase>compile</phase>
-							<configuration>
-								<tasks>
-									<!-- adds the ant-contrib tasks (if/then/else used below) -->
-									<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
 
-									<available file="${basedir}/src/main/resources/OSGI-INF/l10n/" property="file.exists" value="true" />
-									<if>
-										<isset property="file.exists" />
-										<then>
-											<native2ascii
-												encoding="UTF8" src="src/main/resources/OSGI-INF/l10n/"
-												dest="target/native2ascii/OSGI-INF/l10n/"
-												includes="**/*.properties" ext=".properties" />
-										</then>
-									</if>
-								</tasks>
-							</configuration>
-							<goals>
-								<goal>run</goal>
-							</goals>
-						</execution>
-					</executions>
-					<dependencies>
-						<dependency>
-							<groupId>ant</groupId>
-							<artifactId>ant-nodeps</artifactId>
-							<version>1.6.5</version>
-						</dependency>
-						<dependency>
-							<groupId>ant-contrib</groupId>
-							<artifactId>ant-contrib</artifactId>
-							<version>1.0b2</version>
-						</dependency>
-						<dependency>
-							<groupId>com.sun</groupId>
-							<artifactId>tools</artifactId>
-							<version>1.5.0</version>
-							<scope>system</scope>
-							<systemPath>${java.home}/../lib/tools.jar</systemPath>
-						</dependency>
-					</dependencies>					
-				</plugin>
-				 
-				<!-- plugin to build eclipse-projects -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-eclipse-plugin</artifactId>
-					<inherited>false</inherited>
+			 
+			<!-- plugin to build eclipse-projects -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<inherited>false</inherited>
 
-					<!--plugin configuration for the parent project -->
-					<configuration>
-						<!-- Workaround for http://jira.codehaus.org/browse/MECLIPSE-94 [^] -->
-						<eclipseProjectDir>..</eclipseProjectDir>
-					</configuration>
-				</plugin>
+				<!--plugin configuration for the parent project -->
+				<configuration>
+					<!-- Workaround for http://jira.codehaus.org/browse/MECLIPSE-94 [^] -->
+					<eclipseProjectDir>..</eclipseProjectDir>
+				</configuration>
+			</plugin>
 
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-eclipse-plugin</artifactId>
-					<inherited>true</inherited>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<inherited>true</inherited>
 
-					<!--plugin configuration for inherited projects -->
-					<configuration>
-						<downloadSources>true</downloadSources>
-					</configuration>
-				</plugin>
+				<!--plugin configuration for inherited projects -->
+				<configuration>
+					<downloadSources>true</downloadSources>
+				</configuration>
+			</plugin>
 
-				<!-- java compiler -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<configuration>
-						<source>1.5</source>
-						<target>1.5</target>
-					</configuration>
-				</plugin>
+			<!-- java compiler -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
