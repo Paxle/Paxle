@@ -57,18 +57,18 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	/* =========================================================
 	 * Config Properties
 	 * ========================================================= */
-	private static final String PROP_CONNECTION_TIMEOUT = "connectionTimeout";
-	private static final String PROP_SOCKET_TIMEOUT = "socketTimeout";
-	private static final String PROP_MAXCONNECTIONS_PER_HOST = "maxConnectionsPerHost";
-	private static final String PROP_MAXDOWNLOAD_SIZE = "maxDownloadSize";
-	private static final String PROP_ACCEPT_ENCODING = "acceptEncodings";
-	private static final String PROP_TRANSFER_LIMIT = "transferLimit";			// in KB/s
+	static final String PROP_CONNECTION_TIMEOUT = "connectionTimeout";
+	static final String PROP_SOCKET_TIMEOUT = "socketTimeout";
+	static final String PROP_MAXCONNECTIONS_PER_HOST = "maxConnectionsPerHost";
+	static final String PROP_MAXDOWNLOAD_SIZE = "maxDownloadSize";
+	static final String PROP_ACCEPT_ENCODING = "acceptEncodings";
+	static final String PROP_TRANSFER_LIMIT = "transferLimit";			// in KB/s
 	
-	private static final String PROP_PROXY_USE = "useProxy";
-	private static final String PROP_PROXY_HOST = "proxyHost";
-	private static final String PROP_PROXY_PORT = "proxyPort";
-	private static final String PROP_PROXY_USER = "proxyUser";
-	private static final String PROP_PROXY_PASSWORD = "proxyPassword";
+	static final String PROP_PROXY_USE = "useProxy";
+	static final String PROP_PROXY_HOST = "proxyHost";
+	static final String PROP_PROXY_PORT = "proxyPort";
+	static final String PROP_PROXY_USER = "proxyUser";
+	static final String PROP_PROXY_PASSWORD = "proxyPassword";
 	
 	private static final String HTTPHEADER_ETAG = "ETag";
 	private static final String HTTPHEADER_LAST_MODIFIED = "Last-Modified";
