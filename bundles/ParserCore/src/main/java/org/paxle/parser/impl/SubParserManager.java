@@ -48,6 +48,8 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	 */
 	private final HashMap<String,TreeSet<ServiceReference>> subParserList = new HashMap<String,TreeSet<ServiceReference>>();
 	
+	private final Map<String,ServiceReference> services = new HashMap<String,ServiceReference>();
+	
 	/**
 	 * A list of enabled sub-parsers. The list contains values in the form of
 	 * <code>${bundle-symbolic-name}.${service-pid}.${mime-type}</code> or
@@ -123,8 +125,8 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 			pid = context.getService(ref).getClass().getName();
 		final StringBuilder key = new StringBuilder(mimeType.length() + bundle.length() + pid.length() + 2);
 		key.append(bundle).append('.')
-		.append(pid).append('.')
-		.append(mimeType);
+		   .append(pid).append('.')
+		   .append(mimeType);
 		return key.toString().intern();
 	}
 	
@@ -151,6 +153,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 			if (refs == null)
 				this.subParserList.put(mimeType, refs = new TreeSet<ServiceReference>());
 			refs.add(ref);
+			this.services.put(keyFor(mimeType, ref), ref);
 			setEnabled(mimeType, ref, this.enableDefault);
 			this.logger.info(String.format(
 					"Parser for mimetypes '%s' was installed.",
@@ -164,7 +167,6 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		} catch (IOException e) { logger.error("error updating configuration", e); }
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void removeSubParser(final ServiceReference ref) {
 		final String[] mimeTypes = getMimeTypes(ref);
 		if (mimeTypes == null)
@@ -174,18 +176,13 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 			TreeSet<ServiceReference> refs = this.subParserList.get(mimeType);
 			if (refs == null)
 				continue;
+			this.services.remove(keyFor(mimeType, ref));
 			refs.remove(ref);
-			setEnabled(mimeType, ref, false);
 			this.logger.info(String.format(
 					"Parser for mimetypes '%s' was uninstalled.",
 					mimeType
 			));
 		}
-		if (this.enableDefault) try {
-			final Dictionary props = config.getProperties();
-			props.put(ENABLED_MIMETYPES, this.enabledServices.toArray(new String[this.enabledServices.size()]));
-			config.update(props);
-		} catch (IOException e) { logger.error("error updating configuration", e); }
 	}
 	
 	/**
@@ -276,7 +273,6 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 			
 			// updating CM
 			Dictionary<String,Object> props = this.config.getProperties();
-			System.out.println("disabled '" + mimeType + "': " + enabledServices);
 			props.put(ENABLED_MIMETYPES, enabledServices.toArray(new String[enabledServices.size()]));
 			this.config.update(props);
 		} catch (IOException e) {
@@ -301,12 +297,62 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 			
 			// updating CM
 			Dictionary<String,Object> props = this.config.getProperties();
-			System.out.println("enabled '" + mimeType + "': " + enabledServices);
 			props.put(ENABLED_MIMETYPES, enabledServices.toArray(new String[enabledServices.size()]));
 			this.config.update(props);
 		} catch (IOException e) {
 			this.logger.error(e);
 		}
+	}
+	
+	public void enableParser(final String service) {
+		try {
+			if (service == null)
+				return;
+			
+			final String mimeType = service.substring(service.lastIndexOf('.') + 1);
+			setEnabled(mimeType, this.services.get(service), true);
+			
+			// updating CM
+			Dictionary<String,Object> props = this.config.getProperties();
+			props.put(ENABLED_MIMETYPES, enabledServices.toArray(new String[enabledServices.size()]));
+			this.config.update(props);
+		} catch (IOException e) {
+			this.logger.error(e);
+		}
+	}
+	
+	public void disableParser(final String service) {
+		try {
+			if (service == null)
+				return;
+			
+			final String mimeType = service.substring(service.lastIndexOf('.') + 1);
+			setEnabled(mimeType, this.services.get(service), false);
+			
+			// updating CM
+			Dictionary<String,Object> props = this.config.getProperties();
+			props.put(ENABLED_MIMETYPES, enabledServices.toArray(new String[enabledServices.size()]));
+			this.config.update(props);
+		} catch (IOException e) {
+			this.logger.error(e);
+		}
+	}
+	
+	public Set<String> enabledParsers() {
+		final String[] services = this.enabledServices.toArray(new String[this.enabledServices.size()]);
+		return new HashSet<String>(Arrays.asList(services));
+	}
+	
+	public Map<String,Set<String>> getParsers() {
+		final HashMap<String,Set<String>> r = new HashMap<String,Set<String>>();
+		for (final Map.Entry<String,ServiceReference> entry : this.services.entrySet()) {
+			final String bundleName = (String)entry.getValue().getBundle().getHeaders().get(Constants.BUNDLE_NAME);
+			Set<String> keys = r.get(bundleName);
+			if (keys == null)
+				r.put(bundleName, keys = new HashSet<String>());
+			keys.add(entry.getKey());
+		}
+		return Collections.unmodifiableMap(r);
 	}
 	
 	public Set<String> enabledMimeTypes() {
