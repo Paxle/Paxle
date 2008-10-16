@@ -104,5 +104,14 @@
 			<artifactId>swf</artifactId>
 			<version>0.1</version>
 		</dependency>
+		
+		<!-- Additional dependencies for testing -->
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>ParserCore</artifactId>
+			<version>[,0.2.0)</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>		
 	</dependencies>
 </project>
