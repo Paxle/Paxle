@@ -143,15 +143,6 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		}
 	}
 	
-	/**
-	 * for testing purpose only! 
-	 * @param httpClient
-	 */
-	HttpCrawler(HttpClient httpClient) {
-		this.httpClient = httpClient;
-		hostSettings = new ConcurrentHashMap<String,Integer>();
-	}
-	
 	public void saveProperties() {
 		if (props != null) {
 			for (Map.Entry<String,Integer> e : hostSettings.entrySet())
