@@ -146,7 +146,7 @@
 			 PAXLE COMMAND-FILTER BUNDLES
 		     ========================================================== -->
 		<pack id="Filters" name="Paxle - Command Filters" required="yes" preselected="yes">
-			<description>Paxle Parsers</description>
+			<description>Paxle Command Filters</description>
 		</pack>
 		<refpack file="FilterBlacklist/pack.xml" />
 		<refpack file="FilterRobotsTxt/pack.xml" />
