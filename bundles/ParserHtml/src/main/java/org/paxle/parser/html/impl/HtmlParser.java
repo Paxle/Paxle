@@ -135,15 +135,14 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 			final HtmlParserRequisites req = (HtmlParserRequisites)pool.borrowObject();
 			req.logger.setLocation(location);
 			req.page.init(iss);
+			req.page.setUrl(location.toASCIIString());
 			req.nc.init(doc, context.getReferenceNormalizer());
 			req.parser.visitAllNodesWith(req.nc);
 			
 			/*
 			final FixedPage page = new FixedPage(iss);
-			page.setUrl(location.toASCIIString());
 			final ParserLogger pl = new ParserLogger(logger, location);
 			final Parser parser = new Parser(new Lexer(page), pl);
-			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
 			
 			final NodeCollector nc = new NodeCollector(doc, pl, page, context.getReferenceNormalizer());
 			parser.visitAllNodesWith(nc);
