@@ -6,11 +6,13 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
@@ -448,19 +450,32 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 			final Vector<String> row = new Vector<String>();
 			type.insertValues(row, event, cmd, lastFilters.get(cmd));
 			
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					if (getRowCount() == maxSize)
-						removeRow(0);
-					addRow(row);
-					final JViewport vp = scroll.getViewport();
-					final Rectangle r = vp.getVisibleRect();
-					r.setLocation(0, table.getHeight());
-					vp.scrollRectToVisible(r);
-					if (!clear.isEnabled())
-						clear.setEnabled(true);
-				}
-			});
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+					public void run() {
+						final JViewport vp = scroll.getViewport();
+						final Rectangle viewRect = vp.getViewRect();
+						if (viewRect.height + viewRect.y + 1 >= table.getHeight()) {
+							if (getRowCount() == maxSize)
+								removeRow(0);
+							addRow(row);
+							final Rectangle r = vp.getVisibleRect();
+							r.setLocation(0, table.getHeight());
+							vp.scrollRectToVisible(r);
+						} else {
+							final Point p = vp.getViewPosition();
+							if (getRowCount() == maxSize) {
+								removeRow(0);
+								p.y = Math.max(0, p.y - table.getRowHeight());
+							}
+							vp.setViewPosition(p);
+							addRow(row);
+						}
+						if (!clear.isEnabled())
+							clear.setEnabled(true);
+					}
+				});
+			} catch (Exception e) { e.printStackTrace(); }
 		}
 	}
 	
