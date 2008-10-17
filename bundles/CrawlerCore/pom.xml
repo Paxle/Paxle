@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>CrawlerCore</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Crawler: Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -59,7 +59,8 @@
 							org.paxle.core.mimetype;version="[0.1.0,0.2.0)",
 							org.paxle.core.charset;version="[0.1.0,0.2.0)",  
 							org.paxle.core.crypt;version="[0.1.0,0.2.0)",
-							org.paxle.core.prefs;version="[0.1.0,0.2.0)"							
+							org.paxle.core.prefs;version="[0.1.0,0.2.0)",
+							org.paxle.core.metadata;version="[0.1.0,0.2.0)"					
 						</Import-Package>
 						<Private-Package>
 							org.paxle.crawler.impl

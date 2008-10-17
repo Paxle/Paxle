@@ -22,14 +22,8 @@ public class SubCrawlerListener implements ServiceListener {
 	 */
 	private SubCrawlerManager manager = null;
 	
-	/**
-	 * The {@link BundleContext osgi-bundle-context} of this bundle
-	 */	
-	private BundleContext context = null;
-	
 	public SubCrawlerListener(SubCrawlerManager manager, BundleContext context) throws InvalidSyntaxException {
 		this.manager = manager;
-		this.context = context;
 		
 		ServiceReference[] services = context.getServiceReferences(null,FILTER);
 		if (services != null) for (ServiceReference service : services) serviceChanged(service, ServiceEvent.REGISTERED);	
@@ -45,23 +39,14 @@ public class SubCrawlerListener implements ServiceListener {
 	}		
 	
 	private void serviceChanged(ServiceReference reference, int eventType) {
-		if (reference == null) return;		
+		if (reference == null) return;
 		
-		// the protocol supported by the detected sub-crawler
-		String[] protocols = null;
-		Object tmp = reference.getProperty(ISubCrawler.PROP_PROTOCOL);
-		if (tmp instanceof String) protocols = new String[]{(String)tmp};
-		else if (tmp instanceof String[]) protocols = (String[])tmp;
-		
-		if (eventType == ServiceEvent.REGISTERED) {			
-			// a reference to the service
-			ISubCrawler subCrawler = (ISubCrawler) this.context.getService(reference);			
-			
+		if (eventType == ServiceEvent.REGISTERED) {
 			// new service was installed
-			manager.addSubCrawler(protocols, subCrawler);
+			manager.addSubCrawler(reference);
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			// service was uninstalled
-			manager.removeSubCrawler(protocols);
+			manager.removeSubCrawler(reference);
 		} else if (eventType == ServiceEvent.MODIFIED) {
 			// service properties have changed
 		}		

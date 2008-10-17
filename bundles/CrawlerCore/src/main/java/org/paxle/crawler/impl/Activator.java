@@ -18,6 +18,7 @@ import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.IResourceBundleTool;
+import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
 import org.paxle.crawler.ISubCrawler;
@@ -105,11 +106,16 @@ public class Activator implements BundleActivator {
 		// find available locales for metatye-translation
 		List<String> supportedLocale = bt.getLocaleList(ISubCrawlerManager.class.getSimpleName(), Locale.ENGLISH);
 		 
+		final ServiceReference propsStoreRef = bc.getServiceReference(IPropertiesStore.class.getName());
+		final IPropertiesStore propsStore = (IPropertiesStore)bc.getService(propsStoreRef);
+		
 		// creating class
 		SubCrawlerManager subCrawlerManager = new SubCrawlerManager(
 					cm.getConfiguration(SubCrawlerManager.PID), 
-					supportedLocale.toArray(new String[supportedLocale.size()])
-		);		
+					supportedLocale.toArray(new String[supportedLocale.size()]),
+					bc,
+					propsStore.getProperties(bc)
+		);
 		
 		// initializing service registration properties
 		Hashtable<String, Object> crawlerManagerProps = new Hashtable<String, Object>();
@@ -133,6 +139,10 @@ public class Activator implements BundleActivator {
 		if (this.mwComponent != null) {
 			IMaster master = this.mwComponent.getMaster();
 			master.terminate();
+		}
+		if (this.subCrawlerManager != null) {
+			this.subCrawlerManager.close();
+			this.subCrawlerManager = null;
 		}
 		
 		// cleanup
