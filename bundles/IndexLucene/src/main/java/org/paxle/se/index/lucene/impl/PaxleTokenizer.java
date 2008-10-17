@@ -30,7 +30,7 @@ public class PaxleTokenizer extends StandardTokenizer implements Counting {
 		return tokenCount;
 	}
 	
-	public void resetTokenCount() {
+	public void resetCounts() {
 		tokenCount = 0;
 	}
 }

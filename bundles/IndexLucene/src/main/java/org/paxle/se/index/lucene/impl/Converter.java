@@ -225,7 +225,7 @@ public class Converter {
 	
 	private static Field.Index index(org.paxle.core.doc.Field<?> field) {
 		return ((field.isIndex())
-				? (field.isTokenize()) ? Field.Index.TOKENIZED : Field.Index.UN_TOKENIZED
+				? (field.isTokenize()) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED
 				: Field.Index.NO
 		);
 	}
@@ -342,8 +342,8 @@ public class Converter {
 	private static Object[] field2array(Fieldable lfield, org.paxle.core.doc.Field<?> pfield) throws IOException {
 		final LinkedList<Object> r = new LinkedList<Object>();
 		final TokenStream ts = lfield.tokenStreamValue();
-		Token token;
-		while ((token = ts.next()) != null)
+		Token token = new Token();
+		while ((token = ts.next(token)) != null)
 			r.add(String.valueOf(token.termBuffer(), 0, token.termLength()));
 		return r.toArray(new Object[r.size()]);
 	}

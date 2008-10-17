@@ -18,6 +18,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 
@@ -50,8 +51,7 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	public AFlushableLuceneManager(final String path, final PaxleAnalyzer analyzer) throws IOException {
 		this.path = path;
 		this.analyzer = analyzer;
-		this.writer = new IndexWriter(path, analyzer);
-		this.writer.setMaxFieldLength(Integer.MAX_VALUE);
+		this.writer = new IndexWriter(path, analyzer, MaxFieldLength.UNLIMITED);
 		this.reader = IndexReader.open(path);
 		
 		docCount = reader.numDocs();
@@ -78,7 +78,7 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	 */
 	private void flush() throws IOException {
 		this.logger.debug("Flushing index writer and reopening index reader");
-		this.writer.flush();
+		this.writer.commit();
 		IndexReader newReader = this.reader.reopen();
 		if (newReader != reader) {
 			reader.close(); 

@@ -18,7 +18,11 @@ public class ArrayTokenStream extends TokenStream implements Counting {
 		return data.length;
 	}
 	
-	public void resetTokenCount() {
+	public void resetCounts() {
+	}
+	
+	public int getRejectedCount() {
+		return 0;
 	}
 	
 	@Override
@@ -33,6 +37,8 @@ public class ArrayTokenStream extends TokenStream implements Counting {
 		int otp = this.textPos;
 		final String text = o.toString();
 		this.textPos += text.length();
-		return new Token(text, otp, this.textPos++);
+		final Token t = new Token(otp, this.textPos++);
+		t.setTermBuffer(text);
+		return t;
 	}
 }

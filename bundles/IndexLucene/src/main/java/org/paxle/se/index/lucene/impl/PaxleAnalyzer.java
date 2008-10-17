@@ -49,6 +49,7 @@ public class PaxleAnalyzer extends StandardAnalyzer {
 	 * it returns */
 	
 	@Override
+	@SuppressWarnings("deprecation")	// needed until isReplaceInvalidAcronym becomes hardwired to "true" in lucene 3.0
 	public TokenStream tokenStream(String fieldName, Reader reader) {
 	    PaxleTokenizer tokenStream = createTokenizer(reader, super.isReplaceInvalidAcronym());
 	    tokenStream.setMaxTokenLength(super.getMaxTokenLength());
