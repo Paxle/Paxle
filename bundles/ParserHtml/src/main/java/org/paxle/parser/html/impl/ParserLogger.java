@@ -4,15 +4,37 @@ package org.paxle.parser.html.impl;
 import java.net.URI;
 
 import org.apache.commons.logging.Log;
+import org.htmlparser.util.ParserException;
+import org.htmlparser.util.ParserFeedback;
 
-public class ParserLogger {
+public class ParserLogger implements ParserFeedback {
 	
 	private final Log logger;
-	private final URI location;
+	private URI location;
 	
 	public ParserLogger(final Log logger, final URI location) {
 		this.logger = logger;
 		this.location = location;
+	}
+	
+	public ParserLogger(final Log logger) {
+		this.logger = logger;
+	}
+	
+	public void setLocation(final URI location) {
+		this.location = location;
+	}
+	
+	public void error(String message, ParserException e) {
+		logError(message, e);
+	}
+	
+	public void info(String message) {
+		logInfo(message);
+	}
+	
+	public void warning(String message) {
+		logWarn(message);
 	}
 	
 	public void logError(final String msg, final int tagStart) {
@@ -36,8 +58,16 @@ public class ParserLogger {
 		}
 	}
 	
+	public void logWarn(String msg) {
+		logger.warn(String.format("'%s': %s", location, msg));
+	}
+	
 	public void logInfo(String msg, int tagStart) {
 		logger.info(String.format("%s at line %d of %s", msg, Integer.valueOf(tagStart), location));
+	}
+	
+	public void logInfo(String msg) {
+		logger.info(String.format("'%s': %s", location, msg));
 	}
 	
 	public void logDebug(final String msg, final int tagStart) {

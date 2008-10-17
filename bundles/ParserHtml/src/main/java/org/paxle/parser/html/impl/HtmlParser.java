@@ -14,10 +14,13 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.pool.ObjectPool;
+import org.apache.commons.pool.PoolableObjectFactory;
+import org.apache.commons.pool.impl.GenericObjectPool;
+
 import org.htmlparser.Parser;
 import org.htmlparser.lexer.InputStreamSource;
 import org.htmlparser.lexer.Lexer;
-import org.htmlparser.lexer.Page;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.CachedParserDocument;
@@ -36,7 +39,7 @@ import org.paxle.parser.html.IHtmlParser;
  * @see org.htmlparser.Parser#visitAllNodesWith(org.htmlparser.visitors.NodeVisitor) for the iterator
  * @see org.paxle.parser.html.impl.NodeCollector for the callback
  */
-public class HtmlParser implements IHtmlParser {
+public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 	
 	private static final List<String> MIME_TYPES = Arrays.asList(
 			"text/html",
@@ -68,8 +71,40 @@ public class HtmlParser implements IHtmlParser {
 		} catch (final Exception e) { e.printStackTrace(); }
 	}*/
 	
+	private final ObjectPool pool = new GenericObjectPool(this);
+	
+	public HtmlParser() {
+	}
+	
+	public void activateObject(Object arg0) throws Exception {
+		((HtmlParserRequisites)arg0).reset();
+	}
+	
+	public void destroyObject(Object arg0) throws Exception {
+		// nothing to do
+	}
+	
+	public Object makeObject() throws Exception {
+		return new HtmlParserRequisites();
+	}
+	
+	public void passivateObject(Object arg0) throws Exception {
+		// nothing to do
+	}
+	
+	public boolean validateObject(Object arg0) {
+		// don't know how
+		return false;
+	}
+	
 	public List<String> getMimeTypes() {
 		return MIME_TYPES;
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		pool.close();
+		super.finalize();
 	}
 	
 	public IParserDocument parse(URI location, String charset, InputStream is)
@@ -94,16 +129,29 @@ public class HtmlParser implements IHtmlParser {
 				charset = "UTF-8";
 			}
 			
-			final Page page = new FixedPage(new InputStreamSource(is, charset));
-			page.setUrl(location.toASCIIString());
-			final Parser parser = new Parser(new Lexer(page));
-			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
-
+			final InputStreamSource iss = new InputStreamSource(is, charset);
 			final ParserContext context = ParserContext.getCurrentContext();
 			final IParserDocument doc = new CachedParserDocument(context.getTempFileManager());
-			final NodeCollector nc = new NodeCollector(doc, new ParserLogger(logger, location), page, context.getReferenceNormalizer());
+			final HtmlParserRequisites req = (HtmlParserRequisites)pool.borrowObject();
+			req.logger.setLocation(location);
+			req.page.init(iss);
+			req.nc.init(doc, context.getReferenceNormalizer());
+			req.parser.visitAllNodesWith(req.nc);
+			
+			/*
+			final FixedPage page = new FixedPage(iss);
+			page.setUrl(location.toASCIIString());
+			final ParserLogger pl = new ParserLogger(logger, location);
+			final Parser parser = new Parser(new Lexer(page), pl);
+			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
+			
+			final NodeCollector nc = new NodeCollector(doc, pl, page, context.getReferenceNormalizer());
 			parser.visitAllNodesWith(nc);
 			page.close();
+			*/
+			
+			iss.destroy();
+			pool.returnObject(req);
 			
 			if (charset != null && doc.getCharset() == null)
 				doc.setCharset(Charset.forName(charset));
@@ -111,6 +159,31 @@ public class HtmlParser implements IHtmlParser {
 			return doc;
 		} catch (org.htmlparser.util.ParserException e) {
 			throw new ParserException("error parsing HTML nodes-tree", e);
+		} catch (Exception e) {
+			throw new ParserException("internal error: " + e.getMessage(), e);
+		}
+	}
+	
+	private final class HtmlParserRequisites {
+		final ParserLogger logger = new ParserLogger(HtmlParser.this.logger);
+		final FixedPage page = new FixedPage();
+		final Lexer lexer = new Lexer(page);
+		final Parser parser = new Parser(lexer, logger);
+		final NodeCollector nc = new NodeCollector(logger, page);
+		
+		public HtmlParserRequisites() {
+	        lexer.setNodeFactory(NodeCollector.NODE_FACTORY);
+		}
+		
+		public void reset() {
+			// no need to reset the logger
+			lexer.getCursor().setPosition(0);
+			/* the lexer does not have to be reset, it would only reset
+			 *  - the page, which is done prior to each parsing process by the parse()-method
+			 *  - the cursor, which is done above
+			 */
+			// no need to reset the parser, it would only reset the lexer - see above
+			// no need to reset the nc, this is done prior to each parsing process by the parse()-method
 		}
 	}
 	

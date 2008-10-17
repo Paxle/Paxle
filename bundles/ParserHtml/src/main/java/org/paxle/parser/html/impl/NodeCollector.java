@@ -78,10 +78,11 @@ public class NodeCollector extends NodeVisitor {
 	));
 	
 	private final MetaTagManager mtm;
-	private final IParserDocument doc;
 	private final ParserLogger logger;
 	private final Page page;
-	private final IReferenceNormalizer refNorm;
+	private IParserDocument doc;
+	private IReferenceNormalizer refNorm;
+	
 	private boolean noParse = false;
 	private boolean noFollowLinks = false;
 	
@@ -91,6 +92,19 @@ public class NodeCollector extends NodeVisitor {
 		this.logger = logger;
 		this.mtm = new MetaTagManager(logger);
 		this.page = page;
+		this.refNorm = refNorm;
+	}
+	
+	public NodeCollector(final ParserLogger logger, final Page page) {
+		super(true, true);
+		this.logger = logger;
+		this.mtm = new MetaTagManager(logger);
+		this.page = page;
+	}
+	
+	public void init(final IParserDocument doc, final IReferenceNormalizer refNorm) {
+		this.mtm.clear();
+		this.doc = doc;
 		this.refNorm = refNorm;
 	}
 	

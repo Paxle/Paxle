@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.htmlparser.lexer.Page;
+import org.htmlparser.lexer.PageIndex;
 import org.htmlparser.lexer.Source;
 
 // workaround for invalid relative links returned by Page due to BaseHrefTag setting the Page's
@@ -17,6 +18,17 @@ public class FixedPage extends Page {
 	
 	public FixedPage(Source source) {
 		super(source);
+	}
+	
+	public FixedPage() {
+	}
+	
+	public void init(final Source source) {
+        mSource = source;
+        mIndex = new PageIndex(this);
+        mConnection = null;
+        mUrl = null;
+        mBaseUrl = null;
 	}
 	
 	@Override
