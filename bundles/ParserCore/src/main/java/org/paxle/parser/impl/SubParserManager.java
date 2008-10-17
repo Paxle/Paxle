@@ -191,13 +191,14 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 					mimeType
 			));
 		}
-		if (this.enableDefault) try {
+		try {
 			final Dictionary props = config.getProperties();
 			props.put(ENABLED_MIMETYPES, this.enabledServices.toArray(new String[this.enabledServices.size()]));
 			config.update(props);
 		} catch (IOException e) { logger.error("error updating configuration", e); }
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void removeSubParser(final ServiceReference ref) {
 		final String[] mimeTypes = getMimeTypes(ref);
 		if (mimeTypes == null)
@@ -214,6 +215,11 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 					mimeType
 			));
 		}
+		try {
+			final Dictionary props = config.getProperties();
+			props.put(ENABLED_MIMETYPES, this.enabledServices.toArray(new String[this.enabledServices.size()]));
+			config.update(props);
+		} catch (IOException e) { logger.error("error updating configuration", e); }
 	}
 	
 	/**

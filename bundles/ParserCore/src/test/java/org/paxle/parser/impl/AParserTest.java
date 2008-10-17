@@ -125,6 +125,10 @@ public abstract class AParserTest extends MockObjectTestCase {
 				// TODO Auto-generated method stub
 				return null;
 			}
+			public void close() {
+				// TODO Auto-generated method stub
+				
+			}
 		};
 		
 		// create a parser context with a dummy temp-file-manager
