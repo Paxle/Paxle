@@ -21,6 +21,8 @@ import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.Directory;
 
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
@@ -51,8 +53,9 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	public AFlushableLuceneManager(final String path, final PaxleAnalyzer analyzer) throws IOException {
 		this.path = path;
 		this.analyzer = analyzer;
-		this.writer = new IndexWriter(path, analyzer, MaxFieldLength.UNLIMITED);
-		this.reader = IndexReader.open(path);
+		final Directory dir = FSDirectory.getDirectory(path);
+		this.writer = new IndexWriter(dir, analyzer, MaxFieldLength.UNLIMITED);
+		this.reader = IndexReader.open(dir, true);		// open a read-only index, deletions are performed by the writer
 		
 		docCount = reader.numDocs();
 	}
@@ -262,13 +265,15 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 		}
 		
 		public void remove() {
+			throw new UnsupportedOperationException();	// index reader is read-only
+			/*
 			try {
 				
 					AFlushableLuceneManager.this.reader.deleteDocument(this.current);
 				
 			} catch (IOException e) {
 				throw new RuntimeException("I/O error removing document", e);
-			}
+			}*/
 		}
 	}
 	
