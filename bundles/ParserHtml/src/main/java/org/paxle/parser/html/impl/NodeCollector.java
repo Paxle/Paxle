@@ -106,6 +106,8 @@ public class NodeCollector extends NodeVisitor {
 		this.mtm.clear();
 		this.doc = doc;
 		this.refNorm = refNorm;
+		this.noParse = false;
+		this.noFollowLinks = false;
 	}
 	
 	/**
