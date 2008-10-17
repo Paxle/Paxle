@@ -94,7 +94,7 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 	
 	public boolean validateObject(Object arg0) {
 		// don't know how
-		return false;
+		return true;
 	}
 	
 	public List<String> getMimeTypes() {
