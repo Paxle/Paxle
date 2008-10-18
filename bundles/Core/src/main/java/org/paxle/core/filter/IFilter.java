@@ -2,7 +2,7 @@ package org.paxle.core.filter;
 
 import org.paxle.core.queue.ICommand;
 
-public interface IFilter<C extends ICommand> {
+public interface IFilter<C extends IFilterable> {
 	/**
 	 * Property to specify the target of a {@link IFilter filter}, e.g.:
 	 * <pre>org.paxle.parser.out; pos=10</pre>

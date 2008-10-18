@@ -13,6 +13,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
+import org.paxle.core.filter.IFilterable;
 import org.paxle.core.filter.impl.FilterContext;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
@@ -23,7 +24,7 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 		super.setUp();
 	}
 	
-	private IFilterContext createDummyFilterContext(IFilter<ICommand> filter) {
+	private IFilterContext createDummyFilterContext(IFilter<? extends IFilterable> filter) {
 		return new FilterContext(
 				Long.toString(System.currentTimeMillis()),
 				Long.valueOf(System.currentTimeMillis()),
@@ -65,7 +66,7 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 		}});		
 
 		// init queue and set filters
-		FilterInputQueue<ICommand> queue = new FilterInputQueue<ICommand>(8);
+		CommandFilterInputQueue<ICommand> queue = new CommandFilterInputQueue<ICommand>(8);
 		queue.setFilters(new ArrayList<IFilterContext>(Arrays.asList(filtercontext)));
 		queue.setFilterQueueID("FilterQUEUE-ID");
 		queue.setEventService(eventService);
@@ -98,7 +99,7 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 		}});		
 
 		// init queue and set filters
-		FilterInputQueue<ICommand> queue = new FilterInputQueue<ICommand>(8);
+		CommandFilterInputQueue<ICommand> queue = new CommandFilterInputQueue<ICommand>(8);
 		queue.setFilters(new ArrayList<IFilterContext>(Arrays.asList(filtercontext)));
 		queue.setFilterQueueID("FilterQUEUE-ID");
 		queue.setEventService(eventService);		
@@ -116,7 +117,7 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 		final ICommand command = new Command();
 		command.setLocation(URI.create("http://testxyz.de"));
 		
-		final FilterInputQueue<ICommand> queue = new FilterInputQueue<ICommand>(8);
+		final CommandFilterInputQueue<ICommand> queue = new CommandFilterInputQueue<ICommand>(8);
 		
 		// start a thread to wait for a next message in the queue
 		final Thread queueFetcher = new Thread() {

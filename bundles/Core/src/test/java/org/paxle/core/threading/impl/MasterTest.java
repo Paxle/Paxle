@@ -4,7 +4,7 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.IOutputQueue;
-import org.paxle.core.queue.impl.FilterInputQueue;
+import org.paxle.core.queue.impl.CommandFilterInputQueue;
 import org.paxle.core.threading.AWorker;
 import org.paxle.core.threading.IPool;
 
@@ -18,7 +18,7 @@ public class MasterTest extends MockObjectTestCase {
 		// init needed mocks
 		final ICommand command = mock(ICommand.class);
 		final IPool<ICommand> pool = mock(IPool.class);
-		final FilterInputQueue<ICommand> inQueue = new FilterInputQueue<ICommand>(8);
+		final CommandFilterInputQueue<ICommand> inQueue = new CommandFilterInputQueue<ICommand>(8);
 		final IOutputQueue<ICommand> outQueue = mock(IOutputQueue.class);
 		final DummyWorker worker = new DummyWorker(true);
 		worker.setInQueue(inQueue);

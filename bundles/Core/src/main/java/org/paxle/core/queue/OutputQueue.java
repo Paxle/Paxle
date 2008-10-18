@@ -1,19 +1,22 @@
-package org.paxle.core.queue.impl;
+package org.paxle.core.queue;
 
 import org.paxle.core.data.IDataSource;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.IOutputQueue;
 
 /**
  * This acts as an {@link IOutputQueue output-queue} for a {@link IMWComponent master-worker-component}
  * and as a {@link IDataSource data-sink} for a {@link IDataConsumer data-consumer}.
  */
 public class OutputQueue<Data> extends AQueue<Data> implements IOutputQueue<Data>, IDataSource<Data> {
+	
 	private static final long serialVersionUID = 1L;
 	
 	public OutputQueue(int length) {		
 		super(length);
-	}	
+	}
+	
+	public OutputQueue(final int length, final boolean limited) {
+		super(length, limited);
+	}
 	
 	/**
 	 * @see IOutputQueue#enqueue(ICommand)

@@ -8,7 +8,7 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
-import org.paxle.core.queue.ICommand.Result;
+import org.paxle.core.filter.IFilterable.Result;
 
 public class CommandEventTest extends MockObjectTestCase {
 	public void testCreateEvent() {

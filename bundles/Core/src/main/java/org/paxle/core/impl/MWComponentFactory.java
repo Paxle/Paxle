@@ -20,12 +20,12 @@ import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.filter.IFilterQueue;
+import org.paxle.core.queue.AQueue;
 import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.impl.AQueue;
-import org.paxle.core.queue.impl.FilterInputQueue;
-import org.paxle.core.queue.impl.FilteringOutputQueue;
-import org.paxle.core.queue.impl.InputQueue;
-import org.paxle.core.queue.impl.OutputQueue;
+import org.paxle.core.queue.InputQueue;
+import org.paxle.core.queue.OutputQueue;
+import org.paxle.core.queue.impl.CommandFilterInputQueue;
+import org.paxle.core.queue.impl.CommandFilterOutputQueue;
 import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
@@ -95,8 +95,8 @@ public class MWComponentFactory implements IMWComponentFactory {
 		if (workerFactory == null) throw new NullPointerException("The worker-factory is null");
 		
 		// creating the filter-queues
-		FilterInputQueue<Data> inQueue = new FilterInputQueue<Data>(queueBufferSize);
-		FilteringOutputQueue<Data> outQueue = new FilteringOutputQueue<Data>(queueBufferSize);
+		CommandFilterInputQueue<Data> inQueue = new CommandFilterInputQueue<Data>(queueBufferSize);
+		CommandFilterOutputQueue<Data> outQueue = new CommandFilterOutputQueue<Data>(queueBufferSize);
 		
 		return createComponent(workerFactory, inQueue, outQueue, clazz);
 	}

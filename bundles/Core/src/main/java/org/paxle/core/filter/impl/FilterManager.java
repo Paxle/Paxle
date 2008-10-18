@@ -334,8 +334,7 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 	 * @param queueID the ID of the {@link IFilterQueue}, which should be unregistered
 	 * 
 	 * TODO: should we shutdown the queue here?
-	 */	
-	@SuppressWarnings("unchecked")
+	 */
 	public synchronized void removeFilterQueue(String queueID) {
 		if (this.queues.containsKey(queueID)) {
 			// remove the queue from the list

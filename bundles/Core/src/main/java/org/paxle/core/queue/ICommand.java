@@ -7,6 +7,7 @@ import java.net.URI;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.filter.IFilterable;
 
 /**
  * Represents a command-object that is passed to components
@@ -22,15 +23,7 @@ import org.paxle.core.doc.IParserDocument;
  * and enqueues the modified {@link ICommand command} in the {@link IOutputQueue output-queue}
  * where it is fetched by a data-consumer and written to disk or DB.
  */
-public interface ICommand extends Closeable {
-	/* =======================================================
-	 * General information
-	 * ======================================================= */
-	public static enum Result {
-		Passed,
-		Rejected,
-		Failure
-	}	
+public interface ICommand extends Closeable, IFilterable {
 	
 	/**
 	 * @return the systemwidth unique ID of this command. 
@@ -54,13 +47,6 @@ public interface ICommand extends Closeable {
      * @param profileOID the ID of the {@link ICommandProfile} this command belongs to.
      */
     public void setProfileOID(int profileOID);
-
-	public Result getResult();
-	public boolean isResult(Result result);
-	public String getResultText();
-	public void setResultText(String description);
-	public void setResult(Result result);
-	public void setResult(Result result, String description);
 	
 	/**
 	 * Returns the URL as String

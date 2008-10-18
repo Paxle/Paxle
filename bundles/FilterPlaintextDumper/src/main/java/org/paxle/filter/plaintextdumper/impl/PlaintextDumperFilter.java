@@ -17,7 +17,7 @@ import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.queue.ICommand;
 
-public class PlaintextDumperFilter implements IFilter {
+public class PlaintextDumperFilter implements IFilter<ICommand> {
 	/**
 	 * Path where the data should be stored
 	 */

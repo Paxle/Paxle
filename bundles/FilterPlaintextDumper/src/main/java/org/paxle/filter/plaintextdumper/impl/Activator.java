@@ -25,7 +25,7 @@ public class Activator implements BundleActivator {
 		final Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
 		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {
 				// apply filter to the parser-output-queue at MAX-Position
-				String.format("org.paxle.parser.out; %s=%d", IFilter.PROP_FILTER_TARGET_POSITION,Integer.MAX_VALUE)
+				String.format("org.paxle.parser.out; %s=%d", IFilter.PROP_FILTER_TARGET_POSITION, Integer.valueOf(Integer.MAX_VALUE))
 		});
 		bc.registerService(IFilter.class.getName(), new PlaintextDumperFilter(dir), filterProps);
 	}

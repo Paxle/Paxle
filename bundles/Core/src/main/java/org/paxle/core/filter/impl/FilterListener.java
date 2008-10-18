@@ -3,6 +3,7 @@ package org.paxle.core.filter.impl;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Formatter;
 import java.util.HashSet;
 import java.util.Properties;
 
@@ -18,9 +19,9 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
+import org.paxle.core.filter.IFilterable;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
-import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfileManager;
 
 /**
@@ -42,8 +43,11 @@ public class FilterListener implements ServiceListener {
 	
 	// generating filter expression
 	static {
-		StringBuilder sb = new StringBuilder("(|");
-		for (String intrface : INTERFACES) sb.append(String.format("(%s=%s)",Constants.OBJECTCLASS,intrface));
+		final StringBuilder sb = new StringBuilder("(|");
+		final Formatter formatter = new Formatter(sb);
+		for (String intrface : INTERFACES)
+			formatter.format("(%s=%s)", Constants.OBJECTCLASS, intrface);
+		formatter.close();
 		FILTER = sb.append(')').toString();
 	}
 
@@ -147,7 +151,7 @@ public class FilterListener implements ServiceListener {
 		
 		if (eventType == ServiceEvent.REGISTERED) {
 			// get a reference to the filter
-			IFilter<ICommand> filter = (IFilter<ICommand>) this.context.getService(reference);	
+			IFilter<IFilterable> filter = (IFilter<IFilterable>) this.context.getService(reference);	
 
 			// getting the filter PID
 			String filterPID = (String) reference.getProperty(Constants.SERVICE_PID);
@@ -231,7 +235,7 @@ public class FilterListener implements ServiceListener {
 			String filterPID,
 			Long serviceID, 
 			String target, 
-			IFilter<ICommand> filter
+			IFilter<IFilterable> filter
 	) {
 		Properties filterProps = new Properties();
 		String[] params = target.split(";");

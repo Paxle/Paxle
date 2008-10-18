@@ -1,7 +1,6 @@
-package org.paxle.core.queue.impl;
+package org.paxle.core.queue;
 
 import org.paxle.core.data.IDataSink;
-import org.paxle.core.queue.IInputQueue;
 
 /**
  * This acts as an {@link IInputQueue input-queue} for a {@link IMWComponent master-worker-component}
@@ -15,6 +14,10 @@ public class InputQueue<Data> extends AQueue<Data> implements IInputQueue<Data>,
 	
 	public InputQueue(int length) {
 		super(length);
+	}
+	
+	public InputQueue(final int length, final boolean limited) {
+		super(length, limited);
 	}
 
 	/**

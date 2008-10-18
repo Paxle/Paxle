@@ -1,5 +1,6 @@
-package org.paxle.core.queue.impl;
+package org.paxle.core.queue;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -18,19 +19,23 @@ public abstract class AQueue<Data> {
 	/**
 	 * Component to send {@link org.osgi.service.event.Event events}
 	 */
-	protected EventAdmin eventSerivce = null;
+	protected EventAdmin eventService = null;
 	
 	/**
 	 * An internal {@link BlockingQueue}
 	 */
-	protected final LinkedBlockingQueue<Data> queue;
+	protected final BlockingQueue<Data> queue;
 	
-	public AQueue(int length) {
-		this.queue = new LinkedBlockingQueue<Data>(length);
+	public AQueue(final int length) {
+		this(length, false);
+	}
+	
+	public AQueue(int length, final boolean limited) {
+		this.queue = (limited) ? new ArrayBlockingQueue<Data>(length) : new LinkedBlockingQueue<Data>(length);
 	}	
 	
 	public void setEventService(EventAdmin eventService) {
-		this.eventSerivce = eventService;
+		this.eventService = eventService;
 	}
 	
 	/**

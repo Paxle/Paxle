@@ -6,7 +6,6 @@ import java.util.Properties;
 import org.paxle.core.filter.impl.FilterContext;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
-import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfileManager;
 
 /**
@@ -34,7 +33,7 @@ public interface IFilterContext {
 	 * @return the {@link org.paxle.core.filter.IFilter} this context
 	 * belongs to.
 	 */
-	public IFilter<ICommand> getFilter();
+	public IFilter<? extends IFilterable> getFilter();
 	
 	/**
 	 * Specifies if this {@link FilterContext} was disabled by the user via configuration.
