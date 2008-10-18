@@ -368,11 +368,11 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 	/**
 	 * @see IFilterManager#getFilters(String)
 	 */
-	public Set<FilterContext> getFilters(String queueID) {
+	public Set<IFilterContext> getFilters(String queueID) {
 		if (queueID == null) throw new NullPointerException("QueueID is null");
 		
-		if (!this.filters.containsKey(queueID)) return Collections.emptySet();		
-		return Collections.unmodifiableSet(this.filters.get(queueID));
+		if (!this.filters.containsKey(queueID)) return Collections.emptySet();
+		return Collections.unmodifiableSet(new HashSet<IFilterContext>(this.filters.get(queueID)));
 	}
 
 	/**

@@ -2,8 +2,6 @@ package org.paxle.core.filter;
 
 import java.util.Set;
 
-import org.paxle.core.filter.impl.FilterContext;
-
 public interface IFilterManager {
 	/**
 	 * @param queueID the unique ID of a {@link IFilterQueue filter-queue}
@@ -15,5 +13,5 @@ public interface IFilterManager {
 	 * @param queueID the unique ID of a {@link IFilterQueue filter-queue}
 	 * @return return a set of filters available for the given {@link IFilterQueue filter-queue}
 	 */
-	public Set<FilterContext> getFilters(String queueID);
+	public Set<IFilterContext> getFilters(String queueID);
 }
