@@ -14,17 +14,19 @@ public class Activator implements BundleActivator {
 	 */	
 	public static BundleContext bc;
 	
+	private HtmlParser parser = null;
+	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext context) throws Exception {
 		bc = context;
-		IHtmlParser hp = new HtmlParser();
+		parser = new HtmlParser();
 		Hashtable<String,String[]> props = new Hashtable<String,String[]>();
-		List<String> mimeTypes = hp.getMimeTypes();
+		List<String> mimeTypes = parser.getMimeTypes();
 		props.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
-		bc.registerService(new String[]{ISubParser.class.getName(),IHtmlParser.class.getName()}, hp, props);
+		bc.registerService(new String[]{ISubParser.class.getName(),IHtmlParser.class.getName()}, parser, props);
 	}
 	
 	/**
@@ -32,6 +34,10 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#stop(BundleContext)
 	 */	
 	public void stop(BundleContext context) throws Exception {
+		if (parser != null) {
+			parser.close();
+			parser = null;
+		}
 		bc = null;
 	}
 }

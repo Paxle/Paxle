@@ -73,4 +73,8 @@ public class ParserLogger implements ParserFeedback {
 	public void logDebug(final String msg, final int tagStart) {
 		logger.debug(String.format("%s at line %d of %s", msg, Integer.valueOf(tagStart), location));
 	}
+	
+	public void logDebug(final String msg) {
+		logger.debug(String.format("'%s': %s", location, msg));
+	}
 }

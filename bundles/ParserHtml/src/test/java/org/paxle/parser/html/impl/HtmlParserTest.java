@@ -16,7 +16,13 @@ public class HtmlParserTest extends TestCase {
 	
 	private static final String[] TEST_CASES = {
 		"svgopen.org_index.html",
-		"javascript_test.html"
+		"javascript_test.html",
+		"baseHrefTest.html",
+		"draft-ietf-webdav-rfc2518bis-12-from-11.diff.html",
+		"imdb_biographies_o.html",
+		"javascript_tcom.html",
+		"pc-welt_archiv02_knowhow.html",
+		"pc-welt_archiv07_knowhow.html"
 	};
 	
 	// FIXME: <a name="#bla" /> is only recognized as a starting not an ending a-tag
@@ -33,18 +39,54 @@ public class HtmlParserTest extends TestCase {
 	}
 	
 	/** does not work as expected yet */
-	public static void _testHtmlParser() throws Exception {
+	public static void testHtmlParser() throws Exception {
 		final File testResources = new File("src/test/resources/");
 		final HtmlParser parser = new HtmlParser();
 		ParserContext.setCurrentContext(new ParserContext(null, null, null, new TempFileManager(), new ReferenceNormalizer()));
 		for (final String testCase : TEST_CASES) {
-			System.out.println(testCase);
+			// System.out.println(testCase);
 			final IParserDocument pdoc = parser.parse(new URI("http://www.example.org/" + testCase), null, new File(testResources, testCase));
 			assertNotNull(pdoc);
 			
-			System.out.println(pdoc.getLinks());
-			System.out.println();
+			/*
+			System.out.println(pdoc.getLinks().size());
+			System.out.println(pdoc.getTextFile().length());
+			System.out.println();*/
 		}
+		parser.close();
+	}
+	
+	public static void testHtmlParserThreaded() throws Exception {
+		final Thread[] threads = new Thread[TEST_CASES.length];
+		final File testResources = new File("src/test/resources/");
+		final HtmlParser parser = new HtmlParser();
+		final TempFileManager tfm = new TempFileManager();
+		final ReferenceNormalizer refNorm = new ReferenceNormalizer();
+		
+		for (int i=0; i<TEST_CASES.length; i++) {
+			final String testCase = TEST_CASES[i];
+			threads[i] = new Thread() {
+				@Override
+				public void run() {
+					try {
+						System.out.println("started");
+						ParserContext.setCurrentContext(new ParserContext(null, null, null, tfm, refNorm));
+						final IParserDocument pdoc = parser.parse(new URI("http://www.example.org/" + testCase), null, new File(testResources, testCase));
+						assertNotNull(pdoc);
+						/*
+						System.out.println(testCase);
+						System.out.println(pdoc.getLinks().size());
+						System.out.println(pdoc.getTextFile().length());
+						System.out.println();*/
+					} catch (Exception e) { e.printStackTrace(); }
+				}
+			};
+			threads[i].start();
+		}
+		
+		for (int i=0; i<threads.length; i++)
+			threads[i].join();
+		parser.close();
 	}
 	
 	private static final String[][] REPL_CASES = {

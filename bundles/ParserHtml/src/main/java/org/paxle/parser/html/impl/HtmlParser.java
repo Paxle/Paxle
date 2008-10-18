@@ -21,8 +21,10 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.htmlparser.Parser;
 import org.htmlparser.lexer.InputStreamSource;
 import org.htmlparser.lexer.Lexer;
+import org.htmlparser.lexer.Source;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -76,6 +78,10 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 	public HtmlParser() {
 	}
 	
+	public void close() throws Exception {
+		pool.close();
+	}
+	
 	public void activateObject(Object arg0) throws Exception {
 		((HtmlParserRequisites)arg0).reset();
 	}
@@ -101,12 +107,6 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 		return MIME_TYPES;
 	}
 	
-	@Override
-	protected void finalize() throws Throwable {
-		pool.close();
-		super.finalize();
-	}
-	
 	public IParserDocument parse(URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		try {
@@ -129,16 +129,12 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 				charset = "UTF-8";
 			}
 			
-			final InputStreamSource iss = new InputStreamSource(is, charset);
 			final ParserContext context = ParserContext.getCurrentContext();
 			final IParserDocument doc = new CachedParserDocument(context.getTempFileManager());
 			final HtmlParserRequisites req = (HtmlParserRequisites)pool.borrowObject();
-			req.logger.setLocation(location);
-			req.page.init(iss);
-			req.page.setUrl(location.toASCIIString());
-			req.nc.init(doc, context.getReferenceNormalizer());
-			req.parser.visitAllNodesWith(req.nc);
-			
+			final InputStreamSource iss = new InputStreamSource(is, charset);
+			try {
+				req.parse(location, doc, context.getReferenceNormalizer(), iss);
 			/*
 			final FixedPage page = new FixedPage(iss);
 			final ParserLogger pl = new ParserLogger(logger, location);
@@ -148,8 +144,10 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 			parser.visitAllNodesWith(nc);
 			page.close();
 			*/
+			} finally {
+				iss.destroy();
+			}
 			
-			iss.destroy();
 			pool.returnObject(req);
 			
 			if (charset != null && doc.getCharset() == null)
@@ -183,6 +181,18 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 			 */
 			// no need to reset the parser, it would only reset the lexer - see above
 			// no need to reset the nc, this is done prior to each parsing process by the parse()-method
+		}
+		
+		public void parse(
+				final URI location,
+				final IParserDocument doc,
+				final IReferenceNormalizer refNorm,
+				final Source source) throws org.htmlparser.util.ParserException {
+			logger.setLocation(location);
+			page.init(source);
+			page.setUrl(location.toASCIIString());
+			nc.init(doc, refNorm);
+			parser.visitAllNodesWith(nc);
 		}
 	}
 	

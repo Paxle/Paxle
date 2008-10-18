@@ -213,7 +213,7 @@ public class NodeCollector extends NodeVisitor {
 			//System.err.println();
 		} else */
 		if (!this.noParse) {
-			final String txt = HtmlTools.deReplaceHTML(string.getText());
+			final String txt = HtmlTools.deReplaceHTML(string.getText()).trim();
 			if (txt.length() > 0) try {
 				this.doc.addText(txt);
 			} catch (IOException e) {
