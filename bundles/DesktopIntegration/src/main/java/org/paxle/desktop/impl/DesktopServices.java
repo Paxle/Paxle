@@ -1,3 +1,16 @@
+/*
+This file is part of the Paxle project.
+Visit http://www.paxle.net for more information.
+Copyright 2007-2008 the original author or authors.
+
+Licensed under the terms of the Common Public License 1.0 ("CPL 1.0"). 
+Any use, reproduction or distribution of this program constitutes the recipient's acceptance of this agreement.
+The full license text is available under http://www.opensource.org/licenses/cpl1.0.txt 
+or in the file LICENSE.txt in the root directory of the Paxle distribution.
+
+Unless required by applicable law or agreed to in writing, this software is distributed
+on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*/
 
 package org.paxle.desktop.impl;
 
@@ -261,7 +274,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
 		
 		final Hashtable<String,Object> regProps = new Hashtable<String,Object>();
-		regProps.put(Constants.SERVICE_PID, IDesktopServices.class.getName());
+		regProps.put(Constants.SERVICE_PID, PREF_PID);
 		regManagedService = manager.registerService(this, regProps, ManagedService.class);
 		regConsoleCmdProvider = registerDICommandProvider();
 		initDS();
@@ -274,7 +287,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 			final Class<?> diCmdProviderC = Class.forName(DI_COMMAND_PROVIDER);
 			return manager.registerService(
 					diCmdProviderC.getConstructor(getClass()).newInstance(this),
-					new Hashtable<String,Object>(),
+					null,
 					cmdProviderC);
 		} catch (ClassNotFoundException e) {
 			final String msg = "Not running in Equinox, Paxle desktop command provider won't be available.";

@@ -1,3 +1,16 @@
+/*
+This file is part of the Paxle project.
+Visit http://www.paxle.net for more information.
+Copyright 2007-2008 the original author or authors.
+
+Licensed under the terms of the Common Public License 1.0 ("CPL 1.0"). 
+Any use, reproduction or distribution of this program constitutes the recipient's acceptance of this agreement.
+The full license text is available under http://www.opensource.org/licenses/cpl1.0.txt 
+or in the file LICENSE.txt in the root directory of the Paxle distribution.
+
+Unless required by applicable law or agreed to in writing, this software is distributed
+on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*/
 
 package org.paxle.desktop.impl;
 
@@ -18,11 +31,11 @@ public class DICommandProvider implements CommandProvider {
 		handleDesktop(ci, ci.nextArgument());
 	}
 	
-	private void handleDesktop(final CommandInterpreter ci, final String what) throws InvalidSyntaxException {
-		if (what == null) {
+	private void handleDesktop(final CommandInterpreter ci, final String action) throws InvalidSyntaxException {
+		if (action == null) {
 			ci.println("No argument given!");
 			return;
-		} else if (what.equals("open")) {
+		} else if (action.equals("open")) {
 			final String which = ci.nextArgument();
 			if (which == null) {
 				final Dialogues[] dialogues = Dialogues.values();
@@ -37,25 +50,26 @@ public class DICommandProvider implements CommandProvider {
 				try {
 					dialogue = Dialogues.valueOf(which.toUpperCase());
 				} catch (RuntimeException e) {
-					ci.println("cannot access dialogue '" + what + "': " + e.getMessage());
+					ci.println("dialogue '" + which + "' not available");
 					return;
 				}
 				services.openDialogue(dialogue);
 			}
-		} else if (what.equals("tray")) {
+		} else if (action.equals("tray")) {
 			services.setTrayMenuVisible(!services.isTrayMenuVisible());
 		} else {
-			ci.println("parameter '" + what + "' not understood");
+			ci.println("parameter '" + action + "' not understood");
 			return;
 		}
 	}
 	
 	public String getHelp() {
 		final StringBuilder buf = new StringBuilder();
-		buf.append("---Controlling the desktop bundle---\r\n")
-		   .append("\tdesktop - DesktopIntegration-related commands\r\n")
-		   .append("\t   open ... - open dialogues, when invoked without args lists available ones\r\n")
-		   .append("\t   tray     - toggle tray menu visibility\r\n");
+		final String newLine = System.getProperty("line.separator", "\r\n");
+		buf.append("---Controlling the desktop bundle---").append(newLine)
+		   .append("\tdesktop - DesktopIntegration-related commands").append(newLine)
+		   .append("\t   open ... - open dialogues, when invoked without args lists available ones").append(newLine)
+		   .append("\t   tray     - toggle tray menu visibility").append(newLine);
 		return buf.toString();
 	}
 }
