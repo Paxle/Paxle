@@ -9,7 +9,7 @@ The full license text is available under http://www.opensource.org/licenses/cpl1
 or in the file LICENSE.txt in the root directory of the Paxle distribution.
 
 Unless required by applicable law or agreed to in writing, this software is distributed
-on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
 
 package org.paxle.parser.bzip2.impl;
