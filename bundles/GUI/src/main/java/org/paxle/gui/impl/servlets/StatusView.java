@@ -38,6 +38,7 @@ public class StatusView extends ALayoutServlet {
 			} else {
 				// adding servlet to context
 				context.put("statusView",this);
+				context.put("servletContext", this.getServletConfig().getServletContext());
 				
 				/*
 				 * Setting template parameters

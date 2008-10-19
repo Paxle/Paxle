@@ -317,11 +317,23 @@
 <fieldset id="dgui">
 	<legend>${text.legend.gui}</legend>
 		
+	<h3>${text.gui.servletContainer.title}:</h3>
+	<table>
+			<tr>
+				<td>${text.gui.servletContainer.container.title}</td>
+				<td>${servletContext.getServerInfo()}</td>
+			</tr>
+			<tr>
+				<td>${text.gui.servletContainer.api.title}</td>
+				<td>${servletContext.getMajorVersion()}.${servletContext.getMinorVersion()}</td>
+			</tr>
+	</table>
+	
 	<h3>${text.gui.supportedServlets.title}:</h3>
 	<p>${text.gui.supportedServlets.status.insert($servletManager.getServlets().size())}:</p>
 	
 	<table>		
-		<tr><th>${text.gui.path}</th><th>${text.gui.class}</th></tr>
+		<tr><th>${text.gui.path}</th><th>${text.gui.clazz}</th></tr>
 		#foreach( $servlet in $sortTool.sort( $servletManager.getServlets().entrySet(), ["key"]))
 		<tr>
 			<td><a href="$servlet.getKey()">$servlet.getKey()</a></td>
