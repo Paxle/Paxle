@@ -94,5 +94,21 @@
 			<artifactId>bzip2</artifactId>
 			<version>1.0</version>
 		</dependency>
+		
+		<!-- Additional dependencies for testing -->
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>ParserCore</artifactId>
+			<version>[,0.2.0)</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>ParserPlain</artifactId>
+			<version>[,0.2.0)</version>
+			<scope>test</scope>
+		</dependency>		
 	</dependencies>
 </project>
