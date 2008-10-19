@@ -37,8 +37,8 @@ public class LanguageManager implements IFilter<ICommand> {
 		}
 		TrigramSet nlng = new TrigramSet();
 		nlng.load(definition);
-		//set name to xxx from filename /profiles/xxx.txt
-		nlng.setLanguageName(definition.getFile().substring(10, 13));
+		//set name to xx from filename /profiles/xx.txt
+		nlng.setLanguageName(definition.getFile().substring(10, 12));
 		this.lngs.add(nlng);
 		logger.debug("Loaded language '" + nlng.getLanguageName() +"' from file " + definition.toExternalForm());
 	}
@@ -95,14 +95,14 @@ public class LanguageManager implements IFilter<ICommand> {
 
 		logger.debug("Language detection took " + (end - start) + "ms");
 
-		HashSet<String> lngs = new HashSet<String>(1);
+		HashSet<String> lngs = null;
 		if (winvalue < 50) {
 			logger.debug("Primary language of document '" + parserDoc.getOID() + "' is: " + winner + ", " + winvalue);
+			lngs = new HashSet<String>(1);
 			lngs.add(winner);
 			parserDoc.setLanguages(lngs);
 		} else {
 			logger.debug("Primary language of document '" + parserDoc.getOID() + "' is unknown");
-			lngs.add("unknown");
 			parserDoc.setLanguages(lngs);
 		}
 	}

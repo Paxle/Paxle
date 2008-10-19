@@ -18,9 +18,6 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class TrigramSet {
 
 	//one or more blanks
@@ -47,7 +44,7 @@ public class TrigramSet {
 	private int cutofflevel = -1;
 
 	/**
-	 * The name of the language as ISO-639-2 code, e.g. "eng", "deu", ...
+	 * The name of the language as ISO-639-1 code, e.g. "en", "de", ...
 	 */
 	private String language_name = null;
 
