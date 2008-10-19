@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -49,45 +50,83 @@ import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel;
 
 public class DesktopServices implements IDesktopServices, ManagedService, ServiceListener {
 	
+	/**
+	 * Denotes a relative path the the Paxle-icon used for the tray.
+	 * @see #setTrayMenuVisible(boolean)
+	 */
 	private static final String TRAY_ICON_LOCATION = "/resources/trayIcon.png";
 	
+	/**
+	 * Contains conveninience-constants for locating the {@link IMWComponent}s of the bundles
+	 * CrawlerCore, ParserCore and Indexer.
+	 */
 	public static enum MWComponents {
 		CRAWLER, PARSER, INDEXER
 		
 		;
 		
-		private static final HashMap<String,MWComponents> ID_MAP = new HashMap<String,MWComponents>();
-		
-		static {
-			for (final MWComponents c : values())
-				ID_MAP.put(c.getID(), c);
-		}
-		
+		/**
+		 * @return the {@link org.osgi.framework.Constants#BUNDLE_SYMBOLICNAME symbolic-name}
+		 *         of this {@link IMWComponent}, which also denotes the value for
+		 *         {@link IMWComponent#COMPONENT_ID}
+		 */
 		public String getID() {
 			return String.format("org.paxle.%s", name().toLowerCase());
 		}
 		
+		/**
+		 * @return a LDAP-style expression which matches this components's
+		 *         {@link IMWComponent#COMPONENT_ID}
+		 */
 		public String toQuery() {
 			return toQuery(IMWComponent.COMPONENT_ID);
 		}
 		
+		/**
+		 * @param key the key of the resulting expression
+		 * @return a LDAP-style expression which matches the given <code>key</code> to this
+		 *         component's {@link IMWComponent#COMPONENT_ID}
+		 * @see #getID()
+		 */
 		public String toQuery(final String key) {
 			return String.format("(%s=%s)", key, getID());
 		}
 		
+		/**
+		 * @return the human-readable name of this component, such as "Crawler", "Parser" or
+		 *         "Indexer" 
+		 */
 		@Override
 		public String toString() {
 			return Character.toUpperCase(name().charAt(0)) + name().substring(1).toLowerCase();
 		}
 		
+		/**
+		 * @param id the {@link #getID() ID} of the component's representative constant to return
+		 * @return the {@link MWComponents}-constant whose ID is given by <code>id</code> or <code>null</code>
+		 *         if no such component is known 
+		 * @see #getID()
+		 */
 		public static MWComponents valueOfID(final String id) {
-			return ID_MAP.get(id);
+			return valueOf(id.substring("org.paxle.".length()).toUpperCase());
 		}
 		
+		/**
+		 * @param name the {@link #toString() name} of the component's representative constant to return
+		 * @return the {@link MWComponents}-constant whose human-readable name is given by <code>name</code>
+		 *         or <code>null</code> if no such component is known
+		 * @see #toString()
+		 */
 		public static MWComponents valueOfHumanReadable(final String name) {
 			return valueOf(name.toUpperCase());
 		}
 		
+		/**
+		 * @return an array of the human-readable {@link #toString() names} of all known {@link IMWComponent}s
+		 *         in the order {@link #values()} returns the {@link Enum#valueOf(Class, String)}-constants
+		 * @see #values()
+		 * @see #toString() 
+		 */
 		public static String[] humanReadableNames() {
 			final MWComponents[] comps = values();
 			final String[] compStrs = new String[comps.length];
@@ -97,19 +136,50 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		}
 	}
 	
+	/**
+	 * A {@link WindowAdapter} which silently removes the associated {@link DIComponent} from the map of active
+	 * {@link DesktopServices#serviceFrames}. It is attached to all frames
+	 * {@link DesktopServices#createDefaultFrame(DIComponent, Long) created} for displaying an (DI-internal or
+	 * external) {@link DIComponent}s.
+	 * @see DesktopServices#serviceFrames
+	 * @see DesktopServices#show(Long)
+	 * @see DesktopServices#close(Long)
+	 */
 	private class FrameDICloseListener extends WindowAdapter {
 		
 		private Long id;
 		private DIComponent c;
 		
+		/**
+		 * When {@link #windowClosed(WindowEvent)} is invoked by the associated frame, this listener will
+		 * first look up the {@link DIComponent} which registered under the <code>id</code> and will then
+		 * remove it from {@link DesktopServices#serviceFrames}.
+		 * This constructor is used for {@link DIComponent}s which are not defined in this bundle but have
+		 * been {@link DesktopServices#serviceChanged(ServiceReference, int) registered} to this bundle.
+		 * @see DesktopServices#servicePanels
+		 * @param id the {@link Constants#SERVICE_ID} of the {@link DIComponent}
+		 */
 		public FrameDICloseListener(final Long id) {
 			this.id = id;
 		}
 		
+		/**
+		 * When {@link #windowClosed(WindowEvent)} is invoked by the associated frame, this listener will
+		 * remove the given {@link DIComponent} from {@link DesktopServices#serviceFrames}.
+		 * This constructor shall be used when {@link DesktopServices#servicePanels} is known to not contain
+		 * the specific {@link DIComponent} as is the case with the {@link IDesktopServices.Dialogues dialogues}
+		 * provided by this bundle.
+		 * @see DesktopServices#valueOf(org.paxle.desktop.IDesktopServices.Dialogues)
+		 * @param c the {@link DIComponent} to remove
+		 */
 		public FrameDICloseListener(final DIComponent c) {
 			this.c = c;
 		}
 		
+		/*
+		 * (non-Javadoc)
+		 * @see java.awt.event.WindowAdapter#windowClosed(java.awt.event.WindowEvent)
+		 */
 		@Override
 		public void windowClosed(WindowEvent e) {
 			final DIComponent c = (this.c != null) ? this.c : servicePanels.get(id);
@@ -123,23 +193,46 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	@SuppressWarnings("unchecked")
 	private static final Class<IMWComponent> MWCOMP_CLASS = IMWComponent.class;
 	
+	/* ============================================================================ *
+	 * Class-names needed for reflective access to bundles this bundle does not
+	 * strictly depend on
+	 * ============================================================================ */
+	
+	/** The fully qualified name of the interface under which the CommandDB of the DataLayer-bundle registered to the framework */
 	private static final String ICOMMANDDB = "org.paxle.data.db.ICommandDB";
+	/** The fully qualified name of the interface under which the RobotsTxtManager of the FilterRobotsTxt-bundle registered to the framework */
 	private static final String IROBOTSM = "org.paxle.filter.robots.IRobotsTxtManager";
 	
+	/** The fully qualified name of the {@link org.paxle.desktop.impl.DICommandProvider} for this bundle
+	 * @see DesktopServices#COMMAND_PROVIDER
+	 */
 	private static final String DI_COMMAND_PROVIDER = "org.paxle.desktop.impl.DICommandProvider";
+	/** The fully qualified name of the interface, the proprietary CommandProvider of the Equinox-framework is accessable under */
 	private static final String COMMAND_PROVIDER = "org.eclipse.osgi.framework.console.CommandProvider";
 	
+	/** Default depth for crawls initiated using {@link #startDefaultCrawl(String)} */
 	private static final int DEFAULT_PROFILE_MAX_DEPTH = 3;
+	/** Default name of CrawlProfiles for crawls initiated by the DI-bundle */
 	private static final String DEFAULT_NAME = "desktop-crawl";
 	
+	/* ============================================================================ *
+	 * ConfigurationManagement-related constants
+	 * ============================================================================ */
 	private static final String PREF_PID = IDesktopServices.class.getName();
 	private static final String PREF_OPEN_BROWSER_STARTUP = "openBrowser";
 	private static final String PREF_SHOW_SYSTRAY = "showTrayMenu";
 	
+	/* ============================================================================ *
+	 * Properties-related constants
+	 * ============================================================================ */
 	// backend-specific properties
 	private static final int PROP_BROWSER_OPENABLE = 1;
 	
 	private static final String FILTER = String.format("(%s=%s)", Constants.OBJECTCLASS, DIComponent.class.getName());	// TODO
+	
+	/* ============================================================================ *
+	 * Object variables
+	 * ============================================================================ */
 	
 	private final Log logger = LogFactory.getLog(DesktopServices.class);
 	private final ServiceManager manager;
@@ -215,11 +308,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 			if (props == null)
 				props = getDefaults();
 			
-			if (browserOpenable) {
-				final Object openBrowserStartup = props.get(PREF_OPEN_BROWSER_STARTUP);
-				if (openBrowserStartup != null && ((Boolean)openBrowserStartup).booleanValue())
-					browseUrl(getPaxleUrl("/search"), false);
-			}
+			final Object openBrowserStartup = props.get(PREF_OPEN_BROWSER_STARTUP);
+			// TODO: add CM-attribute to define which servlet shall be opened on start-up
+			if (openBrowserStartup != null && ((Boolean)openBrowserStartup).booleanValue())
+				browseUrl(getPaxleUrl("/search"), true, false);
 		} catch (IOException e) { e.printStackTrace(); }
 		
 		try {
@@ -230,12 +322,16 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.osgi.framework.ServiceListener#serviceChanged(org.osgi.framework.ServiceEvent)
+	 */
 	public void serviceChanged(ServiceEvent event) {
 		serviceChanged(event.getServiceReference(), event.getType());
 	}
 	
 	public Map<Long,DIComponent> getAdditionalComponents() {
-		return servicePanels;
+		return Collections.unmodifiableMap(servicePanels);
 	}
 	
 	private void serviceChanged(final ServiceReference ref, final int type) {
@@ -311,6 +407,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.desktop.IDesktopServices#setTrayMenuVisible(boolean)
+	 */
 	public void setTrayMenuVisible(final boolean yes) {
 		if (yes && !isTrayMenuVisible()) {
 			trayMenu = new SystrayMenu(this, manager.getBundle().getResource(TRAY_ICON_LOCATION));
@@ -320,6 +420,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.desktop.IDesktopServices#isTrayMenuVisible()
+	 */
 	public boolean isTrayMenuVisible() {
 		return trayMenu != null;
 	}
@@ -359,6 +463,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 				(id.longValue() < 0L) ? new FrameDICloseListener(container) : new FrameDICloseListener(id));
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.desktop.IDesktopServices#openDialogue(org.paxle.desktop.IDesktopServices.Dialogues)
+	 */
 	public void openDialogue(final Dialogues d) {
 		final DIComponent c;
 		switch (d) {
@@ -402,6 +510,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		return Long.valueOf(-d.ordinal() - 1L);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.desktop.IDesktopServices#closeDialogue(org.paxle.desktop.IDesktopServices.Dialogues)
+	 */
 	public void closeDialogue(final Dialogues d) {
 		close(valueOf(d));
 	}
@@ -438,6 +550,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		return false;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.desktop.IDesktopServices#isBrowserOpenable()
+	 */
 	public boolean isBrowserOpenable() {
 		return browserOpenable;
 	}
@@ -522,6 +638,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.desktop.IDesktopServices#getPaxleUrl(java.lang.String[])
+	 */
 	public String getPaxleUrl(String... path) {
 		final String port = manager.getProperty("org.osgi.service.http.port");
 		if (port == null)
@@ -534,14 +654,18 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		return sb.toString();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.desktop.IDesktopServices#browseUrl(java.lang.String)
+	 */
 	public boolean browseUrl(final String url) {
-		return browseUrl(url, true);
+		return browseUrl(url, true, true);
 	}
 	
-	public boolean browseUrl(final String url, final boolean displayErrMsg) {
+	public boolean browseUrl(final String url, final boolean force, final boolean displayErrMsg) {
 		if (url == null) {
 			JOptionPane.showMessageDialog(null, "HTTP service not accessible", "Error", JOptionPane.ERROR_MESSAGE);
-		} else if (browserOpenable) try {
+		} else if (browserOpenable || force) try {
 			if ((browserOpenable = backend.getDesktop().browse(url))) {
 				return true;
 			} else if (displayErrMsg) {
