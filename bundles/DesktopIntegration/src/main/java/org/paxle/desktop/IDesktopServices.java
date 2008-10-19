@@ -31,7 +31,46 @@ public interface IDesktopServices {
 	 * to this bundle.
 	 */
 	public static enum Dialogues {
-		SETTINGS, STATS, CCONSOLE, BUNDLES
+		/**
+		 * A settings-dialogue which provides access to all
+		 * {@link org.osgi.service.cm.ManagedService managed-services} registered to the OSGi-framework.
+		 */
+		/*
+		 * (non-Javadoc)
+		 * @see org.paxle.desktop.impl.dialogues.settings.SettingsPanel
+		 */
+		SETTINGS,
+		
+		/**
+		 * A dialogue presenting statistical information about Paxle's core-components like the
+		 * PPM of CrawlerCore, ParserCore and Indexer, sizes of the DataLayers and IndexLucenes
+		 * databases and memory.
+		 */
+		/*
+		 * (non-Javadoc)
+		 * @see org.paxle.desktop.impl.dialogues.stats.StatisticsPanel
+		 */
+		STATS,
+		
+		/**
+		 * A debug-dialogue which provides access to the {@link org.paxle.core.queue.ICommand ICommands}
+		 * currently processed by the core-components via {@link org.osgi.service.event.Event events}.
+		 */
+		/*
+		 * (non-Javadoc)
+		 * @see org.paxle.desktop.impl.dialogues.CrawlingConsole
+		 */
+		CCONSOLE,
+		
+		/**
+		 * A dialogue providing access to meta-data for all bundles currently installed, like
+		 * imported/exported services, the bundle's manifest- and runtime-information.
+		 */
+		/*
+		 * (non-Javadoc)
+		 * @see org.paxle.desktop.impl.dialogues.bundles.BundlePanel
+		 */
+		BUNDLES
 	}
 	
 	/**

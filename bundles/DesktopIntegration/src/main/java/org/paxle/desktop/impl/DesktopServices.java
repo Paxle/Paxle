@@ -74,7 +74,12 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	 * CrawlerCore, ParserCore and Indexer.
 	 */
 	public static enum MWComponents {
-		CRAWLER, PARSER, INDEXER
+		/** Refers to the {@link IMWComponent} provided by the bundle "CrawlerCore" */
+		CRAWLER,
+		/** Refers to the {@link IMWComponent} provided by the bundle "ParserCore" */
+		PARSER,
+		/** Refers to the {@link IMWComponent} provided by the bundle "Indexer" */
+		INDEXER
 		
 		;
 		
@@ -232,8 +237,8 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	 * ConfigurationManagement-related constants
 	 * ============================================================================ */
 	private static final String PREF_PID = IDesktopServices.class.getName();
-	private static final String PREF_OPEN_BROWSER_STARTUP = "openBrowser";
-	private static final String PREF_SHOW_SYSTRAY = "showTrayMenu";
+	private static final String PREF_OPEN_BROWSER_STARTUP = PREF_PID + "." + "openBrowser";
+	private static final String PREF_SHOW_SYSTRAY = PREF_PID + "." + "showTrayMenu";
 	
 	/* ============================================================================ *
 	 * Properties-related constants
@@ -268,15 +273,22 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	public DesktopServices(final ServiceManager manager, final IDIBackend backend) {
 		this.manager = manager;
 		this.backend = backend;
+		
+		// catch all ServiceEvents for DIComponents
 		try {
 			manager.addServiceListener(this, FILTER);
 			logger.info("added desktop-integration as service-listener for '" + FILTER + "'");
 		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
 		
+		// register managed-service for CM
 		final Hashtable<String,Object> regProps = new Hashtable<String,Object>();
 		regProps.put(Constants.SERVICE_PID, PREF_PID);
 		regManagedService = manager.registerService(this, regProps, ManagedService.class);
+		
+		// if running in Equinox OSGi-framework, register a CommandProvider, otherwise fail silently
 		regConsoleCmdProvider = registerDICommandProvider();
+		
+		// initialize the local variables from properties-store and initially update the configuration
 		initDS();
 	}
 	
@@ -335,16 +347,41 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		} catch (InvalidSyntaxException e) { e.printStackTrace(); }
 	}
 	
+	public void shutdown() {
+		// save properties
+		final Properties props = manager.getServiceProperties();
+		if (props != null) {
+			int bp = 0;
+			bp |= (browserOpenable) ? PROP_BROWSER_OPENABLE : 0;
+			props.put(backend.getClass().getName(), Integer.toString(bp));
+		}
+		
+		// close all open dialogues
+		for (final Frame frame : serviceFrames.values())
+			frame.dispose();
+		serviceFrames.clear();
+		
+		// remove tray-menu
+		setTrayMenuVisible(false);
+		
+		// unregister services registered during instantiation
+		if (regManagedService != null)
+			regManagedService.unregister();
+		if (regConsoleCmdProvider != null)
+			regConsoleCmdProvider.unregister();
+		manager.removeServiceListener(this);
+	}
+	
+	/* ========================================================================== *
+	 * OSGi Services related methods
+	 * ========================================================================== */
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.osgi.framework.ServiceListener#serviceChanged(org.osgi.framework.ServiceEvent)
 	 */
 	public void serviceChanged(ServiceEvent event) {
 		serviceChanged(event.getServiceReference(), event.getType());
-	}
-	
-	public Map<Long,DIComponent> getAdditionalComponents() {
-		return Collections.unmodifiableMap(servicePanels);
 	}
 	
 	private void serviceChanged(final ServiceReference ref, final int type) {
@@ -354,8 +391,11 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 			logger.error("(un)registered DIComponent has no valid service-id: " + ref);
 			return;
 		}
+		
 		switch (type) {
 			case ServiceEvent.REGISTERED: {
+				// retrieve the service and put it under it's id in the servicePanels-map
+				// to be able to access it via this id later
 				final DIComponent panel = manager.getService(ref, DIComponent.class);
 				if (panel == null) {
 					logger.error("tried to register DIComponent with null-reference");
@@ -366,6 +406,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 			} break;
 			
 			case ServiceEvent.UNREGISTERING: {
+				// close possibly open dialogue and remove it from the servicePanels-map
 				close(id);
 				final DIComponent panel = servicePanels.remove(id);
 				if (panel == null) {
@@ -379,27 +420,6 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 			case ServiceEvent.MODIFIED: {
 			} break;
 		}
-	}
-	
-	public void shutdown() {
-		final Properties props = manager.getServiceProperties();
-		if (props != null) {
-			int bp = 0;
-			bp |= (browserOpenable) ? PROP_BROWSER_OPENABLE : 0;
-			props.put(backend.getClass().getName(), Integer.toString(bp));
-		}
-		
-		for (final Frame frame : serviceFrames.values())
-			frame.dispose();
-		serviceFrames.clear();
-		
-		setTrayMenuVisible(false);
-		
-		if (regManagedService != null)
-			regManagedService.unregister();
-		if (regConsoleCmdProvider != null)
-			regConsoleCmdProvider.unregister();
-		manager.removeServiceListener(this);
 	}
 	
 	public void shutdownFramework() {
@@ -418,27 +438,6 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 			Utilities.showExceptionBox("error restarting framework", e);
 			logger.error("error restarting framework", e);
 		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.paxle.desktop.IDesktopServices#setTrayMenuVisible(boolean)
-	 */
-	public void setTrayMenuVisible(final boolean yes) {
-		if (yes && !isTrayMenuVisible()) {
-			trayMenu = new SystrayMenu(this, manager.getBundle().getResource(TRAY_ICON_LOCATION));
-		} else if (!yes && isTrayMenuVisible()) {
-			trayMenu.close();
-			trayMenu = null;
-		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.paxle.desktop.IDesktopServices#isTrayMenuVisible()
-	 */
-	public boolean isTrayMenuVisible() {
-		return trayMenu != null;
 	}
 	
 	private static Hashtable<String,Object> getDefaults() {
@@ -462,6 +461,89 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 			}
 		} catch (Throwable e) { e.printStackTrace(); }
 	}
+	
+	public Map<Long,DIComponent> getAdditionalComponents() {
+		return Collections.unmodifiableMap(servicePanels);
+	}
+	
+	/* ========================================================================== *
+	 * Desktop-related methods
+	 * ========================================================================== */
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.desktop.IDesktopServices#isBrowserOpenable()
+	 */
+	public boolean isBrowserOpenable() {
+		return browserOpenable;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.desktop.IDesktopServices#isTrayMenuVisible()
+	 */
+	public boolean isTrayMenuVisible() {
+		return trayMenu != null;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.desktop.IDesktopServices#setTrayMenuVisible(boolean)
+	 */
+	public void setTrayMenuVisible(final boolean yes) {
+		if (yes && !isTrayMenuVisible()) {
+			trayMenu = new SystrayMenu(this, manager.getBundle().getResource(TRAY_ICON_LOCATION));
+		} else if (!yes && isTrayMenuVisible()) {
+			trayMenu.close();
+			trayMenu = null;
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.desktop.IDesktopServices#getPaxleUrl(java.lang.String[])
+	 */
+	public String getPaxleUrl(String... path) {
+		final String port = manager.getProperty("org.osgi.service.http.port");
+		if (port == null)
+			return null;
+		final StringBuffer sb = new StringBuffer("http://localhost:").append(port);
+		if (path.length == 0 || path[0].charAt(0) != '/')
+			sb.append('/');
+		for (final String s : path)
+			sb.append(s);
+		return sb.toString();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.paxle.desktop.IDesktopServices#browseUrl(java.lang.String)
+	 */
+	public boolean browseUrl(final String url) {
+		return browseUrl(url, true, true);
+	}
+	
+	public boolean browseUrl(final String url, final boolean force, final boolean displayErrMsg) {
+		if (url == null) {
+			JOptionPane.showMessageDialog(null, "HTTP service not accessible", "Error", JOptionPane.ERROR_MESSAGE);
+		} else if (browserOpenable || force) try {
+			if ((browserOpenable = backend.getDesktop().browse(url))) {
+				return true;
+			} else if (displayErrMsg) {
+				Utilities.showURLErrorMessage(
+						"Couldn't launch system browser due to an error in Paxle's system integration\n" +
+						"bundle. Please review the log for details. The requested URL was:", url);
+			}
+		} catch (MalformedURLException e) {
+			Utilities.showExceptionBox("Generated mal-formed URL", e);
+			logger.error("Generated mal-formed URL '" + url + "': " + e.getMessage(), e);
+		}
+		return false;
+	}
+	
+	/* ========================================================================== *
+	 * Dialogue handling
+	 * ========================================================================== */
 	
 	private Frame createDefaultFrame(final DIComponent container, final Long id) {
 		return Utilities.setFrameProps(
@@ -540,6 +622,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		frame.toFront();
 	}
 	
+	/* ========================================================================== *
+	 * Convenience methods
+	 * ========================================================================== */
+	
 	@SuppressWarnings("unchecked")
 	public IMWComponent<ICommand> getMWComponent(final MWComponents comp) {
 		try {
@@ -561,14 +647,6 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 			e.printStackTrace();
 		}
 		return false;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.paxle.desktop.IDesktopServices#isBrowserOpenable()
-	 */
-	public boolean isBrowserOpenable() {
-		return browserOpenable;
 	}
 	
 	public ServiceManager getServiceManager() {
@@ -649,47 +727,5 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		} catch (Exception e) {
 			throw new ServiceException("Crawl start", e.getMessage(), e);
 		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.paxle.desktop.IDesktopServices#getPaxleUrl(java.lang.String[])
-	 */
-	public String getPaxleUrl(String... path) {
-		final String port = manager.getProperty("org.osgi.service.http.port");
-		if (port == null)
-			return null;
-		final StringBuffer sb = new StringBuffer("http://localhost:").append(port);
-		if (path.length == 0 || path[0].charAt(0) != '/')
-			sb.append('/');
-		for (final String s : path)
-			sb.append(s);
-		return sb.toString();
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.paxle.desktop.IDesktopServices#browseUrl(java.lang.String)
-	 */
-	public boolean browseUrl(final String url) {
-		return browseUrl(url, true, true);
-	}
-	
-	public boolean browseUrl(final String url, final boolean force, final boolean displayErrMsg) {
-		if (url == null) {
-			JOptionPane.showMessageDialog(null, "HTTP service not accessible", "Error", JOptionPane.ERROR_MESSAGE);
-		} else if (browserOpenable || force) try {
-			if ((browserOpenable = backend.getDesktop().browse(url))) {
-				return true;
-			} else if (displayErrMsg) {
-				Utilities.showURLErrorMessage(
-						"Couldn't launch system browser due to an error in Paxle's system integration\n" +
-						"bundle. Please review the log for details. The requested URL was:", url);
-			}
-		} catch (MalformedURLException e) {
-			Utilities.showExceptionBox("Generated mal-formed URL", e);
-			logger.error("Generated mal-formed URL '" + url + "': " + e.getMessage(), e);
-		}
-		return false;
 	}
 }
