@@ -18,14 +18,19 @@ import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -44,6 +49,9 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.metatype.AttributeDefinition;
+import org.osgi.service.metatype.MetaTypeProvider;
+import org.osgi.service.metatype.ObjectClassDefinition;
 
 import org.paxle.core.IMWComponent;
 import org.paxle.core.norm.IReferenceNormalizer;
@@ -61,7 +69,7 @@ import org.paxle.desktop.impl.dialogues.bundles.BundlePanel;
 import org.paxle.desktop.impl.dialogues.settings.SettingsPanel;
 import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel;
 
-public class DesktopServices implements IDesktopServices, ManagedService, ServiceListener {
+public class DesktopServices implements IDesktopServices, ManagedService, MetaTypeProvider, ServiceListener {
 	
 	/**
 	 * Denotes a relative path the the Paxle-icon used for the tray.
@@ -220,6 +228,8 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	private static final String ICOMMANDDB = "org.paxle.data.db.ICommandDB";
 	/** The fully qualified name of the interface under which the RobotsTxtManager of the FilterRobotsTxt-bundle registered to the framework */
 	private static final String IROBOTSM = "org.paxle.filter.robots.IRobotsTxtManager";
+	/** The fully qualified name of the interface under which the ServletManager of the GUI-bundle registered to the framework */
+	private static final String ISERVLET_MANAGER = "org.paxle.gui.IServletManager";
 	
 	/** The fully qualified name of the {@link org.paxle.desktop.impl.DICommandProvider} for this bundle
 	 * @see DesktopServices#COMMAND_PROVIDER
@@ -237,8 +247,9 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	 * ConfigurationManagement-related constants
 	 * ============================================================================ */
 	private static final String PREF_PID = IDesktopServices.class.getName();
-	private static final String PREF_OPEN_BROWSER_STARTUP = PREF_PID + "." + "openBrowser";
-	private static final String PREF_SHOW_SYSTRAY = PREF_PID + "." + "showTrayMenu";
+	private static final String PREF_OPEN_BROWSER_STARTUP 	= PREF_PID + "." + "openBrowser";
+	private static final String PREF_SHOW_SYSTRAY 			= PREF_PID + "." + "showTrayMenu";
+	private static final String PREF_OPEN_BROWSER_SERVLET	= PREF_PID + "." + "openServlet";
 	
 	/* ============================================================================ *
 	 * Properties-related constants
@@ -269,7 +280,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	
 	// TODO: get desktop-services working without a backend, dialogues can still be useful and
 	//       may be started in different ways than using the tray-menu
-	@SuppressWarnings("unchecked")
+	// @SuppressWarnings("unchecked")
 	public DesktopServices(final ServiceManager manager, final IDIBackend backend) {
 		this.manager = manager;
 		this.backend = backend;
@@ -283,7 +294,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		// register managed-service for CM
 		final Hashtable<String,Object> regProps = new Hashtable<String,Object>();
 		regProps.put(Constants.SERVICE_PID, PREF_PID);
-		regManagedService = manager.registerService(this, regProps, ManagedService.class);
+		regManagedService = manager.registerService(this, regProps, new String[] {
+				ManagedService.class.getName(),
+				MetaTypeProvider.class.getName()
+		});
 		
 		// if running in Equinox OSGi-framework, register a CommandProvider, otherwise fail silently
 		regConsoleCmdProvider = registerDICommandProvider();
@@ -333,10 +347,19 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 			if (props == null)
 				props = getDefaults();
 			
-			final Object openBrowserStartup = props.get(PREF_OPEN_BROWSER_STARTUP);
-			// TODO: add CM-attribute to define which servlet shall be opened on start-up
-			if (openBrowserStartup != null && ((Boolean)openBrowserStartup).booleanValue())
-				browseUrl(getPaxleUrl("/search"), true, false);
+			final Boolean openBrowserStartup = (Boolean)props.get(PREF_OPEN_BROWSER_STARTUP);
+			final String openServlet = (String)props.get(PREF_OPEN_BROWSER_SERVLET);
+			if (openBrowserStartup != null && openBrowserStartup.booleanValue() && openServlet != null) {
+				final Object servletManager = manager.getService(ISERVLET_MANAGER);
+				if (servletManager != null) try {
+					final Class<?> servletManagerClazz = servletManager.getClass();
+					final Method getFullAlias = servletManagerClazz.getMethod("getFullAlias", String.class);
+					final String servletPath = (String)getFullAlias.invoke(servletManager, openServlet);
+					final String url = getPaxleUrl(servletPath);
+					logger.debug("Opening browser: " + url);
+					browseUrl(url, true, false);
+				} catch (Exception e) { e.printStackTrace(); }
+			}
 		} catch (IOException e) { e.printStackTrace(); }
 		
 		try {
@@ -447,6 +470,114 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 		return defaults;
 	}
 	
+	public String[] getLocales() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public ObjectClassDefinition getObjectClassDefinition(String id, String loc) {
+		final Locale locale = (loc == null) ? Locale.ENGLISH : new Locale(loc);
+		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/IDesktopService", locale);
+		
+		abstract class SingleAD implements AttributeDefinition {
+			
+			private final String pid;
+			
+			public SingleAD(final String pid) {
+				this.pid = pid;
+			}
+			
+			public int getCardinality() {
+				return 0;
+			}
+			
+			public String getDescription() {
+				return rb.getString("desktopService." + pid.substring(pid.lastIndexOf('.') + 1) + ".desc");
+			}
+			
+			public String getID() {
+				return pid;
+			}
+			
+			public String getName() {
+				return rb.getString("desktopService." + pid.substring(pid.lastIndexOf('.') + 1) + ".name");
+			}
+		}
+		
+		final class BooleanAD extends SingleAD {
+			
+			public BooleanAD(final String pid) {
+				super(pid);
+			}
+			
+			public String[] getDefaultValue() {
+				return new String[] { Boolean.TRUE.toString() };
+			}
+			
+			public String[] getOptionLabels() { return null; }
+			public String[] getOptionValues() { return null; }
+			
+			public int getType() {
+				return BOOLEAN;
+			}
+			
+			public String validate(String value) {
+				return null;
+			}
+		}
+		
+		return new ObjectClassDefinition() {
+			public AttributeDefinition[] getAttributeDefinitions(int filter) {
+				final Object servletManager = manager.getService(ISERVLET_MANAGER);
+				final boolean hasWebUi = (servletManager != null);
+				
+				final AttributeDefinition[] ads = new AttributeDefinition[(hasWebUi) ? 3 : 2];
+				int idx = 0;
+				ads[idx++] = new BooleanAD(PREF_OPEN_BROWSER_STARTUP);	// option for opening the browser on start-up
+				
+				if (hasWebUi) {
+					ads[idx++] = new SingleAD(PREF_OPEN_BROWSER_SERVLET) {
+						
+						private final String defaultValue;
+						private final String[] servletNames; {
+							try {
+								final Class<?> servletManagerClazz = servletManager.getClass();
+								final Method getServlets = servletManagerClazz.getMethod("getServlets");
+								
+								final Map<?,?> servlets = (Map<?,?>)getServlets.invoke(servletManager);
+								servletNames = new String[servlets.size()];
+								int idx = 0;
+								String defVal = null;
+								final Iterator<?> it = servlets.keySet().iterator();
+								while (it.hasNext()) {
+									final String name = (String)it.next();
+									servletNames[idx] = name;
+									if (name.equals("/search"))
+										defVal = name;
+									idx++;
+								}
+								defaultValue = defVal;
+								Arrays.sort(servletNames);
+							} catch (Exception e) { throw new RuntimeException(e); }
+						}
+						
+						public String[] getDefaultValue() {	return new String[] { defaultValue }; }
+						public String[] getOptionLabels() {	return servletNames; }
+						public String[] getOptionValues() { return servletNames; }
+						public int getType() { return STRING; }
+						public String validate(String value) { return null; }
+					};
+				}
+				ads[idx++] = new BooleanAD(PREF_SHOW_SYSTRAY);			// option to show/hide the system tray icon
+				return ads;
+			}
+			public String getDescription() { return rb.getString("desktopService.desc"); }
+			public InputStream getIcon(int size) throws IOException { return getClass().getResourceAsStream("/OSGI-INF/images/systemtray.png"); }
+			public String getID() { return PREF_PID; }
+			public String getName() { return rb.getString("desktopService.name"); }
+		};
+	}
+	
 	@SuppressWarnings("unchecked")
 	public synchronized void updated(Dictionary properties) throws ConfigurationException {
 		try {
@@ -459,6 +590,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 				final boolean showTM = ((Boolean)showTrayMenu).booleanValue();
 				setTrayMenuVisible(showTM);
 			}
+			
+			// PREF_OPEN_BROWSER_STARTUP and PREF_OPEN_BROWSER_SERVLET only matter for the
+			// initialization of this class, changing these values does not necessitate
+			// runtime-changes.
 		} catch (Throwable e) { e.printStackTrace(); }
 	}
 	
@@ -520,7 +655,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, Servic
 	 * @see org.paxle.desktop.IDesktopServices#browseUrl(java.lang.String)
 	 */
 	public boolean browseUrl(final String url) {
-		return browseUrl(url, true, true);
+		return browseUrl(url, false, true);
 	}
 	
 	public boolean browseUrl(final String url, final boolean force, final boolean displayErrMsg) {

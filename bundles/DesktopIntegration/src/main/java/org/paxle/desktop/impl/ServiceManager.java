@@ -78,6 +78,10 @@ public class ServiceManager {
 		return context.registerService(cnames, service, properties);
 	}
 	
+	public ServiceRegistration registerService(final Object service, final Hashtable<String,?> properties, final String[] cnames) {
+		return context.registerService(cnames, service, properties);
+	}
+	
 	public void addServiceListener(final ServiceListener listener) {
 		try { addServiceListener(listener, null); } catch (InvalidSyntaxException e) { e.printStackTrace(); }
 	}
