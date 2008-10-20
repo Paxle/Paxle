@@ -1,6 +1,3 @@
-
-
-
 Network Working Group                                        R. Fielding
 Internet-Draft                                              Day Software
 Obsoletes: 2616 (if approved)                                  J. Gettys
