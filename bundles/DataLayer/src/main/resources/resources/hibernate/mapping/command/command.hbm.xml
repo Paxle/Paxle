@@ -10,7 +10,7 @@
         <!-- the command processing result -->
         <property name="result" node="Result/Code">
 			<type name="org.paxle.data.db.impl.EnumUserType">
-				<param name="enumClassName">org.paxle.core.filter.IFilterable$Result</param>
+				<param name="enumClassName">org.paxle.core.queue.ICommand$Result</param>
 			</type>
       	</property>
       	<property name="resultText" node="Result/Text" index="resultText_idx" />    
