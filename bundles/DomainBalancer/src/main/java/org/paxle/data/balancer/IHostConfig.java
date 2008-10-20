@@ -14,7 +14,33 @@
 
 package org.paxle.data.balancer;
 
+/**
+ * An {@link IHostConfig}-object provides information about the specific URI it was
+ * generated for. Initially, the information must have been retrieved from the resource
+ * the URI (or in the case of <code>robots.txt</code> the host of the URI) points to.
+ * It must not be generated using default values for URIs which do not provide the
+ * required information.
+ * <p>
+ * The {@link IHostConfig}-object for one URI should remain the same, once it has been
+ * retrieved. However, the information it provides may change. Since the
+ * {@link IHostConfig}s are polled during the run of the balancer, a change of this
+ * information will not be applied directly. The frequency of the polling is
+ * indeterminate as a direct consequence of the balancer's purpose.
+ * <p>
+ * Though it is recommended to cache the information internally instead of retrieving
+ * it every time a method of this interface is being invoked, this is not a necessity.
+ * {@link IHostConfigProvider}s may choose the appropriate behaviour upon the standards
+ * they obey and/or the capabilities of the methods and internal structure used.
+ * <p>
+ * <i>Implementation note on the DomainBalancer</i>: Currently, delays in returning the
+ * requested information have direct impact on the speed of the balancer. This may change
+ * in the future.
+ */
 public interface IHostConfig {
 	
+	/**
+	 * @return the amount of time between successive requests to the host, this {@link IHostConfig}
+	 *         provides information for.
+	 */
 	public long getDelayMs();
 }

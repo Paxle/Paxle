@@ -16,7 +16,21 @@ package org.paxle.data.balancer;
 
 import java.net.URI;
 
+/**
+ * An {@link IHostConfigProvider} is a service that is able to provide {@link IHostConfig}s
+ * for specific {@link URI}s. The {@link IHostConfig} once provided must remain the same
+ * object for the same {@link URI}, however the {@link IHostConfig} itself may provide
+ * different information each time it is queried. It may provide the same object for
+ * different {@link URI}s though.
+ * @see IHostConfig
+ */
 public interface IHostConfigProvider {
 	
+	/**
+	 * @param uri the {@link URI} for which an {@link IHostConfig} is requested
+	 * @return the {@link IHostConfig} which is permanently attached to the URI or
+	 *         <code>null</code> if either this provider does not know the specified
+	 *         URI or the resource at the URI does not provide the required information.
+	 */
 	public IHostConfig getHostConfig(final URI uri);
 }
