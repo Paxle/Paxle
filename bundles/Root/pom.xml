@@ -239,8 +239,11 @@
 	        		<header>../Paxle/LICENSE-HEADER.txt</header>
 	        		<properties>
 	        			<inceptionYear>${project.inceptionYear}</inceptionYear>
-	        			<year>2008</year>
+	        			<year>2008</year>      			
 	        		</properties>
+	                <excludes>
+	                    <exclude>src/test/resources/**</exclude>
+	                </excludes>	  	        		
 	        	</configuration>
 	        </plugin>		
 		
