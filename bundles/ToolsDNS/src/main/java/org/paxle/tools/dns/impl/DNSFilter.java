@@ -69,7 +69,6 @@ public class DNSFilter implements IFilter<ICommand> {
 			} catch (UnknownHostException e) {
 				meta.setStatus(Status.FILTERED, "unable to resolve hostname.");
 				logger.info("unable to resolve hostname " + location + ".");
-				e.printStackTrace();
 			}
 
 		}
