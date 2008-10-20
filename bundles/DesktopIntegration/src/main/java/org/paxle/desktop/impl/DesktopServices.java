@@ -54,6 +54,7 @@ import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
 import org.paxle.core.IMWComponent;
+import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.prefs.Properties;
 import org.paxle.core.queue.CommandProfile;
@@ -250,6 +251,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 	private static final String PREF_OPEN_BROWSER_STARTUP 	= PREF_PID + "." + "openBrowser";
 	private static final String PREF_SHOW_SYSTRAY 			= PREF_PID + "." + "showTrayMenu";
 	private static final String PREF_OPEN_BROWSER_SERVLET	= PREF_PID + "." + "openServlet";
+	private static final String PREF_OPEN_BROWSER_SERVLET_DEFAULT = "/search";
 	
 	/* ============================================================================ *
 	 * Properties-related constants
@@ -268,6 +270,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 	private final IDIBackend backend;
 	private final HashMap<Integer,Integer> profileDepthMap = new HashMap<Integer,Integer>();
 	// private final Map<Dialogues,Frame> dialogues = new EnumMap<Dialogues,Frame>(Dialogues.class);
+	private final String[] locales;
 	
 	private final Hashtable<Long,DIComponent> servicePanels = new Hashtable<Long,DIComponent>();
 	private final HashMap<DIComponent,Frame> serviceFrames = new HashMap<DIComponent,Frame>();
@@ -280,10 +283,13 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 	
 	// TODO: get desktop-services working without a backend, dialogues can still be useful and
 	//       may be started in different ways than using the tray-menu
-	// @SuppressWarnings("unchecked")
 	public DesktopServices(final ServiceManager manager, final IDIBackend backend) {
 		this.manager = manager;
 		this.backend = backend;
+		
+		// get available locales
+		final IResourceBundleTool rbt = manager.getService(IResourceBundleTool.class);
+		locales = (rbt == null) ? null : rbt.getLocaleArray("IDesktopService", Locale.ENGLISH);
 		
 		// catch all ServiceEvents for DIComponents
 		try {
@@ -339,6 +345,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 		
 		// check whether starting the browser on startup is set in the config and open it if necessary
 		final ConfigurationAdmin cadmin = manager.getService(ConfigurationAdmin.class);
+		String openServlet = PREF_OPEN_BROWSER_SERVLET_DEFAULT;
 		if (cadmin != null) try {
 			final Configuration conf = cadmin.getConfiguration(PREF_PID, manager.getBundle().getLocation());
 			Dictionary<?,?> props = null;
@@ -348,20 +355,27 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 				props = getDefaults();
 			
 			final Boolean openBrowserStartup = (Boolean)props.get(PREF_OPEN_BROWSER_STARTUP);
-			final String openServlet = (String)props.get(PREF_OPEN_BROWSER_SERVLET);
-			if (openBrowserStartup != null && openBrowserStartup.booleanValue() && openServlet != null) {
-				final Object servletManager = manager.getService(ISERVLET_MANAGER);
-				if (servletManager != null) try {
-					final Class<?> servletManagerClazz = servletManager.getClass();
-					final Method getFullAlias = servletManagerClazz.getMethod("getFullAlias", String.class);
-					final String servletPath = (String)getFullAlias.invoke(servletManager, openServlet);
-					final String url = getPaxleUrl(servletPath);
-					logger.debug("Opening browser: " + url);
-					browseUrl(url, true, false);
-				} catch (Exception e) { e.printStackTrace(); }
-			}
+			final Object openServletObj = props.get(PREF_OPEN_BROWSER_SERVLET);
+			if (openServletObj != null)
+				openServlet = (String)openServletObj;
+			if (openBrowserStartup != null && !openBrowserStartup.booleanValue())
+				openServlet = null;
 		} catch (IOException e) { e.printStackTrace(); }
 		
+		// opening the browser
+		if (openServlet != null) {
+			final Object servletManager = manager.getService(ISERVLET_MANAGER);
+			if (servletManager != null) try {
+				final Class<?> servletManagerClazz = servletManager.getClass();
+				final Method getFullAlias = servletManagerClazz.getMethod("getFullAlias", String.class);
+				final String servletPath = (String)getFullAlias.invoke(servletManager, openServlet);
+				final String url = getPaxleUrl(servletPath);
+				logger.debug("Opening browser: " + url);
+				browseUrl(url, true, false);
+			} catch (Exception e) { e.printStackTrace(); }
+		}
+		
+		// look for services which already have registered as DIComponents and record them in the map
 		try {
 			final ServiceReference[] refs = manager.getServiceReferences(null, FILTER);
 			if (refs != null)
@@ -471,8 +485,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 	}
 	
 	public String[] getLocales() {
-		// TODO Auto-generated method stub
-		return null;
+		return locales;
 	}
 	
 	public ObjectClassDefinition getObjectClassDefinition(String id, String loc) {
@@ -552,7 +565,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 								while (it.hasNext()) {
 									final String name = (String)it.next();
 									servletNames[idx] = name;
-									if (name.equals("/search"))
+									if (name.equals(PREF_OPEN_BROWSER_SERVLET_DEFAULT))
 										defVal = name;
 									idx++;
 								}
