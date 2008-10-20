@@ -19,7 +19,6 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
-import org.paxle.core.filter.IFilterable;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.ICommandProfileManager;
@@ -132,8 +131,7 @@ public class FilterListener implements ServiceListener {
 				this.handleFilterQueue(reference, eventType);
 		}
 	}
-
-	@SuppressWarnings("unchecked")
+	
 	private void handleFilter(ServiceReference reference, int eventType) {
 		// the service ID of the registered filter
 		Long serviceID = (Long) reference.getProperty(Constants.SERVICE_ID);
@@ -151,7 +149,7 @@ public class FilterListener implements ServiceListener {
 		
 		if (eventType == ServiceEvent.REGISTERED) {
 			// get a reference to the filter
-			IFilter<IFilterable> filter = (IFilter<IFilterable>) this.context.getService(reference);	
+			IFilter<?> filter = (IFilter<?>) this.context.getService(reference);	
 
 			// getting the filter PID
 			String filterPID = (String) reference.getProperty(Constants.SERVICE_PID);
@@ -235,7 +233,7 @@ public class FilterListener implements ServiceListener {
 			String filterPID,
 			Long serviceID, 
 			String target, 
-			IFilter<IFilterable> filter
+			IFilter<?> filter
 	) {
 		Properties filterProps = new Properties();
 		String[] params = target.split(";");

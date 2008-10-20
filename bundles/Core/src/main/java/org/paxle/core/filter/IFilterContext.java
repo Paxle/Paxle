@@ -33,7 +33,7 @@ public interface IFilterContext {
 	 * @return the {@link org.paxle.core.filter.IFilter} this context
 	 * belongs to.
 	 */
-	public IFilter<? extends IFilterable> getFilter();
+	public IFilter<?> getFilter();
 	
 	/**
 	 * Specifies if this {@link FilterContext} was disabled by the user via configuration.

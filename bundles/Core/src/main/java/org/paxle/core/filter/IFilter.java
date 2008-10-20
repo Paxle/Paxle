@@ -1,8 +1,7 @@
+
 package org.paxle.core.filter;
 
-import org.paxle.core.queue.ICommand;
-
-public interface IFilter<C extends IFilterable> {
+public interface IFilter<C> {
 	/**
 	 * Property to specify the target of a {@link IFilter filter}, e.g.:
 	 * <pre>org.paxle.parser.out; pos=10</pre>
@@ -54,8 +53,8 @@ public interface IFilter<C extends IFilterable> {
 	/**
 	 * Function to process a given {@link ICommand} by a filter.
 	 * 
-	 * @param command the {@link ICommand} to process. Note that a filter receives all {@link ICommand}, 
-	 * independently of their {@link ICommand#getResult() status}. 
+	 * @param command the object to process. Note that a filter receives all objects the queue 
+	 * transports, independently of their result status.
 	 * @param filterContext an object containing context-specific parameters that should
 	 * be passed to the filter. 
 	 */
