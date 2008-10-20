@@ -146,7 +146,6 @@
 		</plugins>
 	</reporting>	
 
-	<!-- plugin settings -->
 	<build>
 		<!-- Output File Name:
 			The jar names should not include the version number. This is
@@ -171,24 +170,30 @@
 	        </resources>
 	        -->
 
-	        <resources>
-	            <resource>
-	                <directory>src/main/resources</directory>
-	                <excludes>
-	                	<!-- excluding language files with UTF-8 encoding  -->
-	                	<exclude>**/l10n/*</exclude>
-	                </excludes>
-	            </resource>
-	            <resource>
-	            	<!-- 
-	            		including language files with converted ASCII encoding 
-	            		(see native2ascii plugin) 
-	            	-->
-	            	<directory>target/native2ascii</directory>
-	            </resource>
-	        </resources>
+		<!-- 
+			Defining resources that should be included into the final jar
+		 -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                	<!-- excluding language files with UTF-8 encoding  -->
+                	<exclude>**/l10n/*</exclude>
+                </excludes>
+            </resource>
+            <resource>
+            	<!-- 
+            		including language files with converted ASCII encoding 
+            		(see native2ascii plugin) 
+            	-->
+            	<directory>target/native2ascii</directory>
+            </resource>
+        </resources>
 
-		<!-- central plugin management to set the plugin versions to use -->
+		<!-- 
+			central plugin management to set the plugin versions 
+			to use by all sub-projects 
+		-->
 		<pluginManagement>
 			<plugins>		
 				<plugin>
@@ -221,6 +226,11 @@
 					<artifactId>maven-eclipse-plugin</artifactId>
 					<version>2.4</version>
 				</plugin>
+				<plugin>
+		        	<groupId>com.google.code.maven-license-plugin</groupId>
+		        	<artifactId>maven-license-plugin</artifactId>
+		        	<version>1.3.2</version>				
+				</plugin>
 				<!-- required maven 2.0.9 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -232,48 +242,55 @@
 		</pluginManagement>
 
 		<plugins>
-	        <plugin>
-	        	<groupId>com.google.code.maven-license-plugin</groupId>
-	        	<artifactId>maven-license-plugin</artifactId>
-	        	<configuration>
-	        		<header>../Paxle/LICENSE-HEADER.txt</header>
-	        		<properties>
-	        			<inceptionYear>${project.inceptionYear}</inceptionYear>
-	        			<year>2008</year>      			
-	        		</properties>
-	                <excludes>
-	                    <exclude>src/test/resources/**</exclude>
-	                    <exclude>src/main/resources/binaries/**</exclude>
-	                </excludes>	  	        		
-	        	</configuration>
-	        </plugin>		
-		
-			 <plugin>
-			 	<groupId>org.codehaus.mojo</groupId>
-			 	<artifactId>native2ascii-maven-plugin</artifactId>
+			<!-- 
+				A plugin to check if all files contains the Paxle license header
+			 -->
+			<plugin>
+				<groupId>com.google.code.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<configuration>
+					<header>../Paxle/LICENSE-HEADER.txt</header>
+					<properties>
+						<inceptionYear>${project.inceptionYear}</inceptionYear>
+						<year>2008</year>
+					</properties>
+					<excludes>
+						<exclude>src/test/resources/**</exclude>
+						<exclude>src/main/resources/binaries/**</exclude>
+					</excludes>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+
+			<!-- 
+				A plugin to convert UTF-8 language files to ASCII 
+			 -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>native2ascii-maven-plugin</artifactId>
 				<version>1.0-alpha-2-SNAPSHOT</version>
-			 	<executions>
-				 	<execution>
-				 		<goals>
-				 			<goal>native2ascii</goal>
-				 		</goals>
-				 		<phase>validate</phase>
-				 		<configuration>
-				 			<src>${basedir}/src/main/resources/</src>				 			
-					 		<dest>${project.build.directory}/native2ascii</dest>
-						        <includes>**/l10n/*</includes>
+				<executions>
+					<execution>
+						<goals>
+							<goal>native2ascii</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<src>${basedir}/src/main/resources/</src>
+							<dest>${project.build.directory}/native2ascii</dest>
+							<includes>**/l10n/*</includes>
 							<excludes>*</excludes>
-				 			<encoding>UTF8</encoding>
-				 			<ext>.properties</ext>
+							<encoding>UTF8</encoding>
+							<ext>.properties</ext>
 							<failonerror>false</failonerror>
-				 		</configuration>
-				 	</execution>
-			 	</executions>
-			 </plugin>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
-
-			 
-			<!-- plugin to build eclipse-projects -->
+			<!-- 
+				A plugin to generate eclipse-related files for all java projects
+			 -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-eclipse-plugin</artifactId>
@@ -297,7 +314,10 @@
 				</configuration>
 			</plugin>
 
-			<!-- java compiler -->
+			<!-- 
+				Java Compiler Plugin
+				- we just support jdk 1.5 and above
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
