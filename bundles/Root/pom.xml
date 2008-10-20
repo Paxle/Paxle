@@ -254,12 +254,17 @@
 						<inceptionYear>${project.inceptionYear}</inceptionYear>
 						<year>2008</year>
 					</properties>
+					<includes>
+						<include>**/*.java</include>
+					</includes>
+					<!--
 					<excludes>
 						<exclude>LICENSE.txt</exclude>
 						<exclude>README.txt</exclude>
 						<exclude>src/test/resources/**</exclude>
 						<exclude>src/main/resources/binaries/**</exclude>
 					</excludes>
+					-->
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
