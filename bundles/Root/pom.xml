@@ -255,6 +255,8 @@
 						<year>2008</year>
 					</properties>
 					<excludes>
+						<exclude>LICENSE.txt</exclude>
+						<exclude>README.txt</exclude>
 						<exclude>src/test/resources/**</exclude>
 						<exclude>src/main/resources/binaries/**</exclude>
 					</excludes>
