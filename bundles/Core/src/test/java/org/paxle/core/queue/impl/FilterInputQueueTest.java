@@ -13,7 +13,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
-import org.paxle.core.filter.IFilterable;
 import org.paxle.core.filter.impl.FilterContext;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
@@ -24,7 +23,7 @@ public class FilterInputQueueTest extends MockObjectTestCase {
 		super.setUp();
 	}
 	
-	private IFilterContext createDummyFilterContext(IFilter<? extends IFilterable> filter) {
+	private IFilterContext createDummyFilterContext(IFilter<?> filter) {
 		return new FilterContext(
 				Long.toString(System.currentTimeMillis()),
 				Long.valueOf(System.currentTimeMillis()),
