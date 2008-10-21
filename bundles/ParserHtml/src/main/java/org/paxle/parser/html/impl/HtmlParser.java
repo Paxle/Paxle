@@ -39,6 +39,7 @@ import org.htmlparser.lexer.Source;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.CachedParserDocument;
+import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.html.IHtmlParser;
@@ -86,6 +87,9 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 		} catch (final Exception e) { e.printStackTrace(); }
 	}*/
 	
+	/**
+	 * An object pool containing {@link HtmlParserRequisites}
+	 */
 	private final ObjectPool pool = new GenericObjectPool(this);
 	
 	public HtmlParser() {
@@ -95,33 +99,56 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 		pool.close();
 	}
 	
+	/**
+	 * @see PoolableObjectFactory#activateObject(Object)
+	 */
 	public void activateObject(Object arg0) throws Exception {
 		((HtmlParserRequisites)arg0).reset();
 	}
 	
+	/**
+	 * @see PoolableObjectFactory#destroyObject(Object)
+	 */
 	public void destroyObject(Object arg0) throws Exception {
 		// nothing to do
 	}
 	
+	/**
+	 * @see PoolableObjectFactory#makeObject()
+	 */
 	public Object makeObject() throws Exception {
 		return new HtmlParserRequisites();
 	}
 	
+	/**
+	 * @see PoolableObjectFactory#passivateObject(Object)
+	 */
 	public void passivateObject(Object arg0) throws Exception {
 		// nothing to do
 	}
 	
+	/**
+	 * @see PoolableObjectFactory#validateObject(Object)
+	 */
 	public boolean validateObject(Object arg0) {
 		// don't know how
 		return true;
 	}
 	
+	/**
+	 * @see ISubParser#getMimeTypes()
+	 */
 	public List<String> getMimeTypes() {
 		return MIME_TYPES;
 	}
 	
+	/**
+	 * @see ISubParser#parse(URI, String, InputStream)
+	 */
 	public IParserDocument parse(URI location, String charset, InputStream is)
-			throws ParserException, UnsupportedEncodingException, IOException {
+			throws ParserException, UnsupportedEncodingException, IOException 
+	{
+		HtmlParserRequisites req = null;
 		try {
 			// testing if we support the charset. if not we try to use UTF-8
 			boolean unsupportedCharset = false;
@@ -142,34 +169,54 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 				charset = "UTF-8";
 			}
 			
+			// getting parser-requisites from object pool 
+			req = (HtmlParserRequisites) this.pool.borrowObject();
+			
+			// parsing content
 			final ParserContext context = ParserContext.getCurrentContext();
-			final IParserDocument doc = new CachedParserDocument(context.getTempFileManager());
-			final HtmlParserRequisites req = (HtmlParserRequisites)pool.borrowObject();
+			final IParserDocument doc = new CachedParserDocument(context.getTempFileManager());			
 			final InputStreamSource iss = new InputStreamSource(is, charset);
 			try {
 				req.parse(location, doc, context.getReferenceNormalizer(), iss);
-			/*
-			final FixedPage page = new FixedPage(iss);
-			final ParserLogger pl = new ParserLogger(logger, location);
-			final Parser parser = new Parser(new Lexer(page), pl);
-			
-			final NodeCollector nc = new NodeCollector(doc, pl, page, context.getReferenceNormalizer());
-			parser.visitAllNodesWith(nc);
-			page.close();
-			*/
+				/*
+				final FixedPage page = new FixedPage(iss);
+				final ParserLogger pl = new ParserLogger(logger, location);
+				final Parser parser = new Parser(new Lexer(page), pl);
+				
+				final NodeCollector nc = new NodeCollector(doc, pl, page, context.getReferenceNormalizer());
+				parser.visitAllNodesWith(nc);
+				page.close();
+				*/
 			} finally {
 				iss.destroy();
 			}
 			
-			pool.returnObject(req);
+			// return parser-requisites into pool
+			this.pool.returnObject(req);
+			req = null;
 			
+			// set document charset if required
 			if (charset != null && doc.getCharset() == null)
 				doc.setCharset(Charset.forName(charset));
+			
+			// set document status
 			doc.setStatus(IParserDocument.Status.OK);
 			return doc;
-		} catch (org.htmlparser.util.ParserException e) {
-			throw new ParserException("error parsing HTML nodes-tree", e);
 		} catch (Exception e) {
+			if (req != null) {
+				try {
+					this.pool.invalidateObject(req);
+				} catch (Exception e1) {
+					this.logger.error(String.format(
+							"Unexpected '%s' while trying to invalidate parser-requisites",
+							e1.getClass().getName()
+					),e1);
+				}
+			}
+			
+			if (e instanceof org.htmlparser.util.ParserException) {
+				throw new ParserException("error parsing HTML nodes-tree", e);
+			}
 			throw new ParserException("internal error: " + e.getMessage(), e);
 		}
 	}
