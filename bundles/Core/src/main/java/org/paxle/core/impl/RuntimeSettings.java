@@ -82,10 +82,10 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 		final String pid;
 		final boolean split;
 		final String fixOpt;
-		final String defVal;
+		final Object defVal;
 		final String pattern;
 		
-		private OptEntry(final String pid, final boolean split, final String defKey, final String defVal, final String pattern) {
+		private OptEntry(final String pid, final boolean split, final String defKey, final Object defVal, final String pattern) {
 			this.pid = pid;
 			this.split = split;
 			this.fixOpt = defKey;
@@ -94,7 +94,7 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 		}
 		
 		public OptEntry(final String pid, final String opt, final boolean defEnabled) {
-			this(pid, false, opt, Boolean.toString(defEnabled), null);
+			this(pid, false, opt, Boolean.valueOf(defEnabled), null);
 		}
 		
 		public OptEntry(final String pid, final String key, final String val, final String pattern) {
@@ -113,11 +113,13 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 			return opt.matches(pattern) ? "" : "Doesn't match '" + pattern + "'";
 		}
 		
-		public String getValue(final String opt, final boolean init) {
+		public Object getValue(final String opt, final boolean init) {
+			if (opt == null)
+				return defVal;
 			if (split) {
 				return (fixOpt == null) ? opt : opt.substring(fixOpt.length());
 			} else {
-				return (init) ? Boolean.TRUE.toString() : defVal;
+				return (init) ? Boolean.TRUE : defVal;
 			}
 		}
 		
@@ -239,18 +241,6 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 				this.option = option;
 			}
 			
-			@Override
-			public int hashCode() {
-				return entry.hashCode();
-			}
-			
-			@Override
-			public boolean equals(Object obj) {
-				if (obj instanceof OptAD)
-					return entry.equals(((OptAD)obj).entry);
-				return super.equals(obj);
-			}
-			
 			public String getID() {
 				return entry.getPid();
 			}
@@ -268,7 +258,7 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 			}
 			
 			public String[] getDefaultValue() {
-				return new String[] { entry.getValue(option, false) };
+				return new String[] { entry.getValue(option, false).toString() };
 			}
 			
 			public String[] getOptionLabels() {
@@ -290,12 +280,12 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 		
 		return new ObjectClassDefinition() {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {
-				final HashSet<AttributeDefinition> attribs = new HashSet<AttributeDefinition>();
+				final List<AttributeDefinition> attribs = new ArrayList<AttributeDefinition>();
 				
 				// loading all currently avilable jvm options
 				final List<String> runtimeSettings = readSettings();
 				final HashSet<OptEntry> optEntries = new HashSet<OptEntry>(OPTIONS);
-				String otherValues = "";
+				String otherValues = null;
 				if (runtimeSettings != null) {
 					// process all known options and concatenate all unknown ones to one string
 					// known options are those, that conform to an OptEntry saved in the OPTIONS-set
@@ -318,8 +308,10 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 				}
 				for (final OptEntry e : optEntries)
 					attribs.add(new OptAD(e, null));
+				
 				// put the remaining options into an AD allowing arbitrary strings
-				attribs.add(new OptAD(CM_OTHER_ENTRY, otherValues));
+				if (otherValues != null)
+					attribs.add(new OptAD(CM_OTHER_ENTRY, otherValues));
 				
 				return attribs.toArray(new AttributeDefinition[attribs.size()]);
 			}
@@ -456,10 +448,14 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 		final List<String> iniSettings = readSettings();
 		
 		final StringBuilder sb = new StringBuilder();
+		final HashSet<OptEntry> opts = new HashSet<OptEntry>(OPTIONS);
 		outer: for (final String opt : iniSettings) {
-			for (final OptEntry e : OPTIONS) {
+			final Iterator<OptEntry> it = opts.iterator();
+			while (it.hasNext()) {
+				final OptEntry e = it.next();
 				if (opt.startsWith(e.fixOpt)) {
 					props.put(e.getPid(), e.getValue(opt, true));
+					it.remove();
 					continue outer;
 				}
 			}
@@ -467,6 +463,8 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 				sb.append(OPT_OTHER_SPLIT);
 			sb.append(opt);
 		}
+		for (final OptEntry e : opts)
+			props.put(e.getPid(), e.getValue(null, true));
 		if (sb.length() > 0)
 			props.put(CM_OTHER_ENTRY.getPid(), sb.toString());
 		
