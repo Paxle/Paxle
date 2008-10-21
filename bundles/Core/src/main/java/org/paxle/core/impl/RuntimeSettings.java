@@ -285,7 +285,7 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 				// loading all currently avilable jvm options
 				final List<String> runtimeSettings = readSettings();
 				final HashSet<OptEntry> optEntries = new HashSet<OptEntry>(OPTIONS);
-				String otherValues = null;
+				String otherValues = "";
 				if (runtimeSettings != null) {
 					// process all known options and concatenate all unknown ones to one string
 					// known options are those, that conform to an OptEntry saved in the OPTIONS-set
@@ -310,8 +310,7 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 					attribs.add(new OptAD(e, null));
 				
 				// put the remaining options into an AD allowing arbitrary strings
-				if (otherValues != null)
-					attribs.add(new OptAD(CM_OTHER_ENTRY, otherValues));
+				attribs.add(new OptAD(CM_OTHER_ENTRY, otherValues));
 				
 				return attribs.toArray(new AttributeDefinition[attribs.size()]);
 			}
