@@ -150,7 +150,8 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 				
 		// init threadpool
 		// XXX should we set the thread-pool size? 
-		this.execService = Executors.newCachedThreadPool();					
+		// this.execService = Executors.newCachedThreadPool();					
+		this.execService = Executors.newFixedThreadPool(20);
 	}
 	
 	public void terminate() {

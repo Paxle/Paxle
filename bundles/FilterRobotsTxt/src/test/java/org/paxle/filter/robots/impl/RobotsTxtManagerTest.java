@@ -142,6 +142,29 @@ public class RobotsTxtManagerTest extends TestCase {
 		assertEquals(1,disallowedURIs.size());
 		ListAssert.assertContains(disallowedURIs, URI.create("http://xxxxx/secret/"));
 	}
+	
+	public void testIsDisallowedBlockMultipleHosts() throws IOException {
+		String hostPort1 = "xxxxx:80";
+		this.parseAndPutIntoCache("src/test/resources/robots.txt",hostPort1);
+		
+		String hostPort2 = "yyyyy:80";
+		this.parseAndPutIntoCache("src/test/resources/robots8.txt",hostPort2);
+		
+		ArrayList<URI> uriList = new ArrayList<URI>(Arrays.asList(new URI[]{
+				URI.create("http://xxxxx/"),
+				URI.create("http://xxxxx/secret"),
+				URI.create("http://xxxxx/secret/"),
+				URI.create("http://yyyyy/xyz"),
+				URI.create("http://yyyyy/cgi/")
+		}));
+		
+		// check disallowed
+		List<URI> disallowedURIs = this.manager.isDisallowed(uriList);
+		assertNotNull(disallowedURIs);
+		assertEquals(2,disallowedURIs.size());
+		ListAssert.assertContains(disallowedURIs, URI.create("http://xxxxx/secret/"));
+		ListAssert.assertContains(disallowedURIs, URI.create("http://yyyyy/cgi/"));
+	}
 		
 	public void testRobotsWithTabs() throws IOException {
 		String hostPort = "xxxxx:80";
