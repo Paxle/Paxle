@@ -203,10 +203,9 @@
 						<inceptionYear>${project.inceptionYear}</inceptionYear>
 						<year>2008</year>
 					</properties>
-					<excludes>
-						<!-- the start.ini file must not include comments -->
-						<exclude>src/main/resources/equinox/start.ini</exclude>
-					</excludes>
+					<includes>
+						<include>**/*.sh</include>
+					</includes>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
