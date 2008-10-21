@@ -24,16 +24,18 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,15 +53,98 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 	public static final String PID = RuntimeSettings.class.getName();
 	private static final String CM_XMX = "jvm.xmx";
 	private static final String CM_XMS = "jvm.xms";
+	private static final String CM_HEAP_DUMP = "jvm.heapdump";
+	private static final String CM_OTHER = "jvm.other";
 	
-	private static final Map<String,String[]> OPTIONS;
-	static {
-		final Map<String,String[]> options = new HashMap<String,String[]>();
-		options.put(CM_XMX, new String[] { "-Xmx", "128m" });
-		options.put(CM_XMS, new String[] { "-Xms", "64m" });
-		OPTIONS = Collections.unmodifiableMap(options);
+	// TODO: remove space when mutliline-attributes are implemented
+	private static final String OPT_OTHER_SPLIT = " " + System.getProperty("line.separator");
+	
+	/**
+	 * Represents an JVM-parameter or - in the special case of {@link RuntimeSettings#CM_OTHER_ENTRY} -
+	 * a whole list of parameters.
+	 * There are three distinct states one of which an instance of this class can represent:
+	 * <ol>
+	 *   <li>A JVM-parameter composed of {@link #split two parts} : A {@link #fixOpt static identifier}-string and a
+	 *       {@link #defVal value} directly concatenated to the former.</li>
+	 *   <li>A non-variant JVM-parameter whose only possible representations are enabled or disabled,
+	 *       in contrast to the {@link #split}-parameter.</li>
+	 *   <li>A special state of which only one should exist: multiple parameters for the JVM, therefore no {@link #fixOpt}
+	 *       exists and is set to <code>null</code>, see {@link RuntimeSettings#CM_OTHER_ENTRY}.</li>
+	 * </ol>
+	 * <p>
+	 * In the CM, {@link OptEntry OptEntries} of the first state {@link #update(List, Object) save} only the variant
+	 * value supplied by the user. The second (non-split) version stores the {@link String}-representation of a
+	 * <code>boolean</code> value defining whether this option is set or not. The third version finally stores it's
+	 * value by first {@link RuntimeSettings#splitOptionLine(List, String) splitting} it into the distinct parameters
+	 * and then concatenating those using {@link RuntimeSettings#OPT_OTHER_SPLIT} to ensure a consistent format.
+	 */
+	private static final class OptEntry {
+		final String pid;
+		final boolean split;
+		final String fixOpt;
+		final String defVal;
+		final String pattern;
+		
+		private OptEntry(final String pid, final boolean split, final String defKey, final String defVal, final String pattern) {
+			this.pid = pid;
+			this.split = split;
+			this.fixOpt = defKey;
+			this.defVal = defVal;
+			this.pattern = pattern;
+		}
+		
+		public OptEntry(final String pid, final String opt, final boolean defEnabled) {
+			this(pid, false, opt, Boolean.toString(defEnabled), null);
+		}
+		
+		public OptEntry(final String pid, final String key, final String val, final String pattern) {
+			this(pid, true, key, val, pattern);
+		}
+		
+		public String getPid() {
+			return PID + '.' + pid;
+		}
+		
+		public String matches(final String opt) {
+			if (opt == null)
+				return "";
+			if (pattern == null)
+				return null;
+			return opt.matches(pattern) ? "" : "Doesn't match '" + pattern + "'";
+		}
+		
+		public String getValue(final String opt, final boolean init) {
+			if (split) {
+				return (fixOpt == null) ? opt : opt.substring(fixOpt.length());
+			} else {
+				return (init) ? Boolean.TRUE.toString() : defVal;
+			}
+		}
+		
+		public boolean update(final List<String> currentSettings, final Object value) {
+			if (split) {
+				return updateSetting(currentSettings, fixOpt, (String)value);
+			} else {
+				final boolean enabled = (value instanceof String) ? Boolean.parseBoolean((String)value) : ((Boolean)value).booleanValue();
+				if (enabled) {
+					return updateSetting(currentSettings, fixOpt);
+				} else {
+					return currentSettings.remove(fixOpt);
+				}
+			}
+		}
 	}
-
+	
+	private static final Set<OptEntry> OPTIONS;
+	private static final OptEntry CM_OTHER_ENTRY = new OptEntry(CM_OTHER, null, "", ".*");
+	static {
+		final Set<OptEntry> options = new HashSet<OptEntry>();
+		options.add(new OptEntry(CM_XMX, "-Xmx", "128m", "\\d+[gGmMkK]"));
+		options.add(new OptEntry(CM_XMS, "-Xms", "64m", "\\d+[gGmMkK]"));
+		options.add(new OptEntry(CM_HEAP_DUMP, "-XX:+HeapDumpOnOutOfMemoryError", false));
+		OPTIONS = Collections.unmodifiableSet(options);
+	}
+	
 	/**
 	 * For logging
 	 */
@@ -94,12 +179,12 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 		ArrayList<String> configOptions = new ArrayList<String>();
 		try {
 			reader = new BufferedReader(new InputStreamReader(new FileInputStream(this.iniFile), "UTF-8"));
-
+			
 			String line = null;		
 			while ((line = reader.readLine())!=null) {
 				configOptions.add(line.trim());
 			}
-
+			
 			reader.close();
 		} catch (Exception e) {
 			this.logger.error("Unable to read settings from file: " + this.iniFile.toString() ,e);
@@ -136,7 +221,7 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 	public String[] getLocales() {
 		return this.locales;
 	}
-
+	
 	/**
 	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
 	 */
@@ -144,35 +229,101 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 		final Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
 		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + RuntimeSettings.class.getSimpleName(), locale);		
 		
+		final class OptAD implements AttributeDefinition {
+			
+			private final OptEntry entry;
+			private final String option;
+			
+			public OptAD(final OptEntry entry, final String option) {
+				this.entry = entry;
+				this.option = option;
+			}
+			
+			@Override
+			public int hashCode() {
+				return entry.hashCode();
+			}
+			
+			@Override
+			public boolean equals(Object obj) {
+				if (obj instanceof OptAD)
+					return entry.equals(((OptAD)obj).entry);
+				return super.equals(obj);
+			}
+			
+			public String getID() {
+				return entry.getPid();
+			}
+			
+			public int getCardinality() {
+				return 0;
+			}
+			
+			public String getDescription() {
+				return rb.getString(entry.pid + ".desc");
+			}
+			
+			public String getName() {
+				return rb.getString(entry.pid + ".name");
+			}
+			
+			public String[] getDefaultValue() {
+				return new String[] { entry.getValue(option, false) };
+			}
+			
+			public String[] getOptionLabels() {
+				return null;
+			}
+			
+			public String[] getOptionValues() {
+				return null;
+			}
+			
+			public int getType() {
+				return (entry.split) ? STRING : BOOLEAN;
+			}
+			
+			public String validate(String value) {
+				return entry.matches(value);
+			}
+		}
+		
 		return new ObjectClassDefinition() {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {
-				final ArrayList<AttributeDefinition> attribs = new ArrayList<AttributeDefinition>();
+				final HashSet<AttributeDefinition> attribs = new HashSet<AttributeDefinition>();
 				
 				// loading all currently avilable jvm options
-				List<String> runtimeSettings = readSettings();
+				final List<String> runtimeSettings = readSettings();
+				final HashSet<OptEntry> optEntries = new HashSet<OptEntry>(OPTIONS);
+				String otherValues = "";
 				if (runtimeSettings != null) {
-					
-					for (String setting : runtimeSettings)
-						for (final Map.Entry<String,String[]> e : OPTIONS.entrySet())
-							if (setting.startsWith(e.getValue()[0])) {
-								attribs.add(new AttributeDefinition(){						
-									public String getID() { return PID + '.' + e.getKey(); }
-									public int getCardinality() { return 0; }
-									public String[] getDefaultValue() { return new String[] { e.getValue()[1] }; }
-									public String getDescription() { return rb.getString(e.getKey() + ".desc"); }
-									public String getName() { return rb.getString(e.getKey() + ".name"); }
-									public String[] getOptionLabels() { return null; }
-									public String[] getOptionValues() { return null; }
-									public int getType() { return AttributeDefinition.STRING; }
-									public String validate(String value) { return null; }
-								});
-								break;
+					// process all known options and concatenate all unknown ones to one string
+					// known options are those, that conform to an OptEntry saved in the OPTIONS-set
+					final StringBuilder sb = new StringBuilder();
+					outer: for (final String opt : runtimeSettings) {
+						final Iterator<OptEntry> it = optEntries.iterator();
+						while (it.hasNext()) {
+							final OptEntry e = it.next();
+							if (opt.startsWith(e.fixOpt)) {
+								attribs.add(new OptAD(e, opt));
+								it.remove();
+								continue outer;
 							}
+						}
+						if (sb.length() > 0)
+							sb.append(OPT_OTHER_SPLIT);
+						sb.append(opt);
+					}
+					otherValues = sb.toString();
 				}
+				for (final OptEntry e : optEntries)
+					attribs.add(new OptAD(e, null));
+				// put the remaining options into an AD allowing arbitrary strings
+				attribs.add(new OptAD(CM_OTHER_ENTRY, otherValues));
 				
 				return attribs.toArray(new AttributeDefinition[attribs.size()]);
 			}
-
+			
 			public String getDescription() {
 				try {
 					return MessageFormat.format(
@@ -184,21 +335,21 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 					return rb.getString("runtimeSettings.desc");
 				}
 			}
-
+			
 			public String getID() {
 				return PID;
 			}
-
+			
 			public InputStream getIcon(int size) throws IOException {
 				return null;
 			}
-
-			public String getName() {				
+			
+			public String getName() {
 				return rb.getString("runtimeSettings.name");
-			}			
+			}
 		};				
 	}
-
+	
 	/**
 	 * @see ManagedService#updated(Dictionary)
 	 */	
@@ -208,21 +359,52 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 		
 		// loading current settings
 		List<String> currentSettings = this.readSettings();
-		
 		boolean changesDetected = false;
-		Enumeration<String> keys = properties.keys();
-		outer: while(keys.hasMoreElements()) {
-			String key = keys.nextElement();
-			Object value = properties.get(key);
-			
-			for (final Map.Entry<String,String[]> e : OPTIONS.entrySet()) {
-				if (key.equals(PID + '.' + e.getKey())) {
-					changesDetected |= this.updateSetting(currentSettings, e.getValue()[0], (String)value);
-					continue outer;
+		
+		// check all pre-defined options and update them in the currentSettings-list
+		for (final OptEntry entry : OPTIONS) {
+			final Object value = properties.get(entry.getPid());
+			if (value != null)
+				changesDetected |= entry.update(currentSettings, value);
+		}
+		
+		// check all other options and update the currentSettings-list
+		final String valOthers = (String)properties.get(CM_OTHER_ENTRY.getPid());
+		if (valOthers != null) {
+			final Set<String> otherSettings = new HashSet<String>();
+			final String[] valSplit = valOthers.split("[\\r\\n]");
+			for (int i=0; i<valSplit.length; i++) {
+				final String valOther = valSplit[i].trim();
+				if (valOther.length() > 0) try {
+					splitOptionLine(otherSettings, valOther);
+				} catch (ParseException e) {
+					throw new ConfigurationException(
+							CM_OTHER_ENTRY.getPid(),
+							e.getMessage() + " at position " + e.getErrorOffset() + " in line " + i);
 				}
 			}
 			
-			// entry not known
+			/* check the currentSettings for any parameters that do not
+			 * - match a pre-defined option
+			 * - equal an user-specified option in otherSettings
+			 * and remove it.
+			 * This results in a list which only contains options which are either known or
+			 * explicitely specified by the user */
+			final Iterator<String> it = currentSettings.iterator();
+			outer: while (it.hasNext()) {
+				final String setting = it.next();
+				for (final OptEntry entry : OPTIONS)
+					if (setting.startsWith(entry.fixOpt))
+						continue outer;
+				if (otherSettings.contains(setting))
+					continue;
+				it.remove();
+				changesDetected = true;
+			}
+			
+			// finally add all otherSettings to the currentSettings-list, which is
+			for (final String setting : otherSettings)
+				changesDetected |= updateSetting(currentSettings, setting);
 		}
 		
 		if (changesDetected) {
@@ -231,22 +413,74 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 		}
 	}
 	
+	private static boolean splitOptionLine(final Collection<String> currentSettings, final String valOthers) throws ParseException {
+		// split the value at whitespace, but obey single and double quotes
+		boolean changesDetected = false;
+		int level = 0;
+		char lastLeveled = 0;
+		int last = 0;
+		
+		for (int i=0; i<valOthers.length(); i++) {
+			final char c = valOthers.charAt(i);
+			if (c == '"' || c == '\'') {
+				if (lastLeveled == c) {
+					level--;
+					lastLeveled = (level == 0) ? 0 : (c == '"') ? '\'' : '"';
+				} else {
+					level++;
+					lastLeveled = c;
+				}
+			} else if (level == 0 && (c == ' ' || c == '\t' || c == '\f')) {
+				if (last < i) {
+					final String opt = valOthers.substring(last, i).trim();
+					if (opt.length() > 0)
+						changesDetected |= updateSetting(currentSettings, opt);
+				}
+				last = i + 1;
+			}
+		}
+		
+		if (level != 0)
+			throw new ParseException("unmatched " + ((lastLeveled == '"') ? "double" : "single") + " quote", last);
+		if (last < valOthers.length() - 1) {
+			final String opt = valOthers.substring(last).trim();
+			if (opt.length() > 0)
+				changesDetected |= updateSetting(currentSettings, opt);
+		}
+		
+		return changesDetected;
+	}
+	
 	public Dictionary<?,?> getCurrentIniSettings() {
 		final Dictionary<String,Object> props = new Hashtable<String,Object>();
 		final List<String> iniSettings = readSettings();
-		outer: for (final String s : iniSettings) {
-			for (final Map.Entry<String,String[]> e : OPTIONS.entrySet())
-				if (s.startsWith(e.getValue()[0])) {
-					props.put(PID + '.' + e.getKey(), s.substring(e.getValue()[0].length()));
+		
+		final StringBuilder sb = new StringBuilder();
+		outer: for (final String opt : iniSettings) {
+			for (final OptEntry e : OPTIONS) {
+				if (opt.startsWith(e.fixOpt)) {
+					props.put(e.getPid(), e.getValue(opt, true));
 					continue outer;
 				}
-			
-			// entry not known
+			}
+			if (sb.length() > 0)
+				sb.append(OPT_OTHER_SPLIT);
+			sb.append(opt);
 		}
+		if (sb.length() > 0)
+			props.put(CM_OTHER_ENTRY.getPid(), sb.toString());
+		
 		return props;
 	}
-
-	private boolean updateSetting(List<String> currentSettings, String prefix, String value) {
+	
+	private static boolean updateSetting(final Collection<String> currentSetting, final String value) {
+		if (currentSetting.contains(value))
+			return false;
+		currentSetting.add(value);
+		return true;
+	}
+	
+	private static boolean updateSetting(List<String> currentSettings, String prefix, String value) {
 		boolean found = false;
 		boolean updated = false;
 		
@@ -272,4 +506,3 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 		return updated;
 	}
 }
- 
