@@ -874,6 +874,7 @@
 
 				<!-- Optional Filter bundles -->
 				<module>../FilterPlaintextDumper</module>
+				<module>../FilterForum</module>
 				<module>../ToolsDNS</module>
 
 				<!-- Misc -->
