@@ -33,11 +33,13 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 	/** the directory where the robots.txt data is stored */
 	File dir = null;
 	
+	private static final String PID = RobotsTxtCleanupThread.class.getName();
+	
 	/** The time in minutes between each cleaning */
-	public static final String PROP_CLEANDELAY = "cleandelay";
+	public static final String PROP_CLEANDELAY = PID + '.' + "cleandelay";
 
 	/** The delay between each read-action on the stored robots.txt objects in seconds */
-	public static final String PROP_IODELAY = "iodelay";
+	public static final String PROP_IODELAY = PID + '.' + "iodelay";
 
 	/** The configuration data for this class */
 	private Dictionary<String, Object> config = null;
@@ -200,7 +202,7 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 
 		defaults.put(PROP_CLEANDELAY, Integer.valueOf(30));
 		defaults.put(PROP_IODELAY, Integer.valueOf(500));
-		defaults.put(Constants.SERVICE_PID, RobotsTxtCleanupThread.class.getName());
+		defaults.put(Constants.SERVICE_PID, PID);
 
 		return defaults;
 	}

@@ -5,10 +5,10 @@
 	<OCD description="This thread cleans the cache of robots.txt definitions"
 		name="Robots.txt - CleanupThread" id="org.paxle.filter.robots.impl.RobotsTxtCleanupThread">
 
-		<AD name="Interval" type="Integer" id="cleandelay" default="30" min="1"
+		<AD name="Interval" type="Integer" id="org.paxle.filter.robots.impl.RobotsTxtCleanupThread.cleandelay" default="30" min="1"
 			description="The interval the cache is purged. In minutes."/>
 
-		<AD name="Interval" type="Integer" id="iodelay" default="500" min="1"
+		<AD name="Interval" type="Integer" id="org.paxle.filter.robots.impl.RobotsTxtCleanupThread.iodelay" default="500" min="1"
 			description="The interval between each read while cleaning the robots.txt cache. This is used to not overload the I/O-system. In milliseconds."/>
 
 	</OCD>

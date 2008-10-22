@@ -182,7 +182,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	public void pause(){
 		try {
 			final Dictionary props = configuration.getProperties();
-			props.put(PROP_STATE_ACTIVE, Boolean.FALSE);
+			props.put(propFormat(PROP_STATE_ACTIVE), Boolean.FALSE);
 			this.configuration.update(props);
 		} catch (IOException e) { 
 			this.logger.error(e);
@@ -197,7 +197,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	public void resume() {
 		try {
 			final Dictionary props = configuration.getProperties();
-			props.put(PROP_STATE_ACTIVE, Boolean.TRUE);
+			props.put(propFormat(PROP_STATE_ACTIVE), Boolean.TRUE);
 			this.configuration.update(props);
 		} catch (IOException e) { 
 			this.logger.error(e);
@@ -264,6 +264,11 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		return this.inQueue.size();
 	}
 	
+	// https://bugs.pxl.li/view.php?id=219
+	private String propFormat(final String prop) {
+		return this.componentID + '.' + prop;
+	}
+	
 	/**
 	 * @return the default configuration of this service
 	 */
@@ -271,11 +276,11 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 		
 		defaults.put(Constants.SERVICE_PID, this.componentID);
-		defaults.put(PROP_POOL_MIN_IDLE, Integer.valueOf(0));
-		defaults.put(PROP_POOL_MAX_IDLE, Integer.valueOf(8));
-		defaults.put(PROP_POOL_MAX_ACTIVE, Integer.valueOf(8));
-		defaults.put(PROP_DELAY, Integer.valueOf(-1));
-		defaults.put(PROP_STATE_ACTIVE, Boolean.TRUE);
+		defaults.put(propFormat(PROP_POOL_MIN_IDLE), Integer.valueOf(0));
+		defaults.put(propFormat(PROP_POOL_MAX_IDLE), Integer.valueOf(8));
+		defaults.put(propFormat(PROP_POOL_MAX_ACTIVE), Integer.valueOf(8));
+		defaults.put(propFormat(PROP_DELAY), Integer.valueOf(-1));
+		defaults.put(propFormat(PROP_STATE_ACTIVE), Boolean.TRUE);
 		
 		return defaults;
 	}
@@ -289,19 +294,19 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 			configuration = this.getDefaults();
 		}
 		
-		Integer minIdle = (Integer)configuration.get(PROP_POOL_MIN_IDLE);
+		Integer minIdle = (Integer)configuration.get(propFormat(PROP_POOL_MIN_IDLE));
 		this.pool.setMinIdle((minIdle == null) ? 0 : minIdle.intValue());
 		
-		Integer maxIdle = (Integer)configuration.get(PROP_POOL_MAX_IDLE);
+		Integer maxIdle = (Integer)configuration.get(propFormat(PROP_POOL_MAX_IDLE));
 		this.pool.setMaxIdle((maxIdle == null) ? 8 : maxIdle.intValue());
 		
-		Integer maxActive = (Integer)configuration.get(PROP_POOL_MAX_ACTIVE);
+		Integer maxActive = (Integer)configuration.get(propFormat(PROP_POOL_MAX_ACTIVE));
 		this.pool.setMaxActive((maxActive == null) ? 8 : maxActive.intValue());
 		
-		Integer delay = (Integer)configuration.get(PROP_DELAY);
+		Integer delay = (Integer)configuration.get(propFormat(PROP_DELAY));
 		this.master.setDelay((delay == null) ? -1 : delay.intValue());
 		
-		final Boolean active = (Boolean)configuration.get(PROP_STATE_ACTIVE);
+		final Boolean active = (Boolean)configuration.get(propFormat(PROP_STATE_ACTIVE));
 		if (active != null) {
 			this.setActiveState(active);
 		}
@@ -317,22 +322,22 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + MWComponent.class.getSimpleName(), locale);
 		
 		ads.add(new AD(
-				PROP_POOL_MIN_IDLE,
+				propFormat(PROP_POOL_MIN_IDLE),
 				rb.getString("threads.idle.min.name"),
 				rb.getString("threads.idle.min.desc"),
 				new String[] { Integer.toString(0) }));
 		ads.add(new AD(
-				PROP_POOL_MAX_IDLE,
+				propFormat(PROP_POOL_MAX_IDLE),
 				rb.getString("threads.idle.max.name"),
 				rb.getString("threads.idle.max.desc"),
 				new String[] { Integer.toString(8) }));
 		ads.add(new AD(
-				PROP_POOL_MAX_ACTIVE,
+				propFormat(PROP_POOL_MAX_ACTIVE),
 				rb.getString("threads.active.max.name"),
 				rb.getString("threads.active.max.desc"),
 				new String[] { Integer.toString(8) }));
 		ads.add(new AD(
-				PROP_DELAY,
+				propFormat(PROP_DELAY),
 				rb.getString("threads.active.delay.name"),
 				rb.getString("threads.active.delay.desc"),
 				new String[] { Integer.toString(-1) }));
@@ -340,7 +345,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 			public int getCardinality() { return 0; }
 			public String[] getDefaultValue() { return new String[] { Boolean.TRUE.toString() }; }
 			public String getDescription() { return rb.getString("state.active.desc"); }
-			public String getID() { return PROP_STATE_ACTIVE; }
+			public String getID() { return propFormat(PROP_STATE_ACTIVE); }
 			public String getName() { return rb.getString("state.active.name"); }
 			public String[] getOptionLabels() { return new String[] { rb.getString("state.active.running"), rb.getString("state.active.paused") }; }
 			public String[] getOptionValues() { return new String[] { Boolean.TRUE.toString(), Boolean.FALSE.toString() }; }

@@ -53,8 +53,10 @@ import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedService;
+
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.prefs.Properties;
@@ -70,18 +72,20 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	/* =========================================================
 	 * Config Properties
 	 * ========================================================= */
-	static final String PROP_CONNECTION_TIMEOUT = "connectionTimeout";
-	static final String PROP_SOCKET_TIMEOUT = "socketTimeout";
-	static final String PROP_MAXCONNECTIONS_PER_HOST = "maxConnectionsPerHost";
-	static final String PROP_MAXDOWNLOAD_SIZE = "maxDownloadSize";
-	static final String PROP_ACCEPT_ENCODING = "acceptEncodings";
-	static final String PROP_TRANSFER_LIMIT = "transferLimit";			// in KB/s
+	static final String PID = IHttpCrawler.class.getName();
 	
-	static final String PROP_PROXY_USE = "useProxy";
-	static final String PROP_PROXY_HOST = "proxyHost";
-	static final String PROP_PROXY_PORT = "proxyPort";
-	static final String PROP_PROXY_USER = "proxyUser";
-	static final String PROP_PROXY_PASSWORD = "proxyPassword";
+	static final String PROP_CONNECTION_TIMEOUT 		= PID + '.' + "connectionTimeout";
+	static final String PROP_SOCKET_TIMEOUT 			= PID + '.' + "socketTimeout";
+	static final String PROP_MAXCONNECTIONS_PER_HOST 	= PID + '.' + "maxConnectionsPerHost";
+	static final String PROP_MAXDOWNLOAD_SIZE 			= PID + '.' + "maxDownloadSize";
+	static final String PROP_ACCEPT_ENCODING 			= PID + '.' + "acceptEncodings";
+	static final String PROP_TRANSFER_LIMIT 			= PID + '.' + "transferLimit";			// in KB/s
+	
+	static final String PROP_PROXY_USE 					= PID + '.' + "useProxy";
+	static final String PROP_PROXY_HOST 				= PID + '.' + "proxyHost";
+	static final String PROP_PROXY_PORT 				= PID + '.' + "proxyPort";
+	static final String PROP_PROXY_USER 				= PID + '.' + "proxyUser";
+	static final String PROP_PROXY_PASSWORD 			= PID + '.' + "proxyPassword";
 	
 	private static final String HTTPHEADER_ETAG = "ETag";
 	private static final String HTTPHEADER_LAST_MODIFIED = "Last-Modified";
@@ -238,11 +242,17 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			this.connectionManager = new MultiThreadedHttpConnectionManager();
 			
 			// configure connections per host
-			this.connectionManager.getParams().setDefaultMaxConnectionsPerHost(((Integer) configuration.get(PROP_MAXCONNECTIONS_PER_HOST)).intValue());
+			final Integer maxConnections = (Integer) configuration.get(PROP_MAXCONNECTIONS_PER_HOST);
+			if (maxConnections != null)
+				this.connectionManager.getParams().setDefaultMaxConnectionsPerHost(maxConnections.intValue());
 			
 			// configuring timeouts
-			this.connectionManager.getParams().setConnectionTimeout(((Integer) configuration.get(PROP_CONNECTION_TIMEOUT)).intValue());
-			this.connectionManager.getParams().setSoTimeout(((Integer) configuration.get(PROP_SOCKET_TIMEOUT)).intValue());
+			final Integer connectionTimeout = (Integer) configuration.get(PROP_CONNECTION_TIMEOUT);
+			if (connectionTimeout != null)
+				this.connectionManager.getParams().setConnectionTimeout(connectionTimeout.intValue());
+			final Integer socketTimeout = (Integer) configuration.get(PROP_SOCKET_TIMEOUT);
+			if (socketTimeout != null)
+				this.connectionManager.getParams().setSoTimeout(socketTimeout.intValue());
 			
 			// init the protocol factory for https
 		    Protocol.registerProtocol("https", new Protocol("https", new AllSSLProtocolSocketFactory(), 443));
@@ -251,28 +261,37 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			this.httpClient = new HttpClient(connectionManager);		
 			
 			// the crawler should request and accept content-encoded data
-			this.acceptEncoding = ((Boolean)configuration.get(PROP_ACCEPT_ENCODING)).booleanValue();
+			final Boolean acceptEncoding = (Boolean)configuration.get(PROP_ACCEPT_ENCODING);
+			if (acceptEncoding != null)
+				this.acceptEncoding = acceptEncoding.booleanValue();
 			
 			// download limit in bytes
-			this.maxDownloadSize = ((Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE)).intValue();
+			final Integer maxDownloadSize = (Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE);
+			if (maxDownloadSize != null)
+				this.maxDownloadSize = maxDownloadSize.intValue();
 			
 			// limit data transfer rate
-			int limitKBps = ((Integer)configuration.get(PROP_TRANSFER_LIMIT)).intValue();
+			final Integer transferLimit = (Integer)configuration.get(PROP_TRANSFER_LIMIT);
+			int limitKBps = 0;
+			if (transferLimit != null)
+				limitKBps = transferLimit.intValue();
 			logger.debug("transfer rate limit: " + limitKBps + " kb/s");
 			lrc = (limitKBps > 0) ? new CrawlerTools.LimitedRateCopier(limitKBps) : null;
 			
 			// proxy configuration
-			final boolean useProxy = ((Boolean)configuration.get(PROP_PROXY_USE)).booleanValue();
+			final Boolean useProxyVal = (Boolean)configuration.get(PROP_PROXY_USE);
+			final boolean useProxy = (useProxyVal == null) ? false : useProxyVal.booleanValue();
 			final String host = (String)configuration.get(PROP_PROXY_HOST);
-			final int port = ((Integer)configuration.get(PROP_PROXY_PORT)).intValue();
-			if (useProxy && host.length() > 0) {
+			final Integer portVal = (Integer)configuration.get(PROP_PROXY_PORT);
+			if (useProxy && host != null && host.length() > 0 && portVal != null) {
 				logger.info("Proxy is enabled");
+				final int port = portVal.intValue();
 				final ProxyHost proxyHost = new ProxyHost(host, port);
 				httpClient.getHostConfiguration().setProxyHost(proxyHost);
 				
 				final String user = (String)configuration.get(PROP_PROXY_HOST);
 				final String pwd = (String)configuration.get(PROP_PROXY_PASSWORD);
-				if (user.length() > 0 && pwd.length() > 0)
+				if (user != null && user.length() > 0 && pwd != null && pwd.length() > 0)
 					httpClient.getState().setProxyCredentials(
 							new AuthScope(host, port),
 							new UsernamePasswordCredentials(user, pwd));

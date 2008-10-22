@@ -10,60 +10,60 @@
 		
 		<AD name="%httpCrawler.maxConnectionsPerHost.name"
 				type="Integer"
-				id="maxConnectionsPerHost"
+				id="org.paxle.crawler.http.IHttpCrawler.maxConnectionsPerHost"
 				default="10"
 				min="1" 
 				description="%httpCrawler.maxConnectionsPerHost.desc"/>
 		
 		<AD name="%httpCrawler.socketTimeout.name"
 				type="Integer"
-				id="socketTimeout"
+				id="org.paxle.crawler.http.IHttpCrawler.socketTimeout"
 				default="15000"
 				min="1000"
 				description="%httpCrawler.socketTimeout.desc"/>
 		
 		<AD name="%httpCrawler.connectionTimeout.name"
 				type="Integer"
-				id="connectionTimeout"
+				id="org.paxle.crawler.http.IHttpCrawler.connectionTimeout"
 				default="15000"
 				min="1000"
 				description="%httpCrawler.connectionTimeout.desc"/>
 		
 		<AD name="%httpCrawler.maxDownloadSize.name"
 				type="Integer"
-				id="maxDownloadSize"
+				id="org.paxle.crawler.http.IHttpCrawler.maxDownloadSize"
 				default="10485760"
 				min="-1"
 				description="%httpCrawler.maxDownloadSize.desc"/>
 		
 		<AD name="%httpCrawler.useAcceptEncoding.name"
 				type="Boolean"
-				id="acceptEncodings"
+				id="org.paxle.crawler.http.IHttpCrawler.acceptEncodings"
 				default="true"
 				description="%httpCrawler.useAcceptEncoding.desc" />
 		
 		<AD name="%httpCrawler.transferRateLimit.name"
 				type="Integer"
-				id="transferLimit"
+				id="org.paxle.crawler.http.IHttpCrawler.transferLimit"
 				default="-1"
 				min="-1"
 				description="%httpCrawler.transferRateLimit.desc" />
 		
 		<AD name="%httpCrawler.proxyEnabled.name"
 				type="Boolean"
-				id="useProxy"
+				id="org.paxle.crawler.http.IHttpCrawler.useProxy"
 				default="false"
 				description="%httpCrawler.proxyEnabled.desc" />
 		
 		<AD name="%httpCrawler.proxyHost.name"
 				type="String"
-				id="proxyHost"
+				id="org.paxle.crawler.http.IHttpCrawler.proxyHost"
 				default=""
 				description="%httpCrawler.proxyHost.desc" />
 		
 		<AD name="%httpCrawler.proxyPort.name"
 				type="Integer"
-				id="proxyPort"
+				id="org.paxle.crawler.http.IHttpCrawler.proxyPort"
 				min="-1"
 				max="65535"
 				default="3128"
@@ -71,13 +71,13 @@
 		
 		<AD name="%httpCrawler.proxyUser.name"
 				type="String"
-				id="proxyUser"
+				id="org.paxle.crawler.http.IHttpCrawler.proxyUser"
 				default=""
 				description="%httpCrawler.proxyUser.desc" />
 		
 		<AD name="%httpCrawler.proxyPwd.name"
 				type="String"
-				id="proxyPassword"
+				id="org.paxle.crawler.http.IHttpCrawler.proxyPassword"
 				default=""
 				description="%httpCrawler.proxyPwd.desc" />
 	</OCD>

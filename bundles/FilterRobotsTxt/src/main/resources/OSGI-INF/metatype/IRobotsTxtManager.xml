@@ -12,47 +12,47 @@
 		
 		<AD name="%robotsManager.maxTotalConnections.name"
 				type="Integer"
-				id="maxConnectionsTotal"
+				id="org.paxle.filter.robots.IRobotsTxtManager.maxConnectionsTotal"
 				default="20"
 				min="1" 
 				description="%robotsManager.maxTotalConnections.desc"/>
 		
 		<AD name="%robotsManager.cacheSize.name"
 				type="Integer"
-				id="maxCacheSize"
+				id="org.paxle.filter.robots.IRobotsTxtManager.maxCacheSize"
 				default="500"
 				min="0" 
 				description="%robotsManager.cacheSize.desc"/>		
 		
 		<AD name="%robotsManager.socketTimeout.name"
 				type="Integer"
-				id="socketTimeout"
+				id="org.paxle.filter.robots.IRobotsTxtManager.socketTimeout"
 				default="15000"
 				min="1000"
 				description="%robotsManager.socketTimeout.desc"/>
 		
 		<AD name="%robotsManager.connectionTimeout.name"
 				type="Integer"
-				id="connectionTimeout"
+				id="org.paxle.filter.robots.IRobotsTxtManager.connectionTimeout"
 				default="15000"
 				min="1000"
 				description="%robotsManager.connectionTimeout.desc"/>		
 		
 		<AD name="%robotsManager.proxyEnabled.name"
 				type="Boolean"
-				id="useProxy"
+				id="org.paxle.filter.robots.IRobotsTxtManager.useProxy"
 				default="false"
 				description="%robotsManager.proxyEnabled.desc" />
 		
 		<AD name="%robotsManager.proxyHost.name"
 				type="String"
-				id="proxyHost"
+				id="org.paxle.filter.robots.IRobotsTxtManager.proxyHost"
 				default=""
 				description="%robotsManager.proxyHost.desc" />
 		
 		<AD name="%robotsManager.proxyPort.name"
 				type="Integer"
-				id="proxyPort"
+				id="org.paxle.filter.robots.IRobotsTxtManager.proxyPort"
 				min="-1"
 				max="65535"
 				default="3128"
@@ -60,13 +60,13 @@
 		
 		<AD name="%robotsManager.proxyUser.name"
 				type="String"
-				id="proxyUser"
+				id="org.paxle.filter.robots.IRobotsTxtManager.proxyUser"
 				default=""
 				description="%robotsManager.proxyUser.desc" />
 		
 		<AD name="%robotsManager.proxyPwd.name"
 				type="String"
-				id="proxyPassword"
+				id="org.paxle.filter.robots.IRobotsTxtManager.proxyPassword"
 				default=""
 				description="%robotsManager.proxyPwd.desc" />
 	</OCD>

@@ -79,16 +79,18 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	/* =========================================================
 	 * Config Properties
 	 * ========================================================= */
-	private static final String PROP_CONNECTION_TIMEOUT = "connectionTimeout";
-	private static final String PROP_SOCKET_TIMEOUT = "socketTimeout";
-	private static final String PROP_MAXCONNECTIONS_TOTAL = "maxConnectionsTotal";
-	private static final String PROP_MAX_CACHE_SIZE = "maxCacheSize";
+	private static final String PID = IRobotsTxtManager.class.getName();
 	
-	private static final String PROP_PROXY_USE = "useProxy";
-	private static final String PROP_PROXY_HOST = "proxyHost";
-	private static final String PROP_PROXY_PORT = "proxyPort";
-	private static final String PROP_PROXY_USER = "proxyUser";
-	private static final String PROP_PROXY_PASSWORD = "proxyPassword";	
+	private static final String PROP_CONNECTION_TIMEOUT 	= PID + '.' + "connectionTimeout";
+	private static final String PROP_SOCKET_TIMEOUT 		= PID + '.' + "socketTimeout";
+	private static final String PROP_MAXCONNECTIONS_TOTAL 	= PID + '.' + "maxConnectionsTotal";
+	private static final String PROP_MAX_CACHE_SIZE 		= PID + '.' + "maxCacheSize";
+	
+	private static final String PROP_PROXY_USE 				= PID + '.' + "useProxy";
+	private static final String PROP_PROXY_HOST 			= PID + '.' + "proxyHost";
+	private static final String PROP_PROXY_PORT 			= PID + '.' + "proxyPort";
+	private static final String PROP_PROXY_USER 			= PID + '.' + "proxyUser";
+	private static final String PROP_PROXY_PASSWORD 		= PID + '.' + "proxyPassword";	
 		
 	private static final String ROBOTS_AGENT_PAXLE = "paxle";
 
@@ -243,12 +245,15 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			this.w.lock();
 			
 			// remove old cache
-			this.manager.removeCache(CACHE_NAME);
-			this.cache = null;
-			
-			// init a new cache 
-			this.cache = new Cache(CACHE_NAME, ((Integer) configuration.get(PROP_MAX_CACHE_SIZE)).intValue(), false, false, 60*60, 30*60);
-			this.manager.addCache(this.cache);
+			final Integer maxCacheSize = (Integer) configuration.get(PROP_MAX_CACHE_SIZE);
+			if (maxCacheSize != null || this.cache == null) {
+				this.manager.removeCache(CACHE_NAME);
+				this.cache = null;
+				
+				// init a new cache 
+				this.cache = new Cache(CACHE_NAME, (maxCacheSize == null) ? 1000 : maxCacheSize.intValue(), false, false, 60*60, 30*60);
+				this.manager.addCache(this.cache);
+			}
 			
 			// shutdown old connection-manager
 			if (this.connectionManager != null) this.connectionManager.shutdown();
@@ -256,17 +261,25 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			
 			// init http-client
 			this.connectionManager = new MultiThreadedHttpConnectionManager();
-			this.connectionManager.getParams().setConnectionTimeout(((Integer) configuration.get(PROP_CONNECTION_TIMEOUT)).intValue());
-			this.connectionManager.getParams().setSoTimeout(((Integer) configuration.get(PROP_SOCKET_TIMEOUT)).intValue());
-			this.connectionManager.getParams().setMaxTotalConnections(((Integer) configuration.get(PROP_MAXCONNECTIONS_TOTAL)).intValue());
+			final Integer connectionTimeout = (Integer) configuration.get(PROP_CONNECTION_TIMEOUT);
+			if (connectionTimeout != null)
+				this.connectionManager.getParams().setConnectionTimeout(connectionTimeout.intValue());
+			final Integer socketTimeout = (Integer) configuration.get(PROP_SOCKET_TIMEOUT);
+			if (socketTimeout != null)
+				this.connectionManager.getParams().setSoTimeout(socketTimeout.intValue());
+			final Integer maxConnections = (Integer) configuration.get(PROP_MAXCONNECTIONS_TOTAL);
+			if (maxConnections != null)
+				this.connectionManager.getParams().setMaxTotalConnections(maxConnections.intValue());
 			this.httpClient = new HttpClient(this.connectionManager);
 			
 			// proxy configuration
-			final boolean useProxy = ((Boolean)configuration.get(PROP_PROXY_USE)).booleanValue();
+			final Boolean useProxyVal = (Boolean)configuration.get(PROP_PROXY_USE);
+			final boolean useProxy = (useProxyVal == null) ? false : useProxyVal.booleanValue();
 			final String host = (String)configuration.get(PROP_PROXY_HOST);
-			final int port = ((Integer)configuration.get(PROP_PROXY_PORT)).intValue();
+			final Integer portVal = (Integer)configuration.get(PROP_PROXY_PORT);
 			
-			if (useProxy && host.length() > 0) {
+			if (useProxy && host != null && host.length() > 0 && portVal != null) {
+				final int port = portVal.intValue();
 				this.logger.info(String.format("Proxy is enabled: %s:%d",host,Integer.valueOf(port)));
 				final ProxyHost proxyHost = new ProxyHost(host, port);
 				this.httpClient.getHostConfiguration().setProxyHost(proxyHost);
@@ -274,7 +287,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 				final String user = (String)configuration.get(PROP_PROXY_HOST);
 				final String pwd = (String)configuration.get(PROP_PROXY_PASSWORD);
 				
-				if (user.length() > 0 && pwd.length() > 0)
+				if (user != null && user.length() > 0 && pwd != null && pwd.length() > 0)
 					this.httpClient.getState().setProxyCredentials(
 							new AuthScope(host, port),
 							new UsernamePasswordCredentials(user, pwd)
@@ -300,10 +313,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		String prot = location.getScheme();
 		String host = location.getHost();
 		int port = location.getPort();
-
-		if (prot.equals("http") && port == -1) port = 80;
-		if (prot.equals("https") && port == -1) port = 443;
-
+		
+		if (port == -1 && prot.equals("http")) port = 80;
+		if (port == -1 && prot.equals("https")) port = 443;
+		
 		return String.format("%s:%d",host,Integer.valueOf(port));
 	}
 	
