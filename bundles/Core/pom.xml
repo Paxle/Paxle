@@ -94,13 +94,11 @@
 		<dependency>
 			<groupId>commons-pool</groupId>
 			<artifactId>commons-pool</artifactId>
-			<version>1.4</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.eclipse.osgi</groupId>
 			<artifactId>osgi</artifactId>
-			<version>3.3.1.R33x_v20070828</version>
 		</dependency>		
 		
 		<!-- test dependencies -->
