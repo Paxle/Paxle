@@ -29,4 +29,6 @@ public interface IReferenceNormalizer {
 	 */
 	public URI normalizeReference(String reference);
 	public URI normalizeReference(String reference, Charset charset);
+	
+	public int getDefaultPort(String protocol);
 }

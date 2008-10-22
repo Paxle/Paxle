@@ -74,20 +74,28 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 	private final Log logger = LogFactory.getLog(ReferenceNormalizer.class);
 	private final boolean sortQuery;
 	private final boolean appendSlash;
+	private final boolean includePort;
 	
 	public ReferenceNormalizer() {
-		this(false, false);
+		this(false, false, false);
 	}
 	
 	/**
 	 * Creates a new normalization filter for references.
 	 * @param sortQuery whether to sort the query parameters lexicographically by their respective keys
 	 * @param appendSlash whether a slash should be appended to the path if the last path element does not contain a dot
+	 * @param includePort whether the port-number should be included by default
 	 * @see <a href="http://dblab.ssu.ac.kr/publication/LeKi05a.pdf">On URL Normalization</a>
 	 */
-	public ReferenceNormalizer(final boolean sortQuery, final boolean appendSlash) {
+	public ReferenceNormalizer(final boolean sortQuery, final boolean appendSlash, final boolean includePort) {
 		this.sortQuery = sortQuery;
 		this.appendSlash = appendSlash;
+		this.includePort = includePort;
+	}
+	
+	public int getDefaultPort(String protocol) {
+		final Integer port = DEFAULT_PORTS.get(protocol);
+		return (port == null) ? -1 : port.intValue();
 	}
 	
 	public URI normalizeReference(String reference) {
@@ -107,6 +115,8 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 			return null;
 		}
 	}
+	
+	private static final Pattern PORT_PATTERN = Pattern.compile("\\d{1,5}");
 	
 	/**
 	 * This method takes an URL as input and returns it in a normalized form. There should be no change in the functionality of the URL.
@@ -193,14 +203,25 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 		final int portEnd = (slashAfterHost == -1) ? url.length() : slashAfterHost;
 		if (portColon != -1 && portColon < portEnd) {
 			final String portNr = url.substring(portColon + 1, portEnd);
-			if (!portNr.matches("\\d{1,5}"))
+			if (!PORT_PATTERN.matcher(portNr).matches())
 				throw new URISyntaxException(url, "Illegal port-number");
 			port = Integer.parseInt(portNr);
 			if (port < 1 || port > 65535)
 				throw new URISyntaxException(url, "Port-number out of range");
+		}
+		
+		if (includePort ^ port != -1) {
 			final Integer defPort = DEFAULT_PORTS.get(protocol);
-			if (defPort != null && port == defPort.intValue())
-				port = -1;
+			if (includePort) {
+				// no port value in input, try to get it from the default ports for the protocol
+				if (defPort == null)
+					throw new URISyntaxException(url, "no port number given and no default port for protocol '" + protocol + "'");
+				port = defPort.intValue();
+			} else {
+				// don't make default port-number for the protocol part of the resulting url
+				if (defPort != null && port == defPort.intValue())
+					port = -1;
+			}
 		}
 		
 		final int hashmark = url.indexOf('#', (slashAfterHost == -1) ? hostEnd : slashAfterHost);
@@ -232,10 +253,26 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 								eq = paramEnd;
 							
 							try {
-								// urlDecode(url.substring(paramStart, eq).replace('+', ' '), charset);
-								final String key = URLDecoder.decode(url.substring(paramStart, eq), charset.name());
-								// urlDecode(url.substring(eq + 1, paramEnd).replace('+', ' '), charset)
-								final String val = (eq < paramEnd) ? URLDecoder.decode(url.substring(eq + 1, paramEnd), charset.name()) : null;
+								String key = url.substring(paramStart, eq);
+								try {
+									// urlDecode(key.replace('+', ' '), charset);
+									key = URLDecoder.decode(key, charset.name());
+								} catch (IllegalArgumentException e) {
+									// Illegal hex characters in escape (%) pattern
+									logger.debug("error URL-decoding query-key '" + key + "': " + e.getMessage());
+									// treat key as already replaced
+								}
+								
+								String val = (eq < paramEnd) ? url.substring(eq + 1, paramEnd) : null;
+								if (val != null) try {
+									// urlDecode(val.replace('+', ' '), charset)
+									val = URLDecoder.decode(val, charset.name());
+								} catch (IllegalArgumentException e) {
+									// Illegal hex characters in escape (%) pattern
+									logger.debug("error URL-decoding query-value '" + val + "': " + e.getMessage());
+									// treat val as already replaced
+								}
+								
 								// System.out.println("query arg: " + key + " <-> " + val);
 								queryList.add(new QueryEntry(key, val));
 							} catch (Exception e) {

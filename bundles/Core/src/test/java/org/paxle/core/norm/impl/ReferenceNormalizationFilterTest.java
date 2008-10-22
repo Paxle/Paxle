@@ -62,23 +62,25 @@ public class ReferenceNormalizationFilterTest extends TestCase {
 //		{"http://ftp://www.example.org/bla?blubb#blo", "ftp://www.example.org/bla?blubb"}, // TODO
 		{"ftp://www.example.org/bla?blubb#blo", "ftp://www.example.org/bla?blubb"},
 		{"http://ko.wikipedia.org/wiki/\ud68c\uc808", "http://ko.wikipedia.org/wiki/%ED%9A%8C%EC%A0%88"},
+		{"http://test.example.org/bla?key%ze=value%2f","http://test.example.org/bla?key%25ze=value%2F"}
 	};
 	
 	private static final String[] testCasesException = new String[] {"", "example.org"};
 	
 	
 	public void testReferenceNormalisationFilter() throws Exception {
+		final ReferenceNormalizer refNorm = new ReferenceNormalizer(false, false, false);
 		for (int x=0; x<testCasesNotNull.length; x++) {
-			final ReferenceNormalizer refNorm = new ReferenceNormalizer(false, false);
-			final String normalizationResult = refNorm.parseBaseUrlString(testCasesNotNull[x][0], ReferenceNormalizer.UTF8).toASCIIString();
+			final String input = testCasesNotNull[x][0];
+			final String normalizationResult = refNorm.parseBaseUrlString(input, ReferenceNormalizer.UTF8).toASCIIString();
 			assertNotNull(normalizationResult);
-			assertEquals(testCasesNotNull[x][1], normalizationResult);
+			assertEquals("for input: " + input, testCasesNotNull[x][1], normalizationResult);
 		}
 		
 		//test for URLs without protocol
 		for (int x=0; x<testCasesException.length; x++) {
 			try {
-				new ReferenceNormalizer(false, false).parseBaseUrlString(testCasesException[x], ReferenceNormalizer.UTF8).toASCIIString();
+				refNorm.parseBaseUrlString(testCasesException[x], ReferenceNormalizer.UTF8).toASCIIString();
 				fail("Normalizing " + testCasesException[x] + " should have thrown an URISyntaxException exception!");
 			} catch (URISyntaxException exp) {
 				// expected, so ignore it
