@@ -6,7 +6,6 @@ import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
-import org.paxle.filter.forum.impl.phpmyforum.PhpMyForum;
 import org.paxle.filter.forum.impl.wbb.WBBForum;
 
 public class ForumFilter implements IFilter<ICommand> {

@@ -1,13 +1,15 @@
 package org.paxle.filter.forum.impl;
 
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.LinkInfo;
 
 public abstract class AForum {	
 	protected static Map<String,Pattern> arrayToMap(String... strings) {
@@ -41,7 +43,7 @@ public abstract class AForum {
 		if (parserDoc == null) return;
 
 		// getting the link map
-		Map<String, String> linkMap = parserDoc.getLinks();
+		Map<URI, LinkInfo> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
 			this.rewriteLocation(linkMap);
 		}
@@ -54,13 +56,13 @@ public abstract class AForum {
 		}
 	}
 
-	public void rewriteLocation(Map<String, String> linkMap) {
-		Map<String,String> rewrittenRefs = new HashMap<String, String>();
+	public void rewriteLocation(Map<URI, LinkInfo> linkMap) {
+		Map<URI,LinkInfo> rewrittenRefs = new HashMap<URI,LinkInfo>();
 		
-		Iterator<String> refIterator = linkMap.keySet().iterator();
+		Iterator<URI> refIterator = linkMap.keySet().iterator();
 		while (refIterator.hasNext()) {
-			String newRef = null;
-			String ref = refIterator.next();
+			URI newRef = null;
+			URI ref = refIterator.next();
 			try {
 				newRef = this.rewriteLocation(ref);
 			} catch (MalformedURLException e) {
@@ -85,12 +87,10 @@ public abstract class AForum {
 		}
 	}	
 
-	public String rewriteLocation(String location) throws MalformedURLException, BlockUrlException {
-		URL locationURL = new URL(location);
+	public URI rewriteLocation(URI location) throws MalformedURLException, BlockUrlException {
 
-		String path = locationURL.getPath();
-		String query = locationURL.getQuery();
-		String newQuery = null, newLocation = null;
+		final String path = location.getPath();
+		final String query = location.getQuery();
 
 		ForumPage page = this.getType(path);
 		if (page != null) {
@@ -98,14 +98,21 @@ public abstract class AForum {
 			if (query == null) return location;
 
 			// rewrite query parameters
-			newQuery = this.processQueryParameters(page, query);
+			final String newQuery = this.processQueryParameters(page, query);
 
 			// rewrite location
-			int idx = location.indexOf(query);
-			newLocation = location.substring(0,idx) + newQuery;
-			if (newLocation.endsWith("?")) newLocation = newLocation.substring(0,newLocation.length()-1);
-
-			return newLocation;
+			try {
+				return new URI(
+						location.getScheme(),
+						location.getUserInfo(),
+						location.getHost(),
+						location.getPort(),
+						location.getPath(),
+						newQuery,
+						location.getFragment());
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
 		}
 		return location;
 	}
