@@ -54,7 +54,7 @@
 			<td><b>$name</b></td>
 			<td>
 			#if( $name == "Import-Package" || $name == "Export-Package" || $name == "Private-Package" || $name == "Ignore-Package" || $name == "Bundle-ClassPath" || $name == "Embed-Dependency")			
-			#foreach( $package in $headers.get($name).split(","))
+			#foreach( $package in $stringTools.quoteSplit($headers.get($name), ","))
  				$package<br />
 			#end
 			#else
@@ -63,7 +63,7 @@
 				<a href="$value">$value</a>
 			#else
 				$value
-			#end				
+			#end
 			#end
 			</td>
 		</tr>

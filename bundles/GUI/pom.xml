@@ -41,7 +41,10 @@
 						<Export-Package>
 							org.paxle.gui;version="${pom.version}",
 							<!-- Apache Velocity (Template Engine) -->
-							org.apache.velocity.*
+							org.apache.velocity.*,
+							<!-- hack to copy the classes into this bundle to enable access without directly depending on it -->
+							<!-- BundleView currently utilizes the StringTools-class from this package -->
+							org.paxle.util
 						</Export-Package>
 						<Import-Package>
 							<!-- OSGi framework -->

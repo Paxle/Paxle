@@ -44,6 +44,7 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.ObjectClassDefinition;
+import org.paxle.util.StringTools;
 
 /**
  * A component to allow the user to change the java-runtime properties
@@ -367,7 +368,11 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 			for (int i=0; i<valSplit.length; i++) {
 				final String valOther = valSplit[i].trim();
 				if (valOther.length() > 0) try {
-					splitOptionLine(otherSettings, valOther);
+					for (String opt : StringTools.quoteSplit(valOther, " \t\f")) {
+						opt = opt.trim();
+						if (opt.length() > 0)
+							changesDetected |= updateSetting(currentSettings, opt);
+					}
 				} catch (ParseException e) {
 					throw new ConfigurationException(
 							CM_OTHER_ENTRY.getPid(),
@@ -402,44 +407,6 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 			// write changes into file
 			this.writeSettings(currentSettings);
 		}
-	}
-	
-	private static boolean splitOptionLine(final Collection<String> currentSettings, final String valOthers) throws ParseException {
-		// split the value at whitespace, but obey single and double quotes
-		boolean changesDetected = false;
-		int level = 0;
-		char lastLeveled = 0;
-		int last = 0;
-		
-		for (int i=0; i<valOthers.length(); i++) {
-			final char c = valOthers.charAt(i);
-			if (c == '"' || c == '\'') {
-				if (lastLeveled == c) {
-					level--;
-					lastLeveled = (level == 0) ? 0 : (c == '"') ? '\'' : '"';
-				} else {
-					level++;
-					lastLeveled = c;
-				}
-			} else if (level == 0 && (c == ' ' || c == '\t' || c == '\f')) {
-				if (last < i) {
-					final String opt = valOthers.substring(last, i).trim();
-					if (opt.length() > 0)
-						changesDetected |= updateSetting(currentSettings, opt);
-				}
-				last = i + 1;
-			}
-		}
-		
-		if (level != 0)
-			throw new ParseException("unmatched " + ((lastLeveled == '"') ? "double" : "single") + " quote", last);
-		if (last < valOthers.length() - 1) {
-			final String opt = valOthers.substring(last).trim();
-			if (opt.length() > 0)
-				changesDetected |= updateSetting(currentSettings, opt);
-		}
-		
-		return changesDetected;
 	}
 	
 	public Dictionary<?,?> getCurrentIniSettings() {

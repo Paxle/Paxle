@@ -48,6 +48,7 @@ import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
+import org.paxle.util.StringTools;
 
 public class BundleView extends ALayoutServlet {
 	
@@ -89,6 +90,8 @@ public class BundleView extends ALayoutServlet {
 			
 			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
 			if (request.getParameter(PARAM_BUNDLE_ID) != null) {
+				context.put("stringTools", new StringTools());
+				
 				long bundleID = Long.parseLong(request.getParameter(PARAM_BUNDLE_ID));
 				Bundle bundle = manager.getBundle(bundleID);
 				if (bundle == null) {
@@ -213,7 +216,7 @@ public class BundleView extends ALayoutServlet {
 				
 				final InputStream content = item.getInputStream();
 				try {
-					if (!updater.findAndRemoveOldBundle(fileName, item.getInputStream()))
+					if (!updater.findAndRemoveOldBundle(fileName, content))
 						continue;
 				} finally { try { content.close(); } catch (IOException e) { /* ignore */ } }
 				

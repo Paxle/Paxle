@@ -82,5 +82,6 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 	 * @deprecated This will be removed in VelocityTools 2.1.
 	 */
 	@Override
+	@Deprecated
 	public abstract Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception;
 }
