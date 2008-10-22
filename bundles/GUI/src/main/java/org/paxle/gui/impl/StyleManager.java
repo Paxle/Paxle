@@ -42,7 +42,7 @@ import org.paxle.gui.IStyleManager;
 public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedService {
 	public static final String PID = IStyleManager.class.getName();
 	
-	private static final String PROP_STYLE = "style";
+	private static final String PROP_STYLE = PID + '.' + "style";
 
 	/** 
 	 * for logging
@@ -219,7 +219,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 			}
 
 			public String getID() {
-				return IStyleManager.class.getName();
+				return PID;
 			}
 
 			public InputStream getIcon(int size) throws IOException {

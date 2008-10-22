@@ -34,8 +34,10 @@ public class RobotsTxt extends ALayoutServlet implements ManagedService {
 	/** The configuration data for this class */
 	private Dictionary<String, Object> config = null;
 	
+	private static final String PID = RobotsTxt.class.getName();
+	
 	/** The text of the robots.txt file */
-	public static final String ROBOTSTXT = "robotstxt-txt";
+	public static final String ROBOTSTXT = PID + '.' + "robotstxt-txt";
 	
 	@Override
 	public Template handleRequest( 
@@ -79,7 +81,7 @@ public class RobotsTxt extends ALayoutServlet implements ManagedService {
 		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 
 		defaults.put(ROBOTSTXT, "User-agent: *\nDisallow: /");
-		defaults.put(Constants.SERVICE_PID, RobotsTxt.class.getName());
+		defaults.put(Constants.SERVICE_PID, PID);
 
 		return defaults;
 	}
