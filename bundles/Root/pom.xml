@@ -399,7 +399,14 @@
 				<artifactId>objenesis</artifactId>
 				<version>1.0</version>
 			</dependency>
-			
+
+			<!-- Commons Pool API -->
+			<dependency>
+				<groupId>commons-pool</groupId>
+				<artifactId>commons-pool</artifactId>
+				<version>1.4</version>
+			</dependency>
+
 			<!-- 
 				Eclipse Equinox dependencies needed for compiling
 			 -->
@@ -431,13 +438,6 @@
 			<artifactId>commons-logging</artifactId>
 			<groupId>commons-logging</groupId>
 			<version>1.0.4</version>
-		</dependency>
-
-		<!-- Commons Pool API -->
-		<dependency>
-			<groupId>commons-pool</groupId>
-			<artifactId>commons-pool</artifactId>
-			<version>1.4</version>
 		</dependency>
 		
 		<!-- Junit Testing -->
