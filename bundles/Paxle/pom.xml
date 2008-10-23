@@ -331,7 +331,24 @@
 									<version>2.4.0.v200806031604</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>javax.servlet_2.4.0.v200806031604.jar</destFileName>
-								</artifactItem>																				
+								</artifactItem>
+
+								<!-- 
+									OSGI Monitor Admin Service
+									
+									- Currently there is only an implementation of Apache felix available
+									- We have compiled and deployed this on our own from 
+									  http://svn.apache.org/repos/asf/felix/sandbox/donsez/monitoradmin
+									  SVN Rev.: 555399
+									  Last Changed: 2007-07-11 23:08:51 +0200 (Mit, 11 Jul 2007)
+								 -->
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.sandbox.monitor</artifactId>
+									<version>0.9.0-incubator</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.apache.felix.sandbox.monitor-0.9.0-incubator.jar</destFileName>
+								</artifactItem>
 
 								<!-- commons-logging over slf4j -->
 								<artifactItem>
@@ -1263,6 +1280,7 @@
 		<module>../CharsetDetector</module>
 		<module>../MimeType</module>
 		<module>../ToolsIExport</module>
+		<module>../ToolsSysMon</module>
 		
 		<!-- datalayer bundles -->
 		<module>../DataLayer</module>

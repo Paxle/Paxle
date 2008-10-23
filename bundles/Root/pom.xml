@@ -427,11 +427,40 @@
 			<artifactId>osgi_R4_core</artifactId>
 			<version>1.0</version>
 		</dependency>
+
+		<!-- 
+			OSGI Compendium Classes/Interfaces
+			
+			we use the artifact from apache-felix because the
+			artifact from org.osgi does not provide all required
+			interfaces.
+		 -->
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.osgi.compendium</artifactId>
+			<version>1.2.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>org.osgi.core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>org.osgi.foundation</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>javax.servlet</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!--
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>osgi_R4_compendium</artifactId>
 			<version>1.0</version>
 		</dependency>
+		-->
 
 		<!-- Commons Logging API -->
 		<dependency>
