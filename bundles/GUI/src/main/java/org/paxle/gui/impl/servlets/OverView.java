@@ -37,7 +37,7 @@ import org.paxle.gui.impl.ServiceManager;
 public class OverView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 
-	
+	private static final String RELOAD_SYSTEM = "system";
 	private static final String RELOAD_MEMORY = "memory";
 	private static final String RELOAD_KNOWN_DOCUMENTS = "knownDocuments";
 	private static final String RELOAD_ACTIVITY = "activity";
@@ -136,27 +136,23 @@ public class OverView extends ALayoutServlet {
 			String reload = request.getParameter("reload");
 			if (reload == null) {
 				template = getTemplate("/resources/templates/OverView.vm");
-			} else if (reload.equals(RELOAD_ACTIVITY)) {
+			} else {
 				// we don't want full html 
-				context.put("layout", "plain.vm");
+				context.put("layout", "plain.vm");				
 				
-				// just return the activity overview
-				template = getTemplate("/resources/templates/OverViewActivity.vm");
-			} else if (reload.equals(RELOAD_KNOWN_DOCUMENTS)) {
-				// we don't want full html 
-				context.put("layout", "plain.vm");
-				
-				// just return the knownDocuments overview
-				template = getTemplate("/resources/templates/OverViewKnownDocuments.vm");
-			} else if (reload.equals(RELOAD_MEMORY)) {
-				// we don't want full html 
-				context.put("layout", "plain.vm");
-				
-				// just return the knownDocuments overview
-				template = getTemplate("/resources/templates/OverViewMemory.vm");
-			} 
+				// select the right tempate
+				if (reload.equals(RELOAD_ACTIVITY)) {
+					template = getTemplate("/resources/templates/OverViewActivity.vm");
+				} else if (reload.equals(RELOAD_KNOWN_DOCUMENTS)) {
+					template = getTemplate("/resources/templates/OverViewKnownDocuments.vm");
+				} else if (reload.equals(RELOAD_MEMORY)) {
+					template = getTemplate("/resources/templates/OverViewMemory.vm");
+				} else if (reload.equals(RELOAD_SYSTEM)) {
+					template = getTemplate("/resources/templates/OverViewSystem.vm");
+				}
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			this.logger.error(e);
 		}
 		
 		return template;

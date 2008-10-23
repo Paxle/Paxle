@@ -35,37 +35,16 @@
 		});
    	};
    
+	ajaxPopulater('infoBoxSystem','system');
 	ajaxPopulater('infoBoxActivity','activity');
  	ajaxPopulater('infoBoxKnownDocuments','knownDocuments');
 	ajaxPopulater('infoBoxMemory','memory');
 </script>
 
 ## Content
-<fieldset class="infobox" id="dsystem">
-	<legend class="ovSystem">${text.legend.ovSystem}</legend>
-	<table>
-		<tr>
-			<th>${text.table.name}</th>
-			<th>${text.table.value}</th>
-		</tr>
-		<tr>
-			<td><b>${text.ovSystem.cpus}</b></td>
-			<td>${runtime.availableProcessors()}</td>
-		</tr>
-		<tr>
-			<td><b>${text.ovSystem.os}</b></td>
-			<td>$sysprops.get("os.arch") $sysprops.get("os.name") $sysprops.get("os.version")</td>
-		</tr>
-		<tr>
-			<td><b>${text.ovSystem.jvm}</b></td>
-			<td>$sysprops.get("java.vendor")<br />$sysprops.get("java.runtime.name")<br />$sysprops.get("java.version")</td>
-		</tr>
-		<tr>
-			<td><b>${text.ovSystem.osgi.insert($osgiVersion)}</b></td>
-			<td>by $frameworkVendor,<br />version $frameworkVersion</td>
-		</tr>
-	</table>
-</fieldset>
+ <div id="infoBoxSystem">
+	#parse('/resources/templates/OverViewSystem.vm')
+ </div>
 
 <fieldset class="infobox" id="dhost">
 	<legend class="ovHost">${text.legend.ovHost}</legend>

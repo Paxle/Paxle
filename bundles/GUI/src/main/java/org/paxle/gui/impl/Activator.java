@@ -30,13 +30,17 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.metatype.MetaTypeProvider;
+import org.osgi.service.monitor.MonitorAdmin;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IMenuManager;
@@ -251,29 +255,99 @@ public class Activator implements BundleActivator {
 	 * @param context
 	 */
 	private void initChartServlet(final BundleContext context) {
-		Bundle[] bundles = context.getBundles();
-		for (Bundle bundle : bundles) {
-			// register the servlet if the jfree bundle is already installed
-			if (bundle.getSymbolicName().equalsIgnoreCase("com.springsource.org.jfree")) {
-				servletManager.addServlet("/chart", new ChartServlet(context), null);
-				break;
-			}
-		}		
+		new ChartServletInitializer(context);
+	}
+	
+	private class ChartServletInitializer implements BundleListener, ServiceTrackerCustomizer {
+		private BundleContext bc;
+		private boolean jfreeChartAvailable = false;
+		private MonitorAdmin monitorAdmin = null;
+		private ChartServlet servlet = null;
 		
-		// register a bundle-listener to detect if the jfree-bundle will be removed
-		context.addBundleListener(new BundleListener() {
-			public void bundleChanged(BundleEvent event) {
-				if (event.getBundle().getSymbolicName().equals("com.springsource.org.jfree")) {
-					if (event.getType() == BundleEvent.RESOLVED) {
-						// register the servlet
-						servletManager.addServlet("/chart", new ChartServlet(context), null);
-					} else if (event.getType() == BundleEvent.STOPPED || event.getType() == BundleEvent.UNINSTALLED) {
-						// unregister servlet
-						servletManager.removeServlet("/chart");
-					}
-				}				
-			}			
-		});
+		public ChartServletInitializer(final BundleContext context) {
+			this.bc = context;
+			
+			// registering as servicetracker-customizer
+			ServiceTracker st = new ServiceTracker(
+					this.bc,
+					"org.osgi.service.monitor.MonitorAdmin",
+					this
+			);
+			st.open();
+			
+			// lookup if jfree bundle is available
+			Bundle[] bundles = context.getBundles();
+			for (Bundle bundle : bundles) {
+				// register the servlet if the jfree bundle is already installed
+				if (bundle.getSymbolicName().equalsIgnoreCase("com.springsource.org.jfree")) {
+					this.jfreeChartAvailable = true;
+					this.stateChanged();
+				}
+			}
+		}
+
+		public void bundleChanged(BundleEvent event) {
+			if (event.getBundle().getSymbolicName().equals("com.springsource.org.jfree")) {
+				if (event.getType() == BundleEvent.RESOLVED) {
+					jfreeChartAvailable = true;
+				} else if (event.getType() == BundleEvent.STOPPED || event.getType() == BundleEvent.UNINSTALLED) {
+					jfreeChartAvailable = false;
+				}
+			}
+			this.stateChanged();
+		}
+
+		public Object addingService(ServiceReference ref) {
+			this.monitorAdmin = (MonitorAdmin) this.bc.getService(ref);
+			this.stateChanged();
+			return ref;
+		}
+		
+
+		public void modifiedService(ServiceReference ref, Object service) {
+			// not needed
+		}		
+
+		public void removedService(ServiceReference ref, Object service) {
+			this.monitorAdmin = null;
+			this.stateChanged();
+		}
+		
+		private void stateChanged() {
+			if (servlet == null && this.jfreeChartAvailable && this.monitorAdmin != null) {
+				// creating servlet
+				ChartServlet servlet = new ChartServlet(this.bc, this.monitorAdmin);
+				
+				// registering servlet as event-handler: required to receive monitoring-events
+				Dictionary<String,Object> properties = new Hashtable<String,Object>();
+				properties.put(EventConstants.EVENT_TOPIC, new String[]{"org/osgi/service/monitor"});
+				properties.put(EventConstants.EVENT_FILTER, String.format("(mon.listener.id=%s)",ChartServlet.class.getName()));
+				this.bc.registerService(EventHandler.class.getName(), servlet, properties);				
+				
+				monitorAdmin.startScheduledJob(
+						ChartServlet.class.getName(), // listener.id
+						new String[]{
+							ChartServlet.TSERIES_CPU_TOTAL,
+							ChartServlet.TSERIES_CPU_USER,
+							ChartServlet.TSERIES_CPU_SYSTEM,
+							ChartServlet.TSERIES_DISK_USAGE,
+							ChartServlet.TSERIES_PPM_CRAWLER,
+							ChartServlet.TSERIES_PPM_PARSER,
+							ChartServlet.TSERIES_PPM_INDEXER
+						},
+						60, // seconds
+						0   // Forever
+				);
+				
+				// register servlet as http-servlet
+				servletManager.addServlet("/chart", servlet, null);
+			} else if (servlet != null && (!this.jfreeChartAvailable || this.monitorAdmin == null)){
+				this.servlet = null;
+				
+				// unregister servlet
+				servletManager.removeServlet("/chart");
+			}
+		}
 	}
 
 	public void stop(BundleContext context) throws Exception {
