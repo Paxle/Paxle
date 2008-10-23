@@ -1,0 +1,146 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.paxle.tools</groupId>
+	<artifactId>ToolsSysMon</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - Tools: System Monitoring</name>
+	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
+	
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+
+	<!-- 
+		Build profiles to choose the proper native library
+		for junit testing
+	 -->
+	<profiles>
+		<profile>
+			<id>ToolsSysMon-linux</id>
+			<activation>				
+				<os>
+					<name>linux</name>
+				</os>
+			</activation>
+			<properties>
+				<LIBRARY_PATH>${basedir}/src/main/resources/lib/linux26/</LIBRARY_PATH>
+			</properties>
+		</profile>
+		<profile>
+			<id>ToolsSysMon-windows</id>		
+			<activation>
+				<os>
+					<name>windows</name>
+				</os>
+			</activation>
+			<properties>
+				<LIBRARY_PATH>${basedir}/src/main/resources/lib/windows/</LIBRARY_PATH>
+			</properties>
+		</profile>		
+	</profiles>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<!-- localized bundle headers -->
+						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Name>%bundleName</Bundle-Name>
+						<Bundle-Description>%bundleDesc</Bundle-Description>
+						
+						<Bundle-Category>tools</Bundle-Category>
+						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
+						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
+						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>					
+						
+						<Import-Package>
+							<!-- OSGi framework -->
+							org.osgi.framework;version="1.4",
+							org.osgi.service.monitor;version="1.0",
+							<!-- Logging framework -->
+							org.apache.commons.logging,
+							org.apache.log4j,
+							<!-- Apache Commons IO -->
+							org.apache.commons.io;version="1.4"							
+						</Import-Package>
+						<Private-Package>
+							org.paxle.tools.sysmon.impl
+						</Private-Package>
+						<Bundle-Activator>
+							org.paxle.tools.sysmon.impl.Activator
+						</Bundle-Activator>
+						
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							jsysmon;scope=compile|runtime
+						</Embed-Dependency>
+						
+						<Bundle-NativeCode>
+							lib/windows/jsysmon.dll; osname=WindowsXP; osname=Windows XP; osname=WinXP; osname=WindowsVista; osname=Windows Vista;processor=x86, 
+							lib/linux26/libjsysmon.so; osname=Linux; processor=x86; osversion=2.6
+						</Bundle-NativeCode>			
+					</instructions>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>
+						-Djava.library.path=${LIBRARY_PATH}
+					</argLine>
+				</configuration>
+			</plugin>			
+		</plugins>
+	</build>
+
+
+
+	<dependencies>
+		<dependency>
+			<!-- http://sourceforge.net/projects/jsysmon/ -->
+			<groupId>jsysmon</groupId>
+			<artifactId>jsysmon</artifactId>
+			<version>20080111</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
+		</dependency>			
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.13</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.sun.jdmk</groupId>
+					<artifactId>jmxtools</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.jms</groupId>
+					<artifactId>jms</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jmx</groupId>
+					<artifactId>jmxri</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+</project>
