@@ -28,6 +28,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.MetaTypeProvider;
+import org.osgi.service.monitor.Monitorable;
 import org.osgi.util.tracker.ServiceTracker;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
@@ -247,7 +248,11 @@ public class MWComponentFactory implements IMWComponentFactory {
 		managedServiceProps.put(Constants.SERVICE_PID, componentID);
 		
 		// register as services
-		bc.registerService(new String[]{ManagedService.class.getName(),MetaTypeProvider.class.getName()}, component, managedServiceProps);		
+		bc.registerService(new String[]{
+				ManagedService.class.getName(),
+				MetaTypeProvider.class.getName(),
+				Monitorable.class.getName()
+		}, component, managedServiceProps);		
 	}
 
 	public void unregisterComponentServices(String componentID, IMWComponent<?> component, BundleContext bc) {

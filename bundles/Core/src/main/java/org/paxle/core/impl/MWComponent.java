@@ -33,6 +33,8 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.ObjectClassDefinition;
+import org.osgi.service.monitor.Monitorable;
+import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.MWComponentEvent;
 import org.paxle.core.data.IDataSink;
@@ -46,7 +48,9 @@ import org.paxle.core.threading.impl.Pool;
 /**
  * @see IMWComponent
  */
-public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, MetaTypeProvider {
+public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, MetaTypeProvider, Monitorable {
+	private static final String VAR_NAME_PPM = "ppm";
+	
 	public static final String PROP_POOL_MIN_IDLE = "pool.minIdle";
 	public static final String PROP_POOL_MAX_IDLE = "pool.maxIdle";
 	public static final String PROP_POOL_MAX_ACTIVE = "pool.maxActive";
@@ -229,7 +233,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 
 	/**
 	 * {@inheritDoc}
-	 * @see IMWComponent#getPPM()
+	 * @see IMWComponent#processNext()
 	 */	
 	public void processNext() {
 		this.master.processNext();
@@ -405,6 +409,49 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		public String[] getOptionValues() { return null; }
 		public int getType() { return AttributeDefinition.INTEGER; }
 		public String validate(String value) { return null; }				
+	}
+
+
+	/**
+	 * @see Monitorable#getStatusVariableNames()
+	 */
+	public String[] getStatusVariableNames() {
+		return new String[] {VAR_NAME_PPM};
+	}	
+	
+	/**
+	 * @see Monitorable#getDescription(String)
+	 */
+	public String getDescription(String name) throws IllegalArgumentException {
+		if (!VAR_NAME_PPM.equals(name)) {
+			throw new IllegalArgumentException("Invalid Status Variable name " + name);
+		}
+		
+		return "Pages per minute";
+	}
+
+	/**
+	 * @see Monitorable#getStatusVariable(String)
+	 */
+	public StatusVariable getStatusVariable(String name) throws IllegalArgumentException {
+		if (!VAR_NAME_PPM.equals(name)) {
+			throw new IllegalArgumentException("Invalid Status Variable name " + name);
+		}
+		return new StatusVariable(name, StatusVariable.CM_CC, this.getPPM());
+	}
+
+	/**
+	 * @see Monitorable#notifiesOnChange(String)
+	 */
+	public boolean notifiesOnChange(String name) throws IllegalArgumentException {
+		return false;
+	}
+
+	/**
+	 * @see Monitorable#resetStatusVariable(String)
+	 */
+	public boolean resetStatusVariable(String name) throws IllegalArgumentException {
+		return false;
 	}
 	
 }
