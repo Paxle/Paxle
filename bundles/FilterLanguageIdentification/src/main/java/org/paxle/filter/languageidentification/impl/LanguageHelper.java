@@ -31,9 +31,9 @@ public class LanguageHelper {
 	}
 	
 	public static void makeTrigramSet(File reference, int cutoff, File out) {
-		TrigramSet ts = null;
+		NGramSet ts = null;
 		try {
-			ts = new TrigramSet();
+			ts = new NGramSet();
 			ts.init(reference, cutoff);
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -47,15 +47,15 @@ public class LanguageHelper {
 	}
 	
 	@SuppressWarnings("unused")
-	private void storeForGnuplot(TrigramSet tg, File outfile) throws IOException {
+	private void storeForGnuplot(NGramSet tg, File outfile) throws IOException {
 		int[] tsa = new int[tg.getSet().size()];
 		FileWriter fw = null;
 		fw = new FileWriter(outfile);
 		Iterator<String> i = tg.getSet().keySet().iterator();
 		int x = 0;
 		while (i.hasNext()) {
-			String trigram = i.next();
-			tsa[x] = tg.getSet().get(trigram);
+			String ngram = i.next();
+			tsa[x] = tg.getSet().get(ngram);
 			x++;
 		}
 		Arrays.sort(tsa);

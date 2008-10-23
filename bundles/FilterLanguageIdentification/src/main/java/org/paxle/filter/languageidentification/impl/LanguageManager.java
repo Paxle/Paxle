@@ -36,7 +36,7 @@ public class LanguageManager implements IFilter<ICommand> {
 	/**
 	 * The list of all available language profiles
 	 */
-	private ArrayList<TrigramSet> lngs = new ArrayList<TrigramSet>();
+	private ArrayList<NGramSet> lngs = new ArrayList<NGramSet>();
 	private Log logger = LogFactory.getLog(this.getClass());
 
 	/**
@@ -49,7 +49,7 @@ public class LanguageManager implements IFilter<ICommand> {
 			logger.warn("URL for language definition is null!");
 			return;
 		}
-		TrigramSet nlng = new TrigramSet();
+		NGramSet nlng = new NGramSet();
 		nlng.load(definition);
 		//set name to xx from filename /profiles/xx.txt
 		nlng.setLanguageName(definition.getFile().substring(10, 12));
@@ -77,32 +77,34 @@ public class LanguageManager implements IFilter<ICommand> {
 			}
 		}
 
-		TrigramSet test = new TrigramSet();
+		NGramSet test = null;
 		String winner = null;
 		double winvalue = Double.MAX_VALUE;
 
 		double start = System.currentTimeMillis();
 
+
 		try {
 			if (parserDoc.getTextFile() != null) {
-				test.init(parserDoc.getTextFile(), 10);
-			} else {
-				logger.info("No language for document '" + parserDoc.getOID() + "', as it contins no text");
-			}
 
-			Iterator<TrigramSet> it = this.lngs.iterator();
-			while (it.hasNext()) {
-				TrigramSet ref = it.next();
-				double diff = ref.getDifference(test);
-				logger.debug("Difference from " + ref.getLanguageName() + ": " + diff);
-				if (diff < winvalue) {
-					winner = ref.getLanguageName();
-					winvalue = diff;
+				test = new NGramSet(); 
+				test.init(parserDoc.getTextFile(), 10);
+
+				Iterator<NGramSet> it = this.lngs.iterator();
+				while (it.hasNext()) {
+					NGramSet ref = it.next();
+					double diff = ref.getDifference(test);
+					logger.debug("Difference from " + ref.getLanguageName() + ": " + diff);
+					if (diff < winvalue) {
+						winner = ref.getLanguageName();
+						winvalue = diff;
+					}
 				}
+			} else {
+				logger.info("No language for document '" + parserDoc.getOID() + "', as it contains no text");
 			}
 		} catch (IOException e) {
 			logger.warn("Exception while trying to determine language of document '" +  parserDoc.getOID() + "'", e);
-			winner = "unknown";
 		}
 
 		double end = System.currentTimeMillis();

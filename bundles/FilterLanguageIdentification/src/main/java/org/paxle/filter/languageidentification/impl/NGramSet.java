@@ -32,7 +32,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TrigramSet {
+public class NGramSet {
 
 	//one or more blanks
 	static final Pattern WHITESPACES = Pattern.compile("\\s+");
@@ -44,16 +44,21 @@ public class TrigramSet {
 	static final Pattern UNDERSCORES = Pattern.compile("_+");
 	//collection of all replace patterns. Keep UNERSCORES as last one!
 	static final Pattern[] REPLACE_PATTERNS = { WHITESPACES, NUMBERS, NEWLINES, UNDERSCORES};
+	
+	/**
+	 * The length of the NGrams in this file
+	 */
+	private int ngram_length = 3;
 
 	/**
-	 * Contains the trigrams
-	 * String is the trigram
+	 * Contains the NGrams
+	 * String is the NGram
 	 * Integer is its rank
 	 */
-	private HashMap<String, Integer> trigrams = null;
+	private HashMap<String, Integer> ngrams = null;
 
 	/**
-	 * Defines how many ranks are stored. The actual number of trigrams stored has not much to do with this setting!
+	 * Defines how many ranks are stored. The actual number of ngrams stored has not much to do with this setting!
 	 */
 	private int cutofflevel = -1;
 
@@ -63,7 +68,7 @@ public class TrigramSet {
 	private String language_name = null;
 
 	/**
-	 * Initializes the trigrams with the given file.
+	 * Initializes the ngrams with the given file.
 	 * @param textfile
 	 * @param cutoff The number of different ranks stored
 	 * @throws IOException
@@ -82,7 +87,7 @@ public class TrigramSet {
 	}
 
 	/**
-	 * Initializes the trigrams with the given test.
+	 * Initializes the ngrams with the given test.
 	 * @param text
 	 * @param cutoff The number of different ranks stored
 	 */
@@ -91,13 +96,13 @@ public class TrigramSet {
 	}
 
 	/**
-	 * Initializes the trigrams with the given test.
+	 * Initializes the ngrams with the given test.
 	 * @param sb
 	 * @param cutoff The number of different ranks stored
 	 */
 	public void init(StringBuffer sb, int cutoff) {
 
-		this.trigrams = new HashMap<String, Integer>();
+		this.ngrams = new HashMap<String, Integer>();
 		this.cutofflevel = cutoff;
 
 		for (final Pattern p : REPLACE_PATTERNS) { 
@@ -112,61 +117,54 @@ public class TrigramSet {
 			} 
 		}
 
-		//one or more blanks
-		//WHITESPACES.matcher(sb).replaceAll("_");
-		//newline
-		//NEWLINES.matcher(sb).replaceAll("_");
-		//numbers
-		//NUMBERS.matcher(sb).replaceAll("_");
-		//compact underscores
-		//UNDERSCORES.matcher(sb).replaceAll("_");
-
+		/*
+		 * Cuts the StringBuffer in slices of the NGram length and stores an
+		 * <String NGram, int absolute_count> mapping
+		 */
 		int i = 0;
-		//zerlege den text in trigramme und speichere in der map
-		//die <String trigram, int count> zuordnung
-		while (i+3 <= sb.length()) {
-			String trigram = sb.substring(i, i+3);
+		while (i+this.ngram_length <= sb.length()) {
+			String ngram = sb.substring(i, i+this.ngram_length);
 			i++;
-			if (trigrams.get(trigram) == null) {
-				trigrams.put(trigram,1);
+			if (ngrams.get(ngram) == null) {
+				ngrams.put(ngram,1);
 			} else {
-				int counter = trigrams.get(trigram);
-				trigrams.put(trigram, ++counter);
+				int counter = ngrams.get(ngram);
+				ngrams.put(ngram, ++counter);
 			}
 		}
 
-		//jetzt wird der absolute count in ein rangschema ge�ndert
+		//Now we have to change the absolute count for every NGram in a ranking
 
-		//sammeln der unterschiedlichen counts
-		Iterator<String> i2 = trigrams.keySet().iterator();
+		//Collect the set of different absolute counts
+		Iterator<String> i2 = ngrams.keySet().iterator();
 		TreeSet<Integer> counts = new TreeSet<Integer>();
 		while (i2.hasNext()) {
-			counts.add(trigrams.get(i2.next()));
+			counts.add(ngrams.get(i2.next()));
 		}
 
-		//der treeset ist sortiert, also kann man jetzt nacheinander einfach die r�nge in die neue map eintragen
+		//The TreeSet containing the absolute counts is sorted, so we can insert the ranks subsequently in the new map
 		int rang = counts.size();
 		Iterator<Integer> c1 = counts.iterator();
 		HashMap<String, Integer> newmap = new HashMap<String, Integer>();
 		while (c1.hasNext()) {
-			Iterator<String> c2 = trigrams.keySet().iterator();
+			Iterator<String> c2 = ngrams.keySet().iterator();
 			int abs_count = c1.next();
 			while (c2.hasNext()) {
-				String trigram = c2.next();
-				int count = trigrams.get(trigram);
+				String ngram = c2.next();
+				int count = ngrams.get(ngram);
 				if (count == abs_count) {
-					newmap.put(trigram, rang);
+					newmap.put(ngram, rang);
 				}
 			}
 			rang--;
 		}
-		trigrams = newmap;
+		ngrams = newmap;
 
 		if ((this.cutofflevel > -1) && (this.getNumberOfRanks() > this.cutofflevel)) {
-			Iterator<String> c4 = trigrams.keySet().iterator();
+			Iterator<String> c4 = ngrams.keySet().iterator();
 			while (c4.hasNext()) {
-				String trigram = c4.next();
-				if (trigrams.get(trigram) > this.cutofflevel) {
+				String ngram = c4.next();
+				if (ngrams.get(ngram) > this.cutofflevel) {
 					c4.remove();
 				}
 			}
@@ -174,7 +172,7 @@ public class TrigramSet {
 	}
 
 	/**
-	 * Stores the current trigram set in a loadable format 
+	 * Stores the current NGram set in a loadable format 
 	 * @param out
 	 * @throws IOException
 	 */
@@ -184,12 +182,12 @@ public class TrigramSet {
 		BufferedWriter bw = new BufferedWriter(new FileWriter(out));
 
 		while (rrank <= this.cutofflevel) {
-			Iterator<String> i = trigrams.keySet().iterator();
+			Iterator<String> i = ngrams.keySet().iterator();
 			while (i.hasNext()) {
-				String trigram = i.next();
-				int crank = trigrams.get(trigram);
+				String ngram = i.next();
+				int crank = ngrams.get(ngram);
 				if (crank == rrank) {
-					bw.write(trigram + " " + crank + "\n");
+					bw.write(ngram + " " + crank + "\n");
 				}
 			}
 			rrank++;
@@ -201,15 +199,15 @@ public class TrigramSet {
 	 * For debugging only
 	 */
 	public void printContent() {
-		Iterator<String> i = trigrams.keySet().iterator();
+		Iterator<String> i = ngrams.keySet().iterator();
 		while (i.hasNext()) {
 			String key = i.next();
-			System.out.println(key + " " + trigrams.get(key));
+			System.out.println(key + " " + ngrams.get(key));
 		}
 	}
 
 	/**
-	 * Loads a previously stored trigram set
+	 * Loads a previously stored NGram set
 	 * @param in
 	 * @throws IOException
 	 */
@@ -225,20 +223,20 @@ public class TrigramSet {
 	}
 
 	/**
-	 * Creates a trigram set from a string formed like "xxx rank xxx rank xxx rank [...]"
+	 * Creates a NGram set from a string formed like "xxx rank xxx rank xxx rank [...]"
 	 * @param in
 	 */
 	public void load(String in) {
-		this.trigrams = new HashMap<String, Integer>(100);
+		this.ngrams = new HashMap<String, Integer>(100);
 		StringTokenizer tokenizer = new StringTokenizer(in);
 		while (tokenizer.hasMoreTokens()) {
-			trigrams.put(tokenizer.nextToken(), Integer.valueOf(tokenizer.nextToken()));
+			ngrams.put(tokenizer.nextToken(), Integer.valueOf(tokenizer.nextToken()));
 		}
 		this.cutofflevel = this.getNumberOfRanks();
 	}
 
 	/**
-	 * Loads a previously stored trigram set
+	 * Loads a previously stored NGram set
 	 * @param definition_file
 	 * @throws IOException
 	 */
@@ -260,33 +258,33 @@ public class TrigramSet {
 	 * For debugging only
 	 */
 	public HashMap<String, Integer> getSet() {
-		return this.trigrams;
+		return this.ngrams;
 	}
 
 	/**
-	 * Returns the difference between this TrigramSet and the given String. Lower values mean higher match.
+	 * Returns the difference between this NGramSet and the given String. Lower values mean higher match.
 	 */
 	public double getDifference(String text) {
-		TrigramSet ts = new TrigramSet();
+		NGramSet ts = new NGramSet();
 		ts.init(new StringBuffer(text), this.cutofflevel);
 		return getDifference(ts);
 	}
 
 	/**
-	 * Returns the difference between this TrigramSet and the given TrigramSet. Lower values mean higher match.
+	 * Returns the difference between this NGramSet and the given NGramSet. Lower values mean higher match.
 	 */
-	public double getDifference(TrigramSet probe) {
+	public double getDifference(NGramSet probe) {
 		int sum = 0;
 
 		Iterator<String> docit = probe.getSet().keySet().iterator();
 		while (docit.hasNext()) {
-			String trigram = docit.next();
+			String ngram = docit.next();
 
-			if (this.getSet().get(trigram) == null) {
+			if (this.getSet().get(ngram) == null) {
 				sum += this.cutofflevel;
 			} else {
-				int docrank = probe.getSet().get(trigram);
-				int refrank = this.getSet().get(trigram);
+				int docrank = probe.getSet().get(ngram);
+				int refrank = this.getSet().get(ngram);
 				if (docrank > refrank) {
 					sum += (docrank - refrank);
 				} else if (docrank < refrank) {
@@ -294,11 +292,11 @@ public class TrigramSet {
 				}
 			}
 		}
-		return (sum / (double) probe.getNumberOfTrigrams());
+		return (sum / (double) probe.getNumberOfNGrams());
 	}
 
 	/**
-	 * Returns the difference between this TrigramSet and the given text file. Lower values mean higher match.
+	 * Returns the difference between this NGramSet and the given text file. Lower values mean higher match.
 	 * The text file should be UTF-8 encoded.
 	 */
 	public double getDifference(File textfile) throws IOException {
@@ -312,17 +310,17 @@ public class TrigramSet {
 	}
 
 	/**
-	 * Return the number of trigrams in this object
-	 * @see TrigramSet#getCutoffLevel()
+	 * Return the number of NGrams in this object
+	 * @see NGramSet#getCutoffLevel()
 	 */
-	public int getNumberOfTrigrams() {
-		return this.trigrams.size();
+	public int getNumberOfNGrams() {
+		return this.ngrams.size();
 	}
 
 	/**
 	 * Get the number of ranks, under which entries are dismissed to save memory/cpu time. This may be more than the result of getNumberOfRanks().
-	 * @see TrigramSet#getNumberOfTrigrams()
-	 * @see TrigramSet#getNumberOfRanks()
+	 * @see NGramSet#getNumberOfNGrams()
+	 * @see NGramSet#getNumberOfRanks()
 	 */
 	public int getCutoffLevel() {
 		return this.cutofflevel;
@@ -330,21 +328,21 @@ public class TrigramSet {
 
 	/**
 	 * Return the number of real different counts/ranks in this set. This may be less than the result of getCutoffLevel().
-	 * @see TrigramSet#getNumberOfTrigrams()
-	 * @see TrigramSet#getCutoffLevel()
+	 * @see NGramSet#getNumberOfNGrams()
+	 * @see NGramSet#getCutoffLevel()
 	 */
 	public int getNumberOfRanks() {
-		Iterator<String> i2 = trigrams.keySet().iterator();
+		Iterator<String> i2 = ngrams.keySet().iterator();
 		TreeSet<Integer> counts = new TreeSet<Integer>();
 		while (i2.hasNext()) {
-			counts.add(trigrams.get(i2.next()));
+			counts.add(ngrams.get(i2.next()));
 		}
 		return counts.size();
 	}
 
 	/**
 	 * Sets the name for this language profile to the given String.
-	 * @see TrigramSet#getLanguageName()
+	 * @see NGramSet#getLanguageName()
 	 */
 	public void setLanguageName(String name) {
 		this.language_name = name;
@@ -352,7 +350,7 @@ public class TrigramSet {
 
 	/**
 	 * Return the name of the language for this set or null, if not set.
-	 * @see TrigramSet#setLanguageName(String name)
+	 * @see NGramSet#setLanguageName(String name)
 	 */
 	public String getLanguageName() {
 		return this.language_name;
