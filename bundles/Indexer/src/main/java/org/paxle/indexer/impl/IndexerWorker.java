@@ -19,7 +19,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -101,14 +103,33 @@ public class IndexerWorker extends AWorker<ICommand> {
 			
 			// generate indexer docs from all parser-sub-documents and add them to the command
 			indexerSubDocs = new ArrayList<IIndexerDocument>();
-			for (Map.Entry<String,IParserDocument> pdoce : command.getParserDocument().getSubDocs().entrySet()) {
+			
+			final class Entry {
+				public String key;
+				public IParserDocument pdoc;
+				public Entry(final String key, final IParserDocument pdoc) {
+					this.key = key;
+					this.pdoc = pdoc;
+				}
+			}
+			
+			// traverse the tree of sub-documents
+			final Queue<Entry> queue = new LinkedList<Entry>();
+			for (Map.Entry<String,IParserDocument> pdoce : command.getParserDocument().getSubDocs().entrySet())
+				queue.add(new Entry(pdoce.getKey(), pdoce.getValue()));
+			
+			while (!queue.isEmpty()) {
+				Entry e = queue.remove();
 				IIndexerDocument indexerSubDoc = this.generateIIndexerDoc(
 						command.getLocation(),
 						command.getCrawlerDocument().getCrawlerDate(),
-						pdoce.getKey(),
-						pdoce.getValue()
+						e.key,
+						e.pdoc
 				);
 				indexerSubDocs.add(indexerSubDoc);
+				
+				for (final Map.Entry<String,IParserDocument> pdoce : e.pdoc.getSubDocs().entrySet())
+					queue.add(new Entry(e.key + "/" + pdoce.getKey(), pdoce.getValue()));
 			}
 			
 			/* ================================================================
