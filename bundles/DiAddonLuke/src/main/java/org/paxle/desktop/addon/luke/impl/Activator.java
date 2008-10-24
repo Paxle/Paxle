@@ -14,23 +14,27 @@
 
 package org.paxle.desktop.addon.luke.impl;
 
-import org.getopt.luke.Luke;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.paxle.desktop.DIComponent;
 
 public class Activator implements BundleActivator {
 
 	/**
-	 * An instance of Luke
+	 * An instance of {@link LukeDIComponent}
 	 */
-	private Luke luke = null;
+	private LukeDIComponent luke;
+	
+	private ServiceRegistration lukeReg;
 	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext bc) throws Exception {
-		this.luke = Luke.startLuke(new String[0]);
+		this.luke = new LukeDIComponent();
+		lukeReg = bc.registerService(DIComponent.class.getName(), this.luke, null);
 	}
 
 	/**
@@ -39,7 +43,9 @@ public class Activator implements BundleActivator {
 	 */		
 	public void stop(BundleContext context) throws Exception {
 		if (this.luke != null) {
-			this.luke.actionClose();
+			this.luke.close();
 		}
+		if (lukeReg != null)
+			lukeReg.unregister();
 	}
 }
