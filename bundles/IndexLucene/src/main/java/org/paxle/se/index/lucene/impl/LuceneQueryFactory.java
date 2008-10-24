@@ -51,7 +51,7 @@ public class LuceneQueryFactory extends IQueryFactory<String> {
 		final StringBuilder sb = new StringBuilder();
 		sb.append('(');
 		for (int i=0; i<children.length; i++) {
-			sb.append(transformToken(children[i]));
+			sb.append(transformToken(children[i], this));
 			if (i + 1 < children.length)
 				sb.append(' ').append(str).append(' ');
 		}
