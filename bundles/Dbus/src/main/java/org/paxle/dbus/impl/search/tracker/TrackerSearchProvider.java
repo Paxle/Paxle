@@ -141,7 +141,7 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
 		long start = System.currentTimeMillis();
 		try {
-			String request = TrackerQueryFactory.transformToken(token, new TrackerQueryFactory());
+			String request = new TrackerQueryFactory().transformToken(token);
 			
 			List<String> result = this.search.Text(searchID++, Tracker.SERVICE_FILES, request, 0, maxCount);
 			if (result != null) {
