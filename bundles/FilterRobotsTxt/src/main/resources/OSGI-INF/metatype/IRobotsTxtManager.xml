@@ -69,6 +69,20 @@
 				id="org.paxle.filter.robots.IRobotsTxtManager.proxyPassword"
 				default=""
 				description="%robotsManager.proxyPwd.desc" />
+		
+		<AD name="%robotsManager.threads.maxAlive.name"
+				type="Integer"
+				id="org.paxle.filter.robots.IRobotsTxtManager.threads.maxAlive"
+				default="20"
+				min="1" max="99"
+				description="%robotsManager.threads.maxAlive.desc" />
+		
+		<AD name="%robotsManager.threads.maxIdle.name"
+				type="Integer"
+				id="org.paxle.filter.robots.IRobotsTxtManager.threads.maxIdle"
+				default="20"
+				min="1" max="99"
+				description="%robotsManager.threads.maxIdle.desc" />
 	</OCD>
 	
 	<Designate

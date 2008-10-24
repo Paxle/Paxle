@@ -39,8 +39,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -65,6 +66,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Constants;
+import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.paxle.filter.robots.IRobotsTxtManager;
 import org.paxle.filter.robots.impl.rules.AllowRule;
@@ -90,8 +92,11 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	private static final String PROP_PROXY_HOST 			= PID + '.' + "proxyHost";
 	private static final String PROP_PROXY_PORT 			= PID + '.' + "proxyPort";
 	private static final String PROP_PROXY_USER 			= PID + '.' + "proxyUser";
-	private static final String PROP_PROXY_PASSWORD 		= PID + '.' + "proxyPassword";	
-		
+	private static final String PROP_PROXY_PASSWORD 		= PID + '.' + "proxyPassword";
+	
+	private static final String PROP_WORKER_MAX_ALIVE       = PID + '.' + "threads.maxAlive";
+	private static final String PROP_WORKER_MAX_IDLE        = PID + '.' + "threads.maxIdle";
+	
 	private static final String ROBOTS_AGENT_PAXLE = "paxle";
 
 	/**
@@ -149,7 +154,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	
 	private final boolean useAsyncExecution = true;
 	
-	private ExecutorService execService;
+	private final ThreadPoolExecutor execService;
 	
 	/**
 	 * @param path the path where the {@link RobotsTxt} objects should be stored
@@ -161,13 +166,20 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		// configure caching manager
 		this.manager = CacheManager.getInstance();
 		
-		// configure with default configuration
-		this.updated(this.getDefaults());
-				
 		// init threadpool
-		// XXX should we set the thread-pool size? 
-		// this.execService = Executors.newCachedThreadPool();					
-		this.execService = Executors.newFixedThreadPool(20);
+		// XXX should we set the thread-pool size?
+		// this.execService = Executors.newCachedThreadPool();
+		final int nThreads = 20;
+		this.execService = new ThreadPoolExecutor(nThreads, nThreads,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>());
+		
+		// configure with default configuration
+		try {
+			this.updated(this.getDefaults());
+		} catch (ConfigurationException e) {
+			throw new RuntimeException("error configuring with defaults: " + e.getReason(), e);
+		}
 	}
 	
 	public void terminate() {
@@ -219,6 +231,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		defaults.put(PROP_PROXY_USER, "");
 		defaults.put(PROP_PROXY_PASSWORD, "");
 		
+		// default thread pool executor settings
+		defaults.put(PROP_WORKER_MAX_ALIVE, Integer.valueOf(20));
+		defaults.put(PROP_WORKER_MAX_IDLE, Integer.valueOf(20));
+		
 		// a systemwidth unique ID needed by the CM
 		defaults.put(Constants.SERVICE_PID, IRobotsTxtManager.class.getName());
 		
@@ -229,7 +245,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	 * @see ManagedService#updated(Dictionary)
 	 */
 	@SuppressWarnings("unchecked")		// we're only implementing an interface
-	public void updated(Dictionary configuration) {
+	public void updated(Dictionary configuration) throws ConfigurationException {
 		// our caller catches all runtime-exceptions and silently ignores them, leaving us confused behind,
 		// so this try/catch-block exists for debugging purposes
 		try {
@@ -253,6 +269,27 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 				// init a new cache 
 				this.cache = new Cache(CACHE_NAME, (maxCacheSize == null) ? 1000 : maxCacheSize.intValue(), false, false, 60*60, 30*60);
 				this.manager.addCache(this.cache);
+			}
+			
+			// configure thread pool min. idle and max. alive sizes
+			final Integer maxIdle = (Integer)configuration.get(PROP_WORKER_MAX_IDLE);
+			final Integer maxAlive = (Integer)configuration.get(PROP_WORKER_MAX_ALIVE);
+			if (maxIdle != null) {
+				final int maxIdleVal = maxIdle.intValue();
+				final int maxAliveNow = (maxAlive == null) ? execService.getMaximumPoolSize() : maxAlive.intValue();
+				if (maxAliveNow < maxIdleVal)
+					throw new ConfigurationException(PROP_WORKER_MAX_IDLE, "max. idle threads must be <= min alive threads");
+				if (maxIdleVal <= 0)
+					throw new ConfigurationException(PROP_WORKER_MAX_IDLE, "max. idle threads must be >= 0");
+				execService.setCorePoolSize(maxIdleVal);
+			}
+			if (maxAlive != null) {
+				final int maxAliveVal = maxAlive.intValue();
+				if (maxAliveVal < execService.getCorePoolSize())
+					throw new ConfigurationException(PROP_WORKER_MAX_ALIVE, "max. alive threads must be >= min idle threads");
+				if (maxAliveVal <= 0)
+					throw new ConfigurationException(PROP_WORKER_MAX_ALIVE, "max. alive threads must be >= 0");
+				execService.setMaximumPoolSize(maxAliveVal);
 			}
 			
 			// shutdown old connection-manager
@@ -300,6 +337,8 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 			
 		} catch (Throwable e) {
 			this.logger.error("Internal exception during configuring", e);
+			if (e instanceof ConfigurationException)
+				throw (ConfigurationException)e;
 		} finally {
 			this.w.unlock();
 		}

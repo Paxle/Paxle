@@ -15,7 +15,6 @@
 package org.paxle.filter.robots.impl.store;
 
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
