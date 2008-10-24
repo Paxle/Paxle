@@ -139,13 +139,13 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 		}
 		
 		Integer id = VAR_NAMES.get(name);
+		double usage = 0.0;
 		if (this.lastCPUData != null) {
 			if (name.startsWith(VAR_PREFIX_USAGE)) {
-				double usage = this.lastCPUData.getTotalUsage(id.intValue());
-				return new StatusVariable(name, StatusVariable.CM_GAUGE,(float)usage);
-			} 
-		} 		
-		return null;
+				usage = this.lastCPUData.getTotalUsage(id.intValue());
+			}
+		}
+		return new StatusVariable(name, StatusVariable.CM_GAUGE,(float)usage);
 	}
 
 	/**
