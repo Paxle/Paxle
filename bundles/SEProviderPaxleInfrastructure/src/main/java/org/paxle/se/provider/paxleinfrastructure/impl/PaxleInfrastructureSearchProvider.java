@@ -30,7 +30,7 @@ public class PaxleInfrastructureSearchProvider implements ISearchProvider {
 	
 	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
 		try {
-			String request = PaxleInfrastructureQueryFactor.transformToken(token, new PaxleInfrastructureQueryFactor());
+			String request = new PaxleInfrastructureQueryFactor().transformToken(token);
 			IIndexerDocument indexerDoc = new IndexerDocument();
 			System.out.println(request);
 			if(request.toLowerCase().equals("paxle wiki")){

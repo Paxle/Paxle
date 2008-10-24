@@ -26,7 +26,49 @@ import org.paxle.se.query.tokens.QuoteToken;
 
 public abstract class IQueryFactory<R> {
 	
-	public static <R> R transformToken(final AToken token, final IQueryFactory<R> factory) {
+	/**
+	 * This methods transforms a given {@link AToken}-tree into a representation of the generic type of
+	 * this {@link IQueryFactory}. In the default implementation this method first calls
+	 * {@link #beginTransformation()}, then invokes the &quot;real&quot; transformation process by calling
+	 * {@link #transformToken(AToken, IQueryFactory)} using this {@link IQueryFactory}, finally calls
+	 * {@link #endTransformation()} and returns the obtained transformation. 
+	 * @param token the {@link AToken}-tree to transform
+	 * @return the transformation of the given {@link AToken}
+	 */
+	public R transformToken(final AToken token) {
+		beginTransformation();
+		final R r = transformToken(token, this);
+		endTransformation();
+		return r;
+	}
+	
+	/**
+	 * A static convenience method which calls the methods dealing with transformation of the
+	 * standard {@link AToken}s as defined in {@link org.paxle.se.query.tokens}. For the following
+	 * types of {@link AToken}s the mentioned methods are called:
+	 * <ul>
+	 *   <li>for {@link AndOperator}-tokens: {@link #and(AToken[])} is being called, passing all
+	 *       {@link AndOperator#children() children} of the operator</li>
+	 *   <li>for {@link OrOperator}-tokens: {@link #or(AToken[])} is being called, passing all
+	 *       {@link AndOperator#children() children} of the operator</li>
+	 *   <li>for {@link ModToken}s: {@link #mod(AToken, String)} is being called with the contained
+	 *       {@link AToken} and {@link ModToken#getMod() modifier} string</li>
+	 *   <li>for {@link FieldToken}s: {@link #field(AToken, Field)} is being called with the contained
+	 *       {@link AToken} and {@link FieldToken#getField() field}</li>
+	 *   <li>for {@link QuoteToken}s: {@link #quote(String)} is being called with the contained {@link String}</li>
+	 *   <li>for {@link PlainToken}s: {@link #plain(String)} is being called with the contained {@link String}</li>
+	 *   <li>for {@link NotToken}s: {@link #not(AToken)} is being called with the contained {@link AToken}</li>
+	 * </ul>
+	 * <p>
+	 * In any other case which is not covered by the list above, {@link #transformNonDefaultToken(AToken)} is being
+	 * called, which - in the default implementation - results in a {@link RuntimeException} being thrown to indicate
+	 * that the {@link AToken}-type is not supported by this {@link IQueryFactory}.
+	 * @param <R> the result type into which the {@link AToken}-tree is transformed by the given {@link IQueryFactory}
+	 * @param token the root {@link AToken} to be transformed inclusively all of it's possible children
+	 * @param factory the {@link IQueryFactory} to use for the transformation process
+	 * @return the result of the transformation
+	 */
+	protected static <R> R transformToken(final AToken token, final IQueryFactory<R> factory) {
 		if (token instanceof AndOperator) {
 			final AndOperator op = (AndOperator)token;
 			return factory.and(op.children());
@@ -53,8 +95,44 @@ public abstract class IQueryFactory<R> {
 			return factory.not(((NotToken)token).getToken());
 			
 		} else {
-			throw new RuntimeException("unknown token-type: " + token + " (" + token.getClass() + ")");
+			return factory.transformNonDefaultToken(token);
 		}
+	}
+	
+	/**
+	 * This method shall be overridden by implementations to deal with non-standard {@link AToken}s.
+	 * The default implementation throws a {@link RuntimeException}.
+	 * @param token the non-standard {@link AToken} to transform
+	 * @return the result of the transformation
+	 */
+	protected R transformNonDefaultToken(final AToken token) {
+		throw new RuntimeException("unknown token-type: " + token + " (" + token.getClass() + ")");
+	}
+	
+	/**
+	 * Called by the publicly accessible {@link #transformToken(AToken)}-method prior to the start of
+	 * the transformation process.
+	 * <p>
+	 * This method can be overridden by implementations for initialization purposes. The default
+	 * implementation does nothing.
+	 * @see #transformToken(AToken)
+	 * @see #transformTokenImpl(AToken)
+	 */
+	public void beginTransformation() {
+		// NOOP
+	}
+	
+	/**
+	 * Called by the publicly accessible {@link #transformToken(AToken)}-method after the transformation
+	 * process has ended.
+	 * <p>
+	 * This method can be overridden by implementations for cleanup purposes. The default implementation
+	 * does nothing.
+	 * @see #transformToken(AToken)
+	 * @see #transformTokenImpl(AToken)
+	 */
+	public void endTransformation() {
+		// NOOP
 	}
 	
 	public abstract R and(AToken[] token);

@@ -63,7 +63,7 @@ public class RssSearchProvider implements ISearchProvider,ManagedService {
 	@SuppressWarnings("unchecked")
 	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
 		try {
-			String request=RssSearchQueryFactor.transformToken(token, new RssSearchQueryFactor());
+			String request=new RssSearchQueryFactor().transformToken(token);
 			//creating a channel-builder
 	        ChannelBuilder builder = new ChannelBuilder();   
 	        

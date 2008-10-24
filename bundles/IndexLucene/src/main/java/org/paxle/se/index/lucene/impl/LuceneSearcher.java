@@ -29,13 +29,12 @@ import org.apache.lucene.search.Query;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneSearcher;
-import org.paxle.se.query.IQueryFactory;
 import org.paxle.se.query.tokens.AToken;
 
 public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	
 	private final Log logger = LogFactory.getLog(LuceneSearcher.class);
-	private final LuceneQueryFactory ltf = new LuceneQueryFactory();
+	private final LuceneQueryFactory ltf = new LuceneQueryFactory(IIndexerDocument.TEXT, IIndexerDocument.TITLE);
 	private final AFlushableLuceneManager manager;
 	
 	public LuceneSearcher(AFlushableLuceneManager manager) {
@@ -47,12 +46,14 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 	 *       the indirection over String and the query-factory
 	 */
 	public void search(AToken request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException {
-		final QueryParser queryParser = new QueryParser(IIndexerDocument.TEXT.getName(), new StandardAnalyzer());
+		final QueryParser queryParser = new QueryParser(null, new StandardAnalyzer());
 		final Query query;
+		final String queryString = ltf.transformToken(request);
+		logger.debug("transformed query string: " + queryString);
 		try {
-			query = queryParser.parse(IQueryFactory.transformToken(request, ltf));
+			query = queryParser.parse(queryString);
 		} catch (org.apache.lucene.queryParser.ParseException e) {
-			throw new IndexException("error parsing query string '" + request + "'", e);
+			throw new IndexException("error parsing query token '" + request + "' - query string: " + queryString, e);
 		}
 		this.logger.debug("searching for query '" + query + "' (" + request + ")");
 		this.manager.search(query, new IIndexerDocHitCollector(results, maxCount));

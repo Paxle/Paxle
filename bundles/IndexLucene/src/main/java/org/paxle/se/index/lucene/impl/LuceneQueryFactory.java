@@ -22,16 +22,43 @@ import org.paxle.se.query.tokens.AToken;
 
 public class LuceneQueryFactory extends IQueryFactory<String> {
 	
+	private final Field<?>[] defaultFields;
+	
+	private boolean inFieldToken = false;
+	
+	public LuceneQueryFactory(final Field<?>... defaultFields) {
+		this.defaultFields = defaultFields;
+	}
+	
+	// make it synchronized, because we have to maintain an internal variable which may change
+	// during transformation
+	@Override
+	public synchronized String transformToken(AToken token) {
+		return super.transformToken(token);
+	}
+	
+	@Override
+	public void beginTransformation() {
+		inFieldToken = false;
+	}
+	
+	@Override
+	public void endTransformation() {
+		inFieldToken = false;
+	}
+	
 	private String getOperatorString(AToken[] children, String str) {
 		final StringBuilder sb = new StringBuilder();
 		sb.append('(');
 		for (int i=0; i<children.length; i++) {
-			sb.append(transformToken(children[i], this));
+			sb.append(transformToken(children[i]));
 			if (i + 1 < children.length)
 				sb.append(' ').append(str).append(' ');
 		}
 		return sb.append(')').toString();
 	}
+	
+	
 	
 	@Override
 	public String and(AToken[] token) {
@@ -40,7 +67,10 @@ public class LuceneQueryFactory extends IQueryFactory<String> {
 	
 	@Override
 	public String field(AToken token, Field<?> field) {
-		return field.getName() + ':' + transformToken(token, this);
+		inFieldToken = true;
+		final String r = field.getName() + ':' + transformToken(token, this);
+		inFieldToken = false;
+		return r;
 	}
 	
 	@Override
@@ -60,11 +90,28 @@ public class LuceneQueryFactory extends IQueryFactory<String> {
 	
 	@Override
 	public String plain(String str) {
-		return QueryParser.escape(str);
+		return toDefaultFields(QueryParser.escape(str));
+	}
+	
+	private String toDefaultFields(final String s) {
+		if (inFieldToken || defaultFields.length == 0) {
+			return s;
+		} else if (defaultFields.length == 1) {
+			return defaultFields[0].getName() + ':' + s;
+		} else {
+			final String sepTerms = " OR ";
+			
+			final StringBuilder sb = new StringBuilder((s.length() + 1) * defaultFields.length);
+			sb.append('(');
+			for (final Field<?> field : defaultFields)
+				sb.append(field.getName()).append(':').append(s).append(sepTerms);
+			final int len = sb.length();
+			return sb.delete(len - sepTerms.length(), len).append(')').toString();
+		}
 	}
 	
 	@Override
 	public String quote(String str) {
-		return '"' + QueryParser.escape(str) + '"';
+		return toDefaultFields('"' + QueryParser.escape(str) + '"');
 	}
 }
