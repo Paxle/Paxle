@@ -1,0 +1,123 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>DIAddonLuke</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.4-SNAPSHOT</version>
+	<name>Paxle - DI: Luke (Lucene Index Toolbox)</name>
+	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<!-- localized bundle headers -->
+						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Name>%bundleName</Bundle-Name>
+						<Bundle-Description>%bundleDesc</Bundle-Description>
+						
+						<Bundle-Category>ui</Bundle-Category>					
+						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
+						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
+						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+						
+						<Export-Package>
+						</Export-Package>
+						<Import-Package>
+							<!-- OSGi framework -->
+							org.osgi.framework;version="1.4",
+							<!-- Logging framework -->
+							org.apache.commons.logging,						
+							<!-- Paxle Desktop-Integration Bundle -->
+							org.paxle.desktop;version="[0.1.0,0.2.0)",
+							<!-- Dependencies required by rhino -->
+							javax.swing,
+							javax.swing.event,
+							javax.swing.filechooser,
+							javax.swing.text,
+							javax.xml.namespace,
+							javax.xml.parsers,
+							javax.xml.transform,
+							javax.xml.transform.dom,
+							javax.xml.transform.stream,
+							org.apache.xmlbeans;version="[2.2.0, 3.0.0)";resolution:=optional,
+							org.w3c.dom,
+							org.xml.sax,
+							org.xml.sax.helpers						
+						</Import-Package>
+						<Private-Package>
+							org.paxle.desktop.addon.luke.impl
+						</Private-Package>
+						<DynamicImport-Package>
+						</DynamicImport-Package>
+						<Bundle-Activator>
+							org.paxle.desktop.addon.luke.impl.Activator
+						</Bundle-Activator>
+						
+						<!-- embedding libs -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							com.springsource.org.mozilla.javascript;scope=compile|runtime,
+							luke;scope=compile|runtime,
+							lucene-core;scope=compile|runtime,
+							lucene-analyzers;scope=compile|runtime,
+							lucene-snowball;scope=compile|runtime
+						</Embed-Dependency>					
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>DesktopIntegration</artifactId>
+			<version>[,0.2.0)</version>
+		</dependency>	
+	
+		<dependency>
+			<groupId>org.mozilla.javascript</groupId>
+			<artifactId>com.springsource.org.mozilla.javascript</artifactId>
+			<version>1.7.0.R1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.getopt</groupId>
+			<artifactId>luke</artifactId>
+			<version>0.8.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-core</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-analyzers</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-snowball</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+	</dependencies>
+</project>
