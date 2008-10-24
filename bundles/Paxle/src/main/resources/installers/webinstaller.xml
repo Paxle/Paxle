@@ -208,6 +208,7 @@
 		<refpack file="CharsetDetector/pack.xml" />
 		<refpack file="MimeType/pack.xml" />
 		<refpack file="ToolsIExport/pack.xml" />
+		<refpack file="ToolsSysMon/pack.xml" />
 
 
 		<!-- ========================================================== 
