@@ -272,18 +272,23 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	}
 	
 	private class PopulateThread extends Thread {
+		
+		public PopulateThread() {
+			super("DoubleURLCachePopulater");
+		}
+		
 		@Override
 		public void run() {
 			final long time = System.currentTimeMillis();
-			final int count = populateDoubleURLSet();
+			final long count = populateDoubleURLSet();
 			logger.info("Initialized the double URL cache with " + count + " entries in " +
 					((System.currentTimeMillis() - time) / 1000) + " seconds");
 		}
 		
-		private int populateDoubleURLSet() {
+		private long populateDoubleURLSet() {
 			Session session = null;
 			Transaction transaction = null;
-			int count = 0;
+			long count = 0;
 			
 			try {
 				session = sessionFactory.openSession();
@@ -295,10 +300,33 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				
 				final Key key = new Key();
 				final DynamicBloomFilter bf = bloomFilter;
+				
+				final long start = System.currentTimeMillis();
+				long time = start;
+				long lastCount = 0L;
 				while (it.hasNext() && !super.isInterrupted()) {
 					key.set(it.next().toString().getBytes(UTF8), 1.0);
 					bf.add(key);
 					count++;
+					
+					if (count % 250000 == 0) {
+						final long now = System.currentTimeMillis();
+						final long last = time;
+						final long totalMs = now - start;
+						final long deltaMs = now - last;
+						final long deltaCount = count - lastCount;
+						final long totalCountLeft = cntTotal - count;
+						final int etaSec = (int)(((double)totalMs / count) * totalCountLeft / 1000);
+						logger.info(String.format(
+								"Populated URL-cache with %,d URIs in %d seconds (%,d/sec), %,d to go, ETA: %02d:%02d",
+								Long.valueOf(count),
+								Long.valueOf(totalMs / 1000L),
+								Integer.valueOf((int)(deltaCount / (double)deltaMs * 1000.0)),
+								Long.valueOf(totalCountLeft),
+								Integer.valueOf(etaSec / 60), Integer.valueOf(etaSec % 60)));
+						lastCount = count;
+						time = now;
+					}
 				}
 				
 				transaction.commit();
