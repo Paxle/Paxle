@@ -49,6 +49,7 @@
 							org.apache.commons.httpclient.*;version="3.1.0",
 							<!-- DB4o Database -->
 							com.db4o;resolution:=optional,
+							com.db4o.io;resolution:=optional,
 							com.db4o.*;resolution:=optional,
 							<!-- Ehcache -->
 							net.sf.ehcache;version="1.4.1",

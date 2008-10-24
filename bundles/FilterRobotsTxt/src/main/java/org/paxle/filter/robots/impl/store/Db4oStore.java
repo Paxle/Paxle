@@ -15,6 +15,7 @@
 package org.paxle.filter.robots.impl.store;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
@@ -34,6 +35,9 @@ import com.db4o.config.QueryConfiguration;
 import com.db4o.config.QueryEvaluationMode;
 import com.db4o.ext.DatabaseClosedException;
 import com.db4o.ext.ExtObjectContainer;
+import com.db4o.io.CachedIoAdapter;
+import com.db4o.io.NonFlushingIoAdapter;
+import com.db4o.io.RandomAccessFileAdapter;
 import com.db4o.osgi.Db4oService;
 import com.db4o.query.Predicate;
 import com.db4o.query.Query;
@@ -93,6 +97,7 @@ public class Db4oStore implements IRuleStore {
 				: this.dboService.newConfiguration();
 		this.config.objectClass(RobotsTxt.class).objectField("hostPort").indexed(true);		
 		this.config.callbacks(false);
+		this.config.io(new CachedIoAdapter(new NonFlushingIoAdapter(new RandomAccessFileAdapter())));
 		
 		this.db = (this.dboService == null) 
 				? Db4o.openFile(config, dbFile.toString())
