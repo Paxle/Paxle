@@ -223,7 +223,7 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 	
 	private final class HtmlParserRequisites {
 		final ParserLogger logger = new ParserLogger(HtmlParser.this.logger);
-		final FixedPage page = new FixedPage();
+		final FixedPage page = new FixedPage(logger);
 		final Lexer lexer = new Lexer(page);
 		final Parser parser = new Parser(lexer, logger);
 		final NodeCollector nc = new NodeCollector(logger, page);
