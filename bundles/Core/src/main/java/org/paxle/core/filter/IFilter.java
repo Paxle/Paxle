@@ -61,7 +61,7 @@ public interface IFilter<C> {
 	 * 
 	 * If this sub-parameter is not defined the default value is <code>disabled=false</code>
 	 */
-	public static final String PROP_FILTER_TARGET_DISABLED = "diabled";
+	public static final String PROP_FILTER_TARGET_DISABLED = "disabled";
 	
 	/**
 	 * Function to process a given {@link ICommand} by a filter.
