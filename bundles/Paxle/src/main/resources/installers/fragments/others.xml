@@ -18,4 +18,7 @@
 	<!-- Optional Filter bundles -->
 	<refpack file="FilterPlaintextDumper/pack.xml" />
 	<refpack file="ToolsDNS/pack.xml" />
+	
+	<!-- Optional DI addons -->
+	<refpack file="DIAddonLuke/pack.xml" />
 </xfragment>

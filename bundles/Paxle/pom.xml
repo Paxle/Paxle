@@ -894,6 +894,9 @@
 				<module>../FilterForum</module>
 				<module>../ToolsDNS</module>
 
+				<!-- Optional DI addons -->
+				<module>../DIAddonLuke</module>
+
 				<!-- Misc -->
 				<module>../Console</module>
 				<module>../Dbus</module>			
