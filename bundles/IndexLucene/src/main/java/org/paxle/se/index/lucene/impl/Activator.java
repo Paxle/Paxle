@@ -25,7 +25,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.monitor.Monitorable;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.queue.ICommandTracker;
@@ -79,10 +81,15 @@ public class Activator implements BundleActivator {
 		indexSearcher = new LuceneSearcher(lmanager);
 		
 		context.registerService(IIndexWriter.class.getName(), indexWriterThread, new Hashtable<String,String>());
-		context.registerService(
-				new String[]{IIndexSearcher.class.getName(), ISearchProvider.class.getName()}, 
-				indexSearcher, 
-				new Hashtable<String,String>());
+		
+		final Hashtable<String,Object> props = new Hashtable<String,Object>();
+		props.put(Constants.SERVICE_PID, LuceneSearcher.PID);
+		context.registerService(new String[] {
+				IIndexSearcher.class.getName(),
+				ISearchProvider.class.getName(),
+				Monitorable.class.getName()
+		}, indexSearcher, props);
+		
 		context.registerService(IIndexIteratable.class.getName(), lmanager, new Hashtable<String,String>());
 		
 		// publish data source

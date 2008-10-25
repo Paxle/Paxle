@@ -146,7 +146,7 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 		} finally { this.rlock.unlock(); } 
 	}
 	
-	public int getDocCount() throws IOException {
+	public int getDocCount() {
 		return this.docCount;
 	}
 	

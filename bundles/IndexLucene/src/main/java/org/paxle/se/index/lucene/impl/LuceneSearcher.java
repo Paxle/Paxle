@@ -26,12 +26,18 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
 
+import org.osgi.service.monitor.Monitorable;
+import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneSearcher;
 import org.paxle.se.query.tokens.AToken;
 
-public class LuceneSearcher implements ILuceneSearcher, Closeable {
+public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
+	
+	public static final String PID = "org.paxle.lucene-db";
+	
+	public static final String MONITOR_SIZE = "docs.known";
 	
 	private final Log logger = LogFactory.getLog(LuceneSearcher.class);
 	private final LuceneQueryFactory ltf = new LuceneQueryFactory(IIndexerDocument.TEXT, IIndexerDocument.TITLE);
@@ -88,7 +94,37 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable {
 		this.manager.close();
 	}
 	
-	public int getDocCount() throws IOException {
+	public int getDocCount() {
 		return this.manager.getDocCount();
+	}
+	
+	/* ====================================================================== *
+	 * Monitorable support
+	 * ====================================================================== */
+	
+	public String getDescription(String id) throws IllegalArgumentException {
+		if (id == MONITOR_SIZE)
+			return "Indexed documents";
+		
+		throw new IllegalArgumentException("no such variable '" + id + "'");
+	}
+	
+	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {
+		if (id == MONITOR_SIZE)
+			return new StatusVariable(MONITOR_SIZE, StatusVariable.CM_CC, getDocCount());
+		
+		throw new IllegalArgumentException("no such variable '" + id + "'");
+	}
+	
+	public String[] getStatusVariableNames() {
+		return new String[] { MONITOR_SIZE };
+	}
+	
+	public boolean notifiesOnChange(String id) throws IllegalArgumentException {
+		return false;
+	}
+	
+	public boolean resetStatusVariable(String id) throws IllegalArgumentException {
+		return false;
 	}
 }
