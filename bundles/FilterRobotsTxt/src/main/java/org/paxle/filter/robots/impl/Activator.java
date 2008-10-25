@@ -24,6 +24,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.monitor.Monitorable;
 import org.paxle.core.filter.IFilter;
 import org.paxle.filter.robots.IRobotsTxtManager;
 import org.paxle.filter.robots.impl.store.Db4oStore;
@@ -78,8 +79,12 @@ public class Activator implements BundleActivator {
 		bc.registerService(IFilter.class.getName(), new RobotsTxtFilter(robotsTxtManager), filterProps);		
 		
 		// register robots.txt manager as service
-		Hashtable<String, String[]> managerProps = new Hashtable<String, String[]>();
-		bc.registerService(IRobotsTxtManager.class.getName(), this.robotsTxtManager, managerProps);	
+		Hashtable<String,Object> managerProps = new Hashtable<String,Object>();
+		managerProps.put(Constants.SERVICE_PID, RobotsTxtManager.MONITOR_PID);
+		bc.registerService(new String[] {
+				IRobotsTxtManager.class.getName(),
+				Monitorable.class.getName()
+		}, this.robotsTxtManager, managerProps);	
 		
 		/*
 		 * Create configuration if not available

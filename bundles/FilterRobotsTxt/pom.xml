@@ -43,6 +43,7 @@
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.cm;version="1.2",
+							org.osgi.service.monitor;version="1.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Apache Commons HttpClient -->

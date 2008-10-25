@@ -22,4 +22,5 @@ public interface IRuleStore {
 	public RobotsTxt read(String hostPort) throws IOException;
 	public void write(RobotsTxt robotsTxt) throws IOException;
 	public void close() throws IOException;
+	public int size();
 }

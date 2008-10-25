@@ -68,6 +68,8 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.monitor.Monitorable;
+import org.osgi.service.monitor.StatusVariable;
 import org.paxle.filter.robots.IRobotsTxtManager;
 import org.paxle.filter.robots.impl.rules.AllowRule;
 import org.paxle.filter.robots.impl.rules.DisallowRule;
@@ -75,7 +77,7 @@ import org.paxle.filter.robots.impl.rules.RobotsTxt;
 import org.paxle.filter.robots.impl.rules.RuleBlock;
 import org.paxle.filter.robots.impl.store.IRuleStore;
 
-public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
+public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Monitorable {
 	private static final String CACHE_NAME = "robotsTxtCache";
 	
 	/* =========================================================
@@ -98,6 +100,9 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 	private static final String PROP_WORKER_MAX_IDLE        = PID + '.' + "threads.maxIdle";
 	
 	private static final String ROBOTS_AGENT_PAXLE = "paxle";
+	
+	public static final String MONITOR_PID = "org.paxle.robots-txt";
+	private static final String MONITOR_STORE_SIZE = "store.size";
 
 	/**
 	 * Lock object required to synchronize functions affected by {@link #updated(Dictionary)} 
@@ -342,6 +347,38 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService {
 		} finally {
 			this.w.unlock();
 		}
+	}
+	
+	/* =========================================================================
+	 * Monitorable support
+	 * ========================================================================= */
+	
+	public String getDescription(String id) throws IllegalArgumentException {
+		if (id == MONITOR_STORE_SIZE) {
+			return "Known robots.txt definitions";
+		} else {
+			throw new IllegalArgumentException("no such variable '" + id + "'");
+		}
+	}
+	
+	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {
+		if (id == MONITOR_STORE_SIZE) {
+			return new StatusVariable(MONITOR_STORE_SIZE, StatusVariable.CM_CC, loader.size());
+		} else {
+			throw new IllegalArgumentException("no such variable '" + id + "'");
+		}	
+	}
+	
+	public String[] getStatusVariableNames() {
+		return new String[] { MONITOR_STORE_SIZE };
+	}
+	
+	public boolean notifiesOnChange(String id) throws IllegalArgumentException {
+		return false;
+	}
+	
+	public boolean resetStatusVariable(String id) throws IllegalArgumentException {
+		return false;
 	}
 
 	/**

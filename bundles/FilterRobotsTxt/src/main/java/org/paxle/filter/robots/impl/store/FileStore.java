@@ -94,5 +94,8 @@ public class FileStore implements IRuleStore {
 	public void close() throws IOException {
 		// nothing todo here
 	}
-
+	
+	public int size() {
+		return path.list().length;
+	}
 }

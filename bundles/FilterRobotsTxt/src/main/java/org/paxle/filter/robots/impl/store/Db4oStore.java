@@ -111,8 +111,11 @@ public class Db4oStore implements IRuleStore {
 			this.dbCleanupTimer.scheduleAtFixedRate(this.dbCleanupTask, 0, 30*60*1000);
 		}
 	}
-
-	@SuppressWarnings("unchecked")
+	
+	public int size() {
+		return db.ext().storedClass(RobotsTxt.class).instanceCount();
+	}
+	
 	public RobotsTxt read(String hostPort) throws IOException {
 		Query query = db.query();
 		query.constrain(RobotsTxt.class);

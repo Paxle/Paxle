@@ -47,6 +47,8 @@ public class Db4oStoreTest extends TestCase {
 			this.store.write(test);
 		}
 		
+		assertEquals(10, store.size());
+		
 		for (int i=0; i < 10; i++) {
 			RobotsTxt found = this.store.read(hostPortPrefix + i);
 			assertNotNull(found);
@@ -60,6 +62,7 @@ public class Db4oStoreTest extends TestCase {
 		
 		// store it into db
 		this.store.write(test);
+		assertEquals(1, store.size());
 		
 		// run cleanup task		
 		((Db4oStore)this.store).runCleanup();
@@ -68,5 +71,6 @@ public class Db4oStoreTest extends TestCase {
 		Thread.sleep(500);
 		RobotsTxt found = this.store.read("outdatedRobots:80");
 		assertNull(found);
+		assertEquals(0, store.size());
 	}
 }
