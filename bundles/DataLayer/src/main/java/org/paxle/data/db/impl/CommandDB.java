@@ -61,6 +61,8 @@ import org.onelab.filter.DynamicBloomFilter;
 import org.onelab.filter.Key;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.monitor.Monitorable;
+import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.queue.Command;
@@ -70,7 +72,7 @@ import org.paxle.core.queue.ICommandTracker;
 import org.paxle.data.db.ICommandDB;
 import org.paxle.data.db.URIQueueEntry;
 
-public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEntry>, ICommandDB, EventHandler {
+public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEntry>, ICommandDB, EventHandler, Monitorable {
 	
 	private static final String CACHE_DIR = "double-urls-caches";
 	private static final String BLOOM_CACHE_FILE = "doubleURLsCache.ser";
@@ -78,6 +80,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	
 	private static final int MAX_IDLE_SLEEP = 60000;
 	private static final boolean USE_DOMAIN_BALANCING = false;
+	
+	public static final String PID = "org.paxle.data.cmddb";
+	private static final String MONITOR_TOTAL_SIZE = "size.total";
+	private static final String MONITOR_ENQUEUED_SIZE = "size.enqueued";
 	
 	private static final String UTF8 = "UTF-8";
 	/**
@@ -218,6 +224,42 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		return connection.substring(
 				connection.lastIndexOf(':') + 1,
 				(semicolon == -1) ? connection.length() : semicolon);
+	}
+	
+	/* =========================================================================
+	 * Monitorable support
+	 * ========================================================================= */
+	
+	public String getDescription(String id) throws IllegalArgumentException {
+		if (id == MONITOR_TOTAL_SIZE) {
+			return "Total known URIs";
+		} else if (id == MONITOR_ENQUEUED_SIZE) {
+			return "Enqueued URIs";
+		} else {
+			throw new IllegalArgumentException("no such variable '" + id + "'");
+		}
+	}
+	
+	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {
+		if (id == MONITOR_TOTAL_SIZE) {
+			return new StatusVariable(MONITOR_TOTAL_SIZE, StatusVariable.CM_CC, (int)size());
+		} else if (id == MONITOR_ENQUEUED_SIZE) {
+			return new StatusVariable(MONITOR_ENQUEUED_SIZE, StatusVariable.CM_CC, (int)enqueuedSize());
+		} else {
+			throw new IllegalArgumentException("no such variable '" + id + "'");
+		}	
+	}
+	
+	public String[] getStatusVariableNames() {
+		return new String[] { MONITOR_TOTAL_SIZE, MONITOR_ENQUEUED_SIZE };
+	}
+	
+	public boolean notifiesOnChange(String id) throws IllegalArgumentException {
+		return false;
+	}
+	
+	public boolean resetStatusVariable(String id) throws IllegalArgumentException {
+		return false;
 	}
 	
 	/* =========================================================================

@@ -26,10 +26,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
-import org.paxle.core.data.IDataConsumer;
+import org.osgi.service.monitor.Monitorable;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.filter.IFilter;
@@ -199,12 +200,14 @@ public class Activator implements BundleActivator {
 		final Hashtable<String,Object> props = new Hashtable<String,Object>();
 		props.put(IDataSink.PROP_DATASINK_ID, ICommandDB.PROP_URL_ENQUEUE_SINK);
 		props.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.crawler.sink");
-		props.put(EventConstants.EVENT_TOPIC, new String[]{CommandEvent.TOPIC_OID_REQUIRED});
+		props.put(EventConstants.EVENT_TOPIC, new String[] { CommandEvent.TOPIC_OID_REQUIRED });
+		props.put(Constants.SERVICE_PID, CommandDB.PID);
 		context.registerService(new String[]{
 				IDataSink.class.getName(),
 				IDataProvider.class.getName(),
 				ICommandDB.class.getName(),
-				EventHandler.class.getName()
+				EventHandler.class.getName(),
+				Monitorable.class.getName()
 		}, this.commandDB, props);		
 	}
 	
