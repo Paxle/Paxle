@@ -460,9 +460,9 @@
 								<artifactItem>
 									<groupId>com.db4o</groupId>
 									<artifactId>db4o-osgi</artifactId>
-									<version>7.5.57.11498</version>
+									<version>7.6.62.11779</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>db4o-osgi-7.5.57.11498.jar</destFileName>
+									<destFileName>db4o-osgi-7.6.62.11779.jar</destFileName>
 								</artifactItem>		
 
 								<!-- Ehcache dependencies -->
