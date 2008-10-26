@@ -17,6 +17,9 @@
 				<outputDirectory>/</outputDirectory>
 				<unpack>false</unpack>
 				<includeDependencies>false</includeDependencies>
+				
+				<!-- The bundle-names should not include the version number -->
+				<outputFileNameMapping>${module.artifactId}.${module.extension}</outputFileNameMapping>				
 			</binaries>
 		</moduleSet>
 	</moduleSets>
