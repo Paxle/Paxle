@@ -23,16 +23,29 @@
 	 -->
 	<profiles>
 		<profile>
-			<id>ToolsSysMon-linux</id>
+			<id>ToolsSysMon-linux-x86</id>
 			<activation>				
 				<os>
 					<name>linux</name>
+					<arch>i386</arch>
 				</os>
 			</activation>
 			<properties>
-				<LIBRARY_PATH>${basedir}/src/main/resources/lib/linux26/</LIBRARY_PATH>
+				<NATIVE_LIB_PATH>${basedir}/src/main/resources/lib/linux26/x86/</NATIVE_LIB_PATH>
 			</properties>
 		</profile>
+		<profile>
+			<id>ToolsSysMon-linux-x86-64</id>
+			<activation>				
+				<os>
+					<name>linux</name>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<NATIVE_LIB_PATH>${basedir}/src/main/resources/lib/linux26/x86_64/</NATIVE_LIB_PATH>
+			</properties>
+		</profile>		
 		<profile>
 			<id>ToolsSysMon-windows</id>		
 			<activation>
@@ -41,7 +54,7 @@
 				</os>
 			</activation>
 			<properties>
-				<LIBRARY_PATH>${basedir}/src/main/resources/lib/windows/</LIBRARY_PATH>
+				<NATIVE_LIB_PATH>${basedir}/src/main/resources/lib/windows/</NATIVE_LIB_PATH>
 			</properties>
 		</profile>		
 	</profiles>
@@ -88,8 +101,9 @@
 						</Embed-Dependency>
 						
 						<Bundle-NativeCode>
-							lib/windows/jsysmon.dll; osname=WindowsXP; osname=Windows XP; osname=WinXP; osname=WindowsVista; osname=Windows Vista;processor=x86, 
-							lib/linux26/libjsysmon.so; osname=Linux; processor=x86; osversion=2.6
+							lib/linux26/x86/libjsysmon.so; osname=Linux; processor=x86; osversion=2.6,
+							lib/linux26/x86_64/libjsysmon.so; osname=Linux; processor=x86-64; osversion=2.6,
+							lib/windows/jsysmon.dll; osname=WindowsXP; osname=Windows XP; osname=WinXP; osname=WindowsVista; osname=Windows Vista;processor=x86							
 						</Bundle-NativeCode>			
 					</instructions>
 				</configuration>
@@ -100,7 +114,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<argLine>
-						-Djava.library.path=${LIBRARY_PATH}
+						-Djava.library.path=${NATIVE_LIB_PATH}
 					</argLine>
 				</configuration>
 			</plugin>			
