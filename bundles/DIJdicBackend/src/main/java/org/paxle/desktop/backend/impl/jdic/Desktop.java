@@ -20,6 +20,12 @@ import java.net.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdesktop.jdic.desktop.DesktopException;
+import org.jdesktop.jdic.desktop.internal.BrowserService;
+import org.jdesktop.jdic.desktop.internal.LaunchFailedException;
+import org.jdesktop.jdic.desktop.internal.ServiceManager;
+import org.jdesktop.jdic.desktop.internal.impl.DesktopConstants;
+import org.jdesktop.jdic.desktop.internal.impl.WinAPIWrapper;
+import org.jdesktop.jdic.desktop.internal.impl.WinUtility;
 import org.paxle.desktop.backend.desktop.IDesktop;
 
 public class Desktop implements IDesktop {
@@ -32,7 +38,7 @@ public class Desktop implements IDesktop {
 	
 	public boolean browse(URL url) {
 		try {
-			org.jdesktop.jdic.desktop.Desktop.browse(url);
+			return browseImpl(url);
 		} catch (DesktopException e) {
 			if (logger.isDebugEnabled()) {
 				logger.error("Backend error starting browser", e);
@@ -44,6 +50,70 @@ public class Desktop implements IDesktop {
 			logger.error("Linkage error starting browser: " + e.getMessage());
 			return false;
 		}
-		return true;
+	}
+	
+	private boolean browseImpl(URL url) throws DesktopException {
+		if (System.getProperty("paxle.desktop.jdic.reflectBrowse", "false").equals("false")) {
+			org.jdesktop.jdic.desktop.Desktop.browse(url);
+			return true;
+		} else {		
+			final BrowserService browserService = (BrowserService)ServiceManager.getService(ServiceManager.BROWSER_SERVICE);
+			
+			try {
+				if (browserService.getClass().getName().equals("org.jdesktop.jdic.desktop.internal.impl.WinBrowserService")) {
+					boolean findOpenNew = false;
+					//First check if we could find command for verb opennew
+					String verbCmd = WinUtility.getVerbCommand(url, DesktopConstants.VERB_OPENNEW);
+					if (verbCmd != null) {
+						findOpenNew = true;
+					} else {
+						//If no opennew verb command find, then check open verb command
+						verbCmd = WinUtility.getVerbCommand(url, DesktopConstants.VERB_OPEN);
+					}
+	
+					if (verbCmd != null) {
+						
+						boolean result;
+						
+						try {
+							if (findOpenNew) {
+								//If there is opennew verb command, use this one
+								result = winShellExecute(url.toString(), DesktopConstants.VERB_OPENNEW);
+							} else {
+								//else use open verb command
+								result = winShellExecute(url.toString(), DesktopConstants.VERB_OPEN);
+							}
+						} catch (Exception e) {
+							final LaunchFailedException ex = new LaunchFailedException("Reflection error: " + e.getMessage());
+							ex.initCause(e);
+							throw ex;
+						}
+						
+						if (!result) {
+							throw new LaunchFailedException("Failed to launch the default browser");
+						}
+					} else {
+						throw new LaunchFailedException("No default browser associated with this URL");
+					}
+					
+					return false;
+				} else {
+					browserService.show(url);
+					return true;
+				}
+			} catch (LaunchFailedException e) {
+				final DesktopException ex = new DesktopException("Failed launching default browser");
+				ex.initCause(e);
+				throw ex;
+			}
+		}
+	}
+	
+	private boolean winShellExecute(final String filePath, final String verb) throws Exception {
+		byte[] filePathBytes = (byte[])WinAPIWrapper.class.getMethod("stringToByteArray", String.class).invoke(null, filePath);
+		byte[] verbBytes = (byte[])WinAPIWrapper.class.getMethod("stringToByteArray", String.class).invoke(null, verb);
+		final Integer result = ((Integer)WinAPIWrapper.class.getMethod("shellExecute", byte[].class, byte[].class).invoke(null, filePathBytes, verbBytes));
+		logger.debug("ShellExecute(NULL, \"" + filePath + "\", \"" + verb + "\", NULL, NULL, SW_SHOWNORMAL); returned " + result);
+		return (result != null && result.intValue() > 32);
 	}
 }
