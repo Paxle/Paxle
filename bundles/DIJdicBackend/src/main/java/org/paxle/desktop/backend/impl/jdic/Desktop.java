@@ -14,6 +14,7 @@
 
 package org.paxle.desktop.backend.impl.jdic;
 
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -110,10 +111,24 @@ public class Desktop implements IDesktop {
 	}
 	
 	private boolean winShellExecute(final String filePath, final String verb) throws Exception {
-		byte[] filePathBytes = (byte[])WinAPIWrapper.class.getMethod("stringToByteArray", String.class).invoke(null, filePath);
-		byte[] verbBytes = (byte[])WinAPIWrapper.class.getMethod("stringToByteArray", String.class).invoke(null, verb);
-		final Integer result = ((Integer)WinAPIWrapper.class.getMethod("shellExecute", byte[].class, byte[].class).invoke(null, filePathBytes, verbBytes));
-		logger.debug("ShellExecute(NULL, \"" + filePath + "\", \"" + verb + "\", NULL, NULL, SW_SHOWNORMAL); returned " + result);
+		final Class<?> clz = WinAPIWrapper.class;
+		Method stringToByteArray = null, shellExecute = null;
+		for (final Method m : clz.getDeclaredMethods()) {
+			if (m.getName().equals("stringToByteArray")) {
+				stringToByteArray = m;
+				continue;
+			} else if (m.getName().equals("shellExecute")) {
+				shellExecute = m;
+				continue;
+			}
+		}
+		stringToByteArray.setAccessible(true);
+		shellExecute.setAccessible(true);
+		
+		byte[] filePathBytes = (byte[])stringToByteArray.invoke(null, filePath);
+		byte[] verbBytes = (byte[])stringToByteArray.invoke(null, verb);
+		final Integer result = (Integer)shellExecute.invoke(null, filePathBytes, verbBytes);
+		logger.debug("ShellExecute(NULL, \"" + verb + "\", \"" + filePath + "\", NULL, NULL, SW_SHOWNORMAL); returned " + result);
 		return (result != null && result.intValue() > 32);
 	}
 }
