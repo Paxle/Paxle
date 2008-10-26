@@ -130,18 +130,14 @@ public class Activator implements BundleActivator, InvocationHandler {
 	private IPropertiesStore propertyStore = null;
 	
 	/**
-	 * Properties of the core bundle.
-	 */
-	private Properties properties = null;
-	
-	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext bc) throws Exception {
 		// init logger
 		this.logger = LogFactory.getLog(this.getClass());
-				
+		
+		// starting paxle
 		logger.info("Starting ...");
 		System.out.println(
 				"\t    ____             __    \r\n" +
@@ -152,6 +148,10 @@ public class Activator implements BundleActivator, InvocationHandler {
 			    "\r\n" +
 				"\tVersion: " + bc.getBundle().getHeaders().get(Constants.BUNDLE_VERSION)
 		);		
+				
+		// processing data-path
+		DataPathSettings.validateDataPathSettings();
+		this.logger.info("Using data-path: " + System.getProperty("paxle.data"));
 		
 		this.rbTool = new ResourceBundleTool(bc.getBundle());
 		

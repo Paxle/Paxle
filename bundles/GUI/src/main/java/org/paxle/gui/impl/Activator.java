@@ -183,9 +183,12 @@ public class Activator implements BundleActivator {
 		// find available locales for metatye-translation
 		String[] supportedLocale = bt.getLocaleArray(IStyleManager.class.getSimpleName(), Locale.ENGLISH);		
 		
+		final String dataPath = System.getProperty("paxle.data") + "/styles";
+		final File styleDataDir = new File(dataPath);
+		
 		// create the style manager
 		this.styleManager = new StyleManager(
-				new File("styles"),
+				styleDataDir,
 				this.servletManager,
 				supportedLocale
 		);

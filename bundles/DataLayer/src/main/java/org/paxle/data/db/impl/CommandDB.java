@@ -172,13 +172,16 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					this.config.addProperties(extraProperties);
 				}
 				
+				// post-processing of read properties
+				this.postProcessProperties(this.config);
+				
 				// load the various mapping files
 				for (URL mapping : mappings) {
 					if (this.logger.isDebugEnabled()) this.logger.debug(String.format("Loading mapping file from URL '%s'.",mapping));
 					this.config.addURL(mapping);
 				}
 				
-				// String[] sql = this.config.generateSchemaCreationScript( new org.hibernate.dialect.MySQLDialect());
+				// String[] sql = this.config.generateSchemaCreationScript( new org.hibernate.dialect.MySQLDialect());					
 				
 				// create the session factory
 				this.sessionFactory = this.config.buildSessionFactory();
@@ -215,6 +218,24 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					e.getClass().getName()
 			),e);
 			throw new RuntimeException(e);
+		}
+	}
+	
+	private void postProcessProperties(Configuration configuration) {
+		// the paxle data path
+		String paxleDataPath = System.getProperty("paxle.data");
+		
+		// getting db-config-properties
+		Properties configProps = configuration.getProperties();
+		
+		String connectionURL = configProps.getProperty("connection.url");
+		if (connectionURL != null && connectionURL.contains("${paxle.data}")) {
+			configuration.setProperty("connection.url", connectionURL.replaceAll("\\$\\{paxle.data\\}", paxleDataPath));
+		}
+		
+		connectionURL = configProps.getProperty("hibernate.connection.url");
+		if (connectionURL != null && connectionURL.contains("${paxle.data}")) {
+			configuration.setProperty("hibernate.connection.url", connectionURL.replaceAll("\\$\\{paxle.data\\}", paxleDataPath));
 		}
 	}
 	
@@ -281,7 +302,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	}
 	
 	private File getCreateCacheDir() {
-		final File cacheDir = new File(CACHE_DIR);
+		final String dataPath = System.getProperty("paxle.data") + "/" + CACHE_DIR;
+		final File cacheDir = new File(dataPath);
 		if (!cacheDir.exists())
 			cacheDir.mkdirs();
 		return cacheDir;

@@ -45,20 +45,20 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext bc) throws Exception {
-		
+		final String dataPath = System.getProperty("paxle.data") + "/" + DB_PATH;
 		
 		// testing if the DB4o Service is available
 		ServiceReference db4oServiceRef = bc.getServiceReference("com.db4o.osgi.Db4oService");
 		if (db4oServiceRef != null) {
 			// using DB4O
-			Db4oService dboService = (Db4oService) bc.getService(db4oServiceRef);
-			this.ruleStore = new Db4oStore(dboService, new File(DB_PATH));
+			Db4oService dboService = (Db4oService) bc.getService(db4oServiceRef);			
+			this.ruleStore = new Db4oStore(dboService, new File(dataPath));
 		} else {
 			// using a file-store
 			this.ruleStore = new FileStore(new File(DB_PATH));
 			
 			// init a cleanup thread
-			this.robotsTxtCleanupThread = new RobotsTxtCleanupThread(new File(DB_PATH)); 
+			this.robotsTxtCleanupThread = new RobotsTxtCleanupThread(new File(dataPath)); 
 		}
 		
 		// init the robots.txt-manager

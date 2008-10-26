@@ -61,7 +61,8 @@ public class Activator implements BundleActivator {
 		}
 		
 		// check whether directory is locked from previous runs
-		final File writeLock = new File(DB_PATH, "write.lock");
+		final String dataPath = System.getProperty("paxle.data") + "/" + DB_PATH;
+		final File writeLock = new File(dataPath, "write.lock");
 		if (writeLock.exists()) {
 			logger.warn("Lucene index directory is locked, removing lock. " +
 					"Shutdown now if any other lucene-compatible application currently accesses the directory '" +
@@ -75,7 +76,7 @@ public class Activator implements BundleActivator {
 		copyNatives(context, "/stopwords/snowball/", stopwordsRoot);
 		final StopwordsManager stopwordsManager = new StopwordsManager(stopwordsRoot);
 		
-		lmanager = new AFlushableLuceneManager(DB_PATH, stopwordsManager.getDefaultAnalyzer());
+		lmanager = new AFlushableLuceneManager(dataPath, stopwordsManager.getDefaultAnalyzer());
 		indexWriterThread = new LuceneWriter(lmanager, stopwordsManager, commandTracker);
 		indexWriterThread.setPriority(3);
 		indexSearcher = new LuceneSearcher(lmanager);

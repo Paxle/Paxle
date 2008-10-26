@@ -16,6 +16,7 @@ package org.paxle.data.db.impl;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,6 +71,9 @@ public class CommandProfileDB implements ICommandProfileManager {
 				// configure caching
 				this.config.setProperty("hibernate.cache.provider_class", "net.sf.ehcache.hibernate.SingletonEhCacheProvider");
 				
+				// post-processing of read properties
+				this.postProcessProperties(this.config);				
+				
 				// load the various mapping files
 				for (URL mapping : mappings) {
 					if (this.logger.isDebugEnabled()) this.logger.debug(String.format("Loading mapping file from URL '%s'.",mapping));
@@ -92,6 +96,24 @@ public class CommandProfileDB implements ICommandProfileManager {
 					e.getClass().getName()
 			),e);
 			throw new RuntimeException(e);
+		}
+	}	
+	
+	private void postProcessProperties(Configuration configuration) {
+		// the paxle data path
+		String paxleDataPath = System.getProperty("paxle.data");
+		
+		// getting db-config-properties
+		Properties configProps = configuration.getProperties();
+		
+		String connectionURL = configProps.getProperty("connection.url");
+		if (connectionURL != null && connectionURL.contains("${paxle.data}")) {
+			configuration.setProperty("connection.url", connectionURL.replaceAll("\\$\\{paxle.data\\}", paxleDataPath));
+		}
+		
+		connectionURL = configProps.getProperty("hibernate.connection.url");
+		if (connectionURL != null && connectionURL.contains("${paxle.data}")) {
+			configuration.setProperty("hibernate.connection.url", connectionURL.replaceAll("\\$\\{paxle.data\\}", paxleDataPath));
 		}
 	}	
 	
