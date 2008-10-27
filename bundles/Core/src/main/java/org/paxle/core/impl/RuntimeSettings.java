@@ -44,6 +44,8 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.ObjectClassDefinition;
+import org.paxle.core.metadata.Attribute;
+import org.paxle.core.metadata.Metadata;
 import org.paxle.util.StringTools;
 
 /**
@@ -230,7 +232,7 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 	 */
 	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
 		final Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
-		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + RuntimeSettings.class.getSimpleName(), locale);		
+		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + RuntimeSettings.class.getSimpleName(), locale);
 		
 		final class OptAD implements AttributeDefinition {
 			
@@ -279,7 +281,8 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 			}
 		}
 		
-		return new ObjectClassDefinition() {
+		@Metadata(@Attribute(id=CM_OTHER, multiline=true))
+		final class OCD implements ObjectClassDefinition {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {
 				final List<AttributeDefinition> attribs = new ArrayList<AttributeDefinition>();
 				
@@ -310,7 +313,7 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 				for (final OptEntry e : optEntries)
 					attribs.add(new OptAD(e, null));
 				
-				// put the remaining options into an AD allowing arbitrary strings
+				// put the remaining options into a multi-line AD allowing arbitrary strings
 				attribs.add(new OptAD(CM_OTHER_ENTRY, otherValues));
 				
 				return attribs.toArray(new AttributeDefinition[attribs.size()]);
@@ -339,7 +342,9 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 			public String getName() {
 				return rb.getString("runtimeSettings.name");
 			}
-		};				
+		}
+		
+		return new OCD();
 	}
 	
 	/**

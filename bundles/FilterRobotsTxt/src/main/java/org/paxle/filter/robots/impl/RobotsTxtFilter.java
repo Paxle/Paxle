@@ -65,7 +65,9 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 		URI location = command.getLocation();
 
 		try {
-
+			
+			final long start = System.currentTimeMillis();
+			
 			// test if the url is disallowed by robots.txt
 			if (this.robotsTxtManager.isDisallowed(location)) {
 				command.setResult(ICommand.Result.Rejected, "Access disallowed by robots.txt");
@@ -76,7 +78,10 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 			final Counter c = new Counter();
 			IParserDocument parserDoc = command.getParserDocument();
 			this.checkRobotsTxt(parserDoc, c);
-			logger.info(String.format("%d URLs blocked reference map(s) of '%s'", Integer.valueOf(c.c), command.getLocation())); 
+			logger.info(String.format("%d URLs blocked reference map(s) of '%s' in %d ms",
+					Integer.valueOf(c.c),
+					command.getLocation(),
+					Long.valueOf(System.currentTimeMillis() - start))); 
 		} catch (Exception e) {
 			this.logger.error(String.format("Unexpected %s while filtering command with location '%s'.",e.getClass().getName(),location),e);
 		}

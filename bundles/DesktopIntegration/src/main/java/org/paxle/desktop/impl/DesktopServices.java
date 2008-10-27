@@ -56,7 +56,6 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.norm.IReferenceNormalizer;
-import org.paxle.core.prefs.Properties;
 import org.paxle.core.queue.CommandProfile;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfile;
@@ -253,12 +252,6 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 	private static final String PREF_OPEN_BROWSER_SERVLET	= PREF_PID + "." + "openServlet";
 	private static final String PREF_OPEN_BROWSER_SERVLET_DEFAULT = "/search";
 	
-	/* ============================================================================ *
-	 * Properties-related constants
-	 * ============================================================================ */
-	// backend-specific properties
-	private static final int PROP_BROWSER_OPENABLE = 1;
-	
 	private static final String FILTER = String.format("(%s=%s)", Constants.OBJECTCLASS, DIComponent.class.getName());	// TODO
 	
 	/* ============================================================================ *
@@ -333,16 +326,6 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 	}
 	
 	private void initDS() {
-		final Properties properties = manager.getServiceProperties();
-		if (properties != null) {
-			// get the backend properties, i.e. whether the browser can be opened by the backend
-			final Object backendProps = properties.get(backend.getClass().getName());
-			if (backendProps != null) {
-				final int bp = Integer.parseInt((String)backendProps);
-				browserOpenable = (bp & PROP_BROWSER_OPENABLE) != 0;
-			}
-		}
-		
 		// check whether starting the browser on startup is set in the config and open it if necessary
 		final ConfigurationAdmin cadmin = manager.getService(ConfigurationAdmin.class);
 		String openServlet = PREF_OPEN_BROWSER_SERVLET_DEFAULT;
@@ -371,7 +354,8 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 				final String servletPath = (String)getFullAlias.invoke(servletManager, openServlet);
 				final String url = getPaxleUrl(servletPath);
 				logger.debug("Opening browser: " + url);
-				browseUrl(url, true, false);
+				final boolean success = browseUrl(url, true, false);
+				logger.info(((success) ? "Failed" : "Succeeded") + " opening browser for " + url);
 			} catch (Exception e) { e.printStackTrace(); }
 		}
 		
@@ -385,14 +369,6 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 	}
 	
 	public void shutdown() {
-		// save properties
-		final Properties props = manager.getServiceProperties();
-		if (props != null) {
-			int bp = 0;
-			bp |= (browserOpenable) ? PROP_BROWSER_OPENABLE : 0;
-			props.put(backend.getClass().getName(), Integer.toString(bp));
-		}
-		
 		// close all open dialogues
 		for (final Frame frame : serviceFrames.values())
 			frame.dispose();
@@ -481,6 +457,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 		final Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 		defaults.put(PREF_OPEN_BROWSER_STARTUP, Boolean.TRUE);
 		defaults.put(PREF_SHOW_SYSTRAY, Boolean.TRUE);
+		defaults.put(PREF_OPEN_BROWSER_SERVLET, PREF_OPEN_BROWSER_SERVLET_DEFAULT);
 		return defaults;
 	}
 	
