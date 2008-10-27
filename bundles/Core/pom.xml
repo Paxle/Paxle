@@ -74,6 +74,7 @@
 						</Import-Package>
 						<Private-Package>
 							org.paxle.core.impl,
+							org.paxle.core.impl.monitoring,
 							org.paxle.core.data.impl,
 							org.paxle.core.filter.impl,
 							org.paxle.core.io.impl,

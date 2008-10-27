@@ -39,6 +39,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.MetaTypeProvider;
+import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.prefs.PreferencesService;
 import org.paxle.core.ICryptManager;
 import org.paxle.core.IMWComponentFactory;
@@ -53,6 +54,7 @@ import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.impl.AscendingPathUrlExtractionFilter;
 import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
+import org.paxle.core.impl.monitoring.RuntimeMemoryMonitoring;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.io.impl.ResourceBundleTool;
@@ -186,7 +188,12 @@ public class Activator implements BundleActivator, InvocationHandler {
 		
 		/* ==========================================================
 		 * Register Services
-		 * ========================================================== */		
+		 * ========================================================== */
+		// register runtime-memory monitorable
+		final Hashtable<String,Object> rmmProps = new Hashtable<String,Object>();
+		rmmProps.put(Constants.SERVICE_PID, RuntimeMemoryMonitoring.SERVICE_PID);
+		bc.registerService(Monitorable.class.getName(), new RuntimeMemoryMonitoring(), rmmProps);
+		
 		// register the master-worker-factory as a service
 		bc.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(
 				rbTool.getLocaleArray(MWComponent.class.getSimpleName(), Locale.ENGLISH)), null);
