@@ -85,30 +85,39 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 		
 		// check the extracted links
 		IParserDocument parserDoc = command.getParserDocument();
-		this.checkBlacklist(parserDoc);
+		final int rejected = this.checkBlacklist(parserDoc);
+		if (rejected > 0)
+			logger.info(String.format("%d URIs in %s rejected", Integer.valueOf(rejected), command.getLocation()));
 	}
 
-	private void checkBlacklist(IParserDocument parserDoc) {
-		if (parserDoc == null) return;
-
+	private int checkBlacklist(IParserDocument parserDoc) {
+		if (parserDoc == null) return 0;
+		
+		int cnt = 0;
+		
 		// getting the link map
 		Map<URI, LinkInfo> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
-			this.checkBlacklist(linkMap);
+			cnt += this.checkBlacklist(linkMap);
 		}
 
 		// loop through sub-parser-docs
 		Map<String,IParserDocument> subDocs = parserDoc.getSubDocs();
 		if (subDocs != null) {
 			for (IParserDocument subDoc : subDocs.values()) {
-				this.checkBlacklist(subDoc);
+				cnt += this.checkBlacklist(subDoc);
 			}
 		}
+		
+		return cnt;
 	}   
 
-	void checkBlacklist(Map<URI, LinkInfo> linkMap) {
-		if (linkMap == null || linkMap.size() == 0) return;
-
+	int checkBlacklist(Map<URI, LinkInfo> linkMap) {
+		if (linkMap == null || linkMap.size() == 0)
+			return 0;
+		
+		int cnt = 0;
+		
 		Iterator<Entry<URI, LinkInfo>> refs = linkMap.entrySet().iterator();
 		while (refs.hasNext()) {
 			Entry<URI,LinkInfo> next = refs.next();
@@ -122,9 +131,12 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 			FilterResult result = this.isListed(location.toString());		// XXX should this be .toASCIIString()?
 			if (result.hasStatus(FilterResult.LOCATION_REJECTED)) {
 				meta.setStatus(Status.FILTERED, "Rejected by blacklistentry: " + result.getRejectPattern());
-				this.logger.info(String.format("%s rejected by blacklistentry: %s", location, result.getRejectPattern()));
+				this.logger.debug(String.format("%s rejected by blacklistentry: %s", location, result.getRejectPattern()));
+				cnt++;
 			}
-		}       
+		}
+		
+		return cnt;
 	}
 
 	/**
