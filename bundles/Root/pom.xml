@@ -104,7 +104,8 @@
 	</licenses>
 	
 	<scm>
-		<url>http://svn.paxle.net/</url>
+		<url>http://svn.paxle.net/view/paxle/trunk/bundles/</url>
+		<developerConnection>scm:svn:svn+ssh://svn@svn.xenim.de/p2psearch/trunk/bundles/</developerConnection>
 	</scm>	
 	
 	<reporting>
