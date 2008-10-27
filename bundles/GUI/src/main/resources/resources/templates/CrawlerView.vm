@@ -45,6 +45,18 @@
 </p>
 #end
 
+##
+## testing if crawling is currently disabled
+##
+#set($crawlers = $manager.getServices( "org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
+#if ($crawlers && ${listTool.size($crawlers)} > 0)
+	#if($listTool.get($crawlers,0).isPaused())
+		<p class="info">
+			Crawling is currently <span class="statusDisabled">disabled</span>.
+		</p>
+	#end
+#end
+
 <form action="/crawler" method="post">
 
 ## ======================================================================

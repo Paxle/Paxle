@@ -228,14 +228,22 @@ td {
 
 .error {
 	padding: 1em;
-	
-	background-color: #730002;
-	color: #FFFFFF;
-	
 	font-size: 1.2em;
-	
-	background-image: url('../images/error.png');
-	background-repeat: no-repeat;
+	color: #FFFFFF;
+	background: #730002 url('../images/log-error.png') no-repeat croll left center;
+}
+
+.warning {
+	padding: 1em;	
+	font-size: 1.2em;	
+	background: #A0A000 url(../images/log-warning.png) no-repeat scroll left center;	
+}
+
+.info {
+	padding: 1em;	
+	font-size: 1.2em;
+	color: #FFFFFF;
+	background: #0000A0 url(../images/log-info.png) no-repeat scroll left center;	
 }
 
 span.error {
