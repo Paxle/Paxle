@@ -250,6 +250,8 @@ span.error {
 	padding: 0;
 	font-size: 1em;
 	background-image: none;
+	background-color: #730002;
+	color: #FFFFFF;
 }
 
 .exception {
