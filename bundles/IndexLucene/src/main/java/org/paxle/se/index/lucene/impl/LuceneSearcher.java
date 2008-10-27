@@ -103,14 +103,14 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
 	 * ====================================================================== */
 	
 	public String getDescription(String id) throws IllegalArgumentException {
-		if (id == MONITOR_SIZE)
+		if (id.equals(MONITOR_SIZE))
 			return "Indexed documents";
 		
 		throw new IllegalArgumentException("no such variable '" + id + "'");
 	}
 	
 	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {
-		if (id == MONITOR_SIZE)
+		if (id.equals(MONITOR_SIZE))
 			return new StatusVariable(MONITOR_SIZE, StatusVariable.CM_CC, getDocCount());
 		
 		throw new IllegalArgumentException("no such variable '" + id + "'");
