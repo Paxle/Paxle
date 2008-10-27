@@ -42,22 +42,44 @@ import org.jfree.data.time.Minute;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.monitor.MonitorAdmin;
 
 public class ChartServlet extends HttpServlet implements EventHandler {
 	private static final long serialVersionUID = 1L;
-	
-	private static final String TSERIES_INDEX_SIZE = "series.indexSize";
+		
 	private static final String TSERIES_MEMORY_USAGE = "series.memoryUsage";		
 	
+	/**
+	 * Current size of the lucene index
+	 * @see org.paxle.se.index.IIndexSearcher#getDocCount()
+	 */
+	public static final String TSERIES_INDEX_SIZE = "org.paxle.lucene-db/docs.known";
+	
+	/**
+	 * Current free diskspace 
+	 */
 	public static final String TSERIES_DISK_USAGE = "os.disk/disk.space.free";
 	
+	/**
+	 * Current PPM of the crawler
+	 * @see org.paxle.core.IMWComponent#getPPM()
+	 */
 	public static final String TSERIES_PPM_CRAWLER = "org.paxle.crawler/ppm";
+	
+	/**
+	 * Current PPM of the parser
+	 * @see org.paxle.core.IMWComponent#getPPM()
+	 */
 	public static final String TSERIES_PPM_PARSER = "org.paxle.parser/ppm";
+	
+	/**
+	 * Current PPM of the indexer
+	 * @see org.paxle.core.IMWComponent#getPPM()
+	 */
 	public static final String TSERIES_PPM_INDEXER = "org.paxle.indexer/ppm";
+	
 	public static final String[] TSERIES_PPM = new String[] {
 		TSERIES_PPM_CRAWLER,
 		TSERIES_PPM_PARSER,
@@ -317,22 +339,6 @@ public class ChartServlet extends HttpServlet implements EventHandler {
 		}
 	}
 	
-	private void updateIndexChart() {
-		try {
-			ServiceReference ref = this.context.getServiceReference("org.paxle.se.index.IIndexSearcher");
-			if (ref != null) {
-				Object service = this.context.getService(ref);
-				Integer docCount = (Integer) service.getClass().getMethod("getDocCount", (Class[])null).invoke(service, (Object[])null);
-				
-				TimeSeries indexSizeSeries = this.seriesMap.get(TSERIES_INDEX_SIZE); {
-					if (indexSizeSeries != null) indexSizeSeries.add(new Minute(new Date()), docCount);	
-				}				
-			}
-		} catch (Throwable e) {
-			this.logger.error(e);
-		}
-	}
-	
 	class DataCollector extends Thread {
 		@Override
 		public void run() {
@@ -342,7 +348,6 @@ public class ChartServlet extends HttpServlet implements EventHandler {
 				try {
 					// update charts
 					updateMemoryChart();
-					updateIndexChart();
 					
 					// sleep for a while
 					Thread.sleep(60000);

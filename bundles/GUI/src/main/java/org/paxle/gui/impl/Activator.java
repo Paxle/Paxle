@@ -336,7 +336,8 @@ public class Activator implements BundleActivator {
 							ChartServlet.TSERIES_DISK_USAGE,
 							ChartServlet.TSERIES_PPM_CRAWLER,
 							ChartServlet.TSERIES_PPM_PARSER,
-							ChartServlet.TSERIES_PPM_INDEXER
+							ChartServlet.TSERIES_PPM_INDEXER,
+							ChartServlet.TSERIES_INDEX_SIZE
 						},
 						60, // seconds
 						0   // Forever

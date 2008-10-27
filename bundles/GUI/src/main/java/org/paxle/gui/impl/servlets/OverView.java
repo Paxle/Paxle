@@ -127,9 +127,6 @@ public class OverView extends ALayoutServlet {
 			final IServletManager servletManager = (IServletManager)manager.getService(IServletManager.class.getName());
 			context.put("queueServletExists", Boolean.valueOf(servletManager.hasServlet("/queue")));
 			
-			// set index searcher
-			context.put("indexSearcher", manager.getService("org.paxle.se.index.IIndexSearcher"));
-			
 			// put the class itself into the context
 			context.put("overview",this);
 			
