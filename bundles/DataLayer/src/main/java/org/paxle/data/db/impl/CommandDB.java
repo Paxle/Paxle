@@ -251,34 +251,49 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	 * Monitorable support
 	 * ========================================================================= */
 	
+	/**
+	 * @see Monitorable#getDescription(String)
+	 */
 	public String getDescription(String id) throws IllegalArgumentException {
-		if (id == MONITOR_TOTAL_SIZE) {
+		if (id.equals(MONITOR_TOTAL_SIZE)) {
 			return "Total known URIs";
-		} else if (id == MONITOR_ENQUEUED_SIZE) {
+		} else if (id.equals(MONITOR_ENQUEUED_SIZE)) {
 			return "Enqueued URIs";
 		} else {
 			throw new IllegalArgumentException("no such variable '" + id + "'");
 		}
 	}
 	
+	/**
+	 * @see Monitorable#getStatusVariable(String)
+	 */
 	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {
-		if (id == MONITOR_TOTAL_SIZE) {
+		if (id.equals(MONITOR_TOTAL_SIZE)) {
 			return new StatusVariable(MONITOR_TOTAL_SIZE, StatusVariable.CM_CC, (int)size());
-		} else if (id == MONITOR_ENQUEUED_SIZE) {
+		} else if (id.equals(MONITOR_ENQUEUED_SIZE)) {
 			return new StatusVariable(MONITOR_ENQUEUED_SIZE, StatusVariable.CM_CC, (int)enqueuedSize());
 		} else {
 			throw new IllegalArgumentException("no such variable '" + id + "'");
 		}	
 	}
 	
+	/**
+	 * @see Monitorable#getStatusVariableNames()
+	 */
 	public String[] getStatusVariableNames() {
 		return new String[] { MONITOR_TOTAL_SIZE, MONITOR_ENQUEUED_SIZE };
 	}
 	
+	/**
+	 * @see Monitorable#notifiesOnChange(String)
+	 */
 	public boolean notifiesOnChange(String id) throws IllegalArgumentException {
 		return false;
 	}
 	
+	/**
+	 * @see Monitorable#resetStatusVariable(String)
+	 */
 	public boolean resetStatusVariable(String id) throws IllegalArgumentException {
 		return false;
 	}
