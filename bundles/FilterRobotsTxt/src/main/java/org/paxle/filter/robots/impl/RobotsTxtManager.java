@@ -353,30 +353,50 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	 * Monitorable support
 	 * ========================================================================= */
 	
+	/**
+	 * {@inheritDoc}
+	 * @see org.osgi.service.monitor.Monitorable#getDescription(String)
+	 */
 	public String getDescription(String id) throws IllegalArgumentException {
-		if (id == MONITOR_STORE_SIZE) {
+		if (id.equals(MONITOR_STORE_SIZE)) {
 			return "Known robots.txt definitions";
 		} else {
 			throw new IllegalArgumentException("no such variable '" + id + "'");
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * @see org.osgi.service.monitor.Monitorable#getStatusVariable(String)
+	 */
 	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {
-		if (id == MONITOR_STORE_SIZE) {
+		if (id.equals(MONITOR_STORE_SIZE)) {
 			return new StatusVariable(MONITOR_STORE_SIZE, StatusVariable.CM_CC, loader.size());
 		} else {
 			throw new IllegalArgumentException("no such variable '" + id + "'");
 		}	
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * @see org.osgi.service.monitor.Monitorable#getStatusVariableNames()
+	 */
 	public String[] getStatusVariableNames() {
 		return new String[] { MONITOR_STORE_SIZE };
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * @see org.osgi.service.monitor.Monitorable#notifiesOnChange(String)
+	 */
 	public boolean notifiesOnChange(String id) throws IllegalArgumentException {
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * @see org.osgi.service.monitor.Monitorable#resetStatusVariable(String)
+	 */
 	public boolean resetStatusVariable(String id) throws IllegalArgumentException {
 		return false;
 	}
@@ -590,7 +610,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 
 		return robotsTxt;
 	}
-
+	
 	private String cutOfComments(String line) {
 		int pos = line.indexOf("#");
 		if (pos != -1) line = line.substring(0,pos).trim();
@@ -643,7 +663,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	public boolean isDisallowed(String location) {
 		return isDisallowed(URI.create(location));		// XXX please re-check whether non-escaped hosts (i.e. "umlaut-domains") work
 	}
-
+	
 	/**
 	 * Check whether the specified {@link URI} is blocked by the robots.txt of the server which hosts the {@link URI}
 	 * @return <code>true</code> if crawling of the {@link URI} is disallowed
