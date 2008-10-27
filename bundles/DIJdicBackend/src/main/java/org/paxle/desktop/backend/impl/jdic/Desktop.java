@@ -14,7 +14,6 @@
 
 package org.paxle.desktop.backend.impl.jdic;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -57,78 +56,80 @@ public class Desktop implements IDesktop {
 	
 	private boolean browseImpl(URL url) throws DesktopException {
 		final String prop = System.getProperty("paxle.desktop.jdic.browse", "default");
-		if (prop.equals("default")) {
-			org.jdesktop.jdic.desktop.Desktop.browse(url);
-			return true;
-		} else {
-			final BrowserService browserService = (BrowserService)ServiceManager.getService(ServiceManager.BROWSER_SERVICE);
-			
-			try {
-				if (browserService.getClass().getName().equals("org.jdesktop.jdic.desktop.internal.impl.WinBrowserService")) {
-					if (prop.equals("rundll")) {
-						final String[] call = new String[3];
-						call[0] = "rundll32.exe";
-						call[1] = "url.dll,FileProtocolHandler";
-						call[2] = url.toString();
-						
-						try {
-							final Process rundll = Runtime.getRuntime().exec(call);
-							final int retVal = rundll.waitFor();
-							logger.debug("rundll32.exe call returned " + retVal);
-						} catch (Exception e) {
-							final LaunchFailedException ex = new LaunchFailedException("error executing " + Arrays.toString(call) + ": " + e.getMessage());
-							ex.initCause(e);
-							throw ex;
-						}
-						
-					} else {
-						boolean findOpenNew = false;
-						//First check if we could find command for verb opennew
-						String verbCmd = WinUtility.getVerbCommand(url, DesktopConstants.VERB_OPENNEW);
-						if (verbCmd != null) {
-							findOpenNew = true;
-						} else {
-							//If no opennew verb command find, then check open verb command
-							verbCmd = WinUtility.getVerbCommand(url, DesktopConstants.VERB_OPEN);
-						}
-		
-						if (verbCmd != null) {
-							
-							boolean result;
-							
-							try {
-								if (findOpenNew) {
-									//If there is opennew verb command, use this one
-									result = winShellExecute(url.toString(), DesktopConstants.VERB_OPENNEW);
-								} else {
-									//else use open verb command
-									result = winShellExecute(url.toString(), DesktopConstants.VERB_OPEN);
-								}
-							} catch (Exception e) {
-								final LaunchFailedException ex = new LaunchFailedException("Reflection error: " + e.getMessage());
-								ex.initCause(e);
-								throw ex;
-							}
-							
-							if (!result) {
-								throw new LaunchFailedException("Failed to launch the default browser");
-							}
-						} else {
-							throw new LaunchFailedException("No default browser associated with this URL");
-						}
-					}
-					
-					return false;
+		final BrowserService browserService = (BrowserService)ServiceManager.getService(ServiceManager.BROWSER_SERVICE);
+		try {
+			if (browserService.getClass().getName().equals("org.jdesktop.jdic.desktop.internal.impl.WinBrowserService")) {
+				if (prop.equals("reflect")) {
+					browseWinReflect(url);
 				} else {
-					browserService.show(url);
-					return true;
+					// default if Windows
+					browseWinRundll(url);
 				}
-			} catch (LaunchFailedException e) {
-				final DesktopException ex = new DesktopException("Failed launching default browser");
+				
+				return true;
+			} else {
+				// default if other OS
+				browserService.show(url);
+				return true;
+			}
+		} catch (LaunchFailedException e) {
+			final DesktopException ex = new DesktopException("Failed launching default browser");
+			ex.initCause(e);
+			throw ex;
+		}
+	}
+	
+	private void browseWinRundll(final URL url) throws LaunchFailedException {
+		final String[] call = new String[3];
+		call[0] = "rundll32.exe";
+		call[1] = "url.dll,FileProtocolHandler";
+		call[2] = url.toString();
+		
+		try {
+			final Process rundll = Runtime.getRuntime().exec(call);
+			final int retVal = rundll.waitFor();
+			logger.debug("rundll32.exe call returned " + retVal);
+		} catch (Exception e) {
+			final LaunchFailedException ex = new LaunchFailedException("error executing " + Arrays.toString(call) + ": " + e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		}
+	}
+	
+	private void browseWinReflect(final URL url) throws LaunchFailedException {
+		boolean findOpenNew = false;
+		//First check if we could find command for verb opennew
+		String verbCmd = WinUtility.getVerbCommand(url, DesktopConstants.VERB_OPENNEW);
+		if (verbCmd != null) {
+			findOpenNew = true;
+		} else {
+			//If no opennew verb command find, then check open verb command
+			verbCmd = WinUtility.getVerbCommand(url, DesktopConstants.VERB_OPEN);
+		}
+
+		if (verbCmd != null) {
+			boolean result;
+			try {
+				if (findOpenNew) {
+					//If there is opennew verb command, use this one
+					result = winShellExecute(url.toString(), DesktopConstants.VERB_OPENNEW);
+				} else {
+					//else use open verb command
+					result = winShellExecute(url.toString(), DesktopConstants.VERB_OPEN);
+				}
+			} catch (Exception e) {
+				final LaunchFailedException ex = new LaunchFailedException("Reflection error: " + e.getMessage());
 				ex.initCause(e);
 				throw ex;
 			}
+			
+			if (!result) {
+				throw new LaunchFailedException("Failed to launch the default browser");
+			}
+		} else {
+			throw new LaunchFailedException("No default browser associated with this URL");
 		}
+		
 	}
 	
 	private boolean winShellExecute(final String filePath, final String verb) throws Exception {
