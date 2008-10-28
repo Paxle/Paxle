@@ -67,8 +67,8 @@ public class RuntimeMemoryMonitoring implements Monitorable {
 
 		if (name.equals(MEMORY_TOTAL)) mem = rt.totalMemory(); 
 		else if (name.equals(MEMORY_MAX)) mem = rt.maxMemory();
-		else if (name.equals(MEMORY_FREE)) mem = rt.freeMemory();
-		else if (name.equals(MEMORY_USED)) mem = rt.maxMemory() - rt.totalMemory() + rt.freeMemory();
+		else if (name.equals(MEMORY_FREE)) mem = rt.maxMemory() - rt.totalMemory() + rt.freeMemory();
+		else if (name.equals(MEMORY_USED)) mem = rt.totalMemory() - rt.freeMemory();
 		
 		return new StatusVariable(
 				name,
