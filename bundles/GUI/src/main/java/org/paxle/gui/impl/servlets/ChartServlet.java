@@ -460,8 +460,13 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 				currentVariableNames.addAll(Arrays.asList(temp));
 			}
 			
-			// stopping old monitoring-job
-			this.currentMonitorJob.stop();
+			try {
+				// stopping old monitoring-job
+				this.currentMonitorJob.stop();
+			} catch (NullPointerException e) {
+				// XXX this is a bug in the MA implementation ans should be ignored for now
+				this.logger.debug(e);
+			}
 			this.currentMonitorJob = null;
 		}		
 		
