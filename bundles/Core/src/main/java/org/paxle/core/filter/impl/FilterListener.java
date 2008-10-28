@@ -18,6 +18,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
 
@@ -30,6 +31,8 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
+import org.paxle.core.filter.FilterQueuePosition;
+import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
@@ -172,13 +175,35 @@ public class FilterListener implements ServiceListener {
 				filterPID = reference.getBundle().getSymbolicName() + "#" + filter.getClass().getName();
 			}
 			
+			final HashMap<String,FilterQueuePosition> annotProps = new HashMap<String,FilterQueuePosition>();
+			final FilterTarget target = filter.getClass().getAnnotation(FilterTarget.class);
+			if (target != null)
+				for (final FilterQueuePosition pos : target.value())
+					annotProps.put(pos.value(), pos);
+			
 			// adding the filter to multiple targets
-			for (String targetID : targetIDs) {
+			for (String targetParamString : targetIDs) {
+				final String[] params = targetParamString.split(";");
+				final FilterQueuePosition pos = annotProps.remove(params[0].trim());
 				this.filterManager.addFilter(this.generateFilterMetadata(
 						filterPID,
 						serviceID,
-						targetID, 
-						filter
+						params,
+						filter,
+						pos
+				));
+			}
+			
+			// adding the filter to all targets defined only via annotation
+			final String[] params = new String[1];
+			for (final FilterQueuePosition pos : annotProps.values()) {
+				params[0] = pos.value();
+				this.filterManager.addFilter(this.generateFilterMetadata(
+						filterPID,
+						serviceID,
+						params,
+						filter,
+						pos
 				));
 			}
 
@@ -246,15 +271,20 @@ public class FilterListener implements ServiceListener {
 	private FilterContext generateFilterMetadata(
 			String filterPID,
 			Long serviceID, 
-			String target, 
-			IFilter<?> filter
+			String[] params, 
+			IFilter<?> filter,
+			final FilterQueuePosition annot
 	) {
 		Properties filterProps = new Properties();
-		String[] params = target.split(";");
 		String targetID = params[0].trim();
 		int filterPos = 0;
 		boolean enabled = true;
-
+		
+		if (annot != null) {
+			filterPos = annot.position();
+			enabled = annot.enabled();
+		}
+		
 		if (params.length > 1) {
 			for (int i=1; i < params.length; i++) {
 				String param = params[i];
