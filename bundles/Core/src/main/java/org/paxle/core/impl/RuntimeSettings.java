@@ -281,7 +281,7 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 			}
 		}
 		
-		@Metadata(@Attribute(id=CM_OTHER, multiline=true))
+		@Metadata(@Attribute(id="org.paxle.core.impl.RuntimeSettings.jvm.other", multiline=true))
 		final class OCD implements ObjectClassDefinition {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {
 				final List<AttributeDefinition> attribs = new ArrayList<AttributeDefinition>();
@@ -376,7 +376,7 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 					for (String opt : StringTools.quoteSplit(valOther, " \t\f")) {
 						opt = opt.trim();
 						if (opt.length() > 0)
-							changesDetected |= updateSetting(currentSettings, opt);
+							changesDetected |= updateSetting(otherSettings, opt);
 					}
 				} catch (ParseException e) {
 					throw new ConfigurationException(

@@ -21,7 +21,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
@@ -30,10 +29,12 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -66,6 +67,8 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
 import org.paxle.core.io.IOTools;
+import org.paxle.core.metadata.Attribute;
+import org.paxle.core.metadata.Metadata;
 import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.Messages;
@@ -82,7 +85,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		final GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0; gbc.gridy = y;
 		gbc.anchor = GridBagConstraints.EAST;
-		gbc.insets = STD_INSETS;
+		gbc.insets = Utilities.INSETS_DEFAULT;
 		return gbc;
 	}
 	
@@ -91,7 +94,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		gbc.gridx = 1; gbc.gridy = y;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.weightx = .4;
-		gbc.insets = STD_INSETS;
+		gbc.insets = Utilities.INSETS_DEFAULT;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		return gbc;
 	}
@@ -106,7 +109,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.weightx = .6;
 		gbc.fill = GridBagConstraints.BOTH;
-		gbc.insets = STD_INSETS;
+		gbc.insets = Utilities.INSETS_DEFAULT;
 		return gbc;
 	}
 	
@@ -115,7 +118,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		gbc.gridx = 0; gbc.gridy = 0;
 		gbc.gridwidth = 3;
 		gbc.anchor = GridBagConstraints.CENTER;
-		gbc.insets = STD_INSETS;
+		gbc.insets = Utilities.INSETS_DEFAULT;
 		return gbc;
 	}
 	
@@ -145,8 +148,6 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		private final Bundle bundle;
 		private final String pid;
 		private final int iconSize;
-		
-		private String locale = LOCALE;
 		
 		private ObjectClassDefinition ocd = null;
 		private MultipleChangesListener optionsComp = null;
@@ -248,10 +249,10 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		private ObjectClassDefinition getOCD() {
 			if (ocd == null) {
 				if (metaTypeProvider != null) {
-					ocd = metaTypeProvider.getObjectClassDefinition(pid, locale);
+					ocd = metaTypeProvider.getObjectClassDefinition(pid, LOCALE);
 				} else {
 					final MetaTypeInformation mtinfo = metatypeService.getMetaTypeInformation(bundle);
-					ocd = mtinfo.getObjectClassDefinition(pid, locale);
+					ocd = mtinfo.getObjectClassDefinition(pid, LOCALE);
 				}
 			}
 			return ocd;
@@ -307,11 +308,23 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 			panel.add(new JLabel(bundle.getSymbolicName()), gbcHeader);
 			incGridY(gbcHeader, gbcLabel, gbcOptSingle, gbcOptMulti, gbcDesc);
 			
+			final HashMap<String,Attribute> attrMetadata;
+			final Metadata metadata = ocd.getClass().getAnnotation(Metadata.class);
+			if (metadata == null) {
+				attrMetadata = null;
+			} else {
+				attrMetadata = new HashMap<String,Attribute>();
+				for (final Attribute attr : metadata.value())
+					attrMetadata.put(attr.id(), attr);
+			}
+			
 			final Dictionary<?,?> properties = getConfiguration().getProperties();
 			for (final AttributeDefinition ad : ocd.getAttributeDefinitions(ObjectClassDefinition.ALL)) {
-				final AbstractAttrConfig<?> aconf = AbstractAttrConfig.createAttrConfig(ad);
+				final String id = ad.getID();
+				final AbstractAttrConfig<?> aconf = AbstractAttrConfig.createAttrConfig(ad,
+						(attrMetadata == null) ? null : attrMetadata.get(id));
 				aconf.addConfigLine(
-						optionsComp, panel, (properties == null) ? null : properties.get(ad.getID()),
+						optionsComp, panel, (properties == null) ? null : properties.get(id),
 						gbcLabel, gbcOptSingle, gbcOptMulti, gbcDesc);
 				aconfs.add(aconf);
 				incGridY(gbcLabel, gbcOptSingle, gbcOptMulti, gbcDesc);
@@ -327,8 +340,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		}
 	}
 	
-	private static final Insets STD_INSETS = new Insets(5, 5, 5, 5);
-	private static final String LOCALE = "en"; //$NON-NLS-1$
+	private static final String LOCALE = Locale.getDefault().getLanguage(); //$NON-NLS-1$
 	private static final int ICON_SIZE = 16;
 	
 	private static final Dimension DIM_SETTINGS = new Dimension(1000, 600);

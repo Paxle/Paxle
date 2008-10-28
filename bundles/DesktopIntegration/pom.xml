@@ -63,6 +63,7 @@
 							org.paxle.core.filter;version="[0.1.0,0.2.0)",
 							org.paxle.core.prefs;version="[0.1.0,0.2.0)",
 							org.paxle.core.norm;version="[0.1.0,0.2.0)",
+							org.paxle.core.metadata;version="[0.1.0,0.2.0)",
 							<!-- Apache Commons IO -->
 							org.apache.commons.io;version="1.4",
 							<!-- JFreeCharts -->

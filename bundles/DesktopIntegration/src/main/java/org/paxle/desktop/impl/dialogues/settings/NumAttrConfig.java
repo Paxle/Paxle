@@ -43,7 +43,7 @@ class NumAttrConfig extends AbstractAttrConfig<Number> implements MouseWheelList
 	}
 	
 	@Override
-	protected JComponent createOptionComp(Object value, MultipleChangesListener mcl) {
+	protected JComponent createOptionComp(Number value, MultipleChangesListener mcl) {
 		long lmin = 0L, lmax = 0L;
 		comp = new JSpinner();
 		comp.addMouseWheelListener(this);
@@ -60,33 +60,33 @@ class NumAttrConfig extends AbstractAttrConfig<Number> implements MouseWheelList
 				if (lmin == 0L) lmin = Long.MIN_VALUE;
 				if (lmax == 0L) lmax = Long.MAX_VALUE;
 				
-				final long val = (value instanceof String) ? Long.parseLong((String)value) : ((Number)value).longValue();
+				final long val = value.longValue();
 				if (ad.validate(Long.toString(val)) != null) {
 					final long[] minmax = getMinMax(lmin, lmax, val);
 					comp.setModel(new SpinnerNumberModel(
-							(Number)value,
+							value,
 							toNumber(minmax[0]), toNumber(minmax[1]),
 							Integer.valueOf(1)));
 				}
 			} break;
 			
 			case AttributeDefinition.FLOAT: {
-				final float val = (value instanceof String) ? Float.parseFloat((String)value) : ((Number)value).floatValue();
+				final float val = value.floatValue();
 				if (ad.validate(String.valueOf(val)) != null) {
 					final float[] minmax = getMinMax(-Float.MAX_VALUE, Float.MAX_VALUE, val);
 					comp.setModel(new SpinnerNumberModel(
-							(Number)value,
+							value,
 							Float.valueOf(minmax[0]), Float.valueOf(minmax[1]),
 							Double.valueOf(0.1)));
 				}
 			} break;
 			
 			case AttributeDefinition.DOUBLE: {
-				final double val = (value instanceof String) ? Double.parseDouble((String)value) : ((Number)value).doubleValue();
+				final double val = value.doubleValue();
 				if (ad.validate(String.valueOf(val)) != null) {
 					final double[] minmax = getMinMax(-Double.MAX_VALUE, Double.MAX_VALUE, val);
 					comp.setModel(new SpinnerNumberModel(
-							(Number)value,
+							value,
 							Double.valueOf(minmax[0]), Double.valueOf(minmax[1]),
 							Double.valueOf(0.1)));
 				}

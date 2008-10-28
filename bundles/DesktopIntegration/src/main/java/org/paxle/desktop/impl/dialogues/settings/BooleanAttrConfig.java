@@ -35,7 +35,7 @@ class BooleanAttrConfig extends AbstractAttrConfig<Boolean> {
 	}
 	
 	@Override
-	protected JComponent createOptionComp(Object value, MultipleChangesListener mcl) {
+	protected JComponent createOptionComp(Boolean value, MultipleChangesListener mcl) {
 		final JPanel op = new JPanel(new GridLayout(1, 3, 5, 5));
 		rbTrue = new JRadioButton(Messages.getString("settingsPanel.attrBoolean.true")); //$NON-NLS-1$
 		rbFalse = new JRadioButton(Messages.getString("settingsPanel.attrBoolean.false")); //$NON-NLS-1$

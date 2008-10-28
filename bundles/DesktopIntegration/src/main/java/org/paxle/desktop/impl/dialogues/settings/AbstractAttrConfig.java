@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import org.osgi.service.metatype.AttributeDefinition;
+import org.paxle.core.metadata.Attribute;
 import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.event.MultipleChangesListener;
 
@@ -34,7 +35,7 @@ abstract class AbstractAttrConfig<E> {
 		this.ad = ad;
 	}
 	
-	public static AbstractAttrConfig<?> createAttrConfig(final AttributeDefinition ad) {
+	public static AbstractAttrConfig<?> createAttrConfig(final AttributeDefinition ad, final Attribute attr) {
 		final String[] labels = ad.getOptionLabels();
 		if (labels != null && labels.length > 0) {
 			if (ad.getCardinality() == 0) {
@@ -51,7 +52,7 @@ abstract class AbstractAttrConfig<E> {
 			case AttributeDefinition.LONG: // fall through
 			case AttributeDefinition.FLOAT: // fall through
 			case AttributeDefinition.DOUBLE: return new NumAttrConfig(ad);
-			case AttributeDefinition.STRING: return new StringAttrConfig(ad);
+			case AttributeDefinition.STRING: return new StringAttrConfig(ad, attr);
 			default:
 				break;
 		}
@@ -105,7 +106,7 @@ abstract class AbstractAttrConfig<E> {
 		return df;
 	}
 	
-	protected abstract JComponent createOptionComp(final Object value, final MultipleChangesListener mcl);
+	protected abstract JComponent createOptionComp(final E value, final MultipleChangesListener mcl);
 	
 	public void setValue(final Object value, final boolean changed) {
 		setValue(normalize(value));
