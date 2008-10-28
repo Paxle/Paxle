@@ -320,29 +320,7 @@ public class Activator implements BundleActivator {
 			if (servlet == null && this.jfreeChartAvailable && this.monitorAdmin != null) {
 				// creating servlet
 				ChartServlet servlet = new ChartServlet(this.bc, this.monitorAdmin);
-				
-				// registering servlet as event-handler: required to receive monitoring-events
-				Dictionary<String,Object> properties = new Hashtable<String,Object>();
-				properties.put(EventConstants.EVENT_TOPIC, new String[]{"org/osgi/service/monitor"});
-				properties.put(EventConstants.EVENT_FILTER, String.format("(mon.listener.id=%s)",ChartServlet.class.getName()));
-				this.bc.registerService(EventHandler.class.getName(), servlet, properties);				
-				
-				monitorAdmin.startScheduledJob(
-						ChartServlet.class.getName(), // listener.id
-						new String[]{
-							ChartServlet.TSERIES_CPU_TOTAL,
-							ChartServlet.TSERIES_CPU_USER,
-							ChartServlet.TSERIES_CPU_SYSTEM,
-							ChartServlet.TSERIES_DISK_USAGE,
-							ChartServlet.TSERIES_PPM_CRAWLER,
-							ChartServlet.TSERIES_PPM_PARSER,
-							ChartServlet.TSERIES_PPM_INDEXER,
-							ChartServlet.TSERIES_INDEX_SIZE
-						},
-						60, // seconds
-						0   // Forever
-				);
-				
+
 				// register servlet as http-servlet
 				servletManager.addServlet("/chart", servlet, null);
 			} else if (servlet != null && (!this.jfreeChartAvailable || this.monitorAdmin == null)){

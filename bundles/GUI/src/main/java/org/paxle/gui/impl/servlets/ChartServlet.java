@@ -17,8 +17,13 @@ package org.paxle.gui.impl.servlets;
 import java.awt.Color;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -42,14 +47,28 @@ import org.jfree.data.time.Minute;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.monitor.MonitorAdmin;
+import org.osgi.service.monitor.Monitorable;
+import org.osgi.service.monitor.MonitoringJob;
+import org.osgi.service.monitor.StatusVariable;
 
-public class ChartServlet extends HttpServlet implements EventHandler {
-	private static final long serialVersionUID = 1L;
-		
-	private static final String TSERIES_MEMORY_USAGE = "series.memoryUsage";		
+import com.sun.corba.se.spi.orb.DataCollector;
+
+public class ChartServlet extends HttpServlet implements EventHandler, ServiceListener {
+	private static final long serialVersionUID = 1L;	
+	
+	/**
+	 * Memory used by the java runtime
+	 */
+	private static final String TSERIES_MEMORY_USAGE = "java.lang.runtime/memory.used";		
 	
 	/**
 	 * Current size of the lucene index
@@ -78,28 +97,50 @@ public class ChartServlet extends HttpServlet implements EventHandler {
 	 * Current PPM of the indexer
 	 * @see org.paxle.core.IMWComponent#getPPM()
 	 */
-	public static final String TSERIES_PPM_INDEXER = "org.paxle.indexer/ppm";
+	public static final String TSERIES_PPM_INDEXER = "org.paxle.indexer/ppm";	
 	
-	public static final String[] TSERIES_PPM = new String[] {
+	/**
+	 * Total CPU Usage
+	 */
+	public static final String TSERIES_CPU_TOTAL = "os.usage.cpu/cpu.usage.total";
+	
+	/**
+	 * User CPU Usage
+	 */
+	public static final String TSERIES_CPU_USER = "os.usage.cpu/cpu.usage.user";
+	
+	/**
+	 * System CPU Usage
+	 */
+	public static final String TSERIES_CPU_SYSTEM = "os.usage.cpu/cpu.usage.system";
+
+	/**
+	 * An arraylist containing all full-path names of all {@link StatusVariable variables}
+	 * to monitor
+	 */
+	public static final String[] TSERIES = new String[] {
+		TSERIES_MEMORY_USAGE,
+		TSERIES_INDEX_SIZE,
+		TSERIES_DISK_USAGE,
 		TSERIES_PPM_CRAWLER,
 		TSERIES_PPM_PARSER,
-		TSERIES_PPM_INDEXER
+		TSERIES_PPM_INDEXER,
+		TSERIES_CPU_TOTAL,
+		TSERIES_CPU_USER,
+		TSERIES_CPU_SYSTEM
 	};
 	
-	public static final String TSERIES_CPU_TOTAL = "os.usage.cpu/cpu.usage.total";
-	public static final String TSERIES_CPU_USER = "os.usage.cpu/cpu.usage.user";
-	public static final String TSERIES_CPU_SYSTEM = "os.usage.cpu/cpu.usage.system";
-	public static final String[] TSERIES_CPU = new String[] {
-		TSERIES_CPU_TOTAL,
-		TSERIES_CPU_SYSTEM,
-		TSERIES_CPU_USER
-	};
-
+	private final HashMap<String,HashSet<String>> variableTree;	
 
 	/**
 	 * An OSGi bundle-context used to access other services registered to the system
 	 */
 	private final BundleContext context;
+	
+	/**
+	 * Currently active monitoring job
+	 */
+	private MonitoringJob currentMonitorJob;
 	
 	/**
 	 * OSGI Monitor Admin Service
@@ -110,11 +151,6 @@ public class ChartServlet extends HttpServlet implements EventHandler {
 	 * For logging
 	 */
 	private final Log logger = LogFactory.getLog(this.getClass());
-	
-	/**
-	 * A {@link Thread} to collect data for the various charts
-	 */
-	private DataCollector collectorThread;
 	
 	/**
 	 * A map containing all {@link TimeSeries} that are filled by the {@link DataCollector}-thread
@@ -129,36 +165,67 @@ public class ChartServlet extends HttpServlet implements EventHandler {
 	public ChartServlet(BundleContext context, MonitorAdmin monitorService) {
 		this.context = context;
 		this.monitorService = monitorService;
-	}
-	
-	@Override
-	public void init() throws ServletException {
-		super.init();
-
+		
+		this.variableTree = new HashMap<String, HashSet<String>>();
+		this.buildVariableTree();
+		
 		// create charts
 		this.chartMap.put("mem", this.createMemoryChart());
 		this.chartMap.put("ppm", this.createPPMChart());
 		this.chartMap.put("index", this.createIndexChart());
-		this.chartMap.put("system" ,this.createCPUChart());
-        
-        // start thread
-		this.collectorThread = new DataCollector();
-		this.collectorThread.start();		
+		this.chartMap.put("system" ,this.createCPUChart());		
+		
+		// registering servlet as event-handler: required to receive monitoring-events
+		Dictionary<String,Object> properties = new Hashtable<String,Object>();
+		properties.put(EventConstants.EVENT_TOPIC, new String[]{"org/osgi/service/monitor"});
+		properties.put(EventConstants.EVENT_FILTER, String.format("(mon.listener.id=%s)",ChartServlet.class.getName()));
+		this.context.registerService(EventHandler.class.getName(), this, properties);						
+		
+		try {
+			// detecting already registered monitorables and
+			// determine which of their variables we need to monitor 
+			final HashSet<String> variableNames = new HashSet<String>();
+			final ServiceReference[] services = context.getServiceReferences(Monitorable.class.getName(), null);
+			if (services != null) {
+				for (ServiceReference reference : services) {
+					this.addVariables4Monitor(reference, variableNames);
+				}
+				this.startScheduledJob(variableNames);
+			}
+			
+			// registering this class as service-listener
+			this.context.addServiceListener(this, String.format("(%s=%s)",Constants.OBJECTCLASS, Monitorable.class.getName()));			
+		} catch (InvalidSyntaxException e) {
+			// this should not occur
+			this.logger.error(e);
+		}
+	}
+		
+	private void buildVariableTree() {
+		for (String fullPath : TSERIES) {
+			int idx = fullPath.indexOf('/');
+			String monitorableId = fullPath.substring(0, idx);
+			String variableId = fullPath.substring(idx+1);
+			
+			HashSet<String> variableIds;
+			if (variableTree.containsKey(monitorableId)) {
+				variableIds = variableTree.get(monitorableId);
+			} else {
+				variableIds = new HashSet<String>();
+				variableTree.put(monitorableId, variableIds);
+			}
+				
+			variableIds.add(variableId);
+		}
+	}	
+	
+	@Override
+	public void init() throws ServletException {
+		super.init();
 	}
 	
 	@Override
-	public void destroy() {
-		// shutdown the collector thread
-		if (this.collectorThread != null) {
-			// interrupt the thread
-			collectorThread.interrupt();
-			
-			// wait for the thread to shutdown
-			try {
-				this.collectorThread.join(1000);
-			} catch (InterruptedException e) {/* ignore this */}
-		}
-	
+	public void destroy() {	
 		// clear series map
 		this.seriesMap.clear();
 		
@@ -208,13 +275,23 @@ public class ChartServlet extends HttpServlet implements EventHandler {
 	private JFreeChart createCPUChart() {
 		final TimeSeriesCollection dataset = new TimeSeriesCollection();
 		
-		for (String seriesID : TSERIES_CPU) {
-	        TimeSeries series = new TimeSeries(this.monitorService.getDescription(seriesID) , Minute.class);
-	        series.setMaximumItemAge(24*60);
-	        dataset.addSeries(series);	        
-	        this.seriesMap.put(seriesID, series);
-		}
+        TimeSeries series = null;
+
+    	series = new TimeSeries("Total CPU Usage", Minute.class);
+        series.setMaximumItemAge(24*60);
+        dataset.addSeries(series);	        
+        this.seriesMap.put(TSERIES_CPU_TOTAL, series);
         
+    	series = new TimeSeries("User CPU Usage", Minute.class);
+        series.setMaximumItemAge(24*60);
+        dataset.addSeries(series);	        
+        this.seriesMap.put(TSERIES_CPU_USER, series);
+        
+    	series = new TimeSeries("System CPU Usage", Minute.class);
+        series.setMaximumItemAge(24*60);
+        dataset.addSeries(series);	        
+        this.seriesMap.put(TSERIES_CPU_SYSTEM, series);           
+		
 		// init chart
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
                 null,
@@ -261,7 +338,8 @@ public class ChartServlet extends HttpServlet implements EventHandler {
     	TimeSeries usedmemSeries = new TimeSeries("Used MEM", Minute.class);
     	usedmemSeries.setMaximumItemAge(24*60);
     	this.seriesMap.put(TSERIES_MEMORY_USAGE, usedmemSeries);
-    	TimeSeries freeDiskSeries = new TimeSeries(this.monitorService.getDescription(TSERIES_DISK_USAGE), Minute.class);
+    	
+    	TimeSeries freeDiskSeries = new TimeSeries("Free Disk", Minute.class);
     	freeDiskSeries.setMaximumItemAge(24*60);
     	this.seriesMap.put(TSERIES_DISK_USAGE, freeDiskSeries);
 		
@@ -326,38 +404,6 @@ public class ChartServlet extends HttpServlet implements EventHandler {
 		ChartUtilities.writeChartAsPNG(out, chart, width, height);
 		out.flush();
 	}
-	
-	private void updateMemoryChart() {
-		Runtime rt = Runtime.getRuntime();
-		long usedMem = (rt.totalMemory() - rt.freeMemory()) / ( 1024 * 1024);
-		
-		Minute minute = new Minute(new Date());
-		
-		TimeSeries usedmemSeries = this.seriesMap.get(TSERIES_MEMORY_USAGE);
-		if (usedmemSeries != null) {
-			usedmemSeries.addOrUpdate(minute,Long.valueOf(usedMem));
-		}
-	}
-	
-	class DataCollector extends Thread {
-		@Override
-		public void run() {
-			this.setName(this.getClass().getSimpleName());
-			
-			while(true) {
-				try {
-					// update charts
-					updateMemoryChart();
-					
-					// sleep for a while
-					Thread.sleep(60000);
-				} catch (InterruptedException e) {
-					logger.info(String.format("Interruption detected. Shutdown of %s finished.",this.getClass().getSimpleName()));
-					return;
-				}
-			}
-		}
-	}
 
 	/**
 	 * @see EventHandler#handleEvent(Event)
@@ -367,10 +413,17 @@ public class ChartServlet extends HttpServlet implements EventHandler {
 		String name = (String) event.getProperty("mon.statusvariable.name");
 		Object value = event.getProperty("mon.statusvariable.value");
 		
-		TimeSeries series = this.seriesMap.get(pid + "/" + name); 
+		String fullPath = pid + "/" + name;
+		TimeSeries series = this.seriesMap.get(fullPath); 
 		if (series != null) {
 			if (value instanceof Number) {
-				series.addOrUpdate(new Minute(new Date()), (Number)value);
+				Number num = (Number)value;
+				
+				if (fullPath.equalsIgnoreCase(TSERIES_MEMORY_USAGE)) {
+					num = new Integer(num.intValue() / ( 1024 * 1024));
+				}
+				
+				series.addOrUpdate(new Minute(new Date()), num);
 			} else {
 				this.logger.warn(String.format(
 						"Unexpected type of monitoring variable '%s/%s': %s",
@@ -380,5 +433,78 @@ public class ChartServlet extends HttpServlet implements EventHandler {
 				));
 			}
 		}
+	}
+
+	/**
+	 * @see ServiceListener#serviceChanged(ServiceEvent)
+	 */
+	public void serviceChanged(ServiceEvent event) {
+		// getting the service reference
+		ServiceReference reference = event.getServiceReference();
+		this.serviceChanged(reference, event.getType());
+	}		
+	
+	private void serviceChanged(ServiceReference reference, int eventType) {
+		if (reference == null) return;
+		if (eventType == ServiceEvent.MODIFIED) return;
+		
+		// ignoring unknown services
+		String pid = (String) reference.getProperty(Constants.SERVICE_PID);
+		if (!variableTree.containsKey(pid)) return;
+		
+		// getting currently monitored variables
+		final HashSet<String> currentVariableNames = new HashSet<String>();
+		if (this.currentMonitorJob != null) {
+			String[] temp = this.currentMonitorJob.getStatusVariableNames();
+			if (temp != null) {
+				currentVariableNames.addAll(Arrays.asList(temp));
+			}
+			
+			// stopping old monitoring-job
+			this.currentMonitorJob.stop();
+			this.currentMonitorJob = null;
+		}		
+		
+		// getting variables of changed service
+		final HashSet<String> diffVariableNames = new HashSet<String>();
+		this.addVariables4Monitor(reference, diffVariableNames);
+		
+		if (eventType == ServiceEvent.REGISTERED) {			
+			// adding new variable
+			currentVariableNames.addAll(diffVariableNames);
+		} else if (eventType == ServiceEvent.UNREGISTERING) {
+			currentVariableNames.removeAll(diffVariableNames);
+		}
+		
+		// restarting monitoring job
+		this.startScheduledJob(currentVariableNames);
+	}
+	
+	/**
+	 * Add the full-path of all {@link StatusVariable variables} of the given {@link Monitorable} into the set
+	 * @param reference a reference to a {@link Monitorable}
+	 * @param variableNames the set where the variable-names should be appended
+	 */
+	private void addVariables4Monitor(ServiceReference reference, HashSet<String> variableNames) {
+		String pid = (String) reference.getProperty(Constants.SERVICE_PID);
+		if (!variableTree.containsKey(pid)) return;
+		
+		for (String name : variableTree.get(pid)) {
+			variableNames.add(pid + "/" + name);
+		}
+	}
+	
+	/**
+	 * Starting a new monitoring job with the given variables to monitor
+	 * @param variableNames full-path of the {@link StatusVariable variables} to monitor
+	 */
+	private void startScheduledJob(Set<String> variableNames) {
+		if (variableNames.size() == 0) return;
+		this.currentMonitorJob = this.monitorService.startScheduledJob(
+				ChartServlet.class.getName(), // listener.id
+				variableNames.toArray(new String[variableNames.size()]),
+				60, // seconds
+				0   // Forever
+		);		
 	}
 }
