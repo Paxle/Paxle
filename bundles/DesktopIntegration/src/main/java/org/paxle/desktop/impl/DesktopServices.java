@@ -26,11 +26,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -61,6 +63,7 @@ import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.desktop.DIComponent;
+import org.paxle.desktop.IDIEventListener;
 import org.paxle.desktop.IDesktopServices;
 import org.paxle.desktop.Utilities;
 import org.paxle.desktop.backend.IDIBackend;
@@ -355,7 +358,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 				final String url = getPaxleUrl(servletPath);
 				logger.debug("Opening browser: " + url);
 				final boolean success = browseUrl(url, true, false);
-				logger.info(((success) ? "Failed" : "Succeeded") + " opening browser for " + url);
+				logger.info(((success) ? "Succeeded" : "Failed") + " opening browser for " + url);
 			} catch (Exception e) { e.printStackTrace(); }
 		}
 		
@@ -415,17 +418,29 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 					break;
 				}
 				servicePanels.put(id, panel);
+				final DIServiceEvent event = new DIServiceEvent(id, panel);
+				synchronized (this) {
+					for (final IDIEventListener l : listeners)
+						l.serviceRegistered(event);
+				}
 				logger.info("registered DIComponent '" + panel.getTitle() + "' with service-ID " + id);
 			} break;
 			
 			case ServiceEvent.UNREGISTERING: {
 				// close possibly open dialogue and remove it from the servicePanels-map
 				close(id);
-				final DIComponent panel = servicePanels.remove(id);
+				DIComponent panel = servicePanels.get(id);
 				if (panel == null) {
 					logger.warn("unregistering DIComponent which is unknown to DesktopServices: " + ref);
 					break;
 				}
+				final DIServiceEvent event = new DIServiceEvent(id, panel);
+				synchronized (this) {
+					for (final IDIEventListener l : listeners)
+						l.serviceUnregistering(event);
+				}
+				panel = null;
+				servicePanels.remove(id);
 				logger.info("unregistered DIComponent '" + panel.getTitle() + "' with service-ID " + id);
 				manager.ungetService(ref);
 			} break;
@@ -433,6 +448,16 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 			case ServiceEvent.MODIFIED: {
 			} break;
 		}
+	}
+	
+	private final Set<IDIEventListener> listeners = new HashSet<IDIEventListener>();
+	
+	public synchronized void addDIEventListener(IDIEventListener listener) {
+		listeners.add(listener);
+	}
+	
+	public synchronized void removeDIEventListener(IDIEventListener listener) {
+		listeners.remove(listener);
 	}
 	
 	public void shutdownFramework() {
@@ -581,9 +606,10 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 				setTrayMenuVisible(showTM);
 			}
 			
-			// PREF_OPEN_BROWSER_STARTUP and PREF_OPEN_BROWSER_SERVLET only matter for the
-			// initialization of this class, changing these values does not necessitate
-			// runtime-changes.
+			// TODO: PREF_OPEN_BROWSER_SERVLET
+			
+			// PREF_OPEN_BROWSER_STARTUP only matters for the initialization of this class,
+			// changing the values does not necessitate runtime-changes.
 		} catch (Throwable e) { e.printStackTrace(); }
 	}
 	
@@ -639,6 +665,8 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 			sb.append(s);
 		return sb.toString();
 	}
+	
+	// TODO: browser() - open browser with default servlet
 	
 	/*
 	 * (non-Javadoc)

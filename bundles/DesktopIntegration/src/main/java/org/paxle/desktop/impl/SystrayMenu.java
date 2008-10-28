@@ -17,7 +17,8 @@ package org.paxle.desktop.impl;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
-import java.util.Map;
+import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -32,7 +33,8 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.http.HttpService;
 
 import org.paxle.core.IMWComponent;
-import org.paxle.desktop.DIComponent;
+import org.paxle.desktop.IDIEventListener;
+import org.paxle.desktop.IDIServiceEvent;
 import org.paxle.desktop.IDesktopServices.Dialogues;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.backend.tray.IMenuItem;
@@ -46,15 +48,20 @@ public class SystrayMenu implements ActionListener {
 	private static final String CRAWL_PAUSE = Messages.getString("systrayMenu.crawlPause"); //$NON-NLS-1$
 	private static final String CRAWL_RESUME = Messages.getString("systrayMenu.crawlResume"); //$NON-NLS-1$
 	
+	private static final String CLZ_ISERVLET_MANAGER = "org.paxle.gui.IServletManager";
+	private static final String CLZ_ISEARCH_PROVIDER_MANAGER = "org.paxle.se.search.ISearchProviderManager";
+	
 	private static enum Actions {
 		SEARCH, BROWSE, CRAWL, CRAWLPR, BUNDLES, STATS, CCONSOLE, SETTINGS, RESTART, QUIT
 	}
 	
 	private static final Log logger = LogFactory.getLog(SystrayMenu.class);
 	private final DesktopServices services;
+	private final PopupMenuUpdater updater;
+	
 	private final ITrayIcon ti;
 	private final ISystemTray systray;
-	
+	private final IPopupMenu menu;
 	private final IMenuItem searchItem;
 	private final IMenuItem browseItem;
 	private final IMenuItem crawlItem;
@@ -62,37 +69,70 @@ public class SystrayMenu implements ActionListener {
 	
 	private final Timer tooltipTimer = new Timer("DI-TooltipTimer"); //$NON-NLS-1$
 	
-	// instantiate this here to prevent delays when the popup shows up
-	private class PopupMenuUpdater implements PopupMenuListener, ActionListener, Runnable {
+	private class PopupMenuUpdater implements PopupMenuListener, ActionListener, Runnable, IDIEventListener {
 		
-		private final int startIdx;
+		private final class Entry {
+			int location;
+			Entry prev, next;
+			
+			public Entry(final int location) {
+				this.location = location;
+			}
+		}
+		
 		private int end = 0;
 		
+		// map with doubly-linked entry-values
+		private final HashMap<Long,Entry> serviceMenuItems = new HashMap<Long,Entry>();
+		private Entry lastEntry = null;
+		
 		public PopupMenuUpdater(final int startIdx) {
-			this.startIdx = startIdx;
+			end = startIdx;
 		}
 		
 		public void popupMenuCanceled(PopupMenuEvent e) {
 		}
 		
 		public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-			final IPopupMenu pm = (IPopupMenu)e.getSource();
-			for (int i=startIdx; i<end; i++)
-				pm.remove(startIdx);
 		}
 		
 		public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
 			logger.debug("popup becomes visible, refreshing menu-items"); //$NON-NLS-1$
 			SwingUtilities.invokeLater(this);
+		}
+		
+		public void serviceRegistered(IDIServiceEvent event) {
+			if (lastEntry == null)
+				menu.insertSeparator(end++);
+			final int location = end++;
+			final Entry e = new Entry(location);
+			e.prev = lastEntry;
+			if (lastEntry != null)
+				lastEntry.next = e;
+			lastEntry = e;
+			serviceMenuItems.put(event.getID(), e);
+			menu.insert(services.getBackend().createMenuItem(event.getComponent().getTitle(), event.getID().toString(), this), location);
+		}
+		
+		public void serviceUnregistering(IDIServiceEvent event) {
+			Entry e = serviceMenuItems.remove(event.getID());
+			menu.remove(e.location);
+			end--;
 			
-			final IPopupMenu pm = (IPopupMenu)e.getSource();
-			final Map<Long,DIComponent> additionalComps = services.getAdditionalComponents();
-			end = startIdx;
-			if (additionalComps != null && additionalComps.size() > 0) {
-				pm.insertSeparator(end++);
-				for (final Map.Entry<Long,DIComponent> en : additionalComps.entrySet())
-					pm.insert(services.getBackend().createMenuItem(en.getValue().getTitle(), en.getKey().toString(), this), end++);
+			if (e == lastEntry)
+				lastEntry = e.prev;
+			
+			if (e.prev == null && e.next == null) {
+				menu.remove(e.location - 1);
+				end--;
 			}
+			if (e.prev != null)
+				e.prev.next = e.next;
+			if (e.next != null)
+				e.next.prev = e.prev;
+			
+			while ((e = e.next) != null)
+				e.location--;
 		}
 		
 		public void actionPerformed(ActionEvent e) {
@@ -119,10 +159,10 @@ public class SystrayMenu implements ActionListener {
 			
 			final ServiceManager manager = services.getServiceManager();
 			final boolean hasWebServer = manager.hasService(HttpService.class);
-			final boolean hasWebui = manager.hasService("org.paxle.gui.IServletManager") && hasWebServer; //$NON-NLS-1$
+			final boolean hasWebui = manager.hasService(CLZ_ISERVLET_MANAGER) && hasWebServer;
 			browseItem.setEnabled(services.isBrowserOpenable() && hasWebui);
 			
-			final boolean hasSearch = manager.hasService("org.paxle.se.search.ISearchProviderManager"); //$NON-NLS-1$
+			final boolean hasSearch = manager.hasService(CLZ_ISEARCH_PROVIDER_MANAGER);
 			// remove "&& hasWebUi" if we have other methods of displaying the searchresults
 			searchItem.setEnabled(services.isBrowserOpenable() && hasSearch && hasWebui);
 			
@@ -134,7 +174,7 @@ public class SystrayMenu implements ActionListener {
 	public SystrayMenu(final DesktopServices services, final URL iconResource) {
 		this.services = services;
 		final IDIBackend backend = services.getBackend();
-		final IPopupMenu pm = backend.createPopupMenu(
+		menu = backend.createPopupMenu(
 				this.searchItem 	= backend.createMenuItem(Messages.getString("systrayMenu.search"), Actions.SEARCH.name(), this),		//  0 //$NON-NLS-1$
 				null,																														//  1
 				this.browseItem		= backend.createMenuItem(Messages.getString("systrayMenu.webinterface"), Actions.BROWSE.name(), this),	//  2 //$NON-NLS-1$
@@ -149,10 +189,12 @@ public class SystrayMenu implements ActionListener {
 				null,																														// 11
 				backend.createMenuItem(Messages.getString("systrayMenu.restart"), 		  Actions.RESTART.name(),  this), //$NON-NLS-1$
 				backend.createMenuItem(Messages.getString("systrayMenu.quit"), 			  Actions.QUIT.name(),     this)); //$NON-NLS-1$
-		pm.addPopupMenuListener(new PopupMenuUpdater(11));
+		updater = new PopupMenuUpdater(11);
+		services.addDIEventListener(updater);
+		menu.addPopupMenuListener(updater);
 		
 		systray = backend.getSystemTray();
-		systray.add(ti = backend.createTrayIcon(new ImageIcon(iconResource), Messages.getString("systrayMenu.tray"), pm)); //$NON-NLS-1$
+		systray.add(ti = backend.createTrayIcon(new ImageIcon(iconResource), Messages.getString("systrayMenu.tray"), menu)); //$NON-NLS-1$
 		
 		tooltipTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
@@ -167,7 +209,7 @@ public class SystrayMenu implements ActionListener {
 					} else if (crawler.isPaused()) {
 						sb.append(Messages.getString("systrayMenu.crawlingPaused")); //$NON-NLS-1$
 					} else {
-						sb.append(Messages.getString("systrayMenu.crawling")).append(indexer.getPPM()).append(Messages.getString("systrayMenu.ppm")); //$NON-NLS-1$ //$NON-NLS-2$
+						sb.append(MessageFormat.format(Messages.getString("systrayMenu.crawlingAtPPM"), Integer.valueOf(indexer.getPPM()))); //$NON-NLS-1$
 					}
 					ti.setToolTip(sb.toString());
 				}
@@ -227,6 +269,7 @@ public class SystrayMenu implements ActionListener {
 	}
 	 */
 	public void close() {
+		services.removeDIEventListener(updater);
 		tooltipTimer.cancel();
 		logger.debug("removing systray icon"); //$NON-NLS-1$
 		systray.remove(ti);
@@ -260,17 +303,17 @@ public class SystrayMenu implements ActionListener {
 					if (data != null && data.length() > 0)
 						services.browseUrl(services.getPaxleUrl("/search?query=", data)); //$NON-NLS-1$
 				} break;
-					
+				
 				case CRAWL: {
 					final String data = SmallDialog.showDialog(Messages.getString("systrayMenu.enterUrl"), Messages.getString("systrayMenu.crawlButton")); //$NON-NLS-1$ //$NON-NLS-2$
 					if (data != null && data.length() > 0)
 						services.startDefaultCrawl(data);
 				} break;
-					
+				
 				case BROWSE:
-					services.browseUrl(services.getPaxleUrl("/")); //$NON-NLS-1$
+					services.browseUrl(services.getPaxleUrl("/")); //$NON-NLS-1$ // TODO: use DesktopServices.browse()
 					break;
-					
+				
 				case CRAWLPR: {
 					final IMWComponent<?> crawler = services.getMWComponent(DesktopServices.MWComponents.CRAWLER);
 					if (crawler != null) {
@@ -293,7 +336,7 @@ public class SystrayMenu implements ActionListener {
 				case CCONSOLE:
 					services.openDialogue(Dialogues.CCONSOLE);
 					break;
-					
+				
 				case SETTINGS:
 					services.openDialogue(Dialogues.SETTINGS);
 					break;

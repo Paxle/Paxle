@@ -129,4 +129,7 @@ public interface IDesktopServices {
 	 * @return whether the system tray is currently visible or not
 	 */
 	public boolean isTrayMenuVisible();
+	
+	public void addDIEventListener(final IDIEventListener listener);
+	public void removeDIEventListener(final IDIEventListener listener);
 }
