@@ -15,6 +15,8 @@
 package org.paxle.desktop.impl.dialogues.bundles;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -23,10 +25,13 @@ import java.awt.event.KeyEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -39,12 +44,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 import javax.swing.border.Border;
-import javax.swing.text.JTextComponent;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
+
 import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.Messages;
 
@@ -116,7 +121,7 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 	private final JLabel icon = new JLabel();
 	private final JLabel title = new JLabel();
 	private final JLabel symbolicName = new JLabel();
-	private final JTextComponent description = Utilities.setTextLabelDefaults(new JTextArea());
+	private final JTextArea description = Utilities.setTextLabelDefaults(new JTextArea());
 	private final JLabel version = new JLabel();
 	private final JButton btnGo = Utilities.setButtonProps(new JButton(), Messages.getString("bundlePanel.cell.comp.go"), this, AC_GO, KeyEvent.VK_O, null);
 	
@@ -132,13 +137,12 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 	};
 	private int infoPanelsInitialized = 0;
 	
-	private final BundleListModel model;
-	final Bundle bundle;
+	private final HashSet<Component> comps = new HashSet<Component>();
 	
+	final Bundle bundle;
 	int index;
 	
-	public BundleListRow(final BundleListModel model, final Bundle bundle) {
-		this.model = model;
+	public BundleListRow(final Bundle bundle) {
 		this.bundle = bundle;
 		
 		final GridBagConstraints gbcInfo = new GridBagConstraints();
@@ -151,18 +155,34 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 			infoMainPanel.add(infoPanels[i] = new JPanel(new GridBagLayout()), gbcInfo);
 			gbcInfo.gridy++;
 		}
-		// btnsPanel.setVisible(false);
-		// infoMainPanel.setVisible(false);
 		
-		btnsPanel.add(infoBtns[0]);
-		btnsPanel.add(infoBtns[1]);
-		btnsPanel.add(infoBtns[2]);
-		btnsPanel.add(infoBtns[3]);
+		for (int i=0; i<infoBtns.length; i++) {
+			btnsPanel.add(infoBtns[i]);
+		}
+		
+		final LinkedList<Container> l = new LinkedList<Container>(Arrays.asList(
+				(Container)bg, id, icon, title, symbolicName, description, version, btnGo, actions, btnsPanel, infoMainPanel
+		));
+		for (final Container c : infoPanels)
+			l.add(c);
+		while (!l.isEmpty()) {
+			final Container c = l.poll();
+			comps.add(c);
+			for (final Component cc : c.getComponents())
+				if (cc instanceof Container) {
+					l.add((Container)cc);
+				} else {
+					comps.add(cc);
+				}
+		}
 		
 		btnsPanel.setBackground(new Color(0,0,0,0));
 		description.setBackground(new Color(0,0,0,0));
+		description.setLineWrap(true);
+		description.setWrapStyleWord(true);
 		
 		updateBundleStatus();
+		updateDisplay(false, false);
 	}
 	
 	public int compareTo(BundleListRow o) {
@@ -179,7 +199,7 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 	
 	public void updateDisplay(final boolean isSelected, final boolean hasFocus) {
 		btnsPanel.setVisible(isSelected || hasFocus);
-		infoMainPanel.setVisible(isSelected || hasFocus);
+	//	infoMainPanel.setVisible(isSelected || hasFocus);
 	}
 	
 	public void updateBundleStatus() {
@@ -195,7 +215,7 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 		title.setToolTipText(st.label);
 		id.setBackground(st.color);
 		symbolicName.setText(bundle.getSymbolicName());
-		description.setText((desc == null) ? "" : desc.toString());
+		description.setText(normalizeDescription(desc));
 		version.setText((vers == null) ? "" : vers.toString());
 		
 		infoPanelsInitialized = 0;
@@ -205,7 +225,13 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 		}
 	}
 	
-	public void removeRow(final JComponent comp) {
+	private static String normalizeDescription(final Object desc) {
+		if (desc == null)
+			return "";
+		return desc.toString().replaceAll("\\s+", " ");
+	}
+	
+	public void removeRow(final JComponent comp, final ML ml) {
 		comp.remove(id);
 		comp.remove(icon);
 		comp.remove(title);
@@ -217,6 +243,8 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 		comp.remove(btnGo);
 		comp.remove(infoMainPanel);
 		comp.remove(bg);
+		
+		ml.removeFromComps(comps);
 	}
 	
 	public void invalidate() {
@@ -232,7 +260,10 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 		infoMainPanel.invalidate();
 	}
 	
-	public void setRow(final JComponent comp, final int y) {
+	public void setRow(final JComponent comp, final int y, final ML ml) {
+		
+		ml.addToComps(comps, this);
+		
 		final GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0; gbc.gridy = y;
 		gbc.insets = Utilities.INSETS_DEFAULT;
@@ -246,12 +277,14 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 		
 		gbc.gridheight = 1;
 		gbc.weightx = 1.0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 		comp.add(title, gbc); gbc.gridy++;
 		
 		gbc.gridwidth = 3;
 		comp.add(description, gbc); gbc.gridy++;
 		comp.add(btnsPanel, gbc); gbc.gridy = y; gbc.gridx++;
 		gbc.weightx = 0.0;
+		gbc.fill = GridBagConstraints.NONE;
 		gbc.gridwidth = 1;
 		
 		gbc.anchor = GridBagConstraints.NORTHEAST;

@@ -81,7 +81,7 @@ public final class BundleListModel implements BundleListener {
 				bundle.getHeaders().get(Constants.BUNDLE_NAME).toString().toLowerCase().indexOf(restriction) != -1);
 	}
 	
-	private void clearList() {
+	public void clearList() {
 		final int size = entryList.size();
 		fireEvent(ListDataEvent.INTERVAL_REMOVED, 0, entryList.subList(0, size));
 		entryList.clear();
@@ -127,7 +127,7 @@ public final class BundleListModel implements BundleListener {
 				removeList(bundle);
 			}
 		} else if (allowed) {
-			addList(new BundleListRow(this, bundle));
+			addList(new BundleListRow(bundle));
 		}
 		return allowed;
 	}
@@ -162,7 +162,7 @@ public final class BundleListModel implements BundleListener {
 			case BundleEvent.INSTALLED: // fall-through
 			case BundleEvent.RESOLVED:
 				// add the bundle to this list
-				final BundleListRow cc = new BundleListRow(this, bundle);
+				final BundleListRow cc = new BundleListRow(bundle);
 				bundleMap.put(Long.valueOf(bundle.getBundleId()), cc);
 				addList(cc);
 				break;

@@ -48,6 +48,7 @@ public class BundlePanel extends DIServicePanel implements DIComponent, Document
 	private final GridBagLayout layout = new GridBagLayout();
 	private final JPanel bundlePanel = new ScrollablePanel(layout, ScrollablePanel.ALWAYS_TRACK, ScrollablePanel.NO_TRACK);
 	private final JScrollPane scroll = new JScrollPane();
+	private final ML ml = new ML();
 	private final Runnable updater = new Runnable() {
 		public void run() {
 			bundleListModel.setRestriction(searchField.getText());
@@ -68,6 +69,7 @@ public class BundlePanel extends DIServicePanel implements DIComponent, Document
 	@Override
 	public void close() {
 		super.services.getServiceManager().removeBundleListener(bundleListModel);
+		bundleListModel.clearList();
 		super.close();
 	}
 	
@@ -80,11 +82,11 @@ public class BundlePanel extends DIServicePanel implements DIComponent, Document
 			case ListDataEvent.INTERVAL_ADDED:
 				int i = idx;
 				for (final BundleListRow cc : data)
-					cc.setRow(bundlePanel, i++ * 4);
+					cc.setRow(bundlePanel, i++ * 4, ml);
 				break;
 			case ListDataEvent.INTERVAL_REMOVED:
 				for (final BundleListRow cc : data)
-					cc.removeRow(bundlePanel);
+					cc.removeRow(bundlePanel, ml);
 				break;
 		}
 	}
