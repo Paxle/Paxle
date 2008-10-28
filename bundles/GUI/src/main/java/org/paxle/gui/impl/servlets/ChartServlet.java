@@ -308,6 +308,7 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
         // change axis data format
 		((DateAxis) chart.getXYPlot().getDomainAxis()).setDateFormatOverride(new SimpleDateFormat("HH:mm"));
 		chart.getXYPlot().getRangeAxis().setRange(0, 100);
+		chart.getXYPlot().setNoDataMessage("No data available");
 		chart.setBackgroundPaint(Color.WHITE);
 		return chart;   
 	}

@@ -14,8 +14,6 @@
 
 package org.paxle.gui.impl.servlets;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -25,7 +23,6 @@ import java.util.LinkedList;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileSystemUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.framework.Constants;
@@ -183,18 +180,6 @@ public class OverView extends ALayoutServlet {
 		
 		public int getCount() {
 			return count;
-		}
-	}
-	
-	public long getFreeDiskspaceKb() {
-		try {
-			// for now we just query the paxle directory
-			return FileSystemUtils.freeSpaceKb(new File("/").getCanonicalPath().toString());
-		} catch (IOException e) {
-			this.logger.error(String.format(
-					"Unexpected '%s' while checking free disk space: %s",e.getClass().getName(),e.getMessage()
-			), e);
-			return -1;
 		}
 	}
 }
