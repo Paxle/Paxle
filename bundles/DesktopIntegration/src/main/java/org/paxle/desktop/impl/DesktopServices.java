@@ -268,6 +268,8 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 	// private final Map<Dialogues,Frame> dialogues = new EnumMap<Dialogues,Frame>(Dialogues.class);
 	private final String[] locales;
 	
+	private final Set<IDIEventListener> listeners = new HashSet<IDIEventListener>();
+	
 	private final Hashtable<Long,DIComponent> servicePanels = new Hashtable<Long,DIComponent>();
 	private final HashMap<DIComponent,Frame> serviceFrames = new HashMap<DIComponent,Frame>();
 	
@@ -276,6 +278,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 	
 	private SystrayMenu trayMenu = null;
 	private boolean browserOpenable = true;
+	private String openServlet = PREF_OPEN_BROWSER_SERVLET_DEFAULT;
 	
 	// TODO: get desktop-services working without a backend, dialogues can still be useful and
 	//       may be started in different ways than using the tray-menu
@@ -331,35 +334,23 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 	private void initDS() {
 		// check whether starting the browser on startup is set in the config and open it if necessary
 		final ConfigurationAdmin cadmin = manager.getService(ConfigurationAdmin.class);
-		String openServlet = PREF_OPEN_BROWSER_SERVLET_DEFAULT;
+		Dictionary<?,?> props = null;
 		if (cadmin != null) try {
 			final Configuration conf = cadmin.getConfiguration(PREF_PID, manager.getBundle().getLocation());
-			Dictionary<?,?> props = null;
 			if (conf != null)
 				props = conf.getProperties();
-			if (props == null)
-				props = getDefaults();
-			
-			final Boolean openBrowserStartup = (Boolean)props.get(PREF_OPEN_BROWSER_STARTUP);
+		} catch (IOException e) { e.printStackTrace(); }
+		if (props == null)
+			props = getDefaults();
+		
+		final Boolean openBrowserStartup = (Boolean)props.get(PREF_OPEN_BROWSER_STARTUP);
+		if (openBrowserStartup.booleanValue()) {
 			final Object openServletObj = props.get(PREF_OPEN_BROWSER_SERVLET);
 			if (openServletObj != null)
 				openServlet = (String)openServletObj;
-			if (openBrowserStartup != null && !openBrowserStartup.booleanValue())
-				openServlet = null;
-		} catch (IOException e) { e.printStackTrace(); }
-		
-		// opening the browser
-		if (openServlet != null) {
-			final Object servletManager = manager.getService(ISERVLET_MANAGER);
-			if (servletManager != null) try {
-				final Class<?> servletManagerClazz = servletManager.getClass();
-				final Method getFullAlias = servletManagerClazz.getMethod("getFullAlias", String.class);
-				final String servletPath = (String)getFullAlias.invoke(servletManager, openServlet);
-				final String url = getPaxleUrl(servletPath);
-				logger.debug("Opening browser: " + url);
-				final boolean success = browseUrl(url, true, false);
-				logger.info(((success) ? "Succeeded" : "Failed") + " opening browser for " + url);
-			} catch (Exception e) { e.printStackTrace(); }
+			
+			// opening the browser
+			browseDefaultServlet(false);
 		}
 		
 		// look for services which already have registered as DIComponents and record them in the map
@@ -449,8 +440,6 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 			} break;
 		}
 	}
-	
-	private final Set<IDIEventListener> listeners = new HashSet<IDIEventListener>();
 	
 	public synchronized void addDIEventListener(IDIEventListener listener) {
 		listeners.add(listener);
@@ -606,7 +595,9 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 				setTrayMenuVisible(showTM);
 			}
 			
-			// TODO: PREF_OPEN_BROWSER_SERVLET
+			final Object openServletObj = properties.get(PREF_OPEN_BROWSER_SERVLET);
+			if (openServletObj != null)
+				openServlet = (String)openServletObj;
 			
 			// PREF_OPEN_BROWSER_STARTUP only matters for the initialization of this class,
 			// changing the values does not necessitate runtime-changes.
@@ -666,8 +657,6 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 		return sb.toString();
 	}
 	
-	// TODO: browser() - open browser with default servlet
-	
 	/*
 	 * (non-Javadoc)
 	 * @see org.paxle.desktop.IDesktopServices#browseUrl(java.lang.String)
@@ -692,6 +681,28 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 			logger.error("Generated mal-formed URL '" + url + "': " + e.getMessage(), e);
 		}
 		return false;
+	}
+	
+	public void browseDefaultServlet(final boolean displayErrMsg) {
+		browseServlet(openServlet, displayErrMsg);
+	}
+	
+	public void browseServlet(final String servlet, final boolean displayErrMsg) {
+		final Object servletManager = manager.getService(ISERVLET_MANAGER);
+		if (servletManager == null) {
+			final String msg = "Cannot open servlet '" + servlet + "', GUI ServletManager not available";
+			logger.warn(msg);
+			if (displayErrMsg)
+				JOptionPane.showMessageDialog(null, msg, "Error opening servlet", JOptionPane.ERROR_MESSAGE);
+		} else try {
+			final Class<?> servletManagerClazz = servletManager.getClass();
+			final Method getFullAlias = servletManagerClazz.getMethod("getFullAlias", String.class);
+			final String servletPath = (String)getFullAlias.invoke(servletManager, servlet);
+			final String url = getPaxleUrl(servletPath);
+			logger.debug("Opening browser: " + url);
+			final boolean success = browseUrl(url, true, displayErrMsg);
+			logger.info(((success) ? "Succeeded" : "Failed") + " opening browser for " + url);
+		} catch (Exception e) { e.printStackTrace(); }
 	}
 	
 	/* ========================================================================== *

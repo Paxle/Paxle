@@ -304,7 +304,7 @@ public class SystrayMenu implements ActionListener {
 				} break;
 				
 				case BROWSE:
-					services.browseUrl(services.getPaxleUrl("/")); //$NON-NLS-1$ // TODO: use DesktopServices.browse()
+					services.browseDefaultServlet(true); //$NON-NLS-1$
 					break;
 				
 				case CRAWLPR: {
