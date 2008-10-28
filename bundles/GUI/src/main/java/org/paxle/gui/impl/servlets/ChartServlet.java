@@ -99,20 +99,22 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 	 */
 	public static final String TSERIES_PPM_INDEXER = "org.paxle.indexer/ppm";	
 	
+	public static final String CPU_MONITORABLE_ID = "os.usage.cpu";
+	
 	/**
 	 * Total CPU Usage
 	 */
-	public static final String TSERIES_CPU_TOTAL = "os.usage.cpu/cpu.usage.total";
+	public static final String TSERIES_CPU_TOTAL = CPU_MONITORABLE_ID + "/cpu.usage.total";
 	
 	/**
 	 * User CPU Usage
 	 */
-	public static final String TSERIES_CPU_USER = "os.usage.cpu/cpu.usage.user";
+	public static final String TSERIES_CPU_USER = CPU_MONITORABLE_ID + "/cpu.usage.user";
 	
 	/**
 	 * System CPU Usage
 	 */
-	public static final String TSERIES_CPU_SYSTEM = "os.usage.cpu/cpu.usage.system";
+	public static final String TSERIES_CPU_SYSTEM = CPU_MONITORABLE_ID + "/cpu.usage.system";
 
 	/**
 	 * An arraylist containing all full-path names of all {@link StatusVariable variables}
@@ -296,7 +298,7 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
                 null,
                 "Time", 
-                "Usage",
+                "Usage [%]",
                 dataset,
                 true,
                 true,
@@ -305,7 +307,7 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
         
         // change axis data format
 		((DateAxis) chart.getXYPlot().getDomainAxis()).setDateFormatOverride(new SimpleDateFormat("HH:mm"));
-		chart.getXYPlot().getRangeAxis().setRange(0, 1);
+		chart.getXYPlot().getRangeAxis().setRange(0, 100);
 		chart.setBackgroundPaint(Color.WHITE);
 		return chart;   
 	}
@@ -421,6 +423,8 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 				
 				if (fullPath.equalsIgnoreCase(TSERIES_MEMORY_USAGE)) {
 					num = new Integer(num.intValue() / ( 1024 * 1024));
+				} else if (fullPath.startsWith(CPU_MONITORABLE_ID)) {
+					num = new Double(num.doubleValue() * 100f);
 				}
 				
 				series.addOrUpdate(new Minute(new Date()), num);
