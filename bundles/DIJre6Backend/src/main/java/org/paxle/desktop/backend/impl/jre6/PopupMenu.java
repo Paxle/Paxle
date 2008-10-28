@@ -19,9 +19,8 @@ import java.awt.HeadlessException;
 import java.awt.MenuItem;
 
 import javax.swing.event.EventListenerList;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
+import org.paxle.desktop.backend.IPopupMenuListener;
 import org.paxle.desktop.backend.tray.IMenuItem;
 import org.paxle.desktop.backend.tray.IPopupMenu;
 
@@ -45,19 +44,15 @@ public class PopupMenu extends java.awt.PopupMenu implements IPopupMenu {
 		if (listeners == null) {
 			super.show(origin, x, y);
 		} else {
-			final PopupMenuEvent event = new PopupMenuEvent(this);
-			for (PopupMenuListener l : listeners.getListeners(PopupMenuListener.class))
-				l.popupMenuWillBecomeVisible(event);
+			for (IPopupMenuListener l : listeners.getListeners(IPopupMenuListener.class))
+				l.popupMenuWillBecomeVisible();
 			
 			super.show(origin, x, y);
-			
-			for (PopupMenuListener l : listeners.getListeners(PopupMenuListener.class))
-				l.popupMenuWillBecomeInvisible(event);
 		}
 	}
 	
-	public void addPopupMenuListener(final PopupMenuListener l) {
-		getEventListenerList().add(PopupMenuListener.class, l);
+	public void addPopupMenuListener(final IPopupMenuListener l) {
+		getEventListenerList().add(IPopupMenuListener.class, l);
 	}
 	
 	public PopupMenu(String label) throws HeadlessException {

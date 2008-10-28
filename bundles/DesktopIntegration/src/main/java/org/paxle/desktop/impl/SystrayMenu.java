@@ -24,8 +24,6 @@ import java.util.TimerTask;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,6 +35,7 @@ import org.paxle.desktop.IDIEventListener;
 import org.paxle.desktop.IDIServiceEvent;
 import org.paxle.desktop.IDesktopServices.Dialogues;
 import org.paxle.desktop.backend.IDIBackend;
+import org.paxle.desktop.backend.IPopupMenuListener;
 import org.paxle.desktop.backend.tray.IMenuItem;
 import org.paxle.desktop.backend.tray.IPopupMenu;
 import org.paxle.desktop.backend.tray.ISystemTray;
@@ -69,7 +68,7 @@ public class SystrayMenu implements ActionListener {
 	
 	private final Timer tooltipTimer = new Timer("DI-TooltipTimer"); //$NON-NLS-1$
 	
-	private class PopupMenuUpdater implements PopupMenuListener, ActionListener, Runnable, IDIEventListener {
+	private class PopupMenuUpdater implements IPopupMenuListener, ActionListener, Runnable, IDIEventListener {
 		
 		private final class Entry {
 			int location;
@@ -90,13 +89,7 @@ public class SystrayMenu implements ActionListener {
 			end = startIdx;
 		}
 		
-		public void popupMenuCanceled(PopupMenuEvent e) {
-		}
-		
-		public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-		}
-		
-		public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		public void popupMenuWillBecomeVisible() {
 			logger.debug("popup becomes visible, refreshing menu-items"); //$NON-NLS-1$
 			SwingUtilities.invokeLater(this);
 		}

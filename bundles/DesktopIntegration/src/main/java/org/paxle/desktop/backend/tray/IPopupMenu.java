@@ -14,7 +14,7 @@
 
 package org.paxle.desktop.backend.tray;
 
-import javax.swing.event.PopupMenuListener;
+import org.paxle.desktop.backend.IPopupMenuListener;
 
 public interface IPopupMenu {
 	
@@ -73,5 +73,5 @@ public interface IPopupMenu {
 	 * <p><i>The 'canceled'-event is not necessarily implemented by all backends</i>. 
 	 * @param l the {@link PopupMenuListener} to add to this menu
 	 */
-	public void addPopupMenuListener(PopupMenuListener l);
+	public void addPopupMenuListener(IPopupMenuListener l);
 }

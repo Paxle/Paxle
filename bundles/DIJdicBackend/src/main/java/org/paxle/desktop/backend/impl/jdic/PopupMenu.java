@@ -16,7 +16,10 @@ package org.paxle.desktop.backend.impl.jdic;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
+import org.paxle.desktop.backend.IPopupMenuListener;
 import org.paxle.desktop.backend.tray.IMenuItem;
 import org.paxle.desktop.backend.tray.IPopupMenu;
 
@@ -59,5 +62,15 @@ public class PopupMenu extends JPopupMenu implements IPopupMenu {
 			} else {
 				add(item);
 			}
+	}
+
+	public void addPopupMenuListener(final IPopupMenuListener l) {
+		super.addPopupMenuListener(new PopupMenuListener() {
+			public void popupMenuCanceled(PopupMenuEvent e) {  }
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {  }
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+				l.popupMenuWillBecomeVisible();
+			}
+		});
 	}
 }
