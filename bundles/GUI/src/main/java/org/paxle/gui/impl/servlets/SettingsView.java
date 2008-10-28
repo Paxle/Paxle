@@ -71,6 +71,8 @@ import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
+import org.paxle.core.metadata.Attribute;
+import org.paxle.core.metadata.Metadata;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.IStyleManager;
@@ -955,5 +957,14 @@ public class SettingsView extends ALayoutServlet {
 		
 		// try to find ocd via metatype-provider 
 		return this.getObjectClassDefinitionFromMetaTypeProvider(manager, bundle, PID, preferedLocale);
+	}
+	
+	public HashMap<String,Attribute> getAttributeMetadataMap(final ObjectClassDefinition ocd) {
+		final HashMap<String,Attribute> attrMetadata = new HashMap<String,Attribute>();
+		final Metadata metadata = ocd.getClass().getAnnotation(Metadata.class);
+		if (metadata != null)
+			for (final Attribute attr : metadata.value())
+				attrMetadata.put(attr.id(), attr);
+		return attrMetadata;
 	}
 }
