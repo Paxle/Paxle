@@ -15,15 +15,8 @@
 package org.paxle.desktop.impl;
 
 import java.awt.GraphicsEnvironment;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -36,23 +29,17 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.paxle.core.io.IOTools;
+import org.paxle.desktop.IDesktopServices;
+import org.paxle.desktop.backend.IDIBackend;
 
-/**
- * To get this to work you need to set the variable
- * org.osgi.framework.system.packages=sun.awt,javax.swing,javax.swing.event,sun.awt.motif,sun.awt.X11,javax.swing.plaf.metal,javax.swing.plaf.basic
- *
- */
 public class Activator implements BundleActivator {
 	
 	private static final Log logger = LogFactory.getLog(Activator.class);
 	
-	static {
-		logger.debug("Loading Activator with class-loader: " + Thread.currentThread().getContextClassLoader());
-	}
+	public static final String BACKEND_IMPL_ROOT_PACKAGE = "org.paxle.desktop.backend.impl";
+	private static final String CLASSSIMPLE_DI_BACKEND 		= "DIBackend";
 	
 	public static final float NATIVE_JRE_SUPPORT = 1.6f;
-	public static final String BACKEND_IMPL_ROOT_PACKAGE = "org.paxle.desktop.backend.impl";
 	
 	private static final String IMPL_JDIC = "jdic";
 	private static final String IMPL_JRE6 = "jre6";
@@ -76,23 +63,6 @@ public class Activator implements BundleActivator {
 		KNOWN_IMPLS.put(Float.valueOf(1.4f), IMPL_JDIC);
 	}
 	
-	private static final String CLASS_IDI_BACKEND 			= "org.paxle.desktop.backend.IDIBackend";
-	private static final String CLASS_DESKTOP_SERVICES 		= "org.paxle.desktop.impl.DesktopServices";
-	private static final String CLASS_IDESKTOP_SERVICES		= "org.paxle.desktop.IDesktopServices";
-	private static final String CLASS_SERVICE_MANAGER 		= "org.paxle.desktop.impl.ServiceManager";
-	private static final String CLASS_BUNDLE_CONTEXT 		= "org.osgi.framework.BundleContext";
-	private static final String CLASS_JDIC_MANAGER 			= "org.jdesktop.jdic.init.JdicManager";
-	
-	private static final String CLASSSIMPLE_DI_BACKEND 		= "DIBackend";
-	
-	private static final String METHOD_SHUTDOWN 			= "shutdown";
-	private static final String METHOD_GET_MANAGER 			= "getManager";
-	private static final String METHOD_INIT_SHARE_NATIVE 	= "initShareNative";
-	
-	private static final String FIELD_JDIC_STUB_JAR_FILE 	= "jdicStubJarFile";
-	
-	private static final String PATH_JDIC_LIBS 				= "/binaries/libs/";
-	
 	private static float getJavaVersion() {
 		String version = System.getProperty("java.version");
 		int dot = version.indexOf('.');
@@ -106,10 +76,8 @@ public class Activator implements BundleActivator {
 	
 	public static ClassLoader uiClassLoader = Activator.class.getClassLoader();
 	public static BundleContext bc = null;
-	public static String libPath = null;
 	
-	public Method shutdownMethod = null;
-	public Object initObject = null;
+	public DesktopServices initObject = null;
 	
 	public void start(final BundleContext context) throws Exception {
 		bc = context;
@@ -119,6 +87,9 @@ public class Activator implements BundleActivator {
 			logger.fatal("Java runs in a headless environment, cannot initialize any graphical user interfaces, aborting");
 			return;
 		}
+		
+		uiClassLoader = this.getClass().getClassLoader();		
+		Thread.currentThread().setContextClassLoader(uiClassLoader);
 		
 		/* 
 		 * Configuring the classloader to use by the UIManager.
@@ -168,10 +139,7 @@ public class Activator implements BundleActivator {
 	}
 	
 	public void stop(BundleContext context) throws Exception {
-		if (shutdownMethod != null) {
-			shutdownMethod.invoke(initObject);
-			shutdownMethod = null;
-		}
+		this.initObject.shutdown();
 		initObject = null;
 		bc = null;
 	}
@@ -187,76 +155,31 @@ public class Activator implements BundleActivator {
 		}
 		
 		if (impl == IMPL_JDIC) {
-			// copy natives into bundle data folder
-			copyNatives(context);
-			
-			// JdicManager.getManager().initShareNative();
-			final Class<?> jdicManagerC = uiClassLoader.loadClass(CLASS_JDIC_MANAGER);
-			final Object jdicManager = jdicManagerC.getMethod(METHOD_GET_MANAGER).invoke(null);
-			jdicManagerC.getMethod(METHOD_INIT_SHARE_NATIVE).invoke(jdicManager);
-			
-			if (!(uiClassLoader instanceof HelperClassLoader)) {
-				logger.debug("Wrapping the classloader into a HelperClassLoader for JDIC classes");
-				final File jdicStubJarFile = (File)jdicManagerC.getField(FIELD_JDIC_STUB_JAR_FILE).get(jdicManager);
-				final URL[] helperClassloaderURLs = { jdicStubJarFile.toURI().toURL() };
-				uiClassLoader = new HelperClassLoader(helperClassloaderURLs, uiClassLoader);
-			}
+			/*
+			 * Initializing Jdic 
+			 */
+			// JdicInit.init();
+			uiClassLoader.loadClass("org.paxle.desktop.backend.impl.jdic.JdicInit")
+						 .getMethod("init", (Class[])null)
+						 .invoke(null, (Object[])null);
 		}
 		
 		// use org.paxle.desktop.backend.*-tree and dialogues.Menu
 		final String diBackendCName = String.format("%s.%s.%s", BACKEND_IMPL_ROOT_PACKAGE, impl, CLASSSIMPLE_DI_BACKEND);
-		logger.debug("Loading " + diBackendCName + " using class-loader " + uiClassLoader);
 		
-		final Object dibackend = uiClassLoader.loadClass(diBackendCName).newInstance();
-		final Class<?> smC = uiClassLoader.loadClass(CLASS_SERVICE_MANAGER);
-		final Object sm = smC.getConstructor(uiClassLoader.loadClass(CLASS_BUNDLE_CONTEXT)).newInstance(context);
+		final IDIBackend dibackend = (IDIBackend) uiClassLoader.loadClass(diBackendCName).newInstance();		
+		final ServiceManager sm = new ServiceManager(context);
 		
-		final Class<?> idibackendC = uiClassLoader.loadClass(CLASS_IDI_BACKEND);
-		final Class<?> desktopServicesC = uiClassLoader.loadClass(CLASS_DESKTOP_SERVICES);
-		initObject = desktopServicesC.getConstructor(smC, idibackendC).newInstance(sm, dibackend);
-		context.registerService(CLASS_IDESKTOP_SERVICES, initObject, null);
-		shutdownMethod = desktopServicesC.getMethod(METHOD_SHUTDOWN);
+		this.initObject = new DesktopServices(sm,dibackend);
+		context.registerService(IDesktopServices.class.getName(), initObject, null);
 	}
 	
 	private static Bundle findBundle(BundleContext context, String symbolicName) {
 		for (Bundle b : context.getBundles()) {
 			final Object bundleSymbolicName = b.getHeaders().get(Constants.BUNDLE_SYMBOLICNAME);
 			final boolean eq = bundleSymbolicName.equals(symbolicName);
-			if (eq)
-				return b;
+			if (eq) return b;
 		}
 		return null;
-	}
-	
-	@SuppressWarnings("unchecked")
-	private static void copyNatives(BundleContext context) throws IOException {
-		logger.debug("copyNatives(): BundleContext: " + context);
-		Activator.libPath = context.getDataFile("").getCanonicalPath();
-
-		File libFile = null;
-		
-		Enumeration<URL> libs = findBundle(context, BACKEND_IMPL_ROOT_PACKAGE + '.' + IMPL_JDIC).findEntries(PATH_JDIC_LIBS, "*", true);
-		while (libs.hasMoreElements()) {
-			
-			// open the URL
-			URL lib = libs.nextElement();
-			
-			InputStream libIn = lib.openStream();
-			
-			// open a file
-			String fileName = lib.getFile();
-			int idx = fileName.lastIndexOf(PATH_JDIC_LIBS);
-			fileName = fileName.substring(idx + PATH_JDIC_LIBS.length());			
-			libFile = context.getDataFile(fileName);			
-			
-			if (!libFile.exists() && !fileName.endsWith("/")) {
-				File parent = libFile.getParentFile();
-				if (!parent.exists()) parent.mkdirs();
-				
-				FileOutputStream out = new FileOutputStream(libFile);
-				IOTools.copy(libIn,out);
-				out.close();
-			}
-		}
 	}
 }

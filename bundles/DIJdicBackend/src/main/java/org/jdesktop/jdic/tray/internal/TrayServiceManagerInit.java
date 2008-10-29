@@ -12,22 +12,15 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-package org.paxle.desktop.backend.impl.jdic;
+package org.jdesktop.jdic.tray.internal;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 
-public class Activator implements BundleActivator {
-
-	public void start(BundleContext arg0) throws Exception {
-		// TODO Auto-generated method stub
-		
+public class TrayServiceManagerInit {
+	public static void initServiceManager(ClassLoader cl, String plattformSuffix) throws SecurityException, NoSuchMethodException, ClassNotFoundException {
+			String stubName = "org.jdesktop.jdic.tray.internal.impl.ServiceManagerStub_" + plattformSuffix;
+			
+			ServiceManager.mdServiceManagerStub_getService = cl
+				.loadClass(stubName)
+				.getMethod("getService", new Class[]{String.class});
 	}
-
-	public void stop(BundleContext arg0) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
-

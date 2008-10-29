@@ -40,15 +40,18 @@
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						
 						<Import-Package>!*</Import-Package>
-						<Export-Package>!*</Export-Package>
+						<Export-Package>
+							org.jdesktop.*;-split-package:=merge-first,
+							!*
+						</Export-Package>
 						<Private-Package>
-							org.jdesktop.jdic.init,
-							org.paxle.desktop.backend.impl.jdic
+							org.paxle.desktop.backend.impl.jdic;-split-package:=merge-first
 						</Private-Package>
 						<DynamicImport-Package>
 							com.sun.jnlp, 
 							javax.swing,
 							sun.awt,
+							sun.awt.image,
 							sun.awt.X11		
 						</DynamicImport-Package>
 						<Bundle-Activator></Bundle-Activator>
@@ -57,8 +60,15 @@
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
-							jdic;scope=compile|runtime
-						</Embed-Dependency>						
+							jdic;scope=compile|runtime,
+							jdic.stub.windows;scope=compile|runtime,
+							jdic.stub.unix;scope=compile|runtime
+						</Embed-Dependency>
+						
+						<Bundle-NativeCode>							
+							binaries/linux/x86/libjdic.so;binaries/linux/x86/libtray.so;osname=Linux;processor=x86,
+							binaries/windows/x86/jdic.dll;binaries/windows/x86/tray.dll; osname=WindowsXP; osname=Windows XP; osname=WinXP; osname=WindowsVista; osname=Windows Vista;processor=x86	
+						</Bundle-NativeCode>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -75,7 +85,17 @@
 		<dependency>
 			<groupId>org.jdesktop.jdic</groupId>
 			<artifactId>jdic</artifactId>
-			<version>0.9.3</version>			
-		</dependency>	
+			<version>0.9.5</version>			
+		</dependency>
+		<dependency>
+			<groupId>org.jdesktop.jdic</groupId>
+			<artifactId>jdic.stub.windows</artifactId>
+			<version>0.9.5</version>			
+		</dependency>
+		<dependency>
+			<groupId>org.jdesktop.jdic</groupId>
+			<artifactId>jdic.stub.unix</artifactId>
+			<version>0.9.5</version>			
+		</dependency>
 	</dependencies>
 </project>
