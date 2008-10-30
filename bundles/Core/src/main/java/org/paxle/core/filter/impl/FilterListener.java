@@ -158,13 +158,11 @@ public class FilterListener implements ServiceListener {
 		}
 		
 		// the id's of the target queues
-		String targetIDs[] = this.getTargetIDs(reference.getProperty(IFilter.PROP_FILTER_TARGET));
-		if (targetIDs == null) {
-			this.logger.error("Unable to (un)register filter. No target-id found!");
-			return;
-		}				
+		String targetIDs[] = this.getTargetIDs(reference.getProperty(IFilter.PROP_FILTER_TARGET));			
 		
 		if (eventType == ServiceEvent.REGISTERED) {
+			int registrationCount = 0;
+			
 			// get a reference to the filter
 			IFilter<?> filter = (IFilter<?>) this.context.getService(reference);	
 
@@ -175,6 +173,7 @@ public class FilterListener implements ServiceListener {
 				filterPID = reference.getBundle().getSymbolicName() + "#" + filter.getClass().getName();
 			}
 			
+			// extraction filter-target annotations
 			final HashMap<String,FilterQueuePosition> annotProps = new HashMap<String,FilterQueuePosition>();
 			final FilterTarget target = filter.getClass().getAnnotation(FilterTarget.class);
 			if (target != null)
@@ -182,22 +181,33 @@ public class FilterListener implements ServiceListener {
 					annotProps.put(pos.value(), pos);
 			
 			// adding the filter to multiple targets
-			for (String targetParamString : targetIDs) {
-				final String[] params = targetParamString.split(";");
-				final FilterQueuePosition pos = annotProps.remove(params[0].trim());
-				this.filterManager.addFilter(this.generateFilterMetadata(
-						filterPID,
-						serviceID,
-						params,
-						filter,
-						pos
-				));
+			if (targetIDs != null) {
+				for (String targetParamString : targetIDs) {
+					final String[] params = targetParamString.split(";");
+					
+					/*
+					 * Filter properties defined via annotation were overwritten via
+					 * properties defined at service-registration time
+					 */
+					final FilterQueuePosition pos = annotProps.remove(params[0].trim());
+					
+					// register filter
+					this.filterManager.addFilter(this.generateFilterMetadata(
+							filterPID,
+							serviceID,
+							params,
+							filter,
+							pos
+					));
+					registrationCount++;
+				}
 			}
 			
 			// adding the filter to all targets defined only via annotation
 			final String[] params = new String[1];
 			for (final FilterQueuePosition pos : annotProps.values()) {
-				params[0] = pos.value();
+				params[0] = pos.value(); // filter-queue ID
+				
 				this.filterManager.addFilter(this.generateFilterMetadata(
 						filterPID,
 						serviceID,
@@ -205,9 +215,26 @@ public class FilterListener implements ServiceListener {
 						filter,
 						pos
 				));
+				
+				registrationCount++;
 			}
 
-			this.logger.info(String.format("Filter '%s' with serviceID '%s' registered.",filter.getClass().getName(), serviceID.toString()));			
+			if (registrationCount == 0) {
+				this.logger.warn(String.format(
+						"Filter '%s' with serviceID '%s' has neither defined an %s-annotation nor a %s-property. " +
+						"Skipping filter ...",
+						filter.getClass().getName(), 
+						serviceID.toString(),
+						FilterTarget.class.getSimpleName(),
+						IFilter.PROP_FILTER_TARGET
+				));
+			} else {
+				this.logger.info(String.format(
+						"Filter '%s' with serviceID '%s' registered.",
+						filter.getClass().getName(), 
+						serviceID.toString()
+				));
+			}
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			for (String targetID : targetIDs) {
 				this.filterManager.removeFilter(serviceID, targetID);
