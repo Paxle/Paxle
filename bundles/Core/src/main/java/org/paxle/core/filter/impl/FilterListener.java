@@ -236,8 +236,12 @@ public class FilterListener implements ServiceListener {
 				));
 			}
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
-			for (String targetID : targetIDs) {
-				this.filterManager.removeFilter(serviceID, targetID);
+			if (targetIDs != null) {
+				for (String targetID : targetIDs) {
+					this.filterManager.removeFilter(serviceID, targetID);
+				}
+			} else {
+				this.logger.error("Unregistration of filter without a %s-property is not possible at the moment");
 			}
 			this.logger.info(String.format("Filter with serviceID '%s' unregistered.",serviceID.toString()));	
 		} else if (eventType == ServiceEvent.MODIFIED) {
