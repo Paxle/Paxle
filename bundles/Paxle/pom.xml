@@ -493,9 +493,9 @@
 								<artifactItem>
 									<groupId>org.onelab.filter</groupId>
 									<artifactId>bloomfilter</artifactId>
-									<version>1.0</version>
+									<version>1.0a</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.onelab.filter.bloomfilter-1.0.jar</destFileName>
+									<destFileName>org.onelab.filter.bloomfilter-1.0a.jar</destFileName>
 								</artifactItem>
 
 								<!-- JFreeChart dependencies -->

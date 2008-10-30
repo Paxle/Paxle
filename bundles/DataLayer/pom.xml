@@ -131,7 +131,7 @@
 		<dependency>
 			<groupId>org.onelab.filter</groupId>
 			<artifactId>bloomfilter</artifactId>
-			<version>1.0</version>
+			<version>1.0a</version>
 		</dependency>
 		
 		<!-- hibernate dependencies -->
