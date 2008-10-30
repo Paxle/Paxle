@@ -82,7 +82,7 @@
 	<properties>
 		<!-- Eclipse Equinox related Properties -->
 		<equinox.dependencies>target/dependency/equinox</equinox.dependencies>
-		<equinox.runtime.jar>org.eclipse.osgi_3.4.0.v20080605-1900.jar</equinox.runtime.jar>
+		<equinox.runtime.jar>org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar</equinox.runtime.jar>
 		<equinox.bundledir>bundles</equinox.bundledir>
 		
 		<!-- Apache Felix related Properties -->
@@ -230,7 +230,7 @@
 								<artifactItem>
 									<groupId>org.eclipse.osgi</groupId>
 									<artifactId>osgi</artifactId>
-									<version>3.4.0.v20080605-1900</version>
+									<version>3.4.2.R34x_v20080826-1230</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>${equinox.runtime.jar}</destFileName>
 								</artifactItem>
@@ -254,9 +254,9 @@
 								<artifactItem>
 									<groupId>org.eclipse.equinox</groupId>
 									<artifactId>preferences</artifactId>
-									<version>3.2.200.v20080421-2006</version>
+									<version>3.2.201.R34x_v20080709</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.equinox.preferences_3.2.200.v20080421-2006.jar</destFileName>
+									<destFileName>org.eclipse.equinox.preferences_3.2.201.R34x_v20080709.jar</destFileName>
 								</artifactItem>
 
 								<artifactItem>
