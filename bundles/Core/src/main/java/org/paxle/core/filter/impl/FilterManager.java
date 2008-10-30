@@ -268,6 +268,37 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 		}
 	}
 	
+	public synchronized void removeFilter(Long serviceID) {
+		if (serviceID == null) throw new NullPointerException("The serviceID must not be null.");
+		
+		for (final Map.Entry<String,SortedSet<FilterContext>> entry : this.filters.entrySet()) {
+			final String targetID = entry.getKey();
+			final Set<FilterContext> registeredContexts = entry.getValue();
+			final Iterator<FilterContext> it = registeredContexts.iterator();
+			while (it.hasNext()) {
+				final FilterContext context = it.next();
+				if (context.getServiceID().equals(serviceID)) {
+					it.remove();
+					context.close();
+					
+					this.logger.info(String.format(
+							"Filter '%s' with service-id '%s' successfully removed from target '%s'.",
+							context.getFilter().getClass().getName(),
+							serviceID.toString(),
+							targetID
+					));
+					
+					// reset the filters for the queue
+					final IFilterQueue queue = this.queues.get(targetID);
+					if (queue != null)
+						setFilters(queue, registeredContexts, this.getEnabledFilters(targetID));
+					
+					break;
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Unregistering a {@link IFilter}
 	 * @param serviceID the {@link Constants#SERVICE_ID} of the {@link IFilter}

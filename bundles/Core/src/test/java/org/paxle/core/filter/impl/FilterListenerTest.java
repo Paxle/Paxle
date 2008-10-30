@@ -84,7 +84,7 @@ public class FilterListenerTest extends MockObjectTestCase {
 			final Long serviceID, 
 			final String servicePID, 
 			final String[] filterTarget, 
-			final IFilter filter, 
+			final IFilter<?> filter, 
 			final AddFilterAction addFilterAction
 	) {
 		return new Expectations(){{
@@ -123,9 +123,9 @@ public class FilterListenerTest extends MockObjectTestCase {
 		final String[] filterTarget = new String[]{
 				filterQueueID + ";" + IFilter.PROP_FILTER_TARGET_POSITION + "=" + filterQueuePos
 		};
-				
+		
 		// a dummy filter
-		final IFilter filter = mock(IFilter.class);				
+		final IFilter<?> filter = mock(IFilter.class);				
 		
 		final AddFilterAction addFilterAction = new AddFilterAction();
 		final ServiceReference sRef = mock(ServiceReference.class);
@@ -145,6 +145,13 @@ public class FilterListenerTest extends MockObjectTestCase {
 		assertEquals(serviceID, c.getServiceID());
 		assertSame(filter, c.getFilter());
 		assertTrue(c.isEnabled());
+		
+		// unregister the filter
+		checking(new Expectations() {{
+			one(fm).removeFilter(serviceID, filterTarget[0]);
+		}});
+		ServiceEvent unregisterEvent = new ServiceEvent(ServiceEvent.UNREGISTERING, sRef);
+		this.fl.serviceChanged(unregisterEvent);
 	}
 	
 	public void testRegisterFilterViaAnnotations() {
@@ -158,7 +165,7 @@ public class FilterListenerTest extends MockObjectTestCase {
 		class MyTestFilter implements IFilter<ICommand> {
 			public void filter(ICommand command, IFilterContext filterContext) {}			
 		}
-		final IFilter filter = new MyTestFilter();	
+		final IFilter<?> filter = new MyTestFilter();	
 		
 		
 		final AddFilterAction addFilterAction = new AddFilterAction();
@@ -179,6 +186,13 @@ public class FilterListenerTest extends MockObjectTestCase {
 		assertEquals(serviceID, c.getServiceID());
 		assertSame(filter, c.getFilter());
 		assertTrue(c.isEnabled());
+		
+		// unregister the filter
+		checking(new Expectations() {{
+			one(fm).removeFilter(serviceID);
+		}});
+		ServiceEvent unregisterEvent = new ServiceEvent(ServiceEvent.UNREGISTERING, sRef);
+		this.fl.serviceChanged(unregisterEvent);
 	}
 	
 	/**
