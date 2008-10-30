@@ -41,7 +41,6 @@ public class DNSFilter implements IFilter<ICommand> {
 		} catch (UnknownHostException e) {
 			command.setResult(ICommand.Result.Rejected, "unable to resolve hostname.");
 			logger.info("unable to resolve hostname " + command.getLocation() + ".");
-			e.printStackTrace();
 		}
 		
 		IParserDocument parserDoc = command.getParserDocument();

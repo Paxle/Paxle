@@ -542,9 +542,36 @@
 			</build>
 		</profile>
 
-
+    	<!-- ==================================================================== -->
+		<!-- ONLINE TESTS                                                         -->
+		<!-- online tests are skipped per default                                 -->
 		<!-- ==================================================================== -->
-		<!-- WEBINSTALLER PROFILE                                                    -->
+    	<profile>
+    		<id>skip-onlinetests-profile</id>
+			<activation>
+				<property>
+					<name>!maven.test.online</name>
+				</property>
+			</activation>    	
+    	
+    		<build>
+    			<plugins>
+    				<plugin>
+    					<groupId>org.apache.maven.plugins</groupId>
+    					<artifactId>maven-surefire-plugin</artifactId>
+    					<configuration>
+				          <excludes>
+				            <exclude>**/*OnlineTest.java</exclude>
+				          </excludes>
+    					</configuration>
+    				</plugin>
+    			</plugins>
+    		</build>
+    	</profile>
+
+
+    	<!-- ==================================================================== -->
+		<!-- WEBINSTALLER PROFILE                                                 -->
 		<!-- ==================================================================== -->
 		<profile>
 			<id>webinstaller-profile</id>
