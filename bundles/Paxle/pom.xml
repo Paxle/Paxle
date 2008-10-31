@@ -137,7 +137,7 @@
 	    		<plugin>
 	    			<groupId>org.codehaus.izpack</groupId>
 	    			<artifactId>izpack-maven-plugin</artifactId>
-	    			<version>1.0-alpha-3</version>
+	    			<version>1.0-alpha-4</version>
 	    		</plugin>
 	    		<plugin>
 	    			<groupId>org.codehaus.mojo</groupId>
