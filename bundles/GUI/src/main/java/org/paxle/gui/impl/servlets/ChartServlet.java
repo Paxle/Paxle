@@ -133,6 +133,17 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 	};
 	
 	private final HashMap<String,HashSet<String>> variableTree;	
+	
+	/**
+	 * A map containing the fullpath of a {@link StatusVariable} as key and the it's 
+	 * {@link StatusVariable#getType() type} as {@link Integer} 
+	 * 
+	 * This list is required by {@link #handleEvent(Event)} to parse the received value
+	 * 
+	 * @see #addVariables4Monitor(ServiceReference, HashSet, boolean)
+	 * @see #handleEvent(Event)
+	 */
+	private final HashMap<String,Integer> typeList;
 
 	/**
 	 * An OSGi bundle-context used to access other services registered to the system
@@ -168,6 +179,7 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 		this.context = context;
 		this.monitorService = monitorService;
 		
+		this.typeList = new HashMap<String, Integer>();
 		this.variableTree = new HashMap<String, HashSet<String>>();
 		this.buildVariableTree();
 		
@@ -190,7 +202,7 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 			final ServiceReference[] services = context.getServiceReferences(Monitorable.class.getName(), null);
 			if (services != null) {
 				for (ServiceReference reference : services) {
-					this.addVariables4Monitor(reference, variableNames);
+					this.addVariables4Monitor(reference, variableNames, true);
 				}
 				this.startScheduledJob(variableNames);
 			}
@@ -416,19 +428,46 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 		String name = (String) event.getProperty("mon.statusvariable.name");
 		Object value = event.getProperty("mon.statusvariable.value");
 		
-		String fullPath = pid + "/" + name;
-		TimeSeries series = this.seriesMap.get(fullPath); 
+		final String fullPath = pid + "/" + name;
+		final TimeSeries series = this.seriesMap.get(fullPath); 
 		if (series != null) {
-			if (value instanceof Number) {
-				Number num = (Number)value;
-				
-				if (fullPath.equalsIgnoreCase(TSERIES_MEMORY_USAGE)) {
-					num = new Integer(num.intValue() / ( 1024 * 1024));
-				} else if (fullPath.startsWith(CPU_MONITORABLE_ID)) {
-					num = new Double(num.doubleValue() * 100f);
+			Number num = null;
+			
+			/* 
+			 * According to the MA spec the values 
+			 * must be delivered as String 
+			 */
+			if (value instanceof String) {
+				Integer type = this.typeList.get(fullPath);
+				if (type != null) {
+					switch (type.intValue()) {
+						case StatusVariable.TYPE_FLOAT:
+							num = Float.valueOf((String)value);
+							break;
+						
+						case StatusVariable.TYPE_INTEGER:
+							num = Integer.valueOf((String)value);
+							break;							
+							
+						// these types are not supported by the chart-servlet for now
+						/*
+						case StatusVariable.TYPE_BOOLEAN:							
+						case StatusVariable.TYPE_STRING:
+						*/
+							
+						default:
+							break;
+					}
 				}
 				
-				series.addOrUpdate(new Minute(new Date()), num);
+			} 
+			/* 
+			 * XXX: this is a bug of the apache felix implementation.
+			 * As defined in the OSGi spec, the value should be delivered
+			 * as String
+			 */
+			else if (value instanceof Number) {
+				num = (Number)value;
 			} else {
 				this.logger.warn(String.format(
 						"Unexpected type of monitoring variable '%s/%s': %s",
@@ -436,6 +475,15 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 						pid,
 						name
 				));
+			}
+			
+			if (num != null) {
+				if (fullPath.equalsIgnoreCase(TSERIES_MEMORY_USAGE)) {
+					num = new Integer(num.intValue() / ( 1024 * 1024));
+				} else if (fullPath.startsWith(CPU_MONITORABLE_ID)) {
+					num = new Double(num.doubleValue() * 100f);
+				}				
+				series.addOrUpdate(new Minute(new Date()), num);
 			}
 		}
 	}
@@ -469,7 +517,7 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 				// stopping old monitoring-job
 				this.currentMonitorJob.stop();
 			} catch (NullPointerException e) {
-				// XXX this is a bug in the MA implementation ans should be ignored for now
+				// XXX this is a bug in the MA implementation and should be ignored for now
 				this.logger.debug(e);
 			}
 			this.currentMonitorJob = null;
@@ -477,7 +525,7 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 		
 		// getting variables of changed service
 		final HashSet<String> diffVariableNames = new HashSet<String>();
-		this.addVariables4Monitor(reference, diffVariableNames);
+		this.addVariables4Monitor(reference, diffVariableNames, eventType == ServiceEvent.REGISTERED);
 		
 		if (eventType == ServiceEvent.REGISTERED) {			
 			// adding new variable
@@ -494,13 +542,33 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 	 * Add the full-path of all {@link StatusVariable variables} of the given {@link Monitorable} into the set
 	 * @param reference a reference to a {@link Monitorable}
 	 * @param variableNames the set where the variable-names should be appended
+	 * @param determineType if <code>true</code> the type of the {@link StatusVariable} is determined via call to
+	 * 					    {@link StatusVariable#getType()} and stored into {@link #typeList}
 	 */
-	private void addVariables4Monitor(ServiceReference reference, HashSet<String> variableNames) {
+	private void addVariables4Monitor(ServiceReference reference, HashSet<String> variableNames, boolean determineType) {
 		String pid = (String) reference.getProperty(Constants.SERVICE_PID);
 		if (!variableTree.containsKey(pid)) return;
 		
 		for (String name : variableTree.get(pid)) {
-			variableNames.add(pid + "/" + name);
+			final String fullPath = pid + "/" + name;
+			
+			// append full-path
+			variableNames.add(fullPath);
+			
+			// getting the type of the status-variable
+			if (determineType) {
+				try {
+					Monitorable mon = (Monitorable) this.context.getService(reference);
+					StatusVariable var = mon.getStatusVariable(name);					
+					this.typeList.put(fullPath, new Integer(var.getType()));
+				} catch (Exception e) {
+					this.logger.error(String.format(
+							"Unexpected '%s' while trying to determine type of statusvariable '%s'.",
+							e.getClass().getName(),
+							fullPath
+					), e);
+				}
+			}
 		}
 	}
 	
