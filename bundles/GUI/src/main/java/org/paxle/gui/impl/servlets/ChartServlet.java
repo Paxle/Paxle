@@ -202,7 +202,7 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 			final ServiceReference[] services = context.getServiceReferences(Monitorable.class.getName(), null);
 			if (services != null) {
 				for (ServiceReference reference : services) {
-					this.addVariables4Monitor(reference, variableNames, true);
+					this.addVariables4Monitor(reference, variableNames, true, true);
 				}
 				this.startScheduledJob(variableNames);
 			}
@@ -397,27 +397,36 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 	 */
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String wStrg = request.getParameter("w");
-		int width = Integer.valueOf(wStrg == null ? "385": wStrg);
-		
-		String hStrg = request.getParameter("h");
-		int height = Integer.valueOf(hStrg == null ? "200": hStrg);
-		
-		// getting the reuested chart
-		String type = request.getParameter("t");
-		JFreeChart chart = this.chartMap.get(type);
-		if (chart == null) {
-			response.setStatus(404);
-			return;
+		String type = null;
+		try {
+			String wStrg = request.getParameter("w");
+			int width = Integer.valueOf(wStrg == null ? "385": wStrg);
+
+			String hStrg = request.getParameter("h");
+			int height = Integer.valueOf(hStrg == null ? "200": hStrg);
+
+			// getting the reuested chart
+			type = request.getParameter("t");
+			JFreeChart chart = this.chartMap.get(type);
+			if (chart == null) {
+				response.setStatus(404);
+				return;
+			}
+
+			// set response type
+			response.setContentType("image/png");		
+
+			// render image
+			ServletOutputStream out = response.getOutputStream();
+			ChartUtilities.writeChartAsPNG(out, chart, width, height);
+			out.flush();
+		} catch (Exception e) {			
+			this.logger.error(String.format(
+					"Unexpected '%s' while writing chart '%s'.",
+					e.getClass().getName(),
+					type
+			),e);
 		}
-				
-		// set response type
-		response.setContentType("image/png");		
-		
-		// render image
-		ServletOutputStream out = response.getOutputStream();
-		ChartUtilities.writeChartAsPNG(out, chart, width, height);
-		out.flush();
 	}
 
 	/**
@@ -429,6 +438,15 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 		Object value = event.getProperty("mon.statusvariable.value");
 		
 		final String fullPath = pid + "/" + name;
+		this.updateValue(fullPath, value);
+	}
+	
+	/**
+	 * Function to update charts with the newly received value 
+	 * @param fullPath the full-name of the changed {@link StatusVariable}
+	 * @param value the value of a {@link StatusVariable} received via event
+	 */
+	private void updateValue(String fullPath, Object value) {
 		final TimeSeries series = this.seriesMap.get(fullPath); 
 		if (series != null) {
 			Number num = null;
@@ -470,10 +488,10 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 				num = (Number)value;
 			} else {
 				this.logger.warn(String.format(
-						"Unexpected type of monitoring variable '%s/%s': %s",
+						"Unexpected type of monitoring variable '%s': %s",
 						value.getClass().getSimpleName(),
-						pid,
-						name
+						fullPath,
+						value.getClass().getName()
 				));
 			}
 			
@@ -525,7 +543,12 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 		
 		// getting variables of changed service
 		final HashSet<String> diffVariableNames = new HashSet<String>();
-		this.addVariables4Monitor(reference, diffVariableNames, eventType == ServiceEvent.REGISTERED);
+		this.addVariables4Monitor(
+				reference, 
+				diffVariableNames, 
+				eventType == ServiceEvent.REGISTERED,
+				eventType == ServiceEvent.REGISTERED
+		);
 		
 		if (eventType == ServiceEvent.REGISTERED) {			
 			// adding new variable
@@ -544,8 +567,10 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 	 * @param variableNames the set where the variable-names should be appended
 	 * @param determineType if <code>true</code> the type of the {@link StatusVariable} is determined via call to
 	 * 					    {@link StatusVariable#getType()} and stored into {@link #typeList}
+	 * @param updateCharts if determineType was enabled and this is <code>true</code> the current value of the {@link StatusVariable}
+	 * 	                   is used to update the chart via call to {@link #updateValue(String, Object)}
 	 */
-	private void addVariables4Monitor(ServiceReference reference, HashSet<String> variableNames, boolean determineType) {
+	private void addVariables4Monitor(ServiceReference reference, HashSet<String> variableNames, boolean determineType, boolean updateCharts) {
 		String pid = (String) reference.getProperty(Constants.SERVICE_PID);
 		if (!variableTree.containsKey(pid)) return;
 		
@@ -559,8 +584,33 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 			if (determineType) {
 				try {
 					Monitorable mon = (Monitorable) this.context.getService(reference);
-					StatusVariable var = mon.getStatusVariable(name);					
-					this.typeList.put(fullPath, new Integer(var.getType()));
+					StatusVariable var = mon.getStatusVariable(name);	
+					Integer type = new Integer(var.getType());
+					
+					this.typeList.put(fullPath, type);
+					
+					// updating charts if requested
+					if (updateCharts) {
+						String value = null;
+						switch (type.intValue()) {
+							case StatusVariable.TYPE_FLOAT:
+								value = Float.toString(var.getFloat());
+								break;
+							case StatusVariable.TYPE_INTEGER:
+								value = Integer.toString(var.getInteger());
+								break;								
+							case StatusVariable.TYPE_BOOLEAN:
+								value = Boolean.toString(var.getBoolean());
+								break;
+							case StatusVariable.TYPE_STRING:
+								value = var.getString();
+								break;
+							default:
+								break;
+						}
+						
+						this.updateValue(fullPath, value);
+					}
 				} catch (Exception e) {
 					this.logger.error(String.format(
 							"Unexpected '%s' while trying to determine type of statusvariable '%s'.",

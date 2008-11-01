@@ -25,20 +25,25 @@
 
 <script type="text/javascript">
 	var ajaxPopulater = function (id,reload){
-    	var url  = '${servletManager.getFullAlias("/overview")}?reload=' + reload;
-    	new Ajax.PeriodicalUpdater(id, url,   
-    	{
+    		var url  = '${servletManager.getFullAlias("/overview")}?reload=' + reload;
+    		new Ajax.PeriodicalUpdater(id, url,   
+    		{
 			method: 'post',
 			frequency: 5,
 			asynchronous: true,
 			decay: 1
 		});
    	};
+   	
+   	var initAjaxPopulater = function() {
+		ajaxPopulater('infoBoxSystem','system');
+		ajaxPopulater('infoBoxActivity','activity');
+		ajaxPopulater('infoBoxKnownDocuments','knownDocuments');
+		ajaxPopulater('infoBoxMemory','memory');   	
+   	}
    
-	ajaxPopulater('infoBoxSystem','system');
-	ajaxPopulater('infoBoxActivity','activity');
- 	ajaxPopulater('infoBoxKnownDocuments','knownDocuments');
-	ajaxPopulater('infoBoxMemory','memory');
+   	var timeout = 5000;
+	setTimeout("initAjaxPopulater()",5000);
 </script>
 
 ## Content
