@@ -29,6 +29,7 @@
 	<dl>
 		<dt>${text.ovDatabase.knownDocs}:</dt><dd>$monitorAdmin.getStatusVariable('org.paxle.lucene-db/docs.known').getInteger()</dd>
 	</dl>
+	<div class="lastUpdate">${text.lastUpdate.insert($dateTool.format('medium',$dateTool.getDate()))}</div>
 </fieldset>
 
 

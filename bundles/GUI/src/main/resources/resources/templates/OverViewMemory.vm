@@ -71,4 +71,5 @@
 			</td>
 		</tr>
 	</table>
+	<div class="lastUpdate">${text.lastUpdate.insert($dateTool.format('medium',$dateTool.getDate()))}</div>
 </fieldset>

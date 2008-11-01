@@ -51,6 +51,20 @@
 	#parse('/resources/templates/OverViewSystem.vm')
  </div>
 
+ <div id="infoBoxMemory">
+	#parse('/resources/templates/OverViewMemory.vm')
+ </div>
+ <br style="clear:left;" />
+
+ <div id="infoBoxKnownDocuments">
+	#parse('/resources/templates/OverViewKnownDocuments.vm')
+ </div>
+
+ <div id="infoBoxActivity">
+	#parse('/resources/templates/OverViewActivity.vm')
+ </div>
+ <br style="clear:left;" />
+ 
 <fieldset class="infobox" id="dhost">
 	<legend class="ovHost">${text.legend.ovHost}</legend>
 	<table>
@@ -69,15 +83,4 @@
 	</table>
 </fieldset>
 
- <div id="infoBoxMemory">
-	#parse('/resources/templates/OverViewMemory.vm')
- </div>
-
- <div id="infoBoxKnownDocuments">
-	#parse('/resources/templates/OverViewKnownDocuments.vm')
- </div>
-
- <div id="infoBoxActivity">
-	#parse('/resources/templates/OverViewActivity.vm')
- </div>
- <br style="clear:left;" />
+<br style="clear:left;" />

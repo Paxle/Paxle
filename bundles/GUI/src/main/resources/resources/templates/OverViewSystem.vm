@@ -41,7 +41,8 @@
 		</tr>
 		<tr>
 			<td><b>${text.ovSystem.osgi.insert($osgiVersion)}</b></td>
-			<td>by $frameworkVendor,<br />version $frameworkVersion</td>
+			<td>by $frameworkVendor,<br /> $frameworkVersion</td>
 		</tr>
 	</table>
+	<div class="lastUpdate">${text.lastUpdate.insert($dateTool.format('medium',$dateTool.getDate()))}</div>
 </fieldset>
