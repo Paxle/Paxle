@@ -20,7 +20,7 @@
 #set($dateFormat = ${text.logmsg.time.format})
 #if( $level <= $filterLogLevel)
 #set($levelName = $logLevelNames.get($level))
-$dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelName") - $logEntry.getMessage()#if( $logEntry.getException()) $logEntry.getException()#end
+$dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelName") - $logEntry.getMessage()#if($logEntry.getException()) $logView.toString($logEntry.getException())#end
 
 #end
 #end
@@ -69,7 +69,7 @@ $dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelNa
             	<tr>
             		<td class="log$levelName">$text.get("loglevel.$levelName")</td>
             		<td><tt>$dateTool.format("$dateFormat",$logEntry.getTime())</tt></td>
-            		<td><tt>$logEntry.getMessage()#if( $logEntry.getException()) <span class="exception">$logEntry.getException()</span>#end</tt>
+            		<td><tt>$logEntry.getMessage()#if( $logEntry.getException())<div class="exception">$logView.toString($logEntry.getException())</div>#end</tt>
             		</td>
             	</tr>
         	#end

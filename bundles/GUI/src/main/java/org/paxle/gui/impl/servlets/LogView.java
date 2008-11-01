@@ -14,6 +14,9 @@
 
 package org.paxle.gui.impl.servlets;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -80,13 +83,28 @@ public class LogView extends ALayoutServlet {
 				context.put("type", type);
 			}
 			
+			context.put("logView", this);
 			template = this.getTemplate("/resources/templates/LogView.vm");
-		} catch( Exception e ) {
-			System.err.println("Exception caught: " + e.getMessage());
-		} catch (Error e) {
-			e.printStackTrace();
+		} catch(Throwable e) {
+			this.logger.error(e);
 		}
 		
 		return template;
+	}
+	
+	public String toString(Throwable e) {
+		try {
+			ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			PrintStream errorOut = new PrintStream(bout,false,"UTF-8");
+			e.printStackTrace(errorOut);
+
+			errorOut.flush();
+			errorOut.close();
+			return bout.toString("UTF-8");
+		} catch (Exception ex) {
+			// should not occur
+			this.logger.error(e);
+			return null;
+		}
 	}
 }
