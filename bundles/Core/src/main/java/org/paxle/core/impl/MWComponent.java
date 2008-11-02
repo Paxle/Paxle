@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
@@ -50,6 +52,30 @@ import org.paxle.core.threading.impl.Pool;
  */
 public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, MetaTypeProvider, Monitorable {
 	private static final String VAR_NAME_PPM = "ppm";
+	private static final String VAR_NAME_PAUSED = "status.paused";
+	private static final String VAR_NAME_JOBS_ENQUEUED = "jobs.enqueued";
+	private static final String VAR_NAME_JOBS_ACTIVE = "jobs.active";
+	
+	/**
+	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(Arrays.asList(new String[]{
+			VAR_NAME_PPM,
+			VAR_NAME_PAUSED,
+			VAR_NAME_JOBS_ENQUEUED,
+			VAR_NAME_JOBS_ACTIVE
+	}));
+	
+	/**
+	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
+	static {
+		VAR_DESCRIPTIONS.put(VAR_NAME_PPM, "Pages per minute");
+		VAR_DESCRIPTIONS.put(VAR_NAME_PAUSED, "Current activation status");
+		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_ENQUEUED, "Amount of enqueued jobs");
+		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_ACTIVE, "Amount of active jobs");
+	}
 	
 	public static final String PROP_POOL_MIN_IDLE = "pool.minIdle";
 	public static final String PROP_POOL_MAX_IDLE = "pool.maxIdle";
@@ -416,28 +442,38 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	 * @see Monitorable#getStatusVariableNames()
 	 */
 	public String[] getStatusVariableNames() {
-		return new String[] {VAR_NAME_PPM};
+		return VAR_NAMES.toArray(new String[VAR_NAMES.size()]);
 	}	
 	
 	/**
 	 * @see Monitorable#getDescription(String)
 	 */
 	public String getDescription(String name) throws IllegalArgumentException {
-		if (!VAR_NAME_PPM.equals(name)) {
+		if (!VAR_NAMES.contains(name)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		
-		return "Pages per minute";
+		return VAR_DESCRIPTIONS.get(name);
 	}
 
 	/**
 	 * @see Monitorable#getStatusVariable(String)
 	 */
 	public StatusVariable getStatusVariable(String name) throws IllegalArgumentException {
-		if (!VAR_NAME_PPM.equals(name)) {
+		if (!VAR_NAMES.contains(name)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
-		return new StatusVariable(name, StatusVariable.CM_CC, this.getPPM());
+		
+		if (name.equals(VAR_NAME_PPM)) {
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getPPM()));
+		} else if (name.equals(VAR_NAME_PAUSED)) {
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Boolean(this.isPaused()));
+		} else if (name.equals(VAR_NAME_JOBS_ACTIVE)) {
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getActiveJobCount()));
+		} else if (name.equals(VAR_NAME_JOBS_ENQUEUED)) {
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getEnqueuedJobCount()));
+		}
+		return null;
 	}
 
 	/**
