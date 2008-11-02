@@ -108,6 +108,10 @@ th {
 	border-bottom: 1px solid #96825F;
 }
 
+th.sub {
+	background-color: #ece6cf;
+}
+
 tr:hover {
 	background-color: #F9F8E0;
 }

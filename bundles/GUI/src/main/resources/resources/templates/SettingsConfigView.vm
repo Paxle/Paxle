@@ -184,8 +184,9 @@
 		</tr>
 		#set($color = $alternatorTool.auto('r1','r2'))
 		
-    	## loop through each bundle to see if there are any metatypes	
-    	#foreach($bundle in $manager.getBundles())    		
+    		## loop through each bundle to see if there are any metatypes	
+    		#foreach($bundle in $manager.getBundles())
+    			#set($ocdCounter = 0)    			
 			#foreach($PID in ${settingsView.getMetaTypePIDs($manager,$bundle)})
 
 				## load service metatypes
@@ -193,6 +194,11 @@
 
 				## display data
 				#if($ocd && (!$paramParser.getString("viewImportedConfig") || ${importedConfigProps.containsKey($PID)}))
+					#if($ocdCounter == 0)
+						#set($bundleHeaders = $bundle.getHeaders())
+			    			<tr><th class="sub" colspan="3">$bundleHeaders.get('Bundle-Name')</th></tr>
+			    		#end
+			    		#set($ocdCounter = $ocdCounter + 1) 
 					<tr class="$color">
 						<td><img src="?settings=config&amp;bundleID=${bundle.getBundleId()}&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/></td>
 						<td>
@@ -207,7 +213,7 @@
 						</td>
 					</tr>							
 				#end
-    		#end
+    			#end
 		#end
 		</table>
 		
