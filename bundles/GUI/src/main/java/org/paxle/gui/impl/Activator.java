@@ -51,6 +51,7 @@ import org.paxle.gui.impl.servlets.ChartServlet;
 import org.paxle.gui.impl.servlets.CrawlerView;
 import org.paxle.gui.impl.servlets.LogView;
 import org.paxle.gui.impl.servlets.LoginView;
+import org.paxle.gui.impl.servlets.MonitorableView;
 import org.paxle.gui.impl.servlets.OpenSearchDescription;
 import org.paxle.gui.impl.servlets.OverView;
 import org.paxle.gui.impl.servlets.QueueView;
@@ -119,6 +120,7 @@ public class Activator implements BundleActivator {
 		registerServlet("/config", new SettingsView(), "Settings",new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
 		registerServlet("/threads", new TheaddumpView(), null);
 		registerServlet("/overview", new OverView(), "Overview");
+		registerServlet("/monitorable", new MonitorableView(), null);
 		registerServlet("/sysdown", new SysDown(), null, new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
 		registerServlet("/login", new LoginView(), null);
 		RobotsTxt rt = new RobotsTxt();
