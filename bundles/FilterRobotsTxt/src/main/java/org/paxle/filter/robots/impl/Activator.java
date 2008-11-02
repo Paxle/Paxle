@@ -45,7 +45,7 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext bc) throws Exception {
-		final String dataPath = System.getProperty("paxle.data") + File.pathSeparator + DB_PATH;
+		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + DB_PATH;
 		
 		// testing if the DB4o Service is available
 		ServiceReference db4oServiceRef = bc.getServiceReference("com.db4o.osgi.Db4oService");

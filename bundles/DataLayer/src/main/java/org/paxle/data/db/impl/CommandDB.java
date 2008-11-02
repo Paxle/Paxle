@@ -299,7 +299,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	}
 	
 	private File getCreateCacheDir() {
-		final String dataPath = System.getProperty("paxle.data") + File.pathSeparator + CACHE_DIR;
+		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + CACHE_DIR;
 		final File cacheDir = new File(dataPath);
 		if (!cacheDir.exists())
 			cacheDir.mkdirs();
