@@ -185,5 +185,5 @@ public class CommandDBTest extends MockObjectTestCase {
 		
 		// start test
 		this.storeUnknownLocation();
-	}	
+	}
 }

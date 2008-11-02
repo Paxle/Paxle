@@ -173,7 +173,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				}
 				
 				// post-processing of read properties
-				this.postProcessProperties(this.config);
+				ConnectionUrlTool.postProcessProperties(this.config);
 				
 				// load the various mapping files
 				for (URL mapping : mappings) {
@@ -218,24 +218,6 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					e.getClass().getName()
 			),e);
 			throw new RuntimeException(e);
-		}
-	}
-	
-	private void postProcessProperties(Configuration configuration) {
-		// the paxle data path
-		String paxleDataPath = System.getProperty("paxle.data");
-		
-		// getting db-config-properties
-		Properties configProps = configuration.getProperties();
-		
-		String connectionURL = configProps.getProperty("connection.url");
-		if (connectionURL != null && connectionURL.contains("${paxle.data}")) {
-			configuration.setProperty("connection.url", connectionURL.replaceAll("\\$\\{paxle.data\\}", paxleDataPath));
-		}
-		
-		connectionURL = configProps.getProperty("hibernate.connection.url");
-		if (connectionURL != null && connectionURL.contains("${paxle.data}")) {
-			configuration.setProperty("hibernate.connection.url", connectionURL.replaceAll("\\$\\{paxle.data\\}", paxleDataPath));
 		}
 	}
 	
