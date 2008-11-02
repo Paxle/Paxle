@@ -31,7 +31,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bc) throws Exception {
 		
 		// creating blacklist data dir
-		final String dataPath = System.getProperty("paxle.data") + "/blacklist";		
+		final String dataPath = System.getProperty("paxle.data") + File.pathSeparator + "blacklist";		
 		File list = new File(dataPath);
 		list.mkdirs();
 		new File(list, "default.list");

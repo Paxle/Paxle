@@ -61,7 +61,7 @@ public class Activator implements BundleActivator {
 		}
 		
 		// check whether directory is locked from previous runs
-		final String dataPath = System.getProperty("paxle.data") + "/" + DB_PATH;
+		final String dataPath = System.getProperty("paxle.data") + File.pathSeparator + DB_PATH;
 		final File writeLock = new File(dataPath, "write.lock");
 		if (writeLock.exists()) {
 			logger.warn("Lucene index directory is locked, removing lock. " +
