@@ -36,13 +36,20 @@
 	#set($monitorables = $monitorAdmin.getMonitorableNames())
 	#if($monitorables)		
 		<table>
-		#foreach($monitorable in $monitorables)
+		<tr>
+			<th>${text.tab.varName}</th>
+			<th>${text.tab.varType}</th>
+			<th>${text.tab.varDate}</th>
+			<th>${text.tab.varValue}</th>
+			<th>${text.tab.varDesc}</th>
+		</tr>
+		#foreach($monitorable in $sortTool.sort($monitorables))
 			#set($statusVariables = $monitorAdmin.getStatusVariables($monitorable))
 			#if($statusVariables)				
 				<tr>
-					<th colspan="5">$monitorable</th>
+					<th class="sub" colspan="5">$monitorable</th>
 				</tr>			
-				#foreach($statusVariable in $statusVariables)
+				#foreach($statusVariable in $sortTool.sort($statusVariables,["ID:asc"]))
 				<tr>
 					<td><tt><b>$statusVariable.getID()</b></tt></td>
 					<td><tt>$listTool.get($dataTypes,$statusVariable.getType())</tt></td>
