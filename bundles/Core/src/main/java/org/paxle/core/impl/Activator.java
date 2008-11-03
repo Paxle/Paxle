@@ -54,6 +54,7 @@ import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.impl.AscendingPathUrlExtractionFilter;
 import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
+import org.paxle.core.impl.monitoring.JmxMonitoring;
 import org.paxle.core.impl.monitoring.RuntimeMemoryMonitoring;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.IResourceBundleTool;
@@ -190,9 +191,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		 * Register Services
 		 * ========================================================== */
 		// register runtime-memory monitorable
-		final Hashtable<String,Object> rmmProps = new Hashtable<String,Object>();
-		rmmProps.put(Constants.SERVICE_PID, RuntimeMemoryMonitoring.SERVICE_PID);
-		bc.registerService(Monitorable.class.getName(), new RuntimeMemoryMonitoring(), rmmProps);
+		this.createAndRegisterMonitorables(bc);
 		
 		// register the master-worker-factory as a service
 		bc.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(
@@ -240,6 +239,22 @@ public class Activator implements BundleActivator, InvocationHandler {
         }
         
         this.initEclipseApplication(bc);
+	}
+	
+	private void createAndRegisterMonitorables(BundleContext bc) {
+		// Java Runtime monitorable
+		final Hashtable<String,Object> rmmProps = new Hashtable<String,Object>();
+		rmmProps.put(Constants.SERVICE_PID, RuntimeMemoryMonitoring.SERVICE_PID);
+		bc.registerService(Monitorable.class.getName(), new RuntimeMemoryMonitoring(), rmmProps);
+		
+		// JMX monitorable
+		try {
+			final Hashtable<String,Object> jmxProps = new Hashtable<String,Object>();
+			jmxProps.put(Constants.SERVICE_PID, JmxMonitoring.SERVICE_PID);
+			bc.registerService(Monitorable.class.getName(), new JmxMonitoring(), jmxProps);
+		} catch (Throwable e) {
+			this.logger.error(e);
+		}
 	}
 	
 	private IPropertiesStore createAndRegisterPropertyStore(BundleContext bc) {

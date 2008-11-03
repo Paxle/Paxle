@@ -72,6 +72,9 @@
 							org.apache.commons.pool;version="1.4",
 							org.apache.commons.pool.impl;version="1.4"
 						</Import-Package>
+						<DynamicImport-Package>
+							com.sun.management
+						</DynamicImport-Package>
 						<Private-Package>
 							org.paxle.core.impl,
 							org.paxle.core.impl.monitoring,
