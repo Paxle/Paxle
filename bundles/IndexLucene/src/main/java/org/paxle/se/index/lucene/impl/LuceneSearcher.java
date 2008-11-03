@@ -17,10 +17,14 @@ package org.paxle.se.index.lucene.impl;
 import java.io.Closeable;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.LucenePackage;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.queryParser.QueryParser;
@@ -37,9 +41,37 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
 	
 	public static final String PID = "org.paxle.lucene-db";
 	
-	public static final String MONITOR_SIZE = "docs.known";
+	/* ====================================================================
+	 * Names of MA StatusVariables
+	 * ==================================================================== */
+	private static final String VAR_NAME_KNOWN_DOCS = "docs.known";
+	private static final String VAR_NAME_LUCENE_IMPL_VERSION = "lucene.impl.version";
+	private static final String VAR_NAME_LUCENE_SPEC_VERSION = "lucene.spec.version";
 	
+	/**
+	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(Arrays.asList(new String[]{
+			VAR_NAME_KNOWN_DOCS,
+			VAR_NAME_LUCENE_IMPL_VERSION,
+			VAR_NAME_LUCENE_SPEC_VERSION
+	}));
+	
+	/**
+	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
+	static {
+		VAR_DESCRIPTIONS.put(VAR_NAME_KNOWN_DOCS, "Number of documents in the index.");
+		VAR_DESCRIPTIONS.put(VAR_NAME_LUCENE_IMPL_VERSION, "Lucene implementation version.");
+		VAR_DESCRIPTIONS.put(VAR_NAME_LUCENE_SPEC_VERSION, "Lucene specification version.");
+	}	
+	
+	/**
+	 * For logging
+	 */
 	private final Log logger = LogFactory.getLog(LuceneSearcher.class);
+	
 	private final LuceneQueryFactory ltf = new LuceneQueryFactory(IIndexerDocument.TEXT, IIndexerDocument.TITLE);
 	private final AFlushableLuceneManager manager;
 	
@@ -103,21 +135,38 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
 	 * ====================================================================== */
 	
 	public String getDescription(String id) throws IllegalArgumentException {
-		if (id.equals(MONITOR_SIZE))
-			return "Indexed documents";
-		
-		throw new IllegalArgumentException("no such variable '" + id + "'");
+		if (!VAR_NAMES.contains(id))
+			throw new IllegalArgumentException("no such variable '" + id + "'");
+
+		return VAR_DESCRIPTIONS.get(id);
 	}
 	
 	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {
-		if (id.equals(MONITOR_SIZE))
-			return new StatusVariable(MONITOR_SIZE, StatusVariable.CM_CC, getDocCount());
+		if (id.equals(VAR_NAME_KNOWN_DOCS)) {
+			return new StatusVariable(
+					VAR_NAME_KNOWN_DOCS, 
+					StatusVariable.CM_CC, 
+					this.getDocCount()
+			);
+		} else if (id.equals(VAR_NAME_LUCENE_IMPL_VERSION)) {
+			return new StatusVariable(
+					VAR_NAME_LUCENE_IMPL_VERSION, 
+					StatusVariable.CM_SI,
+					LucenePackage.class.getPackage().getImplementationVersion()
+			);
+		} else if (id.equals(VAR_NAME_LUCENE_SPEC_VERSION)) {
+			return new StatusVariable(
+					VAR_NAME_LUCENE_SPEC_VERSION, 
+					StatusVariable.CM_SI,
+					LucenePackage.class.getPackage().getSpecificationVersion()
+			);
+		}
 		
 		throw new IllegalArgumentException("no such variable '" + id + "'");
 	}
 	
 	public String[] getStatusVariableNames() {
-		return new String[] { MONITOR_SIZE };
+		return VAR_NAMES.toArray(new String[VAR_NAMES.size()]);
 	}
 	
 	public boolean notifiesOnChange(String id) throws IllegalArgumentException {
