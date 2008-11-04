@@ -22,6 +22,4 @@ $screen_content
 ##see http://wiki.paxle.net/dev/bundles/gui
 #if($contenttype)
 	#parse('/resources/templates/headers/SetContentType.vm')
-#else
-	$response.setHeader("Content-Type","text/plain; charset=utf-8")
 #end
