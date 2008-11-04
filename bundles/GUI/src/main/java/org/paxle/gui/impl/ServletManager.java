@@ -153,7 +153,7 @@ public class ServletManager implements IServletManager, ManagedService {
 					if (((ALayoutServlet)servlet).getBundleLocation() != null) {
 						props.put("bundle.location", ((ALayoutServlet)servlet).getBundleLocation());
 					}
-					((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory());
+					((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory(new ServiceManager()));
 				}
 				
 				this.http.registerServlet(fullAlias, servlet, props, httpContext);

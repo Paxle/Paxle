@@ -34,13 +34,8 @@ public class SearchView extends ALayoutServlet {
 	public static final String PARAM_QUERY = "query";
 	
 	@Override
-	public Template handleRequest( 
-			HttpServletRequest request,
-			HttpServletResponse response,
-			Context context 
-	) {
+	protected void fillContext(Context context, HttpServletRequest request) {
 
-		Template template = null;
 		String format = request.getParameter(PARAM_FORMAT);
 		try {
 			IServiceManager manager = (IServiceManager) context.get(SERVICE_MANAGER);
@@ -49,6 +44,7 @@ public class SearchView extends ALayoutServlet {
 				// context.put("searchQuery", request.getParameter("query"));
 				final String query = request.getParameter(PARAM_QUERY);
 				context.put("searchQuery", query);
+				
 				final Object isearchProviderManager = manager.getService("org.paxle.se.search.ISearchProviderManager");
 				if (isearchProviderManager == null) {
 					context.put("seBundleNotInstalled", Boolean.TRUE);
@@ -104,20 +100,40 @@ public class SearchView extends ALayoutServlet {
 			if (format != null && format.equalsIgnoreCase("rss")) {
 				// we need to choose a different layout 
 				context.put("layout", "plain.vm");
-				
-				// setting the proper mimetype + charset
-				response.setContentType("application/rss+xml; charset=utf-8");
-				
-				// the template to use
-				template = this.getTemplate("/resources/templates/SearchViewRss.vm");
-			} else {
-				// the template to use
-				template = this.getTemplate("/resources/templates/SearchViewHtml.vm");
 			}
 		} catch (Exception e) {
 			this.logger.error("Error",e);
 		}
-		return template;
+	}
+	
+	/**
+	 * Choosing the template to use 
+	 */
+	@Override
+	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
+		final String format = request.getParameter(PARAM_FORMAT);
+		
+		/*
+		 * Choose the output format to use
+		 */
+		if (format != null && format.equalsIgnoreCase("rss")) {
+			return this.getTemplate("/resources/templates/SearchViewRss.vm");
+		} else {
+			return this.getTemplate("/resources/templates/SearchViewHtml.vm");
+		}
 	}
 
+	/**
+	 * Configuring the content type to return
+	 */
+    protected void setContentType(HttpServletRequest request, HttpServletResponse response) {
+    	final String format = request.getParameter(PARAM_FORMAT);
+    	if (format != null && format.equalsIgnoreCase("rss")) {
+			// setting the proper mimetype + charset
+			response.setContentType("application/rss+xml; charset=utf-8");
+    	} else {
+    		// using the default content-type
+    		super.setContentType(request, response);
+    	}
+    }
 }

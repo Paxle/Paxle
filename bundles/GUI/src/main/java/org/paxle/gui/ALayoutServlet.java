@@ -15,6 +15,7 @@
 package org.paxle.gui;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -75,13 +76,40 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 	@Override
 	public void init(ServletConfig config) throws javax.servlet.ServletException {	
 		this.view = this.viewFactory.createVelocityView(config);	
-		super.init(config);			
+		super.init(config);
 	};
+	
+	protected IServiceManager getServiceManager() {
+		ServletConfig sConfig = this.getServletConfig();
+		if (sConfig == null) return null;
+		
+		ServletContext sContext = sConfig.getServletContext();
+		if (sContext == null) return null;
+		
+		return (IServiceManager) sContext.getAttribute(SERVICE_MANAGER);
+	}
 	
 	/**
 	 * @deprecated This will be removed in VelocityTools 2.1.
 	 */
 	@Override
 	@Deprecated
-	public abstract Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception;
+	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
+		return super.handleRequest(request, response, context);
+	}
+	
+	/**
+	 * TODO: this needs to be implemented by all our servlets
+	 */
+	@Override
+    protected void fillContext(Context context, HttpServletRequest request) {
+        // this implementation does nothing
+    }
+	
+	/**
+	 * TODO: this needs to be implemented by all our servlets
+	 */
+	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
+		return super.getTemplate(request, response);
+	}
 }

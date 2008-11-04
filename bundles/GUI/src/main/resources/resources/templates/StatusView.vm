@@ -85,15 +85,7 @@
 	#set( $crawlers = $manager.getServices( "org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
 	#if ( $crawlers)
 		#foreach( $crawler in $crawlers)
-			#if( $doPause && $doPause == true)
-				$crawler.pause()
-			#elseif( $doResume && $doResume == true)
-				$crawler.resume()	
-			#elseif( $doProcessNextCrawl && $doProcessNextCrawl == true)				
-				$crawler.processNext()
-			#end
-			
-			#if( $crawler.isPaused() == true)
+			#if($crawler.isPaused())
 				${text.crawler.status.paused.insert('statusPaused')}				
 				<form method="get" action="#dcrawler">
 					<p>

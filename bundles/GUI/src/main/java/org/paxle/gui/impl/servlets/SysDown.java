@@ -27,11 +27,8 @@ public class SysDown extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
 	@Override
-	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context)
-	{
-		Template template = null;
-		IServiceManager manager = (IServiceManager) context.get(SERVICE_MANAGER);
-		
+	protected void fillContext(Context context, HttpServletRequest request) {
+		IServiceManager manager = (IServiceManager) context.get(SERVICE_MANAGER);		
 		try {
 			
 			int shutdownDelay = 5;
@@ -44,13 +41,16 @@ public class SysDown extends ALayoutServlet {
 				manager.shutdownFrameworkDelayed(shutdownDelay);
 				context.put("restart", Boolean.FALSE);
 			}
-			
-			template = this.getTemplate("/resources/templates/SysDown.vm");
 		} catch( Exception e ) {
-			System.err.println("Exception caught: " + e.getMessage());
+			this.logger.error(e);
 		}
-		
-		return template;
 	}
 	
+	/**
+	 * Choosing the template to use 
+	 */
+	@Override
+	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
+		return this.getTemplate("/resources/templates/SysDown.vm");
+	}
 }

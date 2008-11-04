@@ -19,61 +19,79 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.osgi.framework.InvalidSyntaxException;
+import org.paxle.core.IMWComponent;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IServiceManager;
 
 public class StatusView extends ALayoutServlet {
-
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Template handleRequest( 
-			HttpServletRequest request,
-			HttpServletResponse response,
-			Context context 
-			) {
-		Template template = null;
-		try {        	
+	protected void doRequest(HttpServletRequest request, HttpServletResponse response) {
+		try {  			
 			if (request.getParameter("pauseCrawl") != null) {
-				context.put("doPause", Boolean.TRUE);
+				IMWComponent<?> crawler = this.getCrawler();
+				if (crawler != null) crawler.pause();
 				response.sendRedirect(request.getServletPath() + "#dcrawler");
 			} else if (request.getParameter("resumeCrawl") != null) {
-				context.put("doResume", Boolean.TRUE);
+				IMWComponent<?> crawler = this.getCrawler();
+				if (crawler != null) crawler.resume();
 				response.sendRedirect(request.getServletPath() + "#dcrawler");
 			} else if (request.getParameter("processNextCrawl") != null) {
-				context.put("doProcessNextCrawl", Boolean.TRUE);
+				IMWComponent<?> crawler = this.getCrawler();
+				if (crawler != null) crawler.processNext();
 				response.sendRedirect(request.getServletPath() + "#dcrawler");
-			} 
-
-			if (request.getParameter("shutdown") != null) {
+			} else if (request.getParameter("shutdown") != null) {
+				// redirecting to shutdown-servlet
 				response.sendRedirect("/sysdown?restart=false");
 			} else if (request.getParameter("restart") != null) {
+				// redirecting to shutdown-servlet
 				response.sendRedirect("/sysdown?restart=true");
-			} else {
-				// adding servlet to context
-				context.put("statusView",this);
-				context.put("servletContext", this.getServletConfig().getServletContext());
-				
-				/*
-				 * Setting template parameters
-				 */             
-				template = this.getTemplate("/resources/templates/StatusView.vm");
+			} else {		
+				super.doRequest(request, response);
 			}
-		} catch( Exception e ) {
-			e.printStackTrace();
-		} catch (Error e) {
-			e.printStackTrace();
-		}
-		return template;
+		} catch (Throwable e) {
+			this.logger.error(e);
+		}		
 	}
 	
+	protected void fillContext(Context context, HttpServletRequest request) {
+		try {        	
+			// adding servlet to context
+			context.put("statusView",this);
+			context.put("servletContext", this.getServletConfig().getServletContext());
+		} catch (Throwable e) {
+			this.logger.error(e);
+		}
+	}
+	
+	/**
+	 * Choosing the template to use 
+	 */
+	@Override
+	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
+		return this.getTemplate("/resources/templates/StatusView.vm");
+	}	
+	
+	private IMWComponent<?> getCrawler() throws InvalidSyntaxException {
+		IServiceManager sm = this.getServiceManager();
+		Object[] crawlers = sm.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)");		
+		if (crawlers == null && crawlers.length == 0) return null;
+		return (IMWComponent<?>) crawlers[0];
+	}
+	
+	/**
+	 * @return a reference to the {@link net.sf.ehcache.CacheManager EhCache-Cachemanager}
+	 */
 	public Object getCacheManager() {
 		try {
 			return Thread.currentThread().getContextClassLoader()
-			.loadClass("net.sf.ehcache.CacheManager")
-			.getMethod("getInstance", (Class[]) null)
-			.invoke(null, (Object[]) null);
+				.loadClass("net.sf.ehcache.CacheManager")
+				.getMethod("getInstance", (Class[]) null)
+				.invoke(null, (Object[]) null);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			this.logger.error(e);
 			return null;
 		}			
 	}

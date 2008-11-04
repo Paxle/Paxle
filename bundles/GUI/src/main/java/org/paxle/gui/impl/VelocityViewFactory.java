@@ -18,9 +18,15 @@ import javax.servlet.ServletConfig;
 
 import org.apache.velocity.tools.view.JeeConfig;
 import org.apache.velocity.tools.view.VelocityView;
+import org.paxle.gui.IServiceManager;
 import org.paxle.gui.IVelocityViewFactory;
 
 public class VelocityViewFactory implements IVelocityViewFactory {
+	private IServiceManager sm;
+	
+	public VelocityViewFactory(IServiceManager serviceManager) {
+		this.sm = serviceManager;
+	}
 
 	public VelocityView createVelocityView(ServletConfig config) {
 		ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -29,6 +35,7 @@ public class VelocityViewFactory implements IVelocityViewFactory {
 		VelocityView view = new PaxleVelocityView(new JeeConfig(config));
 		if (oldCl != null) Thread.currentThread().setContextClassLoader(oldCl);
 		
+		config.getServletContext().setAttribute("manager", this.sm);		
 		return view;
 	}
 
