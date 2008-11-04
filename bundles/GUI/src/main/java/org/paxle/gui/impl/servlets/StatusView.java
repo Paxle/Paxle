@@ -44,9 +44,11 @@ public class StatusView extends ALayoutServlet {
 				response.sendRedirect(request.getServletPath() + "#dcrawler");
 			} else if (request.getParameter("shutdown") != null) {
 				// redirecting to shutdown-servlet
+				// TODO: servlet-path prefix handling required here
 				response.sendRedirect("/sysdown?restart=false");
 			} else if (request.getParameter("restart") != null) {
 				// redirecting to shutdown-servlet
+				// TODO: servlet-path prefix handling required here
 				response.sendRedirect("/sysdown?restart=true");
 			} else {		
 				super.doRequest(request, response);

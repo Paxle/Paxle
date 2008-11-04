@@ -40,26 +40,24 @@ public class RobotsTxt extends ALayoutServlet implements ManagedService {
 	public static final String ROBOTSTXT = PID + '.' + "robotstxt-txt";
 	
 	@Override
-	public Template handleRequest( 
-			HttpServletRequest request,
-			HttpServletResponse response,
-			Context context 
-	) {
-
-		Template template = null;
-		try {
-			template = this.getTemplate("/resources/templates/RobotsTxt.vm");
-		} catch (Exception e) {
-			this.logger.error("Error",e);
-		}
-
+	protected void fillContext(Context context, HttpServletRequest request) {
 		context.put("layout", "plain.vm");
-		
 		context.put("robotstxt", config.get(ROBOTSTXT));
-		
-		return template;
 	}
 
+	/**
+	 * Choosing the template to use 
+	 */
+	@Override
+	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
+		return this.getTemplate("/resources/templates/RobotsTxt.vm");
+	}
+	
+	@Override
+	protected void setContentType(HttpServletRequest request, HttpServletResponse response) {
+		response.setContentType("text/plain; charset=UTF-8");
+	}
+	
 	@SuppressWarnings("unchecked")
 	public void updated(Dictionary properties) throws ConfigurationException {
 		logger.info("Updating configuration");
@@ -80,7 +78,10 @@ public class RobotsTxt extends ALayoutServlet implements ManagedService {
 	public Hashtable<String,Object> getDefaults() {
 		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 
-		defaults.put(ROBOTSTXT, "User-agent: *\nDisallow: /");
+		defaults.put(ROBOTSTXT, 
+				"User-agent: *\n" +
+				"Disallow: /"
+		);
 		defaults.put(Constants.SERVICE_PID, PID);
 
 		return defaults;

@@ -30,49 +30,44 @@ public class QueueView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
     
 	@Override
-	public Template handleRequest( 
-    		HttpServletRequest request,
-            HttpServletResponse response,
-            Context context 
-    ) {
-        
-        Template template = null;
+	protected void fillContext(Context context, HttpServletRequest request) {
+		try {
+			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
 
-        try {
-        	ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
-        	
-        	String queue = request.getParameter("queue");
-            if (queue != null && queue.length() > 0) {
-            	Object[] services = manager.getServices("org.paxle.core.IMWComponent","(component.ID="+queue+")");
-                if (services != null && services.length == 1 && services[0] instanceof IMWComponent) {
-                	List<?> activeJobs = ((IMWComponent<?>)services[0]).getActiveJobs();
-                	context.put("activeJobs", activeJobs);
-                	List<?> enqueuedJobs = ((IMWComponent<?>)services[0]).getEnqueuedJobs();
-                	context.put("enqueuedJobs", enqueuedJobs);
-                }
-            }
-            
-			String reload = request.getParameter("reload");
-			if (reload == null) {
-				template = this.getTemplate("/resources/templates/QueueView.vm");
-			} else if (reload.equals("queueList")) {
-				// we don't want full html 
-				context.put("layout", "plain.vm");
-				
-				// just return the activity overview
-				template = getTemplate("/resources/templates/QueueViewLists.vm");
-			} else if (reload.equals("overview")) {
-				// we don't want full html 
-				context.put("layout", "plain.vm");
-				
-				// just return the activity overview
-				template = getTemplate("/resources/templates/QueueViewOverview.vm");
+			String queue = request.getParameter("queue");
+			if (queue != null && queue.length() > 0) {
+				Object[] services = manager.getServices("org.paxle.core.IMWComponent","(component.ID="+queue+")");
+				if (services != null && services.length == 1 && services[0] instanceof IMWComponent) {
+					List<?> activeJobs = ((IMWComponent<?>)services[0]).getActiveJobs();
+					context.put("activeJobs", activeJobs);
+					List<?> enqueuedJobs = ((IMWComponent<?>)services[0]).getEnqueuedJobs();
+					context.put("enqueuedJobs", enqueuedJobs);
+				}
 			}
-            
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            this.logger.error("Error",e);
-        }
-        return template;
-    }
+
+			if (request.getParameter("reload") != null) {
+				// we don't want full html 
+				context.put("layout", "plain.vm");
+			}
+
+		} catch (Exception e) {
+			this.logger.error("Error",e);
+		}
+	}
+	
+	/**
+	 * Choosing the template to use 
+	 */
+	@Override
+	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
+		String reload = request.getParameter("reload");
+		if (reload == null) {
+			return this.getTemplate("/resources/templates/QueueView.vm");
+		} else if (reload.equals("queueList")) {
+			return getTemplate("/resources/templates/QueueViewLists.vm");
+		} else if (reload.equals("overview")) {
+			return getTemplate("/resources/templates/QueueViewOverview.vm");
+		}
+		return null;
+	}
 }
