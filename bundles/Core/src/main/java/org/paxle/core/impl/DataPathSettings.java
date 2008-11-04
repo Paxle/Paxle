@@ -73,7 +73,8 @@ public class DataPathSettings {
 				while (matcher.find()) {
 					String placeHolder = matcher.group();
 					String propName = placeHolder.substring(2,placeHolder.length()-1);					
-					String propValue = System.getProperty(propName, placeHolder);					
+					String propValue = System.getProperty(propName, placeHolder);
+					if (propValue != null) propValue = propValue.replaceAll("\\\\", "\\\\\\\\");
 					matcher.appendReplacement(buf, propValue);
 				}
 				matcher.appendTail(buf);

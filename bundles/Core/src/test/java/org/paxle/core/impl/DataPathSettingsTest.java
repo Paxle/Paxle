@@ -31,50 +31,72 @@ public class DataPathSettingsTest extends TestCase {
 	}
 	
 	public void testConvertUserHomePath() {
-		System.setProperty(DataPathSettings.PROP_PAXLE_DATAPATH, "${user.home}/paxle");
+		System.setProperty(DataPathSettings.PROP_PAXLE_DATAPATH, "${user.home}" + File.separatorChar + "paxle");
 		DataPathSettings.formatDataPath();
 		
 		String dataPath = System.getProperty(DataPathSettings.PROP_PAXLE_DATAPATH);
 		assertNotNull(dataPath);
-		assertEquals(System.getProperty("user.home")+"/paxle", dataPath);
+		assertEquals(System.getProperty("user.home") + File.separatorChar + "paxle", dataPath);
 		System.out.println("New datapath is: " + dataPath);
 	}
 	
-	public void testConvertUserNamePath() {
-		System.setProperty(DataPathSettings.PROP_PAXLE_DATAPATH, "/var/lib/paxle/${user.name}");
+	public void testConvertUserNamePath() throws IOException {
+		// Path containing user-name, e.g.: /var/lib/paxle/theli
+		System.setProperty(DataPathSettings.PROP_PAXLE_DATAPATH, 
+				File.listRoots()[0].getCanonicalPath() + "var" + 
+				File.separatorChar + "lib" + 
+				File.separatorChar + "paxle" + 
+				File.separatorChar + "${user.name}"
+		);
 		DataPathSettings.formatDataPath();
 		
 		String dataPath = System.getProperty(DataPathSettings.PROP_PAXLE_DATAPATH);
 		assertNotNull(dataPath);
-		assertEquals("/var/lib/paxle/" + System.getProperty("user.name"), dataPath);
+		assertEquals(
+				File.listRoots()[0].getCanonicalPath() + "var" + 
+				File.separatorChar + "lib" + 
+				File.separatorChar + "paxle" + 
+				File.separatorChar + System.getProperty("user.name"), dataPath);
 		System.out.println("New datapath is: " + dataPath);
 	}
 	
-	public void testConvertMultiPropsPath() {
+	public void testConvertMultiPropsPath() throws IOException {
 		System.setProperty("paxle.test1", "abc");
 		System.setProperty("paxle.test2", "xyz");
-		System.setProperty(DataPathSettings.PROP_PAXLE_DATAPATH, "/test/${paxle.test1}/${paxle.test2}");
+		
+		// Path containing properties, e.g.: /test/${paxle.test1}/{paxle.test2}
+		System.setProperty(DataPathSettings.PROP_PAXLE_DATAPATH, 
+				File.listRoots()[0].getCanonicalPath() + "test" + 
+				File.separatorChar + "${paxle.test1}" + 
+				File.separatorChar + "${paxle.test2}"
+		);
 		DataPathSettings.formatDataPath();
 		
 		String dataPath = System.getProperty(DataPathSettings.PROP_PAXLE_DATAPATH);
 		assertNotNull(dataPath);
-		assertEquals("/test/abc/xyz", dataPath);
+		assertEquals(File.listRoots()[0].getCanonicalPath() + "test" + File.separatorChar + "abc" + File.separatorChar + "xyz", dataPath);
 		System.out.println("New datapath is: " + dataPath);
 	}
 	
 	public void testConvertRelativePath() throws IOException {
-		String relPath = "./data";
+		// relative path, e.g.: ./data
+		String relPath = "." + File.separatorChar + "data";
 		System.setProperty(DataPathSettings.PROP_PAXLE_DATAPATH, relPath);
 		DataPathSettings.formatDataPath();
 		
 		String dataPath = System.getProperty(DataPathSettings.PROP_PAXLE_DATAPATH);
 		assertNotNull(dataPath);
-		assertEquals(new File("").getCanonicalPath().toString() + "/data",dataPath);
+		assertEquals(new File("").getCanonicalPath().toString()  + File.separatorChar +  "data",dataPath);
 		System.out.println("New datapath is: " + dataPath);
 	}
 	
-	public void testConvertAbsolutePath() {
-		String absPath = "/home/user/paxle/data";
+	public void testConvertAbsolutePath() throws IOException {
+		// Abs.Path, e.g.: /home/user/paxle/data
+		String absPath = 
+			File.listRoots()[0].getCanonicalPath() + "home" + 
+			File.separatorChar + "user" + 
+			File.separatorChar + "paxle" + 
+			File.separatorChar + "data";
 		System.setProperty(DataPathSettings.PROP_PAXLE_DATAPATH, absPath);
 		DataPathSettings.formatDataPath();
 		
