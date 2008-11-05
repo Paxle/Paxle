@@ -58,6 +58,7 @@ public class StatusView extends ALayoutServlet {
 		}		
 	}
 	
+	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {
 		try {        	
 			// adding servlet to context

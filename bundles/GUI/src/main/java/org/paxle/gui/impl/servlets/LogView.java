@@ -14,7 +14,6 @@
 
 package org.paxle.gui.impl.servlets;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -30,10 +29,12 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.Log4jMemoryAppender;
 import org.paxle.gui.impl.ServiceManager;
 
-public class LogView extends ALayoutServlet {
-	
+public class LogView extends ALayoutServlet {	
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Log4j appender to intercept log4j messages
+	 */
 	private final Log4jMemoryAppender log4jAppender;
 	
 	public LogView() {
@@ -48,15 +49,12 @@ public class LogView extends ALayoutServlet {
 	}
 	
 	@Override
-	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context)
-	{
-		Template template = null;
-		
+	protected void fillContext(Context context, HttpServletRequest request) {
 		try {
 			if( request.getParameter("filterLogLevel") != null) {
 				context.put( "filterLogLevel", new Integer(request.getParameter( "filterLogLevel")));
 			} else {
-				context.put( "filterLogLevel", Integer.valueOf(4));
+				context.put( "filterLogLevel", Integer.valueOf(LogService.LOG_DEBUG));
 			}
 			
 			if(request.getParameter("logType") == null || request.getParameter("logType").equals("log4j")) {
@@ -84,14 +82,32 @@ public class LogView extends ALayoutServlet {
 			}
 			
 			context.put("logView", this);
-			template = this.getTemplate("/resources/templates/LogView.vm");
 		} catch(Throwable e) {
 			this.logger.error(e);
 		}
-		
-		return template;
 	}
 	
+	/**
+	 * Choosing the template to use 
+	 */
+	@Override
+	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
+		return this.getTemplate("/resources/templates/LogView.vm");
+	}
+	
+	@Override
+	protected void setContentType(HttpServletRequest request, HttpServletResponse response) {
+		final String type = request.getParameter("type");
+		if (type != null && type.equals("pain")) {
+			response.setContentType("text/plain; charset=UTF-8");
+		} else {
+			super.setContentType(request, response);
+		}
+	}	
+	
+	/**
+	 * Function to convert a {@link Throwable} into a string
+	 */
 	public String toString(Throwable e) {
 		try {
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();

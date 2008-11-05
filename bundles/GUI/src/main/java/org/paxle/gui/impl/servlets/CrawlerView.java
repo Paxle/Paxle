@@ -149,14 +149,7 @@ public class CrawlerView extends ALayoutServlet {
 	}
 	
 	@Override
-    public Template handleRequest( 
-			HttpServletRequest request,
-			HttpServletResponse response,
-			Context context 
-	) {
-		
-		Template template = null;
-		
+	protected void fillContext(Context context, HttpServletRequest request) {
 		try {
 			String url = null;
 			if (request.getParameter("crawlSingle") != null) {
@@ -180,8 +173,9 @@ public class CrawlerView extends ALayoutServlet {
 				);
 				final BufferedReader startURLs = new BufferedReader(new StringReader(url));
 				String line;
-				while ((line = startURLs.readLine()) != null)
+				while ((line = startURLs.readLine()) != null) {
 					tank.putUrl2Crawl(line);
+				}
 				context.put("errorUrls", tank.getErrorUrls());
 			} else if (request.getParameter("crawlQuick") != null) {
 				url = request.getParameter("startURL");
@@ -195,19 +189,21 @@ public class CrawlerView extends ALayoutServlet {
 				context.put("errorUrls", tank.getErrorUrls());
 			}
 
-			/*
-			 * Setting template parameters
-			 */
 			// default values for input fields
 			context.put("defaultDepth", "3");
 			context.put("defaultName", "Crawl " + this.formatter.format(new Date()));
-			template = this.getTemplate("/resources/templates/CrawlerView.vm");
 		} catch( Exception e ) {
 			logger.error("Error processing request: " + e.getMessage(), e);
 		}
-		
-		return template;
 	}
+	
+	/**
+	 * Choosing the template to use 
+	 */
+	@Override
+	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
+		return this.getTemplate("/resources/templates/CrawlerView.vm");
+	}	
 	
 	private void setProfileDepth(HttpServletRequest request, final CommandProfile profile) {
 		int depth = 0;
