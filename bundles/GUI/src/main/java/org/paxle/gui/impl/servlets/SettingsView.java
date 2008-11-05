@@ -61,6 +61,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeProvider;
@@ -108,8 +109,12 @@ public class SettingsView extends ALayoutServlet {
 	private Log logger = LogFactory.getLog( this.getClass());
 
 	/**
-	 * @param context
-	 * @return a map required by the {@link IConfigurationIEPorter} to export {@link Configuration#getProperties() configuration-properties}
+	 * This function generates a map required by the {@link IConfigurationIEPorter} to export 
+	 * {@link Configuration#getProperties() configuration-properties}
+	 * 
+	 * @param context the velocity-context
+	 * @return a map containing {@link Constants#SERVICE_PID PIDs} as key and 
+	 * 		{@link Bundle#getLocation() bundle-locations} as values.
 	 */
 	private Map<String, String> generatePidBundleLocationMap(HttpServletRequest request, Context context) {
 		// getting the service manager
@@ -130,16 +135,17 @@ public class SettingsView extends ALayoutServlet {
 		} else {		
 			// loop through all bundles to see if they contain manageable services			
 			for (Bundle bundle: manager.getBundles()) {
-				// getting the metatypeinformation of the bundle
-				MetaTypeInformation metaType = metaTypeService.getMetaTypeInformation(bundle);
-							
-				// the bundleID comparison is necessary due to a bug in knopflerfish
-				if (metaType != null && metaType.getBundle().getBundleId() == bundle.getBundleId()) {
-					String[] pids = metaType.getPids();
-					if (pids != null && pids.length > 0) {
-						for (String nextPid : pids) {
-							pidBundleLocationTupel.put(nextPid, bundle.getLocation());
-						}
+				HashSet<String> metaTypePIDs = new HashSet<String>();
+
+				// Loopup the PIDs of all metatypes provided via the metatype-service
+				metaTypePIDs.addAll(this.getMetaTypeServicePIDs(manager, bundle));		
+
+				// search for additional metatype-providers
+				metaTypePIDs.addAll(this.getMetaTypeProviderPIDs(bundle));
+
+				if (metaTypePIDs != null && metaTypePIDs.size() > 0) {
+					for (String nextPid : metaTypePIDs) {
+						pidBundleLocationTupel.put(nextPid, bundle.getLocation());
 					}
 				}
 			}
@@ -873,6 +879,10 @@ public class SettingsView extends ALayoutServlet {
 		}
 	}
 	
+	/**
+	 * @return the {@link Constants#SERVICE_PID PID} of all {@link ManagedService managed-services}
+	 * whose {@link MetaTypeInformation metatype-informations} are managed by the {@link MetaTypeService}
+	 */
 	private Set<String> getMetaTypeServicePIDs(ServiceManager manager, Bundle bundle) {		
 		MetaTypeService metaTypeService = (MetaTypeService) manager.getService(MetaTypeService.class.getName());
 		if (metaTypeService == null) throw new NullPointerException("Unable to find the metatype service");	
@@ -886,10 +896,14 @@ public class SettingsView extends ALayoutServlet {
 		}
 	}
 	
+	/**
+	 * @return the {@link Constants#SERVICE_PID PID} of all {@link ManagedService managed-services}
+	 * whose {@link MetaTypeInformation metatype-informations} are provided by a {@link MetaTypeProvider}
+	 */
 	private Set<String> getMetaTypeProviderPIDs(Bundle bundle) {
-		HashSet<String> metaTypePIDs = new HashSet<String>();
+		final HashSet<String> metaTypePIDs = new HashSet<String>();
 		
-		ServiceReference[] serviceRefs = bundle.getRegisteredServices();
+		final ServiceReference[] serviceRefs = bundle.getRegisteredServices();
 		if (serviceRefs != null) {
 			for (ServiceReference ref : serviceRefs) {
 				// a managed-service always has a PID
@@ -907,7 +921,7 @@ public class SettingsView extends ALayoutServlet {
 	}
 	
 	public String[] getMetaTypePIDs(ServiceManager manager, Bundle bundle) {
-		HashSet<String> metaTypePIDs = new HashSet<String>();
+		final HashSet<String> metaTypePIDs = new HashSet<String>();
 
 		// Loopup the PIDs of all metatypes provided via the metatype-service
 		metaTypePIDs.addAll(this.getMetaTypeServicePIDs(manager, bundle));		
