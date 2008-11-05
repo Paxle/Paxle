@@ -98,7 +98,7 @@ public class LogView extends ALayoutServlet {
 	@Override
 	protected void setContentType(HttpServletRequest request, HttpServletResponse response) {
 		final String type = request.getParameter("type");
-		if (type != null && type.equals("pain")) {
+		if (type != null && type.equals("plain")) {
 			response.setContentType("text/plain; charset=UTF-8");
 		} else {
 			super.setContentType(request, response);
