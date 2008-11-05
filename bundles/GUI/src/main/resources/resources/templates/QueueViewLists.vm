@@ -32,7 +32,7 @@
 		<tr>
 			<td>${cmd.getProfileOID()}</td>
 			<td>${cmd.getDepth()}</td>
-			<td><a href="${cmd.getLocation()}">${cmd.getLocation()}</a></td>
+			<td><a href="${cmd.getLocation()}">$displayTool.truncate(${cmd.getLocation()},80)</a></td>
 			<td>$!{cmd.getCrawlerDocument().getMimeType()}</td>
 			<td>$!{cmd.getCrawlerDocument().getSize()}</td>
 		</tr>
