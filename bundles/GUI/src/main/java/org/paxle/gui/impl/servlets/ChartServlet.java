@@ -15,7 +15,6 @@
 package org.paxle.gui.impl.servlets;
 
 import java.awt.Color;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -25,14 +24,14 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.velocity.Template;
+import org.apache.velocity.context.Context;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -59,10 +58,9 @@ import org.osgi.service.monitor.MonitorAdmin;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.MonitoringJob;
 import org.osgi.service.monitor.StatusVariable;
+import org.paxle.gui.ALayoutServlet;
 
-import com.sun.corba.se.spi.orb.DataCollector;
-
-public class ChartServlet extends HttpServlet implements EventHandler, ServiceListener {
+public class ChartServlet extends ALayoutServlet implements EventHandler, ServiceListener {
 	private static final long serialVersionUID = 1L;	
 	
 	/**
@@ -166,7 +164,7 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 	private final Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
-	 * A map containing all {@link TimeSeries} that are filled by the {@link DataCollector}-thread
+	 * A map containing all {@link TimeSeries} that are filled by {@link #handleEvent(Event)}
 	 */
 	private HashMap<String,TimeSeries> seriesMap = new HashMap<String,TimeSeries>();
 
@@ -232,19 +230,6 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 			variableIds.add(variableId);
 		}
 	}	
-	
-	@Override
-	public void init() throws ServletException {
-		super.init();
-	}
-	
-	@Override
-	public void destroy() {	
-		// clear series map
-		this.seriesMap.clear();
-		
-		super.destroy();
-	}
 	
 	private JFreeChart createPPMChart() {
 		/*
@@ -392,34 +377,38 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
         return chart;
 	}
 	
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse)
-	 */
 	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doRequest(HttpServletRequest request, HttpServletResponse response) {
 		String type = null;
-		try {
-			String wStrg = request.getParameter("w");
-			int width = Integer.valueOf(wStrg == null ? "385": wStrg);
-
-			String hStrg = request.getParameter("h");
-			int height = Integer.valueOf(hStrg == null ? "200": hStrg);
-
-			// getting the reuested chart
-			type = request.getParameter("t");
-			JFreeChart chart = this.chartMap.get(type);
-			if (chart == null) {
-				response.setStatus(404);
-				return;
+		try {			
+			if (request.getParameter("t") != null) {
+				// getting type
+				type = request.getParameter("t");
+				
+				String wStrg = request.getParameter("w");
+				int width = Integer.valueOf(wStrg == null ? "385": wStrg);
+	
+				String hStrg = request.getParameter("h");
+				int height = Integer.valueOf(hStrg == null ? "200": hStrg);
+	
+				// getting the reuested chart
+				JFreeChart chart = this.chartMap.get(type);
+				if (chart == null) {
+					response.setStatus(404);
+					return;
+				}
+	
+				// set response type
+				response.setContentType("image/png");		
+	
+				// render image
+				ServletOutputStream out = response.getOutputStream();
+				ChartUtilities.writeChartAsPNG(out, chart, width, height);
+				out.flush();
+			} else {
+				// using velocity template
+				super.doRequest(request, response);
 			}
-
-			// set response type
-			response.setContentType("image/png");		
-
-			// render image
-			ServletOutputStream out = response.getOutputStream();
-			ChartUtilities.writeChartAsPNG(out, chart, width, height);
-			out.flush();
 		} catch (Exception e) {			
 			this.logger.error(String.format(
 					"Unexpected '%s' while writing chart '%s'.",
@@ -428,6 +417,19 @@ public class ChartServlet extends HttpServlet implements EventHandler, ServiceLi
 			),e);
 		}
 	}
+	
+	@Override
+	protected void fillContext(Context context, HttpServletRequest request) {
+		context.put("charts", this.chartMap.keySet());
+	}
+	
+	/**
+	 * Choosing the template to use 
+	 */
+	@Override
+	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
+		return this.getTemplate("/resources/templates/ChartServlet.vm");
+	}	
 
 	/**
 	 * @see EventHandler#handleEvent(Event)
