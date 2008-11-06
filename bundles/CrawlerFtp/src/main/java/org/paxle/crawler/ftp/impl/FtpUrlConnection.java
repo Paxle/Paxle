@@ -41,6 +41,8 @@ public class FtpUrlConnection extends URLConnection {
 	protected FtpUrlConnection(URL url) {
 		super(url);
 		this.client = new FTPClient();
+		this.setConnectTimeout(15000);
+		this.setReadTimeout(15000);
 	}
 
 	@Override
@@ -276,7 +278,7 @@ public class FtpUrlConnection extends URLConnection {
 		super.setConnectTimeout(timeout);
 		this.client.setDefaultTimeout(timeout);
 	}
-
+		
 	public void closeConnection() throws IOException {
 		if (this.client.isConnected()) {
 			this.client.logout();
