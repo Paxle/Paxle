@@ -193,6 +193,10 @@ public class Activator implements BundleActivator, InvocationHandler {
 		// register runtime-memory monitorable
 		this.createAndRegisterMonitorables(bc);
 		
+		Hashtable<String, String> tempFileManagerProps = new Hashtable<String, String>();
+		tempFileManagerProps.put(Constants.SERVICE_PID, TempFileManager.MONITOR_PID);
+		bc.registerService(Monitorable.class.getName(), this.tempFileManager, tempFileManagerProps);
+		
 		// register the master-worker-factory as a service
 		bc.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(
 				rbTool.getLocaleArray(MWComponent.class.getSimpleName(), Locale.ENGLISH)), null);
