@@ -22,6 +22,10 @@ fieldset.infobox {
 	float: left;
 }
 
+fieldset#dmemory, fieldset#dsystem {
+	height: 450px;
+}	
+
 form {
 	margin: 0;
 	padding: 0;

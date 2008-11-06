@@ -35,13 +35,8 @@ import org.apache.velocity.context.Context;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CombinedDomainXYPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.time.Minute;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -73,11 +68,6 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 	 * @see org.paxle.se.index.IIndexSearcher#getDocCount()
 	 */
 	public static final String TSERIES_INDEX_SIZE = "org.paxle.lucene-db/docs.known";
-	
-	/**
-	 * Current free diskspace 
-	 */
-	public static final String TSERIES_DISK_USAGE = "os.disk/disk.space.free";
 	
 	/**
 	 * Current PPM of the crawler
@@ -121,7 +111,6 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 	public static final String[] TSERIES = new String[] {
 		TSERIES_MEMORY_USAGE,
 		TSERIES_INDEX_SIZE,
-		TSERIES_DISK_USAGE,
 		TSERIES_PPM_CRAWLER,
 		TSERIES_PPM_PARSER,
 		TSERIES_PPM_INDEXER,
@@ -338,43 +327,34 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
     	TimeSeries usedmemSeries = new TimeSeries("Used MEM", Minute.class);
     	usedmemSeries.setMaximumItemAge(24*60);
     	this.seriesMap.put(TSERIES_MEMORY_USAGE, usedmemSeries);
-    	
-    	TimeSeries freeDiskSeries = new TimeSeries("Free Disk", Minute.class);
-    	freeDiskSeries.setMaximumItemAge(24*60);
-    	this.seriesMap.put(TSERIES_DISK_USAGE, freeDiskSeries);
 		
 		// init collections and chart
         final TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(usedmemSeries);
         
-        // create subplot 1...
-        long maxMemory = Runtime.getRuntime().maxMemory();
-        NumberAxis memYAxis = new NumberAxis("Memory");
-        if (maxMemory != Long.MAX_VALUE) {
-        	memYAxis.setRange(0, maxMemory / (1024*1024));
+		/*
+		 * INIT CHART
+		 */        
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
+                null,
+                "Time", 
+                "Memory [MB]",
+                dataset,
+                true,
+                true,
+                false
+            );
+        
+        // change axis data format
+		((DateAxis) chart.getXYPlot().getDomainAxis()).setDateFormatOverride(new SimpleDateFormat("HH:mm"));
+		
+		long maxMemory = Runtime.getRuntime().maxMemory();
+		if (maxMemory != Long.MAX_VALUE) {
+			((NumberAxis) chart.getXYPlot().getRangeAxis()).setRange(0, maxMemory / (1024*1024));
         }
-        final XYPlot subplot1 = new XYPlot(dataset, null, memYAxis, new StandardXYItemRenderer());
-        subplot1.setRangeAxisLocation(AxisLocation.BOTTOM_OR_LEFT);        
-        
-        // create subplot 2...
-        final XYPlot subplot2 = new XYPlot(new TimeSeriesCollection(freeDiskSeries), null, new NumberAxis("Disk"), new StandardXYItemRenderer());
-        subplot2.setRangeAxisLocation(AxisLocation.TOP_OR_LEFT);
-
-        // parent plot...
-        DateAxis dateaxis = new DateAxis("Time");
-        dateaxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
-        final CombinedDomainXYPlot plot = new CombinedDomainXYPlot(dateaxis);
-        plot.setBackgroundPaint(Color.white);
-        plot.setGap(10.0);
-        
-        // add the subplots...
-        plot.add(subplot1, 1);
-        plot.add(subplot2, 1);
-        plot.setOrientation(PlotOrientation.VERTICAL);        
-        
-        JFreeChart chart = new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT, plot, true);
-        chart.setBackgroundPaint(Color.WHITE);
-        return chart;
+		
+		chart.setBackgroundPaint(Color.WHITE);
+		return chart;            
 	}
 	
 	@Override
