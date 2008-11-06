@@ -149,28 +149,30 @@ public class CrawlerTools {
 			doc.setCharset(null);
 		}
 		
-		// init file output-stream
-		final File file = context.getTempFileManager().createTempFile();
-		OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-		
-		// init charset detection stream
-		ACharsetDetectorOutputStream chardetos = null;
-		final ICharsetDetector chardet = context.getCharsetDetector();
-		if (chardet != null) {
-			chardetos = chardet.createOutputStream(os);
-			os = chardetos;
-		}
-		
-		// init md5-calculation stream
-		ACryptOutputStream md5os = null;		
-		ICryptManager cryptManager = context.getCryptManager();
-		final ICrypt md5 = (cryptManager==null)?null:cryptManager.getCrypt("md5");
-		if (md5 != null) {
-			md5os = md5.createOutputStream(os);
-			os = md5os;
-		}
-		
+		File file = null;
+		OutputStream os = null;
 		try {
+			// init file output-stream
+			file = context.getTempFileManager().createTempFile();
+			os = new BufferedOutputStream(new FileOutputStream(file));
+			
+			// init charset detection stream
+			ACharsetDetectorOutputStream chardetos = null;
+			final ICharsetDetector chardet = context.getCharsetDetector();
+			if (chardet != null) {
+				chardetos = chardet.createOutputStream(os);
+				os = chardetos;
+			}
+			
+			// init md5-calculation stream
+			ACryptOutputStream md5os = null;		
+			ICryptManager cryptManager = context.getCryptManager();
+			final ICrypt md5 = (cryptManager==null)?null:cryptManager.getCrypt("md5");
+			if (md5 != null) {
+				md5os = md5.createOutputStream(os);
+				os = md5os;
+			}
+		
 			/* ================================================================
 			 * COPY DATA
 			 * ================================================================ */
@@ -222,8 +224,30 @@ public class CrawlerTools {
 			
 			doc.setContent(file);
 			return copied;
+		} catch (Exception e) {
+			if (file != null) {
+				// closing stream
+				try {
+					os.close();
+				} catch (Exception e2) {
+					/* ignore this */ 
+				} finally { 
+					os = null; 
+				}
+				
+				// releasing temp file
+				context.getTempFileManager().releaseTempFile(file);
+			}
+			
+			// re-throw IO-Exceptions
+			if (e instanceof IOException) throw (IOException) e;
+			
+			// convert other exceptions
+			IOException ioe = new IOException(e.getMessage());
+			ioe.initCause(e);
+			throw ioe;
 		} finally { 
-			os.close(); 
+			if (os != null) os.close(); 
 		}
 	}
 	
@@ -269,8 +293,7 @@ public class CrawlerTools {
 			
 			if (bytes > 0) {
 				cs = (int)Math.min(bytes - rt, DEFAULT_BUFFER_SIZE_BYTES);
-				if (cs == 0)
-					break;
+				if (cs == 0) break;
 			}
 		}
 		os.flush();
