@@ -32,8 +32,8 @@ public abstract class ATempDir implements ITempDir {
 		this.prefix = prefix;
 	}
 	
-	public void releaseTempFile(File file) throws FileNotFoundException, IOException {
-		file.delete();
+	public boolean releaseTempFile(File file) throws FileNotFoundException, IOException {
+		return file.delete();
 	}
 	
 	protected String generateNewName(String prefix, String suffix) {

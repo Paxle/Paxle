@@ -21,5 +21,9 @@ import java.io.IOException;
 public interface ITempDir {
 	
 	public File createTempFile(String prefix, String suffix) throws IOException;
-	public void releaseTempFile(File file) throws FileNotFoundException, IOException;
+	
+	/**
+	 * @return <code>true</code> if and only if the file is successfully released; <code>false</code> otherwise
+	 */
+	public boolean releaseTempFile(File file) throws FileNotFoundException, IOException;
 }

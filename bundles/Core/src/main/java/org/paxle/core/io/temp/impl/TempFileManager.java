@@ -106,10 +106,12 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	
 	public void releaseTempFile(File file) throws FileNotFoundException, IOException {
 		final ITempDir dir = this.fileMap.get(file);
-		((dir == null) ? defaultDir : dir).releaseTempFile(file);
+		boolean success = ((dir == null) ? defaultDir : dir).releaseTempFile(file);
 		
-		synchronized (this) {
-			this.openCount--;
+		if (success) {
+			synchronized (this) {
+				this.openCount--;
+			}
 		}
 	}
 
