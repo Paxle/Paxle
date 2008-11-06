@@ -30,8 +30,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.monitor.MonitorAdmin;
@@ -60,7 +58,7 @@ import org.paxle.gui.impl.servlets.RootView;
 import org.paxle.gui.impl.servlets.SearchView;
 import org.paxle.gui.impl.servlets.SettingsView;
 import org.paxle.gui.impl.servlets.StatusView;
-import org.paxle.gui.impl.servlets.SysDown;
+import org.paxle.gui.impl.servlets.SysCtrl;
 import org.paxle.gui.impl.servlets.TheaddumpView;
 
 public class Activator implements BundleActivator {
@@ -121,7 +119,7 @@ public class Activator implements BundleActivator {
 		registerServlet("/threads", new TheaddumpView(), null);
 		registerServlet("/overview", new OverView(), "Overview");
 		registerServlet("/monitorable", new MonitorableView(), null);
-		registerServlet("/sysdown", new SysDown(), null, new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
+		registerServlet("/sysctrl", new SysCtrl(), null, new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
 		registerServlet("/login", new LoginView(), null);
 		RobotsTxt rt = new RobotsTxt();
 		registerServlet("/robots.txt", rt, null);

@@ -22,7 +22,7 @@ import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 
-public class SysDown extends ALayoutServlet {
+public class SysCtrl extends ALayoutServlet {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -33,7 +33,6 @@ public class SysDown extends ALayoutServlet {
 			
 			int shutdownDelay = 5;
 			
-			// If restart is true, restart, in any other case simply shut down
 			if (request.getParameter("action") != null) {
 				String action = request.getParameter("action");
 			
@@ -43,7 +42,7 @@ public class SysDown extends ALayoutServlet {
 					manager.shutdownFrameworkDelayed(shutdownDelay);
 				}
 				context.put("action", action);
-			} 
+			}
 		} catch( Exception e ) {
 			this.logger.error(e);
 		}
@@ -54,6 +53,6 @@ public class SysDown extends ALayoutServlet {
 	 */
 	@Override
 	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
-		return this.getTemplate("/resources/templates/SysDown.vm");
+		return this.getTemplate("/resources/templates/SysCtrl.vm");
 	}
 }
