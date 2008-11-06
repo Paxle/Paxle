@@ -33,7 +33,12 @@
 ## the monitor admin service
 #set($monitorAdmin = $manager.getService('org.osgi.service.monitor.MonitorAdmin'))
 #if($monitorAdmin)
-	#set($monitorables = $monitorAdmin.getMonitorableNames())
+
+	#if($paramParser.getString("monitorableId"))
+		#set($monitorables = [$paramParser.getString("monitorableId")])
+	#else
+		#set($monitorables = $monitorAdmin.getMonitorableNames())
+	#end
 	#if($monitorables)		
 		<table>
 		<tr>
@@ -47,7 +52,7 @@
 			#set($statusVariables = $monitorAdmin.getStatusVariables($monitorable))
 			#if($statusVariables)				
 				<tr>
-					<th class="sub" colspan="5">$monitorable</th>
+					<th class="sub" colspan="5"><a href="?monitorableId=$monitorable">$monitorable</a></th>
 				</tr>			
 				#foreach($statusVariable in $sortTool.sort($statusVariables,["ID:asc"]))
 				<tr>

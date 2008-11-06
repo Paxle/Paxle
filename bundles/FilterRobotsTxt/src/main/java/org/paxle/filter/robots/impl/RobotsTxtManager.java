@@ -423,13 +423,16 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 			if (id.equals(MONITOR_JOBS_ACTIVE)) {
 				val = execService.getActiveCount();
 			} else if (id.equals(MONITOR_JOBS_IDLE)) {
-				val = execService.getPoolSize();
+				long max = execService.getMaximumPoolSize();
+				long active = execService.getActiveCount();
+				val = (int) (max - active);
 			} else if (id.equals(MONITOR_JOBS_MAX)) {
 				val = execService.getMaximumPoolSize();
 			} else if (id.equals(MONITOR_JOBS_PENDING)) {
 				long enqued = execService.getTaskCount();
 				long total = execService.getCompletedTaskCount();
-				val = (int) (enqued - total);
+				long active = execService.getActiveCount();
+				val = (int) (enqued - total - active);
 			} else if (id.equals(MONITOR_JOBS_TOTAL)) {
 				val = (int) execService.getCompletedTaskCount();
 				type = StatusVariable.CM_CC;
