@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -110,6 +111,38 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	 * ========================================================= */		
 	public static final String MONITOR_PID = "org.paxle.robots-txt";
 	private static final String MONITOR_STORE_SIZE = "store.size";
+	
+	private static final String MONITOR_JOBS_PREFIX = "jobs";
+	private static final String MONITOR_JOBS_ACTIVE = MONITOR_JOBS_PREFIX + ".active";
+	private static final String MONITOR_JOBS_IDLE = MONITOR_JOBS_PREFIX + ".idle";
+	private static final String MONITOR_JOBS_MAX = MONITOR_JOBS_PREFIX + ".max";
+	private static final String MONITOR_JOBS_PENDING = MONITOR_JOBS_PREFIX + ".pending";
+	private static final String MONITOR_JOBS_TOTAL = MONITOR_JOBS_PREFIX + ".total";
+	
+	/**
+	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(Arrays.asList(new String[] {
+			MONITOR_STORE_SIZE,
+			MONITOR_JOBS_ACTIVE,
+			MONITOR_JOBS_IDLE,
+			MONITOR_JOBS_MAX,
+			MONITOR_JOBS_PENDING,
+			MONITOR_JOBS_TOTAL
+	}));	
+	
+	/**
+	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
+	static {
+		VAR_DESCRIPTIONS.put(MONITOR_STORE_SIZE, "Known robots.txt definitions");
+		VAR_DESCRIPTIONS.put(MONITOR_JOBS_ACTIVE, "Number of jobs currently running");
+		VAR_DESCRIPTIONS.put(MONITOR_JOBS_IDLE, "Number of idle jobs");
+		VAR_DESCRIPTIONS.put(MONITOR_JOBS_MAX, "Maximum allowed number of active jobs");
+		VAR_DESCRIPTIONS.put(MONITOR_JOBS_PENDING, "Number of jobs waiting for execution");
+		VAR_DESCRIPTIONS.put(MONITOR_JOBS_TOTAL, "Total number of executed jobs");
+	}	
 
 	/**
 	 * Lock object required to synchronize functions affected by {@link #updated(Dictionary)} 
@@ -163,9 +196,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	 * http client class
 	 */
 	private HttpClient httpClient = null;	
-	
-	private final boolean useAsyncExecution = true;
-	
+
+	/**
+	 * Thread pool
+	 */
 	private final ThreadPoolExecutor execService;
 	
 	/**
@@ -363,11 +397,11 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	 * @see org.osgi.service.monitor.Monitorable#getDescription(String)
 	 */
 	public String getDescription(String id) throws IllegalArgumentException {
-		if (id.equals(MONITOR_STORE_SIZE)) {
-			return "Known robots.txt definitions";
-		} else {
-			throw new IllegalArgumentException("no such variable '" + id + "'");
-		}
+		if (!VAR_NAMES.contains(id)) {
+			throw new IllegalArgumentException("Invalid Status Variable name " + id);
+		}		
+		
+		return VAR_DESCRIPTIONS.get(id);
 	}
 	
 	/**
@@ -375,11 +409,34 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	 * @see org.osgi.service.monitor.Monitorable#getStatusVariable(String)
 	 */
 	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {
+		if (!VAR_NAMES.contains(id)) {
+			throw new IllegalArgumentException("Invalid Status Variable name " + id);
+		}
+		
+		int val = 0;
+		int type = StatusVariable.CM_GAUGE;
+		
 		if (id.equals(MONITOR_STORE_SIZE)) {
-			return new StatusVariable(MONITOR_STORE_SIZE, StatusVariable.CM_CC, this.loader.size());
-		} else {
-			throw new IllegalArgumentException("no such variable '" + id + "'");
-		}	
+			val = this.loader.size();
+		} else if (id.startsWith(MONITOR_JOBS_PREFIX)) {
+			ThreadPoolExecutor execService = this.execService;
+			if (id.equals(MONITOR_JOBS_ACTIVE)) {
+				val = execService.getActiveCount();
+			} else if (id.equals(MONITOR_JOBS_IDLE)) {
+				val = execService.getPoolSize();
+			} else if (id.equals(MONITOR_JOBS_MAX)) {
+				val = execService.getMaximumPoolSize();
+			} else if (id.equals(MONITOR_JOBS_PENDING)) {
+				long enqued = execService.getTaskCount();
+				long total = execService.getCompletedTaskCount();
+				val = (int) (enqued - total);
+			} else if (id.equals(MONITOR_JOBS_TOTAL)) {
+				val = (int) execService.getCompletedTaskCount();
+				type = StatusVariable.CM_CC;
+			}
+		}
+		
+		return new StatusVariable(id, type, val);
 	}
 	
 	/**
@@ -387,7 +444,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	 * @see org.osgi.service.monitor.Monitorable#getStatusVariableNames()
 	 */
 	public String[] getStatusVariableNames() {
-		return new String[] { MONITOR_STORE_SIZE };
+		return VAR_NAMES.toArray(new String[VAR_NAMES.size()]);
 	}
 	
 	/**
@@ -698,49 +755,32 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 		HashMap<URI, List<URI>> uriBlocks = this.groupURI(urlList);
 		ArrayList<URI> disallowedURI = new ArrayList<URI>();
 
-		if (this.useAsyncExecution) {
-			/*
-			 * Asynchronous execution and parallel check of all blocks 
-			 */
-			final CompletionService<Collection<URI>> execCompletionService = new ExecutorCompletionService<Collection<URI>>(this.execService);
-			
-			// loop through the blocks and start a worker for each block
-			for (Entry<URI, List<URI>> uriBlock : uriBlocks.entrySet()) {
-				URI baseUri = uriBlock.getKey();
-				List<URI> uriList = uriBlock.getValue();			
-				execCompletionService.submit(new RobotsTxtManagerCallable(baseUri,uriList));
-			}
-			
-			// wait for the worker-threads to finish execution
-			for (int i = 0; i < uriBlocks.size(); ++i) {
-				try {
-					Collection<URI> disallowedInGroup = execCompletionService.take().get();
-					if (disallowedInGroup != null) {
-						disallowedURI.addAll(disallowedInGroup);
-					}
-				} catch (InterruptedException e) {
-					this.logger.info(String.format("Interruption detected while waiting for robots.txt-check result."));
-					// XXX should we break here?
-				} catch (ExecutionException e) {
-					this.logger.error(String.format("Unexpected '%s' while performing robots.txt check.",
-							e.getClass().getName()
-					),e);
-				}
-			}
-			
-		} else {
-			/*
-			 * Synchronous execution and sequential check of all blocks 
-			 */
-			for (Entry<URI, List<URI>> uriBlock : uriBlocks.entrySet()) {
-				URI baseUri = uriBlock.getKey();
-				List<URI> uriList = uriBlock.getValue();
-
-				// check the block
-				Collection<URI> disallowedInGroup = this.isDisallowed(baseUri, uriList);
+		/*
+		 * Asynchronous execution and parallel check of all blocks 
+		 */
+		final CompletionService<Collection<URI>> execCompletionService = new ExecutorCompletionService<Collection<URI>>(this.execService);
+		
+		// loop through the blocks and start a worker for each block
+		for (Entry<URI, List<URI>> uriBlock : uriBlocks.entrySet()) {
+			URI baseUri = uriBlock.getKey();
+			List<URI> uriList = uriBlock.getValue();			
+			execCompletionService.submit(new RobotsTxtManagerCallable(baseUri,uriList));
+		}
+		
+		// wait for the worker-threads to finish execution
+		for (int i = 0; i < uriBlocks.size(); ++i) {
+			try {
+				Collection<URI> disallowedInGroup = execCompletionService.take().get();
 				if (disallowedInGroup != null) {
 					disallowedURI.addAll(disallowedInGroup);
 				}
+			} catch (InterruptedException e) {
+				this.logger.info(String.format("Interruption detected while waiting for robots.txt-check result."));
+				// XXX should we break here?
+			} catch (ExecutionException e) {
+				this.logger.error(String.format("Unexpected '%s' while performing robots.txt check.",
+						e.getClass().getName()
+				),e);
 			}
 		}
 		
@@ -783,7 +823,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 					e.getClass().getName(),
 					baseUri.toASCIIString()
 			),e);
-		} 
+		}
 		
 		return disallowedList;
 	}
