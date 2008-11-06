@@ -32,8 +32,15 @@ import com.db4o.ObjectSet;
 import com.db4o.config.Configuration;
 import com.db4o.config.QueryConfiguration;
 import com.db4o.config.QueryEvaluationMode;
+import com.db4o.events.Event4;
+import com.db4o.events.EventArgs;
+import com.db4o.events.EventListener4;
+import com.db4o.events.EventRegistry;
+import com.db4o.events.EventRegistryFactory;
+import com.db4o.events.ObjectEventArgs;
 import com.db4o.ext.DatabaseClosedException;
 import com.db4o.ext.ExtObjectContainer;
+import com.db4o.ext.StoredClass;
 import com.db4o.io.CachedIoAdapter;
 import com.db4o.io.NonFlushingIoAdapter;
 import com.db4o.io.RandomAccessFileAdapter;
@@ -44,6 +51,11 @@ import com.db4o.query.Query;
 public class Db4oStore implements IRuleStore {
 	public static final String NAME = "robotsDB.db4o";
 	
+	/**
+	 * A simple counter to avoid querying the database for size
+	 */
+	private int size = -1;
+	private Object sizeSync = new Object();
 	
 	/**
 	 * Path where {@link RobotsTxt} objects should be stored
@@ -80,7 +92,22 @@ public class Db4oStore implements IRuleStore {
 	 */
 	private Timer dbCleanupTimer;
 	
+	/**
+	 * For Logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
+	
 	public Db4oStore(Db4oService dboService, File path) {
+		this(dboService, path, 0);
+	}
+	
+	/**
+	 * 
+	 * @param dboService
+	 * @param path
+	 * @param cleanupDelayMs delay in milliseconds before the db-cleanup-task is to be executed.
+	 */
+	Db4oStore(Db4oService dboService, File path, long cleanupDelayMs) {
 		this.dboService = dboService;
 		
 		// create directory if required
@@ -98,22 +125,81 @@ public class Db4oStore implements IRuleStore {
 		this.config.callbacks(false);
 		this.config.io(new CachedIoAdapter(new NonFlushingIoAdapter(new RandomAccessFileAdapter())));
 		
+		// create DB
 		this.db = (this.dboService == null) 
 				? Db4o.openFile(config, dbFile.toString())
 				: this.dboService.openFile(config, dbFile.toString());
-				
+		
+		// getting initial DB size
+		this.size = this.size();
+		this.logger.info(String.format(
+				"Robots.txt DB contains %d entries.",
+				this.size
+		));
+		
+		// register event-listeners
+		EventRegistry registry = EventRegistryFactory.forObjectContainer(this.db);  
+		registry.created().addListener(new EventListener4(){
+			public void onEvent(Event4 e, EventArgs args) {
+				if (args instanceof ObjectEventArgs) {
+					Object obj = ((ObjectEventArgs)args).object();
+					if (obj instanceof RobotsTxt) {
+						onCreated((RobotsTxt)obj);
+					}
+				}
+			}}
+		);
+		registry.deleted().addListener(new EventListener4(){
+			public void onEvent(Event4 e, EventArgs args) {
+				if (args instanceof ObjectEventArgs) {
+					Object obj = ((ObjectEventArgs)args).object();
+					if (obj instanceof RobotsTxt) {
+						onDeleted((RobotsTxt)obj);
+					}
+				}
+			}}
+		);		
+		
 		// robots.txt cleanup can be skipped via variable
 		boolean skipCleanup = Boolean.parseBoolean(System.getProperty("robots.Db4oStore.skipCleanup","false"));
 		if (!skipCleanup) {
 			// create and init cleanup task
 			this.dbCleanupTask = new DBCleanupTask();
 			this.dbCleanupTimer = new Timer("Robots.txt Cleanup Timer");
-			this.dbCleanupTimer.scheduleAtFixedRate(this.dbCleanupTask, 0, 30*60*1000);
+			this.dbCleanupTimer.scheduleAtFixedRate(this.dbCleanupTask, cleanupDelayMs, 30*60*1000);
 		}
 	}
 	
+	private void onCreated(RobotsTxt robots) {
+		synchronized (sizeSync) {
+			size++;
+		}		
+		
+		if (logger.isTraceEnabled()) {
+			logger.trace(String.format(
+					"Robots.txt created:\n%s",
+					robots.toString()
+			));
+		}	
+	}
+	
+	private void onDeleted(RobotsTxt robots) {
+		synchronized (sizeSync) {
+			size--;
+		}
+		
+		if (logger.isTraceEnabled()) {
+			logger.trace(String.format(
+					"Robots.txt deleted:\n%s",
+					robots.toString()
+			));
+		}		
+	}
+	
 	public int size() {
-		return db.ext().storedClass(RobotsTxt.class).instanceCount();
+		if (this.size >= 0) return this.size;		
+		final StoredClass sc = db.ext().storedClass(RobotsTxt.class);
+		return (sc==null) ? 0 : sc.instanceCount();
 	}
 	
 	public RobotsTxt read(String hostPort) throws IOException {
@@ -128,7 +214,7 @@ public class Db4oStore implements IRuleStore {
 
 	public void write(RobotsTxt robotsTxt) throws IOException {
 		db.store(robotsTxt);
-		db.commit();
+		db.commit();		
 	}
 
 	public void close() throws IOException {

@@ -80,11 +80,15 @@ import org.paxle.filter.robots.impl.store.IRuleStore;
 public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Monitorable {
 	private static final String CACHE_NAME = "robotsTxtCache";
 	
-	/* =========================================================
-	 * Config Properties
-	 * ========================================================= */
+	/**
+	 * Systemwidth unique ID
+	 * @see Constants#SERVICE_PID
+	 */
 	private static final String PID = IRobotsTxtManager.class.getName();
 	
+	/* =========================================================
+	 * Config Properties
+	 * ========================================================= */	
 	private static final String PROP_CONNECTION_TIMEOUT 	= PID + '.' + "connectionTimeout";
 	private static final String PROP_SOCKET_TIMEOUT 		= PID + '.' + "socketTimeout";
 	private static final String PROP_MAXCONNECTIONS_TOTAL 	= PID + '.' + "maxConnectionsTotal";
@@ -101,6 +105,9 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	
 	private static final String ROBOTS_AGENT_PAXLE = "paxle";
 	
+	/* =========================================================
+	 * OSGi Monitorable CONSTANTS
+	 * ========================================================= */		
 	public static final String MONITOR_PID = "org.paxle.robots-txt";
 	private static final String MONITOR_STORE_SIZE = "store.size";
 
@@ -172,8 +179,6 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 		this.manager = CacheManager.getInstance();
 		
 		// init threadpool
-		// XXX should we set the thread-pool size?
-		// this.execService = Executors.newCachedThreadPool();
 		final int nThreads = 20;
 		this.execService = new ThreadPoolExecutor(nThreads, nThreads,
                 0L, TimeUnit.MILLISECONDS,
@@ -371,7 +376,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	 */
 	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {
 		if (id.equals(MONITOR_STORE_SIZE)) {
-			return new StatusVariable(MONITOR_STORE_SIZE, StatusVariable.CM_CC, loader.size());
+			return new StatusVariable(MONITOR_STORE_SIZE, StatusVariable.CM_CC, this.loader.size());
 		} else {
 			throw new IllegalArgumentException("no such variable '" + id + "'");
 		}	
@@ -801,7 +806,8 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 			}
 
 			// trying to download the robots.txt
-			if (robotsTxt == null || (System.currentTimeMillis() - robotsTxt.getLoadedDate().getTime() > robotsTxt.getReloadInterval())) {				
+			boolean newDomain = robotsTxt == null;
+			if (newDomain || (System.currentTimeMillis() - robotsTxt.getLoadedDate().getTime() > robotsTxt.getReloadInterval())) {				
 				robotsTxt = this.getFromWeb(URI.create(baseUri.toASCIIString() + "/robots.txt"));
 				this.putIntoCache(hostPort, robotsTxt);
 				this.loader.write(robotsTxt);

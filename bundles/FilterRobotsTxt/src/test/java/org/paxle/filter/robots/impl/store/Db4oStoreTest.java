@@ -30,7 +30,7 @@ public class Db4oStoreTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.tempFile = new File("target/temp" + System.currentTimeMillis());
-		this.store = new Db4oStore(null, this.tempFile);
+		this.store = new Db4oStore(null, this.tempFile, 50000);
 	}
 
 	@Override
