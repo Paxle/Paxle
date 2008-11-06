@@ -15,19 +15,27 @@
 ## getting resourcebundle to translate site
 #set( $text = $resourceTool.bundle('OSGI-INF/l10n/sysdown'))
 
-## Set the page title
-#if( $restart )
-	#set( $page_title = ${text.browser.title.restart} )
+#if($action)
+	#if($action == "restart")
+		#set($page_title = ${text.browser.title.restart})
+		<img src="../images/restart.png">
+		<h2>${text.restartMsg}</h2>
+	#elseif($action == "shutdown")
+		#set($page_title = ${text.browser.title.shutdown})
+		<img src="../images/shutdown.png">
+		<h2>${text.shutdownMsg}</h2>
+	#end
 #else
-	#set( $page_title = ${text.browser.title.shutdown} )
-#end
-
-## the regular content
-
-#if( $restart )
-<img src="../images/restart.png">
-<h2>${text.restartMsg}</h2>
-#else
-<img src="../images/shutdown.png">
-<h2>${text.shutdownMsg}</h2>
+   #set($page_title = ${text.browser.title})
+   <h2>${text.msg}</h2>
+   <div>
+	<form method="post" action="" style="float: left;">	
+		<input type="hidden" name="action" value="shutdown" />
+		<input class="btnShutdown" type="submit" name="shutdown" value="${text.shutdownBtn}" />
+	</form>
+	<form method="post" action="">
+		<input type="hidden" name="action" value="restart" />
+		<input class="btnRestart" type="submit" name="restart" value="${text.restartBtn}" />
+	</form>
+   </div>
 #end

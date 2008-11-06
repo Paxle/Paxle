@@ -45,11 +45,11 @@ public class StatusView extends ALayoutServlet {
 			} else if (request.getParameter("shutdown") != null) {
 				// redirecting to shutdown-servlet
 				// TODO: servlet-path prefix handling required here
-				response.sendRedirect("/sysdown?restart=false");
+				response.sendRedirect("/sysdown?action=shutdown");
 			} else if (request.getParameter("restart") != null) {
 				// redirecting to shutdown-servlet
 				// TODO: servlet-path prefix handling required here
-				response.sendRedirect("/sysdown?restart=true");
+				response.sendRedirect("/sysdown?action=restart");
 			} else {		
 				super.doRequest(request, response);
 			}

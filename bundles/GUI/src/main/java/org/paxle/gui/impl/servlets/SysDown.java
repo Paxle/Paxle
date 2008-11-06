@@ -34,13 +34,16 @@ public class SysDown extends ALayoutServlet {
 			int shutdownDelay = 5;
 			
 			// If restart is true, restart, in any other case simply shut down
-			if (request.getParameter("restart") != null && request.getParameter("restart").equalsIgnoreCase("true")) {
-				manager.restartFrameworkDelayed(shutdownDelay);
-				context.put("restart", Boolean.TRUE);
-			} else {
-				manager.shutdownFrameworkDelayed(shutdownDelay);
-				context.put("restart", Boolean.FALSE);
-			}
+			if (request.getParameter("action") != null) {
+				String action = request.getParameter("action");
+			
+				if (action.equalsIgnoreCase("restart")) {
+					manager.restartFrameworkDelayed(shutdownDelay);					
+				} else if (action.equalsIgnoreCase("shutdown")) {
+					manager.shutdownFrameworkDelayed(shutdownDelay);
+				}
+				context.put("action", action);
+			} 
 		} catch( Exception e ) {
 			this.logger.error(e);
 		}
