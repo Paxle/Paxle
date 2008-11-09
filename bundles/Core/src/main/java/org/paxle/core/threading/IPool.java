@@ -48,6 +48,11 @@ public interface IPool<Data> {
 	public int getActiveJobCount();
 	
 	/**
+	 * @return the maximum number of active jobs
+	 */
+	public int getMaxActiveJobCount();
+	
+	/**
 	 * Close the thread pool and interrupts all running threads .
 	 */
 	public void close() throws Exception;

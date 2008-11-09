@@ -45,4 +45,9 @@ public interface IMaster {
 	 * Process the next job in the queue if the componend was paused
 	 */
 	public void processNext();	
+	
+	/**
+	 * @return total number of processed jobs since startup
+	 */
+	public int processedCount();
 }

@@ -52,7 +52,7 @@ public class Master<Data> extends Thread implements IMaster {
 	protected boolean paused = false;
 	
 	/**
-	 * total number of processed jobs since startup. Not used at the moment, if you want to use this, uncomment the appropriate line in run()
+	 * total number of processed jobs since startup. 
 	 */
 	protected int processedCount = 0;
 	
@@ -215,5 +215,12 @@ public class Master<Data> extends Thread implements IMaster {
 	 */
 	public void setDelay(int delay) {
 		this.delay = delay;
+	}
+
+	/**
+	 * @see IMaster#processedCount()
+	 */
+	public int processedCount() {
+		return this.processedCount;
 	}
 }

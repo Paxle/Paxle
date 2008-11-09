@@ -55,6 +55,8 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	private static final String VAR_NAME_PAUSED = "status.paused";
 	private static final String VAR_NAME_JOBS_ENQUEUED = "jobs.enqueued";
 	private static final String VAR_NAME_JOBS_ACTIVE = "jobs.active";
+	private static final String VAR_NAME_JOBS_MAX = "jobs.max";
+	private static final String VAR_NAME_JOBS_TOTAL = "jobs.total";
 	
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
@@ -63,7 +65,9 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 			VAR_NAME_PPM,
 			VAR_NAME_PAUSED,
 			VAR_NAME_JOBS_ENQUEUED,
-			VAR_NAME_JOBS_ACTIVE
+			VAR_NAME_JOBS_ACTIVE,
+			VAR_NAME_JOBS_MAX,
+			VAR_NAME_JOBS_TOTAL
 	}));
 	
 	/**
@@ -75,6 +79,8 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		VAR_DESCRIPTIONS.put(VAR_NAME_PAUSED, "Current activation status");
 		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_ENQUEUED, "Amount of enqueued jobs");
 		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_ACTIVE, "Amount of active jobs");
+		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_MAX, "Maximum allowed number of active jobs");
+		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_TOTAL, "Total number of jobs processed since startup");
 	}
 	
 	public static final String PROP_POOL_MIN_IDLE = "pool.minIdle";
@@ -471,7 +477,11 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		} else if (name.equals(VAR_NAME_JOBS_ACTIVE)) {
 			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getActiveJobCount()));
 		} else if (name.equals(VAR_NAME_JOBS_ENQUEUED)) {
-			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getEnqueuedJobCount()));
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getEnqueuedJobCount()));			
+		} else if (name.equals(VAR_NAME_JOBS_MAX)) {
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getPool().getMaxActiveJobCount()));						
+		} else if (name.equals(VAR_NAME_JOBS_TOTAL)) {
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getMaster().processedCount()));
 		}
 		return null;
 	}

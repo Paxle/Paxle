@@ -73,6 +73,13 @@ public class Pool<Data> extends GenericObjectPool implements IPool<Data> {
 		return this.activeWorkers.size();
 	}
 	
+	/**
+	 * @see IPool#getMaxActiveJobCount()
+	 */
+	public int getMaxActiveJobCount() {
+		return this.getMaxActive();
+	}
+	
 	private void addActiveWorker(IWorker<Data> worker) {
 		try {
 			this.w.lock();
