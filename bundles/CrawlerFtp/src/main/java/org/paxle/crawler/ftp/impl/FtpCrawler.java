@@ -43,10 +43,13 @@ public class FtpCrawler implements IFtpCrawler {
 		if (requestUri == null) throw new NullPointerException("URL was null");
 		this.logger.info(String.format("Crawling URL '%s' ...", requestUri));		
 		
-		CrawlerDocument crawlerDoc = new CrawlerDocument();
-		crawlerDoc.setCrawlerDate(new Date());
-		
+		CrawlerDocument crawlerDoc = null;
 		try {
+			// creating a crawler-doc and set some basic properties
+			crawlerDoc = new CrawlerDocument();
+			crawlerDoc.setCrawlerDate(new Date());
+			crawlerDoc.setLocation(requestUri);
+			
 			FtpUrlConnection ftpConnection = new FtpUrlConnection(requestUri.toURL());
 
 			// connect to host
@@ -57,6 +60,12 @@ public class FtpCrawler implements IFtpCrawler {
 			if (modTimeStamp != 0) {
 				crawlerDoc.setLastModDate(new Date(modTimeStamp));
 			}
+			
+			// getting content-type if available
+			String contentType = ftpConnection.getContentType();
+			if (contentType != null) {
+				crawlerDoc.setMimeType(contentType);
+			}			
 			
 			// get input stream
 			InputStream input = ftpConnection.getInputStream();
