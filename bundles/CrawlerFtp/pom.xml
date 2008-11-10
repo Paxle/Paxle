@@ -63,8 +63,7 @@
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
-							commons-net;scope=compile|runtime,
-							oro;scope=compile|runtime
+							commons-net;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
@@ -94,12 +93,7 @@
 		<dependency>
 			<groupId>commons-net</groupId>
 			<artifactId>commons-net</artifactId>
-			<version>1.4.1</version>
-		</dependency>
-		<dependency>
-			<groupId>oro</groupId>
-			<artifactId>oro</artifactId>
-			<version>2.0.8</version>
+			<version>2.0</version>
 		</dependency>
 
 <!--		<dependency>-->
