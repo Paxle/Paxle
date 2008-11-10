@@ -69,7 +69,7 @@ $dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelNa
             	<tr>
             		<td class="log$levelName">$text.get("loglevel.$levelName")</td>
             		<td><tt>$dateTool.format("$dateFormat",$logEntry.getTime())</tt></td>
-            		<td><tt>$logEntry.getMessage()#if( $logEntry.getException())<div class="exception">$logView.toString($logEntry.getException())</div>#end</tt>
+            		<td><tt>$escTool.html($logEntry.getMessage())#if( $logEntry.getException())<div class="exception">$logView.toString($logEntry.getException())</div>#end</tt>
             		</td>
             	</tr>
         	#end
