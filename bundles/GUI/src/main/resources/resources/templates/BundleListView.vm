@@ -42,8 +42,8 @@
     <h4>${text.installBundles.fromFile.title}</h4>
     <form enctype="multipart/form-data" method="post" action="">
     	<p>
-			<input type="checkbox" name="replaceExisting" id="replaceExisting" />
-			<label for="replaceExisting">${text.installBundles.replaceExisting}</label><br />
+		<input type="checkbox" name="replaceExisting" id="replaceExisting" />
+		<label for="replaceExisting">${text.installBundles.replaceExisting}</label><br />
     		<input type="file" name="bundleJar" size="60" />
     		<input type="submit" name="installUpload" value="${text.installBundles.doInstall}" />
     	</p>
@@ -58,7 +58,7 @@
 		<p>
 			#set( $filters = {"${text.listBundles.filter.all}":'(Bundle-SymbolicName=*)', "${text.listBundles.filter.allPaxle}":'(Bundle-SymbolicName=org.paxle.*)', "${text.listBundles.filter.allPaxleCrawlers}":'(Bundle-SymbolicName=org.paxle.Crawler*)', "${text.listBundles.filter.allPaxleParsers}":'(Bundle-SymbolicName=org.paxle.Parser*)'})
 			${text.listBundles.filterBundles}:			
-    		<select name="filter">
+    			<select name="filter">
 				#foreach($entry in $sortTool.sort(${filters.entrySet()}, ["key:asc"]))
 					<option value="${entry.value}" #if($filter && $filter == ${entry.value})selected="selected"#end>${entry.key}</option>
 				#end
@@ -69,33 +69,33 @@
 
     <table>
     	<tr>
-			<th>${text.listBundles.id}</th>
+		<th>${text.listBundles.id}</th>
     		<th>${text.listBundles.bundleName}</th>
-			<th>${text.listBundles.bundleVersion}</th>
+		<th>${text.listBundles.bundleVersion}</th>
     		<th>${text.listBundles.action}</th>
     	</tr>
-     	#if( $bundles)
+     	#if($bundles)
     	#foreach( $entry in $bundles.entrySet())
     	<tr>
-			#set($bundleID = $entry.key)
-			#set($bundleSymbolicName = $entry.value.symbolicName)
-			#set($bundleState = $states.get($entry.value.state))
-			#set($bundleHeaders = $entry.value.getHeaders())
+		#set($bundleID = $entry.key)
+		#set($bundleSymbolicName = $entry.value.symbolicName)
+		#set($bundleState = $states.get($entry.value.state))
+		#set($bundleHeaders = $entry.value.getHeaders())
 			
-			<td><a class="$bundleState" href="?bundleID=$bundleID&amp;action=details">$bundleID</a></td>
-    		<td class="bundle_$bundleState">
-				<a class="$bundleState" href="?bundleID=$bundleID&amp;action=details">
-					$bundleHeaders.get('Bundle-Name')
-				</a><br/>				
+		<td><a class="$bundleState" href="?bundleID=$bundleID&amp;action=details">$bundleID</a></td>
+		<td class="bundle_$bundleState">
+			<a class="$bundleState" href="?bundleID=$bundleID&amp;action=details">
+				$bundleHeaders.get('Bundle-Name')
+			</a><br/>				
     			<tt>[$bundleSymbolicName]</tt>
-				#if($bundleHeaders.get('Bundle-Description'))
-					<br/><div class="descriptionText">$bundleHeaders.get('Bundle-Description')</div>
-				#end
-				#if(($bundleState == 'resolved' || $bundleState == 'installed') && ($bundleHeaders.get("Bundle-Activator")))
-					<br/><font color="red">${text.listBundles.bundleNotStarted}</font>
-				#end
+			#if($bundleHeaders.get('Bundle-Description'))
+				<br/><div class="descriptionText">$bundleHeaders.get('Bundle-Description')</div>
+			#end
+			#if(($bundleState == 'resolved' || $bundleState == 'installed') && ($bundleHeaders.get("Bundle-Activator")))
+				<br/><font color="red">${text.listBundles.bundleNotStarted}</font>
+			#end
     		</td>
-			<td><tt>$bundleHeaders.get('Bundle-Version')</tt></td>
+		<td><tt>$bundleHeaders.get('Bundle-Version')</tt></td>
     		<td>
     			<form action="">
     				<div>

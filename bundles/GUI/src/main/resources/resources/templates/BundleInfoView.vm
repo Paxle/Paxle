@@ -130,3 +130,6 @@
 		#end
 	</table>
 </fieldset>
+<div>
+	<a class="button" href="$request.requestURI">${text.goBackToOverview}</a>
+</div>

@@ -448,7 +448,7 @@ public class BundleView extends ALayoutServlet {
 	private static TreeMap<Long,Bundle> bundles2map(Bundle[] bundles) {
 		final TreeMap<Long,Bundle> r = new TreeMap<Long,Bundle>();
 		for (Bundle bundle : bundles)
-			if (bundle.getBundleId() > 0)
+//			if (bundle.getBundleId() > 0)
 				r.put(Long.valueOf(bundle.getBundleId()), bundle);
 		return r;
 	}
