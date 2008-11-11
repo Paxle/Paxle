@@ -95,7 +95,11 @@
 				<br/><font color="red">${text.listBundles.bundleNotStarted}</font>
 			#end
     		</td>
-		<td><tt>$bundleHeaders.get('Bundle-Version')</tt></td>
+		<td><tt>$!bundleHeaders.get('Bundle-Version')</tt>
+			#if($bundleHeaders.get("Implementation-Build"))
+				<br/><tt>(SVN&nbsp;Rev.&nbsp;$bundleHeaders.get("Implementation-Build"))</tt>
+			#end
+		</td>
     		<td>
     			<form action="">
     				<div>

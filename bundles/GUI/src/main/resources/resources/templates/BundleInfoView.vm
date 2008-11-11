@@ -27,7 +27,9 @@
 #set($bundleName = $bundle.getHeaders().get("Bundle-Name"))
 #set($bundleVersion = $bundle.getHeaders().get("Bundle-Version"))
 #set($bundleDescr = $bundle.getHeaders().get("Bundle-Description"))
-<h3>#{if}($bundleName)$bundleName#{else}${bundle.getSymbolicName()}#{end} ($bundleVersion)</h3>
+#set($bundleBuildNr = $bundle.getHeaders().get("Implementation-Build"))
+
+<h3>#{if}($bundleName)$bundleName#{else}${bundle.getSymbolicName()}#{end} ($bundleVersion#{if}($$bundleBuildNr) - SVN Rev. $bundleBuildNr#{end})</h3>
 <br />
 #if($bundleDescr)
 	<div class="descriptionText">$bundleDescr</div>
