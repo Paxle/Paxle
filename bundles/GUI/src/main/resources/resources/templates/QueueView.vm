@@ -26,14 +26,15 @@
 
 <ul class="tabs">
 	<li><a href="/queue" #if(!$paramParser.getString("queue"))class="active"#end>${text.tab.overview}</a></li>
-	<li><a href="?queue=org.paxle.crawler" #if($paramParser.getString("queue","")=="org.paxle.crawler")class="active"#end>${text.tab.crawler}</a></li>
-	<li><a href="?queue=org.paxle.parser" #if($paramParser.getString("queue","")=="org.paxle.parser") class="active"#end>${text.tab.parser}</a></li>
-	<li><a href="?queue=org.paxle.indexer" #if($paramParser.getString("queue","")=="org.paxle.indexer") class="active"#end>${text.tab.indexer}</a></li>
+	#set($components = ['org.paxle.crawler', 'org.paxle.parser', 'org.paxle.indexer'])
+	#foreach($entry in ${components})
+		<li><a href="?queue=$entry" #if($paramParser.getString("queue","")==$entry)class="active"#end>$text.get("tab.$entry")</a></li>
+	#end
 </ul>
 
 
 <script type="text/javascript">
-			/*<![CDATA[*/
+/*<![CDATA[*/
       var ajaxPopulater = function (id,reload) {
          var url  = '${servletManager.getFullAlias("/queue")}?#{if}($paramParser.getString("queue"))queue=${paramParser.getString("queue")}&#{end}reload=' + reload;
          new Ajax.PeriodicalUpdater(id, url, {
@@ -43,7 +44,7 @@
             decay: 1
          });
       };
-			/*]]>*/
+/*]]>*/
 </script>
 	  
 #if($paramParser.getString("queue"))

@@ -16,19 +16,19 @@
 #set( $text = $resourceTool.bundle('OSGI-INF/l10n/queueview'))
 
 <fieldset>
-	<legend>${text.overview.legend}</legend>  
-	#set( $components = { ${text.tab.crawler}:'org.paxle.crawler', ${text.tab.parser}:'org.paxle.parser', ${text.tab.indexer}:'org.paxle.indexer'})
+	<legend>${text.overview.legend}</legend>
+	#set($components = ['org.paxle.crawler', 'org.paxle.parser', 'org.paxle.indexer'])
 	<table>
 		<tr>
 			<th>${text.table.component}</th>
 			<th>${text.table.active}</th>
 			<th>${text.table.enqueued}</th>
 		</tr>
-		#foreach($entry in ${components.entrySet()})
-    		#if($manager.getServices("org.paxle.core.IMWComponent", "(component.ID=${entry.value})"))
+		#foreach($entry in ${components})
+    		#if($manager.getServices("org.paxle.core.IMWComponent", "(component.ID=$entry)"))
     		<tr>
-				#set($compQueue = $listTool.get($manager.getServices( "org.paxle.core.IMWComponent", "(component.ID=${entry.value})"),0))
-    			<td><a href="?queue=${entry.value}">${entry.key}</a></td>
+			#set($compQueue = $listTool.get($manager.getServices("org.paxle.core.IMWComponent", "(component.ID=$entry)"),0))
+    			<td><a href="?queue=$entry">$text.get("tab.$entry")</a></td>
     			<td>${compQueue.getActiveJobCount()}</td>
     			<td>${compQueue.getEnqueuedJobCount()}</td>
     		</tr>
