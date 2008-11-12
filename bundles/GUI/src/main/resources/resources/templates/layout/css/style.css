@@ -91,6 +91,10 @@ a.button {
 	padding:0.26em;
 }
 
+div.buttonBar {
+	padding-top: 5px;
+}
+
 input:focus, textarea:focus {
 	background-color: #FFFFFF;
 	color: #000000;

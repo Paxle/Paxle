@@ -142,6 +142,7 @@
                     		</tr>                            		
                     	#end
                     	</table>
+                    	<div class="buttonBar">
 						#if(!$paramParser.getString("viewImportedConfig"))
 							<input type="submit" name="doEditConfig" value="${text.listConfig.doChange}"/>
 							<input type="submit" name="doResetConfig" value="${text.listConfig.doReset}" />
@@ -150,7 +151,8 @@
 							<input type="submit" name="doImportConfig" value="${text.listConfig.doImport}"/>
 							<input type="hidden" name="viewImportedConfig"/>
 						#end
-						<a class="button" href="?settings=config#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${text.listConfig.goBackToOverview}</a>
+						<a class="button" id="backButton" href="?settings=config#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${text.listConfig.goBackToOverview}</a>
+			</div>
 					</form>
 				#end
 				<hr/>

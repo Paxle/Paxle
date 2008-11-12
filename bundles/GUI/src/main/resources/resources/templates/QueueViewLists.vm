@@ -53,5 +53,7 @@
 	<legend>${text.enqueuedJob.legend}</legend>
 	#listCommands($enqueuedJobs)
 </fieldset>
-	
+<div class="buttonBar">
+	<a class="button" id="backButton" href="$request.requestURI">${text.goBackToOverview}</a>
+</div>
 <div class="lastUpdate">Last Update: ${dateTool.format('medium',$dateTool.getDate())}</div>

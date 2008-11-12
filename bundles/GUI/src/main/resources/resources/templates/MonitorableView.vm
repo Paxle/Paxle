@@ -66,6 +66,12 @@
 			#end			
 		#end
 		</table>
+		
+		#if($paramParser.getString("monitorableId"))
+		<div class="buttonBar">
+			<a class="button" id="backButton" href="$request.requestURI">${text.goBackToOverview}</a>
+		</div>
+		#end
 	#end
 #else
 	<p class="error bundleNotInstalled">${text.monitorableView.monitorAdmin.notfound}</p>
