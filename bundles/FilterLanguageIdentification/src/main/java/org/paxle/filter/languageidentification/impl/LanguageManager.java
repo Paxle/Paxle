@@ -126,22 +126,32 @@ public class LanguageManager implements IFilter<ICommand> {
 	/**
 	 * Inserts the ISO 639-2 code of the primary document language into the parser and subparser docs
 	 */
-	public void filter(ICommand arg0, IFilterContext arg1) {
-		if (arg0 == null) throw new NullPointerException("The command object is null.");
+	public void filter(ICommand command, IFilterContext context) {
+		if (command == null) throw new NullPointerException("The command object is null.");
 
-		if (arg0.getResult() != ICommand.Result.Passed) {
+		if (command.getResult() != ICommand.Result.Passed) {
 			logger.debug("Command didn't pass, aborting language detection.");
 			return;
 		}
 
-		IParserDocument pdoc = arg0.getParserDocument();
-
-		if (pdoc == null || pdoc.getStatus() != IParserDocument.Status.OK) {
-			logger.debug("Language of pDoc '" + pdoc.getOID() + "' can't be determined");
+		IParserDocument pdoc = command.getParserDocument();
+		if (pdoc == null) {
+			this.logger.debug(String.format(
+					"No language detection possible for command '%s'. pdoc was null.",
+					command.getLocation().toASCIIString()
+			));
+			return;
+		} else if (pdoc.getStatus() != IParserDocument.Status.OK) {
+			logger.debug(String.format(
+					"Language of pDoc '%d' can't be determined. pDoc status was '%s': %s",
+					new Integer(pdoc.getOID()),
+					pdoc.getStatus().toString(),
+					pdoc.getStatusText()
+			));
 			return;
 		}
 
-		getLanguage(arg0.getParserDocument());
+		getLanguage(command.getParserDocument());
 	}
 
 }
