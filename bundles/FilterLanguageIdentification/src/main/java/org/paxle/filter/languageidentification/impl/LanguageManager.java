@@ -51,8 +51,13 @@ public class LanguageManager implements IFilter<ICommand> {
 		}
 		NGramSet nlng = new NGramSet();
 		nlng.load(definition);
+		
 		//set name to xx from filename /profiles/xx.txt
-		nlng.setLanguageName(definition.getFile().substring(10, 12));
+		String uriStr = definition.toString();
+		int idx = uriStr.lastIndexOf('/');
+		String lng = uriStr.substring(idx+1,uriStr.lastIndexOf(".txt"));
+		nlng.setLanguageName(lng);
+		
 		this.lngs.add(nlng);
 		logger.debug("Loaded language '" + nlng.getLanguageName() +"' from file " + definition.toExternalForm());
 	}
