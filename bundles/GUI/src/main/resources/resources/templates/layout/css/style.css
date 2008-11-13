@@ -258,12 +258,15 @@ td {
 	background: #0000A0 url(../images/log-info.png) no-repeat scroll left center;	
 }
 
-span.error {
-	padding: 0;
+span.error, p.error {
 	font-size: 1em;
 	background-image: none;
 	background-color: #730002;
 	color: #FFFFFF;
+}
+
+span.error {
+	padding: 0;
 }
 
 .exception {
