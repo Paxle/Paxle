@@ -24,16 +24,29 @@
 #set($page_headers = [$h1] )
 
 <script type="text/javascript">
+	var populaters = new Array();
+
 	var ajaxPopulater = function (id,reload){
     		var url  = '${servletManager.getFullAlias("/overview")}?reload=' + reload;
-    		new Ajax.PeriodicalUpdater(id, url,   
+    		var populater = new Ajax.PeriodicalUpdater(id, url,   
     		{
 			method: 'post',
 			frequency: 5,
 			asynchronous: true,
 			decay: 1
 		});
+		
+		populaters[id] = populater;
    	};
+   	
+	function controlPopulater(id, enable) { 
+		var updater = populaters[id];
+		if (enable) { 
+			updater.start(); 
+		} else { 
+			updater.stop(); 
+		} 
+	}
    	
    	var initAjaxPopulater = function() {
 		ajaxPopulater('infoBoxSystem','system');

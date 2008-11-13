@@ -336,6 +336,11 @@ img {
 	margin-top: 10px;
 }
 
+.lastUpdate input.updateControl {
+	border: 1px solid white;
+	cursor: pointer;	
+}
+
 #login {
 	margin-top: 5px;
 }

@@ -29,7 +29,10 @@
 	<dl>
 		<dt>${text.ovDatabase.knownDocs}:</dt><dd>$monitorAdmin.getStatusVariable('org.paxle.lucene-db/docs.known').getInteger()</dd>
 	</dl>
-	<div class="lastUpdate">${text.lastUpdate.insert($dateTool.format('medium',$dateTool.getDate()))}</div>
+	<div class="lastUpdate">
+		${text.lastUpdate.insert($dateTool.format('medium',$dateTool.getDate()))}
+		&nbsp;<input class="updateControl" type="checkbox" onclick="controlPopulater('infoBoxKnownDocuments',this.checked);" checked="checked"/>&nbsp;$text.updateEnabled
+	</div>
 </fieldset>
 
 

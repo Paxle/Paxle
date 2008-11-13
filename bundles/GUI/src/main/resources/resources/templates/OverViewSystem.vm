@@ -44,5 +44,8 @@
 			<td>by $frameworkVendor,<br /> $frameworkVersion</td>
 		</tr>
 	</table>
-	<div class="lastUpdate">${text.lastUpdate.insert($dateTool.format('medium',$dateTool.getDate()))}</div>
+	<div class="lastUpdate">
+		${text.lastUpdate.insert($dateTool.format('medium',$dateTool.getDate()))}
+		&nbsp;<input class="updateControl" type="checkbox" onclick="controlPopulater('infoBoxSystem',this.checked);" checked="checked"/>&nbsp;$text.updateEnabled
+	</div>
 </fieldset>
