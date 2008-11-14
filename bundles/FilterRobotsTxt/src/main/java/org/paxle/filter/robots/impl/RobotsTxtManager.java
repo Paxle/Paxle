@@ -950,15 +950,20 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 				
 				long start = System.currentTimeMillis(); 
 				Collection<URI> disallowedList = isDisallowed(this.baseUri, this.uriList);
-				long end = System.currentTimeMillis();
+				long total = System.currentTimeMillis() - start;
 
-				logger.debug(String.format(
-						"Robots.txt check of %d URI hosted on '%s' took %d ms. Access to %d URI disallowed.",
-						Integer.valueOf(this.uriList.size()),
-						this.baseUri.toASCIIString(),
-						Long.valueOf(end-start),
-						Integer.valueOf((disallowedList==null)?0:disallowedList.size())
-				));
+				if (logger.isDebugEnabled() || (total > 500)) {
+					String msg = String.format(
+							"Robots.txt check of %d URI hosted on '%s' took %d ms. Access to %d URI disallowed.",
+							Integer.valueOf(this.uriList.size()),
+							this.baseUri.toASCIIString(),
+							Long.valueOf(total),
+							Integer.valueOf((disallowedList==null)?0:disallowedList.size())
+					);
+					
+					if (total <= 500) logger.debug(msg); 
+					else logger.info(msg);  
+				}
 
 				return disallowedList;
 			} catch (Exception e) {
