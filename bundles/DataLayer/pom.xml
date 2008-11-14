@@ -42,7 +42,7 @@
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.event;version="1.1",
-							org.osgi.service.monitor;version="1.0",
+							org.osgi.service.monitor;version="0.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Apache Commons Collection -->
