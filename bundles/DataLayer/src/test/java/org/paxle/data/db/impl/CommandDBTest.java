@@ -42,7 +42,7 @@ public class CommandDBTest extends MockObjectTestCase {
 	private static final String H2_CONFIG_FILE = "../DataLayerH2/src/main/resources/resources/hibernate/H2.cfg.xml";
 	
 	private static final String DERBY_CONNECTION_URL = "jdbc:derby:target/command-db;create=true";
-	private static final String H2_CONNECTION_URL = "jdbc:h2:target/command-db/cdb";
+	private static final String H2_CONNECTION_URL = "jdbc:h2:target/command-db/cdb;MVCC=TRUE";
 	
 	private ICommandTracker cmdTracker;
 	private CommandDB cmdDB;
