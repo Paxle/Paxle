@@ -103,7 +103,7 @@
 						<Bundle-NativeCode>
 							lib/linux26/x86/libjsysmon.so; osname=Linux; processor=x86; osversion=2.6,
 							lib/linux26/x86_64/libjsysmon.so; osname=Linux; processor=x86-64; osversion=2.6,
-							lib/windows/jsysmon.dll; osname=WindowsXP; osname=Windows XP; osname=WinXP; osname=WindowsVista; osname=Windows Vista;processor=x86							
+							lib/windows/jsysmon.dll; osname=win32; processor=x86							
 						</Bundle-NativeCode>			
 					</instructions>
 				</configuration>

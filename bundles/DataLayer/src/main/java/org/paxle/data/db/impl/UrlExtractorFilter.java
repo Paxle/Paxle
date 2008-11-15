@@ -15,7 +15,7 @@
 package org.paxle.data.db.impl;
 
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
@@ -114,7 +114,7 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 	private void extractLinks(final ICommand command, Map<URI, LinkInfo> linkMap, final Counter c) {
 		if (linkMap == null) return;
 		
-		final ArrayList<URI> refs = new ArrayList<URI>();		
+		final LinkedList<URI> refs = new LinkedList<URI>();		
 		for (Entry<URI, LinkInfo> link : linkMap.entrySet()) {
 			URI ref = link.getKey();
 			LinkInfo meta = link.getValue();

@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.TreeSet;
@@ -49,6 +50,7 @@ import net.sf.ehcache.Status;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
+import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.ScrollMode;
@@ -695,6 +697,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		Transaction transaction = null;
 		try {
 			session = this.sessionFactory.openSession();
+			session.setFlushMode(FlushMode.COMMIT);
 			transaction = session.beginTransaction();
 			
 			Query query = session.getNamedQuery("fromCrawlerQueue");
@@ -798,18 +801,22 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	 */
 	public boolean enqueue(URI location, int profileID, int depth) {
 		if (location == null) return false;
-		return this.storeUnknownLocations(profileID, depth, new ArrayList<URI>(Arrays.asList(new URI[]{location}))) == 0;
+		return this.storeUnknownLocations(profileID, depth, new LinkedList<URI>(Arrays.asList(new URI[]{location}))) == 0;
 	}
 	
 	private int storeUnknownInDoubleCache(
 			final int profileID,
 			final int depth,
-			final ArrayList<URI> locations,
+			final LinkedList<URI> locations,
 			final Session session) {
 		
 		final Iterator<URI> locationIterator = locations.iterator();
 		final long time = System.currentTimeMillis();
 		final Key key = new Key();
+				
+		final StringBuilder buf = new StringBuilder();
+		final int total = locations.size();
+		int counter = 0;
 		int cacheChecked = 0;
 		int known = 0;
 		
@@ -818,6 +825,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		final DynamicBloomFilter bloomFilter = this.bloomFilter;
 		final Cache urlExistsCache = this.urlExistsCache;
 		while (locationIterator.hasNext()) {
+			counter++;
+			
 			final URI loc = locationIterator.next();
 			if (checkBloom) {
 				try {
@@ -840,6 +849,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					locationIterator.remove();
 					cacheChecked++;
 					
+					if (this.logger.isTraceEnabled()) {
+						buf.append(String.format("\n\t[%3d] %s", Integer.valueOf(counter), loc.toString()));
+					}					
+					
 					continue;
 				}
 			}
@@ -849,24 +862,44 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				known++;
 			}
 		}
-		if (logger.isDebugEnabled())
-			logger.debug("storeUnknownLocations: locations left to check against the DB: " + locations.size() +
-					", bloom filter (unknown): " + cacheChecked + ", ehcache (known): " + known +
-					" in " + (System.currentTimeMillis() - time) + " ms" +
-					", cache sizes: " + cacheSize() + " / " + urlExistsCache.getMemoryStoreSize());
+		
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug(String.format(
+					"Double-check of %d URI against caches with size %d (Bloom) + %d (ehcache) took %d ms." +
+					"\n\t%d unknown by bloom-filter" +
+					"\n\t%d known by ehcache" +
+					"\n\t%d left to check",
+					Integer.valueOf(total),
+					Long.valueOf(cacheSize()),
+					Long.valueOf(urlExistsCache.getMemoryStoreSize()),
+					Long.valueOf(System.currentTimeMillis() - time),
+					Integer.valueOf(cacheChecked),
+					Integer.valueOf(known),
+					Integer.valueOf(locations.size())
+			));
+		}
+		if (this.logger.isTraceEnabled() && cacheChecked > 0) {
+			logger.trace(String.format(
+					"%d new URI added to DB: %s",
+					Integer.valueOf(cacheChecked),
+					buf.toString()
+			));
+		}	
+		
 		return known;
 	}
 	
 	private int storeUnknownInDB(
 			final int profileID,
 			final int depth,
-			final ArrayList<URI> locations,
+			final LinkedList<URI> locations,
 			final Session session,
 			final int chunkSize) {
 		
 		int known = 0;
 		HashSet<String> knownLocations = new HashSet<String>();
 		
+		final long start = System.currentTimeMillis();
 		if (locations.size() <= chunkSize) {
 			Query query = session.createQuery("SELECT DISTINCT location FROM ICommand as cmd WHERE location in (:locationList)").setParameterList("locationList",locations);
 			knownLocations.addAll(query.list());
@@ -884,26 +917,58 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				knownLocations.addAll(query.list());			
 			}
 		}
+		final long end = System.currentTimeMillis();
+		
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug(String.format(
+					"Double-check of %d URI against DB with size %d took %s ms." +
+					"\n\t%3d unknown by DB" +
+					"\n\t%3d known by DB",
+					Integer.valueOf(locations.size()),
+					Long.valueOf(this.size()),
+					Long.valueOf(end-start),
+					Integer.valueOf(locations.size()-knownLocations.size()),
+					Integer.valueOf(knownLocations.size())
+			));
+		}
 		
 		// add new commands into DB
-		// process all URIs which have been checked against the DB
+		final StringBuilder buf = new StringBuilder();
 		final Cache urlExistsCache = this.urlExistsCache;
+		final Key key = new Key();
+		
 		for (int i=0; i<locations.size(); i++) {
 			final URI location = locations.get(i);
 			if (knownLocations.contains(location)) {
 				known++;
 			} else {
-				logger.debug("storeUnknownLocations: adding false positive #" + i + " to DB: '" + location + "'");
+				if (this.logger.isTraceEnabled()) {
+					buf.append(String.format("\n\t[%3d] %s", Integer.valueOf(i), location.toString()));
+				}
 				session.saveOrUpdate(Command.createCommand(location,profileID,depth));	
 				cntTotal++;
-				cntCrawlerQueue++;
+				cntCrawlerQueue++;				
 			}
 			
-			// not needed to put into 1st cache as these URIs already have been recognized as member of the cache
-			// add command-location into cache
+			// add command-location into double-URIs-cache
+			try {
+				key.set(location.toString().getBytes(UTF8), 1.0);
+				bloomFilter.add(key);
+			} catch (UnsupportedEncodingException e) {/* ignore this */}
+			
+			// add command-location into eh-cache cache
 			Element element = new Element(location, null);
 			urlExistsCache.put(element);
 		}
+		
+		if (this.logger.isTraceEnabled() && locations.size() > 0) {
+			logger.trace(String.format(
+					"%d false-positive URI added to DB: %s",
+					Integer.valueOf(locations.size()),
+					buf.toString()
+			));
+		}
+		
 		return known;
 	}
 	
@@ -917,7 +982,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	 * @param locations the locations to add to the DB
 	 * @return the number of known locations in the given list
 	 */
-	int storeUnknownLocations(int profileID, int depth, ArrayList<URI> locations) {
+	int storeUnknownLocations(int profileID, int depth, LinkedList<URI> locations) {
 		if (locations == null || locations.size() == 0) return 0;
 		
 		int known = 0;
@@ -926,6 +991,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		try {
 			// open session and transaction
 			session = this.sessionFactory.openSession();
+			session.setFlushMode(FlushMode.COMMIT);
 			transaction = session.beginTransaction();		
 			
 			// check the cache for URL existance and put the ones not known to the

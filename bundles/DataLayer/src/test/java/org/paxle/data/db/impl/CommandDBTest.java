@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
@@ -27,11 +28,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
+import org.paxle.core.threading.PPM;
 
 public class CommandDBTest extends MockObjectTestCase {
 	private static final String DERBY_CONFIG_FILE = "../DataLayerDerby/src/main/resources/resources/hibernate/derby.cfg.xml";
@@ -88,6 +92,8 @@ public class CommandDBTest extends MockObjectTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
+		System.setProperty("paxle.data", "target");
+		
 		// create a dummy command tracker
 		this.cmdTracker = mock(ICommandTracker.class);
 	}
@@ -114,6 +120,10 @@ public class CommandDBTest extends MockObjectTestCase {
 		File dbDir = new File("target/command-db");
 		assertTrue(dbDir.exists());
 		FileUtils.deleteDirectory(dbDir);
+		
+		File bloomDir = new File("target/double-urls-caches");
+		assertTrue(bloomDir.exists());
+		FileUtils.deleteDirectory(bloomDir);
 
 		super.tearDown();
 	}
@@ -123,13 +133,33 @@ public class CommandDBTest extends MockObjectTestCase {
 	 */
 	private class DummyDataSink implements IDataSink<ICommand> {
 		private final Semaphore semaphore;
+		private final PPM ppm = new PPM();
+		private final Log logger = LogFactory.getLog(this.getClass());
+		
+		private long counter = 0;
+		private long lastCounter = 0;
+		private long timestamp = 0;
+		
 		public DummyDataSink(Semaphore semaphore) {
 			this.semaphore = semaphore;
 		}
 		
 		public void putData(ICommand cmd) throws Exception {
-			System.out.println("New Command enqueued: " + cmd.getLocation().toASCIIString());
+			this.ppm.trick();
 			this.semaphore.release();
+			this.counter++;
+			
+			if (System.currentTimeMillis() - timestamp > 60000) {
+				this.logger.info(String.format(
+						"%d commands dequeued in %d ms with '%d' cpm.",
+						Long.valueOf(counter-lastCounter),
+						Long.valueOf(System.currentTimeMillis()-this.lastCounter),
+						Integer.valueOf(this.ppm.getPPM())
+				));
+				
+				this.timestamp = System.currentTimeMillis();
+				this.lastCounter = counter;
+			}
 		}
 
 		public int freeCapacity() throws Exception {
@@ -155,7 +185,7 @@ public class CommandDBTest extends MockObjectTestCase {
 		}});
 		
 		// store new commands
-		ArrayList<URI> testURI = new ArrayList<URI>();
+		LinkedList<URI> testURI = new LinkedList<URI>();
 		for (int i=0; i < MAX; i++) {
 			testURI.add(URI.create("http://test.paxle.net/" + i));
 		}		
@@ -185,5 +215,53 @@ public class CommandDBTest extends MockObjectTestCase {
 		
 		// start test
 		this.storeUnknownLocation();
+	}
+	
+	public void _testVeryLargeURLSet() throws MalformedURLException, InterruptedException {		
+		final int MAX = 1000000;
+		final int chunkSize = 1000;
+		
+		// setup DB
+		this.setupDB(DERBY_CONFIG_FILE, DERBY_CONNECTION_URL);
+		
+		// command-tracker must be called MAX times
+		checking(new Expectations() {{
+			exactly(MAX).of(cmdTracker).commandCreated(with(equal("org.paxle.data.db.ICommandDB")), with(any(ICommand.class)));
+		}});
+		
+		final Semaphore s = new Semaphore(-MAX + 1);
+		
+		new Thread() {
+			public void run() {		
+				try {
+					Thread.sleep(30000);
+				} catch (InterruptedException e) {}
+				
+				// create a dummy data-sink
+				cmdDB.setDataSink(new DummyDataSink(s));	
+			};
+		}.start();
+		
+		// store new commands
+		long start = System.currentTimeMillis();
+		
+		LinkedList<URI> testURI = new LinkedList<URI>();
+		for (int i=1; i <= MAX; i++) {			
+			testURI.add(URI.create("http://test.paxle.net/" + i));
+			if (i % chunkSize == 0 || i == MAX) {
+				int known = this.cmdDB.storeUnknownLocations(0, 1, testURI);				
+				assertEquals(0, known);
+				testURI.clear();
+			}
+		}
+
+		// wait for all commands to be enqueued
+		s.acquire();
+		
+		System.out.println(String.format(
+				"Storing and loading %d URL took %d ms",
+				Integer.valueOf(MAX),
+				Long.valueOf(System.currentTimeMillis()-start)
+		));
 	}
 }
