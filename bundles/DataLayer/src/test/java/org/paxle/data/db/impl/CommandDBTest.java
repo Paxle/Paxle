@@ -153,7 +153,7 @@ public class CommandDBTest extends MockObjectTestCase {
 				this.logger.info(String.format(
 						"%d commands dequeued in %d ms with '%d' cpm.",
 						Long.valueOf(counter-lastCounter),
-						Long.valueOf(System.currentTimeMillis()-this.lastCounter),
+						Long.valueOf(System.currentTimeMillis()-this.timestamp),
 						Integer.valueOf(this.ppm.getPPM())
 				));
 				
@@ -220,6 +220,9 @@ public class CommandDBTest extends MockObjectTestCase {
 	public void _testVeryLargeURLSet() throws MalformedURLException, InterruptedException {		
 		final int MAX = 1000000;
 		final int chunkSize = 1000;
+		
+		System.setProperty("derby.storage.pageCacheSize", "2000");  // default 1000
+		//System.setProperty("derby.storage.pageSize", "32768");      // default 4096 bytes
 		
 		// setup DB
 		this.setupDB(DERBY_CONFIG_FILE, DERBY_CONNECTION_URL);
