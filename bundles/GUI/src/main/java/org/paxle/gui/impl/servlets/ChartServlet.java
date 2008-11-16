@@ -87,6 +87,14 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 	 */
 	public static final String TSERIES_PPM_INDEXER = "org.paxle.indexer/ppm";	
 	
+	/**
+	 * The {@link Constants#SERVICE_PID} of the {@link Monitorable} providing
+	 * informations about the cpu usage of the jvm
+	 * 
+	 * @see #TSERIES_CPU_TOTAL
+	 * @see #TSERIES_CPU_USER
+	 * @see #TSERIES_CPU_SYSTEM
+	 */
 	public static final String CPU_MONITORABLE_ID = "os.usage.cpu";
 	
 	/**
@@ -359,12 +367,13 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 	
 	@Override
     protected void doRequest(HttpServletRequest request, HttpServletResponse response) {
-		String type = null;
-		try {			
-			if (request.getParameter("t") != null) {
-				// getting type
-				type = request.getParameter("t");
-				
+		String chartType = null;
+		try {
+			String display = request.getParameter("display");
+			chartType = request.getParameter("t");
+			
+			if ((display == null || display.equals("plain")) && (chartType != null)) {
+				// getting requested graph size 
 				String wStrg = request.getParameter("w");
 				int width = Integer.valueOf(wStrg == null ? "385": wStrg);
 	
@@ -372,7 +381,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 				int height = Integer.valueOf(hStrg == null ? "200": hStrg);
 	
 				// getting the reuested chart
-				JFreeChart chart = this.chartMap.get(type);
+				JFreeChart chart = this.chartMap.get(chartType);
 				if (chart == null) {
 					response.setStatus(404);
 					return;
@@ -393,14 +402,14 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 			this.logger.error(String.format(
 					"Unexpected '%s' while writing chart '%s'.",
 					e.getClass().getName(),
-					type
+					chartType
 			),e);
 		}
 	}
 	
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {
-		context.put("charts", this.chartMap.keySet());
+		context.put("chartTypeMap", this.chartMap.keySet());
 	}
 	
 	/**

@@ -20,14 +20,47 @@
     
 ## the regular content
 <h2>${text.page.title}</h2>
-<div class="descriptionText">${text.page.desc}</div>
 
-#if($charts)
-<table>
-	#foreach($chart in $charts)
-	<tr>
-		<td><a href="?t=$chart">$chart</a></td>
-	</tr>
+#set($activeTab = $paramParser.getString("t",""))
+#set($displayType = $paramParser.getString("display",""))
+
+## tabs
+<ul class="tabs">
+	<li><a href="?display=all" #if($displayType!="embedded")class="active"#end>${text.tab.overview}</a></li>	
+	#foreach($chartType in $sortTool.sort($chartTypeMap))
+		<li><a href="?display=embedded&amp;t=$chartType" #if($activeTab==$chartType)class="active"#end>
+		#if($text.get("chart.title.$chartType"))
+			$text.tab.chart.insert($text.get("chart.title.$chartType"))
+		#else
+			$text.tab.chart.insert($chartType)
+		#end
+		</a></li>
 	#end
-</table>
+</ul>
+
+#if($displayType == "embedded")
+	<h3>#if($text.get("chart.title.$activeTab"))
+		$text.tab.chart.insert($text.get("chart.title.$activeTab"))
+	    #else
+		$text.tab.chart.insert($activeTab)
+	    #end
+	</h3>
+	#set($chartHeight = ${paramParser.getString('h','400')})
+	#set($chartWidth = ${paramParser.getString('h','800')})
+	<img class="chart" src="?t=$activeTab&amp;h=$chartHeight&amp;w=$chartWidth" height="$chartHeight" width="$chartWidth" />
+#else
+	<div class="descriptionText">${text.page.desc}</div>
+	<table>
+		#foreach($chartType in $sortTool.sort($chartTypeMap))
+		<tr>
+			<td><a href="?display=embedded&amp;t=$chartType">
+				#if($text.get("chart.title.$chartType"))
+					$text.get("chart.title.$chartType")
+				#else
+					$chartType
+				#end
+			</a></td>
+		</tr>
+		#end
+	</table>
 #end
