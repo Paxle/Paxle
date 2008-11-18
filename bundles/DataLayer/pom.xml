@@ -108,23 +108,23 @@
 					<groupId>commons-pool</groupId>
 					<artifactId>commons-pool</artifactId>
 				</exclusion>
-			</exclusions>				
+			</exclusions>
 		</dependency>
 
 		<!-- cache dependencies -->
 		<dependency>
-		    <groupId>net.sf.ehcache</groupId>
-		    <artifactId>ehcache</artifactId>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
 			<exclusions>
 				<exclusion>
-				    <groupId>net.sf.jsr107cache</groupId>
-				    <artifactId>jsr107cache</artifactId>
+					<groupId>net.sf.jsr107cache</groupId>
+					<artifactId>jsr107cache</artifactId>
 				</exclusion>
 				<exclusion>
-				    <groupId>commons-collections</groupId>
-				    <artifactId>commons-collections</artifactId>
-				</exclusion>				
-			</exclusions>		    
+					<groupId>commons-collections</groupId>
+					<artifactId>commons-collections</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- bloom filter dependencies -->
@@ -133,7 +133,7 @@
 			<artifactId>bloomfilter</artifactId>
 			<version>1.0a</version>
 		</dependency>
-		
+
 		<!-- hibernate dependencies -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -200,7 +200,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- for testing -->
 		<dependency>
 			<groupId>org.apache.derby</groupId>
@@ -215,12 +215,19 @@
 	   <version>1.1.103</version>
 	   <scope>test</scope>
 	</dependency>
-		
+
+		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>8.3-603.jdbc3</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>1.4</version>
 			<scope>test</scope>
-		</dependency>		
+		</dependency>
 	</dependencies>
 </project>

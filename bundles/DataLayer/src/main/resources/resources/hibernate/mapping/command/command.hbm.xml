@@ -2,10 +2,35 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping default-lazy="false">
-    <class name="org.paxle.core.queue.ICommand" table="Command" node="Command" lazy="false">
-        <id name="OID" column="id" node="@oid">
+    <class name="org.paxle.core.queue.ICommand" table="EnqueuedCommand" lazy="false" entity-name="EnqueuedCommand">
+        <id name="OID" column="id">
             <generator class="native"/>          
         </id>      
+        
+        <!-- the command processing result -->
+        <property name="result" node="Result/Code">
+			<type name="org.paxle.data.db.impl.EnumUserType">
+				<param name="enumClassName">org.paxle.core.queue.ICommand$Result</param>
+			</type>
+      	</property>
+      	<property name="resultText" index="resultText_idx" />    
+      	
+      	<!-- the resource location -->
+    	<property name="location" length="512" index="ENQUEUED_LOCATION_IDX" type="org.paxle.data.db.impl.URIUserType"/>
+        
+        <property name="profileOID" type="integer">
+        	<column name="profileID" default="-1"/>
+        </property>
+
+    	<property name="depth" type="integer" >
+    		<column name="depth" default="0"/>
+    	</property>
+    </class>
+    
+    <class name="org.paxle.core.queue.ICommand" table="CrawledCommand" lazy="false" entity-name="CrawledCommand">
+        <id name="OID" column="id">
+            <generator class="native"/>          
+        </id>
         
         <!-- the command processing result -->
         <property name="result" node="Result/Code">
@@ -16,47 +41,15 @@
       	<property name="resultText" node="Result/Text" index="resultText_idx" />    
       	
       	<!-- the resource location -->
-    	<property name="location" node="Location" length="512" index="location_idx" type="org.paxle.data.db.impl.URIUserType"/>
+    	<property name="location" node="Location" length="512" index="CRAWLED_LOCATION_IDX" type="org.paxle.data.db.impl.URIUserType"/>
         
         <property name="profileOID" type="integer">
         	<column name="profileID" default="-1"/>
         </property>
 
-    	<property name="depth" type="integer">
+    	<property name="depth" type="integer" >
     		<column name="depth" default="0"/>
     	</property>
-        
-        <!-- the crawler document -->
-<!--	    <many-to-one name="crawlerDocument" column="crawlerDocId" unique="true" cascade="all" embed-xml="true"/>-->
-	    
-	    <!-- the parser document -->
-<!--	    <many-to-one name="parserDocument" column="parserDocId" unique="true" cascade="all" embed-xml="true"/>-->
-	    
-<!-- 
-	    <array name="IndexerDocuments" cascade="all" embed-xml="true">
-      		<key column="commandId"/>
-      		<list-index column="indexerDocIdx"/>
-      		<one-to-many class="org.paxle.core.doc.IIndexerDocument"/>
-    	</array>
- -->	        	
-    </class>
-    
-<!-- 
-    <query name="fromCrawlerQueue"><![CDATA[
-		FROM ICommand as cmd WHERE (cmd.result = 'Passed') AND (cmd.resultText is null) AND (cmd.crawlerDocument is null)
-	]]></query>
+    </class>    
 
-    <query name="fromParserQueue"><![CDATA[
-		FROM ICommand as cmd WHERE (cmd.result = 'Passed') AND (cmd.crawlerDocument is not null) AND (cmd.parserDocument is null)
-	]]></query>
-	
-    <query name="fromIndexerQueue"><![CDATA[	
-		FROM ICommand as cmd LEFT JOIN cmd.IndexerDocuments as indexerDoc WHERE (cmd.parserDocument is not null) AND (indexerDoc is null)
-	]]></query>
--->   	
-		
-    <query name="fromCrawlerQueue"><![CDATA[
-		FROM ICommand as cmd WHERE (cmd.result = 'Passed') AND (cmd.resultText is null)
-	]]></query>		
-		
 </hibernate-mapping>

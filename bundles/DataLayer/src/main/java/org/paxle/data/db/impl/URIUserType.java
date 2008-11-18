@@ -35,7 +35,7 @@ public class URIUserType implements EnhancedUserType {
 	}
 
 	public String toXMLString(Object value) {
-		return ((URI)value).toASCIIString();
+		return ((URI)value).toString();
 	}
 
 	public Object assemble(Serializable cached, Object owner) throws HibernateException {
@@ -73,7 +73,7 @@ public class URIUserType implements EnhancedUserType {
 		if (value == null) {
 			st.setNull(index, Types.VARCHAR);
 		} else {
-			st.setObject(index, ((URI)value).toASCIIString());
+			st.setObject(index, ((URI)value).toString());
 		}
 	}
 

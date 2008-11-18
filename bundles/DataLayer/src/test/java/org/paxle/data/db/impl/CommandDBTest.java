@@ -16,6 +16,7 @@ package org.paxle.data.db.impl;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -41,8 +42,14 @@ public class CommandDBTest extends MockObjectTestCase {
 	private static final String DERBY_CONFIG_FILE = "../DataLayerDerby/src/main/resources/resources/hibernate/derby.cfg.xml";
 	private static final String H2_CONFIG_FILE = "../DataLayerH2/src/main/resources/resources/hibernate/H2.cfg.xml";
 	
+	@SuppressWarnings("unused")
+	private static final String POSTGRESQL_CONFIG_FILE = "../DataLayerPostgreSQL/src/main/resources/resources/hibernate/postgresql.cfg.xml";
+	
 	private static final String DERBY_CONNECTION_URL = "jdbc:derby:target/command-db;create=true";
 	private static final String H2_CONNECTION_URL = "jdbc:h2:target/command-db/cdb;MVCC=TRUE";
+	
+	@SuppressWarnings("unused")
+	private static final String POSTGRESQL_CONNECTION_URL = "jdbc:postgresql://%s/command-db";
 	
 	private ICommandTracker cmdTracker;
 	private CommandDB cmdDB;
@@ -58,7 +65,7 @@ public class CommandDBTest extends MockObjectTestCase {
 		final FileFilter mappingFileFilter = new WildcardFileFilter("*.hbm.xml");		
 		File[] mappingFiles = mappingFilesDir.listFiles(mappingFileFilter);
 		assertNotNull(mappingFiles);
-		assertEquals(4, mappingFiles.length);
+		assertEquals(1, mappingFiles.length);
 		
 		List<URL> mappingFileURLs = new ArrayList<URL>();
 		for (File mappingFile : mappingFiles) {
@@ -92,13 +99,16 @@ public class CommandDBTest extends MockObjectTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		System.setProperty("paxle.data", "target");
+		System.setProperty("paxle.data", "target");		
 		
 		// create a dummy command tracker
 		this.cmdTracker = mock(ICommandTracker.class);
+		
+		// delete dirs
+		this.deleteTestDataDirs();
 	}
 	
-	private void setupDB(String hibernateConfigFile, String connectionURL) throws MalformedURLException {		
+	private void setupDB(String hibernateConfigFile, String connectionURL) throws MalformedURLException {	
 		// create and init the command-db
 		this.cmdDB = new CommandDB(
 				this.getConfigFile(hibernateConfigFile),
@@ -113,19 +123,23 @@ public class CommandDBTest extends MockObjectTestCase {
 	
 	@Override
 	protected void tearDown() throws Exception {
+		super.tearDown();
+		
 		// close DB
 		if (cmdDB != null) this.cmdDB.close();
 		
+		// delete dirs
+		this.deleteTestDataDirs();
+	}
+	
+	private void deleteTestDataDirs() throws IOException {
+		
 		// delete data directory
 		File dbDir = new File("target/command-db");
-		assertTrue(dbDir.exists());
-		FileUtils.deleteDirectory(dbDir);
+		if(dbDir.exists()) FileUtils.deleteDirectory(dbDir);
 		
 		File bloomDir = new File("target/double-urls-caches");
-		assertTrue(bloomDir.exists());
-		FileUtils.deleteDirectory(bloomDir);
-
-		super.tearDown();
+		if (bloomDir.exists()) FileUtils.deleteDirectory(bloomDir);
 	}
 	
 	/**
@@ -148,9 +162,12 @@ public class CommandDBTest extends MockObjectTestCase {
 			this.ppm.trick();
 			this.semaphore.release();
 			this.counter++;
+			if (this.counter % 1000 == 0) {
+				System.err.println(this.counter + " commands dequeued so far.");
+			}
 			
 			if (System.currentTimeMillis() - timestamp > 60000) {
-				this.logger.info(String.format(
+				this.logger.error(String.format(
 						"%d commands dequeued in %d ms with '%d' cpm.",
 						Long.valueOf(counter-lastCounter),
 						Long.valueOf(System.currentTimeMillis()-this.timestamp),
@@ -225,7 +242,8 @@ public class CommandDBTest extends MockObjectTestCase {
 		//System.setProperty("derby.storage.pageSize", "32768");      // default 4096 bytes
 		
 		// setup DB
-		this.setupDB(DERBY_CONFIG_FILE, DERBY_CONNECTION_URL);
+		// this.setupDB(POSTGRESQL_CONFIG_FILE, String.format(POSTGRESQL_CONNECTION_URL,"192.168.10.201"));
+		this.setupDB(DERBY_CONFIG_FILE, DERBY_CONNECTION_URL);		
 		
 		// command-tracker must be called MAX times
 		checking(new Expectations() {{
@@ -237,7 +255,7 @@ public class CommandDBTest extends MockObjectTestCase {
 		new Thread() {
 			public void run() {		
 				try {
-					Thread.sleep(30000);
+					Thread.sleep(10000);
 				} catch (InterruptedException e) {}
 				
 				// create a dummy data-sink
@@ -250,7 +268,9 @@ public class CommandDBTest extends MockObjectTestCase {
 		
 		LinkedList<URI> testURI = new LinkedList<URI>();
 		for (int i=1; i <= MAX; i++) {			
-			testURI.add(URI.create("http://test.paxle.net/" + i));
+			URI nextCommand = URI.create("http://test.paxle.net/" + i);
+			testURI.add(nextCommand);
+			
 			if (i % chunkSize == 0 || i == MAX) {
 				int known = this.cmdDB.storeUnknownLocations(0, 1, testURI);				
 				assertEquals(0, known);

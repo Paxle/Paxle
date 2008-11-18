@@ -50,7 +50,8 @@ public class InterfaceInterceptor extends EmptyInterceptor {
 	
 	@Override
     public Object instantiate(String entityName, EntityMode entityMode, Serializable id) {
-        if (entityName.equals(ICommand.class.getName())) {
+        // if (entityName.equals(ICommand.class.getName())) {
+		if (entityName.endsWith("Command")) {
         	Command cmd = new Command();
         	cmd.setOID(((Integer)id).intValue());
             return cmd;
