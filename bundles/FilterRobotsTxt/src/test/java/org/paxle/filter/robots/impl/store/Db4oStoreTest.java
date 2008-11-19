@@ -73,4 +73,38 @@ public class Db4oStoreTest extends TestCase {
 		assertNull(found);
 		assertEquals(0, store.size());
 	}
+	
+	   
+	public void _testManyMoreRobotsEntries() throws IOException {
+		final long MAX = 2000000;
+		final long CHUNK = 500;
+
+		long start = System.currentTimeMillis(), startChunk = System.currentTimeMillis();        
+
+		String hostPortPrefix = "localhost:80";
+		for (int i=1; i <= MAX; i++) {
+			RobotsTxt test = new RobotsTxt(hostPortPrefix + i,RobotsTxt.RELOAD_INTERVAL_DEFAULT, "OK");
+			this.store.write(test);
+			if (i % CHUNK == 0) {                
+
+				System.out.println(String.format(
+						"%d entries written so far. %d entries written in %dms. %d ms/entry average",
+						i,
+						CHUNK,
+						(System.currentTimeMillis()-startChunk),
+						(System.currentTimeMillis()-start)/CHUNK
+				));
+
+				long startRead = System.currentTimeMillis();
+				this.store.read(hostPortPrefix + i);
+				System.out.println("Reading 1 entry took " + (System.currentTimeMillis()-startRead));
+
+				startChunk = System.currentTimeMillis();
+			}
+		}
+		System.out.println(String.format("Writing of %d entries took %s ms",MAX,System.currentTimeMillis()-start));
+
+				// assertEquals(MAX, store.size());
+	}
+	
 }
