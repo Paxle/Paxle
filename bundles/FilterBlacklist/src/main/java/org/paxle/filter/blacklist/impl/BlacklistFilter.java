@@ -84,10 +84,19 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 		}	
 		
 		// check the extracted links
+		final long start = System.currentTimeMillis();
+		
+		// checking reference-map
 		IParserDocument parserDoc = command.getParserDocument();
 		final int rejected = this.checkBlacklist(parserDoc);
-		if (rejected > 0)
-			logger.info(String.format("%d URIs in %s rejected", Integer.valueOf(rejected), command.getLocation()));
+		if (rejected > 0) {
+			logger.info(String.format(
+					"Rejecting %d URIs from reference map(s) of '%s' in %d ms.", 
+					Integer.valueOf(rejected), 
+					command.getLocation(),
+					Long.valueOf(System.currentTimeMillis() - start)
+			));
+		}
 	}
 
 	private int checkBlacklist(IParserDocument parserDoc) {

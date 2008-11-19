@@ -78,12 +78,17 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 			final Counter c = new Counter();
 			IParserDocument parserDoc = command.getParserDocument();
 			this.checkRobotsTxt(parserDoc, c);
-			logger.info(String.format("%d URLs blocked reference map(s) of '%s' in %d ms",
+			
+			logger.info(String.format("Blocking %d URIs from reference map(s) of '%s' in %d ms",
 					Integer.valueOf(c.c),
 					command.getLocation(),
 					Long.valueOf(System.currentTimeMillis() - start))); 
 		} catch (Exception e) {
-			this.logger.error(String.format("Unexpected %s while filtering command with location '%s'.",e.getClass().getName(),location),e);
+			this.logger.error(String.format(
+					"Unexpected %s while filtering command with location '%s'.",
+					e.getClass().getName(),
+					location
+			),e);
 		}
 	}
 	
