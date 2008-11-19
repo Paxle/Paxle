@@ -45,8 +45,6 @@ import org.paxle.data.db.impl.CommandProfileDB;
 import org.paxle.data.db.impl.CommandProfileFilter;
 import org.paxle.data.db.impl.UrlExtractorFilter;
 
-import com.sun.org.apache.xerces.internal.util.URI;
-
 public class Activator implements BundleActivator {
 
 	/**
