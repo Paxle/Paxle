@@ -139,7 +139,15 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	 */
 	private DynamicBloomFilter bloomFilter = null;
 	
-	private volatile long cntTotal, cntCrawlerQueue;
+	/**
+	 * Total number of {@link URI} known to this DB
+	 */
+	private volatile long cntTotal;
+	
+	/**
+	 * Number of {@link URI} that are enqueued for processing 
+	 */
+	private volatile long cntCrawlerQueue;
 	
 	public CommandDB(URL configURL, List<URL> mappings, ICommandTracker commandTracker) {
 		this(configURL, mappings, null, commandTracker);
@@ -871,6 +879,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			final int chunkSize
 	) throws UnsupportedEncodingException {
 		
+		int total = locations.size();
 		int known = 0;
 		final long start = System.currentTimeMillis();
 		
@@ -896,10 +905,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					"Double-check of %d URI against DB with size %d took %s ms." +
 					"\n\t%3d unknown by DB" +
 					"\n\t%3d known by DB",
-					Integer.valueOf(locations.size()),
+					Integer.valueOf(total),
 					Long.valueOf(this.size()),
 					Long.valueOf(end-start),
-					Integer.valueOf(locations.size()-known),
+					Integer.valueOf(total-known),
 					Integer.valueOf(known)
 			));
 		}
