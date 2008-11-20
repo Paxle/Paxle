@@ -28,8 +28,6 @@ import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandFilteringContext;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommandFilteringContext<Cmd> {
 	
 	/**
@@ -95,7 +93,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 	}
 		
 	public Cmd postDequeuing(Cmd command) {
-		throw new NotImplementedException();
+		throw new RuntimeException("not implemented");
 	}	
 	
 	public void enqueue(Cmd command) throws InterruptedException {
@@ -124,7 +122,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 	}
 
 	public void postEnqueuing(Cmd command) throws InterruptedException {
-		throw new NotImplementedException();
+		throw new RuntimeException("not implemented");
 	}
 	
 	/**
