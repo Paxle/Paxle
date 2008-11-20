@@ -17,15 +17,16 @@ package org.paxle.core.queue.impl;
 import java.util.Collections;
 import java.util.List;
 
-import org.paxle.core.filter.CommandFilterEvent;
-import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
+import org.paxle.core.impl.MWComponentFactory;
 import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandFilterQueue;
+import org.paxle.core.queue.ICommandFilteringContext;
 import org.paxle.core.queue.InputQueue;
 
-public class CommandFilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> implements IFilterQueue {
+public class CommandFilterInputQueue<Cmd extends ICommand> extends InputQueue<Cmd> implements ICommandFilterQueue<Cmd> {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -59,6 +60,10 @@ public class CommandFilterInputQueue<Cmd extends ICommand> extends InputQueue<Cm
 		this.filterQueueID = filterQueueID;
 	}
 	
+	public String getFilterQueueID() {
+		return this.filterQueueID;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.paxle.core.filter.IFilterQueue#setFilters(java.util.List)
@@ -77,117 +82,31 @@ public class CommandFilterInputQueue<Cmd extends ICommand> extends InputQueue<Cm
 	}
 	
 	protected void fireDequeuedEvent(Cmd cmd) {
+		if (this.eventService == null) return;
 		this.eventService.postEvent(CommandEvent.createEvent(this.filterQueueID, CommandEvent.TOPIC_DEQUEUED, cmd));
 	}
 	
-	protected void fireDestroyedEvent(Cmd cmd) {
-		this.eventService.sendEvent(CommandEvent.createEvent(this.filterQueueID, CommandEvent.TOPIC_DESTROYED, cmd));
-	}
-	
-	protected void firePreFilterEvent(Cmd cmd, IFilterContext filterContext) {
-		this.eventService.postEvent(CommandFilterEvent.createEvent(this.filterQueueID, CommandFilterEvent.TOPIC_PRE_FILTER, cmd, filterContext));
-	}
-	
-	protected void firePostFilterEvent(Cmd cmd, IFilterContext filterContext) {
-		this.eventService.postEvent(CommandFilterEvent.createEvent(this.filterQueueID, CommandFilterEvent.TOPIC_POST_FILTER, cmd, filterContext));
-	}
-	
-	/*
-	 * (non-Javadoc)
+	/**
 	 * @see org.paxle.core.queue.InputQueue#dequeue()
 	 */
 	@Override
 	public Cmd dequeue() throws InterruptedException {
-		// get next command
-		Cmd command = super.dequeue();
+		// dequeuing command and creating filtering-context
+		ICommandFilteringContext<Cmd> cmdFiltering = this.getFilteringContext();
 		
-		// fire a event
-		if (this.eventService != null) {
-			fireDequeuedEvent(command);
-		}
-		
-		// filtering
-		this.filter(command);		
-		
-		// only return "passed" commands
-		switch (command.getResult()) {
-			case Passed:  return command;
-			case Failure:
-			case Rejected: 
-			default: 
-				// fire a command-destruction event (this _must_ be send synchronous)
-				if (this.eventService != null) {
-					fireDestroyedEvent(command);
-				} 
-			
-				// signal blocking of message
-			return null;
-		}		
+		// filter command
+		return cmdFiltering.dequeue();		
 	}
 	
-	protected void filter(final Cmd command) {
-		if (this.filterList == null) return;
+	public ICommandFilteringContext<Cmd> getFilteringContext() throws InterruptedException {
+		// get next command
+		final Cmd command = super.dequeue();
 		
-		// post-process the command through filters
-		for (IFilterContext filterContext : this.filterList) {
-			IFilter<Cmd> filter = null;
-			try {
-				// fire a event
-				if (this.eventService != null) {
-					firePreFilterEvent(command, filterContext);
-				} 					
-				
-				// get the filter
-				filter = (IFilter<Cmd>)filterContext.getFilter();
-				
-				if (this.logger.isTraceEnabled()) {
-					this.logger.trace(String.format(
-							"[%s] Passing '%s' to filter '%s' ...",
-							this.filterQueueID,
-							command,
-							(filter == null) ? "null" : filter.getClass().getName()
-					));
-				}
-				
-				long start = System.currentTimeMillis();
-				
-				// process the command by the next filter
-				filter.filter(command, filterContext);
-				
-				if (this.logger.isDebugEnabled()) {
-					this.logger.debug(String.format(
-							"[%s] Filter '%s' took %d ms processingh '%s'.",
-							this.filterQueueID,
-							filter.getClass().getSimpleName(),
-							Long.valueOf(System.currentTimeMillis() - start),
-							command
-					));
-				}
-				
-				if (command.getResult() == ICommand.Result.Rejected) {
-					this.logger.info(String.format(
-							"[%s] '%s' rejected by filter '%s'. Reason: %s",
-							this.filterQueueID,
-							command, 
-							filter.getClass().getName(), 
-							command.getResultText()
-					));
-				}				
-			} catch (Throwable e) {
-				this.logger.error(String.format(
-						"[%s] Filter '%s' throwed an '%s' while processing '%s'.",
-						this.filterQueueID,
-						(filter == null) ? "null" : filter.getClass().getName(),
-								e.getClass().getName(),
-								command
-				),e);
-			} finally {
-				// fire a event
-				if (this.eventService != null) {
-					firePostFilterEvent(command, filterContext);
-				} 				
-			}
-		}
+		// fire a event
+		this.fireDequeuedEvent(command);
+		
+		// creating filtering-context
+		return new CmdFilterContext(command);
 	}
 	
 	@Override
@@ -202,5 +121,20 @@ public class CommandFilterInputQueue<Cmd extends ICommand> extends InputQueue<Cm
 		   .append(this.filterList==null?"[]":this.filterList.toString());
 		
 		return buf.toString();
+	}
+	
+	/**
+	 * Concreate implementation of a {@link CommandFilteringContext}
+	 */
+	private class CmdFilterContext extends CommandFilteringContext<Cmd> implements ICommandFilteringContext<Cmd> {
+		public CmdFilterContext(Cmd command) {
+			super(eventService, CommandFilterInputQueue.this, command);
+		}
+		
+		@Override
+		public Cmd postDequeuing(Cmd command) {
+			// just return the dequeued and already filtered object
+			return command;
+		}
 	}
 }

@@ -38,6 +38,11 @@ public interface IFilterQueue {
 	public void setFilterQueueID(String filterQueueID);	
 	
 	/**
+	 * @return the system-width unique ID of this queue
+	 */
+	public String getFilterQueueID();
+	
+	/**
 	 * This function is used by the {@link FilterManager} to
 	 * update the list of registered {@link IFilter filters} if a
 	 * new filter was removed or added.

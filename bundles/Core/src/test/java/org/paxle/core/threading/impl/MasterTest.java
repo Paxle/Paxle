@@ -28,6 +28,7 @@ public class MasterTest extends MockObjectTestCase {
 		super.setUp();
 	}
 
+	@SuppressWarnings("unchecked")
 	public void testTriggerWorker() throws Exception {
 		// init needed mocks
 		final ICommand command = mock(ICommand.class);

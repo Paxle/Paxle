@@ -17,8 +17,6 @@ package org.paxle.core.queue.impl;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -31,10 +29,10 @@ import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 
-public class FilterInputQueueTest extends AFilterQueueTest {
+public class FilterOutputQueueTest extends AFilterQueueTest {
 
 	@SuppressWarnings("unchecked")
-	public void testDequeueRejectedCommand() throws Exception {
+	public void testEnqueueRejectedCommand() throws Exception {
 		final ICommand command = new Command();
 		command.setLocation(URI.create("http://testxyz.de"));
 		
@@ -63,24 +61,20 @@ public class FilterInputQueueTest extends AFilterQueueTest {
 		}});		
 
 		// init queue and set filters
-		CommandFilterInputQueue<ICommand> queue = new CommandFilterInputQueue<ICommand>(8);
+		CommandFilterOutputQueue<ICommand> queue = new CommandFilterOutputQueue<ICommand>(8);
 		queue.setFilters(new ArrayList<IFilterContext>(Arrays.asList(filtercontext)));
 		queue.setFilterQueueID("FilterQUEUE-ID");
 		queue.setEventService(eventService);
 		
 		// enqueue a command
-		queue.putData(command);
+		queue.enqueue(command);
 		
-		// dequeue a command
-		assertEquals(1, queue.size());
-		ICommand cmd = queue.dequeue();
+		// the queue must be empty
 		assertEquals(0, queue.size());
-		
-		assertNull(cmd);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void testDequeuePassedCommand() throws InterruptedException {
+	public void testEnqueuePassedCommand() throws InterruptedException {
 		final ICommand command = new Command();
 		command.setLocation(URI.create("http://testxyz.de"));
 		
@@ -99,56 +93,21 @@ public class FilterInputQueueTest extends AFilterQueueTest {
 		}});		
 
 		// init queue and set filters
-		CommandFilterInputQueue<ICommand> queue = new CommandFilterInputQueue<ICommand>(8);
+		CommandFilterOutputQueue<ICommand> queue = new CommandFilterOutputQueue<ICommand>(8);
 		queue.setFilters(new ArrayList<IFilterContext>(Arrays.asList(filtercontext)));
 		queue.setFilterQueueID("FilterQUEUE-ID");
-		queue.setEventService(eventService);		
+		queue.setEventService(eventService);
 		
 		// enqueue a command
-		queue.putData(command);
+		queue.enqueue(command);
 		
 		// dequeue a command
 		assertEquals(1, queue.size());
-		ICommand cmd = queue.dequeue();
+		ICommand cmd = queue.getData();
 		assertEquals(0, queue.size());
 		
 		assertNotNull(cmd);
 		assertSame(command, cmd);
 		assertEquals(ICommand.Result.Passed, cmd.getResult());
-	}
-	
-	public void testWaitForNext() throws InterruptedException {
-		final ICommand command = new Command();
-		command.setLocation(URI.create("http://testxyz.de"));
-		
-		final CommandFilterInputQueue<ICommand> queue = new CommandFilterInputQueue<ICommand>(8);
-		
-		// start a thread to wait for a next message in the queue
-		final Semaphore s = new Semaphore(0);
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					queue.waitForNext();
-					s.release();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}.start();
-		
-		// enqueue a new command
-		queue.putData(command);
-		
-		// check if waitForNext was called
-		assertTrue(s.tryAcquire(3, TimeUnit.SECONDS));
-		
-		// dequeue the command
-		assertEquals(1, queue.size());
-		ICommand cmd = queue.dequeue();
-		assertEquals(0, queue.size());
-		
-		assertNotNull(cmd);
-		assertSame(command, cmd);
 	}
 }
