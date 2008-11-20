@@ -54,7 +54,8 @@
 							com.db4o.*;resolution:=optional,
 							<!-- Ehcache -->
 							net.sf.ehcache;version="1.4.1",
-							net.sf.ehcache.*;version="1.4.1",
+							net.sf.ehcache.config;version="1.4.1",
+							net.sf.ehcache.*;version="1.4.1",							
 							<!-- Paxle Core Bundle -->
 							org.paxle.core.filter;version="[0.1.0,0.2.0)", 
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
@@ -127,6 +128,13 @@
 		<dependency>
 			<groupId>com.db4o</groupId>
 			<artifactId>db4o-osgi</artifactId>
-		</dependency>					
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
+			<scope>test</scope>
+		</dependency>				
 	</dependencies>
 </project>

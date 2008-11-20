@@ -123,6 +123,7 @@ public class Db4oStore implements IRuleStore {
 				: this.dboService.newConfiguration();
 		this.config.objectClass(RobotsTxt.class).objectField("hostPort").indexed(true);		
 		this.config.callbacks(false);
+		this.config.blockSize(8);
 		this.config.io(new CachedIoAdapter(new NonFlushingIoAdapter(new RandomAccessFileAdapter())));
 		
 		// create DB

@@ -15,6 +15,8 @@
 package org.paxle.filter.robots.impl;
 
 import java.io.File;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
@@ -28,13 +30,15 @@ import org.osgi.service.monitor.Monitorable;
 import org.paxle.core.filter.IFilter;
 import org.paxle.filter.robots.IRobotsTxtManager;
 import org.paxle.filter.robots.impl.store.Db4oStore;
+import org.paxle.filter.robots.impl.store.EhCacheDiskStore;
 import org.paxle.filter.robots.impl.store.FileStore;
 import org.paxle.filter.robots.impl.store.IRuleStore;
 
 import com.db4o.osgi.Db4oService;
 
 public class Activator implements BundleActivator {
-	private static String DB_PATH = "robots-db";	
+	private static String DB_PATH = "robots-db";
+	private static String DB_TYPE = "ehCache";
 	
 	private RobotsTxtManager robotsTxtManager = null;
 	private RobotsTxtCleanupThread robotsTxtCleanupThread = null;
@@ -43,22 +47,27 @@ public class Activator implements BundleActivator {
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
-	 */	
+	 */		
 	public void start(BundleContext bc) throws Exception {
 		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + DB_PATH;
 		
 		// testing if the DB4o Service is available
 		ServiceReference db4oServiceRef = bc.getServiceReference("com.db4o.osgi.Db4oService");
-		if (db4oServiceRef != null) {
+		if (db4oServiceRef != null && DB_TYPE.equalsIgnoreCase("db4o")) {
 			// using DB4O
 			Db4oService dboService = (Db4oService) bc.getService(db4oServiceRef);			
 			this.ruleStore = new Db4oStore(dboService, new File(dataPath));
-		} else {
+		} else if (DB_TYPE.equalsIgnoreCase("file")) {
 			// using a file-store
 			this.ruleStore = new FileStore(new File(DB_PATH));
 			
 			// init a cleanup thread
 			this.robotsTxtCleanupThread = new RobotsTxtCleanupThread(new File(dataPath)); 
+		} else {
+			@SuppressWarnings("unchecked")
+			Enumeration<URL> configFileEnum = bc.getBundle().findEntries("/resources/", "ehCache.xml", true);
+			URL configFile = (configFileEnum.hasMoreElements()) ? configFileEnum.nextElement() : null;
+			this.ruleStore = new EhCacheDiskStore(dataPath, configFile);
 		}
 		
 		// init the robots.txt-manager
