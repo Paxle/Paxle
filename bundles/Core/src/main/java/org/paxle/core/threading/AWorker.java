@@ -17,10 +17,10 @@ package org.paxle.core.threading;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommandFilterQueue;
+import org.paxle.core.queue.ICommandFilteringContext;
 import org.paxle.core.queue.IInputQueue;
 import org.paxle.core.queue.IOutputQueue;
-import org.paxle.core.threading.IPool;
-import org.paxle.core.threading.IWorker;
 
 /**
  * An abstract class of a {@link IWorker worker-thread}. Components such as
@@ -129,15 +129,7 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                     try {
                     	// if we are in trigger mode we fetch the next command on our own
                     	if (this.command == null && this.inQueue != null) {
-                    		try {
-                    			// fetch the next command
-                    			this.command = this.inQueue.dequeue();
-                    		} finally {
-                    			// notify the master that we have fetched the command
-                    			synchronized (this) {
-                    				this.notify();
-                    			}
-                    		}
+                    		this.command = this.dequeue();
                     		
                     		/*
                     		 * If the command is null here, then it was rejected by one of the
@@ -147,10 +139,10 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                     			this.logger.debug("Command was null. Maybe command was consumed by a queue filter");
                     			continue;
                     		}
+                    	} else {                    	
+	                    	// set threadname
+	                    	this.setWorkerName();
                     	}
-                    	
-                    	// set threadname
-                    	this.setName();
                     	
                     	// executing the new Command
                         execute(this.command);                        
@@ -165,7 +157,7 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                         this.reset();                         
                         
                         // reset threadname
-                    	this.setName();                    	
+                    	this.setWorkerName();                    	
                     }
                 }
             }
@@ -181,6 +173,37 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
             if (this.myPool != null && !this.destroyed) 
                 this.myPool.invalidateWorker(this);
         }
+    }
+    
+    private Data dequeue() throws InterruptedException {    	
+    	if (this.inQueue instanceof ICommandFilterQueue) {
+    		ICommandFilteringContext<ICommand> filteringContext = null;
+    		try {
+	    		// first step: getting the filtering context and pre-dequeue command
+	    		filteringContext = ((ICommandFilterQueue<ICommand>)this.inQueue).getFilteringContext();
+			} finally {
+				// notify the master that we have fetched the command
+				synchronized (this) {
+					this.notify();
+				}
+			}
+    		
+    		// changing thread name
+    		this.setWorkerName(filteringContext.getLocation().toString());
+    		
+    		// second step: do the real filtering process
+    		return (Data) filteringContext.dequeue();
+    	} else {    	
+			try {
+				// fetch the next command
+				return this.inQueue.dequeue();
+			} finally {
+				// notify the master that we have fetched the command
+				synchronized (this) {
+					this.notify();
+				}
+			}
+    	}
     }
 
     /**
@@ -237,11 +260,13 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
     	return this.command;
     }
     
-    protected void setName() {
-    	String className = this.getClass().getName();    	
-    	int idx = className.lastIndexOf(".");
-    	if (idx != -1) className = className.substring(idx+1);
-    	this.setName(className + ((this.command == null)?"":"_"+this.command));
+    protected void setWorkerName() {
+    	this.setWorkerName((this.command == null)?"":"_"+this.command);
+    }
+    
+    protected void setWorkerName(String postFix) {
+    	String className = this.getClass().getSimpleName();    	
+    	super.setName(String.format("%s_%s",className,postFix));
     }
     
     /**

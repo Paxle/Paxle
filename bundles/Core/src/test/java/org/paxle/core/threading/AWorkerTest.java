@@ -14,6 +14,9 @@
 
 package org.paxle.core.threading;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hamcrest.Description;
@@ -102,7 +105,7 @@ public class AWorkerTest extends MockObjectTestCase {
 	public void testWorkerTriggeredAndReturnToPool() throws InterruptedException {
 		final ICommand command = mock(ICommand.class);
 		final DummyWorker worker = new DummyWorker();
-		final WaitForReturnToPool waitforReturnToPool = new WaitForReturnToPool();
+		final Semaphore waitforReturnToPool = new Semaphore(0);
 		
 		checking(new Expectations(){{
 			// allow enqueuing and dequeueing of exactly one command
@@ -114,7 +117,15 @@ public class AWorkerTest extends MockObjectTestCase {
 			
 			// worker must return itself into pool
 			one(pool).returnWorker(with(same(worker)));
-			will(waitforReturnToPool);
+			will(new Action(){
+				public void describeTo(Description arg0) {}
+
+				public Object invoke(Invocation invocation) throws Throwable {
+					waitforReturnToPool.release();
+					return null;
+				}
+				
+			});
 			
 			one(pool).invalidateWorker(with(same(worker)));
 		}});
@@ -128,7 +139,7 @@ public class AWorkerTest extends MockObjectTestCase {
 		worker.trigger();		
 		
 		// wait until worker has returned itself into pool
-		waitforReturnToPool.waitForWorker();
+		assertTrue(waitforReturnToPool.tryAcquire(5, TimeUnit.SECONDS));
 		
 		// terminate worker
 		worker.terminate();
@@ -146,22 +157,4 @@ class DummyWorker extends AWorker<ICommand> {
 		this.logger.info("Dummy processing of command ...");
 		this.commandProcessed = true;
 	}	
-}
-
-class WaitForReturnToPool implements Action {
-	private boolean returned = false;
-
-	public synchronized void waitForWorker() throws InterruptedException {
-		if (!returned) this.wait(1000);
-		if (!returned) throw new IllegalStateException("Worker never returned!");
-	}
-	
-	public void describeTo(Description arg0) {}
-
-	public synchronized Object invoke(Invocation invocation) throws Throwable {
-		this.returned = true;
-		this.notifyAll();
-		return null;
-	}
-	
 }

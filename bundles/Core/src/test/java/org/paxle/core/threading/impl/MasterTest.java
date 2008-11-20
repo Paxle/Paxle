@@ -14,8 +14,16 @@
 
 package org.paxle.core.threading.impl;
 
+import java.net.URI;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+import org.hamcrest.Description;
 import org.jmock.Expectations;
+import org.jmock.api.Action;
+import org.jmock.api.Invocation;
 import org.jmock.integration.junit3.MockObjectTestCase;
+import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.IOutputQueue;
 import org.paxle.core.queue.impl.CommandFilterInputQueue;
@@ -30,12 +38,15 @@ public class MasterTest extends MockObjectTestCase {
 
 	@SuppressWarnings("unchecked")
 	public void testTriggerWorker() throws Exception {
-		// init needed mocks
-		final ICommand command = mock(ICommand.class);
+		// creating a test command
+		final ICommand command = Command.createCommand(URI.create("http://test.xyz"));		
 		final IPool<ICommand> pool = mock(IPool.class);
 		final CommandFilterInputQueue<ICommand> inQueue = new CommandFilterInputQueue<ICommand>(8);
 		final IOutputQueue<ICommand> outQueue = mock(IOutputQueue.class);
-		final DummyWorker worker = new DummyWorker(true);
+		final Semaphore enqueuedSync = new Semaphore(0);
+		
+		// creating a dummy worker
+		final DummyWorker worker = new DummyWorker();
 		worker.setInQueue(inQueue);
 		worker.setOutQueue(outQueue);
 		
@@ -46,8 +57,14 @@ public class MasterTest extends MockObjectTestCase {
 			one(pool).close();
 			
 			// allow the worker to enqueue the processed command into the out-queue
-			allowing(command).getResult(); will(returnValue(ICommand.Result.Passed));
 			one(outQueue).enqueue(with(same(command)));
+			will(new Action(){
+				public void describeTo(Description arg0) {}
+				public Object invoke(Invocation invocation) throws Throwable {
+					enqueuedSync.release();
+					return null;
+				}				
+			});
 		}});
 		
 		// init and start master
@@ -56,11 +73,11 @@ public class MasterTest extends MockObjectTestCase {
 		// enqueue a command
 		inQueue.putData(command);
 		
-		// sleep
-		Thread.sleep(200);
-		
 		// wait until the worker was triggered
-		worker.wasTriggered();
+		assertTrue(worker.triggerSync.tryAcquire(5000, TimeUnit.SECONDS));
+		
+		// wait until the worker has enqueued the processed command
+		assertTrue(enqueuedSync.tryAcquire(5000, TimeUnit.SECONDS));
 		
 		// terminate master
 		master.terminate();
@@ -68,38 +85,17 @@ public class MasterTest extends MockObjectTestCase {
 }
 
 class DummyWorker extends AWorker<ICommand> {
-	private boolean triggerMode = true;
-	
-	private Object triggerSync = new Object();
-	private boolean wasTriggered = false;
-	
-	public DummyWorker(boolean useTriggerMode) {
-		this.triggerMode = useTriggerMode;
-	}
-	
+	public Semaphore triggerSync = new Semaphore(0);
+		
 	@Override
 	public void assign(ICommand cmd) {
-		if (this.triggerMode) {
-			throw new RuntimeException("This function must not be called in this testcase.");
-		} else {
-			super.assign(cmd);
-		}
-	}
-	
-	public void wasTriggered() throws InterruptedException {
-		synchronized (triggerSync) {
-			if (!this.wasTriggered) triggerSync.wait(1000);
-			if (!this.wasTriggered) throw new IllegalStateException("Worker was not triggered!");
-		}
+		throw new RuntimeException("This function must not be called in this testcase.");
 	}
 	
 	@Override
 	public void trigger() throws InterruptedException {
 		super.trigger();
-		synchronized(triggerSync) {
-			this.wasTriggered = true;
-			triggerSync.notify();		
-		}
+		this.triggerSync.release();
 	}
 
 	@Override
