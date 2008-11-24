@@ -224,6 +224,12 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 		} catch (ConfigurationException e) {
 			throw new RuntimeException("error configuring with defaults: " + e.getReason(), e);
 		}
+				
+		this.logger.info(String.format(
+				"Robots.txt manager initialized. Using '%s' rule-store with %d stored entries.",
+				loader.getClass().getSimpleName(),
+				loader.size()
+		));
 	}
 	
 	public void terminate() {
@@ -842,7 +848,16 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 
 			// trying to get the robots.txt from file
 			if (robotsTxt == null) {
-				robotsTxt = this.loader.read(hostPort);
+				try {
+					robotsTxt = this.loader.read(hostPort);
+				} catch (Exception e) {
+					this.logger.error(String.format(
+							"Unexpected '%s' while trying to load robots.txt file for domain '%s' from DB.",
+							e.getClass().getName(),
+							baseUri.toASCIIString()
+					),e);
+				}
+				
 				if (robotsTxt != null) {
 					this.putIntoCache(hostPort, robotsTxt);
 				}
@@ -947,6 +962,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 			String oldThreadName = Thread.currentThread().getName();
 			try {
 				Thread.currentThread().setName(String.format("Robots.txt: %s", this.baseUri));
+				Thread.currentThread().setContextClassLoader(RobotsTxtManager.class.getClassLoader());
 				
 				long start = System.currentTimeMillis(); 
 				Collection<URI> disallowedList = isDisallowed(this.baseUri, this.uriList);

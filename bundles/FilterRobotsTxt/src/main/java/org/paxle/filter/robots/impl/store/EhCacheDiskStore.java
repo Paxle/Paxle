@@ -27,7 +27,14 @@ import org.paxle.filter.robots.impl.rules.RobotsTxt;
 
 public class EhCacheDiskStore implements IRuleStore {
 
+	/**
+	 * A separate ehCache cache-manager
+	 */
 	private final CacheManager cm;
+	
+	/**
+	 * An ehCache instance that we use as disk-store
+	 */
 	private final Cache store;
 	
 	public EhCacheDiskStore(String dataPath, URL configFile) {
@@ -37,7 +44,7 @@ public class EhCacheDiskStore implements IRuleStore {
 		
 		// init cache
 		this.cm = new CacheManager(config);
-		this.store = this.cm.getCache("robotsTxt.store");		
+		this.store = this.cm.getCache("robotsTxt.store");
 	}
 
 	public RobotsTxt read(String hostPort) throws IOException {
