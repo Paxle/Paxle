@@ -201,13 +201,17 @@ public class CommandDBTest extends MockObjectTestCase {
 			exactly(MAX).of(cmdTracker).commandCreated(with(equal("org.paxle.data.db.ICommandDB")), with(any(ICommand.class)));
 		}});
 		
-		// store new commands
+		// generated test URI
+		LinkedList<URI> knownURIs;
 		LinkedList<URI> testURI = new LinkedList<URI>();
 		for (int i=0; i < MAX; i++) {
 			testURI.add(URI.create("http://test.paxle.net/" + i));
-		}		
-		int known = this.cmdDB.storeUnknownLocations(0, 1, testURI);
-		assertEquals(0, known);
+		}
+		knownURIs = (LinkedList<URI>) testURI.clone();
+		
+		// store them to DB
+		int knownCount = this.cmdDB.storeUnknownLocations(0, 1, testURI);
+		assertEquals(0, knownCount);
 
 		// create a dummy data-sink
 		Semaphore s = null;
@@ -216,6 +220,25 @@ public class CommandDBTest extends MockObjectTestCase {
 		// wait for all commands to be enqueued
 		boolean acquired = s.tryAcquire(3, TimeUnit.SECONDS);
 		assertTrue(acquired);
+		
+		// testing if all URI are known to the DB
+		for (URI knownURI : knownURIs) {
+			// command must be marked as crawled
+			boolean known = this.cmdDB.isKnownInDB(knownURI,"CrawledCommand");
+			assertTrue("Unkown URI: " + knownURI, known);
+			
+			// command must not be enqueued
+			known = this.cmdDB.isKnownInDB(knownURI,"EnqueuedCommand");
+			assertFalse("Unkown URI: " + knownURI, known);
+			
+			// command must be known to the cache
+			known = this.cmdDB.isKnownInCache(knownURI);
+			assertTrue(known);
+			
+			// command must be known to the bloom filter
+			known = this.cmdDB.isKnownInDoubleURLs(knownURI);
+			assertTrue(known);
+		}
 	}
 	
 	public void testStoreUnknownLocationDerby() throws MalformedURLException, InterruptedException {

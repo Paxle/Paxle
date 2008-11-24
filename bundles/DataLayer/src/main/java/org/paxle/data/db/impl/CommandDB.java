@@ -187,7 +187,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					this.config.addURL(mapping);
 				}
 				
-				String[] sql = this.config.generateSchemaCreationScript( new org.hibernate.dialect.DerbyDialect());					
+				// String[] sql = this.config.generateSchemaCreationScript( new org.hibernate.dialect.DerbyDialect());					
 				
 				// create the session factory
 				this.sessionFactory = this.config.buildSessionFactory();
@@ -360,6 +360,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			
 			try {
 				session = sessionFactory.openSession();
+				session.setFlushMode(FlushMode.COMMIT);
+				session.setCacheMode(CacheMode.IGNORE);
 				transaction = session.beginTransaction();
 				
 				final Key key = new Key();
@@ -464,7 +466,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	 *         has not previously added. See the description of {@link DynamicBloomFilter} for details.
 	 * @see DynamicBloomFilter
 	 */
-	private final boolean isKnownInDoubleURLs(final URI location) {
+	final boolean isKnownInDoubleURLs(final URI location) {
 		final Key key;
 		try {
 			key = new Key(location.toString().getBytes(UTF8));
@@ -646,32 +648,44 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		if (location == null) return false;
 		if ((populateThread == null || !populateThread.isAlive()) && !isKnownInDoubleURLs(location))
 			return false;
-		if (this.urlExistsCache.get(location) != null)
+		if (isKnownInCache(location))
 			return true;
 		
 		return this.isKnownInDB(location);
 	}
 	
+	boolean isKnownInCache(URI location) {
+		return this.urlExistsCache.get(location) != null;
+	}
+	
 	boolean isKnownInDB(URI location) {
+		// check enqueued commands
+		boolean known = this.isKnownInDB(location, "EnqueuedCommand");
+		if (known) return true;
 		
+		// check crawled commands 
+		known = this.isKnownInDB(location, "CrawledCommand");
+		return known;
+	}
+		
+	boolean isKnownInDB(URI location, String queueName) {
 		boolean known = false;
 		
 		Session session = null;
 		Transaction transaction = null;
 		try {
 			session = this.sessionFactory.openSession();
+			session.setFlushMode(FlushMode.COMMIT);
+			session.setCacheMode(CacheMode.IGNORE);
 			transaction = session.beginTransaction();
 			
-			Query query = session.createQuery("SELECT count(location) FROM EnqueuedCommand as cmd WHERE location = ?").setParameter(0, location);
+			Query query = session.createQuery(String.format(
+					"SELECT count(location) FROM %s as cmd WHERE location = ?",
+					queueName
+			)).setParameter(0, location);
 			Long result = (Long) query.setReadOnly(true).uniqueResult();
 			known = (result != null && result.longValue() > 0);
-			
-			if (!known) {
-				query = session.createQuery("SELECT count(location) FROM CrawledCommand as cmd WHERE location = ?").setParameter(0, location);
-				result = (Long) query.setReadOnly(true).uniqueResult();
-				known = (result != null && result.longValue() > 0);
-			}
-			
+
 			transaction.commit();
 		} catch (Exception e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
@@ -698,13 +712,14 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		try {
 			session = this.sessionFactory.openSession();
 			session.setFlushMode(FlushMode.COMMIT);
+			session.setCacheMode(CacheMode.IGNORE);
 			transaction = session.beginTransaction();
 			
 			Query query = session.createQuery("FROM EnqueuedCommand as cmd");
-			query.setFetchSize(limit);
-			query.setMaxResults(limit);
-			query.setCacheMode(CacheMode.IGNORE);
-			ScrollableResults sr = query.scroll(ScrollMode.FORWARD_ONLY); // (ScrollMode.FORWARD_ONLY);
+			query.setFetchSize(limit);   // this is important for derby because there is no limit support
+			query.setMaxResults(limit);  // restricting number of returned results
+			query.setReadOnly(true);	 // read-only query
+			ScrollableResults sr = query.scroll(ScrollMode.FORWARD_ONLY); 
 			
 			final Key key = new Key();
 			final DynamicBloomFilter bloomFilter = this.bloomFilter;
@@ -974,6 +989,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			// open session and transaction
 			session = this.sessionFactory.openSession();
 			session.setFlushMode(FlushMode.COMMIT);
+			session.setCacheMode(CacheMode.IGNORE);
 			transaction = session.beginTransaction();		
 			
 			// check the cache for URL existance and put the ones not known to the
@@ -1047,7 +1063,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				sqlString = "select count(*) from CrawledCommand as cmd";
 			}
 			
-			count = (Long) session.createQuery(sqlString).uniqueResult();
+			count = (Long) session.createQuery(sqlString).setReadOnly(true).uniqueResult();
 			
 			transaction.commit();
 		} catch (HibernateException e) {
