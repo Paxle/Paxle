@@ -329,7 +329,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			}	
 		}
 		if (serializedFile.exists() && serializedFile.canRead() && serializedFile.isFile()) {
-			logger.info("Serialized double URL set found, reading data");
+			logger.info(String.format(
+					"Serialized double URL set found, reading %d bytes ...",
+					serializedFile.length()
+			));
 			final InputStream fileIs = new FileInputStream(serializedFile);
 			try {
 				final DataInputStream dataIs = new DataInputStream(new BufferedInputStream(fileIs));
