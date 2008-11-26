@@ -812,7 +812,7 @@
 				<module>../ParserLha</module>
 				<module>../ParserMsOffice</module>
 				<module>../ParserFeed</module>
-				<module>../ParserXbel</module>
+<!--				<module>../ParserXbel</module>-->
 				<module>../ParserSitemap</module>
 				<module>../ParserSWF</module>
 			</modules>			
