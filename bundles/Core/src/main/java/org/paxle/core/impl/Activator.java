@@ -55,6 +55,8 @@ import org.paxle.core.filter.impl.AscendingPathUrlExtractionFilter;
 import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
 import org.paxle.core.impl.monitoring.JmxMonitoring;
+import org.paxle.core.impl.monitoring.NetworkMonitoring;
+import org.paxle.core.impl.monitoring.OsgiFrameworkMonitoring;
 import org.paxle.core.impl.monitoring.RuntimeMemoryMonitoring;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.IResourceBundleTool;
@@ -250,6 +252,16 @@ public class Activator implements BundleActivator, InvocationHandler {
 		final Hashtable<String,Object> rmmProps = new Hashtable<String,Object>();
 		rmmProps.put(Constants.SERVICE_PID, RuntimeMemoryMonitoring.SERVICE_PID);
 		bc.registerService(Monitorable.class.getName(), new RuntimeMemoryMonitoring(), rmmProps);
+		
+		// OSGi framework monitorable
+		final Hashtable<String,Object> ofmProps = new Hashtable<String,Object>();
+		ofmProps.put(Constants.SERVICE_PID, OsgiFrameworkMonitoring.SERVICE_PID);
+		bc.registerService(Monitorable.class.getName(), new OsgiFrameworkMonitoring(bc), ofmProps);
+		
+		// Network monitorable
+		final Hashtable<String,Object> nwmProps = new Hashtable<String,Object>();
+		nwmProps.put(Constants.SERVICE_PID, NetworkMonitoring.SERVICE_PID);
+		bc.registerService(Monitorable.class.getName(), new NetworkMonitoring(), nwmProps);
 		
 		// JMX monitorable
 		try {
