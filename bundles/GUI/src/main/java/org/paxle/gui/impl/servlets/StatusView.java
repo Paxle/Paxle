@@ -23,13 +23,17 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.IMWComponent;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
+import org.paxle.gui.IServletManager;
 
 public class StatusView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	protected void doRequest(HttpServletRequest request, HttpServletResponse response) {
-		try {  			
+		try {
+			final IServiceManager manager = this.getServiceManager();
+			final IServletManager servletManager = (IServletManager) manager.getService(IServletManager.class.getName());
+			
 			if (request.getParameter("pauseCrawl") != null) {
 				IMWComponent<?> crawler = this.getCrawler();
 				if (crawler != null) crawler.pause();
@@ -44,12 +48,10 @@ public class StatusView extends ALayoutServlet {
 				response.sendRedirect(request.getServletPath() + "#dcrawler");
 			} else if (request.getParameter("shutdown") != null) {
 				// redirecting to shutdown-servlet
-				// TODO: servlet-path prefix handling required here
-				response.sendRedirect("/sysctrl?action=shutdown");
+				response.sendRedirect(servletManager.getFullAlias("/sysctrl") + "?action=shutdown");
 			} else if (request.getParameter("restart") != null) {
 				// redirecting to shutdown-servlet
-				// TODO: servlet-path prefix handling required here
-				response.sendRedirect("/sysctrl?action=restart");
+				response.sendRedirect(servletManager.getFullAlias("/sysctrl") + "?action=restart");
 			} else {		
 				super.doRequest(request, response);
 			}
