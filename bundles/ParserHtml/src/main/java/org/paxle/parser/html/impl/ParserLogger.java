@@ -54,7 +54,7 @@ public class ParserLogger implements ParserFeedback {
 		logger.error(String.format("%s at %d of %s", msg, Integer.valueOf(tagStart), location));
 	}
 	
-	public void logError(String msg, final int tagStart, final Exception e) {
+	public void logError(String msg, final int tagStart, final Throwable e) {
 		final Integer tagStartValue = Integer.valueOf(tagStart);
 		if (e != null && logger.isDebugEnabled()) {
 			logger.error(String.format("%s: %s at %d of %s", msg, e.getMessage(), tagStartValue, location), e);
@@ -63,7 +63,7 @@ public class ParserLogger implements ParserFeedback {
 		}
 	}
 	
-	public void logError(final String msg, final Exception e) {
+	public void logError(final String msg, final Throwable e) {
 		if (logger.isDebugEnabled()) {
 			logger.error(String.format("%s while processing '%s'", msg, location), e);
 		} else {

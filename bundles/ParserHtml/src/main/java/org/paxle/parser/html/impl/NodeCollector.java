@@ -284,7 +284,7 @@ public class NodeCollector extends NodeVisitor {
 			else if (tag instanceof TitleTag) 		{ process((TitleTag)tag); noParse = true; }
 			else if (!tag.isEndTag())
 				this.logger.logDebug("missed named tag " + tag.getClass().getSimpleName() + " (" + tag.getRawTagName() + ")", tag.getStartingLineNumber());
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.logError("Error processing named tag '" + tag.getRawTagName() + "'", tag.getStartingLineNumber(), e);
 		}
 	}
