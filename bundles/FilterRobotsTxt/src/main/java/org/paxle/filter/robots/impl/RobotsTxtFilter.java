@@ -36,8 +36,16 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 	/**
 	 * Class to count rejected URI
 	 */
-	static class Counter {		
+	static class Counter {
+		/**
+		 * Number of rejected {@link URI}.
+		 */
 		public int c = 0;
+		
+		/**
+		 * Total number of checked {@link URI}.
+		 */
+		public int t = 0;
 	}
 	
 	/**
@@ -64,8 +72,7 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 		// getting the location
 		URI location = command.getLocation();
 
-		try {
-			
+		try {			
 			final long start = System.currentTimeMillis();
 			
 			// test if the url is disallowed by robots.txt
@@ -74,15 +81,21 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 				return;
 			}
 
-			// check the extracted links
+			// getting the parsed document
 			final Counter c = new Counter();
-			IParserDocument parserDoc = command.getParserDocument();
-			this.checkRobotsTxt(parserDoc, c);
+			final IParserDocument parserDoc = command.getParserDocument();
 			
-			logger.info(String.format("Blocking %d URIs from reference map(s) of '%s' in %d ms",
-					Integer.valueOf(c.c),
-					command.getLocation(),
-					Long.valueOf(System.currentTimeMillis() - start))); 
+			// checking URI against robots.txt
+			this.checkRobotsTxt(parserDoc, c);			
+			if (c.c > 0 || this.logger.isDebugEnabled()) {
+				logger.info(String.format(
+						"Blocking %d out of %d URIs from reference map(s) of '%s' in %d ms",
+						Integer.valueOf(c.c),
+						Integer.valueOf(c.t),
+						command.getLocation(),
+						Long.valueOf(System.currentTimeMillis() - start)
+				)); 
+			}
 		} catch (Exception e) {
 			this.logger.error(String.format(
 					"Unexpected %s while filtering command with location '%s'.",
@@ -116,6 +129,7 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 		// check for blocking URIs
 		final Collection<URI> uriToCheck = this.getOkURI(linkMap);
 		if (uriToCheck.size() == 0) return;
+		c.t += uriToCheck.size();
 		
 		final Collection<URI> disallowedURI = this.robotsTxtManager.isDisallowed(uriToCheck);
 		
@@ -128,7 +142,7 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 				LinkInfo meta = linkMap.get(location);
 				if (!meta.hasStatus(Status.OK)) continue;
 				
-				
+				// mark URI as filtered
 				meta.setStatus(Status.FILTERED, "Access disallowed by robots.txt");
 				c.c++;
 				if (logger.isDebugEnabled()) {
