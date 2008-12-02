@@ -32,10 +32,11 @@ public class HtmlParserTest extends TestCase {
 		"javascript_test.html",
 		"baseHrefTest.html",
 		"draft-ietf-webdav-rfc2518bis-12-from-11.diff.html",
-	//	"imdb_biographies_o.html", // TODO: produces stack-overflow error with Java 1.6
+		"imdb_biographies_o.html", // XXX: produced an stack-overflow error with htmlparser 2006
 		"javascript_tcom.html",
 		"pc-welt_archiv02_knowhow.html",
 		"pc-welt_archiv07_knowhow.html"
+		// "imdb_biographies_s.html" // XXX: you need to set Xmx to 128m to run this
 	};
 	
 	// FIXME: <a name="#bla" /> is only recognized as a starting not an ending a-tag
