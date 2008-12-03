@@ -19,6 +19,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class PlaintextDumperFilter implements IFilter<ICommand> {
 		this.dataDir = dir;
 	}
 
-	public File store(IParserDocument pDoc) {
+	public File store(IParserDocument pDoc) throws IOException {
 		
 		Map<String,IParserDocument> subDocs = pDoc.getSubDocs();
 		if (subDocs != null) {
@@ -63,24 +64,22 @@ public class PlaintextDumperFilter implements IFilter<ICommand> {
 		File targetFile = null;
 		
 		try {
-			if (pDoc.getStatus() != IParserDocument.Status.OK) return targetFile;
+			if (pDoc.getStatus() != IParserDocument.Status.OK) return null;
 			
-			// getting source file, create target
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(pDoc.getTextFile()), "UTF-8"));
+			// getting the source file
+			final File sourceFile = pDoc.getTextFile();
+			if (sourceFile == null || sourceFile.length() == 0) return null;
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile), "UTF-8"));
+			
+			// creating the target file			
 			targetFile = File.createTempFile("datadumper-", ".txt", this.dataDir);
 			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile),"UTF-8"));
 			
 			// copy files
 			IOTools.copy(br, bw);
-
-		} catch (Exception e) {
-			this.logger.error(String.format(
-					"Unexpected %s while dumping plain-text of URI into file.",
-					e.getClass().getName()
-			),e);
 		} finally {
             if (br != null) try { br.close(); } catch (Exception e) {/* ignore this */}
-            if (bw != null) try { bw.close();	} catch (Exception e) {/* ignore this */}	
+            if (bw != null) try { bw.close(); } catch (Exception e) {/* ignore this */}	
 		}
 		return targetFile;
 	}
@@ -88,7 +87,17 @@ public class PlaintextDumperFilter implements IFilter<ICommand> {
 	public void filter(ICommand command, IFilterContext context) {
 		if (command == null) throw new NullPointerException("The command object is null.");
 		if (command.getResult() != ICommand.Result.Passed) return;
-		store(command.getParserDocument());
+		if (command.getParserDocument() == null) return;
+		
+		try {
+			this.store(command.getParserDocument());
+		} catch (Throwable e) {
+			this.logger.error(String.format(
+					"Unexpected %s while dumping plain-text of URI '%s' into file.",
+					e.getClass().getName(),
+					command.getLocation().toString()
+			),e);
+		}
 	}
 
 }
