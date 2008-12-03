@@ -12,7 +12,7 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-package org.paxle.gui.impl;
+package org.paxle.gui.impl.log;
 
 import java.util.Iterator;
 
@@ -28,7 +28,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogEntry;
 import org.osgi.service.log.LogService;
 
-public class Log4jMemoryAppender extends AppenderSkeleton {
+public class Log4jMemoryAppender extends AppenderSkeleton implements ILogReader {
 	final Buffer fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(200));
 
 	@SuppressWarnings("unchecked")
@@ -48,9 +48,15 @@ public class Log4jMemoryAppender extends AppenderSkeleton {
 		return false;
 	}
 
-	public Iterator<?> getLog() {
+	@SuppressWarnings("unchecked")
+	public Iterator<LogEntry> getLog() {
 		return fifo.iterator();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public LogData getLogData() {
+		return new LogData(this.fifo);
+	}	
 
 	class Entry implements LogEntry {
 		private final LoggingEvent log4jevent;

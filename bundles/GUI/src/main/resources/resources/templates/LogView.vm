@@ -52,14 +52,24 @@ $dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelNa
     </form>
     <br />
     
+    ## displaying statistics
+    #set($logData = ${logReader.getLogData()})
+    <div class="logstats">
+    ${text.summary.title}&nbsp;|&nbsp;
+    #foreach($statsEntry in ${logData.getStatistics().entrySet()})
+        #set($levelName = $logLevelNames.get($statsEntry.key))
+        <div class="log$levelName">$statsEntry.value</div>&nbsp;|&nbsp;
+    #end
+    </div>
     
+    ## displaying log messages
     <table>
     	<tr>
     		<th>${text.logmsg.level}</th>
     		<th>${text.logmsg.time}</th>
     		<th>${text.logmsg.text}</th>
     	</tr>
-    	#foreach($logEntry in ${logReader.getLog()})
+    	#foreach($logEntry in ${logData.getLog()})
     		## $logReader.getLog())
         	#set($level = ${logEntry.getLevel()})
     		#set($dateFormat = ${text.logmsg.time.format})

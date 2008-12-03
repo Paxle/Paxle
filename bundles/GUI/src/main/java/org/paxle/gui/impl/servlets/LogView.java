@@ -24,10 +24,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.log.LogReaderService;
 import org.osgi.service.log.LogService;
 import org.paxle.gui.ALayoutServlet;
-import org.paxle.gui.impl.Log4jMemoryAppender;
-import org.paxle.gui.impl.ServiceManager;
+import org.paxle.gui.impl.log.Log4jMemoryAppender;
+import org.paxle.gui.impl.log.OSGiLogReader;
 
 public class LogView extends ALayoutServlet {	
 	private static final long serialVersionUID = 1L;
@@ -37,7 +40,12 @@ public class LogView extends ALayoutServlet {
 	 */
 	private final Log4jMemoryAppender log4jAppender;
 	
-	public LogView() {
+	private final OSGiLogReader osgiAppender;
+	
+	public LogView(BundleContext bc) {
+		/* =======================================
+		 * LOG4J
+		 * ======================================= */
 		// creating a custom appender to intercept log4j events
 		this.log4jAppender = new Log4jMemoryAppender();
 		
@@ -46,6 +54,19 @@ public class LogView extends ALayoutServlet {
 		
 		// append our custom in memory appender
 		rootLogger.addAppender(log4jAppender);
+		
+		/* =======================================
+		 * OSGI logging
+		 * ======================================= */	
+		// creating the log-listener
+		this.osgiAppender = new OSGiLogReader();
+		
+		// register it to the framework
+		ServiceReference lrref = bc.getServiceReference(LogReaderService.class.getName());
+		if (lrref != null) {
+			LogReaderService lrs = (LogReaderService) bc.getService(lrref);
+			if (lrs != null) lrs.addLogListener(this.osgiAppender);
+		}
 	}
 	
 	@Override
@@ -62,7 +83,7 @@ public class LogView extends ALayoutServlet {
 				context.put("logReader",this.log4jAppender);
 			} else {
 				context.put("logType", request.getParameter( "logType"));
-				context.put("logReader",((ServiceManager)context.get("manager")).getService("org.osgi.service.log.LogReaderService"));
+				context.put("logReader",this.osgiAppender);
 			}
 			
 			//HashMap to determine LogLevelName

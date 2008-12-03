@@ -126,6 +126,7 @@
 						</Import-Package>
 						<Private-Package>
 							org.paxle.gui.impl,
+							org.paxle.gui.impl.log,
 							org.paxle.gui.impl.servlets
 						</Private-Package>
 						<Bundle-Activator>

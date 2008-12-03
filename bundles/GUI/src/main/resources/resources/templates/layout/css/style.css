@@ -282,7 +282,6 @@ span.error {
 	white-space:pre;
 }
 
-
 .logerror {
 	padding: 0 0 0 22px;
 	background-color: #A00000;
@@ -309,7 +308,19 @@ span.error {
 	padding: 0 0 0 22px;
 	background-color: #0000A0;
 	background-image: url('../images/log-debug.png');
-	background-repeat: no-repeat;
+	background-repeat: no-repeat;	
+}
+
+.logstats {
+	margin: 0px 0px 10px 0px;
+}
+
+.logstats div {
+	color: black;
+	background-color: #ffffff;
+	display: inline;
+	background-position: center left;
+	vertical-align: middle;
 }
 
 .resolved {

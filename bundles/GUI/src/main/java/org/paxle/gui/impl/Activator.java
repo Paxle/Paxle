@@ -112,7 +112,7 @@ public class Activator implements BundleActivator {
 		// registerServlet( "/p2p", new P2PView(), "P2P");
 		registerServlet("/crawler", new CrawlerView(), "Crawler", new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
 		registerServlet("/bundle", new BundleView(), "Bundles");
-		registerServlet("/log", new LogView(), "Logging");
+		registerServlet("/log", new LogView(bc), "Logging");
 		registerServlet("/queue", new QueueView(), "Queues");
 		registerServlet("/opensearch/osd.xml", new OpenSearchDescription(),null);
 		registerServlet("/config", new SettingsView(), "Settings",new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
