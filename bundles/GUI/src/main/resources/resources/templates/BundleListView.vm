@@ -54,17 +54,15 @@
 <fieldset id="dbundlelist">
 	<legend>${text.legend.listBundles}</legend>
 	
-	<form action="">
-		<p>
-			#set( $filters = {"${text.listBundles.filter.all}":'(Bundle-SymbolicName=*)', "${text.listBundles.filter.allPaxle}":'(Bundle-SymbolicName=org.paxle.*)', "${text.listBundles.filter.allPaxleCrawlers}":'(Bundle-SymbolicName=org.paxle.Crawler*)', "${text.listBundles.filter.allPaxleParsers}":'(Bundle-SymbolicName=org.paxle.Parser*)'})
-			${text.listBundles.filterBundles}:			
-    			<select name="filter">
-				#foreach($entry in $sortTool.sort(${filters.entrySet()}, ["key:asc"]))
-					<option value="${entry.value}" #if($filter && $filter == ${entry.value})selected="selected"#end>${entry.key}</option>
-				#end
-			</select>
-			<input type="submit" name="doFilter" value="${text.listBundles.doFilter}" />
-		</p>
+	<form class="filter" action="">
+		#set( $filters = {"${text.listBundles.filter.all}":'(Bundle-SymbolicName=*)', "${text.listBundles.filter.allPaxle}":'(Bundle-SymbolicName=org.paxle.*)', "${text.listBundles.filter.allPaxleCrawlers}":'(Bundle-SymbolicName=org.paxle.Crawler*)', "${text.listBundles.filter.allPaxleParsers}":'(Bundle-SymbolicName=org.paxle.Parser*)'})
+		${text.listBundles.filterBundles}:			
+		<select name="filter">
+			#foreach($entry in $sortTool.sort(${filters.entrySet()}, ["key:asc"]))
+				<option value="${entry.value}" #if($filter && $filter == ${entry.value})selected="selected"#end>${entry.key}</option>
+			#end
+		</select>
+		<input type="submit" name="doFilter" value="${text.listBundles.doFilter}" />
 	</form>
 
     <table>

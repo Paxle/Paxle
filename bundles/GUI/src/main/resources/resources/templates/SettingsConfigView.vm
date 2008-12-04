@@ -56,7 +56,7 @@
 				#set($attributes = $ocd.getAttributeDefinitions(-1))
 				#if($attributes)
 					#set($attrMetadataMap = $settingsView.getAttributeMetadataMap($ocd))
-					<form action="">
+					<form action="" method="post">
 						<input type="hidden" name="settings" value="config"/>
 						<input type="hidden" name="pid" value="$PID"/>
 						<input type="hidden" name="bundleID" value="${bundle.getBundleId()}"/>

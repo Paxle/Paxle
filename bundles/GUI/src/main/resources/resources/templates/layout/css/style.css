@@ -239,7 +239,7 @@ td {
 }
 
 .filter {
-	margin: 0;
+	margin: 0 0 10px 0;
 	padding: 0.2em 0.5em 0.2em 0.5em;
 
 	background-color: #444444;
@@ -311,13 +311,15 @@ span.error {
 	background-repeat: no-repeat;	
 }
 
-.logstats {
+.summary {
 	margin: 0px 0px 10px 0px;
+	padding: 5px 0px;
+	background-color: lightgrey;
 }
 
-.logstats div {
+.summary div {
 	color: black;
-	background-color: #ffffff;
+	background-color: lightgrey;
 	display: inline;
 	background-position: center left;
 	vertical-align: middle;

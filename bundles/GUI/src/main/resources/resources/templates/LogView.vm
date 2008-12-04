@@ -32,29 +32,26 @@ $dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelNa
     <h2>${text.page.title}</h2>
     #if($logReader)
     <form class="filter" action="">
-    	<p>
-    		<select name="filterLogLevel">
-    			<option value="1" #if($filterLogLevel == 1)selected="selected"#end>${text.loglevel.error}</option>
-    			<option value="2" #if($filterLogLevel == 2)selected="selected"#end>${text.loglevel.warn}</option>
-    			<option value="3" #if($filterLogLevel == 3)selected="selected"#end>${text.loglevel.info}</option>
-    			<option value="4" #if($filterLogLevel == 4)selected="selected"#end>${text.loglevel.debug}</option>
-    		</select>
-    		<select name="logType">
-    			<option value="log4j" #if($logType == "log4j")selected="selected"#end>log4j</option>
-    			<option value="osgi" #if($logType == "osgi")selected="selected"#end>OSGI</option>
-    		</select>
-    		<select name="type">
-    			<option value="default" #if(!$type || $type == "default")selected="selected"#end>${text.logtype.default}</option>
-    			<option value="plain" #if($type && $type == "plain")selected="selected"#end>${text.logtype.plain}</option>
-    		</select>
-    	 	<input type="submit" value="${text.apply}" />
-    	 </p>
+    	<select name="filterLogLevel">
+    		<option value="1" #if($filterLogLevel == 1)selected="selected"#end>${text.loglevel.error}</option>
+    		<option value="2" #if($filterLogLevel == 2)selected="selected"#end>${text.loglevel.warn}</option>
+    		<option value="3" #if($filterLogLevel == 3)selected="selected"#end>${text.loglevel.info}</option>
+    		<option value="4" #if($filterLogLevel == 4)selected="selected"#end>${text.loglevel.debug}</option>
+    	</select>
+    	<select name="logType">
+    		<option value="log4j" #if($logType == "log4j")selected="selected"#end>log4j</option>
+    		<option value="osgi" #if($logType == "osgi")selected="selected"#end>OSGI</option>
+    	</select>
+    	<select name="type">
+    		<option value="default" #if(!$type || $type == "default")selected="selected"#end>${text.logtype.default}</option>
+    		<option value="plain" #if($type && $type == "plain")selected="selected"#end>${text.logtype.plain}</option>
+    	</select>
+    	<input type="submit" value="${text.apply}" />
     </form>
-    <br />
     
     ## displaying statistics
     #set($logData = ${logReader.getLogData()})
-    <div class="logstats">
+    <div class="summary">
     ${text.summary.title}&nbsp;|&nbsp;
     #foreach($statsEntry in ${logData.getStatistics().entrySet()})
         #set($levelName = $logLevelNames.get($statsEntry.key))
