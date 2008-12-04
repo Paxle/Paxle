@@ -25,13 +25,13 @@
 	<tr>
 		<td>Profile Name:</td>
 		<td><input type="text" id="profileName" name="profileName" value="$!defaultName"/></td>
-		<td>&nbsp;</td>
+		<td class="descriptionText">&nbsp;</td>
 	</tr>
 	
 	<tr>
 		<td>Crawl Depth:</td>
 		<td><input type="text" id="crawlDepth" name="crawlDepth" value="$!defaultDepth"/></td>
-		<td>&nbsp;</td>
+		<td class="descriptionText">&nbsp;</td>
 	</tr>
 	
 	<!-- restrict URIs -->
@@ -56,7 +56,7 @@
 				// ]]>
 			</script>		
 		</td>
-		<td>&nbsp;</td>
+		<td class="descriptionText">&nbsp;</td>
 	</tr>
 	
 	<!-- restrict protocols -->
@@ -88,7 +88,7 @@
 				// ]]>
 			</script>		
 		</td>
-		<td>Restrict crawling to a given set of protocols</td>
+		<td class="descriptionText">Restrict crawling to a given set of protocols</td>
 	</tr>
 	
 	<!-- restrict mime-types -->
@@ -121,7 +121,7 @@
 				// ]]>
 			</script>	
 		</td>
-		<td>Restrict crawling to a given set of mime-types</td>
+		<td class="descriptionText">Restrict crawling to a given set of mime-types</td>
 	</tr>
 	</table>
 </fieldset>
