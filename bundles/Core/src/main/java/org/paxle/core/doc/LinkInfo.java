@@ -21,11 +21,38 @@ import org.paxle.core.filter.IFilter;
 
 
 public class LinkInfo {
+	/**
+	 * @see Status#toString()
+	 */
 	public static final String STATUS = "status";
-	public static final String STATUS_TEXT = "statusText";
-	public static final String TITLE = "title";
-	public static final String DESCRIPTION = "description";
 	
+	/**
+	 * A textual description of the status. 
+	 * This should be set if the status is not set to {@link Status#OK}.
+	 */
+	public static final String STATUS_TEXT = "statusText";
+	
+	/**
+	 * A systemwidth unique status-code.
+	 * This should be set if the status is not set to {@link Status#OK}.
+	 * 
+	 * e.g.
+	 * <pre>org.paxle.FilterRobotsTxt/Disallow</pre>
+	 * or
+	 * <pre>org.paxle.FilterBlacklist/Blocked/myBlacklistName</pre>
+	 */
+	public static final String STATUS_CODE = "statusCode";
+	
+	/**
+	 * The link title
+	 */
+	public static final String TITLE = "title";
+	
+	/**
+	 * The link description
+	 */
+	public static final String DESCRIPTION = "description";
+		
 	public static enum Status {
 		/** Link is allowed to be processed */
 		OK,
@@ -49,10 +76,14 @@ public class LinkInfo {
 	}
 	
 	public LinkInfo(String title, Status status, String statusText) {
+		this(title, status, statusText, null);
+	}
+	
+	public LinkInfo(String title, Status status, String statusText, String statusCode) {
 		this.props = new HashMap<String, Serializable>();
 		
 		// adding status
-		this.setStatus(status);
+		this.setStatus(status, statusText);
 		
 		// adding title
 		if (title != null && title.length() > 0) {
@@ -83,22 +114,33 @@ public class LinkInfo {
 		return (String) this.props.get(STATUS_TEXT);
 	}
 	
+	public String getStatusCode() {
+		return (String) this.props.get(STATUS_CODE);
+	}
+	
 	public void setStatus(Status status) {
 		this.setStatus(status,null);
 	}
 	
 	public void setStatus(Status status, String statusText) {
+		this.setStatus(status, statusText, null);
+	}
+	
+	public void setStatus(Status status, String statusText, String statusCode) {
 		if (status == null) status = Status.OK;
 		this.props.put(STATUS, status.name());
 		
 		if (statusText != null && statusText.length() > 0) {
 			this.props.put(STATUS_TEXT, statusText);
 		}
+		
+		if (statusCode != null && statusCode.length() > 0) {
+			this.props.put(STATUS_CODE, statusCode);
+		}
 	}
 	
 	@Override
 	public String toString() {
 		return this.props.toString();
-	}
-	
+	}	
 }

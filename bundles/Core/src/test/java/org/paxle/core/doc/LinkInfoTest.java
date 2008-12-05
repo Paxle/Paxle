@@ -32,6 +32,24 @@ public class LinkInfoTest extends TestCase {
 		assertEquals(Status.OK, info.getStatus());
 	}
 	
+	public void testSetGetStatusText() {
+		LinkInfo info = new LinkInfo();
+		info.setStatus(Status.OK,"test");
+		
+		assertNotNull(info.getStatus());
+		assertEquals(Status.OK, info.getStatus());
+		assertEquals("test", info.getStatusText());
+	}
+	
+	public void testSetGetStatusCode() {
+		LinkInfo info = new LinkInfo();
+		info.setStatus(Status.OK,null,this.getClass().getName());
+		
+		assertNotNull(info.getStatus());
+		assertEquals(Status.OK, info.getStatus());
+		assertEquals(this.getClass().getName(), info.getStatusCode());
+	}
+	
 	public void testToString() {
 		LinkInfo dummy = new LinkInfo("test", LinkInfo.Status.FILTERED, "blocked URI");
 		assertNotNull(dummy.toString());
