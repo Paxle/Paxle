@@ -209,7 +209,7 @@ public class ParserWorker extends AWorker<ICommand> {
 			// setting command status to passed
 			command.setResult(ICommand.Result.Passed,null);
 			
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// setting command status
 			command.setResult(
 					ICommand.Result.Failure, 
@@ -217,7 +217,8 @@ public class ParserWorker extends AWorker<ICommand> {
 			);
 			
 			// log error
-			this.logger.warn(String.format("Unexpected '%s' while parsing resource '%s'.",
+			this.logger.warn(String.format(
+					"Unexpected '%s' while parsing resource '%s'.",
 					e.getClass().getName(),
 					command.getLocation()
 			),e);			

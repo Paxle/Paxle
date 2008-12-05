@@ -159,7 +159,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 			// setting command status to passed
 			command.setResult(ICommand.Result.Passed);
 			
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// setting command status
 			command.setResult(
 					ICommand.Result.Failure, 
