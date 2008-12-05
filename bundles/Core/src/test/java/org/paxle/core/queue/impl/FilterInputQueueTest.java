@@ -58,8 +58,8 @@ public class FilterInputQueueTest extends AFilterQueueTest {
 			
 			// event service must be called 3 times
 			// once for the rejected cmd
-			exactly(3).of(eventService).postEvent(with(any(Event.class)));
-			one(eventService).sendEvent(with(any(Event.class)));
+			exactly(3).of(eventService).postEvent(with(aNonNull(Event.class)));
+			one(eventService).sendEvent(with(aNonNull(Event.class)));
 		}});		
 
 		// init queue and set filters
@@ -95,7 +95,52 @@ public class FilterInputQueueTest extends AFilterQueueTest {
 			
 			// event service must be called 3 times
 			// once for the rejected cmd
-			exactly(3).of(eventService).postEvent(with(any(Event.class)));			
+			exactly(3).of(eventService).postEvent(with(aNonNull(Event.class)));			
+		}});		
+
+		// init queue and set filters
+		CommandFilterInputQueue<ICommand> queue = new CommandFilterInputQueue<ICommand>(8);
+		queue.setFilters(new ArrayList<IFilterContext>(Arrays.asList(filtercontext)));
+		queue.setFilterQueueID("FilterQUEUE-ID");
+		queue.setEventService(eventService);		
+		
+		// enqueue a command
+		queue.putData(command);
+		
+		// dequeue a command
+		assertEquals(1, queue.size());
+		ICommand cmd = queue.dequeue();
+		assertEquals(0, queue.size());
+		
+		assertNotNull(cmd);
+		assertSame(command, cmd);
+		assertEquals(ICommand.Result.Passed, cmd.getResult());
+	}
+	
+	/**
+	 * Testing if a {@link Command} is filtered properly even if an {@link Exception} 
+	 * is thrown during filtering.
+	 *  
+	 * @throws InterruptedException
+	 */
+	@SuppressWarnings("unchecked")
+	public void testDequeueWithException() throws InterruptedException {
+		final ICommand command = new Command();
+		command.setLocation(URI.create("http://testxyz.de"));
+		
+		final IFilter<ICommand> filter = mock(IFilter.class);
+		final EventAdmin eventService = mock(EventAdmin.class);
+		final IFilterContext filtercontext = this.createDummyFilterContext(filter);
+
+		// define expectations
+		checking(new Expectations(){{
+			// filtering should be called exactly once
+			one(filter).filter(with(same(command)), with(same(filtercontext)));
+			will(throwException(new RuntimeException("Unexpected Exception")));
+			
+			// event service must be called 3 times
+			// once for the rejected cmd
+			exactly(3).of(eventService).postEvent(with(aNonNull(Event.class)));			
 		}});		
 
 		// init queue and set filters

@@ -66,7 +66,7 @@ public class CommandFilterEvent extends CommandEvent {
 		return createEvent(stageID, topic, command, context, null);
 	}
 	
-	public static Event createEvent(String stageID, String topic, ICommand command, IFilterContext context, Exception exception) {
+	public static Event createEvent(String stageID, String topic, ICommand command, IFilterContext context, Throwable exception) {
 		Hashtable<String, Object> props = new Hashtable<String, Object>();
 		
 		// extracting filter-context-props

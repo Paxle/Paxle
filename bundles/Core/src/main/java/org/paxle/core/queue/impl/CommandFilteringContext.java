@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.paxle.core.filter.CommandFilterEvent;
 import org.paxle.core.filter.IFilter;
@@ -143,15 +144,20 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 		));
 	}	
 	
-	protected void firePostFilterEvent(Cmd cmd, IFilterContext filterContext) {
+	protected void firePostFilterEvent(Cmd cmd, IFilterContext filterContext, Throwable error) {
 		if (this.eventService == null) return;
 		
-		this.eventService.postEvent(CommandFilterEvent.createEvent(
+		// creating an osgi event
+		Event e = CommandFilterEvent.createEvent(
 				this.filterQueue.getFilterQueueID(), 
 				CommandFilterEvent.TOPIC_POST_FILTER, 
 				cmd, 
-				filterContext
-		));
+				filterContext,
+				error
+		);
+		
+		// post event
+		this.eventService.postEvent(e);
 	}	
 	
 	protected void fireDestroyedEvent(Cmd cmd) {
@@ -171,6 +177,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 		
 		// post-process the command through filters
 		for (IFilterContext filterContext : filterList) {
+			Throwable error = null;
 			IFilter<Cmd> filter = null;
 			try {				
 				// fire a event
@@ -213,6 +220,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 					));
 				}
 			} catch (Throwable e) {
+				error = e; // remember error
 				this.logger.error(String.format(
 						"[%s] Filter '%s' throwed an '%s' while processing '%s'.",
 						filterQueueID,
@@ -222,7 +230,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 				),e);				
 			} finally {
 				// fire a event
-				this.firePostFilterEvent(command, filterContext); 
+				this.firePostFilterEvent(command, filterContext, error); 
 			}
 		}
 	}	
