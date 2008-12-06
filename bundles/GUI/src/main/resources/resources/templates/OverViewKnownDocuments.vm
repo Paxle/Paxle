@@ -46,7 +46,7 @@
 		<td>$!renderTool.eval('$monitorAdmin.getStatusVariable("org.paxle.data.cmddb/size.enqueued").getInteger()')</td>
 	</tr>
 	<tr>
-		<td>${text.ovDatabase.enqueuedURI}:</td>
+		<td>${text.ovDatabase.extractedURI}:</td>
 		<td>$!renderTool.eval('$monitorAdmin.getStatusVariable("org.paxle.data.UrlExtractor/queue.size").getInteger()')</td>
 	</tr>
 	</table>
