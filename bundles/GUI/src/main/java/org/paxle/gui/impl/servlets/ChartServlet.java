@@ -15,6 +15,8 @@
 package org.paxle.gui.impl.servlets;
 
 import java.awt.Color;
+import java.net.URI;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -37,6 +39,9 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.time.Minute;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -68,6 +73,16 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 	 * @see org.paxle.se.index.IIndexSearcher#getDocCount()
 	 */
 	public static final String TSERIES_INDEX_SIZE = "org.paxle.lucene-db/docs.known";
+	
+	/**
+	 * Total number of {@link URI}s known to the command-db
+	 */
+	public static final String TSERIES_CMD_SIZE_TOTAL = "org.paxle.data.cmddb/size.total";
+	
+	/**
+	 * Number of {@link URI}s enqueued in the command-db
+	 */
+	public static final String TSERIES_CMD_SIZE_ENQUEUD = "org.paxle.data.cmddb/size.enqueued";	
 	
 	/**
 	 * Current PPM of the crawler
@@ -124,7 +139,9 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 		TSERIES_PPM_INDEXER,
 		TSERIES_CPU_TOTAL,
 		TSERIES_CPU_USER,
-		TSERIES_CPU_SYSTEM
+		TSERIES_CPU_SYSTEM,
+		TSERIES_CMD_SIZE_TOTAL,
+		TSERIES_CMD_SIZE_ENQUEUD
 	};
 	
 	private final HashMap<String,HashSet<String>> variableTree;	
@@ -324,8 +341,34 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
                 false
             );
 		
+		XYPlot plot = chart.getXYPlot();
+		
+		final TimeSeriesCollection linksDataset = new TimeSeriesCollection();
+		
+		TimeSeries totalLinksSeries = new TimeSeries("Total URI", Minute.class);
+		totalLinksSeries.setMaximumItemAge(24*60);
+		linksDataset.addSeries(totalLinksSeries);
+		this.seriesMap.put(TSERIES_CMD_SIZE_TOTAL, totalLinksSeries);	
+		
+		TimeSeries enqueuedLinksSeries = new TimeSeries("Enqueued URI", Minute.class);
+		enqueuedLinksSeries.setMaximumItemAge(24*60);
+		linksDataset.addSeries(enqueuedLinksSeries);
+		this.seriesMap.put(TSERIES_CMD_SIZE_ENQUEUD, enqueuedLinksSeries);				
+		
+        NumberAxis axis2 = new NumberAxis("#Links");
+        axis2.setAutoRangeIncludesZero(false); 
+        axis2.setNumberFormatOverride(new DecimalFormat("##0"));
+		plot.setRangeAxis(1, axis2);
+		plot.setDataset(1, linksDataset);
+		plot.setRenderer(1, new StandardXYItemRenderer());
+		plot.mapDatasetToRangeAxis(1, 1);
+		
+		
+		NumberAxis axis1 = (NumberAxis) plot.getRangeAxis(0);
+		axis1.setNumberFormatOverride(new DecimalFormat("##0"));		
+		
 		// change axis date format
-		((DateAxis) chart.getXYPlot().getDomainAxis()).setDateFormatOverride(new SimpleDateFormat("HH:mm"));
+		((DateAxis) plot.getDomainAxis()).setDateFormatOverride(new SimpleDateFormat("HH:mm"));
 		chart.setBackgroundPaint(Color.WHITE);
 		return chart;
 	}
