@@ -35,6 +35,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,6 +61,7 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.onelab.filter.DynamicBloomFilter;
 import org.onelab.filter.Key;
+import org.osgi.framework.Constants;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.monitor.Monitorable;
@@ -81,9 +84,40 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	
 	private static final int MAX_IDLE_SLEEP = 60000;
 	
+	/* ======================================================================
+	 * MONITORABLE CONSTANTS
+	 * ====================================================================== */
+	/**
+	 * {@link Constants#SERVICE_PID} used to register the {@link Monitorable} interface
+	 */
 	public static final String PID = "org.paxle.data.cmddb";
+	
+	/**
+	 * @see #totalSize()
+	 */
 	private static final String MONITOR_TOTAL_SIZE = "size.total";
+	
+	/**
+	 * @see #enqueuedSize()
+	 */
 	private static final String MONITOR_ENQUEUED_SIZE = "size.enqueued";
+	
+	/**
+	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(Arrays.asList(new String[]{
+			MONITOR_TOTAL_SIZE,
+			MONITOR_ENQUEUED_SIZE
+	}));
+	
+	/**
+	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
+	static {
+		VAR_DESCRIPTIONS.put(MONITOR_TOTAL_SIZE, "Total known URIs");
+		VAR_DESCRIPTIONS.put(MONITOR_ENQUEUED_SIZE, "Enqueued URIs");
+	}	
 	
 	private static final String UTF8 = "UTF-8";
 	/**
@@ -243,33 +277,36 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	 * @see Monitorable#getDescription(String)
 	 */
 	public String getDescription(String id) throws IllegalArgumentException {
-		if (id.equals(MONITOR_TOTAL_SIZE)) {
-			return "Total known URIs";
-		} else if (id.equals(MONITOR_ENQUEUED_SIZE)) {
-			return "Enqueued URIs";
-		} else {
-			throw new IllegalArgumentException("no such variable '" + id + "'");
-		}
+		if (!VAR_NAMES.contains(id)) {
+			throw new IllegalArgumentException("Invalid Status Variable name " + id);
+		}	
+		
+		return VAR_DESCRIPTIONS.get(id);
 	}
 	
 	/**
 	 * @see Monitorable#getStatusVariable(String)
 	 */
 	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {
+		if (!VAR_NAMES.contains(id)) {
+			throw new IllegalArgumentException("Invalid Status Variable name " + id);
+		}		
+		
+		int value = -1;
 		if (id.equals(MONITOR_TOTAL_SIZE)) {
-			return new StatusVariable(MONITOR_TOTAL_SIZE, StatusVariable.CM_CC, (int)size());
+			value = (int) this.size();
 		} else if (id.equals(MONITOR_ENQUEUED_SIZE)) {
-			return new StatusVariable(MONITOR_ENQUEUED_SIZE, StatusVariable.CM_CC, (int)enqueuedSize());
-		} else {
-			throw new IllegalArgumentException("no such variable '" + id + "'");
-		}	
+			value = (int) enqueuedSize();
+		}
+		
+		return new StatusVariable(id, StatusVariable.CM_CC, value);
 	}
 	
 	/**
 	 * @see Monitorable#getStatusVariableNames()
 	 */
 	public String[] getStatusVariableNames() {
-		return new String[] { MONITOR_TOTAL_SIZE, MONITOR_ENQUEUED_SIZE };
+		return VAR_NAMES.toArray(new String[VAR_NAMES.size()]);
 	}
 	
 	/**
@@ -553,6 +590,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		return true;
 	}
 	
+	/**
+	 * This function is called by the {@link UrlExtractorFilter} storage thread
+	 * @see IDataSink#putData(Object)
+	 */
 	public void putData(final URIQueueEntry entry) throws Exception {
 		// store unknown URI
 		if (!isClosed()) {

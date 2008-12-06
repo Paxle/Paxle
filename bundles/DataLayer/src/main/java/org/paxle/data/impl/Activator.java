@@ -223,18 +223,24 @@ public class Activator implements BundleActivator {
 	}
 	
 	private void createAndRegisterUrlExtractorFilter(BundleContext context) {		
+		// defining service properties
 		Hashtable<String,Object> urlExtractorFilterProps = new Hashtable<String,Object>();
 		urlExtractorFilterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{
 				String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(Integer.MAX_VALUE))
 		});
 		urlExtractorFilterProps.put(IDataProvider.PROP_DATAPROVIDER_ID, ICommandDB.PROP_URL_ENQUEUE_SINK);
+		urlExtractorFilterProps.put(Constants.SERVICE_PID, UrlExtractorFilter.PID);
 		
+		// creating filter
 		this.urlExtractor = new UrlExtractorFilter();
 		
+		// registering filter as service to the OSGi framework
 		context.registerService(new String[] {
 				IFilter.class.getName(),
-				IDataProvider.class.getName()
-		}, this.urlExtractor, urlExtractorFilterProps);
+				IDataProvider.class.getName(),
+				Monitorable.class.getName(),
+			}, this.urlExtractor, urlExtractorFilterProps
+		);
 	}
 	
 	private void createAndRegisterCommandProfileFilter(BundleContext context) {		

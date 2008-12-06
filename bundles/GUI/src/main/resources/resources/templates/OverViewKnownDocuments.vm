@@ -45,6 +45,10 @@
 		<td>${text.ovDatabase.enqueuedURI}:</td>
 		<td>$!renderTool.eval('$monitorAdmin.getStatusVariable("org.paxle.data.cmddb/size.enqueued").getInteger()')</td>
 	</tr>
+	<tr>
+		<td>${text.ovDatabase.enqueuedURI}:</td>
+		<td>$!renderTool.eval('$monitorAdmin.getStatusVariable("org.paxle.data.UrlExtractor/queue.size").getInteger()')</td>
+	</tr>
 	</table>
 	<div class="lastUpdate">
 		${text.lastUpdate.insert($dateTool.format('medium',$dateTool.getDate()))}

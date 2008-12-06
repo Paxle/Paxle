@@ -15,6 +15,9 @@
 package org.paxle.data.db.impl;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,6 +26,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.Constants;
+import org.osgi.service.monitor.Monitorable;
+import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.doc.IParserDocument;
@@ -33,10 +39,41 @@ import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 import org.paxle.data.db.URIQueueEntry;
 
-public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQueueEntry> {
+public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQueueEntry>, Monitorable {
+	/**
+	 * {@link Constants#SERVICE_PID} used to register the {@link Monitorable} interface
+	 */
+	public static final String PID = "org.paxle.data.UrlExtractor";
+
+	private static final String VAR_NAME_QUEUE_SIZE = "queue.size";	
 	
+	/**
+	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(Arrays.asList(new String[]{
+			VAR_NAME_QUEUE_SIZE
+	}));
+	
+	/**
+	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
+	static {
+		VAR_DESCRIPTIONS.put(VAR_NAME_QUEUE_SIZE, "Number of URI enqueued for storage to DB.");
+	}		
+	
+	/**
+	 * Class to count processed {@link URI}
+	 */
 	private static class Counter {
+		/**
+		 * Total number of checked {@link URI}.
+		 */
 		public int total = 0;
+		
+		/**
+		 * Number of {@link URI} selected for storage to DB.
+		 */
 		public int enqueued = 0;
 	}
 	
@@ -69,6 +106,9 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 		this.storageThread.start();
 	}
 	
+	/**
+	 * @see IDataProvider#setDataSink(IDataSink)
+	 */
 	public synchronized void setDataSink(IDataSink<URIQueueEntry> dataSink) {
 		if (dataSink == null) throw new NullPointerException("The data-sink is null.");
 		if (this.sink != null) throw new IllegalStateException("The data-sink was already set.");
@@ -76,6 +116,9 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 		this.notify();
 	}
 	
+	/**
+	 * @see IFilter#filter(Object, IFilterContext)
+	 */
 	public void filter(ICommand command, IFilterContext context) {
 		if (command == null) return;
 		
@@ -162,6 +205,9 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 		this.extractedUriQueue.clear();
 	}
 
+	/**
+	 * A thread used to store {@link URI} async. to {@link CommandDB}.
+	 */
 	private class URIStorageThread extends Thread {
 		public URIStorageThread() {
 			this.setName(this.getClass().getSimpleName());
@@ -181,8 +227,7 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 						// waiting for the next job
 						URIQueueEntry entry = extractedUriQueue.take();
 						
-						// store unknown URIs
-						
+						// store unknown URIs						
 						// the list is being modified by CommandDB#storeUnknownLocations, so we need to save the size first
 						final int totalLocations = entry.getReferences().size();
 						sink.putData(entry);
@@ -211,5 +256,42 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 				return;
 			}
 		}
+	}
+
+	/* =========================================================================
+	 * Monitorable support
+	 * ========================================================================= */	
+	
+	public String getDescription(String id) throws IllegalArgumentException {
+		if (!VAR_NAMES.contains(id)) {
+			throw new IllegalArgumentException("Invalid Status Variable name " + id);
+		}	
+		
+		return VAR_DESCRIPTIONS.get(id);
+	}
+
+	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {
+		if (!VAR_NAMES.contains(id)) {
+			throw new IllegalArgumentException("Invalid Status Variable name " + id);
+		}		
+		
+		int value = -1;
+		if (id.equals(VAR_NAME_QUEUE_SIZE)) {
+			value = this.extractedUriQueue.size();
+		} 
+		
+		return new StatusVariable(id, StatusVariable.CM_GAUGE, value);
+	}
+
+	public String[] getStatusVariableNames() {
+		return VAR_NAMES.toArray(new String[VAR_NAMES.size()]);
+	}
+
+	public boolean notifiesOnChange(String id) throws IllegalArgumentException {
+		return false;
+	}
+
+	public boolean resetStatusVariable(String id) throws IllegalArgumentException {
+		return false;
 	}
 }
