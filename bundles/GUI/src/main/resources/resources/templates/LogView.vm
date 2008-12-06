@@ -55,7 +55,8 @@ $dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelNa
     ${text.summary.title}&nbsp;|&nbsp;
     #foreach($statsEntry in ${logData.getStatistics().entrySet()})
         #set($levelName = $logLevelNames.get($statsEntry.key))
-        <div class="log$levelName">$statsEntry.value</div>&nbsp;|&nbsp;
+        #set($levelText = $text.get("loglevel.$levelName"))
+        <div class="log$levelName" titel="$levelText">$statsEntry.value</div>&nbsp;|&nbsp;
     #end
     </div>
     
