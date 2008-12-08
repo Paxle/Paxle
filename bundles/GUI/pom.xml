@@ -104,6 +104,7 @@
 							org.apache.log4j,
 							org.apache.log4j.spi,
 							<!-- JFreeCharts -->
+							org.jfree.ui;resolution:=optional,
 							org.jfree.chart;resolution:=optional,
 							org.jfree.chart.renderer;resolution:=optional,
 							org.jfree.chart.renderer.xy;resolution:=optional,

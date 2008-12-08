@@ -39,7 +39,6 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.time.Minute;
@@ -275,7 +274,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
                 "PPM",
                 dataset,
                 true,
-                true,
+                false,
                 false
             );
         
@@ -312,7 +311,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
                 "Usage [%]",
                 dataset,
                 true,
-                true,
+                false,
                 false
             );
         
@@ -337,7 +336,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
                 "#Docs",
                 new TimeSeriesCollection(indexSizeSeries),
                 true,
-                true,
+                false,
                 false
             );
 		
@@ -362,7 +361,6 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 		plot.setDataset(1, linksDataset);
 		plot.setRenderer(1, new StandardXYItemRenderer());
 		plot.mapDatasetToRangeAxis(1, 1);
-		
 		
 		NumberAxis axis1 = (NumberAxis) plot.getRangeAxis(0);
 		axis1.setNumberFormatOverride(new DecimalFormat("#,##0"));		
@@ -392,7 +390,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
                 "Memory [MB]",
                 dataset,
                 true,
-                true,
+                false,
                 false
             );
         
