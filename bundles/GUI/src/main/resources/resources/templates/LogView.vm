@@ -76,14 +76,13 @@ $dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelNa
             	#set($levelName = $logLevelNames.get($level))
             	<tr>
             		<td class="log$levelName">$text.get("loglevel.$levelName")</td>
-            		<td><tt>$dateTool.format("$dateFormat",$logEntry.getTime())</tt></td>
-            		<td><tt>$escTool.html($logEntry.getMessage())#if( $logEntry.getException())<div class="exception">$logView.toString($logEntry.getException())</div>#end</tt>
-            		</td>
+            		<td class="logDate">$dateTool.format("$dateFormat",$logEntry.getTime())</td>
+            		<td class="logMessage">$escTool.html($logEntry.getMessage()).replaceAll("\n", "<br />")#if( $logEntry.getException())<div class="exception">$logView.toString($logEntry.getException())</div>#end</td>
             	</tr>
         	#end
     	#end
     </table>
     #else
     <p class="error bundleNotInstalled">${text.error.noLogReaderService}</p>
-	#end
+    #end
 #end

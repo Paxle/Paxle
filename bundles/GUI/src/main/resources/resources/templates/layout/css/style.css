@@ -311,6 +311,15 @@ span.error {
 	background-repeat: no-repeat;	
 }
 
+.logMessage {
+	font-family: monospace;
+}
+
+.logDate {
+	font-family: monospace;
+	white-space: nowrap;
+}
+
 .summary {
 	margin: 0px 0px 10px 0px;
 	padding: 5px 0px;
