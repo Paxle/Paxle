@@ -50,7 +50,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 			String errorMsg = null;
 			if (command.getResult() != ICommand.Result.Passed) {
 				errorMsg = String.format(
-						"Won't parse resource '%s'. Command status is: '%s' (%s)",
+						"Won't crawl resource '%s'. Command status is: '%s' (%s)",
 						command.getLocation(),
 						command.getResult(),
 						command.getResultText()

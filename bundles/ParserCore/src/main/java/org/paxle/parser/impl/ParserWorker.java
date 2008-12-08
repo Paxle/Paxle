@@ -14,6 +14,7 @@
 
 package org.paxle.parser.impl;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -23,10 +24,12 @@ import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
+import org.paxle.core.doc.ICrawlerDocument.Status;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.ICommand;
+import org.paxle.core.queue.ICommand.Result;
 import org.paxle.core.threading.AWorker;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ISubParserManager;
@@ -77,42 +80,77 @@ public class ParserWorker extends AWorker<ICommand> {
 		ParserContext.setCurrentContext(parserContext);		
 	}
 	
+	private void setStatusAndLogWarning(ICommand command, Result result, String errorMessage) {
+		this.logger.warn(String.format(
+				"Won't parse resource '%s'. " + errorMessage,
+				command.getLocation()
+		));
+		
+		if (command.getResult() == Result.Passed) {
+			command.setResult(result, errorMessage);
+		}
+	}
+	
 	@Override
 	protected void execute(ICommand command) {
 		final long start = System.currentTimeMillis();
+		
 		IParserDocument parserDoc = null;
+		ICrawlerDocument crawlerDocument = null;
+		File crawlerDocContent = null;
+		String mimeType = null;
+		
 		try {
 			
 			/* ================================================================
 			 * Input Parameter Check
 			 * ================================================================ */
-			String errorMsg = null;
+			
+			// check command status			
 			if (command.getResult() != ICommand.Result.Passed) {
-				errorMsg = String.format(
-						"Won't parse resource '%s'. Command status is: '%s' (%s)",
-						command.getLocation(),
+				this.setStatusAndLogWarning(command, Result.Rejected, String.format("Command status is: '%s' (%s)",
 						command.getResult(),
 						command.getResultText()
-				);
-			} else if (command.getCrawlerDocument() == null) {
-				errorMsg = String.format(
-						"Won't parse resource '%s'. Crawler-document is null",
-						command.getLocation()
-				);
-			} else if (command.getCrawlerDocument().getStatus() != ICrawlerDocument.Status.OK) {
-				errorMsg = String.format(
-						"Won't parse resource '%s'. Crawler-document status is: '%s' (%s)",
-						command.getLocation(),
-						command.getCrawlerDocument().getStatus(),
-						command.getCrawlerDocument().getStatusText()
-				);			
-			}
+				));
+				return;
+			} 
+			
+			// check crawlerDocument status
+			crawlerDocument = command.getCrawlerDocument();
+			if (crawlerDocument == null) {
+				this.setStatusAndLogWarning(command, Result.Rejected, "Crawler-document is null.");
+				return;
+			} else if (crawlerDocument.getStatus() != ICrawlerDocument.Status.OK) {
+				this.setStatusAndLogWarning(command, Result.Rejected, String.format("Crawler-document status is: '%s' (%s)",
+						crawlerDocument.getStatus(),
+						crawlerDocument.getStatusText()
+				));
+				return;
+			} 
 
-			if (errorMsg != null) {
-				this.logger.warn(errorMsg);
+			// check crawlerDocument content
+			crawlerDocContent = crawlerDocument.getContent();
+			if (crawlerDocContent == null) {
+				this.setStatusAndLogWarning(command, Result.Rejected, "Crawler-document content is null.");
+				return;
+			} else if (!crawlerDocContent.exists()) {
+				this.setStatusAndLogWarning(command, Result.Rejected, "Crawler-document file not found.");
+				return;
+			} else if (!crawlerDocContent.canRead()) {
+				this.setStatusAndLogWarning(command, Result.Rejected, "Crawler-document file can not be read.");
+				return;
+			} else if (crawlerDocContent.length() == 0) {
+				this.setStatusAndLogWarning(command, Result.Rejected, "Crawler-document file is empty.");
 				return;
 			}
-
+			
+			// check crawlerDoc mimetype
+			mimeType = crawlerDocument.getMimeType();
+			if (mimeType == null) {
+				this.setStatusAndLogWarning(command, Result.Rejected, "No mime-type was specified.");
+				return;			
+			}
+			
 			/* ================================================================
 			 * Parse Resource
 			 * 
@@ -125,29 +163,23 @@ public class ParserWorker extends AWorker<ICommand> {
 			// init the parser context
 			this.initParserContext();
 
-			// determine resource mimetype
-			String mimeType = command.getCrawlerDocument().getMimeType();
-			if (mimeType == null) {
-				// document not parsable
-				this.logger.error(String.format("Unable to parse resource '%s'. No mime-type was specified.",command.getLocation()));
-				command.setResult(ICommand.Result.Failure, "No mime-type was specified");
-				return;			
-			}
-
 			// get appropriate parser
 			this.logger.debug(String.format("Getting parsers for mime-type '%s' ...", mimeType));
 			final Collection<ISubParser> parsers = this.subParserManager.getSubParsers(mimeType);
 			
 			if (parsers == null || parsers.size() == 0) {
 				// document not parsable
-				this.logger.error(String.format("No parser for resource '%s' and mime-type '%s' found.",command.getLocation(),mimeType));
-				command.setResult(
-						ICommand.Result.Failure, 
-						String.format("No parser for mime-type '%s' found.", mimeType)
-				);
+				this.setStatusAndLogWarning(command, Result.Rejected, String.format("No parser for mime-type '%s' found.",
+						mimeType
+				));
 				return;
 			}
-			this.logger.debug(String.format("Parsers found for mime-type '%s': %s", mimeType, parsers));
+			this.logger.debug(String.format(
+					"%d parser(s) found for mime-type '%s': %s",
+					parsers.size(),
+					mimeType, 
+					parsers
+			));
 			
 			// parse resource
 			final Iterator<ISubParser> it = parsers.iterator();
@@ -157,25 +189,37 @@ public class ParserWorker extends AWorker<ICommand> {
 				this.logger.info(String.format("Parsing resource '%s' (%s) with parser '%s' ...",
 						command.getLocation(), mimeType, parser.getClass().getName()));
 				try {
+					// parsing the document using the next available parser
 					parserDoc = parser.parse(
 							command.getLocation(), 
-							command.getCrawlerDocument().getCharset(), 
-							command.getCrawlerDocument().getContent()
+							crawlerDocument.getCharset(), 
+							crawlerDocContent
 					);
+					
 					if (parserDoc == null || parserDoc.getStatus() == null || parserDoc.getStatus() != IParserDocument.Status.OK) {
-						logger.info(String.format("Unknown error parsing '%s' (%s) with parser '%s'",
-								command.getLocation(), mimeType, parser.getClass().getName()));
+						logger.info(String.format(
+								"Unknown error parsing '%s' (%s) with parser '%s'",
+								command.getLocation(), 
+								mimeType, 
+								parser.getClass().getName()
+						));
 						continue;
 					}
 					break;
 				} catch (ParserException e) {
-					final String msg = String.format("Error parsing '%s' (%s) with parser '%s': %s",
-							command.getLocation(), mimeType, parser.getClass().getName(), e.getMessage());
+					final String msg = String.format(
+							"Error parsing '%s' (%s) with parser '%s': %s",
+							command.getLocation(), 
+							mimeType, 
+							parser.getClass().getName(), 
+							e.getMessage()
+					);
 					if (logger.isDebugEnabled()) {
 						logger.warn(msg, e);
 					} else {
 						logger.warn(msg);
 					}
+					
 					if (!it.hasNext()) {
 						parserDoc = new ParserDocument();
 						parserDoc.setStatus(IParserDocument.Status.FAILURE, e.getMessage());
@@ -194,10 +238,10 @@ public class ParserWorker extends AWorker<ICommand> {
 				);
 				return;
 			} else if (parserDoc.getStatus() == null || parserDoc.getStatus() != IParserDocument.Status.OK) {
-				command.setResult(
-						ICommand.Result.Failure, 
-						String.format("Parser-document status is '%s'.",parserDoc.getStatus())
-				);
+				this.setStatusAndLogWarning(command, Result.Failure, String.format("Parser-document status is: '%s' (%s)",
+						parserDoc.getStatus(),
+						parserDoc.getStatusText()
+				));
 				return;
 			}
 			
@@ -213,7 +257,7 @@ public class ParserWorker extends AWorker<ICommand> {
 			// setting command status
 			command.setResult(
 					ICommand.Result.Failure, 
-					String.format("Unexpected '%s' while parsing resource. %s",e.getClass().getName(),e.getMessage())
+					String.format("Unexpected '%s' while parsing resource: %s",e.getClass().getName(),e.getMessage())
 			);
 			
 			// log error
@@ -235,30 +279,73 @@ public class ParserWorker extends AWorker<ICommand> {
 				command.setParserDocument(parserDoc);
 			}
 			
-			ICrawlerDocument crawlerDoc = command.getCrawlerDocument();
-			
-			
-			if (logger.isDebugEnabled()) {
-				this.logger.info(String.format(
-						"Finished parsing of resource '%s' with mime-type '%s' in %d ms.\r\n" +
-						"\tCrawler-Status: '%s' %s\r\n" +
-						"\tParser-Status:  '%s' %s",
-						command.getLocation(),
-						(command.getCrawlerDocument() == null) ? "unknown" : command.getCrawlerDocument().getMimeType(),
-						Long.valueOf(System.currentTimeMillis() - start),
-						(crawlerDoc == null) ? "unknown" : crawlerDoc.getStatus().toString(),
-						(crawlerDoc == null) ? "" : (crawlerDoc.getStatusText()==null)?"":crawlerDoc.getStatusText(),								
-						(parserDoc == null)  ? "unknown" : parserDoc.getStatus().toString(),
-						(parserDoc == null)  ? "" : (parserDoc.getStatusText()==null)?"":parserDoc.getStatusText()
+			if (logger.isInfoEnabled()) {
+				// some crawler-doc properties
+				final ICrawlerDocument crawlerDoc = command.getCrawlerDocument();
+				String cDocStatus = "unknown";
+				String cDocStatusText = "";				
+				String cDocMimeType = "unknown"; 
+				Long cDocSize = new Long(-1);
+				
+				if (crawlerDoc != null) {
+					cDocStatus = crawlerDoc.getStatus().toString();
+					cDocStatusText = crawlerDoc.getStatusText()==null?"":crawlerDoc.getStatusText();
+					
+					if (crawlerDoc.getStatus() == Status.OK) {
+						cDocMimeType = crawlerDoc.getMimeType();
+						cDocSize = new Long(crawlerDoc.getContent() == null ? -1 : crawlerDoc.getContent().length() >> 10);
+					}
+				}
+				
+				
+				// sompe parser-doc properties
+				final Long pDocProcessingTime = Long.valueOf(System.currentTimeMillis() - start);
+				String pDocStatus = "unknown";
+				String pDocStatusText = "";
+				
+				if (parserDoc != null) {
+					pDocStatus = parserDoc.getStatus().toString();
+					pDocStatusText = parserDoc.getStatusText()==null?"":parserDoc.getStatusText();
+				}
+				
+				// building log message
+				StringBuilder logMsg = new StringBuilder();
+				
+				// general data
+				logMsg.append(String.format(
+							"Finished parsing of resource '%s' [mime-type: '%s', size: %,d KB] in %d ms.\r\n",
+							command.getLocation(),
+							cDocMimeType,
+							cDocSize,
+							pDocProcessingTime
 				));
-			} else if (logger.isInfoEnabled()) {
-				logger.info(String.format("Finished parsing of resource '%s' with mime-type '%s' in %d ms.\r\n" +
-						"\tParser-Status:  '%s' %s",
-						command.getLocation(),
-						(command.getCrawlerDocument() == null || command.getCrawlerDocument().getMimeType() == null) ? "unknown" : command.getCrawlerDocument().getMimeType(),
-						Long.valueOf(System.currentTimeMillis() - start),
-						(parserDoc == null || parserDoc.getStatus() == null)  ? "unknown" : parserDoc.getStatus().toString(),
-						(parserDoc == null)  ? "" : (parserDoc.getStatusText()==null)?"":parserDoc.getStatusText()));
+				
+				// command-status
+				if (logger.isDebugEnabled() || command.getResult() != Result.Passed) {
+					logMsg.append(String.format(
+							"\tCommand-Status: '%s' %s\r\n",
+							command.getResult(),
+							command.getResultText()								
+					));
+				}
+								
+				// crawler-doc status
+				if (logger.isDebugEnabled() || command.getResult() != Result.Passed) {
+					logMsg.append(String.format(
+							"\tCrawler-Status: '%s' %s\r\n",
+							cDocStatus,
+							cDocStatusText								
+					));
+				}
+				
+				// parser-doc status
+				logMsg.append(String.format(
+							"\tParser-Status:  '%s' %s",
+							pDocStatus,
+							pDocStatusText
+				));
+				
+				logger.info(logMsg.toString());
 			}
 		}
 	}
