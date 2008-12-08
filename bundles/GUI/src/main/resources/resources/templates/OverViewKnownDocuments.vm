@@ -35,19 +35,19 @@
 	</tr>
 	<tr>
 		<td>${text.ovDatabase.knownDocs}:</td>
-		<td>$monitorAdmin.getStatusVariable('org.paxle.lucene-db/docs.known').getInteger()</td>
+		<td>$!renderTool.eval('$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.lucene-db/docs.known").getInteger())')</td>
 	</tr>
 	<tr>
 		<td>${text.ovDatabase.knownURI}:</td>
-		<td>$!renderTool.eval('$monitorAdmin.getStatusVariable("org.paxle.data.cmddb/size.total").getInteger()')</td>
+		<td>$!renderTool.eval('$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.data.cmddb/size.total").getInteger())')</td>
 	</tr>
 	<tr>
 		<td>${text.ovDatabase.enqueuedURI}:</td>
-		<td>$!renderTool.eval('$monitorAdmin.getStatusVariable("org.paxle.data.cmddb/size.enqueued").getInteger()')</td>
+		<td>$!renderTool.eval('$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.data.cmddb/size.enqueued").getInteger())')</td>
 	</tr>
 	<tr>
 		<td>${text.ovDatabase.extractedURI}:</td>
-		<td>$!renderTool.eval('$monitorAdmin.getStatusVariable("org.paxle.data.UrlExtractor/queue.size").getInteger()')</td>
+		<td>$!renderTool.eval('$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.data.UrlExtractor/queue.size").getInteger())')</td>
 	</tr>
 	</table>
 	<div class="lastUpdate">

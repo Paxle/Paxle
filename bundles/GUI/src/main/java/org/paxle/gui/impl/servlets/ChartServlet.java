@@ -357,7 +357,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 		
         NumberAxis axis2 = new NumberAxis("#Links");
         axis2.setAutoRangeIncludesZero(false); 
-        axis2.setNumberFormatOverride(new DecimalFormat("##0"));
+        axis2.setNumberFormatOverride(new DecimalFormat("#,##0"));
 		plot.setRangeAxis(1, axis2);
 		plot.setDataset(1, linksDataset);
 		plot.setRenderer(1, new StandardXYItemRenderer());
@@ -365,7 +365,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 		
 		
 		NumberAxis axis1 = (NumberAxis) plot.getRangeAxis(0);
-		axis1.setNumberFormatOverride(new DecimalFormat("##0"));		
+		axis1.setNumberFormatOverride(new DecimalFormat("#,##0"));		
 		
 		// change axis date format
 		((DateAxis) plot.getDomainAxis()).setDateFormatOverride(new SimpleDateFormat("HH:mm"));
