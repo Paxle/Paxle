@@ -34,7 +34,7 @@
 			<td>${cmd.getDepth()}</td>
 			<td><a href="${cmd.getLocation()}">$displayTool.truncate(${cmd.getLocation()},80)</a></td>
 			<td>$!{cmd.getCrawlerDocument().getMimeType()}</td>
-			<td>$!{cmd.getCrawlerDocument().getSize()}</td>
+			<td>$!numberTool.format($cmd.getCrawlerDocument().getSize())</td>
 		</tr>
 		#end
 	</table>
