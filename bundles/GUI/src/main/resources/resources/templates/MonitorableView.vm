@@ -13,7 +13,7 @@
  *#
 
 ## getting resourcebundle to translate site
-#set( $text = $resourceTool.bundle('OSGI-INF/l10n/monitorableview'))
+#set($text = $resourceTool.bundle('OSGI-INF/l10n/monitorableview'))
 
 ## possible datatype list
 #set($dataTypes = ['Integer','Float','String','Boolean'])

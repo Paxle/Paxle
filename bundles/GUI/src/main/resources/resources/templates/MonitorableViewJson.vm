@@ -1,0 +1,64 @@
+#*
+#*
+ * This file is part of the Paxle project.
+ * Visit http://www.paxle.net for more information.
+ * Copyright 2007-2008 the original author or authors.
+ *
+ * Licensed under the terms of the Common Public License 1.0 ("CPL 1.0").
+ * Any use, reproduction or distribution of this program constitutes the recipient's acceptance of this agreement.
+ * The full license text is available under http://www.opensource.org/licenses/cpl1.0.txt 
+ * or in the file LICENSE.txt in the root directory of the Paxle distribution.
+ *
+ * Unless required by applicable law or agreed to in writing, this software is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *#
+
+## getting resourcebundle to translate site
+#set( $text = $resourceTool.bundle('OSGI-INF/l10n/monitorableview'))
+
+## possible datatype list
+#set($dataTypes = ['Integer','Float','String','Boolean'])
+
+#macro(statusVarValue $statusVar)
+#set($statusVarType = $statusVar.getType())
+#if($statusVarType == 0)$statusVar.getInteger()
+#elseif($statusVarType == 1)$statusVar.getFloat()
+#elseif($statusVarType == 2)${escTool.q}$escTool.javascript($statusVar.getString())${escTool.q}
+#elseif($statusVarType == 3)$statusVar.getBoolean()
+#end
+#end
+
+## the monitor admin service
+#set($monitorAdmin = $manager.getService('org.osgi.service.monitor.MonitorAdmin'))
+#if($monitorAdmin)
+
+       #if($paramParser.getString("monitorableId"))
+               #set($monitorables = [$paramParser.getString("monitorableId")])
+       #else
+               #set($monitorables = $monitorAdmin.getMonitorableNames())
+       #end
+       #if($monitorables)
+    {
+               #foreach($monitorable in $loopTool.watch($monitorables,'monitorables'))
+        ${escTool.q}$monitorable${escTool.q} :
+        {
+                       #set($statusVariables = $monitorAdmin.getStatusVariables($monitorable))
+                       #if($statusVariables)
+                               #foreach($statusVariable in $loopTool.watch($sortTool.sort($statusVariables,["ID:asc"]),'variables'))
+                ${escTool.q}$statusVariable.getID()${escTool.q} :
+                {
+                    "id" : ${escTool.q}$statusVariable.getID()${escTool.q} ,
+                    "type" : ${escTool.q}$listTool.get($dataTypes,$statusVariable.getType())${escTool.q} ,
+                    "timestamp" : $statusVariable.getTimeStamp().getTime() ,
+                    "value" : #statusVarValue($statusVariable) ,
+                    "description" : ${escTool.q}$escTool.javascript($monitorAdmin.getDescription("$monitorable/$statusVariable.getID()"))${escTool.q}
+                }
+                #if(!$loopTool.isLast('variables')),#end
+                               #end
+                       #end
+        }
+        #if(!$loopTool.isLast('monitorables')),#end
+               #end
+    }
+       #end
+#end

@@ -21,12 +21,18 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 
-public class MonitorableView extends ALayoutServlet {
-	
+public class MonitorableView extends ALayoutServlet {	
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	public Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
-		return this.getTemplate("/resources/templates/MonitorableView.vm");
-	}	
+		String format = request.getParameter("format");
+		if (format != null && format.equals("json")) {
+			context.put("layout", "plain.vm");
+			response.setContentType("application/json");
+			return this.getTemplate("/resources/templates/MonitorableViewJson.vm");
+		} else {
+			return this.getTemplate("/resources/templates/MonitorableView.vm");
+		}
+	}   
 }
