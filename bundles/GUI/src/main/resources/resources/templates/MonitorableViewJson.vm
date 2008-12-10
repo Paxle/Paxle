@@ -23,7 +23,7 @@
 #set($statusVarType = $statusVar.getType())
 #if($statusVarType == 0)$statusVar.getInteger()
 #elseif($statusVarType == 1)$statusVar.getFloat()
-#elseif($statusVarType == 2)${escTool.q}$escTool.javascript($statusVar.getString())${escTool.q}
+#elseif($statusVarType == 2)${escTool.q}$escTool.java($statusVar.getString())${escTool.q}
 #elseif($statusVarType == 3)$statusVar.getBoolean()
 #end
 #end
@@ -51,7 +51,7 @@
                     "type" : ${escTool.q}$listTool.get($dataTypes,$statusVariable.getType())${escTool.q} ,
                     "timestamp" : $statusVariable.getTimeStamp().getTime() ,
                     "value" : #statusVarValue($statusVariable) ,
-                    "description" : ${escTool.q}$escTool.javascript($monitorAdmin.getDescription("$monitorable/$statusVariable.getID()"))${escTool.q}
+                    "description" : ${escTool.q}$escTool.java($monitorAdmin.getDescription("$monitorable/$statusVariable.getID()"))${escTool.q}
                 }
                 #if(!$loopTool.isLast('variables')),#end
                                #end
