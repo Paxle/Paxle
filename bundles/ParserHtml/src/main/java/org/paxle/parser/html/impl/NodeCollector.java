@@ -352,7 +352,7 @@ public class NodeCollector extends NodeVisitor {
 		String link = tag.getLink().trim();
 		if (link.length() == 0)
 			return;
-		if (tag.isJavascriptLink() || tag.isIRCLink() || tag.isMailLink()) {
+		if (tag.isJavascriptLink() || tag.isIRCLink() || tag.isMailLink() || link.toLowerCase().startsWith("javascript")) {
 			logger.logDebug("ignoring unsupported link '" + link + "'", tag.getStartingLineNumber());
 			return;
 		}
