@@ -49,8 +49,8 @@
 							org.apache.commons.collections;version="3.2.1",
 							org.apache.commons.collections.*;version="3.2.1",
 							<!-- EhCache -->
-							net.sf.ehcache;version="1.4.1",
-							net.sf.ehcache.*;version="1.4.1",
+							net.sf.ehcache;version="1.5.0",
+							net.sf.ehcache.*;version="1.5.0",
 							<!-- Bloomfilter -->
 							org.onelab.filter,
 							<!-- Paxle Core Bundle -->
