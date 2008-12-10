@@ -19,6 +19,7 @@ import java.net.URI;
 import java.util.Iterator;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.core.norm.impl.ReferenceNormalizer;
 import org.paxle.parser.ParserContext;
@@ -115,6 +116,24 @@ public class HtmlParserTest extends TestCase {
 			final String exp = REPL_CASES[i][1];
 			assertNotNull(repl);
 			assertEquals(exp, repl);
+		}
+	}
+	
+	public static void testParseWindows1256Html() throws Exception {
+		final HtmlParser parser = new HtmlParser();
+		try {
+			final File testResources = new File("src/test/resources/maktoobblog.com.html");		
+			ParserContext.setCurrentContext(new ParserContext(null, null, null, new TempFileManager(), new ReferenceNormalizer()));
+
+			final IParserDocument pdoc = parser.parse(new URI("http://maktoobblog.com.html/"), null, testResources);
+			assertNotNull(pdoc);
+			assertEquals("\u0645\u0646\u0627\u0647\u0644 \u0627\u0644\u062a\u0631\u0628\u064a\u0629", pdoc.getTitle());
+			
+			LinkInfo lInfo = pdoc.getLinks().get(URI.create("http://www.maktoobblog.com/nextBlog.php"));
+			assertNotNull(lInfo);
+			assertEquals("\u0627\u0644\u0645\u062f\u0648\u0651\u0646\u0629 \u0627\u0644\u062a\u0627\u0644\u064a\u0629", lInfo.getTitle());
+		} finally {
+			parser.close();
 		}
 	}
 }

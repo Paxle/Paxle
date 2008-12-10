@@ -1,0 +1,1004 @@
+<html dir="rtl">
+<head>
+<title>مناهل التربية</title><style>
+body {direction:ltr; min-width: 980px;}
+</style>
+<META content="mamdouh69-mamdouh69-مصر-عام" name="Description" >
+<META content="text/html; charset=windows-1256" http-equiv="Content-Type" >
+<META content="Maktoob.com Inc." name="Author" >
+<meta content=" المدّونات البلوج المدونة عربية إنجليزية بلوجز ديوان الدواوين بلوجات بلوغز تدوين على الإنترنت حريّة التعبير حوار خواطر وأشعار دليل " name="keywords">
+<META content="Maktoob.com Inc." name="Copyright" >
+
+                <script type="text/javascript">
+                        function openWin(userID)
+                        {
+                                w = 800;
+                                h = 550;
+                                l = (screen.width-w)/2;
+                                t = (screen.height-h)/2;
+
+                                window.open("http://www.maktoobblog.com/view_myprofile.htm?uid="+userID,"Maktoobblog","toolbar=no,menubar=no,resizable=yes,scrollbars=yes,left="+l+",top="+t+",width="+w+",height="+h);
+                        }
+                        function openWinComm(url)
+                        {
+                                 w = 800;
+                                 h = 540;
+                                 l = (screen.width-w)/2;
+                                 t = (screen.height-h)/2;
+
+                                window.open(url,"Maktoobblog","toolbar=no,menubar=no,resizable=yes,scrollbars=yes,left="+l+",top="+t+",width="+w+",height="+h);
+                        }
+                var userID = '';
+
+                function favoriteLogin(remove) {
+                        myStar = document.getElementById('imgStar');
+
+                	var divId = 'favoriteDIV';
+                	if(document.getElementById(divId)) {
+                                //myDiv = document.getElementById(divId);
+                		//myDiv.parentNode.removeChild(myDiv);
+                	} else {
+                		var newDiv = document.createElement('DIV');
+                		newDiv.id = divId;
+                		newDiv.className = 'loginFavorite';
+                                parentElement = document.getElementById('favoriteStar');
+                                if(myStar.src == 'http://cdn.maktoob.com/images/blog_maktoob/images/star.gif' || userID != '')
+                                {
+                                        if(remove == 0)
+                                        {
+                                                newDiv.className = 'loginFavorite2';
+                                                newDiv.innerHTML = '<p>لقد تم إضافة هذه المدوّنة إلى قائمة مدوّناتك المفضّلة</p>';
+                                                //newDiv.style.left = (parentElement.offsetLeft-favLeft)+'px';
+                                                newDiv.style.left = myStar.offsetLeft;
+
+                                                timerID = window.setInterval("hideDiv();", 2000);
+                                        }
+                                        else if(remove == 1)
+                                        {
+                                                newDiv.className = 'loginFavorite2';
+                                                newDiv.innerHTML = '<p>لقد تم إزالة هذه المدوّنة من قائمة مدوّناتك المفضّلة</p>';
+                                                //newDiv.style.left = (parentElement.offsetLeft-favLeft)+'px';
+                                                newDiv.style.left = myStar.offsetLeft;
+
+                                                timerID = window.setInterval("hideDiv();", 2000);
+                                        }
+                                        else
+                                        {
+                                                removeFavorite();
+                                                return;
+                                        }
+                                }
+                                else
+                                {
+                		        newDiv.innerHTML = divData();
+                                        //newDiv.style.left = (parentElement.offsetLeft+570)+'px';
+                                        favLeft = 120;
+                                        favLeftEn = 10;
+                                        if(screen.width <= '800')
+                                        {
+                                                favLeft = 350;
+                                                favLeftEn = 10;
+                                        }
+                                        newDiv.style.left = myStar.offsetLeft-favLeft+'px';
+                                }
+                		newDiv.style.zIndex = 99999;
+		                newDiv.style.top = (parentElement.offsetTop+parentElement.offsetHeight+30)+'px';
+
+                		parentElement.appendChild(newDiv);
+                                if(document.getElementById('meuser')){
+                                        frm = document.getElementById('favForm');
+                			frm.meuser.focus();
+                		}
+                	}
+
+                }
+
+                function divData() {
+                	var iHTML = '';
+                	iHTML += '<a href="javascript:void(0);" onclick="this.parentNode.parentNode.removeChild(this.parentNode);return false;"><img alt=\'\' src="http://cdn.maktoob.com/images/blog_maktoob/images/b_close.gif" width="10" height="10" style="position: absolute; top: -1px; right: -1px; border: none" /></a>';
+                	iHTML += '<div style="margin: 15px"><p>يجب عليك الدخول حتى تتمكن من إضافة هذه المدوّنة الى قائمة مدوّناتك المفضلة</p>';
+                	iHTML += '<div class="loginFavorite_left"><h3>مستخدم جديد:</h3><div><input type="button" value="سجّل الآن" name="login" class="submitFavorite" style="width: 100" onClick="javascript:this.parentNode.parentNode.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode.parentNode.parentNode);location.href=\'http://ldap.maktoob.com/newreg/register_en.php?page_name=http%3A%2F%2Fwww.maktoobblog.com%2F&maktoobfield=Blog&mm=dfc46a9ac1\';"></div></div>';
+                	iHTML += '<div class="loginFavorite_right"><h3>عضو في مكتوب:</h3><form id="favForm" method="post">';
+                	iHTML += '<span id="error" class="loginFavorite_message"></span>';
+                	iHTML += '<div>اسم المستخدم: <input type="text" dir="ltr" id="meuser" name="meuser" style="width: 130px; margin-bottom: 5px;direction:ltr" /></div>';
+                	iHTML += '<div class="loginpadding">كلمة السر: <input type="password" dir="ltr" id="password" name="password" style="width: 130px; margin-bottom: 5px;direction:ltr" /></div>';
+                	iHTML += '<div><br/><img alt="" style="border:0" border="0" src="http://cdn.maktoob.com/images/blog_maktoob/images/bulletes_ar.gif" width="6" height="8">&nbsp;<a class="aFavorite" href="http://www.maktoob.com/reminder.html" onclick="javascript:this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode.parentNode.parentNode.parentNode);">تذكر كلمة السر?</a></div><br/>';
+                	iHTML += '<div><input type="button" value="  دخول  " name="login" class="submitFavorite" style="width: 70" onClick="loginMe()"></div>';
+                	iHTML += '</form></div></div>';
+                	return iHTML;
+                }
+
+                function loginMe()
+                {
+                        frm = document.getElementById('favForm');
+	                t1 = frm.meuser.value.replace(/ /ig,"");
+                        t2 = frm.password.value.replace(/ /ig,"");
+
+                        if(t1.length <= 0 || t2.length <= 0)
+                        {
+                                alert('من فضلك، تأكد من إدخال كافة المعلومات');
+                                frm.meuser.focus();
+                                return;
+                        }
+
+                        try {
+                                xmlhttp=new ActiveXObject("Msxml2.XMLHTTP");
+                        }
+                        catch (e) {
+                                try { xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); }
+                                catch (e) {
+                                       try { xmlhttp = new XMLHttpRequest(); }
+                                       catch (e) { xmlhttp=false; }
+                                }
+                        }
+
+                        if (!xmlhttp && window.createRequest) {
+                     	        try {
+                         		xmlhttp = window.createRequest();
+                         	} catch (e) {
+                         		xmlhttp=false;
+                         	}
+                         }
+
+
+                        var DataToSend = "favorite=1&meuser=" + frm.meuser.value + "&password=" + frm.password.value;
+
+                        xmlhttp.open('POST','http://mamdouh69.maktoobblog.com/loginMainComment.php',false);
+                        xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                        xmlhttp.setRequestHeader("charset","UTF-8");
+                        xmlhttp.send(DataToSend);
+
+                        if(xmlhttp.readyState == 4 && xmlhttp.responseText != '')
+                        {
+                                userID = xmlhttp.responseText;
+
+                                var DataToSend = "add=1&user_id="+userID+"&blog_id=111683";
+
+                                try
+                                {
+                                        xmlhttp=new ActiveXObject("Msxml2.XMLHTTP");
+                                }
+                                catch (e)
+                                {
+                                        try { xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); }
+                                        catch (e)
+                                        {
+                                               try { xmlhttp = new XMLHttpRequest(); }
+                                               catch (e) { xmlhttp=false; }
+                                        }
+                                }
+
+                                xmlhttp.open('POST','http://mamdouh69.maktoobblog.com/templates/addToFavorite.php',false);
+                                xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                                xmlhttp.send(DataToSend);
+
+                                if(xmlhttp.readyState == 4)
+                                {
+                                        myStar = document.getElementById('imgStar');
+                                        myStar.src = 'http://cdn.maktoob.com/images/blog_maktoob/images/star.gif';
+
+                                        generalDIV = document.getElementById('favoriteDIV');
+                                        generalDIV.className = 'loginFavorite2';
+                                        generalDIV.innerHTML = '<p>لقد تم إضافة هذه المدوّنة إلى قائمة مدوّناتك المفضّلة</p>';
+                                        parentElement = document.getElementById('favoriteStar');
+                                        //generalDIV.style.left = (parentElement.offsetLeft-favLeft)+'px';
+                                        generalDIV.style.left = myStar.offsetLeft;
+
+                                        timerID = window.setInterval("hideDiv();", 2000);
+                                }
+                        }
+                        else if(xmlhttp.readyState == 4 && xmlhttp.responseText == '')
+                        {
+                                errorX = document.getElementById('error');
+                                errorX.innerHTML = 'الرجاء التأكد من اسم الدخول و كلمة السر<br><br>';
+                        }
+                }
+
+
+                function favoriteAdd()
+                {
+                        var DataToSend = "add=1&user_id="+userID+"&blog_id=111683";
+
+                        try
+                        {
+                                xmlhttp=new ActiveXObject("Msxml2.XMLHTTP");
+                        }
+                        catch (e)
+                        {
+                                try { xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); }
+                                catch (e)
+                                {
+                                       try { xmlhttp = new XMLHttpRequest(); }
+                                       catch (e) { xmlhttp=false; }
+                                }
+                        }
+
+                        xmlhttp.open('POST','http://mamdouh69.maktoobblog.com/templates/addToFavorite.php',false);
+                        xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                        xmlhttp.send(DataToSend);
+
+                        if(xmlhttp.readyState == 4)
+                        {
+                                favoriteLogin(0);
+                                myStar = document.getElementById('imgStar');
+                                myStar.src = 'http://cdn.maktoob.com/images/blog_maktoob/images/star.gif';
+                                myStar.alt= 'احذف من مدوّناتي المفضّلة'
+                        }
+                }
+
+                function hideDiv()
+                {
+                	var divId = 'favoriteDIV';
+                	if(document.getElementById(divId)) {
+                                myDiv = document.getElementById(divId);
+                		myDiv.parentNode.removeChild(myDiv);
+                                window.clearInterval(timerID);
+                        }
+                }
+
+                function removeFavorite()
+                {
+                        var DataToSend = "remove=1&user_id="+userID+"&blog_id=111683";
+
+                        try{
+                                xmlhttp=new ActiveXObject("Msxml2.XMLHTTP");
+                        }
+                        catch (e){
+                                try { xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); }
+                                catch (e){
+                                       try { xmlhttp = new XMLHttpRequest(); }
+                                       catch (e) { xmlhttp=false; }
+                                }
+                        }
+
+                        xmlhttp.open('POST','http://mamdouh69.maktoobblog.com/templates/addToFavorite.php',false);
+                        xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                        xmlhttp.send(DataToSend);
+
+                        if(xmlhttp.readyState == 4)
+                        {
+                                favoriteLogin(1);
+                                myStar = document.getElementById('imgStar');
+                                myStar.src = 'http://cdn.maktoob.com/images/blog_maktoob/images/star_off.gif';
+                                myStar.alt= 'أضف الى مدوّناتي المفضّلة'
+                        }
+                }
+
+                function favoriteCheck(user)
+                {
+                        if(user != '')
+                        {
+                                userID = user;
+                        }
+
+                        myStar = document.getElementById('imgStar');
+
+                        if(myStar.src == 'http://cdn.maktoob.com/images/blog_maktoob/images/star.gif')
+                                removeFavorite();
+                        else if(userID != '')
+                                favoriteAdd();
+                        else
+                                favoriteLogin(1);
+                }
+
+                function searchFor()
+                {
+                        txt = document.getElementById('searchTXT').value;
+                        if(txt == '')
+                                alert('الرجاء إدخال الكلمة التي تريد البحث عنها');
+                        else
+                                if(document.getElementById('searchIn2').checked)
+                                        window.open('http://www.maktoobblog.com/search_results.htm?stype=allblogs&strSearch='+txt);
+                                else
+                                        document.location = '?stype=thisblog&strSearch='+txt;
+                }
+                
+</script>
+<link rel="stylesheet" href="http://cdn.maktoob.com/images/blog_maktoob/templates/literature/images/style-ar.css" type="text/css">
+                <link rel="alternate" type="text/xml" title="RSS 2.0" href="http://www.maktoobblog.com/mamdouh69/rss.xml">
+                <link rel="stylesheet" href="http://cdn.maktoob.com/images/blog_maktoob/images/headers.css" type="text/css">
+                <!-- OAS SETUP begin -->
+                <SCRIPT type='text/javascript'>
+                <!--
+                //configuration
+                OAS_url ='http://oas.maktoobblog.com/RealMedia/ads/';
+                OAS_listpos = 'x22,x23';
+                OAS_query = '?';
+                OAS_sitepage = 'maktoob.com/blog/arabic';
+               //**************************************************************************************************************************************************
+                //<!--OAS Analytics begin-->
+                var d=document;
+                var OAS_rdl = '';
+                var OAS_CA = 'N';
+                var OAS_taxonomy = '&channel=blog' + '&if_nt_ua=' + navigator.userAgent + '&if_nt_murl=' + document.URL; //Custom Taxonomy, format &a=b&c=d
+                if((d.referrer)&&(d.referrer!="[unknown origin]")) {
+                	if(d.referrer.indexOf("?") == -1) {
+                		OAS_rdl += '&tax23_RefDocLoc='+d.referrer.toString();
+                	} else {
+                		var rdl=d.referrer;
+                		var rdl1=rdl.indexOf("?");
+                		var rdl2=rdl.substring(0,rdl1);
+                		OAS_rdl += '&tax23_RefDocLoc='+rdl2;
+                	}
+                }
+                function cookie_check(ifd,ife) {
+                	var s=ife.indexOf(ifd);
+                	if(s==-1) return "";
+                	s+=ifd.length;
+                	var e=ife.indexOf(";",s);
+                	if(e==-1) e=ife.length;
+                	return ife.substring(s,e);
+                }
+                function write_cookie() {
+                	var d=new Date();
+                	var m=d.getTime();
+                	document.cookie="OAS_SC1="+m.toString()+";path=/;";
+                	var v=cookie_check("OAS_SC1=",document.cookie);
+                	if(v!=m.toString())return false;
+                	d.setTime(m+3600000);
+                	return true;
+                }
+                if(write_cookie())OAS_CA="Y";
+                //end OAS Analytics
+                OAS_query += 'XE' + OAS_taxonomy + OAS_rdl + "&if_nt_CookieAccept=" + OAS_CA + '&XE';
+
+               //**************************************************************************************************************************************************
+                //end of configuration
+                OAS_version = 10;
+                OAS_rn = '001234567890'; OAS_rns = '1234567890';
+                OAS_rn = new String (Math.random()); OAS_rns = OAS_rn.substring (2, 11);
+                function OAS_NORMAL(pos) {
+                document.write('<A HREF="' + OAS_url + 'click_nx.ads/' + OAS_sitepage + '/1' + OAS_rns + '@' + OAS_listpos + '!' + pos + OAS_query + '" TARGET=_top>');
+                document.write('<img SRC="' + OAS_url + 'adstream_nx.ads/' + OAS_sitepage + '/1' + OAS_rns + '@' + OAS_listpos + '!' + pos + OAS_query + '" BORDER=0 ALT="Click!"></A>');
+                }
+                //-->
+                </SCRIPT>
+                <SCRIPT type='text/javascript'>
+                <!--
+                OAS_version = 11;
+                if (navigator.userAgent.indexOf('Mozilla/3') != -1)
+                OAS_version = 10;
+                if (OAS_version >= 11)
+                document.write('<SC'+'RIPT LANGUAGE=JavaScript1.1 SRC="' + OAS_url + 'adstream_mjx.ads/' + OAS_sitepage + '/1' + OAS_rns + '@' + OAS_listpos + OAS_query + '"><\/SCRIPT>');
+                //-->
+                </SCRIPT><SCRIPT type='text/javascript'>
+                <!--
+                document.write('');
+                function OAS_AD(pos) {
+                if (OAS_version >= 11 && typeof(OAS_RICH)!='undefined')
+                  OAS_RICH(pos);
+                else
+                  OAS_NORMAL(pos);
+                }
+                //-->
+                </SCRIPT>
+                <!-- OAS SETUP end -->
+</head>
+<body>
+<script type="text/javascript">
+function HideandUNhideObj()
+{
+        nav=document.getElementById("flagDIV").style;
+        con=document.getElementById("flagUL");
+        if(nav.display=="none"){
+                // set mouseout function here
+                nav.display = "block";
+                /*con.onmouseout = function(evt) {
+                    if (checkMouseLeave(this, evt)) {
+                        i = parseInt(this.id.substr(2));
+                        nav=document.getElementById("flagDIV").style;
+                        nav.display = "none";
+                    }
+                } */
+        } else {
+                nav.display="none";
+                /*con.onmouseout = function (evt) {
+                    if (checkMouseLeave(this, evt)) {
+                        i = parseInt(this.id.substr(2));
+                        nav=document.getElementById("flagDIV").style;
+                        nav.display= "none";
+                    }
+                } */
+        }
+}
+
+function checkMouseLeave (element, evt)
+{
+        evt = (evt) ? evt : ((window.event) ? window.event : "");
+        window.status = evt;
+        if (evt.relatedTarget) {
+          return !containsDOM(element, evt.relatedTarget);
+        } else {
+              if (element.contains(evt.toElement)) {
+                      return(false);
+              } else {
+                      return(true);
+              }
+        }
+}
+
+function flagThis(id,blogID)
+{
+        var DataToSend = "id="+id;
+
+        var URL = location.href;
+
+        var checkPost = /^http:\/\/[_A-Za-z0-9-]+\.maktoobblog\.com\/([0-9]+)\/[%_A-Za-z0-9-]+$/;
+        postNo = 0;
+        if(checkPost.test(URL) != false)
+        {
+        	var m = checkPost.exec(URL);
+        	if(m && m.length > 0)
+        		postNo = m[1];
+        }
+
+        pos = URL.indexOf("post=");
+        if(pos != -1)
+        {
+                pos = URL.indexOf("?");
+        	var querySting = URL.substring(pos+1,URL.length);
+
+        	var vars = {};
+        	var array = querySting.split("&");
+        	for(i=0; i<array.length; i++)
+        	{
+        		var subQuery = array[i].split("=");
+        		vars[subQuery[0]] = subQuery[1];
+        	}
+
+                DataToSend += "&post="+vars["post"];
+        }
+        else if(postNo != 0)
+                DataToSend += "&post="+postNo;
+        else
+                DataToSend += "&blog_id="+blogID;
+
+        try
+        {
+                xmlhttp=new ActiveXObject("Msxml2.XMLHTTP");
+        }
+        catch (e)
+        {
+                try { xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); }
+                catch (e)
+                {
+                       try { xmlhttp = new XMLHttpRequest(); }
+                       catch (e) { xmlhttp=false; }
+                }
+        }
+
+        xmlhttp.open("POST","http://mamdouh69.maktoobblog.com/templates/flag.php",false);
+        xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+        xmlhttp.send(DataToSend);
+
+        if(xmlhttp.readyState == 4 && xmlhttp.responseText == 1)
+        {
+                //flagImage = document.getElementById("flagIMG");
+                //flagImage.src= "http://cdn.maktoob.com/images/blog_maktoob/images/flag_yes.gif";
+        }
+}
+
+function createAJAXobj()
+{
+       xmlhttp = false;
+       try
+       {
+               xmlhttp=new ActiveXObject("Msxml2.XMLHTTP");
+       }
+       catch (e)
+       {
+               try { xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); }
+               catch (e)
+               {
+                      try { xmlhttp = new XMLHttpRequest(); }
+                      catch (e) { xmlhttp=false; }
+               }
+       }
+
+       if (!xmlhttp && window.createRequest) {
+    	        try {
+        		xmlhttp = window.createRequest();
+        	} catch (e) {
+        		xmlhttp=false;
+        	}
+        }
+
+        return xmlhttp;
+}
+
+function changeSize(op)
+{
+	fontTag = document.getElementsByTagName("font");
+	for (var i = 0; i < fontTag.length; i++) {
+		if(op == "+" && fontTag[i].size < 5)
+		{
+	    	fontTag[i].size++;
+	    }
+	    else if(op == "-" && fontTag[i].size > 1)
+	    {
+	    	fontTag[i].size--;
+	    }
+	}
+
+	divTag = document.getElementsByTagName("div");
+	for (var p = 0; p < divTag.length; p++) {
+		if(divTag[p].className == "title" || divTag[p].className == "postZone" || divTag[p].className == "dateMain" || divTag[p].className == "commentTitle" || divTag[p].className == "comInfo" || divTag[p].className == "comLine")
+		{
+			if(divTag[p].style.fontSize == "")
+			{
+				if(divTag[p].className == "title" || divTag[p].className == "dateMain")
+				{
+					divTag[p].style.fontSize = 14;
+				}
+				else
+				{
+					divTag[p].style.fontSize = 13;
+				}
+			}
+			else
+			{
+				temp = divTag[p].style.fontSize;
+				temp = temp.replace("px","");
+
+				if(op == "+" && temp < 16)
+				{
+			    	divTag[p].style.fontSize = ++temp;
+				}
+				else if(op == "-" && temp > 10)
+				{
+					divTag[p].style.fontSize = --temp;
+				}
+			}
+	    }
+	}
+
+	spanTag = document.getElementsByTagName("span");
+	for (var p = 0; p < spanTag.length; p++) {
+		if(spanTag[p].className == "dateLine")
+		{
+			if(spanTag[p].style.fontSize == "")
+			{
+				spanTag[p].style.fontSize = 11;
+			}
+			else
+			{
+				temp = spanTag[p].style.fontSize;
+				temp = temp.replace("px","");
+
+				if(op == "+" && temp < 16)
+				{
+			    	spanTag[p].style.fontSize = ++temp;
+				}
+				else if(op == "-" && temp > 10)
+				{
+					spanTag[p].style.fontSize = --temp;
+				}
+			}
+
+			bTag = spanTag[p].getElementsByTagName("b");
+			aTag = bTag[0].getElementsByTagName("a");
+
+                        if(aTag[0])
+                        {
+			        if(aTag[0].style.fontSize == "")
+         			{
+         				aTag[0].style.fontSize = 11;
+         			}
+         			else
+         			{
+         				temp = aTag[0].style.fontSize;
+         				temp = temp.replace("px","");
+
+         				if(op == "+" && temp < 16)
+         				{
+         			    	aTag[0].style.fontSize = ++temp;
+         				}
+         				else if(op == "-" && temp > 10)
+         				{
+         					aTag[0].style.fontSize = --temp;
+         				}
+         			}
+                        }
+
+			aTag = bTag[1].getElementsByTagName("a");
+
+                        if(aTag[0])
+                        {
+			        if(aTag[0].style.fontSize == "")
+         			{
+         				aTag[0].style.fontSize = 11;
+         			}
+         			else
+         			{
+         				temp = aTag[0].style.fontSize;
+         				temp = temp.replace("px","");
+
+         				if(op == "+" && temp < 16)
+         				{
+         			    	aTag[0].style.fontSize = ++temp;
+         				}
+         				else if(op == "-" && temp > 10)
+         				{
+         					aTag[0].style.fontSize = --temp;
+         				}
+         			}
+                        }
+	    }
+	}
+}
+
+function abuse(objID,post)
+{
+	abuseDiv = document.getElementById("abuseRep"+objID);
+
+        if(post == 1)
+	        parentDiv = document.getElementById("abuseTXT"+objID);
+        else
+	        parentDiv = document.getElementById("abuseTXTcomm"+objID);
+
+	if(abuseDiv)
+	{
+		parentDiv.removeChild(abuseDiv);
+	}
+	else
+	{
+		abuseSpan = document.createElement("SPAN");
+		abuseSpan.id = "abuseRep"+objID;
+
+		parentDiv.appendChild(abuseSpan);
+
+                txt = '<div id="flagDIV'+objID+'" class="flagOne" style="position: absolute;top:20px;z-index:1000;" onclick="abuse('+objID+','+post+');">';
+
+                data = '1*صور سيئة+2*ألفاظ سيئة+3*وصلات سيئة+';
+                dataArray = data.split("+");
+
+                for(i=0;i<dataArray.length;i++)
+                {
+                        data2 = dataArray[i];
+                        if(data2 != "")
+                        {
+                                dataArray2 = data2.split("*");
+
+                                txt += '<div class="flag"><a href="javascript://" onclick="flagThisObj('+dataArray2[0]+','+objID+','+post+')">'+dataArray2[1]+'</a></div>';
+                        }
+                }
+
+                abuseSpan.innerHTML += txt + '</div>';
+	}
+}
+
+function flagThisObj(id,objID,post)
+{
+        var DataToSend = "id="+id;
+        if(post == 1)
+                DataToSend += "&post="+objID;
+        else
+                DataToSend += "&comment="+objID;
+
+        xmlhttp=createAJAXobj();
+        if (xmlhttp!=null)
+        {
+                xmlhttp.open('POST','http://mamdouh69.maktoobblog.com//templates/flag.php',false);
+                xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                xmlhttp.send(DataToSend);
+
+                if(xmlhttp.readyState == 4)
+                {
+                        abuse(objID,post);
+                }
+        }
+}
+</script>
+<div class="new_header">
+<div class="floatr"><a href="http://www.maktoobblog.com/"><img border="0" src="http://cdn.maktoob.com/images/blog_maktoob/images/new_header_logo.jpg" height="35" alt="" /></a></div>
+<div class="link_main">
+<div class="link_box"><a href="http://www.maktoobblog.com/nextBlog.php">المدوّنة التالية</a></div>
+<div class="link_box"><img src="http://cdn.maktoob.com/images/blog_maktoob/images/next_blog.gif" height="13" width="11" alt="" /></div>
+<div class="spcer_box">|</div>
+<div class="link_box"><a href="http://www.maktoobblog.com/allblogs.htm">كافة المدوّنات</a></div>
+<div class="link_box"><img src="http://cdn.maktoob.com/images/blog_maktoob/images/all_blogs.gif" width="10" height="13" alt="" /></div>
+<div class="spcer_box">|</div>
+<div class="link_box"><a href="http://www.maktoobblog.com/notify_new_post.htm?blog=111683">أخبرني بالإدراجات الجديدة</a></div>
+<div class="link_box"><img src="http://cdn.maktoob.com/images/blog_maktoob/images/new_comments.gif" width="10" height="13" alt=""/></div>
+<div class="spcer_box">|</div>
+
+<div class="link_box"><a href="javascript://" onclick="HideandUNhideObj();">أبلغ عن إساءة</a>
+<script type="text/javascript">
+        document.write('<span id="flagUL">');
+</script>
+<div id="flagDIV" class="flagOne" align="right" style="position: absolute;left:'+left+';top:23;z-index:1000;display: none;" onclick="HideandUNhideObj();">
+<div class='flag '><a href='javascript://' onclick='javascript:flagThis(1,111683)'>
+                                صور سيئة</a></div><div class='flag '><a href='javascript://' onclick='javascript:flagThis(2,111683)'>
+                                ألفاظ سيئة</a></div><div class='flag  flagB'><a href='javascript://' onclick='javascript:flagThis(3,111683)'>
+                                وصلات سيئة</a></div>
+</div>
+</span>
+</div>
+<div class="link_box"><img src="http://cdn.maktoob.com/images/blog_maktoob/images/Alert.gif" width="10" height="13" alt="" /></div>
+
+<div class="spcer_box">|</div>
+<div class="link_box"><a href="http://www.maktoobblog.com/tell_friend_blog.htm?blogUser=mamdouh69&blogID=111683&alias=mamdouh69">
+أخبر أصدقائك</a></div>
+<div class="link_box"><img src="http://cdn.maktoob.com/images/blog_maktoob/images/tell_friend.gif" width="11" height="13" alt="" /></div>
+
+<script type="text/javascript">
+        xmlhttp=createAJAXobj();
+
+        if (xmlhttp!=null)
+        {
+                xmlhttp.open("GET","http://mamdouh69.maktoobblog.com/template_generator/classes/AJAX/loginIcon2.php?lang=ar&mm="+Math.floor(10000*Math.random()),false);
+                xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                xmlhttp.setRequestHeader("charset","UTF-8");
+                xmlhttp.send(null);
+
+                if(xmlhttp.readyState == 4 && xmlhttp.responseText != "")
+                {
+                        document.writeln(xmlhttp.responseText);
+                }
+        }
+</script>
+</div>
+</div>
+        
+<center>
+<div class="main"><div style="display :none;">
+	<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+	</script>
+	<script type="text/javascript">
+		_uacct = "UA-424258-11";
+        _udn="maktoobblog.com"
+		urchinTracker();
+	</script>
+</div><div class="header"><div style='visibility: hidden;display :none;'>
+                       <img alt="" src="http://cdn.maktoob.com/images/blog_maktoob/images/b_close.gif" width="0" height="0" />
+                       <img alt="" src="http://cdn.maktoob.com/images/blog_maktoob/images/star_off.gif" width="0" height="0" />
+                       <img alt="" src="http://cdn.maktoob.com/images/blog_maktoob/images/star.gif" width="0" height="0" />
+                       </div><div style='float: right;'>
+                        </div><script type="text/javascript">
+                                function get_login_user()
+                                {
+                                        xmlhttp=createAJAXobj();
+                                        if (xmlhttp!=null)
+                                        {
+                                                xmlhttp.open("GET","http://mamdouh69.maktoobblog.com/template_generator/classes/AJAX/getLoginUser.php?mm="+Math.floor(10000*Math.random()),false);
+                                                xmlhttp.send(null);
+
+                                                if(xmlhttp.readyState == 4 && xmlhttp.responseText != "")
+                                                {
+                                                        return xmlhttp.responseText;
+                                                }
+                                        }
+                                        return "";
+                                }
+
+                                function is_favorite()
+                                {
+                                        user = get_login_user();
+
+                                        var DataToSend = "blog=111683";
+                                        xmlhttp = createAJAXobj();
+                                        xmlhttp.open("POST","http://mamdouh69.maktoobblog.com/template_generator/classes/AJAX/favorite.php?mm="+Math.floor(10000*Math.random()),false);
+                                        xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                                        xmlhttp.send(DataToSend);
+
+                                        if(xmlhttp.readyState == 4 && xmlhttp.responseText == "true")
+                                        {
+                                                document.writeln('<a href="javascript://" onclick="favoriteCheck(user);" id="favoriteStar"><img alt="" id="imgStar" border="0" src="http://cdn.maktoob.com/images/blog_maktoob/images/star.gif" width="29" height="29" alt="احذف من مدوّناتي المفضّلة"></a> &nbsp;');
+                                        }
+                                        else if(user != "")
+                                        {
+                                                document.writeln('<a href="javascript://" onclick="favoriteCheck(user);" id="favoriteStar"><img alt="" id="imgStar" border="0" src="http://cdn.maktoob.com/images/blog_maktoob/images/star_off.gif" width="29" height="29" alt="أضف الى مدوّناتي المفضّلة"></a> &nbsp;');
+                                        }
+                                        else
+                                        {
+                                                document.writeln('<a href="javascript://" onclick="favoriteCheck(\'\');" id="favoriteStar"><img alt="" id="imgStar" border="0" src="http://cdn.maktoob.com/images/blog_maktoob/images/star_off.gif" width="29" height="29" alt="أضف/احذف من مدوّناتي المفضّلة"></a> &nbsp;');
+                                        }
+                                }
+
+                                is_favorite();
+                        </script><h1 style="display: inline"><a href="http://mamdouh69.maktoobblog.com/">مناهل التربية</a></h1><br/><h2>مدونتى منبر حر لكل صاحب رأى حرولكل فارس سلاحه القلم استله للذود عن لغتنا الجميلةولنشر علومها
+ملاحظة:إدارة المدونة ليست مسئولة عما ينشر بها فكل صاحب رأى مسئول عن رأيه.</h2></div><div class="zone">
+<div class="nav">
+<div class="boxMain">
+        <div class="boxTitle">معلوماتي</div>
+        <div class="box"><img src="http://www.maktoobblog.com/userFiles/m/a/mamdouh69/m.dawud.jpg" width="68" height="80" class="img" alt="" align="right"/>
+        <b>الاسم:</b> mamdouh69 dawud <br />
+        <b>البلد:</b> مصر<br />
+        <b>الفئات:</b> عام<p><br clear="all" /><br /><div></div>
+        
+                         <br /><br />
+                         <img alt='' border='0' src='http://cdn.maktoob.com/images/blog_maktoob/images/contact.gif'>
+                         <a href='javascript://' onclick='window.open("http://www.maktoobblog.com/contactMe.php?userID=mamdouh69","Maktoobblog","toolbar=no,menubar=no,resizable=yes,scrollbars=no,left="+(screen.width-760)/2+",top="+(screen.height-370)/2+",width=760,height=370")' title='راسلني'>
+                         راسلني </a></p>
+        </div></div>
+        <br /><div class="boxMain">
+        <div class="boxTitle">التصنيفات</div>
+        <div class="box category">
+        <li><a rel="nofollow" href="http://mamdouh69.maktoobblog.com/cat/160933/%D9%87%D9%85%D8%B3%D8%A9">همسة</a>  - 4</li><li><a rel="nofollow" href="http://mamdouh69.maktoobblog.com/cat/160945/%D8%B5%D8%B1%D8%AE%D8%A9_%D8%BA%D8%B2%D8%A9">صرخة غزة</a>  - 2</li><li><a rel="nofollow" href="http://mamdouh69.maktoobblog.com/cat/160943/%D8%B5%D9%88%D8%B1%D8%A9_%D9%88%D8%AA%D8%B9%D9%84%D9%8A%D9%82">صورة وتعليق</a>  - 3</li><li><a rel="nofollow" href="http://mamdouh69.maktoobblog.com/cat/160929/%D9%85%D9%86%D8%A8%D8%B1_%D8%AD%D8%B1">منبر حر</a>  - 3</li>
+        </div></div>
+        <br /><div class="boxMain">
+        <div class="boxTitle">التقويم</div>
+        <div class="box">
+        <iframe name='myCalendar' id='myCalendar' src='http://www.maktoobblog.com/templates/default/calendar.php?uid=mamdouh69&template=literature&alias=mamdouh69' width='170' height='130' marginwidth='0' marginheight='0' vspace='0' hspace='0' frameborder='0' align='center' scrolling='no'></iframe>
+        </div></div>
+        <br /><div class="boxMain">
+        <div class="boxTitle">الإدراجات السابقة</div>
+        <div class="box">
+        <li><a rel='nofollow' href='http://mamdouh69.maktoobblog.com/1500478/%D9%85%D9%86_%D9%88%D8%B8%D8%A7%D8%A6%D9%81_%D8%A7%D9%84%D9%85%D8%B1%D8%A8%D9%89%28%D8%A7%D9%84%D8%AA%D9%88%D8%AC%D9%8A%D9%87%29'>من وظائف المربى(التوجيه)</a></li><li><a rel='nofollow' href='http://mamdouh69.maktoobblog.com/1500459/%D8%B5%D8%B1%D8%AE%D8%A9_%D8%BA%D8%B2%D8%A9'>صرخة غزة</a></li><li><a rel='nofollow' href='http://mamdouh69.maktoobblog.com/1500443/%D8%B5%D9%88%D8%B1%D8%A9_%D9%88%D8%AA%D8%B9%D9%84%D9%8A%D9%82'>صورة وتعليق</a></li><li><a rel='nofollow' href='http://mamdouh69.maktoobblog.com/1500331/%D9%87%D9%85%D8%B3%D8%A9_%D9%81%D9%89_%D8%A3%D8%B0%D9%86_%D8%A7%D9%84%D9%85%D8%B1%D8%A8%D9%89'>همسة فى أذن المربى</a></li><li><a href='http://mamdouh69.maktoobblog.com/?getalltitle=1' title='المزيد'>المزيد ...</a></li>
+
+        </div></div>
+        <br /><div class="boxMain">
+        <div class="boxTitle">الأرشيف</div>
+        <div class="box">
+        <li><a rel='nofollow' href='http://mamdouh69.maktoobblog.com/?archive=2008-12-1' title='2008-12-1'>ديسمبر 2008</a></li>
+        </div></div>
+        <br /><div align="center">
+ 		<div class="visitors">
+ 			<span class="visitxt">عدد الزائرين</span>
+ 			<div class="visibot">
+ 				<b>
+                        <iframe src="http://mamdouh69.maktoobblog.com/template_generator/classes/AJAX/views.php?blogID=111683&template=literature" width="70" height="20" marginwidth="0" marginheight="0" vspace="0" hspace="0" frameborder="0" align="center" scrolling="no"></iframe>
+                        </b>
+                         </div>
+ 		</div>
+ 		<br />
+                <br clear="all" /><br /><a target="_blank" href="http://www.maktoobblog.com/mamdouh69/rss.xml" title="RSS"><img alt="RSS" border="0" src="http://cdn.maktoob.com/images/blog_maktoob/images/xml.gif" alt="RSS"/></a>
+         </div>
+	 <br />
+         
+	 </div>
+<div class="content" id="blogContent"><div class="dateMain dateMain2">الأربعاء,ديسمبر 10, 2008</div>
+	<br clear="all" />
+	<div class="post">
+                <div class="postZone">
+	                <div class="title"><a  href='http://mamdouh69.maktoobblog.com/1500459/%D8%B5%D8%B1%D8%AE%D8%A9_%D8%BA%D8%B2%D8%A9'>صرخة غزة</a></div>
+	                <br />
+                        <p ><span lang="AR-EG" ="FONT-SIZE: 40pt; COLOR: #c00000; FONT-FAMILY: AL-Hor; text-shadow: auto; mso-bidi-language: AR-EG"><font face="Times New Roman">وََفِّـرْ مِِدََادََكَ يا قَلـمْْ</font></span></p>
+<span lang="AR-EG" ="FONT-SIZE: 40pt; COLOR: #c00000; FONT-FAMILY: AL-Hor; text-shadow: auto; mso-bidi-language: AR-EG"><font face="Times New Roman">
+<p ><span lang="AR-SA" ="FONT-SIZE: 10pt; LINE-HEIGHT: 115%; FONT-FAMILY: 'Simplified Arabic'"><font color="#000000"> </font></span></p>
+<p ><font color="#000000"><span lang="AR-EG" ="FONT-SIZE: 16pt; LINE-HEIGHT: 115%; FONT-FAMILY: 'Simplified Arabic'; mso-bidi-language: AR-EG">عَن أيِّ شيءٍ سَـوفَ تكتُبُ يا قَلمْ<span ="mso-spacerun: yes">    </span><span ="mso-spacerun: yes">   </span>أَوْ مَنْ سَتَدْعُو بالقَصَـائِدِ والكَلِـمْ</span><span lang="AR-SA" ="FONT-SIZE: 16pt; LINE-HEIGHT: 115%; FONT-FAMILY: 'Simplified Arabic'">؟</span></font></p>
+<p ><span lang="AR-EG" ="FONT-SIZE: 16pt; LINE-HEIGHT: 115%; FONT-FAMILY: 'Simplified Arabic'; mso-bidi-language: AR-EG"><font color="#000000">هل يُبصِرُ الكَلِمَـاتِ أعمَى لا يَرى<span ="mso-spacerun: yes">   </span><span ="mso-spacerun: yes">  </span><span ="mso-spacerun: yes"> </span>أم يَسمعُ الدَّعَواتِ من هو ذُو صَمَم؟</font></span></p>
+<p ><span lang="AR-EG" ="FONT-SIZE: 16pt; LINE-HEIGHT: 115%; FONT-FAMILY: 'Simplified Arabic'; mso-bidi-language: AR-EG"><font color="#000000">وَفِّـر مِدَادَكَ، قد قَضَى أحيَـاؤُنَا<span ="mso-spacerun: yes">   </span><span ="mso-spacerun:"></span></font></span></p></font></span>&nbsp;&nbsp; <a href='http://mamdouh69.maktoobblog.com/?post=1500459'> المزيد ...  </a>
+                </div>
+                <br />
+                <div class="comZone">
+	        <div class="datePart1" style="float:none;">
+	                <br />
+		        <span class="dateLine">كتبها mamdouh69 dawud في &nbsp; 01:03 صباحاً ::<b>
+		        <A href="http://mamdouh69.maktoobblog.com/?post=1500459&comment=1#myComments">لا يوجد تعليق</A> </b>
+                        </span>
+		</div>
+		<div id="commentBar1500459" class="datePart3">
+		        
+                        <div class="tooltip_img"><img alt="" src="http://cdn.maktoob.com/images/blog_maktoob/images/comment.gif" alt="" width="12" height="13" align="middle" /></div>
+                        <div class="tooltip_des"><a href="http://mamdouh69.maktoobblog.com/?post=1500459&comment=1#myCommentsNew"> أضف تعليق </a></div>
+		        
+                        <div class='tooltip_img'><img alt='' src='http://cdn.maktoob.com/images/blog_maktoob/images/send_mail_01.gif' alt='أرسل الإدراج' width='12' height='13' align='middle' /></div>
+                        <div class='tooltip_des'><a href='http://www.maktoobblog.com/email_post.htm?uid=mamdouh69&post=1500459' title='أرسل الإدراج'>أرسل الإدراج</a></div>
+                        
+                        <div class='tooltip_img'><img alt='دوّن الإدراج' src='http://cdn.maktoob.com/images/blog_maktoob/images/blog_this.gif' width='10' height='13' align='middle' /></div>
+                        <div class='tooltip_des'>
+                        <a target='_blank' href='http://www.maktoobblog.com/post_create.htm?blogthis=1500459' title='دوّن الإدراج'>دوّن الإدراج</a></div>
+                        
+		</div>
+                </div>
+        </div>
+	<br clear="all" />
+	<div class="post">
+                <div class="postZone">
+	                <div class="title"><a  href='http://mamdouh69.maktoobblog.com/1500443/%D8%B5%D9%88%D8%B1%D8%A9_%D9%88%D8%AA%D8%B9%D9%84%D9%8A%D9%82'>صورة وتعليق</a></div>
+	                <br />
+                        <p><img id="1228869744" title="" alt="122886" src="http://www.maktoobblog.com/userFiles/m/a/mamdouh69/images/1228869744.jpg" /></p>
+<p><font face="Tahoma" color="#339966" size="5"><strong>تأمل الصورة جيدا واكتب تعليقك ننتظر أفضل التعليقات</strong></font></p>
+                </div>
+                <br />
+                <div class="comZone">
+	        <div class="datePart1" style="float:none;">
+	                <br />
+		        <span class="dateLine">كتبها mamdouh69 dawud في &nbsp; 12:38 صباحاً ::<b>
+		        <A href="http://mamdouh69.maktoobblog.com/?post=1500443&comment=1#myComments">لا يوجد تعليق</A> </b>
+                        </span>
+		</div>
+		<div id="commentBar1500443" class="datePart3">
+		        
+                        <div class="tooltip_img"><img alt="" src="http://cdn.maktoob.com/images/blog_maktoob/images/comment.gif" alt="" width="12" height="13" align="middle" /></div>
+                        <div class="tooltip_des"><a href="http://mamdouh69.maktoobblog.com/?post=1500443&comment=1#myCommentsNew"> أضف تعليق </a></div>
+		        
+                        <div class='tooltip_img'><img alt='' src='http://cdn.maktoob.com/images/blog_maktoob/images/send_mail_01.gif' alt='أرسل الإدراج' width='12' height='13' align='middle' /></div>
+                        <div class='tooltip_des'><a href='http://www.maktoobblog.com/email_post.htm?uid=mamdouh69&post=1500443' title='أرسل الإدراج'>أرسل الإدراج</a></div>
+                        
+                        <div class='tooltip_img'><img alt='دوّن الإدراج' src='http://cdn.maktoob.com/images/blog_maktoob/images/blog_this.gif' width='10' height='13' align='middle' /></div>
+                        <div class='tooltip_des'>
+                        <a target='_blank' href='http://www.maktoobblog.com/post_create.htm?blogthis=1500443' title='دوّن الإدراج'>دوّن الإدراج</a></div>
+                        
+		</div>
+                </div>
+        </div><div class="dateMain dateMain2">الثلاثاء,ديسمبر 09, 2008</div>
+	<br clear="all" />
+	<div class="post">
+                <div class="postZone">
+	                <div class="title"><a  href='http://mamdouh69.maktoobblog.com/1500331/%D9%87%D9%85%D8%B3%D8%A9_%D9%81%D9%89_%D8%A3%D8%B0%D9%86_%D8%A7%D9%84%D9%85%D8%B1%D8%A8%D9%89'>همسة فى أذن المربى</a></div>
+	                <br />
+                        <p align="right"><img id="3067594280" title="مدونتى" alt="306759" منبر="" حر="" لفرسان="" سلاحهم="" القلم="" فهل="" من="" src="http://www.maktoobblog.com/userFiles/m/a/mamdouh69/images/3067594280.jpg" /><font size="5"><span lang="AR-EG"><strong><span>لقد اصطفاك الله من بين خلقه لتؤدي </span></strong></span><span lang="AR-EG"><strong><span arial="">مهمة من أجل المهام وأعظمها مهمة قام </span></strong></span><span lang="AR-EG"><strong><span arial="">بها من قبلك الأنبياء والسلف الصالح ألا </span></strong></span><span lang="AR-EG"><strong><span arial="">وهي مهمة التربية فهل أنت مدرك </span></strong></span><span lang="AR-EG"><strong><span arial="">أهميتها؟</span></strong></span></font> </p>
+<div dir="rtl" italic="">
+<div right=""><strong><span arial=""></span></strong></div>
+<p ><span lang="AR-EG"><strong><span arial=""><font size="5">أخي الحبيب ....</font></span></strong></span></p>
+<p ><font size="5"><span lang="AR-EG"><strong><span arial="">لقد رشحوك لأمر لو فطنت له ***** فاربأ</span></strong></span><span lang="AR-EG"><strong><span arial="">بنفسك أن ترعى مع الهمل</span></strong></span></font></p>
+<p ><span lang="AR-EG"><strong><span arial=""><font size="5">فيجب عليك أن تستشعر أمرين :- </font></span></strong></span></p>
+<p ><span lang="AR-EG"><strong><span arial=""><font size="5"></font></span></strong></span></p>
+<p right=""><strong><span arial=""><font size="5"></font></span></strong></p>
+<p ><strong><font size="5"><span><span arial=""><span><span lang="AR-EG"><u>الأمر الأول</u></span><span></span></span></span></font></strong></p></div>&nbsp;&nbsp; <a href='http://mamdouh69.maktoobblog.com/?post=1500331'> المزيد ...  </a>
+                </div>
+                <br />
+                <div class="comZone">
+	        <div class="datePart1" style="float:none;">
+	                <br />
+		        <span class="dateLine">كتبها mamdouh69 dawud في &nbsp; 12:46 صباحاً ::<b>
+		        <A href="http://mamdouh69.maktoobblog.com/?post=1500331&comment=1#myComments">تعليق واحد</A> </b>
+                        </span>
+		</div>
+		<div id="commentBar1500331" class="datePart3">
+		        
+                        <div class="tooltip_img"><img alt="" src="http://cdn.maktoob.com/images/blog_maktoob/images/comment.gif" alt="" width="12" height="13" align="middle" /></div>
+                        <div class="tooltip_des"><a href="http://mamdouh69.maktoobblog.com/?post=1500331&comment=1#myCommentsNew"> أضف تعليق </a></div>
+		        
+                        <div class='tooltip_img'><img alt='' src='http://cdn.maktoob.com/images/blog_maktoob/images/send_mail_01.gif' alt='أرسل الإدراج' width='12' height='13' align='middle' /></div>
+                        <div class='tooltip_des'><a href='http://www.maktoobblog.com/email_post.htm?uid=mamdouh69&post=1500331' title='أرسل الإدراج'>أرسل الإدراج</a></div>
+                        
+                        <div class='tooltip_img'><img alt='دوّن الإدراج' src='http://cdn.maktoob.com/images/blog_maktoob/images/blog_this.gif' width='10' height='13' align='middle' /></div>
+                        <div class='tooltip_des'>
+                        <a target='_blank' href='http://www.maktoobblog.com/post_create.htm?blogthis=1500331' title='دوّن الإدراج'>دوّن الإدراج</a></div>
+                        
+		</div>
+                </div>
+        </div><div class="dateMain dateMain2">الأربعاء,ديسمبر 10, 2008</div>
+	<br clear="all" />
+	<div class="post">
+                <div class="postZone">
+	                <div class="title"><a  href='http://mamdouh69.maktoobblog.com/1500478/%D9%85%D9%86_%D9%88%D8%B8%D8%A7%D8%A6%D9%81_%D8%A7%D9%84%D9%85%D8%B1%D8%A8%D9%89%28%D8%A7%D9%84%D8%AA%D9%88%D8%AC%D9%8A%D9%87%29'>من وظائف المربى(التوجيه)</a></div>
+	                <br />
+                        <p ><strong normal=""><em normal=""><span symbol=""><span ignore="">·<span new="">        </span></span></span></em></strong><span dir="rtl"><strong><em><u><span lang="AR-EG" arial="" juhyna=""><font face="Times" new="" roman="">فما المقصود بالتوجيه؟</font></span></u></em></strong></span></p>
+<p ><strong><em><span lang="AR-EG" ar-eg=""><span yes="">  </span>يقصد بالتوجيه: الأخذ بيد الأفراد و معاونتهم علي بذل جهدهم لتحقيق الأهداف المرجوة.</span></em></strong></p>
+<p><strong><em><span lang="AR-EG" dir="rtl" zh-cn="">و بتعبير آخر: التوجيه يعني النصيحة و التي تبني علي إقناع و إرشاد و حث الأفراد علي العمل بصورة طبيعية و عن طيب خاطر في اتجاه ما أو علي الترك للسلوك غير المقبول</span></em></strong></p>
+<p align="right"><strong><em><span lang="AR-EG" dir="rtl" zh-cn=""></span></em></strong> <strong normal=""><em normal=""><span symbol=""><span ignore=""><span new="">        </span></span></span></em></strong><font face="Times" new="" roman=""><span dir="rtl"><strong><em><u><span lang="AR-EG" arial="" juhyna="">أهمية التوجيه :</span></u></em></strong></span><strong><em><u><span dir="ltr" juhyna=""></span></u></em></strong></font></p>
+<p ><strong><em><span arial=""><span ignore="">1.<span new="">    </span></span></span></em></strong><span dir="rtl"><strong><em><span lang="AR-EG" ar-eg="">يساهم في انجاز الأهداف المخططة .</span></em></strong></span><strong><em><span dir="ltr" ar-eg=""></span></em></strong></p>
+<p ><strong><em><span arial=""><span ignore="">2.<span new="">   </span></span></span></em></strong></p>&nbsp;&nbsp; <a href='http://mamdouh69.maktoobblog.com/?post=1500478'> المزيد ...  </a>
+                </div>
+                <br />
+                <div class="comZone">
+	        <div class="datePart1" style="float:none;">
+	                <br />
+		        <span class="dateLine">كتبها mamdouh69 dawud في &nbsp; 01:11 صباحاً ::<b>
+		        <A href="http://mamdouh69.maktoobblog.com/?post=1500478&comment=1#myComments">لا يوجد تعليق</A> </b>
+                        </span>
+		</div>
+		<div id="commentBar1500478" class="datePart3">
+		        
+                        <div class="tooltip_img"><img alt="" src="http://cdn.maktoob.com/images/blog_maktoob/images/comment.gif" alt="" width="12" height="13" align="middle" /></div>
+                        <div class="tooltip_des"><a href="http://mamdouh69.maktoobblog.com/?post=1500478&comment=1#myCommentsNew"> أضف تعليق </a></div>
+		        
+                        <div class='tooltip_img'><img alt='' src='http://cdn.maktoob.com/images/blog_maktoob/images/send_mail_01.gif' alt='أرسل الإدراج' width='12' height='13' align='middle' /></div>
+                        <div class='tooltip_des'><a href='http://www.maktoobblog.com/email_post.htm?uid=mamdouh69&post=1500478' title='أرسل الإدراج'>أرسل الإدراج</a></div>
+                        
+                        <div class='tooltip_img'><img alt='دوّن الإدراج' src='http://cdn.maktoob.com/images/blog_maktoob/images/blog_this.gif' width='10' height='13' align='middle' /></div>
+                        <div class='tooltip_des'>
+                        <a target='_blank' href='http://www.maktoobblog.com/post_create.htm?blogthis=1500478' title='دوّن الإدراج'>دوّن الإدراج</a></div>
+                        
+		</div>
+                </div>
+        </div>
+<div id="navBar" class="np">
+        <div class="pre"></div>
+        <div class="ne"></div>
+</div>
+</div>
+</div>
+<div class="footer">&nbsp;&nbsp;&nbsp;
+<br />
+        &quot;لا يتحمّل مكتوب أيّة مسؤوليّة عن المواد الّتي يتم عرضها و/أو نشرها في مدوّنة مكتوب. ويتحمل المستخدمون بالتالي كامل المسؤولية عن كتاباتهم وإدرجاتهم التي تخالف القوانين أو تنتهك حقوق الملكيّة أو حقوق الآخرين أو أي طرف آخر.&quot;</td>
+</div>
+
+</div>
+</center>
+</body>
+</html>

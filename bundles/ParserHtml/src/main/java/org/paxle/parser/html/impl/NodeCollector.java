@@ -16,6 +16,8 @@ package org.paxle.parser.html.impl;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -78,8 +80,22 @@ public class NodeCollector extends NodeVisitor {
 			@Override
 			public void doSemanticAction() throws ParserException {
 				try {
-					super.doSemanticAction();
-				} catch (EncodingChangeException e) { /* leave encoding as is */ }
+			        String httpEquiv = this.getHttpEquiv();
+			        if ("Content-Type".equalsIgnoreCase(httpEquiv)) {
+			        	String sourceEncoding = this.getPage().getSource().getEncoding();
+			        	String metaEncoding = this.getPage().getCharset(this.getAttribute("CONTENT"));
+			        	
+			        	if (sourceEncoding != null && metaEncoding != null && !sourceEncoding.toLowerCase().equals(metaEncoding.toLowerCase())) {
+			    			try {
+			    				if (Charset.isSupported(metaEncoding)) {
+			    					this.getPage().setEncoding(metaEncoding);
+			    				}
+			    			} catch (IllegalCharsetNameException e) {
+			    				// encoding not supported. leave encoding as is
+			    			}			                
+			            }
+			        }
+				} catch (EncodingChangeException e) { /* ignore this */ }
 			}
 		});
 	}
