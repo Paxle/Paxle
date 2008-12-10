@@ -367,7 +367,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * @return <code>true</code> if proceeding with the URL may continue or <code>false</code> if
 	 *         it shall be aborted due to an unsupported MIME-type of the requested document
 	 */
-	private boolean handleContentTypeHeader(final Header contentTypeHeader, final CrawlerDocument doc) {
+	boolean handleContentTypeHeader(final Header contentTypeHeader, final CrawlerDocument doc) {
 		if (contentTypeHeader == null)
 			// might be ok, might be not, we don't know yet
 			return true;
@@ -382,15 +382,19 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			contentCharset = contentMimeType.substring(idx+1).trim();
 			contentMimeType = contentMimeType.substring(0,idx);
 			
-			if (contentCharset.startsWith("charset=")) {
+			if (contentCharset.toLowerCase().startsWith("charset=")) {
 				contentCharset = contentCharset.substring("charset=".length()).trim();
+				
+				idx = contentCharset.indexOf(";");
+				if (idx != -1) contentCharset = contentCharset.substring(0,idx);
+				
 				if (contentCharset.matches("^['\"].*")) {
 					contentCharset = contentCharset.substring(1);
 				}
 				if (contentCharset.matches(".*['\"]$")) {
 					contentCharset = contentCharset.substring(0,contentCharset.length()-1);							
 				}
-				doc.setCharset(contentCharset);
+				doc.setCharset(contentCharset.trim());
 			} else {
 				contentCharset = null;
 			}

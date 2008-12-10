@@ -19,10 +19,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Dictionary;
-import java.util.Set;
 
+import org.apache.commons.httpclient.Header;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.mortbay.jetty.testing.ServletTester;
+import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
@@ -34,7 +35,6 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 	private ServletTester tester;
 	private HttpCrawler crawler = null;
 	private String servletURL = null;
-	private Set<String> supportedMimeTypes = null;
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -130,5 +130,40 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 		ICrawlerDocument doc = this.crawler.request(URI.create(this.servletURL));
 		assertNotNull(doc);
 		assertEquals(ICrawlerDocument.Status.UNKNOWN_FAILURE, doc.getStatus());		
+	}
+	
+	public void testHandleContentTypeHeader() {		
+		final CrawlerDocument cdoc = new CrawlerDocument();
+		Header h = null;
+		
+		cdoc.setCharset(null);
+		h = new Header("Content-Type","text/html; Charset=UTF-8");
+		this.crawler.handleContentTypeHeader(h, cdoc);
+		assertEquals("UTF-8", cdoc.getCharset());
+		
+		cdoc.setCharset(null);
+		h = new Header("Content-Type","text/html; Charset=UTF-8");
+		this.crawler.handleContentTypeHeader(h, cdoc);
+		assertEquals("UTF-8", cdoc.getCharset());
+		
+		cdoc.setCharset(null);
+		h = new Header("Content-Type","text/html; Charset=\"UTF-8\"");
+		this.crawler.handleContentTypeHeader(h, cdoc);
+		assertEquals("UTF-8", cdoc.getCharset());	
+		
+		cdoc.setCharset(null);
+		h = new Header("Content-Type","text/html; Charset='UTF-8'");
+		this.crawler.handleContentTypeHeader(h, cdoc);
+		assertEquals("UTF-8", cdoc.getCharset());	
+		
+		cdoc.setCharset(null);
+		h = new Header("Content-Type","text/rss; charset=UTF-8; type=feed");
+		this.crawler.handleContentTypeHeader(h, cdoc);
+		assertEquals("UTF-8", cdoc.getCharset());
+		
+		cdoc.setCharset(null);
+		h = new Header("Content-Type","text/rss; charset=\"UTF-8\"; type=feed");
+		this.crawler.handleContentTypeHeader(h, cdoc);
+		assertEquals("UTF-8", cdoc.getCharset());		
 	}
 }
