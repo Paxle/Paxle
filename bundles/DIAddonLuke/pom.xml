@@ -77,7 +77,8 @@
 							luke;scope=compile|runtime,
 							lucene-core;scope=compile|runtime,
 							lucene-analyzers;scope=compile|runtime,
-							lucene-snowball;scope=compile|runtime
+							lucene-snowball;scope=compile|runtime,
+							lucene-misc;scope=compile|runtime
 						</Embed-Dependency>					
 					</instructions>
 				</configuration>
@@ -101,7 +102,7 @@
 		<dependency>
 			<groupId>org.getopt</groupId>
 			<artifactId>luke</artifactId>
-			<version>0.8.1</version>
+			<version>0.9.1</version>
 		</dependency>
 		
 		<dependency>
@@ -117,6 +118,11 @@
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-snowball</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-misc</artifactId>
 			<version>2.4.0</version>
 		</dependency>
 	</dependencies>

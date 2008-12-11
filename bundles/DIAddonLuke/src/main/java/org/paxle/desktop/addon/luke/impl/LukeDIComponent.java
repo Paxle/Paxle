@@ -25,7 +25,7 @@ import org.paxle.desktop.DIComponent;
 public class LukeDIComponent implements DIComponent {
 	
 	private static final Dimension DEFAULT_DIM = new Dimension(700, 500);
-	private static final String TITLE = "Luke - Lucene Index Toolbox, v 0.8.1 (2008-02-13)";
+	private static final String TITLE = "Luke - Lucene Index Toolbox, v 0.9.1 (2008-11-22)";
 	
 	private final Luke luke = new Luke();
 	
