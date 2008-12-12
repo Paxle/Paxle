@@ -15,6 +15,7 @@
 package org.paxle.parser.impl;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -302,8 +303,10 @@ public class ParserWorker extends AWorker<ICommand> {
 				final Long pDocProcessingTime = Long.valueOf(System.currentTimeMillis() - start);
 				String pDocStatus = "unknown";
 				String pDocStatusText = "";
+				Charset pDocCharset = null;
 				
 				if (parserDoc != null) {
+					pDocCharset = parserDoc.getCharset();
 					pDocStatus = parserDoc.getStatus().toString();
 					pDocStatusText = parserDoc.getStatusText()==null?"":parserDoc.getStatusText();
 				}
@@ -313,9 +316,10 @@ public class ParserWorker extends AWorker<ICommand> {
 				
 				// general data
 				logMsg.append(String.format(
-							"Finished parsing of resource '%s' [mime-type: '%s', size: %,d KB] in %d ms.\r\n",
+							"Finished parsing of resource '%s' [mime-type: '%s', charset: '%s', size: %,d KB] in %d ms.\r\n",
 							command.getLocation(),
 							cDocMimeType,
+							pDocCharset,
 							cDocSize,
 							pDocProcessingTime
 				));
