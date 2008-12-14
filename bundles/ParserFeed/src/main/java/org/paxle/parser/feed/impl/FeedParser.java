@@ -31,6 +31,8 @@ import org.apache.commons.logging.Log;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
+import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ISubParser;
@@ -61,11 +63,18 @@ public class FeedParser extends ASubParser implements IFeedParser {
 	
 	@Override
 	public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException {				
-		final ParserContext context = ParserContext.getCurrentContext();
 		
 		// the result object
-		final IParserDocument pdoc = new CachedParserDocument(context.getTempFileManager());		
+		IParserDocument pdoc = null;		
 		try {
+			// getting required tools
+			final ParserContext context = ParserContext.getCurrentContext();
+			final ITempFileManager tempFileManager =  context.getTempFileManager();
+			final IReferenceNormalizer refNorm = context.getReferenceNormalizer();
+
+			// creating an empty document
+			pdoc = new CachedParserDocument(tempFileManager);
+			
 			// parse the feed
 			final ChannelBuilder builder = new ChannelBuilder();
 			final ChannelIF channel = de.nava.informa.parsers.FeedParser.parse(builder, new InputSource(is), location.toURL());
@@ -95,14 +104,10 @@ public class FeedParser extends ASubParser implements IFeedParser {
 					
 					final String itemTitle = item.getTitle();
 					final String itemDescr = item.getDescription();
-					final String itemCreator = item.getCreator();
-					
-					URI   itemURL   = null;
-					try {
-						itemURL = new URI(item.getLink().toExternalForm());
-					} catch (URISyntaxException e) { 
-						logger.warn("item-link is not valid: '" + itemURL + "': " + e.getMessage()); 
-					}
+					final String itemCreator = item.getCreator();		
+					final URI itemURL = (item.getLink()==null)
+									  ? null
+									  : refNorm.normalizeReference(item.getLink().toExternalForm());
 					
 					IParserDocument idoc = null;
 					String itemContent = item.getElementValue("content");
