@@ -969,12 +969,19 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 				long total = System.currentTimeMillis() - start;
 
 				if (logger.isDebugEnabled() || (total > 500)) {
+					int totalCount = this.uriList.size();
+					int disallowedCount = (disallowedList==null)?0:disallowedList.size();
+					int allowedCount = totalCount - disallowedCount;
+					
 					String msg = String.format(
-							"Robots.txt check of %d URI hosted on '%s' took %d ms. Access to %d URI disallowed.",
-							Integer.valueOf(this.uriList.size()),
+							"Robots.txt check of %d URI hosted on '%s' took %d ms." +
+							"\n\t%d URI disallowed, " +
+							"\n\t%d URI allowed",
+							Integer.valueOf(totalCount),
 							this.baseUri.toASCIIString(),
 							Long.valueOf(total),
-							Integer.valueOf((disallowedList==null)?0:disallowedList.size())
+							Integer.valueOf(disallowedCount),
+							Integer.valueOf(allowedCount)
 					);
 					
 					if (total <= 500) logger.debug(msg); 
