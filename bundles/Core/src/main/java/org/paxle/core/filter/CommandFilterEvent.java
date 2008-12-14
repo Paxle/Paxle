@@ -75,8 +75,10 @@ public class CommandFilterEvent extends CommandEvent {
 		// add exception info (if any)
 		if (exception != null) {
 			props.put(EventConstants.EXCEPTION, exception);
-			props.put(EventConstants.EXCEPTION_MESSAGE, exception.getMessage());
 			props.put(EventConstants.EXCEPTION_CLASS, exception.getClass().getName());
+			
+			String errorMsg = exception.getMessage();
+			props.put(EventConstants.EXCEPTION_MESSAGE, (errorMsg==null)?"":exception.getMessage());
 		}
 		
 		// create general and append general command-props 
