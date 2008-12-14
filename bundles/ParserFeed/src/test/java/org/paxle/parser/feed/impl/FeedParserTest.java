@@ -16,6 +16,7 @@ package org.paxle.parser.feed.impl;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Map;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.html.impl.HtmlParser;
@@ -44,16 +45,48 @@ public class FeedParserTest extends AParserTest {
 	}
 	
 	public void testParseRss() throws Exception {
+		// loading test-data
 		final URI location = URI.create("http://www.virtualdub.org/");	
 		final File testFile = new File(resourcesDir, "rss.xml");
 		assertTrue(testFile.exists());
 		
+		// parsing document
 		final IParserDocument pdoc = this.parser.parse(location, null, testFile);
+		
+		// testing result
 		assertNotNull(pdoc);
 		assertEquals(IParserDocument.Status.OK, pdoc.getStatus());
+		assertEquals("application/rss+xml", pdoc.getMimeType());
 		assertEquals("VirtualBlog", pdoc.getTitle());
 		
-		assertNotNull(pdoc.getSubDocs());
-		assertEquals(2, pdoc.getSubDocs().size());
+		Map<String,IParserDocument> subDocs = pdoc.getSubDocs();
+		assertNotNull(subDocs);
+		assertEquals(2, subDocs.size());
+		for (IParserDocument subDoc : subDocs.values()) {
+			assertEquals("text/html", subDoc.getMimeType());
+		}
+	}
+	
+	public void testParseRdf() throws Exception {
+		// loading test-data
+		final URI location = URI.create("http://www.marginalrevolution.com/marginalrevolution/index.rdf");	
+		final File testFile = new File(resourcesDir, "rdf.xml");
+		assertTrue(testFile.exists());
+		
+		// parsing document
+		final IParserDocument pdoc = this.parser.parse(location, null, testFile);
+		
+		// testing result
+		assertNotNull(pdoc);
+		assertEquals(IParserDocument.Status.OK, pdoc.getStatus());
+		assertEquals("application/rdf+xml", pdoc.getMimeType());
+		assertEquals("Marginal Revolution", pdoc.getTitle());
+		
+		Map<String,IParserDocument> subDocs = pdoc.getSubDocs();
+		assertNotNull(subDocs);
+		assertEquals(14, subDocs.size());
+		for (IParserDocument subDoc : subDocs.values()) {
+			assertEquals("text/html", subDoc.getMimeType());
+		}
 	}
 }

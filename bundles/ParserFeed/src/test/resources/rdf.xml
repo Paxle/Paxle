@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+  xmlns:admin="http://webns.net/mvcb/"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:cc="http://web.resource.org/cc/"
+  xmlns="http://purl.org/rss/1.0/">
+
+<channel rdf:about="http://www.marginalrevolution.com/marginalrevolution/">
+<title>Marginal Revolution</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/</link>
+<description>Small steps toward a much better world.</description>
+<dc:language>en-US</dc:language>
+<dc:creator></dc:creator>
+<dc:date>2008-12-14T07:23:19-05:00</dc:date>
+<admin:generatorAgent rdf:resource="http://www.typepad.com/?v=1.0" />
+
+
+<items>
+<rdf:Seq><rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/washington-exam.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/markets-in-noth.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/tips-for-scorin.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/fords-uaw-contr.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/how-to-run-a-po.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/progress-agains.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/how-to-spend-th.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/markets-in-ev-2.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/law-and-economi.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/prudie-on-husba.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/assorted-link-6.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/markets-in-ev-1.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/rich-vs-poor-br.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/is-february-10t.html" />
+<rdf:li rdf:resource="http://www.marginalrevolution.com/marginalrevolution/2008/12/elliott-carter.html" />
+</rdf:Seq>
+</items>
+
+</channel>
+
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/washington-exam.html">
+<title>Washington Examiner profile of me</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/washington-exam.html</link>
+<description>It is here; they used the highly reliable Alex as one of their main sources. He makes an important point:Cowen’s secret? “He reads unbelievably quickly,” Tabarrok says.</description>
+<content:encoded>&lt;p&gt;It is &lt;a href=&quot;http://www.dcexaminer.com/local/121408-Dismal_science_Not_by_a_hoot.html&quot;&gt;here&lt;/a&gt;; they used the highly reliable Alex as one of their main sources.&amp;nbsp; He makes an important point:&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;Cowen’s secret? “He reads unbelievably quickly,” Tabarrok says.&lt;/p&gt;&lt;/blockquote&gt;</content:encoded>
+
+<dc:subject>Economics</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-14T07:23:19-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/markets-in-noth.html">
+<title>Markets in hardly anything any more?</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/markets-in-noth.html</link>
+<description>The remaining 3 “major” labels – Universal, Sony and EMI - will be out of the classical business within 2 years. They will create no more than a handful of additional classical CDs. With the possible exception of a few...</description>
+<content:encoded>&lt;blockquote&gt;&lt;p&gt;The remaining 3 “major” labels – Universal, Sony and
+EMI - will be out of the classical business within 2 years. They will
+create no more than a handful of additional classical CDs. With the
+possible exception of a few “crossover” artists the labels will drop
+all of their classical artists. The majors will focus on trying to
+salvage their pop business and will abandon classical because it is
+more trouble than it is worth. The 20th century recording industry and
+business model is obsolete. It will soon be gone.&lt;/p&gt;
+
+&lt;p align=&quot;left&quot;&gt;The
+remaining viable classical label will be Naxos. Their costs are
+dramatically lower and their business model allows them to operate
+profitably in a smaller industry and with much lower sales numbers. A
+primary contributor to Naxos’ lower costs is the fact that they don’t
+pay any residuals to the performers. &lt;strong&gt;There is no income potential for performers in the Naxos model!&lt;/strong&gt; They will profitably produce CDs for several years longer than the majors.&lt;/p&gt;
+
+&lt;p align=&quot;left&quot;&gt;There
+will be a small number of “vanity” labels left but their volume will be
+microscopic and they will operate on the same financial model as Naxos.
+They will ultimately disappear as well.&lt;/p&gt;
+
+&lt;p align=&quot;left&quot;&gt;Virtually
+the entire recorded history of classical music will vanish from the
+world. None of the pre-2000 material had digital rights cleared when it
+was recorded and the cost of clearing these rights now dwarfs any
+income that could result. There is no commercially viable model for
+reviving this material.&lt;/p&gt;&lt;/blockquote&gt;&lt;p align=&quot;left&quot;&gt;Here is &lt;a href=&quot;http://businessofclassicalmusic.blogspot.com/2008/12/classical-music-after-cd.html&quot;&gt;more&lt;/a&gt;, interesting throughout and the comments are excellent.&amp;nbsp; The author does suggest that live concerts still will be broadcast over the web and in some other ways marketed.&amp;nbsp; An alternative is that governments assign the digital rights unilaterally or the whole model goes grey/illegal as people dump their CD content onto web sites.&amp;nbsp; Furthermore I don&#39;t think recorded classical music will disappear, as the independent labels continue to issue releases, the demise of recording has been forecast for a long time, and my copy of &lt;em&gt;Fanfare&lt;/em&gt; (classic music reviews) is much thicker now than two years ago.&amp;nbsp; &lt;/p&gt;</content:encoded>
+
+<dc:subject>Music</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-14T06:09:00-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/tips-for-scorin.html">
+<title>Tips for scoring with the opposite sex</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/tips-for-scorin.html</link>
+<description>Yes, reading:&quot;The men polled said they would be most impressed by women who read news websites, Shakespeare or song lyrics. Women said men should have read Nelson Mandela&#39;s biography or Shakespeare.&quot;Here is the link. 46% of the surveyed men lie...</description>
+<content:encoded>&lt;p&gt;Yes, reading:&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&amp;quot;The men polled said they would be most impressed by women who read
+news websites, Shakespeare or song lyrics. Women said men should have
+read Nelson Mandela&#39;s biography or Shakespeare.&amp;quot;&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;Here is &lt;a href=&quot;http://www.mediabistro.com/galleycat/trends/readers_around_the_world_are_lying_103214.asp&quot;&gt;the link&lt;/a&gt;.&amp;nbsp; 46% of the surveyed men &lt;a href=&quot;http://news.bbc.co.uk/2/hi/uk_news/education/7776046.stm&quot;&gt;lie about what they have read&lt;/a&gt; -- to impress partners -- and 33% of the surveyed women admit to lying about their reading habits.&amp;nbsp; In fact it&#39;s the second most likely form of lying (or so people say) for purposes of sexual conquest, with lying about one&#39;s own sexual past as the most likely form of lying.&lt;/p&gt;
+
+&lt;p&gt;And &lt;a href=&quot;http://www.guardian.co.uk/books/2008/dec/11/nelson-mandela-jane-austen-reading&quot;&gt;for teenagers&lt;/a&gt;? (presumably British):&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;Top of the list to impress a teenage boy are Facebook and MySpace
+followed by text messages, Harry Potter and song lyrics. Magazines like
+Zoo and Nuts are number seven. To impress a teenage girl, it is the
+same top two, followed by song lyrics, cookery books and Harry Potter.
+Reassuringly, Jane Austen is number seven.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;Here are &lt;a href=&quot;http://www.telegraph.co.uk/culture/books/3702084/Men-lie-about-books-they-have-read-to-impress-on-dates.html&quot;&gt;the actual lists&lt;/a&gt; but of course I believe people are lying about those too.&lt;/p&gt;</content:encoded>
+
+<dc:subject>Books</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-13T18:39:07-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/fords-uaw-contr.html">
+<title>The rule of law?</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/fords-uaw-contr.html</link>
+<description>That&#39;s Ford&#39;s UAW contract. You can read those 2215 pages, and other UAW contracts, here. I thank Tim Miller for the pointer.</description>
+<content:encoded>&lt;p&gt;&lt;a href=&quot;http://www.marginalrevolution.com/photos/uncategorized/2008/12/12/uaw.jpg&quot;&gt;&lt;img border=&quot;0&quot; src=&quot;http://www.marginalrevolution.com/photos/uncategorized/2008/12/12/uaw.jpg&quot; title=&quot;Uaw&quot; alt=&quot;Uaw&quot; class=&quot;image-full&quot; /&gt;&lt;/a&gt;
+
+
+&lt;/p&gt;
+
+&lt;p&gt;That&#39;s Ford&#39;s UAW contract.&amp;nbsp; You can read those 2215 pages, and other UAW contracts, &lt;a href=&quot;http://laborpains.org/2008/12/12/22-pounds-uaw-rules-and-regulations/&quot;&gt;here&lt;/a&gt;.&amp;nbsp; I thank Tim Miller for the pointer.&lt;/p&gt;</content:encoded>
+
+<dc:subject>Law</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-13T16:42:00-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/how-to-run-a-po.html">
+<title>How to run a Ponzi scheme</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/how-to-run-a-po.html</link>
+<description>Investors may have been duped because Mr. Madoff sent detailed brokerage statements to investors whose money he managed, sometimes reporting hundreds of individual stock trades per month. Investors who asked for their money back could have it returned within days....</description>
+<content:encoded>&lt;blockquote&gt;&lt;p&gt;Investors may have been duped because Mr. Madoff sent detailed
+brokerage statements to investors whose money he managed, sometimes
+reporting hundreds of individual stock trades per month. Investors who
+asked for their money back could have it returned within days. And
+while typical Ponzi schemes promise very high returns, Mr. Madoff’s
+promised returns were relatively realistic — about 10 percent a year —
+though they were unrealistically steady.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;It seems &lt;a href=&quot;http://www.nytimes.com/2008/12/13/business/13fraud.html?hp&quot;&gt;this scheme&lt;/a&gt; went on for &amp;quot;years or even decades,&amp;quot; which means it lasted longer than many legitimate concerns.&amp;nbsp; Nomura had been searching out international clients for him.&amp;nbsp; Checks and balances were weak:&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;...because he had his own securities firm, Mr. Madoff kept custody
+over his clients’ accounts and processed all their stock trades
+himself. His only check appears to have been Friehling &amp;amp; Horowitz,
+a tiny auditing firm based in New City, N.Y. Wealthy individuals and
+other money managers entrusted billions of dollars to funds that in
+turn invested in his firm, based on his reputation and reported
+returns.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;In reality the &amp;quot;fund&amp;quot; simply was not there and now grandmothers have been fleeced.&amp;nbsp; That is a scary lesson about the financial sector as a whole (and prudential regulation) but if it is any comfort an unregulated hedge fund could not have done the same.&amp;nbsp; Those funds hold their portfolios at banks and thus you can check as to whether they actually &amp;quot;exist.&amp;quot;&lt;/p&gt;</content:encoded>
+
+<dc:subject>Economics</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-13T07:51:12-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/progress-agains.html">
+<title>Progress against Economicitis?</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/progress-agains.html</link>
+<description>Jason Shafrin, the Healthcare Economist, has a nice post explaining how a statistical illusion can make early screening for disease appear much more effective than it really is. Here is an example using the dreaded disease economicitis. Let us divide...</description>
+<content:encoded>&lt;p&gt;Jason Shafrin, the &lt;a href=&quot;http://healthcare-economist.com/&quot;&gt;Healthcare Economist&lt;/a&gt;, has a nice post explaining how a statistical illusion can make early screening for disease appear much more effective than it really is. &lt;/p&gt;
+&lt;blockquote&gt;&lt;p&gt;Here is an example using the dreaded disease &lt;em&gt;economicitis&lt;/em&gt;.&amp;nbsp; Let us 
+divide people into 3 groups.&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;&lt;strong&gt;Healthy&lt;/strong&gt;: You live forever. 
+&lt;/li&gt;
+
+&lt;li&gt;&lt;strong&gt;1st stage &lt;em&gt;economicitis&lt;/em&gt;&lt;/strong&gt; is asymptomatic. Life 
+expectancy when 1st stage economicitis begins is 10 years.&amp;nbsp; One half of 
+&lt;em&gt;economicisits&lt;/em&gt; cases are 1st stage. 
+&lt;/li&gt;
+
+&lt;li&gt;&lt;strong&gt;2nd stage &lt;em&gt;economicitis&lt;/em&gt;&lt;/strong&gt; appears when individuals 
+mysteriously grow a third or possibly fourth hand.&amp;nbsp; Life expectancy with second 
+stage &lt;em&gt;economicitis&lt;/em&gt; is 2 years.&amp;nbsp; One half of &lt;em&gt;economicitis&lt;/em&gt; cases 
+are 2nd stage. &lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Before any screening was developed, individuals would learn they had 
+ &lt;em&gt;economicitis&lt;/em&gt;&amp;nbsp; when they started growing extra hands.&amp;nbsp; Thus, documented 
+life expectancy for those with&amp;nbsp; &lt;em&gt;economicitis&lt;/em&gt; was 2 years, since all 
+individuals who were recorded as having&amp;nbsp; &lt;em&gt;economicitis&lt;/em&gt; were in the 2nd 
+stage.&lt;/p&gt;
+&lt;p&gt;Let us assume that a screening technique is now available.&amp;nbsp; If the screening 
+device is able to detect 100% of stage 1 and stage 2 &lt;em&gt;economicitis&lt;/em&gt; 
+cases, then we will see that life expectancy will increased to 6 years 
+(10/2+2/2=6). Statisticians looking at the data may claim the following: “The 
+&lt;em&gt;economicitis&lt;/em&gt; screening test has increased life expectancy after 
+diagnosis from 2 to 6 years!”&lt;/p&gt;
+&lt;p&gt;This claim, however, is false since there is no effective treatment for&amp;nbsp; 
+&lt;em&gt;economicitis&lt;/em&gt;.&amp;nbsp; The increase in average life expectancy is not due to 
+any improvement in health care, but only because the relatively healthier 
+individuals with 1st stage &lt;em&gt;economicitis&lt;/em&gt; are now being detected by the 
+test.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;Many years ago, David Plotkin had a article in The Atlantic dealing with this issue and others with respect to &lt;a href=&quot;http://www.theatlantic.com/issues/96jun/cancer/cancer.htm&quot;&gt;breast cancer&lt;/a&gt;. The statistics are somewhat out of date but the article remains of real value.&lt;br /&gt;
+&lt;/p&gt;</content:encoded>
+
+<dc:subject>Medicine</dc:subject>
+
+<dc:creator>Alex Tabarrok</dc:creator>
+<dc:date>2008-12-13T07:40:00-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/how-to-spend-th.html">
+<title>How to spend the stimulus</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/how-to-spend-th.html</link>
+<description>Here is a NYT symposium of economists, including yours truly. I very much like Andrew Samwick&#39;s point:If I had my druthers, the word ’stimulus’ would be expunged from public discussion, along with ‘bailout’ and ‘rescue.’ These words convey the idea...</description>
+<content:encoded>&lt;p&gt;Here is &lt;a href=&quot;http://economix.blogs.nytimes.com/2008/12/12/the-ideal-stimulus-package/&quot;&gt;a NYT symposium of economists&lt;/a&gt;, including yours truly.&amp;nbsp; I very much like Andrew Samwick&#39;s point:&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;If I had my druthers, the word ’stimulus’ would be expunged from
+public discussion, along with ‘bailout’ and ‘rescue.’ These words
+convey the idea that, because we have so mismanaged our economic and
+financial affairs, we are somehow able or entitled to conjure up
+additional funds out of thin air to fix our problems.&lt;/p&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;Elsewhere, here is &lt;a href=&quot;http://meganmcardle.theatlantic.com/archives/2008/12/tracking_tarp.php&quot;&gt;a passage from Megan McArdle&lt;/a&gt;:&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;Is the government going to guarantee approximately 70 million
+owner-occupied homes in America against a 25% price drop?&amp;nbsp; No, because
+that&#39;s $3.5 trillion dollars, if my mental arithmetic serves.&amp;nbsp; Or is it
+only going to give the money to the least responsible homeowners:&amp;nbsp; the
+ones with small (or no) downpayments, houses they could only afford at
+short-term teaser rates, and a long string of missed payments?&amp;nbsp; The
+numbers, and the political arithmetic, don&#39;t add up.&amp;nbsp; Indeed, any such
+program would positively encourage people to default, in order to get
+the government to cram down their loans. &lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;In other words, don&#39;t spend the stimulus on the housing market.&amp;nbsp; From another angle, &lt;a href=&quot;http://mungowitzend.blogspot.com/2008/12/why-is-it-surprising-that-tax-cuts-have.html&quot;&gt;Angus reports&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;&lt;p&gt;I guess I&#39;d rather give my money to people who are going to use it to
+try to make more money (i.e. save/spend it in the market system) than
+give it to people who are going to use it to try and get re-elected.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;And here&#39;s &lt;a href=&quot;http://gregmankiw.blogspot.com/2008/12/case-for-payroll-tax-cut.html&quot;&gt;more from Greg Mankiw&lt;/a&gt;.&lt;/p&gt;</content:encoded>
+
+<dc:subject>Economics</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-13T07:04:00-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/markets-in-ev-2.html">
+<title>Markets in everything</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/markets-in-ev-2.html</link>
+<description>Wearable air bags for the elderly (click on &quot;Start Reading&quot; to get through). Can you guess in which country? If you keep on clicking on that link, you&#39;ll go through the NYT&#39;s Year in Ideas 2008, always worth reading. I...</description>
+<content:encoded>&lt;p&gt;&lt;a href=&quot;http://www.nytimes.com/interactive/2008/12/14/magazine/2008_IDEAS.html&quot;&gt;Wearable air bags for the elderly&lt;/a&gt; (click on &amp;quot;Start Reading&amp;quot; to get through).&lt;/p&gt;
+
+&lt;p&gt;Can you guess in which country?&lt;/p&gt;
+
+
+
+&lt;p&gt;If you keep on clicking on that link, you&#39;ll go through the NYT&#39;s Year in Ideas 2008, always worth reading.&amp;nbsp; I found at least half of them worthwhile (a very good way to spend your Friday night) but sadly they do not have a separate link for each bit.&amp;nbsp; Under &amp;quot;B&amp;quot; you will find &lt;a href=&quot;http://www.nytimes.com/interactive/2008/12/14/magazine/2008_IDEAS.html&quot;&gt;an interesting discussion of the Bus-Wait Problem&lt;/a&gt;, namely when you should stop waiting for that bus and start walking.&amp;nbsp; The advice is that usually you should wait.&amp;nbsp; &lt;/p&gt;
+
+&lt;p&gt;Here is &lt;a href=&quot;http://en.wikipedia.org/wiki/Glass_cliff&quot;&gt;separate information&lt;/a&gt; on &amp;quot;the glass cliff,&amp;quot; a fascinating phenomenon.&lt;/p&gt;</content:encoded>
+
+<dc:subject>Science</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-12T21:10:42-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/law-and-economi.html">
+<title>Law and Economics 2.0</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/law-and-economi.html</link>
+<description>On Thursday the Kauffman Foundation will announce that it is making $10 million in initial contributions to found an initiative aimed at reinvigorating, and, to some extent redirecting, the exceedingly influential school of thought that has come to be known...</description>
+<content:encoded>&lt;blockquote&gt;&lt;p&gt;On Thursday the &lt;a rel=&quot;external nofollow&quot; target=&quot;new&quot; href=&quot;http://www.kauffman.org/&quot;&gt;Kauffman Foundation&lt;/a&gt; will announce that it is making 
+$10 million in initial contributions to found an initiative aimed at 
+reinvigorating, and, to some extent redirecting, the exceedingly influential 
+school of thought that has come to be known as “law and economics.”...Kauffman’s new “Law, Innovation and Growth” initiative seeks to refocus the 
+law-and-economics debate to center on the promotion of entrepreneurship [law and growth, dynamic efficiency etc., AT]...&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;Robert Litan will direct. &lt;/p&gt;&lt;blockquote&gt;
+&lt;p&gt;Litan’s role model here, he acknowledges, is Henry Manne, a dean emeritus at 
+George Mason University School of Law in Arlington, Vir., who was 
+law-and-economics’ chief proselytizer and salesman.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt; More &lt;a href=&quot;http://legalpad.blogs.fortune.cnn.com/2008/12/10/law-and-economics-20/&quot;&gt;here&lt;/a&gt;.&amp;nbsp; Hat tip to Tim Kane at &lt;a href=&quot;http://www.growthology.org/growthology/&quot;&gt;Growthology&lt;/a&gt;.&lt;/p&gt;</content:encoded>
+
+<dc:subject>Economics</dc:subject>
+<dc:subject>Law</dc:subject>
+
+<dc:creator>Alex Tabarrok</dc:creator>
+<dc:date>2008-12-12T15:34:02-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/prudie-on-husba.html">
+<title>Prudie on husbands who write books</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/prudie-on-husba.html</link>
+<description>A Slate reader writes in to Prudie:My dear, highly educated husband has written a book. While he has many talents, writing isn&#39;t among them. He paid someone to edit the book, which helped it somewhat, but it&#39;s still awful. I&#39;ve...</description>
+<content:encoded>&lt;p&gt;A Slate reader &lt;a href=&quot;http://www.slate.com/id/2206463/&quot;&gt;writes in to Prudie&lt;/a&gt;:&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;My dear, highly educated husband has written a book. While he has many
+talents, writing isn&#39;t among them. He paid someone to edit the book,
+which helped it somewhat, but it&#39;s still awful. I&#39;ve gone through it as
+well and cleaned it up the best I could without completely rewriting
+it. The problem is my attitude—I don&#39;t feel it&#39;s my place to crush my
+husband&#39;s dream but find it hard to just sit there with a smile on my
+face while he goes on and on about how life will change when he&#39;s a
+best-selling author. It&#39;s not going to happen. I realize that at one
+point a publisher (or a stack of rejection letters) will make the point
+without me doing so, but I&#39;m not quite sure how to act now. I love him
+and want to be supportive of him following his dreams, but I don&#39;t want
+him to waste his time. Do I stand by and lie, or break the news to him
+somehow?&lt;/p&gt;
+
+&lt;/blockquote&gt;&lt;p&gt;For Prudie&#39;s answer, and Trudie&#39;s answer (&lt;a href=&quot;http://www.google.com/search?q=trudie&amp;amp;btnG=%C2%BB&amp;amp;domains=www.marginalrevolution.com&amp;amp;sitesearch=www.marginalrevolution.com&quot;&gt;remember Trudie&lt;/a&gt;?), you must look under the fold...&lt;/p&gt;</content:encoded>
+
+<dc:subject>Books</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-12T14:03:42-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/assorted-link-6.html">
+<title>Assorted links</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/assorted-link-6.html</link>
+<description>1. Virginia Postrel on the economics of bubbles. 2. The economic outlook. 3. Frog picture; recommended. 4. Robot density. 5. We&#39;ll do the next two chapters of Keynes on Monday.</description>
+<content:encoded>&lt;p&gt;1. &lt;a href=&quot;http://www.theatlantic.com/doc/print/200812/financial-bubbles&quot;&gt;Virginia Postrel on the economics of bubbles&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;2. &lt;a href=&quot;http://econlog.econlib.org/archives/2008/12/the_economic_ou.html&quot;&gt;The economic outlook&lt;/a&gt;. &lt;/p&gt;
+
+&lt;p&gt;3. &lt;a href=&quot;http://ngm.nationalgeographic.com/photo-contest/img/wallpaper/0908wallpaper-3_1280.jpg&quot;&gt;Frog picture&lt;/a&gt;; recommended.&lt;/p&gt;
+
+&lt;p&gt;4. &lt;a href=&quot;http://www.kottke.org/08/12/robot-density&quot;&gt;Robot density&lt;/a&gt;. &lt;/p&gt;
+
+&lt;p&gt;5. We&#39;ll do the next two chapters of Keynes on Monday.&lt;/p&gt;</content:encoded>
+
+<dc:subject>Web/Tech</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-12T10:38:00-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/markets-in-ev-1.html">
+<title>Markets in everything</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/markets-in-ev-1.html</link>
+<description>Of 51 countries that have received reward payments since 1999, six overestimated their immunization gains by a factor of four, 10 overestimated them by a factor of two, and 23 by less than two. Eight underestimated their progress.Here is the...</description>
+<content:encoded>&lt;blockquote&gt;&lt;p&gt;Of 51 countries that have received reward payments since 1999, six
+overestimated their immunization gains by a factor of four, 10
+overestimated them by a factor of two, and 23 by less than two. Eight
+underestimated their progress.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;Here is &lt;a href=&quot;http://www.washingtonpost.com/wp-dyn/content/article/2008/12/11/AR2008121103318.html&quot;&gt;the article&lt;/a&gt;, interesting throughout.&amp;nbsp; The bottom line is this:&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;Since 1986, progress in childhood immunization in the developing world
+has been about half that officially reported by governments in the
+developing world. Not only are year-to-year improvements overstated,
+but the total percentage of children immunized is far lower than
+publicly acknowledged, the study found.
+&lt;/p&gt;&lt;/blockquote&gt;</content:encoded>
+
+<dc:subject>Medicine</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-12T08:01:19-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/rich-vs-poor-br.html">
+<title>Rich brains vs. poor brains in childhood</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/rich-vs-poor-br.html</link>
+<description>You may have heard about the recent study by Mark Kishiyama et.al. described by USA Today as follows:A new study finds that certain brain functions of some low-income 9- and 10-year-olds pale in comparison with those of wealthy children and...</description>
+<content:encoded>&lt;p&gt;&lt;span face=&quot;PrimaSans BT,Verdana,sans-serif&quot;&gt;You may have heard about the recent study by Mark Kishiyama et.al. &lt;a href=&quot;http://www.usatoday.com/news/health/2008-12-07-childrens-brains_N.htm&quot;&gt;described by USA Today as follows&lt;/a&gt;:&lt;/span&gt;&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;A new study finds that certain brain functions of some low-income 9-
+and 10-year-olds pale in comparison with those of wealthy children and
+that the difference is almost equivalent to the damage from a stroke.&lt;/p&gt;
+
+&lt;/blockquote&gt;&lt;p&gt;Here is &lt;a href=&quot;http://latimesblogs.latimes.com/booster_shots/2008/12/family-income-k.html&quot;&gt;more detail&lt;/a&gt;:&lt;/p&gt;&lt;blockquote&gt;
+
+&lt;p&gt;...[they] rigged up the noggins of 26 kids -- with an average age of 9.5 years --
+with probes that sense the ebb and flow of electrical current in
+different regions of the brain. Then, they put them through a battery
+of neuropsychological tests. Half of the kids came from families with
+annual incomes that averaged just over $27,000 and generally had low
+levels of parental education; the other half came from families where a
+primary caregiver had completed at least four years of college and in
+which annual household income averaged a little more than $97,000.&lt;/p&gt;
+
+&lt;/blockquote&gt;&lt;p&gt;&lt;span face=&quot;PrimaSans BT,Verdana,sans-serif&quot;&gt;The paper is &lt;a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/18752394&quot;&gt;here&lt;/a&gt;.&amp;nbsp; Who better to ask about this than &lt;a href=&quot;http://www.sentex.net/~nexus23/cv.html&quot;&gt;Michelle Dawson&lt;/a&gt;?&amp;nbsp; Michelle wrote to me:&lt;/span&gt;&lt;/p&gt;&lt;blockquote&gt;
+
+&lt;p&gt;&lt;span face=&quot;PrimaSans BT,Verdana,sans-serif&quot;&gt;I read the poor vs rich
+kids brains study (Kishiyama et al.). It&#39;s a very small study (13 in
+each group) and the groups aren&#39;t matched on ethnicity. In the major
+task (the one which got media attention), where the authors looked at
+ERPs [TC: here is &lt;a href=&quot;http://en.wikipedia.org/wiki/Event-related_potential&quot;&gt;a link on ERP&lt;/a&gt;], the performance of the two groups was the same. The performance
+of the two groups on a Stroop task, a classic test of what the poor
+kids are said to be incapable of, was also the same. The major
+performance difference between groups was on vocabulary (the WISC-III
+vocabulary test), but only a few tests were used. There was no attempt
+to match the groups on IQ. &lt;/span&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;&lt;span face=&quot;PrimaSans BT,Verdana,sans-serif&quot;&gt;Just to repeat two key points: a) the observed difference in electrical current patterns may depend on IQ differences, not poverty, and b)&lt;/span&gt; &lt;em&gt;on the actual major task the poor kids did just as well&lt;/em&gt;.&amp;nbsp; There are tasks where the poor children do less well but this is hardly news.&lt;/p&gt;
+
+&lt;p&gt;Popular science reporting on neuro issues is very often not to be trusted.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Addendum&lt;/strong&gt;: There is more from Michelle Dawson in the comments.&lt;/p&gt;</content:encoded>
+
+<dc:subject>Science</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-12T06:55:00-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/is-february-10t.html">
+<title>Is February 10th National Bankruptcy Day?</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/is-february-10t.html</link>
+<description>An ill-timed increase in the regulatory burden is on the way. Kathleen Fasanella writes:In the Wall Street Journal, Rick Woldenberg was quoted as describing February 10, 2009 as National Bankruptcy Day because that’s the day when many of us will...</description>
+<content:encoded>&lt;p&gt;An ill-timed increase in the regulatory burden is on the way.&amp;nbsp; Kathleen Fasanella &lt;a href=&quot;http://www.fashion-incubator.com/archive/national-bankruptcy-day/&quot;&gt;writes&lt;/a&gt;:&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;In the &lt;a href=&quot;http://online.wsj.com/article/SB122696993087535701.html&quot; target=&quot;_blank&quot;&gt;Wall Street Journal&lt;/a&gt;, Rick Woldenberg was quoted as describing February 10, 2009 as National Bankruptcy Day because that’s the day when &lt;a href=&quot;http://www.fashion-incubator.com/archive/new-product-safety-regulations-that-affect-all-manufacturers/&quot; target=&quot;_blank&quot;&gt;many of us will go out of business&lt;/a&gt; due to the implementation of the &lt;a href=&quot;http://www.fashion-incubator.com/archive/cpsia-requirements/&quot; target=&quot;_blank&quot;&gt;CPSIA Regulations&lt;/a&gt;... Come
+February 10th, a lot of people will be hit hard by reality when their
+products are returned or their financing is declined.&lt;/p&gt;
+
+&lt;p&gt;To recap, this law was passed (424 votes to &lt;a href=&quot;http://www.pensitoreview.com/2008/07/31/dr-ron-paul-casts-only-vote-against-lead-in-toys-ban/&quot; target=&quot;_blank&quot;&gt;1&lt;/a&gt;) to protect children from unsafe toys after last year’s widely publicized recalls (by the way, recalls have actually &lt;a href=&quot;http://www.washingtonpost.com/wp-dyn/content/article/2008/11/12/AR2008111203115.html?nav=rss_health&amp;amp;referer=sphere_related_content&quot; target=&quot;_blank&quot;&gt;decreased by 46%&lt;/a&gt;). What few consumers realize is this legislation affects &lt;strong&gt;more than toys&lt;/strong&gt;.
+What few clothing manufacturers realize is this also affects them. Of
+the ones who do know, most of them think it only applies to children’s
+clothes. Other than apparel the law includes diapers, blankets
+(housewares), books, videos, computer and electronic products,
+strollers, cribs, car seats, and anything humans come in contact with
+in their environment. Our objections are not higher standards for
+product safety or even the costs involved per se. The problem is&lt;strong&gt; Congress wrote the law and forced the CPSC to implement it before the regulations were written&lt;/strong&gt;. These regulations are not written by people who are familiar with manufacturing and thus, impose unnecessary burdens.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;If I &lt;a href=&quot;http://www.fashion-incubator.com/archive/cpsia-and-small-manufacturers/&quot;&gt;understand this correctly&lt;/a&gt;, all sorts of small manufacturers have to vouch that their products do not contain much lead, yet &lt;a href=&quot;http://www.zianet.com/ehusman/weblog/2008/12/in-which-30-thousand-small.html&quot;&gt;such a claim is not easy to know or verify&lt;/a&gt; (does your product have paint?).&amp;nbsp; You can follow the story &lt;a href=&quot;http://www.fashion-incubator.com/&quot;&gt;at Kathleen&#39;s blog&lt;/a&gt;.&amp;nbsp; Here is &lt;a href=&quot;http://nationalbankruptcyday.com/archive/video-testimony/&quot;&gt;video testimony&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;As Eric H. points out to me: &lt;span face=&quot;PrimaSans BT,Verdana,sans-serif&quot;&gt;&amp;quot;It is &amp;quot;I, Pencil&amp;quot; meets &amp;quot;I, illegal paperclip&amp;quot; (yeah, really).&amp;quot;&lt;/span&gt;&lt;/p&gt;
+</content:encoded>
+
+<dc:subject>Economics</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-12T06:16:00-05:00</dc:date>
+</item>
+<item rdf:about="http://www.marginalrevolution.com/marginalrevolution/2008/12/elliott-carter.html">
+<title>Elliott Carter turns 100 today</title>
+<link>http://www.marginalrevolution.com/marginalrevolution/2008/12/elliott-carter.html</link>
+<description>The best place to start is his Sonata for Cello and Piano, the Double Concerto for Harpischord and Piano, and the Sonata for Flute, Oboe, Cello, and Harpischord, all collected here. The string quartets and the sonata for violin and...</description>
+<content:encoded>&lt;p&gt;The best place to start is his Sonata for Cello and Piano, the Double Concerto for Harpischord and Piano, and the Sonata for Flute, Oboe, Cello, and Harpischord, all collected &lt;a href=&quot;http://www.amazon.com/Elliott-Carter-Sonata-Harpsichord-Concerto/dp/B00122KYII/ref=sr_1_1?ie=UTF8&amp;amp;s=dmusic&amp;amp;qid=1229034416&amp;amp;sr=8-1/marginalrevol-20&quot;&gt;here&lt;/a&gt;.&amp;nbsp; The string quartets and the sonata for violin and piano are also important, plus the short late works for solo instruments or small ensembles or voice; choose by which instruments you like best.&lt;/p&gt;
+
+&lt;p&gt;Here is &lt;a href=&quot;http://www.bostonherald.com/entertainment/arts_culture/view.bg?articleid=1136608&amp;amp;format=&amp;amp;page=5&amp;amp;listingType=arts&quot;&gt;Q&amp;amp;A with Elliott Carter&lt;/a&gt;, interesting throughout.&amp;nbsp; It ends with this:&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&lt;strong&gt;What are the things that people say to you that are meaningful?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;People say they like my music very much, but I’m 100 years old.&lt;/p&gt;&lt;/blockquote&gt;</content:encoded>
+
+<dc:subject>Music</dc:subject>
+
+<dc:creator>Tyler Cowen</dc:creator>
+<dc:date>2008-12-11T17:17:00-05:00</dc:date>
+</item>
+
+
+</rdf:RDF>
+<!-- ph=1 -->
+<!-- nhm:from_kauri -->

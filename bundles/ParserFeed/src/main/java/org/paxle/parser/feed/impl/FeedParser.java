@@ -41,6 +41,7 @@ import org.paxle.parser.ParserException;
 import org.paxle.parser.feed.IFeedParser;
 import org.xml.sax.InputSource;
 
+import de.nava.informa.core.ChannelFormat;
 import de.nava.informa.core.ChannelIF;
 import de.nava.informa.core.ImageIF;
 import de.nava.informa.core.ParseException;
@@ -79,9 +80,20 @@ public class FeedParser extends ASubParser implements IFeedParser {
 			final ChannelBuilder builder = new ChannelBuilder();
 			final ChannelIF channel = de.nava.informa.parsers.FeedParser.parse(builder, new InputSource(is), location.toURL());
 			
+			// setting mime-type properly
+			ChannelFormat format = channel.getFormat();
+			String formatStr = format.toString();
+			if (format.equals(ChannelFormat.RSS_1_0)) {
+				pdoc.setMimeType("application/rdf+xml");
+			} else if (formatStr.toLowerCase().startsWith("rss")) {
+				pdoc.setMimeType("application/rss+xml");
+			} else if (formatStr.toLowerCase().startsWith("atom")) {
+				pdoc.setMimeType("application/atom+xml");
+			} 
+
 			// extracting title/summary/language
 			pdoc.setTitle(channel.getTitle());
-			pdoc.setSummary(channel.getDescription());
+			pdoc.setSummary(channel.getDescription());			
 			final String language = channel.getLanguage();
 			if (language != null)
 				pdoc.setLanguages(new HashSet<String>(Arrays.asList(channel.getLanguage().split(","))));
@@ -120,11 +132,16 @@ public class FeedParser extends ASubParser implements IFeedParser {
 						final ISubParser htmlParser = context.getParser("text/html");
 						if (htmlParser != null) {
 							try {
+								// parsing item content
 								idoc = htmlParser.parse(
 										itemLocation, 
 										charset,
 										new ByteArrayInputStream(itemContent.getBytes())
-								);							
+								);		
+								
+								if (idoc != null && idoc.getMimeType() == null) {
+									idoc.setMimeType("text/html");
+								}
 							} catch (Exception e) { 
 								logger.warn("error parsing feed-item '" + itemLocation + "', ignoring", e); 
 							}

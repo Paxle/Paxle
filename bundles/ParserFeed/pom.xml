@@ -47,6 +47,7 @@
 							<!-- Paxle Core -->
 							org.paxle.core.doc;version="[0.1.0,0.2.0)",
 							org.paxle.core.io.temp;version="[0.1.0,0.2.0)",
+							org.paxle.core.norm;version="[0.1.0,0.2.0)",
 							<!-- Paxle Parser Core -->
 							org.paxle.parser;version="[0.1.0,0.2.0)",
 							<!-- Classes required for XML Parsing -->
