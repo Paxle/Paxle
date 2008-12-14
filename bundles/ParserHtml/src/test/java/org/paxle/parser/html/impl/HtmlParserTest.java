@@ -62,6 +62,7 @@ public class HtmlParserTest extends TestCase {
 			// System.out.println(testCase);
 			final IParserDocument pdoc = parser.parse(new URI("http://www.example.org/" + testCase), null, new File(testResources, testCase));
 			assertNotNull(pdoc);
+			assertNotNull(pdoc.getMimeType());
 			
 			/*
 			System.out.println(pdoc.getLinks().size());

@@ -27,6 +27,7 @@ import org.htmlparser.Tag;
 import org.htmlparser.Text;
 import org.htmlparser.lexer.Page;
 import org.htmlparser.nodes.RemarkNode;
+import org.htmlparser.tags.DoctypeTag;
 import org.htmlparser.tags.HeadingTag;
 import org.htmlparser.tags.Html;
 import org.htmlparser.tags.ImageTag;
@@ -71,6 +72,7 @@ public class NodeCollector extends NodeVisitor {
 	 */
 	public static final PrototypicalNodeFactory NODE_FACTORY = new PrototypicalNodeFactory();
 	static {
+		NODE_FACTORY.registerTag(new DoctypeTag());
 		NODE_FACTORY.registerTag(new AddressTag());
 		NODE_FACTORY.registerTag(new BoldTag());
 		NODE_FACTORY.registerTag(new ItalicTag());
@@ -97,7 +99,7 @@ public class NodeCollector extends NodeVisitor {
 			        }
 				} catch (EncodingChangeException e) { /* ignore this */ }
 			}
-		});
+		});		
 	}
 	
 	private static final HashSet<String> DiscardedTags = new HashSet<String>(Arrays.asList(
@@ -282,6 +284,7 @@ public class NodeCollector extends NodeVisitor {
 			if (DiscardedTags.contains(tag.getRawTagName().toLowerCase())) {
 				return;
 			}
+			else if (tag instanceof DoctypeTag)     process((DoctypeTag)tag);
 			else if (tag instanceof AddressTag)		{ process((AddressTag)tag); noParse = true; }
 			else if (tag instanceof BoldTag)		; // handled by visitStringNode(), TODO: extra weight
 		//	else if (tag instanceof DoctypeTag)     process((DoctypeTag)tag);
@@ -397,11 +400,27 @@ public class NodeCollector extends NodeVisitor {
 		slng = tag.getAttribute("xml:lang");
 		if (slng != null)
 			addLanguages(slng.split(" "));
+		
+		// if the mime-type was not already set we should do it now
+		if (this.doc.getMimeType() == null) {
+			this.doc.setMimeType("text/html");
+		}
 	}
 	
 	private void process(ImageTag tag) {
 		final URI uri = refNorm.normalizeReference(HtmlTools.deReplaceHTML(tag.getImageURL()));
 		if (uri != null)
 			this.doc.addReferenceImage(uri, HtmlTools.deReplaceHTML(tag.getAttribute("alt")));
+	}
+	
+	private void process(DoctypeTag tag) {
+		String tagHtml = tag.toTagHtml();		
+		if (tagHtml != null && tagHtml.toLowerCase().matches("<!doctype\\s+html")) {
+			if (tagHtml.indexOf("xhtml") != -1) {
+				this.doc.setMimeType("application/xhtml+xml");
+			} else {
+				this.doc.setMimeType("text/html");
+			}
+		}
 	}
 }
