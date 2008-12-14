@@ -15,6 +15,7 @@
 ## getting required managers
 #set($monitorAdmin = $manager.getService('org.osgi.service.monitor.MonitorAdmin'))
 #set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
+#set($monitorables = $monitorAdmin.getMonitorableNames())
 
 ## loading resource-bundle
 #if(!$text)
@@ -33,22 +34,40 @@
 		<th>${text.table.name}</th>
 		<th>${text.table.value}</th>
 	</tr>
+	
+	## =========================================================
+	## Lucene DB status
+	## =========================================================
+	#if($listTool.contains($monitorables,"org.paxle.lucene-db"))
 	<tr>
 		<td>${text.ovDatabase.knownDocs}:</td>
-		<td>$!renderTool.eval('$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.lucene-db/docs.known").getInteger())')</td>
+		<td>$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.lucene-db/docs.known").getInteger())</td>
 	</tr>
+	#end
+	
+	## =========================================================
+	## Command DB status
+	## =========================================================	
+	#if($listTool.contains($monitorables,"org.paxle.data.cmddb"))
 	<tr>
 		<td>${text.ovDatabase.knownURI}:</td>
-		<td>$!renderTool.eval('$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.data.cmddb/size.total").getInteger())')</td>
+		<td>$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.data.cmddb/size.total").getInteger())</td>
 	</tr>
 	<tr>
 		<td>${text.ovDatabase.enqueuedURI}:</td>
-		<td>$!renderTool.eval('$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.data.cmddb/size.enqueued").getInteger())')</td>
+		<td>$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.data.cmddb/size.enqueued").getInteger())</td>
 	</tr>
+	#end
+	
+	## =========================================================
+	## URL-Extractor status
+	## =========================================================
+	#if($listTool.contains($monitorables,"org.paxle.data.UrlExtractor"))
 	<tr>
 		<td>${text.ovDatabase.extractedURI}:</td>
-		<td>$!renderTool.eval('$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.data.UrlExtractor/queue.size").getInteger())')</td>
+		<td>$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.data.UrlExtractor/queue.size").getInteger())</td>
 	</tr>
+	#end
 	</table>
 	<div class="lastUpdate">
 		${text.lastUpdate.insert($dateTool.format('medium',$dateTool.getDate()))}
