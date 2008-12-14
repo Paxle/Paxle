@@ -69,4 +69,14 @@ public class DNSFilterOnlineTest extends MockObjectTestCase {
 		assertEquals(LinkInfo.Status.OK, pDoc.getLinks().get(knownDomain).getStatus());
 		assertEquals(LinkInfo.Status.FILTERED, pDoc.getLinks().get(unknownDomain).getStatus());
 	}
+	
+	public void testFilterInvalidHost() {
+		final IFilterContext context = mock(IFilterContext.class);		
+		final URI invalidDomain = URI.create("http://www.xyz.net%20target=/");
+		final ICommand cmd = Command.createCommand(invalidDomain);
+		
+		assertEquals(ICommand.Result.Passed, cmd.getResult());
+		this.filter.filter(cmd, context);
+		assertEquals(ICommand.Result.Rejected, cmd.getResult());
+	}
 }
