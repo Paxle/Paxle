@@ -116,7 +116,7 @@ public class CommandProfileDB implements ICommandProfileManager {
 			return profile;
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
-			this.logger.error(String.format("Error while writing profile with ID '%d' to db.", profileIDInt),e);
+			this.logger.error(String.format("Error while reading profile '%d' from db.", profileIDInt),e);
 			throw e;
 		} finally {
 			// closing session
