@@ -156,6 +156,8 @@ public class CommandProfileDB implements ICommandProfileManager {
 	
 	public void close() throws InterruptedException {
 		try {		
+			this.logger.info("Closing command-profile DB ...");
+			
 			// close the DB
 			this.sessionFactory.close();
 		} catch (Throwable e) {

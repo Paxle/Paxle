@@ -635,6 +635,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	
 	public void close() throws InterruptedException {
 		try {
+			this.logger.info("Closing command DB ...");
+			
 			// interrupt reader and writer
 			this.writerThread.interrupt();
 			
