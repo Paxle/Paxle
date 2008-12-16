@@ -41,6 +41,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.NoHttpResponseException;
 import org.apache.commons.httpclient.ProxyHost;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
@@ -608,6 +609,9 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			this.logger.warn(String.format("Error crawling %s: Connection timeout.", requestUri));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (CircularRedirectException e) {
+			this.logger.warn(String.format("Error crawling %s: %s", requestUri, e.getMessage()));
+			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
+		} catch (NoHttpResponseException e) {
 			this.logger.warn(String.format("Error crawling %s: %s", requestUri, e.getMessage()));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
 		} catch (Throwable e) {
