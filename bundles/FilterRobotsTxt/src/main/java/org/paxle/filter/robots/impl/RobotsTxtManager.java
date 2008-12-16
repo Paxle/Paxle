@@ -59,6 +59,7 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.InvalidRedirectLocationException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.NoHttpResponseException;
 import org.apache.commons.httpclient.ProxyHost;
 import org.apache.commons.httpclient.RedirectException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
@@ -534,14 +535,23 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 		} catch (IOException e) {
 			long reloadInterval = RobotsTxt.RELOAD_INTERVAL_TEMP_ERROR;
 			String status = e.getMessage();
+			
 			if (e instanceof UnknownHostException) {
 				reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
 				status = "Unknown host";
 				logger.info(String.format("Unknown host '%s'.",robotsURL.getHost()));	
-			} else if (e instanceof CircularRedirectException || e instanceof RedirectException || e instanceof InvalidRedirectLocationException) {
+			} else if (
+				e instanceof CircularRedirectException || 
+				e instanceof RedirectException || 
+				e instanceof InvalidRedirectLocationException
+			) {
 				reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
 				logger.info(String.format("Invalid redirection on host '%s'.",hostPort));				
-			} else if (e instanceof SocketTimeoutException || e instanceof ConnectTimeoutException) {
+			} else if (
+				e instanceof SocketTimeoutException || 
+				e instanceof ConnectTimeoutException ||
+				e instanceof NoHttpResponseException
+			) {
 				logger.debug(String.format("TimeOut while loading robots.txt from host '%s'.",hostPort));
 			} else if (!(
 					e instanceof ConnectException ||
