@@ -5,7 +5,7 @@
 	<groupId>org.paxle.tools</groupId>
 	<artifactId>ToolsSysMon</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<name>Paxle - Tools: System Monitoring</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 	

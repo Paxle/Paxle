@@ -18,6 +18,7 @@ import java.util.HashMap;
 
 import jsysmon.CPUMonitoringData;
 import jsysmon.CPUMonitoringListener;
+import jsysmon.JSysmon;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,7 +95,12 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 	/**
 	 * Last CPU load measurement
 	 */
-	private CPUMonitoringData lastCPUData;
+	private volatile CPUMonitoringData lastCPUData;
+	
+	/**
+	 * Timestamp when the last update occurred
+	 */
+	private volatile long lastCPUDateTime;
 	
 	/**
 	 * For logging
@@ -104,11 +110,13 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 	/**
 	 * @see CPUMonitoringListener
 	 */
-	public synchronized void cpuMonitoringUpdate(CPUMonitoringData data) {		
+	public void cpuMonitoringUpdate(CPUMonitoringData data) {		
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(data.toString());
 		}
+				
 		this.lastCPUData = data;
+		this.lastCPUDateTime = System.currentTimeMillis();
 	}
 
 	/**
@@ -133,11 +141,17 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 	/**
 	 * @see Monitorable#getStatusVariable(String)
 	 */
-	public synchronized StatusVariable getStatusVariable(String name) throws IllegalArgumentException {
+	public StatusVariable getStatusVariable(String name) throws IllegalArgumentException {
 		if (!VAR_NAMES.containsKey(name)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
+				
+		if (System.currentTimeMillis()-lastCPUDateTime > 1000) {
+			// forcing a value refresh
+			JSysmon.updateData();
+		}
 		
+		// getting data
 		Integer id = VAR_NAMES.get(name);
 		double usage = 0.0;
 		if (this.lastCPUData != null) {

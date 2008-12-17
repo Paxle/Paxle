@@ -42,6 +42,7 @@ public class Activator implements BundleActivator {
 		// registering CPU usage monitoring
 		try {
 			// starting jsysmon daemon
+			JSysmon.setUpdateDelay(60000);
 			JSysmon.startMonitoring();
 			JSysmon.addCPUMonitoringListener(cpuMonListener);
 
