@@ -38,6 +38,10 @@
 		#set($monitorables = [$paramParser.getString("monitorableId")])
 	#else
 		#set($monitorables = $monitorAdmin.getMonitorableNames())
+		<div class="summary">#foreach($monitorable in $sortTool.sort($monitorables))
+			<div style="white-space:nowrap;">|&nbsp;<a href="#$monitorable">$monitorable</a>&nbsp;</div>
+		#end&nbsp;|
+		</div>
 	#end
 	#if($monitorables)		
 		<table>
@@ -52,7 +56,7 @@
 			#set($statusVariables = $monitorAdmin.getStatusVariables($monitorable))
 			#if($statusVariables)				
 				<tr>
-					<th class="sub" colspan="5"><a href="?monitorableId=$monitorable">$monitorable</a></th>
+					<th class="sub" colspan="5"><a name="$monitorable" href="?monitorableId=$monitorable">$monitorable</a></th>
 				</tr>			
 				#foreach($statusVariable in $sortTool.sort($statusVariables,["ID:asc"]))
 				<tr>
