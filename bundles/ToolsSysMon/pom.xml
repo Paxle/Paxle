@@ -128,7 +128,7 @@
 			<!-- http://sourceforge.net/projects/jsysmon/ -->
 			<groupId>jsysmon</groupId>
 			<artifactId>jsysmon</artifactId>
-			<version>20080111</version>
+			<version>20081212</version>
 		</dependency>
 		
 		<dependency>
