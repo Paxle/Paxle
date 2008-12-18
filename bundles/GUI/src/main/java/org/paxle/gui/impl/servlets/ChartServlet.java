@@ -439,7 +439,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 				// using velocity template
 				super.doRequest(request, response);
 			}
-		} catch (Exception e) {			
+		} catch (Exception e) {
 			this.logger.error(String.format(
 					"Unexpected '%s' while writing chart '%s'.",
 					e.getClass().getName(),

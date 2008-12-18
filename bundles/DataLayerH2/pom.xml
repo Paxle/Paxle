@@ -57,12 +57,6 @@
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
 			<version>[,0.2.0)</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-pool</groupId>
-					<artifactId>commons-pool</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 	<dependency>

@@ -100,11 +100,13 @@
 		<dependency>
 			<groupId>commons-pool</groupId>
 			<artifactId>commons-pool</artifactId>
+			<optional>true</optional>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.eclipse.osgi</groupId>
 			<artifactId>osgi</artifactId>
+			<optional>true</optional>
 		</dependency>		
 		
 		<!-- test dependencies -->
