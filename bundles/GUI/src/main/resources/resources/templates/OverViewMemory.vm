@@ -15,6 +15,7 @@
 ## geting required services
 #set($monitorAdmin = $manager.getService('org.osgi.service.monitor.MonitorAdmin'))
 #set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
+#set($monitorables = $monitorAdmin.getMonitorableNames())
 
 ## loading resource-bundle
 #if(!$text)
@@ -23,19 +24,7 @@
 
 <fieldset class="infobox" id="dmemory">
 	<legend class="ovMemory">${text.legend.ovMemory}</legend>
-	
-	## testing if the required monitorable is installed
-	#if($listTool.contains($monitorAdmin.getMonitorableNames(),'java.lang.runtime'))	
-    	#set($used = ($monitorAdmin.getStatusVariable('java.lang.runtime/memory.used').getInteger()) / ( 1024 * 1024))
-    	#set($free = ($monitorAdmin.getStatusVariable('java.lang.runtime/memory.free').getInteger()) / ( 1024 * 1024))
-    	#set($total = ($monitorAdmin.getStatusVariable('java.lang.runtime/memory.total').getInteger()) / ( 1024 * 1024))
-	#end
-	
-	## testing if the required monitorable is installed
-	#if($listTool.contains($monitorAdmin.getMonitorableNames(),'os.disk'))
-		#set($disk = $monitorAdmin.getStatusVariable('os.disk/disk.space.free').getFloat())
-	#end
-	
+		
 	#if($manager.getService('org.paxle.gui.IServletManager').hasServlet('/chart'))
 		<a href="${servletManager.getFullAlias('/chart')}?display=embedded&amp;t=mem">
 			<img class="chart" id="ovMemoryChart" src="${servletManager.getFullAlias('/chart')}?t=mem&amp;w=385&amp;h=200&amp;t=${dateTool.get('yyyy-M-dH:m')}" height="200" width="385" alt="${text.chart.ovMemory.alt}"/>
@@ -46,22 +35,37 @@
 			<th>${text.table.name}</th>
 			<th>${text.table.value}</th>
 		</tr>
+		##
+		## Memory usage monitorable
+		##
+		#if($listTool.contains($monitorables,'java.lang.runtime'))
 		<tr>
 			<td><b>${text.ovMemory.memUsed}</b></td>
-			<td>$!used MiB</td>
-	    </tr>
-	    <tr>
+			#set($memUsed = ($monitorAdmin.getStatusVariable('java.lang.runtime/memory.used').getInteger()) / ( 1024 * 1024))
+			<td>$numberTool.format($memUsed) MiB</td>
+		</tr>
+		<tr>
 			<td><b>${text.ovMemory.memFree}</b></td>
-			<td>$!free MiB</td>
+			#set($memFree = ($monitorAdmin.getStatusVariable('java.lang.runtime/memory.free').getInteger()) / ( 1024 * 1024))
+			<td>$numberTool.format($memFree) MiB</td>
 		</tr>
 		<tr>
 			<td><b>${text.ovMemory.memTotal}</b></td>
-			<td>$!total MiB</td>
+			#set($memTotal = ($monitorAdmin.getStatusVariable('java.lang.runtime/memory.total').getInteger()) / ( 1024 * 1024))
+			<td>$numberTool.format($memTotal) MiB</td>
 		</tr>
+		#end
+		
+		##
+		## Disk usage monitorable
+		##
+		#if($listTool.contains($monitorables,'os.disk'))
 		<tr>
 			<td><b>${text.ovMemory.diskFree}</b></td>
-			<td>$!disk MiB</td>
+			#set($diskFree = $monitorAdmin.getStatusVariable('os.disk/disk.space.free').getFloat())
+			<td>$numberTool.format($diskFree) MiB</td>
 		</tr>
+		#end
 		<tr>
 			<td colspan="2">
 				<form action="/overview" method="post">
