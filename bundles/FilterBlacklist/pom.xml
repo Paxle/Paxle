@@ -100,12 +100,14 @@
 			<groupId>org.paxle</groupId>
 			<artifactId>GUI</artifactId>
 			<version>[,0.2.0)</version>
+			<optional>true</optional>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>DesktopIntegration</artifactId>
 			<version>[,0.2.0)</version>
+			<optional>true</optional>
 		</dependency>
 
 		<dependency>

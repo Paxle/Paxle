@@ -108,25 +108,43 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[,0.2.0)</version>			
+			<version>[,0.2.0)</version>
+			<optional>true</optional>	
 		</dependency>
 		
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>SearchEngine</artifactId>
-			<version>[,0.2.0)</version>			
+			<version>[,0.2.0)</version>
+			<optional>true</optional>
 		</dependency>	
 		
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>GUI</artifactId>
 			<version>[,0.2.0)</version>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- required for equinox console command provider -->
 		<dependency>
 			<groupId>org.eclipse.osgi</groupId>
 			<artifactId>osgi</artifactId>
+			<optional>true</optional>
+		</dependency>
+		
+		<!-- required for charts generation -->
+		<dependency>
+			<groupId>org.jfree.chart</groupId>
+			<artifactId>com.springsource.org.jfree.chart</artifactId>
+			<version>1.0.9</version>
+			<optional>true</optional>
+		</dependency>		
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>com.springsource.org.jfree</artifactId>
+			<version>1.0.12</version>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 </project>

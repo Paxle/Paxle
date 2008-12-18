@@ -92,6 +92,7 @@
 			<groupId>org.paxle</groupId>
 			<artifactId>GUI</artifactId>
 			<version>[,0.2.0)</version>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 </project>

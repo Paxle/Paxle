@@ -157,13 +157,14 @@
 			<groupId>org.paxle</groupId>
 			<artifactId>SearchEngine</artifactId>
 			<version>[,0.2.0)</version>
-			<scope>test</scope>
+			<optional>true</optional>
 		</dependency>	
 		
 		<dependency>
 			<groupId>org.paxle.tools</groupId>
 			<artifactId>ToolsIExport</artifactId>
 			<version>[,0.2.0)</version>
+			<optional>true</optional>
 		</dependency>		
 
 		<dependency>
@@ -241,7 +242,13 @@
 					<groupId>org.apache.struts</groupId>
 					<artifactId>struts-tiles</artifactId>
 				</exclusion>
-			</exclusions>				
+				
+				<!-- imported with a higher version number below -->
+				<exclusion>
+					<groupId>commons-beanutils</groupId>
+					<artifactId>commons-beanutils</artifactId>
+				</exclusion>
+			</exclusions>	
 		</dependency>
 		
 		<!-- required for file uploads -->
@@ -249,6 +256,7 @@
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.2.1</version>
+			<optional>true</optional>
 		</dependency>
 		
 		<!-- required for file copying -->
@@ -256,6 +264,7 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>1.4</version>
+			<optional>true</optional>
 		</dependency>
 		
 		<!-- Needed for all parts of Velocity -->
@@ -263,6 +272,7 @@
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
 			<version>3.2.1</version>
+			<optional>true</optional>
 		</dependency>
 		
 		<!-- Required for core infrastructure, MathTool  and SortTool -->
@@ -270,12 +280,14 @@
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.8.0</version>
+			<optional>true</optional>
 		</dependency>
 		
 		<!-- required for base64 encoding/decoding -->
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec-osgi</artifactId>
+			<optional>true</optional>
 		</dependency>	
 		
 		<!-- Needed for all parts of Velocity -->
@@ -283,8 +295,8 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.4</version>
+			<optional>true</optional>
 		</dependency>
-
 
 		<!-- Servlet Dependency -->
 		<dependency>
@@ -298,11 +310,13 @@
 			<groupId>org.jfree.chart</groupId>
 			<artifactId>com.springsource.org.jfree.chart</artifactId>
 			<version>1.0.9</version>
+			<optional>true</optional>
 		</dependency>		
 		<dependency>
 			<groupId>org.jfree</groupId>
 			<artifactId>com.springsource.org.jfree</artifactId>
 			<version>1.0.12</version>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- 
@@ -313,24 +327,28 @@
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
 			<version>2.7.1</version>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>xml-apis</groupId>
 			<artifactId>xml-apis</artifactId>
 			<version>1.0.b2</version>
 			<scope>compile</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>xml-apis</groupId>
 			<artifactId>xmlParserAPIs</artifactId>
 			<version>2.0.2</version>
 			<scope>compile</scope>
+			<optional>true</optional>
 		</dependency>				
 
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.13</version>
+			<optional>true</optional>
 			<exclusions>
 				<exclusion>
 					<groupId>com.sun.jdmk</groupId>
