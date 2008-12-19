@@ -32,8 +32,8 @@
 #set($monitorAdmin = $manager.getService('org.osgi.service.monitor.MonitorAdmin'))
 #if($monitorAdmin)
 
-       #if($paramParser.getString("monitorableId"))
-               #set($monitorables = [$paramParser.getString("monitorableId")])
+       #if($paramParser.getStrings("monitorableId"))
+               #set($monitorables = $paramParser.getStrings("monitorableId"))
        #else
                #set($monitorables = $monitorAdmin.getMonitorableNames())
        #end
