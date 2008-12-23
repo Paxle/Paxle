@@ -48,6 +48,8 @@
 							org.osgi.service.metatype;version="1.1",						
 							<!-- Logging framework -->
 							org.apache.commons.logging,
+							<!-- Apache Commons IO -->
+							org.apache.commons.io.output;version="1.4",
 							<!-- Paxle Core bundle -->
 							org.paxle.core;version="[0.1.0,0.2.0)",
 							org.paxle.core.queue;version="[0.1.0,0.2.0)", 
@@ -79,6 +81,13 @@
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
 			<version>[,0.2.0)</version>				
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 </project>

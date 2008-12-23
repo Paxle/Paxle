@@ -61,6 +61,7 @@ import org.osgi.service.cm.ManagedService;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.prefs.Properties;
+import org.paxle.crawler.ContentLengthLimitExceededException;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ISubCrawler;
@@ -465,7 +466,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 						"Content-length '%d' of resource '%s' is larger than the max. allowed size of '%d' bytes.",
 						Integer.valueOf(contentLength),
 						doc.getLocation(),
-						Integer.valueOf(maxDownloadSize));
+						Integer.valueOf(maxDownloadSize)
+				);
 				
 				this.logger.warn(msg);
 				doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
@@ -487,16 +489,18 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		
 		HttpMethod method = null;
 		try {
-			// first use the HEAD method to determine whether the MIME-type is supported
-			// and to compare the content-length with the maximum allowed download size
-			// (both only if the server provides this information, if not, the file is
-			// fetched)
-			
 			final String uriAsciiString = requestUri.toASCIIString();
 			
+			/* ==============================================================================
+			 * HTTP HEAD request
+			 * 
+			 * first use the HEAD method to determine whether the MIME-type is supported
+			 * and to compare the content-length with the maximum allowed download size
+			 * (both only if the server provides this information, if not, the file is
+			 * fetched)
+			 * ============================================================================== */
 			method = new HeadMethod(uriAsciiString);		// automatically follows redirects
-			initRequestMethod(method);
-			
+			this.initRequestMethod(method);			
 			int statusCode = this.getHttpClient().executeMethod(method);
 			
 			final boolean headUnsupported = (statusCode == HttpStatus.SC_METHOD_FAILURE || statusCode == HttpStatus.SC_METHOD_NOT_ALLOWED);
@@ -529,15 +533,17 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 					; // FIXME: we've been redirected, re-enqueue the new URL and abort processing
 			}
 			
-			// secondly - if everything is alright up to now - proceed with getting the actual
-			// document
-			
-			// generate the GET request method
+			/* ==============================================================================
+			 * HTTP GET request
+			 * 
+			 * secondly - if everything is alright up to now - proceed with getting the 
+			 * actual document
+			 * ============================================================================== */
 			HttpMethod getMethod = new GetMethod(uriAsciiString);		// automatically follows redirects
 			method.releaseConnection();
 			
 			method = getMethod;
-			initRequestMethod(method);
+			this.initRequestMethod(method);
 			
 			// send the request to the server
 			statusCode = this.getHttpClient().executeMethod(method);
@@ -554,17 +560,29 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				return doc;
 			}
 			
-			if (headUnsupported) {
-				// getting the mimetype and charset
-				Header contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
-				if (!handleContentTypeHeader(contentTypeHeader, doc))
-					return doc;
-				
-				if (!requestUri.equals(method.getURI()))
-					; // FIXME: we've been redirected, re-enqueue the new URL and abort processing
-			}
+			// FIXME: we've been redirected, re-enqueue the new URL and abort processing
+			if (!requestUri.equals(method.getURI())) ; 
 			
-			postProcessHeaders(method, doc);		// externalised into this method to cleanup here a bit
+			/*
+			 * HTTP Content-Type
+			 * - getting the mimetype and charset
+			 */
+			Header contentTypeHeader = method.getResponseHeader(HTTPHEADER_CONTENT_TYPE);
+			if (!handleContentTypeHeader(contentTypeHeader, doc))
+				return doc;
+			
+			/* 
+			 * HTTP Content-Length
+			 * - Reject the document if content-length is above our limit
+			 * 
+			 *   We do this a second time here because some servers may have set the content-length
+			 *   of the head response to <code>0</code>
+			 */
+			Header contentTypeLength = method.getResponseHeader(HTTPHEADER_CONTENT_LENGTH);
+			if (!handleContentLengthHeader(contentTypeLength, doc))
+				return doc;			
+			
+			extractHttpHeaders(method, doc);		// externalised into this method to cleanup here a bit
 			
 			// getting the response body
 			InputStream respBody = method.getResponseBodyAsStream();
@@ -574,8 +592,16 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			try {
 				respBody = handleContentEncoding(contentEncodingHeader, respBody);
 				
+				/* Limit the max allowed length of the content to copy. -1 is used for no limit.
+				 * 
+				 * We need to set a limit if:
+				 * a) the user has configured a max-download-size AND
+				 * b) the server returned no content-length header
+				 */
+				int copyLimit = (this.maxDownloadSize <= 0 || contentTypeHeader != null) ? -1 : this.maxDownloadSize;
+				
 				// copy the content to file
-				CrawlerTools.saveInto(doc, respBody, lrc);
+				CrawlerTools.saveInto(doc, respBody, lrc, copyLimit);
 				
 				doc.setStatus(ICrawlerDocument.Status.OK);
 				this.logger.debug(String.format("Crawling of URL '%s' finished.", requestUri));
@@ -614,6 +640,9 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		} catch (NoHttpResponseException e) {
 			this.logger.warn(String.format("Error crawling %s: %s", requestUri, e.getMessage()));
 			doc.setStatus(ICrawlerDocument.Status.NOT_FOUND, e.getMessage());
+		} catch (ContentLengthLimitExceededException e) {
+			this.logger.warn(String.format("Error crawling %s: %s", requestUri, e.getMessage()));
+			doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, e.getMessage());
 		} catch (Throwable e) {
 			String errorMsg;
 			if (e instanceof HttpException) {
@@ -635,7 +664,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		return doc;
 	}
 	
-	private static void postProcessHeaders(final HttpMethod method, final CrawlerDocument doc) throws IOException {
+	private static void extractHttpHeaders(final HttpMethod method, final CrawlerDocument doc) throws IOException {
 		// getting the document languages
 		Header contentLanguageHeader = method.getResponseHeader(HTTPHEADER_CONTENT_LANGUAGE);
 		if (contentLanguageHeader != null) {

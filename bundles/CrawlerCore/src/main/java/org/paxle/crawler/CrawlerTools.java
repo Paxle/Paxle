@@ -34,6 +34,7 @@ import org.paxle.core.crypt.ICrypt;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.mimetype.IMimeTypeDetector;
+import org.paxle.crawler.impl.ContentLengthLimitOutputStream;
 
 public class CrawlerTools {
 	
@@ -104,6 +105,10 @@ public class CrawlerTools {
 		return saveInto(doc, is, null);
 	}
 	
+	public static long saveInto(ICrawlerDocument doc, InputStream is, final LimitedRateCopier lrc) throws IOException {
+		return saveInto(doc, is, lrc, -1);
+	}
+	
 	/**
 	 * Copies all data from the given {@link InputStream} to the given {@link ICrawlerDocument crawler-document}.<br />
 	 * Additionally this function ...
@@ -117,10 +122,16 @@ public class CrawlerTools {
 	 * @param doc the crawler-document the content belongs to
 	 * @param is the stream to read from
 	 * @param lrc the {@link LimitedRateCopier} to use to copy the data, if any, otherwise <code>null</code>
+	 * @param maxFileSize max allowed content-size to copy in bytes or <code>-1</code>
 	 * @return the number of copied bytes
+	 * 
 	 * @throws IOException if an I/O-error occures
+	 * @throws ContentLengthLimitExceededException if the content-length read via the input stream exceeds the
+	 * 	limit defined via maxFileSize
 	 */
-	public static long saveInto(ICrawlerDocument doc, InputStream is, final LimitedRateCopier lrc) throws IOException {
+	public static long saveInto(ICrawlerDocument doc, InputStream is, final LimitedRateCopier lrc, final int maxFileSize) 
+		throws IOException, ContentLengthLimitExceededException 
+	{
 		if (doc == null) throw new NullPointerException("The crawler-document is null.");
 		if (is == null) throw new NullPointerException("The content inputstream is null.");
 		
@@ -155,6 +166,13 @@ public class CrawlerTools {
 			// init file output-stream
 			file = context.getTempFileManager().createTempFile();
 			os = new BufferedOutputStream(new FileOutputStream(file));
+			
+			// limit file size
+			ContentLengthLimitOutputStream tos = null;
+			if(maxFileSize != -1) {
+				tos = new ContentLengthLimitOutputStream(maxFileSize, os);
+				os = tos;
+			}
 			
 			// init charset detection stream
 			ACharsetDetectorOutputStream chardetos = null;
@@ -211,20 +229,21 @@ public class CrawlerTools {
 					try {
 						mimeType = mimeTypeDetector.getMimeType(file);
 					} catch (Exception e) {						
-						logger.warn(String.format("Unexpected '%s' while trying to determine the mime-type of resource '%s'.",
+						logger.warn(String.format(
+								"Unexpected '%s' while trying to determine the mime-type of resource '%s'.",
 								e.getClass().getName(),
 								doc.getLocation()
 						),e);
 					}
 					logger.debug(String.format("MimeType of resource '%s' was detected as '%s'", doc.getLocation(), mimeType));
-					if (mimeType != null)
+					if (mimeType != null) 
 						doc.setMimeType(mimeType);
 				}
 			}
 			
 			doc.setContent(file);
 			return copied;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (file != null) {
 				// closing stream
 				try {

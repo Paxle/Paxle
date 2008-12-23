@@ -61,22 +61,19 @@ public class DummyServlet extends HttpServlet {
 		super.init(config);		
 	}
 	
-	private void setResponseHeaders(HttpServletResponse resp) {
+	private void setResponseHeaders(HttpServletRequest req, HttpServletResponse resp) {
 		if (this.testFileMimeType != null) {
 			resp.setContentType(this.testFileMimeType);
 		}
 		if (this.testFileCharset != null) {
 			resp.setCharacterEncoding(this.testFileCharset);
 		}		
-		if (this.testFileName == null) {
-			if (this.testFileSize == null) {
-				resp.setContentLength(0);
-			} else {
-				resp.setContentLength(this.testFileSize.intValue());
-			}
-		} else {
-			resp.setContentLength((int) new File(this.resourcesDir,this.testFileName).length());
+		if (this.testFileSize != null && this.testFileSize.intValue() > 0){
+			resp.setContentLength(this.testFileSize.intValue());
+		} else if (req.getProtocol().equalsIgnoreCase("HTTP/1.1")) {
+			resp.setHeader("Transfer-Encoding", "chunked");
 		}
+		
 		if (this.serverStatusCode != null) {
 			resp.setStatus(this.serverStatusCode.intValue());
 		}
@@ -84,30 +81,32 @@ public class DummyServlet extends HttpServlet {
 	
 	@Override
 	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		this.setResponseHeaders(resp);
+		this.setResponseHeaders(req, resp);
 	}
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		this.setResponseHeaders(resp);
-		File dataFile = new File(this.resourcesDir,this.testFileName);
+		this.setResponseHeaders(req, resp);		
 		
 		OutputStream cout = resp.getOutputStream();
 		if (this.testFileName != null) {
+			File dataFile = new File(this.resourcesDir,this.testFileName);
 			FileInputStream fin = new FileInputStream(dataFile);			
 			IOTools.copy(fin, cout);
 			fin.close();			
 		} else {
 			byte[] temp = new byte[256];
 			Random rand = new Random();
-			int counter = this.testFileSize.intValue();
+			int counter = Math.abs(this.testFileSize.intValue());
 			while (counter > 0) {
-				counter -= Math.min(counter, temp.length);
+				int len  = Math.min(counter, temp.length);
+				counter -= len;
+				
 				rand.nextBytes(temp);
-				cout.write(temp, 0, counter);
+				cout.write(temp, 0, len);
 				cout.flush();
 			}
 		}
-		cout.close();
+//		cout.close();
 	}
 }

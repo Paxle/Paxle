@@ -132,6 +132,20 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 		assertEquals(ICrawlerDocument.Status.UNKNOWN_FAILURE, doc.getStatus());		
 	}
 	
+	public void testMaxDownloadSizeExceededTransferEncoding() {	
+		this.tester.setAttribute(DummyServlet.ATTR_FILE_SIZE, new Integer(-1200));
+		
+		// change crawler settings
+		Dictionary<String, Object> props = this.crawler.getDefaults();
+		props.put(HttpCrawler.PROP_MAXDOWNLOAD_SIZE, new Integer(1000));
+		this.crawler.updated(props);
+		
+		// do some crawling
+		ICrawlerDocument doc = this.crawler.request(URI.create(this.servletURL));
+		assertNotNull(doc);
+		assertEquals(ICrawlerDocument.Status.UNKNOWN_FAILURE, doc.getStatus());		
+	}
+	
 	public void testHandleContentTypeHeader() {		
 		final CrawlerDocument cdoc = new CrawlerDocument();
 		Header h = null;
