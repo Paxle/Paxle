@@ -18,6 +18,11 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
 import org.paxle.crawler.ISubCrawler;
@@ -51,6 +56,28 @@ public class Activator implements BundleActivator {
 		Hashtable<String,String[]> properties = new Hashtable<String,String[]>(1);
         properties.put(URLConstants.URL_HANDLER_PROTOCOL, new String[]{FtpStreamHandlerService.PROTOCOL});
         context.registerService(URLStreamHandlerService.class.getName(), new FtpStreamHandlerService(), properties);
+        
+		/*
+		 * Create configuration if not available
+		 */
+		ServiceReference cmRef = context.getServiceReference(ConfigurationAdmin.class.getName());
+		if (cmRef != null) {
+			ConfigurationAdmin cm = (ConfigurationAdmin) context.getService(cmRef);
+			Configuration config = cm.getConfiguration(IFtpCrawler.class.getName());
+			if (config.getProperties() == null) {
+				config.update(crawler.getDefaults());
+			}
+		}
+		
+		/* 
+		 * Register as managed service
+		 * 
+		 * ATTENTION: it's important to specify a unique PID, otherwise
+		 * the CM-Admin service does not recognize us.
+		 */
+		Hashtable<String,Object> msProps = new Hashtable<String, Object>();
+		msProps.put(Constants.SERVICE_PID, IFtpCrawler.class.getName());
+		context.registerService(ManagedService.class.getName(), crawler, msProps);
 	}
 
 	/**

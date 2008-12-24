@@ -18,14 +18,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Dictionary;
 
+import junit.framework.TestCase;
+
+import org.osgi.service.cm.ConfigurationException;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.impl.CrawlerContextLocal;
-
-import junit.framework.TestCase;
 
 public class FtpCrawlerOnlineTest extends TestCase {
 	
@@ -90,5 +92,21 @@ public class FtpCrawlerOnlineTest extends TestCase {
 		assertNotNull(crawlerDoc.getContent());
 		assertTrue(crawlerDoc.getContent().exists());
 		assertTrue(crawlerDoc.getContent().length() > 0);
+	}
+	
+	public void testReadDocumentMaxDownloadSizeLimit() throws ConfigurationException {
+		URI testUri = URI.create("ftp://ftp.debian.org/debian/README");
+
+		// change crawler settings
+		Dictionary<String, Object> props = this.crawler.getDefaults();
+		props.put(FtpCrawler.PROP_MAXDOWNLOAD_SIZE, new Integer(500));
+		this.crawler.updated(props);		
+		
+		// download document
+		this.crawlerDoc = this.crawler.request(testUri);
+		assertNotNull(crawlerDoc);		
+		assertEquals(testUri, crawlerDoc.getLocation());
+		assertEquals(ICrawlerDocument.Status.UNKNOWN_FAILURE, crawlerDoc.getStatus());
+		assertNull(crawlerDoc.getContent());
 	}
 }

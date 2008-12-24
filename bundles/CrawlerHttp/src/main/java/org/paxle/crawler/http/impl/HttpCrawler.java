@@ -114,7 +114,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			"application/x-tar"));
 	
 	/**
-	 * The protocol supported by this crawler
+	 * The protocol(s) supported by this crawler
 	 */
 	public static final String[] PROTOCOLS = new String[]{"http","https"};
 	
@@ -226,7 +226,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		// so this try/catch-block exists for debugging purposes
 		try {
 			if ( configuration == null ) {
-				logger.warn("updated configuration is null");
+				logger.debug("Configuration is null. Using default configuration ...");
 				/*
 				 * Generate default configuration
 				 */

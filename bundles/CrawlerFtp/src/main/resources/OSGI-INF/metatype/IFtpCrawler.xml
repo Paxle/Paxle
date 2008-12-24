@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData 
+	xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	localization="/OSGI-INF/l10n/IFtpCrawler">
+
+	<OCD description="%ftpCrawler.desc" 
+			name="%ftpCrawler.name"
+			id="1.1.1.1">
+
+		<AD name="%ftpCrawler.socketTimeout.name"
+				type="Integer"
+				id="org.paxle.crawler.ftp.IFtpCrawler.socketTimeout"
+				default="15000"
+				min="1000"
+				description="%ftpCrawler.socketTimeout.desc"/>
+		
+		<AD name="%ftpCrawler.connectionTimeout.name"
+				type="Integer"
+				id="org.paxle.crawler.ftp.IFtpCrawler.connectionTimeout"
+				default="15000"
+				min="1000"
+				description="%ftpCrawler.connectionTimeout.desc"/>
+		
+		<AD name="%ftpCrawler.maxDownloadSize.name"
+				type="Integer"
+				id="org.paxle.crawler.ftp.IFtpCrawler.maxDownloadSize"
+				default="10485760"
+				min="-1"
+				description="%ftpCrawler.maxDownloadSize.desc"/>
+	</OCD>
+	
+	<Designate
+			pid="org.paxle.crawler.ftp.IFtpCrawler"
+			bundle="ignored">
+		<Object ocdref="1.1.1.1"></Object>
+	</Designate>
+
+</metatype:MetaData>

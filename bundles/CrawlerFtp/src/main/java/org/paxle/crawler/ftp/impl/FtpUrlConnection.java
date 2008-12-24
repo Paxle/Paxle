@@ -248,6 +248,9 @@ public class FtpUrlConnection extends URLConnection {
 			InputStream inputStream = this.getInputStream();
 			contentType = URLConnection.guessContentTypeFromStream(inputStream);
 			inputStream.close();
+			
+			// we need to reconnect here
+			if (!this.client.isConnected()) this.connect();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

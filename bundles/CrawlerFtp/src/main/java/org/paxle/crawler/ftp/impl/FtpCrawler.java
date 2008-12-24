@@ -18,18 +18,42 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Date;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.Constants;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.ftp.IFtpCrawler;
 
-public class FtpCrawler implements IFtpCrawler {
+public class FtpCrawler implements IFtpCrawler, ManagedService {
+	/* =========================================================
+	 * Config Properties
+	 * ========================================================= */
+	static final String PID = IFtpCrawler.class.getName();
+	
+	static final String PROP_CONNECTION_TIMEOUT 		= PID + '.' + "connectionTimeout";
+	static final String PROP_SOCKET_TIMEOUT 			= PID + '.' + "socketTimeout";
+	static final String PROP_MAXDOWNLOAD_SIZE 			= PID + '.' + "maxDownloadSize";	
+	
+	private int connectionTimeout = 15000;
+	private int socketTimeout = 15000;
+	private int maxDownloadSize = 10485760;
+	
+	/**
+	 * The protocol(s) supported by this crawler
+	 */
 	public static final String[] PROTOCOLS = new String[]{"ftp"};
 	
+	/**
+	 * For logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
@@ -51,6 +75,8 @@ public class FtpCrawler implements IFtpCrawler {
 			crawlerDoc.setLocation(requestUri);
 			
 			FtpUrlConnection ftpConnection = new FtpUrlConnection(requestUri.toURL());
+			if (this.connectionTimeout >= 0) ftpConnection.setConnectTimeout(this.connectionTimeout);
+			if (this.socketTimeout >= 0) ftpConnection.setReadTimeout(this.socketTimeout);
 
 			// connect to host
 			ftpConnection.connect();
@@ -66,6 +92,24 @@ public class FtpCrawler implements IFtpCrawler {
 			if (contentType != null) {
 				crawlerDoc.setMimeType(contentType);
 			}			
+			
+			// checking download size limit
+			if (this.maxDownloadSize > 0) {
+				int contentLength = ftpConnection.getContentLength();
+				if (contentLength > this.maxDownloadSize) {
+					// reject the document
+					final String msg = String.format(
+							"Content-length '%d' of resource '%s' is larger than the max. allowed size of '%d' bytes.",
+							Integer.valueOf(contentLength),
+							requestUri,
+							Integer.valueOf(this.maxDownloadSize)
+					);
+					
+					this.logger.warn(msg);
+					crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
+					return crawlerDoc;
+				}
+			}
 			
 			// get input stream
 			InputStream input = ftpConnection.getInputStream();
@@ -92,5 +136,41 @@ public class FtpCrawler implements IFtpCrawler {
 		} 		
 
 		return crawlerDoc;
+	}
+
+	public Hashtable<String,Object> getDefaults() {
+		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
+		
+		defaults.put(PROP_CONNECTION_TIMEOUT, Integer.valueOf(15000));
+		defaults.put(PROP_SOCKET_TIMEOUT, Integer.valueOf(15000));
+		defaults.put(PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(10485760));		
+		defaults.put(Constants.SERVICE_PID, IFtpCrawler.class.getName());
+		
+		return defaults;
+	}	
+	
+	/**
+	 * @see ManagedService#updated(Dictionary)
+	 */
+	public void updated(Dictionary configuration) throws ConfigurationException {
+		if (configuration == null ) {
+			logger.debug("Configuration is null. Using default configuration ...");
+			
+			/*
+			 * Generate default configuration
+			 */
+			configuration = this.getDefaults();
+		}
+		
+		// configuring timeouts
+		final Integer connectionTimeout = (Integer) configuration.get(PROP_CONNECTION_TIMEOUT);
+		if (connectionTimeout != null) this.connectionTimeout = connectionTimeout.intValue();
+		
+		final Integer socketTimeout = (Integer) configuration.get(PROP_SOCKET_TIMEOUT);
+		if (socketTimeout != null) this.socketTimeout = socketTimeout.intValue();
+		
+		// download limit in bytes
+		final Integer maxDownloadSize = (Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE);
+		if (maxDownloadSize != null) this.maxDownloadSize = maxDownloadSize.intValue();		
 	}
 }
