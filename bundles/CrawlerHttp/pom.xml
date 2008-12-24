@@ -97,12 +97,6 @@
 		    <artifactId>jetty-servlet-tester</artifactId>
 		    <version>6.1H.10</version>
 		    <scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>1.4</version>
-			<scope>test</scope>
 		</dependency>					
 	</dependencies>
 </project>
