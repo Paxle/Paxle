@@ -130,6 +130,19 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 		this.config = config;
 		this.props = props;
 		
+		// initialize CM values
+		if (config.getProperties() == null) {
+			// ensure to reset known-filter list
+			props.remove(PROPS_KNOWN_FILTERCONTEXTS);
+			
+			// using default configuration
+			config.update(this.getCMDefaults());
+		}
+		
+		// update configuration of this component
+		this.updated(config.getProperties());
+		
+		// reading list of known filters
 		if (props.containsKey(PROPS_KNOWN_FILTERCONTEXTS)) {
 			String filtersStr = (String)props.get(PROPS_KNOWN_FILTERCONTEXTS);
 			if (filtersStr.length() > 2) {			
@@ -139,14 +152,6 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 				}
 			}
 		}
-		
-		// initialize CM values
-		if (config.getProperties() == null) {
-			config.update(this.getCMDefaults());
-		}
-		
-		// update configuration of this component
-		this.updated(config.getProperties());		
 	}
 	
 	private Dictionary<String, Object> getCMDefaults() {
@@ -237,6 +242,10 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 				 * we enable the filter now
 				 */
 				if (this.enableNewFilters.booleanValue() && enabledPerDefault) {
+					// mark filter-context as enabled
+					filterContext.setEnabled(true);
+					
+					// remember enabled filter in list
 					enabledFilters.add(filterContextPID);
 
 					// updating CM if needed
