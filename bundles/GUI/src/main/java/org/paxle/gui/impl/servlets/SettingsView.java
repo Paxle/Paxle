@@ -168,7 +168,14 @@ public class SettingsView extends ALayoutServlet {
 			} catch (Exception e) {
 				throw new IOException(e.getMessage());
 			}
-		} else if (request.getParameter("doExportConfig") != null) {
+		} else {
+			super.doGet(request, response);
+		}
+	}
+
+	@Override
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if (request.getParameter("doExportConfig") != null) {
 			InputStream fileIn = null;
 			File tempFile = null;
 			try {
@@ -197,10 +204,10 @@ public class SettingsView extends ALayoutServlet {
 				if (tempFile != null) try { tempFile.delete(); } catch (Exception e) {/* ignore this */}
 			}
 		} else {
-			super.doGet(request, response);
+			super.doPost(request, response);
 		}
 	}
-
+	
 	@Override
 	public Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
 		
