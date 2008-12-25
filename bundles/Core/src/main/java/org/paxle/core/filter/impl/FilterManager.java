@@ -209,8 +209,12 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 		
 		final String queueID = filterContext.getTargetID();
 		final String filterPID = filterContext.getFilterPID();
-		final String filterContextPID = filterContext.getFilterContextPID();		
+		final String filterContextPID = filterContext.getFilterContextPID();
+		final boolean enabledPerDefault = filterContext.isEnabled();
 		try {
+			/* disable context for now */
+			filterContext.setEnabled(false);
+			
 			/* 
 			 * Getting the registered-filter-list of the target
 			 * and add the new filter to it
@@ -232,7 +236,7 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 				 * the filter-provider has not disabled the filter per default
 				 * we enable the filter now
 				 */
-				if (this.enableNewFilters.booleanValue() && filterContext.isEnabled()) {
+				if (this.enableNewFilters.booleanValue() && enabledPerDefault) {
 					enabledFilters.add(filterContextPID);
 
 					// updating CM if needed
