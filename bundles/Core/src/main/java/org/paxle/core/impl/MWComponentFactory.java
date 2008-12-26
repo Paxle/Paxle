@@ -27,6 +27,8 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.util.tracker.ServiceTracker;
@@ -246,13 +248,19 @@ public class MWComponentFactory implements IMWComponentFactory {
 		// sevice properties for registration
 		Hashtable<String, Object> managedServiceProps = new Hashtable<String, Object>();
 		managedServiceProps.put(Constants.SERVICE_PID, componentID);
+		managedServiceProps.put(EventConstants.EVENT_TOPIC, "org/paxle/monitorable/observer");
+		managedServiceProps.put(EventConstants.EVENT_FILTER, String.format("(mon.observer.listener.id=%s)",componentID));
 		
 		// register as services
 		bc.registerService(new String[]{
 				ManagedService.class.getName(),
 				MetaTypeProvider.class.getName(),
-				Monitorable.class.getName()
-		}, component, managedServiceProps);		
+				Monitorable.class.getName(),
+				EventHandler.class.getName()
+			}, 
+			component, 
+			managedServiceProps
+		);		
 	}
 
 	public void unregisterComponentServices(String componentID, IMWComponent<?> component, BundleContext bc) {

@@ -36,7 +36,11 @@ import org.paxle.core.queue.ICommandTracker;
 
 public class CommandTempReleaser implements EventHandler {
 	
+	/**
+	 * For logging
+	 */
 	private final Log logger = LogFactory.getLog(CommandTempReleaser.class);
+		
 	private final ICommandTracker tracker;
 	private final ITempFileManager tfm;
 	
@@ -49,34 +53,54 @@ public class CommandTempReleaser implements EventHandler {
 		try {
 			File file;
 			final ICrawlerDocument cdoc = cmd.getCrawlerDocument();
-			if (cdoc != null && (file = cdoc.getContent()) != null) try {
-				tfm.releaseTempFile(file);
-			} catch (FileNotFoundException e) { logger.warn("downloaded crawler-data not available for release"); }
+			if (cdoc != null && (file = cdoc.getContent()) != null) {
+				try {
+					tfm.releaseTempFile(file);
+				} catch (FileNotFoundException e) { 
+					this.logger.warn("downloaded crawler-data not available for release"); 
+				}
+			}
 			
 			final Queue<Map.Entry<String,IParserDocument>> pdocs = new LinkedList<Map.Entry<String,IParserDocument>>();
 			
 			IParserDocument pdoc = cmd.getParserDocument();
 			Map.Entry<String,IParserDocument> entry = null;
-			if (pdoc != null) do {
-				if (entry != null)
-					pdoc = entry.getValue();
-				
-				if ((file = pdoc.getTextFile()) != null) try {
-					tfm.releaseTempFile(file);
-				} catch (FileNotFoundException e) {
-					final String msg = (entry == null) ? "parser-document" : "sub parser-document '" + entry.getKey() + "'";
-					logger.warn(String.format("data of %s of cmd [%06d] not available for release", msg, id));
-				}
-				pdocs.addAll(pdoc.getSubDocs().entrySet());
-			} while ((entry = pdocs.poll()) != null);
+			if (pdoc != null) {
+				do {
+					if (entry != null) {
+						pdoc = entry.getValue();
+					}
+
+					if ((file = pdoc.getTextFile()) != null) {
+						try {
+							tfm.releaseTempFile(file);
+						} catch (FileNotFoundException e) {
+							final String msg = (entry == null) ? "parser-document" : "sub parser-document '" + entry.getKey() + "'";
+							logger.warn(String.format("data of %s of cmd [%06d] not available for release", msg, id));
+						}
+					}
+					
+					pdocs.addAll(pdoc.getSubDocs().entrySet());
+				} while ((entry = pdocs.poll()) != null);
+			}
 			
-		} catch (IOException e) { logger.error("I/O error during release of temporary files", e); }
+		} catch (IOException e) { 
+			this.logger.error("I/O error during release of temporary files", e); 
+		}
 	}
 	
+	/**
+	 * @see EventHandler#handleEvent(Event)
+	 */
 	public void handleEvent(Event event) {
+		// getting the ID of the command that was destroyed
 		final Long id = (Long)event.getProperty(CommandEvent.PROP_COMMAND_ID);
-		final ICommand cmd = tracker.getCommandByID(id);
-		if (cmd != null)
-			releaseCommandFiles(cmd, id);
+		
+		// getting a reference command from the command-tracker
+		final ICommand cmd = this.tracker.getCommandByID(id);
+		if (cmd != null) {
+			// releasing temp file(s)
+			this.releaseCommandFiles(cmd, id);
+		}
 	}
 }

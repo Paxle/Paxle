@@ -32,6 +32,8 @@ import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.ObjectClassDefinition;
@@ -50,13 +52,17 @@ import org.paxle.core.threading.impl.Pool;
 /**
  * @see IMWComponent
  */
-public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, MetaTypeProvider, Monitorable {
-	private static final String VAR_NAME_PPM = "ppm";
+public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, MetaTypeProvider, Monitorable, EventHandler {
+	/* ========================================================================
+	 * MONITORABLE properties
+	 * ======================================================================== */
+	private static final String VAR_NAME_PPM = "ppm";	
 	private static final String VAR_NAME_PAUSED = "status.paused";
 	private static final String VAR_NAME_JOBS_ENQUEUED = "jobs.enqueued";
 	private static final String VAR_NAME_JOBS_ACTIVE = "jobs.active";
 	private static final String VAR_NAME_JOBS_MAX = "jobs.max";
 	private static final String VAR_NAME_JOBS_TOTAL = "jobs.total";
+	private static final String VAR_NAME_JOB_DELAY = "job.delay";
 	
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
@@ -67,7 +73,8 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 			VAR_NAME_JOBS_ENQUEUED,
 			VAR_NAME_JOBS_ACTIVE,
 			VAR_NAME_JOBS_MAX,
-			VAR_NAME_JOBS_TOTAL
+			VAR_NAME_JOBS_TOTAL,
+			VAR_NAME_JOB_DELAY
 	}));
 	
 	/**
@@ -81,18 +88,38 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_ACTIVE, "Amount of active jobs");
 		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_MAX, "Maximum allowed number of active jobs");
 		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_TOTAL, "Total number of jobs processed since startup");
+		VAR_DESCRIPTIONS.put(VAR_NAME_JOB_DELAY, "Delay in ms between buzy loops. -1 means no delay.");
 	}
 	
+	/* ========================================================================
+	 * CM properties
+	 * ======================================================================== */	
 	public static final String PROP_POOL_MIN_IDLE = "pool.minIdle";
 	public static final String PROP_POOL_MAX_IDLE = "pool.maxIdle";
 	public static final String PROP_POOL_MAX_ACTIVE = "pool.maxActive";
 	public static final String PROP_DELAY = "master.delay";
+	public static final String PROP_DELAY_DELTA = "master.delay.delta";
 	public static final String PROP_ACTIVATED = "master.activated";
 	private static final String PROP_STATE_ACTIVE = "state.active";
 	
+	/**
+	 * Master thread
+	 */
 	private final IMaster master;
+	
+	/**
+	 * Worker thread pool
+	 */
 	private final Pool<Data> pool;
+	
+	/**
+	 * Component input-queue
+	 */
 	private final InputQueue<Data> inQueue;
+	
+	/**
+	 * Component output-queue
+	 */
 	private final OutputQueue<Data> outQueue;
 	
 	/**
@@ -218,7 +245,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	public void pause(){
 		try {
 			final Dictionary props = configuration.getProperties();
-			props.put(propFormat(PROP_STATE_ACTIVE), Boolean.FALSE);
+			props.put(getFullPropertyName(PROP_STATE_ACTIVE), Boolean.FALSE);
 			this.configuration.update(props);
 		} catch (IOException e) { 
 			this.logger.error(e);
@@ -233,7 +260,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	public void resume() {
 		try {
 			final Dictionary props = configuration.getProperties();
-			props.put(propFormat(PROP_STATE_ACTIVE), Boolean.TRUE);
+			props.put(getFullPropertyName(PROP_STATE_ACTIVE), Boolean.TRUE);
 			this.configuration.update(props);
 		} catch (IOException e) { 
 			this.logger.error(e);
@@ -300,8 +327,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		return this.inQueue.size();
 	}
 	
-	// https://bugs.pxl.li/view.php?id=219
-	private String propFormat(final String prop) {
+	private String getFullPropertyName(final String prop) {
 		return this.componentID + '.' + prop;
 	}
 	
@@ -312,11 +338,11 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 		
 		defaults.put(Constants.SERVICE_PID, this.componentID);
-		defaults.put(propFormat(PROP_POOL_MIN_IDLE), Integer.valueOf(0));
-		defaults.put(propFormat(PROP_POOL_MAX_IDLE), Integer.valueOf(8));
-		defaults.put(propFormat(PROP_POOL_MAX_ACTIVE), Integer.valueOf(8));
-		defaults.put(propFormat(PROP_DELAY), Integer.valueOf(-1));
-		defaults.put(propFormat(PROP_STATE_ACTIVE), Boolean.TRUE);
+		defaults.put(getFullPropertyName(PROP_POOL_MIN_IDLE), Integer.valueOf(0));
+		defaults.put(getFullPropertyName(PROP_POOL_MAX_IDLE), Integer.valueOf(8));
+		defaults.put(getFullPropertyName(PROP_POOL_MAX_ACTIVE), Integer.valueOf(8));
+		defaults.put(getFullPropertyName(PROP_DELAY), Integer.valueOf(-1));
+		defaults.put(getFullPropertyName(PROP_STATE_ACTIVE), Boolean.TRUE);
 		
 		return defaults;
 	}
@@ -330,50 +356,65 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 			configuration = this.getDefaults();
 		}
 		
-		Integer minIdle = (Integer)configuration.get(propFormat(PROP_POOL_MIN_IDLE));
+		/* 
+		 * Thread pool configuration
+		 */
+		Integer minIdle = (Integer)configuration.get(getFullPropertyName(PROP_POOL_MIN_IDLE));
 		this.pool.setMinIdle((minIdle == null) ? 0 : minIdle.intValue());
 		
-		Integer maxIdle = (Integer)configuration.get(propFormat(PROP_POOL_MAX_IDLE));
+		Integer maxIdle = (Integer)configuration.get(getFullPropertyName(PROP_POOL_MAX_IDLE));
 		this.pool.setMaxIdle((maxIdle == null) ? 8 : maxIdle.intValue());
 		
-		Integer maxActive = (Integer)configuration.get(propFormat(PROP_POOL_MAX_ACTIVE));
+		Integer maxActive = (Integer)configuration.get(getFullPropertyName(PROP_POOL_MAX_ACTIVE));
 		this.pool.setMaxActive((maxActive == null) ? 8 : maxActive.intValue());
 		
-		Integer delay = (Integer)configuration.get(propFormat(PROP_DELAY));
+		/*
+		 * Delay between job execution
+		 */
+		Integer delay = (Integer)configuration.get(getFullPropertyName(PROP_DELAY));
 		this.master.setDelay((delay == null) ? -1 : delay.intValue());
 		
-		final Boolean active = (Boolean)configuration.get(propFormat(PROP_STATE_ACTIVE));
+		/*
+		 * Component actiontion status
+		 */
+		final Boolean active = (Boolean)configuration.get(getFullPropertyName(PROP_STATE_ACTIVE));
 		if (active != null) {
 			this.setActiveState(active);
 		}
 	}
 	
+	/**
+	 * @see MetaTypeProvider#getLocales()
+	 */
 	public String[] getLocales() {
 		return locales;
 	}
 	
+	/**
+	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
+	 */
 	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
 		final ArrayList<AttributeDefinition> ads = new ArrayList<AttributeDefinition>();
 		final Locale locale = (localeStr == null) ? Locale.ENGLISH : new Locale(localeStr);
 		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + MWComponent.class.getSimpleName(), locale);
 		
 		ads.add(new AD(
-				propFormat(PROP_POOL_MIN_IDLE),
+				getFullPropertyName(PROP_POOL_MIN_IDLE),
 				rb.getString("threads.idle.min.name"),
 				rb.getString("threads.idle.min.desc"),
 				new String[] { Integer.toString(0) }));
 		ads.add(new AD(
-				propFormat(PROP_POOL_MAX_IDLE),
+				getFullPropertyName(PROP_POOL_MAX_IDLE),
 				rb.getString("threads.idle.max.name"),
 				rb.getString("threads.idle.max.desc"),
 				new String[] { Integer.toString(8) }));
 		ads.add(new AD(
-				propFormat(PROP_POOL_MAX_ACTIVE),
+				getFullPropertyName(PROP_POOL_MAX_ACTIVE),
 				rb.getString("threads.active.max.name"),
 				rb.getString("threads.active.max.desc"),
 				new String[] { Integer.toString(8) }));
 		ads.add(new AD(
-				propFormat(PROP_DELAY),
+				getFullPropertyName(PROP_DELAY),
 				rb.getString("threads.active.delay.name"),
 				rb.getString("threads.active.delay.desc"),
 				new String[] { Integer.toString(-1) }));
@@ -381,7 +422,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 			public int getCardinality() { return 0; }
 			public String[] getDefaultValue() { return new String[] { Boolean.TRUE.toString() }; }
 			public String getDescription() { return rb.getString("state.active.desc"); }
-			public String getID() { return propFormat(PROP_STATE_ACTIVE); }
+			public String getID() { return getFullPropertyName(PROP_STATE_ACTIVE); }
 			public String getName() { return rb.getString("state.active.name"); }
 			public String[] getOptionLabels() { return new String[] { rb.getString("state.active.running"), rb.getString("state.active.paused") }; }
 			public String[] getOptionValues() { return new String[] { Boolean.TRUE.toString(), Boolean.FALSE.toString() }; }
@@ -482,6 +523,8 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getPool().getMaxActiveJobCount()));						
 		} else if (name.equals(VAR_NAME_JOBS_TOTAL)) {
 			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getMaster().processedCount()));
+		} else if (name.equals(VAR_NAME_JOB_DELAY)) {
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getMaster().getDelay()));
 		}
 		return null;
 	}
@@ -498,6 +541,27 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	 */
 	public boolean resetStatusVariable(String name) throws IllegalArgumentException {
 		return false;
+	}
+
+	/**
+	 * @see EventHandler#handleEvent(Event)
+	 */
+	public void handleEvent(Event event) {
+		final String topic = event.getTopic();
+		if (topic.equals("org/paxle/monitorable/observer")) {
+			final Boolean active = (Boolean)event.getProperty(this.getFullPropertyName(PROP_STATE_ACTIVE));
+			if (active != null) {
+				this.setActiveState(active);
+			}
+			
+			Integer deltaDelay = (Integer) event.getProperty(this.getFullPropertyName(PROP_DELAY_DELTA));
+			if (deltaDelay != null) {
+				int delay = this.getMaster().getDelay();
+				if (delay < 0) delay = 0;
+				delay += deltaDelay;
+				this.master.setDelay(delay);
+			}
+		}
 	}
 	
 }

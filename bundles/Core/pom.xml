@@ -5,7 +5,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.8-SNAPSHOT</version>
+	<version>0.1.9-SNAPSHOT</version>
 	<name>Paxle - Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -77,7 +77,6 @@
 						</DynamicImport-Package>
 						<Private-Package>
 							org.paxle.core.impl,
-							org.paxle.core.impl.monitoring,
 							org.paxle.core.data.impl,
 							org.paxle.core.filter.impl,
 							org.paxle.core.io.impl,
@@ -85,7 +84,9 @@
 							org.paxle.core.norm.impl,
 							org.paxle.core.prefs.impl,
 							org.paxle.core.queue.impl,
-							org.paxle.core.threading.impl
+							org.paxle.core.threading.impl,
+							org.paxle.core.monitorable.provider.impl,
+							org.paxle.core.monitorable.observer.impl,
 						</Private-Package>
 						<Bundle-Activator>
 							org.paxle.core.impl.Activator

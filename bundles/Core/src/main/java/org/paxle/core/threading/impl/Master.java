@@ -217,6 +217,10 @@ public class Master<Data> extends Thread implements IMaster {
 		this.delay = delay;
 	}
 
+	public int getDelay() {
+		return this.delay;
+	}
+	
 	/**
 	 * @see IMaster#processedCount()
 	 */

@@ -37,6 +37,11 @@ public interface IMaster {
 	public void setDelay(int delay);
 	
 	/**
+	 * @return the delay in ms between jobs
+	 */
+	public int getDelay();
+	
+	/**
 	 * @return the PPM of this component since startup
 	 */
 	public int getPPM();

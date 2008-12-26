@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Properties;
@@ -30,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -39,6 +41,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.MetaTypeProvider;
+import org.osgi.service.monitor.MonitorAdmin;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.prefs.PreferencesService;
 import org.paxle.core.ICryptManager;
@@ -54,16 +57,17 @@ import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.impl.AscendingPathUrlExtractionFilter;
 import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
-import org.paxle.core.impl.monitoring.JmxMonitoring;
-import org.paxle.core.impl.monitoring.NetworkMonitoring;
-import org.paxle.core.impl.monitoring.OsgiFrameworkMonitoring;
-import org.paxle.core.impl.monitoring.RuntimeMemoryMonitoring;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.io.impl.ResourceBundleTool;
 import org.paxle.core.io.impl.ResourceBundleToolFactory;
 import org.paxle.core.io.temp.impl.CommandTempReleaser;
 import org.paxle.core.io.temp.impl.TempFileManager;
+import org.paxle.core.monitorable.observer.impl.MonitorableObserver;
+import org.paxle.core.monitorable.provider.impl.JmxMonitoring;
+import org.paxle.core.monitorable.provider.impl.NetworkMonitoring;
+import org.paxle.core.monitorable.provider.impl.OsgiFrameworkMonitoring;
+import org.paxle.core.monitorable.provider.impl.RuntimeMemoryMonitoring;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.norm.impl.ReferenceNormalizer;
 import org.paxle.core.norm.impl.URLStreamHandlerListener;
@@ -194,6 +198,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		 * ========================================================== */
 		// register runtime-memory monitorable
 		this.createAndRegisterMonitorables(bc);
+		this.createAndRegisterMonitorableObservers(bc);
 		
 		Hashtable<String, String> tempFileManagerProps = new Hashtable<String, String>();
 		tempFileManagerProps.put(Constants.SERVICE_PID, TempFileManager.MONITOR_PID);
@@ -271,6 +276,29 @@ public class Activator implements BundleActivator, InvocationHandler {
 		} catch (Throwable e) {
 			this.logger.error(e);
 		}
+	}
+	
+	private void createAndRegisterMonitorableObservers(BundleContext bc) throws InvalidSyntaxException {
+		/*
+		 * CPU usage observer
+		 */
+		/*
+        Hashtable<String, Object> observerProps = new Hashtable<String, Object>();
+        observerProps.put("mon.observer.listener.id","org.paxle.crawler");
+        observerProps.put("org.paxle.crawler.master.delay.delta", new Integer(100));
+        
+        new MonitorableObserver(bc, "(&(org.paxle.crawler/status.paused=false)(os.usage.cpu/cpu.usage.total >= 0.8))", observerProps);
+        */
+        
+		/*
+		 * Out of Memory observer
+		 * XXX: should be configurable via CM
+		 */
+        Hashtable<String, Object> oomObserverProps = new Hashtable<String, Object>();
+        oomObserverProps.put("mon.observer.listener.id","org.paxle.crawler");
+        oomObserverProps.put("org.paxle.crawler.state.active", Boolean.FALSE);
+        
+        new MonitorableObserver(bc, "(&(org.paxle.crawler/status.paused=false)(|(java.lang.runtime/memory.free <= 10485760)(os.disk/disk.space.free<=1024)))", oomObserverProps);
 	}
 	
 	private IPropertiesStore createAndRegisterPropertyStore(BundleContext bc) {
