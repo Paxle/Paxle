@@ -13,33 +13,33 @@
  */
 package org.paxle.core.monitorable.observer.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.monitor.MonitorAdmin;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.MonitoringJob;
 import org.osgi.service.monitor.StatusVariable;
+import org.paxle.core.monitorable.observer.IObserverCondition;
+import org.paxle.core.monitorable.observer.IObserverRule;
 
 public class MonitorableObserver implements EventHandler, ServiceListener {
 	/**
@@ -47,7 +47,7 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 	 * of a {@link StatusVariable}, the value is the last received value
 	 * of this variable.
 	 */
-	private Dictionary<String, Object> currentState = new Hashtable<String, Object>();
+	private Hashtable<String, Object> currentState = new Hashtable<String, Object>();
 	
 	/**
 	 * A map containing the fullpath of a {@link StatusVariable} as key and the it's 
@@ -65,9 +65,9 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 	private Map<String,Set<String>> variableTree;
 	
 	/**
-	 * An ldap styled filter.
+	 * The Observer rules to use
 	 */
-	private Filter filter;
+	private ArrayList<IObserverRule> rules;
 	
 	/**
 	 * Currently active monitoring job
@@ -80,11 +80,6 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 	private BundleContext bc;
 	
 	/**
-	 * OSGi Event-admin service
-	 */
-	private EventAdmin eventAdmin;
-	
-	/**
 	 * OSGi Monitorable-admin service
 	 */
 	private MonitorAdmin monitorAdmin;
@@ -92,44 +87,34 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 	/**
 	 * For logging
 	 */
-	private Log logger = LogFactory.getLog(this.getClass());
+	protected Log logger = LogFactory.getLog(this.getClass());
 	
-	private Hashtable<String, Object> eventProperties;
-	
-	public MonitorableObserver(BundleContext bc, String filterString, Hashtable<String, Object> eventProperties) throws InvalidSyntaxException {
-		ServiceReference evnetAdminRef = bc.getServiceReference(EventAdmin.class.getName());
-		EventAdmin ea = (EventAdmin) bc.getService(evnetAdminRef);		
-		
+	public MonitorableObserver(BundleContext bc, IObserverRule... observerRules) throws InvalidSyntaxException {
 		ServiceReference monitorAdminRef = bc.getServiceReference(MonitorAdmin.class.getName());
 		MonitorAdmin ma = (MonitorAdmin) bc.getService(monitorAdminRef);
 		
-		this.init(bc, ea, ma, filterString, eventProperties);
+		this.init(bc, ma, observerRules);
 	}
 	
-	public MonitorableObserver(BundleContext bc, EventAdmin eventAdmin, MonitorAdmin monitorAdmin, String filterString, Hashtable<String, Object> eventProperties) throws InvalidSyntaxException {
-		this.init(bc, eventAdmin, monitorAdmin, filterString, eventProperties);
+	MonitorableObserver(BundleContext bc, MonitorAdmin monitorAdmin, IObserverRule... observerRules) throws InvalidSyntaxException {
+		this.init(bc, monitorAdmin, observerRules);
 	}
 	
 	/**
 	 * @param filter an ldap filter expression that must be matched by monitorable variables
 	 * @throws InvalidSyntaxException 
 	 */
-	private void init(BundleContext bc, EventAdmin eventAdmin, MonitorAdmin monitorAdmin, String filterString, Hashtable<String, Object> eventProperties) throws InvalidSyntaxException {
+	private void init(BundleContext bc, MonitorAdmin monitorAdmin, IObserverRule... observerRules) throws InvalidSyntaxException {
 		if (bc == null) throw new NullPointerException("The bundle-context is null");
-		if (eventAdmin == null) throw new NullPointerException("The event-admin service is null");
 		if (monitorAdmin == null) throw new NullPointerException("The monitor-admin service is null");
-		if (filterString == null) throw new NullPointerException("The filter expression is null");
+		if (observerRules == null) throw new NullPointerException("The filter expression is null");
 		
 		this.bc = bc;
-		this.eventAdmin = eventAdmin;
 		this.monitorAdmin = monitorAdmin;
-		this.eventProperties = eventProperties;
-				
-		// creating the filter
-		this.filter = bc.createFilter(filterString);
+		this.rules = new ArrayList<IObserverRule>(Arrays.asList(observerRules));				
 		
-		// extracting monitorable variables
-		this.variableTree = extractMonitorables(filterString);
+		// extracting monitorable variables		
+		this.variableTree = extractMonitorables(observerRules);
 		
 		// registering this observer as event-handler: required to receive monitoring-events
 		Dictionary<String,Object> properties = new Hashtable<String,Object>();
@@ -152,27 +137,27 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 		this.bc.addServiceListener(this, String.format("(%s=%s)",Constants.OBJECTCLASS, Monitorable.class.getName()));	
 	}
 	
-	static Map<String,Set<String>> extractMonitorables(String filterString) {
+	static Map<String,Set<String>> extractMonitorables(IObserverRule... observerRules) {
 		final Map<String,Set<String>> variables = new HashMap<String,Set<String>>();
 		
-		Pattern pattern = Pattern.compile("\\((\\s*[^=><~()]*)\\s*(=|<|<=|>|>=|~=)\\s*([^=><~()]*)\\s*\\)");
-		Matcher matcher = pattern.matcher(filterString);
-
-		while (matcher.find()) {
-			String fullPath = matcher.group(1).trim();
-			int idx = fullPath.indexOf('/');
-			String monitorableId = fullPath.substring(0, idx);
-			String variableId = fullPath.substring(idx+1);
-			
-			Set<String> variableIds;
-			if (variables.containsKey(monitorableId)) {
-				variableIds = variables.get(monitorableId);
-			} else {
-				variableIds = new HashSet<String>();
-				variables.put(monitorableId, variableIds);
-			}				
-			variableIds.add(variableId);
-		}	
+		for (IObserverRule rule : observerRules) {
+			IObserverCondition condition = rule.getCondition();
+			List<String> variableIDs = condition.getMonitorableVariableIDs();
+			for (String variableID : variableIDs) {
+				int idx = variableID.indexOf('/');
+				String monitorableId = variableID.substring(0, idx);
+				String variableId = variableID.substring(idx+1);
+				
+				Set<String> variableIds;
+				if (variables.containsKey(monitorableId)) {
+					variableIds = variables.get(monitorableId);
+				} else {
+					variableIds = new HashSet<String>();
+					variables.put(monitorableId, variableIds);
+				}				
+				variableIds.add(variableId);
+			}
+		}
 		
 		return variables;
 	}
@@ -182,30 +167,40 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 	 * @see EventHandler#handleEvent(Event)
 	 */
 	public void handleEvent(Event event) {
-		// getting the variable full-name
-		String pid = (String) event.getProperty("mon.monitorable.pid");
-		String name = (String) event.getProperty("mon.statusvariable.name");
-		final String fullPath = pid + "/" + name;
-		
-		// getting the variable value as string
-		String valueStr = (String) event.getProperty("mon.statusvariable.value");
-		
-		// updating ovserver state
-		this.updateState(fullPath, valueStr);
-		
-		// testing if filter matches current state
-		if(this.filter.match(this.currentState)) {
-			this.logger.debug("filter matches");
-			
-			Dictionary<String, Object> props = (Dictionary<String, Object>) this.eventProperties.clone();
-			props.put("mon.observer.filter", this.filter.toString());
-			Event outEvent = new Event("org/paxle/monitorable/observer",props);	
-			this.eventAdmin.postEvent(outEvent);
-		} else {
-			this.logger.debug("filter does not match state");
+		try {
+			// getting the variable full-name
+			String pid = (String) event.getProperty("mon.monitorable.pid");
+			String name = (String) event.getProperty("mon.statusvariable.name");
+			final String fullPath = pid + "/" + name;
+
+			// getting the variable value as string
+			String valueStr = (String) event.getProperty("mon.statusvariable.value");
+
+			// updating ovserver state
+			this.updateState(fullPath, valueStr);
+
+			// testing if one filter matches current state
+			for (IObserverRule rule : this.rules) {
+				if (rule.match(this.currentState)) {
+					this.logger.info("Matching rule found: " + rule.toString());
+					rule.triggerAction(this.currentState);				
+				}
+			}
+		} catch (Throwable e) {
+			this.logger.error(String.format(
+					"Unexpected '%s' while processing event '%s'.",
+					e.getClass().getName(),
+					event
+			));
 		}
 	}
 	
+	/**
+	 * Converts the given {@link StatusVariable} value into a proper type and
+	 * updates the internal {@link #currentState state-map}
+	 * @param fullPath the full path of the {@link StatusVariable}
+	 * @param valueStr the current value of the {@link StatusVariable} as string
+	 */
 	private void updateState(String fullPath, String valueStr) {
 		Object value = null;
 		Integer type = this.typeList.get(fullPath);
@@ -249,6 +244,10 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 		this.serviceChanged(reference, event.getType());
 	}		
 	
+	/**
+	 * @param reference
+	 * @param eventType
+	 */
 	private void serviceChanged(ServiceReference reference, int eventType) {
 		if (reference == null) return;
 		if (eventType == ServiceEvent.MODIFIED) return;

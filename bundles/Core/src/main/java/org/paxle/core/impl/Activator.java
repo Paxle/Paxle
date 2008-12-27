@@ -20,7 +20,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Properties;
@@ -31,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
@@ -41,7 +41,6 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.MetaTypeProvider;
-import org.osgi.service.monitor.MonitorAdmin;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.prefs.PreferencesService;
 import org.paxle.core.ICryptManager;
@@ -64,6 +63,10 @@ import org.paxle.core.io.impl.ResourceBundleToolFactory;
 import org.paxle.core.io.temp.impl.CommandTempReleaser;
 import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.core.monitorable.observer.impl.MonitorableObserver;
+import org.paxle.core.monitorable.observer.impl.ObserverEventSenderConcequence;
+import org.paxle.core.monitorable.observer.impl.ObserverFilterCondition;
+import org.paxle.core.monitorable.observer.impl.ObserverMethodExecutorConcequence;
+import org.paxle.core.monitorable.observer.impl.ObserverRule;
 import org.paxle.core.monitorable.provider.impl.JmxMonitoring;
 import org.paxle.core.monitorable.provider.impl.NetworkMonitoring;
 import org.paxle.core.monitorable.provider.impl.OsgiFrameworkMonitoring;
@@ -278,7 +281,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		}
 	}
 	
-	private void createAndRegisterMonitorableObservers(BundleContext bc) throws InvalidSyntaxException {
+	private void createAndRegisterMonitorableObservers(BundleContext bc) throws InvalidSyntaxException, SecurityException, NoSuchMethodException {
 		/*
 		 * CPU usage observer
 		 */
@@ -287,18 +290,34 @@ public class Activator implements BundleActivator, InvocationHandler {
         observerProps.put("mon.observer.listener.id","org.paxle.crawler");
         observerProps.put("org.paxle.crawler.master.delay.delta", new Integer(100));
         
-        new MonitorableObserver(bc, "(&(org.paxle.crawler/status.paused=false)(os.usage.cpu/cpu.usage.total >= 0.8))", observerProps);
+        new MonitorableObserverEventSender(bc, "(&(org.paxle.crawler/status.paused=false)(os.usage.cpu/cpu.usage.total >= 0.8))", observerProps);
         */
-        
+		
 		/*
-		 * Out of Memory observer
+		 * Memory observer
 		 * XXX: should be configurable via CM
 		 */
-        Hashtable<String, Object> oomObserverProps = new Hashtable<String, Object>();
-        oomObserverProps.put("mon.observer.listener.id","org.paxle.crawler");
-        oomObserverProps.put("org.paxle.crawler.state.active", Boolean.FALSE);
+        Filter gcFilter = bc.createFilter("(java.lang.runtime/memory.free <= 20971520)");
+        Filter oomFilter = bc.createFilter("(&(org.paxle.crawler/status.paused=false)(|(java.lang.runtime/memory.free <= 10485760)(os.disk/disk.space.free<=1024)))");
         
-        new MonitorableObserver(bc, "(&(org.paxle.crawler/status.paused=false)(|(java.lang.runtime/memory.free <= 10485760)(os.disk/disk.space.free<=1024)))", oomObserverProps);
+        new MonitorableObserver(
+        		bc, 
+        		new ObserverRule(
+        				// Filter based condition
+        				new ObserverFilterCondition(gcFilter),
+        				// triggers an event
+        				new ObserverMethodExecutorConcequence(System.class.getMethod("gc", (Class[])null), null, null)
+        		),
+        		new ObserverRule(
+        				// Filter based condition
+        				new ObserverFilterCondition(oomFilter),
+        				// triggers an event
+        				new ObserverEventSenderConcequence(bc, new Hashtable<String, Object>(){{
+        			        put("mon.observer.listener.id","org.paxle.crawler");
+        			        put("org.paxle.crawler.state.active", Boolean.FALSE);
+        				}})
+        		)
+        );      
 	}
 	
 	private IPropertiesStore createAndRegisterPropertyStore(BundleContext bc) {

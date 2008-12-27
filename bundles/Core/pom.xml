@@ -50,6 +50,7 @@
 							org.paxle.core.io;version="${pom.version}",
 							org.paxle.core.prefs;version="${pom.version}",
 							org.paxle.core.metadata;version="${pom.version}",
+							org.paxle.core.monitorable.observer;version="${pom.version}",
 							org.paxle.util.ac;version="${pom.version}",
 							org.paxle.util.buffer;version="${pom.version}",
 							org.paxle.util;version="${pom.version}"
