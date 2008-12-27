@@ -101,6 +101,26 @@ public class CrawlerTools {
 		}
 	}
 	
+	/**
+	 * This function tests if the given charset is supported by the java runtime. 
+	 * 
+	 * @param contentCharset the charset to test
+	 * @return <code>true</code> if the charset is not supported
+	 */
+	static boolean isUnsupportedCharset(String contentCharset) {		
+		boolean unsupportedCharset = false;		
+
+		try {
+			if (contentCharset != null && !Charset.isSupported(contentCharset)) {
+				unsupportedCharset = true;
+			}
+		} catch (IllegalCharsetNameException e) {
+			unsupportedCharset = true;
+		}
+		
+		return unsupportedCharset;
+	}
+	
 	public static long saveInto(ICrawlerDocument doc, InputStream is) throws IOException {
 		return saveInto(doc, is, null);
 	}
@@ -140,22 +160,11 @@ public class CrawlerTools {
 		
 		
 		// testing if the charset is supported by java
-		String contentCharset = doc.getCharset();
-		
-		boolean unsupportedCharset = false;		
-		try {
-			if (contentCharset != null && !Charset.isSupported(contentCharset)) {
-				unsupportedCharset = true;
-			}
-		} catch (IllegalCharsetNameException e) {
-			unsupportedCharset = true;
-		}
-		
-		if (unsupportedCharset) {
+		if (isUnsupportedCharset(doc.getCharset())) {
 			logger.warn(String.format(
 					"The resource '%s' has an unsupported charset '%s'. Resetting charset ...", 
 					doc.getLocation(),
-					contentCharset
+					doc.getCharset()
 			));
 			doc.setCharset(null);
 		}
@@ -201,11 +210,23 @@ public class CrawlerTools {
 			 * ================================================================ */
 			if (chardetos != null) {
 				final String charset = chardetos.getCharset();
-				if (charset != null) {
+				if (charset == null || charset.length() == 0) {
+					logger.debug(String.format(
+							"The CharsetDetector was unable to determine the charset for resource '%s'.",
+							doc.getLocation()
+					));
+				} else if (isUnsupportedCharset(charset)) {
+					logger.warn(String.format(
+							"The CharsetDetector detected an unsupported charset '%s' for resource '%s'.",
+							charset,
+							doc.getLocation()
+					));
+				} else {
 					doc.setCharset(charset);
-					logger.debug(String.format("Charset of resource '%s' was detected as '%s'.",
-							doc.getLocation(),
-							contentCharset
+					logger.debug(String.format(
+							"The CharsetDetector detected charset '%s' for resource '%s'.",
+							charset,
+							doc.getLocation()
 					));
 				}
 			}

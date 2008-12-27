@@ -82,4 +82,8 @@ public class CrawlerToolsTest extends TestCase {
 		assertTrue(String.format("All %d threads took %d ms but should have taken %d ms.", threadNum, end - start, expectedTime),
 				expectedTime <= end - start);
 	}
+	
+	public void testIsUnsupportedCharset() {
+		assertFalse(CrawlerTools.isUnsupportedCharset("UTF-8"));
+	}
 }
