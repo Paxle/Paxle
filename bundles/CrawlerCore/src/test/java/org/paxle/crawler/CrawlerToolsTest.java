@@ -14,30 +14,18 @@
 
 package org.paxle.crawler;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-import org.paxle.crawler.CrawlerTools.LimitedRateCopier;
-
 import junit.framework.TestCase;
 
+import org.apache.commons.io.input.NullInputStream;
+import org.apache.commons.io.output.NullOutputStream;
+import org.paxle.crawler.CrawlerTools.LimitedRateCopier;
+
 public class CrawlerToolsTest extends TestCase {
-	
-	private static class ZeroInputStream extends InputStream {
-		@Override
-		public int read() throws IOException {
-			return 0;
-		}
-	}
-	
-	private static class NullOutputStream extends OutputStream {
-		@Override
-		public void write(int b) throws IOException {
-		}
-	}
-	
+
 	public void testThreadedCopy() throws Exception {
 		// FIXME if size is in the order of magnitude of limitKBps, this test works, but ...
 		final int size = 1024 * 4;		// ... try to increase this value ...
@@ -52,7 +40,7 @@ public class CrawlerToolsTest extends TestCase {
 		final Object sync = new Object();
 		for (int i=0; i<threadNum; i++) {
 			final int num = i;
-			final InputStream zis = new ZeroInputStream();
+			final InputStream zis = new NullInputStream(size);
 			final OutputStream nos = new NullOutputStream();
 			threads.add(new Thread() {
 				{ this.setName("Test-thread " + num); }
