@@ -16,8 +16,11 @@ package org.paxle.core.monitorable.provider.impl;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -29,6 +32,9 @@ import org.osgi.service.monitor.StatusVariable;
 public class JmxMonitoring implements Monitorable {
 	public static final String SERVICE_PID = "java.lang.management";
 	
+	/* =========================================================================
+	 * OPERATING SYSTEM props
+	 * ========================================================================= */
 	private static final String VAR_NAME_SYS_LOAD = "os.systemLoadAvg";
 	private static final String VAR_NAME_CPU_TIME = "os.process.cpu";
 	private static final String VAR_NAME_OPEN_FILE_DESCR_COUNT = "os.fileDescr.open";
@@ -37,7 +43,23 @@ public class JmxMonitoring implements Monitorable {
 	private static final String VAR_NAME_PHYSICAL_MEMORY = "os.memory.physical";
 	private static final String VAR_NAME_SWAP_SPACE = "os.memory.swap";
 
+	/* =========================================================================
+	 * JAVA RUNTIME props
+	 * ========================================================================= */	
+	private static final String VAR_NAME_UPTIME = "runtime.uptime";
+	private static final String VAR_NAME_STARTTIME = "runtime.starttime";
+	
+	/**
+	 * A mapping between the full-qualified {@link StatusVariable} name and the method of
+	 * the jmx bean that needs to be executed to get the status-value.
+	 */
     private static final HashMap<String, Method> METHOD_MAP = new HashMap<String, Method>();
+    
+	/**
+	 * A mapping between the full-qualified {@link StatusVariable} name and the bean that
+	 * needs to be accessed to get the status-value.
+	 */
+    private static final HashMap<String, Object> BEAN_MAP = new HashMap<String, Object>();
     
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
@@ -58,9 +80,13 @@ public class JmxMonitoring implements Monitorable {
 		VAR_DESCRIPTIONS.put(VAR_NAME_VIRTUAL_MEMORY, "The amount of virtual memory that is guaranteed to be available to the running process in MB, or -1 if this operation is not supported.");
 		VAR_DESCRIPTIONS.put(VAR_NAME_PHYSICAL_MEMORY, "The amount of free physical memory in MB.");
 		VAR_DESCRIPTIONS.put(VAR_NAME_SWAP_SPACE, "The amount of free swap space in MB.");
+		
+		VAR_DESCRIPTIONS.put(VAR_NAME_UPTIME, "The uptime of the Java virtual machine in milliseconds.");
+		VAR_DESCRIPTIONS.put(VAR_NAME_STARTTIME, "The start time of the Java virtual machine.");
 	}	
 	
-	private OperatingSystemMXBean os;
+	private OperatingSystemMXBean operatingSystem;
+	private RuntimeMXBean runtime;
 	
 	/**
 	 * For logging
@@ -68,26 +94,30 @@ public class JmxMonitoring implements Monitorable {
 	private Log logger = LogFactory.getLog(this.getClass());	
 	
 	public JmxMonitoring() {
-		this.os = ManagementFactory.getOperatingSystemMXBean();
+		this.operatingSystem = ManagementFactory.getOperatingSystemMXBean();
+		this.runtime = ManagementFactory.getRuntimeMXBean();
 		
 		// testing which operations are available
-		this.testMethod(VAR_NAME_SYS_LOAD, "systemLoadAverage");
-		this.testMethod(VAR_NAME_OPEN_FILE_DESCR_COUNT, "openFileDescriptorCount");
-		this.testMethod(VAR_NAME_MAX_FILE_DESCR_COUNT, "maxFileDescriptorCount");
-		this.testMethod(VAR_NAME_VIRTUAL_MEMORY, "committedVirtualMemorySize");		
-		this.testMethod(VAR_NAME_PHYSICAL_MEMORY, "totalPhysicalMemorySize");
-		this.testMethod(VAR_NAME_SWAP_SPACE, "totalSwapSpaceSize");
-		this.testMethod(VAR_NAME_CPU_TIME, "processCpuTime");
+		this.testMethod(VAR_NAME_SYS_LOAD, this.operatingSystem, "systemLoadAverage");
+		this.testMethod(VAR_NAME_OPEN_FILE_DESCR_COUNT, this.operatingSystem, "openFileDescriptorCount");
+		this.testMethod(VAR_NAME_MAX_FILE_DESCR_COUNT, this.operatingSystem, "maxFileDescriptorCount");
+		this.testMethod(VAR_NAME_VIRTUAL_MEMORY, this.operatingSystem, "committedVirtualMemorySize");		
+		this.testMethod(VAR_NAME_PHYSICAL_MEMORY, this.operatingSystem, "totalPhysicalMemorySize");
+		this.testMethod(VAR_NAME_SWAP_SPACE, this.operatingSystem, "totalSwapSpaceSize");
+		this.testMethod(VAR_NAME_CPU_TIME, this.operatingSystem, "processCpuTime");
+		this.testMethod(VAR_NAME_UPTIME, this.runtime, "uptime");
+		this.testMethod(VAR_NAME_STARTTIME, this.runtime, "startTime");
 	}
 	
-	private void testMethod(String varName, String property) {
+	private void testMethod(String varName, Object bean, String property) {
 		try {
 			String methodName = "get" + Character.toUpperCase(property.charAt(0)) + property.substring(1);
-			Class clazz = this.os.getClass();
+			Class clazz = bean.getClass();
 			Method method = clazz.getMethod(methodName);
 			method.setAccessible(true);
-			Object test = method.invoke(this.os, (Object[])null);
+			Object test = method.invoke(bean, (Object[])null);
 			if(test != null) {
+				BEAN_MAP.put(varName, bean);
 				METHOD_MAP.put(varName, method);
 				VAR_NAMES.add(varName);
 			}
@@ -115,11 +145,18 @@ public class JmxMonitoring implements Monitorable {
 		
 		StatusVariable var = null;
 		try {
+			Object bean = BEAN_MAP.get(name);
 			Method method = METHOD_MAP.get(name);
-			Object value = method.invoke(this.os, (Object[])null);
+			
+			Object value = method.invoke(bean, (Object[])null);
 			
 			if (name.equals(VAR_NAME_SYS_LOAD)) {
 				var = new StatusVariable(name,StatusVariable.CM_GAUGE,((Double)value).floatValue());
+			} else if (name.equals(VAR_NAME_STARTTIME)) {
+		        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+				var = new StatusVariable(name,StatusVariable.CM_SI, sdf.format(new Date((Long)value)));
+			} else if (name.equals(VAR_NAME_UPTIME)) {
+				var = new StatusVariable(name,StatusVariable.CM_CC,((Long)value).intValue());
 			} else if (name.startsWith("os.memory")){
 				long val = ((Long)value).longValue() ;
 				if (val > 0) val = val / (1024*1024);
