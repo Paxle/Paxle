@@ -15,71 +15,25 @@
 ## getting resourcebundle to translate site
 #set($text = $resourceTool.bundle('OSGI-INF/l10n/monitorableview'))
 
-## possible datatype list
-#set($dataTypes = ['Integer','Float','String','Boolean'])
-
-#macro(statusVarValue $statusVar)
-	#set($statusVarType = $statusVar.getType())
-	#if ($statusVarType == 0) $statusVar.getInteger()
-	#elseif ($statusVarType == 1) $statusVar.getFloat()
-	#elseif ($statusVarType == 2) $statusVar.getString()
-	#elseif ($statusVarType == 3) $statusVar.getBoolean()
-	#end
-	
-#end
-
 <h2>${text.monitorableView.title}</h2>
+
+#set($activeTab = $paramParser.getString("type","vars"))
+<ul class="tabs">
+	<li><a href="?type=vars" #if($activeTab=="vars")class="active"#end>${text.tab.vars}</a></li>
+	<li><a href="?type=jobs" #if($activeTab=="jobs")class="active"#end>${text.tab.jobs}</a></li>
+</ul>
 
 ## the monitor admin service
 #set($monitorAdmin = $manager.getService('org.osgi.service.monitor.MonitorAdmin'))
 #if($monitorAdmin)
-
-	#if($paramParser.getStrings("monitorableId"))
-		#set($monitorables = $paramParser.getStrings("monitorableId"))
-	#else
-		#set($monitorables = $monitorAdmin.getMonitorableNames())
-	#end
-	
-	#if($listTool.size($monitorables) > 1)	
-		<div class="summary">#foreach($monitorable in $sortTool.sort($monitorables))
-			<div style="white-space:nowrap;">|&nbsp;<a href="#$monitorable">$monitorable</a>&nbsp;</div>
-		#end&nbsp;|
-		</div>
-	#end
-	#if($monitorables)		
-		<table>
-		<tr>
-			<th>${text.tab.varName}</th>
-			<th>${text.tab.varType}</th>
-			<th>${text.tab.varDate}</th>
-			<th>${text.tab.varValue}</th>
-			<th>${text.tab.varDesc}</th>
-		</tr>
-		#foreach($monitorable in $sortTool.sort($monitorables))
-			#set($statusVariables = $monitorAdmin.getStatusVariables($monitorable))
-			#if($statusVariables)				
-				<tr>
-					<th class="sub" colspan="5"><a name="$monitorable" href="?monitorableId=$monitorable">$monitorable</a></th>
-				</tr>			
-				#foreach($statusVariable in $sortTool.sort($statusVariables,["ID:asc"]))
-				<tr>
-					<td><tt><b>$statusVariable.getID()</b></tt></td>
-					<td><tt>$listTool.get($dataTypes,$statusVariable.getType())</tt></td>
-					<td><tt>$dateTool.format('medium',$statusVariable.getTimeStamp())</tt></td>
-					<td><tt>#statusVarValue($statusVariable)</tt></td>
-					<td><div class="descriptionText">$monitorAdmin.getDescription("$monitorable/$statusVariable.getID()")</div></td>
-				</tr>
-				#end
-			#end			
+	<fieldset id="d$activeTab">
+		<legend style="display: none;">$text.get("tab.$activeTab")</legend>
+		#if($activeTab=="vars")		
+			#parse('/resources/templates/MonitorableViewVariables.vm')
+		#elseif($activeTab=="jobs")
+			#parse('/resources/templates/MonitorableViewJobs.vm')
 		#end
-		</table>
-		
-		#if($paramParser.getString("monitorableId"))
-		<div class="buttonBar">
-			<a class="button" id="backButton" href="$request.requestURI">${text.goBackToOverview}</a>
-		</div>
-		#end
-	#end
+	</fieldset>
 #else
 	<p class="error bundleNotInstalled">${text.monitorableView.monitorAdmin.notfound}</p>
 #end
