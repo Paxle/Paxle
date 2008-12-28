@@ -1195,42 +1195,51 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				final int chunkSize = 10;
 				List<ICommand> commands = null;
 				while(!Thread.currentThread().isInterrupted()) {
-					
-					final long time = System.currentTimeMillis();
-					commands = CommandDB.this.fetchNextCommands(chunkSize);
-					if (logger.isDebugEnabled())
-						logger.debug(String.format("fetched new chunk of %d (%d requested) new URLs to crawl in %d ms, %d queued / %d total",
-								Integer.valueOf(commands.size()),
-								Integer.valueOf(chunkSize),
-								Long.valueOf(System.currentTimeMillis() - time),
-								Long.valueOf(cntCrawlerQueue),
-								Long.valueOf(cntTotal)));
-					
-					if (commands != null && commands.size() > 0) {
-						final ICommandTracker commandTracker = CommandDB.this.commandTracker;
-						final IDataSink<ICommand> sink = CommandDB.this.sink;
-						for (ICommand command : commands) {
-							// notify the command-tracker about the creation of the command
-							if (commandTracker != null) {
-								commandTracker.commandCreated(ICommandDB.class.getName(), command);
-							}
+					try {
+						// fetching the next command(s) from DB
+						final long time = System.currentTimeMillis();
+						commands = CommandDB.this.fetchNextCommands(chunkSize);
+						if (logger.isDebugEnabled()) {
+							logger.debug(String.format(
+									"Fetched new chunk of %d (%d requested) new URLs to crawl in %d ms, %d queued / %d total",
+									Integer.valueOf(commands.size()),
+									Integer.valueOf(chunkSize),
+									Long.valueOf(System.currentTimeMillis() - time),
+									Long.valueOf(cntCrawlerQueue),
+									Long.valueOf(cntTotal)));
+						}
+						
+						// enqueue fetched commands into crawler-queue
+						if (commands != null && commands.size() > 0) {
+							final ICommandTracker commandTracker = CommandDB.this.commandTracker;
+							final IDataSink<ICommand> sink = CommandDB.this.sink;
 							
-							sink.putData(command);
-							cntCrawlerQueue--;
-						} 
-					} else {
-						// sleep for a while
-						synchronized (this) {
-							this.wait(MAX_IDLE_SLEEP);	
-						}						
+							for (ICommand command : commands) {
+								// notify the command-tracker about the creation of the command
+								if (commandTracker != null) {
+									commandTracker.commandCreated(ICommandDB.class.getName(), command);
+								}
+								
+								sink.putData(command);
+								cntCrawlerQueue--;
+							} 
+						} else {
+							// sleep for a while
+							synchronized (this) {
+								this.wait(MAX_IDLE_SLEEP);	
+							}						
+						}
+					} catch (Exception e) {
+						if (e instanceof InterruptedException) break;
+						
+						logger.error(String.format(
+								"Unexpected '%s' while waiting reading commands from db.",
+								e.getClass().getName()
+						),e);
 					}
 				}
-			} catch (Exception e) {
-				if (!(e instanceof InterruptedException)) {
-					logger.error(String.format("Unexpected '%s' while waiting reading commands from db.",
-							e.getClass().getName()
-					),e);
-				}
+			} catch (InterruptedException e) {
+				logger.warn("CommandDB.writer interrupted while waiting for a data-sink");
 			} finally {
 				logger.info("CommandDB.Writer shutdown finished.");
 			}		
