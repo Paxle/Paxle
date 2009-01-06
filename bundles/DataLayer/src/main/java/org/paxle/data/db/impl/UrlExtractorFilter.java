@@ -59,7 +59,7 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 	 */
 	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
 	static {
-		VAR_DESCRIPTIONS.put(VAR_NAME_QUEUE_SIZE, "Number of URI enqueued for storage to DB.");
+		VAR_DESCRIPTIONS.put(VAR_NAME_QUEUE_SIZE, "Number of URI-packages enqueued for storage to DB.");
 	}		
 	
 	/**
