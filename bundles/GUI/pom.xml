@@ -109,6 +109,7 @@
 							org.jfree.chart.renderer;resolution:=optional,
 							org.jfree.chart.renderer.xy;resolution:=optional,
 							org.jfree.chart.plot;resolution:=optional,
+							org.jfree.chart.servlet;resolution:=optional,
 							org.jfree.chart.axis;resolution:=optional,
 							org.jfree.data.xy;resolution:=optional,
 							org.jfree.data.time;resolution:=optional,

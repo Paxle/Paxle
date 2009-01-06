@@ -24,7 +24,10 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.imageio.IIOException;
 import javax.servlet.ServletOutputStream;
@@ -43,6 +46,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.time.Minute;
+import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.osgi.framework.BundleContext;
@@ -200,7 +204,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 		this.chartMap.put("ppm", this.createPPMChart());
 		this.chartMap.put("index", this.createIndexChart());
 		this.chartMap.put("system" ,this.createCPUChart());		
-		
+
 		// registering servlet as event-handler: required to receive monitoring-events
 		Dictionary<String,Object> properties = new Hashtable<String,Object>();
 		properties.put(EventConstants.EVENT_TOPIC, new String[]{"org/osgi/service/monitor"});
@@ -463,6 +467,8 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 	
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {
+		context.put("chartServlet", this);
+		context.put("chartMap", this.chartMap);
 		context.put("chartTypeMap", this.chartMap.keySet());
 	}
 	
@@ -679,5 +685,17 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 				60, // seconds
 				0   // Forever
 		);		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Iterator<RegularTimePeriod> getMergedPeriods(List<TimeSeries> seriesList) {
+		TreeSet<RegularTimePeriod> periods = new TreeSet<RegularTimePeriod>();
+		
+		for (TimeSeries series : seriesList) {
+			if (series.getItemCount() == 0) continue;
+			periods.addAll(series.getTimePeriods());
+		}
+		
+		return periods.iterator();
 	}
 }

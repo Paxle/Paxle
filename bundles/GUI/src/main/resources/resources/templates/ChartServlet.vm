@@ -38,16 +38,54 @@
 	#end
 </ul>
 
-#if($displayType == "embedded")
+#if($displayType == "embedded" || $displayType == "values")
+	<ul class="tabs" style="margin-top:10px; margin-left: 10px;">
+		<li><a href="?display=embedded&amp;t=$activeTab" #if($displayType=="embedded")class="active"#end>${text.subtab.chart}</a></li>
+		<li><a href="?display=values&amp;t=$activeTab" #if($displayType=="values")class="active"#end>${text.subtab.values}</a></li>
+	</ul>
+
 	<h3>#if($text.get("chart.title.$activeTab"))
 		$text.tab.chart.insert($text.get("chart.title.$activeTab"))
 	    #else
 		$text.tab.chart.insert($activeTab)
 	    #end
 	</h3>
-	#set($chartHeight = ${paramParser.getString('h','400')})
-	#set($chartWidth = ${paramParser.getString('h','800')})
-	<img class="chart" src="?t=$activeTab&amp;h=$chartHeight&amp;w=$chartWidth" height="$chartHeight" width="$chartWidth" />
+	
+	#if($displayType == "embedded")
+		#set($chartHeight = ${paramParser.getString('h','400')})
+		#set($chartWidth = ${paramParser.getString('h','800')})
+		<img class="chart" src="?t=$activeTab&amp;h=$chartHeight&amp;w=$chartWidth" height="$chartHeight" width="$chartWidth" />
+	#elseif($displayType == "values")
+		#set($chart = $chartMap.get($activeTab))
+		#set($plot = $chart.getPlot())
+		
+		#if($classTool.inspect($plot).getName() == "XYPlot")
+			#set($dataSet = $plot.getDataset())
+			#if($classTool.inspect($dataSet).getName() == "TimeSeriesCollection")
+				#set($seriesCount = $dataSet.getSeriesCount())
+				#if($seriesCount > 0)
+				<table>
+				<tr>
+					<th>$dataSet.getSeries(0).getDomainDescription()</th>
+					#foreach ($series in $dataSet.getSeries())
+					<th>$series.getKey()</th>
+					#end
+				</tr>
+				
+				#set($periods = $chartServlet.getMergedPeriods($dataSet.getSeries()))
+				#foreach($period in $periods)
+					<tr>
+					<td>$period</td>
+					#foreach ($series in $dataSet.getSeries())
+						<td>$!series.getValue($period)</td>
+					#end
+					</tr>
+				#end
+				</table>
+				#end
+			#end
+		#end
+	#end
 #else
 	<div class="descriptionText">${text.page.desc}</div>
 	<table>
