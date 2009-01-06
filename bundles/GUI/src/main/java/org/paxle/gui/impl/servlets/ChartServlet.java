@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
+import javax.imageio.IIOException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -440,11 +441,23 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 				super.doRequest(request, response);
 			}
 		} catch (Exception e) {
-			this.logger.error(String.format(
-					"Unexpected '%s' while writing chart '%s'.",
-					e.getClass().getName(),
-					chartType
-			),e);
+			if (e instanceof IIOException && 
+				e.getCause() != null && 
+				e.getCause().getCause() != null &&
+				e.getCause().getCause().getMessage() != null && 
+				e.getCause().getCause().getMessage().equalsIgnoreCase("Broken pipe")
+			) {
+				this.logger.debug(String.format(
+						"Broken pipe while writing chart '%s'.",
+						chartType
+				));
+			} else {
+				this.logger.error(String.format(
+						"Unexpected '%s' while writing chart '%s'.",
+						e.getClass().getName(),
+						chartType
+				),e);
+			}
 		}
 	}
 	
