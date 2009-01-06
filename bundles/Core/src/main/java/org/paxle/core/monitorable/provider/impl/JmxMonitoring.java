@@ -81,7 +81,7 @@ public class JmxMonitoring implements Monitorable {
 		VAR_DESCRIPTIONS.put(VAR_NAME_PHYSICAL_MEMORY, "The amount of free physical memory in MB.");
 		VAR_DESCRIPTIONS.put(VAR_NAME_SWAP_SPACE, "The amount of free swap space in MB.");
 		
-		VAR_DESCRIPTIONS.put(VAR_NAME_UPTIME, "The uptime of the Java virtual machine in milliseconds.");
+		VAR_DESCRIPTIONS.put(VAR_NAME_UPTIME, "The uptime of the Java virtual machine in seconds.");
 		VAR_DESCRIPTIONS.put(VAR_NAME_STARTTIME, "The start time of the Java virtual machine.");
 	}	
 	
@@ -156,7 +156,8 @@ public class JmxMonitoring implements Monitorable {
 		        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 				var = new StatusVariable(name,StatusVariable.CM_SI, sdf.format(new Date((Long)value)));
 			} else if (name.equals(VAR_NAME_UPTIME)) {
-				var = new StatusVariable(name,StatusVariable.CM_CC,((Long)value).intValue());
+				int uptime = (int) (((Long)value).longValue() / 1000); // convert value into seconds
+				var = new StatusVariable(name,StatusVariable.CM_CC, uptime);
 			} else if (name.startsWith("os.memory")){
 				long val = ((Long)value).longValue() ;
 				if (val > 0) val = val / (1024*1024);
