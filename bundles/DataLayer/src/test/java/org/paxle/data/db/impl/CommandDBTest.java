@@ -266,6 +266,7 @@ public class CommandDBTest extends MockObjectTestCase {
 		
 		// setup DB
 		// this.setupDB(POSTGRESQL_CONFIG_FILE, String.format(POSTGRESQL_CONNECTION_URL,"192.168.10.201"));
+		//this.setupDB(H2_CONFIG_FILE, H2_CONNECTION_URL);
 		this.setupDB(DERBY_CONFIG_FILE, DERBY_CONNECTION_URL);		
 		
 		// command-tracker must be called MAX times

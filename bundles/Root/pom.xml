@@ -18,7 +18,7 @@
 		</repository>
 		<repository>
 			<id>java.net</id>
-			<url>http://download.java.net/maven/2/</url>
+			<url>http://download.java.net/maven/2</url>
 		</repository>
 		<repository>
 			<id>apache.snapshots</id>

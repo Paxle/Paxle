@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>DataLayerH2</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - DataLayer: H2</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -62,7 +62,7 @@
 	<dependency>
  	   <groupId>com.h2database</groupId>
  	   <artifactId>h2</artifactId>
-	    <version>1.1.103</version>
+	    <version>1.1.106</version>
 	</dependency>
 	</dependencies>
 </project>
