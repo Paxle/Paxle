@@ -59,29 +59,39 @@
 		#set($chart = $chartMap.get($activeTab))
 		#set($plot = $chart.getPlot())
 		
+		## currently we just support XYPlots
 		#if($classTool.inspect($plot).getName() == "XYPlot")
-			#set($dataSet = $plot.getDataset())
-			#if($classTool.inspect($dataSet).getName() == "TimeSeriesCollection")
-				#set($seriesCount = $dataSet.getSeriesCount())
-				#if($seriesCount > 0)
-				<table>
-				<tr>
-					<th>$dataSet.getSeries(0).getDomainDescription()</th>
-					#foreach ($series in $dataSet.getSeries())
-					<th>$series.getKey()</th>
-					#end
-				</tr>
-				
-				#set($periods = $chartServlet.getMergedPeriods($dataSet.getSeries()))
-				#foreach($period in $periods)
+			#set($dataSetCount = $plot.getDatasetCount())
+
+			## loop through all datasets
+			#foreach($dataSetNr in [1..$dataSetCount])
+				#set($dataSetIdx = ${conversionTool.toInteger($dataSetNr)} - 1)
+				#set($dataSet = $plot.getDataset($dataSetIdx))
+			
+				## currently we just support TimeSeriesCollections
+				#if($classTool.inspect($dataSet).getName() == "TimeSeriesCollection")
+					#set($seriesCount = $dataSet.getSeriesCount())
+					#if($seriesCount > 0)
+					<table>
 					<tr>
-					<td>$period</td>
-					#foreach ($series in $dataSet.getSeries())
-						<td>$!series.getValue($period)</td>
-					#end
+						<th>$dataSet.getSeries(0).getDomainDescription()</th>
+						#foreach ($series in $dataSet.getSeries())
+						<th>$series.getKey()</th>
+						#end
 					</tr>
-				#end
-				</table>
+				
+					#set($periods = $chartServlet.getMergedPeriods($dataSet.getSeries()))
+					#foreach($period in $periods)
+						<tr>
+						<td>$period</td>
+						#foreach ($series in $dataSet.getSeries())
+							<td>$!series.getValue($period)</td>
+						#end
+						</tr>
+					#end
+					</table>
+					<br/>
+					#end
 				#end
 			#end
 		#end
