@@ -9,7 +9,7 @@
 	<artifactId>FilterLanguageIdentification</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>Paxle - FilterLanguageIdentification</name>
+	<name>Paxle - Filter: FilterLanguageIdentification</name>
 	<url>http://wiki.paxle.net/dev/bundles/FilterLanguageIdentification</url>
 	
 	<!-- Parent Project -->
@@ -35,6 +35,9 @@
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
 							org.paxle.core.filter;version="[0.1.0,0.2.0)"
 						</Import-Package>
+						<Embed-Dependency>
+							cngram;scope=compile|runtime
+						</Embed-Dependency>
 						<Private-Package>org.paxle.filter.languageidentification.impl</Private-Package>
 						<Bundle-Activator>org.paxle.filter.languageidentification.impl.Activator</Bundle-Activator>
 					</instructions>
@@ -47,6 +50,11 @@
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
 			<version>[,0.2.0)</version>				
+		</dependency>
+		<dependency>
+			<groupId>de.spieleck</groupId>
+			<artifactId>cngram</artifactId>
+			<version>1.0</version>				
 		</dependency>
 		
 		<!-- for testing -->

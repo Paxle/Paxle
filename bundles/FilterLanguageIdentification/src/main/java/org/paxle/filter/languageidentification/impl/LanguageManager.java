@@ -14,11 +14,11 @@
 
 package org.paxle.filter.languageidentification.impl;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
+import java.io.InputStreamReader;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -28,46 +28,14 @@ import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 
+import de.spieleck.app.cngram.NGramProfiles;
+
 /**
- * This class stores the available language-profiles, determines the language of a document and inserts its finding into a parser-doc
+ * This helper class determines the language of a document and inserts its finding into a parser-doc and all of its subdocs
  */
 public class LanguageManager implements IFilter<ICommand> {
 
-	/**
-	 * The list of all available language profiles
-	 */
-	private ArrayList<NGramSet> lngs = new ArrayList<NGramSet>();
 	private Log logger = LogFactory.getLog(this.getClass());
-
-	/**
-	 * Loads a language profile from a URL
-	 * @param definition
-	 * @throws IOException
-	 */
-	public void loadNewLanguage(URL definition) throws IOException {
-		if (definition == null) {
-			logger.warn("URL for language definition is null!");
-			return;
-		}
-		NGramSet nlng = new NGramSet();
-		nlng.load(definition);
-		
-		//set name to xx from filename /profiles/xx.txt
-		String uriStr = definition.toString();
-		int idx = uriStr.lastIndexOf('/');
-		String lng = uriStr.substring(idx+1,uriStr.lastIndexOf(".txt"));
-		nlng.setLanguageName(lng);
-		
-		this.lngs.add(nlng);
-		logger.debug("Loaded language '" + nlng.getLanguageName() +"' from file " + definition.toExternalForm());
-	}
-
-	/**
-	 * Return the number of currently registered language profiles
-	 */
-	public int getNumberOfRegisteredProfile() {
-		return this.lngs.size();
-	}
 
 	/**
 	 * Sets the language for the given ParserDocument and all its sub pDocs
@@ -82,29 +50,18 @@ public class LanguageManager implements IFilter<ICommand> {
 			}
 		}
 
-		NGramSet test = null;
-		String winner = null;
-		double winvalue = Double.MAX_VALUE;
-
 		double start = System.currentTimeMillis();
 
+		NGramProfiles.RankResult res = null;
 
 		try {
 			if (parserDoc.getTextFile() != null) {
 
-				test = new NGramSet(); 
-				test.init(parserDoc.getTextFile(), 10);
+				NGramProfiles nps = new NGramProfiles();
+				NGramProfiles.Ranker ranker = nps.getRanker();
+				ranker.account(new InputStreamReader(new BufferedInputStream(new FileInputStream(parserDoc.getTextFile())), parserDoc.getCharset()));
+				res = ranker.getRankResult();
 
-				Iterator<NGramSet> it = this.lngs.iterator();
-				while (it.hasNext()) {
-					NGramSet ref = it.next();
-					double diff = ref.getDifference(test);
-					logger.debug("Difference from " + ref.getLanguageName() + ": " + diff);
-					if (diff < winvalue) {
-						winner = ref.getLanguageName();
-						winvalue = diff;
-					}
-				}
 			} else {
 				logger.info("No language for document '" + parserDoc.getOID() + "', as it contains no text");
 			}
@@ -117,19 +74,19 @@ public class LanguageManager implements IFilter<ICommand> {
 		logger.debug("Language detection took " + (end - start) + "ms");
 
 		HashSet<String> lngs = null;
-		if (winvalue < 50) {
-			logger.debug("Primary language of document '" + parserDoc.getOID() + "' is: " + winner + ", " + winvalue);
+		if (res != null && res.getScore(0) > 0.6) {
+			logger.debug("Primary language of document '" + parserDoc.getOID() + "' is: " + res.getName(0) + ", " + res.getScore(0));
 			lngs = new HashSet<String>(1);
-			lngs.add(winner);
+			lngs.add(res.getName(0));
 			parserDoc.setLanguages(lngs);
 		} else {
 			logger.debug("Primary language of document '" + parserDoc.getOID() + "' is unknown");
-			parserDoc.setLanguages(lngs);
+			parserDoc.setLanguages(lngs); //set to null
 		}
 	}
 
 	/**
-	 * Inserts the ISO 639-2 code of the primary document language into the parser and subparser docs
+	 * Inserts the ISO 639-1 code of the primary document language into the parser- and recursively all subparser docs
 	 */
 	public void filter(ICommand command, IFilterContext context) {
 		if (command == null) throw new NullPointerException("The command object is null.");
@@ -157,6 +114,7 @@ public class LanguageManager implements IFilter<ICommand> {
 		}
 
 		getLanguage(command.getParserDocument());
+
 	}
 
 }

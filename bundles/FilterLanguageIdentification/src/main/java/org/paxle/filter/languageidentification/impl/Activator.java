@@ -14,8 +14,6 @@
 
 package org.paxle.filter.languageidentification.impl;
 
-import java.net.URL;
-import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.apache.commons.logging.Log;
@@ -34,23 +32,11 @@ public class Activator implements BundleActivator {
 				"org.paxle.parser.out; " + IFilter.PROP_FILTER_TARGET_POSITION + "=" + (Integer.MAX_VALUE-1000)
 		});
 		
-		LanguageManager lngmanager = new LanguageManager();
-		
-		@SuppressWarnings("unchecked")
-		Enumeration<URL> profiles = context.getBundle().findEntries("/profiles/", "*.txt", false);
-		
-		logger.info("Loading language profiles...");
-		while (profiles.hasMoreElements()) {
-			URL currdef = profiles.nextElement();
-			lngmanager.loadNewLanguage(currdef);
-		}
-		logger.info("Loaded " + lngmanager.getNumberOfRegisteredProfile() + " language profiles");
-		
-		context.registerService(IFilter.class.getName(), lngmanager, filterProps);
+		context.registerService(IFilter.class.getName(), new LanguageManager(), filterProps);
 	}
 
 	public void stop(BundleContext context) throws Exception {
-		logger.info("Bundle gestoppt");
+		logger.info("Bundle stopped");
 	}
 
 }

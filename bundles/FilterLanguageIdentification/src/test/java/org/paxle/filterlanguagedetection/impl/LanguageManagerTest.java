@@ -15,18 +15,12 @@
 package org.paxle.filterlanguagedetection.impl;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.queue.Command;
@@ -42,33 +36,8 @@ public class LanguageManagerTest extends TestCase {
 		
 		// create language manager
 		this.lngmanager = new LanguageManager();
-		
-		// load profiles
-		List<URL> profiles = getProfileFiles();
-		for(URL profile : profiles) {
-			this.lngmanager.loadNewLanguage(profile);
-		}
+
 	}
-	
-	/**
-	 * @return the hibernate mapping files to use
-	 * @throws MalformedURLException 
-	 */
-	private List<URL> getProfileFiles() throws MalformedURLException {
-		final File profileFilesDir = new File("src/main/resources/profiles/");
-		assertTrue(profileFilesDir.exists());
-		
-		final FileFilter profileFileFilter = new WildcardFileFilter("*.txt");		
-		File[] profileFiles = profileFilesDir.listFiles(profileFileFilter);
-		assertNotNull(profileFiles);
-		
-		List<URL> profileFileURLs = new ArrayList<URL>();
-		for (File mappingFile : profileFiles) {
-			profileFileURLs.add(mappingFile.toURL());
-		}
-		
-		return profileFileURLs;
-	}	
 	
 	private ICommand createTestCommand(File testText) throws IOException {
 		ICommand command = Command.createCommand(URI.create("http://xyz.abc"));
