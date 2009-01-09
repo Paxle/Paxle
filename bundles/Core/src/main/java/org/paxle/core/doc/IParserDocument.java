@@ -129,7 +129,18 @@ public interface IParserDocument extends Closeable {
 	 */
 	public abstract void setAuthor(String author);
 	
+	/**
+	 * Returns the Charset of this pDoc.
+	 * If this value has not been set via {@link #setCharset(Charset)}, this is not null, but the system default charset.
+	 * @see #setCharset(Charset)
+	 */
 	public abstract Charset getCharset();
+	
+	/**
+	 * Sets the charset of this pDoc to the given Charset
+	 * @param charset
+	 * @see #getCharset()
+	 */
 	public abstract void setCharset(Charset charset);
 
 	/**

@@ -195,8 +195,8 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 			this.pool.returnObject(req);
 			req = null;
 			
-			// set document charset if required
-			if (charset != null && doc.getCharset() == null)
+			// set document charset if null or system default (i.e. not set yet)
+			if (charset != null && (doc.getCharset() == null || doc.getCharset() == Charset.defaultCharset()))
 				doc.setCharset(Charset.forName(charset));
 			
 			// set document status
