@@ -18,6 +18,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -36,7 +37,12 @@ import de.spieleck.app.cngram.NGramProfiles;
 public class LanguageManager implements IFilter<ICommand> {
 
 	private Log logger = LogFactory.getLog(this.getClass());
-
+	NGramProfiles nps = null;
+	
+	public LanguageManager() throws IOException  {
+		this.nps = new NGramProfiles();
+	}
+	
 	/**
 	 * Sets the language for the given ParserDocument and all its sub pDocs
 	 * @param parserDoc
@@ -57,9 +63,12 @@ public class LanguageManager implements IFilter<ICommand> {
 		try {
 			if (parserDoc.getTextFile() != null) {
 
-				NGramProfiles nps = new NGramProfiles();
 				NGramProfiles.Ranker ranker = nps.getRanker();
-				ranker.account(new InputStreamReader(new BufferedInputStream(new FileInputStream(parserDoc.getTextFile())), parserDoc.getCharset()));
+				
+				Charset pdoccs = parserDoc.getCharset();
+				if (pdoccs == null) pdoccs = Charset.forName("UTF-8"); //try to read pdocs without encoding as UTF-8
+				
+				ranker.account(new InputStreamReader(new BufferedInputStream(new FileInputStream(parserDoc.getTextFile())), pdoccs));
 				res = ranker.getRankResult();
 
 			} else {

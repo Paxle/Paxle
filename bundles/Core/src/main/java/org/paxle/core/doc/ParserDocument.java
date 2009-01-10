@@ -56,7 +56,7 @@ public class ParserDocument implements IParserDocument {
 	protected File content;
 	protected OutputStreamWriter contentOut = null;
 	protected String mimeType;
-	protected Charset charset = Charset.defaultCharset();
+	protected Charset charset = null;
 	
     public int getOID(){ 
     	return _oid; 

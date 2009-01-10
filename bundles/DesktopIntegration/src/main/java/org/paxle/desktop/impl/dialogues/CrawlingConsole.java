@@ -688,7 +688,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 					
 					case P_CHARSET: {
 						final IParserDocument pdoc = (cmd == null) ? null : cmd.getParserDocument();
-						row.add((pdoc == null) ? unknown : pdoc.getCharset().name());
+						row.add((pdoc == null || pdoc.getCharset() == null) ? unknown : pdoc.getCharset().name());
 					} break;
 					
 					case P_HEADLINES: {
