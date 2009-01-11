@@ -60,6 +60,7 @@ public class LanguageManager implements IFilter<ICommand> {
 
 		NGramProfiles.RankResult res = null;
 
+		InputStreamReader isr = null;
 		try {
 			if (parserDoc.getTextFile() != null) {
 
@@ -68,7 +69,8 @@ public class LanguageManager implements IFilter<ICommand> {
 				Charset pdoccs = parserDoc.getCharset();
 				if (pdoccs == null) pdoccs = Charset.forName("UTF-8"); //try to read pdocs without encoding as UTF-8
 				
-				ranker.account(new InputStreamReader(new BufferedInputStream(new FileInputStream(parserDoc.getTextFile())), pdoccs));
+				isr = new InputStreamReader(new BufferedInputStream(new FileInputStream(parserDoc.getTextFile())), pdoccs);
+				ranker.account(isr);
 				res = ranker.getRankResult();
 
 			} else {
@@ -76,6 +78,10 @@ public class LanguageManager implements IFilter<ICommand> {
 			}
 		} catch (IOException e) {
 			logger.warn("Exception while trying to determine language of document '" +  parserDoc.getOID() + "'", e);
+		} finally {
+			try {
+				isr.close();
+			} catch (IOException e) {/* ignore */ }
 		}
 
 		double end = System.currentTimeMillis();

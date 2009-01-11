@@ -271,7 +271,7 @@ public interface IParserDocument extends Closeable {
 	
 	/**
 	 * Gets the content of this document as File.
-	 * @return File if addText() has been used with this document, null otherwise (i.e. archives)
+	 * @return File if addText() has been used with this document, null otherwise (e.g. archives)
 	 * @throws IOException
 	 */
 	public abstract File getTextFile() throws IOException;
