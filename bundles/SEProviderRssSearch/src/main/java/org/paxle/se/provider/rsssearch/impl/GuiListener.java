@@ -48,9 +48,10 @@ public class GuiListener implements BundleListener {
 	public void registerServlet() {
 		ConfigServlet servlet=new ConfigServlet();
 		servlet.setBundleLocation(bc.getBundle().getEntry("/").toString());
-		Hashtable<String, String> props = new Hashtable<String, String>();
+		Hashtable<String, Object> props = new Hashtable<String, Object>();
 		props.put("path", "/rsssearchconfig");
 		props.put("menu", "RSS search sources");
+		props.put("doUserAuth", Boolean.TRUE);
 		this.serviceReg = bc.registerService("javax.servlet.Servlet", servlet, props);
 	}
 }

@@ -14,10 +14,13 @@
 
 package org.paxle.gui;
 
+import java.io.IOException;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -111,5 +114,24 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 	 */
 	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
 		return super.getTemplate(request, response);
+	}
+	
+	
+	protected boolean isUserAuthenticated(final HttpServletRequest request, final HttpServletResponse response, boolean redirectToLogin) throws IOException {
+		IServiceManager manager = this.getServiceManager();
+		HttpSession session = request.getSession(true);
+		Boolean loginDone = (Boolean) session.getAttribute("logon.isDone");
+		if (loginDone == null || !Boolean.TRUE.equals(loginDone)) {
+			if (redirectToLogin) {
+				// storing original target into session
+				session.setAttribute("login.target",request.getServletPath());
+				
+				// redirecting the browser
+				final IServletManager servletManager = (IServletManager) manager.getService(IServletManager.class.getName());				    			
+				response.sendRedirect(servletManager.getFullAlias("/login"));				
+			}
+			return false;
+		}		
+		return true;
 	}
 }

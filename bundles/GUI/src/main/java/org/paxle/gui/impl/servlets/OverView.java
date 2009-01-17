@@ -86,10 +86,22 @@ public class OverView extends ALayoutServlet {
 					// check if resume or pause is demanded
 					if (request.getParameter("service") != null && request.getParameter("service").equals(name)) {
 						if (request.getParameter("pause") != null) {
+							// check user authentication
+							if (!this.isUserAuthenticated(request, response, true)) return null;
+							
+							// pause component
 							((IMWComponent<?>)services[0]).pause();
+							
+							// redirect to overview
 							response.sendRedirect(request.getServletPath());
 						} else if (request.getParameter("resume") != null) {
+							// check user authentication
+							if (!this.isUserAuthenticated(request, response, true)) return null;
+							
+							// resume component
 							((IMWComponent<?>)services[0]).resume();
+							
+							// recirect to overview
 							response.sendRedirect(request.getServletPath());
 						}
 					}

@@ -38,12 +38,10 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
-
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.gui.ALayoutServlet;
@@ -105,24 +103,38 @@ public class BundleView extends ALayoutServlet {
 					boolean doRedirect = false;
 					String action = request.getParameter(PARAM_ACTION);
 					try {
-						if (action.equals( ACTION_UPDATE)) {
-							bundle.update();
-							doRedirect = true;
-						} else if (action.equals( ACTION_START)) {
-							bundle.start();
-							doRedirect = true;
-						} else if (action.equals( ACTION_STOP)) {
-							bundle.stop();
-							doRedirect = true;
-						} else if (action.equals( ACTION_RESTART)) {
-							bundle.stop();
-							bundle.start();
-							doRedirect = true;
-						}else if(action.equals( ACTION_UNINSTALL)){
-							bundle.uninstall();
-							doRedirect = true;
-						}else if (action.equals(ACTION_DETAILS)) {
+						if (action.equals(ACTION_DETAILS)) {
 							context.put("bundle", bundle);
+						} else {
+							/* Check user authentication */
+				    		if (!isUserAuthenticated(request, response, true)) return null;
+							
+				    		/* do action */
+							if (action.equals( ACTION_UPDATE)) {
+								bundle.update();
+								doRedirect = true;
+							} else if (action.equals( ACTION_START)) {
+								bundle.start();
+								doRedirect = true;
+							} else if (action.equals( ACTION_STOP)) {
+								bundle.stop();
+								doRedirect = true;
+							} else if (action.equals( ACTION_RESTART)) {
+								bundle.stop();
+								bundle.start();
+								doRedirect = true;
+							} else if(action.equals( ACTION_UNINSTALL)){
+								bundle.uninstall();
+								doRedirect = true;
+							} else {
+								context.put("errorMsg",String.format("Action '%s' not supported.",action));
+							}
+														
+							// redirect to the bundle view
+							if (doRedirect) {
+								response.sendRedirect(request.getServletPath());
+								return null;
+							}
 						}
 					} catch (BundleException e) {
 						String errorMsg = String.format(
@@ -133,17 +145,19 @@ public class BundleView extends ALayoutServlet {
 						this.logger.warn(errorMsg, e);
 						context.put("errorMsg",e.getMessage());
 					}
-					
-					// redirect to the bundle view
-					if (doRedirect) {
-						response.sendRedirect(request.getServletPath());
-						return null;
-					}
 				}
 			} else if (request.getParameter(PARAM_INSTALL_URL) != null && request.getParameter(PARAM_BUNDLE_PATH) != null) {
+				// Check user authentication
+	    		if (!isUserAuthenticated(request, response, true)) return null;
+				
+	    		// install bundle
 				ServiceManager.context.installBundle(request.getParameter(PARAM_BUNDLE_PATH));
 			} else if (ServletFileUpload.isMultipartContent(request)) {
-				handleFileUpload(request, context);
+				// Check user authentication
+	    		if (!isUserAuthenticated(request, response, true)) return null;
+	    		
+	    		// install bundle
+				this.handleFileUpload(request, context);
 			}
 			
 			String filter = (request.getParameter("filter") != null) 

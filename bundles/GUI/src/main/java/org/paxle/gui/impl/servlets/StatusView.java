@@ -35,21 +35,45 @@ public class StatusView extends ALayoutServlet {
 			final IServletManager servletManager = (IServletManager) manager.getService(IServletManager.class.getName());
 			
 			if (request.getParameter("pauseCrawl") != null) {
+				// check user authentication
+				if (!this.isUserAuthenticated(request, response, true)) return;
+				
+				// pause crawler
 				IMWComponent<?> crawler = this.getCrawler();
 				if (crawler != null) crawler.pause();
+				
+				// redirect to status page
 				response.sendRedirect(request.getServletPath() + "#dcrawler");
 			} else if (request.getParameter("resumeCrawl") != null) {
+				// check user authentication
+				if (!this.isUserAuthenticated(request, response, true)) return;
+				
+				// resume crawler
 				IMWComponent<?> crawler = this.getCrawler();
 				if (crawler != null) crawler.resume();
+				
+				// redirect to status page
 				response.sendRedirect(request.getServletPath() + "#dcrawler");
 			} else if (request.getParameter("processNextCrawl") != null) {
+				// check user authentication
+				if (!this.isUserAuthenticated(request, response, true)) return;
+				
+				// process next command
 				IMWComponent<?> crawler = this.getCrawler();
 				if (crawler != null) crawler.processNext();
+				
+				// redirect to status page
 				response.sendRedirect(request.getServletPath() + "#dcrawler");
 			} else if (request.getParameter("shutdown") != null) {
+				// check user authentication
+				if (!this.isUserAuthenticated(request, response, true)) return;
+				
 				// redirecting to shutdown-servlet
 				response.sendRedirect(servletManager.getFullAlias("/sysctrl") + "?action=shutdown");
 			} else if (request.getParameter("restart") != null) {
+				// check user authentication
+				if (!this.isUserAuthenticated(request, response, true)) return;
+				
 				// redirecting to shutdown-servlet
 				response.sendRedirect(servletManager.getFullAlias("/sysctrl") + "?action=restart");
 			} else {		

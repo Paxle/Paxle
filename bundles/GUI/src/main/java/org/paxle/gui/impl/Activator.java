@@ -96,10 +96,8 @@ public class Activator implements BundleActivator {
 		 * Register Service Listeners
 		 * ==========================================================
 		 */
-		bc.addServiceListener(new ServletListener(servletManager, menuManager,
-				bc), ServletListener.FILTER);
-		bc.addServiceListener(new HttpServiceListener(servletManager, bc),
-				HttpServiceListener.FILTER);
+		bc.addServiceListener(new ServletListener(servletManager, menuManager, userAdminTracker, bc), ServletListener.FILTER);
+		bc.addServiceListener(new HttpServiceListener(servletManager, bc), HttpServiceListener.FILTER);
 
 		/*
 		 * ========================================================== 

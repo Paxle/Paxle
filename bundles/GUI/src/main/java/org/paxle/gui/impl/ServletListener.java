@@ -16,12 +16,15 @@ package org.paxle.gui.impl;
 
 import javax.servlet.Servlet;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.http.HttpContext;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class ServletListener implements ServiceListener {
 	/**
@@ -45,9 +48,12 @@ public class ServletListener implements ServiceListener {
 	 */	
 	private BundleContext context = null;	
 
-	public ServletListener(ServletManager servletManager, MenuManager menuManager, BundleContext context) throws InvalidSyntaxException {
+	ServiceTracker userAdminTracker;	
+	
+	public ServletListener(ServletManager servletManager, MenuManager menuManager, ServiceTracker userAdminTracker, BundleContext context) throws InvalidSyntaxException {		
 		this.servletManager = servletManager;
 		this.menuManager = menuManager;
+		this.userAdminTracker = userAdminTracker;
 		this.context = context;
 		
 		ServiceReference[] services = context.getServiceReferences(null,FILTER);
@@ -69,13 +75,21 @@ public class ServletListener implements ServiceListener {
 		String path = (String)reference.getProperty("path");
 		String name = (String)reference.getProperty("name");
 		String menu = (String)reference.getProperty("menu");
+		Boolean userAuth = (Boolean)reference.getProperty("doUserAuth");
+		if (userAuth == null) userAuth = Boolean.FALSE;
 
 		if (eventType == ServiceEvent.REGISTERED) {
 			// getting a reference to the servlet
 			Servlet servlet = (Servlet) this.context.getService(reference);
 			
 			// register servlet
-			this.servletManager.addServlet(path, servlet);
+			if (!userAuth.booleanValue()) {
+				this.servletManager.addServlet(path, servlet);
+			} else {
+				Bundle bundle = reference.getBundle();
+				HttpContext context = new HttpContextAuth(bundle, this.userAdminTracker);
+				this.servletManager.addServlet(path, servlet, context);
+			}
 			
 			// registering menu
 			if (menu != null && menu.length() > 0) {
