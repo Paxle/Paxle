@@ -38,11 +38,11 @@ public class LanguageManager implements IFilter<ICommand> {
 
 	private Log logger = LogFactory.getLog(this.getClass());
 	NGramProfiles nps = null;
-	
+
 	public LanguageManager() throws IOException  {
 		this.nps = new NGramProfiles();
 	}
-	
+
 	/**
 	 * Sets the language for the given ParserDocument and all its sub pDocs
 	 * @param parserDoc
@@ -65,10 +65,10 @@ public class LanguageManager implements IFilter<ICommand> {
 			if (parserDoc.getTextFile() != null) {
 
 				NGramProfiles.Ranker ranker = nps.getRanker();
-				
+
 				Charset pdoccs = parserDoc.getCharset();
 				if (pdoccs == null) pdoccs = Charset.forName("UTF-8"); //try to read pdocs without encoding as UTF-8
-				
+
 				isr = new InputStreamReader(new BufferedInputStream(new FileInputStream(parserDoc.getTextFile())), pdoccs);
 				ranker.account(isr);
 				res = ranker.getRankResult();
@@ -81,7 +81,7 @@ public class LanguageManager implements IFilter<ICommand> {
 		} finally {
 			try {
 				isr.close();
-			} catch (IOException e) {/* ignore */ }
+			} catch (Exception e) {/* ignore */ }
 		}
 
 		double end = System.currentTimeMillis();
@@ -89,10 +89,17 @@ public class LanguageManager implements IFilter<ICommand> {
 		logger.debug("Language detection took " + (end - start) + "ms");
 
 		HashSet<String> lngs = null;
-		if (res != null && res.getScore(0) > 0.6) {
-			logger.debug("Primary language of document '" + parserDoc.getOID() + "' is: " + res.getName(0) + ", " + res.getScore(0));
+		if (res != null) {
 			lngs = new HashSet<String>(1);
-			lngs.add(res.getName(0));
+			if (res.getScore(0) > 0.6) {
+				logger.debug("Primary language of document '" + parserDoc.getOID() + "' is: " + res.getName(0) + ", " + res.getScore(0));
+				lngs.add(res.getName(0));
+			} else if (res.getScore(0) > 0.35 && res.getScore(1) > 0.35) {
+				logger.debug("Primary languages of document '" + parserDoc.getOID() + "' are: " + res.getName(0) + ", " + res.getScore(0) + 
+						" - " + res.getName(1) + ", " + res.getScore(1));
+				lngs.add(res.getName(0));
+				lngs.add(res.getName(1));
+			}
 			parserDoc.setLanguages(lngs);
 		} else {
 			logger.debug("Primary language of document '" + parserDoc.getOID() + "' is unknown");
