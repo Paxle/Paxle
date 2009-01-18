@@ -40,7 +40,7 @@ public class Activator implements BundleActivator {
 		 * Registering the filter
 		 */
 		Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
-		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in", "org.paxle.parser.out;" + IFilter.PROP_FILTER_TARGET_POSITION + "=62"});
+		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in;" + IFilter.PROP_FILTER_TARGET_POSITION + "=-1", "org.paxle.parser.out;" + IFilter.PROP_FILTER_TARGET_POSITION + "=66"});
 		BlacklistFilter blacklistFilter = new BlacklistFilter(list);
 		bc.registerService(IFilter.class.getName(), blacklistFilter, filterProps);
 		

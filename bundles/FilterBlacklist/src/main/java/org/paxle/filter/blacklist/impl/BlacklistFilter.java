@@ -85,7 +85,8 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 		Iterator<?> eter = FileUtils.iterateFiles(this.blacklistDir, null, false);
 		while(eter.hasNext()) {
 			File blacklistFile = (File) eter.next();
-			new Blacklist(blacklistFile.getName(), blacklistFile, this);
+			Blacklist blacklist = new Blacklist(blacklistFile.getName(), blacklistFile, this);
+			blacklists.put(blacklistFile.getName(), blacklist);
 		}
 	}
 

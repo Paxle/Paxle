@@ -136,13 +136,17 @@ public class Blacklist {
 			if(m.matches()) {
 				time = System.currentTimeMillis() - time;
 				//System.out.println("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
-				logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
+				}
 				return new FilterResult(FilterResult.LOCATION_REJECTED, temp.pattern());
 			}
 		}
 		time = System.currentTimeMillis() - time;
 		//System.out.println("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
-		logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
+		}
 		return FilterResult.LOCATION_OKAY_RESULT;
 	}
 
