@@ -70,6 +70,7 @@ import org.paxle.core.monitorable.observer.impl.ObserverRule;
 import org.paxle.core.monitorable.provider.impl.JmxMonitoring;
 import org.paxle.core.monitorable.provider.impl.NetworkMonitoring;
 import org.paxle.core.monitorable.provider.impl.OsgiFrameworkMonitoring;
+import org.paxle.core.monitorable.provider.impl.PaxleCoreMonitoring;
 import org.paxle.core.monitorable.provider.impl.RuntimeMemoryMonitoring;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.norm.impl.ReferenceNormalizer;
@@ -254,7 +255,8 @@ public class Activator implements BundleActivator, InvocationHandler {
         
         this.initEclipseApplication(bc);
 	}
-	
+		
+	@SuppressWarnings("serial")
 	private void createAndRegisterMonitorables(BundleContext bc) {
 		// Java Runtime monitorable
 		final Hashtable<String,Object> rmmProps = new Hashtable<String,Object>();
@@ -270,6 +272,11 @@ public class Activator implements BundleActivator, InvocationHandler {
 		final Hashtable<String,Object> nwmProps = new Hashtable<String,Object>();
 		nwmProps.put(Constants.SERVICE_PID, NetworkMonitoring.SERVICE_PID);
 		bc.registerService(Monitorable.class.getName(), new NetworkMonitoring(), nwmProps);
+		
+		// Paxle core monitorable 
+		bc.registerService(Monitorable.class.getName(), new PaxleCoreMonitoring(bc), new Hashtable<String,Object>(){{
+			put(Constants.SERVICE_PID, PaxleCoreMonitoring.SERVICE_PID);
+		}});
 		
 		// JMX monitorable
 		try {
