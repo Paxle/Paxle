@@ -65,7 +65,7 @@
 </ul>
 
 ## the regular content
-<form method="post" action="">
+<form method="post" action="${request.getServletPath()}">
 <fieldset id="dgeneral">
 <legend>${text.legend.general}</legend>
 	<p>
@@ -87,7 +87,7 @@
 		#foreach( $crawler in $crawlers)
 			#if($crawler.isPaused())
 				${text.crawler.status.paused.insert('statusPaused')}				
-				<form method="get" action="#dcrawler">
+				<form method="get" action="${request.getServletPath()}">
 					<p>
 						<input class="btnResume" type="submit" name="resumeCrawl" value="${text.crawler.doResume}" />
 						<input type="submit" name="processNextCrawl" value="${text.crawler.doNext}" />
@@ -95,7 +95,7 @@
 				</form>
 			#else 
 				${text.crawler.status.running.insert('statusRunning')}
-				<form method="get" action="#dcrawler">
+				<form method="get" action="${request.getServletPath()}">
 					<p>
 						<input class="btnPause" type="submit" name="pauseCrawl" value="${text.crawler.doPause}" />
 					</p>
@@ -112,10 +112,6 @@
 	#set($crawlers = $subCrawlerManager.getSubCrawlers())		
 	<p>${text.crawler.supportedPrototocols.status.insert("<strong>$crawlers.size()</strong>", "<strong>$protocols.size()</strong>")}</p>
 	
-	## Enable/Disable protocols if requested
-	#if( $paramParser.getString( "doEnableProtocol")) $subCrawlerManager.enableProtocol( $paramParser.getString( "enableProtocol"))#end
-	#if( $paramParser.getString( "doDisableProtocol")) $subCrawlerManager.disableProtocol( $paramParser.getString( "disableProtocol"))#end
-
 	<table>
 		<tr><th>${text.crawler.protocol}</th><th colspan="2">${text.crawler.status}</th></tr>
 		#set( $disabledProtocols = $subCrawlerManager.disabledProtocols())
@@ -129,15 +125,14 @@
 				    #end
 				</td>
 				<td>
-					<form method="get" action="#dcrawler">
+					<form method="get" action="${request.getServletPath()}">
 						<div>
 							#if( $disabledProtocols.contains( $protocol))
-							<input class="btnEnable" type="submit" name="doEnableProtocol" value="${text.status.doEnable}" />
-							<input type="hidden" name="enableProtocol" value="$protocol" />
+							<input class="btnEnable" type="submit" name="doEnableProtocol" value="${text.status.doEnable}" />							
 							#else
 							<input class="btnDisable" type="submit" name="doDisableProtocol" value="${text.status.doDisable}" />
-							<input type="hidden" name="disableProtocol" value="$protocol" />
 							#end
+							<input type="hidden" name="protocol" value="$protocol" />
 						</div>
 					</form>
 				</td>
@@ -186,10 +181,6 @@
 	#set( $mimeTypes = $subParserManager.getMimeTypes())
 	#set( $parsers = $subParserManager.getSubParsers())		
 	<p>${text.parser.supportedMimeTypes.status.insert("<strong>$parsers.size()</strong>","<strong>$mimeTypes.size()</strong>")}</p>
-	
-	## Enable/Disable mime-types if requested
-	#if( $paramParser.getString( "doEnableMimeType")) $subParserManager.enableMimeType( $paramParser.getString( "enableMimeType"))#end
-	#if( $paramParser.getString( "doDisableMimeType")) $subParserManager.disableMimeType( $paramParser.getString( "disableMimeType"))#end		
 
 	<table>
 		<tr><th>${text.parser.mimeType}</th><th colspan="2">${text.parser.status}</th></tr>
@@ -204,15 +195,14 @@
 			    #end
 			</td>
 			<td>
-				<form method="get" action="#dparser">
+				<form method="get" action="${request.getServletPath()}">
 					<div>
 						#if( $disabledMimeTypes.contains( $mimeType))
-						<input class="btnEnable" type="submit" name="doEnableMimeType" value="${text.status.doEnable}" />
-						<input type="hidden" name="enableMimeType" value="$mimeType" />
+						<input class="btnEnable" type="submit" name="doEnableMimeType" value="${text.status.doEnable}" />						
 						#else
 						<input class="btnDisable" type="submit" name="doDisableMimeType" value="${text.status.doDisable}" />
-						<input type="hidden" name="disableMimeType" value="$mimeType" />
 						#end
+						<input type="hidden" name="mimeType" value="$mimeType" />
 					</div>
 				</form>
 			</td>
@@ -271,11 +261,6 @@
 		
 	<h3>${text.se.supportedProviders.title}:</h3>
 	<p>${text.se.supportedProviders.status.insert($sp.getSearchProviders().size())}:</p>
-	
-	## Enable/Disable providers
-	#if( $paramParser.getString( "doEnableSEProvider")) $sp.enableProvider( $paramParser.getString( "enableSEProvider"))#end
-	#if( $paramParser.getString( "doDisableSEProvider")) $sp.disableProvider( $paramParser.getString( "disableSEProvider"))#end	
-	
 
 	<table>
 		<tr><th>${text.se.provider}</th><th colspan="2">${text.se.status}</th></tr>
@@ -284,21 +269,20 @@
 		<tr>
 			<td>$searchprovider.getClass().getName()</td>
 			<td>#if( $disabledSEProviders.contains( $searchprovider.getClass().getName()))
-				<span class="statusDisabled">${ŧext.status.disabled}</span>
+				<span class="statusDisabled">${text.status.disabled}</span>
 				#else
 				<span class="statusEnabled">${text.status.enabled}</span>
 				#end
 			</td>
 			<td>
-				<form method="get" action="#dsearch">
+				<form method="get" action="${request.getServletPath()}">
 					<div>
 						#if( $disabledSEProviders.contains( $searchprovider.getClass().getName()))
 						<input class="btnEnable" type="submit" name="doEnableSEProvider" value="${text.status.doEnable}" />
-						<input type="hidden" name="enableSEProvider" value="$searchprovider.getClass().getName()" />
 						#else
 						<input class="btnDisable" type="submit" name="doDisableSEProvider" value="${text.status.doDisable}" />
-						<input type="hidden" name="disableSEProvider" value="$searchprovider.getClass().getName()" />
 						#end
+						<input type="hidden" name="seProvider" value="$searchprovider.getClass().getName()" />
 					</div>
 				</form>
 			</td>

@@ -21,9 +21,12 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.IMWComponent;
+import org.paxle.crawler.ISubCrawlerManager;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 import org.paxle.gui.IServletManager;
+import org.paxle.parser.ISubParserManager;
+import org.paxle.se.search.ISearchProviderManager;
 
 public class StatusView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
@@ -76,6 +79,66 @@ public class StatusView extends ALayoutServlet {
 				
 				// redirecting to shutdown-servlet
 				response.sendRedirect(servletManager.getFullAlias("/sysctrl") + "?action=restart");
+			} else if (
+				(request.getParameter("doEnableProtocol") != null)    || 
+				(request.getParameter("doDisableProtocol") != null)
+			){				
+				// check user authentication
+				if (!this.isUserAuthenticated(request, response, true)) return;				
+				
+				// getting the crawler manager
+				ISubCrawlerManager crawlerManager = (ISubCrawlerManager) manager.getService(ISubCrawlerManager.class.getName());
+				String protocol = request.getParameter("protocol");
+				
+				// enable or disable protocol
+				if (request.getParameter("doEnableProtocol") != null) {
+					crawlerManager.enableProtocol(protocol);
+				} else if (request.getParameter("doDisableProtocol") != null) {
+					crawlerManager.disableProtocol(protocol);
+				}
+				
+				// redirecting request
+				response.sendRedirect(request.getServletPath() + "#dcrawler");
+			} else if (
+				(request.getParameter("doEnableMimeType") != null)    || 
+				(request.getParameter("doDisableMimeType") != null)
+			){
+				// check user authentication
+				if (!this.isUserAuthenticated(request, response, true)) return;
+				
+				// getting the parser manager
+				ISubParserManager parserManager = (ISubParserManager) manager.getService(ISubParserManager.class.getName());
+				String mimeType = request.getParameter("mimeType");
+				
+				// enable or disable mimetype
+				if (request.getParameter("doEnableMimeType") != null) {
+					parserManager.enableMimeType(mimeType);
+				} else if (request.getParameter("doDisableMimeType") != null) {
+					parserManager.disableMimeType(mimeType);
+				}
+				
+				// redirecting request
+				response.sendRedirect(request.getServletPath() + "#dparser");
+			} else if (
+				(request.getParameter("doEnableSEProvider") != null)  || 
+				(request.getParameter("doDisableSEProvider") != null)				
+			) {
+				// check user authentication
+				if (!this.isUserAuthenticated(request, response, true)) return;
+				
+				// getting se-provider manager
+				ISearchProviderManager seProviderManager = (ISearchProviderManager) manager.getService(ISearchProviderManager.class.getName());
+				String seProvider = request.getParameter("seProvider");
+				
+				// enable or disable provider
+				if (request.getParameter("doEnableSEProvider") != null) {
+					seProviderManager.enableProvider(seProvider);
+				} else if (request.getParameter("doDisableSEProvider") != null) {
+					seProviderManager.disableProvider(seProvider);
+				}
+				
+				// redirecting request
+				response.sendRedirect(request.getServletPath() + "#dsearch");
 			} else {		
 				super.doRequest(request, response);
 			}
