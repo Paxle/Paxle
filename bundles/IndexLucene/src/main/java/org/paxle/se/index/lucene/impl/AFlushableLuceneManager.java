@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.logging.Log;
@@ -34,9 +36,8 @@ import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.Directory;
-
+import org.apache.lucene.store.FSDirectory;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IIndexIteratable;
@@ -63,14 +64,24 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	private boolean dirty = false;
 	private int docCount = -1;
 	
+	/**
+	 * A timer to periodically trigger a writer flush
+	 */
+	private final Timer flushTimer;
+	
 	public AFlushableLuceneManager(final String path, final PaxleAnalyzer analyzer) throws IOException {
 		this.path = path;
 		this.analyzer = analyzer;
 		final Directory dir = FSDirectory.getDirectory(path);
 		this.writer = new IndexWriter(dir, analyzer, MaxFieldLength.UNLIMITED);
 		this.reader = IndexReader.open(dir, true);		// open a read-only index, deletions are performed by the writer
+				
+		// getting the amount of known documents
+		this.docCount = reader.numDocs();
 		
-		docCount = reader.numDocs();
+		// starting a flush timer
+		this.flushTimer = new Timer("LuceneFlushTimer");
+		this.flushTimer.scheduleAtFixedRate(new FlushTimerTask(), 60*60*1000, 60*60*1000);
 	}
 	
 	/**
@@ -132,11 +143,18 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	}
 	
 	public void close() throws IOException {
+		// canceling the flush timer
+		this.flushTimer.cancel();		
+		// XXX should we wait for a while here?
+		
+		// closing readers and writers
 		this.wlock.lock();
 		try {
 			this.writer.close();
 			this.reader.close();
-		} finally { this.wlock.unlock(); }
+		} finally { 
+			this.wlock.unlock(); 
+		}
 	}
 	
 	public Document getDocument(int doc) throws IOException {
@@ -376,5 +394,23 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 			} while (this.field != null && ret != null && !this.field.getName().equals(ret.field()));
 			return ret;
 		}
+	}
+	
+	private class FlushTimerTask extends TimerTask {
+		private final Log logger = LogFactory.getLog(this.getClass());
+		
+		@Override
+		public void run() {
+			try {
+				checkFlush();
+				this.logger.info("Index auto-flush executed successfully.");
+			} catch (IOException e) {
+				this.logger.error(String.format(
+						"Unexpected '%s' while trying to flush the index to disk.",
+						e.getClass().getName()
+				),e);
+			}			
+		}
+		
 	}
 }
