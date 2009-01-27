@@ -152,7 +152,7 @@ public class CommandEvent {
 	private static void extractCommandProps(String componentID, ICommand command, Dictionary properties) {
 		properties.put(PROP_COMMAND_ID, Long.valueOf(command.getOID()));
 		properties.put(PROP_PROFILE_ID, Long.valueOf(command.getProfileOID()));
-		properties.put(PROP_COMMAND_LOCATION, command.getLocation().toASCIIString());
+		properties.put(PROP_COMMAND_LOCATION, command.getLocation().toString());
 		
 		ICommand.Result result = command.getResult();
 		properties.put(PROP_COMMAND_RESULT, result==null?ICommand.Result.Passed.name():result.name());
