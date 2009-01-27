@@ -61,26 +61,27 @@
 						<input type="hidden" name="pid" value="$PID"/>
 						<input type="hidden" name="bundleID" value="${bundle.getBundleId()}"/>
 						
-                    	<table>
-                    	<tr>
-                    		<th>${text.listConfig.name}</th>
+                    				<table>
+                    				<tr>
+                    					<th>${text.listConfig.name}</th>
 							<th>${text.listConfig.type}</th>
-                    		<th>${text.listConfig.value}</th>
+                    					<th>${text.listConfig.value}</th>
 							<th>${text.listConfig.desc}</th>
-                    	</tr>
-                    	#foreach($attribute in $attributes)
+                    				</tr>
+                    				#foreach($attribute in $attributes)
 							#set($attributeID = ${attribute.getID()})								
 							#set($attribValue = ${settingsView.getPropertyValue($configProps,$attribute)})
 							#set($attribType = ${dataTypes.get($attribute.getType())})
+							#set($attribCardinality = ${attribute.getCardinality()})
+							#set($optionsAvailable = ${attribute.getOptionLabels()} && $listTool.size(${attribute.getOptionLabels()}) > 0)
 							#set($optionLabels = ${attribute.getOptionLabels()})
 							#set($optionValues = ${attribute.getOptionValues()})
-							#set($attribCardinality = ${attribute.getCardinality()})
 							
-                    		<tr class="$color">
-                    			<td>$attribute.getName()</td>
+                    					<tr class="$color">
+                    						<td>$attribute.getName()</td>
 								<td><tt>$attribType</tt></td>
-                    			<td>
-									#if($optionLabels && $listTool.size($optionLabels) > 0)
+                    						<td>
+									#if($optionsAvailable)
 										<select name="$attributeID"
 										#set($numOptions = $listTool.size($optionLabels))
 										#if($attribCardinality == 0)
@@ -139,10 +140,10 @@
 										<p><em>${text.listConfig.passwordPlaintextWarning}</em></p>
 									#end
 								</td>
-                    		</tr>                            		
-                    	#end
-                    	</table>
-                    	<div class="buttonBar">
+                    					</tr>                            		
+                    				#end
+                    				</table>
+                    				<div class="buttonBar">
 						#if(!$paramParser.getString("viewImportedConfig"))
 							<input type="submit" name="doEditConfig" value="${text.listConfig.doChange}"/>
 							<input type="submit" name="doResetConfig" value="${text.listConfig.doReset}" />
@@ -152,7 +153,7 @@
 							<input type="hidden" name="viewImportedConfig"/>
 						#end
 						<a class="button" id="backButton" href="?settings=config#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${text.listConfig.goBackToOverview}</a>
-			</div>
+						</div>
 					</form>
 				#end
 				<hr/>
@@ -161,12 +162,12 @@
 		
 		#if($PID == "org.paxle.gui.IStyleManager")
 			<b>${text.styleManager.uploadStyles}</b>
-            <form enctype="multipart/form-data" method="post" action="?doInstallStyle=">
-            	<p>
-            		<input type="file" name="styleJar" size="60" />
-            		<input type="submit" name="doUpload" value="${text.styleManager.doInstall}" />
-            	</p>
-            </form>
+            		<form enctype="multipart/form-data" method="post" action="?doInstallStyle=">
+            		<p>
+            			<input type="file" name="styleJar" size="60" />
+            			<input type="submit" name="doUpload" value="${text.styleManager.doInstall}" />
+            		</p>
+            		</form>
 		#end	
 	#else 
 		#if($paramParser.getString("viewImportedConfig"))
