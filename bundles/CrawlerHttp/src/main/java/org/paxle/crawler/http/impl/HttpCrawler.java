@@ -82,6 +82,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	static final String PROP_MAXDOWNLOAD_SIZE 			= PID + '.' + "maxDownloadSize";
 	static final String PROP_ACCEPT_ENCODING 			= PID + '.' + "acceptEncodings";
 	static final String PROP_TRANSFER_LIMIT 			= PID + '.' + "transferLimit";			// in KB/s
+	static final String PROP_COOKIE_POLICY 			    = PID + '.' + "cookiePolicy";
 	
 	static final String PROP_PROXY_USE 					= PID + '.' + "useProxy";
 	static final String PROP_PROXY_HOST 				= PID + '.' + "proxyHost";
@@ -89,6 +90,9 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	static final String PROP_PROXY_USER 				= PID + '.' + "proxyUser";
 	static final String PROP_PROXY_PASSWORD 			= PID + '.' + "proxyPassword";
 	
+	/* =========================================================
+	 * Constants for HTTP headers
+	 * ========================================================= */
 	private static final String HTTPHEADER_ETAG = "ETag";
 	private static final String HTTPHEADER_LAST_MODIFIED = "Last-Modified";
 	private static final String HTTPHEADER_DATE = "Date";
@@ -111,7 +115,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 */
 	private static final HashSet<String> ERRONEOUS_MIME_TYPES = new HashSet<String>(Arrays.asList(
 			"text/plain",
-			"application/x-tar"));
+			"application/x-tar"
+	));
 	
 	/**
 	 * The protocol(s) supported by this crawler
@@ -141,6 +146,12 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	
 	private boolean acceptEncoding = true;
 	private CrawlerTools.LimitedRateCopier lrc = null;
+	
+	/**
+	 * The Cookie policy to use for crawling
+	 * @see CookiePolicy
+	 */
+	private String cookiePolicy = null;
 	
 	private Properties props = null;
 	private final ConcurrentHashMap<String,Integer> hostSettings;
@@ -204,6 +215,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		defaults.put(PROP_MAXCONNECTIONS_PER_HOST, Integer.valueOf(10));
 		defaults.put(PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(10485760));
 		defaults.put(PROP_ACCEPT_ENCODING, Boolean.TRUE);
+		defaults.put(PROP_COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
 		defaults.put(PROP_TRANSFER_LIMIT, Integer.valueOf(-1));
 		
 		defaults.put(PROP_PROXY_USE, Boolean.FALSE);
@@ -266,6 +278,10 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			final Boolean acceptEncoding = (Boolean)configuration.get(PROP_ACCEPT_ENCODING);
 			if (acceptEncoding != null)
 				this.acceptEncoding = acceptEncoding.booleanValue();
+			
+			// the cookie policy to use for crawling
+			final String propCookiePolicy = (String)configuration.get(PROP_COOKIE_POLICY);
+			this.cookiePolicy = (propCookiePolicy == null || propCookiePolicy.length()==0) ? CookiePolicy.BROWSER_COMPATIBILITY : propCookiePolicy;
 			
 			// download limit in bytes
 			final Integer maxDownloadSize = (Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE);
@@ -335,7 +351,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * Currently the following attributes (represented as HTTP header values in the final request)
 	 * are set:
 	 * <ul>
-	 *   <li>cookies shall be rejected ({@link CookiePolicy#IGNORE_COOKIES})</li>
+	 *   <li>the cookie policy to use ({@link #PROP_COOKIE_POLICY})</li>
 	 *   <li>
 	 *     if enabled, content-transformation using <code>compress</code>, <code>gzip</code> and
 	 *     <code>deflate</code> is supported</li>
@@ -345,7 +361,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * @param method the method to set the standard attributes on
 	 */
 	private void initRequestMethod(final HttpMethod method) throws URIException {
-		method.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+		method.getParams().setCookiePolicy(this.cookiePolicy==null?CookiePolicy.BROWSER_COMPATIBILITY:this.cookiePolicy);
 		if (acceptEncoding && !isHostSettingSet(method.getURI().getHost(), PREF_NO_ENCODING))
 			method.setRequestHeader(HTTPHEADER_ACCEPT_ENCODING, "compress, gzip, identity, deflate");	// see RFC 2616, section 14.3
 		

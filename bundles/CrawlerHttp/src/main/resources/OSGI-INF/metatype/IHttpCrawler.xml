@@ -42,6 +42,18 @@
 				default="true"
 				description="%httpCrawler.useAcceptEncoding.desc" />
 		
+		<AD name="%httpCrawler.cookiePolicy.name"
+				type="String"
+				id="org.paxle.crawler.http.IHttpCrawler.cookiePolicy"
+				default="compatibility"
+				description="%httpCrawler.cookiePolicy.desc">
+				<Option label="%httpCrawler.cookiePolicy.browser.name" value="compatibility"/>
+				<Option label="%httpCrawler.cookiePolicy.netscape.name" value="netscape"/>
+				<Option label="%httpCrawler.cookiePolicy.rfc2109.name" value="rfc2109"/>
+				<Option label="%httpCrawler.cookiePolicy.rfc2965.name" value="rfc2965"/>
+				<Option label="%httpCrawler.cookiePolicy.ignoreCookies.name" value="ignoreCookies"/>
+		</AD>
+		
 		<AD name="%httpCrawler.transferRateLimit.name"
 				type="Integer"
 				id="org.paxle.crawler.http.IHttpCrawler.transferLimit"
