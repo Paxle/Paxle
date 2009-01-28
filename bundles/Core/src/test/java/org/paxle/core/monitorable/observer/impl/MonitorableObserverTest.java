@@ -15,8 +15,6 @@ package org.paxle.core.monitorable.observer.impl;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.osgi.framework.internal.core.FilterImpl;
 import org.hamcrest.Description;
@@ -25,19 +23,24 @@ import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.monitor.MonitorAdmin;
 import org.osgi.service.monitor.Monitorable;
-import org.paxle.core.monitorable.observer.impl.MonitorableObserver;
+import org.osgi.service.monitor.StatusVariable;
 
 public class MonitorableObserverTest extends MockObjectTestCase {
 	private BundleContext bc;
 	
+	private ServiceReference eventAdminRef;
 	private EventAdmin eventAdmin;
 	
+	private ServiceReference monitorAdminRef;
 	private MonitorAdmin monitorAdmin;
 	
 	@Override
@@ -46,6 +49,12 @@ public class MonitorableObserverTest extends MockObjectTestCase {
 		
 		// mocking an OSGi bundle context
 		bc = mock(BundleContext.class);
+		this.eventAdminRef = mock(ServiceReference.class,"eventAdminRef");
+		this.eventAdmin = mock(EventAdmin.class);
+		this.monitorAdminRef = mock(ServiceReference.class,"monitorAdminRef");
+		this.monitorAdmin = mock(MonitorAdmin.class);		
+		
+		
 		checking(new Expectations(){{
 			// creating the ldap styled filter
 			allowing(bc).createFilter(with(any(String.class)));
@@ -55,15 +64,19 @@ public class MonitorableObserverTest extends MockObjectTestCase {
 					return new FilterImpl((String)invocation.getParameter(0));
 				}				
 			});
-			
+
 			allowing(bc).addServiceListener(with(any(ServiceListener.class)), with(any(String.class)));
 			allowing(bc).registerService(with(any(String.class)), with(anything()), with(any(Dictionary.class)));
-			allowing(bc).getServiceReferences(Monitorable.class.getName(), null); will(returnValue(null));
+			
+			// getting the monitor-admin service			
+			allowing(bc).getServiceReference(MonitorAdmin.class.getName()); will(returnValue(monitorAdminRef));
+			allowing(bc).getService(monitorAdminRef); will(returnValue(monitorAdmin));
+			allowing(monitorAdmin).startScheduledJob(with(any(String.class)), with(any(String[].class)), with(any(int.class)), with(any(int.class)));
+			
+			// functions to return the event-admin
+			allowing(bc).getServiceReference(EventAdmin.class.getName()); will(returnValue(eventAdminRef));
+			allowing(bc).getService(eventAdminRef); will(returnValue(eventAdmin));
 		}});
-		
-		// mocking event- and monitor-admin services
-		this.eventAdmin = mock(EventAdmin.class);
-		this.monitorAdmin = mock(MonitorAdmin.class);
 	}
 	
 //	public void testExtractMonitorables() {
@@ -103,16 +116,57 @@ public class MonitorableObserverTest extends MockObjectTestCase {
 		assertTrue(f.match(values));
 	}
 	
-//	public void testMonitorableObserver() throws InvalidSyntaxException {
-//		// creating an observer
-//		AMonitorableObserver o = new MonitorableObserverEventSender(
-//				this.bc,
-//				this.eventAdmin,
-//				this.monitorAdmin,
-//				"(|(java.lang.runtime/memory.free <= 10240)(os.disk/disk.space.free<=256))",
-//				null
-//		);
-//		
-//		System.out.println("finished");
-//	}
+	@SuppressWarnings("serial")
+	public void testMonitorableObserver() throws InvalidSyntaxException {
+		Filter testFilter = bc.createFilter("(|(java.lang.runtime/memory.free <= 10240)(os.disk/disk.space.free<=256))");
+		
+		// a dummy monitorable
+		final String MONITORABLE_PID = "java.lang.runtime";
+		final ServiceReference monitorableRef = mock(ServiceReference.class);
+		final Monitorable monitorable = mock(Monitorable.class);
+		
+		// a dummy monitorable-variable
+		final String VAR_NAME = "memory.free";
+		final int varValue = 10239;
+		final StatusVariable var = new StatusVariable(VAR_NAME,StatusVariable.CM_GAUGE,varValue);
+		
+		// defining more expectations
+		checking(new Expectations(){{			
+			// query of available monitorables
+			allowing(bc).getServiceReferences(Monitorable.class.getName(), null); will(returnValue(new ServiceReference[]{monitorableRef}));
+			allowing(bc).getService(monitorableRef); will(returnValue(monitorable));
+			
+			// getting monitorable properties
+			allowing(monitorableRef).getProperty(Constants.SERVICE_PID); will(returnValue(MONITORABLE_PID));
+			allowing(monitorable).getStatusVariable(VAR_NAME); will(returnValue(var));
+			
+			// at least one event must be sent
+			one(eventAdmin).postEvent(with(any(Event.class)));
+		}});
+		
+		// creating an observer
+		MonitorableObserver observer = new MonitorableObserver(
+        		bc, 
+        		new ObserverRule(
+        				// Filter based condition
+        				new ObserverFilterCondition(testFilter),
+        				// triggers an event
+        				new ObserverEventSenderConcequence(bc, new Hashtable<String, Object>(){
+						{
+        			        put("prop1","test1");
+        			        put("prop2", Boolean.FALSE);
+        				}})
+        		)
+        ); 
+		
+		// creating a dummy event
+		Event event = new Event("test", new Hashtable<String, Object>(){{
+			put("mon.monitorable.pid",MONITORABLE_PID);
+			put("mon.statusvariable.name",VAR_NAME);
+			put("mon.statusvariable.value",Integer.toString(varValue));
+		}});		
+		
+		// send event
+		observer.handleEvent(event);
+	}
 }

@@ -182,7 +182,11 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 			// testing if one filter matches current state
 			for (IObserverRule rule : this.rules) {
 				if (rule.match(this.currentState)) {
-					this.logger.info("Matching rule found: " + rule.toString());
+					this.logger.info(String.format(
+							"Matching rule found: %s\r\nCurrent state: %s",
+							rule.toString(),
+							this.currentState.toString()
+					));
 					rule.triggerAction(this.currentState);				
 				}
 			}
