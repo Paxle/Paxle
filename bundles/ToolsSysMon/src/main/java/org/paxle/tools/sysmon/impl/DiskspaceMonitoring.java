@@ -41,7 +41,7 @@ public class DiskspaceMonitoring implements Monitorable {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}		
 		
-		return "Free Disk";
+		return "Free disk space in MB.";
 	}
 
 	public StatusVariable getStatusVariable(String name) throws IllegalArgumentException {
