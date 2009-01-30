@@ -219,7 +219,7 @@ public class NodeCollector extends NodeVisitor {
 					continue;
 				final URI uri = refNorm.normalizeReference(absUrl);
 				if (uri != null)
-					this.doc.addReference(uri, unescaped);
+					this.doc.addReference(uri, unescaped, "ParserHtml");
 			}
 	}
 	
@@ -378,7 +378,7 @@ public class NodeCollector extends NodeVisitor {
 		
 		final URI uri = refNorm.normalizeReference(HtmlTools.deReplaceHTML(link));
 		if (uri != null) {
-			final LinkInfo linkInfo = new LinkInfo(HtmlTools.deReplaceHTML(tag.getLinkText().trim()));
+			final LinkInfo linkInfo = new LinkInfo(HtmlTools.deReplaceHTML(tag.getLinkText().trim()), "ParserHtml");
 			if (noFollowLinks)
 				linkInfo.setStatus(LinkInfo.Status.FILTERED, "forbidden by HTML meta tag");
 			this.doc.addReference(uri, linkInfo);

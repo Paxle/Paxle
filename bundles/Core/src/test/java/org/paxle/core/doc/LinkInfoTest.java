@@ -51,7 +51,7 @@ public class LinkInfoTest extends TestCase {
 	}
 	
 	public void testToString() {
-		LinkInfo dummy = new LinkInfo("test", LinkInfo.Status.FILTERED, "blocked URI");
+		LinkInfo dummy = new LinkInfo("test", LinkInfo.Status.FILTERED, "blocked URI", "Testcase");
 		assertNotNull(dummy.toString());
 	}
 }

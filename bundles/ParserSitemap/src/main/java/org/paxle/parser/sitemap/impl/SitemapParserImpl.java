@@ -103,7 +103,7 @@ public class SitemapParserImpl extends ASubParser implements SitemapParser {
 				for (Url url : urls) {
 					if (url == null) break;
 					// TODO: we could extract more metadata for each url here
-					pdoc.addReference(url.getLocation(), url.getLocation().toASCIIString());
+					pdoc.addReference(url.getLocation(), url.getLocation().toASCIIString(), "ParserSitemap");
 				}				
 			}
 			

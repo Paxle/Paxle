@@ -102,7 +102,7 @@ public class XbelParser extends ASubParser implements ISubParser {
 		String title = bm.getTitle();
 		String url = bm.getHref();
 		if (url != null) {
-			pdoc.addReference(URI.create(url), title==null?url:title);
+			pdoc.addReference(URI.create(url), title==null?url:title, "ParserXbel");
 		}
 		
 		String desc = bm.getDesc();

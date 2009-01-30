@@ -106,22 +106,18 @@ public class ParserDocument implements IParserDocument {
 		this.keywords.add(whitespaces2Space(keyword));
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#addLanguage(java.lang.String)
-	 */
 	public void addLanguage(String lang) {
 		this.languages.add(lang);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#addReference(java.lang.String, java.lang.String)
-	 */
 	public void addReference(URI ref, String name) {
+		addReference(ref, name, null);
+	}
+	
+	public void addReference(URI ref, String name, String origin) {
 		if (ref == null) return;
 		name = whitespaces2Space(name);
-		this.addReference(ref, new LinkInfo(name));
+		this.addReference(ref, new LinkInfo(name, origin));
 	}
 	
 	public void addReference(URI ref, LinkInfo info) {
@@ -468,5 +464,5 @@ public class ParserDocument implements IParserDocument {
 	private static String whitespaces2Space(String text) {
 		if (text == null) return null;
 		return text.replaceAll("\\s", " ").trim();
-	}	
+	}
 }

@@ -69,7 +69,7 @@ public class RobotsTxtFilterTest extends MockObjectTestCase {
 		final URI link = URI.create("http://www.test1.at/");
 		
 		final Map<URI, LinkInfo> uriMap = new HashMap<URI, LinkInfo>();
-		uriMap.put(link, new LinkInfo("test", Status.FILTERED));
+		uriMap.put(link, new LinkInfo("test", Status.FILTERED, "Testcase"));
 		
 		// define mock conditions
 		checking(new Expectations() {{

@@ -88,8 +88,8 @@ public class ProtocolFilterTest extends MockObjectTestCase {
 	
 	public void testMustSkipNotOKUri() {
 		Map<URI, LinkInfo> uriMap = new HashMap<URI, LinkInfo>();
-		uriMap.put(URI.create("http://www.test1.at/"), new LinkInfo("test1", Status.FILTERED));
-		uriMap.put(URI.create("http://www.test2.at/"), new LinkInfo("test1", Status.FILTERED));
+		uriMap.put(URI.create("http://www.test1.at/"), new LinkInfo("test1", Status.FILTERED, "Testcase"));
+		uriMap.put(URI.create("http://www.test2.at/"), new LinkInfo("test1", Status.FILTERED, "Testcase"));
 		
 		checking(new Expectations() {{
 			never(crawlerManager);

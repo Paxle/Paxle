@@ -91,7 +91,7 @@ public class PlainParser implements IPlainParser {
 			final Matcher m = URI_PATTERN.matcher(token);
 			URI uri;
 			if (m.find() && (uri = refNorm.normalizeReference(removePrePostFixes(token))) != null) {
-				pdoc.addReference(uri, token);
+				pdoc.addReference(uri, token, "ParserPlain");
 			} else {
 				sb.append(token).append(' ');
 			}

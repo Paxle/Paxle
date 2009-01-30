@@ -156,7 +156,7 @@ public class FeedParser extends ASubParser implements IFeedParser {
 					idoc.addHeadline(itemTitle);
 					
 					if (itemURL != null)
-						idoc.addReference(itemURL, itemTitle);
+						idoc.addReference(itemURL, itemTitle, "ParserFeed");
 					
 					if (itemDescr != null)
 						idoc.addText(itemDescr);
