@@ -88,9 +88,15 @@ public class CommandDBTest extends MockObjectTestCase {
 	/**
 	 * @return additional properties that should be passed to hibernate
 	 */
-	private Properties getExtraProperties(String connectionString) {
+	private Properties getExtraProperties(String connectionString, String username, String password) {
 		Properties props = new Properties();
 		props.put("connection.url", connectionString);
+		if (username != null) {
+			props.put("connection.username", username);
+		}
+		if (password != null) {
+			props.put("connection.password", password);
+		}
 		props.put("hibernate.connection.url", connectionString);
 		return props;
 	}
@@ -108,12 +114,12 @@ public class CommandDBTest extends MockObjectTestCase {
 		this.deleteTestDataDirs();
 	}
 	
-	private void setupDB(String hibernateConfigFile, String connectionURL) throws MalformedURLException {	
+	private void setupDB(String hibernateConfigFile, String connectionURL, String username, String password) throws MalformedURLException {	
 		// create and init the command-db
 		this.cmdDB = new CommandDB(
 				this.getConfigFile(hibernateConfigFile),
 				this.getMappingFiles(),
-				this.getExtraProperties(connectionURL),
+				this.getExtraProperties(connectionURL, username, password),
 				this.cmdTracker		
 		);
 		
@@ -193,6 +199,7 @@ public class CommandDBTest extends MockObjectTestCase {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void storeUnknownLocation() throws InterruptedException {
 		final int MAX = 10;
 		
@@ -243,7 +250,7 @@ public class CommandDBTest extends MockObjectTestCase {
 	
 	public void testStoreUnknownLocationDerby() throws MalformedURLException, InterruptedException {
 		// setup DB
-		this.setupDB(DERBY_CONFIG_FILE, DERBY_CONNECTION_URL);
+		this.setupDB(DERBY_CONFIG_FILE, DERBY_CONNECTION_URL, null, null);
 		
 		// start test
 		this.storeUnknownLocation();
@@ -251,7 +258,7 @@ public class CommandDBTest extends MockObjectTestCase {
 	
 	public void testStoreUnknownLocationH2() throws MalformedURLException, InterruptedException {
 		// setup DB
-		this.setupDB(H2_CONFIG_FILE, H2_CONNECTION_URL);
+		this.setupDB(H2_CONFIG_FILE, H2_CONNECTION_URL, "sa", "");
 		
 		// start test
 		this.storeUnknownLocation();
@@ -266,8 +273,8 @@ public class CommandDBTest extends MockObjectTestCase {
 		
 		// setup DB
 		// this.setupDB(POSTGRESQL_CONFIG_FILE, String.format(POSTGRESQL_CONNECTION_URL,"192.168.10.201"));
-		//this.setupDB(H2_CONFIG_FILE, H2_CONNECTION_URL);
-		this.setupDB(DERBY_CONFIG_FILE, DERBY_CONNECTION_URL);		
+		//this.setupDB(H2_CONFIG_FILE, H2_CONNECTION_URL, "sa", "");
+		this.setupDB(DERBY_CONFIG_FILE, DERBY_CONNECTION_URL, null, null);		
 		
 		// command-tracker must be called MAX times
 		checking(new Expectations() {{

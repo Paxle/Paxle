@@ -154,7 +154,7 @@ public class Activator implements BundleActivator {
 		 */
 		String configStr = System.getProperty("CommandDB.configFile");
 		if (configStr != null) {
-			// the user has choosen a custom config file via system-properties
+			// the user has chosen a custom config file via system-properties
 			if (availableConfigs.containsKey(configStr)) {
 				// the props value is a key (e.g. "derby")
 				config = availableConfigs.get(configStr);

@@ -77,13 +77,13 @@ import org.paxle.data.db.ICommandDB;
 import org.paxle.data.db.URIQueueEntry;
 
 public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEntry>, ICommandDB, EventHandler, Monitorable {
-	
+
 	private static final String CACHE_DIR = "double-urls-caches";
 	private static final String BLOOM_CACHE_FILE = "doubleURLsCache.ser";
 	private static final String EHCACHE_NAME = "DoubleURLCache";
-	
+
 	private static final int MAX_IDLE_SLEEP = 60000;
-	
+
 	/* ======================================================================
 	 * MONITORABLE CONSTANTS
 	 * ====================================================================== */
@@ -91,17 +91,17 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	 * {@link Constants#SERVICE_PID} used to register the {@link Monitorable} interface
 	 */
 	public static final String PID = "org.paxle.data.cmddb";
-	
+
 	/**
 	 * @see #totalSize()
 	 */
 	private static final String MONITOR_TOTAL_SIZE = "size.total";
-	
+
 	/**
 	 * @see #enqueuedSize()
 	 */
 	private static final String MONITOR_ENQUEUED_SIZE = "size.enqueued";
-	
+
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
@@ -109,7 +109,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			MONITOR_TOTAL_SIZE,
 			MONITOR_ENQUEUED_SIZE
 	}));
-	
+
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
@@ -118,111 +118,111 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		VAR_DESCRIPTIONS.put(MONITOR_TOTAL_SIZE, "Total known URIs");
 		VAR_DESCRIPTIONS.put(MONITOR_ENQUEUED_SIZE, "Enqueued URIs");
 	}	
-	
+
 	private static final String UTF8 = "UTF-8";
 	/**
       * The cachemanager to use
       */
 	private CacheManager manager = null;
-	
+
 	/**
 	  * A cach to hold {@link RobotsTxt} objects in memory
 	  */
 	private Cache urlExistsCache = null;
-	
+
 	/**
 	 * Component to track {@link ICommand commands}
 	 */
 	private ICommandTracker commandTracker;
-	
+
 	/**
 	 * A {@link IDataSink data-sink} to write the loaded {@link ICommand commands} out
 	 */
 	private IDataSink<ICommand> sink = null;	
-	
+
 	/**
 	 * A {@link Thread thread} to read {@link ICommand commands} from the {@link #db database}
 	 * and write it into the {@link #sink data-sink}.
 	 */
 	private Writer writerThread = null;
-	
+
 	/**
 	 * A {@link Thread thread} to populate the double URLs cache from database.
 	 */
 	private PopulateThread populateThread = null;
-	
+
 	/**
 	 * The logger
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
-	
+
 	/**
 	 * The hibernate {@link SessionFactory}
 	 */
 	private SessionFactory sessionFactory;
-	
+
 	/**
 	 * The currently used db configuration
 	 */
 	private Configuration config; 
 
 	private boolean closed = false;
-	
+
 	/**
 	 * A set holding all known URLs
 	 */
 	private DynamicBloomFilter bloomFilter = null;
-	
+
 	/**
 	 * Total number of {@link URI} known to this DB
 	 */
 	private volatile long cntTotal;
-	
+
 	/**
 	 * Number of {@link URI} that are enqueued for processing 
 	 */
 	private volatile long cntCrawlerQueue;
-	
+
 	public CommandDB(URL configURL, List<URL> mappings, ICommandTracker commandTracker) {
 		this(configURL, mappings, null, commandTracker);
 	}
-	
+
 	public CommandDB(URL configURL, List<URL> mappings, Properties extraProperties, ICommandTracker commandTracker) {
 		if (configURL == null) throw new NullPointerException("The URL to the hibernate config file is null.");
 		if (mappings == null) throw new NullPointerException("The list of mapping files was null.");
-		
+
 		try {
 			this.commandTracker = commandTracker;
-			
+
 			/* ===========================================================================
 			 * Init Hibernate
 			 * =========================================================================== */
 			try {
 				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-				
+
 				// Read the hibernate configuration from *.cfg.xml
 				this.logger.info(String.format("Loading DB configuration from URL '%s'.",configURL));
 				this.config = new Configuration().configure(configURL);
-				
+
 				// register an interceptor (required to support our interface-based command model)
 				this.config.setInterceptor(new InterfaceInterceptor());
-				
+
 				// merge weith additional properties
 				if (extraProperties != null) {
 					this.config.addProperties(extraProperties);
 				}
-				
+
 				// post-processing of read properties
 				ConnectionUrlTool.postProcessProperties(this.config);
-				
+
 				// load the various mapping files
 				for (URL mapping : mappings) {
 					if (this.logger.isDebugEnabled()) this.logger.debug(String.format("Loading mapping file from URL '%s'.",mapping));
 					this.config.addURL(mapping);
 				}
-				
+
 				// String[] sql = this.config.generateSchemaCreationScript( new org.hibernate.dialect.DerbyDialect());					
-				
+
 				// create the session factory
 				this.sessionFactory = this.config.buildSessionFactory();
 			} catch (Throwable ex) {
@@ -230,26 +230,26 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				this.logger.error("Initial SessionFactory creation failed.",ex);
 				throw new ExceptionInInitializerError(ex);
 			}
-			this.manipulateDbSchema();
+			this.optimizeDbSchema();
 			cntTotal = this.totalSize();
 			cntCrawlerQueue = this.size("enqueued");
 			System.out.println("command-db size: " + cntTotal + ", to crawl: " + cntCrawlerQueue);
-			
+
 			/* ===========================================================================
 			 * Init Reader/Writer Threads
 			 * =========================================================================== */
 			this.writerThread = new Writer();
-			
+
 			/* ===========================================================================
 			 * Init Cache
 			 * =========================================================================== */
 			// configure caching manager
 			this.manager = CacheManager.getInstance();
-			
+
 			// init a new cache 
 			this.urlExistsCache = new Cache(EHCACHE_NAME, 100000, false, false, 60*60, 30*60);
 			this.manager.addCache(this.urlExistsCache);
-			
+
 			// init/open the double URLs cache, initializes the bloom-filter
 			openDoubleURLSet();
 		} catch (Throwable e) {
@@ -260,7 +260,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public String getDatabaseLocation() {
 		final String connection = config.getProperty("connection.url");
 		final int semicolon = connection.indexOf(';');
@@ -268,11 +268,11 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				connection.lastIndexOf(':') + 1,
 				(semicolon == -1) ? connection.length() : semicolon);
 	}
-	
+
 	/* =========================================================================
 	 * Monitorable support
 	 * ========================================================================= */
-	
+
 	/**
 	 * @see Monitorable#getDescription(String)
 	 */
@@ -280,10 +280,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		if (!VAR_NAMES.contains(id)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + id);
 		}	
-		
+
 		return VAR_DESCRIPTIONS.get(id);
 	}
-	
+
 	/**
 	 * @see Monitorable#getStatusVariable(String)
 	 */
@@ -291,42 +291,42 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		if (!VAR_NAMES.contains(id)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + id);
 		}		
-		
+
 		int value = -1;
 		if (id.equals(MONITOR_TOTAL_SIZE)) {
 			value = (int) this.size();
 		} else if (id.equals(MONITOR_ENQUEUED_SIZE)) {
 			value = (int) enqueuedSize();
 		}
-		
+
 		return new StatusVariable(id, StatusVariable.CM_CC, value);
 	}
-	
+
 	/**
 	 * @see Monitorable#getStatusVariableNames()
 	 */
 	public String[] getStatusVariableNames() {
 		return VAR_NAMES.toArray(new String[VAR_NAMES.size()]);
 	}
-	
+
 	/**
 	 * @see Monitorable#notifiesOnChange(String)
 	 */
 	public boolean notifiesOnChange(String id) throws IllegalArgumentException {
 		return false;
 	}
-	
+
 	/**
 	 * @see Monitorable#resetStatusVariable(String)
 	 */
 	public boolean resetStatusVariable(String id) throws IllegalArgumentException {
 		return false;
 	}
-	
+
 	/* =========================================================================
 	 * Management for the double URLs cache
 	 * ========================================================================= */
-	
+
 	private void closeDoubleURLSet() throws IOException {
 		final long start = System.currentTimeMillis();
 		final OutputStream fileOs = new FileOutputStream(new File(getCreateCacheDir(), BLOOM_CACHE_FILE));
@@ -340,7 +340,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			logger.info("Flushed double URLs cache (" + size + " entries) to disk in " + (end - start) + " ms");
 		} finally { ((dataOs == null) ? fileOs : dataOs).close(); }
 	}
-	
+
 	private File getCreateCacheDir() {
 		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + CACHE_DIR;
 		final File cacheDir = new File(dataPath);
@@ -348,10 +348,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			cacheDir.mkdirs();
 		return cacheDir;
 	}
-	
+
 	private void openDoubleURLSet() throws IOException {
 		File serializedFile = new File(getCreateCacheDir(), BLOOM_CACHE_FILE);
-		
+
 		if (!(serializedFile.exists() && serializedFile.canRead() && serializedFile.isFile())) {
 			// XXX: what is the old file here?
 			final File oldFile = new File(getDatabaseLocation(), BLOOM_CACHE_FILE);
@@ -378,13 +378,13 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			} finally { fileIs.close(); }
 		}
 	}
-	
+
 	private class PopulateThread extends Thread {
-		
+
 		public PopulateThread() {
 			super("DoubleURLCachePopulater");
 		}
-		
+
 		@Override
 		public void run() {
 			final long time = System.currentTimeMillis();
@@ -392,40 +392,40 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			logger.info("Initialized the double URL cache with " + count + " entries in " +
 					((System.currentTimeMillis() - time) / 1000) + " seconds");
 		}
-		
+
 		private long populateDoubleURLSet() {
 			Session session = null;
 			Transaction transaction = null;
 			long count = 0;
-			
+
 			try {
 				session = sessionFactory.openSession();
 				session.setFlushMode(FlushMode.COMMIT);
 				session.setCacheMode(CacheMode.IGNORE);
 				transaction = session.beginTransaction();
-				
+
 				final Key key = new Key();
 				final DynamicBloomFilter bf = bloomFilter;
-				
+
 				final long start = System.currentTimeMillis();
 				long time = start;
 				long lastCount = 0L;				
-				
+
 				final Query query = session.createSQLQuery(
 						"SELECT location FROM EnqueuedCommand " + 
 						"UNION ALL " +
 						"SELECT location FROM CrawledCommand "
 				).setReadOnly(true);
-								
+
 				ScrollableResults sr = query.scroll(ScrollMode.FORWARD_ONLY); // (ScrollMode.FORWARD_ONLY);
-				
+
 				// loop through the available commands
 				while(sr.next() && !super.isInterrupted()) {
 					String locationStr = (String) sr.get()[0];
 					key.set(locationStr.getBytes(UTF8), 1.0);
 					bf.add(key);
 					count++;
-					
+
 					if (count % 250000 == 0) {
 						final long now = System.currentTimeMillis();
 						final long last = time;
@@ -445,7 +445,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 						time = now;
 					}
 				}
-				
+
 				transaction.commit();
 			} catch (Exception e) {
 				if (transaction != null && transaction.isActive()) transaction.rollback(); 
@@ -462,7 +462,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			return count;
 		}
 	}
-	
+
 	/**
 	 * Returns the size of the double URLs cache.
 	 * <p>
@@ -486,7 +486,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		} catch (Throwable e) { e.printStackTrace(); }
 		return -1;
 	}
-	
+
 	/**
 	 * Checks the double URLs cache for the given {@link URI}.
 	 * This is a convienience method if only one URI has to be processed, otherwise
@@ -516,7 +516,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		}
 		return this.bloomFilter.membershipTest(key);
 	}
-	
+
 	/**
 	 * Puts the {@link URI} into the double URLs cache.
 	 * This is a convienience method if only one URI has to be processed, otherwise
@@ -543,12 +543,16 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		}
 		bloomFilter.add(key);
 	}
-	
+
 	/* =========================================================================
 	 * Command management
 	 * ========================================================================= */
-	
-	private void manipulateDbSchema() {
+
+	/**
+	 * Speed optimize the table scheme dependent on the database
+	 * This should make stuff faster, but every database should work without having this function called!
+	 */
+	private void optimizeDbSchema() {
 		/* disabled because it seems to cause NPEs in derby, see
 		 * https://issues.apache.org/jira/browse/DERBY-3197?page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#action_12543729
 		System.setProperty("derby.language.logQueryPlan", "true");
@@ -557,18 +561,25 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		try {
 			Properties props = this.config.getProperties();
 			String dbDriver = props.getProperty("connection.driver_class");
-			if (dbDriver != null && dbDriver.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
-				c = DriverManager.getConnection(props.getProperty("connection.url"));
-				
-				// create index on command-location
-				PreparedStatement p = c.prepareStatement("CREATE INDEX ENQUEUED_LOCATION_IDX on EnqueuedCommand (location)");
-				p.execute();
-				p.close();
+			if (dbDriver != null) {
+				if (dbDriver.equals("org.apache.derby.jdbc.EmbeddedDriver") || dbDriver.equals("org.h2.Driver")) {
 
-				// create index on command-location
-				p = c.prepareStatement("CREATE INDEX CRAWLED_LOCATION_IDX on CrawledCommand (location)");
-				p.execute();
-				p.close();
+					if (dbDriver.equals("org.h2.Driver")) {
+						c= DriverManager.getConnection(props.getProperty("connection.url"), props.getProperty("connection.username"), props.getProperty("connection.password"));
+					} else {
+						c = DriverManager.getConnection(props.getProperty("connection.url"));
+					}
+					
+					// create index on command-location
+					PreparedStatement p = c.prepareStatement("CREATE INDEX ENQUEUED_LOCATION_IDX on EnqueuedCommand (location)");
+					p.execute();
+					p.close();
+
+					// create index on command-location
+					p = c.prepareStatement("CREATE INDEX CRAWLED_LOCATION_IDX on CrawledCommand (location)");
+					p.execute();
+					p.close();
+				}
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -576,20 +587,20 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			if (c!=null) try { c.close(); } catch (SQLException e) {/* ignore this */}
 		}
 	}
-	
+
 	public int freeCapacity() throws Exception {
 		return -1;
 	}
-	
+
 	public boolean freeCapacitySupported() {
 		return false;
 	}
-	
+
 	public boolean offerData(final URIQueueEntry data) throws Exception {
 		putData(data);
 		return true;
 	}
-	
+
 	/**
 	 * This function is called by the {@link UrlExtractorFilter} storage thread
 	 * @see IDataSink#putData(Object)
@@ -611,55 +622,68 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			));
 		}
 	}
-	
+
 	public void start() {		
 		this.writerThread.start();
 	}
-	
+
 	/**
 	 * @see IDataProvider#setDataSink(IDataSink)
 	 */
 	public void setDataSink(IDataSink<ICommand> dataSink) {
 		if (dataSink == null) throw new NullPointerException("The data-sink is null-");
 		if (this.sink != null) throw new IllegalStateException("The data-sink was already set.");
-		
+
 		synchronized (this.writerThread) {
 			this.sink = dataSink;
 			this.writerThread.notify();			
 		}
 	}
-	
+
 	public boolean isClosed() {
 		return this.closed;
 	}
-	
+
 	public void close() throws InterruptedException {
 		try {
 			this.logger.info("Closing command DB ...");
-			
+
 			// interrupt reader and writer
 			this.writerThread.interrupt();
-			
+
 			boolean saveDoubleURLsCache = true;
 			if (populateThread != null && populateThread.isAlive()) {
 				populateThread.interrupt();
 				// don't save the cache as it has not been populated completely
 				saveDoubleURLsCache = false;
 			}
-			
+
 			// wait for the threads to shutdown
 			this.writerThread.join(2000);
 			if (populateThread != null)
 				populateThread.join(2000);
-			
+
 			// close the DB
 			this.sessionFactory.close();
-			
+
 			// shutdown the database
 			try {
-				String dbDriver = this.config.getProperties().getProperty("connection.driver_class");
-				if (dbDriver != null && dbDriver.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
-					DriverManager.getConnection("jdbc:derby:;shutdown=true");
+				Properties props = this.config.getProperties();
+				String dbDriver = props.getProperty("connection.driver_class");
+				if (dbDriver != null) {
+					Connection c = null;
+					try {
+						if (dbDriver.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
+							DriverManager.getConnection("jdbc:derby:;shutdown=true");
+						} else if (dbDriver.equals("org.h2.Driver")) {
+							c = DriverManager.getConnection(props.getProperty("connection.url"), props.getProperty("connection.username"), props.getProperty("connection.password"));
+							PreparedStatement p = c.prepareStatement("SHUTDOWN");
+							p.execute();
+							p.close();
+						}
+					} finally {
+						if (c!=null) try { c.close(); } catch (SQLException e) {/* ignore this */}
+					}
 				}
 			} catch (SQLException e) {
 				String errMsg = e.getMessage();
@@ -667,7 +691,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					this.logger.error("Unable to shutdown database.",e);
 				}
 			}
-			
+
 			// flush cache
 			if (saveDoubleURLsCache)
 				closeDoubleURLSet();
@@ -686,7 +710,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			this.closed = true;
 		}
 	}
-	
+
 	/**
 	 * @see ICommandDB#isKnown(URI)
 	 */
@@ -696,27 +720,27 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			return false;
 		if (isKnownInCache(location))
 			return true;
-		
+
 		return this.isKnownInDB(location);
 	}
-	
+
 	boolean isKnownInCache(URI location) {
 		return this.urlExistsCache.get(location) != null;
 	}
-	
+
 	boolean isKnownInDB(URI location) {
 		// check enqueued commands
 		boolean known = this.isKnownInDB(location, "EnqueuedCommand");
 		if (known) return true;
-		
+
 		// check crawled commands 
 		known = this.isKnownInDB(location, "CrawledCommand");
 		return known;
 	}
-		
+
 	boolean isKnownInDB(URI location, String queueName) {
 		boolean known = false;
-		
+
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -724,7 +748,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			session.setFlushMode(FlushMode.COMMIT);
 			session.setCacheMode(CacheMode.IGNORE);
 			transaction = session.beginTransaction();
-			
+
 			Query query = session.createQuery(String.format(
 					"SELECT count(location) FROM %s as cmd WHERE location = ?",
 					queueName
@@ -746,13 +770,13 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
 			}			
 		}
-		
+
 		return known;
 	}	
-	
+
 	private List<ICommand> fetchNextCommands(int limit)  {		
 		List<ICommand> result = new ArrayList<ICommand>();
-		
+
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -760,17 +784,17 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			session.setFlushMode(FlushMode.COMMIT);
 			session.setCacheMode(CacheMode.IGNORE);
 			transaction = session.beginTransaction();
-			
+
 			Query query = session.createQuery("FROM EnqueuedCommand as cmd");
 			query.setFetchSize(limit);   // this is important for derby because there is no limit support
 			query.setMaxResults(limit);  // restricting number of returned results
 			query.setReadOnly(true);	 // read-only query
 			ScrollableResults sr = query.scroll(ScrollMode.FORWARD_ONLY); 
-			
+
 			final Key key = new Key();
 			final DynamicBloomFilter bloomFilter = this.bloomFilter;
 			final Cache urlExistsCache = this.urlExistsCache;
-			
+
 			// loop through the available commands
 			while(sr.next() && result.size() < limit) {
 				ICommand cmd = (ICommand) sr.get()[0];
@@ -778,17 +802,17 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				/* mark command as enqueued */
 				session.delete("EnqueuedCommand", cmd);
 				session.saveOrUpdate("CrawledCommand", cmd);
-				
+
 				// add command-location into caches
 				key.set(cmd.getLocation().toString().getBytes(UTF8), 1.0);
 				bloomFilter.add(key);
 				Element element = new Element(cmd.getLocation(), null);
 				urlExistsCache.put(element);
-				
+
 				result.add(cmd);
 			}
 			sr.close();
-			
+
 			transaction.commit();
 		} catch (Exception e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
@@ -799,10 +823,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	private synchronized void storeCommand(ICommand cmd) {
 		Session session = null;
 		Transaction transaction = null;
@@ -810,21 +834,21 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			// open session and transaction
 			session = this.sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			
+
 			// store command
 			session.saveOrUpdate("EnqueuedCommand", cmd);
 			cntCrawlerQueue++;
 			cntTotal++;
-			
+
 			// add command-location into caches
 			putInDoubleURLs(cmd.getLocation());
 			Element element = new Element(cmd.getLocation(), null);
 			this.urlExistsCache.put(element);
-			
+
 			// TODO: adding to bloom filter is missing here!!!
-			
+
 			transaction.commit();
-			
+
 			// signal writer that a new URL is available
 			this.writerThread.signalNewDbData();			
 		} catch (HibernateException e) {
@@ -837,7 +861,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			}
 		}
 	}
-	
+
 	/**
 	 * @see ICommandDB#enqueue(URI)
 	 */
@@ -845,31 +869,31 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		if (location == null) return false;
 		return this.storeUnknownLocations(profileID, depth, new LinkedList<URI>(Arrays.asList(new URI[]{location}))) == 0;
 	}
-	
+
 	private int storeUnknownInDoubleCache(
 			final int profileID,
 			final int depth,
 			final LinkedList<URI> locations,
 			final Session session
 	) {
-		
+
 		final Iterator<URI> locationIterator = locations.iterator();
 		final long time = System.currentTimeMillis();
 		final Key key = new Key();
-				
+
 		final StringBuilder buf = new StringBuilder();
 		final int total = locations.size();
 		int counter = 0;
 		int cacheChecked = 0;
 		int known = 0;
-		
+
 		final boolean checkBloom = (populateThread == null || !populateThread.isAlive());
-		
+
 		final DynamicBloomFilter bloomFilter = this.bloomFilter;
 		final Cache urlExistsCache = this.urlExistsCache;
 		while (locationIterator.hasNext()) {
 			counter++;
-			
+
 			final URI loc = locationIterator.next();
 			if (checkBloom) {
 				try {
@@ -886,26 +910,26 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					session.saveOrUpdate("EnqueuedCommand", Command.createCommand(loc, profileID, depth));
 					cntCrawlerQueue++;
 					cntTotal++;
-					
+
 					Element element = new Element(loc, null);
 					this.urlExistsCache.put(element);
 					locationIterator.remove();
 					cacheChecked++;
-					
+
 					if (this.logger.isTraceEnabled()) {
 						buf.append(String.format("\n\t[%3d] %s", Integer.valueOf(counter), loc.toString()));
 					}					
-					
+
 					continue;
 				}
 			}
-				
+
 			if (urlExistsCache.get(loc) != null) {
 				locationIterator.remove();
 				known++;
 			}
 		}
-		
+
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(String.format(
 					"Double-check of %d URI against caches with size %d (Bloom) + %d (ehcache) took %d ms." +
@@ -928,10 +952,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					buf.toString()
 			));
 		}	
-		
+
 		return known;
 	}
-	
+
 	private int storeUnknownInDB(
 			final int profileID,
 			final int depth,
@@ -939,19 +963,19 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			final Session session,
 			final int chunkSize
 	) throws UnsupportedEncodingException {
-		
+
 		int total = locations.size();
 		int known = 0;
 		final long start = System.currentTimeMillis();
-		
+
 		String[] queues = new String[] {"EnqueuedCommand", "CrawledCommand"}; 
 		for (String queue : queues) {
 			Iterator<URI> locationsIter = locations.iterator();
 			while (locationsIter.hasNext()) {
 				URI nextLocation = locationsIter.next();
 				Query query = session.createQuery("SELECT count(id) FROM " + queue + " WHERE location = (:nextLocation)")
-									 .setParameter("nextLocation", nextLocation)
-									 .setReadOnly(true);
+				.setParameter("nextLocation", nextLocation)
+				.setReadOnly(true);
 				Long count = (Long) query.uniqueResult();
 				if (count != null && count.longValue() > 0) {
 					known++;
@@ -960,7 +984,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			}
 		}
 		final long end = System.currentTimeMillis();
-		
+
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(String.format(
 					"Double-check of %d URI against DB with size %d took %s ms." +
@@ -973,12 +997,12 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					Integer.valueOf(known)
 			));
 		}
-		
+
 		// add new commands into DB
 		final StringBuilder buf = new StringBuilder();
 		final Cache urlExistsCache = this.urlExistsCache;
 		final Key key = new Key();
-		
+
 		int i = 0;
 		Iterator<URI> locationsIter = locations.iterator();
 		while (locationsIter.hasNext()) {
@@ -986,24 +1010,24 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			cntTotal++;
 			cntCrawlerQueue++;
 			i++;			
-			
+
 			// store new command into DB
 			session.saveOrUpdate("EnqueuedCommand",Command.createCommand(location,profileID,depth));	
-			
+
 			// add to bloom filter
 			key.set(location.toString().getBytes(UTF8), 1.0);
 			bloomFilter.add(key);
-			
+
 			// add to in-memory double cache
 			Element element = new Element(location, null);
 			urlExistsCache.put(element);
-			
+
 			// debugging output
 			if (this.logger.isTraceEnabled()) {
 				buf.append(String.format("\n\t[%3d] %s", Integer.valueOf(i), location.toString()));
 			}
 		}
-		
+
 		if (this.logger.isTraceEnabled() && known > 0) {
 			logger.trace(String.format(
 					"%d false-positive URI added to DB: %s",
@@ -1011,10 +1035,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					buf.toString()
 			));
 		}
-		
+
 		return known;
 	}
-	
+
 	/**
 	 * First queries the DB to remove all known locations from the list and then updates
 	 * it with the new list.
@@ -1027,7 +1051,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	 */
 	int storeUnknownLocations(int profileID, int depth, LinkedList<URI> locations) {
 		if (locations == null || locations.size() == 0) return 0;
-		
+
 		int known = 0;
 		Session session = null;
 		Transaction transaction = null;
@@ -1037,21 +1061,21 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			session.setFlushMode(FlushMode.COMMIT);
 			session.setCacheMode(CacheMode.IGNORE);
 			transaction = session.beginTransaction();		
-			
+
 			// check the cache for URL existance and put the ones not known to the
 			// cache into another list and remove them from the list which is checked
 			// against the DB below
 			known += storeUnknownInDoubleCache(profileID, depth, locations, session);
-			
+
 			// check which URLs are already known against the DB
 			if (locations.size() > 0)
 				known += storeUnknownInDB(profileID, depth, locations, session, 10);
-			
+
 			transaction.commit();
-			
+
 			// signal writer that a new URL is available
 			this.writerThread.signalNewDbData();
-			
+
 			return known;
 		} catch (Throwable e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
@@ -1065,10 +1089,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
 			}			
 		}
-		
+
 		return 0;
 	}
-	
+
 	/**
 	 * @return the total size of the command db
 	 * @see ICommandDB#size()
@@ -1077,7 +1101,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		// return this.size(null);
 		return cntTotal;
 	}
-	
+
 	/**
 	 * @see ICommandDB#enqueuedSize()
 	 */
@@ -1085,22 +1109,22 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		// return this.size("enqueued");
 		return cntCrawlerQueue;
 	}
-	
+
 	private long totalSize() {
 		return this.size("enqueued") + this.size("crawled");
 	}
-	
+
 	private long size(String type) {
 		if (type == null) throw new NullPointerException();
 		Long count = Long.valueOf(-1l);
-		
+
 		Session session = null;
 		Transaction transaction = null;
 		try {
 			// open session and transaction
 			session = this.sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			
+
 			// query size
 			String sqlString = null;
 			if (type.equalsIgnoreCase("enqueued")) {
@@ -1108,9 +1132,9 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			} else if (type.equalsIgnoreCase("crawled")) {
 				sqlString = "select count(*) from CrawledCommand as cmd";
 			}
-			
+
 			count = (Long) session.createQuery(sqlString).setReadOnly(true).uniqueResult();
-			
+
 			transaction.commit();
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
@@ -1123,12 +1147,12 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				this.logger.error(String.format("Unexpected '%s' while closing session.", e.getClass().getName()), e);
 			}			
 		}
-		
+
 		return count.longValue();
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Resets the command queue
 	 */
@@ -1139,12 +1163,12 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			// open session and transaction
 			session = this.sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			
+
 			// delete all commands
 			session.createQuery("DELETE FROM EnqueuedCommand").executeUpdate();
-			
+
 			cntCrawlerQueue = cntTotal = 0L;
-			
+
 			transaction.commit();
 		} catch (HibernateException e) {
 			if (transaction != null && transaction.isActive()) transaction.rollback(); 
@@ -1156,13 +1180,13 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			}			
 		}
 	}
-	
+
 	/**
 	 * @see EventHandler#handleEvent(Event)
 	 */
 	public void handleEvent(Event event) {
 		String topic = event.getTopic();
-		
+
 		// check if any other component has created a command 
 		if (topic != null && topic.equals(CommandEvent.TOPIC_OID_REQUIRED)) {
 			// this is a synchronous event, so we have time to set a valid OID
@@ -1175,7 +1199,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			}
 		}
 	}
-	
+
 	/**
 	 * A {@link Thread} to read {@link ICommand commands} from the {@link CommandDB#db}
 	 * and to write it into the {@link CommandDB#sink data-sink}
@@ -1184,14 +1208,14 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		public Writer() {
 			super("CommandDB.Writer");
 		}
-		
+
 		@Override
 		public void run() {
 			try {
 				synchronized (this) {
 					while (CommandDB.this.sink == null) this.wait();
 				}			
-				
+
 				final int chunkSize = 10;
 				List<ICommand> commands = null;
 				while(!Thread.currentThread().isInterrupted()) {
@@ -1208,18 +1232,18 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 									Long.valueOf(cntCrawlerQueue),
 									Long.valueOf(cntTotal)));
 						}
-						
+
 						// enqueue fetched commands into crawler-queue
 						if (commands != null && commands.size() > 0) {
 							final ICommandTracker commandTracker = CommandDB.this.commandTracker;
 							final IDataSink<ICommand> sink = CommandDB.this.sink;
-							
+
 							for (ICommand command : commands) {
 								// notify the command-tracker about the creation of the command
 								if (commandTracker != null) {
 									commandTracker.commandCreated(ICommandDB.class.getName(), command);
 								}
-								
+
 								sink.putData(command);
 								cntCrawlerQueue--;
 							} 
@@ -1231,7 +1255,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 						}
 					} catch (Exception e) {
 						if (e instanceof InterruptedException) break;
-						
+
 						logger.error(String.format(
 								"Unexpected '%s' while waiting reading commands from db.",
 								e.getClass().getName()
@@ -1244,7 +1268,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				logger.info("CommandDB.Writer shutdown finished.");
 			}		
 		}
-		
+
 		public synchronized void signalNewDbData() {
 			this.notify();
 		}
