@@ -223,8 +223,9 @@
 				<configuration>
 					<header>../Paxle/LICENSE-HEADER.txt</header>
 					<properties>
+						<!-- Don't forget to update ../Root/pom.xml accordingly -->
 						<inceptionYear>${project.inceptionYear}</inceptionYear>
-						<year>2008</year>
+						<year>2009</year>
 					</properties>
 					<includes>
 						<include>**/*.sh</include>
