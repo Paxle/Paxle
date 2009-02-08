@@ -104,7 +104,8 @@ public class CommandDBTest extends MockObjectTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		System.setProperty("paxle.data", "target");		
+		System.setProperty("paxle.data", "target");
+		System.setProperty("derby.stream.error.file","target" + File.separatorChar + "derby.log");
 		
 		// create a dummy command tracker
 		this.cmdTracker = mock(ICommandTracker.class);
@@ -140,11 +141,15 @@ public class CommandDBTest extends MockObjectTestCase {
 	private void deleteTestDataDirs() throws IOException {
 		
 		// delete data directory
-		File dbDir = new File("target/command-db");
+		File dbDir = new File("target" + File.separatorChar + "command-db");
 		if(dbDir.exists()) FileUtils.deleteDirectory(dbDir);
 		
-		File bloomDir = new File("target/double-urls-caches");
+		File bloomDir = new File("target" + File.separatorChar + "double-urls-caches");
 		if (bloomDir.exists()) FileUtils.deleteDirectory(bloomDir);
+		
+		// derby log file
+		File derbyLog = new File("target" + File.separatorChar + "derby.log");
+		if (derbyLog.exists()) FileUtils.deleteQuietly(derbyLog);
 	}
 	
 	/**
