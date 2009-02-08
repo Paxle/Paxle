@@ -119,6 +119,7 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 	
 	public void testMaxDownloadSizeExceeded() {
 		this.tester.setAttribute(DummyServlet.ATTR_FILE_SIZE, new Integer(1200));
+		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, "text/html");
 		
 		// change crawler settings
 		Dictionary<String, Object> props = this.crawler.getDefaults();
@@ -133,6 +134,7 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 	
 	public void testMaxDownloadSizeExceededTransferEncoding() {	
 		this.tester.setAttribute(DummyServlet.ATTR_FILE_SIZE, new Integer(-1200));
+		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, "text/html");
 		
 		// change crawler settings
 		Dictionary<String, Object> props = this.crawler.getDefaults();

@@ -540,8 +540,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 					return doc;
 				
 				// reject the document if content-length is above our limit
-				Header contentTypeLength = method.getResponseHeader(HTTPHEADER_CONTENT_LENGTH);
-				if (!handleContentLengthHeader(contentTypeLength, doc))
+				Header contentLengthHeader = method.getResponseHeader(HTTPHEADER_CONTENT_LENGTH);
+				if (!handleContentLengthHeader(contentLengthHeader, doc))
 					return doc;
 				
 				if (!requestUri.equals(method.getURI()))
@@ -593,8 +593,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			 *   We do this a second time here because some servers may have set the content-length
 			 *   of the head response to <code>0</code>
 			 */
-			Header contentTypeLength = method.getResponseHeader(HTTPHEADER_CONTENT_LENGTH);
-			if (!handleContentLengthHeader(contentTypeLength, doc))
+			Header contentLengthHeader = method.getResponseHeader(HTTPHEADER_CONTENT_LENGTH);
+			if (!handleContentLengthHeader(contentLengthHeader, doc))
 				return doc;			
 			
 			extractHttpHeaders(method, doc);		// externalised into this method to cleanup here a bit
@@ -613,7 +613,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 				 * a) the user has configured a max-download-size AND
 				 * b) the server returned no content-length header
 				 */
-				int copyLimit = (this.maxDownloadSize <= 0 || contentTypeHeader != null) ? -1 : this.maxDownloadSize;
+				int copyLimit = (this.maxDownloadSize <= 0 || contentLengthHeader != null) ? -1 : this.maxDownloadSize;
 				
 				// copy the content to file
 				CrawlerTools.saveInto(doc, respBody, lrc, copyLimit);
