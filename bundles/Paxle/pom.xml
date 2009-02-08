@@ -463,16 +463,7 @@
 									<destFileName>org.apache.commons.lang_2.4.jar</destFileName>
 								</artifactItem>		
 								
-								<!-- Apache commons beanutils dependencies -->		
-								<!-- 
-								<artifactItem>
-									<groupId>org.apache.commons</groupId>
-									<artifactId>com.springsource.org.apache.commons.beanutils</artifactId>
-									<version>1.7.0</version>
-									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>com.springsource.org.apache.commons.beanutils_1.7.0.jar</destFileName>
-								</artifactItem>
-								 -->
+								<!-- Apache commons beanutils dependencies -->
 								<artifactItem>
 									<groupId>commons-beanutils</groupId>
 									<artifactId>commons-beanutils</artifactId>
