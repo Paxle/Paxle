@@ -29,6 +29,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.LogByteSizeMergePolicy;
+import org.apache.lucene.index.MergePolicy;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
@@ -81,6 +83,11 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 		// starting a flush timer
 		this.flushTimer = new Timer("LuceneFlushTimer");
 		this.flushTimer.scheduleAtFixedRate(new FlushTimerTask(), 60*60*1000, 60*60*1000);
+		
+		// set merge policy
+		LogByteSizeMergePolicy policy = new LogByteSizeMergePolicy();
+		policy.setMaxMergeMB(2048);
+		this.writer.setMergePolicy(policy);
 	}
 	
 	/**
