@@ -201,7 +201,7 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 			// set document status
 			doc.setStatus(IParserDocument.Status.OK);
 			return doc;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (req != null) {
 				try {
 					this.pool.invalidateObject(req);
