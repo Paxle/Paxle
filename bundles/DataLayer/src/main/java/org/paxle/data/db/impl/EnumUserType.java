@@ -34,7 +34,9 @@ public class EnumUserType implements EnhancedUserType, ParameterizedType {
    public void setParameterValues(Properties parameters) {	   
       String enumClassName = parameters.getProperty("enumClassName");
       try {
-         enumClass = (Class<Enum>) Thread.currentThread().getContextClassLoader().loadClass(enumClassName);
+    	  ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    	  if (cl == null) cl = this.getClass().getClassLoader();
+         enumClass = (Class<Enum>) cl.loadClass(enumClassName);
       } catch (ClassNotFoundException cnfe) {
          throw new HibernateException("Enum class not found", cnfe);
       }
