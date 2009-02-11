@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserFeed</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Parser: RSS/Atom/OPML</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -51,34 +51,35 @@
 							<!-- Paxle Parser Core -->
 							org.paxle.parser;version="[0.1.0,0.2.0)",
 							<!-- Classes required for XML Parsing -->
-							<!-- org.jdom, org.jdom.input, org.jdom.output, -->
+							org.jdom, 
+							org.jdom.input, 
+							org.jdom.output,
+							org.xml.sax,
 							<!-- ignoring the rest -->
-							!net.sf.hibernate, 
-							!net.sf.hibernate.*,
 							!org.apache.commons.collections,
-							!org.apache.commons.collections.*,
-							!org.apache.lucene.*,
-							!org.apache.xml.resolver.*,
-							!oracle.*,!org.jaxen.*,!org.saxpath.*
+							!org.apache.lucene.*,							
+							!org.hibernate.*,
+							!org.springframework.orm.*
 						</Import-Package>
 						<Private-Package>
-							org.paxle.parser.feed.impl,
-							org.jdom, org.jdom.*
+							org.paxle.parser.feed.impl
 						</Private-Package>
 						<Bundle-Activator>
 							org.paxle.parser.feed.impl.Activator
 						</Bundle-Activator>
 
 						<DynamicImport-Package>
-							javax.xml.*, org.w3c.*, org.xml.*, sun.io.*
+							javax.xml.*, 
+							org.w3c.*, 
+							org.xml.*, 
+							sun.io.*,
+							sun.misc.*
 						</DynamicImport-Package>
 
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
-							informa;scope=compile|runtime,
-							jdom;scope=compile|runtime,
-							xercesImpl;scope=compile|runtime
+							informa;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
@@ -96,71 +97,14 @@
 		<dependency>
 			<groupId>informa</groupId>
 			<artifactId>informa</artifactId>
-			<version>0.6.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>lucene</groupId>
-					<artifactId>lucene</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>lucene</groupId>
-					<artifactId>lucene</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>hibernate</groupId>
-					<artifactId>hibernate</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>cglib</groupId>
-					<artifactId>cglib</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-lang</groupId>
-					<artifactId>commons-lang</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-beanutils</groupId>
-					<artifactId>commons-beanutils</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-collections</groupId>
-					<artifactId>commons-collections</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>dom4j</groupId>
-					<artifactId>dom4j</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>odmg</groupId>
-					<artifactId>odmg</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>ehcache</groupId>
-					<artifactId>ehcache</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>hsqldb</groupId>
-					<artifactId>hsqldb</artifactId>
-				</exclusion>
-			</exclusions>
+			<version>0.7.0-alpha2</version>
 		</dependency>
 
+		<!-- XML parsing -->
 		<dependency>
-			<groupId>xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.7.1</version>
-		</dependency>
-		<dependency>
-			<groupId>xml-apis</groupId>
-			<artifactId>xml-apis</artifactId>
-			<version>1.0.b2</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>xml-apis</groupId>
-			<artifactId>xmlParserAPIs</artifactId>
-			<version>2.0.2</version>
-			<scope>compile</scope>
+			<groupId>org.jdom</groupId>
+			<artifactId>com.springsource.org.jdom</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 		
 		<!-- Additional dependencies for testing -->

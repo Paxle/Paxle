@@ -14,10 +14,13 @@
 package org.paxle.parser.feed.impl;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Map;
 
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.parser.ParserException;
 import org.paxle.parser.html.impl.HtmlParser;
 import org.paxle.parser.impl.AParserTest;
 
@@ -87,5 +90,18 @@ public class FeedParserTest extends AParserTest {
 		for (IParserDocument subDoc : subDocs.values()) {
 			assertEquals("text/html", subDoc.getMimeType());
 		}
+	}
+	
+	public void testAtom() throws UnsupportedEncodingException, ParserException, IOException {
+		// loading test-data
+		final URI location = URI.create("http://codefreak.de/feed/atom/");	
+		final File testFile = new File(resourcesDir, "test.atom");
+		assertTrue(testFile.exists());
+		
+		// parsing document
+		final IParserDocument pdoc = this.parser.parse(location, null, testFile);
+		
+		// testing result
+		assertNotNull(pdoc);
 	}
 }

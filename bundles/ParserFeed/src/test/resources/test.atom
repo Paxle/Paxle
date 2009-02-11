@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><feed
+  xmlns="http://www.w3.org/2005/Atom"
+  xmlns:thr="http://purl.org/syndication/thread/1.0"
+  xml:lang="en"
+  xml:base="http://codefreak.de/wp-atom.php"
+   >
+	<title type="text">codefreak.de</title>
+	<subtitle type="text">Weblog von Hagen Langbartels</subtitle>
+
+	<updated>2008-12-09T21:08:52Z</updated>
+	<generator uri="http://wordpress.org/" version="2.7">WordPress</generator>
+
+	<link rel="alternate" type="text/html" href="http://codefreak.de" />
+	<id>http://codefreak.de/feed/atom/</id>
+	<link rel="self" type="application/atom+xml" href="http://codefreak.de/feed/atom/" />
+
+			<entry>
+		<author>
+			<name>Hagen</name>
+						<uri>http://langbartels.de/</uri>
+					</author>
+		<title type="html"><![CDATA[Rechnung als Worddatei]]></title>
+		<link rel="alternate" type="text/html" href="http://codefreak.de/archiv/2008/12/09/rechnung-als-worddatei/" />
+		<id>http://codefreak.de/?p=891</id>
+		<updated>2008-12-09T21:08:52Z</updated>
+		<published>2008-12-09T21:08:52Z</published>
+		<category scheme="http://codefreak.de" term="codefreak.de" /><category scheme="http://codefreak.de" term="digital" /><category scheme="http://codefreak.de" term="Internet" /><category scheme="http://codefreak.de" term="verwirrt" /><category scheme="http://codefreak.de" term="wirtschaft" />		<summary type="html"><![CDATA[Ich habe gerde eine Rechnung per E-Mail bekommen.
+Eine Datei. Rechnung.doc.
+Krass.
+]]></summary>
+		<link rel="replies" type="text/html" href="http://codefreak.de/archiv/2008/12/09/rechnung-als-worddatei/#comments" thr:count="0"/>
+		<link rel="replies" type="application/atom+xml" href="http://codefreak.de/archiv/2008/12/09/rechnung-als-worddatei/feed/atom/" thr:count="0"/>
+		<thr:total>0</thr:total>
+	</entry>
+		<entry>
+		<author>
+			<name>Hagen</name>
+						<uri>http://langbartels.de/</uri>
+					</author>
+		<title type="html"><![CDATA[Aktive Hilfe beim Chaosradio Express]]></title>
+		<link rel="alternate" type="text/html" href="http://codefreak.de/archiv/2008/11/26/aktive-hilfe-beim-chaosradio-express/" />
+		<id>http://codefreak.de/?p=889</id>
+		<updated>2008-11-25T22:11:18Z</updated>
+		<published>2008-11-25T22:11:18Z</published>
+		<category scheme="http://codefreak.de" term="codefreak.de" />		<summary type="html"><![CDATA[Tim Pritlove hat inzwischen 100 Folgen Chaosradio Express auf die Beine gestellt. Beeindruckend. Ich persönlich finde eigentlich jede Folge sehr unterhaltsam und höhrenswert.
+Damit er sich in Zukunft noch intensiver mit dem Podcasting beschäftigen kann, bittet Tim um Spenden für eine Bahncard 100. Also, fleißig mitspenden, für eine wirklich gute Sache!
+]]></summary>
+		<link rel="replies" type="text/html" href="http://codefreak.de/archiv/2008/11/26/aktive-hilfe-beim-chaosradio-express/#comments" thr:count="0"/>
+		<link rel="replies" type="application/atom+xml" href="http://codefreak.de/archiv/2008/11/26/aktive-hilfe-beim-chaosradio-express/feed/atom/" thr:count="0"/>
+		<thr:total>0</thr:total>
+	</entry>
+		<entry>
+		<author>
+			<name>Hagen</name>
+						<uri>http://langbartels.de/</uri>
+					</author>
+		<title type="html"><![CDATA[Internet Exploder 7]]></title>
+		<link rel="alternate" type="text/html" href="http://codefreak.de/archiv/2008/05/07/internet-exploder-7/" />
+		<id>http://codefreak.de/archiv/2008/05/07/internet-exploder-7/</id>
+		<updated>2008-05-07T20:12:06Z</updated>
+		<published>2008-05-07T20:12:06Z</published>
+		<category scheme="http://codefreak.de" term="Internet" /><category scheme="http://codefreak.de" term="Software" />		<summary type="html"><![CDATA[Ok, ich weiß, der ist nicht neu. Aber ich bin bisher lange Zeit vor ihm in Sicherheit gewesen. Ich war eine Zeit lang genötigt ihn zu verwenden und frage mich, ob der Hersteller es wirklich ernst meint mit dieser Software.
+
+Menüleiste
+Sie ist so lange nicht zu sehen, bis man mal &#8220;alt&#8221; drückt. Wer denkt sich so [...]]]></summary>
+		<link rel="replies" type="text/html" href="http://codefreak.de/archiv/2008/05/07/internet-exploder-7/#comments" thr:count="2"/>
+		<link rel="replies" type="application/atom+xml" href="http://codefreak.de/archiv/2008/05/07/internet-exploder-7/feed/atom/" thr:count="2"/>
+		<thr:total>2</thr:total>
+	</entry>
+		<entry>
+		<author>
+			<name>Hagen</name>
+						<uri>http://langbartels.de/</uri>
+					</author>
+		<title type="html"><![CDATA[Einige Autostartprogramme wurde geblockt]]></title>
+		<link rel="alternate" type="text/html" href="http://codefreak.de/archiv/2008/05/07/einige-autostartprogramme-wurde-geblockt/" />
+		<id>http://codefreak.de/archiv/2008/05/07/einige-autostartprogramme-wurde-geblockt/</id>
+		<updated>2008-05-07T20:01:09Z</updated>
+		<published>2008-05-07T20:01:09Z</published>
+		<category scheme="http://codefreak.de" term="Locker bleiben!" /><category scheme="http://codefreak.de" term="Software" />		<summary type="html"><![CDATA[Mit dieser Popup Meldung hat mich gerade eben vorhin ein Windows Vista verpestetes MSI Notebook begrüsst. Laut Überbringer ist das Ding noch nie gelaufen. Schön das es gleich so gut funktioniert.
+Ich habe von dieser herrlichen Meldung gleich einen Screenshot gemacht und wollte den in Paint einfügen. Geht nicht. Die Informationen aus der Zwischenablage können nicht [...]]]></summary>
+		<link rel="replies" type="text/html" href="http://codefreak.de/archiv/2008/05/07/einige-autostartprogramme-wurde-geblockt/#comments" thr:count="0"/>
+		<link rel="replies" type="application/atom+xml" href="http://codefreak.de/archiv/2008/05/07/einige-autostartprogramme-wurde-geblockt/feed/atom/" thr:count="0"/>
+		<thr:total>0</thr:total>
+	</entry>
+		<entry>
+		<author>
+			<name>Hagen</name>
+						<uri>http://langbartels.de/</uri>
+					</author>
+		<title type="html"><![CDATA[Schneller Service]]></title>
+		<link rel="alternate" type="text/html" href="http://codefreak.de/archiv/2008/02/27/schneller-service/" />
+		<id>http://codefreak.de/archiv/2008/02/27/schneller-service/</id>
+		<updated>2008-02-26T22:16:56Z</updated>
+		<published>2008-02-26T22:16:56Z</published>
+		<category scheme="http://codefreak.de" term="All day Live" /><category scheme="http://codefreak.de" term="Hardware" />		<summary type="html"><![CDATA[Gestern habe ich bei der Hotline von Fujitsu Siemens angerufen, da unser neu erworbenes L24W-1 ein Problem mit konstanter Helligkeit hatte. Heute steht das Austauschgerät auf dem Tisch. Das ging schnell. Nur etwas mehr als 24 Stunden von Anruf bis zum Eintreffen des Ersatzes. Respekt.
+]]></summary>
+		<link rel="replies" type="text/html" href="http://codefreak.de/archiv/2008/02/27/schneller-service/#comments" thr:count="3"/>
+		<link rel="replies" type="application/atom+xml" href="http://codefreak.de/archiv/2008/02/27/schneller-service/feed/atom/" thr:count="3"/>
+		<thr:total>3</thr:total>
+	</entry>
+		<entry>
+		<author>
+			<name>Hagen</name>
+						<uri>http://langbartels.de/</uri>
+					</author>
+		<title type="html"><![CDATA[Mehr Uhren als Zeitzonen]]></title>
+		<link rel="alternate" type="text/html" href="http://codefreak.de/archiv/2008/02/25/mehr-uhren-als-zeitzonen/" />
+		<id>http://codefreak.de/archiv/2008/02/25/mehr-uhren-als-zeitzonen/</id>
+		<updated>2008-02-25T10:20:24Z</updated>
+		<published>2008-02-25T10:20:24Z</published>
+		<category scheme="http://codefreak.de" term="Medien" />		<summary type="html"><![CDATA[Was will uns die Micosoft Anzeige in der iX 3-2008 auf Seite 43 sagen?
+Dort ist eine Wand dargestellt, welche mit Uhren für verschiedene Zeitzohnen Orte übersäht ist. Insgesamt sind dort 132 Uhren abgebildet, vermutlich dehnt sich diese Wand, damit auch die Uhrenansammlung, seitlich weiter aus. 
+Mir drängt sich bei dem Anblick der Eindruck von nutzloser [...]]]></summary>
+		<link rel="replies" type="text/html" href="http://codefreak.de/archiv/2008/02/25/mehr-uhren-als-zeitzonen/#comments" thr:count="0"/>
+		<link rel="replies" type="application/atom+xml" href="http://codefreak.de/archiv/2008/02/25/mehr-uhren-als-zeitzonen/feed/atom/" thr:count="0"/>
+		<thr:total>0</thr:total>
+	</entry>
+		<entry>
+		<author>
+			<name>Hagen</name>
+						<uri>http://langbartels.de/</uri>
+					</author>
+		<title type="html"><![CDATA[TV-Ersatz: Onlinetvrecorder.com]]></title>
+		<link rel="alternate" type="text/html" href="http://codefreak.de/archiv/2008/02/21/tv-ersatz-onlinetvrecordercom/" />
+		<id>http://codefreak.de/archiv/2008/02/21/tv-ersatz-onlinetvrecordercom/</id>
+		<updated>2008-02-20T22:14:33Z</updated>
+		<published>2008-02-20T22:14:33Z</published>
+		<category scheme="http://codefreak.de" term="Internet" /><category scheme="http://codefreak.de" term="Medien" />		<summary type="html"><![CDATA[Seit kurzem ist unser alter Videodiskrecorder außer Betrieb. Das Netzteil hat mal wieder das Zeitliche gesegnet, auf Ersatzbeschaffung hatten wir keine Lust.
+Um trotzdem die Lieblingsserien konsumieren zu können, lassen wir sie von Onlintetvrecorder (OTR) aufnehmen. Das Interface ist zwar grausam und mit Werbung überladen, aber die Funktionalität des Aufzeichnens und Herunterladens ist gegeben. 
+Die Suche [...]]]></summary>
+		<link rel="replies" type="text/html" href="http://codefreak.de/archiv/2008/02/21/tv-ersatz-onlinetvrecordercom/#comments" thr:count="3"/>
+		<link rel="replies" type="application/atom+xml" href="http://codefreak.de/archiv/2008/02/21/tv-ersatz-onlinetvrecordercom/feed/atom/" thr:count="3"/>
+		<thr:total>3</thr:total>
+	</entry>
+		<entry>
+		<author>
+			<name>Hagen</name>
+						<uri>http://langbartels.de/</uri>
+					</author>
+		<title type="html"><![CDATA[Fujitsu Siemens TFT L24W-2: Dimmen, Helligkeitsänderungen (Update)]]></title>
+		<link rel="alternate" type="text/html" href="http://codefreak.de/archiv/2008/02/20/fujitsu-siemens-tft-l24w-2-dimmen-helligkeitsanderungen/" />
+		<id>http://codefreak.de/archiv/2008/02/20/fujitsu-siemens-tft-l24w-2-dimmen-helligkeitsanderungen/</id>
+		<updated>2008-02-25T10:15:54Z</updated>
+		<published>2008-02-20T21:18:43Z</published>
+		<category scheme="http://codefreak.de" term="Hardware" />		<summary type="html"><![CDATA[Wie meine Frau bereits erwähnte, haben wir unseren Fernseher abgeschafft. Als Ersatz dafür leihen wir uns jetzt DVDs bei Amazon aus und laden die notwendigsten Lieblingsserien bei OTR herunter.
+Um jetzt vernünftig arbeiten zu können (und TV-Ersatz), haben wir uns heute bei Mediamarkt ein Fujitsu Siemens L24W-2 24&#8243; Widescreen geleistet. Es handelt sich um ein Vorführgerät [...]]]></summary>
+		<link rel="replies" type="text/html" href="http://codefreak.de/archiv/2008/02/20/fujitsu-siemens-tft-l24w-2-dimmen-helligkeitsanderungen/#comments" thr:count="5"/>
+		<link rel="replies" type="application/atom+xml" href="http://codefreak.de/archiv/2008/02/20/fujitsu-siemens-tft-l24w-2-dimmen-helligkeitsanderungen/feed/atom/" thr:count="5"/>
+		<thr:total>5</thr:total>
+	</entry>
+		<entry>
+		<author>
+			<name>Hagen</name>
+						<uri>http://langbartels.de/</uri>
+					</author>
+		<title type="html"><![CDATA[Keywurl: Keyword Suche für Safari]]></title>
+		<link rel="alternate" type="text/html" href="http://codefreak.de/archiv/2007/11/23/keywurl-keyword-suche-fur-safari/" />
+		<id>http://codefreak.de/archiv/2007/11/23/keywurl-keyword-suche-fur-safari/</id>
+		<updated>2007-11-23T19:38:32Z</updated>
+		<published>2007-11-23T19:38:32Z</published>
+		<category scheme="http://codefreak.de" term="Mac" />		<summary type="html"><![CDATA[Ich bin ja seit einiger Zeit (größtenteils) glücklicher Mac OS X Benutzer. Seit Leopard mit Safari 3 verwende ich primär Safari als Browser. Die Debug-Tools von Safari sind auch nicht von schlechten Eltern und teilweise  sogar angenehmer als die Webdeveloper Extension für Firefox.
+Was mir bei Safari fehlte, war die Möglichkeit einer &#8220;Schnellsuche&#8221;. In Firefox [...]]]></summary>
+		<link rel="replies" type="text/html" href="http://codefreak.de/archiv/2007/11/23/keywurl-keyword-suche-fur-safari/#comments" thr:count="2"/>
+		<link rel="replies" type="application/atom+xml" href="http://codefreak.de/archiv/2007/11/23/keywurl-keyword-suche-fur-safari/feed/atom/" thr:count="2"/>
+		<thr:total>2</thr:total>
+	</entry>
+		<entry>
+		<author>
+			<name>Hagen</name>
+						<uri>http://langbartels.de/</uri>
+					</author>
+		<title type="html"><![CDATA[iPhone bestellen? Nicht jetzt.]]></title>
+		<link rel="alternate" type="text/html" href="http://codefreak.de/archiv/2007/11/09/iphone-bestellen-nicht-jetzt/" />
+		<id>http://codefreak.de/archiv/2007/11/09/iphone-bestellen-nicht-jetzt/</id>
+		<updated>2007-11-09T08:56:31Z</updated>
+		<published>2007-11-09T08:55:22Z</published>
+		<category scheme="http://codefreak.de" term="Internet" />		<summary type="html"><![CDATA[Die T-Mobile Server sind dem Andrang offenbar nicht gewachsen:
+
+]]></summary>
+		<link rel="replies" type="text/html" href="http://codefreak.de/archiv/2007/11/09/iphone-bestellen-nicht-jetzt/#comments" thr:count="0"/>
+		<link rel="replies" type="application/atom+xml" href="http://codefreak.de/archiv/2007/11/09/iphone-bestellen-nicht-jetzt/feed/atom/" thr:count="0"/>
+		<thr:total>0</thr:total>
+	</entry>
+	</feed>

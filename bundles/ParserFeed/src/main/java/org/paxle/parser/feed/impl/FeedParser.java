@@ -25,9 +25,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
-
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
@@ -43,18 +42,28 @@ import org.xml.sax.InputSource;
 import de.nava.informa.core.ChannelFormat;
 import de.nava.informa.core.ChannelIF;
 import de.nava.informa.core.ImageIF;
+import de.nava.informa.core.ItemIF;
 import de.nava.informa.core.ParseException;
 import de.nava.informa.impl.basic.ChannelBuilder;
-import de.nava.informa.impl.basic.Item;
 
 public class FeedParser extends ASubParser implements IFeedParser {
+	private static final String MIMETYPE_RDF = "application/rdf+xml";
+	private static final String MIMETYPE_RSS = "application/rss+xml";
+	private static final String MIMETYPE_ATOM = "application/atom+xml";
 	
+	/**
+	 * The mimetypes supported by this parser
+	 */
 	private static final List<String> MIMETYPES = Arrays.asList(
 			"text/rss",
-			"application/rdf+xml",
-			"application/rss+xml",
-			"application/atom+xml");
+			MIMETYPE_RDF,
+			MIMETYPE_RSS,
+			MIMETYPE_ATOM
+	);
 	
+	/**
+	 * for logging
+	 */
 	private final Log logger = LogFactory.getLog(FeedParser.class);
 	
 	public List<String> getMimeTypes() {
@@ -83,20 +92,24 @@ public class FeedParser extends ASubParser implements IFeedParser {
 			ChannelFormat format = channel.getFormat();
 			String formatStr = format.toString();
 			if (format.equals(ChannelFormat.RSS_1_0)) {
-				pdoc.setMimeType("application/rdf+xml");
+				pdoc.setMimeType(MIMETYPE_RDF);
 			} else if (formatStr.toLowerCase().startsWith("rss")) {
-				pdoc.setMimeType("application/rss+xml");
+				pdoc.setMimeType(MIMETYPE_RSS);
 			} else if (formatStr.toLowerCase().startsWith("atom")) {
-				pdoc.setMimeType("application/atom+xml");
+				pdoc.setMimeType(MIMETYPE_ATOM);
 			} 
 
-			// extracting title/summary/language
+			// extracting title/summary
 			pdoc.setTitle(channel.getTitle());
-			pdoc.setSummary(channel.getDescription());			
-			final String language = channel.getLanguage();
-			if (language != null)
-				pdoc.setLanguages(new HashSet<String>(Arrays.asList(channel.getLanguage().split(","))));
+			pdoc.setSummary(channel.getDescription());
 			
+			// the channel language
+			final String language = channel.getLanguage();
+			if (language != null) {
+				pdoc.setLanguages(new HashSet<String>(Arrays.asList(language.split(","))));
+			}
+			
+			// the channel image
 			final ImageIF image = channel.getImage();
 			if (image != null) try {
 				pdoc.addImage(image.getLink().toURI(), image.getTitle());
@@ -104,26 +117,33 @@ public class FeedParser extends ASubParser implements IFeedParser {
 				logger.warn("image-link is not valid: '" + image.getLink() + "': " + e.getMessage()); 
 			}
 			
-			final Collection<?> items = channel.getItems();
+			// channel last-updated date
+			if (channel.getLastUpdated() != null) {
+				pdoc.setLastChanged(channel.getLastUpdated());
+			} else if (channel.getLastBuildDate() != null) {
+				pdoc.setLastChanged(channel.getLastBuildDate());
+			}
+			
+			final Collection<ItemIF> items = channel.getItems();
 			if (!items.isEmpty()) {
 				final StringBuilder authors = new StringBuilder();
 				
 				// loop through all items
-				final Iterator<?> it = items.iterator();				
+				final Iterator<ItemIF> it = items.iterator();				
 				while (it.hasNext()) {
-					final Item item = (Item)it.next();
+					IParserDocument idoc = null;
+					final ItemIF item = it.next();
 					
-					final String itemTitle = item.getTitle();
-					final String itemDescr = item.getDescription();
-					final String itemCreator = item.getCreator();		
+					// the item location
 					final URI itemURL = (item.getLink()==null)
 									  ? null
-									  : refNorm.normalizeReference(item.getLink().toExternalForm());
+									  : refNorm.normalizeReference(item.getLink().toExternalForm());					
 					
-					IParserDocument idoc = null;
+					// the item content (if available)
 					String itemContent = item.getElementValue("content");
-					if (itemContent == null || itemContent.length() == 0)
+					if (itemContent == null || itemContent.length() == 0) {
 						itemContent = item.getElementValue("content:encoded");
+					}
 					if ((itemContent != null) && (itemContent.length() > 0)) {						
 						final URI itemLocation = (itemURL == null) ? location : itemURL;
 						
@@ -135,7 +155,7 @@ public class FeedParser extends ASubParser implements IFeedParser {
 								idoc = htmlParser.parse(
 										itemLocation, 
 										charset,
-										new ByteArrayInputStream(itemContent.getBytes())
+										new ByteArrayInputStream(itemContent.getBytes("UTF-8"))
 								);		
 								
 								if (idoc != null && idoc.getMimeType() == null) {
@@ -146,27 +166,54 @@ public class FeedParser extends ASubParser implements IFeedParser {
 							}
 						}
 					}
-					if (idoc == null)
+					if (idoc == null) {
 						idoc = new ParserDocument();
+						idoc.setMimeType("text/plain");
+					}
 					
-					if (itemCreator != null && itemCreator.length() > 0)
+					// the item author
+					final String itemCreator = item.getCreator();
+					if (itemCreator != null && itemCreator.length() > 0) {
 						authors.append(",").append(itemCreator);
+						idoc.setAuthor(itemCreator);
+					}
 					
-					idoc.addHeadline(itemTitle);
+					// the item headline
+					String itemTitle = item.getTitle();
+					if (itemTitle != null) {
+						idoc.addHeadline(itemTitle);
+					}
 					
-					if (itemURL != null)
+					
+					// the item URL
+					if (itemURL != null) {
 						idoc.addReference(itemURL, itemTitle, "ParserFeed");
+					}
 					
-					if (itemDescr != null)
+					// the item description
+					final String itemDescr = item.getDescription();
+					if (itemDescr != null) {
 						idoc.addText(itemDescr);
+					}
+					
+					// the item date
+					if (item.getDate() != null) {
+						idoc.setLastChanged(item.getDate());
+					}
 					
 					pdoc.addSubDocument(itemTitle, idoc);
+				}
+								
+				// adding the author list 
+				if (authors.length() > 0) {
+					if (authors.charAt(0) == ',') authors.deleteCharAt(0);
+					pdoc.setAuthor(authors.toString());
 				}
 			}
 			
 			pdoc.setStatus(IParserDocument.Status.OK);
 			return pdoc;
-		} catch (ParseException e) {
+		} catch (Throwable e) {
 			throw new ParserException("error parsing feed", e);
 		}
 	}
