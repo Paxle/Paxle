@@ -31,8 +31,10 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.se.provider.rsssearch.impl.RssSearchProvider;
+import org.paxle.se.provider.rsssearch.impl.RssSearchProviderManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.htmlparser.Parser;
@@ -41,50 +43,57 @@ import org.htmlparser.lexer.Lexer;
 import org.htmlparser.lexer.Page;
 
 public class ConfigServlet extends ALayoutServlet {
-
 	private static final long serialVersionUID = 1L;
-
-	public ConfigServlet() {
+	private final RssSearchProviderManager pManager;
+	
+	public ConfigServlet(RssSearchProviderManager pManager) {
+		this.pManager = pManager;
 	}
 
 	@Override
-	public Template handleRequest(HttpServletRequest request,
-			HttpServletResponse response, Context context) {
+	public Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context context) {
 		Template template = null;
 		try {
 			template = this.getTemplate("/resources/templates/config.vm");
 			if (request.getMethod().equals("POST")) {
 				if (request.getParameter("opensearchurl") != null) {
 					String url=request.getParameter("opensearchurl");
-					addRssUrlFromOpensearchXMLUrl(url);
+					this.addRssUrlFromOpensearchXMLUrl(url);
 				} else if (request.getParameter("opensearchhtmlurl") != null) {
-					HttpMethod hm = new GetMethod(request
-							.getParameter("opensearchhtmlurl"));
-					HttpClient hc = new HttpClient();
-					int status = hc.executeMethod(hm);
-					if (status == 200) {
-						Page page=new Page(hm.getResponseBodyAsString());
-						page.setUrl(request.getParameter("opensearchhtmlurl"));
-						Parser parser = new Parser(new Lexer(page));
-						parser.setNodeFactory(new PrototypicalNodeFactory());
-						OpenSearchLinkCollector oslc=new OpenSearchLinkCollector();
-						parser.visitAllNodesWith(oslc);
-						if(oslc.found()){
-							addRssUrlFromOpensearchXMLUrl(oslc.getURL());
+					HttpMethod hm = null;
+					try {
+						hm = new GetMethod(request.getParameter("opensearchhtmlurl"));
+						HttpClient hc = new HttpClient();
+						int status = hc.executeMethod(hm);
+						if (status == 200) {
+							Page page=new Page(hm.getResponseBodyAsString());
+							page.setUrl(request.getParameter("opensearchhtmlurl"));
+							Parser parser = new Parser(new Lexer(page));
+							parser.setNodeFactory(new PrototypicalNodeFactory());
+							OpenSearchLinkCollector oslc=new OpenSearchLinkCollector();
+							parser.visitAllNodesWith(oslc);
+							if(oslc.found()){
+								this.addRssUrlFromOpensearchXMLUrl(oslc.getURL());
+							}
+							page.close();
 						}
-						page.close();
+					} finally {
+						if (hm != null) hm.releaseConnection();
 					}
 				}
-			} else {
+			} 
+			
+			if (request.getParameter("urls") != null) {				
 				String[] new_urls = request.getParameter("urls").split("\n");
 				ArrayList<String> list = new ArrayList<String>();
 				for (int i = 0; i < new_urls.length; i++)
 					if (!new_urls[i].equals(""))
-						list.add(new_urls[i]);
-				RssSearchProvider.setUrls(list);
-				RssSearchProvider.registerSearchers(list);
+						list.add(new_urls[i].trim());
+				this.pManager.setUrls(list);
+				this.pManager.registerSearchers(list);
 			}
-			List<String> urls = RssSearchProvider.getUrls();
+			
+			List<String> urls = this.pManager.getUrls();
 			context.put("urls", urls);
 
 		} catch (Exception e) {
@@ -103,11 +112,12 @@ public class ConfigServlet extends ALayoutServlet {
 	 * @throws SAXException
 	 */
 	private void addRssUrlFromOpensearchXMLUrl(String url) throws ParserConfigurationException, IOException, HttpException, SAXException {
+		HttpMethod hm = null;
 		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory
-					.newInstance();
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
-			HttpMethod hm = new GetMethod(url);
+			
+			hm = new GetMethod(url);
 			HttpClient hc = new HttpClient();
 			int status = hc.executeMethod(hm);
 			if (status == 200) {
@@ -117,35 +127,32 @@ public class ConfigServlet extends ALayoutServlet {
 
 				NodeList elements = d.getElementsByTagName("Url");
 				for (int i = 0; i < elements.getLength(); i++) {
-					NamedNodeMap nnm = elements.item(i)
-							.getAttributes();
-					if (nnm.getNamedItem("type") != null
-							&& nnm.getNamedItem("type")
-									.getNodeValue().toString()
-									.toLowerCase().equals(
-											"application/rss+xml")) {
-						String urltemplate = elements.item(i)
-								.getAttributes().getNamedItem(
-										"template").getNodeValue()
-								.toString();
-						urltemplate = urltemplate.replaceAll(
-								"\\{startPage\\?\\}", "1");
-						urltemplate = urltemplate.replaceAll(
-								"\\{searchTerms\\}", "%s");
-						ArrayList<String> urls = RssSearchProvider
-								.getUrls();
+					NamedNodeMap nnm = elements.item(i).getAttributes();
+					Node typeNode = nnm.getNamedItem("type");
+					String type = typeNode == null 
+							    ? null
+							    : typeNode.getNodeValue().toString().toLowerCase();
+					
+					if (type.equals("application/rss+xml")) {
+						Node templateNode = elements.item(i).getAttributes().getNamedItem("template");
+						String urltemplate = templateNode.getNodeValue().toString();
+						urltemplate = urltemplate.replaceAll("\\{startPage\\?\\}", "1");
+						urltemplate = urltemplate.replaceAll("\\{searchTerms\\}", "%s");
+						
+						ArrayList<String> urls = this.pManager.getUrls();
 						urls.add(urltemplate);
-						RssSearchProvider.setUrls(urls);
+						this.pManager.setUrls(urls);
 						break;
 					}
 
 				}
 			}
-			hm.releaseConnection();
+			
 		} catch (IllegalArgumentException e) {// InputStream
 			// cannot be null
-			logger.warn("Problem adding opensearch xml");
-			e.printStackTrace();
+			logger.warn("Problem adding opensearch xml",e);
+		} finally {
+			if (hm != null) hm.releaseConnection();
 		}
 	}
 }

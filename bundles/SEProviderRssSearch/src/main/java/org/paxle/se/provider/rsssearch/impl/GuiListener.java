@@ -15,6 +15,7 @@ package org.paxle.se.provider.rsssearch.impl;
 
 import java.util.Hashtable;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
@@ -23,34 +24,71 @@ import org.osgi.framework.ServiceRegistration;
 import org.paxle.se.provider.rsssearch.impl.gui.ConfigServlet;
 
 public class GuiListener implements BundleListener {
-	private ServiceRegistration serviceReg = null;
+	/**
+	 * The symbolic-name of the paxle-gui bundle
+	 * @see Constants#BUNDLE_SYMBOLICNAME
+	 */
+	private static final String GUI_SYMNAME = "org.paxle.gui";
+	
+	/**
+	 * The bundle-context used for servlet-(un)-registration
+	 * @see #registerServlet()
+	 */
 	private final BundleContext bc;
 	
-	public GuiListener(BundleContext bc) {
+	/**
+	 * A component to manager rss-search-provider
+	 */
+	private final RssSearchProviderManager pManager;
+	
+	/**
+	 * {@link ServiceRegistration} object of our {@link ConfigServlet}
+	 */
+	private ServiceRegistration serviceReg = null;
+	
+	public GuiListener(BundleContext bc, RssSearchProviderManager pManager) {
 		this.bc = bc;
+		this.pManager = pManager;
+		
+		for (Bundle bundle : bc.getBundles()) {
+			final String bundleSymolicName = (String) bundle.getHeaders().get(Constants.BUNDLE_SYMBOLICNAME);
+			if(bundleSymolicName.equals(GUI_SYMNAME) && bundle.getState() == Bundle.ACTIVE) {
+				this.registerServlet();
+			}
+		}
 	}
 	
 	public void bundleChanged(BundleEvent event) {
-		if (event.getBundle().getHeaders().get(Constants.BUNDLE_SYMBOLICNAME).equals("org.paxle.gui")) {
+		final Bundle bundle = event.getBundle();
+		final String bundleSymolicName = (String) bundle.getHeaders().get(Constants.BUNDLE_SYMBOLICNAME);
+		
+		if (bundleSymolicName.equals(GUI_SYMNAME)) {
 			if (event.getType() == BundleEvent.STARTED) {
 				/*
 				 * Registering the servlet
 				 */
-				registerServlet();
+				this.registerServlet();
 			} else if (event.getType() == BundleEvent.STOPPED && this.serviceReg != null) {
-				this.serviceReg.unregister();
-				this.serviceReg = null;
+				/*
+				 * Unregistering the servlet
+				 */
+				this.unregisterServlet();
 			}
 		}
 	}
 
 	public void registerServlet() {
-		ConfigServlet servlet=new ConfigServlet();
+		ConfigServlet servlet=new ConfigServlet(this.pManager);
 		servlet.setBundleLocation(bc.getBundle().getEntry("/").toString());
 		Hashtable<String, Object> props = new Hashtable<String, Object>();
 		props.put("path", "/rsssearchconfig");
 		props.put("menu", "RSS search sources");
 		props.put("doUserAuth", Boolean.TRUE);
 		this.serviceReg = bc.registerService("javax.servlet.Servlet", servlet, props);
+	}
+	
+	public void unregisterServlet() {
+		this.serviceReg.unregister();
+		this.serviceReg = null;
 	}
 }

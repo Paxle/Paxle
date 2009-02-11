@@ -13,19 +13,11 @@
  */
 package org.paxle.se.provider.rsssearch.impl;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -34,7 +26,6 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.paxle.core.doc.IIndexerDocument;
@@ -51,9 +42,7 @@ public class RssSearchProvider implements ISearchProvider,ManagedService {
 	
 	// the paxle default
 	private static final String DEFAULT_CHARSET = "UTF-8";
-	
-	public static List<ServiceRegistration> providers;
-	
+
 	/**
 	 * The base URL to connect to
 	 */
@@ -138,56 +127,5 @@ public class RssSearchProvider implements ISearchProvider,ManagedService {
 	public void updated(Dictionary properties) throws ConfigurationException {
 		// TODO Auto-generated method stub
 		
-	}
-
-	/**
-	 * read the list of RSS-URLs
-	 * @return an ArrayList with URLs
-	 * @throws IOException
-	 */
-	public static ArrayList<String> getUrls() throws IOException{
-		File rssList=new File("rssProviders.txt");
-		if(!rssList.exists()){
-			ArrayList<String> defaults=new ArrayList<String>();
-			defaults.add("http://del.icio.us/rss/tag/%s");
-			defaults.add("http://www.mister-wong.com/rss/tags/%s");
-			setUrls(defaults);
-		}
-		BufferedReader is=new BufferedReader(new InputStreamReader(new FileInputStream(rssList)));
-		String line;
-		ArrayList<String> list=new ArrayList<String>();
-		while((line=is.readLine())!=null){
-			list.add(line);
-		}
-		is.close();
-		return list;
-	}
-	public static void setUrls(ArrayList<String> urls) throws IOException{
-		File rssList=new File("rssProviders.txt");
-		if(!rssList.exists()){
-			rssList.createNewFile();
-		}
-		BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(rssList));
-		Iterator<String> it = urls.iterator();
-		while(it.hasNext()){
-			os.write((it.next()+"\n").getBytes());
-		}
-		os.close();
-	}
-
-	public static void registerSearchers(ArrayList<String> urls){
-		Iterator<ServiceRegistration> prov_it=providers.iterator();
-		while(prov_it.hasNext()){
-			ServiceRegistration sr=prov_it.next();
-			try{
-				sr.unregister();
-			}catch(IllegalStateException e){} //service is already unregistered
-		}
-		Iterator<String> it=urls.iterator();
-		while(it.hasNext()){
-			providers.add(Activator.bc.registerService(ISearchProvider.class.getName(),
-				new RssSearchProvider(it.next()), new Hashtable<String,String>())
-			);
-		}
 	}
 }
