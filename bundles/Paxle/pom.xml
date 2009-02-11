@@ -544,14 +544,24 @@
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>com.springsource.org.jfree-1.0.9.jar</destFileName>										
 								</artifactItem>
-								
+
+								<!-- SWF Parser -->								
 								<artifactItem>
 									<groupId>org.karlchenofhell</groupId>
 									<artifactId>swf</artifactId>
 									<version>0.1</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>org.karlchenofhell.swf-0.1.jar</destFileName>
-								</artifactItem>												
+								</artifactItem>
+								
+								<!-- JDOM -->
+								<artifactItem>
+									<groupId>org.jdom</groupId>
+									<artifactId>com.springsource.org.jdom</artifactId>
+									<version>1.0.0</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>com.springsource.org.jdom-1.0.0.jar</destFileName>										
+								</artifactItem>
 
 								<!-- ==================================================================-->
 								<!-- APACHE FELIX - Dependencies                                       -->
