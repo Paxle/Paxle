@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
@@ -69,6 +70,7 @@ public abstract class AParserTest extends MockObjectTestCase {
 				return tempfile;
 			}
 		};
+		IOTools.setTempFileManager(this.tempFileManager);
 		
 		this.refNormalizer = new IReferenceNormalizer() {
 			public URI normalizeReference(String reference) {
