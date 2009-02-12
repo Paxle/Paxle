@@ -29,7 +29,14 @@ public class AJsonServlet extends HttpServlet {
 	 */
 	protected HttpService httpService;	
 	
+	/**
+	 * The context of this component
+	 */
+	protected ComponentContext ctx;
+	
 	protected void activate(ComponentContext ctx) throws ServletException, NamespaceException {
+		this.ctx = ctx;
+		
 		String servletPath = (String)ctx.getProperties().get("path");
 		if (servletPath != null) {
 			this.httpService.registerServlet(servletPath, this, null, null);
@@ -37,6 +44,8 @@ public class AJsonServlet extends HttpServlet {
 	}
 	
 	protected void deactivate(ComponentContext ctx) {
+		this.ctx = ctx;
+		
 		String servletPath = (String)ctx.getProperties().get("path");
 		if (servletPath != null) {
 			this.httpService.unregister(servletPath);
