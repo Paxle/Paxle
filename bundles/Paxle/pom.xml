@@ -274,6 +274,17 @@
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>org.eclipse.equinox.common_3.4.0.v20080421-2006.jar</destFileName>
 								</artifactItem>
+								
+								<!--
+									An Equinox util-bundle required by the ds-bundle 
+								 -->
+								<artifactItem>
+									<groupId>org.eclipse.equinox</groupId>
+									<artifactId>util</artifactId>
+									<version>1.0.0.v20080414</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.eclipse.equinox.util_1.0.0.v20080414.jar</destFileName>
+								</artifactItem>
 
 								<artifactItem>
 									<groupId>org.eclipse.equinox</groupId>
@@ -314,6 +325,14 @@
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>org.eclipse.equinox.metatype_1.0.0.v20070827.jar</destFileName>
 								</artifactItem>		
+								
+								<artifactItem>
+									<groupId>org.eclipse.equinox</groupId>
+									<artifactId>ds</artifactId>
+									<version>1.0.0.v20080427-0830</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.eclipse.equinox.ds_1.0.0.v20080427-0830.jar</destFileName>
+								</artifactItem>	
 								
 								<!-- 
 									 A patched version of the useradmin bundle including 
