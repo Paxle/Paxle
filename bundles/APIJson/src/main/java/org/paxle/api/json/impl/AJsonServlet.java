@@ -19,7 +19,12 @@ import javax.servlet.http.HttpServlet;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
+import org.osgi.service.useradmin.UserAdmin;
 
+/**
+ * @scr.component abstract="true"
+ * @scr.property name="doUserAuth" type="Boolean" value="false"
+ */
 public class AJsonServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
@@ -27,7 +32,13 @@ public class AJsonServlet extends HttpServlet {
 	 * The OSGi HTTP-service required to register our {@link HttpServlet servlets} 
 	 * @scr.reference 
 	 */
-	protected HttpService httpService;	
+	protected HttpService httpService;
+	
+	/**
+	 * The OSGi UserAdmin service, required for http-authentication if required by the servlet
+	 * @scr.reference cardinality="0..1"
+	 */
+	protected UserAdmin userService;
 	
 	/**
 	 * The context of this component
@@ -38,8 +49,19 @@ public class AJsonServlet extends HttpServlet {
 		this.ctx = ctx;
 		
 		String servletPath = (String)ctx.getProperties().get("path");
+		Boolean authRequired = (Boolean) ctx.getProperties().get("doUserAuth");		
+		
 		if (servletPath != null) {
-			this.httpService.registerServlet(servletPath, this, null, null);
+			this.httpService.registerServlet(
+					// the http-path to access the servlet
+					servletPath, 
+					// the servlet itself
+					this, 
+					// config properties
+					null,
+					// authenticator
+					(authRequired==null || !authRequired.booleanValue())?null:new HttpContextAuth(this.userService)
+			);
 		}
 	}
 	

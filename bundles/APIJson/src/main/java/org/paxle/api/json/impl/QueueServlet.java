@@ -24,6 +24,7 @@ import org.paxle.core.queue.ICommand;
 /**
  * @scr.component
  * @scr.property name="path" value="/json/queue"
+ * @scr.property name="doUserAuth" type="Boolean" value="false"
  * 
  * @scr.reference name="component" interface="org.paxle.core.IMWComponent" cardinality="1..n" policy="dynamic" bind="addComponent" unbind="removeComponent"
  */
@@ -126,6 +127,7 @@ public class QueueServlet extends AJsonServlet {
 				jgen.writeStartObject();
 				jgen.writeNumberField("OID", cmd.getOID());
 				jgen.writeNumberField("profileID", cmd.getProfileOID());
+				jgen.writeNumberField("depth", cmd.getDepth());
 				jgen.writeStringField("location", cmd.getLocation().toString());
 				jgen.writeStringField("mimeType", pDoc==null?"":pDoc.getMimeType());
 				jgen.writeNumberField("size", cDoc==null?-1:cDoc.getSize());
