@@ -21,7 +21,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.map.JavaTypeMapper;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.map.JsonSerializable;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializerProvider;
 import org.osgi.service.monitor.MonitorAdmin;
 import org.osgi.service.monitor.StatusVariable;
 
@@ -44,7 +48,9 @@ public class MonitorableServlet extends AJsonServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		resp.setContentType("application/json");
+		if (req.getParameter("debug") == null) {
+			resp.setContentType("application/json");
+		}
 		
 		// getting the names of all monitorables to serialize
 		String monitorableNames[] = null;
@@ -54,61 +60,86 @@ public class MonitorableServlet extends AJsonServlet {
 			monitorableNames = this.monitorAdmin.getMonitorableNames();
 		}
 		
-		// building a helper structure
-		Map<String, Map<String, Map<String, ?>>> monitorableMap = new HashMap<String, Map<String, Map<String, ?>>>();
+		// building a helper structure		
+		Map<String, MonitorableProxy> monitorableMap = new HashMap<String, MonitorableProxy>();
 		if (monitorableNames != null) {
 			for (String monitorableName : monitorableNames) {
-				StatusVariable[] variables = this.monitorAdmin.getStatusVariables(monitorableName);
-				if (variables != null) {
-					Map<String, Map<String, ?>> variableMap = new HashMap<String, Map<String,?>>();
-					monitorableMap.put(monitorableName, variableMap);
-					
-					for (StatusVariable variable : variables) {						
-						Map<String, Object> valueMap = new HashMap<String, Object>();
-						
-						String variableID = variable.getID();
-						STATUSVAR_TYPE varType = STATUSVAR_TYPE.values()[variable.getType()];
-						
-						valueMap.put("id", variableID);
-						valueMap.put("type", varType.toString());
-						valueMap.put("timestamp", new Long(variable.getTimeStamp().getTime()));
-						valueMap.put("description", this.monitorAdmin.getDescription(monitorableName + "/" + variableID));
-						valueMap.put("value", this.getValue(varType, variable));
-						
-						variableMap.put(variableID, valueMap);
-					}
-				}
+				monitorableMap.put(monitorableName, new MonitorableProxy(monitorableName));
 			}
 		}
 
-		// writ json string out
-		JavaTypeMapper jtm=new JavaTypeMapper();
+		// write json string out
+		ObjectMapper jtm = new ObjectMapper();
 		jtm.writeValue(resp.getOutputStream(), monitorableMap);
 	}
 	
-	private Object getValue(STATUSVAR_TYPE varType, StatusVariable variable) {
-		Object value = null;
+	class MonitorableProxy implements JsonSerializable {
+		private String monitorableId;
 		
-		switch (varType) {
-			case Integer:
-				value = new Integer(variable.getInteger());
-				break;
+		public MonitorableProxy(String monitorableId) {
+			this.monitorableId = monitorableId;
+		}
+		
+		public Map<String, StatusVariableProxy> getVariables() {
+			Map<String, StatusVariableProxy> variablesMap = new HashMap<String, StatusVariableProxy>(); 
 			
-			case Float:
-				value = new Float(variable.getFloat());
-				break;
+			String[] variables = monitorAdmin.getStatusVariableNames(this.monitorableId);
+			if (variables != null) {
+				for (String variableId : variables) {
+					variablesMap.put(variableId, new StatusVariableProxy(this.monitorableId,variableId));
+				}
+			}
+			
+			return variablesMap;
+		}
+
+		public void serialize(JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+			provider.findValueSerializer(Map.class).serialize(this.getVariables(), jgen, provider);
+		}
+	}
+	
+	class StatusVariableProxy implements JsonSerializable{
+		private final String monitorableId;
+		private final String variableId;
+		private final StatusVariable variable;
+		
+		public StatusVariableProxy(String monitorableId, String variableId) {
+			this.monitorableId = monitorableId;
+			this.variableId = variableId;
+			this.variable = monitorAdmin.getStatusVariable(this.monitorableId + "/" + this.variableId);
+		}
+
+		public void serialize(JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+			STATUSVAR_TYPE varType = STATUSVAR_TYPE.values()[variable.getType()];
+			
+			jgen.writeStartObject();
+			
+			jgen.writeStringField("id", variable.getID());
+			jgen.writeStringField("type", varType.toString());
+			jgen.writeNumberField("timestamp", new Long(variable.getTimeStamp().getTime()));
+			jgen.writeStringField("description", monitorAdmin.getDescription(this.monitorableId + "/" + this.variableId));			
+			switch (varType) {
+				case Integer:
+					jgen.writeNumberField("value",new Integer(variable.getInteger()));
+					break;
 				
-			case String:
-				value = variable.getString();
-				break;
-				
-			case Boolean:
-				value = new Boolean(variable.getBoolean());
-				break;
-				
-			default:
-				break;
-		}		
-		return value;
+				case Float:
+					jgen.writeNumberField("value",new Float(variable.getFloat()));
+					break;
+					
+				case String:
+					jgen.writeStringField("value",variable.getString());
+					break;
+					
+				case Boolean:
+					jgen.writeBooleanField("value",new Boolean(variable.getBoolean()));
+					break;
+					
+				default:
+					break;
+			}
+			
+			jgen.writeEndObject();	
+		}
 	}
 }

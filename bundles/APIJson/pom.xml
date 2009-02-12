@@ -62,7 +62,8 @@
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
-							jackson-asl;scope=compile|runtime
+							jackson-core-asl;scope=compile|runtime,
+							jackson-mapper-asl;scope=compile|runtime
 						</Embed-Dependency>	
 					</instructions>
 				</configuration>
@@ -93,9 +94,14 @@
 		
 		<!-- Json dependencies -->
 		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-asl</artifactId>
-			<version>0.9.5</version>
-		</dependency>		
+		    <groupId>org.codehaus.jackson</groupId>
+		    <artifactId>jackson-core-asl</artifactId>
+		    <version>0.9.7</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.codehaus.jackson</groupId>
+		    <artifactId>jackson-mapper-asl</artifactId>
+		    <version>0.9.7</version>
+		</dependency>
 	</dependencies>
 </project>
