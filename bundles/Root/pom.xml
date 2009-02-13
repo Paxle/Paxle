@@ -235,7 +235,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>buildnumber-maven-plugin</artifactId>
-					<version>1.0-beta-1</version>
+					<version>1.0-beta-2</version>
 				</plugin>
 				<!-- required maven 2.0.9 
 				<plugin>
@@ -352,9 +352,11 @@
 				<configuration>
 					<doCheck>false</doCheck>
 					<doUpdate>false</doUpdate>
+					<revisionOnScmFailure>0</revisionOnScmFailure>
+					<!-- <useLastCommittedRevision>true</useLastCommittedRevision>-->
 				</configuration>
 			</plugin>
-
+			
 			<!-- 
 				A plugin to build OSGi bundles
 				- this configuration is just inherited to all sub-projects
@@ -371,7 +373,6 @@
 					</instructions>
 				</configuration>
 			</plugin>
-
 		</plugins>
 	</build>
 
