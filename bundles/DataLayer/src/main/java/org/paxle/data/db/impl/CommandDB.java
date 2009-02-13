@@ -120,13 +120,13 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 
 	private static final String UTF8 = "UTF-8";
 	/**
-      * The cachemanager to use
-      */
+	 * The cachemanager to use
+	 */
 	private CacheManager manager = null;
 
 	/**
-	  * A cach to hold {@link RobotsTxt} objects in memory
-	  */
+	 * A cach to hold {@link RobotsTxt} objects in memory
+	 */
 	private Cache urlExistsCache = null;
 
 	/**
@@ -206,7 +206,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				// register an interceptor (required to support our interface-based command model)
 				this.config.setInterceptor(new InterfaceInterceptor());
 
-				// merge weith additional properties
+				// merge with additional properties
 				if (extraProperties != null) {
 					this.config.addProperties(extraProperties);
 				}
@@ -232,7 +232,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			this.optimizeDbSchema();
 			cntTotal = this.totalSize();
 			cntCrawlerQueue = this.size("enqueued");
-			System.out.println("command-db size: " + cntTotal + ", to crawl: " + cntCrawlerQueue);
+			logger.info("command-db size: " + cntTotal + ", to crawl: " + cntCrawlerQueue);
 
 			/* ===========================================================================
 			 * Init Reader/Writer Threads
@@ -340,6 +340,10 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		} finally { ((dataOs == null) ? fileOs : dataOs).close(); }
 	}
 
+	/**
+	 * Returns the cache directory from the Paxle data folder.
+	 * If it doesn't exist yet, it's created.
+	 */
 	private File getCreateCacheDir() {
 		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + CACHE_DIR;
 		final File cacheDir = new File(dataPath);
@@ -351,12 +355,11 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	private void openDoubleURLSet() throws IOException {
 		File serializedFile = new File(getCreateCacheDir(), BLOOM_CACHE_FILE);
 
-		if (!(serializedFile.exists() && serializedFile.canRead() && serializedFile.isFile())) {
-			// XXX: what is the old file here?
+		if (!(serializedFile.canRead() && serializedFile.isFile())) {
+			//XXX: We should remove the check of both directories (getCreateCacheDir() + getDatabaseLocation()), if the location for persistence is clear
 			final File oldFile = new File(getDatabaseLocation(), BLOOM_CACHE_FILE);
-			if (oldFile.exists() && oldFile.canRead() && oldFile.isFile()) {
+			if (oldFile.canRead() && oldFile.isFile()) {
 				serializedFile = oldFile;
-				oldFile.deleteOnExit();
 			} else {
 				logger.info("Serialized double URL set not found, populating cache from DB (this may take some time) ...");
 				bloomFilter = new DynamicBloomFilter(1437764, 10, 100000);	// creating a maximum false positive rate of 0.1 %
@@ -364,7 +367,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				populateThread.start();
 			}	
 		}
-		if (serializedFile.exists() && serializedFile.canRead() && serializedFile.isFile()) {
+		if (serializedFile.canRead() && serializedFile.isFile()) {
 			logger.info(String.format(
 					"Serialized double URL set found, reading %d bytes ...",
 					serializedFile.length()
@@ -374,7 +377,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				final DataInputStream dataIs = new DataInputStream(new BufferedInputStream(fileIs));
 				bloomFilter = new DynamicBloomFilter();
 				bloomFilter.readFields(dataIs);
-			} finally { fileIs.close(); }
+			} finally { fileIs.close(); serializedFile.delete(); }
 		}
 	}
 
@@ -416,7 +419,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 						"SELECT location FROM CrawledCommand "
 				).setReadOnly(true);
 
-				ScrollableResults sr = query.scroll(ScrollMode.FORWARD_ONLY); // (ScrollMode.FORWARD_ONLY);
+				ScrollableResults sr = query.scroll(ScrollMode.FORWARD_ONLY);
 
 				// loop through the available commands
 				while(sr.next() && !super.isInterrupted()) {
