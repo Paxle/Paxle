@@ -160,7 +160,7 @@ public class FilterListenerTest extends MockObjectTestCase {
 		final String servicePID = "FILTER_TEST_" + System.currentTimeMillis();		
 				
 		// a dummy filter class
-		@FilterTarget(@FilterQueuePosition(value = filterQueueID, position = filterQueuePos))
+		@FilterTarget(@FilterQueuePosition(queue = filterQueueID, position = filterQueuePos))
 		class MyTestFilter implements IFilter<ICommand> {
 			public void filter(ICommand command, IFilterContext filterContext) {}			
 		}

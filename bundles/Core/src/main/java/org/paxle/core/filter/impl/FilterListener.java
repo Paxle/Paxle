@@ -177,7 +177,7 @@ public class FilterListener implements ServiceListener {
 			final FilterTarget target = filter.getClass().getAnnotation(FilterTarget.class);
 			if (target != null)
 				for (final FilterQueuePosition pos : target.value())
-					annotProps.put(pos.value(), pos);
+					annotProps.put(pos.queue(), pos);
 			
 			// adding the filter to multiple targets
 			if (targetIDs != null) {
@@ -205,7 +205,7 @@ public class FilterListener implements ServiceListener {
 			// adding the filter to all targets defined only via annotation
 			final String[] params = new String[1];
 			for (final FilterQueuePosition pos : annotProps.values()) {
-				params[0] = pos.value(); // filter-queue ID
+				params[0] = pos.queue(); // filter-queue ID
 				
 				this.filterManager.addFilter(this.generateFilterMetadata(
 						filterPID,

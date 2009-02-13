@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FilterQueuePosition {
 	
-	public String value();
+	public String queue();
 	public int position() default 0;
 	public boolean enabled() default true;
 }
