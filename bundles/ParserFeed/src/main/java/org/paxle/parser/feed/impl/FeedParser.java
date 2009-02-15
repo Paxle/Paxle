@@ -43,7 +43,6 @@ import de.nava.informa.core.ChannelFormat;
 import de.nava.informa.core.ChannelIF;
 import de.nava.informa.core.ImageIF;
 import de.nava.informa.core.ItemIF;
-import de.nava.informa.core.ParseException;
 import de.nava.informa.impl.basic.ChannelBuilder;
 
 public class FeedParser extends ASubParser implements IFeedParser {
