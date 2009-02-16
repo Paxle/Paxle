@@ -46,7 +46,7 @@ public class GuiListener implements BundleListener {
 				servlet.setBundleLocation(bc.getBundle().getEntry("/").toString());
 				Hashtable<String, Object> props = new Hashtable<String, Object>();
 				props.put("path", "/blacklist");
-				props.put("menu", "Blacklist");
+				props.put("menu", "%menu.administration/%menu.bundles/Blacklist");
 				props.put("doUserAuth", Boolean.TRUE);
 				this.serviceReg = bc.registerService("javax.servlet.Servlet", servlet, props);
 			} else if (type == BundleEvent.STOPPED && this.serviceReg != null) {
