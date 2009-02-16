@@ -91,26 +91,16 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 		return (IServiceManager) sContext.getAttribute(SERVICE_MANAGER);
 	}
 	
-	/**
-	 * @deprecated This will be removed in VelocityTools 2.1.
-	 */
 	@Override
-	@Deprecated
 	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
 		return super.handleRequest(request, response, context);
 	}
 	
-	/**
-	 * TODO: this needs to be implemented by all our servlets
-	 */
 	@Override
     protected void fillContext(Context context, HttpServletRequest request) {
         // this implementation does nothing
     }
 	
-	/**
-	 * TODO: this needs to be implemented by all our servlets
-	 */
 	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
 		return super.getTemplate(request, response);
 	}

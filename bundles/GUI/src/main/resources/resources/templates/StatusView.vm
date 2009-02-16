@@ -11,13 +11,14 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
+
 ## getting resourcebundle to translate site
 #set( $text = $resourceTool.bundle('OSGI-INF/l10n/statusview'))
 
 ## Set the page title
 #set( $page_title = ${text.browser.title})
 ## Activate onload
-#set ( $bodyonload = "initTabs('general');" )
+#set ( $bodyonload = "initTabs('crawler');" )
 
 ## ---------------------------------------------------------------------------------------
 ## Define some macros 
@@ -54,7 +55,6 @@
 ## ---------------------------------------------------------------------------------------
 
 <ul class="tabs">
-	<li><a href="#dgeneral" onclick="fshow('general');" id="tgeneral">${text.tab.general}</a></li>
 	<li><a href="#dcrawler" onclick="fshow('crawler');" id="tcrawler">${text.tab.crawler}</a></li>
 	<li><a href="#dparser" onclick="fshow('parser');" id="tparser">${text.tab.parser}</a></li>
 	<li><a href="#dindex" onclick="fshow('index');" id="tindex">${text.tab.indexer}</a></li>
@@ -62,17 +62,6 @@
 	<li><a href="#dgui" onclick="fshow('gui');" id="tgui">${text.tab.gui}</a></li>
 	<li><a href="#dcache" onclick="fshow('cache');" id="tcache">${text.tab.cache}</a></li>
 </ul>
-
-## the regular content
-<form method="post" action="${request.getServletPath()}">
-<fieldset id="dgeneral">
-<legend>${text.legend.general}</legend>
-	<p>
-		<input class="btnShutdown" type="submit" name="shutdown" value="${text.general.doShutdown}" />
-		<input class="btnRestart" type="submit" name="restart" value="${text.general.doRestart}" />
-	</p>
-</fieldset>
-</form>
 
 ## ==================================================================================
 ## CRAWLER STATUS

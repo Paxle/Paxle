@@ -23,7 +23,6 @@ import org.paxle.core.IMWComponent;
 import org.paxle.crawler.ISubCrawlerManager;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
-import org.paxle.gui.IServletManager;
 import org.paxle.parser.ISubParserManager;
 import org.paxle.se.search.ISearchProviderManager;
 
@@ -34,7 +33,6 @@ public class StatusView extends ALayoutServlet {
 	protected void doRequest(HttpServletRequest request, HttpServletResponse response) {
 		try {
 			final IServiceManager manager = this.getServiceManager();
-			final IServletManager servletManager = (IServletManager) manager.getService(IServletManager.class.getName());
 			
 			if (request.getParameter("pauseCrawl") != null) {
 				// check user authentication
@@ -66,18 +64,6 @@ public class StatusView extends ALayoutServlet {
 				
 				// redirect to status page
 				response.sendRedirect(request.getServletPath() + "#dcrawler");
-			} else if (request.getParameter("shutdown") != null) {
-				// check user authentication
-				if (!this.isUserAuthenticated(request, response, true)) return;
-				
-				// redirecting to shutdown-servlet
-				response.sendRedirect(servletManager.getFullAlias("/sysctrl") + "?action=shutdown");
-			} else if (request.getParameter("restart") != null) {
-				// check user authentication
-				if (!this.isUserAuthenticated(request, response, true)) return;
-				
-				// redirecting to shutdown-servlet
-				response.sendRedirect(servletManager.getFullAlias("/sysctrl") + "?action=restart");
 			} else if (
 				(request.getParameter("doEnableProtocol") != null)    || 
 				(request.getParameter("doDisableProtocol") != null)
@@ -168,7 +154,7 @@ public class StatusView extends ALayoutServlet {
 	private IMWComponent<?> getCrawler() throws InvalidSyntaxException {
 		IServiceManager sm = this.getServiceManager();
 		Object[] crawlers = sm.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)");		
-		if (crawlers == null && crawlers.length == 0) return null;
+		if (crawlers == null || crawlers.length == 0) return null;
 		return (IMWComponent<?>) crawlers[0];
 	}
 	

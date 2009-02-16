@@ -28,14 +28,15 @@
    #set($page_title = ${text.browser.title})
    <h2>${text.msg}</h2>
    <div>
-	<form method="post" action="" style="float: left;">	
-		<input type="hidden" name="action" value="shutdown" />
-		<input class="btnShutdown" type="submit" name="shutdown" value="${text.shutdownBtn}" />
+   ## the regular content
+   <form method="post" action="${request.getServletPath()}">
+   <fieldset id="dgeneral">
+   <legend>${text.msg}</legend>
+   <p>
+   		<input class="btnShutdown" type="submit" name="shutdown" value="${text.shutdownBtn}" />
+   		<input class="btnRestart" type="submit" name="restart" value="${text.restartBtn}" />
+	</p>
+	</fieldset>
 	</form>
-	<form method="post" action="">
-		<input type="hidden" name="action" value="restart" />
-		<input class="btnRestart" type="submit" name="restart" value="${text.restartBtn}" />
-	</form>
-	<p><small>${text.scriptingHint}</small></p>
-   </div>
+	</div>
 #end

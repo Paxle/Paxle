@@ -22,31 +22,42 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 
 public class SysCtrl extends ALayoutServlet {
-	
+
 	private static final long serialVersionUID = 1L;
+
+	public static final String SHUTDOWN = "shutdown";
+	public static final String RESTART = "restart";
 	
-	@Override
-	protected void fillContext(Context context, HttpServletRequest request) {
-		IServiceManager manager = (IServiceManager) context.get(SERVICE_MANAGER);		
+	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
+
 		try {
-			
+			final IServiceManager manager = this.getServiceManager();
 			int shutdownDelay = 5;
-			
-			if (request.getParameter("action") != null) {
-				String action = request.getParameter("action");
-			
-				if (action.equalsIgnoreCase("restart")) {
-					manager.restartFrameworkDelayed(shutdownDelay);					
-				} else if (action.equalsIgnoreCase("shutdown")) {
+
+			if (request.getParameter(SHUTDOWN) != null) {
+				// check user authentication
+				if (!this.isUserAuthenticated(request, response, true)) {
+					response.sendRedirect("/login");
+				} else {
 					manager.shutdownFrameworkDelayed(shutdownDelay);
+					context.put("action", SHUTDOWN);
 				}
-				context.put("action", action);
+			} else if (request.getParameter(RESTART) != null) {
+				// check user authentication
+				if (!this.isUserAuthenticated(request, response, true)) {
+					response.sendRedirect("/login");
+				} else {
+					manager.restartFrameworkDelayed(shutdownDelay);
+					context.put("action", RESTART);
+				}
 			}
-		} catch( Exception e ) {
+		} catch (Throwable e) {
 			this.logger.error(e);
-		}
+		}	
+
+		return this.getTemplate(null, null);
 	}
-	
+
 	/**
 	 * Choosing the template to use 
 	 */

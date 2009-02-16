@@ -108,7 +108,7 @@ public class Activator implements BundleActivator {
 		registerServlet("/search", new SearchView(), "Search");
 		// registerServlet( "/p2p", new P2PView(), "P2P");		
 		
-		registerServlet("/status#dgeneral", new StatusView(), "%menu.administration/%menu.system/Shutdown//Restart");
+		registerServlet("/sysctrl", new SysCtrl(), "%menu.administration/%menu.system/Shutdown", httpAuth);
 		registerServlet("/bundle", new BundleView(), "%menu.administration/%menu.system/%menu.bundleControl");	
 		registerServlet("/config?settings=user", new SettingsView(), "%menu.administration/%menu.system/%menu.userAdmin", httpAuth);
 		
@@ -123,7 +123,6 @@ public class Activator implements BundleActivator {
 		
 		registerServlet("/opensearch/osd.xml", new OpenSearchDescription(),null);
 		registerServlet("/monitorable", new MonitorableView(), null);
-		registerServlet("/sysctrl", new SysCtrl(), null, httpAuth);
 		registerServlet("/login", new LoginView(), null);
 		RobotsTxt rt = new RobotsTxt();
 		registerServlet("/robots.txt", rt, null);
