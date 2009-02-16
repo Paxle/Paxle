@@ -13,17 +13,27 @@
  *#
 #set( $menuManager = $manager.getService("org.paxle.gui.IMenuManager"))
 
-#if( $menuManager)    
-#set( $current = $context.get("request").getServletPath())
-#foreach($item in $menuManager.getMenuItemList())
-	#if( $current == $item.getUrl())
-	<li class="menuItemActive">
-	#else
-	<li>
-	#end
-		<a href="$item.getUrl()">$item.getName()</a>
-	</li>
+#macro(menu $parent $depth)
+	#foreach($item in $parent.getMenuItemList())
+    	#if($current == $item.getUrl())
+    	<li class="menuItemActive">
+    	#else
+    	<li>
+    	#end
+    		<a href="$!item.getUrl()">$item.getName()</a>
+			#if($item.hasSubItems())
+				<ul id="subnav subnav$depth">
+					#set($currDepth = $depth+1)
+					#menu($item, $currDepth)
+				</ul>
+			#end
+    	</li>
+    #end
 #end
+
+#if($menuManager)
+    #set($current = $context.get("request").getServletPath())
+	#menu($menuManager, 0)
 #else
 	<li class="error bundleNotInstalled">MenuManager not found!</li>
 #end

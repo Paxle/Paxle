@@ -123,7 +123,7 @@ public class ServletManager implements IServletManager, ManagedService {
 		this.addServlet(alias, servlet, httpContext, false);
 		
 	}
-	
+		
 	private synchronized void addServlet(String alias, Servlet servlet, HttpContext httpContext, boolean intern) {
 		if (!intern) {
 			this.servlets.put(alias, servlet);
@@ -147,6 +147,7 @@ public class ServletManager implements IServletManager, ManagedService {
 				));
 				
 				// init servlet properties
+				@SuppressWarnings("unchecked")
 				Hashtable<String, String> props = (Hashtable<String, String>) this.defaultProps.clone();
 				if (servlet instanceof ALayoutServlet) {
 					if (((ALayoutServlet)servlet).getBundleLocation() != null) {

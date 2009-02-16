@@ -72,9 +72,8 @@ public class ServletListener implements ServiceListener {
 		if (reference == null) return;		
 
 		String path = (String)reference.getProperty("path");
-		String name = (String)reference.getProperty("name");
-		String menu = (String)reference.getProperty("menu");
-		Boolean userAuth = (Boolean)reference.getProperty("doUserAuth");
+		String menuName = (String)reference.getProperty("menu");
+		Boolean userAuth = (Boolean)reference.getProperty("doUserAuth");		
 		if (userAuth == null) userAuth = Boolean.FALSE;
 
 		if (eventType == ServiceEvent.REGISTERED) {
@@ -91,15 +90,34 @@ public class ServletListener implements ServiceListener {
 			}
 			
 			// registering menu
-			if (menu != null && menu.length() > 0) {
-				this.menuManager.addItem(path, menu);
+			if (menuName != null && menuName.length() > 0) {
+				String resourceBundleBase = null;
+				ClassLoader resourceBundleLoader = null;
+				
+				if (menuName.startsWith("%") || menuName.contains("/%")) {
+					/* 
+					 * The menu-name needs to be localized.
+					 * We are trying to finde the proper resource-bundle to use
+					 */
+					
+					// the resource-bundle basename
+					resourceBundleBase = (String) reference.getProperty("menu-localization");
+					if (resourceBundleBase == null)
+						resourceBundleBase = (String) reference.getBundle().getHeaders().get(Constants.BUNDLE_LOCALIZATION);
+					if (resourceBundleBase == null)
+						resourceBundleBase = Constants.BUNDLE_LOCALIZATION_DEFAULT_BASENAME;
+					
+					// the classloader to use
+					resourceBundleLoader = servlet.getClass().getClassLoader();
+				}
+				this.menuManager.addItem(path, menuName, resourceBundleBase, resourceBundleLoader);
 			}
 		} else if (eventType == ServiceEvent.UNREGISTERING) {
 			// unregister servlet
 			this.servletManager.removeServlet(path);
 			
 			// remove menu
-			if (menu != null && menu.length() > 0) {
+			if (menuName != null && menuName.length() > 0) {
 				this.menuManager.removeItem(path);
 			}
 			

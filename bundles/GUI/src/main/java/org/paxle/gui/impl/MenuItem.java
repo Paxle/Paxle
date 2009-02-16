@@ -13,31 +13,159 @@
  */
 package org.paxle.gui.impl;
 
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 public class MenuItem {
-	private String url = null;
-	private String name = null;
-	private ServletManager sManager;
+	public static final String DEFAULT_RESOURCE_BUNDLE = "/OSGI-INF/l10n/menu";
+	
+	/**
+	 * A map of all currently registeres {@link MenuItem menu-items}. <br/>
+	 * Key = the name of the menu-item<br/>
+	 * value = the {@link MenuItem} object
+	 */
+	protected LinkedHashMap<String,MenuItem> items = new LinkedHashMap<String,MenuItem>();		
+	
+	protected String url = null;
+	protected String name = null;
+	protected ServletManager sManager;
+	protected String resourceBundleBase;
+	protected ClassLoader resourceBundleLoader;
 	
 	public MenuItem(ServletManager sManager, String url, String name) {
+		this(sManager, url, name, null, null);
+	}
+	
+	public MenuItem(ServletManager sManager, String url, String name, String resourceBundleBaseName, ClassLoader loader) {
+		// if (name == null) throw new NullPointerException("The menu-item name must not be null");
 		this.sManager = sManager;
 		this.url = url;
 		this.name = name;
+		this.resourceBundleBase = resourceBundleBaseName;
+		this.resourceBundleLoader = loader;
 	}
 	
 	public String getUrl() {
-		return this.sManager.getFullAlias(this.url);
+		return (this.url==null)?null:this.sManager.getFullAlias(this.url);
+	}
+	
+	private void setUrl(String url) {
+		this.url = url;
 	}
 	
 	public String getName() {
-		return this.name;
+		return this.getName("en");
 	}
 	
-	public static MenuItem newInstance(ServletManager sManager, String url, String name) {
-		return new MenuItem(sManager, url,name);
+	public String getName(String localeStr) {
+		if (this.name == null) return null;
+		else if (!this.name.startsWith("%") || this.name.length() == 0 || this.resourceBundleBase == null) return this.name;
+				
+		String translatedName = null;
+		
+		// trying to load the translation using the specified resource-bundle
+		if (this.resourceBundleBase != null) {
+			translatedName = this.getName(localeStr, this.resourceBundleBase, this.resourceBundleLoader);
+		}
+		
+		// trying to load the translation from the default menu resource-bundle
+		if (translatedName == null) {
+			translatedName = this.getName(localeStr, DEFAULT_RESOURCE_BUNDLE, this.getClass().getClassLoader());
+		}
+		
+		// returning the key as value
+		if (translatedName == null) {
+			translatedName = this.name.substring(1);
+		}
+		
+		return translatedName;
 	}
 	
-	@Override
-	public int hashCode() {
-		return this.url.hashCode();
+	private String getName(String localeStr, String bundleBase, ClassLoader loader) {
+		try {
+			final Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
+			final ResourceBundle rb = (loader == null)
+								    ? ResourceBundle.getBundle(bundleBase, locale)
+								    : ResourceBundle.getBundle(bundleBase, locale, loader);
+
+			final String resourceKey = this.name.substring(1);
+			final String translatedName = rb.getString(resourceKey);
+			return translatedName;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public Collection<MenuItem> getMenuItemList() {
+		return items.values();
+	}	
+	
+	public void addItem(String url, String name) {
+		this.addItem(url, name, DEFAULT_RESOURCE_BUNDLE, this.getClass().getClassLoader());
+	}
+	
+	public void addItem(String url, String name, String resourceBundleBaseName, ClassLoader loader) {
+		if (name == null) throw new NullPointerException("The menu-item name must not be null");		
+		String[] nameParts = name.split("(?<!/)/(?!/)"); 
+		this.addItem(url, nameParts, resourceBundleBaseName, loader);
+	}
+	
+	public void addItem(String url, String[] nameParts, String resourceBundleBaseName, ClassLoader loader) {
+		MenuItem parent = this;
+		
+		for (int i=0; i < nameParts.length; i++) {
+			MenuItem currentItem = null;
+			String itemName = nameParts[i];
+			
+			if (parent.hasItem(itemName)) {
+				currentItem = parent.getItem(itemName);
+				
+				/* 
+				 * If the url was not already set for this item (e.g. if a subitem was registered
+				 * previously to the parent-item, then we set it now.
+				 */
+				if (currentItem.getUrl() == null && (i == nameParts.length-1)) {
+					currentItem.setUrl(url);
+				}
+			} else {
+				currentItem = new MenuItem(
+						// the servlet-manager
+						this.sManager,
+						// the path to the servlet
+						(i==nameParts.length-1)?url:null,
+						// the menu-item name
+						itemName,
+						// resource-bundle name and classloader
+						resourceBundleBaseName, 
+						loader
+				);
+				parent.addItem(itemName, currentItem);
+			}
+			
+			parent = currentItem;
+		}
+	}	
+	
+	public void addItem(String name, MenuItem subItem) {
+		this.items.put(name, subItem);
+	}	
+	
+	public void removeItem(String name) {
+		this.items.remove(name);
+	}
+	
+	public boolean hasItem(String name) {
+		return this.items.containsKey(name);
+	}
+	
+	public MenuItem getItem(String name) {
+		return this.items.get(name);
+	}
+	
+	public boolean hasSubItems() {
+		return this.items.size() > 0;
 	}
 }

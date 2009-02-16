@@ -103,20 +103,27 @@ public class Activator implements BundleActivator {
 		 * Register Servlets 
 		 * ==========================================================
 		 */
+		HttpContextAuth httpAuth = new HttpContextAuth(bc.getBundle(), this.userAdminTracker);
 		registerServlet("/", new RootView(), null);
 		registerServlet("/search", new SearchView(), "Search");
-		registerServlet("/status", new StatusView(), "Status");
-		// registerServlet( "/p2p", new P2PView(), "P2P");
-		registerServlet("/crawler", new CrawlerView(), "Crawler", new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
-		registerServlet("/bundle", new BundleView(), "Bundles");
-		registerServlet("/log", new LogView(bc), "Logging");
-		registerServlet("/queue", new QueueView(), "Queues");
-		registerServlet("/opensearch/osd.xml", new OpenSearchDescription(),null);
-		registerServlet("/config", new SettingsView(), "Settings",new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
+		// registerServlet( "/p2p", new P2PView(), "P2P");		
+		
+		registerServlet("/status#dgeneral", new StatusView(), "%menu.administration/%menu.system/Shutdown//Restart");
+		registerServlet("/bundle", new BundleView(), "%menu.administration/%menu.system/%menu.bundleControl");	
+		registerServlet("/config?settings=user", new SettingsView(), "%menu.administration/%menu.system/User-Management", httpAuth);
+		
+		registerServlet("/config?settings=config", new SettingsView(), "%menu.administration/%menu.bundles/Config-Management", httpAuth);
+		registerServlet("/crawler", new CrawlerView(), "%menu.administration/%menu.bundles/Crawler", httpAuth);
 		registerServlet("/threads", new TheaddumpView(), null);
-		registerServlet("/overview", new OverView(), "Overview");
+		
+		registerServlet("/overview", new OverView(), "Info");
+		registerServlet("/status", new StatusView(), "Info/Status");
+		registerServlet("/queue", new QueueView(), "Info/Queues");
+		registerServlet("/log", new LogView(bc), "Info/Log");
+		
+		registerServlet("/opensearch/osd.xml", new OpenSearchDescription(),null);
 		registerServlet("/monitorable", new MonitorableView(), null);
-		registerServlet("/sysctrl", new SysCtrl(), null, new HttpContextAuth(bc.getBundle(), this.userAdminTracker));
+		registerServlet("/sysctrl", new SysCtrl(), null, httpAuth);
 		registerServlet("/login", new LoginView(), null);
 		RobotsTxt rt = new RobotsTxt();
 		registerServlet("/robots.txt", rt, null);
@@ -153,9 +160,23 @@ public class Activator implements BundleActivator {
 
 	private void registerServlet(final String location, final ALayoutServlet servlet, final String menuName, HttpContext context) {
 		servlet.setBundleLocation(null);
-		servletManager.addServlet(location, servlet, context);
+		
+		// cut of query parameters (if any)
+		String path = location.split("[?#]")[0];
+	
+		// register servlet (if not already registered)
+		if (!this.servletManager.hasServlet(path)) {
+			this.servletManager.addServlet(path, servlet, context);
+		}
+		
+		// register menu item
 		if (menuName != null) {
-			menuManager.addItem(location, menuName);
+			menuManager.addItem(
+					// path to the servlet
+					location, 
+					// name of the menu (and submenu)
+					menuName
+			);
 		}
 	}
 
