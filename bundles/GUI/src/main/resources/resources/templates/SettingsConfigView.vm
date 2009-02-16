@@ -11,6 +11,36 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
+## ---------------------------------------------------------------------------------------
+## Define some macros 
+#macro(attribValueField $attrMetadataMap $attributeID $attribType $attribCardinality $attribValue)
+	#set($attrMetadata = $attrMetadataMap.get($attributeID))
+	#set($isPwd = $attributeID.toLowerCase().contains("password"))
+	#set($isMulti = false)
+	#if($attrMetadata)
+		#set($isMulti = $attrMetadata.multiline())
+		#set($isPwd = $isPwd || $attrMetadata.password())
+	#end
+			
+	#if($attribType == "Boolean")
+		<input type="radio" name="$attributeID" id="true$attributeID" value="true" #if($attribValue)checked="checked"#end>
+		<label for="true$attributeID">${text.listConfig.lable.yes}</label>
+		&nbsp;
+		<input type="radio" name="$attributeID" id="false$attributeID" value="false" #if(!$attribValue)checked="checked"#end>
+		<label for="false$attributeID">${text.listConfig.lable.no}</label> 
+	#else	
+    	#if($attribType == "String" && $isMulti)
+    		<textarea name="$attributeID">$!attribValue</textarea>
+    	#elseif($attribType == "String" && $isPwd)
+    		<input type="password" name="$attributeID" value="$!attribValue" />
+    	#else
+    		<input type="text" name="$attributeID" value="$!attribValue" />
+    	#end
+	#end
+#end
+## ---------------------------------------------------------------------------------------
+
+
 #set($configAdmin = $manager.getService( "org.osgi.service.cm.ConfigurationAdmin"))
 #set($metaTypeService = $manager.getService( "org.osgi.service.metatype.MetaTypeService"))
 
@@ -60,14 +90,14 @@
 						<input type="hidden" name="pid" value="$PID"/>
 						<input type="hidden" name="bundleID" value="${bundle.getBundleId()}"/>
 						
-                    				<table>
-                    				<tr>
-                    					<th>${text.listConfig.name}</th>
+						<table>
+						<tr>
+							<th>${text.listConfig.name}</th>
 							<th>${text.listConfig.type}</th>
-                    					<th>${text.listConfig.value}</th>
+							<th>${text.listConfig.value}</th>
 							<th>${text.listConfig.desc}</th>
-                    				</tr>
-                    				#foreach($attribute in $attributes)
+                    	</tr>
+                    	#foreach($attribute in $attributes)
 							#set($attributeID = ${attribute.getID()})								
 							#set($attribValue = ${settingsView.getPropertyValue($configProps,$attribute)})
 							#set($attribType = ${dataTypes.get($attribute.getType())})
@@ -76,10 +106,10 @@
 							#set($optionLabels = ${attribute.getOptionLabels()})
 							#set($optionValues = ${attribute.getOptionValues()})
 							
-                    					<tr class="$color">
-                    						<td>$attribute.getName()</td>
+                    		<tr class="$color">
+                    			<td>$attribute.getName()</td>
 								<td><tt>$attribType</tt></td>
-                    						<td>
+                    			<td>
 									#if($optionsAvailable)
 										<select name="$attributeID"
 										#set($numOptions = $listTool.size($optionLabels))
@@ -102,31 +132,13 @@
 											>$optionLabel</option>                                               
 										#end
 										</select>
-									#else 
-										#if($attribType == "Boolean")
-											<input type="radio" name="$attributeID" id="true$attributeID" value="true" #if($attribValue)checked="checked"#end>
-											<label for="true$attributeID">${text.listConfig.lable.yes}</label>
-											&nbsp;
-											<input type="radio" name="$attributeID" id="false$attributeID" value="false" #if(!$attribValue)checked="checked"#end>
-											<label for="false$attributeID">${text.listConfig.lable.no}</label> 
+									#else 										
+										#if(${listTool.isArray($attribValue)})
+											#foreach($attribValueItem in $attribValue)
+												#attribValueField($attrMetadataMap,$attributeID,$attribType,$attribCardinality,$attribValueItem)
+											#end
 										#else
-											#set($attrMetadata = $attrMetadataMap.get($attributeID))
-											#set($isPwd = $attributeID.toLowerCase().contains("password"))
-											#set($isMulti = false)
-											#if($attrMetadata)
-												#set($isMulti = $attrMetadata.multiline())
-												#set($isPwd = $isPwd || $attrMetadata.password())
-											#end
-											#if($attribType == "String" && $isMulti)
-												<textarea name="$attributeID">$!attribValue</textarea>
-											#elseif($attribType == "String" && $isPwd)
-												<input type="password" name="$attributeID" value="$!attribValue" />
-											#else
-												<input type="text" name="$attributeID" value="$!attribValue" />
-											#end
-											<!--
-											<input type="#if($attributeID.toLowerCase().contains("password"))password#else{text}#end" name="$attributeID" value="$!attribValue"/>
-											-->
+											#attribValueField($attrMetadataMap,$attributeID,$attribType,$attribCardinality,$attribValue)
 										#end	
 									#end
 								</td>
@@ -139,10 +151,10 @@
 										<p><em>${text.listConfig.passwordPlaintextWarning}</em></p>
 									#end
 								</td>
-                    					</tr>                            		
-                    				#end
-                    				</table>
-                    				<div class="buttonBar">
+                    		</tr>                            		
+                    	#end
+                    	</table>
+                    	<div class="buttonBar">
 						#if(!$paramParser.getString("viewImportedConfig"))
 							<input type="submit" name="doEditConfig" value="${text.listConfig.doChange}"/>
 							<input type="submit" name="doResetConfig" value="${text.listConfig.doReset}" />

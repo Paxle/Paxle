@@ -316,6 +316,7 @@ public class SettingsView extends ALayoutServlet {
 					// read the imported-config from session into context so that the sevlet can read it
 					HttpSession session = request.getSession(true);
 										
+					@SuppressWarnings("unchecked") 
 					Map<String, Dictionary<String, Object>> propsMap = (Map<String, Dictionary<String, Object>>) session.getAttribute("importedConfigProps");
 					context.put("importedConfigProps", propsMap);
 					
@@ -392,9 +393,11 @@ public class SettingsView extends ALayoutServlet {
 		}
 		
 		// configure http-login data
+		@SuppressWarnings("unchecked")
 		Dictionary<String, Object> props = user.getProperties();
 		props.put(HttpContextAuth.USER_HTTP_LOGIN, loginName);
 		
+		@SuppressWarnings("unchecked")
 		Dictionary<String, Object> credentials = user.getCredentials();
 		credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, pwd1);
 		
@@ -484,6 +487,7 @@ public class SettingsView extends ALayoutServlet {
 		ServletFileUpload upload = new ServletFileUpload(factory);
 
 		// Parse the request
+		@SuppressWarnings("unchecked")
 		List<FileItem> items = upload.parseRequest(request);
 
 		// Process the uploaded items
@@ -536,6 +540,7 @@ public class SettingsView extends ALayoutServlet {
 		ServletFileUpload upload = new ServletFileUpload(factory);
 
 		// Parse the request
+		@SuppressWarnings("unchecked")
 		List<FileItem> items = upload.parseRequest(request);
 
 		// Process the uploaded items
@@ -636,7 +641,6 @@ public class SettingsView extends ALayoutServlet {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public String getPreferedLocale(List<Locale> preferedLocales, String[] supportedLocalesArray) {
 		String localeToUse = Locale.ENGLISH.getLanguage();
 		
