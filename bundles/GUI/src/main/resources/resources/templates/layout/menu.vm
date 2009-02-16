@@ -22,7 +22,7 @@
     	#end
     		<a #if($item.getUrl())href="$!item.getUrl()"#end>$item.getName($request.getLocales())</a>
 			#if($item.hasSubItems())
-				<ul id="subnav subnav$depth">
+				<ul class="subnav subnav$depth">
 					#set($currDepth = $depth+1)
 					#menu($item, $currDepth)
 				</ul>

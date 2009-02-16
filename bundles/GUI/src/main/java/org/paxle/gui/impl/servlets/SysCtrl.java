@@ -30,6 +30,9 @@ public class SysCtrl extends ALayoutServlet {
 	
 	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
 
+		context.put("sdc", SHUTDOWN);
+		context.put("rsc", RESTART);
+		
 		try {
 			final IServiceManager manager = this.getServiceManager();
 			int shutdownDelay = 5;
