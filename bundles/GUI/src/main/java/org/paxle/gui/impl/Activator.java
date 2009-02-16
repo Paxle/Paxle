@@ -110,7 +110,7 @@ public class Activator implements BundleActivator {
 		
 		registerServlet("/status#dgeneral", new StatusView(), "%menu.administration/%menu.system/Shutdown//Restart");
 		registerServlet("/bundle", new BundleView(), "%menu.administration/%menu.system/%menu.bundleControl");	
-		registerServlet("/config?settings=user", new SettingsView(), "%menu.administration/%menu.system/User-Management", httpAuth);
+		registerServlet("/config?settings=user", new SettingsView(), "%menu.administration/%menu.system/%menu.userAdmin", httpAuth);
 		
 		registerServlet("/config?settings=config", new SettingsView(), "%menu.administration/%menu.bundles/Config-Management", httpAuth);
 		registerServlet("/crawler", new CrawlerView(), "%menu.administration/%menu.bundles/Crawler", httpAuth);

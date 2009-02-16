@@ -15,12 +15,12 @@
 
 #macro(menu $parent $depth)
 	#foreach($item in $parent.getMenuItemList())
-    	#if($current == $item.getUrl())
+    	#if($item.getUrl() && $current == $item.getUrl())
     	<li class="menuItemActive">
     	#else
     	<li>
     	#end
-    		<a href="$!item.getUrl()">$item.getName()</a>
+    		<a #if($item.getUrl())href="$!item.getUrl()"#end>$item.getName($request.getLocales())</a>
 			#if($item.hasSubItems())
 				<ul id="subnav subnav$depth">
 					#set($currDepth = $depth+1)
@@ -32,7 +32,8 @@
 #end
 
 #if($menuManager)
-    #set($current = $context.get("request").getServletPath())
+	#set($request = $context.get("request"))
+    #set($current = $request.getServletPath())
 	#menu($menuManager, 0)
 #else
 	<li class="error bundleNotInstalled">MenuManager not found!</li>

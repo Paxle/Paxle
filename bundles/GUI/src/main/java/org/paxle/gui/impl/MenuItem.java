@@ -13,8 +13,13 @@
  */
 package org.paxle.gui.impl;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -43,6 +48,7 @@ public class MenuItem {
 		this.sManager = sManager;
 		this.url = url;
 		this.name = name;
+		if (this.name != null) this.name = name.replaceAll("//", "/"); // unescaping double-slash
 		this.resourceBundleBase = resourceBundleBaseName;
 		this.resourceBundleLoader = loader;
 	}
@@ -60,6 +66,20 @@ public class MenuItem {
 	}
 	
 	public String getName(String localeStr) {
+		final Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
+		return this.getName(locale);
+	}
+	
+	public String getName(Locale locale) {
+		return this.getName(Arrays.asList(new Locale[]{locale}));
+	}
+	
+	public String getName(Enumeration<Locale> locales) {
+		List<Locale> localeList = Collections.list(locales);
+		return this.getName(localeList);
+	}
+	
+	private String getName(List<Locale> locales) {
 		if (this.name == null) return null;
 		else if (!this.name.startsWith("%") || this.name.length() == 0 || this.resourceBundleBase == null) return this.name;
 				
@@ -67,12 +87,12 @@ public class MenuItem {
 		
 		// trying to load the translation using the specified resource-bundle
 		if (this.resourceBundleBase != null) {
-			translatedName = this.getName(localeStr, this.resourceBundleBase, this.resourceBundleLoader);
+			translatedName = this.getName(locales, this.resourceBundleBase, this.resourceBundleLoader);
 		}
 		
 		// trying to load the translation from the default menu resource-bundle
 		if (translatedName == null) {
-			translatedName = this.getName(localeStr, DEFAULT_RESOURCE_BUNDLE, this.getClass().getClassLoader());
+			translatedName = this.getName(locales, DEFAULT_RESOURCE_BUNDLE, this.getClass().getClassLoader());
 		}
 		
 		// returning the key as value
@@ -83,12 +103,20 @@ public class MenuItem {
 		return translatedName;
 	}
 	
-	private String getName(String localeStr, String bundleBase, ClassLoader loader) {
+	private String getName(List<Locale> locales, String bundleBase, ClassLoader loader) {
 		try {
-			final Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
-			final ResourceBundle rb = (loader == null)
-								    ? ResourceBundle.getBundle(bundleBase, locale)
-								    : ResourceBundle.getBundle(bundleBase, locale, loader);
+			ResourceBundle rb = null;
+			Iterator<Locale> localeEnum = locales.iterator();
+						
+			while (localeEnum.hasNext()) {
+				Locale locale = localeEnum.next();
+				rb = (loader == null)
+				   ? ResourceBundle.getBundle(bundleBase, locale)
+				   : ResourceBundle.getBundle(bundleBase, locale, loader);
+				
+				if (rb.getLocale().equals(locale)) break;
+			}
+			if (rb == null) return null;
 
 			final String resourceKey = this.name.substring(1);
 			final String translatedName = rb.getString(resourceKey);
