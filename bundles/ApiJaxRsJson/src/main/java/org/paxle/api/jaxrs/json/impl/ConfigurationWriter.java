@@ -39,7 +39,7 @@ import org.paxle.api.jaxrs.cm.PropertyResource;
  */  
 @SuppressWarnings("unchecked")
 @Provider 
-@Produces("text/plain") 
+@Produces("application/json") 
 public class ConfigurationWriter implements MessageBodyWriter {
 	private static final Class[] SUPPORTED_CLASSES = new Class[] {
 		ConfigurationResource.class,

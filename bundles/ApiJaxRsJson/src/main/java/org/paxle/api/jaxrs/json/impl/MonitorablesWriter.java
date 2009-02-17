@@ -38,7 +38,7 @@ import org.paxle.api.jaxrs.monitorable.StatusVariableResource;
  */  
 @SuppressWarnings("unchecked")
 @Provider 
-@Produces("text/plain") 
+@Produces("application/json") 
 public class MonitorablesWriter implements MessageBodyWriter {
 	public long getSize(Object arg0, Class arg1, Type arg2, Annotation[] arg3, MediaType arg4) {
 		return -1;
