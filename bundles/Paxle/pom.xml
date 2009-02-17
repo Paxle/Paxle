@@ -870,7 +870,7 @@
 				<module>../DataLayerPostgreSQL</module>
 
 				<!-- GUI Addons -->
-				<module>../GuiOpenID</module>
+				<!--<module>../GuiOpenID</module>-->
 				<module>../IconTools</module>
 				<module>../IPLocatorTools</module>
 
