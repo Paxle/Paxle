@@ -66,11 +66,6 @@ import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
-import org.osgi.service.useradmin.Authorization;
-import org.osgi.service.useradmin.Group;
-import org.osgi.service.useradmin.Role;
-import org.osgi.service.useradmin.User;
-import org.osgi.service.useradmin.UserAdmin;
 import org.paxle.core.metadata.Attribute;
 import org.paxle.core.metadata.Metadata;
 import org.paxle.gui.ALayoutServlet;
@@ -81,7 +76,7 @@ import org.paxle.gui.impl.ServiceManager;
 import org.paxle.gui.impl.ServletManager;
 import org.paxle.tools.ieporter.cm.IConfigurationIEPorter;
 
-public class SettingsView extends ALayoutServlet {
+public class ConfigView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private static final String ERROR_MSG = "errorMsg";
@@ -215,82 +210,18 @@ public class SettingsView extends ALayoutServlet {
 			// getting the servicemanager
 			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
 			ServletManager sManager = (ServletManager) manager.getService(IServletManager.class.getName());
-			
-			/* ====================================================================================
-			 * USER MANAGEMENT 
-			 * ==================================================================================== */
-			if (request.getParameter("doCreateUser") != null || request.getParameter("doUpdateUser") != null) {
-				UserAdmin userAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
-				if (userAdmin != null) {
-					String name = request.getParameter("roleName");
-					Role user = null;
-					if (request.getParameter("doCreateUser") != null) {
-						user = userAdmin.createRole(name, Role.USER);
-						if (user == null) {
-							String errorMsg = String.format("Role with name '%s' already exists.",name);
-							this.logger.warn(errorMsg);
-							context.put("errorMsg",errorMsg);
-						}
-					} else if (request.getParameter("doUpdateUser") != null) {
-						user = userAdmin.getRole(name);
-						if (user == null) {
-							String errorMsg = String.format("Unable to find user with name '%s'.",name);
-							this.logger.warn(errorMsg);
-							context.put("errorMsg",errorMsg);
-						}
-					}
-					
-					this.updateUser(userAdmin, (User) user, request, context);
-				}
-				response.sendRedirect(request.getServletPath() + "?settings=user");
-			} else if (request.getParameter("doCreateGroup") != null || request.getParameter("doUpdateGroup") != null) {
-				UserAdmin userAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
-				if (userAdmin != null) {
-					String name = request.getParameter("roleName");
-					Role group = null;
-					if (request.getParameter("doCreateGroup") != null) {
-						group = userAdmin.createRole(name, Role.GROUP);
-						if (group == null) {
-							String errorMsg = String.format("Role with name '%s' already exists.",name);
-							this.logger.warn(errorMsg);
-							context.put("errorMsg",errorMsg);
-						}
-					} else if (request.getParameter("doUpdateGroup") != null) {
-						group = userAdmin.getRole(name);
-						if (group == null) {
-							String errorMsg = String.format("Unable to find group with name '%s'.",name);
-							this.logger.warn(errorMsg);
-							context.put("errorMsg",errorMsg);
-						}
-						
-						// XXX nothing to edit at the moment
-					}
-				}
-			} else if (request.getParameter("doDeleteGroup") != null || request.getParameter("doDeleteUser") != null) {
-				UserAdmin userAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
-				if (userAdmin != null) {
-					String name = request.getParameter("roleName");
-					Role role = userAdmin.getRole(name);
-					if (!role.getName().equals("Administrator")) {
-						boolean done = userAdmin.removeRole(name);
-						if (!done) context.put("errorMsg","Unable to delete role");
-					} else {
-						context.put("errorMsg","The administrator can not be deleted.");
-					}
-				}
-				response.sendRedirect(request.getServletPath() + "?settings=user");
-				
+
 			/* ====================================================================================
 			 * CONFIGURATION MANAGEMENT 
 			 * ==================================================================================== */
 				
-			} else if (request.getParameter("doEditConfig") != null) {
+			if (request.getParameter("doEditConfig") != null) {
 				this.setPropertyValues(request, response, context, false);
 				if (ServletManager.PID.equals(request.getParameter("pid"))) {
 					String newPrefix = request.getParameter("org.paxle.gui.IServletManager.pathPrefix");
 					context.put("delayedRedirect",sManager.getFullAlias(newPrefix, "/config"));
 				} else {
-					response.sendRedirect(request.getServletPath() + "?settings=config");
+					response.sendRedirect(request.getServletPath());
 				}
 			} else if (request.getParameter("doResetConfig") != null) {
 				this.setPropertyValues(request, response, context, true);
@@ -298,7 +229,7 @@ public class SettingsView extends ALayoutServlet {
 					String newPrefix = request.getParameter("org.paxle.gui.IServletManager.pathPrefix");
 					context.put("delayedRedirect",sManager.getFullAlias(newPrefix, "/config"));
 				} else {
-					response.sendRedirect(request.getServletPath() + "?settings=config");
+					response.sendRedirect(request.getServletPath());
 				}
 				
 			} else if (request.getParameter("viewImportedConfig") != null) {
@@ -328,7 +259,7 @@ public class SettingsView extends ALayoutServlet {
 						propsMap.remove(request.getParameter("pid"));
 						
 						// redirect to overview
-						response.sendRedirect(request.getServletPath() + "?settings=config&viewImportedConfig=");
+						response.sendRedirect(request.getServletPath() + "?viewImportedConfig=");
 					}
 				}
 			} else if (request.getParameter("doInstallStyle") != null && ServletFileUpload.isMultipartContent(request)) {
@@ -340,9 +271,9 @@ public class SettingsView extends ALayoutServlet {
 			}
 
 			context.put("dataTypes", dataTypes);
-			context.put("settingsView", this);
+			context.put("configView", this);
 
-			template = this.getTemplate( "/resources/templates/SettingsView.vm");
+			template = this.getTemplate( "/resources/templates/ConfigView.vm");
 		} catch (ResourceNotFoundException e) {
 			logger.error( "resource: " + e);
 			e.printStackTrace();
@@ -355,127 +286,6 @@ public class SettingsView extends ALayoutServlet {
 		}
 
 		return template;
-	}
-	
-	private void updateUser(UserAdmin userAdmin, User user, HttpServletRequest request, Context context) throws InvalidSyntaxException, UnsupportedEncodingException {
-		if (user == null) return;
-		
-		String loginName = request.getParameter(HttpContextAuth.USER_HTTP_LOGIN);
-		
-		/* ===========================================================
-		 * USERNAME + PWD
-		 * =========================================================== */
-		// check if the login-name is not empty
-		if (loginName == null || loginName.length() == 0) {
-			String errorMsg = String.format("The login name must not be null or empty.");
-			this.logger.warn(errorMsg);
-			context.put("errorMsg",errorMsg);
-			return;
-		}
-		
-		// check if the login name is unique
-		Role[] roles = userAdmin.getRoles(String.format("(%s=%s)",HttpContextAuth.USER_HTTP_LOGIN, loginName));
-		if (roles != null && (roles.length > 2 || (roles.length == 1 && !roles[0].equals(user)))) {
-			String errorMsg = String.format("The given login name '%s' is already used by a different user.", loginName);
-			this.logger.warn(errorMsg);
-			context.put("errorMsg",errorMsg);
-			return;
-		}
-		
-		// check if the password is typed correctly
-		String pwd1 = request.getParameter(HttpContextAuth.USER_HTTP_PASSWORD);
-		String pwd2 = request.getParameter(HttpContextAuth.USER_HTTP_PASSWORD + "2");
-		if (pwd1 == null || pwd2 == null || !pwd1.equals(pwd2)) {
-			String errorMsg = String.format("The password for login name '%s' was not typed correctly.", loginName);
-			this.logger.warn(errorMsg);
-			context.put("errorMsg",errorMsg);
-			return;
-		}
-		
-		// configure http-login data
-		@SuppressWarnings("unchecked")
-		Dictionary<String, Object> props = user.getProperties();
-		props.put(HttpContextAuth.USER_HTTP_LOGIN, loginName);
-		
-		@SuppressWarnings("unchecked")
-		Dictionary<String, Object> credentials = user.getCredentials();
-		credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, pwd1);
-		
-		/* ===========================================================
-		 * OPEN-ID
-		 * =========================================================== */
-		String openIdURL = request.getParameter("openid.url");
-		if (openIdURL != null && openIdURL.length() > 0) {
-			// check if URL is unique
-			roles = userAdmin.getRoles(String.format("(openid.url=%s)", openIdURL));
-			if (roles != null && (roles.length > 2 || (roles.length == 1 && !roles[0].equals(user)))) {
-				String errorMsg = String.format("The given OpenID URL '%s' is already used by a different user.", openIdURL);
-				this.logger.warn(errorMsg);
-				context.put("errorMsg",errorMsg);
-				return;
-			}
-			
-			// configure the OpenID URL
-			props = user.getProperties();
-			props.put("openid.url", openIdURL);			
-		} else {
-			// delete old URL
-			user.getProperties().remove("openid.url");
-		}
-		
-		/* ===========================================================
-		 * MEMBERSHIP
-		 * =========================================================== */
-		// process membership
-		Authorization auth = userAdmin.getAuthorization(user);		
-		String[] currentMembership = auth.getRoles();
-		if (currentMembership == null) currentMembership = new String[0];
-		
-		String[] newMembership = request.getParameterValues("membership");
-		if (newMembership == null) newMembership = new String[0];
-		
-		// new memberships
-		for (String groupName : newMembership) {
-			if (!auth.hasRole(groupName)) {
-				Role role = userAdmin.getRole(groupName);
-				if (role != null && role.getType() == Role.GROUP) {
-					((Group)role).addMember(user);
-				}
-			}
-		}
-
-		// memberships to remove
-		ArrayList<String> oldMemberships = new ArrayList<String>(Arrays.asList(currentMembership));
-		oldMemberships.removeAll(Arrays.asList(newMembership));
-		for (String roleName : oldMemberships) {
-			if (auth.hasRole(roleName)) {
-				Role role = userAdmin.getRole(roleName);
-				if (role != null && role.getType() == Role.GROUP) {
-					((Group)role).removeMember(user);
-				}
-			}
-		}
-	}
-	
-	public Group[] getParentGroups(UserAdmin userAdmin, User user) throws InvalidSyntaxException {
-		ArrayList<Group> groups = new ArrayList<Group>();		
-		
-		if (user != null) {
-			Authorization auth = userAdmin.getAuthorization(user);
-			if (auth != null) {
-				String[] currentRoles = auth.getRoles();
-				if (currentRoles != null) {
-					for (String roleName : currentRoles) {
-						Role role = userAdmin.getRole(roleName);
-						if (role != null && role.getType() == Role.GROUP) {
-							groups.add((Group) role);
-						}
-					}
-				}
-			}
-		}
-		
-		return groups.toArray(new Group[groups.size()]);
 	}
 	
 	private Map<String, Dictionary<String, Object>> importConfig(HttpServletRequest request, Context context) throws Exception {

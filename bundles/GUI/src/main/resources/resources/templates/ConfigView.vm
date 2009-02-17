@@ -40,12 +40,31 @@
 #end
 ## ---------------------------------------------------------------------------------------
 
+## getting resourcebundle to translate site
+#set($text = $resourceTool.bundle('OSGI-INF/l10n/configview'))
 
+## TODO redirect browser if the servlet path-prefix has changed
+#if($delayedRedirect)
+	#set($redirectURL = "$request.getScheme()://$request.getServerName():$request.getServerPort()$delayedRedirect")
+	#set($h1 = "<meta http-equiv='Refresh' content='5; url=$redirectURL'>")
+	#set($page_headers = [$h1])
+#end
+
+## Set the page title
+#set( $page_title = ${text.browser.pageTitle} )
+
+## getting required managers
+#set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
 #set($configAdmin = $manager.getService( "org.osgi.service.cm.ConfigurationAdmin"))
 #set($metaTypeService = $manager.getService( "org.osgi.service.metatype.MetaTypeService"))
 
+## ERROR MESSAGE BOX
+#if($errorMsg)
+	<p class="box error">$errorMsg</p>
+#end
+
 #if( $metaTypeService && $configAdmin)
-	<h3>${text.tab.configManagement} #if($paramParser.getString("viewImportedConfig"))- ${text.import.title}#end</h3>
+	<h2>${text.tab.configManagement} #if($paramParser.getString("viewImportedConfig"))- ${text.import.title}#end</h2>
 	#if( $paramParser.getString("bundleID") && $paramParser.getString("pid"))
 		## the service-PID for which the configuration should be displayed
 		#set($PID = $paramParser.getString("pid"))
@@ -55,11 +74,11 @@
 		#set($bundle = $manager.getBundle($mathTool.toInteger($bundleID)))
 		
 		## load service metatypes
-		#set($ocd = ${settingsView.getObjectClassDefinition($request, $manager,$bundle,$PID)})
+		#set($ocd = ${configView.getObjectClassDefinition($request, $manager,$bundle,$PID)})
 		#if($ocd)										
 			<p>
 				<p>
-					<img src="?settings=config&amp;bundleID=$bundleID&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/>
+					<img src="?bundleID=$bundleID&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/>
 					<strong>$ocd.getName()</strong>&nbsp;[Bundle <a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a>]</br>
 					<div class="descriptionText">
 						#if($ocd.getDescription())
@@ -84,9 +103,8 @@
 				## getting the configuration attributes
 				#set($attributes = $ocd.getAttributeDefinitions(-1))
 				#if($attributes)
-					#set($attrMetadataMap = $settingsView.getAttributeMetadataMap($ocd))
+					#set($attrMetadataMap = $configView.getAttributeMetadataMap($ocd))
 					<form action="" method="post">
-						<input type="hidden" name="settings" value="config"/>
 						<input type="hidden" name="pid" value="$PID"/>
 						<input type="hidden" name="bundleID" value="${bundle.getBundleId()}"/>
 						
@@ -99,7 +117,7 @@
                     	</tr>
                     	#foreach($attribute in $attributes)
 							#set($attributeID = ${attribute.getID()})								
-							#set($attribValue = ${settingsView.getPropertyValue($configProps,$attribute)})
+							#set($attribValue = ${configView.getPropertyValue($configProps,$attribute)})
 							#set($attribType = ${dataTypes.get($attribute.getType())})
 							#set($attribCardinality = ${attribute.getCardinality()})
 							#set($optionsAvailable = ${attribute.getOptionLabels()} && $listTool.size(${attribute.getOptionLabels()}) > 0)
@@ -163,7 +181,7 @@
 							<input type="submit" name="doImportConfig" value="${text.listConfig.doImport}"/>
 							<input type="hidden" name="viewImportedConfig"/>
 						#end
-						<a class="button" id="backButton" href="?settings=config#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${text.listConfig.goBackToOverview}</a>
+						<a class="button" id="backButton" href="#if($paramParser.getString("viewImportedConfig"))?viewImportedConfig=#end">${text.listConfig.goBackToOverview}</a>
 						</div>
 					</form>
 				#end
@@ -201,10 +219,10 @@
     		## loop through each bundle to see if there are any metatypes	
     		#foreach($bundle in $manager.getBundles())
     			#set($ocdCounter = 0)    			
-			#foreach($PID in ${settingsView.getMetaTypePIDs($manager,$bundle)})
+			#foreach($PID in ${configView.getMetaTypePIDs($manager,$bundle)})
 
 				## load service metatypes
-				#set($ocd = ${settingsView.getObjectClassDefinition($request, $manager,$bundle,$PID)})
+				#set($ocd = ${configView.getObjectClassDefinition($request, $manager,$bundle,$PID)})
 
 				## display data
 				#if($ocd && (!$paramParser.getString("viewImportedConfig") || ${importedConfigProps.containsKey($PID)}))
@@ -214,9 +232,9 @@
 			    		#end
 			    		#set($ocdCounter = $ocdCounter + 1) 
 					<tr class="$color">
-						<td><img src="?settings=config&amp;bundleID=${bundle.getBundleId()}&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/></td>
+						<td><img src="?bundleID=${bundle.getBundleId()}&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/></td>
 						<td>
-							<a href="?settings=config&amp;bundleID=${bundle.getBundleId()}&amp;pid=$PID#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${ocd.getName()}</a><br/>
+							<a href="?bundleID=${bundle.getBundleId()}&amp;pid=$PID#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${ocd.getName()}</a><br/>
 							<tt>[$PID]</tt>
 						</td>
 						<td class="descriptionText">
@@ -234,7 +252,7 @@
 		#if(!$paramParser.getString("viewImportedConfig"))
 		<p><b>${text.export.title}</b></p>
 		<div class="descriptionText">${text.export.desc}</div>
-			<form action="?settings=config">
+			<form action="">
 							<p>
 								<input type="submit" name="doExportConfig" value="${text.export.doExport}" />
 							</p>
@@ -242,7 +260,7 @@
 				
 		<p><b>${text.import.title}</b></p>
 		<div class="descriptionText">${text.import.desc}</div>
-		<form enctype="multipart/form-data" method="post" action="?settings=config&amp;viewImportedConfig=">
+		<form enctype="multipart/form-data" method="post" action="?viewImportedConfig=">
 			<p>
 				<input type="file" name="configFile" size="60" />
 				<input type="submit" name="doUpload" value="${text.import.doUpload}" />

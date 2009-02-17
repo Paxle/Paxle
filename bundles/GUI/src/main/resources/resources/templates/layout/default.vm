@@ -24,7 +24,7 @@
 <div id="wrapper">
 
 	<!-- left nav -->
-	<ul id="nav">
+	<ul class="nav">
 	#parse( '/resources/templates/layout/menu.vm' )
 			#if($user)
 			<li id="loginStatus">

@@ -154,7 +154,7 @@ td {
 }
 
 
-#nav {
+.nav {
 	width: 15%;
 	
 	margin: 0;
@@ -171,16 +171,16 @@ td {
 	background-image: url('../images/nav-background.png');
 }
 
-#nav li {
+.nav li {
 	margin: 0;
 	padding: 0;
 }
 
-#nav #loginStatus {
+.nav #loginStatus {
 	padding:0.5em 0pt 0.5em 1em;
 }
 
-#nav li a {
+.nav li a {
 	margin: 0;
 	padding: 0.5em 0 0.5em 1em;
 	
@@ -195,12 +195,25 @@ td {
 	border-bottom: dashed 0.05em #444444;
 }
 
-#nav li a:hover, #nav li.menuItemActive a {
+.nav li a:hover, .nav li.menuItemActive a {
 	background-color: #730002;
 	color: #FFFFFF;
 	opacity: 0.8;
 }
 
+.subnav {
+	list-style: none;
+	padding-left: 0px;
+	font-size: 0.85em;
+}
+
+.subnav0 li a {
+	padding-left: 2em;
+}
+
+.subnav1 li a {
+	padding-left: 3em;
+}
 
 .tabs {
 	margin: 0;

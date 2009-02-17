@@ -1,0 +1,145 @@
+#*
+ * This file is part of the Paxle project.
+ * Visit http://www.paxle.net for more information.
+ * Copyright 2007-2009 the original author or authors.
+ *
+ * Licensed under the terms of the Common Public License 1.0 ("CPL 1.0").
+ * Any use, reproduction or distribution of this program constitutes the recipient's acceptance of this agreement.
+ * The full license text is available under http://www.opensource.org/licenses/cpl1.0.txt
+ * or in the file LICENSE.txt in the root directory of the Paxle distribution.
+ *
+ * Unless required by applicable law or agreed to in writing, this software is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *#
+
+## getting resourcebundle to translate site
+#set($text = $resourceTool.bundle('OSGI-INF/l10n/userview'))
+
+## Set the page title
+#set($page_title = ${text.browser.title})
+<h2>${text.page.title}</h2>
+
+## ERROR MESSAGE BOX
+#if($errorMsg)
+	<p class="box error">$errorMsg</p>
+#end
+
+#set($userAdmin = $manager.getService("org.osgi.service.useradmin.UserAdmin"))
+#if($userAdmin)
+	#if($role || $paramParser.getString("newUser") || $paramParser.getString("newGroup"))
+		#set($roleName = $paramParser.getString("roleName"))
+		#set($roleType = $paramParser.getString("type"))
+		
+		## the mode: edit | update
+		#if($role)
+			#set($mode="update")
+		#else
+			#set($mode="create")
+		#end
+
+		<h3>$text.get("subtitle.$mode.$roleType")</h3>
+		
+		<form method="post" action="${context.request.servletPath}">			
+    		<table>
+				<tr>
+					<th>${text.table.head.name}</th>
+					<th>${text.table.head.value}</th>
+					<th>${text.table.head.desc}</th>
+				</tr>
+    			<tr>
+					<td>$text.get("prop.${roleType}.name.name")</td>
+					<td>#if($mode=="create")
+							<input name="roleName" value="$!roleName"/>
+						#else
+							<tt>$roleName</tt>
+							<input type="hidden" name="roleName" value="$roleName"/>							
+						#end
+					</td>
+					<td>$text.get("prop.${roleType}.name.desc")</td>
+				</tr>
+				## ---------------------------------------------------
+				## User-only properties
+				## ---------------------------------------------------
+				#if($roleType == "user")
+    				<tr>
+    					<td>${text.prop.loginName.name}</td>
+    					<td><input name='http.login' value='$!role.getProperties().get("http.login")'/></td>
+    					<td>${text.prop.loginName.desc}</td>
+    				</tr>
+    				<tr>					
+    					<td>${text.prop.loginPwd.name}</td>
+    					<td><input name='http.password' type='password' value='$!role.getCredentials().get("http.password")'/></td>
+    					<td>${text.prop.loginPwd.desc}</td>
+    				</tr>
+    				<tr>
+    					<td>${text.prop.loginPwd2.name}</td>
+    					<td><input name='http.password2' type='password' value='$!role.getCredentials().get("http.password")'/></td>
+    					<td>${text.prop.loginPwd2.desc}&nbsp;</td>
+    				</tr>
+                	#if($manager.hasBundle("org.paxle.gui.openid"))
+    					<tr>
+    						<td>${text.prop.openIdUrl.name}</td>
+        					<td><input name='openid.url' value='$!role.getProperties().get("openid.url")'/></td>
+        					<td>${text.prop.openIdUrl.desc}</td>
+        				</tr>
+                	#end				
+    				<tr>
+    					<td>${text.prop.groups.name}</td>
+    					<td>
+    						<select name="membership" multiple="multiple" size="5"> 
+    							#set($membership = $userView.getParentGroups($userAdmin,$role))
+    							#foreach($group in $sortTool.sort(${userAdmin.getRoles(null)}, ["name:asc"]))
+    								#if(${group.getType()}==2)
+    									<option #if($listTool.contains($membership,$group))selected="selected"#end>${group.getName()}</option>
+    								#end
+    						   #end
+    						</select> 
+    					</td>
+    					<td>${text.prop.groups.desc}</td>
+    				</tr>					
+				#end
+				<tr><td>&nbsp;</td>
+					<td>
+						<input type="hidden" name="type" value="$roleType"/>
+						#if($mode=="create")
+							<input type="hidden" name="action" value="create"/>							
+							<input class="btnAddUser" type="submit" name="do#if(!$role)Create#{else}Update#{end}$roleType" value="#if(!$role)Create#{else}Update#{end}" />
+						#else 
+							<input type="hidden" name="action" value="update"/>							
+							<input class="btnAddUser" type="submit" name="do#if(!$role)Create#{else}Update#{end}$roleType" value="#if(!$role)Create#{else}Update#{end}" />
+						#end
+						#if($role && ($roleName && $roleName!="Administrator"))
+							<a class="button" href="?roleName=${role.getName()}&amp;action=delete">Delete</a>
+						#end
+						<a class="button" id="backButton" href="${context.request.servletPath}">${text.btn.title.backToOverview}</a>
+					</td>
+					<td>&nbsp;</td>
+				</tr>
+    		</table>
+		</form>
+	#else
+		## List all groups and users
+    	<table>
+		<tr>
+			<th>${text.table.head.type}</th>
+			<th>${text.table.head.name}</th>
+			<th>${text.table.head.action}</th>
+		</tr>
+    	#foreach($role in $sortTool.sort(${userAdmin.getRoles(null)}, ["type:desc","name:asc"]))
+    		#if(${role.getName()} != "user.anyone")
+    		<tr>
+    			<td><img src="/images/#{if}(${role.getType()}==2)group.png" alt="Group"#{else}user.png" alt="User"#{end}/></td>
+    			<td>${role.getName()}</td>
+				<td><a href="?roleName=${role.getName()}&amp;type=#{if}(${role.getType()}==1)user#{else}group#{end}"><img src="/images/#{if}(${role.getType()}==2)group_edit.png" alt="${text.btn.title.editGroup}" title="${text.btn.title.editGroup}"#{else}user_edit.png" alt="${text.btn.title.editUser}" title="${text.btn.title.editUser}"#{end} /></a></td>
+    		</tr>
+    		#end
+    	#end
+    	</table>		
+		<p>
+			<a class="button" href="?newUser&amp;type=user">${text.btn.title.newUser}</a>
+			<a class="button" href="?newUser&amp;type=group">${text.btn.title.newGroup}</a>
+		</p>
+	#end
+#else
+	<div class="bundleNotInstalled">${text.error.userAdmin.notFound}</div>
+#end

@@ -55,10 +55,11 @@ import org.paxle.gui.impl.servlets.QueueView;
 import org.paxle.gui.impl.servlets.RobotsTxt;
 import org.paxle.gui.impl.servlets.RootView;
 import org.paxle.gui.impl.servlets.SearchView;
-import org.paxle.gui.impl.servlets.SettingsView;
+import org.paxle.gui.impl.servlets.ConfigView;
 import org.paxle.gui.impl.servlets.StatusView;
 import org.paxle.gui.impl.servlets.SysCtrl;
 import org.paxle.gui.impl.servlets.TheaddumpView;
+import org.paxle.gui.impl.servlets.UserView;
 
 public class Activator implements BundleActivator {
 
@@ -103,16 +104,20 @@ public class Activator implements BundleActivator {
 		 * Register Servlets 
 		 * ==========================================================
 		 */
-		HttpContextAuth httpAuth = new HttpContextAuth(bc.getBundle(), this.userAdminTracker);
+		HttpContextAuth httpAuth = null;
+		if (System.getProperty("org.paxle.gui.auth.skip") == null) {		
+			httpAuth = new HttpContextAuth(bc.getBundle(), this.userAdminTracker);
+		}
+		
 		registerServlet("/", new RootView(), null);
 		registerServlet("/search", new SearchView(), "Search");
 		// registerServlet( "/p2p", new P2PView(), "P2P");		
 		
 		registerServlet("/sysctrl", new SysCtrl(), "%menu.administration/%menu.system/Shutdown", httpAuth);
 		registerServlet("/bundle", new BundleView(), "%menu.administration/%menu.system/%menu.bundleControl");	
-		registerServlet("/config?settings=user", new SettingsView(), "%menu.administration/%menu.system/%menu.userAdmin", httpAuth);
+		registerServlet("/users", new UserView(), "%menu.administration/%menu.system/%menu.userAdmin", httpAuth);
 		
-		registerServlet("/config?settings=config", new SettingsView(), "%menu.administration/%menu.bundles/Config-Management", httpAuth);
+		registerServlet("/config", new ConfigView(), "%menu.administration/%menu.bundles/Config-Management", httpAuth);
 		registerServlet("/crawler", new CrawlerView(), "%menu.administration/%menu.bundles/Crawler", httpAuth);
 		registerServlet("/threads", new TheaddumpView(), null);
 		
