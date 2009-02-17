@@ -84,159 +84,43 @@
 		<panel classname="SimpleFinishPanel" />
 	</panels>
 	<packs>
-		<!-- ========================================================== 
-			 OSGI core package incl. all external dependencies
-			 TODO: the dependencies should be moved into additional packs
-		     ========================================================== -->	
-		<refpack file="Equinox/pack.xml" />
+		<refpackset dir="" includes="**/pack.xml" />
 	
 		<!-- ========================================================== 
-			 PAXLE CORE BUNDLE
-		     ========================================================== -->	
-		<refpack file="Core/pack.xml" />			
-		
-		<!-- ========================================================== 
-			 PAXLE CRAWLER BUNDLES
+			 Parent Installer Packs
 		     ========================================================== -->
 		<pack id="Crawlers" name="Paxle - Crawlers" required="yes" preselected="yes">
 			<description>Paxle Crawlers</description>
 		</pack>
-		<refpack file="CrawlerCore/pack.xml" />		
-		<refpack file="CrawlerHttp/pack.xml" />		
-
-		<!-- ========================================================== 
-			 OPTIONAL PAXLE CRAWLER BUNDLES
-			 See: Profile "mvn -Dcrawles"
-		     ========================================================== -->	
-		<xinclude href="crawlers.xml" parse="xml">
-			<!-- 
-				 Note:
-				 We need to use an xinclude with a fallback here because a refpack
-				 causes the whole build process to fail if the referenced pack
-				 (and the included bundles) are not available.
-			 -->
-			<xfallback></xfallback>
-		</xinclude>		
-		
-		<!-- ========================================================== 
-			PAXLE PARSER BUNDLES			
-		     ========================================================== -->
 		<pack id="Parsers" name="Paxle - Parsers" required="yes" preselected="yes">
 			<description>Paxle Parsers</description>
 		</pack>
-		<refpack file="ParserCore/pack.xml" />	
-		<refpack file="ParserHtml/pack.xml" />	
-		<refpack file="ParserPlain/pack.xml" />		
-
-		<!-- ========================================================== 
-			OPTIONAL PAXLE PARSER BUNDLES
-			See: Profile "mvn -Dparsers"
-		     ========================================================== -->
-		<xinclude href="parsers.xml" parse="xml">
-			<!-- 
-				 Note:
-				 We need to use an xinclude with a fallback here because a refpack
-				 causes the whole build process to fail if the referenced pack
-				 (and the included bundles) are not available.
-			 -->
-			<xfallback></xfallback>
-		</xinclude>
-
-		<!-- ========================================================== 
-			 PAXLE COMMAND-FILTER BUNDLES
-		     ========================================================== -->
-		<pack id="Filters" name="Paxle - Command Filters" required="yes" preselected="yes">
-			<description>Paxle Command Filters</description>
-		</pack>
-		<refpack file="FilterBlacklist/pack.xml" />
-		<refpack file="FilterRobotsTxt/pack.xml" />
-		<refpack file="FilterLanguageIdentification/pack.xml" />
-
-		<!-- ========================================================== 
-			 PAXLE GUI BUNDLES
-		     ========================================================== -->
-		<pack id="GUIs" name="Paxle - User Interfaces" required="no" preselected="yes">
-			<description>Paxle User Interfaces</description>
-		</pack>
-
-		<pack id="Webinterface" name="Webinterface" parent="GUIs" required="no" preselected="yes">
-			<description>Paxle Web-Interfaces</description>
-		</pack>	
-		<refpack file="GUI/pack.xml" />
-
-		<pack id="Desktop" name="Desktop" parent="GUIs" required="no" preselected="yes">
-			<description>Paxle Desktop Interfaces</description>
-		</pack>		
-		<refpack file="DesktopIntegration/pack.xml" />
-		<refpack file="DIJdicBackend/pack.xml" />
-
-		<!-- ========================================================== 
-			 PAXLE SEARCH BUNDLES
-		     ========================================================== -->
-		<pack id="SEProviders" name="Paxle - Search Provider" required="yes" preselected="yes">
-			<description>Paxle Search Providers</description>
-		</pack>
-		<refpack file="SearchEngine/pack.xml" />
-		<refpack file="SEProviderPaxleInfrastructure/pack.xml" />
-
-		<!-- ========================================================== 
-			 PAXLE INDEXER BUNDLES
-		     ========================================================== -->
 		<pack id="Indexers" name="Paxle - Indexers" required="yes" preselected="yes">
 			<description>Paxle Indexers</description>
 		</pack>
-		<refpack file="Indexer/pack.xml" />
-		<refpack file="IndexLucene/pack.xml" />
-
-		<!-- ========================================================== 
-			 PAXLE DATA-LAYER BUNDLES
-		     ========================================================== -->
+		<pack id="Filters" name="Paxle - Command Filters" required="yes" preselected="yes">
+			<description>Paxle Command Filters</description>
+		</pack>
+		<pack id="GUIs" name="Paxle - User Interfaces" required="no" preselected="yes">
+			<description>Paxle User Interfaces</description>
+		</pack>
+		<pack id="Webinterface" name="Webinterface" parent="GUIs" required="no" preselected="yes">
+			<description>Paxle Web-Interfaces</description>
+		</pack>	
+		<pack id="Desktop" name="Desktop" parent="GUIs" required="no" preselected="yes">
+			<description>Paxle Desktop Interfaces</description>
+		</pack>	
+		<pack id="SEProviders" name="Paxle - Search Provider" required="yes" preselected="yes">
+			<description>Paxle Search Providers</description>
+		</pack>
 		<pack id="DataLayers" name="Paxle - Data Layer" required="yes" preselected="yes">
 			<description>Paxle Data Layer</description>
 		</pack>
-		<refpack file="DataLayer/pack.xml" />
-		<refpack file="DataLayerDerby/pack.xml" />
-		<refpack file="DataLayerH2/pack.xml" />
-		<!--<refpack file="DataLayerMySQL/pack.xml" />-->
-
-		<!-- ========================================================== 
-			 PAXLE TOOLS BUNDLES
-		     ========================================================== -->
 		<pack id="Tools" name="Paxle - Tools" required="yes" preselected="yes">
 			<description>Paxle Tools</description>
 		</pack>
-		<refpack file="CharsetDetector/pack.xml" />
-		<refpack file="MimeType/pack.xml" />
-		<refpack file="ToolsIExport/pack.xml" />
-		<refpack file="ToolsSysMon/pack.xml" />
-
-
-		<!-- ========================================================== 
-			OPTIONAL PAXLE JDK6 BUNDLES
-			See: Profile jdk1.6-profile
-		     ========================================================== -->
-		<xinclude href="jdk6.xml" parse="xml">
-			<!-- 
-				 Note:
-				 We need to use an xinclude with a fallback here because a refpack
-				 causes the whole build process to fail if the referenced pack
-				 (and the included bundles) are not available.
-			 -->
-			<xfallback></xfallback>
-		</xinclude>
-
-		<!-- ========================================================== 
-			OTHER OPTIONAL PAXLE BUNDLES
-			See: Profile "mvn -Dothers"
-		     ========================================================== -->
-		<xinclude href="others.xml" parse="xml">
-			<!-- 
-				 Note:
-				 We need to use an xinclude with a fallback here because a refpack
-				 causes the whole build process to fail if the referenced pack
-				 (and the included bundles) are not available.
-			 -->
-			<xfallback></xfallback>
-		</xinclude>
+		<pack id="APIs" name="Paxle - APIs" required="no" preselected="no">
+			<description>Paxle Application Programming Interfaces</description>
+		</pack>
 	</packs>
 </installation>

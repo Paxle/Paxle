@@ -42,6 +42,26 @@
 			<id>com.springsource.repository.bundles.external</id>
 			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases </name>
 			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+		
+		<repository>
+			<id>org.trialog-snapshots-repository</id>
+			<name>Trialox Snapshots Repository</name>
+			<url>http://repo.trialox.org/snapshot/</url>
+			<releases><enabled>false</enabled></releases>
+			<snapshots><enabled>true</enabled></snapshots>
+		</repository>
+		<repository>
+			<id>org.trialog-releases-repository</id>
+			<name>Trialox Releases Repository</name>
+			<url>http://repo.trialox.org/release/</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</repository>
+		<repository>
+			<id>Wymiwyg-repository</id>
+			<name>Wymiwyg Repository</name>
+			<url>http://wymiwyg.berlios.de/maven2/</url>
 		</repository>		
 	</repositories>
 
@@ -539,6 +559,43 @@
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>com.springsource.org.jdom-1.0.0.jar</destFileName>										
 								</artifactItem>
+								
+								<!-- JAX-RS related dependencies -->
+								<artifactItem>
+ 									<groupId>javax.activation</groupId>  
+ 									<artifactId>com.springsource.javax.activation</artifactId>  
+ 									<version>1.1.1</version>
+ 									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>com.springsource.javax.activation-1.1.1.jar</destFileName>										
+								</artifactItem>
+								<artifactItem>
+ 									<groupId>org.wymiwyg</groupId>  
+ 									<artifactId>wrhapi</artifactId>  
+ 									<version>0.6</version>y>
+ 									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.wymiwyg.wrhapi-0.6.jar</destFileName>										
+								</artifactItem>
+								<artifactItem>
+ 									<groupId>org.wymiwyg</groupId>  
+ 									<artifactId>wrhapi-jetty</artifactId>  
+ 									<version>0.6</version>y>
+ 									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.wymiwyg.wrhapi-jetty-0.6.jar</destFileName>										
+								</artifactItem>
+								<artifactItem>
+ 									<groupId>javax.ws.rs</groupId>  
+ 									<artifactId>jsr311-api</artifactId>  
+ 									<version>1.0</version>
+ 									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>javax.ws.rs.jsr311-api-1.0.jar</destFileName>										
+								</artifactItem>
+								<artifactItem>
+ 									<groupId>org.trialox</groupId>  
+ 									<artifactId>org.trialox.jaxrs</artifactId>  
+ 									<version>0.5</version>
+ 									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.trialox.jaxrs-0.5.jar</destFileName>										
+								</artifactItem>
 
 								<!-- ==================================================================-->
 								<!-- APACHE FELIX - Dependencies                                       -->
@@ -745,6 +802,7 @@
 				<jdk>1.6</jdk>
 			</activation>
 
+			<!-- 
 			<build>
 				<plugins>
 					<plugin>
@@ -766,6 +824,7 @@
 					</plugin>					
 				</plugins>
 			</build>
+			 -->
 
 			<modules>
 				<module>../DIJre6Backend</module>
@@ -782,6 +841,7 @@
 				</property>	
 			</activation>
 
+			<!-- 
 			<build>
 				<plugins>
 					<plugin>
@@ -803,6 +863,7 @@
 					</plugin>					
 				</plugins>
 			</build>
+			 -->
 
 			<modules>
 				<module>../ParserGzip</module>
@@ -830,6 +891,7 @@
 				</property>	
 			</activation>
 			
+			<!-- 
 			<build>
 				<plugins>
 					<plugin>
@@ -851,6 +913,7 @@
 					</plugin>					
 				</plugins>
 			</build>
+			 -->
 
 			<modules>
 				<!-- paxle crawler bundles -->
@@ -870,6 +933,7 @@
 				</property>	
 			</activation>
 
+			<!-- 
 			<build>
 				<plugins>
 					<plugin>
@@ -891,6 +955,7 @@
 					</plugin>					
 				</plugins>
 			</build>
+			 -->
 
 			<modules>
 				<!-- paxle tool bundles -->
@@ -918,7 +983,11 @@
 
 				<!-- Misc -->
 				<module>../Console</module>
-				<module>../Dbus</module>			
+				
+				<!-- Paxle APIs -->
+				<module>../Dbus</module>
+				<module>../ApiJaxRsCore</module>
+				<module>../ApiJaxRsJson</module>
 			</modules>			
 		</profile>
 
