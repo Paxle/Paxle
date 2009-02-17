@@ -802,36 +802,12 @@
 				<jdk>1.6</jdk>
 			</activation>
 
-			<!-- 
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>webinstaller-copy-jdk6-fragment</id>
-								<phase>package</phase>
-								<configuration>
-									<tasks>
-										<echo message="Copying IZPack-fragment for jdk6-profile ..." />
-										<copy file="${basedir}/src/main/resources/installers/fragments/jdk6.xml" 
-										      todir="${basedir}/target/webinstaller/fragments/"/>
-									</tasks>
-								</configuration>
-								<goals><goal>run</goal></goals>
-							</execution>
-						</executions>
-					</plugin>					
-				</plugins>
-			</build>
-			 -->
-
 			<modules>
 				<module>../DIJre6Backend</module>
 			</modules>
 		</profile>
 
-		<!-- Profile to build all Parsers -->
+		<!-- Profile to build optional Parsers -->
 		<profile>
 			<id>all-parsers-profile</id>
 			<activation>
@@ -840,30 +816,6 @@
 					<name>parsers</name>
 				</property>	
 			</activation>
-
-			<!-- 
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>webinstaller-copy-parser-fragment</id>
-								<phase>package</phase>
-								<configuration>
-									<tasks>
-										<echo message="Copying IZPack-fragment for parsers-profile ..." />
-										<copy file="${basedir}/src/main/resources/installers/fragments/parsers.xml" 
-										      todir="${basedir}/target/webinstaller/fragments/"/>
-									</tasks>
-								</configuration>
-								<goals><goal>run</goal></goals>
-							</execution>
-						</executions>
-					</plugin>					
-				</plugins>
-			</build>
-			 -->
 
 			<modules>
 				<module>../ParserGzip</module>
@@ -881,7 +833,7 @@
 			</modules>			
 		</profile>
 		
-		<!-- Profile to build all Parsers -->
+		<!-- Profile to build optional crawlers -->
 		<profile>
 			<id>all-crawlers-profile</id>
 			<activation>
@@ -890,30 +842,6 @@
 					<name>crawlers</name>
 				</property>	
 			</activation>
-			
-			<!-- 
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>webinstaller-copy-crawlers-fragment</id>
-								<phase>package</phase>
-								<configuration>
-									<tasks>
-										<echo message="Copying IZPack-fragment for crawlers-profile ..." />
-										<copy file="${basedir}/src/main/resources/installers/fragments/crawlers.xml" 
-										      todir="${basedir}/target/webinstaller/fragments/"/>
-									</tasks>
-								</configuration>
-								<goals><goal>run</goal></goals>
-							</execution>
-						</executions>
-					</plugin>					
-				</plugins>
-			</build>
-			 -->
 
 			<modules>
 				<!-- paxle crawler bundles -->
@@ -923,7 +851,7 @@
 			</modules>			
 		</profile>
 
-		<!-- Profile to build all other bundles -->
+		<!-- Profile to build other optional bundles -->
 		<profile>
 			<id>all-others-profile</id>
 			<activation>
@@ -932,30 +860,6 @@
 					<name>others</name>
 				</property>	
 			</activation>
-
-			<!-- 
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>webinstaller-copy-others-fragment</id>
-								<phase>package</phase>
-								<configuration>
-									<tasks>
-										<echo message="Copying IZPack-fragment for others-profile ..." />
-										<copy file="${basedir}/src/main/resources/installers/fragments/others.xml" 
-										      todir="${basedir}/target/webinstaller/fragments/"/>
-									</tasks>
-								</configuration>
-								<goals><goal>run</goal></goals>
-							</execution>
-						</executions>
-					</plugin>					
-				</plugins>
-			</build>
-			 -->
 
 			<modules>
 				<!-- paxle tool bundles -->
