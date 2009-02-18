@@ -182,7 +182,20 @@ public class MenuItem {
 	}	
 	
 	public void removeItem(String name) {
-		this.items.remove(name);
+		if (name == null) throw new NullPointerException("The menu-item name must not be null");		
+		String[] nameParts = name.split("(?<!/)/(?!/)");
+		this.removeItem(nameParts, 0);
+	}
+	
+	private void removeItem(String[] nameParts, int idx) {
+		if (idx == nameParts.length-1) {
+			this.items.remove(nameParts[idx]);
+		} else {
+			MenuItem parent = this.items.get(nameParts[idx]);
+			if (parent == null) throw new IllegalStateException("No menu-item found with name: " + nameParts[idx]);
+			parent.removeItem(nameParts,idx+1);
+			if (!parent.hasSubItems()) this.items.remove(nameParts[idx]);
+		}	
 	}
 	
 	public boolean hasItem(String name) {

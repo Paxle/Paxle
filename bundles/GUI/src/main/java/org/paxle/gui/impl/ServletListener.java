@@ -118,7 +118,7 @@ public class ServletListener implements ServiceListener {
 			
 			// remove menu
 			if (menuName != null && menuName.length() > 0) {
-				this.menuManager.removeItem(path);
+				this.menuManager.removeItem(menuName);
 			}
 			
 		} else if (eventType == ServiceEvent.MODIFIED) {
