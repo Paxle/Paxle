@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<langpack>
+	<str id="settings.comment" txt="Die folgenden Einstellungen werden zum Start von Paxle benötigt:"/>
+	<str id="settings.httpPort.name" txt="HTTP-Port"/>
+	<str id="settings.httpPort.desc" txt="Der Port über den auf die Weboberfläche zugegriffen werden kann"/>		
+</langpack>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<langpack>	
+	<str id="settings.comment" txt="The following properties are required by Paxle:"/>
+	<str id="settings.httpPort.name" txt="HTTP-Port"/>
+	<str id="settings.httpPort.desc" txt="The port to access the GUI"/>
+</langpack>

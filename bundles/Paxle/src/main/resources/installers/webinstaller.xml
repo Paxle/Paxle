@@ -14,20 +14,31 @@
 	
 	<!-- some variables required later -->
 	<variables>
-		<!-- The jar-name of the equinox runtime -->
-		<variable name="OSGI_RUNTIME_JAR" value="${equinox.runtime.jar}" />
-		<!-- maven project base dir -->
-		<variable name="PAXLE_DIR" value="${basedir}"/>
-		
 		<!-- the default installation-group is "default" -->
 		<variable name="InstallationGroupPanel.defaultGroup" value="default"/>
-	</variables>
+		<variable name="UserPathPanelVariable" value="${INSTALL_PATH}${FILE_SEPARATOR}data"/>
+	</variables>	
+	<dynamicvariables>
+		<variable name="paxle.data" value="${UserPathPanelVariable}"/>
+	</dynamicvariables>
 
 	<guiprefs width="700" height="550" resizable="no">
 		<laf name="looks">
 			<os family="unix" />
 		</laf>
 		<modifier key="langDisplayType" value="native" />
+		<modifier key="useButtonIcons" value="no"/>
+		<modifier key="useLabelIcons" value="no"/>
+		<modifier key="labelGap" value="2"/>
+		<modifier key="layoutAnchor" value="NORTH"/>
+		<modifier key="useHeadingPanel" value="yes"/>
+  		<modifier key="headingImageOnLeft" value="no"/>
+		<modifier key="headingLineCount" value="1"/>
+		<modifier key="headingFontSize" value="1.5"/>
+		<modifier key="headingForegroundColor" value="0x00ffffff"/>
+		<modifier key="headingBackgroundColor" value="0x00730002"/>		
+		<modifier key="headingPanelCounter" value="progressbar"/>
+		<modifier key="headingPanelCounterPos" value="inNavigationPanel"/>	
 	</guiprefs>
 	
 	<!-- supported languages -->
@@ -41,18 +52,20 @@
 		<res id="InfoPanel.info" src="${basedir}/README.txt" parse="yes" />
 		<res id="LicencePanel.licence" src="${basedir}/LICENSE.txt" />
 		<res id="installer.langsel.img" src="${basedir}/src/main/resources/img/logo.png" />
-		<res id="shortcutSpec.xml" src="${basedir}/src/main/resources/installers/winShortcutSpec.xml" />
-		<res id="Unix_shortcutSpec.xml" src="${basedir}/src/main/resources/installers/unixShortcutSpec.xml" />
-
+		<res id="shortcutSpec.xml" src="${basedir}/src/main/resources/installers/shortcuts/winShortcutSpec.xml" />
+		<res id="Unix_shortcutSpec.xml" src="${basedir}/src/main/resources/installers/shortcuts/unixShortcutSpec.xml" />
+		
 		<!-- left border images -->
-		<res src="${basedir}/src/main/resources/installers/img/border1.png" id="Installer.image.0"/>
-		<res src="${basedir}/src/main/resources/installers/img/border2.png" id="Installer.image.1"/>
-		<res src="${basedir}/src/main/resources/installers/img/border3.png" id="Installer.image.2"/>
-		<res src="${basedir}/src/main/resources/installers/img/border4.png" id="Installer.image.3"/>
-		<res src="${basedir}/src/main/resources/installers/img/border5.png" id="Installer.image.4"/>
-		<res src="${basedir}/src/main/resources/installers/img/border6.png" id="Installer.image.5"/>
-		<res src="${basedir}/src/main/resources/installers/img/border7.png" id="Installer.image.6"/>
-		<res src="${basedir}/src/main/resources/installers/img/border8.png" id="Installer.image.7"/>
+		<res src="${basedir}/src/main/resources/installers/img/logo.png" id="Heading.image"/>
+
+		<!-- configuration panel -->
+		<res id="userInputSpec.xml" src="${basedir}/src/main/resources/installers/settings/userInputSpec.xml" />	
+		
+		<!-- l10n -->
+		<res id="CustomLangpack.xml_eng" src="${basedir}/src/main/resources/installers/l10n/CustomLangpack_eng.xml"/>
+		<res id="CustomLangpack.xml_deu" src="${basedir}/src/main/resources/installers/l10n/CustomLangpack_deu.xml"/>
+		<res id="userInputLang.xml_eng" src="${basedir}/src/main/resources/installers/l10n/userInputLang_eng.xml"/>
+		<res id="userInputLang.xml_deu" src="${basedir}/src/main/resources/installers/l10n/userInputLang_deu.xml"/>			
 	</resources>
 	
 	<!-- The native libraries to add. This is required for creating shortcuts on Windows -->
@@ -76,8 +89,10 @@
 		<panel classname="CheckedHelloPanel" />
 		<panel classname="LicencePanel" />
 		<panel classname="TargetPanel" />
+		<panel classname="UserPathPanel" />
 		<panel classname="InstallationGroupPanel"/>
 		<panel classname="TreePacksPanel" />
+		<panel classname="UserInputPanel" />
 		<panel classname="SummaryPanel"/>
 		<panel classname="InstallPanel" />
 		<panel classname="ShortcutPanel" />

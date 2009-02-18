@@ -7,7 +7,14 @@
 			<!-- core OSGi bundles -->
 			<fileset dir="Equinox/" targetdir="$INSTALL_PATH">
 				<include name="**" />
+				
+				<!-- exclude config files (will be parsed and included separately) -->
+				<exclude name="configuration/config.ini" />				
 			</fileset>
+
+			<!-- parsing and including the equinox config file -->
+			<file targetdir="$INSTALL_PATH/configuration" src="${basedir}/src/main/resources/equinox/configuration/config.ini"/>
+			<parsable targetfile="$INSTALL_PATH/configuration/config.ini"/>
 
 			<!-- uninstaller shell script -->
 			<fileset dir="${basedir}/src/main/resources/installers/" includes="uninstall.sh" targetdir="$INSTALL_PATH/Uninstaller" />

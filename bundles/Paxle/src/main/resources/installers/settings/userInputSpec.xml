@@ -1,0 +1,21 @@
+<userInput>
+    <panel order="0">
+		<field id="settings.comment" type="staticText" align="left" txt="The following properties are required by Paxle:"/>
+		
+		<field type="space"/>
+		<field type="divider"/>
+		<field type="space"/>   
+        
+    	<!-- GUI HTTP-port -->
+        <field type="rule" align="left" variable="org.osgi.service.http.port">
+            <description align="left" txt="The port to access the GUI" id="settings.httpPort.desc"/>
+            <spec txt="HTTP-Port" size="5" set="0:8383" layout="N:5:5" id="settings.httpPort.name"/>
+            <createForPack name="GUI" />
+        </field>
+
+		<field type="space"/>
+		<field type="divider"/>
+		<field type="space"/>         
+        
+	</panel>
+</userInput>

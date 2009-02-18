@@ -10,37 +10,75 @@
 		<javaversion>1.5</javaversion>
 		<requiresjdk>no</requiresjdk>
 	</info>
+	
 	<variables>
-		<!-- The jar-name of the equinox runtime -->
-		<variable name="OSGI_RUNTIME_JAR" value="${equinox.runtime.jar}" />
-	</variables>
-	<guiprefs width="640" height="480" resizable="no">
+		<variable name="UserPathPanelVariable" value="${INSTALL_PATH}${FILE_SEPARATOR}data"/>
+	</variables>	
+	<dynamicvariables>
+		<variable name="paxle.data" value="${UserPathPanelVariable}"/>
+	</dynamicvariables>
+		
+    <guiprefs width="700" height="550" resizable="yes">
 		<laf name="looks">
 			<os family="unix" />
 		</laf>
 		<modifier key="langDisplayType" value="native" />
-	</guiprefs>
+		<modifier key="useButtonIcons" value="no"/>
+		<modifier key="useLabelIcons" value="no"/>
+		<modifier key="labelGap" value="2"/>
+		<modifier key="layoutAnchor" value="NORTH"/>
+		<modifier key="useHeadingPanel" value="yes"/>
+  		<modifier key="headingImageOnLeft" value="no"/>
+		<modifier key="headingLineCount" value="1"/>
+		<modifier key="headingFontSize" value="1.5"/>
+		<modifier key="headingForegroundColor" value="0x00ffffff"/>
+		<modifier key="headingBackgroundColor" value="0x00730002"/>		
+		<modifier key="headingPanelCounter" value="progressbar"/>
+		<modifier key="headingPanelCounterPos" value="inNavigationPanel"/>		
+    </guiprefs>		
+	
+	<!-- supported languages -->
 	<locale>
 		<langpack iso3="eng" />
 		<langpack iso3="deu" />
 	</locale>
+	
+	<!-- resources -->
 	<resources>
 		<res id="InfoPanel.info" src="${basedir}/README.txt" parse="yes" />
 		<res id="LicencePanel.licence" src="${basedir}/LICENSE.txt" />
 		<res id="installer.langsel.img" src="${basedir}/src/main/resources/img/logo.png" />
-		<res id="shortcutSpec.xml" src="${basedir}/src/main/resources/installers/winShortcutSpec.xml" />
-		<res id="Unix_shortcutSpec.xml" src="${basedir}/src/main/resources/installers/unixShortcutSpec.xml" />
+		<res id="shortcutSpec.xml" src="${basedir}/src/main/resources/installers/shortcuts/winShortcutSpec.xml" />
+		<res id="Unix_shortcutSpec.xml" src="${basedir}/src/main/resources/installers/shortcuts/unixShortcutSpec.xml" />
+		
+		<!-- left border images -->
+		<res src="${basedir}/src/main/resources/installers/img/logo.png" id="Heading.image"/>
+
+		<!-- configuration panel -->
+		<res id="userInputSpec.xml" src="${basedir}/src/main/resources/installers/settings/userInputSpec.xml" />	
+		
+		<!-- l10n -->
+		<res id="CustomLangpack.xml_eng" src="${basedir}/src/main/resources/installers/l10n/CustomLangpack_eng.xml"/>
+		<res id="CustomLangpack.xml_deu" src="${basedir}/src/main/resources/installers/l10n/CustomLangpack_deu.xml"/>
+		<res id="userInputLang.xml_eng" src="${basedir}/src/main/resources/installers/l10n/userInputLang_eng.xml"/>
+		<res id="userInputLang.xml_deu" src="${basedir}/src/main/resources/installers/l10n/userInputLang_deu.xml"/>	
 	</resources>
+	
 	<native type="izpack" name="ShellLink.dll" />
+	
 	<panels>
-		<panel classname="HelloPanel" />
+		<panel classname="CheckedHelloPanel" />
 		<panel classname="LicencePanel" />
 		<panel classname="TargetPanel" />
+		<panel classname="UserPathPanel" />
 		<panel classname="TreePacksPanel" />
+		<panel classname="UserInputPanel" />
+		<panel classname="SummaryPanel"/>
 		<panel classname="InstallPanel" />
 		<panel classname="ShortcutPanel" />
 		<panel classname="SimpleFinishPanel" />
 	</panels>
+	
 	<packs>
 		<pack id="Core" name="Core" required="yes">
 			<description>Core package</description>
@@ -55,7 +93,13 @@
 
 				<!-- excluding GUI jar(s) -->
 				<exclude name="GUI*.jar" />
+				
+				<!-- exclude config files (will be parsed and included separately) -->
+				<exclude name="configuration/config.ini" />
 			</fileset>
+			
+			<file targetdir="$INSTALL_PATH/configuration" src="${basedir}/src/main/resources/equinox/configuration/config.ini"/>
+			<parsable targetfile="$INSTALL_PATH/configuration/config.ini"/>
 
 			<!-- uninstaller shell script -->
 			<fileset dir="${basedir}/src/main/resources/installers/" includes="uninstall.sh" targetdir="$INSTALL_PATH/Uninstaller" />
@@ -88,7 +132,7 @@
 		</pack>
 
 		<!-- HTTP GUI -->
-		<pack id="GUI" name="Webinterface" parent="GUIs" required="no" preselected="yes">
+		<pack id="GUI" name="GUI" parent="GUIs" required="no" preselected="yes">
 			<description>Http GUI</description>
 
 			<fileset dir="${basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">

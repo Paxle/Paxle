@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<langpack>
+	<str id="TreePacksPanel.headline" txt="Auswahl Installationspakete"/>
+
+	<str id="UserPathPanel.headline" txt="Paxle Datenpfad"/>
+	<str id="UserPathPanel.summaryCaption" txt="Paxle Daten Verzeichnis"/>	
+	<str id="UserPathPanel.info" txt="Wählen Sie den Pfad des Daten-verzeichnisses:"/>
+	<str id="UserPathPanel.browse" txt="Auswählen..."/>
+	<str id="UserPathPanel.exists_warn" txt="Das Verzeichnis existiert bereits! Sind Sie sicher, dass Sie in diesem Verzeichnis installieren wollen?"/>
+	<str id="UserPathPanel.empty_target" txt="Sie haben ein namenloses Ziel eingegeben! Wollen Sie fortfahren?"/>
+	<str id="UserPathPanel.createdir" txt="Das folgende Verzeichnis wird erstellt:" />
+	<str id="UserPathPanel.nodir"  txt="Sie haben ein Ziel eingegeben, welches kein Verzeichnis ist! Bitte wählen Sie ein Verzeichnis aus!"/>
+	<str id="UserPathPanel.notwritable" txt="Sie haben ein Ziel eingegeben, welches nicht beschreibbar ist! Bitte wählen Sie ein anderes Verzeichnis aus!"/>
+</langpack>

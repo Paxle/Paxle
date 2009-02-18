@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<langpack>
+	<str id="TreePacksPanel.headline" txt="Select Installation Packages"/>
+
+	<str id="UserPathPanel.headline" txt="Paxle Data Directory"/>
+	<str id="UserPathPanel.summaryCaption" txt="Selected Data-Directory"/>	
+	<str id="UserPathPanel.info" txt="Select the path: "/>
+	<str id="UserPathPanel.browse" txt="Browse"/>
+	<str id="UserPathPanel.exists_warn" txt="The directory already exists! Are you sure you want to install here and possibly overwrite existing files?"/>
+	<str id="UserPathPanel.empty_target" txt="You have not specified a target location! Is this correct?"/>
+	<str id="UserPathPanel.createdir" txt="The target directory will be created: " />
+	<str id="UserPathPanel.nodir"  txt="This file is not a directory! Please choose a directory!"/>
+	<str id="UserPathPanel.notwritable" txt="This directory can not be written! Please choose another directory!"/>
+</langpack>

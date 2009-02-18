@@ -96,6 +96,8 @@
 		<equinox.dependencies>target/dependency/equinox</equinox.dependencies>
 		<equinox.runtime.jar>org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar</equinox.runtime.jar>
 		<equinox.bundledir>bundles</equinox.bundledir>
+		<org.osgi.service.http.port>8080</org.osgi.service.http.port>
+		<paxle.data>.</paxle.data>
 		
 		<!-- Apache Felix related Properties -->
 		<felix.dependencies>target/dependency/felix</felix.dependencies>
@@ -942,7 +944,7 @@
 				<property>
 					<name>!debug</name>
 				</property>
-			</activation>
+			</activation>		
 			
 			<modules>
 				<module>../Root</module>
