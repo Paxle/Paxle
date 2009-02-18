@@ -16,12 +16,11 @@
 
 #macro(statusVarValue $statusVar)
 	#set($statusVarType = $statusVar.getType())
-	#if ($statusVarType == 0) $statusVar.getInteger()
+	#if ($statusVarType == 0) $numberTool.format($statusVar.getInteger())
 	#elseif ($statusVarType == 1) $statusVar.getFloat()
 	#elseif ($statusVarType == 2) $statusVar.getString()
 	#elseif ($statusVarType == 3) $statusVar.getBoolean()
-	#end
-	
+	#end	
 #end
 
 #if($paramParser.getStrings("monitorableId"))
