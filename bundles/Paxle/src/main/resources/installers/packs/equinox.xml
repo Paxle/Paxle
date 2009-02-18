@@ -14,7 +14,7 @@
 
 			<!-- parsing and including the equinox config file -->
 			<file targetdir="$INSTALL_PATH/configuration" src="${basedir}/src/main/resources/equinox/configuration/config.ini"/>
-			<parsable targetfile="$INSTALL_PATH/configuration/config.ini"/>
+			<parsable targetfile="$INSTALL_PATH/configuration/config.ini" type="javaprop"/>
 
 			<!-- uninstaller shell script -->
 			<fileset dir="${basedir}/src/main/resources/installers/" includes="uninstall.sh" targetdir="$INSTALL_PATH/Uninstaller" />
