@@ -326,6 +326,9 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	 * Management for the double URLs cache
 	 * ========================================================================= */
 
+	/**
+	 * Serializes the bloom filter backed doubleURL Cache into the cache directory
+	 */
 	private void closeDoubleURLSet() throws IOException {
 		final long start = System.currentTimeMillis();
 		final OutputStream fileOs = new FileOutputStream(new File(getCreateCacheDir(), BLOOM_CACHE_FILE));
@@ -356,22 +359,15 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		File serializedFile = new File(getCreateCacheDir(), BLOOM_CACHE_FILE);
 
 		if (!(serializedFile.canRead() && serializedFile.isFile())) {
-			//XXX: We should remove the check of both directories (getCreateCacheDir() + getDatabaseLocation()), if the location for persistence is clear
-			final File oldFile = new File(getDatabaseLocation(), BLOOM_CACHE_FILE);
-			if (oldFile.canRead() && oldFile.isFile()) {
-				serializedFile = oldFile;
-			} else {
 				logger.info("Serialized double URL set not found, populating cache from DB (this may take some time) ...");
 				bloomFilter = new DynamicBloomFilter(1437764, 10, 100000);	// creating a maximum false positive rate of 0.1 %
 				populateThread = new PopulateThread();
 				populateThread.start();
-			}	
-		}
-		if (serializedFile.canRead() && serializedFile.isFile()) {
+		} else {
 			logger.info(String.format(
 					"Serialized double URL set found, reading %d bytes ...",
 					serializedFile.length()
-			));
+					));
 			final InputStream fileIs = new FileInputStream(serializedFile);
 			try {
 				final DataInputStream dataIs = new DataInputStream(new BufferedInputStream(fileIs));
