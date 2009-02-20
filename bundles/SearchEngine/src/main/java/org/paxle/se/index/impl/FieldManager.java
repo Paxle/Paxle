@@ -13,15 +13,33 @@
  */
 package org.paxle.se.index.impl;
 
+import java.util.AbstractMap;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.core.service.ASimpleManager;
 import org.paxle.se.index.IFieldManager;
 
-public class FieldManager extends ASimpleManager<String,Field<?>> implements IFieldManager {
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.se.index.IFieldManager"
+ */
+public class FieldManager extends AbstractMap<String, Field<?>> implements IFieldManager {
+	/**
+	 * For logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
+
+	/**
+	 * A set of all currently known {@link Field fields}
+	 */
+	private final Map<String, Field<?>> fields = new HashMap<String, Field<?>>();
 	
 	public FieldManager() {		
 		// detect all default indexer-document fields
@@ -32,8 +50,9 @@ public class FieldManager extends ASimpleManager<String,Field<?>> implements IFi
 				try {
 					obj = field.get(null);
 					if (obj instanceof Field) {
-						this.logger.debug(String.format("New field detected: %s.", obj.toString()));
-						this.add((Field<?>)obj);
+						Field<?> indexerField = (Field<?>)obj;
+						this.logger.debug(String.format("New field detected: %s.", indexerField.toString()));
+						this.put(indexerField.getName(), indexerField);
 					}
 				} catch (Exception e) {
 					this.logger.error("Unexpected error while determining default fields",e);
@@ -42,8 +61,29 @@ public class FieldManager extends ASimpleManager<String,Field<?>> implements IFi
 		}
 	}
 	
-	void add(Field<?> field) {
-		if (field == null) throw new NullPointerException("The field is null");
-		super.map.put(field.getName(), field);
+	public boolean isKnown(String fieldName) {
+		return this.containsKey(fieldName);
+	}
+
+	@Override
+	public Set<Entry<String, Field<?>>> entrySet() {
+		return this.fields.entrySet();
+	}
+		
+	@Override
+	public Field<?> put(String key, Field<?> value) {
+		return this.fields.put(key, value);
+	}	
+	
+	public Field<?> get(String key) {
+		return super.get(key);
+	}
+
+	public Collection<String> getFieldNames() {
+		return Collections.unmodifiableSet(this.keySet());
+	}
+
+	public Collection<Field<?>> getFields() {
+		return Collections.unmodifiableCollection(this.values());
 	}
 }

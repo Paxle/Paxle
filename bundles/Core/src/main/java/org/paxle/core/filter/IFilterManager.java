@@ -13,7 +13,7 @@
  */
 package org.paxle.core.filter;
 
-import java.util.Set;
+import java.util.Map;
 
 public interface IFilterManager {
 	/**
@@ -24,7 +24,7 @@ public interface IFilterManager {
 
 	/**
 	 * @param queueID the unique ID of a {@link IFilterQueue filter-queue}
-	 * @return return a set of filters available for the given {@link IFilterQueue filter-queue}
+	 * @return return a map of filters available for the given {@link IFilterQueue filter-queue}
 	 */
-	public Set<IFilterContext> getFilters(String queueID);
+	public Map<String,IFilterContext> getFilters(String queueID);
 }

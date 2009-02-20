@@ -13,12 +13,13 @@
  */
 package org.paxle.se.search.impl;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -30,7 +31,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxle.core.prefs.Properties;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.se.query.PaxleQueryParser;
 import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
@@ -40,90 +43,101 @@ import org.paxle.se.search.ISearchResult;
 import org.paxle.se.search.ISearchResultCollector;
 import org.paxle.se.search.SearchException;
 
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.se.search.ISearchProviderManager"
+ * @scr.reference name="searchProviders" 
+ * 				  interface="org.paxle.se.search.ISearchProvider" 
+ * 				  cardinality="0..n" 
+ * 				  policy="dynamic" 
+ * 				  bind="addProvider" 
+ * 				  unbind="removeProvider"
+ * 				  target="(service.pid=*)
+ */
 public class SearchProviderManager implements ISearchProviderManager {
-	private static final String DISABLED_PROVIDERS = ISearchProviderManager.class.getName() + "." + "disabledProviders";	
+	/**
+	 * Thread pool service
+	 */
+	private ExecutorService execService;
 
-	private final ExecutorService execService;
-	private final LinkedHashMap<Long,ISearchProvider> providers = new LinkedHashMap<Long, ISearchProvider>();
+	/**
+	 * The context of this component
+	 */
+	protected ComponentContext ctx;	
+	
+	/**
+	 * A list of all currently registered {@link ISearchProvider search-providers}
+	 */
+	private final LinkedHashMap<Long,ServiceReference> providersRefs = new LinkedHashMap<Long, ServiceReference>();
 
 	/**
 	 * for logging
 	 */
 	private final Log logger = LogFactory.getLog(SearchProviderManager.class);
 
-	/**
-	 * The names of all currently disabled providers
-	 */
-	private Set<String> disabledProviders = new HashSet<String>();
-
-	/**
-	 * The properties of this component
-	 */
-	private Properties props = null;
-
-	public SearchProviderManager(Properties props) {
+	protected void activate(ComponentContext context) {
+		this.ctx = context;
 		this.execService = Executors.newCachedThreadPool();
-
-		this.props = props;
-		if (this.props != null && this.props.containsKey(DISABLED_PROVIDERS)) {
-			this.disabledProviders = this.props.getSet(DISABLED_PROVIDERS);
-		}		
+	}
+	
+	protected void deactivate(ComponentContext context ){
+		this.logger.info("Search provider manager going to be deactivated now ...");
+		this.logger.debug("Waiting for searches to finish");
+		this.execService.shutdown();
+		this.logger.debug("Searches finished, cleaning up...");
+		this.logger.info("shutdown complete");
+	}
+	
+	
+	protected void addProvider(ServiceReference providerRef) {
+		Long providerID = (Long) providerRef.getProperty(Constants.SERVICE_ID);
+		
+		this.providersRefs.put(providerID, providerRef);
+		this.logger.info(String.format(
+				"Search provider with ID '%d' from bundle '%s' registered.",
+				providerID,
+				providerRef.getBundle().getSymbolicName()
+		));
 	}
 
-	synchronized void addProvider(Long providerID, ISearchProvider provider) {
-		if (providerID == null) throw new NullPointerException("The provider-ID is null");
-		if (provider == null) throw new NullPointerException("The provider is null");
-		if (this.providers.containsKey(providerID)) {
-			String format = String.format("Unable to register se-provider with ID '%s'. Provider already registered.", providerID.toString());
-			this.logger.error(format);
-		}
-
-		this.logger.info("added search provider: " + provider.getClass().getName());
-		this.providers.put(providerID, provider);
-	}
-
-	synchronized void removeProvider(Long providerID) {
-		if (providerID == null) throw new NullPointerException("The provider-ID is null");
-		if (!this.providers.containsKey(providerID)) {
-			String format = String.format("Unable to unregister se-provider with ID '%s'. Provider unknown.", providerID.toString());
-			this.logger.error(format);
-			return;
-		}
-
-		final ISearchProvider provider = this.providers.remove(providerID);
-		this.logger.info("removed search provider: " + provider.getClass().getName());
-		// this.pqp.removeTokenFactory(number);
+	protected void removeProvider(ServiceReference providerRef) {
+		Long providerID = (Long) providerRef.getProperty(Constants.SERVICE_ID);
+		this.providersRefs.remove(providerID);
+		
+		this.logger.info(String.format(
+				"Search provider with ID %d from bundle %s unregistered.",
+				providerID,
+				providerRef.getBundle().getSymbolicName()
+		));
 	}
 
 	/**
 	 * @see ISearchProviderManager#getSearchProviders()
 	 */
-	public Collection<ISearchProvider> getSearchProviders() {
-		return Collections.unmodifiableCollection(this.providers.values());
-	}
-
-	public void shutdown() throws IOException {
-		this.logger.info("search provider manager is shutting down...");
-		this.logger.debug("waiting for searches to finish");
-		this.execService.shutdown();
-		this.logger.debug("searches finished, cleaning up...");
-		this.providers.clear();
-		// this.pqp.clearTokenFactories();
-		this.logger.info("shutdown complete");
+	public Map<String,ISearchProvider> getSearchProviders() {
+		final HashMap<String,ISearchProvider> providers = new HashMap<String, ISearchProvider>();
+		for (ServiceReference proproviderRef : this.providersRefs.values()) {
+			final ISearchProvider provider = (ISearchProvider) this.ctx.locateService("searchProviders", proproviderRef);
+			final String providerPID = (String) proproviderRef.getProperty(Constants.SERVICE_PID);			
+			providers.put(providerPID, provider);
+		}
+		return providers;
 	}
 
 	public List<ISearchResult> search(String paxleQuery,
 			int maxResults,
-			long timeout) throws InterruptedException, ExecutionException, SearchException {
+			long timeout
+	) throws InterruptedException, ExecutionException, SearchException {
 		final ListResultCollector collector = new ListResultCollector();
-		search(paxleQuery, maxResults, timeout, collector);
+		this.search(paxleQuery, maxResults, timeout, collector);
 		return collector;
 	}
 
 	public void search(String paxleQuery,
 			int maxResults,
 			long timeout,
-			ISearchResultCollector results) throws InterruptedException, ExecutionException, SearchException {
+			ISearchResultCollector results
+	) throws InterruptedException, ExecutionException, SearchException {
 		final CompletionService<ISearchResult> execCompletionService = new ExecutorCompletionService<ISearchResult>(this.execService);
 
 		// final List<AToken> queries = this.pqp.parse(paxleQuery);
@@ -131,21 +145,14 @@ public class SearchProviderManager implements ISearchProviderManager {
 		if (query == null)
 			throw new SearchException(paxleQuery, "Illegal query (maybe too short?)");
 
-		int n = providers.size();
+		int n = providersRefs.size();
 
 		int usedProviders = 0;
 		if (n > 0) {
-			for(ISearchProvider provider : this.providers.values()) {
-				String providerClassName = provider.getClass().getName();
-				if (disabledProviders.contains(providerClassName)) {
-					this.logger.debug(String.format("Skipping disabled provider %s ...", providerClassName));
-					continue;
-				}
-
+			for(ServiceReference providerRef : this.providersRefs.values()) {
 				// final ISearchRequest searchRequest = new SearchRequest(queries.get(i), maxResults, timeout);
 				final ISearchRequest searchRequest = new SearchRequest(query, maxResults, timeout);
-				execCompletionService.submit(new SearchProviderCallable(provider, searchRequest));
-
+				execCompletionService.submit(new SearchProviderCallable(this.ctx, providerRef, searchRequest));
 				usedProviders++;
 			}
 		}
@@ -170,22 +177,20 @@ public class SearchProviderManager implements ISearchProviderManager {
 	 * @see ISearchProviderManager#disableProvider(String)
 	 */
 	public void disableProvider(String providerName) {
-		this.disabledProviders.add(providerName);
-		if (this.props != null) this.props.setSet(DISABLED_PROVIDERS, this.disabledProviders);
+		// TODO: needs to be re-implemented
 	}
 
 	/**
 	 * @see ISearchProviderManager#enableProvider(String)
 	 */
 	public void enableProvider(String providerName) {
-		this.disabledProviders.remove(providerName);		
-		if (this.props != null) this.props.setSet(DISABLED_PROVIDERS, this.disabledProviders);
+		// TODO: needs to be re-implemented
 	}
 
 	/**
 	 * @see ISearchProviderManager#disabledProviders()
 	 */
 	public Set<String> disabledProviders() {
-		return Collections.unmodifiableSet(this.disabledProviders);
+		return Collections.emptySet();
 	}
 }

@@ -13,8 +13,8 @@
  */
 package org.paxle.se.search;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -22,7 +22,7 @@ public interface ISearchProviderManager {
 	/**
 	 * @return the list of installed {@link ISearchProvider search-providers}
 	 */
-	public Collection<ISearchProvider> getSearchProviders();
+	public Map<String, ISearchProvider> getSearchProviders();
 	
 	/**
 	 * @return a list of known but disabled search-providers

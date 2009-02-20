@@ -51,7 +51,7 @@ public class FieldListener implements ServiceListener {
 	private void registered(ServiceReference ref) {
 		final Field<?> field = (Field<?>)this.context.getService(ref);
 		this.logger.debug("registered new field: " + field);
-		this.manager.add(field);
+		this.manager.put(field.getName(), field);
 	}
 	
 	public void serviceChanged(ServiceEvent event) {

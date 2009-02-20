@@ -13,11 +13,22 @@
  */
 package org.paxle.se.search;
 
+import org.osgi.framework.Constants;
 import org.paxle.core.doc.IIndexerDocument;
 
 public interface ISearchResult {	
 	public IIndexerDocument[] getResult();
 	public long getSearchTime();
+	
+	/**
+	 * Returns the systemwidth unique {@link ISearchProvider search-provider}-ID.
+	 * This ID can then be used, e.g. to get {@link org.paxle.core.metadata.IMetaData} 
+	 * about the search-provider
+	 * 
+	 * @return the {@link ISearchProvider provider}-ID
+	 * @see Constants#SERVICE_PID
+	 */
+	public String getProviderID();
 	
 	/* TODO: get search result metadata such as 
 	 * - the name of the provider

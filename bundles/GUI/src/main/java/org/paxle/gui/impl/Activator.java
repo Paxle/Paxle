@@ -60,6 +60,7 @@ import org.paxle.gui.impl.servlets.StatusView;
 import org.paxle.gui.impl.servlets.SysCtrl;
 import org.paxle.gui.impl.servlets.TheaddumpView;
 import org.paxle.gui.impl.servlets.UserView;
+import org.paxle.gui.impl.tools.MetaDataTool;
 
 public class Activator implements BundleActivator {
 
@@ -73,7 +74,9 @@ public class Activator implements BundleActivator {
 
 	public void start(BundleContext bc) throws Exception {
 		// initialize service Manager for toolbox usage (don't remove this!)
+		// XXX how can we initialize this without using a static field?
 		ServiceManager.context = bc;
+		MetaDataTool.context = bc;
 
 		// init user administration
 		this.initUserAdmin(bc);

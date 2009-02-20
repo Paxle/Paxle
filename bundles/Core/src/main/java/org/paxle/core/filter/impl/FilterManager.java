@@ -424,11 +424,17 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 	/**
 	 * @see IFilterManager#getFilters(String)
 	 */
-	public Set<IFilterContext> getFilters(String queueID) {
-		if (queueID == null) throw new NullPointerException("QueueID is null");
+	public Map<String,IFilterContext> getFilters(String queueID) {
+		if (queueID == null) throw new NullPointerException("QueueID is null");		
+		if (!this.filters.containsKey(queueID)) return Collections.emptyMap();
 		
-		if (!this.filters.containsKey(queueID)) return Collections.emptySet();
-		return Collections.unmodifiableSet(new HashSet<IFilterContext>(this.filters.get(queueID)));
+		Map<String, IFilterContext> filters = new HashMap<String, IFilterContext>();
+		for (FilterContext filterContext : this.filters.get(queueID)) {
+			String filterPID = filterContext.getFilterPID();
+			filters.put(filterPID, filterContext);
+		}
+		
+		return filters;
 	}
 
 	/**
@@ -458,20 +464,22 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 		return filterContextPIDs.toArray(new String[filterContextPIDs.size()]);
 	}
 
-	private String[] getFilterNames(Locale locale, SortedSet<FilterContext> filtersForTarget, boolean inclDisabled) {
+	private String[] getFilterNames(String localeStr, SortedSet<FilterContext> filtersForTarget, boolean inclDisabled) {
 		ArrayList<String> filterNames = new ArrayList<String>(filtersForTarget.size());
 		
 		for (FilterContext fContext : filtersForTarget) {
-			String name = null;
+			// getting the filter-service
 			final IFilter<?> filter = fContext.getFilter();
+			
+			// getting additional metadata (if available)
+			IMetaData metadata = null;
 			if (filter instanceof IMetaDataProvider) {
-				final IMetaData metadata = ((IMetaDataProvider)filter).getMetadata(locale);
-				if (metadata != null)
-					name = metadata.getName();
+				metadata = ((IMetaDataProvider)filter).getMetadata(null, localeStr);
 			}
-			if (name == null)
-				// we have no real filter-name at the moment
-				name = filter.getClass().getName();
+			
+			String name = (metadata != null)
+						? metadata.getName()
+						: filter.getClass().getName();
 			filterNames.add(name);
 		}
 		
@@ -481,7 +489,7 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 	/**
 	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
 	 */
-	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
+	public ObjectClassDefinition getObjectClassDefinition(final String id, final String localeStr) {
 		final Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
 		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + IFilterManager.class.getSimpleName(), locale);			
 		
@@ -530,7 +538,7 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 							}
 	
 							public String[] getOptionLabels() {
-								return getFilterNames(locale, filtersForTarget, true);
+								return getFilterNames(localeStr, filtersForTarget, true);
 							}
 	
 							public String[] getOptionValues() {

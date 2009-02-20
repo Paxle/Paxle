@@ -17,12 +17,17 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.osgi.framework.Constants;
+
 public interface ISubParserManager {
 		
 	/**
-	 * @return an unmodifiable collection of all currently registered {@link ISubParser sub-parsers}
+	 * This function returns a map containing all {@link ISubParser sub-parsers} currently registered
+	 * to the system. The keys of this map are a {@link Constants#SERVICE_PID} of the parsers.
+	 * 
+	 * @return an map containing all currently registered {@link ISubParser sub-parsers}
 	 */
-	public Collection<ISubParser> getSubParsers();
+	public Map<String,ISubParser> getSubParsers();
 	
 	/**
 	 * @param mimeType the mimetype

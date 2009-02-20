@@ -14,12 +14,16 @@
 package org.paxle.se.provider.rsssearch.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -30,6 +34,8 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IndexerDocument;
+import org.paxle.core.metadata.IMetaData;
+import org.paxle.core.metadata.IMetaDataProvider;
 import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
 
@@ -38,7 +44,7 @@ import de.nava.informa.core.ItemIF;
 import de.nava.informa.impl.basic.ChannelBuilder;
 import de.nava.informa.parsers.FeedParser;
 
-public class RssSearchProvider implements ISearchProvider,ManagedService {
+public class RssSearchProvider implements ISearchProvider,ManagedService, IMetaDataProvider {
 	
 	// the paxle default
 	private static final String DEFAULT_CHARSET = "UTF-8";
@@ -95,15 +101,31 @@ public class RssSearchProvider implements ISearchProvider,ManagedService {
 		        
 		        int count=0;
 		        while(it.hasNext() && count++<maxCount){
-		        	ItemIF item=it.next();
-		        	
+		        	ItemIF item=it.next();		        	
 		        	IIndexerDocument indexerDoc = new IndexerDocument();
+		        	
 					indexerDoc.set(IIndexerDocument.LOCATION, item.getLink().toString());
-					indexerDoc.set(IIndexerDocument.TITLE, item.getTitle());
 					indexerDoc.set(IIndexerDocument.PROTOCOL, item.getLink().getProtocol());
-					indexerDoc.set(IIndexerDocument.SUMMARY, item.getDescription());
-					indexerDoc.set(IIndexerDocument.AUTHOR, item.getCreator()==null?"":item.getCreator());
-					indexerDoc.set(IIndexerDocument.LAST_MODIFIED, item.getDate());
+					
+					String title = item.getTitle();
+					if (title != null && title.length()>0) {
+						indexerDoc.set(IIndexerDocument.TITLE, title);
+					}
+					
+					String descr = item.getDescription();
+					if (descr != null && descr.length() > 0) {
+						indexerDoc.set(IIndexerDocument.SUMMARY,descr);
+					}
+					
+					String author = item.getCreator();
+					if (author != null && author.length() > 0) {
+						indexerDoc.set(IIndexerDocument.AUTHOR, item.getCreator()==null?"":item.getCreator());
+					}
+					
+					Date lastMod = item.getDate();
+					if (lastMod != null) {
+						indexerDoc.set(IIndexerDocument.LAST_MODIFIED, item.getDate());
+					}
 					
 					results.add(indexerDoc);
 		        }				
@@ -127,5 +149,38 @@ public class RssSearchProvider implements ISearchProvider,ManagedService {
 	public void updated(Dictionary properties) throws ConfigurationException {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public IMetaData getMetadata(String pid, String localeStr) {
+		return new IMetaData() {
+			public String getName() {
+				return "RSS Search: " + getFeedUrlHost();
+			}			
+			
+			public String getDescription() {
+				return "Searching using " + feedURL;
+			}
+
+			public InputStream getIcon(int size) throws IOException {
+				if (size == 16) return this.getClass().getResourceAsStream("/OSGI-INF/images/rssfeed.png");
+				return null;
+			}
+
+			public String getVersion() {
+				return null;
+			}
+			
+		};
+	}
+
+	
+	String getFeedUrlHost() {
+		Pattern p = Pattern.compile("http(s)?://([^/]+).*");
+		Matcher m = p.matcher(this.feedURL);
+		if (m.matches()) {
+			return m.group(2);
+		} else {
+			return null;
+		}
 	}
 }

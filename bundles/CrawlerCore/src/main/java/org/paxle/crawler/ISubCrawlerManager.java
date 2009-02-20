@@ -22,7 +22,7 @@ public interface ISubCrawlerManager {
 	/**
 	 * @return an unmodifiable collection of all installed {@link ISubCrawler sub-crawlers}
 	 */
-	public Collection<ISubCrawler> getSubCrawlers();
+	public Map<String,ISubCrawler> getSubCrawlers();
 	
 	/**
 	 * @param protocol the crawling-protocol

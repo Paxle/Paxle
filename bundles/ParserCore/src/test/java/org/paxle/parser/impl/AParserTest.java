@@ -111,8 +111,8 @@ public abstract class AParserTest extends MockObjectTestCase {
 				return mimeTypeToParserMap.get(mimeType);
 			}
 			
-			public Collection<ISubParser> getSubParsers() {
-				return mimeTypeToParserMap.values();
+			public Map<String, ISubParser> getSubParsers() {
+				throw new RuntimeException("Not implemented");
 			}
 
 			public Collection<ISubParser> getSubParsers(String mimeType) {

@@ -133,7 +133,8 @@
 						<Private-Package>
 							org.paxle.gui.impl,
 							org.paxle.gui.impl.log,
-							org.paxle.gui.impl.servlets
+							org.paxle.gui.impl.servlets,
+							org.paxle.gui.impl.tools
 						</Private-Package>
 						<Bundle-Activator>
 							org.paxle.gui.impl.Activator
@@ -155,7 +156,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[,0.2.0)</version>			
+			<version>[0.1.12-SNAPSHOT,0.2.0)</version>			
 		</dependency>
 		
 		<dependency>

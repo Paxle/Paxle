@@ -181,7 +181,7 @@
 							<input type="submit" name="doImportConfig" value="${text.listConfig.doImport}"/>
 							<input type="hidden" name="viewImportedConfig"/>
 						#end
-						<a class="button" id="backButton" href="#if($paramParser.getString("viewImportedConfig"))?viewImportedConfig=#end">${text.listConfig.goBackToOverview}</a>
+						<a class="button" id="backButton" href="${context.request.servletPath}#if($paramParser.getString("viewImportedConfig"))?viewImportedConfig=#end">${text.listConfig.goBackToOverview}</a>
 						</div>
 					</form>
 				#end

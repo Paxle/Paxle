@@ -22,6 +22,18 @@
 
 ## ---------------------------------------------------------------------------------------
 ## Define some macros 
+#macro(serviceinfo $service $serviceID)
+	#if($metaDataTool.getMetaData($service))
+		<img class="metaDataIcon" src="${context.request.servletPath}?metaDataIcon=$serviceID" width="16" height="16"/>
+		<div class="serviceName">$metaDataTool.getMetaData($service).name</div>
+		#if($metaDataTool.getMetaData($service).description)
+			<div class="descriptionText">$metaDataTool.getMetaData($service).description</div>
+		#end
+	#else
+		${service.class.name}
+	#end
+#end
+
 #macro(filterlist $filterManager $queueID)
 	#if(${filterManager.hasFilters($queueID)})
 		#set($filters = ${filterManager.getFilters($queueID)})
@@ -34,12 +46,13 @@
 			<th>${text.filters.pos}</th>
 			<th>${text.filters.status}</th>
 		</tr>
-	    #foreach($filter in $filters)
+	    #foreach($filter in $filters.entrySet())
+			
 		<tr>
 		   <td>$velocityCount</td>
-		   <td>${filter.getFilter().getClass().getName()}</td>
-		   <td>${filter.getFilterPosition()}</td>
-		   <td>#if(${filter.isEnabled()})
+		   <td>#serviceinfo($filter.value.getFilter(), $filter.key)</td>
+		   <td>${filter.value.getFilterPosition()}</td>
+		   <td>#if(${filter.value.isEnabled()})
 					<span class="statusEnabled">${text.status.enabled}</span>
 				#else
 					<span class="statusDisabled">${text.status.disabled}</span>
@@ -97,8 +110,8 @@
 	<hr />		
 	<h3>${text.crawler.supportedPrototocols.title}</h3>
 	#set($protocols = $subCrawlerManager.getProtocols())
-	#set($crawlers = $subCrawlerManager.getSubCrawlers())		
-	<p>${text.crawler.supportedPrototocols.status.insert("<strong>$crawlers.size()</strong>", "<strong>$protocols.size()</strong>")}</p>
+	#set($subCrawlers = $subCrawlerManager.getSubCrawlers())		
+	<p>${text.crawler.supportedPrototocols.status.insert("<strong>$subCrawlers.size()</strong>", "<strong>$protocols.size()</strong>")}</p>
 	
 	<table>
 		<tr><th>${text.crawler.protocol}</th><th colspan="2">${text.crawler.status}</th></tr>
@@ -151,8 +164,8 @@
 #if( $subParserManager)
 <fieldset id="dparser">
 	<legend>${text.legend.parser}</legend>
-	#set( $parsers = $manager.getServices( "org.paxle.core.IMWComponent", "(component.ID=org.paxle.crawler)"))	
-	#if( $parsers)
+	#set($parsers = $manager.getServices( "org.paxle.core.IMWComponent", "(component.ID=org.paxle.crawler)"))	
+	#if($parsers)
     	#foreach( $parser in $parsers)
     		<p>
     		#if( $parser.isPaused() == true)
@@ -167,13 +180,13 @@
 	<hr />
 	<h3>${text.parser.supportedMimeTypes.title}:</h3>	
 	#set( $mimeTypes = $subParserManager.getMimeTypes())
-	#set( $parsers = $subParserManager.getSubParsers())		
-	<p>${text.parser.supportedMimeTypes.status.insert("<strong>$parsers.size()</strong>","<strong>$mimeTypes.size()</strong>")}</p>
+	#set($subParsers = $subParserManager.getSubParsers())		
+	<p>${text.parser.supportedMimeTypes.status.insert("<strong>$subParsers.size()</strong>","<strong>$mimeTypes.size()</strong>")}</p>
 
 	<table>
 		<tr><th>${text.parser.mimeType}</th><th colspan="2">${text.parser.status}</th></tr>
 		#set( $disabledMimeTypes = $subParserManager.disabledMimeTypes())
-		#foreach( $mimeType in $mimeTypes)
+		#foreach($mimeType in $mimeTypes)
 		<tr>
 			<td>$mimeType</td>
 			<td>#if( $disabledMimeTypes.contains( $mimeType))
@@ -253,10 +266,10 @@
 	<table>
 		<tr><th>${text.se.provider}</th><th colspan="2">${text.se.status}</th></tr>
 		#set( $disabledSEProviders = $sp.disabledProviders())
-		#foreach( $searchprovider in $sp.getSearchProviders())
+		#foreach($searchprovider in $sp.getSearchProviders().entrySet())
 		<tr>
-			<td>$searchprovider.getClass().getName()</td>
-			<td>#if( $disabledSEProviders.contains( $searchprovider.getClass().getName()))
+			<td>#serviceinfo($searchprovider.value, $searchprovider.key)</td>
+			<td>#if($disabledSEProviders.contains($searchprovider.value.getClass().getName()))
 				<span class="statusDisabled">${text.status.disabled}</span>
 				#else
 				<span class="statusEnabled">${text.status.enabled}</span>
@@ -265,12 +278,12 @@
 			<td>
 				<form method="get" action="${request.getServletPath()}">
 					<div>
-						#if( $disabledSEProviders.contains( $searchprovider.getClass().getName()))
+						#if( $disabledSEProviders.contains($searchprovider.value.getClass().getName()))
 						<input class="btnEnable" type="submit" name="doEnableSEProvider" value="${text.status.doEnable}" />
 						#else
 						<input class="btnDisable" type="submit" name="doDisableSEProvider" value="${text.status.doDisable}" />
 						#end
-						<input type="hidden" name="seProvider" value="$searchprovider.getClass().getName()" />
+						<input type="hidden" name="seProvider" value="$searchprovider.value.getClass().getName()" />
 					</div>
 				</form>
 			</td>

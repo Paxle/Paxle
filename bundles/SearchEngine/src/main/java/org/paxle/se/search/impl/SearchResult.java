@@ -22,12 +22,14 @@ public class SearchResult implements ISearchResult {
 	
 	private final IIndexerDocument[] result;
 	private final long searchTime;
+	private final String searchProviderID;
 	
-	public SearchResult(Collection<IIndexerDocument> results, long searchTime) {
-		this(results.toArray(new IIndexerDocument[results.size()]), searchTime);
+	public SearchResult(String searchProviderID, Collection<IIndexerDocument> results, long searchTime) {
+		this(searchProviderID, results.toArray(new IIndexerDocument[results.size()]), searchTime);
 	}
 	
-	public SearchResult(IIndexerDocument[] results, long searchTime) {
+	public SearchResult(String searchProviderID, IIndexerDocument[] results, long searchTime) {
+		this.searchProviderID = searchProviderID;
 		this.result = results;
 		this.searchTime = searchTime;
 	}
@@ -38,5 +40,9 @@ public class SearchResult implements ISearchResult {
 	
 	public long getSearchTime() {
 		return this.searchTime;
+	}
+
+	public String getProviderID() {
+		return this.searchProviderID;
 	}
 }

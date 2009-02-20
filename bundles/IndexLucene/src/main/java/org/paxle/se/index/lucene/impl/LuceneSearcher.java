@@ -15,6 +15,7 @@ package org.paxle.se.index.lucene.impl;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,11 +33,13 @@ import org.apache.lucene.search.Query;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.core.metadata.IMetaData;
+import org.paxle.core.metadata.IMetaDataProvider;
 import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneSearcher;
 import org.paxle.se.query.tokens.AToken;
 
-public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
+public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable, IMetaDataProvider {
 	
 	public static final String PID = "org.paxle.lucene-db";
 	
@@ -174,5 +177,26 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
 	
 	public boolean resetStatusVariable(String id) throws IllegalArgumentException {
 		return false;
+	}
+
+	public IMetaData getMetadata(String pid, String localeStr) {
+		return new IMetaData() {
+			public String getName() {
+				return "Lucene Search Engine";
+			}
+
+			public String getVersion() {
+				return null;
+			}	
+			
+			public String getDescription() {
+				return null;
+			}
+
+			public InputStream getIcon(int size) throws IOException {
+				if (size == 16) return this.getClass().getResourceAsStream("/OSGI-INF/images/lucene_16.png");
+				return null;
+			}		
+		};
 	}
 }

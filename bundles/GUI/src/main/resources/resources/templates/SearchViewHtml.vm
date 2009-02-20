@@ -11,8 +11,24 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
-## Set the page title
+## ---------------------------------------------------------------------------------------
+#macro(seProviderName $providerID)
+	#if($metaDataTool.getMetaData($providerID))
+		$metaDataTool.getMetaData($providerID).name
+	#else
+		$providerID
+	#end
+#end
+## ---------------------------------------------------------------------------------------
+
+## ---------------------------------------------------------------------------------------
+## PAGE TITLE
 #set( $page_title = "Search Page" )
+## ---------------------------------------------------------------------------------------
+
+## getting required managers
+#set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
+
 ## Add custom html headers
 #if( $searchQuery)
 	#set( $h1 = "<link rel='alternate' type='application/rss+xml' title='Paxle Search Page' href='?format=rss&amp;query=$escTool.url($searchQuery)' />")
@@ -20,20 +36,27 @@
 	## #set( $h2 = '<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="opensearchdescription.xml" />')
 	#set( $page_headers = [$h1] )
 #end
+
 ## the regular content
 #if( $seBundeNotInstalled || !$fieldManager)
 	<p class="error bundleNotInstalled">Search Engine Bundle not installed</p>
 #else	
     #if( $searchResultList)	
-    <script type="text/javascript" src="/js/wz_tooltip.js"></script>
-    <a class="rssFeedLink" href="?format=rss&amp;query=$escTool.url($searchQuery)" title="Get results as RSS-feed">
-		<img src="/images/rssfeed.png" alt="RSS"/>
-	</a>
-	<a class="rssFeedLink" href="?format=rss&amp;query=$escTool.url($searchQuery)" title="Get results as OpenSearch Feed">
-		<img src="/images/opensearch-icon-16x16.png" alt="OpenSearch"/>
-	</a>
+		## A javascript library to display nice tooltip boxes with 
+		## additional data about each found search-result-item
+		##
+		## See: http://www.walterzorn.de/tooltip/tooltip.htm
+        <script type="text/javascript" src="/js/wz_tooltip.js"></script>
+		
+		## Displaying RSS-Feed and OpenSearch icons
+        <a class="rssFeedLink" href="?format=rss&amp;query=$escTool.url($searchQuery)" title="Get results as RSS-feed">
+    		<img src="/images/rssfeed.png" alt="RSS"/>
+    	</a>
+    	<a class="rssFeedLink" href="?format=rss&amp;query=$escTool.url($searchQuery)" title="Get results as OpenSearch Feed">
+    		<img src="/images/opensearch-icon-16x16.png" alt="OpenSearch"/>
+    	</a>
     #end
-    <form action="">
+    <form action="${context.request.servletPath}">
     	<p>
     		<input type="text" size="50" name="query" #if( $searchQuery) value="$searchQuery" #end/>
     		<input type="submit" value="Search"/>
@@ -44,47 +67,50 @@
 	#if( $searchError)
 	   <p class="error">$searchError</p>
 	   
-	#elseif( $searchResultList)
+	#elseif($searchResultList)
 	   ## java script lib for the tooltips
 	   ## See: SearchViewToolTip.vm
 
       <table>
+			#set($counter = 0)
 	         #foreach($searchResult in $searchResultList)
 	            #foreach($result in $searchResult.getResult())
 	               #if($result.get($fieldManager.get("Location")))
+					  #set($counter = $counter + 1)
 	                  <tr>
-	                     #set($location = $result.get($fieldManager.get("Location")))
-						 #set($hintText = $escTool.javascript("#parse('/resources/templates/SearchViewToolTip.vm')"))
-	                     <td>
-	                           ## only display favicons if the corresponding bundle is installed
-	                     	   #if($showFavicons)
-	                              #set($imageSrc = $escTool.javascript($result.get($fieldManager.get("Location"))))
-	                              <img class="favicon" src="/favicon?url=$escTool.url("$imageSrc")" width="16" height="16" alt="-"/>
-	                     	   #end
-	                           <a href="$result.get($fieldManager.get("Location"))">
+	                     <td class="searchResult">
+                            ## only display favicons if the corresponding bundle is installed
+                     	    #if($showFavicons)
+                               #set($imageSrc = $escTool.html($result.get($fieldManager.get("Location"))))
+                               <img class="searchResultFavicon" src="/favicon?url=$escTool.url("$imageSrc")" width="16" height="16" alt="-"/>
+                     	    #end
+							<div class="searchResultMain">
+	                           <a class="searchResultTitle" href="$result.get($fieldManager.get("Location"))">
 	                           #if($result.get($fieldManager.get("Title")))
 	                              $result.get($fieldManager.get("Title"))
 	                           #else
 	                              $result.get($fieldManager.get("Location"))
-	                           #end</a>&nbsp;<img src="/images/bullet_arrow_up.png" onclick="Tip('$hintText',STICKY,true,DURATION,5000)" alt="action"/><br />
-	                           #if($result.get($fieldManager.get("Author")))
-	                              Author: $result.get($fieldManager.get("Author"))<br />
-	                           #end
-	                           #if($result.get($fieldManager.get("LastCrawled")))
-	                              Last Crawled: $dateTool.format('short',$result.get($fieldManager.get("LastCrawled")))<br />
-	                           #end
-	                           #if($result.get($fieldManager.get("LastModified")))
-	                              Last Modified: $dateTool.format('short',$result.get($fieldManager.get("LastModified")))<br />
-	                           #end
-	                           #if ($result.get($fieldManager.get("MimeType")))
-	                              Content Type: $result.get($fieldManager.get("MimeType"))<br />
-	                           #end
+	                           #end</a>
+							   ## this div element will be displayed in the tool-tip box
+							   <div style="display: none;" id="searchResultToolTip_$counter">
+									#parse('/resources/templates/SearchViewToolTip.vm')
+							   </div>
+							   <img src="/images/bullet_arrow_up.png" onmouseover="TagToTip('searchResultToolTip_$counter',BGCOLOR,'#CCCCCC',BORDERCOLOR,'#444444',CLICKSTICKY,true)" onmouseout="UnTip()" alt="action"/><br />
+							   <div class="searchResultSummary">
 	                           #if($result.get($fieldManager.get("Summary")))
 	                              Summary: $result.get($fieldManager.get("Summary"))<br />
-	                           #end
+							   #end
+							   </div>
+							   <div class="searchResultSnippet">
 	                           #if($result.get($fieldManager.get("Snippet")))
 	                              Summary: $result.get($fieldManager.get("Snippet"))<br />
-	                           #end
+							   #end
+							   </div>
+							   <a class="searchResultLocation" href="$result.get($fieldManager.get("Location"))">
+									$displayTool.truncate($result.get($fieldManager.get("Location")),80)								
+							   </a>
+							</div>
+							<div class="searchResultProvider">Result from: #seProviderName(${searchResult.providerID})</div> 
 	                     </td>
 	                  </tr>
 	               #end

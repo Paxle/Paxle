@@ -76,10 +76,11 @@ public class AscendingPathUrlExtractionFilter implements IFilter<ICommand>, IMet
 		}
 	}
 	
-	public IMetaData getMetadata(Locale locale) {
+	public IMetaData getMetadata(String id, String localeStr) {
+		final Locale locale = (localeStr == null) ? Locale.ENGLISH : new Locale(localeStr);
 		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + AscendingPathUrlExtractionFilter.class.getSimpleName(), locale);
-		return new IMetaData() {
-			
+		
+		return new IMetaData() {			
 			public String getDescription() {
 				return rb.getString("metadata.desc");
 			}

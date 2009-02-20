@@ -63,13 +63,6 @@ h3 {
 	text-align: center;
 }
 
-img.favicon{
-	width: 16px;
-	margin: 0 4px 0 0;
-	height: 16px;
-	float: left;
-}
-
 input {
 	border: 1px solid #96835f;
 	padding: 0.1em;
@@ -406,4 +399,36 @@ img {
 
 div.descriptionText {
 	margin: 5px 0 5px 0;
+}
+
+.searchResultMain {
+	float: left;
+}
+
+.searchResultLocation {
+	color:#557D6C;
+	display:inline;
+	float:left;
+	font-size:smaller;
+	text-decoration:none;
+}
+
+.searchResultProvider {
+	float: right;
+	font-size:smaller;
+}
+
+
+img.searchResultFavicon {
+	float:left;
+	height:16px;
+	margin:5px;
+	width:16px;
+}
+
+img.metaDataIcon {
+	float:left;
+	height:16px;
+	margin:5px;
+	width:16px;
 }

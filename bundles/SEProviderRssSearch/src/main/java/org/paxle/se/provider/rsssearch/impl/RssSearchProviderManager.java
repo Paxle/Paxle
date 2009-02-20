@@ -19,14 +19,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.paxle.se.search.ISearchProvider;
 
@@ -110,7 +114,7 @@ public class RssSearchProviderManager {
 		}
 	}
 	
-
+	@SuppressWarnings("serial")
 	public void registerSearchers(ArrayList<String> urls){
 		Iterator<ServiceRegistration> regs = providers.iterator();
 		while (regs.hasNext()) {
@@ -125,13 +129,18 @@ public class RssSearchProviderManager {
 		
 		for (String url : urls) {
 			// create a new provider
-			RssSearchProvider provider = new RssSearchProvider(url);
+			final RssSearchProvider provider = new RssSearchProvider(url);
+			
+			// the provider ID to use
+			final String providerID = "org.paxle.se.provider.rsssearch" + provider.getFeedUrlHost();
 			
 			// register as a service to the framework
 			ServiceRegistration registration = this.bc.registerService(
 					ISearchProvider.class.getName(),
 					provider,
-					new Hashtable<String,String>()
+					new Hashtable<String,String>() {{
+						put(Constants.SERVICE_PID, providerID);
+					}}
 			);
 			
 			// remember it in the internal list

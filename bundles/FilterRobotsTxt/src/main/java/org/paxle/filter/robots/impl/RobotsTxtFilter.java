@@ -13,6 +13,8 @@
  */
 package org.paxle.filter.robots.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,10 +29,12 @@ import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
+import org.paxle.core.metadata.IMetaData;
+import org.paxle.core.metadata.IMetaDataProvider;
 import org.paxle.core.queue.ICommand;
 import org.paxle.filter.robots.IRobotsTxtManager;
 
-public class RobotsTxtFilter implements IFilter<ICommand> {
+public class RobotsTxtFilter implements IFilter<ICommand>, IMetaDataProvider {
 	
 	/**
 	 * Class to count rejected URI
@@ -179,5 +183,27 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 			}
 		}
 		return okLinks;
+	}
+
+	public IMetaData getMetadata(String id, String locale) {
+		return new IMetaData() {
+			public String getName() {
+				return "Robots.txt Filter";
+			}
+			
+			public String getDescription() {
+				return null;
+			}
+
+			public InputStream getIcon(int size) throws IOException {
+				if (size == 16) return this.getClass().getResourceAsStream("/OSGI-INF/images/apply.png");
+				return null;
+			}
+
+			public String getVersion() {
+				return null;
+			}
+			
+		};
 	}
 }

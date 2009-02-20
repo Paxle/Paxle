@@ -19,6 +19,9 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
@@ -27,27 +30,58 @@ import org.paxle.se.search.ISearchResult;
 
 public class SearchProviderCallable implements Callable<ISearchResult> {
 	
+	/**
+	 * For logging
+	 */
 	private final Log logger;
+	
+	/**
+	 * A list of search-results returned by the {@link #provider}
+	 */
 	private final List<IIndexerDocument> results = new ArrayList<IIndexerDocument>();
-	private final ISearchProvider provider;
+	
+	/**
+	 * The context of this component
+	 */
+	protected ComponentContext ctx;		
+	
+	/**
+	 * A reference to the {@link ISearchProvider} that should be used by this {@link Callable}
+	 */
+	private final ServiceReference providerRef;
+	
+	/**
+	 * The search-request
+	 */
 	private final ISearchRequest searchRequest;
 	
-	public SearchProviderCallable(ISearchProvider provider, ISearchRequest searchRequest) {
-		if (provider == null) throw new NullPointerException("Search provider was null.");
+	public SearchProviderCallable(ComponentContext ctx, ServiceReference providerRef, ISearchRequest searchRequest) {
+		if (providerRef == null) throw new NullPointerException("Search provider-reference was null.");
 		if (searchRequest == null) throw new NullPointerException("Search-request was null.");
 		
-		this.provider = provider;
+		this.ctx = ctx;
+		this.providerRef = providerRef;
 		this.searchRequest = searchRequest;
-		this.logger = LogFactory.getLog(getClass().getSimpleName() + "_" + provider.getClass().getSimpleName());
+		this.logger = LogFactory.getLog(getClass().getSimpleName());
 	}
 	
 	public ISearchResult call() throws Exception {
 		final long start = System.currentTimeMillis();
+		
+		String providerID = null;
 		AToken query = null;
 		try {
+			// the search query to use
 			query = this.searchRequest.getSearchQuery();
-			this.logger.info("starting search for '" + query + "' (" + this.searchRequest.getSearchQuery().toString() + ")");			
-			this.provider.search(
+			
+			// the provider to use
+			ISearchProvider provider = (ISearchProvider) this.ctx.getBundleContext().getService(this.providerRef);
+			
+			// the provider-ID (may be used to fetch additional metadata)
+			providerID = (String) this.providerRef.getProperty(Constants.SERVICE_PID);
+			
+			this.logger.info("Starting search for '" + query + "' (" + this.searchRequest.getSearchQuery().toString() + ")");
+			provider.search(
 					query, 
 					this.results, 
 					this.searchRequest.getMaxResultCount(), 
@@ -56,12 +90,13 @@ public class SearchProviderCallable implements Callable<ISearchResult> {
 		} catch (InterruptedException e) { 
 			/* just fall through */ 
 		} catch (Exception e) {
-			this.logger.error(String.format("Unexpected '%s' while performing a search for '%s' with provider '%s'.",
+			this.logger.error(String.format(
+					"Unexpected '%s' while performing a search for '%s' using provider '%d'.",
 					e.getClass().getName(),
 					query,
-					this.provider.getClass().getName()
+					providerID
 			),e);
 		}
-		return new SearchResult(this.results, System.currentTimeMillis() - start);
+		return new SearchResult(providerID, this.results, System.currentTimeMillis() - start);
 	}
 }

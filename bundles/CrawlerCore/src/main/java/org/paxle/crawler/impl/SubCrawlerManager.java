@@ -296,12 +296,16 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 	/**
 	 * @see ISubCrawlerManager#getSubCrawlers()
 	 */
-	public Collection<ISubCrawler> getSubCrawlers() {
-		final ArrayList<ISubCrawler> list = new ArrayList<ISubCrawler>();
-		for (final TreeSet<ServiceReference> refs : this.subCrawlerList.values())
-			for (final ServiceReference ref : refs)
-				list.add((ISubCrawler)context.getService(ref));
-		return Collections.unmodifiableCollection(list);
+	public Map<String,ISubCrawler> getSubCrawlers() {
+		final HashMap<String,ISubCrawler> map = new HashMap<String, ISubCrawler>();
+		for (final TreeSet<ServiceReference> refs : this.subCrawlerList.values()) {
+			for (final ServiceReference ref : refs) {
+				final ISubCrawler crawler = (ISubCrawler)context.getService(ref);
+				final String servicePID = (String) ref.getProperty(Constants.SERVICE_PID);
+				map.put(servicePID, crawler);
+			}
+		}
+		return map;
 	}
 	
 	/**
@@ -446,11 +450,12 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 		
 		@SuppressWarnings("unchecked")
 		private final HashMap<String,TreeSet<ServiceReference>> crawlers = (HashMap<String,TreeSet<ServiceReference>>)subCrawlerList.clone();
-		private final Locale locale;
+		private final String localeStr;
 		private final ResourceBundle rb;
 		
-		public OCD(final Locale locale) {
-			this.locale = locale;
+		public OCD(final String localeStr) {
+			this.localeStr = localeStr;
+			Locale locale = (localeStr==null)? Locale.ENGLISH : new Locale(localeStr);
 			this.rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + ISubCrawlerManager.class.getSimpleName(), locale);
 		}
 		
@@ -477,21 +482,27 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 							final TreeMap<String,String> options = new TreeMap<String,String>();
 							for (final Map.Entry<String,TreeSet<ServiceReference>> entry : crawlers.entrySet())
 								for (final ServiceReference ref : entry.getValue()) {
-									final String key = keyFor(entry.getKey(), ref);
-									
-									final Object service = context.getService(ref);
-									IMetaData metadata = null; 
-									if (service instanceof IMetaDataProvider)
-										metadata = ((IMetaDataProvider)service).getMetadata(locale);
-									
-									String name = null;
-									if (metadata != null)
-										name = metadata.getName();
-									if (name == null)
-										name = service.getClass().getName();
-									context.ungetService(ref);
-									
-									options.put(key, name + " (" + entry.getKey() + ")");
+									try {
+										// getting the attribute-key to use																			
+										final String key = keyFor(entry.getKey(), ref);
+										
+										// getting the SubCrawler-service
+										final Object service = context.getService(ref);
+										
+										// getting additional-metadata (if available)
+										IMetaData metadata = null; 
+										if (service instanceof IMetaDataProvider) {
+											metadata = ((IMetaDataProvider)service).getMetadata(null, localeStr);
+										}
+										
+										String name = (metadata != null)
+													? metadata.getName()
+													: service.getClass().getName();
+													
+										options.put(key, name + " (" + entry.getKey() + ")");
+									} finally {
+										context.ungetService(ref);
+									}
 								}
 							
 							optionValues = options.keySet().toArray(new String[options.size()]);
@@ -564,11 +575,11 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
 	 */
 	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
-		return new OCD((localeStr==null) ? Locale.ENGLISH : new Locale(localeStr));
+		return new OCD(localeStr);
 	}
 	
-	public IMetaData getMetadata(Locale locale) {
-		return new OCD(locale);
+	public IMetaData getMetadata(String id, String localeStr) {
+		return new OCD(localeStr);
 	}
 	
 	private Hashtable<String,Object> getCMDefaults() {

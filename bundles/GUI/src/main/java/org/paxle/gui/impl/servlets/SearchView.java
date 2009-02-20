@@ -31,7 +31,7 @@ public class SearchView extends ALayoutServlet {
 	
 	public static final String PARAM_FORMAT = "format";
 	public static final String PARAM_QUERY = "query";
-	
+		
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {
 
@@ -63,7 +63,7 @@ public class SearchView extends ALayoutServlet {
 						final String msg;
 						if (cause == null) {
 							msg = e.getMessage();
-							logger.error("Error processing '" + query + "': " + cause.getMessage(), e);
+							logger.error("Error processing '" + query + "': " + msg, e);
 						} else {
 							msg = cause.getMessage();
 							if (cause.getClass().getName().equals("org.paxle.se.search.SearchException")) {

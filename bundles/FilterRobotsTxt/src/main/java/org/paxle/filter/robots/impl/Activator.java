@@ -77,13 +77,14 @@ public class Activator implements BundleActivator {
 		 * ========================================================== */		
 		
 		// register the protocol filter as service
-		Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
+		Hashtable<String, Object> filterProps = new Hashtable<String, Object>();
+		filterProps.put(Constants.SERVICE_PID, RobotsTxtFilter.class.getName());
 		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {
 				// apply filter to the crawler-input-queue
 				"org.paxle.crawler.in",
 				// apply filter to the parser-output-queue at pos 70
 				String.format("org.paxle.parser.out; %s=%d", IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(70))
-		});
+		});		
 		bc.registerService(IFilter.class.getName(), new RobotsTxtFilter(robotsTxtManager), filterProps);		
 		
 		// register robots.txt manager as service

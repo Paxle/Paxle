@@ -11,22 +11,52 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
-Hier kommen zusaetzliche Operationen für $escTool.html($location) rein, z.B.
-<ul>
-   <li>add to Blacklist</li>
-   <li>add to bookmarks (e.g. delicious, etc.</li>
-   <li>recrawl location</li>
-</ul>
-Diese Liste soll durch externe bundles/servlets erweiterbar sein.<p />
-
-## TODO: loop through SearchResultCommands and embed them
-## using the render-tool
-##
-## some pseudo-code:
-#*
-#foreach($resultItemCommand in $resultItemCommands)
-	## let the result-item-command return a velocity string
-	#set($commandString = $resultItemCommand.getCommandString($result))
-	$renderTool.recurse($ctx,$commandString)
-#end
-*#
+## ---------------------------------------------------------------------------------------
+## VARIABLE DEFINITIONS
+## ---------------------------------------------------------------------------------------
+## the following Document properties will be displayed in the tool-tip box
+## See org.paxle.core.doc.IIndexerDocument for a full list of supported fields
+#set($propNames4Toolbox = ["Author", "Languages", "Keywords", "LastModified", "LastCrawled"])
+## ---------------------------------------------------------------------------------------
+<table>
+	<tr>
+		<th>Name</th>
+		<th>Value</th>
+	</tr>
+	#if(${searchResult.providerID})
+	<tr>
+		<td>Search-Provider</td>
+		<td>#if($metaDataTool.getMetaData(${searchResult.providerID}))
+				<img src="${servletManager.getFullAlias('/status')}?metaDataIcon=${searchResult.providerID}" width="16" height="16"/>
+    			<div class="serviceName">$metaDataTool.getMetaData(${searchResult.providerID}).name</div>
+    			#if($metaDataTool.getMetaData(${searchResult.providerID}).description)
+    				<div class="descriptionText">$metaDataTool.getMetaData(${searchResult.providerID}).description</div>
+    			#end
+			#else
+				${searchResult.providerID}
+			#end
+		</td>
+	</tr>
+	#end
+	#foreach($docPropName in $propNames4Toolbox)		
+		#if($result.get($fieldManager.get($docPropName)))
+			#set($dataType = ${fieldManager.get($docPropName).type.simpleName})
+			#set($dataValue = ${result.get($fieldManager.get($docPropName))})
+    		<tr>
+    			<td>$docPropName</td>
+    			<td>#if($dataType == "Date")
+    					$dateTool.format('short',$dataValue)
+    				#elseif($listTool.isArray($dataValue))
+						[
+							#foreach($dataValueItem in $dataValue)
+								$dataValueItem<br/>
+							#end
+						]
+    				#else
+    					$dataValue
+    				#end
+    			</td>
+    		</tr>
+		#end
+	#end
+</table>

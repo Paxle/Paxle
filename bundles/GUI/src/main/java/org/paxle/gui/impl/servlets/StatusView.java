@@ -13,6 +13,10 @@
  */
 package org.paxle.gui.impl.servlets;
 
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
+
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,9 +24,11 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.IMWComponent;
+import org.paxle.core.metadata.IMetaData;
 import org.paxle.crawler.ISubCrawlerManager;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
+import org.paxle.gui.impl.tools.MetaDataTool;
 import org.paxle.parser.ISubParserManager;
 import org.paxle.se.search.ISearchProviderManager;
 
@@ -34,7 +40,24 @@ public class StatusView extends ALayoutServlet {
 		try {
 			final IServiceManager manager = this.getServiceManager();
 			
-			if (request.getParameter("pauseCrawl") != null) {
+			if (request.getParameter("metaDataIcon") != null) {
+				// create context
+				Context context = this.createContext(request, response);
+				
+				// getting the metaDataTool
+				MetaDataTool tool = (MetaDataTool) context.get("metaDataTool");
+				if (tool == null) return;
+				
+				IMetaData metaData = tool.getMetaData(request.getParameter("metaDataIcon"));
+				if (metaData == null) return;
+				
+				InputStream in = metaData.getIcon(16);
+				if (in == null) in = this.getClass().getResourceAsStream("/resources/images/cog.png");
+				
+				BufferedImage img = ImageIO.read(in);
+				response.setHeader("Content-Type","image/png");
+				ImageIO.write(img, "png", response.getOutputStream());
+			} else if (request.getParameter("pauseCrawl") != null) {
 				// check user authentication
 				if (!this.isUserAuthenticated(request, response, true)) return;
 				

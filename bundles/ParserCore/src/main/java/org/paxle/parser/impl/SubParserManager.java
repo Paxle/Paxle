@@ -289,12 +289,16 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	/**
 	 * @see ISubParserManager#getSubParsers()
 	 */
-	public Collection<ISubParser> getSubParsers() {
-		final ArrayList<ISubParser> list = new ArrayList<ISubParser>();
-		for (final TreeSet<ServiceReference> refs : this.subParserList.values())
-			for (final ServiceReference ref : refs)
-				list.add((ISubParser)context.getService(ref));
-		return Collections.unmodifiableCollection(list);
+	public Map<String,ISubParser> getSubParsers() {
+		final HashMap<String,ISubParser> map = new HashMap<String, ISubParser>();
+		for (final TreeSet<ServiceReference> refs : this.subParserList.values()) {
+			for (final ServiceReference ref : refs) {
+				final ISubParser parser = (ISubParser) this.context.getService(ref);
+				final String servicePID = (String) ref.getProperty(Constants.SERVICE_PID);
+				map.put(servicePID, parser);
+			}
+		}
+		return map;
 	}
 	
 	/**
@@ -435,11 +439,12 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		
 		@SuppressWarnings("unchecked")
 		private final HashMap<String,TreeSet<ServiceReference>> parsers = (HashMap<String,TreeSet<ServiceReference>>)subParserList.clone();
-		private final Locale locale;
+		private final String localeStr;
 		private final ResourceBundle rb;
 		
-		public OCD(final Locale locale) {
-			this.locale = locale;
+		public OCD(final String localeStr) {
+			this.localeStr = localeStr;
+			Locale locale = (localeStr == null) ? Locale.ENGLISH : new Locale(localeStr);
 			this.rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + ISubParserManager.class.getSimpleName(), locale);
 		}
 		
@@ -466,21 +471,27 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 							final TreeMap<String,String> options = new TreeMap<String,String>();
 							for (final Map.Entry<String,TreeSet<ServiceReference>> entry : parsers.entrySet())
 								for (final ServiceReference ref : entry.getValue()) {
-									final String key = keyFor(entry.getKey(), ref);
-									
-									final Object service = context.getService(ref);
-									IMetaData metadata = null; 
-									if (service instanceof IMetaDataProvider)
-										metadata = ((IMetaDataProvider)service).getMetadata(locale);
-									
-									String name = null;
-									if (metadata != null)
-										name = metadata.getName();
-									if (name == null)
-										name = service.getClass().getName();
-									context.ungetService(ref);
-									
-									options.put(key, name + " (" + entry.getKey() + ")");
+									try {
+										// getting the attribute-key to use
+										final String key = keyFor(entry.getKey(), ref);
+										
+										// getting the SubParser-service
+										final Object service = context.getService(ref);
+										
+										// getting additional-metadata (if available)
+										IMetaData metadata = null; 
+										if (service instanceof IMetaDataProvider) {
+											metadata = ((IMetaDataProvider)service).getMetadata(null, localeStr);
+										}
+										
+										String name = (metadata != null)
+													? metadata.getName()
+													: service.getClass().getName();
+													
+										options.put(key, name + " (" + entry.getKey() + ")");
+									} finally {
+										context.ungetService(ref);
+									}
 								}
 							
 							optionValues = options.keySet().toArray(new String[options.size()]);
@@ -553,15 +564,15 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
 	 */
 	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
-		return new OCD((localeStr == null) ? Locale.ENGLISH : new Locale(localeStr));
+		return new OCD(localeStr);
 	}
 	
 	/*
 	 * (non-Javadoc)
 	 * @see org.paxle.core.metadata.IMetaDataProvider#getMetadata(java.util.Locale)
 	 */
-	public IMetaData getMetadata(final Locale locale) {
-		return new OCD(locale);
+	public IMetaData getMetadata(String id, String localeStr) {
+		return new OCD(localeStr);
 	}
 	
 	private Hashtable<String,Object> getCMDefaults() {
