@@ -16,7 +16,7 @@ package org.paxle.gui.impl.servlets;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import javax.servlet.http.HttpServletRequest;
@@ -105,7 +105,7 @@ public class OverView extends ALayoutServlet {
 						}
 					}
 					
-					final int count;
+					final int count; //FIXME: What's this count?
 					if (queue == Q_INDEXER) {
 						count = 1;
 					} else {
@@ -116,7 +116,7 @@ public class OverView extends ALayoutServlet {
 							int tempCount;
 							try {
 								final Method getSub_List = subManager.getClass().getMethod("getSub" + name + "s");
-								final Collection<?> list = (Collection<?>)getSub_List.invoke(subManager);
+								final HashMap<?,?> list = (HashMap<?,?>)getSub_List.invoke(subManager);
 								tempCount = list.size();
 							} catch (Exception e) {
 								e.printStackTrace();
