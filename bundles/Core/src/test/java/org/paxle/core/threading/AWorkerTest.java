@@ -43,7 +43,6 @@ public class AWorkerTest extends MockObjectTestCase {
 		this.outQueue = mock(IOutputQueue.class);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void testWorkerTriggeringPoolClosed() throws InterruptedException {
 		final ICommand command = mock(ICommand.class);
 		final DummyWorker worker = new DummyWorker();
@@ -71,7 +70,6 @@ public class AWorkerTest extends MockObjectTestCase {
 		assertTrue(worker.commandProcessed);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void testWorkerTriggeringFilteredCommandPoolClosed() throws InterruptedException {
 		final ICommand command = mock(ICommand.class);
 		final DummyWorker worker = new DummyWorker();

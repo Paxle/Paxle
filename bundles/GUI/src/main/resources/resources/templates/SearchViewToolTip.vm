@@ -16,28 +16,13 @@
 ## ---------------------------------------------------------------------------------------
 ## the following Document properties will be displayed in the tool-tip box
 ## See org.paxle.core.doc.IIndexerDocument for a full list of supported fields
-#set($propNames4Toolbox = ["Author", "Languages", "Keywords", "LastModified", "LastCrawled"])
+#set($propNames4Toolbox = ["Author", "Languages", "LastModified", "LastCrawled"])
 ## ---------------------------------------------------------------------------------------
 <table>
 	<tr>
-		<th>Name</th>
+		<th>Property</th>
 		<th>Value</th>
 	</tr>
-	#if(${searchResult.providerID})
-	<tr>
-		<td>Search-Provider</td>
-		<td>#if($metaDataTool.getMetaData(${searchResult.providerID}))
-				<img src="${servletManager.getFullAlias('/status')}?metaDataIcon=${searchResult.providerID}" width="16" height="16"/>
-    			<div class="serviceName">$metaDataTool.getMetaData(${searchResult.providerID}).name</div>
-    			#if($metaDataTool.getMetaData(${searchResult.providerID}).description)
-    				<div class="descriptionText">$metaDataTool.getMetaData(${searchResult.providerID}).description</div>
-    			#end
-			#else
-				${searchResult.providerID}
-			#end
-		</td>
-	</tr>
-	#end
 	#foreach($docPropName in $propNames4Toolbox)		
 		#if($result.get($fieldManager.get($docPropName)))
 			#set($dataType = ${fieldManager.get($docPropName).type.simpleName})
@@ -58,5 +43,20 @@
     			</td>
     		</tr>
 		#end
+	#end
+	#if(${searchResult.providerID})
+	<tr>
+		<td>Search-Provider</td>
+		<td>#if($metaDataTool.getMetaData(${searchResult.providerID}))
+				##<img src="${servletManager.getFullAlias('/status')}?metaDataIcon=${searchResult.providerID}" width="16" height="16"/>
+    			<div class="serviceName">$metaDataTool.getMetaData(${searchResult.providerID}).name</div>
+    			#if($metaDataTool.getMetaData(${searchResult.providerID}).description)
+    				<div class="descriptionText">$metaDataTool.getMetaData(${searchResult.providerID}).description</div>
+    			#end
+			#else
+				${searchResult.providerID}
+			#end
+		</td>
+	</tr>
 	#end
 </table>

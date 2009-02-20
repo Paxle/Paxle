@@ -19,9 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -56,7 +54,6 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -71,7 +68,6 @@ import org.paxle.core.metadata.Metadata;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.IStyleManager;
-import org.paxle.gui.impl.HttpContextAuth;
 import org.paxle.gui.impl.ServiceManager;
 import org.paxle.gui.impl.ServletManager;
 import org.paxle.tools.ieporter.cm.IConfigurationIEPorter;
@@ -430,7 +426,7 @@ public class ConfigView extends ALayoutServlet {
 			int[] sizes = new int[] {16,32,64,128,256};
 
 			for (int size : sizes) {
-				InputStream in = ocd.getIcon(16);
+				InputStream in = ocd.getIcon(size);
 				if (in != null) {
 					BufferedImage img = ImageIO.read(in);
 					response.setHeader("Content-Type","image/png");
@@ -549,6 +545,7 @@ public class ConfigView extends ALayoutServlet {
 		config.update(props);			
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static Object convertAttributeValues(
 			final AttributeDefinition attribute,
 			final String[] attributeValueStrings,

@@ -429,9 +429,9 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 					for (final IDIEventListener l : listeners)
 						l.serviceUnregistering(event);
 				}
-				panel = null;
 				servicePanels.remove(id);
 				logger.info("unregistered DIComponent '" + panel.getTitle() + "' with service-ID " + id);
+				panel = null;
 				manager.ungetService(ref);
 			} break;
 			
