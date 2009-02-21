@@ -9,7 +9,7 @@
     	<!-- GUI HTTP-port -->
         <field type="rule" align="left" variable="org.osgi.service.http.port">
             <description align="left" txt="The port to access the GUI" id="settings.httpPort.desc"/>
-            <spec txt="HTTP-Port" size="5" set="0:8383" layout="N:5:5" id="settings.httpPort.name"/>
+            <spec txt="HTTP-Port" size="5" set="0:8080" layout="N:5:5" id="settings.httpPort.name"/>
             <createForPack name="GUI" />
         </field>
 
