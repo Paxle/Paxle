@@ -28,13 +28,18 @@
 
 ## getting required managers
 #set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
+#set($searchProviderManager = $manager.getService( "org.paxle.se.search.ISearchProviderManager"))
 
 ## Add custom html headers
-#if( $searchQuery)
-	#set( $h1 = "<link rel='alternate' type='application/rss+xml' title='Paxle Search Page' href='?format=rss&amp;query=$escTool.url($searchQuery)' />")
+#set( $h1 = "<script src='/js/prototype.js' type='text/javascript'></script>")
+#set( $h2 = "<script src='/js/scriptaculous.js' type='text/javascript'></script>")
+#if($searchQuery)
+	#set($h3 = "<link rel='alternate' type='application/rss+xml' title='Paxle Search Page' href='?format=rss&amp;query=$escTool.url($searchQuery)' />")
 	## TODO: link to a opensearch-description
-	## #set( $h2 = '<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="opensearchdescription.xml" />')
-	#set( $page_headers = [$h1] )
+	## #set( $h4 = '<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="opensearchdescription.xml" />')
+	#set($page_headers = [$h1,$h2,$h3])
+#else
+	#set($page_headers = [$h1,$h2])
 #end
 
 ## the regular content
@@ -57,9 +62,31 @@
     	</a>
     #end
     <form action="${context.request.servletPath}">
+		#set($toggleSearchOptions = "Effect.toggle('searchOptions', 'appear', { delay: 0, duration: 0 });")
     	<p>
     		<input type="text" size="50" name="query" #if( $searchQuery) value="$searchQuery" #end/>
     		<input type="submit" value="Search"/>
+			<img src="/images/bullet_arrow_down.png" onclick="$toggleSearchOptions" title="more options..."/>			
+			<div id="searchOptions">
+				<table>
+				<tr>
+					<td>Search Providers to use:</td>
+					<td>
+            			##set($disabledSEProviders = $searchProviderManager.disabledProviders())    				
+        				<select name="seProviders" size="5" multiple="multiple">
+        				#foreach($searchprovider in $searchProviderManager.getSearchProviders().entrySet())    			
+           					<option selected="selected" value="$searchprovider.key">#seProviderName($searchprovider.value)</option>
+           				#end
+        				</select>
+					</td>
+				</tr>
+    			</table>
+			</div>
+			<script type="text/javascript">
+				// <![CDATA[
+				$toggleSearchOptions
+				// ]]>
+			</script>
     	</p>
     </form>
     <br />
