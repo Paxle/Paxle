@@ -29,9 +29,7 @@ import org.osgi.service.metatype.MetaTypeProvider;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.filter.IFilter;
-import org.paxle.core.io.IOTools;
 import org.paxle.core.io.IResourceBundleTool;
-import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
@@ -65,12 +63,8 @@ public class Activator implements BundleActivator {
 		// init the sub-parser manager
 		this.subParserManager = this.createAndRegisterSubParserManager(bc);
 		
-		ServiceReference ref = bc.getServiceReference(IReferenceNormalizer.class.getName());
-		IReferenceNormalizer refNorm = null;
-		if (ref != null) refNorm = (IReferenceNormalizer)bc.getService(ref);		
-		
 		// init thead worker-factory
-		workerFactory = new WorkerFactory(subParserManager, IOTools.getTempFileManager(), refNorm);
+		this.workerFactory = new WorkerFactory(this.subParserManager);
 		
 		/* ==========================================================
 		 * Register Service Listeners
@@ -78,9 +72,6 @@ public class Activator implements BundleActivator {
 		// registering a service listener to notice if a new sub-parser
 		// was (un)deployed
 		bc.addServiceListener(new SubParserListener((SubParserManager) subParserManager,bc),SubParserListener.FILTER);	
-		
-		// a listener for the mimetype detector
-		bc.addServiceListener(new DetectorListener((WorkerFactory)workerFactory,bc),DetectorListener.FILTER);
 		
 		/* ==========================================================
 		 * Get services provided by other bundles

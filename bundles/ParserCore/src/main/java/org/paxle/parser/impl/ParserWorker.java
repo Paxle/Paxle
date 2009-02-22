@@ -20,14 +20,10 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.doc.ICrawlerDocument.Status;
-import org.paxle.core.io.temp.ITempFileManager;
-import org.paxle.core.mimetype.IMimeTypeDetector;
-import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommand.Result;
 import org.paxle.core.threading.AWorker;
@@ -44,40 +40,12 @@ public class ParserWorker extends AWorker<ICommand> {
 	private ISubParserManager subParserManager = null;
 	
 	/**
-	 * A class to detect mimetypes
-	 */
-	IMimeTypeDetector mimeTypeDetector = null;
-	
-	/**
-	 * A class to detect charsets
-	 */
-	ICharsetDetector charsetDetector = null;
-	
-	ITempFileManager tempFileManager = null;
-	
-	IReferenceNormalizer referenceNormalizer = null;
-	
-	/**
 	 * A logger class 
 	 */
 	private final Log logger = LogFactory.getLog(ParserWorker.class);
 	
 	public ParserWorker(ISubParserManager subParserManager) {
 		this.subParserManager = subParserManager;
-	}
-	
-	/**
-	 * Init the parser context
-	 */
-	protected void initParserContext() {
-		// init the parser context object
-		ParserContext parserContext = new ParserContext(
-				this.subParserManager,
-				this.mimeTypeDetector,
-				this.charsetDetector,
-				this.tempFileManager,
-				this.referenceNormalizer);
-		ParserContext.setCurrentContext(parserContext);		
 	}
 	
 	private void setStatusAndLogWarning(ICommand command, Result result, String errorMessage) {
@@ -159,9 +127,6 @@ public class ParserWorker extends AWorker<ICommand> {
 			 * c) parse resource
 			 * d) process parser response
 			 * ================================================================ */			
-			
-			// init the parser context
-			this.initParserContext();
 
 			// get appropriate parser
 			this.logger.debug(String.format("Getting parsers for mime-type '%s' ...", mimeType));
@@ -356,8 +321,7 @@ public class ParserWorker extends AWorker<ICommand> {
 	@Override
 	protected void reset() {
 		// do some cleanup
-		ParserContext parserContext = ParserContext.getCurrentContext();
-		if (parserContext != null) parserContext.reset();
+		ParserContext.removeCurrentContext();
 		
 		// reset all from parent
 		super.reset();

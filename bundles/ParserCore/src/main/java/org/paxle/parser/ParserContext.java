@@ -19,46 +19,33 @@ import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.parser.impl.ParserContextLocal;
 
-public class ParserContext {
-	
-    private static final ThreadLocal<ParserContext> context = new ThreadLocal<ParserContext>();
-	
-    private final IMimeTypeDetector mimeTypeDetector;
-    private final ICharsetDetector charsetDetector;
-    private final ISubParserManager subParserManager;
-    private final ITempFileManager tempFileManager;
-    private final IReferenceNormalizer referenceNormalizer;
-    
-    private HashMap<String, Object> bag = new HashMap<String, Object>();
-    
-    public ParserContext(
-    		ISubParserManager subParserManager,
-    		IMimeTypeDetector mimeTypeDetector,
-    		ICharsetDetector charsetDetector,
-    		ITempFileManager tempFileManager,
-    		IReferenceNormalizer referenceNormalizer) {
-    	this.subParserManager = subParserManager;
-    	this.mimeTypeDetector = mimeTypeDetector;
-    	this.charsetDetector = charsetDetector;
-    	this.tempFileManager = tempFileManager;
-    	this.referenceNormalizer = referenceNormalizer;
+public class ParserContext {	
+	private static ParserContextLocal context = null;
+
+    private HashMap<String, Object> bag = new HashMap<String, Object>();	
+	    
+	public static void setThreadLocal(ParserContextLocal threadLocal) {
+		context = threadLocal;
 	}
-    
-    public static void setCurrentContext(ParserContext parserContext) {
-    	context.set(parserContext);
-    }    
-    
+	
 	public static ParserContext getCurrentContext() {
-		return context.get();
-	}
+		return context.get();		
+	}	
 	
+	public static void removeCurrentContext() {
+		context.remove();
+	}
+
 	/**
 	 * @param mimeType the mime-type
 	 * @return a {@link ISubParser parser} that is capable to parse a resource with the given mimetype
 	 */
 	public ISubParser getParser(String mimeType) {
-		return this.subParserManager.getSubParser(mimeType);
+		ISubParserManager subParserManager = context.getSubParserManager();
+		if (subParserManager == null) return null;
+		return subParserManager.getSubParser(mimeType);
 	}
 	
 	/**
@@ -66,7 +53,7 @@ public class ParserContext {
 	 * This reference may be <code>null</code> if no {@link IMimeTypeDetector mime-type-detector} is available.
 	 */
 	public IMimeTypeDetector getMimeTypeDetector() {
-		return this.mimeTypeDetector;
+		return context.getMimeTypeDetector();
 	}	
 	
 	/**
@@ -74,15 +61,15 @@ public class ParserContext {
 	 * This reference may be <code>null</code> if no {@link ICharsetDetector charset-detector} is available.
 	 */
 	public ICharsetDetector getCharsetDetector() {
-		return this.charsetDetector;
+		return context.getCharsetDetector();
 	}
 	
 	public ITempFileManager getTempFileManager() {
-		return this.tempFileManager;
+		return context.getTempFileManager();
 	}
 	
 	public IReferenceNormalizer getReferenceNormalizer() {
-		return this.referenceNormalizer;
+		return context.getReferenceNormalizer();
 	}
 	
 	/* ========================================================================

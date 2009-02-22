@@ -44,10 +44,10 @@ public abstract class AParserTest extends MockObjectTestCase {
 	protected HashMap<String, ISubParser> mimeTypeToParserMap = null;
 	
 	protected ParserContext parserContext = null;
-	protected ITempFileManager tempFileManager = null;
-	protected IReferenceNormalizer refNormalizer = null;
-	protected IMimeTypeDetector mimetypeDetector = null;
-	protected ISubParserManager subParserManager = null;
+	protected ITempFileManager aTempFileManager = null;
+	protected IReferenceNormalizer aRefNormalizer = null;
+	protected IMimeTypeDetector aMimetypeDetector = null;
+	protected ISubParserManager aSubParserManager = null;
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -56,7 +56,7 @@ public abstract class AParserTest extends MockObjectTestCase {
 		this.fileNameToMimeTypeMap = new HashMap<String,String>();
 		this.mimeTypeToParserMap = new HashMap<String, ISubParser>();
 		
-		this.tempFileManager = new ITempFileManager() {		
+		this.aTempFileManager = new ITempFileManager() {		
 			public void setTempDirFor(ITempDir arg0, String... arg1) { }		
 			public void removeTempDirFor(String... arg0) { }
 
@@ -70,9 +70,9 @@ public abstract class AParserTest extends MockObjectTestCase {
 				return tempfile;
 			}
 		};
-		IOTools.setTempFileManager(this.tempFileManager);
+		IOTools.setTempFileManager(this.aTempFileManager);
 		
-		this.refNormalizer = new IReferenceNormalizer() {
+		this.aRefNormalizer = new IReferenceNormalizer() {
 			public URI normalizeReference(String reference) {
 				return URI.create(reference);
 			}
@@ -85,7 +85,7 @@ public abstract class AParserTest extends MockObjectTestCase {
 			}
 		};
 		
-		this.mimetypeDetector = new IMimeTypeDetector() {
+		this.aMimetypeDetector = new IMimeTypeDetector() {
 			public String getMimeType(byte[] arg0, String fileName) throws Exception {
 				return fileNameToMimeTypeMap.get(fileName);
 			}
@@ -95,7 +95,7 @@ public abstract class AParserTest extends MockObjectTestCase {
 			}
 		};
 		
-		this.subParserManager = new ISubParserManager() {			
+		this.aSubParserManager = new ISubParserManager() {			
 			public void disableMimeType(String arg0) {}			
 			public void enableMimeType(String arg0) {}
 			
@@ -150,15 +150,15 @@ public abstract class AParserTest extends MockObjectTestCase {
 			}
 		};
 		
-		// create a parser context with a dummy temp-file-manager
-		this.parserContext = new ParserContext(
-				this.subParserManager,
-				this.mimetypeDetector,
-				null, 
-				this.tempFileManager, 
-				this.refNormalizer
-		);
-		ParserContext.setCurrentContext(this.parserContext);		
+		// create a parser context with a dummy temp-file-manager		
+		ParserContext.setThreadLocal(new ParserContextLocal() {{
+			this.subParserManager = aSubParserManager;
+			this.mimeTypeDetector = aMimetypeDetector;
+			this.charsetDetector = null;
+			this.tempFileManager = aTempFileManager;
+			this.referenceNormalizer = aRefNormalizer;
+		}});
+		this.parserContext = new ParserContext();
 	}
 	
 	protected void printParserDoc(final IParserDocument pdoc, final String name) throws IOException {
