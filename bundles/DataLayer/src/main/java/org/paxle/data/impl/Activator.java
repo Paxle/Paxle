@@ -243,7 +243,8 @@ public class Activator implements BundleActivator {
 	}
 	
 	private void createAndRegisterCommandProfileFilter(BundleContext context) {		
-		Hashtable<String, String[]> profileFilterProps = new Hashtable<String, String[]>();
+		Hashtable<String, Object> profileFilterProps = new Hashtable<String, Object>();
+		profileFilterProps.put(Constants.SERVICE_PID, CommandProfileFilter.class.getName());
 		profileFilterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{
 				String.format("org.paxle.crawler.in; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(Integer.MIN_VALUE)),
 				String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(65))

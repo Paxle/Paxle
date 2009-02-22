@@ -18,6 +18,7 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.paxle.core.filter.IFilter;
 
 public class Activator implements BundleActivator {
@@ -35,7 +36,8 @@ public class Activator implements BundleActivator {
 		/* ==========================================================
 		 * Register Services provided by this bundle
 		 * ========================================================== */		
-		final Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
+		final Hashtable<String, Object> filterProps = new Hashtable<String, Object>();
+		filterProps.put(Constants.SERVICE_PID, PlaintextDumperFilter.class.getName());
 		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {
 				// apply filter to the parser-output-queue at MAX-Position and disable filter by default
 				String.format("org.paxle.parser.out;%s=%d;%s=%b", 

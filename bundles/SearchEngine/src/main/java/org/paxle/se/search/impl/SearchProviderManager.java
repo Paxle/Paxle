@@ -124,7 +124,8 @@ public class SearchProviderManager implements ISearchProviderManager {
 		return providers;
 	}
 
-	public List<ISearchResult> search(String paxleQuery,
+	public List<ISearchResult> search(
+			String paxleQuery,
 			int maxResults,
 			long timeout
 	) throws InterruptedException, ExecutionException, SearchException {
@@ -133,7 +134,8 @@ public class SearchProviderManager implements ISearchProviderManager {
 		return collector;
 	}
 
-	public void search(String paxleQuery,
+	public void search(
+			String paxleQuery,
 			int maxResults,
 			long timeout,
 			ISearchResultCollector results

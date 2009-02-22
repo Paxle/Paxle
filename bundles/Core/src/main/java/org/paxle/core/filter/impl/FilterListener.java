@@ -58,12 +58,12 @@ public class FilterListener implements ServiceListener {
 	
 	// generating filter expression
 	static {
-		final StringBuilder sb = new StringBuilder("(|");
+		final StringBuilder sb = new StringBuilder("(&(service.pid=*)(|");
 		final Formatter formatter = new Formatter(sb);
 		for (String intrface : INTERFACES)
 			formatter.format("(%s=%s)", Constants.OBJECTCLASS, intrface);
 		formatter.close();
-		FILTER = sb.append(')').toString();
+		FILTER = sb.append("))").toString();
 	}
 
 	/**

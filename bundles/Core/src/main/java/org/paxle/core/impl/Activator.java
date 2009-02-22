@@ -226,7 +226,8 @@ public class Activator implements BundleActivator, InvocationHandler {
         bc.registerService(IResourceBundleTool.class.getName(), new ResourceBundleToolFactory(), null);
         
         // add AscendingPathUrlExtraction filter
-		final Hashtable<String,String[]> props2 = new Hashtable<String,String[]>();
+		final Hashtable<String,Object> props2 = new Hashtable<String,Object>();
+		props2.put(Constants.SERVICE_PID, AscendingPathUrlExtractionFilter.class.getName());
         props2.put(IFilter.PROP_FILTER_TARGET, new String[] {
         		// apply filter to the parser-output-queue at position 60
         		String.format("org.paxle.parser.out; %s=%d;",IFilter.PROP_FILTER_TARGET_POSITION, Integer.valueOf(60))

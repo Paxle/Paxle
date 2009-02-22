@@ -18,6 +18,7 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.paxle.core.filter.IFilter;
 import org.paxle.filter.blacklist.impl.desktop.DesktopIntegrationListener;
 import org.paxle.filter.blacklist.impl.gui.GuiListener;
@@ -38,7 +39,8 @@ public class Activator implements BundleActivator {
 		/*
 		 * Registering the filter
 		 */
-		Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
+		Hashtable<String, Object> filterProps = new Hashtable<String, Object>();
+		filterProps.put(Constants.SERVICE_PID, BlacklistFilter.class.getName());
 		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in;" + IFilter.PROP_FILTER_TARGET_POSITION + "=-1", "org.paxle.parser.out;" + IFilter.PROP_FILTER_TARGET_POSITION + "=66"});
 		BlacklistFilter blacklistFilter = new BlacklistFilter(list);
 		bc.registerService(IFilter.class.getName(), blacklistFilter, filterProps);

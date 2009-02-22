@@ -93,7 +93,8 @@ public class Activator implements BundleActivator {
 		 * ========================================================== */
 		
 		// register the protocol filter as service
-		Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
+		Hashtable<String, Object> filterProps = new Hashtable<String, Object>();
+		filterProps.put(Constants.SERVICE_PID, ProtocolFilter.class.getName());
 		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in","org.paxle.parser.out"});
 		bc.registerService(IFilter.class.getName(), new ProtocolFilter(this.subCrawlerManager), filterProps);
 	}
