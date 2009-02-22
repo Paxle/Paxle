@@ -59,6 +59,7 @@ import org.paxle.core.io.IOTools;
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.io.impl.ResourceBundleTool;
 import org.paxle.core.io.impl.ResourceBundleToolFactory;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.io.temp.impl.CommandTempReleaser;
 import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.core.monitorable.observer.impl.MonitorableObserver;
@@ -205,7 +206,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		
 		Hashtable<String, String> tempFileManagerProps = new Hashtable<String, String>();
 		tempFileManagerProps.put(Constants.SERVICE_PID, TempFileManager.MONITOR_PID);
-		bc.registerService(Monitorable.class.getName(), this.tempFileManager, tempFileManagerProps);
+		bc.registerService(new String[]{Monitorable.class.getName(), ITempFileManager.class.getName()}, this.tempFileManager, tempFileManagerProps);
 		
 		// register the master-worker-factory as a service
 		bc.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(
