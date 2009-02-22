@@ -30,8 +30,20 @@ import org.paxle.parser.ParserException;
 import org.paxle.parser.bzip2.IBzip2Parser;
 import org.paxle.parser.iotools.ParserDocOutputStream;
 
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.service interface="org.paxle.parser.bzip2.IBzip2Parser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="application/x-bzip2"
+ * 				 values.2="application/bzip2"
+ * 			     values.3="application/x-bz2"
+ */
 public class Bzip2Parser implements IBzip2Parser {
-	
+	/**
+	 * MimeTypes supported by this parser. This must be the same
+	 * as defined via the scr-property shown above.  
+	 */
 	private static final List<String> MIME_TYPES = Arrays.asList(
 			"application/x-bzip2",
 			"application/bzip2",
