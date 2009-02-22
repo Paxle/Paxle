@@ -48,6 +48,7 @@ public class Activator implements BundleActivator {
 		// register this crawler as subcrawler
 		FtpCrawler crawler = new FtpCrawler();
 		Hashtable<String,Object> props = new Hashtable<String, Object>();
+		props.put(Constants.SERVICE_PID, IFtpCrawler.class.getName());
 		props.put(ISubCrawler.PROP_PROTOCOL, crawler.getProtocols());	  
 		bc.registerService(new String[]{ISubCrawler.class.getName(),IFtpCrawler.class.getName()}, crawler, props);
 		

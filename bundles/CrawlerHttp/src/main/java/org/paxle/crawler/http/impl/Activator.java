@@ -52,6 +52,7 @@ public class Activator implements BundleActivator {
 		 */
 		this.crawler = new HttpCrawler(properties);
 		Hashtable<String,Object> props = new Hashtable<String, Object>();
+		props.put(Constants.SERVICE_PID, IHttpCrawler.class.getName());
 		props.put(ISubCrawler.PROP_PROTOCOL, this.crawler.getProtocols());	  
 		context.registerService(new String[]{ISubCrawler.class.getName(),IHttpCrawler.class.getName()}, this.crawler, props);
 		

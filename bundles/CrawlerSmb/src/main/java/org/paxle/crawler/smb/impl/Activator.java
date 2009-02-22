@@ -19,6 +19,7 @@ import jcifs.http.NetworkExplorer;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
 import org.paxle.crawler.ISubCrawler;
@@ -44,6 +45,7 @@ public class Activator implements BundleActivator {
 		// register this crawler as subcrawler
 		SmbCrawler crawler = new SmbCrawler();
 		Hashtable<String,Object> propsCrawler = new Hashtable<String, Object>();
+		propsCrawler.put(Constants.SERVICE_PID, ISmbCrawler.class.getName());
 		propsCrawler.put(ISubCrawler.PROP_PROTOCOL, crawler.getProtocols());	  
 		bc.registerService(new String[]{ISubCrawler.class.getName(),ISmbCrawler.class.getName()}, crawler, propsCrawler);
 		
@@ -53,8 +55,9 @@ public class Activator implements BundleActivator {
         context.registerService(URLStreamHandlerService.class.getName(), new SmbStreamHandlerService(), propsUrlHandler);		
 
         // register browsing servlet
-        Hashtable<String, String> propsServlet = new Hashtable<String, String>();
+        Hashtable<String, Object> propsServlet = new Hashtable<String, Object>();
         propsServlet.put("path", "/smb/NetworkExplorer");
+        propsServlet.put("doUserAuth", Boolean.TRUE);
         bc.registerService("javax.servlet.Servlet", new NetworkExplorer(), propsServlet);
 	}
 

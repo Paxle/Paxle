@@ -27,8 +27,14 @@ public class SubCrawlerListener implements ServiceListener {
 	/**
 	 * A LDAP styled expression used for the service-listener
 	 */
-	public static String FILTER = String.format("(&(%s=%s)(%s=*))",
-			Constants.OBJECTCLASS, ISubCrawler.class.getName(), ISubCrawler.PROP_PROTOCOL);	
+	public static String FILTER = String.format("(&(%s=%s)(%s=*)(%s=*))",
+			// we are only interested in subcrawlers
+			Constants.OBJECTCLASS, ISubCrawler.class.getName(),
+			// crawlers must have a protocol property
+			ISubCrawler.PROP_PROTOCOL,
+			// crawlers must have a service.pid
+			Constants.SERVICE_PID
+	);	
 	
 	/**
 	 * A class to manage {@link ISubCrawler sub-crawlers}
