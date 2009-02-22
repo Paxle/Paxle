@@ -11,42 +11,45 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
+#if(!$text)
+	#set( $text = $resourceTool.bundle('OSGI-INF/l10n/crawlerview'))
+#end
 #if(${manager.getService("org.paxle.core.queue.ICommandProfileManager")})
 <fieldset>
-	<legend>Command Profile</legend>
+	<legend>${text.cmdprofile.legend}</legend>
 	<table>
 	<tr>
-		<th>Name</th>
-		<th>Value</th>
-		<th>Description</th>
+		<th>${text.cmdprofile.table.col.name}</th>
+		<th>${text.cmdprofile.table.col.value}</th>
+		<th>${text.cmdprofile.table.col.desc}</th>
 	</tr>
 	
 	<tr>
-		<td>Profile Name:</td>
+		<td>${text.cmdprofile.name.name}</td>
 		<td><input type="text" id="profileName" name="profileName" value="$!defaultName"/></td>
-		<td class="descriptionText">&nbsp;</td>
+		<td class="descriptionText">${text.cmdprofile.name.desc}</td>
 	</tr>
 	
 	<tr>
-		<td>Crawl Depth:</td>
+		<td>${text.cmdprofile.depth.name}</td>
 		<td><input type="text" id="crawlDepth" name="crawlDepth" value="$!defaultDepth"/></td>
-		<td class="descriptionText">&nbsp;</td>
+		<td class="descriptionText">${text.cmdprofile.depth.desc}</td>
 	</tr>
 	
 	<!-- restrict URIs -->
 	#set($toggleSpecificLinks = "Effect.toggle('specificLinks', 'appear', { delay: 0, duration: 0 });")
 	<tr>
-		<td>Filter URLs</td>
+		<td>${text.cmdprofile.filterURL.name}</td>
 		<td>
 			<input id="crawlAllLinks" type="radio" checked="checked" value="all" name="linkMode" onclick="$toggleSpecificLinks"/>
-			<label for="crawlAllLinks">All links</label>
+			<label for="crawlAllLinks">${text.cmdprofile.filterURL.all}</label>
 			<br/>
 			<input id="crawlSpecificLinks" type="radio" value="specific" name="linkMode" onclick="$toggleSpecificLinks"/>
-			<label for="crawlSpecificLinks">Restrict to  specific link(s)</label>
+			<label for="crawlSpecificLinks">${text.cmdprofile.filterURL.restrict}</label>
 			
 			<div id="specificLinks">
 				<input id="useRegexpFilter" type="radio" value="regexp" name="linkFilterMode" checked="checked"/>
-				<label for="useRegexpFilter">Use reg.exp Filter: </label>
+				<label for="useRegexpFilter">${text.cmdprofile.filterURL.regexp}</label>
 				<input type="text" id="links.regexpFilter" name="linkFilterExpressionRegexp" value=".*"/>
 			</div>
 			<script type="text/javascript">
@@ -55,21 +58,21 @@
 				// ]]>
 			</script>		
 		</td>
-		<td class="descriptionText">&nbsp;</td>
+		<td class="descriptionText">${text.cmdprofile.filterURL.desc}</td>
 	</tr>
 	
 	<!-- restrict protocols -->
 	#set($toggleSpecificProtocols = "Effect.toggle('specificProtocols', 'appear', { delay: 0, duration: 0 });")
 	<tr>
-		<td>Protocols:</td>
+		<td>${text.cmdprofile.filterProto.name}</td>
 		<td>				
 			<input id="crawlAllProtocols" type="radio" checked="checked" value="all" name="protocolMode" onclick="$toggleSpecificProtocols"/>
-			<label for="crawlAllProtocols">All supported protocols</label>
+			<label for="crawlAllProtocols">${text.cmdprofile.filterProto.all}</label>
 			<br/>
 			<input id="crawlSpecificProtocols" type="radio" value="specific" name="protocolMode" onclick="$toggleSpecificProtocols"/>
 			<label for="crawlSpecificProtocols">
-				Restrict to  specific protocol(s)
-				<br/><span class="error">Not functional yet!</span>
+				${text.cmdprofile.filterProto.restrict}<br/>
+				<span class="error">Not functional yet!</span>
 			</label>
 			
 			<div id="specificProtocols">
@@ -87,22 +90,22 @@
 				// ]]>
 			</script>		
 		</td>
-		<td class="descriptionText">Restrict crawling to a given set of protocols</td>
+		<td class="descriptionText">${text.cmdprofile.filterProto.desc}</td>
 	</tr>
 	
 	<!-- restrict mime-types -->
 	#set($toggleSpecificMimeTypes = "Effect.toggle('specificMimeTypes', 'appear', { delay: 0, duration: 0 });")
 	<tr>
-		<td>Mime-Types:</td>	
+		<td>${text.cmdprofile.filterMime.name}</td>	
 		
 		<td>	
 			<input id="crawlAllMimetypes" type="radio" checked="checked" value="all" name="mimetypeMode"  onclick="$toggleSpecificMimeTypes"/>
-			<label for="crawlAllMimetypes">All supported mime-types</label>
+			<label for="crawlAllMimetypes">${text.cmdprofile.filterMime.all}</label>
 			<br/>
 			<input id="crawlSpecificMimetypes" type="radio" value="specific" name="mimetypeMode"  onclick="$toggleSpecificMimeTypes"/>
 			<label for="crawlSpecificMimetypes">
-				Restrict to specific mime-type(s).
-				<br/><span class="error">Not functional yet!</span>
+				${text.cmdprofile.filterMime.restrict}<br/>
+				<span class="error">Not functional yet!</span>
 			</label>
 			
 			<div id="specificMimeTypes">
@@ -120,10 +123,10 @@
 				// ]]>
 			</script>	
 		</td>
-		<td class="descriptionText">Restrict crawling to a given set of mime-types</td>
+		<td class="descriptionText">${text.cmdprofile.filterMime.desc}</td>
 	</tr>
 	</table>
 </fieldset>
 #else
-	<p class="error notInstalled">No command-profile-manager found!</p>	
+	<p class="error notInstalled">${text.error.noProfileManager}</p>	
 #end	

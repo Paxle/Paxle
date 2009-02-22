@@ -11,8 +11,11 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
+## getting resourcebundle to translate site
+#set( $text = $resourceTool.bundle('OSGI-INF/l10n/crawlerview'))
+
 ## Set the page title
-#set( $page_title = "Crawler Controlpage" )
+#set( $page_title = ${text.browser.title})
 
 ## some headers
 #set( $h1 = "<script src='/js/prototype.js' type='text/javascript'></script>")
@@ -25,17 +28,17 @@
 #set ( $bodyonload = "initTabs('singlecrawl');" )
 
 <ul class="tabs">
-	<li><a href="#dsinglecrawl" onclick="fshow('singlecrawl');" id="tsinglecrawl">Crawl URL</a></li>
-	<li><a href="#dmasscrawl" onclick="fshow('masscrawl');" id="tmasscrawl">Mass Crawl</a></li>
-	<li><a href="#dquickcrawl" onclick="fshow('quickcrawl');" id="tquickcrawl">Crawler Bookmarklet</a></li>
+	<li><a href="#dsinglecrawl" onclick="fshow('singlecrawl');" id="tsinglecrawl">${text.tab.crawlSingleURL}</a></li>
+	<li><a href="#dmasscrawl" onclick="fshow('masscrawl');" id="tmasscrawl">${text.tab.crawlMultiURL}</a></li>
+	<li><a href="#dquickcrawl" onclick="fshow('quickcrawl');" id="tquickcrawl">${text.tab.crawlBookmarklet}</a></li>
 	#if($manager.hasBundle("org.paxle.parser.sitemap"))
-	<li><a href="#dsitemapcrawl" onclick="fshow('sitemapcrawl');" id="tsitemapcrawl">Sitemap Crawl</a></li>
+	<li><a href="#dsitemapcrawl" onclick="fshow('sitemapcrawl');" id="tsitemapcrawl">${text.tab.crawlSitemap}</a></li>
 	#end
 </ul>
 
 #if( $errorUrls && $errorUrls.size() > 0)
 <p class="error">
-	The following URLs could not be crawled because of following errors:		
+	${text.error.blockedURLs}		
 	<ul>
 	#foreach ( $entry in $errorUrls.entrySet())
 		<li><a href="$entry.getKey()">$entry.getKey()</a>: $entry.getValue()</li>
@@ -51,12 +54,12 @@
 #if ($crawlers && ${listTool.size($crawlers)} > 0)
 	#if($listTool.get($crawlers,0).isPaused())
 		<p class="info">
-			Crawling is currently <span class="statusDisabled">disabled</span>.
+			${text.status.crawler.paused.insert('statusPaused')}
 		</p>
 	#end
 #end
 
-<form action="/crawler" method="post">
+<form action="${context.request.servletPath}" method="post">
 
 ## ======================================================================
 ## COMMAND PROFILE CONFIGURATION
@@ -67,37 +70,34 @@
 ## CRAWL START
 ## ======================================================================
 <fieldset id="dsinglecrawl">
-	<legend>Crawl URL</legend>	
+	<legend>${text.dsinglecrawl.legend}</legend>	
 		<p>
 			<input type="text" id="startURL" name="startURL" value="http://" />
-			<input type="submit" name="crawlSingle" value="Start Crawl" />
+			<input type="submit" name="crawlSingle" value="${text.dsinglecrawl.btn.startCrawl}" />
 		</p>
 </fieldset>
 
 <fieldset id="dmasscrawl">
-	<legend>MassCrawl URL</legend>
+	<legend>${text.dmasscrawl.legend}</legend>
 		<p>
 			<textarea cols="80" rows="15" name="startURL2"></textarea>
-			<input type="submit" name="crawlMass" value="Start Crawl" />
+			<input type="submit" name="crawlMass" value="${text.dmasscrawl.btn.startCrawl}" />
 		</p>
 </fieldset>
 </form>
 
 <fieldset id="dquickcrawl">
-	<legend>Crawler Bookmarklet</legend>
+	<legend>${text.dquickcrawl.legend}</legend>
 	
-	<div>
-		Simply drag and drop the link below into the bookmark-toolbar of your browser.<br/>
-		While browsing you can click on this bookmark to crawl the website that is currently viewed in your browser.
-	</div>
+	<div class="descriptionText">${text.dquickcrawl.description}</div>
 	#set($rootPath = "${request.getScheme()}://${request.getServerName()}:${request.getServerPort()}${request.getServletPath()}")
 	<a class="quickCrawl" href="javascript:w = window.open('$rootPath?crawlQuick=&amp;profileName='+escape(document.title)+'&amp;startURL='+escape(location.href),'_blank','height=600,width=800,resizable=yes,scrollbar=no,directory=no,menubar=no,location=no');w.focus();">
-		Paxle-QuickCrawl
+		${text.dquickcrawl.linkText}
 	</a>
 </fieldset>
 
 <fieldset id="dsitemapcrawl">
-	<legend>Crawl Sitemaps</legend>
+	<legend>${text.dsitemapcrawl.legend}</legend>
 	
 	#if($manager.hasBundle("org.paxle.parser.sitemap"))
 		<font color="red">TODO:</font> description about 
