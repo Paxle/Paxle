@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.zip.IZipParser;
 
@@ -34,8 +35,9 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		bc = context;
 		final ISubParser sp = new ZipParser();
-		Hashtable<String,String[]> props = new Hashtable<String,String[]>();
+		Hashtable<String,Object> props = new Hashtable<String,Object>();
 		List<String> mimeTypes = sp.getMimeTypes();
+		props.put(Constants.SERVICE_PID, IZipParser.class.getName());
 		props.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
 		context.registerService(new String[]{ISubParser.class.getName(),IZipParser.class.getName()}, sp, props);
 	}

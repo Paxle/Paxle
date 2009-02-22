@@ -26,8 +26,14 @@ public class SubParserListener implements ServiceListener {
 	/**
 	 * A LDAP styled expression used for the service-listener
 	 */
-	public static final String FILTER = String.format("(&(%s=%s)(%s=*))",
-			Constants.OBJECTCLASS,ISubParser.class.getName(),ISubParser.PROP_MIMETYPES);	
+	public static final String FILTER = String.format("(&(%s=%s)(%s=*)(%s=*))",
+			// we are only interested in ISubParsers
+			Constants.OBJECTCLASS,ISubParser.class.getName(),
+			// subparsers must have a mimetype property
+			ISubParser.PROP_MIMETYPES,
+			// supparsers must habe a service.pid
+			Constants.SERVICE_PID
+	);	
 	
 	/**
 	 * A class to manage {@link ISubParser sub-parsers}

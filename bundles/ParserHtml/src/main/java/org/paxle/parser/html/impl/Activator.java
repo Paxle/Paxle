@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.html.IHtmlParser;
 
@@ -36,8 +37,9 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		bc = context;
 		parser = new HtmlParser();
-		Hashtable<String,String[]> props = new Hashtable<String,String[]>();
+		Hashtable<String,Object> props = new Hashtable<String,Object>();
 		List<String> mimeTypes = parser.getMimeTypes();
+		props.put(Constants.SERVICE_PID, IHtmlParser.class.getName());
 		props.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
 		bc.registerService(new String[]{ISubParser.class.getName(),IHtmlParser.class.getName()}, parser, props);
 	}

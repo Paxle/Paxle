@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.feed.IFeedParser;
 
@@ -25,8 +26,9 @@ public class Activator implements BundleActivator {
 	
 	public void start(BundleContext context) throws Exception {
 		final ISubParser sp = new FeedParser();
-		final Hashtable<String,String[]> props = new Hashtable<String,String[]>();
+		final Hashtable<String,Object> props = new Hashtable<String,Object>();
 		final List<String> mimeTypes = sp.getMimeTypes();
+		props.put(Constants.SERVICE_PID, IFeedParser.class.getName());
 		props.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
 		context.registerService(new String[] { ISubParser.class.getName(), IFeedParser.class.getName() }, sp, props);
 	}

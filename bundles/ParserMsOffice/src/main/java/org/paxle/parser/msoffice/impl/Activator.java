@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.msoffice.IMsExcelParser;
 import org.paxle.parser.msoffice.IMsPowerpointParser;
@@ -38,7 +39,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		bc = context;
 		
-		Hashtable<String,String[]> props = new Hashtable<String,String[]>();
+		Hashtable<String,Object> props = new Hashtable<String,Object>();
 		List<String> mimeTypes = null;
 		ISubParser parser = null;
 		
@@ -46,6 +47,7 @@ public class Activator implements BundleActivator {
 		parser = new MsWordParser();
 		mimeTypes = parser.getMimeTypes();
 		props.clear();
+		props.put(Constants.SERVICE_PID, IMsWordParser.class.getName());
 		props.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
 		bc.registerService(new String[]{ISubParser.class.getName(),IMsWordParser.class.getName()}, parser, props);
 		
@@ -53,6 +55,7 @@ public class Activator implements BundleActivator {
 		parser = new MsPowerpointParser();
 		mimeTypes = parser.getMimeTypes();
 		props.clear();
+		props.put(Constants.SERVICE_PID, IMsPowerpointParser.class.getName());
 		props.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
 		bc.registerService(new String[]{ISubParser.class.getName(),IMsPowerpointParser.class.getName()}, parser, props);	
 		
@@ -60,6 +63,7 @@ public class Activator implements BundleActivator {
 		parser = new MsVisioParser();
 		mimeTypes = parser.getMimeTypes();
 		props.clear();
+		props.put(Constants.SERVICE_PID, IMsVisioParser.class.getName());
 		props.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
 		bc.registerService(new String[]{ISubParser.class.getName(),IMsVisioParser.class.getName()}, parser, props);
 		
@@ -67,6 +71,7 @@ public class Activator implements BundleActivator {
 		parser = new MsExcelParser();
 		mimeTypes = parser.getMimeTypes();
 		props.clear();
+		props.put(Constants.SERVICE_PID, IMsExcelParser.class.getName());
 		props.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
 		bc.registerService(new String[]{ISubParser.class.getName(),IMsExcelParser.class.getName()}, parser, props);
 	}

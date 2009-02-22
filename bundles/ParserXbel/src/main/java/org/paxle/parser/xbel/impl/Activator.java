@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.paxle.parser.ISubParser;
 
 public class Activator implements BundleActivator {	
@@ -31,7 +32,8 @@ public class Activator implements BundleActivator {
 		final List<String> mimeTypes = sp.getMimeTypes();
 		
 		// set service properties
-		Hashtable<String,String[]> props = new Hashtable<String,String[]>();
+		Hashtable<String,Object> props = new Hashtable<String,Object>();
+		props.put(Constants.SERVICE_PID, XbelParser.class.getName());
 		props.put(ISubParser.PROP_MIMETYPES, mimeTypes.toArray(new String[mimeTypes.size()]));
 		
 		// register service
