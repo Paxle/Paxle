@@ -20,8 +20,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,19 +33,17 @@ import org.paxle.parser.ASubParser;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.swf.ISWFParser;
 
-public class SWFParser extends ASubParser implements ISWFParser {
-	
-	private static final List<String> MIME_TYPES = Arrays.asList("application/x-shockwave-flash");
-	
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="application/x-shockwave-flash"
+ */
+public class SWFParser extends ASubParser implements ISubParser {
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
 	private final Log logger = LogFactory.getLog(SWFParser.class);
-	
-	public List<String> getMimeTypes() {
-		return MIME_TYPES;
-	}
 	
 	@Override
 	public IParserDocument parse(final URI location, String charset, InputStream is)

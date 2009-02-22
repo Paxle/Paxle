@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.paxle.core.doc.IParserDocument;
@@ -28,21 +26,16 @@ import org.paxle.core.io.IOTools;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.gzip.IGzipParser;
 import org.paxle.parser.iotools.ParserDocOutputStream;
 
-public class GzipParser implements IGzipParser {
-	
-	private static final List<String> MIME_TYPES = Arrays.asList(
-			"application/x-gzip",
-			"application/gzip");
-	
-	/**
-	 * @see ISubParser#getMimeTypes()
-	 */
-	public List<String> getMimeTypes() {
-		return MIME_TYPES;
-	}
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="application/x-gzip"
+ * 				 values.2="application/gzip"
+ */
+public class GzipParser implements ISubParser {
 	
 	/**
 	 * @see ISubParser#parse(URI, String, InputStream)

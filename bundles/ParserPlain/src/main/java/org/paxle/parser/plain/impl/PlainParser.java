@@ -21,8 +21,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,11 +28,17 @@ import java.util.regex.Pattern;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.CachedParserDocument;
+import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.plain.IPlainParser;
 
-public class PlainParser implements IPlainParser {
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="text/plain"
+ */
+public class PlainParser implements ISubParser {
 	
 	private static final int MAX_HEADLINE_LENTGH = 256;
 	
@@ -42,12 +46,6 @@ public class PlainParser implements IPlainParser {
 	static final Pattern URI_PATTERN = Pattern.compile("([A-Za-z\\.-]+)://([^/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?");
 	private static final String PRE_FIXES = "<([{\"'_";
 	private static final String POST_FIXES = ">)]}\"'_:.,;";
-	
-	private static final List<String> MIME_TYPES = Arrays.asList("text/plain");
-	
-	public List<String> getMimeTypes() {
-		return MIME_TYPES;
-	}
 	
 	static String removePrePostFixes(final String ref) {
 		int l = 0, r = ref.length() - 1;

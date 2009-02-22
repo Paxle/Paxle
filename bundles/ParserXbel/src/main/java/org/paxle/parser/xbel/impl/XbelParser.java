@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -35,24 +34,19 @@ import org.paxle.parser.xbel.api.Bookmark;
 import org.paxle.parser.xbel.api.Folder;
 import org.paxle.parser.xbel.api.Xbel;
 
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="application/xbel+xml"
+ * 				 values.2="application/x-xbel"
+ */
 public class XbelParser extends ASubParser implements ISubParser {
-
-	private static final String[] MIMETYPES = {
-		"application/xbel+xml",
-		"application/x-xbel"
-	};	
 
 	private final JAXBContext jaxbContext;
 	
 	public XbelParser() throws JAXBException {
 		this.jaxbContext = JAXBContext.newInstance("org.paxle.parser.xbel.api");
-	}
-	
-	/**
-	 * @see ISubParser#getMimeTypes()
-	 */
-	public List<String> getMimeTypes() {
-		return Arrays.asList(MIMETYPES);
 	}
 
 	@Override

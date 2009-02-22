@@ -20,15 +20,19 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.msoffice.IMsPowerpointParser;
 
-public class MsPowerpointParser extends AMsOfficeParser implements ISubParser, IMsPowerpointParser {
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="application/mspowerpoint"
+ * 				 values.2="application/powerpoint"
+ * 				 values.3="application/vnd.ms-powerpoint"
+ */
+public class MsPowerpointParser extends AMsOfficeParser implements ISubParser {
 	
 	public MsPowerpointParser() {
-		super("powerpoint",
-			"application/mspowerpoint",
-			"application/powerpoint",
-			"application/vnd.ms-powerpoint");
+		super("powerpoint");
 	}
 	
 	@Override

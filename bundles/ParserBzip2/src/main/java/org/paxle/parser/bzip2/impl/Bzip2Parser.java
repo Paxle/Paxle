@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.tools.bzip2.CBZip2InputStream;
 import org.paxle.core.doc.IParserDocument;
@@ -40,18 +38,6 @@ import org.paxle.parser.iotools.ParserDocOutputStream;
  * 			     values.3="application/x-bz2"
  */
 public class Bzip2Parser implements IBzip2Parser {
-	/**
-	 * MimeTypes supported by this parser. This must be the same
-	 * as defined via the scr-property shown above.  
-	 */
-	private static final List<String> MIME_TYPES = Arrays.asList(
-			"application/x-bzip2",
-			"application/bzip2",
-			"application/x-bz2");
-	
-	public List<String> getMimeTypes() {
-		return MIME_TYPES;
-	}
 	
 	public IParserDocument parse(URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException {

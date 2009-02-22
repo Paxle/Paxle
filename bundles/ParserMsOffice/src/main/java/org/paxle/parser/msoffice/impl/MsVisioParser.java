@@ -19,14 +19,18 @@ import org.apache.poi.hdgf.extractor.VisioTextExtractor;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.msoffice.IMsVisioParser;
 
-public class MsVisioParser extends AMsOfficeParser implements IMsVisioParser {
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="application/visio"
+ * 				 values.2="application/x-visio"
+ */
+public class MsVisioParser extends AMsOfficeParser {
 	
 	public MsVisioParser() {
-		super("visio",
-				"application/visio",
-				"application/x-visio");
+		super("visio");
 	}
 	
 	@Override

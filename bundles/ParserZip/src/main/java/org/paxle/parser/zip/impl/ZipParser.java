@@ -19,33 +19,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.io.IOTools;
+import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.iotools.SubParserDocOutputStream;
-import org.paxle.parser.zip.IZipParser;
 
-public class ZipParser implements IZipParser {
-	
-	private static final List<String> MIME_TYPES = Arrays.asList(
-			"application/zip",
-			"application/x-zip",
-			"application/x-zip-compressed",
-			"application/java-archive");
-	
-	public List<String> getMimeTypes() {
-		return MIME_TYPES;
-	}
-	
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="application/zip"
+ * 				 values.2="application/x-zip"
+ * 			     values.3="application/x-zip-compressed"
+ * 				 values.4="application/java-archive"
+ */
+public class ZipParser implements ISubParser {
+
 	public IParserDocument parse(URI location, String charset, InputStream is)
-			throws ParserException, UnsupportedEncodingException, IOException {
+			throws ParserException, UnsupportedEncodingException, IOException 
+	{
 		final ParserContext context = ParserContext.getCurrentContext();
 		final IParserDocument pdoc = new ParserDocument();
 		final ZipInputStream zis = new ZipInputStream(is);

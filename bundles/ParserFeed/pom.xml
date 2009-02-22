@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserFeed</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.3-SNAPSHOT</version>
 	<name>Paxle - Parser: RSS/Atom/OPML</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -64,9 +64,6 @@
 						<Private-Package>
 							org.paxle.parser.feed.impl
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.parser.feed.impl.Activator
-						</Bundle-Activator>
 
 						<DynamicImport-Package>
 							javax.xml.*, 
@@ -84,6 +81,19 @@
 					</instructions>
 				</configuration>
 			</plugin>
+						
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>			
 		</plugins>
 	</build>
 
@@ -91,7 +101,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>ParserCore</artifactId>
-			<version>[,0.2.0)</version>
+			<version>[0.1.3-SNAPSHOT,0.2.0)</version>
 		</dependency>
 
 		<dependency>
@@ -119,7 +129,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>ParserHtml</artifactId>
-			<version>[,0.2.0)</version>
+			<version>[0.1.2-SNAPSHOT,0.2.0)</version>
 			<scope>test</scope>
 		</dependency>		
 	</dependencies>

@@ -40,26 +40,9 @@ public class MsPowerpointParserTest extends AParserTest {
 		this.parser = new MsPowerpointParser();
 	}
 	
-	public void testGetMimeType() {
-		List<String> mimeTypes = this.parser.getMimeTypes();
-		assertNotNull(mimeTypes);
-		assertEquals(3, mimeTypes.size());
-		ListAssert.assertEquals(
-				Arrays.asList(new String[]{"application/mspowerpoint","application/powerpoint","application/vnd.ms-powerpoint"}),
-				mimeTypes
-		);
-	}
-	
 	public void testParseMsPowerpoint() throws UnsupportedEncodingException, ParserException, IOException, URISyntaxException {
 		IParserDocument parserDoc = null;
 		try {
-			List<String> mimeTypes = this.parser.getMimeTypes();
-			assertNotNull(mimeTypes);
-			assertTrue(mimeTypes.size() > 0);
-
-			String mimeType = mimeTypes.get(0);
-			assertTrue(mimeType.length() != 0);
-
 			File testFile = new File("src/test/resources/test.ppt");
 			assertTrue(testFile.exists());
 

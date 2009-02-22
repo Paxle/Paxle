@@ -29,19 +29,17 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
-
 import org.htmlparser.Parser;
 import org.htmlparser.lexer.InputStreamSource;
 import org.htmlparser.lexer.Lexer;
 import org.htmlparser.lexer.Source;
-
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.html.IHtmlParser;
 
 /**
  * Parses (X)HTML-pages using the html parser from
@@ -53,15 +51,17 @@ import org.paxle.parser.html.IHtmlParser;
  * </p>
  * @see org.htmlparser.Parser#visitAllNodesWith(org.htmlparser.visitors.NodeVisitor) for the iterator
  * @see org.paxle.parser.html.impl.NodeCollector for the callback
+ * 
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="text/html"
+ * 				 values.2="application/xhtml+xml"
+ * 			     values.3="application/xml"
+ * 				 values.4="text/xml"
+ * 				 values.4="text/sgml"
  */
-public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
-	
-	private static final List<String> MIME_TYPES = Arrays.asList(
-			"text/html",
-			"application/xhtml+xml",
-			"application/xml",
-			"text/xml",
-			"text/sgml");
+public class HtmlParser implements ISubParser, PoolableObjectFactory {
 	
 	private final Log logger = LogFactory.getLog(HtmlParser.class);
 	
@@ -89,13 +89,15 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 	/**
 	 * An object pool containing {@link HtmlParserRequisites}
 	 */
-	private final ObjectPool pool = new GenericObjectPool(this);
+	private ObjectPool pool = null;
 	
-	public HtmlParser() {
+	protected void activate(ComponentContext context) {
+		this.pool = new GenericObjectPool(this);
 	}
-	
-	public void close() throws Exception {
-		pool.close();
+
+	protected void deactivate(ComponentContext context) throws Exception {
+		this.pool.close();
+		this.pool = null;
 	}
 	
 	/**
@@ -133,14 +135,7 @@ public class HtmlParser implements IHtmlParser, PoolableObjectFactory {
 		// don't know how
 		return true;
 	}
-	
-	/**
-	 * @see ISubParser#getMimeTypes()
-	 */
-	public List<String> getMimeTypes() {
-		return MIME_TYPES;
-	}
-	
+
 	/**
 	 * @see ISubParser#parse(URI, String, InputStream)
 	 */

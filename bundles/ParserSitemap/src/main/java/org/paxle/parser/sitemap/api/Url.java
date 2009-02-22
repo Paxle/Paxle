@@ -17,6 +17,11 @@ import java.net.URI;
 import java.util.Date;
 
 public interface Url {
+	public URI getLocation();
+	public Date getLastMod();
+	public ChangeFrequency getChangeFreq();
+	public Float getPriority();	
+	
 	public static enum ChangeFrequency {
 	    always,
 	    hourly,
@@ -26,9 +31,4 @@ public interface Url {
 	    yearly,
 	    never
 	}
-	
-	public URI getLocation();
-	public Date getLastMod();
-	public ChangeFrequency getChangeFreq();
-	public Float getPriority();
 }

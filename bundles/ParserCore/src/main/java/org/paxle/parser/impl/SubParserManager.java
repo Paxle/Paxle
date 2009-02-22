@@ -141,15 +141,13 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		} else if (mimeTypesObj instanceof String[]) {
 			return (String[])mimeTypesObj;
 		} else {
-			final ISubParser p = (ISubParser)context.getService(ref);
-			logger.warn(String.format("Parser '%s' registered with no mime-types to the framework", p.getClass().getName()));
-			final Collection<String> mimeTypes = p.getMimeTypes();
-			if (mimeTypes == null || mimeTypes.size() == 0) {
-				logger.error(String.format("Parser '%s' does not provide support for any mime-types", p.getClass().getName()));
+			try {
+				final ISubParser p = (ISubParser)context.getService(ref);
+				this.logger.warn(String.format("Parser '%s' registered with no mime-types to the framework", p.getClass().getName()));
 				return null;
+			} finally {		
+				context.ungetService(ref);
 			}
-			context.ungetService(ref);
-			return mimeTypes.toArray(new String[mimeTypes.size()]);
 		}
 	}
 	

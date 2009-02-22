@@ -21,9 +21,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,15 +41,9 @@ public abstract class AMsOfficeParser implements ISubParser {
 	
 	private Log logger = LogFactory.getLog(this.getClass());
 	private final String docType;
-	private final List<String> mimeTypes;
 	
-	protected AMsOfficeParser(final String docType, final String... mimeTypes) {
+	protected AMsOfficeParser(final String docType) {
 		this.docType = docType;
-		this.mimeTypes = Arrays.asList(mimeTypes);
-	}
-	
-	public List<String> getMimeTypes() {
-		return mimeTypes;
 	}
 	
 	public IParserDocument parse(URI location, String charset, File content) throws ParserException, UnsupportedEncodingException, IOException {

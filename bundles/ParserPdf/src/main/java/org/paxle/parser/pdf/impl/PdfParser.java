@@ -22,29 +22,26 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.CachedParserDocument;
+import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.pdf.IPdfParser;
 import org.pdfbox.pdfparser.PDFParser;
 import org.pdfbox.pdmodel.PDDocument;
 import org.pdfbox.pdmodel.PDDocumentInformation;
 import org.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
 import org.pdfbox.util.PDFTextStripper;
 
-public class PdfParser implements IPdfParser {
-	
-	private static final List<String> MIME_TYPES = Arrays.asList(
-			"application/pdf"
-	);
-	
-	public List<String> getMimeTypes() {
-		return MIME_TYPES;
-	}
-	
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="application/pdf"
+ */
+public class PdfParser implements ISubParser {
+
 	public IParserDocument parse(URI location, String charset, InputStream fileIn)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		CachedParserDocument parserDoc = null;

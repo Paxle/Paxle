@@ -19,11 +19,11 @@ import java.util.Iterator;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
-import org.paxle.core.io.temp.impl.TempFileManager;
-import org.paxle.core.norm.impl.ReferenceNormalizer;
 import org.paxle.parser.impl.AParserTest;
 
 public class HtmlParserTest extends AParserTest {
+	
+	private HtmlParser parser;
 	
 	private static final String[] TEST_CASES = {
 		"svgopen.org_index.html",
@@ -37,11 +37,23 @@ public class HtmlParserTest extends AParserTest {
 		// "imdb_biographies_s.html" // XXX: you need to set Xmx to 128m to run this
 	};
 	
-	// FIXME: <a name="#bla" /> is only recognized as a starting not an ending a-tag
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		// creating the parser
+		this.parser = new HtmlParser();
+		this.parser.activate(null);
+	}
 	
-	public static void testHtmlBaseHref() throws Exception {
+	@Override
+	protected void tearDown() throws Exception {
+		this.parser.deactivate(null);
+		super.tearDown();
+	}
+	
+	public void testHtmlBaseHref() throws Exception {
 		final File testResource = new File("src/test/resources/", "baseHrefTest.html");
-		final HtmlParser parser = new HtmlParser();
 		final IParserDocument pdoc = parser.parse(URI.create("http://www.example.org/baseHrefTest.html"), null, testResource);
 		assertNotNull(pdoc);
 		final Iterator<URI> it = pdoc.getLinks().keySet().iterator();
@@ -50,29 +62,18 @@ public class HtmlParserTest extends AParserTest {
 	}
 	
 	/** does not work as expected yet */
-	public static void testHtmlParser() throws Exception {
+	public void testHtmlParser() throws Exception {
 		final File testResources = new File("src/test/resources/");
-		final HtmlParser parser = new HtmlParser();
 		for (final String testCase : TEST_CASES) {
-			// System.out.println(testCase);
 			final IParserDocument pdoc = parser.parse(new URI("http://www.example.org/" + testCase), null, new File(testResources, testCase));
 			assertNotNull(pdoc);
 			assertNotNull(pdoc.getMimeType());
-			
-			/*
-			System.out.println(pdoc.getLinks().size());
-			System.out.println(pdoc.getTextFile().length());
-			System.out.println();*/
 		}
-		parser.close();
 	}
 	
-	public static void testHtmlParserThreaded() throws Exception {
+	public void testHtmlParserThreaded() throws Exception {
 		final Thread[] threads = new Thread[TEST_CASES.length];
 		final File testResources = new File("src/test/resources/");
-		final HtmlParser parser = new HtmlParser();
-		final TempFileManager tfm = new TempFileManager();
-		final ReferenceNormalizer refNorm = new ReferenceNormalizer();
 		
 		for (int i=0; i<TEST_CASES.length; i++) {
 			final String testCase = TEST_CASES[i];
@@ -97,7 +98,6 @@ public class HtmlParserTest extends AParserTest {
 		
 		for (int i=0; i<threads.length; i++)
 			threads[i].join();
-		parser.close();
 	}
 	
 	private static final String[][] REPL_CASES = {
@@ -105,7 +105,7 @@ public class HtmlParserTest extends AParserTest {
 		{ "Da &amp; dort passierte &quot;etwas&quot;.", "Da & dort passierte \"etwas\"." }
 	};
 	
-	public static void testHtmlReplace() throws Exception {
+	public void testHtmlReplace() throws Exception {
 		for (int i=0; i<REPL_CASES.length; i++) {
 			final String repl = HtmlTools.deReplaceHTML(REPL_CASES[i][0]);
 			final String exp = REPL_CASES[i][1];
@@ -114,20 +114,15 @@ public class HtmlParserTest extends AParserTest {
 		}
 	}
 	
-	public static void testParseWindows1256Html() throws Exception {
-		final HtmlParser parser = new HtmlParser();
-		try {
-			final File testResources = new File("src/test/resources/maktoobblog.com.html");
+	public void testParseWindows1256Html() throws Exception {
+		final File testResources = new File("src/test/resources/maktoobblog.com.html");
 
-			final IParserDocument pdoc = parser.parse(new URI("http://maktoobblog.com.html/"), null, testResources);
-			assertNotNull(pdoc);
-			assertEquals("\u0645\u0646\u0627\u0647\u0644 \u0627\u0644\u062a\u0631\u0628\u064a\u0629", pdoc.getTitle());
-			
-			LinkInfo lInfo = pdoc.getLinks().get(URI.create("http://www.maktoobblog.com/nextBlog.php"));
-			assertNotNull(lInfo);
-			assertEquals("\u0627\u0644\u0645\u062f\u0648\u0651\u0646\u0629 \u0627\u0644\u062a\u0627\u0644\u064a\u0629", lInfo.getTitle());
-		} finally {
-			parser.close();
-		}
+		final IParserDocument pdoc = parser.parse(new URI("http://maktoobblog.com.html/"), null, testResources);
+		assertNotNull(pdoc);
+		assertEquals("\u0645\u0646\u0627\u0647\u0644 \u0627\u0644\u062a\u0631\u0628\u064a\u0629", pdoc.getTitle());
+		
+		LinkInfo lInfo = pdoc.getLinks().get(URI.create("http://www.maktoobblog.com/nextBlog.php"));
+		assertNotNull(lInfo);
+		assertEquals("\u0627\u0644\u0645\u062f\u0648\u0651\u0646\u0629 \u0627\u0644\u062a\u0627\u0644\u064a\u0629", lInfo.getTitle());
 	}
 }

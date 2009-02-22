@@ -34,13 +34,19 @@ public class FeedParserTest extends AParserTest {
 	 * The parser
 	 */
 	private FeedParser parser = null;
+	private HtmlParser htmlParser = null;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
+		// init the html-parser
+		this.htmlParser = new HtmlParser(){{
+			this.activate(null);
+		}};
+		
 		// the feed contains html code
-		this.mimeTypeToParserMap.put("text/html",new HtmlParser());
+		this.mimeTypeToParserMap.put("text/html",this.htmlParser);
 		
 		// create the parser(s)
 		this.parser = new FeedParser();	

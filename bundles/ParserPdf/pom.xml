@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserPdf</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<name>Paxle - Parser: PDF</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -53,9 +53,6 @@
 						<Private-Package>
 							org.paxle.parser.pdf.impl
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.parser.pdf.impl.Activator
-						</Bundle-Activator>
 
 						<!-- embedding libs -->
 						<Embed-StripGroup>true</Embed-StripGroup>
@@ -67,6 +64,19 @@
 					</instructions>
 				</configuration>
 			</plugin>
+						
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>			
 		</plugins>
 	</build>
 
@@ -80,7 +90,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>ParserCore</artifactId>
-			<version>[,0.2.0)</version>
+			<version>[0.1.3-SNAPSHOT,0.2.0)</version>
 		</dependency>
 
 		<dependency>

@@ -17,37 +17,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.io.IOTools;
 import org.paxle.parser.ASubParser;
+import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.iotools.SubParserDocOutputStream;
-import org.paxle.parser.tar.ITarParser;
 
 import com.ice.tar.TarEntry;
 import com.ice.tar.TarInputStream;
 
-public class TarParser extends ASubParser implements ITarParser {
-	
-	private static final String[] MIMETYPES = {
-		"application/x-tar",
-		"application/x-gtar",
-		"application/x-ustar",
-		/* FIXME: http://filext.com/file-extension/TAR additionally lists the following. Are these valid?
-		 *	multipart/x-tar 
-		 *	application/x-compress 
-		 *	application/x-compressed
-		 */
-	};
-	
-	public List<String> getMimeTypes() {
-		return Arrays.asList(MIMETYPES);
-	}
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="application/x-tar"
+ * 				 values.2="application/x-gtar"
+ * 			     values.3="application/x-ustar"
+ */
+public class TarParser extends ASubParser implements ISubParser {
 	
 	@Override
 	public IParserDocument parse(URI location, String charset, InputStream is)

@@ -22,12 +22,17 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.msoffice.IMsWordParser;
 
-public class MsWordParser extends AMsOfficeParser implements ISubParser, IMsWordParser {
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="application/msword"
+ */
+public class MsWordParser extends AMsOfficeParser implements ISubParser {
 	
 	public MsWordParser() {
-		super("word", "application/msword");
+		super("word");
 	}
 	
 	@Override

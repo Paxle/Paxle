@@ -40,23 +40,9 @@ public class MsWordParserTest extends AParserTest {
 		this.parser = new MsWordParser();
 	}
 
-	public void testGetMimeType() {
-		List<String> mimeTypes = this.parser.getMimeTypes();
-		assertNotNull(mimeTypes);
-		assertEquals(1, mimeTypes.size());
-		ListAssert.assertContains(mimeTypes,"application/msword");
-	}
-
 	public void testParseMsWord() throws UnsupportedEncodingException, ParserException, IOException, URISyntaxException {
 		IParserDocument parserDoc = null;
 		try {
-			List<String> mimeTypes = this.parser.getMimeTypes();
-			assertNotNull(mimeTypes);
-			assertTrue(mimeTypes.size() > 0);
-
-			String mimeType = mimeTypes.get(0);
-			assertTrue(mimeType.length() != 0);
-
 			File testFile = new File("src/test/resources/test.doc");
 			assertTrue(testFile.exists());
 

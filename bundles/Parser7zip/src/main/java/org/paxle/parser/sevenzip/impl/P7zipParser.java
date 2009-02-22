@@ -24,19 +24,21 @@ import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.CachedParserDocument;
+import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.sevenzip.I7zipParser;
 
 import SevenZip.Archive.SevenZip.Handler;
 
-public class P7zipParser extends ASubParser implements I7zipParser {
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="application/x-7z-compressed"
+ */
+public class P7zipParser extends ASubParser implements ISubParser {
 	
-	private static final List<String> MimeTypes = Arrays.asList("application/x-7z-compressed");
-	
-	public List<String> getMimeTypes() {
-		return MimeTypes;
-	}
+	public static final List<String> MIME_TYPES = Arrays.asList("application/x-7z-compressed");
 	
 	@Override
 	public IParserDocument parse(URI location, String charset, File content) throws

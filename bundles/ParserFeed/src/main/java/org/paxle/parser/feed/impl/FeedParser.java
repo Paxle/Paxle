@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,7 +35,6 @@ import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.feed.IFeedParser;
 import org.xml.sax.InputSource;
 
 import de.nava.informa.core.ChannelFormat;
@@ -45,29 +43,24 @@ import de.nava.informa.core.ImageIF;
 import de.nava.informa.core.ItemIF;
 import de.nava.informa.impl.basic.ChannelBuilder;
 
-public class FeedParser extends ASubParser implements IFeedParser {
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.parser.ISubParser"
+ * @scr.property name="MimeTypes" 
+ * 				 values.1="application/rdf+xml"
+ * 				 values.2="application/rss+xml"
+ * 			     values.3="application/atom+xml"
+ * 				 values.4="text/rss"
+ */
+public class FeedParser extends ASubParser implements ISubParser {
 	private static final String MIMETYPE_RDF = "application/rdf+xml";
 	private static final String MIMETYPE_RSS = "application/rss+xml";
 	private static final String MIMETYPE_ATOM = "application/atom+xml";
 	
 	/**
-	 * The mimetypes supported by this parser
-	 */
-	private static final List<String> MIMETYPES = Arrays.asList(
-			"text/rss",
-			MIMETYPE_RDF,
-			MIMETYPE_RSS,
-			MIMETYPE_ATOM
-	);
-	
-	/**
 	 * for logging
 	 */
 	private final Log logger = LogFactory.getLog(FeedParser.class);
-	
-	public List<String> getMimeTypes() {
-		return MIMETYPES;
-	}
 	
 	@Override
 	public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException {				
