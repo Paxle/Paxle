@@ -20,7 +20,7 @@
 	</variables>	
 	<dynamicvariables>
 		<variable name="paxle.data" value="${UserPathPanelVariable}"/>
-		<variable name="equinox.data" value="${UserPathPanelVariable}/configuration"/>
+		<variable name="equinox.data" value="${UserPathPanelVariable}${FILE_SEPARATOR}configuration"/>
 	</dynamicvariables>
 
 	<guiprefs width="700" height="550" resizable="no">
@@ -66,7 +66,10 @@
 		<res id="CustomLangpack.xml_eng" src="${basedir}/src/main/resources/installers/l10n/CustomLangpack_eng.xml"/>
 		<res id="CustomLangpack.xml_deu" src="${basedir}/src/main/resources/installers/l10n/CustomLangpack_deu.xml"/>
 		<res id="userInputLang.xml_eng" src="${basedir}/src/main/resources/installers/l10n/userInputLang_eng.xml"/>
-		<res id="userInputLang.xml_deu" src="${basedir}/src/main/resources/installers/l10n/userInputLang_deu.xml"/>			
+		<res id="userInputLang.xml_deu" src="${basedir}/src/main/resources/installers/l10n/userInputLang_deu.xml"/>	
+		
+		<!-- default path definitions -->
+		<res id="UserPathPanel.dir.windows" src="${basedir}/src/main/resources/installers/dirs/userpath.windows.res" />
 	</resources>
 	
 	<!-- The native libraries to add. This is required for creating shortcuts on Windows -->

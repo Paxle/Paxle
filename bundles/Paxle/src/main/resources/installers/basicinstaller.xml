@@ -16,8 +16,8 @@
 	</variables>	
 	<dynamicvariables>
 		<variable name="paxle.data" value="${UserPathPanelVariable}"/>
-		<variable name="equinox.data" value="${UserPathPanelVariable}/configuration"/>
-		<variable name="equinox.data.path" value="${UserPathPanelVariable}/configuration"/>
+		<variable name="equinox.data" value="${UserPathPanelVariable}${FILE_SEPARATOR}configuration"/>
+		<variable name="equinox.data.path" value="${UserPathPanelVariable}${FILE_SEPARATOR}configuration"/>
 	</dynamicvariables>
 		
     <guiprefs width="700" height="550" resizable="yes">
@@ -64,6 +64,9 @@
 		<res id="CustomLangpack.xml_deu" src="${basedir}/src/main/resources/installers/l10n/CustomLangpack_deu.xml"/>
 		<res id="userInputLang.xml_eng" src="${basedir}/src/main/resources/installers/l10n/userInputLang_eng.xml"/>
 		<res id="userInputLang.xml_deu" src="${basedir}/src/main/resources/installers/l10n/userInputLang_deu.xml"/>	
+		
+		<!-- default path definitions -->
+		<res id="UserPathPanel.dir.windows" src="${basedir}/src/main/resources/installers/dirs/userpath.windows.res" />
 	</resources>
 	
 	<native type="izpack" name="ShellLink.dll" />
@@ -108,7 +111,7 @@
 			
 			<!-- parsing and including the runtime-property file -->
 			<file targetdir="$INSTALL_PATH" src="${basedir}/src/main/resources/equinox/start.ini"/>
-			<parsable targetfile="$INSTALL_PATH/start.ini" type="javaprop"/>
+			<parsable targetfile="$INSTALL_PATH/start.ini"/>
 			
 			<!-- parsing and including the runtime-property file -->
 			<file targetdir="$equinox.data.path" src="${basedir}/src/main/resources/logging/log4j.properties"/>
