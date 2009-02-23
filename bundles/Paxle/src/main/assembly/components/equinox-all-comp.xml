@@ -21,7 +21,7 @@
 		<file>
 			<source>src/main/resources/equinox/start.ini</source>
 			<outputDirectory>/</outputDirectory>
-			<filtered>false</filtered>
+			<filtered>true</filtered>
 			<lineEnding>dos</lineEnding>
 		</file>			
 	</files>	

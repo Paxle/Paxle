@@ -16,6 +16,8 @@
 	</variables>	
 	<dynamicvariables>
 		<variable name="paxle.data" value="${UserPathPanelVariable}"/>
+		<variable name="equinox.data" value="${UserPathPanelVariable}/configuration"/>
+		<variable name="equinox.data.path" value="${UserPathPanelVariable}/configuration"/>
 	</dynamicvariables>
 		
     <guiprefs width="700" height="550" resizable="yes">
@@ -95,11 +97,21 @@
 				<exclude name="GUI*.jar" />
 				
 				<!-- exclude config files (will be parsed and included separately) -->
-				<exclude name="configuration/config.ini" />
+				<exclude name="configuration" />
+				<exclude name="configuration/*" />
+				<exclude name="start.ini" />
 			</fileset>
 			
-			<file targetdir="$INSTALL_PATH/configuration" src="${basedir}/src/main/resources/equinox/configuration/config.ini"/>
-			<parsable targetfile="$INSTALL_PATH/configuration/config.ini" type="javaprop"/>
+			<!-- parsing and including the equinox config file -->
+			<file targetdir="$equinox.data.path" src="${basedir}/src/main/resources/equinox/configuration/config.ini"/>
+			<parsable targetfile="$equinox.data.path/config.ini" type="javaprop"/>
+			
+			<!-- parsing and including the runtime-property file -->
+			<file targetdir="$INSTALL_PATH" src="${basedir}/src/main/resources/equinox/start.ini"/>
+			<parsable targetfile="$INSTALL_PATH/start.ini" type="javaprop"/>
+			
+			<!-- parsing and including the runtime-property file -->
+			<file targetdir="$equinox.data.path" src="${basedir}/src/main/resources/logging/log4j.properties"/>
 
 			<!-- uninstaller shell script -->
 			<fileset dir="${basedir}/src/main/resources/installers/" includes="uninstall.sh" targetdir="$INSTALL_PATH/Uninstaller" />

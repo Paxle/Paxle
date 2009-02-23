@@ -20,6 +20,7 @@
 	</variables>	
 	<dynamicvariables>
 		<variable name="paxle.data" value="${UserPathPanelVariable}"/>
+		<variable name="equinox.data" value="${UserPathPanelVariable}/configuration"/>
 	</dynamicvariables>
 
 	<guiprefs width="700" height="550" resizable="no">

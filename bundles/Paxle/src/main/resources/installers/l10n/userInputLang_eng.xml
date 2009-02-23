@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <langpack>	
 	<str id="settings.comment" txt="The following properties are required by Paxle:"/>
+	
 	<str id="settings.httpPort.name" txt="HTTP-Port"/>
 	<str id="settings.httpPort.desc" txt="The port to access the GUI"/>
+	
+	<str id="settings.xmx.name" txt="Memory"/>
+	<str id="settings.xmx.desc" txt="The amount of main-memory (in MB) paxle is allowed to consume."/>
 </langpack>

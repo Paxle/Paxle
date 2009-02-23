@@ -9,12 +9,21 @@
 				<include name="**" />
 				
 				<!-- exclude config files (will be parsed and included separately) -->
-				<exclude name="configuration/config.ini" />				
+				<exclude name="configuration" />
+				<exclude name="configuration/*" />
+				<exclude name="start.ini" />
 			</fileset>
 
 			<!-- parsing and including the equinox config file -->
-			<file targetdir="$INSTALL_PATH/configuration" src="${basedir}/src/main/resources/equinox/configuration/config.ini"/>
-			<parsable targetfile="$INSTALL_PATH/configuration/config.ini" type="javaprop"/>
+			<file targetdir="$equinox.data" src="${basedir}/src/main/resources/equinox/configuration/config.ini"/>
+			<parsable targetfile="$equinox.data/config.ini" type="javaprop"/>
+			
+			<!-- parsing and including the runtime-property file -->
+			<file targetdir="$INSTALL_PATH" src="${basedir}/src/main/resources/equinox/start.ini"/>
+			<parsable targetfile="$INSTALL_PATH/start.ini" type="javaprop"/>
+			
+			<!-- parsing and including the runtime-property file -->
+			<file targetdir="$equinox.data" src="${basedir}/src/main/resources/logging/log4j.properties"/>
 
 			<!-- uninstaller shell script -->
 			<fileset dir="${basedir}/src/main/resources/installers/" includes="uninstall.sh" targetdir="$INSTALL_PATH/Uninstaller" />

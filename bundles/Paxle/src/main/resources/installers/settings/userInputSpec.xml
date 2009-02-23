@@ -12,6 +12,13 @@
             <spec txt="HTTP-Port" size="5" set="0:8080" layout="N:5:5" id="settings.httpPort.name"/>
             <createForPack name="GUI" />
         </field>
+		<field type="space"/>
+		
+    	<!-- memory configuration -->
+        <field type="rule" align="left" variable="runtime.xmx.mb">
+            <description align="left" txt="The amount of main-memory (in MB) paxle is allowed to consume." id="settings.xmx.desc"/>
+            <spec txt="Memory" size="5" set="0:256" layout="N:5:5" id="settings.xmx.name"/>
+        </field>
 
 		<field type="space"/>
 		<field type="divider"/>

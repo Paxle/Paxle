@@ -96,8 +96,12 @@
 		<equinox.dependencies>target/dependency/equinox</equinox.dependencies>
 		<equinox.runtime.jar>org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar</equinox.runtime.jar>
 		<equinox.bundledir>bundles</equinox.bundledir>
+		
+		<!-- properties that will be overwritten by the installer -->
 		<org.osgi.service.http.port>8080</org.osgi.service.http.port>
 		<paxle.data>.</paxle.data>
+		<equinox.data>configuration</equinox.data>
+		<runtime.xmx.mb>128</runtime.xmx.mb>
 		
 		<!-- Apache Felix related Properties -->
 		<felix.dependencies>target/dependency/felix</felix.dependencies>
