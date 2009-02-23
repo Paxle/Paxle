@@ -35,7 +35,7 @@ import org.paxle.api.jaxrs.cm.PropertyResource;
 /**
  * @scr.component 
  * @scr.service interface="java.lang.Object"
- * @scr.property name="javax.ws.rs" type="Boolean" value="true" 
+ * @scr.property name="javax.ws.rs" type="Boolean" value="true" private="true"
  */  
 @SuppressWarnings("unchecked")
 @Provider 

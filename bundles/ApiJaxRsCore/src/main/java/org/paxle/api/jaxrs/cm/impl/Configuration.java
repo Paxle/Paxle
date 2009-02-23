@@ -42,7 +42,7 @@ import org.paxle.api.jaxrs.cm.BundleResource;
 /**
  * @scr.component 
  * @scr.service interface="java.lang.Object"
- * @scr.property name="javax.ws.rs" type="Boolean" value="true" 
+ * @scr.property name="javax.ws.rs" type="Boolean" value="true" private="true"
  * @scr.reference name="metaTypeProviders" 
  * 				  interface="org.osgi.service.metatype.MetaTypeProvider" 
  * 				  cardinality="0..n" 

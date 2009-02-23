@@ -31,7 +31,7 @@ import org.paxle.api.jaxrs.monitorable.MonitorableResource;
 /**
  * @scr.component 
  * @scr.service interface="java.lang.Object"
- * @scr.property name="javax.ws.rs" type="Boolean" value="true" 
+ * @scr.property name="javax.ws.rs" type="Boolean" value="true" private="true"
  */  
 @Path("/monitorables")
 public class Monitorables {
