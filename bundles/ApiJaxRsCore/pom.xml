@@ -61,7 +61,9 @@
 						    <!-- Servlet API -->		
 							javax.ws.rs,
 							javax.ws.rs.core,
-							javax.ws.rs.ext
+							javax.ws.rs.ext,
+							<!-- image processing -->
+							javax.imageio
 						</Import-Package>
 						<Private-Package>
 							org.paxle.api.jaxrs.monitorable.impl,
