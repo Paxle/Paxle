@@ -16,7 +16,6 @@ package org.paxle.core.filter.impl;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
@@ -54,17 +53,11 @@ public class FilterListener implements ServiceListener {
 	/**
 	 * A LDAP styled expression used for the {@link IFilter filter}-listener
 	 */
-	public static final String FILTER;
-	
-	// generating filter expression
-	static {
-		final StringBuilder sb = new StringBuilder("(&(service.pid=*)(|");
-		final Formatter formatter = new Formatter(sb);
-		for (String intrface : INTERFACES)
-			formatter.format("(%s=%s)", Constants.OBJECTCLASS, intrface);
-		formatter.close();
-		FILTER = sb.append("))").toString();
-	}
+	public static final String FILTER = String.format(
+			"(|(&(objectClass=%s)(service.pid=*))(objectClass=%s))",
+			IFilter.class.getName(),
+			IFilterQueue.class.getName()
+	);
 
 	/**
 	 * A class to manage {@link IFilter filters} and
