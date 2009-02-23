@@ -560,7 +560,7 @@ public class ConfigView extends ALayoutServlet {
 		Object finalAttributeValues = null;
 		if (cardinality != 0) {				
 			if (cardinality >= 1) {
-				int valueArraySize = Math.min(cardinality, (attributeValueStrings == null) ? 0 : attributeValueStrings.length);
+				int valueArraySize = Math.min(Math.abs(cardinality), (attributeValueStrings == null) ? 0 : attributeValueStrings.length);
 				
 				// the attribute-value-list must be an array of ....
 				switch (attributeType) {
