@@ -31,7 +31,7 @@ import org.paxle.parser.iotools.ParserDocOutputStream;
 /**
  * @scr.component
  * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" 
+ * @scr.property name="MimeTypes" private="true" 
  * 				 values.1="application/x-gzip"
  * 				 values.2="application/gzip"
  */

@@ -37,7 +37,7 @@ import org.paxle.parser.ParserException;
 /**
  * @scr.component
  * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" 
+ * @scr.property name="MimeTypes" private="true" 
  * 				 values.1="application/x-shockwave-flash"
  */
 public class SWFParser extends ASubParser implements ISubParser {

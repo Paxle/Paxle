@@ -23,7 +23,7 @@ import org.paxle.parser.ParserException;
 /**
  * @scr.component
  * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" 
+ * @scr.property name="MimeTypes" private="true" 
  * 				 values.1="application/msexcel"
  * 				 values.2="application/vnd.ms-excel"
  */

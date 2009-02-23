@@ -33,7 +33,7 @@ import SevenZip.Archive.SevenZip.Handler;
 /**
  * @scr.component
  * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" 
+ * @scr.property name="MimeTypes" private="true" 
  * 				 values.1="application/x-7z-compressed"
  */
 public class P7zipParser extends ASubParser implements ISubParser {

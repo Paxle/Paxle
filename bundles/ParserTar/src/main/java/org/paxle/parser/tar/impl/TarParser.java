@@ -33,7 +33,7 @@ import com.ice.tar.TarInputStream;
 /**
  * @scr.component
  * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" 
+ * @scr.property name="MimeTypes" private="true" 
  * 				 values.1="application/x-tar"
  * 				 values.2="application/x-gtar"
  * 			     values.3="application/x-ustar"

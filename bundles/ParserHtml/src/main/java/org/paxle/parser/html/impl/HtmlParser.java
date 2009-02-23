@@ -54,7 +54,7 @@ import org.paxle.parser.ParserException;
  * 
  * @scr.component
  * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" 
+ * @scr.property name="MimeTypes" private="true" 
  * 				 values.1="text/html"
  * 				 values.2="application/xhtml+xml"
  * 			     values.3="application/xml"

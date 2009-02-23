@@ -35,7 +35,7 @@ import org.paxle.parser.ParserException;
 /**
  * @scr.component
  * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" 
+ * @scr.property name="MimeTypes" private="true" 
  * 				 values.1="text/plain"
  */
 public class PlainParser implements ISubParser {

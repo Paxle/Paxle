@@ -37,7 +37,7 @@ import org.paxle.parser.xbel.api.Xbel;
 /**
  * @scr.component
  * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" 
+ * @scr.property name="MimeTypes" private="true" 
  * 				 values.1="application/xbel+xml"
  * 				 values.2="application/x-xbel"
  */

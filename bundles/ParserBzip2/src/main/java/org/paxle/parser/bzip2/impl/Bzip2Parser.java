@@ -32,7 +32,7 @@ import org.paxle.parser.iotools.ParserDocOutputStream;
  * @scr.component
  * @scr.service interface="org.paxle.parser.ISubParser"
  * @scr.service interface="org.paxle.parser.bzip2.IBzip2Parser"
- * @scr.property name="MimeTypes" 
+ * @scr.property name="MimeTypes" private="true" 
  * 				 values.1="application/x-bzip2"
  * 				 values.2="application/bzip2"
  * 			     values.3="application/x-bz2"

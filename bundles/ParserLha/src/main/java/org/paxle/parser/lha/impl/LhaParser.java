@@ -37,7 +37,7 @@ import org.paxle.parser.iotools.SubParserDocOutputStream;
 /**
  * @scr.component
  * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" 
+ * @scr.property name="MimeTypes" private="true" 
  * 				 values.1="application/x-lzh-compressed"
  * 				 values.2="application/x-lzh-archive"
  * 			     values.3="application/lzh"
