@@ -1,7 +1,6 @@
 <archetype>
   <id>ArchetypeFilter</id>
   <sources>
-    <source>src/main/java/impl/Activator.java</source>
     <source>src/main/java/impl/MyFilter.java</source>
   </sources>
 </archetype>

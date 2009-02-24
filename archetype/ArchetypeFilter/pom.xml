@@ -17,18 +17,45 @@
 		</snapshotRepository>
 	</distributionManagement>
 
+	<repositories>
+		<repository>
+			<id>apache.org</id>
+			<name>Maven Snapshots</name>
+			<url>http://people.apache.org/repo/m2-snapshot-repository</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+		<pluginRepositories>
+			<pluginRepository>
+				<id>apache.org</id>
+				<name>Maven Plugin Snapshots</name>
+				<url>http://people.apache.org/repo/m2-snapshot-repository</url>
+				<releases>
+					<enabled>false</enabled>
+				</releases>
+				<snapshots>
+					<enabled>true</enabled>
+				</snapshots>
+			</pluginRepository>
+		</pluginRepositories>
+
 	<build>
 		<extensions>
 			<extension>
 				<groupId>org.apache.maven.archetype</groupId>
 				<artifactId>archetype-packaging</artifactId>
-				<version>2.0-alpha-4</version>
+				<version>2.0-alpha-5-SNAPSHOT</version>
 			</extension>
 		</extensions>
 		<plugins>
 			<plugin>
 				<artifactId>maven-archetype-plugin</artifactId>
-				<version>2.0-alpha-4</version>
+				<version>2.0-alpha-5-SNAPSHOT</version>
 				<extensions>true</extensions>
 			</plugin>
 		</plugins>
