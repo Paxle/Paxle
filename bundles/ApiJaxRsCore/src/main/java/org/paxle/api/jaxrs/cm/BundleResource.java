@@ -83,6 +83,13 @@ public class BundleResource {
 	}
 	
 	/**
+	 * @return the Name of the {@link Bundle} wrapped by this resource
+	 */
+	public String getBundleName() {
+		return (String) this.bundle.getHeaders().get(Constants.BUNDLE_NAME);
+	}
+	
+	/**
 	 * This method is called when using the URL
 	 * <pre>http://localhost:8282/configurations/[bundleID]/configs</pre>
 	 * 
