@@ -142,7 +142,7 @@ public interface IParserDocument extends Closeable {
 
 	/**
 	 * Returns the Charset of this pDoc.
-	 * If this value has not been set via {@link #setCharset(Charset)}, this is null.
+	 * If this value has not been set via {@link #setCharset(Charset)}, this is <code>null</code>.
 	 * @see #setCharset(Charset)
 	 */
 	public abstract Charset getCharset();
@@ -223,12 +223,13 @@ public interface IParserDocument extends Closeable {
 
 	/**
 	 * @see #addLanguage(String)
-	 * @return a collection of all languages this document contains text in
+	 * @return a collection of all languages this document contains text in or <code>null</code> if unknown
 	 */
 	public abstract Set<String> getLanguages();
 
 	/**
-	 * Sets the set of languages this {@link IParserDocument} contains
+	 * Sets the set of languages this {@link IParserDocument} contains.
+	 * Should be <code>null</code> if the languages are unknown.
 	 * @see #addLanguage(String)
 	 * @param languages
 	 */
@@ -282,7 +283,7 @@ public interface IParserDocument extends Closeable {
 
 	/**
 	 * Gets the content of this document as File.
-	 * @return File if addText() has been used with this document, null otherwise (e.g. archives)
+	 * @return File if addText() has been used with this document, <code>null</code> otherwise (e.g. archives)
 	 * @throws IOException
 	 */
 	public abstract File getTextFile() throws IOException;

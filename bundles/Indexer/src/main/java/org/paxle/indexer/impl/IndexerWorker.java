@@ -228,7 +228,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 		final IIndexerDocument idoc = new IndexerDocument();
 		try {
 			final Collection<String> kw = pdoc.getKeywords();
-			final Set<String> langs = pdoc.getLanguages();
+			final Set<String> lng = pdoc.getLanguages();
 			
 			String protocol = location.getScheme();
 			
@@ -240,7 +240,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 			if (pdoc.getAuthor() != null)      idoc.set(IIndexerDocument.AUTHOR,        pdoc.getAuthor());
 			if (name != null)                  idoc.set(IIndexerDocument.INTERNAL_NAME, name);
 			if (kw.size() > 0)                 idoc.set(IIndexerDocument.KEYWORDS,      kw.toArray(new String[kw.size()]));
-			if (langs.size() > 0)              idoc.set(IIndexerDocument.LANGUAGES,     langs.toArray(new String[langs.size()]));
+			if (lng != null && lng.size() > 0) idoc.set(IIndexerDocument.LANGUAGES,     lng.toArray(new String[lng.size()]));
 			                                   idoc.set(IIndexerDocument.LAST_CRAWLED,  (lastCrawled == null) ? new Date(System.currentTimeMillis()) : lastCrawled);
 			if (pdoc.getLastChanged() != null) idoc.set(IIndexerDocument.LAST_MODIFIED, pdoc.getLastChanged());
 			                                   idoc.set(IIndexerDocument.LOCATION,      location.toString());

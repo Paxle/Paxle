@@ -46,7 +46,7 @@ public class PlainParserTest extends AParserTest {
 		assertTrue(pdoc.getHeadlines().size() == 0);
 		assertTrue(pdoc.getImages().size() == 0);
 		assertTrue(pdoc.getKeywords().size() == 0);
-		assertTrue(pdoc.getLanguages().size() == 0);
+		assertNull(pdoc.getLanguages());
 		assertTrue(pdoc.getLinks().size() == 2);
 		final Iterator<Map.Entry<URI,LinkInfo>> it = pdoc.getLinks().entrySet().iterator();
 		assertEquals(URI.create("http://www.example.org/bla?blubb=#tmp"), it.next().getKey());

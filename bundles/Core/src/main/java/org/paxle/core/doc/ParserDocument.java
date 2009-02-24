@@ -45,7 +45,7 @@ public class ParserDocument implements IParserDocument {
 	protected Collection<String> keywords = new LinkedList<String>();
 	protected Map<URI,LinkInfo> links = new HashMap<URI,LinkInfo>();
 	protected Map<URI,String> images = new HashMap<URI,String>();
-	protected Set<String> languages = new HashSet<String>();	
+	protected Set<String> languages;	
 	protected String author;
 	protected Date lastChanged;
 	protected String summary;
@@ -106,6 +106,7 @@ public class ParserDocument implements IParserDocument {
 	}
 	
 	public void addLanguage(String lang) {
+		if (this.getLanguages() == null) this.languages = new HashSet<String>(8);
 		this.languages.add(lang);
 	}
 	
