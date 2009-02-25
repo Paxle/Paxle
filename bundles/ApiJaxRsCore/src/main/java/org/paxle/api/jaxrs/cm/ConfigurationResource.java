@@ -17,6 +17,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -130,7 +133,7 @@ public class ConfigurationResource {
 		InputStream iconStream = null;
 		try {
 			iconStream = ocd.getIcon(16);
-			if (ocd == null) return null;
+			if (iconStream == null) return null;
 			
 			BufferedImage img = ImageIO.read(iconStream);
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -199,7 +202,7 @@ public class ConfigurationResource {
 		
 	@POST
 	@Path("properties")
-	public void setProperties(List<PropertyResource> props) throws IOException {
+	public void setProperties(List<PropertyResource> props) throws IOException, SecurityException, IllegalArgumentException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException {
 		if (props == null || props.size() == 0) return;
 		
 		// getting the currently active properties
@@ -207,15 +210,43 @@ public class ConfigurationResource {
 		Dictionary<String, Object> currentProps = this.config.getProperties();
 		if (currentProps == null) currentProps = new Hashtable<String, Object>();
 		
+		// metatype-data about the configurable-properties
+		Map<String, AttributeDefinition> metaData = this.getAttributeDefinitions(-1);
+		
 		// processing the received properties
 		for (PropertyResource prop : props) {
 			String key = prop.getID();
 			Object value = prop.getValue();
+			Class<?> valueClass = value.getClass();
 			
-			// TODO: type conversion needed here ...
+			// checking if the param is known
+			if (!metaData.containsKey(key)) {
+				// TODO: logging
+				continue;
+			}
+			AttributeDefinition attrMetaData = metaData.get(key);
+						
+			// if the input data is not of String[] array we do not support it
+			if (List.class.isInstance(value)) {
+				for (Object item : (List<Object>)value) {					
+					if (!String.class.isInstance(item)) {
+						System.err.println(item.getClass().getName());
+					}
+				}
+				value = ((List<String>)value).toArray(new String[0]);
+			}
+			
+			if (!String[].class.isInstance(value)) {
+				continue;
+			}				
+			
+			// value conversion
+			Object convertedValue = PropertyResource.convertValue((String[])value, attrMetaData);
+			
+			// type conversion needed here ...
 
 			// append the converted property to the props-list
-			currentProps.put(key, value);
+			currentProps.put(key, convertedValue);
 		}
 		
 		// updating CM properties

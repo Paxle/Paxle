@@ -153,38 +153,48 @@ public class PropertyResource {
 		return options;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private Object getDefaultPropertyValue() {
-		Object defaultValue = null;
 		try {
+			// getting default values
 			String[] defaultValues = this.attribDef.getDefaultValue();
 			if (defaultValues == null || defaultValues.length == 0) return null;
 			
-			int cardinality = this.attribDef.getCardinality();
-			Class<?> typeClass = TYPEMAP.get(this.attribDef.getType());
-			int size =  Math.min(Math.abs(cardinality), defaultValues.length);
-			
-			// loop through the default values and convert them
-			for (int i=0; i < defaultValues.length; i++) {
-				Object value = this.valueOf(cardinality, typeClass, defaultValues[i]);
-				if (cardinality == 0) {
-					defaultValue = value;
-					break;
-				} else if (cardinality < 0) {
-					if (defaultValue == null) defaultValue = new Vector<Object>();
-					((Vector<Object>)defaultValue).add(value);
-				} else if (cardinality > 0) {					
-					if (defaultValue == null) defaultValue = Array.newInstance(typeClass, size);
-					Array.set(defaultValue, i, value);
-				}
-			}			
+			// trying to convert them
+			return convertValue(defaultValues, this.attribDef);
 		} catch (Throwable e) {
+			// TODO: logging
 			e.printStackTrace();
-		}
-		return defaultValue;		
+			return null;
+		}		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static Object convertValue(String[] stringValue, AttributeDefinition attributeDef) throws SecurityException, IllegalArgumentException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException {	
+		Object convertedValue = null;
+
+		int cardinality = attributeDef.getCardinality();
+		Class<?> typeClass = TYPEMAP.get(attributeDef.getType());
+		int size =  Math.min(Math.abs(cardinality), stringValue.length);
+		
+		// loop through the default values and convert them
+		for (int i=0; i < stringValue.length; i++) {
+			Object value = valueOf(cardinality, typeClass, stringValue[i]);
+			if (cardinality == 0) {
+				convertedValue = value;
+				break;
+			} else if (cardinality < 0) {
+				if (convertedValue == null) convertedValue = new Vector<Object>();
+				((Vector<Object>)convertedValue).add(value);
+			} else if (cardinality > 0) {					
+				if (convertedValue == null) convertedValue = Array.newInstance(typeClass, size);
+				Array.set(convertedValue, i, value);
+			}
+		}			
+
+		return convertedValue;		
 	}	
 	
-	private Object valueOf(int cardinality, Class<?> typeClass, String value) throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchFieldException {
+	private static Object valueOf(int cardinality, Class<?> typeClass, String value) throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchFieldException {
 		// getting the primitive type-class (if required)
 		if (!String.class.isAssignableFrom(typeClass) && cardinality < 0) {
 			// add primitive type
