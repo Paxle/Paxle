@@ -273,6 +273,7 @@ public class ConfigurationResource {
 				if (validation != null && validation.length() > 0) {
 					// an validation error occured
 					validationResults.add(new PropertyValidationResult(key,validation));
+					continue;
 				}
 			}			
 			
@@ -281,7 +282,7 @@ public class ConfigurationResource {
 				Object convertedValue = PropertyResource.convertValue(stringValues, attrMetaData);
 				convertedProps.put(key, convertedValue);
 			} catch (Exception e) {
-				
+				validationResults.add(new PropertyValidationResult(key,e.getMessage()));
 			}
 		}
 		

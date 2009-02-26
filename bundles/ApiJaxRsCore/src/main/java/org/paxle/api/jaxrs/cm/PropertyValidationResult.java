@@ -14,16 +14,16 @@
 package org.paxle.api.jaxrs.cm;
 
 public class PropertyValidationResult {
-	private final String propertyID;
+	private final String id;
 	private final String errorMsg;
 	
 	public PropertyValidationResult(String propertyID, String errorMsg) {
-		this.propertyID = propertyID;
+		this.id = propertyID;
 		this.errorMsg = errorMsg;
 	}
 
-	public String getPropertyID() {
-		return propertyID;
+	public String getId() {
+		return this.id;
 	}
 
 	public String getErrorMsg() {
