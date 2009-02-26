@@ -52,6 +52,7 @@ public class BundleView extends ALayoutServlet {
 	private static final String PARAM_BUNDLE_PATH = "bundlePath";
 	private static final String PARAM_INSTALL_URL = "installURL";
 	private static final String PARAM_BUNDLE_ID = "bundleID";
+	private static final String PARAM_BUNDLE_SYMNAME = "bundleSymName";
 	private static final String PARAM_ACTION = "action";
 	private static final String PARAM_REPLACE = "replaceExisting";
 	
@@ -86,15 +87,24 @@ public class BundleView extends ALayoutServlet {
 			template = this.getTemplate("/resources/templates/BundleView.vm");
 			
 			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
-			if (request.getParameter(PARAM_BUNDLE_ID) != null) {
+			if (request.getParameter(PARAM_BUNDLE_ID) != null || request.getParameter(PARAM_BUNDLE_SYMNAME) != null) {
 				context.put("stringTools", new StringTools());
 				
-				long bundleID = Long.parseLong(request.getParameter(PARAM_BUNDLE_ID));
-				Bundle bundle = manager.getBundle(bundleID);
+				long bundleID = -1;
+				Bundle bundle = null;
+				
+				if (request.getParameter(PARAM_BUNDLE_SYMNAME) != null) {					
+					bundle = manager.getBundle(request.getParameter(PARAM_BUNDLE_SYMNAME));
+					bundleID = (bundle==null)?-1:bundle.getBundleId();
+				} else {
+					bundleID = Long.parseLong(request.getParameter(PARAM_BUNDLE_ID));
+					bundle = manager.getBundle(bundleID);
+				}
+				
 				if (bundle == null) {
 					String errorMsg = String.format(
 							"Bundle with ID '%s' not found.", 
-							request.getParameter(PARAM_BUNDLE_ID)
+							bundleID
 					);
 					this.logger.warn(errorMsg);
 					context.put("errorMsg",errorMsg);
@@ -139,7 +149,7 @@ public class BundleView extends ALayoutServlet {
 						String errorMsg = String.format(
 								"Unexpected exception while doing action '%s' on bundle with ID '%s", 
 								action,
-								request.getParameter(PARAM_BUNDLE_ID)
+								bundleID
 						);
 						this.logger.warn(errorMsg, e);
 						context.put("errorMsg",e.getMessage());

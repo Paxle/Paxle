@@ -149,20 +149,26 @@ public class ServiceManager implements IServiceManager {
         return ServiceManager.context.getBundle(bundleID);
     }
     
-    /**
-     * Get {@link Bundle OGSi-bundle} by {@link Bundle#getSymbolicName() symbolic-name}
-     */
-    public boolean hasBundle(String bundleSymbolicName) {
+    public Bundle getBundle(String bundleSymbolicName) {
     	if (bundleSymbolicName == null) throw new NullPointerException("The symbolic name was null");
+    	bundleSymbolicName = bundleSymbolicName.trim();
     	
     	Bundle[] bundles = this.getBundles();
     	if (bundles != null) {
     		for (Bundle bundle : bundles) {
     			String currentSymbolicName = bundle.getSymbolicName();
-    			if (currentSymbolicName.equals(bundleSymbolicName)) return true;
+    			if (currentSymbolicName.equalsIgnoreCase(bundleSymbolicName)) return bundle;
     		}
     	}
-    	return false;
+    	return null;
+    }
+    
+    /**
+     * Get {@link Bundle OGSi-bundle} by {@link Bundle#getSymbolicName() symbolic-name}
+     */
+    public boolean hasBundle(String bundleSymbolicName) {
+    	if (bundleSymbolicName == null) throw new NullPointerException("The symbolic name was null");    	    	
+    	return this.getBundle(bundleSymbolicName) != null;
     }
     
     public Bundle[] getBundles(String filterString) throws InvalidSyntaxException {

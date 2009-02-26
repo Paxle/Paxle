@@ -65,13 +65,20 @@
 
 #if( $metaTypeService && $configAdmin)
 	<h2>${text.tab.configManagement} #if($paramParser.getString("viewImportedConfig"))- ${text.import.title}#end</h2>
-	#if( $paramParser.getString("bundleID") && $paramParser.getString("pid"))
+	#if(($paramParser.getString("bundleID") || $paramParser.getString("bundleSymName")) && $paramParser.getString("pid"))
 		## the service-PID for which the configuration should be displayed
 		#set($PID = $paramParser.getString("pid"))
 		
 		## the bundle the give service belongs to
-		#set($bundleID = $paramParser.getString("bundleID"))		
-		#set($bundle = $manager.getBundle($mathTool.toInteger($bundleID)))
+		#if($paramParser.getString("bundleSymName"))
+			#set($bundleSymName = $paramParser.getString("bundleSymName")) 
+			#set($bundle = $manager.getBundle($bundleSymName))
+			#set($bundleID = $bundle.getBundleId())
+		#else
+			#set($bundleID = $paramParser.getString("bundleID"))
+			#set($bundle = $manager.getBundle($mathTool.toInteger($bundleID)))
+		#end
+		
 		
 		## load service metatypes
 		#set($ocd = ${configView.getObjectClassDefinition($request, $manager,$bundle,$PID)})
@@ -79,7 +86,7 @@
 			<p>
 				<p>
 					<img src="?bundleID=$bundleID&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/>
-					<strong>$ocd.getName()</strong>&nbsp;[Bundle <a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a>]</br>
+					<strong>$ocd.getName()</strong>&nbsp;[Bundle <a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a>]<br/>
 					<div class="descriptionText">
 						#if($ocd.getDescription())
 							#set($desc = $ocd.getDescription())
