@@ -17,12 +17,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
@@ -41,6 +40,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import org.osgi.framework.Constants;
@@ -199,58 +201,117 @@ public class ConfigurationResource {
 		
 		throw new WebApplicationException(Status.NOT_FOUND);
 	}
-		
+	
 	@POST
 	@Path("properties")
-	public void setProperties(List<PropertyResource> props) throws IOException, SecurityException, IllegalArgumentException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException {
-		if (props == null || props.size() == 0) return;
-		
-		// getting the currently active properties
-		@SuppressWarnings("unchecked")
-		Dictionary<String, Object> currentProps = this.config.getProperties();
-		if (currentProps == null) currentProps = new Hashtable<String, Object>();
+	public Response setProperties(List<PropertyResource> props) throws IOException {
+		return this.setProperties(props, false);
+	}
+	
+	/**
+	 * A function to update the current configuration with the new values provided by the {@link PropertyResource property}-list
+	 * received as input parameter.
+	 * 
+	 * @param props the new configuration to use
+	 * @param validateOnly can be set to <code>true</code> to just validate the received configuration but without updating the current configuration
+	 * @throws IOException
+	 */
+	@SuppressWarnings("unchecked")
+	@POST
+	@Path("properties")
+	public Response setProperties(
+			List<PropertyResource> props, 
+			@DefaultValue("false") @QueryParam("validateOnly") boolean validateOnly
+	) throws IOException {
+		if (props == null || props.size() == 0) {
+			ResponseBuilder builder = Response.status(Status.BAD_REQUEST);
+			return builder.build();
+		}
 		
 		// metatype-data about the configurable-properties
 		Map<String, AttributeDefinition> metaData = this.getAttributeDefinitions(-1);
 		
-		// processing the received properties
+		// a list containing all validation errors
+		List<PropertyValidationResult> validationResults = new ArrayList<PropertyValidationResult>();
+		
+		// a list containing all converted properties
+		Map<String,Object> convertedProps = new HashMap<String, Object>();
+		
 		for (PropertyResource prop : props) {
+			// getting the received data
 			String key = prop.getID();
-			Object value = prop.getValue();
-			Class<?> valueClass = value.getClass();
-			
-			// checking if the param is known
-			if (!metaData.containsKey(key)) {
-				// TODO: logging
-				continue;
-			}
+			Object originalValue = prop.getValue();
 			AttributeDefinition attrMetaData = metaData.get(key);
-						
-			// if the input data is not of String[] array we do not support it
-			if (List.class.isInstance(value)) {
-				for (Object item : (List<Object>)value) {					
-					if (!String.class.isInstance(item)) {
-						System.err.println(item.getClass().getName());
-					}
+			
+			// checking if the property is known
+			if (!metaData.containsKey(key)) {
+				validationResults.add(new PropertyValidationResult(
+						key,
+						"Unknown property" // TODO: localization required
+				));
+				continue;
+			}
+
+			// converting everything into strings (if required
+			List<String> stringValues = new ArrayList<String>();
+			if (List.class.isInstance(originalValue)) {
+				for (Object item : (List<Object>)originalValue) {					
+					stringValues.add(item.toString());
 				}
-				value = ((List<String>)value).toArray(new String[0]);
+			} else if (originalValue.getClass().isArray()) {
+				for (int i=0; i < Array.getLength(originalValue); i++) {
+					Object item = Array.get(originalValue, i);
+					stringValues.add(item.toString());
+				}
+			} else {
+				stringValues.add(originalValue.toString());
 			}
 			
-			if (!String[].class.isInstance(value)) {
-				continue;
-			}				
+			// validating values
+			for (String valueItem : stringValues) {
+				String validation = attrMetaData.validate(valueItem);
+				if (validation != null && validation.length() > 0) {
+					// an validation error occured
+					validationResults.add(new PropertyValidationResult(key,validation));
+				}
+			}			
 			
 			// value conversion
-			Object convertedValue = PropertyResource.convertValue((String[])value, attrMetaData);
-			
-			// type conversion needed here ...
-
-			// append the converted property to the props-list
-			currentProps.put(key, convertedValue);
+			try {
+				Object convertedValue = PropertyResource.convertValue(stringValues, attrMetaData);
+				convertedProps.put(key, convertedValue);
+			} catch (Exception e) {
+				
+			}
 		}
 		
-		// updating CM properties
-		this.config.update(currentProps);
+		// if there are errors we send an error-message back
+		if (validationResults.size() > 0) {
+			ResponseBuilder builder = Response.status(Status.BAD_REQUEST);
+			builder.entity(new GenericEntity<List<PropertyValidationResult>>(validationResults) {});
+			return builder.build();
+		}
+		
+		if (!validateOnly) {		
+			// getting the current property values (may be null)
+			Dictionary<String, Object> currentProps = this.config.getProperties();
+			if (currentProps == null) currentProps = new Hashtable<String, Object>();
+		
+			// updating values
+			for (Entry<String,Object> convertedProp : convertedProps.entrySet()) {
+				currentProps.put(convertedProp.getKey(), convertedProp.getValue());
+			}
+			
+			try {
+				// updating CM properties
+				this.config.update(currentProps);				
+			} catch (Exception e) {
+				throw new WebApplicationException(e);
+			}
+		}
+		return Response.ok()
+				.entity(new GenericEntity<List<PropertyValidationResult>>(validationResults) {})
+				.build();
 	}
 	
 	private Map<String, AttributeDefinition> getAttributeDefinitions(int filter) {

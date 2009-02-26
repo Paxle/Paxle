@@ -31,6 +31,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.paxle.api.jaxrs.cm.BundleResource;
 import org.paxle.api.jaxrs.cm.ConfigurationResource;
 import org.paxle.api.jaxrs.cm.PropertyResource;
+import org.paxle.api.jaxrs.cm.PropertyValidationResult;
 
 /**
  * @scr.component 
@@ -44,6 +45,7 @@ public class ConfigurationWriter implements MessageBodyWriter {
 	private static final Class[] SUPPORTED_CLASSES = new Class[] {
 		ConfigurationResource.class,
 		PropertyResource.class,
+		PropertyValidationResult.class,
 		BundleResource.class
 	};
 	

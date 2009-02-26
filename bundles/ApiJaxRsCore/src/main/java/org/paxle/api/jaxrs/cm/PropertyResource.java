@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -167,9 +168,14 @@ public class PropertyResource {
 			return null;
 		}		
 	}
+
+	public static Object convertValue(List<String> stringValue, AttributeDefinition attributeDef) throws Exception {
+		String[] stringArray = stringValue == null ? null : stringValue.toArray(new String[stringValue.size()]);
+		return convertValue(stringArray, attributeDef);
+	}
 	
 	@SuppressWarnings("unchecked")
-	public static Object convertValue(String[] stringValue, AttributeDefinition attributeDef) throws SecurityException, IllegalArgumentException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException {	
+	public static Object convertValue(String[] stringValue, AttributeDefinition attributeDef) throws Exception {	
 		Object convertedValue = null;
 
 		int cardinality = attributeDef.getCardinality();
