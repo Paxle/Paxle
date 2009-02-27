@@ -15,15 +15,15 @@
 			</fileset>
 
 			<!-- parsing and including the equinox config file -->
-			<file targetdir="$equinox.data" src="${basedir}/src/main/resources/equinox/configuration/config.ini"/>
-			<parsable targetfile="$equinox.data/config.ini" type="javaprop"/>
+			<file targetdir="$equinox.data.path" src="${basedir}/src/main/resources/equinox/configuration/config.ini"/>
+			<parsable targetfile="$equinox.data.path/config.ini" type="javaprop"/>
 			
 			<!-- parsing and including the runtime-property file -->
 			<file targetdir="$INSTALL_PATH" src="${basedir}/src/main/resources/equinox/start.ini"/>
 			<parsable targetfile="$INSTALL_PATH/start.ini"/>
 			
 			<!-- parsing and including the runtime-property file -->
-			<file targetdir="$equinox.data" src="${basedir}/src/main/resources/logging/log4j.properties"/>
+			<file targetdir="$equinox.data.path" src="${basedir}/src/main/resources/logging/log4j.properties"/>
 
 			<!-- uninstaller shell script -->
 			<fileset dir="${basedir}/src/main/resources/installers/" includes="uninstall.sh" targetdir="$INSTALL_PATH/Uninstaller" />

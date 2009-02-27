@@ -20,7 +20,10 @@
 	</variables>	
 	<dynamicvariables>
 		<variable name="paxle.data" value="${UserPathPanelVariable}"/>
-		<variable name="equinox.data" value="${UserPathPanelVariable}${FILE_SEPARATOR}configuration"/>
+		<!-- equinox-data-path: we need the surrounding quotes here. do not remove them! -->
+		<variable name="equinox.data" value="&quot;${UserPathPanelVariable}${FILE_SEPARATOR}configuration&quot;" condition="izpack.windowsinstall"/>
+		<variable name="equinox.data" value="${UserPathPanelVariable}${FILE_SEPARATOR}configuration" condition="!izpack.windowsinstall"/>
+		<variable name="equinox.data.path" value="${UserPathPanelVariable}${FILE_SEPARATOR}configuration"/>
 	</dynamicvariables>
 
 	<guiprefs width="700" height="550" resizable="no">

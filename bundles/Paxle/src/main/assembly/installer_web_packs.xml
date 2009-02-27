@@ -7,24 +7,6 @@
 	<includeBaseDirectory>true</includeBaseDirectory>
 	<baseDirectory>/</baseDirectory>
 	
-	<fileSets>
-		<!-- 
-			 Copy further installer fragments (if available) 
-			 
-			 Notes: This fragments need to be copied by the optional 
-			        profiles into the target/webinstaller/fragments/ 
-			        directory.
-		-->	
-		<fileSet>
-			<directory>target/webinstaller/fragments/</directory>
-			<outputDirectory>temp/</outputDirectory>
-			<filtered>true</filtered>
-			<includes>
-				<include>*.xml</include>
-			</includes>
-		</fileSet>
-	</fileSets>	
-	
 	<!-- 
 	<files>
 		<file>
