@@ -80,6 +80,9 @@ public class ServletListener implements ServiceListener {
 			// getting a reference to the servlet
 			Servlet servlet = (Servlet) this.context.getService(reference);
 			
+			// for dynamic services it may occur that getService returns null for the first time
+			if (servlet == null) servlet = (Servlet) this.context.getService(reference);
+			
 			// register servlet
 			if (!userAuth.booleanValue()) {
 				this.servletManager.addServlet(path, servlet);
