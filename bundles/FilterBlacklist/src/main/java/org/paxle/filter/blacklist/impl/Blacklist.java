@@ -29,6 +29,10 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.filter.blacklist.IBlacklist;
+import org.paxle.filter.blacklist.IBlacklistManager;
+import org.paxle.filter.blacklist.IFilterResult;
+import org.paxle.filter.blacklist.InvalidFilenameException;
 
 /**
  * This is a RegExp-based Blacklist
@@ -36,9 +40,9 @@ import org.apache.commons.logging.LogFactory;
  * @author Michael Hamann
  *
  */
-public class Blacklist {
+public class Blacklist implements IBlacklist {
 	private File listFile;
-	private BlacklistFilter blacklistFilter;
+	private IBlacklistManager blacklistFilter;
 	private ConcurrentHashMap<String,Pattern> blacklist;
 	public String name;
 	private Log logger = LogFactory.getLog(this.getClass());
@@ -51,7 +55,7 @@ public class Blacklist {
 	 * @param listFile the file to read or store the blacklist
 	 * @param blacklistFilter the BlacklistFilter-object
 	 */
-	public Blacklist(String name, File listFile, BlacklistFilter blacklistFilter) throws InvalidFilenameException {
+	public Blacklist(String name, File listFile, IBlacklistManager blacklistFilter) throws InvalidFilenameException {
 		this.name = name;
 		this.listFile = listFile;
 		this.blacklistFilter = blacklistFilter;
@@ -81,11 +85,10 @@ public class Blacklist {
 	}
 
 
-	/**
-	 * Deletes the blacklist
-	 * @return boolean if delete was successful
+	/* (non-Javadoc)
+	 * @see org.paxle.filter.blacklist.impl.IBlacklist#delete()
 	 */
-	public boolean destroy() {
+	public boolean delete() {
 		lock.writeLock().lock();
 		if (listFile.delete()) {
 			this.unstore();
@@ -113,20 +116,17 @@ public class Blacklist {
 		blacklistFilter.unstoreList(this);
 	}
 
-	/**
-	 * The name of the blacklist
-	 * @return
+	/* (non-Javadoc)
+	 * @see org.paxle.filter.blacklist.impl.IBlacklist#getName()
 	 */
 	public String getName() {
 		return this.name;
 	}
 
-	/**
-	 * 
-	 * @param url URL to be checked against blacklist
-	 * @return returns a String containing the pattern which blacklists the url, returns null otherwise
+	/* (non-Javadoc)
+	 * @see org.paxle.filter.blacklist.impl.IBlacklist#isListed(java.lang.String)
 	 */
-	public FilterResult isListed(String url) {
+	public IFilterResult isListed(String url) {
 		long time = System.currentTimeMillis();
 		Enumeration<Pattern> eter = blacklist.elements();
 		while(eter.hasMoreElements()) {
@@ -149,18 +149,15 @@ public class Blacklist {
 		return FilterResult.LOCATION_OKAY_RESULT;
 	}
 
-	/**
-	 * Returns all entries in the list as Strings
-	 * @return
+	/* (non-Javadoc)
+	 * @see org.paxle.filter.blacklist.impl.IBlacklist#getPatternList()
 	 */
 	public List<String> getPatternList() {
 		return new ArrayList<String>(blacklist.keySet());
 	}
 
-	/**
-	 * Adds a new blacklist-pattern to the selected blacklistfile
-	 * @param pattern blacklistpattern to be added 
-	 * @return if the blacklistpattern was successfully added
+	/* (non-Javadoc)
+	 * @see org.paxle.filter.blacklist.impl.IBlacklist#addPattern(java.lang.String)
 	 */
 	public boolean addPattern(String pattern) {
 		lock.writeLock().lock();
@@ -184,10 +181,8 @@ public class Blacklist {
 		}
 	}
 
-	/**
-	 * Removes the pattern from the blacklistfile
-	 * @param pattern blacklistpattern to be removed
-	 * @return if the pattern was successfully removed, note that it is even true when the pattern wasn't included in the list
+	/* (non-Javadoc)
+	 * @see org.paxle.filter.blacklist.impl.IBlacklist#removePattern(java.lang.String)
 	 */
 	public boolean removePattern(String pattern) {
 		lock.writeLock().lock();
@@ -203,11 +198,8 @@ public class Blacklist {
 		}
 	}
 
-	/**
-	 * Edits a pattern of the blacklistfile
-	 * @param fromPattern the blacklistpattern that shall be edited
-	 * @param toPattern the new value of the blacklistpattern
-	 * @return if the blacklistpattern was successfully edited
+	/* (non-Javadoc)
+	 * @see org.paxle.filter.blacklist.impl.IBlacklist#editPattern(java.lang.String, java.lang.String)
 	 */
 	public boolean editPattern(String fromPattern, String toPattern) {
 		try {
@@ -218,5 +210,9 @@ public class Blacklist {
 			return false;
 		}
 
+	}
+	
+	public int size() {
+		return this.blacklist == null ? 0 : this.blacklist.size();
 	}
 }

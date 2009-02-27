@@ -25,27 +25,39 @@ import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
+import org.paxle.filter.blacklist.IBlacklist;
+import org.paxle.filter.blacklist.InvalidFilenameException;
 
 public class BlacklistFilterTest extends TestCase {
 	private static final String TESTDIR_NAME = "target/testDir";
 
 	private File testDir = null;
-	private BlacklistFilter testFilter;
+	private BlacklistFilter filter;
+	private BlacklistManager manager;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		
+
+		// creating test directory
 		this.testDir = new File(TESTDIR_NAME);
 		this.testDir.mkdir();
-		
 		System.out.println("Using data dir: " + testDir.getAbsolutePath());
 		new File(testDir, "testList").createNewFile();
-		this.testFilter = new BlacklistFilter(this.testDir);
+		
+		// init manager
+		this.manager = new BlacklistManager();
+		this.manager.initBlacklistManager(this.testDir);
+		
+		// init filter
+		this.filter = new BlacklistFilter();
+		this.filter.manager = this.manager;
 	}
 	
 	@Override
 	protected void tearDown() throws Exception {
+		this.manager.deactivate(null);
+		
 		// delete data directory
 		if(this.testDir.exists()) FileUtils.deleteDirectory(testDir);
 	}	
@@ -53,27 +65,27 @@ public class BlacklistFilterTest extends TestCase {
 	public void testCommandIsListed() throws Exception {
 		ICommand testCommand = new Command();
 		testCommand.setLocation(new URI("http://test/"));
-		testFilter.filter(testCommand, null);
+		filter.filter(testCommand, null);
 		assertEquals(ICommand.Result.Passed, testCommand.getResult());
 
 		testCommand.setLocation(new URI("http://asd/"));
-		testFilter.filter(testCommand, null);
+		filter.filter(testCommand, null);
 		assertEquals(ICommand.Result.Passed, testCommand.getResult());
 
-		Blacklist testList = testFilter.createList("testList");
+		IBlacklist testList = manager.createList("testList");
 		testList.addPattern(".*asd.*");
 		testCommand.setLocation(new URI("http://test/"));
-		testFilter.filter(testCommand, null);
+		filter.filter(testCommand, null);
 		assertEquals(ICommand.Result.Passed, testCommand.getResult());
 
 		testCommand.setLocation(new URI("http://asd/"));
-		testFilter.filter(testCommand, null);
+		filter.filter(testCommand, null);
 		assertEquals(ICommand.Result.Rejected, testCommand.getResult());
 
 		testCommand = new Command();
 		testCommand.setLocation(new URI("http://asd/"));		
 		testList.removePattern(".*asd.*");
-		testFilter.filter(testCommand, null);
+		filter.filter(testCommand, null);
 		assertEquals(ICommand.Result.Passed, testCommand.getResult());
 	}
 	
@@ -92,11 +104,11 @@ public class BlacklistFilterTest extends TestCase {
 		testCommand.setParserDocument(pDoc);
 		
 		// creating blacklist
-		Blacklist testList = this.testFilter.createList("testList");
+		IBlacklist testList = this.manager.createList("testList");
 		testList.addPattern(".*asd.*");
 		
 		// filter command
-		this.testFilter.filter(testCommand, null);
+		this.filter.filter(testCommand, null);
 		assertTrue(testCommand.getResult().equals(ICommand.Result.Passed));
 		
 		Map<URI, LinkInfo> links = pDoc.getLinks();
@@ -112,39 +124,39 @@ public class BlacklistFilterTest extends TestCase {
 	public void testAddList() throws Exception {
 		assertFalse(new File(testDir,"testList2").exists());
 
-		testFilter.createList("testList2");
+		manager.createList("testList2");
 		assertTrue(new File(testDir,"testList2").exists());
 	}
 
 	public void testIsListnameAllowed() throws Exception {
 		try  {
-			testFilter.createList("../test");
+			manager.createList("../test");
 			fail("An InvalidFilenameException was expected");
 		} catch (InvalidFilenameException e) {
 			// this is ok
 		}
 
 		try  {
-			testFilter.createList("./test");
+			manager.createList("./test");
 			fail("An InvalidFilenameException was expected");
 		} catch (InvalidFilenameException e) {
 			// this is ok
 		}
 
 		try  {
-			testFilter.createList("");
+			manager.createList("");
 			fail("An InvalidFilenameException was expected");
 		} catch (InvalidFilenameException e) {
 			// this is ok
 		}
 
 		try  {
-			testFilter.createList("     ");
+			manager.createList("     ");
 			fail("An InvalidFilenameException was expected");
 		} catch (InvalidFilenameException e) {
 			// this is ok
 		}
 
-		testFilter.createList("test");
+		manager.createList("test");
 	}
 }

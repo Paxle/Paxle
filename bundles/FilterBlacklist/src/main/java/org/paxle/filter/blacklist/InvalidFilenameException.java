@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.filter.blacklist.impl;
+package org.paxle.filter.blacklist;
 
 /**
  * This exception should be thrown when a name for a blacklist contains dots (directory traversal) or other invalid characters

@@ -41,17 +41,25 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.osgi.service.component.ComponentContext;
 import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.Utilities;
-import org.paxle.filter.blacklist.impl.Blacklist;
-import org.paxle.filter.blacklist.impl.BlacklistFilter;
-import org.paxle.filter.blacklist.impl.InvalidFilenameException;
+import org.paxle.filter.blacklist.IBlacklist;
+import org.paxle.filter.blacklist.IBlacklistManager;
+import org.paxle.filter.blacklist.InvalidFilenameException;
 
+/**
+ * @scr.component immediate="true"
+ * @scr.service interface="org.paxle.desktop.DIComponent"
+ */
 public class BlacklistDialogue extends JPanel implements DIComponent, ActionListener, DocumentListener {
 	
 	private static final long serialVersionUID = 1L;
 
-	private final BlacklistFilter blacklistFilter;
+	/** 
+	 * @scr.reference
+	 */
+	protected IBlacklistManager blacklistFilter = null;
 	
 	private static final Dimension DIM = new Dimension(400, 400);
 	
@@ -62,8 +70,8 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	private static final String AC_ITEM_DEL = new String();
 	private static final String AC_ITEM_EDIT = new String();
 	
-	private final FilterListsComboBoxModel flm;
-	private final JComboBox listSelCBox;
+	private FilterListsComboBoxModel flm;
+	private JComboBox listSelCBox;
 	private final JList itemList = new JList();
 	private final JButton listAddB = Utilities.setButtonProps(new JButton(), "Create", this, AC_LIST_CREATE, -1, null);
 	private final JButton listDelB = Utilities.setButtonProps(new JButton(), "Delete", this, AC_LIST_DELETE, -1, null);
@@ -83,8 +91,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	
 	private ItemListModel ilm = null;
 	
-	public BlacklistDialogue(BlacklistFilter blacklistFilter) {
-		this.blacklistFilter = blacklistFilter;
+	protected void activate(ComponentContext context) {
 		this.flm = new FilterListsComboBoxModel(blacklistFilter);
 		this.listSelCBox = new JComboBox(flm);
 		init();
@@ -157,15 +164,15 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 				final int selected = listSelCBox.getSelectedIndex();
 				final Object name = listSelCBox.getSelectedItem();
 				if (name != null) {
-					final Blacklist bl = blacklistFilter.getList(name.toString());
+					final IBlacklist bl = blacklistFilter.getList(name.toString());
 					if (bl != null)
-						bl.destroy();
+						bl.delete();
 					flm.update();
 				}
 				listSelCBox.setSelectedIndex(Math.max(-1, Math.min(selected, flm.getSize() - 1)));
 			} else if (ac == AC_LIST_SELECT) {
 				final Object name = listSelCBox.getSelectedItem();
-				final Blacklist bl;
+				final IBlacklist bl;
 				if (name != null && (bl = blacklistFilter.getList(name.toString())) != null) {
 					itemList.setModel(ilm = new ItemListModel(bl));
 				} else {
@@ -214,9 +221,9 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 		
 		private static final long serialVersionUID = 1L;
 		
-		private final Blacklist bl;
+		private final IBlacklist bl;
 		
-		public ItemListModel(final Blacklist bl) {
+		public ItemListModel(final IBlacklist bl) {
 			this.bl = bl;
 		}
 		
@@ -273,9 +280,9 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 		
 		private static final long serialVersionUID = 1L;
 
-		private final BlacklistFilter blacklistFilter;
+		private final IBlacklistManager blacklistFilter;
 
-		public FilterListsComboBoxModel(final BlacklistFilter blacklistFilter) {
+		public FilterListsComboBoxModel(final IBlacklistManager blacklistFilter) {
 			this.blacklistFilter = blacklistFilter;
 		}
 		

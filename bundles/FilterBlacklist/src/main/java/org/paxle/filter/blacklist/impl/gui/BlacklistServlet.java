@@ -16,26 +16,34 @@ package org.paxle.filter.blacklist.impl.gui;
 import java.net.URLEncoder;
 import java.util.List;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.paxle.filter.blacklist.impl.Blacklist;
-import org.paxle.filter.blacklist.impl.BlacklistFilter;
-import org.paxle.filter.blacklist.impl.InvalidFilenameException;
+import org.paxle.filter.blacklist.IBlacklist;
+import org.paxle.filter.blacklist.IBlacklistManager;
+import org.paxle.filter.blacklist.InvalidFilenameException;
 import org.paxle.gui.ALayoutServlet;
 
-public class BlacklistServlet extends ALayoutServlet {
+/**
+ * @scr.component immediate="true" 
+ * 				  label="Blacklist Servlet"
+ * 				  description="A Servlet to manage your blacklists"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/blacklist"
+ * @scr.property name="menu" value="%menu.administration/%menu.bundles/Blacklist"
+ * @scr.property name="doUserAuth" value="true" type="Boolean"
+ */
+public class BlacklistServlet extends ALayoutServlet implements Servlet {
 
 	private static final long serialVersionUID = 1L;
-	private BlacklistFilter blacklistFilter = null;
-
-	public BlacklistServlet(BlacklistFilter blacklistFilter) {
-		this.blacklistFilter = blacklistFilter;
-	}
-
-
+	
+	/** 
+	 * @scr.reference
+	 */
+	protected IBlacklistManager blacklistManager = null;
 
 	@Override
 	public Template handleRequest( HttpServletRequest request,
@@ -44,7 +52,7 @@ public class BlacklistServlet extends ALayoutServlet {
 		Template template = null;
 		try {
 			template = this.getTemplate("/resources/templates/Blacklist.vm");
-			List<String> listnames = this.blacklistFilter.getLists();
+			List<String> listnames = this.blacklistManager.getLists();
 			context.put("listnames", listnames);
 
 			// get the action
@@ -57,7 +65,7 @@ public class BlacklistServlet extends ALayoutServlet {
 			if (request.getMethod().equals("POST") && action.equals("addList")) {
 				if ((request.getParameter("listName") != null) && (! listnames.contains(request.getParameter("listName")))) {
 					try{
-						blacklistFilter.createList(request.getParameter("listName"));
+						blacklistManager.createList(request.getParameter("listName"));
 					} catch (InvalidFilenameException e) {
 						logger.warn("Tried to add blacklist with invalid name '" + request.getParameter("listName") + "'");
 						context.put("InvalidFilenameException", e);
@@ -69,34 +77,34 @@ public class BlacklistServlet extends ALayoutServlet {
 			}
 
 			// get the current list
-			Blacklist blacklist = null;
+			IBlacklist blacklist = null;
 			if (request.getParameter("list") != null)
-				blacklist = blacklistFilter.getList(request.getParameter("list"));
+				blacklist = blacklistManager.getList(request.getParameter("list"));
 
 			// check if this list exists:
 			if (blacklist == null) {
 				if (! listnames.isEmpty()) // get the first list when there is one
-					blacklist = blacklistFilter.getList(listnames.get(0));
+					blacklist = blacklistManager.getList(listnames.get(0));
 				else if (! action.equals("newList")) { // well, it seems there aren't any lists, so the user might want to create one, let's redirect him
 					response.sendRedirect("/blacklist?action=newList");
 					return null;
 				}
 			} else if (request.getMethod().equals("POST")) { // these are non-safe methods and should only be executed when there is a post-request and a valid list was given
 				if (action.equals("removeList")) {
-					blacklist.destroy();
+					blacklist.delete();
 					response.sendRedirect("/blacklist");
 					return null;
 				} else if (action.equals("addPattern") && request.getParameter("pattern") != null) {
 					blacklist.addPattern(request.getParameter("pattern"));
-					response.sendRedirect("/blacklist?list=" + URLEncoder.encode(blacklist.name, "UTF-8"));
+					response.sendRedirect("/blacklist?list=" + URLEncoder.encode(blacklist.getName(), "UTF-8"));
 					return null;
 				} else if (action.equals("removePattern") && request.getParameter("pattern") != null) {
 					blacklist.removePattern(request.getParameter("pattern"));
-					response.sendRedirect("/blacklist?list=" + URLEncoder.encode(blacklist.name, "UTF-8"));
+					response.sendRedirect("/blacklist?list=" + URLEncoder.encode(blacklist.getName(), "UTF-8"));
 					return null;
 				} else if (action.equals("editPattern") && request.getParameter("fromPattern") != null && request.getParameter("toPattern") != null) {
 					blacklist.editPattern(request.getParameter("fromPattern"), request.getParameter("toPattern"));
-					response.sendRedirect("/blacklist?list=" + URLEncoder.encode(blacklist.name, "UTF-8"));
+					response.sendRedirect("/blacklist?list=" + URLEncoder.encode(blacklist.getName(), "UTF-8"));
 					return null;
 				}
 			} else if (request.getParameter("fromPattern") != null)

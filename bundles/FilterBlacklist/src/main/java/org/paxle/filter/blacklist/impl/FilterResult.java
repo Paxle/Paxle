@@ -13,12 +13,14 @@
  */
 package org.paxle.filter.blacklist.impl;
 
-public class FilterResult {
+import org.paxle.filter.blacklist.IFilterResult;
+
+public class FilterResult implements IFilterResult {
 	
 	public final static int LOCATION_OKAY = 0;
 	public final static int LOCATION_REJECTED = 1;
 	
-	public static final FilterResult LOCATION_OKAY_RESULT = new FilterResult(LOCATION_OKAY, null);
+	public static final IFilterResult LOCATION_OKAY_RESULT = new FilterResult(LOCATION_OKAY, null);
 	
 	private int status;
 	private String rejectPattern = null;
@@ -32,10 +34,16 @@ public class FilterResult {
 		this.status = status;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.filter.blacklist.impl.IFilterResult#getStatus()
+	 */
 	public int getStatus() {
 		return status;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.filter.blacklist.impl.IFilterResult#hasStatus(int)
+	 */
 	public boolean hasStatus(int status) {
 		return this.status == status;
 	}
@@ -44,6 +52,9 @@ public class FilterResult {
 		this.rejectPattern = rejectPattern;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.filter.blacklist.impl.IFilterResult#getRejectPattern()
+	 */
 	public String getRejectPattern() {
 		return rejectPattern;
 	}

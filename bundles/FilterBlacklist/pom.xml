@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>FilterBlacklist</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Filter: Blacklist</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -42,12 +42,14 @@
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
+							org.osgi.service.component;version="1.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Apache Commons IO -->
 							org.apache.commons.io;version="1.4",
 						   	org.apache.commons.io.*;version="1.4",
 							<!-- Servlet API -->
+							javax.servlet;resolution:=optional,
 							javax.servlet.http;resolution:=optional,
 							<!-- Apache Velocity (used by Paxle GUI bundle) -->
 							org.apache.velocity;resolution:=optional, 
@@ -61,7 +63,7 @@
 							<!-- Paxle Desktop-Integration Bundle -->
 							org.paxle.desktop;version="[0.1.0,0.2.0)";resolution:=optional
 						</Import-Package>
-						<DynamicImport-Package>
+						<DynamicImport-Package>							
 							javax.swing, 
 							javax.swing.*,
 							javax.swing.plaf,
@@ -80,12 +82,22 @@
 							org.paxle.filter.blacklist.impl.desktop,
 							org.paxle.filter.blacklist.impl.gui
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.filter.blacklist.impl.Activator
-						</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>			
 		</plugins>
 	</build>
 
