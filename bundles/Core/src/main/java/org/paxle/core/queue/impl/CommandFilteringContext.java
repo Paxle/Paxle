@@ -27,6 +27,7 @@ import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandFilteringContext;
+import org.paxle.core.queue.ICommand.Result;
 
 abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommandFilteringContext<Cmd> {
 	
@@ -50,15 +51,49 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 	 * and should be filtered via a call to {@link #filterCommand()}
 	 */
 	private Cmd command;
+	
+	/**
+	 * The command-location of the command to process before any filtering was applied
+	 */
+	private URI commandLocation;
+	
+	/**
+	 * Overall status of command-filtering.
+	 */
+	private boolean finished = false;
 		
+	/**
+	 * This constructor is called by output-queues where there is no pre-defined command. 
+	 * Instead the user of this context has to provide the command to filter via a call
+	 * to function {@link #enqueue(ICommand)}
+	 * 
+	 * @param eventService the OSGi eventAdmin service to send command-filtering events
+	 * @param filterQueue the output-queue where the already filtered command should be 
+	 * 		  inserted if the command was not blocked by one of the filters
+	 * 
+	 * @see #enqueue(ICommand)
+	 */
 	public CommandFilteringContext(EventAdmin eventService, IFilterQueue filterQueue) {
-		this(eventService, filterQueue, null);
+		this.eventService = eventService;
+		this.filterQueue = filterQueue;
 	}	
 	
+	/**
+	 * This constructor is called by input-queues where the is an already known command
+	 * that should be filtered by command-filtering. The filtering process is started by
+	 * the user of this context via a call to function {@link #dequeue()}.
+	 * 
+	 * @param eventService the OSGi eventAdmin service to send command-filtering events
+	 * @param filterQueue the input-queue where the command to filter was already fetched from
+	 * @param command the command to filter
+	 * 
+	 * @see #dequeue()
+	 */
 	public CommandFilteringContext(EventAdmin eventService, IFilterQueue filterQueue, Cmd command) {
 		this.eventService = eventService;
 		this.filterQueue = filterQueue;
 		this.command = command;
+		this.commandLocation = command.getLocation();
 	}
 	
 	/**
@@ -68,23 +103,26 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 	 */
 	public Cmd dequeue() {
 		if (this.command == null) throw new IllegalStateException("The command object is null");
-		
-		this.preDequeue(command);
-		
-		// filtering
-		this.filter(this.command);		
-		
-		// only return "passed" commands
-		switch (this.command.getResult()) {
-			case Passed:  return this.postDequeuing(this.command);
-			case Failure:
-			case Rejected: 
-			default: 
-				// fire a command-destruction event (this _must_ be send synchronous)
-				this.fireDestroyedEvent(this.command);
+		try {				
+			this.preDequeue(command);
 			
-				// signal blocking of message
-			return null;
+			// filtering
+			this.filter(this.command);		
+			
+			// only return "passed" commands
+			switch (this.command.getResult()) {
+				case Passed:  return this.postDequeuing(this.command);
+				case Failure:
+				case Rejected: 
+				default: 
+					// fire a command-destruction event (this _must_ be send synchronous)
+					this.fireDestroyedEvent(this.command);
+				
+					// signal blocking of message
+				return null;
+			}
+		} finally {
+			this.finished = true;
 		}
 	}
 	
@@ -97,23 +135,28 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 	}	
 	
 	public void enqueue(Cmd command) throws InterruptedException {
-		if (command == null) throw new NullPointerException("The command object is null");
-		
-		this.preEnqueue(command);
-		
-		// filtering
-		this.filter(command);
-		
-		switch (command.getResult()) {
-			case Passed: this.postEnqueuing(command); break;
-			case Failure:			
-			case Rejected: 
-			default: 
-				// fire a command-destruction event (this _must_ be send synchronous)
-				this.fireDestroyedEvent(command);
-				
-				// signal blocking of message
-				return;
+		try {
+			if (command == null) throw new NullPointerException("The command object is null");
+			this.commandLocation = command.getLocation();
+			
+			this.preEnqueue(command);
+			
+			// filtering
+			this.filter(command);
+			
+			switch (command.getResult()) {
+				case Passed: this.postEnqueuing(command); break;
+				case Failure:			
+				case Rejected: 
+				default: 
+					// fire a command-destruction event (this _must_ be send synchronous)
+					this.fireDestroyedEvent(command);
+					
+					// signal blocking of message
+					return;
+			}
+		} finally {
+			this.finished = true;
 		}
 	}
 	
@@ -129,7 +172,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 	 * The {@link ICommand#getLocation() location} of the {@link ICommand}
 	 */
 	public URI getLocation() {
-		return this.command.getLocation();
+		return this.commandLocation;
 	}
 	
 	protected void firePreFilterEvent(Cmd cmd, IFilterContext filterContext) {
@@ -182,7 +225,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 				// fire a event
 				this.firePreFilterEvent(command, filterContext); 	
 				
-				// getting the filter				
+				// getting the filter
 				filter = (IFilter<Cmd>) filterContext.getFilter();
 				
 				if (this.logger.isTraceEnabled()) {
@@ -197,7 +240,9 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 				long start = System.currentTimeMillis();
 				
 				// process the command by the next filter
+				Result preFilterResult = command.getResult();
 				filter.filter(command, filterContext);
+				Result postFilterResult = command.getResult();
 				
 				if (this.logger.isDebugEnabled()) {
 					this.logger.debug(String.format(
@@ -209,7 +254,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 					));
 				}
 				
-				if (command.getResult() == ICommand.Result.Rejected) {
+				if (preFilterResult != Result.Rejected && postFilterResult == ICommand.Result.Rejected) {
 					this.logger.info(String.format(
 							"[%s] '%s' rejected by filter '%s'. Reason: %s",
 							filterQueueID,
@@ -232,5 +277,9 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 				this.firePostFilterEvent(command, filterContext, error); 
 			}
 		}
-	}	
+	}
+	
+	public boolean done() {
+		return this.finished;
+	}
 }

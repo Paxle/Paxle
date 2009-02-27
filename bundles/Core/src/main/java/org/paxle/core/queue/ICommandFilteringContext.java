@@ -15,8 +15,33 @@ package org.paxle.core.queue;
 
 import java.net.URI;
 
+/**
+ * The purpose of this context object is to encapsulate the whole filtering process that is done
+ * by an {@link ICommandFilterQueue filter-queue}.
+ */
 public interface ICommandFilteringContext<Cmd extends ICommand> {
+	/**
+	 * Function to dequeue a command from an input-queue
+	 * @return the filtered command or <code>null</code> if the command was filtered by one of the applied command-filters
+	 * @throws IllegalStateException if you call this method on an filtering-context created by an output-queue
+	 */
 	public Cmd dequeue();
+	
+	/**
+	 * Function to enqueue a command into an output-queue.
+	 * @param command the command that should be filtered by all command-filters applied to the queue
+	 * @throws InterruptedException
+	 * @throws IllegalStateException if you call this method on an filtering-context created by an input-queue
+	 */
 	public void enqueue(Cmd command) throws InterruptedException;
-	public URI getLocation();	
+	
+	/**
+	 * @return the location of the command that is filtered by filters within the filtering-context
+	 */
+	public URI getLocation();
+	
+	/**
+	 * @return <code>true</code> if the filtering-process has already finished or <code>false</code> if filtering is still in progress or was not started so far.
+	 */
+	public boolean done();
 }
