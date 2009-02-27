@@ -22,8 +22,13 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
+/**
+ * @scr.component 
+ * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ * @scr.property name="service.pid" value="os.disk"
+ */
 public class DiskspaceMonitoring implements Monitorable {
-	public static final String PID = "os.disk";
+	public static final String PID = "os.disk";	
 	public static final String VAR_SPACE_FREE = "disk.space.free";
 	
 	/**

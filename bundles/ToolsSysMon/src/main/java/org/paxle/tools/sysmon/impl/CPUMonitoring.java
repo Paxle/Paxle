@@ -21,9 +21,15 @@ import jsysmon.JSysmon;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
+/**
+ * @scr.component 
+ * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ * @scr.property name="service.pid" value="os.usage.cpu"
+ */
 public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 	public static final String PID = "os.usage.cpu";
 	private static final String VAR_PREFIX_USAGE = "cpu.usage";
@@ -105,6 +111,18 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
+	
+	protected void activate(ComponentContext context) {
+		// starting jsysmon daemon
+		JSysmon.setUpdateDelay(60000);
+		JSysmon.startMonitoring();
+		JSysmon.addCPUMonitoringListener(this);
+	}
+
+	protected void deactivate(ComponentContext context) throws Exception {
+		// stopping jsysmon daemon
+		JSysmon.stopMonitoring();
+	}
 	
 	/**
 	 * @see CPUMonitoringListener
