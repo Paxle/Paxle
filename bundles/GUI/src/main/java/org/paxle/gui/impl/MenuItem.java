@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class MenuItem {
@@ -121,6 +122,8 @@ public class MenuItem {
 			final String resourceKey = this.name.substring(1);
 			final String translatedName = rb.getString(resourceKey);
 			return translatedName;
+		} catch (MissingResourceException e) {
+			return null;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

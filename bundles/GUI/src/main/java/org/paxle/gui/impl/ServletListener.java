@@ -24,6 +24,7 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.util.tracker.ServiceTracker;
+import org.paxle.gui.ALayoutServlet;
 
 public class ServletListener implements ServiceListener {
 	/**
@@ -82,6 +83,17 @@ public class ServletListener implements ServiceListener {
 			
 			// for dynamic services it may occur that getService returns null for the first time
 			if (servlet == null) servlet = (Servlet) this.context.getService(reference);
+			
+			// if the service still is null, exit
+			if (servlet == null) return;
+			
+			// setting the bundle-location properly
+			if (servlet instanceof ALayoutServlet) {
+				if (((ALayoutServlet)servlet).getBundleLocation() == null) {					
+					((ALayoutServlet)servlet).setBundleLocation(reference.getBundle().getEntry("/").toString());
+				}
+				((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory(new ServiceManager()));
+			}			
 			
 			// register servlet
 			if (!userAuth.booleanValue()) {
