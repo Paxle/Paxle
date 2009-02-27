@@ -5,7 +5,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>SEProviderRssSearch</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.3-SNAPSHOT</version>
 	<name>Paxle - Search Engine Provider: RSS Search</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -36,20 +36,24 @@
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						
 						<Export-Package>
+							org.paxle.se.provider.rsssearch;version="${pom.version}"
 						</Export-Package>
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
+							org.osgi.service.component;version="1.0",
 							org.osgi.service.cm;,
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Paxle Core Bundle -->
 							org.paxle.core.doc;version="[0.1.0,0.2.0)",
+							org.paxle.core.metadata;version="[0.1.0,0.2.0)",
 							<!-- Paxle Search Engine Bundle -->
 							org.paxle.se.search;version="[0.1.0,0.2.0)",
 							org.paxle.se.query;version="[0.1.0,0.2.0)",
 							org.paxle.se.query.tokens;version="[0.1.0,0.2.0)",
 							<!-- GUI -->
+							javax.servlet;resultion:=optional,
 							javax.servlet.http;resultion:=optional,
 							<!-- Apache Commons HttpClient (for http downloads) -->
 							org.apache.commons.httpclient.*;version="3.1.0",
@@ -57,7 +61,6 @@
 							org.apache.velocity;resolution:=optional, 
 							org.apache.velocity.context;resolution:=optional,
 							<!-- Paxle GUI Bundle -->
-							org.paxle.core.metadata;version="[0.1.0,0.2.0)",
 							org.paxle.gui;version="[0.1.0,0.2.0)";resolution:=optional,
 							<!-- XML parsing -->
 							javax.xml.parsers,
@@ -89,10 +92,6 @@
 							javax.swing, 
 							javax.swing.text
 						</DynamicImport-Package>
-						
-						<Bundle-Activator>
-							org.paxle.se.provider.rsssearch.impl.Activator
-						</Bundle-Activator>
 	
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
@@ -104,6 +103,20 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>	
 		</plugins>
 	</build>
 

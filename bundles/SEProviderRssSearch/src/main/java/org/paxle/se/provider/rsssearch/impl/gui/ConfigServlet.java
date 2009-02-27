@@ -30,8 +30,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.se.provider.rsssearch.IRssSearchProviderManager;
 import org.paxle.se.provider.rsssearch.impl.RssSearchProvider;
-import org.paxle.se.provider.rsssearch.impl.RssSearchProviderManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -42,13 +42,22 @@ import org.htmlparser.PrototypicalNodeFactory;
 import org.htmlparser.lexer.Lexer;
 import org.htmlparser.lexer.Page;
 
+/**
+ * @scr.component immediate="true" 
+ * 				  label="RSS Search Servlet"
+ * 				  description="A Servlet to configure your RSS resources"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/rsssearchconfig"
+ * @scr.property name="menu" value="%menu.administration/%menu.bundles/RSS search sources"
+ * @scr.property name="doUserAuth" value="true" type="Boolean"
+ */
 public class ConfigServlet extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
-	private final RssSearchProviderManager pManager;
 	
-	public ConfigServlet(RssSearchProviderManager pManager) {
-		this.pManager = pManager;
-	}
+	/** 
+	 * @scr.reference
+	 */
+	protected IRssSearchProviderManager pManager;
 
 	@Override
 	public Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context context) {

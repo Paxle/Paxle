@@ -53,10 +53,10 @@ public class RssSearchQueryFactor extends IQueryFactory<String> {
 		//see http://del.icio.us/help/faq#Is_there_a_way_to_use_not_in_tag
 	}
 
-	@Override
 	/**
 	 * returns the first Value only
 	 */
+	@Override
 	public String or(AToken[] arg0) {
 		return transformToken(arg0[0], this);
 	}

@@ -19,23 +19,25 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.ComponentContext;
+import org.paxle.se.provider.rsssearch.IRssSearchProviderManager;
 import org.paxle.se.search.ISearchProvider;
 
-
-public class RssSearchProviderManager {	
+/**
+ * @scr.component 
+ * @scr.service interface="org.paxle.se.provider.rsssearch.IRssSearchProviderManager"
+ */
+public class RssSearchProviderManager implements IRssSearchProviderManager {	
 	/**
 	 * All currently registered RSS-search providers
 	 */
@@ -49,25 +51,35 @@ public class RssSearchProviderManager {
 	/**
 	 * The bundle-context used to register new {@link RssSearchProvider providers}
 	 */
-	private final BundleContext bc;
+	private BundleContext bc;
 	
 	/**
 	 * The data-file containing all known provider-URL
 	 */
-	private final File providerFile;
+	private File providerFile;
 	
-	public RssSearchProviderManager(BundleContext bc, File providerFile) throws IOException {
-		this.bc = bc;
-		this.providerFile = providerFile;
+	protected void activate(ComponentContext context) throws IOException {
+		// getting the data directory to use
+		File providerDir = new File(System.getProperty("paxle.data") + File.separatorChar + "rssSearch");
+		if (!providerDir.exists()) providerDir.mkdirs();
 		
+		// creating the data file
+		this.providerFile = new File(providerDir, "rssProviders.txt");
+		
+		// getting the bundle context
+		this.bc = context.getBundleContext();
+		
+		// registering all currently known searchers to the framework
 		ArrayList<String> urls = this.getUrls();
-		this.registerSearchers(urls);	
-	}
+		this.registerSearchers(urls);
+	}		
 	
-	/**
-	 * read the list of RSS-URLs
-	 * @return an ArrayList with URLs
-	 * @throws IOException
+	protected void deactivate(ComponentContext context) throws Exception {
+		this.unregisterSearchers();
+	}	
+	
+	/* (non-Javadoc)
+	 * @see org.paxle.se.provider.rsssearch.impl.IRssSearchProviderManager#getUrls()
 	 */
 	public ArrayList<String> getUrls() throws IOException{
 		/*
@@ -98,6 +110,9 @@ public class RssSearchProviderManager {
 	
 
 
+	/* (non-Javadoc)
+	 * @see org.paxle.se.provider.rsssearch.impl.IRssSearchProviderManager#setUrls(java.util.ArrayList)
+	 */
 	public void setUrls(ArrayList<String> urls) throws IOException{
 		if(!this.providerFile.exists()){
 			this.providerFile.createNewFile();
@@ -114,25 +129,19 @@ public class RssSearchProviderManager {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.paxle.se.provider.rsssearch.impl.IRssSearchProviderManager#registerSearchers(java.util.ArrayList)
+	 */
 	@SuppressWarnings("serial")
 	public void registerSearchers(ArrayList<String> urls){
-		Iterator<ServiceRegistration> regs = providers.iterator();
-		while (regs.hasNext()) {
-			ServiceRegistration sr = regs.next();
-			try{
-				sr.unregister();				
-			} catch(IllegalStateException e) {
-				this.logger.error(e);
-			}
-			regs.remove();
-		}
+		this.unregisterSearchers();
 		
 		for (String url : urls) {
 			// create a new provider
 			final RssSearchProvider provider = new RssSearchProvider(url);
 			
 			// the provider ID to use
-			final String providerID = "org.paxle.se.provider.rsssearch" + provider.getFeedUrlHost();
+			final String providerID = "org.paxle.se.provider.rsssearch." + provider.getFeedUrlHost();
 			
 			// register as a service to the framework
 			ServiceRegistration registration = this.bc.registerService(
@@ -145,6 +154,19 @@ public class RssSearchProviderManager {
 			
 			// remember it in the internal list
 			providers.add(registration);
+		}
+	}
+	
+	private void unregisterSearchers() {
+		Iterator<ServiceRegistration> regs = providers.iterator();
+		while (regs.hasNext()) {
+			ServiceRegistration sr = regs.next();
+			try{
+				sr.unregister();				
+			} catch(IllegalStateException e) {
+				this.logger.error(e);
+			}
+			regs.remove();
 		}
 	}
 }
