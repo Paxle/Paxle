@@ -587,8 +587,8 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 		
 		// per default http and https should be enabled
 		defaults.put(ENABLED_PROTOCOLS, new String[] {
-				"org.paxle.CrawlerHttp" + SUBCRAWLER_PID_SEP + "org.paxle.crawler.http.impl.HttpCrawler" + SUBCRAWLER_PID_SEP + "http",
-				"org.paxle.CrawlerHttp" + SUBCRAWLER_PID_SEP + "org.paxle.crawler.http.impl.HttpCrawler" + SUBCRAWLER_PID_SEP + "https"
+				"org.paxle.CrawlerHttp" + SUBCRAWLER_PID_SEP + "org.paxle.crawler.http.IHttpCrawler" + SUBCRAWLER_PID_SEP + "http",
+				"org.paxle.CrawlerHttp" + SUBCRAWLER_PID_SEP + "org.paxle.crawler.http.IHttpCrawler" + SUBCRAWLER_PID_SEP + "https"
 		});
 		defaults.put(ENABLE_DEFAULT, Boolean.TRUE);
 		
