@@ -174,7 +174,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>SearchEngine</artifactId>
-			<version>[,0.2.0)</version>
+			<version>[0.1.2-SNAPSHOT,0.2.0)</version>
 			<optional>true</optional>
 		</dependency>	
 		

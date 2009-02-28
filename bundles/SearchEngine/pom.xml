@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>SearchEngine</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Search Engine: Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 

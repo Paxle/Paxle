@@ -45,4 +45,8 @@ public class SearchResult implements ISearchResult {
 	public String getProviderID() {
 		return this.searchProviderID;
 	}
+	
+	public int getSize() {
+		return (result==null)?0:result.length;
+	}
 }

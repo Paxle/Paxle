@@ -41,8 +41,13 @@ public interface ISearchProviderManager {
 	 */
 	public void disableProvider(String providerName);	
 	
-	public List<ISearchResult> search(String paxleQuery, int maxResults, long timeout) throws
-			InterruptedException, ExecutionException, SearchException;
-	public void search(String paxleQuery, int maxResults, long timeout, ISearchResultCollector collector) throws
-			InterruptedException, ExecutionException, SearchException;
+	public List<ISearchResult> search(ISearchRequest request) throws InterruptedException, ExecutionException, SearchException;
+	public List<ISearchResult> search(String paxleQuery, int maxResults, long timeout) throws InterruptedException, ExecutionException, SearchException;
+	public void search(String paxleQuery, int maxResults, long timeout, ISearchResultCollector collector) throws InterruptedException, ExecutionException, SearchException;
+
+	/**
+	 * Function to create a new search-request object. The result of this function call can be used to start a new search
+	 * via {@link #search(ISearchRequest)}. 
+	 */
+	public ISearchRequest createRequest(String paxleQuery, int maxResults, long timeout) throws SearchException;
 }

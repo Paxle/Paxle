@@ -27,7 +27,6 @@ public interface IRssSearchProviderManager {
 
 	public void setUrls(ArrayList<String> urls) throws IOException;
 
-	@SuppressWarnings("serial")
 	public void registerSearchers(ArrayList<String> urls);
 
 }

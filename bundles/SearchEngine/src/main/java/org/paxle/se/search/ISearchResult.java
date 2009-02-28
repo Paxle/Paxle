@@ -18,6 +18,7 @@ import org.paxle.core.doc.IIndexerDocument;
 
 public interface ISearchResult {	
 	public IIndexerDocument[] getResult();
+	public int getSize();
 	public long getSearchTime();
 	
 	/**

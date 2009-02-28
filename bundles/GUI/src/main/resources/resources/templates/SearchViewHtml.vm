@@ -74,10 +74,14 @@
 					<td>
             			##set($disabledSEProviders = $searchProviderManager.disabledProviders())    				
         				<select name="seProviders" size="5" multiple="multiple">
-        				#foreach($searchprovider in $searchProviderManager.getSearchProviders().entrySet())    			
-           					<option selected="selected" value="$searchprovider.key">#seProviderName($searchprovider.value)</option>
+        				#foreach($searchprovider in $searchProviderManager.getSearchProviders().entrySet())
+           					<option #if(!$seProviders || ${listTool.contains($seProviders,$searchprovider.key)})selected="selected"#end value="$searchprovider.key">#seProviderName($searchprovider.value)</option>
            				#end
         				</select>
+					</td>
+					<td class="descriptionText">
+						With this option you can specify that the search-request should only be processed by a given
+						set of search-providers.
 					</td>
 				</tr>
     			</table>
@@ -88,23 +92,44 @@
 				// ]]>
 			</script>
     	</p>
-    </form>
-    <br />
-	
+    </form>	
 	#if( $searchError)
 	   <p class="error">$searchError</p>
 	   
 	#elseif($searchResultList)
-	   ## java script lib for the tooltips
-	   ## See: SearchViewToolTip.vm
-
+	  <div class="summary">
+			#set($toggleSearchDetails = "Effect.toggle('searchResultDetails', 'appear', { delay: 0, duration: 0 });")
+			<div>
+				<strong>$searchResultCount</strong> result(s) found.
+				<img src="/images/bullet_arrow_down.png" onclick="$toggleSearchDetails" title="more details..."/>
+			</div>
+			<div id="searchResultDetails">
+				<hr/>
+				#set($providerIdx = 0)
+				#foreach($searchResult in $searchResultList)
+					#set($providerIdx = $providerIdx + 1)
+					<strong>${searchResult.size}</strong> result(s) found by #seProviderName(${searchResult.providerID})
+					<input type="checkbox" onClick="checked ? Effect.multiple($$('tr.searchResult_$providerIdx'),Effect.Fade, { speed: 0 }) : Effect.multiple($$('tr.searchResult_$providerIdx'),Effect.Appear, { speed: 0 })"/>
+					<br/>
+				#end
+			</div>
+			<script type="text/javascript">
+				// <![CDATA[
+				$toggleSearchDetails;
+				
+				
+				// ]]>
+			</script>
+	  </div>
       <table>
-			#set($counter = 0)
+			 #set($counter = 0)
+			 #set($providerIdx = 0)
 	         #foreach($searchResult in $searchResultList)
+				#set($providerIdx = $providerIdx + 1)
 	            #foreach($result in $searchResult.getResult())
 	               #if($result.get($fieldManager.get("Location")))
 					  #set($counter = $counter + 1)
-	                  <tr>
+	                  <tr class="searchResult_$providerIdx">
 	                     <td class="searchResult">
                             ## only display favicons if the corresponding bundle is installed
                      	    #if($showFavicons)

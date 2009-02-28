@@ -13,6 +13,9 @@
  */
 package org.paxle.se.search;
 
+import java.util.List;
+
+import org.osgi.framework.Constants;
 import org.paxle.se.query.tokens.AToken;
 
 public interface ISearchRequest {
@@ -21,7 +24,23 @@ public interface ISearchRequest {
 	public AToken getSearchQuery();
 	public int getMaxResultCount();
 	
+	public int getRequestID();
+	
 	/* TODO: other request metadata not directly available in the query string, e.g.
 	 * - ranking parameter?
 	 */
+	
+	/**
+	 * @return the {@link Constants#SERVICE_PID IDs} of all {@link ISearchProvider providers} that have processed the search request
+	 */
+	public List<String> getProviderIDs();
+	
+	/**
+	 * This function can be used to restrict the {@link ISearchProvider providers} that should be used to
+	 * process a {@link ISearchRequest search-request} to a given list of providers. 
+	 * 
+	 * @param providerIDs the {@link Constants#SERVICE_PID IDs} of all providers that should be used to process the search request.
+	 * If the list is empty or <code>null</code> all providers registered to the system are used.
+	 */
+	public void setProviderIDs(List<String> providerIDs);	
 }

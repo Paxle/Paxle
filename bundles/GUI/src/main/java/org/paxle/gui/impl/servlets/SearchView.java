@@ -13,8 +13,8 @@
  */
 package org.paxle.gui.impl.servlets;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,13 +25,18 @@ import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 import org.paxle.gui.IServletManager;
+import org.paxle.se.search.ISearchProviderManager;
+import org.paxle.se.search.ISearchRequest;
+import org.paxle.se.search.ISearchResult;
 
 public class SearchView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
+	private static final String SEPROVIDER_MANAGER = "org.paxle.se.search.ISearchProviderManager";
 	public static final String PARAM_FORMAT = "format";
 	public static final String PARAM_QUERY = "query";
-		
+	public static final String PARAM_SE_PROVIDERS = "seProviders";	
+	
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {
 
@@ -40,25 +45,36 @@ public class SearchView extends ALayoutServlet {
 			IServiceManager manager = (IServiceManager) context.get(SERVICE_MANAGER);
 			
 			if (request.getParameter(PARAM_QUERY) != null && !request.getParameter(PARAM_QUERY).equals("")) {
-				// context.put("searchQuery", request.getParameter("query"));
 				final String query = request.getParameter(PARAM_QUERY);
+				final String[] allowedProviderIDs = request.getParameterValues(PARAM_SE_PROVIDERS);
 				context.put("searchQuery", query);
+				context.put(PARAM_SE_PROVIDERS,allowedProviderIDs);
 				
-				final Object isearchProviderManager = manager.getService("org.paxle.se.search.ISearchProviderManager");
-				if (isearchProviderManager == null) {
+				if (!manager.hasService(SEPROVIDER_MANAGER)) {
 					context.put("seBundleNotInstalled", Boolean.TRUE);
 				} else {
-					// reflection is used here to not create hard dependencies to the SearchEngine bundle
-					final Method searchMethod = isearchProviderManager.getClass().getMethod("search", String.class, int.class, long.class);
 					try {
+						final ISearchProviderManager searchProviderManager = (ISearchProviderManager) manager.getService(SEPROVIDER_MANAGER);
 						final int maxResults = 50;
 						final long timeout = 10000l;
 						
+						// creating a search request object
+						ISearchRequest searchRequest = searchProviderManager.createRequest(query, maxResults, timeout);
+						if (allowedProviderIDs != null && allowedProviderIDs.length > 0) {
+							// restricting the search request to a given set of search-providers
+							searchRequest.setProviderIDs(Arrays.asList(allowedProviderIDs));
+						}
+						
+						// starting the search
 						logger.info("invoking search with '" + query + "', max results: " + maxResults + ", timeout: " + timeout);
-						final Object searchResultList = searchMethod.invoke(
-								isearchProviderManager, query, Integer.valueOf(maxResults), Long.valueOf(timeout));
+						List<ISearchResult> searchResultList = searchProviderManager.search(searchRequest);
+						
+						int resultCount = 0;
+						for (ISearchResult result : searchResultList) resultCount += result.getSize();
+						
 						context.put("searchResultList", searchResultList);
-					} catch (InvocationTargetException e) {
+						context.put("searchResultCount", new Integer(resultCount));
+					} catch (Exception e) {
 						final Throwable cause = e.getCause();
 						final String msg;
 						if (cause == null) {
