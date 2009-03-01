@@ -65,7 +65,8 @@ public class DICommandProvider implements CommandProvider {
 	public String getHelp() {
 		final StringBuilder buf = new StringBuilder();
 		final String newLine = System.getProperty("line.separator", "\r\n");
-		buf.append("---Controlling the desktop bundle---").append(newLine)
+		buf.append(newLine)
+		   .append("---Controlling the desktop bundle---").append(newLine)
 		   .append("\tdesktop - DesktopIntegration-related commands").append(newLine)
 		   .append("\t   open ... - open dialogues, when invoked without args lists available ones").append(newLine)
 		   .append("\t   tray     - toggle tray menu visibility").append(newLine);
