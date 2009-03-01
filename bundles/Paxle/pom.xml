@@ -101,6 +101,7 @@
 		<org.osgi.service.http.port>8080</org.osgi.service.http.port>
 		<paxle.data>.</paxle.data>
 		<equinox.data>configuration</equinox.data>
+		<log4j.config.file>file:${equinox.data}/log4j.properties</log4j.config.file>
 		<runtime.xmx.mb>128</runtime.xmx.mb>
 		
 		<!-- Apache Felix related Properties -->

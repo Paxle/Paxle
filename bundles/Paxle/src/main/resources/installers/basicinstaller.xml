@@ -20,6 +20,7 @@
 		<variable name="equinox.data" value="&quot;${UserPathPanelVariable}${FILE_SEPARATOR}configuration&quot;" condition="izpack.windowsinstall"/>
 		<variable name="equinox.data" value="${UserPathPanelVariable}${FILE_SEPARATOR}configuration" condition="!izpack.windowsinstall"/>
 		<variable name="equinox.data.path" value="${UserPathPanelVariable}${FILE_SEPARATOR}configuration"/>
+		<variable name="log4j.config.file" value="file:${equinox.data.path}${FILE_SEPARATOR}log4j.properties"/>
 	</dynamicvariables>
 		
     <guiprefs width="700" height="550" resizable="yes">
