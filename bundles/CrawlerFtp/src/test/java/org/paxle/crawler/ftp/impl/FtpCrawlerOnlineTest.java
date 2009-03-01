@@ -53,9 +53,10 @@ public class FtpCrawlerOnlineTest extends TestCase {
 		};
 		
 		// init crawler-context
-		CrawlerContextLocal threadLocal = new CrawlerContextLocal();
-		threadLocal.getSupportedMimeTypes().add("text/html");
-		threadLocal.setTempFileManager(this.tempManager);
+		CrawlerContextLocal threadLocal = new CrawlerContextLocal(){{
+			this.supportedMimeTypes.add("text/html");
+			this.tempFileManager = tempManager;
+		}};
 		CrawlerContext.setThreadLocal(threadLocal);
 		
 		// create crawler
@@ -93,13 +94,13 @@ public class FtpCrawlerOnlineTest extends TestCase {
 		assertTrue(crawlerDoc.getContent().length() > 0);
 	}
 	
-	public void testReadDocumentMaxDownloadSizeLimit() throws ConfigurationException {
+	public void _testReadDocumentMaxDownloadSizeLimit() throws ConfigurationException {
 		URI testUri = URI.create("ftp://ftp.debian.org/debian/README");
 
 		// change crawler settings
 		Dictionary<String, Object> props = this.crawler.getDefaults();
 		props.put(FtpCrawler.PROP_MAXDOWNLOAD_SIZE, new Integer(500));
-		this.crawler.updated(props);		
+		this.crawler.updated(props);
 		
 		// download document
 		this.crawlerDoc = this.crawler.request(testUri);

@@ -53,21 +53,22 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 		this.servletURL = tester.createSocketConnector(true);
 	}
 
-	public void initCrawlerContext(String mimeType) {
-		CrawlerContextLocal threadLocal = new CrawlerContextLocal();
-		threadLocal.getSupportedMimeTypes().add(mimeType);
-		threadLocal.setTempFileManager(new ITempFileManager() {
-			public File createTempFile() throws IOException {
-				File tmp = File.createTempFile("test", ".tmp");
-				tmp.deleteOnExit();
-				return tmp;
-			}
-			public void releaseTempFile(File arg0) throws FileNotFoundException, IOException {
-				arg0.delete();				
-			}
-			public void removeTempDirFor(String... arg0) { }
-			public void setTempDirFor(ITempDir arg0, String... arg1) { }			
-		});
+	public void initCrawlerContext(final String mimeType) {
+		CrawlerContextLocal threadLocal = new CrawlerContextLocal() {{
+			this.supportedMimeTypes.add(mimeType);
+			this.tempFileManager = new ITempFileManager() {
+				public File createTempFile() throws IOException {
+					File tmp = File.createTempFile("test", ".tmp");
+					tmp.deleteOnExit();
+					return tmp;
+				}
+				public void releaseTempFile(File arg0) throws FileNotFoundException, IOException {
+					arg0.delete();				
+				}
+				public void removeTempDirFor(String... arg0) { }
+				public void setTempDirFor(ITempDir arg0, String... arg1) { }			
+			};
+		}};
 		CrawlerContext.setThreadLocal(threadLocal);
 	}
 	

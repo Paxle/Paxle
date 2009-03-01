@@ -44,8 +44,20 @@ public class Pool<Data> extends GenericObjectPool implements IPool<Data> {
 	 */
 	private ArrayList<IWorker<Data>> activeWorkers = new ArrayList<IWorker<Data>>();
 	
+	/**
+	 * A list of workers not borrowed from pool.
+	 * @see #createWorker()
+	 */
+	private ArrayList<IWorker<Data>> notPooledWorkers = new ArrayList<IWorker<Data>>();
+	
+	/**
+	 * A factory to create new poolable objects
+	 */
+	private final PoolableObjectFactory factory;
+	
 	public Pool(PoolableObjectFactory factory) {
 		super(factory);
+		this.factory = factory;
 	}
 	
 	/**
@@ -72,6 +84,10 @@ public class Pool<Data> extends GenericObjectPool implements IPool<Data> {
 		return this.activeWorkers.size();
 	}
 	
+	public int getNotPooledActiveJobCount() {
+		return this.notPooledWorkers.size();
+	}
+	
 	/**
 	 * @see IPool#getMaxActiveJobCount()
 	 */
@@ -79,10 +95,11 @@ public class Pool<Data> extends GenericObjectPool implements IPool<Data> {
 		return this.getMaxActive();
 	}
 	
-	private void addActiveWorker(IWorker<Data> worker) {
+	private void addActiveWorker(IWorker<Data> worker, boolean pooled) {
 		try {
-			this.w.lock();
+			this.w.lock();			
 			this.activeWorkers.add(worker);
+			if (!pooled) this.notPooledWorkers.add(worker);
 		} finally {
 			this.w.unlock();
 		}
@@ -92,38 +109,98 @@ public class Pool<Data> extends GenericObjectPool implements IPool<Data> {
 		try {
 			this.w.lock();
 			this.activeWorkers.remove(worker);
+			this.notPooledWorkers.remove(worker);
 		} finally {
 			this.w.unlock();
 		}		
 	}
 	
+	private boolean isPooledWorker(IWorker<Data> worker) {
+		try {
+			this.r.lock();
+			return !this.notPooledWorkers.contains(worker);
+		} finally {
+			this.r.unlock();
+		}	
+	}
+	
 	/**
 	 * @see IPool#getWorker()
 	 * @see GenericObjectPool#borrowObject()
-	 */
-	@SuppressWarnings("unchecked")
+	 */	
 	public IWorker<Data> getWorker() throws Exception {
+		return this.getWorker(true);
+	}
+	
+	public IWorker<Data> getWorker(boolean fromPool) throws Exception {
 		if (this.closed) {
 			// thread pool already closed. Notify the master thread about this circumstance
 			throw new InterruptedException("Thread pool was closed.");
 		}
 		
-		IWorker<Data> newWorker = (IWorker<Data>) super.borrowObject();
-		this.addActiveWorker(newWorker);
+		// creating or borrowing a new worker
+		@SuppressWarnings("unchecked")
+		IWorker<Data> newWorker = (fromPool)
+							    ? (IWorker<Data>) super.borrowObject()
+							    : this.createWorker();
+							    
+        // remember the new active worker
+		this.addActiveWorker(newWorker, fromPool);
+		
+		// return worker
 		return newWorker;
 	}
 
+	/**
+	 * Creates and returns a new worker <strong>without</strong> borrowing it from the internal pool.<br/>
+	 * The code of this function was partially copied from {@link GenericObjectPool#borrowObject()}
+	 * 
+	 * @return
+	 * @throws Exception
+	 */	
+	public IWorker<Data> createWorker() throws Exception {		
+		// creating the new object 
+		@SuppressWarnings("unchecked")
+		IWorker<Data> newWorker = (IWorker<Data>) this.factory.makeObject();
+		
+        try {
+        	// activating worker
+        	this.factory.activateObject(newWorker);
+        	
+        	// validating worker
+            if(this.getTestOnBorrow() && !this.factory.validateObject(newWorker)) {
+                throw new Exception("ValidateObject failed");
+            }
+            
+            // return worker
+            return newWorker;
+        } catch (Throwable e) {
+            // object cannot be activated or is invalid
+            try {
+                this.factory.destroyObject(newWorker);
+            } catch (Throwable e2) {
+                // cannot destroy broken object
+            }
+            throw new Exception(e);
+        }
+	}
+	
 	/**
 	 * @see IPool#returnWorker(IWorker)
 	 * @see GenericObjectPool#returnObject(Object)
 	 */
 	public void returnWorker(IWorker<Data> worker) {
-		try {	
+		try {
 			if (this.closed) {
 				// thread pool already closed. Notify the worker thrad about this circumstance.
 				throw new InterruptedException("Thread pool was closed");
 			}
-			super.returnObject(worker);	
+			
+			if (this.isPooledWorker(worker)) {
+				super.returnObject(worker);	
+			} else {
+		        this.factory.destroyObject(worker);
+			}
 		} catch (Exception e) {
 			this.logger.error(String.format("Unexpected '%s' while returning worker thread into pool.",e.getClass().getName()),e);
 			worker.terminate();
@@ -138,9 +215,19 @@ public class Pool<Data> extends GenericObjectPool implements IPool<Data> {
 	 */
 	public void invalidateWorker(IWorker<Data> worker) {
 		try {
-			if (!this.closed) super.invalidateObject(worker);
+			if (this.closed) return;
+			
+			if (this.isPooledWorker(worker)) {
+				super.invalidateObject(worker);
+			} else {
+				this.factory.destroyObject(worker);
+			}
 		} catch (Exception e) {
-        	this.logger.error(String.format("Unexpected '%s' while invalidating worker thread.",e.getClass().getName()),e);
+        	this.logger.error(String.format(
+        			"Unexpected '%s' while invalidating worker thread.",
+        			e.getClass().getName()),
+        			e
+        	);
 			worker.terminate();
 		} finally {
 			if (!this.closed) this.removeActiveWorker(worker);

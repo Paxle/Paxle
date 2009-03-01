@@ -13,7 +13,8 @@
  */
 package org.paxle.core.threading;
 
-public interface IMaster {
+
+public interface IMaster<Data> {
 	/**
 	 * TODO: do we need an explicit start?
 	 */
@@ -54,4 +55,13 @@ public interface IMaster {
 	 * @return total number of processed jobs since startup
 	 */
 	public int processedCount();
+	
+	/**
+	 * Calling this function forces the {@link IMaster} to immediately process the given job object. 
+	 * The caller of this function will block until the processing of the job has finished.
+	 *  
+	 * @param cmd the job to process
+	 * @throws Exception
+	 */
+	public void process(Data cmd) throws Exception;
 }

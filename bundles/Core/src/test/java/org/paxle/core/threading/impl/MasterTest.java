@@ -45,7 +45,7 @@ public class MasterTest extends MockObjectTestCase {
 		final Semaphore enqueuedSync = new Semaphore(0);
 		
 		// creating a dummy worker
-		final DummyWorker worker = new DummyWorker();
+		final DummyTriggeredWorker worker = new DummyTriggeredWorker();
 		worker.setInQueue(inQueue);
 		worker.setOutQueue(outQueue);
 		
@@ -81,9 +81,36 @@ public class MasterTest extends MockObjectTestCase {
 		// terminate master
 		master.terminate();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public void testProcess() throws Exception {
+		// creating a test command
+		final ICommand command = Command.createCommand(URI.create("http://test.xyz"));
+		
+		// a dummy worker pool
+		final IPool<ICommand> pool = mock(IPool.class);
+		
+		// creating a dummy worker
+		final DummyAssignedJobWorker worker = new DummyAssignedJobWorker();
+		
+		// define expectations
+		checking(new Expectations(){{
+			// allow the master to fetch a worker 
+			one(pool).getWorker(false); will(returnValue(worker));
+			one(pool).close();
+		}});
+		
+		// init and start master
+		final Master master = new Master<ICommand>(pool, new CommandFilterInputQueue<ICommand>(1), true);
+		master.process(command);
+			
+		// terminate master
+		master.terminate();
+		assertEquals(DummyAssignedJobWorker.PROCESSING_DONE, command.getResultText());
+	}
 }
 
-class DummyWorker extends AWorker<ICommand> {
+class DummyTriggeredWorker extends AWorker<ICommand> {
 	public Semaphore triggerSync = new Semaphore(0);
 		
 	@Override
@@ -100,6 +127,20 @@ class DummyWorker extends AWorker<ICommand> {
 	@Override
 	protected void execute(ICommand cmd) {
 		// nothing to do here
-	}
+	}	
+}
+
+class DummyAssignedJobWorker extends AWorker<ICommand> {
+	public static final String PROCESSING_DONE = "processing done";
 	
+	@Override
+	public void trigger() throws InterruptedException {
+		throw new RuntimeException("This function must not be called in this testcase.");
+	}	
+	
+	@Override
+	protected void execute(ICommand cmd) {
+		// nothing special todo here
+		cmd.setResultText(PROCESSING_DONE);
+	}	
 }

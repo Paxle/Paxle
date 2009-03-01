@@ -42,7 +42,7 @@ public interface IMWComponent<Data> {
 	/**
 	 * @return the {@link IMaster master-thread} of the component
 	 */
-	public IMaster getMaster();
+	public IMaster<Data> getMaster();
 	
 	/**
 	 * @return the {@link IWorker worker-thread}-{@link IPool pool} of the component
@@ -93,7 +93,7 @@ public interface IMWComponent<Data> {
 	public void resume();
 	
 	/**
-	 * Process the next job in the queue if the componend was paused
+	 * Process the next job in the queue if the component was paused
 	 */
 	public void processNext();
 	
@@ -121,4 +121,13 @@ public interface IMWComponent<Data> {
 	 * @return the size of the enqueued-job queue
 	 */
 	public int getEnqueuedJobCount();
+
+	/**
+	 * Calling this function forces the {@link IMWComponent} to immediately process the given job object. 
+	 * The caller of this function will block until the processing of the job has finished.
+	 *  
+	 * @param cmd the job to process
+	 * @throws Exception
+	 */
+	public void process(Data cmd) throws Exception;
 }

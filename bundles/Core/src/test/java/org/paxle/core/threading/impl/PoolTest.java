@@ -32,7 +32,7 @@ public class PoolTest extends MockObjectTestCase {
 		this.mockedPool = new Pool<Object>(this.objFactoryMock);
 	}
 		
-	public void testGetWorker() throws Exception {		
+	public void testGetAndReturnWorker() throws Exception {		
 		checking(new Expectations(){{
 			@SuppressWarnings("unchecked")
 			final IWorker<Object> worker = mock(IWorker.class);
@@ -41,11 +41,19 @@ public class PoolTest extends MockObjectTestCase {
 			will(returnValue(worker));
 			
 			one(objFactoryMock).activateObject(worker);
+			one(objFactoryMock).passivateObject(worker);
 		}});
 		
+		// get worker from pool
 		IWorker<Object> worker = this.mockedPool.getWorker();
 		assertNotNull(worker);
 		assertEquals(1, this.mockedPool.getActiveJobCount());
+		assertEquals(0, this.mockedPool.getNotPooledActiveJobCount());
+		
+		// return worker into pool
+		this.mockedPool.returnWorker(worker);
+		assertEquals(0, this.mockedPool.getActiveJobCount());
+		assertEquals(0, this.mockedPool.getNotPooledActiveJobCount());
 	}
 	
 	public void testGetWorkerExceptionOnMakeObject() throws Exception {
@@ -60,6 +68,50 @@ public class PoolTest extends MockObjectTestCase {
 		} catch (RuntimeException e) {/* ignore this */}
 		
 		assertEquals(0, this.mockedPool.getActiveJobCount());
+		assertEquals(0, this.mockedPool.getNotPooledActiveJobCount());
 	}
 	
+	public void testGetAndReturnNotPooledWorker() throws Exception {
+		checking(new Expectations(){{
+			@SuppressWarnings("unchecked")
+			final IWorker<Object> worker = mock(IWorker.class);			
+			
+			one(objFactoryMock).makeObject(); will(returnValue(worker));			
+			one(objFactoryMock).activateObject(worker);
+			one(objFactoryMock).destroyObject(worker);
+		}});
+		
+		// getting new worker
+		IWorker<Object> worker = this.mockedPool.getWorker(false);
+		assertNotNull(worker);
+		assertEquals(1, this.mockedPool.getActiveJobCount());
+		assertEquals(1, this.mockedPool.getNotPooledActiveJobCount());
+		
+		// return worker
+		this.mockedPool.returnWorker(worker);
+		assertEquals(0, this.mockedPool.getActiveJobCount());
+		assertEquals(0, this.mockedPool.getNotPooledActiveJobCount());
+	}
+	
+	public void testGetAndInvalidateNotPooledWorker() throws Exception {
+		checking(new Expectations(){{
+			@SuppressWarnings("unchecked")
+			final IWorker<Object> worker = mock(IWorker.class);			
+			
+			one(objFactoryMock).makeObject(); will(returnValue(worker));			
+			one(objFactoryMock).activateObject(worker);
+			one(objFactoryMock).destroyObject(worker);
+		}});
+		
+		// getting new worker
+		IWorker<Object> worker = this.mockedPool.getWorker(false);
+		assertNotNull(worker);
+		assertEquals(1, this.mockedPool.getActiveJobCount());
+		assertEquals(1, this.mockedPool.getNotPooledActiveJobCount());
+		
+		// return worker
+		this.mockedPool.invalidateWorker(worker);
+		assertEquals(0, this.mockedPool.getActiveJobCount());
+		assertEquals(0, this.mockedPool.getNotPooledActiveJobCount());
+	}	
 }

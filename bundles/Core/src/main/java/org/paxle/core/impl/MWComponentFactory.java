@@ -135,7 +135,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 		factoryWrapper.setOutQueue(outQueue);
 		
 		// create a master thread
-		IMaster master = new Master<Data>(pool, inQueue);
+		IMaster<Data> master = new Master<Data>(pool, inQueue);
 		((Master<?>)master).setName(this.bundle.getSymbolicName() + ".Master");
 		
 		// create the component and return it

@@ -24,6 +24,8 @@ public interface IPool<Data> {
 	 */
 	public IWorker<Data> getWorker() throws Exception;
 	
+	public IWorker<Data> getWorker(boolean fromPool) throws Exception;
+	
 	/**
 	 * Returns the {@link IWorker worker-thread} into the thread pool
 	 * @param worker
@@ -45,6 +47,8 @@ public interface IPool<Data> {
 	 * @return the size of the active job queue
 	 */
 	public int getActiveJobCount();
+
+	public int getNotPooledActiveJobCount();	
 	
 	/**
 	 * @return the maximum number of active jobs

@@ -54,9 +54,6 @@ public class AWorkerTest extends MockObjectTestCase {
 			
 			// pool is closed
 			one(pool).closed(); will(returnValue(true));
-			
-			// worker must invalidate itself
-			one(pool).invalidateWorker(with(same(worker)));
 		}});
 		
 		worker.setInQueue(this.inQueue);
@@ -83,9 +80,6 @@ public class AWorkerTest extends MockObjectTestCase {
 			
 			// pool is closed
 			one(pool).closed(); will(returnValue(true));
-			
-			// worker must invalidate itself
-			one(pool).invalidateWorker(with(same(worker)));
 		}});
 		
 		worker.setInQueue(this.inQueue);
@@ -120,11 +114,8 @@ public class AWorkerTest extends MockObjectTestCase {
 				public Object invoke(Invocation invocation) throws Throwable {
 					waitforReturnToPool.release();
 					return null;
-				}
-				
+				}				
 			});
-			
-			one(pool).invalidateWorker(with(same(worker)));
 		}});
 		
 		// init worker

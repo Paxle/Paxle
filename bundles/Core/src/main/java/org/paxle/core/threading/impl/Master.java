@@ -13,17 +13,23 @@
  */
 package org.paxle.core.threading.impl;
 
+import java.util.concurrent.Semaphore;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.IInputQueue;
+import org.paxle.core.queue.IOutputQueue;
 import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IPool;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.PPM;
 
 
-public class Master<Data> extends Thread implements IMaster {
+public class Master<Data> extends Thread implements IMaster<Data> {
+	/**
+	 * For logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
@@ -158,6 +164,26 @@ public class Master<Data> extends Thread implements IMaster {
         			,e.getClass().getName()
         	),e);
         }
+	}
+	
+	public void process(final Data cmd) throws Exception {
+        // creating a new worker (we do not borrow it from pool here!)
+        IWorker<Data> worker = this.pool.getWorker(false);
+        
+        // creating and assigning a dummy output queues
+        final Semaphore s = new Semaphore(0);
+        worker.setInQueue(null);
+        worker.setOutQueue(new IOutputQueue<Data>() {
+			public void enqueue(Data command) throws InterruptedException {
+				s.release();
+			}        	
+        });        
+        
+        // assign the data to the worker
+        worker.assign(cmd);
+        
+        // waiting for the worker to finish execution
+        s.acquire();
 	}
 	
 	/**

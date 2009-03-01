@@ -59,10 +59,6 @@ public class Activator implements BundleActivator {
 		// init the subcrawl manager
 		this.subCrawlerManager = this.createAndRegisterSubCrawlerManager(bc);
 		
-		// init crawler context
-		CrawlerContextLocal crawlerLocal = new CrawlerContextLocal();		
-		crawlerLocal.setTempFileManager(IOTools.getTempFileManager());
-		
 		// init the thread factory
 		WorkerFactory workerFactory = new WorkerFactory(this.subCrawlerManager);
 		
@@ -70,10 +66,7 @@ public class Activator implements BundleActivator {
 		 * Register Service Listeners
 		 * ========================================================== */		
 		// registering a service listener to notice if a new sub-crawler was (un)deployed
-		bc.addServiceListener(new SubCrawlerListener((SubCrawlerManager)this.subCrawlerManager, bc),SubCrawlerListener.FILTER);
-		
-		// a listener for the mimetype detector
-		bc.addServiceListener(new DetectorListener(crawlerLocal,bc),DetectorListener.FILTER);		
+		bc.addServiceListener(new SubCrawlerListener((SubCrawlerManager)this.subCrawlerManager, bc),SubCrawlerListener.FILTER);	
 		
 		/* ==========================================================
 		 * Get services provided by other bundles

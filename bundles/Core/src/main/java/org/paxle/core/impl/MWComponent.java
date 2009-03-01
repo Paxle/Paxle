@@ -104,7 +104,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	/**
 	 * Master thread
 	 */
-	private final IMaster master;
+	private final IMaster<Data> master;
 	
 	/**
 	 * Worker thread pool
@@ -153,7 +153,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	
 	private final String[] locales;
 	
-	public MWComponent(IMaster master, Pool<Data> pool, InputQueue<Data> inQueue, OutputQueue<Data> outQueue, final String[] locales) {
+	public MWComponent(IMaster<Data> master, Pool<Data> pool, InputQueue<Data> inQueue, OutputQueue<Data> outQueue, final String[] locales) {
 		if (master == null) throw new NullPointerException("The master thread is null.");
 		if (pool == null) throw new NullPointerException("The thread-pool is null");
 		if (inQueue == null) throw new NullPointerException("The input-queue is null");
@@ -205,7 +205,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	 * {@inheritDoc}
 	 * @see IMWComponent#getMaster()
 	 */
-	public IMaster getMaster() {
+	public IMaster<Data> getMaster() {
 		return this.master;
 	}
 	
@@ -325,6 +325,13 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	public int getEnqueuedJobCount() {
 		return this.inQueue.size();
 	}
+	
+	/**
+	 * @see IMWComponent#process(Object)
+	 */
+	public void process(Data cmd) throws Exception {
+		this.master.process(cmd);
+	};
 	
 	private String getFullPropertyName(final String prop) {
 		return this.componentID + '.' + prop;

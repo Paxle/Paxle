@@ -17,59 +17,91 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.osgi.framework.ServiceReference;
 import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.crawler.CrawlerContext;
 
+/**
+ * @scr.component
+ * @scr.reference name="subParser" 
+ * 				  interface="org.paxle.parser.ISubParser" 
+ * 				  cardinality="0..n" 
+ * 				  policy="dynamic" 
+ * 				  bind="addSubParser" 
+ * 				  unbind="removeSubParser"
+ * 				  target="(MimeTypes=*)
+ */
 public class CrawlerContextLocal extends ThreadLocal<CrawlerContext> {
-	private IMimeTypeDetector mimeTypeDetector;
-	private ICharsetDetector charsetDetector;
-	private ICryptManager cryptManager;
-	private ITempFileManager tempFileManager;
+	/**
+	 * @scr.reference cardinality="0..1" policy="dynamic" 
+	 */
+	protected IMimeTypeDetector mimeTypeDetector;
 	
-	private Set<String> supportedMimeTypes = Collections.synchronizedSet(new HashSet<String>());
+	/**
+	 * @scr.reference cardinality="0..1" policy="dynamic" 
+	 */
+	protected ICharsetDetector charsetDetector;
+	
+	/**
+	 * @scr.reference cardinality="0..1" policy="dynamic" 
+	 */
+	protected ICryptManager cryptManager;
+	
+	/**
+	 * @scr.reference cardinality="0..1" policy="dynamic" 
+	 */
+	protected ITempFileManager tempFileManager;
+	
+	protected Set<String> supportedMimeTypes = Collections.synchronizedSet(new HashSet<String>());
 	
 	public CrawlerContextLocal() {
 		CrawlerContext.setThreadLocal(this);
 	}
+	
+	protected void addSubParser(ServiceReference subParser) {
+		String[] mimeTypes = this.getSubParserMimeTypes(subParser);		
+		for (String mimeType : mimeTypes) {
+			this.supportedMimeTypes.add(mimeType.trim());
+		}
+	}
+	
+	public void removeSubParser(ServiceReference subParser) {
+		String[] mimeTypes = this.getSubParserMimeTypes(subParser);		
+		for (String mimeType : mimeTypes) {
+			this.supportedMimeTypes.remove(mimeType.trim());
+		}
+	}
+	
+	private String[] getSubParserMimeTypes(ServiceReference reference) {
+		String[] mimeTypes = {};
+		Object mimeTypesProp = reference.getProperty("MimeTypes");
+		if (mimeTypesProp instanceof String) mimeTypes = new String[]{(String)mimeTypesProp};
+		else if (mimeTypesProp instanceof String[]) mimeTypes = (String[]) mimeTypesProp;
+		return mimeTypes;
+	}	
 	
 	@Override
 	protected CrawlerContext initialValue() {
 		return new CrawlerContext();
 	}
 
-	public void setCharsetDetector(ICharsetDetector detector) {
-		this.charsetDetector = detector;
-	}
-	
 	public ICharsetDetector getCharsetDetector() {
 		return this.charsetDetector;
 	}
 
-	public void setCryptManager(ICryptManager manager) {
-		this.cryptManager = manager;
-	}
-	
 	public ICryptManager getCryptManager() {
 		return this.cryptManager;
 	}
 
-	public void setMimeTypeDetector(IMimeTypeDetector detector) {
-		this.mimeTypeDetector = detector;
-	}
-	
 	public IMimeTypeDetector getMimeTypeDetector() {
 		return this.mimeTypeDetector;
 	}
 
 	public ITempFileManager getTempFileManager() {
 		return tempFileManager;
-	}
-
-	public void setTempFileManager(ITempFileManager tempFileManager) {
-		this.tempFileManager = tempFileManager;
 	}
 	
 	public Set<String> getSupportedMimeTypes() {

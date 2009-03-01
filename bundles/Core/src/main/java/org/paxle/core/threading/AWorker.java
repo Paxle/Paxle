@@ -164,12 +164,13 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
         } catch (InterruptedException ex) {
         	this.logger.debug("Worker thread interrupted from outside.");
         } catch (Throwable ex) {
-        	this.logger.error(String.format("Unexpected '%s' while processing command '%s'."
+        	this.logger.error(String.format(
+        			"Unexpected '%s' while processing command '%s'."
         			,ex.getClass().getName()
         			,this.command
         	),ex);
         } finally {
-            if (this.myPool != null && !this.destroyed) 
+            if (this.myPool != null && !this.destroyed && !this.stopped) 
                 this.myPool.invalidateWorker(this);
         }
     }
@@ -248,7 +249,7 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
             }
             
             // wait until the worker has dequeued the command
-            this.wait(10000);
+            this.wait(60000);
         }
     }
     

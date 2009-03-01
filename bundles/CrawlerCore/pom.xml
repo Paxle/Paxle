@@ -62,7 +62,9 @@
 							org.paxle.core.charset;version="[0.1.0,0.2.0)",  
 							org.paxle.core.crypt;version="[0.1.0,0.2.0)",
 							org.paxle.core.prefs;version="[0.1.0,0.2.0)",
-							org.paxle.core.metadata;version="[0.1.0,0.2.0)"					
+							org.paxle.core.metadata;version="[0.1.0,0.2.0)",
+							<!-- Paxle Parser bundle -->
+							org.paxle.parser;version="[0.1.0,0.2.0)";resolution:=optional		
 						</Import-Package>
 						<Private-Package>
 							org.paxle.crawler.impl
@@ -73,6 +75,19 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -82,6 +97,11 @@
 			<artifactId>Core</artifactId>
 			<version>[0.1.12-SNAPSHOT,0.2.0)</version>				
 		</dependency>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>ParserCore</artifactId>
+			<version>[,0.2.0)</version>				
+		</dependency>		
 		
 		<dependency>
 			<groupId>commons-io</groupId>
