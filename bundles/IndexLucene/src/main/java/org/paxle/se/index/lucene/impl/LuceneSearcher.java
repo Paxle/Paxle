@@ -29,7 +29,6 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
-
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.doc.IIndexerDocument;
@@ -67,7 +66,7 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable, 
 		VAR_DESCRIPTIONS.put(VAR_NAME_KNOWN_DOCS, "Number of documents in the index.");
 		VAR_DESCRIPTIONS.put(VAR_NAME_LUCENE_IMPL_VERSION, "Lucene implementation version.");
 		VAR_DESCRIPTIONS.put(VAR_NAME_LUCENE_SPEC_VERSION, "Lucene specification version.");
-	}	
+	};	
 	
 	/**
 	 * For logging
@@ -76,9 +75,11 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable, 
 	
 	private final LuceneQueryFactory ltf = new LuceneQueryFactory(IIndexerDocument.TEXT, IIndexerDocument.TITLE);
 	private final AFlushableLuceneManager manager;
+	private final SnippetFetcher snippetFetcher;
 	
-	public LuceneSearcher(AFlushableLuceneManager manager) {
+	public LuceneSearcher(AFlushableLuceneManager manager, SnippetFetcher snippetFetcher) {
 		this.manager = manager;
+		this.snippetFetcher = snippetFetcher;
 	}
 	
 	/* TODO: how to handle the timeout properly?
@@ -93,10 +94,16 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable, 
 		try {
 			query = queryParser.parse(queryString);
 		} catch (org.apache.lucene.queryParser.ParseException e) {
-			throw new IndexException("error parsing query token '" + request + "' - query string: " + queryString, e);
+			throw new IndexException(String.format(
+					"error parsing query token '%s' - query string: %s",
+					request,
+					queryString
+			), e);
 		}
+		
+		final long deadline = System.currentTimeMillis() + timeout;
 		this.logger.debug("searching for query '" + query + "' (" + request + ")");
-		this.manager.search(query, new IIndexerDocHitCollector(results, maxCount));
+		this.manager.search(query, new IIndexerDocHitCollector(results, maxCount, query, deadline));
 	}
 	
 	private class IIndexerDocHitCollector extends AHitCollector {
@@ -104,18 +111,31 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable, 
 		private final List<IIndexerDocument> results;
 		private final int max;
 		private int current = 0;
+		private Query query;
+		private long deadline;
 		
-		public IIndexerDocHitCollector(List<IIndexerDocument> results, int max) {
+		public IIndexerDocHitCollector(List<IIndexerDocument> results, int max, Query query, long deadline) {
 			this.results = results;
 			this.max = max;
+			this.query = query;
+			this.deadline = deadline;
 		}
 		
 		@Override
 		public void collect(int doc, float score) {
 			LuceneSearcher.this.logger.debug("collecting search result " + this.current + "/" + this.max + ", document id '" + doc + "', score: " + score);
 			if (this.current++ < this.max) try {
+				// reading the document from the lucene index
 				final Document rdoc = this.searcher.doc(doc);
-				this.results.add(Converter.luceneDoc2IIndexerDoc(rdoc));
+				
+				// converting the document into an indexer-doc
+				IIndexerDocument idoc = Converter.luceneDoc2IIndexerDoc(rdoc);
+				if (snippetFetcher != null) {					
+					idoc = snippetFetcher.createProxy(idoc, this.query, this.deadline);
+				}
+				
+				// adding to result list
+				this.results.add(idoc);
 			} catch (ParseException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

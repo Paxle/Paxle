@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>IndexLucene</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>Paxle - Indexer: Lucene</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -43,9 +43,11 @@
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.monitor;version="0.0",
+							org.osgi.util.tracker;version="1.3",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Paxle Core Bundle -->
+							org.paxle.core;version="[0.1.0,0.2.0)",
 							org.paxle.core.doc;version="[0.1.0,0.2.0)",
 							org.paxle.core.data;version="[0.1.0,0.2.0)",
 							org.paxle.core.metadata;version="[0.1.0,0.2.0)",
@@ -68,11 +70,12 @@
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
-							lucene-core;scope=compile|runtime
+							lucene-core;scope=compile|runtime,
+							lucene-highlighter;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
-			</plugin>
+			</plugin>			
 		</plugins>
 	</build>
 
@@ -96,6 +99,12 @@
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-core</artifactId>
+			<version>2.4.0</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-highlighter</artifactId>
 			<version>2.4.0</version>
 			<optional>true</optional>
 		</dependency>

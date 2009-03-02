@@ -42,14 +42,12 @@ public class Activator implements BundleActivator {
 	
 	private static final String DB_PATH = "lucene-db";
 	
-	public static BundleContext bc = null;
-	public static AFlushableLuceneManager lmanager = null;
-	public static LuceneWriter indexWriterThread = null;
-	public static LuceneSearcher indexSearcher = null;
-	public static LuceneQueryFactory tokenFactory = null;
+	private AFlushableLuceneManager lmanager = null;
+	private LuceneWriter indexWriterThread = null;
+	private LuceneSearcher indexSearcher = null;
+	private SnippetFetcher snippetFetcher = null;
 	
-	public void start(BundleContext context) throws Exception {
-		bc = context;
+	public void start(BundleContext bc) throws Exception {
 		final Log logger = LogFactory.getLog(Activator.class);
 		
 		// getting the command-tracker
@@ -71,33 +69,34 @@ public class Activator implements BundleActivator {
 		}
 		writeLock.deleteOnExit();
 		
-		final File stopwordsRoot = context.getDataFile("stopwords/").getCanonicalFile();
-		copyNatives(context, "/stopwords/snowball/", stopwordsRoot);
+		final File stopwordsRoot = bc.getDataFile("stopwords/").getCanonicalFile();
+		copyNatives(bc, "/stopwords/snowball/", stopwordsRoot);
 		final StopwordsManager stopwordsManager = new StopwordsManager(stopwordsRoot);
 		
 		lmanager = new AFlushableLuceneManager(dataPath, stopwordsManager.getDefaultAnalyzer());
 		indexWriterThread = new LuceneWriter(lmanager, stopwordsManager, commandTracker);
 		indexWriterThread.setPriority(3);
-		indexSearcher = new LuceneSearcher(lmanager);
+		snippetFetcher = new SnippetFetcher(bc, stopwordsManager.getDefaultAnalyzer());
+		indexSearcher = new LuceneSearcher(lmanager, snippetFetcher);
 		
-		context.registerService(IIndexWriter.class.getName(), indexWriterThread, new Hashtable<String,String>());
+		bc.registerService(IIndexWriter.class.getName(), indexWriterThread, new Hashtable<String,String>());
 		
 		final Hashtable<String,Object> props = new Hashtable<String,Object>();
 		props.put(Constants.SERVICE_PID, LuceneSearcher.PID);
-		context.registerService(new String[] {
+		bc.registerService(new String[] {
 				IIndexSearcher.class.getName(),
 				ISearchProvider.class.getName(),
 				Monitorable.class.getName()
 		}, indexSearcher, props);
 		
-		context.registerService(IIndexIteratable.class.getName(), lmanager, new Hashtable<String,String>());
+		bc.registerService(IIndexIteratable.class.getName(), lmanager, new Hashtable<String,String>());
 		
 		// publish data source
 		final Hashtable<String,String> sinkp = new Hashtable<String,String>();
 		sinkp.put(IDataConsumer.PROP_DATACONSUMER_ID, "org.paxle.indexer.source");
-		context.registerService(IDataConsumer.class.getName(), indexWriterThread, sinkp);
+		bc.registerService(IDataConsumer.class.getName(), indexWriterThread, sinkp);
 		
-		Converter.fieldManager = (IFieldManager)context.getService(context.getServiceReference(IFieldManager.class.getName()));
+		Converter.fieldManager = (IFieldManager)bc.getService(bc.getServiceReference(IFieldManager.class.getName()));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -131,11 +130,11 @@ public class Activator implements BundleActivator {
 	
 	public void stop(BundleContext context) throws Exception {
 		lmanager.close();
+		snippetFetcher.close();
 		indexWriterThread.close();
 		indexSearcher.close();
 		Converter.fieldManager = null;
 		indexWriterThread = null;
 		indexSearcher = null;
-		bc = null;
 	}
 }
