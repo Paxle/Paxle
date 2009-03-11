@@ -152,7 +152,7 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 				this.checkLinks(profile, command, parserDoc, c);
 				
 				String logMessage = String.format(
-						"Blocking %d URLs from reference map(s) of '%s' due to command-profile.", 
+						"Blocking %d URLs from reference map(s) of '%s' due to command-profile (MaxDepth is %d).",
 						Integer.valueOf(c.c), 
 						command.getLocation(),
 						Integer.valueOf(profile.getMaxDepth())
