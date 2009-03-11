@@ -250,7 +250,7 @@ public class ParserWorker extends AWorker<ICommand> {
 				String cDocStatus = "unknown";
 				String cDocStatusText = "";				
 				String cDocMimeType = "unknown"; 
-				Long cDocSize = new Long(-1);
+				Long cDocSize = Long.valueOf(-1);
 				
 				if (crawlerDoc != null) {
 					cDocStatus = crawlerDoc.getStatus().toString();
@@ -258,7 +258,7 @@ public class ParserWorker extends AWorker<ICommand> {
 					
 					if (crawlerDoc.getStatus() == Status.OK) {
 						cDocMimeType = crawlerDoc.getMimeType();
-						cDocSize = new Long(crawlerDoc.getContent() == null ? -1 : crawlerDoc.getContent().length() >> 10);
+						cDocSize = Long.valueOf(crawlerDoc.getContent() == null ? -1 : crawlerDoc.getContent().length() >> 10);
 					}
 				}
 				
