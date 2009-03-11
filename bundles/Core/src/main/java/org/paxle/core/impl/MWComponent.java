@@ -518,19 +518,19 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		}
 		
 		if (name.equals(VAR_NAME_PPM)) {
-			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getPPM()));
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, this.getPPM());
 		} else if (name.equals(VAR_NAME_PAUSED)) {
-			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Boolean(this.isPaused()));
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, this.isPaused());
 		} else if (name.equals(VAR_NAME_JOBS_ACTIVE)) {
-			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getActiveJobCount()));
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, this.getActiveJobCount());
 		} else if (name.equals(VAR_NAME_JOBS_ENQUEUED)) {
-			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getEnqueuedJobCount()));			
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, this.getEnqueuedJobCount());
 		} else if (name.equals(VAR_NAME_JOBS_MAX)) {
-			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getPool().getMaxActiveJobCount()));						
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, this.getPool().getMaxActiveJobCount());
 		} else if (name.equals(VAR_NAME_JOBS_TOTAL)) {
-			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getMaster().processedCount()));
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, this.getMaster().processedCount());
 		} else if (name.equals(VAR_NAME_JOB_DELAY)) {
-			return new StatusVariable(name, StatusVariable.CM_GAUGE, new Integer(this.getMaster().getDelay()));
+			return new StatusVariable(name, StatusVariable.CM_GAUGE, this.getMaster().getDelay());
 		}
 		return null;
 	}
