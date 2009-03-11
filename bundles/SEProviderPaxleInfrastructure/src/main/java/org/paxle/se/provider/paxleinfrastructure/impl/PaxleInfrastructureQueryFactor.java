@@ -25,7 +25,7 @@ import org.paxle.se.query.tokens.AToken;
 public class PaxleInfrastructureQueryFactor extends IQueryFactory<String> {
 		@Override
 		public String and(AToken[] token){
-			String result=new String(transformToken(token[0], this));
+			String result=transformToken(token[0], this);
 			for(int i=1;i<token.length;i++)
 				result+=" "+transformToken(token[i], this);
 			return result;
