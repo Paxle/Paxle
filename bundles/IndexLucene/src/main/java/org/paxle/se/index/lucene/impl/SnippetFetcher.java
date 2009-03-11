@@ -123,7 +123,7 @@ public class SnippetFetcher {
 						
 			return result;
 		} catch (Throwable e) {
-			this.logger.equals(e);
+			this.logger.error(e.getMessage(), e);
 		}
 		
 		return null;
