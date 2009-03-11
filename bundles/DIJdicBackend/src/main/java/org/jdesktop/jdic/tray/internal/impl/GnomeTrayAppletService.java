@@ -127,7 +127,7 @@ public class GnomeTrayAppletService implements TrayAppletService {
             Object value = null;
 
             try {
-                value = constructor.newInstance(new Object[] {new Long(w)});
+                value = constructor.newInstance(new Object[] {Long.valueOf(w)});
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -193,7 +193,7 @@ public class GnomeTrayAppletService implements TrayAppletService {
                 Object value = null;
 
                 try {
-                    value = constructor.newInstance(new Object[] {new Long(window)});
+                    value = constructor.newInstance(new Object[] {Long.valueOf(window)});
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
@@ -210,7 +210,7 @@ public class GnomeTrayAppletService implements TrayAppletService {
 
         // Add a mapping in the window map.
         synchronized (winMap) {
-            winMap.put(new Long(window_id), this);
+            winMap.put(Long.valueOf(window_id), this);
         }
         frame = createEmbeddedFrame(window_id);
         peer = frame.getPeer();
@@ -269,7 +269,7 @@ public class GnomeTrayAppletService implements TrayAppletService {
 
       //  System.out.println("configureNotify: window =" + window );
         synchronized (winMap) {
-            gas = (GnomeTrayAppletService) winMap.get(new Long(window));
+            gas = (GnomeTrayAppletService) winMap.get(Long.valueOf(window));
         }
         if (gas != null) {
             gas.configureWindow(x, y, w, h);
@@ -279,7 +279,7 @@ public class GnomeTrayAppletService implements TrayAppletService {
     public void remove() {
         // remove mapping in the window map.
         synchronized (winMap) {
-            winMap.remove(new Long(getWindow()));
+            winMap.remove(Long.valueOf(getWindow()));
         }
         frame.dispose();
         dispose(getWindow());
