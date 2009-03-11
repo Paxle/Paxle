@@ -90,14 +90,16 @@ public class Blacklist implements IBlacklist {
 	 */
 	public boolean delete() {
 		lock.writeLock().lock();
-		if (listFile.delete()) {
-			this.unstore();
-			this.blacklist.clear();
+		try {
+			if (listFile.delete()) {
+				this.unstore();
+				this.blacklist.clear();
+				return true;
+			} else {
+				return false;
+			}
+		} finally {
 			lock.writeLock().unlock();
-			return true;
-		} else {
-			lock.writeLock().unlock();
-			return false;
 		}
 	}
 
