@@ -583,8 +583,8 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		} catch (Throwable e) {
 			e.printStackTrace();
 		} finally {
-			if (c!=null) try { c.close(); } catch (SQLException e) {/* ignore this */}
-			if (p!=null) try { p.close(); } catch (SQLException e) {/* ignore this */}
+			if (c!=null) try { c.close(); } catch (SQLException e) {e.printStackTrace();}
+			if (p!=null) try { p.close(); } catch (SQLException e) {e.printStackTrace();}
 		}
 	}
 
@@ -682,7 +682,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 							p.close();
 						}
 					} finally {
-						if (c!=null) try { c.close(); } catch (SQLException e) {/* ignore this */}
+						if (c!=null) try { c.close(); } catch (SQLException e) {e.printStackTrace();}
 					}
 				}
 			} catch (SQLException e) {
