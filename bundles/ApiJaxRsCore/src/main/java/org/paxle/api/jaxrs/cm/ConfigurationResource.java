@@ -344,8 +344,8 @@ public class ConfigurationResource {
 		
 		// find best match
 		for (String preferedLocale : this.preferedLocales) {
-			if (supportedLocale.contains(preferedLocale.toString())) {
-				localeToUse = preferedLocale.toString();
+			if (supportedLocale.contains(preferedLocale)) {
+				localeToUse = preferedLocale;
 				break;
 			}
 		}
