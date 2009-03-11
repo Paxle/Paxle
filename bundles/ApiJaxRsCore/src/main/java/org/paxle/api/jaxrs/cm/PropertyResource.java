@@ -130,7 +130,7 @@ public class PropertyResource {
 		
 	public Integer getCardinality() {
 		if (this.attribDef == null) return null;
-		return new Integer(this.attribDef.getCardinality());
+		return Integer.valueOf(this.attribDef.getCardinality());
 	}
 	
 	public String[] getDefaultValue() {

@@ -69,10 +69,10 @@ public class StatusVariableResource {
 	public Object getValue() {
 		STATUSVAR_TYPE varType = STATUSVAR_TYPE.values()[variable.getType()];
 		switch (varType) {
-			case Integer: return new Integer(variable.getInteger());			
-			case Float:   return new Float(variable.getFloat());
-			case String:  return new String(variable.getString());				
-			case Boolean: return new Boolean(variable.getBoolean());				
+			case Integer: return Integer.valueOf(variable.getInteger());
+			case Float:   return Float.valueOf(variable.getFloat());
+			case String:  return variable.getString();
+			case Boolean: return Boolean.valueOf(variable.getBoolean());
 			default:      return null;
 		}
 	}

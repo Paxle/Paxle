@@ -119,7 +119,7 @@ public class Configuration {
 		// getting the IDs of all bundles for which the configuration should be returned
 		if (bundleIdList == null || bundleIdList.size() == 0) {		
 			for (Bundle bundle : ctx.getBundleContext().getBundles()) {
-				bundleIDs.add(new Long(bundle.getBundleId()));
+				bundleIDs.add(Long.valueOf(bundle.getBundleId()));
 			}
 		} else {
 			for (String bundleID : bundleIdList) {

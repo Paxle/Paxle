@@ -79,7 +79,7 @@ public class BundleResource {
 	 * @see Bundle#getBundleId()
 	 */
 	public Long getBundleId() {
-		return new Long(this.bundle.getBundleId());
+		return Long.valueOf(this.bundle.getBundleId());
 	}
 	
 	/**
