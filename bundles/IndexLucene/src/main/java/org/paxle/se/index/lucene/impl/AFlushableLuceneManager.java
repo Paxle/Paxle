@@ -176,12 +176,15 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	public void search(Query query, AHitCollector collector) throws IOException {
 		checkFlush();
 		this.rlock.lock();
-		final IndexSearcher searcher = new IndexSearcher(this.reader);
-		collector.init(searcher);
 		try {
-			searcher.search(query, collector);
+			final IndexSearcher searcher = new IndexSearcher(this.reader);
+			collector.init(searcher);
+			try {
+				searcher.search(query, collector);
+			} finally {
+				collector.reset();
+			}
 		} finally {
-			collector.reset();
 			this.rlock.unlock();
 		}
 	}
