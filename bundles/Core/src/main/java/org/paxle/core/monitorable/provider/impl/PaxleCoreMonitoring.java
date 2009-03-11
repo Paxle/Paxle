@@ -123,7 +123,7 @@ public class PaxleCoreMonitoring implements Monitorable {
 		} else if (name.equalsIgnoreCase(VARNAME_CORE_INSTALL_TIME)) {
 			try {
 		        SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT);
-		        value = sdf.format(new Date(new Long(core.getLastModified())));
+		        value = sdf.format(new Date(Long.valueOf(core.getLastModified())));
 			} catch (NumberFormatException e) {
 				this.logger.error(e);
 			}

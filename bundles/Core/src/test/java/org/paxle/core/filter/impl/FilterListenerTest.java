@@ -115,7 +115,7 @@ public class FilterListenerTest extends MockObjectTestCase {
 	public void testRegisterFilterViaProperties() {
 		final String filterQueueID = "org.paxle.parser.out";
 		final int filterQueuePos = 62;
-		final Long serviceID = new Long(System.currentTimeMillis());
+		final Long serviceID = Long.valueOf(System.currentTimeMillis());
 		final String servicePID = "FILTER_TEST_" + System.currentTimeMillis();
 		
 		// the filtering-queues where the filter should be applied to
@@ -156,7 +156,7 @@ public class FilterListenerTest extends MockObjectTestCase {
 	public void testRegisterFilterViaAnnotations() {
 		final String filterQueueID = "org.paxle.parser.out";
 		final int filterQueuePos = 62;
-		final Long serviceID = new Long(System.currentTimeMillis());
+		final Long serviceID = Long.valueOf(System.currentTimeMillis());
 		final String servicePID = "FILTER_TEST_" + System.currentTimeMillis();		
 				
 		// a dummy filter class

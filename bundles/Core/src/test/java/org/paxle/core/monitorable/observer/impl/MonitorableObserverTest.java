@@ -101,10 +101,10 @@ public class MonitorableObserverTest extends MockObjectTestCase {
 		Dictionary<String, Object> values = new Hashtable<String, Object>();
 		assertFalse(f.match(values));
 		
-		values.put("java.lang.runtime/memory.free", new Integer(20000));
+		values.put("java.lang.runtime/memory.free", Integer.valueOf(20000));
 		assertFalse(f.match(values));
 		
-		values.put("java.lang.runtime/memory.free", new Integer(10000));
+		values.put("java.lang.runtime/memory.free", Integer.valueOf(10000));
 		assertTrue(f.match(values));
 		
 		f = new FilterImpl("(os.usage.cpu/cpu.usage.total >= 0.8)");

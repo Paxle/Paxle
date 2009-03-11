@@ -317,7 +317,7 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 				try {
 					Monitorable mon = (Monitorable) this.bc.getService(reference);
 					StatusVariable var = mon.getStatusVariable(name);	
-					Integer type = new Integer(var.getType());
+					Integer type = Integer.valueOf(var.getType());
 					
 					this.typeList.put(fullPath, type);
 				} catch (Exception e) {
