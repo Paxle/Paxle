@@ -556,6 +556,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		System.setProperty("derby.language.logQueryPlan", "true");
 		 */
 		Connection c = null;
+		PreparedStatement p = null;
 		try {
 			Properties props = this.config.getProperties();
 			String dbDriver = props.getProperty("connection.driver_class");
@@ -569,7 +570,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 					}
 					
 					// create index on command-location
-					PreparedStatement p = c.prepareStatement("CREATE INDEX ENQUEUED_LOCATION_IDX on EnqueuedCommand (location)");
+					p = c.prepareStatement("CREATE INDEX ENQUEUED_LOCATION_IDX on EnqueuedCommand (location)");
 					p.execute();
 					p.close();
 
@@ -583,6 +584,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			e.printStackTrace();
 		} finally {
 			if (c!=null) try { c.close(); } catch (SQLException e) {/* ignore this */}
+			if (p!=null) try { p.close(); } catch (SQLException e) {/* ignore this */}
 		}
 	}
 
