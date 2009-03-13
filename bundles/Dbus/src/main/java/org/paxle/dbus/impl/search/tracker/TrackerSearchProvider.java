@@ -36,8 +36,8 @@ import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IndexerDocument;
 import org.paxle.dbus.IDbusService;
 import org.paxle.se.index.IFieldManager;
-import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
+import org.paxle.se.search.ISearchRequest;
 
 public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 	public static final String TRACKER_BUSNAME = "org.freedesktop.Tracker";
@@ -136,11 +136,15 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 		this.conn.disconnect();
 	}
 	
+	
 	@SuppressWarnings("unchecked")
-	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
+	public void search(ISearchRequest searchRequest, List<IIndexerDocument> results) throws IOException, InterruptedException {
+		
 		long start = System.currentTimeMillis();
 		try {
-			String request = new TrackerQueryFactory().transformToken(token);
+			final String request = new TrackerQueryFactory().transformToken(searchRequest.getSearchQuery());
+			final int maxCount = searchRequest.getMaxResultCount();
+			final long timeout = searchRequest.getTimeout();
 			
 			List<String> result = this.search.Text(searchID++, Tracker.SERVICE_FILES, request, 0, maxCount);
 			if (result != null) {

@@ -82,10 +82,8 @@ public class SearchProviderCallable implements Callable<ISearchResult> {
 			
 			this.logger.info("Starting search for '" + query + "' (" + this.searchRequest.getSearchQuery().toString() + ")");
 			provider.search(
-					query, 
-					this.results, 
-					this.searchRequest.getMaxResultCount(), 
-					this.searchRequest.getTimeout()
+					this.searchRequest, 
+					this.results
 			);
 		} catch (InterruptedException e) { 
 			/* just fall through */ 

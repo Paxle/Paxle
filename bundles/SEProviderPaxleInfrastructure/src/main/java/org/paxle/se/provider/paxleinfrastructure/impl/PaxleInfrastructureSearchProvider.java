@@ -15,21 +15,20 @@ package org.paxle.se.provider.paxleinfrastructure.impl;
 
 import java.io.IOException;
 import java.util.List;
-import java.lang.String;
 
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IndexerDocument;
-import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
+import org.paxle.se.search.ISearchRequest;
 
 public class PaxleInfrastructureSearchProvider implements ISearchProvider {
 
 	public PaxleInfrastructureSearchProvider(){
 	}
 	
-	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
+	public void search(ISearchRequest searchRequest, List<IIndexerDocument> results) throws IOException, InterruptedException {
 		try {
-			String request = new PaxleInfrastructureQueryFactor().transformToken(token);
+			String request = new PaxleInfrastructureQueryFactor().transformToken(searchRequest.getSearchQuery());
 			IIndexerDocument indexerDoc = new IndexerDocument();
 			System.out.println(request);
 			if(request.toLowerCase().equals("paxle wiki")){

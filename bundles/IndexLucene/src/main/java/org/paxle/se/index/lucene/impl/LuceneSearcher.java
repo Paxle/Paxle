@@ -37,6 +37,7 @@ import org.paxle.core.metadata.IMetaDataProvider;
 import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneSearcher;
 import org.paxle.se.query.tokens.AToken;
+import org.paxle.se.search.ISearchRequest;
 
 public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable, IMetaDataProvider {
 	
@@ -86,7 +87,11 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable, 
 	 * TODO: transform the Paxle-query into a Lucene-query without
 	 *       the indirection over String and the query-factory
 	 */
-	public void search(AToken request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException {
+	public void search(ISearchRequest searchRequest, List<IIndexerDocument> results) throws IOException, InterruptedException {
+		final AToken request = searchRequest.getSearchQuery();  // the query string
+		final long timeout = searchRequest.getTimeout();        // the search timeout
+		final int maxCount = searchRequest.getMaxResultCount(); // max amount of items to return 
+		
 		final QueryParser queryParser = new QueryParser(null, new StandardAnalyzer());
 		final Query query;
 		final String queryString = ltf.transformToken(request);

@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Dbus</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<name>Paxle - API: Dbus</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -101,7 +101,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>SearchEngine</artifactId>
-			<version>[,0.2.0)</version>
+			<version>[0.1.3-SNAPSHOT,0.2.0)</version>
 		</dependency>	
 
 		<!-- Dbus dependencies -->

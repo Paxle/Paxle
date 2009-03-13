@@ -36,8 +36,8 @@ import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IndexerDocument;
 import org.paxle.core.metadata.IMetaData;
 import org.paxle.core.metadata.IMetaDataProvider;
-import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
+import org.paxle.se.search.ISearchRequest;
 
 import de.nava.informa.core.ChannelIF;
 import de.nava.informa.core.ItemIF;
@@ -68,10 +68,12 @@ public class RssSearchProvider implements ISearchProvider,ManagedService, IMetaD
 		));
 	}
 	
-	public void search(AToken token, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
+	public void search(ISearchRequest searchRequest, List<IIndexerDocument> results) throws IOException, InterruptedException {
         String url = null;
 		try {
-			String request=new RssSearchQueryFactor().transformToken(token);
+			final String request=new RssSearchQueryFactor().transformToken(searchRequest.getSearchQuery());
+			final int maxCount = searchRequest.getMaxResultCount();
+			
 			//creating a channel-builder
 	        ChannelBuilder builder = new ChannelBuilder();   
 	        
