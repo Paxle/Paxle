@@ -21,6 +21,7 @@ public interface ITempFileManager {
 	
 	public abstract File createTempFile() throws IOException;
 	public abstract void releaseTempFile(File file) throws FileNotFoundException, IOException;
+	public boolean isKnown(File file);
 	
 	public abstract void setTempDirFor(ITempDir dir, String... classNames);
 	public abstract void removeTempDirFor(String... classNames);

@@ -103,6 +103,11 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 		return ret;
 	}
 	
+	public boolean isKnown(File file) {
+		if (file == null) return false;
+		return this.fileMap.containsKey(file);
+	}
+	
 	public void releaseTempFile(File file) throws FileNotFoundException, IOException {
 		final ITempDir dir = this.fileMap.get(file);
 		boolean success = ((dir == null) ? defaultDir : dir).releaseTempFile(file);

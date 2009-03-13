@@ -15,17 +15,14 @@ package org.paxle.core.io.temp.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
-
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
@@ -53,10 +50,17 @@ public class CommandTempReleaser implements EventHandler {
 			File file;
 			final ICrawlerDocument cdoc = cmd.getCrawlerDocument();
 			if (cdoc != null && (file = cdoc.getContent()) != null) {
-				try {
-					tfm.releaseTempFile(file);
-				} catch (FileNotFoundException e) { 
-					this.logger.warn("downloaded crawler-data not available for release"); 
+				if (tfm.isKnown(file)) {
+					try {
+						tfm.releaseTempFile(file);
+					} catch (FileNotFoundException e) { 
+						this.logger.warn("downloaded crawler-data not available for release"); 
+					}
+				} else {
+					this.logger.debug(String.format(
+							"Crawlerdoc tempfile %s not managed by tempfilemanager",
+							file.toString()
+					));
 				}
 			}
 			
@@ -71,11 +75,18 @@ public class CommandTempReleaser implements EventHandler {
 					}
 
 					if ((file = pdoc.getTextFile()) != null) {
-						try {
-							tfm.releaseTempFile(file);
-						} catch (FileNotFoundException e) {
-							final String msg = (entry == null) ? "parser-document" : "sub parser-document '" + entry.getKey() + "'";
-							logger.warn(String.format("data of %s of cmd [%06d] not available for release", msg, id));
+						if (tfm.isKnown(file)) {
+							try {
+								tfm.releaseTempFile(file);
+							} catch (FileNotFoundException e) {
+								final String msg = (entry == null) ? "parser-document" : "sub parser-document '" + entry.getKey() + "'";
+								logger.warn(String.format("data of %s of cmd [%06d] not available for release", msg, id));
+							}
+						} else {
+							this.logger.debug(String.format(
+									"Parserdoc tempfile %s not managed by tempfilemanager",
+									file.toString()
+							));
 						}
 					}
 					
@@ -83,8 +94,12 @@ public class CommandTempReleaser implements EventHandler {
 				} while ((entry = pdocs.poll()) != null);
 			}
 			
-		} catch (IOException e) { 
-			this.logger.error("I/O error during release of temporary files", e); 
+		} catch (Throwable e) { 
+			this.logger.error(String.format(
+					"Unexpected '%s' while releasing temporary files of command '%s'.",
+					e.getClass().getName(),
+					cmd.getLocation()
+			), e); 
 		}
 	}
 	
@@ -100,6 +115,11 @@ public class CommandTempReleaser implements EventHandler {
 		if (cmd != null) {
 			// releasing temp file(s)
 			this.releaseCommandFiles(cmd, id);
+		} else {
+			this.logger.warn(String.format(
+					"Commandtracker did not return a reference to the command with ID '%d'.",
+					id
+			));
 		}
 	}
 }
