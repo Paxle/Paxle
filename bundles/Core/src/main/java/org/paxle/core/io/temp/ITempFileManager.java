@@ -19,10 +19,15 @@ import java.io.IOException;
 
 public interface ITempFileManager {
 	
-	public abstract File createTempFile() throws IOException;
-	public abstract void releaseTempFile(File file) throws FileNotFoundException, IOException;
+	public File createTempFile() throws IOException;
+	public void releaseTempFile(File file) throws FileNotFoundException, IOException;
+	
+	/**
+	 * @param file 
+	 * @return <code>true</code> if the specified temp-file is managed by the temp-file-manager
+	 */
 	public boolean isKnown(File file);
 	
-	public abstract void setTempDirFor(ITempDir dir, String... classNames);
-	public abstract void removeTempDirFor(String... classNames);
+	public void setTempDirFor(ITempDir dir, String... classNames);
+	public void removeTempDirFor(String... classNames);
 }

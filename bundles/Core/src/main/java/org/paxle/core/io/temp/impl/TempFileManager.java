@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.io.temp.ITempDir;
@@ -33,6 +35,11 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	public static final String MONITOR_PID = "org.paxle.tempFileManager";
 	private static final String MONITOR_FILES_USED = "files.used";
 	private static final String MONITOR_FILES_TOTAL = "files.total";
+	
+	/**
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
 	
 	private int totalCount;
 	private int openCount;
@@ -109,6 +116,8 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	}
 	
 	public void releaseTempFile(File file) throws FileNotFoundException, IOException {
+		if (!this.isKnown(file)) return;
+		
 		final ITempDir dir = this.fileMap.get(file);
 		boolean success = ((dir == null) ? defaultDir : dir).releaseTempFile(file);
 		
@@ -116,6 +125,11 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 			synchronized (this) {
 				this.openCount--;
 			}
+		} else {
+			this.logger.warn(String.format(
+					"Unable to release tempfile '%s'.",
+					file
+			));
 		}
 	}
 
