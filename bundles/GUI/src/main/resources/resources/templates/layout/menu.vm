@@ -15,24 +15,24 @@
 
 #macro(menu $parent $depth)
 	#foreach($item in $parent.getMenuItemList())
-    	#if($item.getUrl() && $current == $item.getUrl())
-    	<li class="menuItemActive">
-    	#else
-    	<li>
-    	#end
-    		<a #if($item.getUrl())href="$!item.getUrl()"#end>$item.getName($request.getLocales())</a>
-			#if($item.hasSubItems())
-				<ul class="subnav subnav$depth">					
-					#menu($item, $mathTool.add($depth,1))
-				</ul>
-			#end
-    	</li>
-    #end
+		<li>
+		#if($item.getUrl())
+			<a #if($current == $item.getUrl())class="active"#end href="$!item.getUrl()">$item.getName($request.getLocales())</a>
+		#else
+			<strong>$item.getName($request.getLocales())</strong>
+		#end
+		#if($item.hasSubItems())
+			<ul class="subnav subnav$depth">
+				#menu($item, $mathTool.add($depth,1))
+			</ul>
+		#end
+		</li>
+	#end
 #end
 
 #if($menuManager)
 	#set($request = $context.get("request"))
-    #set($current = $request.getServletPath())
+	#set($current = $request.getServletPath())
 	#menu($menuManager, 0)
 #else
 	<li class="error bundleNotInstalled">MenuManager not found!</li>

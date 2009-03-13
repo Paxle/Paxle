@@ -173,7 +173,7 @@ td {
 	padding:0.5em 0pt 0.5em 1em;
 }
 
-.nav li a {
+.nav li a, .nav li strong {
 	margin: 0;
 	padding: 0.5em 0 0.5em 1em;
 	
@@ -188,7 +188,7 @@ td {
 	border-bottom: dashed 0.05em #444444;
 }
 
-.nav li a:hover, .nav li.menuItemActive a {
+.nav li a:hover, .nav li a.active {
 	background-color: #730002;
 	color: #FFFFFF;
 	opacity: 0.8;
