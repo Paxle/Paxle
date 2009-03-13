@@ -62,7 +62,12 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	}		
 	
 	private final Hashtable<String,ITempDir> classMap = new Hashtable<String,ITempDir>();
+	
+	/**
+	 * A map containing all temp-files managed by this temp-file-manager
+	 */
 	private final Hashtable<File,ITempDir> fileMap = new Hashtable<File,ITempDir>();
+	
 	private final ITempDir defaultDir;
 	private final boolean deleteOnExit;
 	
@@ -92,15 +97,17 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	public File createTempFile() throws IOException {
 		final String className = new Exception().getStackTrace()[1].getClassName();		// FIXME: slow!
 		ITempDir dir = this.classMap.get(className);
-		final File ret;
-		if (dir == null) {
-			ret = defaultDir.createTempFile(className, ".tmp");
-		} else {
-			ret = dir.createTempFile(className, ".tmp");
-			this.fileMap.put(ret, dir);
-		}
-		if (deleteOnExit)
+		if (dir == null) dir = defaultDir;
+		
+		// creating a new temp file
+		final File ret = dir.createTempFile(className, ".tmp");
+		
+		// remember the created temp file for later cleanup
+		this.fileMap.put(ret, dir);				
+		
+		if (deleteOnExit) {
 			ret.deleteOnExit();
+		}
 		
 		synchronized (this) {
 			this.totalCount++;

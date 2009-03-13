@@ -80,10 +80,15 @@ public class TempFileManagerTest extends TestCase {
 		assertFalse(temp.exists());
 	}
 
-	public void testReleaseUnknownTempFile() throws IOException {
-		File temp = File.createTempFile(this.getClass().getName(), ".tmp");			
-		this.manager.releaseTempFile(temp);
-		assertFalse(temp.exists());
+	public void testDontReleaseUnknownTempFile() throws IOException {
+		File temp = null;
+		try {
+			temp = File.createTempFile(this.getClass().getName(), ".tmp");			
+			this.manager.releaseTempFile(temp);
+			assertTrue(temp.exists());
+		} finally {
+			if (temp != null) temp.delete();
+		}
 	}
 
 	/**
