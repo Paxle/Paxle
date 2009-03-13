@@ -49,7 +49,8 @@ public class FtpCrawlerOnlineTest extends TestCase {
 				arg0.delete();				
 			}
 			public void removeTempDirFor(String... arg0) { }
-			public void setTempDirFor(ITempDir arg0, String... arg1) { }			
+			public void setTempDirFor(ITempDir arg0, String... arg1) { }
+			public boolean isKnown(File file) { return true; }			
 		};
 		
 		// init crawler-context

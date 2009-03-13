@@ -69,6 +69,7 @@ public abstract class AParserTest extends MockObjectTestCase {
 				tempfile.deleteOnExit();
 				return tempfile;
 			}
+			public boolean isKnown(File file) { return true; }
 		};
 		IOTools.setTempFileManager(this.aTempFileManager);
 		
