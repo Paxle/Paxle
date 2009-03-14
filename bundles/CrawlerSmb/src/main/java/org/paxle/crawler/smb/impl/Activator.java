@@ -38,7 +38,7 @@ public class Activator implements BundleActivator {
 		SmbCrawler crawler = new SmbCrawler();
 		Hashtable<String,Object> propsCrawler = new Hashtable<String, Object>();
 		propsCrawler.put(Constants.SERVICE_PID, ISmbCrawler.class.getName());
-		propsCrawler.put(ISubCrawler.PROP_PROTOCOL, crawler.getProtocols());	  
+		propsCrawler.put(ISubCrawler.PROP_PROTOCOL, SmbCrawler.PROTOCOLS);	  
 		bc.registerService(new String[]{ISubCrawler.class.getName(),ISmbCrawler.class.getName()}, crawler, propsCrawler);
 		
 		// register URL handler service

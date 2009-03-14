@@ -35,14 +35,10 @@ import org.paxle.crawler.smb.ISmbCrawler;
 public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 	static final String[] PROTOCOLS = new String[]{"smb"};
 
-	private Log logger = LogFactory.getLog(this.getClass());
-	
 	/**
-	 * @see ISubCrawler#getProtocols()
-	 */	
-	public String[] getProtocols() {
-		return PROTOCOLS.clone();
-	}
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
 
 	public ICrawlerDocument request(URI requestUri) {
 		if (requestUri == null) throw new NullPointerException("URL was null");

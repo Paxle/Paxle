@@ -138,15 +138,13 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 		} else if (protocolsObj instanceof String[]) {
 			return (String[])protocolsObj;
 		} else {
-			final ISubCrawler p = (ISubCrawler)context.getService(ref);
-			logger.warn(String.format("Parser '%s' registered with no mime-types to the framework", p.getClass().getName()));
-			final String[] protocols = p.getProtocols();
-			if (protocols == null || protocols.length == 0) {
-				logger.error(String.format("Parser '%s' does not provide support for any mime-types", p.getClass().getName()));
+			try {
+				final ISubCrawler p = (ISubCrawler)context.getService(ref);
+				this.logger.warn(String.format("Parser '%s' registered with no mime-types to the framework", p.getClass().getName()));
 				return null;
+			} finally {
+				context.ungetService(ref);
 			}
-			context.ungetService(ref);
-			return protocols;
 		}
 	}
 	
@@ -309,7 +307,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 	}
 	
 	/**
-	 * @see ISubCrawler#getProtocols()
+	 * @see ISubCrawler#PROP_PROTOCOL
 	 */
 	public Collection<String> getProtocols() {
 		Set<String> keySet = this.subCrawlerList.keySet();

@@ -54,13 +54,6 @@ public class FtpCrawler implements IFtpCrawler, ManagedService {
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
-	
-	/**
-	 * @see ISubCrawler#getProtocols()
-	 */	
-	public String[] getProtocols() {
-		return PROTOCOLS.clone();
-	}
 
 	public ICrawlerDocument request(URI requestUri) {
 		if (requestUri == null) throw new NullPointerException("URL was null");

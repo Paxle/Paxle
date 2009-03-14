@@ -327,13 +327,6 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	}
 	
 	/**
-	 * @see ISubCrawler#getProtocols()
-	 */
-	public String[] getProtocols() {
-		return PROTOCOLS.clone();
-	}	
-	
-	/**
 	 * This method is synchronized with {@link #updated(Dictionary)} to avoid
 	 * problems during configuration update.
 	 * 
