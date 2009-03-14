@@ -26,7 +26,7 @@ import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 import org.paxle.filter.blacklist.IBlacklist;
-import org.paxle.filter.blacklist.InvalidFilenameException;
+import org.paxle.filter.blacklist.InvalidBlacklistnameException;
 
 public class BlacklistFilterTest extends TestCase {
 	private static final String TESTDIR_NAME = "target/testDir";
@@ -43,11 +43,11 @@ public class BlacklistFilterTest extends TestCase {
 		this.testDir = new File(TESTDIR_NAME);
 		this.testDir.mkdir();
 		System.out.println("Using data dir: " + testDir.getAbsolutePath());
-		new File(testDir, "testList").createNewFile();
+		System.setProperty("paxle.data", testDir.getAbsolutePath());
 		
 		// init manager
 		this.manager = new BlacklistManager();
-		this.manager.initBlacklistManager(this.testDir);
+		this.manager.activate(null);
 		
 		// init filter
 		this.filter = new BlacklistFilter();
@@ -89,7 +89,7 @@ public class BlacklistFilterTest extends TestCase {
 		assertEquals(ICommand.Result.Passed, testCommand.getResult());
 	}
 	
-	public void testPDocUriIsListed() throws InvalidFilenameException {
+	public void testPDocUriIsListed() throws InvalidBlacklistnameException {
 		final URI okURI = URI.create("http://test/");
 		final URI blockedURI = URI.create("http://asd/");
 		
@@ -122,38 +122,40 @@ public class BlacklistFilterTest extends TestCase {
 	}
 
 	public void testAddList() throws Exception {
-		assertFalse(new File(testDir,"testList2").exists());
+		File testFile = new File(testDir.getAbsolutePath() + File.separatorChar 
+				+ "blacklist" + File.separatorChar + "testList2");
+		assertFalse(testFile.exists());
 
 		manager.createList("testList2");
-		assertTrue(new File(testDir,"testList2").exists());
+		assertTrue(testFile.exists());
 	}
 
 	public void testIsListnameAllowed() throws Exception {
 		try  {
 			manager.createList("../test");
-			fail("An InvalidFilenameException was expected");
-		} catch (InvalidFilenameException e) {
+			fail("An InvalidBlacklistnameException was expected");
+		} catch (InvalidBlacklistnameException e) {
 			// this is ok
 		}
 
 		try  {
 			manager.createList("./test");
-			fail("An InvalidFilenameException was expected");
-		} catch (InvalidFilenameException e) {
+			fail("An InvalidBlacklistnameException was expected");
+		} catch (InvalidBlacklistnameException e) {
 			// this is ok
 		}
 
 		try  {
 			manager.createList("");
-			fail("An InvalidFilenameException was expected");
-		} catch (InvalidFilenameException e) {
+			fail("An InvalidBlacklistnameException was expected");
+		} catch (InvalidBlacklistnameException e) {
 			// this is ok
 		}
 
 		try  {
 			manager.createList("     ");
-			fail("An InvalidFilenameException was expected");
-		} catch (InvalidFilenameException e) {
+			fail("An InvalidBlacklistnameException was expected");
+		} catch (InvalidBlacklistnameException e) {
 			// this is ok
 		}
 

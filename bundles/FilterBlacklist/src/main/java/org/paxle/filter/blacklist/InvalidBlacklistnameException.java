@@ -14,18 +14,18 @@
 package org.paxle.filter.blacklist;
 
 /**
- * This exception should be thrown when a name for a blacklist contains dots (directory traversal) or other invalid characters
+ * This exception should be thrown when a name for a blacklist contains chars that can't be handled by the blacklistStore.
  */
  @SuppressWarnings("serial")
-public class InvalidFilenameException extends Exception 
+public class InvalidBlacklistnameException extends Exception 
 {
 
-	public InvalidFilenameException() 
+	public InvalidBlacklistnameException() 
 	{ 
 		super();
 	} 
 
-	public InvalidFilenameException( final String s ) 
+	public InvalidBlacklistnameException( final String s ) 
 	{ 
 		super(s); 
 	} 

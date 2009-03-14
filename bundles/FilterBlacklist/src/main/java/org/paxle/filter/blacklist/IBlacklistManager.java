@@ -13,9 +13,7 @@
  */
 package org.paxle.filter.blacklist;
 
-import java.util.List;
-
-import org.paxle.filter.blacklist.impl.Blacklist;
+import java.util.Collection;
 
 public interface IBlacklistManager {
 
@@ -30,35 +28,21 @@ public interface IBlacklistManager {
 	 * Gets all blacklistnames
 	 * @return all blacklistnames
 	 */
-	public List<String> getLists();
+	public Collection<IBlacklist> getLists();
 
 	/**
 	 * creates a blacklist
 	 * @param name the name of the blacklist
 	 * @return the blacklist that was created, can be null when there is a failure
-	 * @throws InvalidFilenameException 
+	 * @throws InvalidBlacklistnameException
 	 */
-	public IBlacklist createList(String name) throws InvalidFilenameException;
+	public IBlacklist createList(String name) throws InvalidBlacklistnameException;
 
 	/**
 	 * gets the blacklist
 	 * @param name the name of the list
 	 * @return the blacklist
-	 * @throws InvalidFilenameException 
+	 * @throws InvalidBlacklistnameException 
 	 */
-	public IBlacklist getList(String name) throws InvalidFilenameException;
-
-	/**
-	 * store the blacklist so that it can be derived using getList
-	 * @param blacklist the list to be stored
-	 */
-	public void storeList(IBlacklist blacklist);
-
-	/**
-	 * remove the blacklist from the store so that it can be longer accessed
-	 * please note that this does not delete the blacklist
-	 * @param blacklist the list to be unstored
-	 */
-	public void unstoreList(Blacklist blacklist);
-
+	public IBlacklist getList(String name) throws InvalidBlacklistnameException;
 }

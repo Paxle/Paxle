@@ -18,11 +18,11 @@
 
 #if($manager)
 	<ul class="tabs">
-		#foreach($list in $listnames)
-			#if ($curList && ($curList.getName() == $list) && $action != "newList")
-				<li><a class="active" href="/blacklist?list=$escTool.url($list)">$list</a></li>
+		#foreach( $list in $blacklists )
+			#if ($curList && $curList.getName() == $list.getName() && $action != "newList")
+				<li><a class="active" href="/blacklist?list=$escTool.url($list.getName() )">$list.getName()</a></li>
 			#else
-				<li><a href="/blacklist?list=$escTool.url($list)">$list</a></li>
+				<li><a href="/blacklist?list=$escTool.url($list.getName() )">$list.getName()</a></li>
 			#end
 		#end
 		
@@ -34,7 +34,7 @@
 			#end		
 	</ul>
 	#if ($InvalidFilenameException)
-	    <div class="error">$escTool.xml($InvalidFilenameException.getMessage())</div>
+	    <div class="error">$escTool.xml($InvalidBlacklistnameException.getMessage())</div>
 	#else
 		#if ($action != "newList" && $action != "delList")
 			<p><a href="/blacklist?action=delList&amp;list=$escTool.url( $curList.getName() )">Delete this list</a></p>

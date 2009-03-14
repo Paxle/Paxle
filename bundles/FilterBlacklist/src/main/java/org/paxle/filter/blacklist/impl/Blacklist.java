@@ -13,26 +13,23 @@
  */
 package org.paxle.filter.blacklist.impl;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.filter.blacklist.IBlacklist;
-import org.paxle.filter.blacklist.IBlacklistManager;
+import org.paxle.filter.blacklist.IBlacklistStore;
 import org.paxle.filter.blacklist.IFilterResult;
-import org.paxle.filter.blacklist.InvalidFilenameException;
+import org.paxle.filter.blacklist.InvalidBlacklistnameException;
 
 /**
  * This is a RegExp-based Blacklist
@@ -41,58 +38,49 @@ import org.paxle.filter.blacklist.InvalidFilenameException;
  *
  */
 public class Blacklist implements IBlacklist {
-	private File listFile;
-	private IBlacklistManager blacklistFilter;
-	private ConcurrentHashMap<String,Pattern> blacklist;
-	public String name;
+	private IBlacklistStore blacklistStore;
+	private ConcurrentHashMap<String, Pattern> blacklist;
+	private final String name;
 	private Log logger = LogFactory.getLog(this.getClass());
 
 	private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
 	/**
-	 * New blacklist object for existing blacklistfile
+	 * New blacklist object.
 	 * @param name the name of the blacklist
-	 * @param listFile the file to read or store the blacklist
-	 * @param blacklistFilter the BlacklistFilter-object
+	 * @param patterns the patterns the list consists of
+	 * @param blacklistStore the store for the blacklists
+	 * @throws InvalidBlacklistnameException
 	 */
-	public Blacklist(String name, File listFile, IBlacklistManager blacklistFilter) throws InvalidFilenameException {
+	public Blacklist(String name, Collection<String> patterns, IBlacklistStore blacklistStore) throws InvalidBlacklistnameException {
 		this.name = name;
-		this.listFile = listFile;
-		this.blacklistFilter = blacklistFilter;
-		if (!(listFile.canRead() && listFile.canWrite())) throw new IllegalArgumentException("Unknown blacklist.");
+		this.blacklistStore = blacklistStore;
 		// check for uniqueness of this object
-		if (this.blacklistFilter.getList(this.name) != null) throw new IllegalArgumentException("Blacklist-object does already exist!");
-		boolean incorrectPattern = false;
-		try {
-			blacklist = new ConcurrentHashMap<String,Pattern>();
-			Iterator<?> patternIterator = FileUtils.readLines(this.listFile).iterator();
-			while (patternIterator.hasNext()) {
-				String pattern = (String) patternIterator.next();
-				try {
-					blacklist.put(pattern, Pattern.compile(pattern));
-				} catch (PatternSyntaxException e) {
-					logger.warn("Invalid blacklistpattern " + pattern + " in file " + name + ", it will be ignored and a version without this pattern will be saved");
-					incorrectPattern = true;
-					e.printStackTrace();
-				}
-			}
-			this.store();
-			if (incorrectPattern) // store a version of the list that does not contain invalid patterns anymore
-				FileUtils.writeLines(this.listFile, this.getPatternList());
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (this.blacklistStore.getBlacklist(this.name) != null) {
+		    throw new IllegalArgumentException("Blacklist-object does already exist!");
 		}
+		Iterator<String> patternIterator = patterns.iterator();
+		blacklist = new ConcurrentHashMap<String, Pattern>();
+		while (patternIterator.hasNext()) {
+			String pattern = patternIterator.next();
+			try {
+				blacklist.put(pattern, Pattern.compile(pattern));
+			} catch (PatternSyntaxException e) {
+				logger.warn("Invalid blacklistpattern " + pattern + " in file " + name + ", it will be ignored and a version without this pattern will be saved");
+				e.printStackTrace();
+			}
+		}
+		this.blacklistStore.updateBlacklist(this);
 	}
 
 
-	/* (non-Javadoc)
-	 * @see org.paxle.filter.blacklist.impl.IBlacklist#delete()
+	/**
+	 * @see org.paxle.filter.blacklist.IBlacklist#delete()
 	 */
 	public boolean delete() {
 		lock.writeLock().lock();
 		try {
-			if (listFile.delete()) {
-				this.unstore();
+			if (this.blacklistStore.deleteBlacklist(this.name)) {
 				this.blacklist.clear();
 				return true;
 			} else {
@@ -104,41 +92,39 @@ public class Blacklist implements IBlacklist {
 	}
 
 	/**
-	 * store this blacklist so that it can be derived using getList
+	 * store this blacklist so that it can be derived using getList.
+	 * @return If the update was successful and no exception was thrown.
 	 */
-	private void store() {
-		blacklistFilter.storeList(this);
+	private boolean store() {
+		try {
+			return blacklistStore.updateBlacklist(this);
+		} catch (InvalidBlacklistnameException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/**
-	 * remove this blacklist from the store so that it can be longer accessed
-	 * please note that this does not delete the blacklist
-	 */
-	private void unstore() {
-		blacklistFilter.unstoreList(this);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.paxle.filter.blacklist.impl.IBlacklist#getName()
+	 * @see org.paxle.filter.blacklist.IBlacklist#getName()
 	 */
 	public String getName() {
 		return this.name;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.paxle.filter.blacklist.impl.IBlacklist#isListed(java.lang.String)
+	/**
+	 * @see org.paxle.filter.blacklist.IBlacklist#isListed(String)
 	 */
 	public IFilterResult isListed(String url) {
 		long time = System.currentTimeMillis();
 		Enumeration<Pattern> eter = blacklist.elements();
-		while(eter.hasMoreElements()) {
+		while (eter.hasMoreElements()) {
 			Pattern temp = eter.nextElement();
 			Matcher m = temp.matcher(url);
-			if(m.matches()) {
+			if (m.matches()) {
 				time = System.currentTimeMillis() - time;
 				//System.out.println("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
 				if (logger.isDebugEnabled()) {
-					logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
+					logger.debug("Duration in 'isListed()' for blacklistcheck: " + time + " ms . URL: " + url);
 				}
 				return new FilterResult(FilterResult.LOCATION_REJECTED, temp.pattern());
 			}
@@ -151,15 +137,15 @@ public class Blacklist implements IBlacklist {
 		return FilterResult.LOCATION_OKAY_RESULT;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.paxle.filter.blacklist.impl.IBlacklist#getPatternList()
+	/**
+	 * @see org.paxle.filter.blacklist.IBlacklist#getPatternList()
 	 */
 	public List<String> getPatternList() {
 		return new ArrayList<String>(blacklist.keySet());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.paxle.filter.blacklist.impl.IBlacklist#addPattern(java.lang.String)
+	/**
+	 * @see org.paxle.filter.blacklist.IBlacklist#addPattern(String)
 	 */
 	public boolean addPattern(String pattern) {
 		lock.writeLock().lock();
@@ -167,15 +153,8 @@ public class Blacklist implements IBlacklist {
 			Pattern p = Pattern.compile(pattern);
 			blacklist.put(pattern, p);
 			//System.out.println("Pattern from "+listFileName+" added to blacklist: "+pattern);
-			FileWriter listWriter = new FileWriter(this.listFile, true);
-			listWriter.write(pattern + "\n");
-			listWriter.close();
-			this.store(); // The blacklist might have been destroyed
-			return true;
+			return this.store(); // Update the blacklist store
 		} catch (PatternSyntaxException e) {
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
 		} finally {
@@ -183,25 +162,21 @@ public class Blacklist implements IBlacklist {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.paxle.filter.blacklist.impl.IBlacklist#removePattern(java.lang.String)
+	/**
+	 * @see org.paxle.filter.blacklist.IBlacklist#removePattern(String)
 	 */
 	public boolean removePattern(String pattern) {
 		lock.writeLock().lock();
 		try {
 			blacklist.remove(pattern);
-			FileUtils.writeLines(this.listFile, this.getPatternList());
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
+			return this.store();
 		} finally {
 			lock.writeLock().unlock();
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.paxle.filter.blacklist.impl.IBlacklist#editPattern(java.lang.String, java.lang.String)
+	/**
+	 * @see org.paxle.filter.blacklist.IBlacklist#editPattern(String, String)
 	 */
 	public boolean editPattern(String fromPattern, String toPattern) {
 		try {
@@ -214,6 +189,9 @@ public class Blacklist implements IBlacklist {
 
 	}
 	
+	/**
+	 * @see org.paxle.filter.blacklist.IBlacklist#size()
+	 */
 	public int size() {
 		return this.blacklist == null ? 0 : this.blacklist.size();
 	}

@@ -23,6 +23,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -46,7 +47,7 @@ import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.Utilities;
 import org.paxle.filter.blacklist.IBlacklist;
 import org.paxle.filter.blacklist.IBlacklistManager;
-import org.paxle.filter.blacklist.InvalidFilenameException;
+import org.paxle.filter.blacklist.InvalidBlacklistnameException;
 
 /**
  * @scr.component immediate="true"
@@ -199,7 +200,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 			} else if (e.getSource() == listSelCBox) {
 				// pressed "enter"
 			}
-		} catch (InvalidFilenameException ee) {  }
+		} catch (InvalidBlacklistnameException ee) {  }
 	}
 	
 	public Dimension getWindowSize() {
@@ -303,9 +304,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 		}
 		
 		private int indexOf(final Object item) {
-			final List<String> lists = blacklistFilter.getLists();
-			Collections.sort(lists);
-			return Collections.binarySearch(lists, (String)item);
+			return Arrays.binarySearch(this.getSortedNames(), (String)item);
 		}
 		
 		public int getSize() {
@@ -313,9 +312,19 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 		}
 		
 		public Object getElementAt(int index) {
-			final List<String> lists = blacklistFilter.getLists();
-			Collections.sort(lists);
-			return lists.get(index);
+			return this.getSortedNames()[index];
+		}
+
+		private String[] getSortedNames() {
+			final Collection<IBlacklist> lists = blacklistFilter.getLists();
+			String[] names = new String[lists.size()];
+			int i = 0;
+			for (IBlacklist list : lists) {
+				names[i] = list.getName();
+				i++;
+			}
+			Arrays.sort(names);
+			return names;
 		}
 	}
 }

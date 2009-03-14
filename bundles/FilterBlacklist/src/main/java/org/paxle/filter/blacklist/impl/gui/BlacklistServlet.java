@@ -14,7 +14,7 @@
 package org.paxle.filter.blacklist.impl.gui;
 
 import java.net.URLEncoder;
-import java.util.List;
+import java.util.Collection;
 
 import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.filter.blacklist.IBlacklist;
 import org.paxle.filter.blacklist.IBlacklistManager;
-import org.paxle.filter.blacklist.InvalidFilenameException;
+import org.paxle.filter.blacklist.InvalidBlacklistnameException;
 import org.paxle.gui.ALayoutServlet;
 
 /**
@@ -52,8 +52,8 @@ public class BlacklistServlet extends ALayoutServlet implements Servlet {
 		Template template = null;
 		try {
 			template = this.getTemplate("/resources/templates/Blacklist.vm");
-			List<String> listnames = this.blacklistManager.getLists();
-			context.put("listnames", listnames);
+			Collection<IBlacklist> lists = this.blacklistManager.getLists();
+			context.put("blacklists", lists);
 
 			// get the action
 			String action = request.getParameter("action");
@@ -63,12 +63,12 @@ public class BlacklistServlet extends ALayoutServlet implements Servlet {
 
 			// create a new list
 			if (request.getMethod().equals("POST") && action.equals("addList")) {
-				if ((request.getParameter("listName") != null) && (! listnames.contains(request.getParameter("listName")))) {
+				if ((request.getParameter("listName") != null)) {
 					try{
 						blacklistManager.createList(request.getParameter("listName"));
-					} catch (InvalidFilenameException e) {
+					} catch (InvalidBlacklistnameException e) {
 						logger.warn("Tried to add blacklist with invalid name '" + request.getParameter("listName") + "'");
-						context.put("InvalidFilenameException", e);
+						context.put("InvalidBlacklistnameException", e);
 						return template;
 					}
 					response.sendRedirect("/blacklist?list=" + URLEncoder.encode(request.getParameter("listName"), "UTF-8"));
@@ -83,8 +83,8 @@ public class BlacklistServlet extends ALayoutServlet implements Servlet {
 
 			// check if this list exists:
 			if (blacklist == null) {
-				if (! listnames.isEmpty()) // get the first list when there is one
-					blacklist = blacklistManager.getList(listnames.get(0));
+				if (! lists.isEmpty()) // get the first list when there is one
+					blacklist = lists.iterator().next();
 				else if (! action.equals("newList")) { // well, it seems there aren't any lists, so the user might want to create one, let's redirect him
 					response.sendRedirect("/blacklist?action=newList");
 					return null;
