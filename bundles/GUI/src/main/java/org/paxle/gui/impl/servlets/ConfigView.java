@@ -186,7 +186,7 @@ public class ConfigView extends ALayoutServlet {
 				IOUtils.copy(fileIn, response.getOutputStream());
 
 				fileIn.close();
-				tempFile.delete();
+				if (!tempFile.delete()) throw new IOException("Unable to delete tempfile:" + tempFile);
 			} catch (Exception e) {
 				throw new IOException(e.getMessage());
 			} finally {
@@ -513,7 +513,7 @@ public class ConfigView extends ALayoutServlet {
 		
 		AttributeDefinition[] attributes = ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
 		if (attributes == null) {
-			context.put(ERROR_MSG, String.format("No AttributeDefinitions found for service with PID '%s' and locale '%s'.",pid));
+			context.put(ERROR_MSG, String.format("No AttributeDefinitions found for service with PID '%s'.",pid));
 			return;
 		}
 		

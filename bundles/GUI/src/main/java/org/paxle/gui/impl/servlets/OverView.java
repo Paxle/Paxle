@@ -30,6 +30,8 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.impl.ServiceManager;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 public class OverView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -44,7 +46,8 @@ public class OverView extends ALayoutServlet {
 	private static final String[] QUEUES = { Q_CRAWLER, Q_PARSER, Q_INDEXER };
 	
 	@Override
-	public Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context context) {
+	@SuppressWarnings("DM_GC")
+	public Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
 		
 		Template template = null;
 		
@@ -158,6 +161,7 @@ public class OverView extends ALayoutServlet {
 			}
 		} catch (Exception e) {
 			this.logger.error(e);
+			throw e;
 		}
 		
 		return template;

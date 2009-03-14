@@ -72,7 +72,11 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 		if (servletManager == null) throw new NullPointerException("ServletManager is null");
 		if (locales == null) throw new NullPointerException("The locale array is null");
 		
-		if (!dataPath.exists()) dataPath.mkdirs();
+		if (!dataPath.exists()) {
+			if (!dataPath.mkdirs()) {
+				this.logger.error("Unable to create stylesheet-manager directory: " + dataPath);
+			}
+		}
 		this.dataPath = dataPath;
 		this.servletManager = servletManager;
 		
@@ -145,7 +149,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 	 * @see MetaTypeProvider#getLocales()
 	 */
 	public String[] getLocales() {
-		return this.locales;
+		return this.locales==null?null:this.locales.clone();
 	}
 
 	/**

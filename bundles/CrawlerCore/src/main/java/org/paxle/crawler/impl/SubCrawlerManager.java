@@ -441,7 +441,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 	 * @see MetaTypeProvider#getLocales()
 	 */
 	public String[] getLocales() {
-		return this.locales;
+		return this.locales==null?null:this.locales.clone();
 	}
 	
 	private final class OCD implements ObjectClassDefinition, IMetaData {

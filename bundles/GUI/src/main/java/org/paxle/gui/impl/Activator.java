@@ -365,6 +365,7 @@ public class Activator implements BundleActivator {
 
 		// cleanup
 		ServiceManager.context = null;
+		MetaDataTool.context = null;
 		this.servletManager = null;
 		this.styleManager = null;
 		this.menuManager = null;

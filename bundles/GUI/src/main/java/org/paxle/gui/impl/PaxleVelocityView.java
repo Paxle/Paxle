@@ -20,9 +20,6 @@ import org.apache.velocity.tools.view.JeeConfig;
 import org.apache.velocity.tools.view.VelocityView;
 
 public class PaxleVelocityView extends VelocityView {
-
-	private Hashtable<String, String> props;
-	
 	public PaxleVelocityView(JeeConfig config) {
 		super(config);
 	}

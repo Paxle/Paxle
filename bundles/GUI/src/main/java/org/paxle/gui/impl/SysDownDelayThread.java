@@ -13,7 +13,6 @@
  */
 package org.paxle.gui.impl;
 
-import org.apache.velocity.context.Context;
 import org.osgi.framework.BundleException;
 import org.paxle.gui.IServiceManager;
 
@@ -21,7 +20,6 @@ public class SysDownDelayThread extends Thread {
 	
 	boolean restart;
 	int delay;
-	Context context;
 	IServiceManager sm;
 	
 	/**

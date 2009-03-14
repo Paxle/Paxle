@@ -73,7 +73,7 @@ public class SearchView extends ALayoutServlet {
 						for (ISearchResult result : searchResultList) resultCount += result.getSize();
 						
 						context.put("searchResultList", searchResultList);
-						context.put("searchResultCount", new Integer(resultCount));
+						context.put("searchResultCount", Integer.valueOf(resultCount));
 					} catch (Exception e) {
 						final Throwable cause = e.getCause();
 						final String msg;

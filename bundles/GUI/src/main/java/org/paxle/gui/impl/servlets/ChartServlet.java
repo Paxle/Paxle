@@ -134,7 +134,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 	 * An arraylist containing all full-path names of all {@link StatusVariable variables}
 	 * to monitor
 	 */
-	public static final String[] TSERIES = new String[] {
+	private static final String[] TSERIES = new String[] {
 		TSERIES_MEMORY_USAGE,
 		TSERIES_INDEX_SIZE,
 		TSERIES_PPM_CRAWLER,
@@ -403,7 +403,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 		
 		long maxMemory = Runtime.getRuntime().maxMemory();
 		if (maxMemory != Long.MAX_VALUE) {
-			((NumberAxis) chart.getXYPlot().getRangeAxis()).setRange(0, maxMemory / (1024*1024));
+			((NumberAxis) chart.getXYPlot().getRangeAxis()).setRange(0, (double)maxMemory/(double)(1024*1024));
         }
 		
 		chart.setBackgroundPaint(Color.WHITE);
@@ -540,14 +540,13 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 				this.logger.warn(String.format(
 						"Unexpected type of monitoring variable '%s': %s",
 						value.getClass().getSimpleName(),
-						fullPath,
-						value.getClass().getName()
+						fullPath
 				));
 			}
 			
 			if (num != null) {
 				if (fullPath.equalsIgnoreCase(TSERIES_MEMORY_USAGE)) {
-					num = new Integer(num.intValue() / ( 1024 * 1024));
+					num = Integer.valueOf(num.intValue() / ( 1024 * 1024));
 				} else if (fullPath.startsWith(CPU_MONITORABLE_ID)) {
 					num = new Double(num.doubleValue() * 100f);
 				}				
@@ -635,7 +634,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 				try {
 					Monitorable mon = (Monitorable) this.context.getService(reference);
 					StatusVariable var = mon.getStatusVariable(name);	
-					Integer type = new Integer(var.getType());
+					Integer type = Integer.valueOf(var.getType());
 					
 					this.typeList.put(fullPath, type);
 					

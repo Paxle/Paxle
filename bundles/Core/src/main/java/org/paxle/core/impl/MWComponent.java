@@ -393,7 +393,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	 * @see MetaTypeProvider#getLocales()
 	 */
 	public String[] getLocales() {
-		return locales;
+		return this.locales==null?null:this.locales.clone();
 	}
 	
 	/**

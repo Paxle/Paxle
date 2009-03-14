@@ -449,7 +449,7 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 	 * @see MetaTypeProvider#getLocales()
 	 */
 	public String[] getLocales() {
-		return this.locales;
+		return this.locales==null?null:this.locales.clone();
 	}
 	
 	private String[] getFilterContextPIDs(SortedSet<FilterContext> filtersForTarget, boolean inclDisabled) {

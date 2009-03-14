@@ -25,9 +25,12 @@ import org.osgi.framework.ServiceReference;
 import org.paxle.core.metadata.IMetaData;
 import org.paxle.core.metadata.IMetaDataProvider;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 @DefaultKey("metaData")
 @ValidScope(Scope.REQUEST)
 public class MetaDataTool extends LocaleConfig {
+	@SuppressWarnings("MS_CANNOT_BE_FINAL")
 	public static BundleContext context;
 	
 	/**

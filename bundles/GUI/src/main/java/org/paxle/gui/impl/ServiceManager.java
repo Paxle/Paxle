@@ -24,7 +24,10 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.paxle.gui.IServiceManager;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 public class ServiceManager implements IServiceManager {
+	@SuppressWarnings("MS_CANNOT_BE_FINAL")
 	public static BundleContext context = null;
     
     /* (non-Javadoc)

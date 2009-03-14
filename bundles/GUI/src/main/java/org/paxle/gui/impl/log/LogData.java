@@ -33,12 +33,12 @@ public class LogData {
 		for (LogEntry entry : fifo) {
 			if (entry.getTime() <= timestamp) continue;
 			
-			Integer logLevel = new Integer(entry.getLevel());
+			Integer logLevel = Integer.valueOf(entry.getLevel());
 			
 			// count message-types
 			logStats.put(
 					logLevel,
-					new Integer(logStats.containsKey(logLevel)?logStats.get(logLevel).intValue() + 1 : 1)
+					Integer.valueOf(logStats.containsKey(logLevel)?logStats.get(logLevel).intValue() + 1 : 1)
 			);
 			
 			// remember message
