@@ -78,15 +78,8 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 			logger.debug("Command didn't pass, aborting blacklist filtering.");
 			return;
 		}		
-		
-		// checking command location
-		IFilterResult result = this.manager.isListed(command.getLocation().toString());		// XXX should this be .toASCIIString()?
-		if(result.hasStatus(FilterResult.LOCATION_REJECTED)) {
-			command.setResult(ICommand.Result.Rejected, "rejected by blacklistentry: " + result.getRejectPattern());
-			logger.info(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
-			return;
-		}
-		
+
+    String[] enabledBlacklistNames = null;
 		// checking if the command-profile has additional restrictions
 		int profileID = command.getProfileOID();
 		if (profileID >= 0) {
@@ -95,13 +88,18 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 				ICommandProfile profile = profileManager.getProfileByID(profileID);
 				if (profile != null) {
 					// TODO: read blacklist-filter-specific properties
-					String enabledBlacklistNames = (String) profile.getProperty(this.getClass().getSimpleName() + ".additionalBlacklistNames");
-					if (enabledBlacklistNames != null) {
-						// TODO: enabledBlacklistNames.split("[;]");
-					}
+					enabledBlacklistNames = (String[]) profile.getProperty(this.getClass().getSimpleName() + ".additionalBlacklistNames");
 				}
 			}
 		}	
+		
+		// checking command location
+		IFilterResult result = this.manager.isListed(command.getLocation().toString(), enabledBlacklistNames);		// XXX should this be .toASCIIString()?
+		if(result.hasStatus(FilterResult.LOCATION_REJECTED)) {
+			command.setResult(ICommand.Result.Rejected, "rejected by blacklistentry: " + result.getRejectPattern());
+			logger.info(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
+			return;
+		}
 		
 		// check the extracted links
 		final long start = System.currentTimeMillis();
@@ -111,7 +109,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 		final IParserDocument parserDoc = command.getParserDocument();
 		
 		// check URIs against blacklists
-		final int rejected = this.checkBlacklist(parserDoc, c);
+		final int rejected = this.checkBlacklist(parserDoc, c, enabledBlacklistNames);
 		
 		if (rejected > 0 || this.logger.isDebugEnabled()) {
 			this.logger.info(String.format(
@@ -127,7 +125,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 	/**
 	 * @return the number of blocked {@link URI}
 	 */
-	private int checkBlacklist(IParserDocument parserDoc, Counter c) {
+	private int checkBlacklist(IParserDocument parserDoc, Counter c, String[] enabledBlacklistNames) {
 		if (parserDoc == null) return 0;
 		
 		int cnt = 0;
@@ -135,21 +133,21 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 		// getting the link map
 		Map<URI, LinkInfo> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
-			cnt += this.checkBlacklist(linkMap,c);
+			cnt += this.checkBlacklist(linkMap,c, enabledBlacklistNames);
 		}
 
 		// loop through sub-parser-docs
 		Map<String,IParserDocument> subDocs = parserDoc.getSubDocs();
 		if (subDocs != null) {
 			for (IParserDocument subDoc : subDocs.values()) {
-				cnt += this.checkBlacklist(subDoc,c);
+				cnt += this.checkBlacklist(subDoc,c, enabledBlacklistNames);
 			}
 		}
 		
 		return cnt;
 	}   
 
-	int checkBlacklist(Map<URI, LinkInfo> linkMap, Counter c) {
+	int checkBlacklist(Map<URI, LinkInfo> linkMap, Counter c, String[] enabledBlacklistNames) {
 		if (linkMap == null || linkMap.size() == 0) return 0;
 		
 		int cnt = 0;
@@ -166,7 +164,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 
 			// check if URI is backlisted
 			c.t++;
-			IFilterResult result = this.manager.isListed(location.toString());		// XXX should this be .toASCIIString()?
+			IFilterResult result = this.manager.isListed(location.toString(), enabledBlacklistNames);		// XXX should this be .toASCIIString()?
 			
 			// mark URI as rejected
 			if (result.hasStatus(FilterResult.LOCATION_REJECTED)) {

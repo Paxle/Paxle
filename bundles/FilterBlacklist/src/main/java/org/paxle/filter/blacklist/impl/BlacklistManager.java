@@ -14,7 +14,7 @@
 package org.paxle.filter.blacklist.impl;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.ArrayList;
 
 import org.osgi.service.component.ComponentContext;
 import org.paxle.filter.blacklist.IBlacklist;
@@ -35,24 +35,40 @@ public class BlacklistManager implements IBlacklistManager {
 	private IBlacklistStore blacklistStore;
 
 	/**
+	 * The list of enabled blacklists.
+	 */
+	private String[] enabledBlacklistNames;
+
+	/**
 	 * This function is called by the OSGi framework if this component is activated
 	 */
 	protected void activate(ComponentContext context) throws InvalidBlacklistnameException {
 		this.blacklistStore = new BlacklistFileStore();
+		if (context != null)
+			this.enabledBlacklistNames = (String[]) context.getProperties().get("enabledBlacklistNames");
+		else
+			this.enabledBlacklistNames = null;
 	}
 
 	protected void deactivate(ComponentContext context) throws Exception {
 		// clear blacklist map
 		this.blacklistStore = null;
+		this.enabledBlacklistNames = null;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.paxle.filter.blacklist.impl.IBlacklistManager#isListed(java.lang.String)
 	 */
 	public IFilterResult isListed(String url) {
-		Iterator<IBlacklist> allLists = this.blacklistStore.getBlacklists().iterator();
-		while (allLists.hasNext()) {
-			IFilterResult result = allLists.next().isListed(url);
+		return this.isListed(url, this.enabledBlacklistNames);
+	}
+
+	/**
+	 * @see org.paxle.filter.blacklist.IBlacklistManager#isListed(String, String[])
+	 */
+	public IFilterResult isListed(String url, String[] enabledBlacklistNames) {
+		for (IBlacklist blacklist : this.getEnabledLists(enabledBlacklistNames)) {
+			IFilterResult result = blacklist.isListed(url);
 			if (result.getStatus() == FilterResult.LOCATION_REJECTED)
 				return result;
 		}
@@ -66,6 +82,34 @@ public class BlacklistManager implements IBlacklistManager {
 		return this.blacklistStore.getBlacklists();
 	}
 
+	/**
+	 * @see org.paxle.filter.blacklist.IBlacklistManager#getEnabledLists()
+	 */
+	public Collection<IBlacklist> getEnabledLists() {
+		if (this.enabledBlacklistNames == null) {
+			return this.getLists();
+		} else {
+			return this.getEnabledLists(this.enabledBlacklistNames);
+		}
+	}
+
+	/**
+	 * @see org.paxle.filter.blacklist.IBlacklistManager#getEnabledLists(String[])
+	 */
+	public Collection<IBlacklist> getEnabledLists(String[] enabledBlacklistNames) {
+		if (enabledBlacklistNames == null) {
+			return this.getEnabledLists();
+		} else {
+			ArrayList<IBlacklist> enabledLists = new ArrayList<IBlacklist>(enabledBlacklistNames.length);
+			for (String name : enabledBlacklistNames) {
+				IBlacklist list = this.getList(name);
+				if (list != null)
+					enabledLists.add(list);
+			}
+			return enabledLists;
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see org.paxle.filter.blacklist.impl.IBlacklistManager#createList(java.lang.String)
 	 */
@@ -76,7 +120,7 @@ public class BlacklistManager implements IBlacklistManager {
 	/* (non-Javadoc)
 	 * @see org.paxle.filter.blacklist.impl.IBlacklistManager#getList(java.lang.String)
 	 */
-	public IBlacklist getList(String name) throws InvalidBlacklistnameException {
+	public IBlacklist getList(String name) {
 		return this.blacklistStore.getBlacklist(name);
 	}
 }

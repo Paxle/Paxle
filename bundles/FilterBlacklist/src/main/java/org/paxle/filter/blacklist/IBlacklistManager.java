@@ -18,17 +18,38 @@ import java.util.Collection;
 public interface IBlacklistManager {
 
 	/**
-	 * Checks if an URL is listed in any blacklist
+	 * Checks if an URL is listed in any enabled blacklist
 	 * @param url URL to be checked against blacklists
 	 * @return returns a String containing the pattern which blacklists the url, returns null otherwise
 	 */
 	public IFilterResult isListed(String url);
 
 	/**
+	 * Checks if an URL is listed in any specified blacklist
+	 * @param url URL to be checked against blacklists
+	 * @param enabledLists The list of enabled lists
+	 * @return returns a String containing the pattern which blacklists the url, returns null otherwise
+	 */
+	public IFilterResult isListed(String url, String[] enabledLists);
+
+	/**
 	 * Gets all blacklistnames
-	 * @return all blacklistnames
+	 * @return all blacklists
 	 */
 	public Collection<IBlacklist> getLists();
+
+	/**
+	 * Gets all enabled blacklists
+	 * @return all enabled blacklists
+	 */
+	public Collection<IBlacklist> getEnabledLists();
+
+	/**
+	 * Gets all enabled blacklists with the specified
+	 * @param enabledLists the list of enabled blacklist names
+	 * @return all enabled blacklists
+	 */
+	public Collection<IBlacklist> getEnabledLists(String[] enabledLists);
 
 	/**
 	 * creates a blacklist
@@ -42,7 +63,6 @@ public interface IBlacklistManager {
 	 * gets the blacklist
 	 * @param name the name of the list
 	 * @return the blacklist
-	 * @throws InvalidBlacklistnameException 
 	 */
-	public IBlacklist getList(String name) throws InvalidBlacklistnameException;
+	public IBlacklist getList(String name);
 }
