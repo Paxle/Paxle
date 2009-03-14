@@ -223,7 +223,7 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 	 * @see MetaTypeProvider#getLocales()
 	 */
 	public String[] getLocales() {
-		return this.locales;
+		return this.locales==null?null:this.locales.clone();
 	}
 	
 	/**

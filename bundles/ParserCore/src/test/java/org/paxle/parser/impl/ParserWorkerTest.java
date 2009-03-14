@@ -38,7 +38,6 @@ public class ParserWorkerTest extends MockObjectTestCase {
 	
 	private ISubParserManager subParserManager = null;
 	private ParserWorker worker = null;
-	private File tempFile = null;
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -54,8 +53,6 @@ public class ParserWorkerTest extends MockObjectTestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		
-		if (tempFile != null) tempFile.delete();
 	}
 	
 	public void testSkipNotOkCommand() {

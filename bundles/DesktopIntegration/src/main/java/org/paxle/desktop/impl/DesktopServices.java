@@ -475,7 +475,7 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 	}
 	
 	public String[] getLocales() {
-		return locales;
+		return this.locales==null?null:this.locales.clone();
 	}
 	
 	public ObjectClassDefinition getObjectClassDefinition(String id, String loc) {
