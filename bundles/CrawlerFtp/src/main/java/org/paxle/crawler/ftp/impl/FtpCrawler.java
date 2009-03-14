@@ -48,7 +48,7 @@ public class FtpCrawler implements IFtpCrawler, ManagedService {
 	/**
 	 * The protocol(s) supported by this crawler
 	 */
-	public static final String[] PROTOCOLS = new String[]{"ftp"};
+	static final String[] PROTOCOLS = new String[]{"ftp"};
 	
 	/**
 	 * For logging
@@ -59,7 +59,7 @@ public class FtpCrawler implements IFtpCrawler, ManagedService {
 	 * @see ISubCrawler#getProtocols()
 	 */	
 	public String[] getProtocols() {
-		return PROTOCOLS;
+		return PROTOCOLS.clone();
 	}
 
 	public ICrawlerDocument request(URI requestUri) {

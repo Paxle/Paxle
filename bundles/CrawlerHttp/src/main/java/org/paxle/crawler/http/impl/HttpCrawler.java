@@ -120,7 +120,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	/**
 	 * The protocol(s) supported by this crawler
 	 */
-	public static final String[] PROTOCOLS = new String[]{"http","https"};
+	static final String[] PROTOCOLS = new String[]{"http","https"};
 	
 	/**
 	 * Connection manager used for http connection pooling
@@ -330,7 +330,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * @see ISubCrawler#getProtocols()
 	 */
 	public String[] getProtocols() {
-		return HttpCrawler.PROTOCOLS;
+		return PROTOCOLS.clone();
 	}	
 	
 	/**

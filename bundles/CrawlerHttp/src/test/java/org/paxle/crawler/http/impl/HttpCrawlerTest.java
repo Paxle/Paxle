@@ -62,8 +62,8 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 					tmp.deleteOnExit();
 					return tmp;
 				}
-				public void releaseTempFile(File arg0) throws FileNotFoundException, IOException {
-					arg0.delete();				
+				public void releaseTempFile(File file) throws FileNotFoundException, IOException {
+					if (!file.delete()) throw new IOException("Unable to delete file: " + file);				
 				}
 				public void removeTempDirFor(String... arg0) { }
 				public void setTempDirFor(ITempDir arg0, String... arg1) { }
@@ -93,7 +93,7 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 	}
 	
 	public void testDownloadNotFoundResource() {
-		this.tester.setAttribute(DummyServlet.ATTR_STATUS_CODE, new Integer(404));		
+		this.tester.setAttribute(DummyServlet.ATTR_STATUS_CODE, Integer.valueOf(404));		
 		
 		// do some crawling
 		ICrawlerDocument doc = this.crawler.request(URI.create(this.servletURL));
@@ -102,7 +102,7 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 	}
 	
 	public void testDownloadNotAllowedResource() {
-		this.tester.setAttribute(DummyServlet.ATTR_STATUS_CODE, new Integer(403));		
+		this.tester.setAttribute(DummyServlet.ATTR_STATUS_CODE, Integer.valueOf(403));		
 		
 		// do some crawling
 		ICrawlerDocument doc = this.crawler.request(URI.create(this.servletURL));
@@ -120,12 +120,12 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 	}
 	
 	public void testMaxDownloadSizeExceeded() {
-		this.tester.setAttribute(DummyServlet.ATTR_FILE_SIZE, new Integer(1200));
+		this.tester.setAttribute(DummyServlet.ATTR_FILE_SIZE, Integer.valueOf(1200));
 		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, "text/html");
 		
 		// change crawler settings
 		Dictionary<String, Object> props = this.crawler.getDefaults();
-		props.put(HttpCrawler.PROP_MAXDOWNLOAD_SIZE, new Integer(1000));
+		props.put(HttpCrawler.PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(1000));
 		this.crawler.updated(props);
 		
 		// do some crawling
@@ -135,12 +135,12 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 	}
 	
 	public void testMaxDownloadSizeExceededTransferEncoding() {	
-		this.tester.setAttribute(DummyServlet.ATTR_FILE_SIZE, new Integer(-1200));
+		this.tester.setAttribute(DummyServlet.ATTR_FILE_SIZE, Integer.valueOf(-1200));
 		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, "text/html");
 		
 		// change crawler settings
 		Dictionary<String, Object> props = this.crawler.getDefaults();
-		props.put(HttpCrawler.PROP_MAXDOWNLOAD_SIZE, new Integer(1000));
+		props.put(HttpCrawler.PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(1000));
 		this.crawler.updated(props);
 		
 		// do some crawling

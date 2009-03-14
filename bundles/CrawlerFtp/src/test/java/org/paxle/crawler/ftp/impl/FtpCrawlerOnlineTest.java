@@ -45,8 +45,8 @@ public class FtpCrawlerOnlineTest extends TestCase {
 				tmp.deleteOnExit();
 				return tmp;
 			}
-			public void releaseTempFile(File arg0) throws FileNotFoundException, IOException {
-				arg0.delete();				
+			public void releaseTempFile(File file) throws FileNotFoundException, IOException {
+				if (!file.delete()) throw new IOException("Unable to delte file: " + file);				
 			}
 			public void removeTempDirFor(String... arg0) { }
 			public void setTempDirFor(ITempDir arg0, String... arg1) { }
@@ -100,7 +100,7 @@ public class FtpCrawlerOnlineTest extends TestCase {
 
 		// change crawler settings
 		Dictionary<String, Object> props = this.crawler.getDefaults();
-		props.put(FtpCrawler.PROP_MAXDOWNLOAD_SIZE, new Integer(500));
+		props.put(FtpCrawler.PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(500));
 		this.crawler.updated(props);
 		
 		// download document
