@@ -92,7 +92,7 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 					break;
 			}
 			if (varName != null) {
-				VAR_NAMES.put(varNamePrefix + "." + varName, new Integer(varIdx));
+				VAR_NAMES.put(varNamePrefix + "." + varName, Integer.valueOf(varIdx));
 			}
 		}
 	}

@@ -54,7 +54,7 @@ public class DiskspaceMonitoring implements Monitorable {
 		}
 		
 		try {
-			long freeDisk = FileSystemUtils.freeSpaceKb(new File(System.getProperty("paxle.data")).getCanonicalPath().toString());
+			long freeDisk = FileSystemUtils.freeSpaceKb(new File(System.getProperty("paxle.data")).getCanonicalPath());
 			freeDisk /= 1024;
 			return new StatusVariable(name, StatusVariable.CM_GAUGE, freeDisk);
 		} catch (IOException e) {

@@ -49,6 +49,6 @@ public class CPUMonitoringTest extends TestCase {
 			}			
 		});
 		
-		sync.tryAcquire(5, TimeUnit.SECONDS);
+		assertTrue(sync.tryAcquire(5, TimeUnit.SECONDS));
 	}
 }
