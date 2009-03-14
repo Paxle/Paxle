@@ -349,7 +349,21 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 				openServlet = (String)openServletObj;
 			
 			// opening the browser
-			browseDefaultServlet(false);
+			new Thread() {
+				@Override
+				public void run() {
+					try {
+						// a delay to ensure that the GUI bundle was started when we are trying to 
+						// open the browser
+						// TODO: we need a better solution here
+						Thread.sleep(3000);
+						browseDefaultServlet(false);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}.run();			
 		}
 		
 		// look for services which already have registered as DIComponents and record them in the map
@@ -646,13 +660,11 @@ public class DesktopServices implements IDesktopServices, ManagedService, MetaTy
 	 */
 	public String getPaxleUrl(String... path) {
 		final String port = manager.getProperty("org.osgi.service.http.port");
-		if (port == null)
-			return null;
-		final StringBuffer sb = new StringBuffer("http://localhost:").append(port);
-		if (path.length == 0 || path[0].charAt(0) != '/')
-			sb.append('/');
-		for (final String s : path)
-			sb.append(s);
+		if (port == null) return null;
+		
+		final StringBuffer sb = new StringBuffer("http://127.0.0.1:").append(port);
+		if (path.length == 0 || path[0].charAt(0) != '/') sb.append('/');
+		for (final String s : path) sb.append(s);
 		return sb.toString();
 	}
 	
