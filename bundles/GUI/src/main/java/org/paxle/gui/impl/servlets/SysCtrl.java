@@ -21,6 +21,13 @@ import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/sysctrl"
+ * @scr.property name="menu" value="%menu.administration/%menu.system/Shutdown"
+ * @scr.property name="doUserAuth" value="true" type="Boolean"
+ */
 public class SysCtrl extends ALayoutServlet {
 
 	private static final long serialVersionUID = 1L;

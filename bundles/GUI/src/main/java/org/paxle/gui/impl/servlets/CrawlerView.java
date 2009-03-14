@@ -35,6 +35,13 @@ import org.paxle.core.queue.ICommandProfile.LinkFilterMode;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/crawler"
+ * @scr.property name="menu" value="%menu.administration/%menu.bundles/Crawler"
+ * @scr.property name="doUserAuth" value="true" type="Boolean"
+ */
 public class CrawlerView extends ALayoutServlet {
 	
 	private static final long serialVersionUID = 1L;

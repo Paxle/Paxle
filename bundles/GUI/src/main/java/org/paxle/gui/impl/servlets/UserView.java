@@ -35,6 +35,13 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.HttpContextAuth;
 import org.paxle.gui.impl.ServiceManager;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/users"
+ * @scr.property name="menu" value="%menu.administration/%menu.system/%menu.userAdmin"
+ * @scr.property name="doUserAuth" value="true" type="Boolean"
+ */
 public class UserView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	

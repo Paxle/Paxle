@@ -32,6 +32,13 @@ import org.paxle.gui.impl.tools.MetaDataTool;
 import org.paxle.parser.ISubParserManager;
 import org.paxle.se.search.ISearchProviderManager;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/status"
+ * @scr.property name="menu" value="Info/Status"
+ * @scr.property name="doUserAuth" value="false" type="Boolean"
+ */
 public class StatusView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -186,7 +193,10 @@ public class StatusView extends ALayoutServlet {
 	 */
 	public Object getCacheManager() {
 		try {
-			return Thread.currentThread().getContextClassLoader()
+			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+			if (classLoader == null) classLoader = this.getClass().getClassLoader();
+			
+			return classLoader
 				.loadClass("net.sf.ehcache.CacheManager")
 				.getMethod("getInstance", (Class[]) null)
 				.invoke(null, (Object[]) null);

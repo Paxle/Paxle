@@ -54,6 +54,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -63,6 +64,12 @@ import org.osgi.service.monitor.MonitoringJob;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.gui.ALayoutServlet;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/chart"
+ * @scr.property name="doUserAuth" value="false" type="Boolean"
+ */
 public class ChartServlet extends ALayoutServlet implements EventHandler, ServiceListener {
 	private static final long serialVersionUID = 1L;	
 	
@@ -147,7 +154,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 		TSERIES_CMD_SIZE_ENQUEUD
 	};
 	
-	private final HashMap<String,HashSet<String>> variableTree;	
+	private HashMap<String,HashSet<String>> variableTree;	
 	
 	/**
 	 * A map containing the fullpath of a {@link StatusVariable} as key and the it's 
@@ -158,12 +165,12 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 	 * @see #addVariables4Monitor(ServiceReference, HashSet, boolean)
 	 * @see #handleEvent(Event)
 	 */
-	private final HashMap<String,Integer> typeList;
+	private HashMap<String,Integer> typeList;
 
 	/**
 	 * An OSGi bundle-context used to access other services registered to the system
 	 */
-	private final BundleContext context;
+	private BundleContext context;
 	
 	/**
 	 * Currently active monitoring job
@@ -172,13 +179,14 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 	
 	/**
 	 * OSGI Monitor Admin Service
+	 * @scr.reference 
 	 */
-	private final MonitorAdmin monitorService;
+	private MonitorAdmin monitorService;
 	
 	/**
 	 * For logging
 	 */
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
 	 * A map containing all {@link TimeSeries} that are filled by {@link #handleEvent(Event)}
@@ -190,9 +198,8 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 	 */
 	private HashMap<String, JFreeChart> chartMap = new HashMap<String, JFreeChart>();
 	
-	public ChartServlet(BundleContext context, MonitorAdmin monitorService) {
-		this.context = context;
-		this.monitorService = monitorService;
+	protected void activate(ComponentContext context) {
+		this.context = context.getBundleContext();
 		
 		this.typeList = new HashMap<String, Integer>();
 		this.variableTree = new HashMap<String, HashSet<String>>();
@@ -214,7 +221,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 			// detecting already registered monitorables and
 			// determine which of their variables we need to monitor 
 			final HashSet<String> variableNames = new HashSet<String>();
-			final ServiceReference[] services = context.getServiceReferences(Monitorable.class.getName(), null);
+			final ServiceReference[] services = this.context.getServiceReferences(Monitorable.class.getName(), null);
 			if (services != null) {
 				for (ServiceReference reference : services) {
 					this.addVariables4Monitor(reference, variableNames, true, true);
@@ -230,6 +237,13 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 		}
 	}
 		
+	protected void deactivate(ComponentContext context) {
+		this.typeList.clear();
+		this.variableTree.clear();
+		this.chartMap.clear();
+		// TODO:
+	}
+	
 	private void buildVariableTree() {
 		for (String fullPath : TSERIES) {
 			int idx = fullPath.indexOf('/');

@@ -22,6 +22,12 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/threads"
+ * @scr.property name="doUserAuth" value="false" type="Boolean"
+ */
 public class TheaddumpView extends ALayoutServlet {
 	
 	private static final long serialVersionUID = 1L;

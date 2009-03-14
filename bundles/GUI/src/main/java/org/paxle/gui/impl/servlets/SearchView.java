@@ -29,6 +29,13 @@ import org.paxle.se.search.ISearchProviderManager;
 import org.paxle.se.search.ISearchRequest;
 import org.paxle.se.search.ISearchResult;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/search"
+ * @scr.property name="menu" value="Search"
+ * @scr.property name="doUserAuth" value="false" type="Boolean"
+ */
 public class SearchView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	

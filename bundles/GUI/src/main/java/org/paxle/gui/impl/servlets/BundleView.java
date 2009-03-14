@@ -47,6 +47,13 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
 import org.paxle.util.StringTools;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/bundle"
+ * @scr.property name="menu" value="%menu.administration/%menu.system/%menu.bundleControl"
+ * @scr.property name="doUserAuth" value="false" type="Boolean"
+ */
 public class BundleView extends ALayoutServlet {
 	
 	private static final String PARAM_BUNDLE_PATH = "bundlePath";

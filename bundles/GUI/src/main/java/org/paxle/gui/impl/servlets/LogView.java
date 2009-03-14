@@ -23,25 +23,36 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogReaderService;
 import org.osgi.service.log.LogService;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.log.Log4jMemoryAppender;
 import org.paxle.gui.impl.log.OSGiLogReader;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/log"
+ * @scr.property name="menu" value="Info/Log"
+ * @scr.property name="doUserAuth" value="false" type="Boolean"
+ */
 public class LogView extends ALayoutServlet {	
 	private static final long serialVersionUID = 1L;
 	
 	/**
 	 * Log4j appender to intercept log4j messages
 	 */
-	private final Log4jMemoryAppender log4jAppender;
+	private Log4jMemoryAppender log4jAppender;
 	
-	private final OSGiLogReader osgiAppender;
+	private OSGiLogReader osgiAppender;
 	
-	public LogView(BundleContext bc) {
+	/**
+	 * @scr.reference cardinality="0..1"
+	 */
+	private LogReaderService osgiLogReader;
+	
+	protected void activate(ComponentContext context) {
 		/* =======================================
 		 * LOG4J
 		 * ======================================= */
@@ -56,17 +67,24 @@ public class LogView extends ALayoutServlet {
 		
 		/* =======================================
 		 * OSGI logging
-		 * ======================================= */	
+		 * ======================================= */
 		// creating the log-listener
 		this.osgiAppender = new OSGiLogReader();
-		
-		// register it to the framework
-		ServiceReference lrref = bc.getServiceReference(LogReaderService.class.getName());
-		if (lrref != null) {
-			LogReaderService lrs = (LogReaderService) bc.getService(lrref);
-			if (lrs != null) lrs.addLogListener(this.osgiAppender);
-		}
+		if (osgiLogReader != null) osgiLogReader.addLogListener(this.osgiAppender);
 	}
+		
+	protected void deactivate(ComponentContext context) {
+		/* =======================================
+		 * LOG4J
+		 * ======================================= */
+		this.log4jAppender = null;
+		
+		/* =======================================
+		 * OSGI logging
+		 * ======================================= */
+		if (osgiLogReader != null) osgiLogReader.removeLogListener(this.osgiAppender);
+		this.osgiAppender = null;
+	}	
 	
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {

@@ -26,6 +26,12 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.HttpContextAuth;
 import org.paxle.gui.impl.ServiceManager;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/login"
+ * @scr.property name="doUserAuth" value="false" type="Boolean"
+ */
 public class LoginView extends ALayoutServlet {
 
 	private static final long serialVersionUID = 1L;

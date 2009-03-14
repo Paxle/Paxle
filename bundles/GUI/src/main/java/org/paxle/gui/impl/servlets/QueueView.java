@@ -24,6 +24,13 @@ import org.paxle.core.IMWComponent;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/queue"
+ * @scr.property name="menu" value="Info/Queues"
+ * @scr.property name="doUserAuth" value="false" type="Boolean"
+ */
 public class QueueView extends ALayoutServlet {
 	
 	private static final long serialVersionUID = 1L;
