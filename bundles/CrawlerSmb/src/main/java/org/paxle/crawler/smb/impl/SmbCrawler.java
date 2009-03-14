@@ -27,12 +27,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.ICrawlerDocument.Status;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.smb.ISmbCrawler;
 
 public class SmbCrawler implements ISubCrawler, ISmbCrawler {
-	public static final String[] PROTOCOLS = new String[]{"smb"};
+	static final String[] PROTOCOLS = new String[]{"smb"};
 
 	private Log logger = LogFactory.getLog(this.getClass());
 	
@@ -40,7 +41,7 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 	 * @see ISubCrawler#getProtocols()
 	 */	
 	public String[] getProtocols() {
-		return PROTOCOLS;
+		return PROTOCOLS.clone();
 	}
 
 	public ICrawlerDocument request(URI requestUri) {
@@ -51,6 +52,7 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 		crawlerDoc.setCrawlerDate(new Date());
 		crawlerDoc.setLocation(requestUri);
 		
+		InputStream input = null;
 		try {
 			/* 
 			 * Create a temp URI to ensure that the port is set properly
@@ -68,16 +70,15 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 			
 			SmbFile smbFile = new SmbFile(temp.toURL());
 			if (!smbFile.exists()) {
-				crawlerDoc.setStatus(ICrawlerDocument.Status.NOT_FOUND, "The resource does not exist");				
+				crawlerDoc.setStatus(Status.NOT_FOUND, "The resource does not exist");				
 				this.logger.info(String.format("The resource '%s' does not exit.",requestUri));			
 				return crawlerDoc;
 			} else if (!smbFile.canRead()) {
-				crawlerDoc.setStatus(ICrawlerDocument.Status.NOT_FOUND, "The resource can not be read.");				
+				crawlerDoc.setStatus(Status.NOT_FOUND, "The resource can not be read.");				
 				this.logger.info(String.format("The resource '%s' can not be read.",requestUri));			
 				return crawlerDoc;				
 			}
 			
-			InputStream input = null;
 			if (smbFile.isDirectory()) {
 				/* Append '/' if necessary. Otherwise we will get:
 				 * jcifs.smb.SmbException: smb://srver/dir directory must end with '/'
@@ -109,24 +110,27 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 				
 				// get file content
 				input = smbFile.getInputStream();
+			} 
+			
+			if (input != null) {
+				// copy data into file
+				CrawlerTools.saveInto(crawlerDoc, input);
+					
+				// finished
+				crawlerDoc.setStatus(Status.OK);
+			} else {
+				crawlerDoc.setStatus(Status.UNKNOWN_FAILURE, "Unable to determine the smb-file type");
 			}
-			
-			// copy data into file
-			CrawlerTools.saveInto(crawlerDoc, input);
-			
-			// close connection
-			input.close();
-				
-			// finished
-			crawlerDoc.setStatus(ICrawlerDocument.Status.OK);
 		} catch(Throwable e) {
-			crawlerDoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, "Unexpected Exception: " + e.getMessage());
+			crawlerDoc.setStatus(Status.UNKNOWN_FAILURE, "Unexpected Exception: " + e.getMessage());
 			
 			this.logger.warn(String.format("Unexpected '%s' while trying to crawl resource '%s'.",
 					e.getClass().getName(),
 					requestUri
 			),e);
-		} 		
+		} finally {
+			if (input != null) try { input.close(); } catch (Exception e) {/* ignore this */}
+		}
 
 		return crawlerDoc;			
 	}

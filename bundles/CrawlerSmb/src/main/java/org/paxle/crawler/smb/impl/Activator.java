@@ -26,19 +26,11 @@ import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.smb.ISmbCrawler;
 
 public class Activator implements BundleActivator {
-
-	/**
-	 * A reference to the {@link BundleContext bundle-context}
-	 */
-	public static BundleContext bc;		
-	
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
-	public void start(BundleContext context) throws Exception {
-		bc = context;		
-		
+	public void start(BundleContext bc) throws Exception {
 		/* ==========================================================
 		 * Register Services
 		 * ========================================================== */		
@@ -52,7 +44,7 @@ public class Activator implements BundleActivator {
 		// register URL handler service
 		Hashtable<String,String[]> propsUrlHandler = new Hashtable<String,String[]>(1);
         propsUrlHandler.put(URLConstants.URL_HANDLER_PROTOCOL, new String[]{SmbStreamHandlerService.PROTOCOL});
-        context.registerService(URLStreamHandlerService.class.getName(), new SmbStreamHandlerService(), propsUrlHandler);		
+        bc.registerService(URLStreamHandlerService.class.getName(), new SmbStreamHandlerService(), propsUrlHandler);		
 
         // register browsing servlet
         Hashtable<String, Object> propsServlet = new Hashtable<String, Object>();
@@ -65,9 +57,7 @@ public class Activator implements BundleActivator {
 	 * This function is called by the osgi-framework to stop the bundle.
 	 * @see BundleActivator#stop(BundleContext)
 	 */		
-	public void stop(BundleContext context) throws Exception {
-		
+	public void stop(BundleContext context) throws Exception {		
 		// cleanup
-		bc = null;
 	}
 }
