@@ -20,12 +20,6 @@ import org.paxle.p2p.services.search.impl.SearchServerImpl;
  * to run the following code:	
  */
 public class Activator implements BundleActivator {
-	
-	/**
-	 * A reference to the {@link BundleContext bundle-context}
-	 */
-	public static BundleContext bc;				
-	
 	private P2PManager p2pManager = null;
 	
 	private P2PServiceManager serviceManager = null;
@@ -39,9 +33,7 @@ public class Activator implements BundleActivator {
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */			
-	public void start(BundleContext context) throws Exception {
-		bc = context;
-		
+	public void start(BundleContext bc) throws Exception {
 		// init logger
 		this.logger = LogFactory.getLog(this.getClass());
 		
@@ -140,7 +132,6 @@ public class Activator implements BundleActivator {
 	 */		
 	public void stop(BundleContext context) throws Exception {
 		// cleanup
-		bc = null;		
 		p2pManager.terminate();
 		p2pManager = null;
 		

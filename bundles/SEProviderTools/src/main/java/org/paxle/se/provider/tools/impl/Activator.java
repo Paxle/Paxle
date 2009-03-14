@@ -7,19 +7,11 @@ import org.osgi.framework.BundleContext;
 import org.paxle.se.search.ISearchProvider;
 
 public class Activator implements BundleActivator {
-
-	/**
-	 * A reference to the {@link BundleContext bundle-context}
-	 */	
-	public static BundleContext bc = null;
-
 	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */		
-	public void start(BundleContext context) throws Exception {
-		bc = context;
-
+	public void start(BundleContext bc) throws Exception {
 		ISearchProvider provider = new DictSearchProvider();
 		bc.registerService(ISearchProvider.class.getName(), provider, new Hashtable<String,String>());
 	}
@@ -29,6 +21,6 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#stop(BundleContext)
 	 */		
 	public void stop(BundleContext context) throws Exception {
-		bc = null;
+		// cleanup
 	}
 }

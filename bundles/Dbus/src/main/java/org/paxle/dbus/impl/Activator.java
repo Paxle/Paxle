@@ -33,12 +33,6 @@ import org.paxle.se.search.ISearchProvider;
  * </ul>
  */
 public class Activator implements BundleActivator {
-
-	/**
-	 * A reference to the {@link BundleContext bundle-context}
-	 */
-	public static BundleContext bc;	
-		
 	/**
 	 * A list of services connected to dbus
 	 */
@@ -53,15 +47,14 @@ public class Activator implements BundleActivator {
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
-	public void start(BundleContext context) throws Exception { 
-		bc = context;
+	public void start(BundleContext bc) throws Exception { 
 		this.logger = LogFactory.getLog(this.getClass());
 		
 		/* ==========================================================
 		 * Register Service Listeners
 		 * ========================================================== */		
 		try {
-			NetworkManagerMonitor nmm = new NetworkManagerMonitor(context);
+			NetworkManagerMonitor nmm = new NetworkManagerMonitor(bc);
 			this.services.add(nmm);
 		} catch (Exception e) {
 			this.logger.warn(String.format("Unable to start NetworkManagerMonitor: %s", e.getMessage()));
@@ -84,9 +77,6 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#stop(BundleContext)
 	 */	
 	public void stop(BundleContext arg0) throws Exception {
-		// cleanup
-		bc = null;
-		
 		// loop through the registered services and disconnect
 		// them from DBus
 		for (IDbusService service : this.services) {

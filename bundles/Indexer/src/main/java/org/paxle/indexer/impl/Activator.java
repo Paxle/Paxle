@@ -24,12 +24,6 @@ import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorkerFactory;
 
 public class Activator implements BundleActivator {
-
-	/**
-	 * A reference to the {@link BundleContext bundle-context}
-	 */
-	public static BundleContext bc;		
-	
 	/**
 	 * A reference to the {@link IMWComponent master-worker-component} used
 	 * by this bundle.
@@ -40,9 +34,7 @@ public class Activator implements BundleActivator {
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
-	public void start(BundleContext context) throws Exception {
-		bc = context;		
-		
+	public void start(BundleContext bc) throws Exception {
 		/* ==========================================================
 		 * Get services provided by other bundles
 		 * ========================================================== */			
@@ -70,11 +62,8 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 		// shutdown the thread pool
 		if (mwComponent != null) {
-			IMaster master = mwComponent.getMaster();
+			IMaster<ICommand> master = mwComponent.getMaster();
 			master.terminate();
 		}
-		
-		// cleanup
-		bc = null;
 	}
 }

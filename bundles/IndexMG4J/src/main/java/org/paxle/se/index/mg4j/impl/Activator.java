@@ -11,8 +11,6 @@ import org.paxle.core.data.IDataConsumer;
 import org.paxle.se.index.IFieldManager;
 
 public class Activator implements BundleActivator {
-
-	public static BundleContext bc = null;
 	public static Mg4jWriter indexWriterThread = null;
 	
 	

@@ -350,8 +350,11 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	private File getCreateCacheDir() {
 		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + CACHE_DIR;
 		final File cacheDir = new File(dataPath);
-		if (!cacheDir.exists())
-			cacheDir.mkdirs();
+		if (!cacheDir.exists()) {
+			if (!cacheDir.mkdirs()) {
+				this.logger.error("Unable to create cache-directory: " + cacheDir);
+			}
+		}
 		return cacheDir;
 	}
 
@@ -373,7 +376,12 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				final DataInputStream dataIs = new DataInputStream(new BufferedInputStream(fileIs));
 				bloomFilter = new DynamicBloomFilter();
 				bloomFilter.readFields(dataIs);
-			} finally { fileIs.close(); serializedFile.delete(); }
+			} finally { 
+				fileIs.close(); 
+				if (!serializedFile.delete()) {
+					this.logger.error("Unable to delete bloom-filter file: " + serializedFile);
+				}
+			}
 		}
 	}
 

@@ -41,7 +41,7 @@ public class FieldTypeUserType implements EnhancedUserType {
 	 *  <column name="isTokenize"/>
 	 */
 	public int[] sqlTypes() {
-		return PROP_TYPES;
+		return PROP_TYPES.clone();
 	}	
 
 	public String objectToSQLString(Object value) {

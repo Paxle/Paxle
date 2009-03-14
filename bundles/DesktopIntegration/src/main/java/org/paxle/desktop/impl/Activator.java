@@ -74,12 +74,10 @@ public class Activator implements BundleActivator {
 	}
 	
 	public static ClassLoader uiClassLoader = Activator.class.getClassLoader();
-	public static BundleContext bc = null;
 	
 	public DesktopServices initObject = null;
 	
-	public void start(final BundleContext context) throws Exception {
-		bc = context;
+	public void start(final BundleContext bc) throws Exception {
 		
 		// first we check whether the DI-bundle will able to work on the system
 		if (GraphicsEnvironment.isHeadless()) {
@@ -116,7 +114,7 @@ public class Activator implements BundleActivator {
 			
 			try {
 				// display icon				
-				initUI(context, impl.getValue());
+				initUI(bc, impl.getValue());
 				started = true;
 				logger.info(String.format("Successfully started bundle using backend '%s'", impl));
 				break;
@@ -140,7 +138,6 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 		this.initObject.shutdown();
 		initObject = null;
-		bc = null;
 	}
 	
 	private void initUI(BundleContext context, String impl) throws Exception {

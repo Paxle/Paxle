@@ -49,7 +49,7 @@ public class TempFileManagerTest extends TestCase {
 			assertTrue(temp.canWrite());
 			assertTrue(temp.getCanonicalPath().startsWith(tempDir.getCanonicalPath()));
 		} finally {
-			if (temp != null) try { temp.delete(); } catch (Exception e){/* ignore this */}
+			assertTrue(temp.delete());
 		}
 	}
 
@@ -63,7 +63,7 @@ public class TempFileManagerTest extends TestCase {
 			this.manager.releaseTempFile(temp);
 			assertFalse(temp.exists());
 		} finally {
-			if (temp != null) try { temp.delete(); } catch (Exception e){/* ignore this */}
+			assertFalse(temp.delete());
 		}
 	}
 
@@ -87,7 +87,7 @@ public class TempFileManagerTest extends TestCase {
 			this.manager.releaseTempFile(temp);
 			assertTrue(temp.exists());
 		} finally {
-			if (temp != null) temp.delete();
+			if (temp != null) assertTrue(temp.delete());
 		}
 	}
 
