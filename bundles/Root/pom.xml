@@ -474,6 +474,20 @@
 				<artifactId>osgi</artifactId>
 				<version>3.4.2.R34x_v20080826-1230</version>
 			</dependency>
+
+			<!--
+				Annotation classes for Software defect detection 
+			 -->
+			<dependency>
+			    <groupId>net.sourceforge.findbugs</groupId>
+			    <artifactId>jsr305</artifactId>
+			    <version>1.3.2</version>
+			</dependency>	
+			<dependency>
+				<groupId>net.sourceforge.findbugs</groupId>
+				<artifactId>annotations</artifactId>
+				<version>1.3.2</version>
+			</dependency>			
 		</dependencies>
 	</dependencyManagement>
 
@@ -546,7 +560,17 @@
 			<groupId>org.jmock</groupId>
 			<artifactId>jmock-junit3</artifactId>
 			<scope>test</scope>
-		</dependency>				
+		</dependency>
+
+		<!-- findbugs annotations -->
+		<dependency>
+		    <groupId>net.sourceforge.findbugs</groupId>
+		    <artifactId>jsr305</artifactId>
+		</dependency>	
+		<dependency>
+			<groupId>net.sourceforge.findbugs</groupId>
+			<artifactId>annotations</artifactId>
+		</dependency>		
 	</dependencies>
 
 	<!-- ==================================================================== -->
