@@ -28,6 +28,8 @@ import javax.ws.rs.core.Response.Status;
 import org.osgi.service.monitor.MonitorAdmin;
 import org.paxle.api.jaxrs.monitorable.MonitorableResource;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 /**
  * @scr.component 
  * @scr.service interface="java.lang.Object"
@@ -37,6 +39,7 @@ import org.paxle.api.jaxrs.monitorable.MonitorableResource;
 public class Monitorables {
 	
 	/** @scr.reference */
+	@SuppressWarnings({"NP_UNWRITTEN_FIELD","UWF_UNWRITTEN_FIELD"})
 	private MonitorAdmin monitorAdmin;
 	
 	@GET

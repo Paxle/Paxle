@@ -39,6 +39,8 @@ import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.MetaTypeService;
 import org.paxle.api.jaxrs.cm.BundleResource;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 /**
  * @scr.component 
  * @scr.service interface="java.lang.Object"
@@ -59,13 +61,18 @@ public class Configuration {
 	 */
 	protected ComponentContext ctx;	
 	
-	/** @scr.reference */
+	/**
+	 * The OSGI {@link ConfigurationAdmin} service 
+	 * @scr.reference 
+	 */
+	@SuppressWarnings({"NP_UNWRITTEN_FIELD","UWF_UNWRITTEN_FIELD"})
 	private ConfigurationAdmin configAdmin;
 
 	/** 
 	 * The OSGi {@link MetaTypeService}
 	 * @scr.reference 
 	 */
+	@SuppressWarnings({"NP_UNWRITTEN_FIELD","UWF_UNWRITTEN_FIELD"})
 	private MetaTypeService metaTypeService;
 	
 	/**
@@ -112,7 +119,7 @@ public class Configuration {
 	 * 
 	 * @return a list of {@link BundleResource}
 	 */
-	@GET
+	@GET	
     public List<BundleResource> getBundles(@QueryParam("bundleId") List<String> bundleIdList, @HeaderParam("Accept-Language") List<String> languages) throws IOException {
 		List<Long> bundleIDs = new ArrayList<Long>();
 		
