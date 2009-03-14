@@ -21,6 +21,8 @@ import org.mozilla.intl.chardet.nsICharsetDetectionObserver;
 import org.mozilla.intl.chardet.nsPSMDetector;
 import org.paxle.core.charset.ACharsetDetectorOutputStream;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 public class CharsetDetectorOutputStream extends ACharsetDetectorOutputStream implements nsICharsetDetectionObserver {
 	
 	private final byte[] buffer = new byte[1];
@@ -83,6 +85,7 @@ public class CharsetDetectorOutputStream extends ACharsetDetectorOutputStream im
 	 * (non-Javadoc)
 	 * @see org.mozilla.intl.chardet.nsICharsetDetectionObserver#Notify(java.lang.String)
 	 */
+	@SuppressWarnings("NM_METHOD_NAMING_CONVENTION")
 	public void Notify(String charset) {
 		this.charset = charset;
 		this.done = true;
