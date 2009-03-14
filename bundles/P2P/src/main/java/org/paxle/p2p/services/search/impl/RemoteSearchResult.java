@@ -26,4 +26,13 @@ public class RemoteSearchResult implements ISearchResult {
 	public long getSearchTime() {
 		return this.searchTime;
 	}
+
+	public String getProviderID() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public int getSize() {
+		return this.result.length;
+	}
 }

@@ -36,6 +36,7 @@ import org.paxle.se.index.IFieldManager;
 import org.paxle.se.query.IQueryFactory;
 import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
+import org.paxle.se.search.ISearchRequest;
 
 public class SearchClientImpl extends AServiceClient implements ISearchClient, ISearchProvider {
 
@@ -231,7 +232,7 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 	 * @see ISearchProvider#search(String, List, int, long)
 	 */
 	public void search(AToken request, List<IIndexerDocument> results, int maxCount, long timeout) throws IOException, InterruptedException {
-		search(IQueryFactory.transformToken(request, queryFactory), results, maxCount, timeout);
+		search(queryFactory.transformToken(request), results, maxCount, timeout);
 	}
 	
 	public void search(String query, List<IIndexerDocument> results, int maxResults, long timeout) throws IOException, InterruptedException {
@@ -280,5 +281,10 @@ public class SearchClientImpl extends AServiceClient implements ISearchClient, I
 	 */
 	public String getServiceIdentifier() {
 		return SearchServiceConstants.SERVICE_MOD_SPEC_NAME;
+	}
+
+	public void search(ISearchRequest request, List<IIndexerDocument> results)
+			throws IOException, InterruptedException {
+		search(queryFactory.transformToken(request.getSearchQuery()), results, request.getMaxResultCount(), request.getTimeout());
 	}
 }
