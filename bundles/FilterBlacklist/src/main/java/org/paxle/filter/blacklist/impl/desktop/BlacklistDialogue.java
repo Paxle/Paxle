@@ -63,12 +63,12 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	
 	private static final Dimension DIM = new Dimension(400, 400);
 	
-	private static final String AC_LIST_CREATE = "";
-	private static final String AC_LIST_DELETE = "";
-	private static final String AC_LIST_SELECT = "";
-	private static final String AC_ITEM_ADD = "";
-	private static final String AC_ITEM_DEL = "";
-	private static final String AC_ITEM_EDIT = "";
+	private static final String AC_LIST_CREATE = "LIST_CREATE";
+	private static final String AC_LIST_DELETE = "LIST_DELETE";
+	private static final String AC_LIST_SELECT = "LIST_SELECT";
+	private static final String AC_ITEM_ADD = "ITEM_ADD";
+	private static final String AC_ITEM_DEL = "ITEM_DEL";
+	private static final String AC_ITEM_EDIT = "ITEM_EDIT";
 	
 	private FilterListsComboBoxModel flm;
 	private JComboBox listSelCBox;
