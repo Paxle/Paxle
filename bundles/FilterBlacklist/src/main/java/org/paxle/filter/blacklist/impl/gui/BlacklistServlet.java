@@ -107,8 +107,12 @@ public class BlacklistServlet extends ALayoutServlet implements Servlet {
 					response.sendRedirect("/blacklist?list=" + URLEncoder.encode(blacklist.getName(), "UTF-8"));
 					return null;
 				}
-			} else if (request.getParameter("fromPattern") != null)
+			} else if (request.getParameter("fromPattern") != null) {
 				context.put("fromPattern", request.getParameter("fromPattern"));
+			} else if (action.equals("testURL") && request.getParameter("URL") != null) {
+				context.put("filterResult", blacklist.isListed(request.getParameter("URL")));
+				context.put("url", request.getParameter("URL"));
+			}
 
 			context.put("curList", blacklist); 
 

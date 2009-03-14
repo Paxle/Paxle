@@ -78,6 +78,20 @@
 					<input type="submit" value="Add this pattern" />
 				</p>
 			</form>
+			<form method="get" action="/blacklist">
+				<p>
+					<input type="hidden" name="action" value="testURL" />
+					<input type="hidden" name="list" value="$escTool.html($curList.getName() )" />
+					<input type="text" name="URL" value="" />
+					<input type="submit" value="Test this URL against this blacklist" />
+				</p>
+			</form>
+#if ($action == "testURL")
+			<p>The URL $escTool.html($url) was #if($filterResult.getStatus() == $fieldTool.in($filterResult).LOCATION_OKAY )not#end matched.</p>
+#if ($filterResult.getStatus() == $fieldTool.in($filterResult).LOCATION_REJECTED)
+			<p> The matching pattern is $escTool.html($filterResult.getRejectPattern() ).</p>
+#end
+#end
 			<table>
 				<tr>
 					<th>Pattern</th>
