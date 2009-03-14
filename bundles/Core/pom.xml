@@ -70,7 +70,9 @@
 							org.apache.commons.logging,
 							<!-- Apache Commons Pool -->
 							org.apache.commons.pool;version="1.4",
-							org.apache.commons.pool.impl;version="1.4"
+							org.apache.commons.pool.impl;version="1.4",
+							<!-- ignoring compile time annotations -->
+							!javax.annotation
 						</Import-Package>
 						<DynamicImport-Package>
 							com.sun.management

@@ -21,6 +21,8 @@ import org.paxle.core.queue.ICommandFilteringContext;
 import org.paxle.core.queue.IInputQueue;
 import org.paxle.core.queue.IOutputQueue;
 
+import edu.umd.cs.findbugs.annotations.OverrideMustInvoke;
+
 /**
  * An abstract class of a {@link IWorker worker-thread}. Components such as
  * <ul>
@@ -273,6 +275,7 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
      * This method must be extended by a concrete worker class
      * to free all command specific data (if any)
      */
+    @OverrideMustInvoke
     protected void reset() {
     	this.command = null;
     }

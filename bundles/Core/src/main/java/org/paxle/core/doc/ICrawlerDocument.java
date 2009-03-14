@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.CheckReturnValue;
+
 public interface ICrawlerDocument extends Closeable {
 	public static enum Status {
 		OK,
@@ -29,6 +32,7 @@ public interface ICrawlerDocument extends Closeable {
     public int getOID(); 
     public void setOID(int OID); 
 
+    @CheckReturnValue
 	public Status getStatus();
 	public String getStatusText();
 	public void setStatusText(String statusText);
@@ -46,9 +50,11 @@ public interface ICrawlerDocument extends Closeable {
 	
 	public long getSize();
 	
+	@CheckForNull
 	public File getContent();
 	public void setContent(File content);
 	
+	@CheckForNull
 	public String[] getLanguages();	
 	public void setLanguages(String[] lang);
 	
@@ -58,6 +64,7 @@ public interface ICrawlerDocument extends Closeable {
 	public Date getLastModDate();
 	public void setLastModDate(Date lastModDate);
 	
+	@CheckForNull
 	public byte[] getMD5Sum();
 	public void setMD5Sum(byte[] md5Sum);
 	

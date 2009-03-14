@@ -19,6 +19,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.annotation.CheckReturnValue;
+
 public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	
 	//                                                                      index, save, tokenize
@@ -50,6 +52,7 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	public Iterator<Field<? extends Serializable>> fieldIterator();
 	public Iterator<Map.Entry<Field<? extends Serializable>,Object>> iterator();
 	
+	@CheckReturnValue
 	public IIndexerDocument.Status getStatus();
 	public String getStatusText();
 	public void setStatus(IIndexerDocument.Status status);

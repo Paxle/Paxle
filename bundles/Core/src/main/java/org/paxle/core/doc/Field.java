@@ -17,6 +17,8 @@ import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
+
 
 public final class Field<Type extends Serializable> implements Comparable<Field<?>>, Serializable {
 	private static final long serialVersionUID = 1L;
@@ -26,7 +28,11 @@ public final class Field<Type extends Serializable> implements Comparable<Field<
 	private final boolean index;
 	private final boolean savePlain;
 	private final boolean tokenize;
+	
+	@Nonnull
 	private final Class<Type> clazz;
+	
+	@Nonnull
 	private final String name;
 	
 	/**
@@ -58,10 +64,12 @@ public final class Field<Type extends Serializable> implements Comparable<Field<
 		return this.tokenize;
 	}
 	
+	@Nonnull
 	public final Class<Type> getType() {
 		return this.clazz;
 	}
 	
+	@Nonnull
 	public final String getName() {
 		return this.name;
 	}

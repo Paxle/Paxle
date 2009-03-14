@@ -17,6 +17,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.CheckReturnValue;
+
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
@@ -45,7 +48,9 @@ public interface ICommand extends Closeable {
 		Failure
 	}
 
+	@CheckReturnValue
 	public Result getResult();
+	@CheckReturnValue
 	public boolean isResult(Result result);
 	public String getResultText();
 	public void setResultText(String description);
@@ -91,9 +96,11 @@ public interface ICommand extends Closeable {
 	
 	public void setDepth(int depth);
 	
+	@CheckForNull
 	public ICrawlerDocument getCrawlerDocument();
 	public void setCrawlerDocument(ICrawlerDocument crawlerDoc);
 	
+	@CheckForNull
 	public IParserDocument getParserDocument();
 	public void setParserDocument(IParserDocument parserDoc);
 	

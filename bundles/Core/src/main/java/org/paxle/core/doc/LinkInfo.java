@@ -124,12 +124,14 @@ public class LinkInfo {
 		return (String) this.props.get(DESCRIPTION);
 	}
 
+	@javax.annotation.CheckReturnValue
 	public Status getStatus() {
 		String status = (String)this.props.get(STATUS);
 		if (status == null) return Status.OK;
 		return Status.valueOf(status);
 	}
 
+	@javax.annotation.CheckReturnValue
 	public boolean hasStatus(Status status) {
 		Status current = this.getStatus();
 		return current.equals(status);

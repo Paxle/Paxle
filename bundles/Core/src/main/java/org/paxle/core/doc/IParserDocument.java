@@ -24,6 +24,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.CheckReturnValue;
+
 public interface IParserDocument extends Closeable {
 
 	public static enum Status {
@@ -145,6 +148,7 @@ public interface IParserDocument extends Closeable {
 	 * If this value has not been set via {@link #setCharset(Charset)}, this is <code>null</code>.
 	 * @see #setCharset(Charset)
 	 */
+	@CheckForNull
 	public abstract Charset getCharset();
 
 	/**
@@ -196,6 +200,7 @@ public interface IParserDocument extends Closeable {
 	 * @return the author(s) of this document or <code>null</code> if not set. Multiple
 	 *         authors are separated by a semi-colon
 	 */
+	@CheckForNull
 	public abstract String getAuthor();
 
 	/**
@@ -225,6 +230,7 @@ public interface IParserDocument extends Closeable {
 	 * @see #addLanguage(String)
 	 * @return a collection of all languages this document contains text in or <code>null</code> if unknown
 	 */
+	@CheckForNull
 	public abstract Set<String> getLanguages();
 
 	/**
@@ -240,6 +246,7 @@ public interface IParserDocument extends Closeable {
 	 * @return the date of the last modification of this document in GMT or <code>null</code>
 	 *         if not set
 	 */
+	@CheckForNull
 	public abstract Date getLastChanged();
 
 	/**
@@ -257,6 +264,7 @@ public interface IParserDocument extends Closeable {
 	 * @see #setStatus(org.paxle.core.doc.IParserDocument.Status)
 	 * @return the status of the parsing operation
 	 */
+	@CheckReturnValue
 	public abstract Status getStatus();
 
 	/**
@@ -273,12 +281,14 @@ public interface IParserDocument extends Closeable {
 	 * @see #setSummary(String)
 	 * @return a summary of this document's content or <code>null</code> if not available
 	 */
+	@CheckForNull
 	public abstract String getSummary();
 
 	/**
 	 * @see #addText(CharSequence)
 	 * @return the whole (readable) text of this document as Unicode-sequence or <code>null</code> if no content is available.
 	 */
+	@CheckForNull
 	public abstract Reader getTextAsReader() throws IOException;
 
 	/**
@@ -286,12 +296,14 @@ public interface IParserDocument extends Closeable {
 	 * @return File if addText() has been used with this document, <code>null</code> otherwise (e.g. archives)
 	 * @throws IOException
 	 */
+	@CheckForNull
 	public abstract File getTextFile() throws IOException;
 
 	/**
 	 * @see #setTitle(String)
 	 * @return the title of this document or <code>null</code> if not available
 	 */
+	@CheckForNull
 	public abstract String getTitle();
 
 	/**
