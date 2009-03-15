@@ -45,12 +45,10 @@ public class StatusView extends ALayoutServlet {
 	@Override
 	protected void doRequest(HttpServletRequest request, HttpServletResponse response) {
 		try {
-			final IServiceManager manager = this.getServiceManager();
+			final Context context = this.getVelocityView().createContext(request, response);
+			final IServiceManager manager = (IServiceManager) context.get(SERVICE_MANAGER);
 			
 			if (request.getParameter("metaDataIcon") != null) {
-				// create context
-				Context context = this.createContext(request, response);
-				
 				// getting the metaDataTool
 				MetaDataTool tool = (MetaDataTool) context.get("metaDataTool");
 				if (tool == null) return;
@@ -69,7 +67,7 @@ public class StatusView extends ALayoutServlet {
 				if (!this.isUserAuthenticated(request, response, true)) return;
 				
 				// pause crawler
-				IMWComponent<?> crawler = this.getCrawler();
+				IMWComponent<?> crawler = this.getCrawler(manager);
 				if (crawler != null) crawler.pause();
 				
 				// redirect to status page
@@ -79,7 +77,7 @@ public class StatusView extends ALayoutServlet {
 				if (!this.isUserAuthenticated(request, response, true)) return;
 				
 				// resume crawler
-				IMWComponent<?> crawler = this.getCrawler();
+				IMWComponent<?> crawler = this.getCrawler(manager);
 				if (crawler != null) crawler.resume();
 				
 				// redirect to status page
@@ -89,7 +87,7 @@ public class StatusView extends ALayoutServlet {
 				if (!this.isUserAuthenticated(request, response, true)) return;
 				
 				// process next command
-				IMWComponent<?> crawler = this.getCrawler();
+				IMWComponent<?> crawler = this.getCrawler(manager);
 				if (crawler != null) crawler.processNext();
 				
 				// redirect to status page
@@ -181,8 +179,7 @@ public class StatusView extends ALayoutServlet {
 		return this.getTemplate("/resources/templates/StatusView.vm");
 	}	
 	
-	private IMWComponent<?> getCrawler() throws InvalidSyntaxException {
-		IServiceManager sm = this.getServiceManager();
+	private IMWComponent<?> getCrawler(IServiceManager sm) throws InvalidSyntaxException {
 		Object[] crawlers = sm.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)");		
 		if (crawlers == null || crawlers.length == 0) return null;
 		return (IMWComponent<?>) crawlers[0];

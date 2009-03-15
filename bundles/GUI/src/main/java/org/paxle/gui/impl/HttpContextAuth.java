@@ -29,7 +29,6 @@ import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
-import org.osgi.util.tracker.ServiceTracker;
 
 /*
  * User authentication here. Please read
@@ -48,11 +47,14 @@ public class HttpContextAuth implements HttpContext {
 
 	private final Bundle bundle;
 
-	private final ServiceTracker uAdminTracker;
+	/**
+	 * The OSGI {@link UserAdmin} service required for user athentication
+	 */
+	private final UserAdmin userAdmin;
 
-	public HttpContextAuth(Bundle b, ServiceTracker uAdminTracker) {
+	public HttpContextAuth(Bundle b, UserAdmin userAdmin) {
 		this.bundle = b;
-		this.uAdminTracker = uAdminTracker;
+		this.userAdmin = userAdmin;
 	}
 
 	public String getMimeType( String name) {
@@ -75,17 +77,15 @@ public class HttpContextAuth implements HttpContext {
 		
 		// determine if http-auth can be done
 		if (done == null) {
-			UserAdmin uAdmin = (UserAdmin) this.uAdminTracker.getService();
-			
 			// auth. user
-			User user = httpAuth(uAdmin, request, httpAuth);			
+			User user = httpAuth(userAdmin, request, httpAuth);			
 			if (user != null) {
 				done = Boolean.TRUE;
 				session.setAttribute("logon.isDone", done);
 				
 				// set user-data into the session
 				session.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
-				session.setAttribute(HttpContext.AUTHORIZATION, uAdmin.getAuthorization(user));
+				session.setAttribute(HttpContext.AUTHORIZATION, userAdmin.getAuthorization(user));
 				session.setAttribute(HttpContext.REMOTE_USER, user);				
 			}
 		}

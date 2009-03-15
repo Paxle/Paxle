@@ -15,8 +15,12 @@ package org.paxle.gui.impl;
 
 import org.paxle.gui.IMenuManager;
 
-public class MenuManager extends MenuItem implements IMenuManager {
-	public MenuManager(ServletManager sManager) {
-		super(sManager, null, null);
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="org.paxle.gui.IMenuManager"
+ */
+public class MenuManager extends MenuItem implements IMenuManager {	
+	public MenuManager() {
+		super(null, null);
 	}
 }

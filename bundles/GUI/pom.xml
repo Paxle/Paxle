@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>GUI</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.8-SNAPSHOT</version>
+	<version>0.1.9-SNAPSHOT</version>
 	<name>Paxle - UI: Browser</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -137,9 +137,7 @@
 							org.paxle.gui.impl.servlets,
 							org.paxle.gui.impl.tools
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.gui.impl.Activator
-						</Bundle-Activator>
+
 						<DynamicImport-Package></DynamicImport-Package>
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>

@@ -61,10 +61,10 @@ public class MonitorableView extends ALayoutServlet {
 	 * 
 	 * @return
 	 */
-	public Map<Bundle,List<MonitoringJob>> getRunningJobs() {
+	public Map<Bundle,List<MonitoringJob>> getRunningJobs(Bundle[] bundles) {
 		HashMap<Bundle,List<MonitoringJob>> jobs = new HashMap<Bundle, List<MonitoringJob>>(); 
 		
-		for(Bundle bundle : this.getServiceManager().getBundles()) {
+		for(Bundle bundle : bundles) {
 			BundleContext context = bundle.getBundleContext();
 			if (context == null) continue;
 			

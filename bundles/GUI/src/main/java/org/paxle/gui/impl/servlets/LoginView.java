@@ -13,13 +13,18 @@
  */
 package org.paxle.gui.impl.servlets;
 
+import java.util.Dictionary;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
+import org.osgi.service.useradmin.Group;
+import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.paxle.gui.ALayoutServlet;
@@ -36,6 +41,39 @@ public class LoginView extends ALayoutServlet {
 
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * @scr.reference
+	 */
+	protected UserAdmin userAdmin;
+	
+	/**
+	 * This function is called the OSGI DS during component activation 
+	 * @param context
+	 */	
+	protected void activate(ComponentContext context) {
+		// check if an Administrator group is already available
+		Group admins = (Group) userAdmin.getRole("Administrators");
+		if (admins == null) {
+			admins = (Group) userAdmin.createRole("Administrators",Role.GROUP);
+		}
+
+		User admin = (User) userAdmin.getRole("Administrator");
+		if (admin == null) {
+			// create a default admin user
+			admin = (User) userAdmin.createRole("Administrator", Role.USER);
+			admins.addMember(admin);
+
+			// configure http-login data
+			@SuppressWarnings("unchecked")
+			Dictionary<String, Object> props = admin.getProperties();
+			props.put(HttpContextAuth.USER_HTTP_LOGIN, "admin");
+
+			@SuppressWarnings("unchecked")
+			Dictionary<String, Object> credentials = admin.getCredentials();
+			credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, "");
+		}
+	}
+	
 	@Override
 	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
         Template template = null;
@@ -51,7 +89,7 @@ public class LoginView extends ALayoutServlet {
         		if (password == null) password = "";
         		
         		// getting the userAdmin service
-        		ServiceManager manager = (ServiceManager) context.get("manager");
+        		ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
         		UserAdmin uAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
         		
         		// auth user

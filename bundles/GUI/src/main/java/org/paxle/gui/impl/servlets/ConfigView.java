@@ -69,7 +69,6 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.IStyleManager;
 import org.paxle.gui.impl.ServiceManager;
-import org.paxle.gui.impl.ServletManager;
 import org.paxle.tools.ieporter.cm.IConfigurationIEPorter;
 
 /**
@@ -212,7 +211,7 @@ public class ConfigView extends ALayoutServlet {
 		try {
 			// getting the servicemanager
 			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
-			ServletManager sManager = (ServletManager) manager.getService(IServletManager.class.getName());
+			IServletManager sManager = (IServletManager) manager.getService(IServletManager.class.getName());
 
 			/* ====================================================================================
 			 * CONFIGURATION MANAGEMENT 
@@ -220,7 +219,7 @@ public class ConfigView extends ALayoutServlet {
 				
 			if (request.getParameter("doEditConfig") != null) {
 				this.setPropertyValues(request, response, context, false);
-				if (ServletManager.PID.equals(request.getParameter("pid"))) {
+				if ("org.paxle.gui.IServletManager".equals(request.getParameter("pid"))) {
 					String newPrefix = request.getParameter("org.paxle.gui.IServletManager.pathPrefix");
 					context.put("delayedRedirect",sManager.getFullAlias(newPrefix, "/config"));
 				} else {
@@ -228,7 +227,7 @@ public class ConfigView extends ALayoutServlet {
 				}
 			} else if (request.getParameter("doResetConfig") != null) {
 				this.setPropertyValues(request, response, context, true);
-				if (ServletManager.PID.equals(request.getParameter("pid"))) {
+				if ("org.paxle.gui.IServletManager".equals(request.getParameter("pid"))) {
 					String newPrefix = request.getParameter("org.paxle.gui.IServletManager.pathPrefix");
 					context.put("delayedRedirect",sManager.getFullAlias(newPrefix, "/config"));
 				} else {
@@ -334,7 +333,7 @@ public class ConfigView extends ALayoutServlet {
 				item.delete();
 				
 				// read Settings
-				ServiceManager manager = (ServiceManager) context.get("manager");
+				ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
 				IConfigurationIEPorter importer = (IConfigurationIEPorter) manager.getService(IConfigurationIEPorter.class.getName());
 				Map<String, Dictionary<String, Object>> propsMap = importer.importConfigurations(targetFile);
 				return propsMap;

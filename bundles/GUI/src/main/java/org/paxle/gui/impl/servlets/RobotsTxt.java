@@ -28,7 +28,6 @@ import org.paxle.gui.ALayoutServlet;
  * @scr.service interface="javax.servlet.Servlet"
  * @scr.property name="path" value="/robots.txt"
  * @scr.property name="doUserAuth" value="false" type="Boolean"
- * @scr.property name="org.paxle.gui.impl.servlets.RobotsTxt.robotstxt-txt" value="User-agent: *\u000ADisallow: /"
  */
 public class RobotsTxt extends ALayoutServlet {
 
@@ -50,7 +49,11 @@ public class RobotsTxt extends ALayoutServlet {
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {
 		context.put("layout", "plain.vm");
-		context.put("robotstxt", config.get(ROBOTSTXT));
+		if (config.get(ROBOTSTXT) != null) {
+			context.put("robotstxt", config.get(ROBOTSTXT));
+		} else {
+			context.put("robotstxt", "User-agent: *\r\nDisallow: /");
+		}
 	}
 
 	/**

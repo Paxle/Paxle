@@ -76,7 +76,7 @@ $dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelNa
             	<tr>
             		<td class="log$levelName">$text.get("loglevel.$levelName")</td>
             		<td class="logDate">$dateTool.format("$dateFormat",$logEntry.getTime())</td>
-            		<td class="logMessage">$escTool.html($logEntry.getMessage()).replaceAll("\n", "<br />")#if( $logEntry.getException())<div class="exception">$logView.toString($logEntry.getException())</div>#end</td>
+            		<td class="logMessage">$escTool.html($logEntry.getMessage()).replaceAll("\n", "\n<br />")#if( $logEntry.getException())<div class="exception">$logView.toString($logEntry.getException())</div>#end</td>
             	</tr>
         	#end
     	#end

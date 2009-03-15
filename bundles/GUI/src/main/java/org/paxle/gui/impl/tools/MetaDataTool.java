@@ -13,6 +13,11 @@
  */
 package org.paxle.gui.impl.tools;
 
+import java.util.Map;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.tools.Scope;
@@ -24,23 +29,35 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.paxle.core.metadata.IMetaData;
 import org.paxle.core.metadata.IMetaDataProvider;
+import org.paxle.gui.impl.ServletManager;
 
-import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+import com.sun.jmx.mbeanserver.MetaData;
 
 @DefaultKey("metaData")
 @ValidScope(Scope.REQUEST)
 public class MetaDataTool extends LocaleConfig {
-	@SuppressWarnings("MS_CANNOT_BE_FINAL")
-	public static BundleContext context;
+	private BundleContext context;
 	
 	/**
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
-	public MetaDataTool() {
-		// nothing todo here
-	}
+	/**
+	 * This method is called by velocity during tool(box) initialization
+	 * We need it to fetch a reference to the current {@link BundleContext} from the {@link ServletContext}.
+	 * 
+	 * The {@link BundleContext} was added to the {@link ServletContext} by the {@link ServletManager} during
+	 * {@link Servlet} registration.
+	 * 
+	 * @param props
+	 */
+	public void configure(@SuppressWarnings("unchecked") Map props) {
+		if (props != null) {
+			ServletContext servletContext = (ServletContext) props.get("servletContext");			
+			this.context = (BundleContext) servletContext.getAttribute("bc");
+		}
+	}	
 	
 	public IMetaData getMetaData(Object obj) {
 		try {

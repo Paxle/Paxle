@@ -14,9 +14,24 @@
 package org.paxle.gui;
 
 import java.util.Collection;
+import java.util.ResourceBundle;
 
 import org.paxle.gui.impl.MenuItem;
 
 public interface IMenuManager {	
 	public Collection<MenuItem> getMenuItemList();
+	
+	/**
+	 * @param url the path or URL to the servlet the new {@link MenuItem} should link to
+	 * @param name the name of the {@link MenuItem}, if this name starts with <code>%</code> the name will be translated using
+	 * the specified resource-bundle.
+	 * @param resourceBundleBaseName the {@link ResourceBundle} to translate the {@link MenuItem}-name
+	 * @param loader the {@link ClassLoader} that should be used to load the {@link ResourceBundle}
+	 */
+	public void addItem(String url, String name, String resourceBundleBaseName, ClassLoader loader);
+	
+	/**
+	 * @param name the name of the {@link MenuItem} to remove
+	 */
+	public void removeItem(String name);
 }

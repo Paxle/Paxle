@@ -5,7 +5,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>SEProviderRssSearch</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<name>Paxle - Search Engine Provider: RSS Search</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -134,7 +134,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>GUI</artifactId>
-			<version>[,0.2.0)</version>
+			<version>[0.1.9-SNAPSHOT,0.2.0)</version>
 		</dependency>		
 		
 		<!-- HTML-Parser dependencies -->

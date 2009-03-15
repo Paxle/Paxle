@@ -41,7 +41,7 @@ public class SysCtrl extends ALayoutServlet {
 		context.put("rsc", RESTART);
 		
 		try {
-			final IServiceManager manager = this.getServiceManager();
+			final IServiceManager manager = (IServiceManager) context.get(SERVICE_MANAGER);
 			int shutdownDelay = 5;
 
 			if (request.getParameter(SHUTDOWN) != null) {

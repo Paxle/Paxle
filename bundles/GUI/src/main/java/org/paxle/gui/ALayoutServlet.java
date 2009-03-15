@@ -16,7 +16,6 @@ package org.paxle.gui;
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -28,39 +27,20 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.apache.velocity.tools.view.VelocityView;
 
+import edu.umd.cs.findbugs.annotations.OverrideMustInvoke;
+
 public abstract class ALayoutServlet extends VelocityLayoutServlet {
     private static final long serialVersionUID = 1L;
+    
+    /**
+     * A constant to fetch the service-manager from the velocity context
+     */
     public static final String SERVICE_MANAGER = "manager";
 	
     /**
      * Logger
      */
     protected Log logger = LogFactory.getLog(this.getClass());
-    
-    /**
-     * The location of the OSGi bundle this servlet belongs to.
-     * This string is passed to the velocity jar-resource-loader
-     * as <code>jar.resource.loader.path</code>.
-     */
-	protected String bundleLocation = null;
-	
-	/**
-	 * @param bundleLocation the location of the osgi bundle the servlet belongs to.<br />
-	 *        e.g. <code>file:/path-to-the-bundle-jar/FilterBlacklist-0.0.1.jar</code><br />
-	 *        Just call <code>bundlecontext.getBundle().getLocation();</code> to get it.
-	 * @param servletLocation the relative location where this servlet is registered at the
-	 *        manager, e.g. <code>/search</code>.
-	 */
-	public void setBundleLocation(final String bundleLocation) {
-		this.bundleLocation = bundleLocation;
-		if (this.bundleLocation != null && this.bundleLocation.endsWith("/")) {
-			this.bundleLocation = this.bundleLocation.substring(0,this.bundleLocation.length()-1);
-		}
-	}
-	
-	public String getBundleLocation() {
-		return this.bundleLocation;
-	}
 
 	private VelocityView view;
 	
@@ -76,20 +56,11 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 	}
 
 	@Override
+	@OverrideMustInvoke
 	public void init(ServletConfig config) throws javax.servlet.ServletException {	
 		this.view = this.viewFactory.createVelocityView(config);	
 		super.init(config);
 	};
-	
-	protected IServiceManager getServiceManager() {
-		ServletConfig sConfig = this.getServletConfig();
-		if (sConfig == null) return null;
-		
-		ServletContext sContext = sConfig.getServletContext();
-		if (sContext == null) return null;
-		
-		return (IServiceManager) sContext.getAttribute(SERVICE_MANAGER);
-	}
 	
 	@Override
 	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
@@ -107,7 +78,6 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 	
 	
 	protected boolean isUserAuthenticated(final HttpServletRequest request, final HttpServletResponse response, boolean redirectToLogin) throws IOException {
-		IServiceManager manager = this.getServiceManager();
 		HttpSession session = request.getSession(true);
 		Boolean loginDone = (Boolean) session.getAttribute("logon.isDone");
 		if (loginDone == null || !Boolean.TRUE.equals(loginDone)) {
@@ -116,6 +86,8 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 				session.setAttribute("login.target",request.getServletPath());
 				
 				// redirecting the browser
+				final Context velocityContext = getVelocityView().createContext(request, response);
+				final IServiceManager manager = (IServiceManager) velocityContext.get(SERVICE_MANAGER);				
 				final IServletManager servletManager = (IServletManager) manager.getService(IServletManager.class.getName());				    			
 				response.sendRedirect(servletManager.getFullAlias("/login"));				
 			}

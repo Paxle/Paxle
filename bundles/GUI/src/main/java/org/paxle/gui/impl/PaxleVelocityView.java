@@ -13,8 +13,6 @@
  */
 package org.paxle.gui.impl;
 
-import java.util.Hashtable;
-
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.tools.view.JeeConfig;
 import org.apache.velocity.tools.view.VelocityView;

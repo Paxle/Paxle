@@ -167,7 +167,7 @@ public class BundleView extends ALayoutServlet {
 	    		if (!isUserAuthenticated(request, response, true)) return null;
 				
 	    		// install bundle
-				ServiceManager.context.installBundle(request.getParameter(PARAM_BUNDLE_PATH));
+	    		manager.installBundle(request.getParameter(PARAM_BUNDLE_PATH));
 			} else if (ServletFileUpload.isMultipartContent(request)) {
 				// Check user authentication
 	    		if (!isUserAuthenticated(request, response, true)) return null;
@@ -196,6 +196,7 @@ public class BundleView extends ALayoutServlet {
 	}
 	
 	private void handleFileUpload(final HttpServletRequest request, final Context context) throws Exception {
+		ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
 		
 		// Create a factory for disk-based file items
 		FileItemFactory factory = new DiskFileItemFactory();
@@ -252,12 +253,11 @@ public class BundleView extends ALayoutServlet {
 				
 				// write the bundle to disk
 				final File targetFile = updater.getSaveLocation(fileName, false);
-				if (targetFile == null)
-					continue;
+				if (targetFile == null) continue;
 				item.write(targetFile);
 				
 				// installing bundle
-				final Bundle bundle = ServiceManager.context.installBundle(targetFile.toURI().toURL().toString());
+				final Bundle bundle = manager.installBundle(targetFile.toURI().toURL().toString());
 				
 				// start bundle if original bundle's state was started
 				if (updater.wasOldBundleStarted())
@@ -380,10 +380,12 @@ public class BundleView extends ALayoutServlet {
 		}
 		
 		private void initMaps() {
+			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+			
 			// initialize the map of location->bundle and symbolic-name->bundle
 			bundleLocations = new HashMap<String,Bundle>();
 			bundleSymnames = new HashMap<String,Bundle>();
-			for (final Bundle bundle : ServiceManager.context.getBundles()) {
+			for (final Bundle bundle : manager.getBundles()) {
 				final String loc = bundle.getLocation();
 				bundleLocations.put(loc.substring(loc.lastIndexOf(':') + 1), bundle);
 				bundleSymnames.put(bundle.getSymbolicName(), bundle);

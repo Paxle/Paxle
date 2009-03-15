@@ -13,28 +13,36 @@
  */
 package org.paxle.gui.impl;
 
+import javax.annotation.Nonnull;
 import javax.servlet.ServletConfig;
 
 import org.apache.velocity.tools.view.JeeConfig;
 import org.apache.velocity.tools.view.VelocityView;
-import org.paxle.gui.IServiceManager;
+import org.osgi.framework.BundleContext;
 import org.paxle.gui.IVelocityViewFactory;
 
 public class VelocityViewFactory implements IVelocityViewFactory {
-	private IServiceManager sm;
+	private BundleContext bc;
 	
-	public VelocityViewFactory(IServiceManager serviceManager) {
-		this.sm = serviceManager;
+	public VelocityViewFactory(@Nonnull BundleContext bc) {
+		this.bc = bc;
 	}
 
 	public VelocityView createVelocityView(ServletConfig config) {
+		// remember old classloader
 		ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
 		
+		// create and init a new velocity view
 		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 		VelocityView view = new PaxleVelocityView(new JeeConfig(config));
+		
+		// re-set old classloader
 		if (oldCl != null) Thread.currentThread().setContextClassLoader(oldCl);
 		
-		config.getServletContext().setAttribute("manager", this.sm);		
+		// put the bundle-context into the servlet-context to allow
+		// custom tools to access it
+		config.getServletContext().setAttribute("bc", this.bc);
+		
 		return view;
 	}
 

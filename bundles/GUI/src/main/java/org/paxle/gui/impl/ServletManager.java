@@ -13,58 +13,74 @@
  */
 package org.paxle.gui.impl;
 
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.Servlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.tools.view.VelocityView;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.useradmin.UserAdmin;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IMenuManager;
 import org.paxle.gui.IServletManager;
 
-public class ServletManager implements IServletManager, ManagedService {
-	public static final String PID = IServletManager.class.getName();
-	
-	/* ================================================================
-	 * Properties configurable via CM
-	 * ================================================================ */
-	private static final String CM_PROPERTY_PATH = PID + ".pathPrefix";
+/**
+ * @scr.component immediate="true" metatype="false" name="org.paxle.gui.IServletManager"
+ * @scr.service interface="org.paxle.gui.IServletManager"
+ * @scr.property name="org.paxle.gui.IServletManager.pathPrefix" value=""
+ * @scr.reference name="servlets" 
+ * 				  interface="javax.servlet.Servlet" 
+ * 				  cardinality="0..n" 
+ * 				  policy="dynamic" 
+ * 				  bind="addServlet" 
+ * 				  unbind="removeServlet"
+ * 				  target="(path=*)"
+ */
+public class ServletManager implements IServletManager {
 	
 	/**
 	 * All registeres {@link Servlet servlets}
 	 */
-	private HashMap<String, Servlet> servlets = new HashMap<String, Servlet>();
+	private HashMap<String,ServiceReference> servlets = new HashMap<String,ServiceReference>();
 	
 	/**
 	 * All registered resources
 	 */
-	private HashMap<String, String> resources = new HashMap<String, String>();
-	
-	/**
-	 * The {@link HttpContext} that should be used to register a given 
-	 * {@link #servlets servlet} or {@link #resources resource}.
-	 */
-	private HashMap<String, HttpContext> httpContexts = new HashMap<String, HttpContext>();
+	private HashMap<String, ResourceReference> resources = new HashMap<String, ResourceReference>();
 	
 	/**
 	 * The OSGI {@link HttpService Http-Service}
+	 * @scr.reference
 	 */
-	private HttpService http = null;
+	private HttpService http;
+	
+	/**
+	 * The OSGI {@link UserAdmin} service required for authentication
+	 * @see #createHttpContext(ServiceReference)
+	 * @scr.reference
+	 */
+	private UserAdmin userAdmin;
+	
+	/**
+	 * @scr.reference
+	 */
+	private IMenuManager menuManager;
 	
 	/**
 	 * Default Servlet properties
 	 */
-	private final Hashtable<String, String> defaultProps;
+	private Hashtable<String, String> defaultProps;
 	
 	/**
 	 * The default context that is used to register servlets and resources.
@@ -76,14 +92,20 @@ public class ServletManager implements IServletManager, ManagedService {
 	/**
 	 * For logging
 	 */
-	private final Log logger;
+	private final Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
 	 * A prefix that should be used for each servlet- and resource-alias
 	 */
 	private String pathPrefix = "";
 	
-	public ServletManager(String defaultBundleLocation) {
+	private ComponentContext context;
+	
+	protected void activate(ComponentContext context) {
+		this.context = context;
+		
+		// the default location to use for template-loading
+		String defaultBundleLocation = context.getBundleContext().getBundle().getEntry("/").toString();		
 		if (defaultBundleLocation != null && defaultBundleLocation.endsWith("/")) {
 			defaultBundleLocation = defaultBundleLocation.substring(0,defaultBundleLocation.length()-1);
 		}
@@ -93,10 +115,104 @@ public class ServletManager implements IServletManager, ManagedService {
 		
 		this.defaultProps.put(VelocityView.PROPERTIES_KEY, "/resources/config/velocity.properties");
 		this.defaultProps.put(VelocityView.TOOLS_KEY, "/resources/config/velocity-toolbox.properties");
-		this.defaultProps.put(VelocityView.LOAD_DEFAULTS_KEY,"false");
+		this.defaultProps.put(VelocityView.LOAD_DEFAULTS_KEY, "false");
 		
-		this.defaultProps.put("bundle.location.default",defaultBundleLocation);		
-		this.logger = LogFactory.getLog(this.getClass());
+		this.defaultProps.put("bundle.location.default",defaultBundleLocation);
+		
+		// getting the path prefix to use
+		String newPathPrefix = (String) context.getProperties().get("org.paxle.gui.IServletManager.pathPrefix");
+		this.changePath(newPathPrefix);		
+		
+		// register all servlets/resources
+		this.registerAll();
+	}
+	
+	protected void deactivate(ComponentContext context) {
+		// unregister all servlets/resources
+		this.unregisterAll();
+		
+		// clear properties
+		this.defaultProps.clear();
+	}
+	
+	protected void addServlet(ServiceReference servletRef) {
+		// remember the servlet in our internal servlet-list
+		final String path = (String)servletRef.getProperty("path");
+		this.servlets.put(path, servletRef);
+		
+		// registering the servlet to the http-service
+		this.registerServlet(servletRef);
+		
+		// registering the servlet menu item
+		this.registerMenuItem(servletRef);
+	}
+	
+	protected void removeServlet(ServiceReference servletRef) {
+		// unregistering the servlet menu item
+		this.unregisterMenuItem(servletRef);
+		
+		// removing the servlet from our internal servlet-list
+		final String path = (String)servletRef.getProperty("path");
+		this.servlets.remove(path);
+		
+		// unregistering the servlet from the http-service
+		this.unregisterServlet(servletRef);
+	}
+	
+	private HttpContext createHttpAuthContext(ServiceReference servletRef) {
+		// checking if we need an authentication
+		Boolean userAuth = (Boolean)servletRef.getProperty("doUserAuth");		
+		if (userAuth == null) userAuth = Boolean.FALSE;
+		if (!userAuth.booleanValue()) return null;
+		
+		// getting the bundle the servlet belongs to
+		Bundle bundle = servletRef.getBundle();
+		
+		// creating an authentication context
+		return new HttpContextAuth(bundle, this.userAdmin);
+	}
+	
+	private void registerMenuItem(ServiceReference servletRef) {
+		if (this.menuManager == null) return;
+		
+		String menuName = (String)servletRef.getProperty("menu");
+		if (menuName == null || menuName.length() == 0) return;
+		
+		// getting the path to use
+		String path = (String)servletRef.getProperty("path");
+		
+		// convert it into a full alias (pathprefix + alias)
+		String fullAlias = this.getFullAlias(path);		
+		
+		String resourceBundleBase = null;
+		ClassLoader resourceBundleLoader = null;
+		
+		if (menuName.startsWith("%") || menuName.contains("/%")) {
+			/* 
+			 * The menu-name needs to be localized.
+			 * We are trying to finde the proper resource-bundle to use
+			 */
+			
+			// the resource-bundle basename
+			resourceBundleBase = (String) servletRef.getProperty("menu-localization");
+			if (resourceBundleBase == null)
+				resourceBundleBase = (String) servletRef.getBundle().getHeaders().get(Constants.BUNDLE_LOCALIZATION);
+			if (resourceBundleBase == null)
+				resourceBundleBase = Constants.BUNDLE_LOCALIZATION_DEFAULT_BASENAME;
+			
+			// the classloader to use
+			resourceBundleLoader = servletRef.getBundle().getBundleContext().getService(servletRef).getClass().getClassLoader();
+		}
+		this.menuManager.addItem(fullAlias, menuName, resourceBundleBase, resourceBundleLoader);
+	}
+	
+	private void unregisterMenuItem(ServiceReference servletRef) {
+		if (this.menuManager == null) return;
+		
+		String menuName = (String)servletRef.getProperty("menu");
+		if (menuName == null || menuName.length() == 0) return;
+		
+		this.menuManager.removeItem(menuName);
 	}
 	
 	public String getFullAlias(String alias) {
@@ -114,87 +230,83 @@ public class ServletManager implements IServletManager, ManagedService {
 		}
 		return fullAlias;
 	}
-	
-	public void addServlet( String alias, Servlet servlet) {
-		this.addServlet(alias, servlet, this.defaultContext);	
-	}
-	
-	public void addServlet(String alias, Servlet servlet, HttpContext httpContext) {
-		this.addServlet(alias, servlet, httpContext, false);
 		
-	}
+	private void registerServlet(ServiceReference servletRef) {
+		if (this.http == null) return;
+		if (this.context == null) return;
 		
-	private synchronized void addServlet(String alias, Servlet servlet, HttpContext httpContext, boolean intern) {
-		if (!intern) {
-			this.servlets.put(alias, servlet);
-			this.httpContexts.put(alias, httpContext);
-		}
-		
-		if (this.http != null) {
-			try {
-				/* Configure classloader properly.
-				 * 
-				 * This is very important for velocity to load the toolboxes and
-				 * GUI configuration files.
-				 */
-//				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());						
+		String fullAlias = null;
+		String servletClass = null;
+		try {
+			// getting the servlet class
+			Servlet servlet = (Servlet) this.context.locateService("servlets", servletRef);
+			servletClass = servlet.getClass().getName();
+			
+			// getting the path to use
+			final String path = (String)servletRef.getProperty("path");
+			
+			// convert it into a full alias (pathprefix + alias)
+			fullAlias = this.getFullAlias(path);
+			
+			// getting the httpContext to use
+			HttpContext httpContext = this.createHttpAuthContext(servletRef);
+			
+			// init servlet properties
+			@SuppressWarnings("unchecked")
+			Hashtable<String, String> props = (Hashtable<String, String>) this.defaultProps.clone();
+			if (servlet instanceof ALayoutServlet) {
+				Bundle bundle = servletRef.getBundle();
+				BundleContext bundleContext = bundle.getBundleContext();
 				
-				final String fullAlias = this.getFullAlias(alias);
-				this.logger.info(String.format(
-						"Registering servlet '%s' for alias '%s'.", 
-						servlet.getClass().getName(), 
-						fullAlias
-				));
+				// configuring the bundle location to use				
+				props.put("bundle.location", servletRef.getBundle().getEntry("/").toString());
 				
-				// init servlet properties
-				@SuppressWarnings("unchecked")
-				Hashtable<String, String> props = (Hashtable<String, String>) this.defaultProps.clone();
-				if (servlet instanceof ALayoutServlet) {
-					if (((ALayoutServlet)servlet).getBundleLocation() != null) {
-						props.put("bundle.location", ((ALayoutServlet)servlet).getBundleLocation());
-					}
-					((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory(new ServiceManager()));
-				}
-				
-				this.http.registerServlet(fullAlias, servlet, props, httpContext);
-			} catch (Throwable e) {
-				this.logger.error(String.format("Unexpected '%s' while registering servlet '%s' for alias '%s'.",
-						e.getClass().getName(),
-						servlet.getClass().getName(),
-						alias
-				),e);
+				// injecting the velocity-view factory
+				((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory(bundleContext));
 			}
+			
+			// registering the servlet
+			this.logger.info(String.format(
+					"Registering servlet '%s' for alias '%s'.", 
+					servlet.getClass().getName(), 
+					fullAlias
+			));
+			this.http.registerServlet(fullAlias, servlet, props, httpContext);
+		} catch (Throwable e) {
+			this.logger.error(String.format(
+					"Unexpected '%s' while registering servlet '%s' for alias '%s'.",
+					e.getClass().getName(),
+					servletClass,
+					fullAlias
+			),e);
 		}
 	}
 	
-	public void removeServlet(String alias) {	
-		this.removeServlet(alias, false);
-	}
-	
-	private synchronized void removeServlet(String alias, boolean intern) {
-		final Servlet servlet = this.servlets.get(alias);
-		if (!intern) {
-			this.servlets.remove(alias);		
-			this.httpContexts.remove(alias);
-		}
+	private void unregisterServlet(ServiceReference servletRef) {
+		if (this.http == null) return;
 		
-		final String fullAlias = this.getFullAlias(alias);
-		this.logger.info(String.format(
-				"Unregistering servlet '%s' for alias '%s'.", 
-				servlet.getClass().getName(), 
-				fullAlias
-		));
-		
-		if (this.http != null) {
-			try {
-				this.http.unregister(fullAlias);
-			} catch (Throwable e) {
-				this.logger.error(String.format("Unexpected '%s' while unregistering servlet '%s' for alias '%s'.",
-						e.getClass().getName(),
-						servlet.getClass().getName(),
-						alias
-				),e);
-			}
+		String fullAlias = null;
+		String servletClass = null;
+		try {
+			// getting the path of the servlet
+			final String path = (String)servletRef.getProperty("path");
+			
+			// convert it into a full alias (pathprefix + alias)
+			fullAlias = this.getFullAlias(path);
+			
+			// unregistering the servlet
+			this.logger.info(String.format(
+					"Unregistering servlet '%s' for alias '%s'.", 
+					servletClass, 
+					fullAlias
+			));
+			this.http.unregister(fullAlias);
+		} catch (Throwable e) {
+			this.logger.error(String.format("Unexpected '%s' while unregistering servlet '%s' for alias '%s'.",
+					e.getClass().getName(),
+					servletClass,
+					fullAlias
+			),e);
 		}
 	}
 	
@@ -203,76 +315,63 @@ public class ServletManager implements IServletManager, ManagedService {
 	}
 	
 	public void addResources(String alias, String name, HttpContext httpContext) {
-		this.addResources(alias, name, httpContext, false);
+		// remember the resource in our internal structure
+		this.resources.put(alias, new ResourceReference(alias, name, httpContext));
+		
+		// registering the resource to the http-service
+		this.registerResource(alias, name, httpContext);
 	}
 	
-	private synchronized void addResources(String alias, String name, HttpContext httpContext, boolean intern) {
-		if (!intern) {
-			this.resources.put(alias, name);
-			this.httpContexts.put(alias, httpContext);
-		}
+	private void registerResource(String alias, String name, HttpContext context) {
+		if (this.http == null) return;
 		
-		if (this.http != null) {
-			try {
-				String fullAlias = this.getFullAlias(alias);
-				this.logger.info(String.format(
-						"Registering resource '%s' for alias '%s'.", 
-						name, 
-						fullAlias
-				));
-				this.http.registerResources(fullAlias, name, httpContext);
-			} catch (Throwable e) {
-				this.logger.error(String.format(
-						"Unexpected '%s' while registering resource '%s' for alias '%s'.",
-						e.getClass().getName(),
-						name,
-						alias
-				),e);
-			}
+		String fullAlias = null;
+		try {
+			// convert the alias into a full alias (pathprefix + alias)
+			fullAlias = this.getFullAlias(alias);
+			
+			// registering resource
+			this.logger.info(String.format(
+					"Registering resource '%s' for alias '%s'.", 
+					name, 
+					fullAlias
+			));
+			this.http.registerResources(fullAlias, name, context);
+		} catch (Throwable e) {
+			this.logger.error(String.format(
+					"Unexpected '%s' while registering resource '%s' for alias '%s'.",
+					e.getClass().getName(),
+					name,
+					alias
+			),e);
+		}
+	}
+
+	private void unregisterResource(String alias) {
+		if (this.http == null) return;
+		
+		String fullAlias = null;
+		try {
+			// convert the alias into a full alias (pathprefix + alias)
+			fullAlias = this.getFullAlias(alias);
+			
+			// registering resource
+			this.logger.info(String.format(
+					"Unregistering resource for alias '%s'.", 
+					fullAlias
+			));	
+			this.http.unregister(fullAlias);
+		} catch (Throwable e) {
+			this.logger.error(String.format(
+					"Unexpected '%s' while unregistering resource for alias '%s'.",
+					fullAlias,
+					alias
+			),e);
 		}
 	}
 	
 	public void removeResource( String alias) {
-		this.removeResource(alias, false);
-	}
-	
-	private synchronized void removeResource(String alias, boolean intern) {
-		final String name = this.resources.get(alias);
-		if (!intern) {
-			this.resources.remove(alias);
-			this.httpContexts.remove(alias);
-		}
-		
-		final String fullAlias = this.getFullAlias(alias);
-		this.logger.info(String.format(
-				"Unregistering resource '%s' for alias '%s'.", 
-				name, 
-				fullAlias
-		));		
-		
-		if (this.http != null) {
-			try {
-				this.http.unregister(fullAlias);
-			} catch (Throwable e) {
-				this.logger.error(String.format(
-						"Unexpected '%s' while unregistering resource '%s' for alias '%s'.",
-						e.getClass().getName(),
-						name,
-						alias
-				),e);
-			}			
-		}
-	}
-	
-	public synchronized void setHttpService( HttpService httpService) {		
-		if (httpService == null) {
-			// don't unregister, otherwise the http-service destroys our servlets!
-			this.unregisterAll();
-			this.http = null;
-		} else {
-			this.http = httpService;
-			this.registerAll();
-		}
+		this.unregisterResource(alias);
 	}
 	
 	/**
@@ -291,25 +390,13 @@ public class ServletManager implements IServletManager, ManagedService {
 	 * {@link #addServlet(String, Servlet, HttpContext, boolean)} for each entry.
 	 */
 	private void registerAllServlets() {
-		if (this.http == null) return;
-		
-		/* Configure classloader properly.
-		 * 
-		 * This is very important for velocity to load the toolboxes and
-		 * GUI configuration files.
-		 */
-//		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());		
-		
 		// register all servlets
-		for (Map.Entry<String, Servlet> entry: this.servlets.entrySet()) {
-			String alias = entry.getKey();
-			Servlet servlet =  entry.getValue();
-			
-			HttpContext context = this.httpContexts.containsKey(alias)
-				? this.httpContexts.get(alias)
-				: defaultContext;			
-
-			this.addServlet(alias, servlet, context, true);
+		for (ServiceReference servletRef: this.servlets.values()) {
+			// register servlet to the http-service
+			this.registerServlet(servletRef);
+						
+			// registering the servlet menu item
+			this.registerMenuItem(servletRef);
 		}	
 	}
 	
@@ -320,18 +407,13 @@ public class ServletManager implements IServletManager, ManagedService {
 	 * 
 	 */
 	private void registerAllResources() {
-		if (this.http == null) return;
-		
 		// register all servlets
-		for (Map.Entry<String, String> entry : this.resources.entrySet()) {
-			String name = entry.getValue();
-			String alias = entry.getKey();
+		for (Map.Entry<String, ResourceReference> entry : this.resources.entrySet()) {
+			String alias = entry.getValue().alias;
+			String name = entry.getValue().name;			
+			HttpContext context = entry.getValue().context;
 			
-			HttpContext context = this.httpContexts.containsKey(alias)
-				? this.httpContexts.get(alias)
-				: defaultContext;
-			
-			this.addResources(alias, name, context, true);
+			this.registerResource(alias, name, context);
 		}			
 	}
 		
@@ -349,11 +431,12 @@ public class ServletManager implements IServletManager, ManagedService {
 	 * Function to unregister all servlets
 	 */
 	private synchronized void unregisterAllServlets() {
-		if (this.http == null) return;
-		
-		for (Map.Entry<String, Servlet> entry : this.servlets.entrySet()) {
-			String alias = entry.getKey();
-			this.removeServlet(alias, true);
+		for (ServiceReference servletRef : this.servlets.values()) {
+			// unregister servlet from the menu-manager
+			this.unregisterMenuItem(servletRef);
+			
+			// unregister servlet from the http-service
+			this.unregisterServlet(servletRef);
 		}
 	}	
 	
@@ -362,39 +445,36 @@ public class ServletManager implements IServletManager, ManagedService {
 	 * to {@link #resources}
 	 */
 	public synchronized void unregisterAllResources() {
-		if (this.http == null) return;
-
-		for (Map.Entry<String, String> entry : this.resources.entrySet()) {
+		for (Map.Entry<String, ResourceReference> entry : this.resources.entrySet()) {
 			String alias = entry.getKey();
-			this.removeResource(alias, true);
+			this.unregisterResource(alias);
 		}		
-	}
-	
-	/**
-	 * Unregisters all known servlets and resources
-	 */
-	public void close() {
-		// unregister everything
-		this.unregisterAll();
-		
-		// clear maps
-		this.resources.clear();
-		this.servlets.clear();
-		this.httpContexts.clear();
 	}
 	
 	/**
 	 * @see IServletManager#getServlets()
 	 */
 	public Map<String, Servlet> getServlets() {
-		return Collections.unmodifiableMap(this.servlets);
+		final HashMap<String, Servlet> servletList = new HashMap<String, Servlet>();
+		for (Entry<String, ServiceReference> entry : this.servlets.entrySet()) {
+			String alias = entry.getKey();
+			Servlet servlet = (Servlet) this.context.locateService("servlets",entry.getValue());
+			servletList.put(alias, servlet);
+		}
+		return servletList;
 	}
 	
 	/**
 	 * @see IServletManager#getResources()
 	 */
 	public Map<String, String> getResources() {
-		return Collections.unmodifiableMap(this.resources);
+		final HashMap<String, String> resourceList = new HashMap<String, String>();
+		for (Entry<String, ResourceReference> entry : this.resources.entrySet()) {
+			String alias = entry.getKey();
+			String name = entry.getValue().name;
+			resourceList.put(alias, name);
+		}
+		return resourceList;
 	}
 
 	/**
@@ -404,40 +484,36 @@ public class ServletManager implements IServletManager, ManagedService {
 		return this.servlets.containsKey(alias);
 	}
 
-	@SuppressWarnings("unchecked")
-	public void updated(Dictionary properties) throws ConfigurationException {
-		if (properties == null) return;
+	private void changePath(String path) {
+		if (path == null) path = "";
+		if (path.length() > 1 && !path.startsWith("/")) path = "/" + path;
+		if (path.endsWith("/")) path = path.substring(0, path.length() - 1);				
 		
-		boolean settingsChanged = false;
-		String newPathPrefix = null;
-		
-		Enumeration<String> keys = properties.keys();
-		while (keys.hasMoreElements()) {
-			String key = keys.nextElement();
-			if (key.equals(CM_PROPERTY_PATH)) {
-				String path = (String) properties.get(key);
-				if (path == null) path = "";
-				if (path.length() > 1 && !path.startsWith("/")) path = "/" + path;
-				if (path.endsWith("/")) path = path.substring(0, path.length() - 1);				
-				
-				if (!this.pathPrefix.equals(path)) {
-					newPathPrefix = path;
-					settingsChanged = true;
-				}
-			}
-		}
-		
-		if (settingsChanged) {
+		if (!this.pathPrefix.equals(path)) {
 			try {
 				// allow the config-servlet to finish redirect
 				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			} catch (InterruptedException e) { /* ignore this */}
 			
 			this.unregisterAll();
-			this.pathPrefix = newPathPrefix;
+			this.pathPrefix = path;
 			this.registerAll();
+		}
+	}
+	
+	static class ResourceReference {
+		public String alias;
+		public String name;
+		public HttpContext context;
+		
+		public ResourceReference(String alias, String name) {
+			this(alias, name, null);
+		}
+		
+		public ResourceReference(String alias, String name, HttpContext context) {
+			this.alias = alias;
+			this.name = name;
+			this.context = context;
 		}
 	}
 }

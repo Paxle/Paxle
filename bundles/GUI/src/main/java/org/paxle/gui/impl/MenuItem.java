@@ -36,17 +36,15 @@ public class MenuItem {
 	
 	protected String url = null;
 	protected String name = null;
-	protected ServletManager sManager;
 	protected String resourceBundleBase;
 	protected ClassLoader resourceBundleLoader;
 	
-	public MenuItem(ServletManager sManager, String url, String name) {
-		this(sManager, url, name, null, null);
+	public MenuItem(String url, String name) {
+		this(url, name, null, null);
 	}
 	
-	public MenuItem(ServletManager sManager, String url, String name, String resourceBundleBaseName, ClassLoader loader) {
+	public MenuItem(String url, String name, String resourceBundleBaseName, ClassLoader loader) {
 		// if (name == null) throw new NullPointerException("The menu-item name must not be null");
-		this.sManager = sManager;
 		this.url = url;
 		this.name = name;
 		if (this.name != null) this.name = name.replaceAll("//", "/"); // unescaping double-slash
@@ -55,7 +53,7 @@ public class MenuItem {
 	}
 	
 	public String getUrl() {
-		return (this.url==null)?null:this.sManager.getFullAlias(this.url);
+		return (this.url==null)?null:this.url;
 	}
 	
 	private void setUrl(String url) {
@@ -163,8 +161,6 @@ public class MenuItem {
 				}
 			} else {
 				currentItem = new MenuItem(
-						// the servlet-manager
-						this.sManager,
 						// the path to the servlet
 						(i==nameParts.length-1)?url:null,
 						// the menu-item name
