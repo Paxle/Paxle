@@ -98,7 +98,7 @@ public class SearchProviderManager implements ISearchProviderManager {
 		
 		this.providersRefs.put(providerPID, providerRef);
 		this.logger.info(String.format(
-				"Search provider with PID '%d' from bundle '%s' registered.",
+				"Search provider with PID '%s' from bundle '%s' registered.",
 				providerPID,
 				providerRef.getBundle().getSymbolicName()
 		));
@@ -109,7 +109,7 @@ public class SearchProviderManager implements ISearchProviderManager {
 		this.providersRefs.remove(providerPID);
 		
 		this.logger.info(String.format(
-				"Search provider with PID %d from bundle %s unregistered.",
+				"Search provider with PID '%s' from bundle %s unregistered.",
 				providerPID,
 				providerRef.getBundle().getSymbolicName()
 		));
