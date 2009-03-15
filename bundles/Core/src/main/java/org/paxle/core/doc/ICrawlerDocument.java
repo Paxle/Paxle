@@ -20,7 +20,6 @@ import java.net.URI;
 import java.util.Date;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.CheckReturnValue;
 
 public interface ICrawlerDocument extends Closeable {
 	public static enum Status {
@@ -32,7 +31,6 @@ public interface ICrawlerDocument extends Closeable {
     public int getOID(); 
     public void setOID(int OID); 
 
-    @CheckReturnValue
 	public Status getStatus();
 	public String getStatusText();
 	public void setStatusText(String statusText);

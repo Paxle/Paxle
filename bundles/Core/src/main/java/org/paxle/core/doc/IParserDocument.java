@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.CheckReturnValue;
 
 public interface IParserDocument extends Closeable {
 
@@ -264,7 +263,6 @@ public interface IParserDocument extends Closeable {
 	 * @see #setStatus(org.paxle.core.doc.IParserDocument.Status)
 	 * @return the status of the parsing operation
 	 */
-	@CheckReturnValue
 	public abstract Status getStatus();
 
 	/**

@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.net.URI;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.CheckReturnValue;
 
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IIndexerDocument;
@@ -48,9 +47,7 @@ public interface ICommand extends Closeable {
 		Failure
 	}
 
-	@CheckReturnValue
 	public Result getResult();
-	@CheckReturnValue
 	public boolean isResult(Result result);
 	public String getResultText();
 	public void setResultText(String description);
