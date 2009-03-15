@@ -13,7 +13,6 @@
  */
 package org.paxle.core.monitorable.provider.impl;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -30,29 +29,30 @@ public class OsgiFrameworkMonitoring implements Monitorable {
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(Arrays.asList(new String[] {
-			Constants.FRAMEWORK_VERSION.substring(FRAMEWORK_PROP_PREFIX.length()),
-			Constants.FRAMEWORK_VENDOR.substring(FRAMEWORK_PROP_PREFIX.length()),
-			Constants.FRAMEWORK_LANGUAGE.substring(FRAMEWORK_PROP_PREFIX.length()),
-			Constants.FRAMEWORK_OS_NAME.substring(FRAMEWORK_PROP_PREFIX.length()),
-			Constants.FRAMEWORK_OS_VERSION.substring(FRAMEWORK_PROP_PREFIX.length()),
-			Constants.FRAMEWORK_PROCESSOR.substring(FRAMEWORK_PROP_PREFIX.length()),
-			// Constants.FRAMEWORK_EXECUTIONENVIRONMENT.substring(FRAMEWORK_PROP_PREFIX.length())
-	}));	
+	@SuppressWarnings("serial")
+	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(){{
+		add(Constants.FRAMEWORK_VERSION.substring(FRAMEWORK_PROP_PREFIX.length()));
+		add(Constants.FRAMEWORK_VENDOR.substring(FRAMEWORK_PROP_PREFIX.length()));
+		add(Constants.FRAMEWORK_LANGUAGE.substring(FRAMEWORK_PROP_PREFIX.length()));
+		add(Constants.FRAMEWORK_OS_NAME.substring(FRAMEWORK_PROP_PREFIX.length()));
+		add(Constants.FRAMEWORK_OS_VERSION.substring(FRAMEWORK_PROP_PREFIX.length()));
+		add(Constants.FRAMEWORK_PROCESSOR.substring(FRAMEWORK_PROP_PREFIX.length()));
+			// add(Constants.FRAMEWORK_EXECUTIONENVIRONMENT.substring(FRAMEWORK_PROP_PREFIX.length()))
+	}};	
 	
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
-	static {
-		VAR_DESCRIPTIONS.put(Constants.FRAMEWORK_VERSION.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework version.");
-		VAR_DESCRIPTIONS.put(Constants.FRAMEWORK_VENDOR.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework vendor.");
-		VAR_DESCRIPTIONS.put(Constants.FRAMEWORK_LANGUAGE.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework implementation language (see ISO 639 for possible values).");
-		VAR_DESCRIPTIONS.put(Constants.FRAMEWORK_OS_NAME.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework host-computer's operating system.");
-		VAR_DESCRIPTIONS.put(Constants.FRAMEWORK_OS_VERSION.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework host-computer's operating system version number.");
-		VAR_DESCRIPTIONS.put(Constants.FRAMEWORK_PROCESSOR.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework host-computer's processor name.");
-		// VAR_DESCRIPTIONS.put(Constants.FRAMEWORK_EXECUTIONENVIRONMENT.substring(FRAMEWORK_PROP_PREFIX.length()), "The execution environments provided by the OSGi framework");
-	}	
+	@SuppressWarnings("serial")
+	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>(){{
+		put(Constants.FRAMEWORK_VERSION.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework version.");
+		put(Constants.FRAMEWORK_VENDOR.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework vendor.");
+		put(Constants.FRAMEWORK_LANGUAGE.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework implementation language (see ISO 639 for possible values).");
+		put(Constants.FRAMEWORK_OS_NAME.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework host-computer's operating system.");
+		put(Constants.FRAMEWORK_OS_VERSION.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework host-computer's operating system version number.");
+		put(Constants.FRAMEWORK_PROCESSOR.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework host-computer's processor name.");
+		// put(Constants.FRAMEWORK_EXECUTIONENVIRONMENT.substring(FRAMEWORK_PROP_PREFIX.length()), "The execution environments provided by the OSGi framework");
+	}};
 	
 	/**
 	 * An OSGi BundleContext required to get OSGi-Framework properties

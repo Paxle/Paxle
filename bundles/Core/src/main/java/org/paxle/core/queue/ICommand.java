@@ -45,7 +45,7 @@ public interface ICommand extends Closeable {
 		Passed,
 		Rejected,
 		Failure
-	}
+	};
 
 	public Result getResult();
 	public boolean isResult(Result result);

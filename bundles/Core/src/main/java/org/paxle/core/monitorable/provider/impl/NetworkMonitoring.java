@@ -15,7 +15,6 @@ package org.paxle.core.monitorable.provider.impl;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -40,19 +39,20 @@ public class NetworkMonitoring implements Monitorable {
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(Arrays.asList(new String[] {
-			VAR_NAME_HOSTNAME,
-			"ip-address"
-	}));	
+	@SuppressWarnings("serial")
+	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(){{
+			add(VAR_NAME_HOSTNAME);
+			add("ip-address");
+	}};	
 	
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
-	static {
-		VAR_DESCRIPTIONS.put(VAR_NAME_HOSTNAME,"The hostname of the peer");
-		VAR_DESCRIPTIONS.put(VAR_NAME_IP_ADDRESS,"The IP-address of the peer");
-	}		
+	@SuppressWarnings("serial")
+	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>(){{
+		put(VAR_NAME_HOSTNAME,"The hostname of the peer");
+		put(VAR_NAME_IP_ADDRESS,"The IP-address of the peer");
+	}};
 
 	/**
 	 * For logging

@@ -26,7 +26,7 @@ public interface ICrawlerDocument extends Closeable {
 		OK,
 		NOT_FOUND,
 		UNKNOWN_FAILURE		
-	}
+	};
 	
     public int getOID(); 
     public void setOID(int OID); 

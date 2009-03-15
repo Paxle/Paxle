@@ -26,38 +26,37 @@ public class RuntimeMemoryMonitoring implements Monitorable {
 	private static final String MEMORY_TOTAL = "memory.total";
 	private static final String MEMORY_USED = "memory.used";
 
-	private final HashMap<String, String> descriptions = new HashMap<String, String>();
-	
-	public RuntimeMemoryMonitoring() {
-		this.descriptions.put(MEMORY_FREE, "Current amount of free memory in the JVM (in bytes)");
-		this.descriptions.put(MEMORY_MAX, "Current amount of max memory in the JVM (in bytes)");
-		this.descriptions.put(MEMORY_TOTAL, "Current amount of total memory in the JVM (in bytes)");
-		this.descriptions.put(MEMORY_USED, "Current amount of memory used by the JVM (in bytes)");
-	}
+	@SuppressWarnings("serial")
+	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>() {{
+		put(MEMORY_FREE, "Current amount of free memory in the JVM (in bytes)");
+		put(MEMORY_MAX, "Current amount of max memory in the JVM (in bytes)");
+		put(MEMORY_TOTAL, "Current amount of total memory in the JVM (in bytes)");
+		put(MEMORY_USED, "Current amount of memory used by the JVM (in bytes)");
+	}};
 	
 	/**
 	 * @see Monitorable#getStatusVariableNames()
 	 */
 	public String[] getStatusVariableNames() {
-		return this.descriptions.keySet().toArray(new String[this.descriptions.size()]);
+		return VAR_DESCRIPTIONS.keySet().toArray(new String[VAR_DESCRIPTIONS.size()]);
 	}	
 	
 	/**
 	 * @see Monitorable#getDescription(String)
 	 */
 	public String getDescription(String name) throws IllegalArgumentException {
-		if (!descriptions.containsKey(name)) {
+		if (!VAR_DESCRIPTIONS.containsKey(name)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		
-		return this.descriptions.get(name);
+		return VAR_DESCRIPTIONS.get(name);
 	}
 
 	/**
 	 * @see Monitorable#getStatusVariable(String)
 	 */
 	public StatusVariable getStatusVariable(String name) throws IllegalArgumentException {
-		if (!descriptions.containsKey(name)) {
+		if (!VAR_DESCRIPTIONS.containsKey(name)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		

@@ -33,7 +33,7 @@ public interface IParserDocument extends Closeable {
 		OK,
 		/** An error occured and parsing the document has to be stopped */
 		FAILURE
-	}
+	};
 
 	/**
 	 * Returns the ID of this pDoc. It is unique across the command DB.

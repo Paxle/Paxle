@@ -14,7 +14,6 @@
 package org.paxle.core.monitorable.provider.impl;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,23 +60,24 @@ public class PaxleCoreMonitoring implements Monitorable {
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(Arrays.asList(new String[] {
-			VARNAME_CORE_IMPL_VERSION,
-			VARNAME_CORE_BUILD_VERSION,
-			VARNAME_CORE_BUILD_TIME,
-			VARNAME_CORE_INSTALL_TIME
-	}));	
+	@SuppressWarnings("serial")
+	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(){{
+			add(VARNAME_CORE_IMPL_VERSION);
+			add(VARNAME_CORE_BUILD_VERSION);
+			add(VARNAME_CORE_BUILD_TIME);
+			add(VARNAME_CORE_INSTALL_TIME);
+	}};	
 	
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
-	static {
-		VAR_DESCRIPTIONS.put(VARNAME_CORE_IMPL_VERSION,"The Implementation-Version header of the core-bundle.");
-		VAR_DESCRIPTIONS.put(VARNAME_CORE_BUILD_VERSION,"The Implementation-Build header of the core-bundle.");
-		VAR_DESCRIPTIONS.put(VARNAME_CORE_BUILD_TIME,"The Bnd-LastModified header of the core-bundle.");
-		VAR_DESCRIPTIONS.put(VARNAME_CORE_INSTALL_TIME,"The install time of the core-bundle.");
-	}	
+	@SuppressWarnings("serial")
+	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>(){{
+		put(VARNAME_CORE_IMPL_VERSION,"The Implementation-Version header of the core-bundle.");
+		put(VARNAME_CORE_BUILD_VERSION,"The Implementation-Build header of the core-bundle.");
+		put(VARNAME_CORE_BUILD_TIME,"The Bnd-LastModified header of the core-bundle.");
+		put(VARNAME_CORE_INSTALL_TIME,"The install time of the core-bundle.");
+	}};
 	
 	/**
 	 * An OSGi BundleContext required to get OSGi-Framework properties

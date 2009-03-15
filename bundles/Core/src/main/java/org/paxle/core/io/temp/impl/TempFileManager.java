@@ -16,7 +16,6 @@ package org.paxle.core.io.temp.impl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -47,19 +46,20 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(Arrays.asList(new String[] {
-			MONITOR_FILES_USED,
-			MONITOR_FILES_TOTAL
-	}));	
+	@SuppressWarnings("serial")
+	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(){{
+			add(MONITOR_FILES_USED);
+			add(MONITOR_FILES_TOTAL);
+	}};	
 	
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
-	static {
-		VAR_DESCRIPTIONS.put(MONITOR_FILES_USED, "Number of currently used temp-files.");
-		VAR_DESCRIPTIONS.put(MONITOR_FILES_TOTAL, "Total number of created temp-files.");
-	}		
+	@SuppressWarnings("serial")
+	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>(){{
+		put(MONITOR_FILES_USED, "Number of currently used temp-files.");
+		put(MONITOR_FILES_TOTAL, "Total number of created temp-files.");
+	}};
 	
 	private final Hashtable<String,ITempDir> classMap = new Hashtable<String,ITempDir>();
 	

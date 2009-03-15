@@ -18,7 +18,6 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,26 +62,24 @@ public class JmxMonitoring implements Monitorable {
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(Arrays.asList(new String[] {
-			
-	}));
+	private static final HashSet<String> VAR_NAMES =  new HashSet<String>();
 	
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
-	static {
-		VAR_DESCRIPTIONS.put(VAR_NAME_SYS_LOAD, "The system load average for the last minute.");
-		VAR_DESCRIPTIONS.put(VAR_NAME_CPU_TIME, "The CPU time used by the process on which the Java virtual machine is running in nanoseconds.");
-		VAR_DESCRIPTIONS.put(VAR_NAME_OPEN_FILE_DESCR_COUNT, "The number of open file descriptors.");
-		VAR_DESCRIPTIONS.put(VAR_NAME_MAX_FILE_DESCR_COUNT, "The maximum number of file descriptors.");
-		VAR_DESCRIPTIONS.put(VAR_NAME_VIRTUAL_MEMORY, "The amount of virtual memory that is guaranteed to be available to the running process in MB, or -1 if this operation is not supported.");
-		VAR_DESCRIPTIONS.put(VAR_NAME_PHYSICAL_MEMORY, "The amount of free physical memory in MB.");
-		VAR_DESCRIPTIONS.put(VAR_NAME_SWAP_SPACE, "The amount of free swap space in MB.");
+	@SuppressWarnings("serial")
+	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>(){{
+		put(VAR_NAME_SYS_LOAD, "The system load average for the last minute.");
+		put(VAR_NAME_CPU_TIME, "The CPU time used by the process on which the Java virtual machine is running in nanoseconds.");
+		put(VAR_NAME_OPEN_FILE_DESCR_COUNT, "The number of open file descriptors.");
+		put(VAR_NAME_MAX_FILE_DESCR_COUNT, "The maximum number of file descriptors.");
+		put(VAR_NAME_VIRTUAL_MEMORY, "The amount of virtual memory that is guaranteed to be available to the running process in MB, or -1 if this operation is not supported.");
+		put(VAR_NAME_PHYSICAL_MEMORY, "The amount of free physical memory in MB.");
+		put(VAR_NAME_SWAP_SPACE, "The amount of free swap space in MB.");
 		
-		VAR_DESCRIPTIONS.put(VAR_NAME_UPTIME, "The uptime of the Java virtual machine in seconds.");
-		VAR_DESCRIPTIONS.put(VAR_NAME_STARTTIME, "The start time of the Java virtual machine.");
-	}	
+		put(VAR_NAME_UPTIME, "The uptime of the Java virtual machine in seconds.");
+		put(VAR_NAME_STARTTIME, "The start time of the Java virtual machine.");
+	}};
 	
 	private OperatingSystemMXBean operatingSystem;
 	private RuntimeMXBean runtime;

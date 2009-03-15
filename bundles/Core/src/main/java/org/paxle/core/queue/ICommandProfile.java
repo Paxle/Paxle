@@ -65,7 +65,7 @@ public interface ICommandProfile {
 	public static enum LinkFilterMode {
 		none,
 		regexp
-	}
+	};
 	
 	/**
 	 * @return a unique profile-id (needed by Object-EER mapping)

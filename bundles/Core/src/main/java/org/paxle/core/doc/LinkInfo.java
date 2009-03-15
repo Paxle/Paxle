@@ -73,7 +73,7 @@ public class LinkInfo {
 
 		/** The link was filtered by one of the {@link IFilter}s */
 		FILTERED
-	}	
+	};
 
 	private HashMap<String, Serializable> props = null;
 

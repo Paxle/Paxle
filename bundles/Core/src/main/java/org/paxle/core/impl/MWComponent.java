@@ -66,29 +66,30 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(Arrays.asList(new String[]{
-			VAR_NAME_PPM,
-			VAR_NAME_PAUSED,
-			VAR_NAME_JOBS_ENQUEUED,
-			VAR_NAME_JOBS_ACTIVE,
-			VAR_NAME_JOBS_MAX,
-			VAR_NAME_JOBS_TOTAL,
-			VAR_NAME_JOB_DELAY
-	}));
+	@SuppressWarnings("serial")
+	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(){{
+		add(VAR_NAME_PPM);
+		add(VAR_NAME_PAUSED);
+		add(VAR_NAME_JOBS_ENQUEUED);
+		add(VAR_NAME_JOBS_ACTIVE);
+		add(VAR_NAME_JOBS_MAX);
+		add(VAR_NAME_JOBS_TOTAL);
+		add(VAR_NAME_JOB_DELAY);
+	}};
 	
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
-	static {
-		VAR_DESCRIPTIONS.put(VAR_NAME_PPM, "Pages per minute");
-		VAR_DESCRIPTIONS.put(VAR_NAME_PAUSED, "Current activation status");
-		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_ENQUEUED, "Amount of enqueued jobs");
-		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_ACTIVE, "Amount of active jobs");
-		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_MAX, "Maximum allowed number of active jobs");
-		VAR_DESCRIPTIONS.put(VAR_NAME_JOBS_TOTAL, "Total number of jobs processed since startup");
-		VAR_DESCRIPTIONS.put(VAR_NAME_JOB_DELAY, "Delay in ms between buzy loops. -1 means no delay.");
-	}
+	@SuppressWarnings("serial")
+	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>(){{
+		put(VAR_NAME_PPM, "Pages per minute");
+		put(VAR_NAME_PAUSED, "Current activation status");
+		put(VAR_NAME_JOBS_ENQUEUED, "Amount of enqueued jobs");
+		put(VAR_NAME_JOBS_ACTIVE, "Amount of active jobs");
+		put(VAR_NAME_JOBS_MAX, "Maximum allowed number of active jobs");
+		put(VAR_NAME_JOBS_TOTAL, "Total number of jobs processed since startup");
+		put(VAR_NAME_JOB_DELAY, "Delay in ms between buzy loops. -1 means no delay.");
+	}};
 	
 	/* ========================================================================
 	 * CM properties
