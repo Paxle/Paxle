@@ -25,22 +25,33 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mozilla.intl.chardet.nsDetector;
 import org.mozilla.intl.chardet.nsPSMDetector;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.charset.ICharsetDetector;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="org.paxle.core.charset.ICharsetDetector"
+ * @scr.property name="mimeTypeFile" value="/mimeTypes"
+ */
 public class CharsetDetector implements ICharsetDetector {
 	private Log logger = LogFactory.getLog(this.getClass());
-	private HashSet<String> inspectableMimeTypes = null;
+	protected HashSet<String> inspectableMimeTypes = null;
 
-	public CharsetDetector(URL mimeTypeList) {
-		this.inspectableMimeTypes = this.readMimeTypeSet(mimeTypeList);
+	protected void activate(ComponentContext context) {
+		URL mimeTypes = context.getBundleContext().getBundle().getEntry("/mimeTypes");
+		this.inspectableMimeTypes = this.readMimeTypeSet(mimeTypes);
 	}
 
+	protected void deactivate(ComponentContext context) {
+		this.inspectableMimeTypes.clear();
+	}
+	
 	/**
 	 * Read the list of inspectable mime-types from file
 	 * @param url the URL of the list
 	 * @return a set of inspectable mime-types
 	 */
-	private HashSet<String> readMimeTypeSet(URL url) {
+	protected HashSet<String> readMimeTypeSet(URL url) {
 		HashSet<String> set = new HashSet<String>();
 		try {
 			URLConnection connection = url.openConnection();

@@ -43,8 +43,10 @@ public class CharsetDetectorTest  extends TestCase {
 		super.setUp();
 		
 		// init all required classes
-		File mimeTypesFile = new File("src/main/resources/mimeTypes");
-		this.detector = new CharsetDetector(mimeTypesFile.toURI().toURL());
+		final File mimeTypesFile = new File("src/main/resources/mimeTypes");
+		this.detector = new CharsetDetector(){{
+			this.inspectableMimeTypes = this.readMimeTypeSet(mimeTypesFile.toURI().toURL());
+		}};
 	}
 	
 
