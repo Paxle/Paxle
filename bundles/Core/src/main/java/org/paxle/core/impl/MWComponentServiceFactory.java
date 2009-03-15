@@ -29,7 +29,7 @@ public class MWComponentServiceFactory implements ServiceFactory {
 	private final String[] locales;
 	
 	public MWComponentServiceFactory(final String[] locales) {
-		this.locales = locales;
+		this.locales = locales==null?null:locales.clone();
 	}
 	
 	/**

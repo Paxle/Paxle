@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 import SevenZip.IInStream;
 
 public class RAFInStream extends IInStream {
@@ -32,6 +34,7 @@ public class RAFInStream extends IInStream {
 	}
 	
 	@Override
+	@SuppressWarnings("NM_METHOD_NAMING_CONVENTION")
 	public long Seek(long offset, int seekOrigin) throws IOException {
 		if (seekOrigin == STREAM_SEEK_SET) {
 			_file.seek(offset);

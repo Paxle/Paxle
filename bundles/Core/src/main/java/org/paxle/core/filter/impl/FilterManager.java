@@ -125,7 +125,7 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 		if (config == null) throw new NullPointerException("The configuration object is null");
 		if (props == null) throw new NullPointerException("The property object is null");
 		
-		this.locales = locales;
+		this.locales = locales.clone();
 		this.config = config;
 		this.props = props;
 		

@@ -111,7 +111,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		if (locales == null) throw new NullPointerException("The locale array is null");
 		
 		this.config = config;
-		this.locales = locales;
+		this.locales = locales.clone();
 		this.context = context;
 		this.props = props;
 		if (props.get(PROPS_KNOWN_PARSER_PIDS) != null) {

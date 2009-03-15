@@ -174,7 +174,7 @@ public class RuntimeSettings implements MetaTypeProvider, ManagedService {
 		if (locales == null) throw new NullPointerException("The locale array is null");
 		if (iniFile == null) throw new NullPointerException("The ini-file is null");
 		
-		this.locales = locales;
+		this.locales = locales.clone();
 		this.iniFile = iniFile;
 	}	
 	

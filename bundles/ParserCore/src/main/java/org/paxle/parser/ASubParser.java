@@ -35,25 +35,46 @@ public abstract class ASubParser implements ISubParser {
 			in = new BufferedInputStream(new FileInputStream(content));			
 			return parse(location, charset, in);
 		} finally {
-			if (in != null) try { in.close(); } catch (Exception e) {/* ignore this */} 
+			if (in != null) try { in.close(); } catch (Exception e) { throw new ParserException(e); } 
 		}
 	}
 	
 	public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException {
+		// getting a reference to the  parser-context
 		final ParserContext context = ParserContext.getCurrentContext();
 		if (context == null) throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
 		
+		// getting a reference to the temp file manager
 		final ITempFileManager tfm = context.getTempFileManager();
 		if (tfm == null) throw new ParserException("cannot access temp-file manager");
 		
-		final File content = tfm.createTempFile();
-		final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(content));
+		File content = null;		
+		BufferedOutputStream bos = null;
 		try {
-			IOTools.copy(is, bos);
+			// copying data from the stream into the temp file
+			content = tfm.createTempFile();
+			bos = new BufferedOutputStream(new FileOutputStream(content));
+			IOTools.copy(is, bos);			
+			bos.close();
+			bos = null;
+			
+			// parsing data
+			return parse(location, charset, content);
+		} catch (Throwable e) {
+			// releasing temp-file
+			if (content != null && tfm.isKnown(content)) {
+				tfm.releaseTempFile(content);
+			}
+			
+			// re-throw well known exceptions
+			if (e instanceof ParserException) throw (ParserException) e;
+			else if (e instanceof UnsupportedEncodingException) throw (UnsupportedEncodingException) e;
+			else if (e instanceof IOException) throw (IOException) e;
+			
+			// wrap unknown exceptions into a parser-exception
+			throw new ParserException(e);
 		} finally { 
-			bos.close(); 
+			if (bos != null) bos.close(); 
 		}
-		
-		return parse(location, charset, content);
 	}
 }

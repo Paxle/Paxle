@@ -108,7 +108,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 		if (locales == null) throw new NullPointerException("The locale array is null");
 		
 		this.config = config;
-		this.locales = locales;
+		this.locales = locales.clone();
 		this.context = context;
 		this.props = props;
 		if (props.get(PROPS_KNOWN_CRAWLER_PIDS) != null) {

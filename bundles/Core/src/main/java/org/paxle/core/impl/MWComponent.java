@@ -158,11 +158,12 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		if (pool == null) throw new NullPointerException("The thread-pool is null");
 		if (inQueue == null) throw new NullPointerException("The input-queue is null");
 		if (outQueue == null) throw new NullPointerException("The output-queue is null");
+		
 		this.master = master;
 		this.pool = pool;
 		this.inQueue = inQueue;
 		this.outQueue = outQueue;
-		this.locales = locales;
+		this.locales = locales==null?null:locales.clone();
 	}
 
 	void setComponentID(String componentID) {

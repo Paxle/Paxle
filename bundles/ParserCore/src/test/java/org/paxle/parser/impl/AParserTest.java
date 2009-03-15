@@ -61,7 +61,9 @@ public abstract class AParserTest extends MockObjectTestCase {
 			public void removeTempDirFor(String... arg0) { }
 
 			public void releaseTempFile(File arg0) throws FileNotFoundException, IOException {
-				if (arg0 != null) arg0.delete();
+				if (arg0 != null) {
+					if (!arg0.delete()) throw new IOException("Unable to delte file: " + arg0);
+				}
 			}
 
 			public File createTempFile() throws IOException {

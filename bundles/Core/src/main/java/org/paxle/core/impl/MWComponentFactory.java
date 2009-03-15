@@ -78,7 +78,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 	 */
 	MWComponentFactory(Bundle bundle, final String[] locales) {
 		this.bundle = bundle;
-		this.locales = locales;
+		this.locales = locales==null?null:locales.clone();
 	}
 	
 	/**

@@ -23,6 +23,8 @@ import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.parser.iotools.ParserDocOutputStream;
 import org.paxle.parser.iotools.SubParserDocOutputStream;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 import SevenZip.Archive.IArchiveExtractCallback;
 import SevenZip.Archive.IInArchive;
 import SevenZip.Archive.SevenZipEntry;
@@ -50,10 +52,12 @@ public class SZParserExtractCallback implements IArchiveExtractCallback {
 		this.cd = cd;
 	}
 	
+	@SuppressWarnings("NM_METHOD_NAMING_CONVENTION")
 	public int PrepareOperation(int arg0) {
         return 0;
 	}
 	
+	@SuppressWarnings("NM_METHOD_NAMING_CONVENTION")
 	public int GetStream(int index, OutputStream[] oss, int askExtractMode) throws IOException {
 		SevenZipEntry item = this.handler.getEntry(index);
 		this.current = item.getName();
@@ -67,10 +71,12 @@ public class SZParserExtractCallback implements IArchiveExtractCallback {
 		return 0;
 	}
 	
+	@SuppressWarnings("NM_METHOD_NAMING_CONVENTION")
 	public int SetCompleted(long arg0) {
 		return 0;
 	}
 	
+	@SuppressWarnings("NM_METHOD_NAMING_CONVENTION")
 	public int SetOperationResult(int arg0) throws IOException {
 		/* the output-stream is closed by SevenZip.Archive.Common.OutStreamWithCRC.ReleaseStream,
 		 * which is called here-after.
@@ -92,6 +98,7 @@ public class SZParserExtractCallback implements IArchiveExtractCallback {
 		return 0;
 	}
 	
+	@SuppressWarnings("NM_METHOD_NAMING_CONVENTION")
 	public int SetTotal(long arg0) {
 		return 0;
 	}

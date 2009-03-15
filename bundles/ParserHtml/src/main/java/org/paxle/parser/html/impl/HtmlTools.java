@@ -29,7 +29,7 @@ public class HtmlTools {
 	//This array contains codes (see http://mindprod.com/jgloss/unicode.html for details) 
 	//that will be replaced. To add new codes or patterns, just put them at the end
 	//of the list.
-	public static final String[] xmlentities = {
+	private static final String[] xmlentities = {
 		// Ampersands _have_ to be replaced first. If they were replaced later,
 		// other replaced characters containing ampersands would get messed up.
 		"\u0026","&amp;",      //ampersand
