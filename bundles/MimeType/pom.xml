@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>MimeType</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<name>Paxle - Tools: MimeType</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -42,6 +42,7 @@
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4", 
+							org.osgi.service.component;version="1.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Paxle Core Bundle -->
@@ -55,10 +56,6 @@
 						<Private-Package>
 							org.paxle.mimetype.impl
 						</Private-Package>
-						
-						<Bundle-Activator>
-							org.paxle.mimetype.impl.Activator
-						</Bundle-Activator>
 
 						<!-- embedding libs -->
 						<Embed-StripGroup>true</Embed-StripGroup>
@@ -70,6 +67,19 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>			
 		</plugins>
 	</build>
 

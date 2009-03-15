@@ -29,9 +29,22 @@ import net.sf.jmimemagic.MagicParser;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.mimetype.IDetectionHelper;
 
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.core.mimetype.IMimeTypeDetector"
+ * @scr.reference name="detectionHelpers" 
+ * 				  interface="org.paxle.mimetype.IDetectionHelper" 
+ * 				  cardinality="0..n" 
+ * 				  policy="dynamic" 
+ * 				  bind="addDetectionHelper" 
+ * 				  unbind="removeDetectionHelper"
+ * 				  target="(MimeTypes=*)
+ */
 public class MimeTypeDetector implements IMimeTypeDetector {
 	private Log logger = LogFactory.getLog(this.getClass());
 
@@ -41,36 +54,41 @@ public class MimeTypeDetector implements IMimeTypeDetector {
 
 	private HashMap<String,Matcher> helpers = new HashMap<String,Matcher>();
 	private List<MagicMatcher> matcherList = null;
-
+	
 	@SuppressWarnings("unchecked")
-	public MimeTypeDetector(File jMimeMagicFile) {
-		try {
-			// configure jMimeMagic to use our custom magic file
-			if (jMimeMagicFile != null) {		
-				// load the class
-				Class magicClass = this.getClass().getClassLoader().loadClass("net.sf.jmimemagic.MagicParser");
+	protected void activate(ComponentContext context) throws Exception {
+		// configure jMimeMagic to use our custom magic file
+		String jMimeMagicFileName = (String) context.getProperties().get("magicFile");
+		if (jMimeMagicFileName != null) {		
+			// load the class
+			Class<?> magicClass = this.getClass().getClassLoader().loadClass("net.sf.jmimemagic.MagicParser");
 
-				// change the file name used by jMimeMagic
-				Field magicFile = magicClass.getDeclaredField("magicFile");
-				magicFile.setAccessible(true);
-				magicFile.set(null, jMimeMagicFile.getCanonicalFile().toString());
-			}
-
-			// init jMimeMagic
-			Magic.initialize();
-
-			// get the jMimeMagic magic parser object
-			Field magicParserField = Magic.class.getDeclaredField("magicParser");
-			magicParserField.setAccessible(true);
-			MagicParser magicParser = (MagicParser) magicParserField.get(null);
-
-			// Get the list of registered matchers
-			this.matcherList = (List<MagicMatcher>) magicParser.getMatchers();
-		} catch (Exception e) {
-			e.printStackTrace();
+			// change the file name used by jMimeMagic
+			Field magicFile = magicClass.getDeclaredField("magicFile");
+			magicFile.setAccessible(true);
+			magicFile.set(null, jMimeMagicFileName);
 		}
+
+		// init jMimeMagic
+		Magic.initialize();
+
+		// get the jMimeMagic magic parser object
+		Field magicParserField = Magic.class.getDeclaredField("magicParser");
+		magicParserField.setAccessible(true);
+		MagicParser magicParser = (MagicParser) magicParserField.get(null);
+
+		// Get the list of registered matchers
+		this.matcherList = (List<MagicMatcher>) magicParser.getMatchers();
 	}
 
+	protected void addDetectionHelper(ServiceReference detectionHelperRef) {
+		// TODO: 
+	}
+	
+	protected void removeDetectionHelper(ServiceReference detectionHelperRef) {
+		// TODO: 
+	}
+	
 	public void addDetectionHelper(String mimeType, IDetectionHelper detectionHelper) {
 		w.lock();
 		try {
