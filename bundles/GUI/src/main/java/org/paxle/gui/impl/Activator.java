@@ -41,8 +41,6 @@ public class Activator implements BundleActivator {
 
 	private MenuManager menuManager = null;
 
-	private StyleManager styleManager = null;
-
 	private ServletManager servletManager = null;
 
 	private ServiceTracker userAdminTracker = null;
@@ -63,9 +61,6 @@ public class Activator implements BundleActivator {
 		this.menuManager = new MenuManager(this.servletManager);
 		bc.registerService(IMenuManager.class.getName(),this.menuManager, null);		
 
-		// style manager
-		this.initStyleManager(bc);
-
 		// register classloader
 		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 
@@ -82,49 +77,6 @@ public class Activator implements BundleActivator {
 		if (System.getProperty("org.paxle.gui.auth.skip") == null) {		
 			httpAuth = new HttpContextAuth(bc.getBundle(), this.userAdminTracker);
 		}
-	}
-
-	/**
-	 * This function
-	 * <ul>
-	 * <li>initialized the {@link StyleManager}</li>
-	 * <li>creates a default {@link Configuration} if no {@link Configuration}
-	 * exists</li>
-	 * <li>registers the {@link StyleManager} as {@link ManagedService}</li>
-	 * <li>registers the {@link StyleManager} as {@link MetaTypeProvider}</li>
-	 * </ul>
-	 * 
-	 * @param context
-	 *            the bundle context needed for service registration
-	 * @throws IOException
-	 */
-	private void initStyleManager(BundleContext context) throws IOException {
-		final ServiceReference btRef = context.getServiceReference(IResourceBundleTool.class.getName());
-		final IResourceBundleTool bt = (IResourceBundleTool) context.getService(btRef); 
-		
-		// find available locales for metatye-translation
-		String[] supportedLocale = bt.getLocaleArray(IStyleManager.class.getSimpleName(), Locale.ENGLISH);		
-		
-		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + "styles";
-		final File styleDataDir = new File(dataPath);
-		
-		// create the style manager
-		this.styleManager = new StyleManager(
-				styleDataDir,
-				this.servletManager,
-				supportedLocale
-		);
-
-		// service properties for registration
-		Hashtable<String, Object> styleManagerProps = new Hashtable<String, Object>();
-		styleManagerProps.put(Constants.SERVICE_PID, StyleManager.PID);
-
-		// register as services
-		context.registerService(IStyleManager.class.getName(),this.styleManager, null);
-		context.registerService(new String[] {
-				ManagedService.class.getName(),
-				MetaTypeProvider.class.getName() 
-		}, this.styleManager, styleManagerProps);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -183,7 +135,6 @@ public class Activator implements BundleActivator {
 		ServiceManager.context = null;
 		MetaDataTool.context = null;
 		this.servletManager = null;
-		this.styleManager = null;
 		this.menuManager = null;
 	}
 }

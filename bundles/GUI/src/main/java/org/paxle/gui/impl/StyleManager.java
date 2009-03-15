@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -29,18 +28,23 @@ import java.util.jar.JarFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.ObjectClassDefinition;
+import org.paxle.core.io.IResourceBundleTool;
+import org.paxle.gui.IServletManager;
 import org.paxle.gui.IStyleManager;
 
-
-public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedService {
-	public static final String PID = IStyleManager.class.getName();
-	
+/**
+ * @scr.component immediate="true" metatype="false" name="org.paxle.gui.IStyleManager"
+ * @scr.service interface="org.paxle.gui.IStyleManager"
+ * @scr.service interface="org.osgi.service.metatype.MetaTypeProvider"
+ */
+public class StyleManager implements IStyleManager, MetaTypeProvider {
+	public static final String PID = IStyleManager.class.getName();	
 	private static final String PROP_STYLE = PID + '.' + "style";
 
 	/** 
@@ -49,9 +53,15 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 	private Log logger = LogFactory.getLog( StyleManager.class);
 
 	/**
-	 * A manager to manage http servlets and resources.
+	 * @scr.reference 
 	 */
-	private ServletManager servletManager = null;
+	private IResourceBundleTool resourceBundleTool;
+	
+	/**
+	 * A manager to manage http servlets and resources.
+	 * @scr.reference
+	 */
+	private IServletManager servletManager;
 	
 	/**
 	 * Path where all downloaded or installed styles are located
@@ -66,25 +76,32 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 	
 	/** HashMap containing available styles */
 	private final HashMap<String, File> styles = new HashMap<String, File>();	
-
-	public StyleManager(File dataPath, ServletManager servletManager, String[] locales) {
-		if (dataPath == null) throw new NullPointerException("The datapath is null");
-		if (servletManager == null) throw new NullPointerException("ServletManager is null");
-		if (locales == null) throw new NullPointerException("The locale array is null");
+	
+	protected void activate(ComponentContext context) {
+		// the supported locales
+		this.locales = this.resourceBundleTool.getLocaleArray(IStyleManager.class.getSimpleName(), Locale.ENGLISH);
 		
+		// the data-path to use
+		final String dataPathName = System.getProperty("paxle.data") + File.separatorChar + "styles";
+		this.dataPath = new File(dataPathName);	
 		if (!dataPath.exists()) {
 			if (!dataPath.mkdirs()) {
 				this.logger.error("Unable to create stylesheet-manager directory: " + dataPath);
 			}
 		}
-		this.dataPath = dataPath;
-		this.servletManager = servletManager;
 		
 		// search for available styles
 		this.searchForStyles();
 		
+		// getting the style to use
+		String style = (String) context.getProperties().get(PROP_STYLE);
+		
 		// load the current style for now
-		this.setStyle("default");
+		this.setStyle(style==null?"default":style);
+	}
+	
+	protected void deactivate(ComponentContext context) {
+		this.styles.clear();
 	}
 	
 	public File getDataPath() {
@@ -115,10 +132,10 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 	public void setStyle(String name) {
 		if(name.equals( "default")) {
 
-			this.servletManager.unregisterAllResources();			
-			this.servletManager.addResources("/css","/resources/templates/layout/css");
-			this.servletManager.addResources("/js","/resources/js");			
-			this.servletManager.addResources("/images", "/resources/images");
+			((ServletManager)this.servletManager).unregisterAllResources();			
+			((ServletManager)this.servletManager).addResources("/css","/resources/templates/layout/css");
+			((ServletManager)this.servletManager).addResources("/js","/resources/js");			
+			((ServletManager)this.servletManager).addResources("/images", "/resources/images");
 
 			return;
 		}
@@ -134,8 +151,8 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 				JarEntry entry = (JarEntry) jarEntryEnum.nextElement();
 				if (entry.isDirectory()) {
 					String alias = "/" + entry.getName().substring( 0, entry.getName().length() - 1);
-					servletManager.removeResource( alias);
-					servletManager.addResources( alias, alias, httpContextStyle);
+					((ServletManager)this.servletManager).removeResource( alias);
+					((ServletManager)this.servletManager).addResources( alias, alias, httpContextStyle);
 				}
 			}
 		} catch (IOException e) {
@@ -238,20 +255,4 @@ public class StyleManager implements IStyleManager, MetaTypeProvider, ManagedSer
 
 		return ocd;
 	}
-	
-	/**
-	 * Updates the manager with the configuration changed by the user
-	 * @see ManagedService#updated(Dictionary)
-	 */
-	@SuppressWarnings("unchecked")
-	public void updated(Dictionary configuration) throws ConfigurationException {
-		if (configuration == null ) return;
-		
-		// getting the configured style
-		String style = (String) configuration.get(PROP_STYLE);
-		if (style != null) {
-			this.setStyle(style);
-		}
-	}
-
 }
