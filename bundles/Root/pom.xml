@@ -81,6 +81,9 @@
 		
 		<paxle.bundleDocUrl>http://wiki.paxle.net/dev/bundles</paxle.bundleDocUrl>
 		<paxle.bundleUpdateUrl>http://osgi.repository.paxle.net</paxle.bundleUpdateUrl>
+		
+		<!-- our source files are stored using UTF-8 -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<issueManagement>
