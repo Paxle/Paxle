@@ -13,18 +13,22 @@
  */
 package org.paxle.gui.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
-public class MenuItem {
+import org.paxle.gui.IMenuManager;
+
+public class MenuItem implements Comparable<MenuItem> {
 	public static final String DEFAULT_RESOURCE_BUNDLE = "/OSGI-INF/l10n/menu";
 	
 	/**
@@ -32,24 +36,26 @@ public class MenuItem {
 	 * Key = the name of the menu-item<br/>
 	 * value = the {@link MenuItem} object
 	 */
-	protected LinkedHashMap<String,MenuItem> items = new LinkedHashMap<String,MenuItem>();		
+	protected SortedMap<String,MenuItem> items = new TreeMap<String, MenuItem>();		
 	
+	protected int pos = IMenuManager.DEFAULT_MENU_POS;
 	protected String url = null;
 	protected String name = null;
 	protected String resourceBundleBase;
 	protected ClassLoader resourceBundleLoader;
 	
 	public MenuItem(String url, String name) {
-		this(url, name, null, null);
+		this(url, name, null, null, IMenuManager.DEFAULT_MENU_POS);
 	}
 	
-	public MenuItem(String url, String name, String resourceBundleBaseName, ClassLoader loader) {
+	public MenuItem(String url, String name, String resourceBundleBaseName, ClassLoader loader, int pos) {
 		// if (name == null) throw new NullPointerException("The menu-item name must not be null");
 		this.url = url;
 		this.name = name;
 		if (this.name != null) this.name = name.replaceAll("//", "/"); // unescaping double-slash
 		this.resourceBundleBase = resourceBundleBaseName;
 		this.resourceBundleLoader = loader;
+		this.pos = pos;
 	}
 	
 	public String getUrl() {
@@ -129,20 +135,22 @@ public class MenuItem {
 	}
 	
 	public Collection<MenuItem> getMenuItemList() {
-		return items.values();
+		ArrayList<MenuItem> temp = new ArrayList<MenuItem>(items.values());
+		Collections.sort(temp);
+		return temp;
 	}	
 	
-	public void addItem(String url, String name) {
-		this.addItem(url, name, DEFAULT_RESOURCE_BUNDLE, this.getClass().getClassLoader());
+	public void addItem(String url, String name, int pos) {
+		this.addItem(url, name, DEFAULT_RESOURCE_BUNDLE, this.getClass().getClassLoader(), pos);
 	}
 	
-	public void addItem(String url, String name, String resourceBundleBaseName, ClassLoader loader) {
+	public void addItem(String url, String name, String resourceBundleBaseName, ClassLoader loader, int pos) {
 		if (name == null) throw new NullPointerException("The menu-item name must not be null");		
 		String[] nameParts = name.split("(?<!/)/(?!/)"); 
-		this.addItem(url, nameParts, resourceBundleBaseName, loader);
+		this.addItem(url, nameParts, resourceBundleBaseName, loader, pos);
 	}
 	
-	public void addItem(String url, String[] nameParts, String resourceBundleBaseName, ClassLoader loader) {
+	public void addItem(String url, String[] nameParts, String resourceBundleBaseName, ClassLoader loader, int pos) {
 		MenuItem parent = this;
 		
 		for (int i=0; i < nameParts.length; i++) {
@@ -167,7 +175,8 @@ public class MenuItem {
 						itemName,
 						// resource-bundle name and classloader
 						resourceBundleBaseName, 
-						loader
+						loader,
+						pos
 				);
 				parent.addItem(itemName, currentItem);
 			}
@@ -188,7 +197,9 @@ public class MenuItem {
 	
 	private void removeItem(String[] nameParts, int idx) {
 		if (idx == nameParts.length-1) {
-			this.items.remove(nameParts[idx]);
+			MenuItem theItem = this.items.get(nameParts[idx]);
+			if (!theItem.hasSubItems()) this.items.remove(nameParts[idx]);
+			theItem.setUrl(null);
 		} else {
 			MenuItem parent = this.items.get(nameParts[idx]);
 			if (parent == null) throw new IllegalStateException("No menu-item found with name: " + nameParts[idx]);
@@ -207,5 +218,9 @@ public class MenuItem {
 	
 	public boolean hasSubItems() {
 		return this.items.size() > 0;
+	}
+
+	public int compareTo(MenuItem o) {
+		return this.pos - o.pos;
 	}
 }

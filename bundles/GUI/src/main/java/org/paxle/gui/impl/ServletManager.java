@@ -178,6 +178,9 @@ public class ServletManager implements IServletManager {
 		String menuName = (String)servletRef.getProperty("menu");
 		if (menuName == null || menuName.length() == 0) return;
 		
+		Integer menuPos = (Integer)servletRef.getProperty("menu.pos");
+		if (menuPos == null) menuPos = Integer.valueOf(IMenuManager.DEFAULT_MENU_POS);
+		
 		// getting the path to use
 		String path = (String)servletRef.getProperty("path");
 		
@@ -203,7 +206,7 @@ public class ServletManager implements IServletManager {
 			// the classloader to use
 			resourceBundleLoader = servletRef.getBundle().getBundleContext().getService(servletRef).getClass().getClassLoader();
 		}
-		this.menuManager.addItem(fullAlias, menuName, resourceBundleBase, resourceBundleLoader);
+		this.menuManager.addItem(fullAlias, menuName, resourceBundleBase, resourceBundleLoader, menuPos.intValue());
 	}
 	
 	private void unregisterMenuItem(ServiceReference servletRef) {

@@ -19,6 +19,8 @@ import java.util.ResourceBundle;
 import org.paxle.gui.impl.MenuItem;
 
 public interface IMenuManager {	
+	public static final int DEFAULT_MENU_POS = 50;
+	
 	public Collection<MenuItem> getMenuItemList();
 	
 	/**
@@ -27,8 +29,9 @@ public interface IMenuManager {
 	 * the specified resource-bundle.
 	 * @param resourceBundleBaseName the {@link ResourceBundle} to translate the {@link MenuItem}-name
 	 * @param loader the {@link ClassLoader} that should be used to load the {@link ResourceBundle}
+	 * @param pos an int value allowing to sort {@link MenuItem items} within the same menu by priority
 	 */
-	public void addItem(String url, String name, String resourceBundleBaseName, ClassLoader loader);
+	public void addItem(String url, String name, String resourceBundleBaseName, ClassLoader loader, int pos);
 	
 	/**
 	 * @param name the name of the {@link MenuItem} to remove
