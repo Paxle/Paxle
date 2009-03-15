@@ -23,9 +23,11 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
+/**
+ * @scr.component name="os.network"
+ * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ */
 public class NetworkMonitoring implements Monitorable {
-	public static final String SERVICE_PID = "os.network";
-	
 	/**
 	 * The hostname of the peer
 	 */

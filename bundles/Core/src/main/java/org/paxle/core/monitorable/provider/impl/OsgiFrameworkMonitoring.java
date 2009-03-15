@@ -18,12 +18,15 @@ import java.util.HashSet;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
+/**
+ * @scr.component name="org.osgi.framework"
+ * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ */
 public class OsgiFrameworkMonitoring implements Monitorable {
-	public static final String SERVICE_PID = "org.osgi.framework";
-	
 	private static final String FRAMEWORK_PROP_PREFIX = "org.osgi.framework.";
 	
 	/**
@@ -57,10 +60,10 @@ public class OsgiFrameworkMonitoring implements Monitorable {
 	/**
 	 * An OSGi BundleContext required to get OSGi-Framework properties
 	 */
-	private final BundleContext bc;
+	private BundleContext bc;
 	
-	public OsgiFrameworkMonitoring(BundleContext bc) {
-		this.bc = bc;		
+	protected void activate(ComponentContext context) {
+		this.bc = context.getBundleContext();
 	}
 	
 	public String getDescription(String name) throws IllegalArgumentException {

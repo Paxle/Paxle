@@ -27,9 +27,11 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
+/**
+ * @scr.component name="java.lang.management"
+ * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ */
 public class JmxMonitoring implements Monitorable {
-	public static final String SERVICE_PID = "java.lang.management";
-	
 	/* =========================================================================
 	 * OPERATING SYSTEM props
 	 * ========================================================================= */

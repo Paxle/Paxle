@@ -18,9 +18,11 @@ import java.util.HashMap;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
+/**
+ * @scr.component name="java.lang.runtime"
+ * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ */
 public class RuntimeMemoryMonitoring implements Monitorable {
-	public static final String SERVICE_PID="java.lang.runtime";
-	
 	private static final String MEMORY_FREE = "memory.free";
 	private static final String MEMORY_MAX = "memory.max";
 	private static final String MEMORY_TOTAL = "memory.total";

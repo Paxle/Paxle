@@ -67,11 +67,6 @@ import org.paxle.core.monitorable.observer.impl.ObserverEventSenderConcequence;
 import org.paxle.core.monitorable.observer.impl.ObserverFilterCondition;
 import org.paxle.core.monitorable.observer.impl.ObserverMethodExecutorConcequence;
 import org.paxle.core.monitorable.observer.impl.ObserverRule;
-import org.paxle.core.monitorable.provider.impl.JmxMonitoring;
-import org.paxle.core.monitorable.provider.impl.NetworkMonitoring;
-import org.paxle.core.monitorable.provider.impl.OsgiFrameworkMonitoring;
-import org.paxle.core.monitorable.provider.impl.PaxleCoreMonitoring;
-import org.paxle.core.monitorable.provider.impl.RuntimeMemoryMonitoring;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.norm.impl.ReferenceNormalizer;
 import org.paxle.core.norm.impl.URLStreamHandlerListener;
@@ -201,7 +196,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 		 * Register Services
 		 * ========================================================== */
 		// register runtime-memory monitorable
-		this.createAndRegisterMonitorables(bc);
 		this.createAndRegisterMonitorableObservers(bc);
 		
 		Hashtable<String, String> tempFileManagerProps = new Hashtable<String, String>();
@@ -255,38 +249,6 @@ public class Activator implements BundleActivator, InvocationHandler {
         }
         
         this.initEclipseApplication(bc);
-	}
-		
-	@SuppressWarnings("serial")
-	private void createAndRegisterMonitorables(BundleContext bc) {
-		// Java Runtime monitorable
-		final Hashtable<String,Object> rmmProps = new Hashtable<String,Object>();
-		rmmProps.put(Constants.SERVICE_PID, RuntimeMemoryMonitoring.SERVICE_PID);
-		bc.registerService(Monitorable.class.getName(), new RuntimeMemoryMonitoring(), rmmProps);
-		
-		// OSGi framework monitorable
-		final Hashtable<String,Object> ofmProps = new Hashtable<String,Object>();
-		ofmProps.put(Constants.SERVICE_PID, OsgiFrameworkMonitoring.SERVICE_PID);
-		bc.registerService(Monitorable.class.getName(), new OsgiFrameworkMonitoring(bc), ofmProps);
-		
-		// Network monitorable
-		final Hashtable<String,Object> nwmProps = new Hashtable<String,Object>();
-		nwmProps.put(Constants.SERVICE_PID, NetworkMonitoring.SERVICE_PID);
-		bc.registerService(Monitorable.class.getName(), new NetworkMonitoring(), nwmProps);
-		
-		// Paxle core monitorable 
-		bc.registerService(Monitorable.class.getName(), new PaxleCoreMonitoring(bc), new Hashtable<String,Object>(){{
-			put(Constants.SERVICE_PID, PaxleCoreMonitoring.SERVICE_PID);
-		}});
-		
-		// JMX monitorable
-		try {
-			final Hashtable<String,Object> jmxProps = new Hashtable<String,Object>();
-			jmxProps.put(Constants.SERVICE_PID, JmxMonitoring.SERVICE_PID);
-			bc.registerService(Monitorable.class.getName(), new JmxMonitoring(), jmxProps);
-		} catch (Throwable e) {
-			this.logger.error(e);
-		}
 	}
 	
 	private void createAndRegisterMonitorableObservers(BundleContext bc) throws InvalidSyntaxException, SecurityException, NoSuchMethodException {

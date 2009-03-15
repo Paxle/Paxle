@@ -22,16 +22,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
+/**
+ * @scr.component name="org.paxle.core"
+ * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ */
 public class PaxleCoreMonitoring implements Monitorable {
-	/**
-	 * @see Constants#SERVICE_PID
-	 */
-	public static final String SERVICE_PID = "org.paxle.core";
-	
 	/**
 	 * Pattern to format dates
 	 */
@@ -82,15 +81,15 @@ public class PaxleCoreMonitoring implements Monitorable {
 	/**
 	 * An OSGi BundleContext required to get OSGi-Framework properties
 	 */
-	private final BundleContext bc;	
+	private BundleContext bc;	
 	
 	/**
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
-	public PaxleCoreMonitoring(BundleContext bc) {
-		this.bc = bc;		
+	protected void activate(ComponentContext context) {
+		this.bc = context.getBundleContext();
 	}
 
 	public String getDescription(String name) throws IllegalArgumentException {
