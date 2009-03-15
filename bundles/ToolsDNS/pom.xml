@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ToolsDNS</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Tools: DNS</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -26,7 +26,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-Category>tools</Bundle-Category>
+						<Bundle-Category>tools,filter</Bundle-Category>
 						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
@@ -52,9 +52,6 @@
 						<Private-Package>
 							org.paxle.tools.dns.impl							
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.tools.dns.impl.Activator
-						</Bundle-Activator>
 												
 						<!-- embedding libs -->
 						<!-- 
@@ -67,6 +64,19 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>	
 		</plugins>
 	</build>
 

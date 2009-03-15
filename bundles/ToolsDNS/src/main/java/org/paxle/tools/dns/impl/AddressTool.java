@@ -21,6 +21,9 @@ import org.xbill.DNS.Address;
 
 /**
  * Just a wrapper for {@link org.xbill.DNS.Address}
+ * 
+ * @scr.component
+ * @scr.service interface="org.paxle.tools.dns.IAddressTool"
  */
 public class AddressTool implements IAddressTool {
 	public InetAddress getByName(String hostName) throws UnknownHostException {
