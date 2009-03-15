@@ -24,6 +24,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/favicon"
+ */
 public class IconServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
