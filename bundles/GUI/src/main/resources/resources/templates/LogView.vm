@@ -27,6 +27,11 @@ $dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelNa
     ## Set the page title
     #set( $page_title = ${text.browser.title} )
     
+    ## Add custom html headers
+    #set( $h1 = "<script src='/js/prototype.js' type='text/javascript'></script>")
+    #set( $h2 = "<script src='/js/scriptaculous.js' type='text/javascript'></script>")	
+	#set($page_headers = [$h1,$h2])
+	
     ## the regular content
     <h2>${text.page.title}</h2>
     #if($logReader)
@@ -55,7 +60,10 @@ $dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelNa
     #foreach($statsEntry in ${logData.getStatistics().entrySet()})
         #set($levelName = $logLevelNames.get($statsEntry.key))
         #set($levelText = $text.get("loglevel.$levelName"))
-        <div class="log$levelName" titel="$levelText">$statsEntry.value</div>&nbsp;|&nbsp;
+        <div class="log$levelName" titel="$levelText">
+			<input type="checkbox" checked="checked" onClick="checked ? Effect.multiple($$('tr.row_log$levelName'),Effect.Appear, { speed: 0 }) : Effect.multiple($$('tr.row_log$levelName'),Effect.Fade, { speed: 0 })"/>
+			$statsEntry.value
+		</div>&nbsp;|&nbsp;
     #end
     </div>
     
@@ -73,7 +81,7 @@ $dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelNa
     		
         	#if( $level <= $filterLogLevel)
             	#set($levelName = $logLevelNames.get($level))
-            	<tr>
+            	<tr  class="row_log$levelName">
             		<td class="log$levelName">$text.get("loglevel.$levelName")</td>
             		<td class="logDate">$dateTool.format("$dateFormat",$logEntry.getTime())</td>
             		<td class="logMessage">$escTool.html($logEntry.getMessage()).replaceAll("\n", "\n<br />")#if( $logEntry.getException())<div class="exception">$logView.toString($logEntry.getException())</div>#end</td>
