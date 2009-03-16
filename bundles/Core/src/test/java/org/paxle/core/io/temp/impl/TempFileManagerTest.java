@@ -48,6 +48,9 @@ public class TempFileManagerTest extends TestCase {
 			assertTrue(temp.canRead());
 			assertTrue(temp.canWrite());
 			assertTrue(temp.getCanonicalPath().startsWith(tempDir.getCanonicalPath()));
+			assertTrue(this.manager.getFileMap().containsKey(temp));
+			assertEquals(1, this.manager.getStatusVariable(TempFileManager.MONITOR_FILES_TOTAL).getInteger());
+			assertEquals(1, this.manager.getStatusVariable(TempFileManager.MONITOR_FILES_USED).getInteger());
 		} finally {
 			assertTrue(temp.delete());
 		}
@@ -59,9 +62,15 @@ public class TempFileManagerTest extends TestCase {
 			temp = this.manager.createTempFile();		
 			assertNotNull(temp);
 			assertTrue(temp.exists());
+			assertTrue(this.manager.getFileMap().containsKey(temp));
+			assertEquals(1, this.manager.getStatusVariable(TempFileManager.MONITOR_FILES_TOTAL).getInteger());
+			assertEquals(1, this.manager.getStatusVariable(TempFileManager.MONITOR_FILES_USED).getInteger());
 
 			this.manager.releaseTempFile(temp);
 			assertFalse(temp.exists());
+			assertFalse(this.manager.getFileMap().containsKey(temp));
+			assertEquals(1, this.manager.getStatusVariable(TempFileManager.MONITOR_FILES_TOTAL).getInteger());
+			assertEquals(0, this.manager.getStatusVariable(TempFileManager.MONITOR_FILES_USED).getInteger());			
 		} finally {
 			assertFalse(temp.delete());
 		}
@@ -75,9 +84,15 @@ public class TempFileManagerTest extends TestCase {
 		File temp = this.manager.createTempFile();		
 		assertNotNull(temp);
 		assertTrue(temp.exists());
+		assertTrue(this.manager.getFileMap().containsKey(temp));
+		assertEquals(1, this.manager.getStatusVariable(TempFileManager.MONITOR_FILES_TOTAL).getInteger());
+		assertEquals(1, this.manager.getStatusVariable(TempFileManager.MONITOR_FILES_USED).getInteger());			
 
 		this.manager.releaseTempFile(temp);
 		assertFalse(temp.exists());
+		assertFalse(this.manager.getFileMap().containsKey(temp));
+		assertEquals(1, this.manager.getStatusVariable(TempFileManager.MONITOR_FILES_TOTAL).getInteger());
+		assertEquals(0, this.manager.getStatusVariable(TempFileManager.MONITOR_FILES_USED).getInteger());		
 	}
 
 	public void testDontReleaseUnknownTempFile() throws IOException {
@@ -91,11 +106,7 @@ public class TempFileManagerTest extends TestCase {
 		}
 	}
 
-	/**
-	 * TODO: this does now work jet
-	 * XXX: should this work?
-	 */
-	public void _testReleaseNullTempFile() throws IOException {
+	public void testReleaseNullTempFile() throws IOException {
 		File temp = null;		
 		this.manager.releaseTempFile(temp);
 	}

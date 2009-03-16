@@ -16,9 +16,12 @@ package org.paxle.core.io.temp.impl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,16 +35,15 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	 * OSGi Monitorable CONSTANTS
 	 * ========================================================= */		
 	public static final String MONITOR_PID = "org.paxle.tempFileManager";
-	private static final String MONITOR_FILES_USED = "files.used";
-	private static final String MONITOR_FILES_TOTAL = "files.total";
+	static final String MONITOR_FILES_USED = "files.used";
+	static final String MONITOR_FILES_TOTAL = "files.total";
 	
 	/**
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
-	private int totalCount;
-	private int openCount;
+	private AtomicInteger totalCount = new AtomicInteger(0);
 	
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
@@ -104,14 +106,10 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 		
 		// remember the created temp file for later cleanup
 		this.fileMap.put(ret, dir);				
+		this.totalCount.incrementAndGet();
 		
 		if (deleteOnExit) {
 			ret.deleteOnExit();
-		}
-		
-		synchronized (this) {
-			this.totalCount++;
-			this.openCount++;
 		}
 		
 		return ret;
@@ -125,14 +123,21 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	public void releaseTempFile(File file) throws FileNotFoundException, IOException {
 		if (!this.isKnown(file)) return;
 		
-		final ITempDir dir = this.fileMap.get(file);
-		boolean success = ((dir == null) ? defaultDir : dir).releaseTempFile(file);
+		// getting the temp-dir where the temp-file is stored in
+		final ITempDir dir = this.fileMap.remove(file);
 		
-		if (success) {
-			synchronized (this) {
-				this.openCount--;
-			}
-		} else {
+		// testing if the file was already deleted
+		if (!file.exists()) {
+			this.logger.debug(String.format(
+					"Unable to release tempfile '%s'. File does not exist.",
+					file
+			));
+			return;
+		}
+		
+		// trying to delete the temp-file
+		boolean success = ((dir == null) ? defaultDir : dir).releaseTempFile(file);		
+		if (!success) {
 			this.logger.warn(String.format(
 					"Unable to release tempfile '%s'.",
 					file
@@ -157,10 +162,10 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 		int type = StatusVariable.CM_GAUGE;
 		
 		if (id.equals(MONITOR_FILES_TOTAL)) {
-			val = this.totalCount;
+			val = this.totalCount.get();
 			type = StatusVariable.CM_CC;
 		} else if (id.equals(MONITOR_FILES_USED)) {
-			val = this.openCount;
+			val = this.fileMap.size();
 		}
 		
 		return new StatusVariable(id, type, val);
@@ -175,6 +180,18 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	}
 
 	public boolean resetStatusVariable(String id) throws IllegalArgumentException {
+		if (id.equals(MONITOR_FILES_TOTAL)) {
+			this.totalCount.set(0);
+			return true;
+		}
 		return false;
+	}
+	
+	/**
+	 * Method just used for testing
+	 * @return
+	 */
+	Map<File,ITempDir> getFileMap() {
+		return Collections.unmodifiableMap(fileMap);
 	}
 }
