@@ -35,7 +35,6 @@ public class GuiListener implements BundleListener {
 
 	public void registerServlet() {
 		SourceServlet servlet=new SourceServlet(this.filter);
-		//servlet.setBundleLocation(bc.getBundle().getEntry("/").toString());
 		Hashtable<String, String> props = new Hashtable<String, String>();
 		props.put("path", "/domaingraphsource");
 		this.serviceReg = bc.registerService("javax.servlet.Servlet", servlet, props);

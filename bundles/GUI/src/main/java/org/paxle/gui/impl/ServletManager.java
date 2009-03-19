@@ -105,7 +105,7 @@ public class ServletManager implements IServletManager {
 		this.context = context;
 		
 		// the default location to use for template-loading
-		String defaultBundleLocation = context.getBundleContext().getBundle().getEntry("/").toString();		
+		String defaultBundleLocation = context.getBundleContext().getBundle().getEntry("").toString();		
 		if (defaultBundleLocation != null && defaultBundleLocation.endsWith("/")) {
 			defaultBundleLocation = defaultBundleLocation.substring(0,defaultBundleLocation.length()-1);
 		}
@@ -262,7 +262,8 @@ public class ServletManager implements IServletManager {
 				BundleContext bundleContext = bundle.getBundleContext();
 				
 				// configuring the bundle location to use				
-				props.put("bundle.location", servletRef.getBundle().getEntry("/").toString());
+				final String bundleLocation = servletRef.getBundle().getEntry("").toString();
+				props.put("bundle.location", bundleLocation);
 				
 				// injecting the velocity-view factory
 				((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory(bundleContext));
