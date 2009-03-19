@@ -10,14 +10,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.map.LRUMap;
+import org.paxle.core.filter.IFilter;
 import org.paxle.filter.webgraph.impl.GraphFilter;
 
-public class SourceServlet extends HttpServlet{
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="path" value="/domaingraphsource"
+ * @scr.property name="menu" value="%menu.administration/%menu.bundles/Webgraph"
+ * @scr.property name="doUserAuth" value="true" type="Boolean"
+ */
+public class SourceServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private GraphFilter filter;
-	public SourceServlet(GraphFilter filter){
-		this.filter=filter;
-	}
+	
+	/** 
+	 * @scr.reference target="(service.pid=org.paxle.filter.webgraph.impl.GraphFilter)"
+	 */
+	protected IFilter<?> filter;
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		/*
@@ -28,7 +38,7 @@ public class SourceServlet extends HttpServlet{
 		 * - limit the number of new domains introduced by a parent-domain to count(=5)
 		 * this keeps the graph small.
 		 */
-		LRUMap relations=this.filter.getRelations();
+		LRUMap relations= ((GraphFilter)this.filter).getRelations();
 		StringBuffer result=new StringBuffer("digraph domains{\nedge [color=\"#80808080\"]\n");
 		Iterator it=(new HashSet(relations.keySet())).iterator();
 		int maxDomains=1000;

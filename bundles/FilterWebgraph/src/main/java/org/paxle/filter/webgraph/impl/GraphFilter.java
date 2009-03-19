@@ -11,10 +11,23 @@ import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.LinkInfo;
+import org.paxle.core.filter.FilterQueuePosition;
+import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 
+/**
+ * This helper class determines the language of a document and inserts its finding into a parser-doc and all of its subdocs 
+ * 
+ * @scr.component name="org.paxle.filter.webgraph.impl.GraphFilter"
+ * @scr.service interface="org.paxle.core.filter.IFilter"
+ */
+@FilterTarget(@FilterQueuePosition(
+		queue = "org.paxle.parser.out", 
+		position = 0,
+		enabled = false
+))
 public class GraphFilter implements IFilter<ICommand> {
 	/**
 	 * For logging

@@ -5,7 +5,7 @@
 	
 	<groupId>org.paxle.filter.webgraph</groupId>
 	<artifactId>FilterWebgraph</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<name>Paxle - Filter: Webgraph</name>
 	<packaging>bundle</packaging>
 
@@ -44,9 +44,9 @@
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
 							org.paxle.core.filter;version="[0.1.0,0.2.0)", 
 							org.paxle.core.io;version="[0.1.0,0.2.0)",
-							<!-- GUI -->
-							javax.servlet.http;resultion:=optional,
-							javax.servlet;resultion:=optional,
+							<!-- Servlet API -->
+							javax.servlet;resolution:=optional,
+							javax.servlet.http;resolution:=optional,
 							<!-- Apache Velocity (used by Paxle GUI bundle) -->
 							org.apache.velocity;resolution:=optional, 
 							org.apache.velocity.context;resolution:=optional,
@@ -56,10 +56,7 @@
 						<Private-Package>
 							org.paxle.filter.webgraph.impl,
 							org.paxle.filter.webgraph.gui
-						</Private-Package>						
-						<Bundle-Activator>
-							org.paxle.filter.webgraph.impl.Activator
-						</Bundle-Activator>	
+						</Private-Package>
 						
 						<!-- embedding libs -->
 						<Embed-StripGroup>true</Embed-StripGroup>
@@ -70,15 +67,18 @@
 				</configuration>
 			</plugin>
 			
-			<!-- java compiler -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
-				</configuration>
-			</plugin>			
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>		
 		</plugins>
 	</build>
 
@@ -91,7 +91,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>GUI</artifactId>
-			<version>[,0.2.0)</version>
+			<version>[0.1.9-SNAPSHOT,0.2.0)</version>
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
