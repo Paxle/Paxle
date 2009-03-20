@@ -13,6 +13,7 @@
  */
 package org.paxle.gui.impl;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -175,6 +176,7 @@ public class ServletManager implements IServletManager {
 	private void registerMenuItem(ServiceReference servletRef) {
 		if (this.menuManager == null) return;
 		
+		// the name of the menu-item
 		String menuName = (String)servletRef.getProperty("menu");
 		if (menuName == null || menuName.length() == 0) return;
 		
@@ -183,6 +185,14 @@ public class ServletManager implements IServletManager {
 		
 		// getting the path to use
 		String path = (String)servletRef.getProperty("path");
+		
+		// path to an icon
+		URL iconURL = null;
+		String iconPath = (String)servletRef.getProperty("icon");
+		if (iconPath != null && iconPath.startsWith("/")) {
+			// getting the bundle 
+			iconURL = servletRef.getBundle().getEntry(iconPath);
+		}
 		
 		// convert it into a full alias (pathprefix + alias)
 		String fullAlias = this.getFullAlias(path);		
@@ -206,7 +216,7 @@ public class ServletManager implements IServletManager {
 			// the classloader to use
 			resourceBundleLoader = servletRef.getBundle().getBundleContext().getService(servletRef).getClass().getClassLoader();
 		}
-		this.menuManager.addItem(fullAlias, menuName, resourceBundleBase, resourceBundleLoader, menuPos.intValue());
+		this.menuManager.addItem(fullAlias, menuName, resourceBundleBase, resourceBundleLoader, menuPos.intValue(), iconURL);
 	}
 	
 	private void unregisterMenuItem(ServiceReference servletRef) {

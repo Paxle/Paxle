@@ -17,7 +17,12 @@
 	#foreach($item in $parent.getMenuItemList())
 		<li>
 		#if($item.getUrl())
-			<a #if($current == $item.getUrl())class="active"#end href="$!item.getUrl()">$item.getName($request.getLocales())</a>
+			<a #if($current == $item.getUrl())class="active"#end href="$!item.getUrl()">
+				#if($item.getIconURL())
+					<img src="/menu?icon=$item.getIconURL()"/>
+				#end
+				$item.getName($request.getLocales())
+			</a>
 		#else
 			<strong>$item.getName($request.getLocales())</strong>
 		#end

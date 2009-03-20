@@ -53,6 +53,7 @@ import org.paxle.util.StringTools;
  * @scr.property name="path" value="/bundle"
  * @scr.property name="menu" value="%menu.administration/%menu.system/%menu.bundleControl"
  * @scr.property name="doUserAuth" value="false" type="Boolean"
+ * @scr.property name="icon" value="/resources/images/brick.png"
  */
 public class BundleView extends ALayoutServlet {
 	

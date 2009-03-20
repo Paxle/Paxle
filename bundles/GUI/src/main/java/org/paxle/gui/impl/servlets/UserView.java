@@ -41,6 +41,7 @@ import org.paxle.gui.impl.ServiceManager;
  * @scr.property name="path" value="/users"
  * @scr.property name="menu" value="%menu.administration/%menu.system/%menu.userAdmin"
  * @scr.property name="doUserAuth" value="true" type="Boolean"
+ * @scr.property name="icon" value="/resources/images/user.png"
  */
 public class UserView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;

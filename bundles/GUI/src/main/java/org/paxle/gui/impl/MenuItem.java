@@ -13,6 +13,7 @@
  */
 package org.paxle.gui.impl;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,12 +44,13 @@ public class MenuItem implements Comparable<MenuItem> {
 	protected String name = null;
 	protected String resourceBundleBase;
 	protected ClassLoader resourceBundleLoader;
+	protected URL iconURL;
 	
 	public MenuItem(String url, String name) {
-		this(url, name, null, null, IMenuManager.DEFAULT_MENU_POS);
+		this(url, name, null, null, IMenuManager.DEFAULT_MENU_POS, null);
 	}
 	
-	public MenuItem(String url, String name, String resourceBundleBaseName, ClassLoader loader, int pos) {
+	public MenuItem(String url, String name, String resourceBundleBaseName, ClassLoader loader, int pos, URL iconURL) {
 		// if (name == null) throw new NullPointerException("The menu-item name must not be null");
 		this.url = url;
 		this.name = name;
@@ -56,6 +58,7 @@ public class MenuItem implements Comparable<MenuItem> {
 		this.resourceBundleBase = resourceBundleBaseName;
 		this.resourceBundleLoader = loader;
 		this.pos = pos;
+		this.iconURL = iconURL;
 	}
 	
 	public String getUrl() {
@@ -64,6 +67,10 @@ public class MenuItem implements Comparable<MenuItem> {
 	
 	private void setUrl(String url) {
 		this.url = url;
+	}
+	
+	public URL getIconURL() {
+		return this.iconURL;
 	}
 	
 	public String getName() {
@@ -140,17 +147,17 @@ public class MenuItem implements Comparable<MenuItem> {
 		return temp;
 	}	
 	
-	public void addItem(String url, String name, int pos) {
-		this.addItem(url, name, DEFAULT_RESOURCE_BUNDLE, this.getClass().getClassLoader(), pos);
+	public void addItem(String url, String name, int pos, URL iconURL) {
+		this.addItem(url, name, DEFAULT_RESOURCE_BUNDLE, this.getClass().getClassLoader(), pos, iconURL);
 	}
 	
-	public void addItem(String url, String name, String resourceBundleBaseName, ClassLoader loader, int pos) {
+	public void addItem(String url, String name, String resourceBundleBaseName, ClassLoader loader, int pos, URL iconURL) {
 		if (name == null) throw new NullPointerException("The menu-item name must not be null");		
 		String[] nameParts = name.split("(?<!/)/(?!/)"); 
-		this.addItem(url, nameParts, resourceBundleBaseName, loader, pos);
+		this.addItem(url, nameParts, resourceBundleBaseName, loader, pos, iconURL);
 	}
 	
-	public void addItem(String url, String[] nameParts, String resourceBundleBaseName, ClassLoader loader, int pos) {
+	public void addItem(String url, String[] nameParts, String resourceBundleBaseName, ClassLoader loader, int pos, URL iconURL) {
 		MenuItem parent = this;
 		
 		for (int i=0; i < nameParts.length; i++) {
@@ -176,7 +183,8 @@ public class MenuItem implements Comparable<MenuItem> {
 						// resource-bundle name and classloader
 						resourceBundleBaseName, 
 						loader,
-						pos
+						pos,
+						iconURL
 				);
 				parent.addItem(itemName, currentItem);
 			}

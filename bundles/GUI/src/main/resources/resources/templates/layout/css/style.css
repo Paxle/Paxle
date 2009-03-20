@@ -208,6 +208,11 @@ td {
 	padding-left: 3em;
 }
 
+.subnav1 li a img {
+	left:30px;
+	position:absolute;
+}
+
 .tabs {
 	margin: 0;
 	padding: 0;

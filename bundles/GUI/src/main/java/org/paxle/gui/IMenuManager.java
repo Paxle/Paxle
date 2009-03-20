@@ -13,6 +13,7 @@
  */
 package org.paxle.gui;
 
+import java.net.URL;
 import java.util.Collection;
 import java.util.ResourceBundle;
 
@@ -30,8 +31,9 @@ public interface IMenuManager {
 	 * @param resourceBundleBaseName the {@link ResourceBundle} to translate the {@link MenuItem}-name
 	 * @param loader the {@link ClassLoader} that should be used to load the {@link ResourceBundle}
 	 * @param pos an int value allowing to sort {@link MenuItem items} within the same menu by priority
+	 * @param iconURL URL to an icon
 	 */
-	public void addItem(String url, String name, String resourceBundleBaseName, ClassLoader loader, int pos);
+	public void addItem(String url, String name, String resourceBundleBaseName, ClassLoader loader, int pos, URL iconURL);
 	
 	/**
 	 * @param name the name of the {@link MenuItem} to remove
