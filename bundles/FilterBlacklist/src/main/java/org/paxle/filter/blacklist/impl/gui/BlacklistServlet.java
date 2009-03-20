@@ -35,6 +35,7 @@ import org.paxle.gui.ALayoutServlet;
  * @scr.property name="path" value="/blacklist"
  * @scr.property name="menu" value="%menu.administration/%menu.bundles/Blacklist"
  * @scr.property name="doUserAuth" value="true" type="Boolean"
+ * @scr.property name="icon" value="/resources/images/book_link.png"
  */
 public class BlacklistServlet extends ALayoutServlet implements Servlet {
 

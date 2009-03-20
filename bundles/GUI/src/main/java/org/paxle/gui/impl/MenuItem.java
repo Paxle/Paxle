@@ -184,7 +184,7 @@ public class MenuItem implements Comparable<MenuItem> {
 						resourceBundleBaseName, 
 						loader,
 						pos,
-						iconURL
+						(i==nameParts.length-1)?iconURL:null
 				);
 				parent.addItem(itemName, currentItem);
 			}

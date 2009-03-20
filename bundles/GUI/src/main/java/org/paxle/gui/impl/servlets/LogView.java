@@ -36,6 +36,7 @@ import org.paxle.gui.impl.log.OSGiLogReader;
  * @scr.property name="path" value="/log"
  * @scr.property name="menu" value="Info/Log"
  * @scr.property name="doUserAuth" value="false" type="Boolean"
+ * @scr.property name="icon" value="/resources/images/script.png"
  */
 public class LogView extends ALayoutServlet {	
 	private static final long serialVersionUID = 1L;

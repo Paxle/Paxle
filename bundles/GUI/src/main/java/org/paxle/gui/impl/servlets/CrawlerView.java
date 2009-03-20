@@ -41,6 +41,7 @@ import org.paxle.gui.impl.ServiceManager;
  * @scr.property name="path" value="/crawler"
  * @scr.property name="menu" value="%menu.administration/%menu.bundles/Crawler"
  * @scr.property name="doUserAuth" value="true" type="Boolean"
+ * @scr.property name="icon" value="/resources/images/link_go.png"
  */
 public class CrawlerView extends ALayoutServlet {
 	

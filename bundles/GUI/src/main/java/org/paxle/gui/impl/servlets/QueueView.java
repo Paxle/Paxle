@@ -30,6 +30,7 @@ import org.paxle.gui.impl.ServiceManager;
  * @scr.property name="path" value="/queue"
  * @scr.property name="menu" value="Info/Queues"
  * @scr.property name="doUserAuth" value="false" type="Boolean"
+ * @scr.property name="icon" value="/resources/images/table_link.png"
  */
 public class QueueView extends ALayoutServlet {
 	

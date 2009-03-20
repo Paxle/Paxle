@@ -38,6 +38,7 @@ import org.paxle.se.search.ISearchProviderManager;
  * @scr.property name="path" value="/status"
  * @scr.property name="menu" value="Info/Status"
  * @scr.property name="doUserAuth" value="false" type="Boolean"
+ * @scr.property name="icon" value="/resources/images/monitor.png"
  */
 public class StatusView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
