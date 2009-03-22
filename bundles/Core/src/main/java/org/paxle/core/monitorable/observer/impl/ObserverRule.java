@@ -28,8 +28,8 @@ public class ObserverRule implements IObserverRule {
 		this.condition = condition;
 		this.concequence = concequence;
 	}
-	
-	public boolean match(Dictionary dictionary) {
+		
+	public boolean match(@SuppressWarnings("unchecked") Dictionary dictionary) {
 		return this.condition.match(dictionary);		
 	}
 	

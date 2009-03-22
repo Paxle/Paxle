@@ -12,6 +12,9 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
 #if( $services.size() > 0)
+	#set($monitorAdmin = $manager.getService('org.osgi.service.monitor.MonitorAdmin'))
+	#set($monitorables = $monitorAdmin.getMonitorableNames())
+	
 	#set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
     #if(!$text)
     	#set($text = $resourceTool.bundle('OSGI-INF/l10n/overview'))
@@ -24,7 +27,7 @@
 			<img class="chart" id="ovActivityChart" src="${servletManager.getFullAlias('/chart')}?t=ppm&amp;w=385&amp;h=200&amp;t=${dateTool.get('yyyy-M-dH:m')}" height="200" width="385" alt="${text.chart.ovActivity.alt}"/>
 		</a>
 	#end
-	<table>
+	<table class="ovActivityTable">
 		<tr>
 			<th>#</th>
 			<th>${text.ovActivity.status}</th>
@@ -34,37 +37,48 @@
 			<th>${text.ovActivity.enqueued}</th>
 		</tr>
 		#foreach($entry in $services)
-		#if ($entry.getCount() == 1)
-			#set($name = $entry.getName())
-		#else
-			#set($name = $entry.getName() + "s")
-		#end
-		<tr>
-			<td>${entry.getCount()}</td>	
-			<td>
-				<form method="get" action="">
-					<div>
-					#if( $entry.service.isPaused() == true)
-						<input type="hidden" name="service" value="$entry.getName()" />
-						<input class="btnResume" type="submit" name="resume" value="${text.ovActivity.doResume}" />
-					#else 
-						<input type="hidden" name="service" value="$entry.getName()" />
-						<input class="btnPause" type="submit" name="pause" value="${text.ovActivity.doPause}" />
-					#end
-					</div>
-				</form>
-			</td>
-			<td>
-				#if ( $queueServletExists == true)
-				<a href="${servletManager.getFullAlias('/queue')}?queue=$entry.getId()">$name</a>
-				#else
-				$name
-				#end
-			</td>
-			<td>$entry.getService().getPPM()</td>
-			<td>$entry.getService().getActiveJobCount()</td>
-			<td>$entry.getService().getEnqueuedJobCount()</td>
-		</tr>
+    		#if ($entry.getCount() == 1)
+    			#set($name = $entry.getName())
+    		#else
+    			#set($name = $entry.getName() + "s")
+    		#end
+    		<tr>
+    			<td><a title="${text.ovActivity.viewSubServices.insert($entry.getName())}" 
+    				   href="${servletManager.getFullAlias('/status')}#d${entry.getName().toLowerCase()}">${entry.getCount()}</a>
+    			</td>	
+    			<td>
+    				<form method="get" action="">
+    					<div>
+    					#if( $entry.service.isPaused() == true)
+    						<input type="hidden" name="service" value="$entry.getName()" />
+    						<input class="btnResume" type="submit" name="resume" value="${text.ovActivity.doResume}" />
+    					#else 
+    						<input type="hidden" name="service" value="$entry.getName()" />
+    						<input class="btnPause" type="submit" name="pause" value="${text.ovActivity.doPause}" />
+    					#end
+    					</div>
+    				</form>
+    			</td>
+    			<td>
+    				#if ( $queueServletExists == true)
+    				<a href="${servletManager.getFullAlias('/queue')}?queue=$entry.getId()" 
+    				   title="${text.ovActivity.viewQueue.insert($entry.getName())}">$name</a>
+    				#else
+    				$name
+    				#end
+    			</td>
+    			<td>${entry.getService().getPPM()}</td>
+    			<td>${entry.getService().getActiveJobCount()}</td>
+    			<td>${entry.getService().getEnqueuedJobCount()}</td>
+    		</tr>
+    		
+        	#if($listTool.contains($monitorables,${entry.getId()}))
+        		#if($monitorAdmin.getStatusVariable("${entry.getId()}/state.code").getString() != "OK")
+    				<tr>
+    					<td colspan="6" class="warning">$text.get("ovActivity.PAUSED_BY_OOM_CHECK").insert($entry.getName())</td>
+    				</tr>
+        		#end
+        	#end		
 		#end
 	</table>
 	<div class="lastUpdate">

@@ -284,6 +284,11 @@ span.error, p.error {
 	color: #FFFFFF;
 }
 
+.ovActivityTable .warning {
+	padding: 0 0 0 1.2em;
+	font-size: 1em;
+}
+
 span.error {
 	padding: 0;
 }

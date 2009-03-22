@@ -70,7 +70,7 @@
 <ul class="tabs">
 	<li><a href="#dcrawler" onclick="fshow('crawler');" id="tcrawler">${text.tab.crawler}</a></li>
 	<li><a href="#dparser" onclick="fshow('parser');" id="tparser">${text.tab.parser}</a></li>
-	<li><a href="#dindex" onclick="fshow('index');" id="tindex">${text.tab.indexer}</a></li>
+	<li><a href="#dindexer" onclick="fshow('indexer');" id="tindexer">${text.tab.indexer}</a></li>
 	<li><a href="#dsearch" onclick="fshow('search');" id="tsearch">${text.tab.searchEngine}</a></li>
 	<li><a href="#dgui" onclick="fshow('gui');" id="tgui">${text.tab.gui}</a></li>
 	<li><a href="#dcache" onclick="fshow('cache');" id="tcache">${text.tab.cache}</a></li>
@@ -232,7 +232,7 @@
 
 #set( $se = $manager.getService( "org.paxle.se.index.IIndexSearcher"))
 #if( $se)
-<fieldset id="dindex">
+<fieldset id="dindexer">
 	<legend>${text.legend.indexer}</legend>
 	<p>${text.indexer.status.insert($se.docCount)}</p>
 		
@@ -245,7 +245,7 @@
 	#filterlist($manager.getService("org.paxle.core.filter.IFilterManager"), "org.paxle.indexer.out")		
 </fieldset>
 #else
-<fieldset id="dindex">
+<fieldset id="dindexer">
 	<legend>${text.legend.indexer}</legend>
 	<p class="error notInstalled">${text.indexer.notInstalled}</p>	
 </fieldset>	

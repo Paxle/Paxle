@@ -62,6 +62,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	private static final String VAR_NAME_JOBS_MAX = "jobs.max";
 	private static final String VAR_NAME_JOBS_TOTAL = "jobs.total";
 	private static final String VAR_NAME_JOB_DELAY = "job.delay";
+	private static final String VAR_NAME_STAT_CODE = "state.code";
 	
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
@@ -75,6 +76,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		add(VAR_NAME_JOBS_MAX);
 		add(VAR_NAME_JOBS_TOTAL);
 		add(VAR_NAME_JOB_DELAY);
+		add(VAR_NAME_STAT_CODE);
 	}};
 	
 	/**
@@ -89,6 +91,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		put(VAR_NAME_JOBS_MAX, "Maximum allowed number of active jobs");
 		put(VAR_NAME_JOBS_TOTAL, "Total number of jobs processed since startup");
 		put(VAR_NAME_JOB_DELAY, "Delay in ms between buzy loops. -1 means no delay.");
+		put(VAR_NAME_STAT_CODE, "Current state of this component");
 	}};
 	
 	/* ========================================================================
@@ -100,7 +103,9 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	public static final String PROP_DELAY = "master.delay";
 	public static final String PROP_DELAY_DELTA = "master.delay.delta";
 	public static final String PROP_ACTIVATED = "master.activated";
+	
 	private static final String PROP_STATE_ACTIVE = "state.active";
+	private static final String PROP_STATE_CODE = "state.code";
 	
 	/**
 	 * Master thread
@@ -153,6 +158,8 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	private Configuration configuration;
 	
 	private final String[] locales;
+	
+	private String stateCode = "OK";
 	
 	public MWComponent(IMaster<Data> master, Pool<Data> pool, InputQueue<Data> inQueue, OutputQueue<Data> outQueue, final String[] locales) {
 		if (master == null) throw new NullPointerException("The master thread is null.");
@@ -387,6 +394,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		 */
 		final Boolean active = (Boolean)configuration.get(getFullPropertyName(PROP_STATE_ACTIVE));
 		if (active != null) {
+			this.stateCode = "OK";
 			this.setActiveState(active);
 		}
 	}
@@ -533,6 +541,8 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 			return new StatusVariable(name, StatusVariable.CM_GAUGE, this.getMaster().processedCount());
 		} else if (name.equals(VAR_NAME_JOB_DELAY)) {
 			return new StatusVariable(name, StatusVariable.CM_GAUGE, this.getMaster().getDelay());
+		} else if (name.equals(VAR_NAME_STAT_CODE)) {
+			return new StatusVariable(name, StatusVariable.CM_SI, this.stateCode);
 		}
 		return null;
 	}
@@ -558,6 +568,12 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 		final String topic = event.getTopic();
 		if (topic.equals("org/paxle/monitorable/observer")) {
 			final Boolean active = (Boolean)event.getProperty(this.getFullPropertyName(PROP_STATE_ACTIVE));
+			final String stateCode = (String)event.getProperty(this.getFullPropertyName(PROP_STATE_CODE));
+			
+			if (stateCode != null) {
+				this.stateCode = stateCode;
+			}
+			
 			if (active != null) {
 				this.setActiveState(active);
 			}

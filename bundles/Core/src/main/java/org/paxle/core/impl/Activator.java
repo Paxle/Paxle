@@ -250,7 +250,8 @@ public class Activator implements BundleActivator, InvocationHandler {
         
         this.initEclipseApplication(bc);
 	}
-	
+		
+	@SuppressWarnings("serial")
 	private void createAndRegisterMonitorableObservers(BundleContext bc) throws InvalidSyntaxException, SecurityException, NoSuchMethodException {
 		/*
 		 * CPU usage observer
@@ -267,8 +268,9 @@ public class Activator implements BundleActivator, InvocationHandler {
 		 * Memory observer
 		 * XXX: should be configurable via CM
 		 */
-        Filter gcFilter = bc.createFilter("(java.lang.runtime/memory.free <= 20971520)");
-        Filter oomFilter = bc.createFilter("(&(org.paxle.crawler/status.paused=false)(|(java.lang.runtime/memory.free <= 10485760)(os.disk/disk.space.free<=1024)))");
+        Filter gcFilter = bc.createFilter("(java.lang.runtime/memory.free <= " + 20*1024*1024 + ")");
+        Filter oomFilter = bc.createFilter("(&(org.paxle.crawler/status.paused=false)(|(java.lang.runtime/memory.free <= " + 10*1024*1024 + ")(os.disk/disk.space.free<=1024)))");
+        Filter oomResolvedFilter = bc.createFilter("(&(org.paxle.crawler/status.paused=true)(org.paxle.crawler/state.code=PAUSED_BY_OOM_CHECK)(java.lang.runtime/memory.free >= " + 11*1024*1024 + ")(os.disk/disk.space.free>=1024))");
         
         new MonitorableObserver(
         		bc, 
@@ -285,6 +287,17 @@ public class Activator implements BundleActivator, InvocationHandler {
         				new ObserverEventSenderConcequence(bc, new Hashtable<String, Object>(){{
         			        put("mon.observer.listener.id","org.paxle.crawler");
         			        put("org.paxle.crawler.state.active", Boolean.FALSE);
+        			        put("org.paxle.crawler.state.code","PAUSED_BY_OOM_CHECK");
+        				}})
+        		),
+        		new ObserverRule(
+        				// Filter based condition
+        				new ObserverFilterCondition(oomResolvedFilter),
+        				// triggers an event
+        				new ObserverEventSenderConcequence(bc, new Hashtable<String, Object>(){{
+        			        put("mon.observer.listener.id","org.paxle.crawler");
+        			        put("org.paxle.crawler.state.active", Boolean.TRUE);
+        			        put("org.paxle.crawler.state.code","OK");
         				}})
         		)
         );      
