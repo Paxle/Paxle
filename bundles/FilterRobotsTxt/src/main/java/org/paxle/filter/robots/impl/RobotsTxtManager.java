@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -134,15 +135,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
-	static {
-		VAR_DESCRIPTIONS.put(MONITOR_STORE_SIZE, "Known robots.txt definitions");
-		VAR_DESCRIPTIONS.put(MONITOR_JOBS_ACTIVE, "Number of jobs currently running");
-		VAR_DESCRIPTIONS.put(MONITOR_JOBS_IDLE, "Number of idle jobs");
-		VAR_DESCRIPTIONS.put(MONITOR_JOBS_MAX, "Maximum allowed number of active jobs");
-		VAR_DESCRIPTIONS.put(MONITOR_JOBS_PENDING, "Number of jobs waiting for execution");
-		VAR_DESCRIPTIONS.put(MONITOR_JOBS_TOTAL, "Total number of executed jobs");
-	}	
+	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/IRobotsTxtManager");	
 
 	/**
 	 * Lock object required to synchronize functions affected by {@link #updated(Dictionary)} 
@@ -407,7 +400,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 			throw new IllegalArgumentException("Invalid Status Variable name " + id);
 		}		
 		
-		return VAR_DESCRIPTIONS.get(id);
+		return this.rb.getString(id);
 	}
 	
 	/**

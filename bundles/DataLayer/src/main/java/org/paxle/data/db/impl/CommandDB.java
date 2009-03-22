@@ -34,12 +34,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -112,11 +112,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
-	static {
-		VAR_DESCRIPTIONS.put(MONITOR_TOTAL_SIZE, "Total known URIs");
-		VAR_DESCRIPTIONS.put(MONITOR_ENQUEUED_SIZE, "Enqueued URIs");
-	}	
+	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/CommandDB");
 
 	private static final String UTF8 = "UTF-8";
 	/**
@@ -280,7 +276,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			throw new IllegalArgumentException("Invalid Status Variable name " + id);
 		}	
 
-		return VAR_DESCRIPTIONS.get(id);
+		return this.rb.getString(id);
 	}
 
 	/**

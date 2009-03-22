@@ -249,6 +249,7 @@ public class MWComponentFactory implements IMWComponentFactory {
 		managedServiceProps.put(Constants.SERVICE_PID, componentID);
 		managedServiceProps.put(EventConstants.EVENT_TOPIC, "org/paxle/monitorable/observer");
 		managedServiceProps.put(EventConstants.EVENT_FILTER, String.format("(mon.observer.listener.id=%s)",componentID));
+		managedServiceProps.put("Monitorable-Localization", "/OSGI-INF/l10n/MWComponent");
 		
 		// register as services
 		bc.registerService(new String[]{

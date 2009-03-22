@@ -14,6 +14,7 @@
 package org.paxle.tools.sysmon.impl;
 
 import java.util.HashMap;
+import java.util.ResourceBundle;
 
 import jsysmon.CPUMonitoringData;
 import jsysmon.CPUMonitoringListener;
@@ -29,6 +30,7 @@ import org.osgi.service.monitor.StatusVariable;
  * @scr.component 
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
  * @scr.property name="service.pid" value="os.usage.cpu"
+ * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/CPUMonitoring"
  */
 public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 	public static final String PID = "os.usage.cpu";
@@ -37,7 +39,7 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 	/**
 	 * Textual description of all available {@link #VAR_NAMES monitoring-variables}
 	 */
-	private static final String[] VAR_DESCRIPTIONS = CPUMonitoringData.LABELS;
+	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/CPUMonitoring");
 	
 	/**
 	 * A map containing the {@link Monitorable#getStatusVariableNames() variable-name} as key
@@ -151,8 +153,7 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		
-		Integer id = VAR_NAMES.get(name);
-		return VAR_DESCRIPTIONS[id.intValue()];
+		return this.rb.getString(name);
 	}
 
 	/**

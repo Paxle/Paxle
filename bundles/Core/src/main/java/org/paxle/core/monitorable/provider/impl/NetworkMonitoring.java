@@ -17,6 +17,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,8 +27,9 @@ import org.osgi.service.monitor.StatusVariable;
 /**
  * @scr.component name="os.network"
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/NetworkMonitoring"
  */
-public class NetworkMonitoring implements Monitorable {
+public class NetworkMonitoring implements Monitorable {	
 	/**
 	 * The hostname of the peer
 	 */
@@ -44,18 +46,14 @@ public class NetworkMonitoring implements Monitorable {
 	@SuppressWarnings("serial")
 	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(){{
 			add(VAR_NAME_HOSTNAME);
-			add("ip-address");
+			add(VAR_NAME_IP_ADDRESS);
 	}};	
-	
+
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	@SuppressWarnings("serial")
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>(){{
-		put(VAR_NAME_HOSTNAME,"The hostname of the peer");
-		put(VAR_NAME_IP_ADDRESS,"The IP-address of the peer");
-	}};
-
+	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/NetworkMonitoring");	
+	
 	/**
 	 * For logging
 	 */
@@ -66,7 +64,7 @@ public class NetworkMonitoring implements Monitorable {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		
-		return VAR_DESCRIPTIONS.get(name);
+		return this.rb.getString(name);
 	}
 
 	public StatusVariable getStatusVariable(String name) throws IllegalArgumentException {

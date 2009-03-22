@@ -17,10 +17,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,21 +52,17 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable, 
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(Arrays.asList(new String[]{
-			VAR_NAME_KNOWN_DOCS,
-			VAR_NAME_LUCENE_IMPL_VERSION,
-			VAR_NAME_LUCENE_SPEC_VERSION
-	}));
+	@SuppressWarnings("serial")
+	private static final HashSet<String> VAR_NAMES =  new HashSet<String>() {{
+		add(VAR_NAME_KNOWN_DOCS);
+		add(VAR_NAME_LUCENE_IMPL_VERSION);
+		add(VAR_NAME_LUCENE_SPEC_VERSION);
+	}};
 	
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
-	static {
-		VAR_DESCRIPTIONS.put(VAR_NAME_KNOWN_DOCS, "Number of documents in the index.");
-		VAR_DESCRIPTIONS.put(VAR_NAME_LUCENE_IMPL_VERSION, "Lucene implementation version.");
-		VAR_DESCRIPTIONS.put(VAR_NAME_LUCENE_SPEC_VERSION, "Lucene specification version.");
-	};	
+	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/LuceneSearcher");	
 	
 	/**
 	 * For logging
@@ -165,7 +160,7 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable, 
 		if (!VAR_NAMES.contains(id))
 			throw new IllegalArgumentException("no such variable '" + id + "'");
 
-		return VAR_DESCRIPTIONS.get(id);
+		return this.rb.getString(id);
 	}
 	
 	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {

@@ -15,6 +15,8 @@ package org.paxle.tools.sysmon.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.ResourceBundle;
 
 import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.logging.Log;
@@ -26,30 +28,41 @@ import org.osgi.service.monitor.StatusVariable;
  * @scr.component 
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
  * @scr.property name="service.pid" value="os.disk"
+ * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/DiskspaceMonitoring"
  */
 public class DiskspaceMonitoring implements Monitorable {
-	public static final String PID = "os.disk";	
+	public static final String PID = "os.disk";		
 	public static final String VAR_SPACE_FREE = "disk.space.free";
 	
 	/**
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());	
+
+	@SuppressWarnings("serial")
+	private static final HashSet<String> VAR_NAMES = new HashSet<String>() {{
+		add(VAR_SPACE_FREE);
+	}};	
+	
+	/**
+	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/DiskspaceMonitoring");	
 	
 	public String[] getStatusVariableNames() {
-		return new String[] {VAR_SPACE_FREE};
+		return VAR_NAMES.toArray(new String[VAR_NAMES.size()]);
 	}	
 	
 	public String getDescription(String name) throws IllegalArgumentException {
-		if (!VAR_SPACE_FREE.equals(name)) {
+		if (!VAR_NAMES.contains(name)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}		
 		
-		return "Free disk space in MB.";
+		return this.rb.getString(name);
 	}
 
 	public StatusVariable getStatusVariable(String name) throws IllegalArgumentException {
-		if (!VAR_SPACE_FREE.equals(name)) {
+		if (!VAR_NAMES.contains(name)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		

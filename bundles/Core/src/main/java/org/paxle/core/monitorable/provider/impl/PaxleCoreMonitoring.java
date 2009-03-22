@@ -15,8 +15,8 @@ package org.paxle.core.monitorable.provider.impl;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,6 +29,7 @@ import org.osgi.service.monitor.StatusVariable;
 /**
  * @scr.component name="org.paxle.core"
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/PaxleCoreMonitoring"
  */
 public class PaxleCoreMonitoring implements Monitorable {
 	/**
@@ -70,13 +71,7 @@ public class PaxleCoreMonitoring implements Monitorable {
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	@SuppressWarnings("serial")
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>(){{
-		put(VARNAME_CORE_IMPL_VERSION,"The Implementation-Version header of the core-bundle.");
-		put(VARNAME_CORE_BUILD_VERSION,"The Implementation-Build header of the core-bundle.");
-		put(VARNAME_CORE_BUILD_TIME,"The Bnd-LastModified header of the core-bundle.");
-		put(VARNAME_CORE_INSTALL_TIME,"The install time of the core-bundle.");
-	}};
+	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/PaxleCoreMonitoring");
 	
 	/**
 	 * An OSGi BundleContext required to get OSGi-Framework properties
@@ -97,7 +92,7 @@ public class PaxleCoreMonitoring implements Monitorable {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		
-		return VAR_DESCRIPTIONS.get(name);
+		return this.rb.getString(name);
 	}
 
 	public StatusVariable getStatusVariable(String name) throws IllegalArgumentException {

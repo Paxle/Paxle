@@ -26,37 +26,28 @@
 #end
 #end
 
-## the monitor admin service
-#set($monitorAdmin = $manager.getService('org.osgi.service.monitor.MonitorAdmin'))
-#if($monitorAdmin)
-
-       #if($paramParser.getStrings("monitorableId"))
-               #set($monitorables = $paramParser.getStrings("monitorableId"))
-       #else
-               #set($monitorables = $monitorAdmin.getMonitorableNames())
-       #end
-       #if($monitorables)
-    {
-               #foreach($monitorable in $loopTool.watch($monitorables,'monitorables'))
+#set($monitorables = $monitorableTool.getMonitorables($paramParser.getStrings("monitorableId")))
+#if($monitorables)
+{
+    #foreach($monitorable in $loopTool.watch($monitorables,'monitorables'))
         ${escTool.q}$monitorable${escTool.q} :
         {
-                       #set($statusVariables = $monitorAdmin.getStatusVariables($monitorable))
-                       #if($statusVariables)
-                               #foreach($statusVariable in $loopTool.watch($sortTool.sort($statusVariables,["ID:asc"]),'variables'))
-                ${escTool.q}$statusVariable.getID()${escTool.q} :
-                {
-                    "id" : ${escTool.q}$statusVariable.getID()${escTool.q} ,
-                    "type" : ${escTool.q}$listTool.get($dataTypes,$statusVariable.getType())${escTool.q} ,
-                    "timestamp" : $statusVariable.getTimeStamp().getTime() ,
-                    "value" : #statusVarValue($statusVariable) ,
-                    "description" : ${escTool.q}$escTool.java($monitorAdmin.getDescription("$monitorable/$statusVariable.getID()"))${escTool.q}
-                }
-                #if(!$loopTool.isLast('variables')),#end
-                               #end
-                       #end
+               #set($statusVariables = $monitorable.getVariables($paramParser.getStrings("variableId")))
+               #if($statusVariables)
+                   #foreach($statusVariable in $loopTool.watch($sortTool.sort($statusVariables,["ID:asc"]),'variables'))
+                    ${escTool.q}$statusVariable.getID()${escTool.q} :
+                    {
+                        "id" : ${escTool.q}${statusVariable.ID}${escTool.q} ,
+                        "type" : ${escTool.q}${statusVariable.typeName}${escTool.q} ,
+                        "timestamp" : ${statusVariable.getTimeStamp().getTime()} ,
+                        "value" : #if($statusVariable.type==2)${escTool.q}#end$escTool.java(${statusVariable.value})#if($statusVariable.type==2)${escTool.q}#end,
+                        "description" : ${escTool.q}$escTool.java(${statusVariable.description})${escTool.q}
+                    }
+                    #if(!$loopTool.isLast('variables')),#end
+                    #end
+                #end
         }
         #if(!$loopTool.isLast('monitorables')),#end
-               #end
-    }
-       #end
+    #end
+}
 #end

@@ -15,10 +15,10 @@ package org.paxle.data.db.impl;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -56,10 +56,7 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>();
-	static {
-		VAR_DESCRIPTIONS.put(VAR_NAME_QUEUE_SIZE, "Number of URI-packages enqueued for storage to DB.");
-	}		
+	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/UrlExtractorFilter");
 	
 	/**
 	 * Class to count processed {@link URI}
@@ -266,7 +263,7 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 			throw new IllegalArgumentException("Invalid Status Variable name " + id);
 		}	
 		
-		return VAR_DESCRIPTIONS.get(id);
+		return this.rb.getString(id);
 	}
 
 	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {

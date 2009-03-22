@@ -23,16 +23,11 @@
 </ul>
 
 ## the monitor admin service
-#set($monitorAdmin = $manager.getService('org.osgi.service.monitor.MonitorAdmin'))
-#if($monitorAdmin)
-	<fieldset id="d$activeTab">
-		<legend style="display: none;">$text.get("tab.$activeTab")</legend>
-		#if($activeTab=="vars")		
-			#parse('/resources/templates/MonitorableViewVariables.vm')
-		#elseif($activeTab=="jobs")
-			#parse('/resources/templates/MonitorableViewJobs.vm')
-		#end
-	</fieldset>
-#else
-	<p class="error bundleNotInstalled">${text.monitorableView.monitorAdmin.notfound}</p>
-#end
+<fieldset id="d$activeTab">
+	<legend style="display: none;">$text.get("tab.$activeTab")</legend>
+	#if($activeTab=="vars")		
+		#parse('/resources/templates/MonitorableViewVariables.vm')
+	#elseif($activeTab=="jobs")
+		#parse('/resources/templates/MonitorableViewJobs.vm')
+	#end
+</fieldset>

@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,8 +31,11 @@ import org.osgi.service.monitor.StatusVariable;
 /**
  * @scr.component name="java.lang.management"
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/JmxMonitoring"
  */
 public class JmxMonitoring implements Monitorable {
+	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/JmxMonitoring");
+	
 	/* =========================================================================
 	 * OPERATING SYSTEM props
 	 * ========================================================================= */
@@ -66,23 +70,6 @@ public class JmxMonitoring implements Monitorable {
 	 */
 	private static final HashSet<String> VAR_NAMES =  new HashSet<String>();
 	
-	/**
-	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
-	 */
-	@SuppressWarnings("serial")
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>(){{
-		put(VAR_NAME_SYS_LOAD, "The system load average for the last minute.");
-		put(VAR_NAME_CPU_TIME, "The CPU time used by the process on which the Java virtual machine is running in nanoseconds.");
-		put(VAR_NAME_OPEN_FILE_DESCR_COUNT, "The number of open file descriptors.");
-		put(VAR_NAME_MAX_FILE_DESCR_COUNT, "The maximum number of file descriptors.");
-		put(VAR_NAME_VIRTUAL_MEMORY, "The amount of virtual memory that is guaranteed to be available to the running process in MB, or -1 if this operation is not supported.");
-		put(VAR_NAME_PHYSICAL_MEMORY, "The amount of free physical memory in MB.");
-		put(VAR_NAME_SWAP_SPACE, "The amount of free swap space in MB.");
-		
-		put(VAR_NAME_UPTIME, "The uptime of the Java virtual machine in seconds.");
-		put(VAR_NAME_STARTTIME, "The start time of the Java virtual machine.");
-	}};
-	
 	private OperatingSystemMXBean operatingSystem;
 	private RuntimeMXBean runtime;
 	
@@ -110,7 +97,7 @@ public class JmxMonitoring implements Monitorable {
 	private void testMethod(String varName, Object bean, String property) {
 		try {
 			String methodName = "get" + Character.toUpperCase(property.charAt(0)) + property.substring(1);
-			Class clazz = bean.getClass();
+			Class<?> clazz = bean.getClass();
 			Method method = clazz.getMethod(methodName);
 			method.setAccessible(true);
 			Object test = method.invoke(bean, (Object[])null);
@@ -133,7 +120,7 @@ public class JmxMonitoring implements Monitorable {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		
-		return VAR_DESCRIPTIONS.get(name);
+		return this.rb.getString(name);
 	}
 
 	public StatusVariable getStatusVariable(String name) throws IllegalArgumentException {

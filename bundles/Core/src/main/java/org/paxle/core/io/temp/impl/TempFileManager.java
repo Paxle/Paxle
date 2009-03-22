@@ -17,10 +17,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
@@ -31,6 +31,8 @@ import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
 
 public class TempFileManager implements ITempFileManager, Monitorable {
+	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/TempFileManager");
+	
 	/* =========================================================
 	 * OSGi Monitorable CONSTANTS
 	 * ========================================================= */		
@@ -53,15 +55,6 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 			add(MONITOR_FILES_USED);
 			add(MONITOR_FILES_TOTAL);
 	}};	
-	
-	/**
-	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
-	 */
-	@SuppressWarnings("serial")
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>(){{
-		put(MONITOR_FILES_USED, "Number of currently used temp-files.");
-		put(MONITOR_FILES_TOTAL, "Total number of created temp-files.");
-	}};
 	
 	private final Hashtable<String,ITempDir> classMap = new Hashtable<String,ITempDir>();
 	
@@ -150,7 +143,7 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 			throw new IllegalArgumentException("Invalid Status Variable name " + id);
 		}		
 		
-		return VAR_DESCRIPTIONS.get(id);
+		return this.rb.getString(id);
 	}
 
 	public StatusVariable getStatusVariable(String id) throws IllegalArgumentException {

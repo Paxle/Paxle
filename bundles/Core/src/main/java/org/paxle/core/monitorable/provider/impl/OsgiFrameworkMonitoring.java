@@ -13,8 +13,8 @@
  */
 package org.paxle.core.monitorable.provider.impl;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ResourceBundle;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -25,6 +25,7 @@ import org.osgi.service.monitor.StatusVariable;
 /**
  * @scr.component name="org.osgi.framework"
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/OsgiFrameworkMonitoring"
  */
 public class OsgiFrameworkMonitoring implements Monitorable {
 	private static final String FRAMEWORK_PROP_PREFIX = "org.osgi.framework.";
@@ -46,16 +47,7 @@ public class OsgiFrameworkMonitoring implements Monitorable {
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	@SuppressWarnings("serial")
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>(){{
-		put(Constants.FRAMEWORK_VERSION.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework version.");
-		put(Constants.FRAMEWORK_VENDOR.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework vendor.");
-		put(Constants.FRAMEWORK_LANGUAGE.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework implementation language (see ISO 639 for possible values).");
-		put(Constants.FRAMEWORK_OS_NAME.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework host-computer's operating system.");
-		put(Constants.FRAMEWORK_OS_VERSION.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework host-computer's operating system version number.");
-		put(Constants.FRAMEWORK_PROCESSOR.substring(FRAMEWORK_PROP_PREFIX.length()), "The OSGi framework host-computer's processor name.");
-		// put(Constants.FRAMEWORK_EXECUTIONENVIRONMENT.substring(FRAMEWORK_PROP_PREFIX.length()), "The execution environments provided by the OSGi framework");
-	}};
+	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/OsgiFrameworkMonitoring");
 	
 	/**
 	 * An OSGi BundleContext required to get OSGi-Framework properties
@@ -71,7 +63,7 @@ public class OsgiFrameworkMonitoring implements Monitorable {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		
-		return VAR_DESCRIPTIONS.get(name);
+		return this.rb.getString(name);
 	}
 
 	public StatusVariable getStatusVariable(String name) throws IllegalArgumentException {

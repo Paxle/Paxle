@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -82,17 +81,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	@SuppressWarnings("serial")
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>(){{
-		put(VAR_NAME_PPM, "Pages per minute");
-		put(VAR_NAME_PAUSED, "Current activation status");
-		put(VAR_NAME_JOBS_ENQUEUED, "Amount of enqueued jobs");
-		put(VAR_NAME_JOBS_ACTIVE, "Amount of active jobs");
-		put(VAR_NAME_JOBS_MAX, "Maximum allowed number of active jobs");
-		put(VAR_NAME_JOBS_TOTAL, "Total number of jobs processed since startup");
-		put(VAR_NAME_JOB_DELAY, "Delay in ms between buzy loops. -1 means no delay.");
-		put(VAR_NAME_STAT_CODE, "Current state of this component");
-	}};
+	private final ResourceBundle monitorableRb = ResourceBundle.getBundle("OSGI-INF/l10n/MWComponent");
 	
 	/* ========================================================================
 	 * CM properties
@@ -516,7 +505,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		
-		return VAR_DESCRIPTIONS.get(name);
+		return this.monitorableRb.getString(name);
 	}
 
 	/**

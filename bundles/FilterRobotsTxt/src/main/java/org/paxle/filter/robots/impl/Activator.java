@@ -90,6 +90,7 @@ public class Activator implements BundleActivator {
 		// register robots.txt manager as service
 		Hashtable<String,Object> managerProps = new Hashtable<String,Object>();
 		managerProps.put(Constants.SERVICE_PID, RobotsTxtManager.MONITOR_PID);
+		managerProps.put("Monitorable-Localization", "/OSGI-INF/l10n/IRobotsTxtManager");
 		bc.registerService(new String[] {
 				IRobotsTxtManager.class.getName(),
 				Monitorable.class.getName()

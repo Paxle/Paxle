@@ -83,6 +83,7 @@ public class Activator implements BundleActivator {
 		
 		final Hashtable<String,Object> props = new Hashtable<String,Object>();
 		props.put(Constants.SERVICE_PID, LuceneSearcher.PID);
+		props.put("Monitorable-Localization", "/OSGI-INF/l10n/LuceneSearcher");
 		bc.registerService(new String[] {
 				IIndexSearcher.class.getName(),
 				ISearchProvider.class.getName(),

@@ -12,9 +12,6 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
 #if( $services.size() > 0)
-	#set($monitorAdmin = $manager.getService('org.osgi.service.monitor.MonitorAdmin'))
-	#set($monitorables = $monitorAdmin.getMonitorableNames())
-	
 	#set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
     #if(!$text)
     	#set($text = $resourceTool.bundle('OSGI-INF/l10n/overview'))
@@ -71,14 +68,14 @@
     			<td>${entry.getService().getActiveJobCount()}</td>
     			<td>${entry.getService().getEnqueuedJobCount()}</td>
     		</tr>
-    		
-        	#if($listTool.contains($monitorables,${entry.getId()}))
-        		#if($monitorAdmin.getStatusVariable("${entry.getId()}/state.code").getString() != "OK")
+    					
+        	#if($monitorableTool.exists(${entry.getId()}))
+        		#if($monitorableTool.get(${entry.getId()}).get("state.code").value != "OK")
     				<tr>
     					<td colspan="6" class="warning">$text.get("ovActivity.PAUSED_BY_OOM_CHECK").insert($entry.getName())</td>
     				</tr>
         		#end
-        	#end		
+        	#end	
 		#end
 	</table>
 	<div class="lastUpdate">

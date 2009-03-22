@@ -199,6 +199,7 @@ public class Activator implements BundleActivator {
 		props.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.crawler.sink");
 		props.put(EventConstants.EVENT_TOPIC, new String[] { CommandEvent.TOPIC_OID_REQUIRED });
 		props.put(Constants.SERVICE_PID, CommandDB.PID);
+		props.put("Monitorable-Localization","/OSGI-INF/l10n/CommandDB");
 		context.registerService(new String[]{
 				IDataSink.class.getName(),
 				IDataProvider.class.getName(),
@@ -229,6 +230,7 @@ public class Activator implements BundleActivator {
 		});
 		urlExtractorFilterProps.put(IDataProvider.PROP_DATAPROVIDER_ID, ICommandDB.PROP_URL_ENQUEUE_SINK);
 		urlExtractorFilterProps.put(Constants.SERVICE_PID, UrlExtractorFilter.PID);
+		urlExtractorFilterProps.put("Monitorable-Localization","/OSGI-INF/l10n/UrlExtractorFilter");
 		
 		// creating filter
 		this.urlExtractor = new UrlExtractorFilter();

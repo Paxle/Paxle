@@ -13,7 +13,8 @@
  */
 package org.paxle.core.monitorable.provider.impl;
 
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.ResourceBundle;
 
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
@@ -21,6 +22,7 @@ import org.osgi.service.monitor.StatusVariable;
 /**
  * @scr.component name="java.lang.runtime"
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/RuntimeMemoryMonitoring"
  */
 public class RuntimeMemoryMonitoring implements Monitorable {
 	private static final String MEMORY_FREE = "memory.free";
@@ -29,36 +31,41 @@ public class RuntimeMemoryMonitoring implements Monitorable {
 	private static final String MEMORY_USED = "memory.used";
 
 	@SuppressWarnings("serial")
-	private static final HashMap<String, String> VAR_DESCRIPTIONS = new HashMap<String, String>() {{
-		put(MEMORY_FREE, "Current amount of free memory in the JVM (in bytes)");
-		put(MEMORY_MAX, "Current amount of max memory in the JVM (in bytes)");
-		put(MEMORY_TOTAL, "Current amount of total memory in the JVM (in bytes)");
-		put(MEMORY_USED, "Current amount of memory used by the JVM (in bytes)");
+	private static final HashSet<String> VAR_NAMES = new HashSet<String>() {{
+		add(MEMORY_FREE);
+		add(MEMORY_MAX);
+		add(MEMORY_TOTAL);
+		add(MEMORY_USED);
 	}};
+
+	/**
+	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/RuntimeMemoryMonitoring");	
 	
 	/**
 	 * @see Monitorable#getStatusVariableNames()
 	 */
 	public String[] getStatusVariableNames() {
-		return VAR_DESCRIPTIONS.keySet().toArray(new String[VAR_DESCRIPTIONS.size()]);
+		return VAR_NAMES.toArray(new String[VAR_NAMES.size()]);
 	}	
 	
 	/**
 	 * @see Monitorable#getDescription(String)
 	 */
 	public String getDescription(String name) throws IllegalArgumentException {
-		if (!VAR_DESCRIPTIONS.containsKey(name)) {
+		if (!VAR_NAMES.contains(name)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		
-		return VAR_DESCRIPTIONS.get(name);
+		return this.rb.getString(name);
 	}
 
 	/**
 	 * @see Monitorable#getStatusVariable(String)
 	 */
 	public StatusVariable getStatusVariable(String name) throws IllegalArgumentException {
-		if (!VAR_DESCRIPTIONS.containsKey(name)) {
+		if (!VAR_NAMES.contains(name)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		
@@ -74,7 +81,7 @@ public class RuntimeMemoryMonitoring implements Monitorable {
 				name,
 				StatusVariable.CM_GAUGE,
 				(int)mem
-			);
+		);
 	}
 
 	/**

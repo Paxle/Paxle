@@ -12,9 +12,7 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
 ## getting required managers
-#set($monitorAdmin = $manager.getService('org.osgi.service.monitor.MonitorAdmin'))
 #set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
-#set($monitorables = $monitorAdmin.getMonitorableNames())
 
 ## loading resource-bundle
 #if(!$text)
@@ -37,34 +35,34 @@
 	## =========================================================
 	## Lucene DB status
 	## =========================================================
-	#if($listTool.contains($monitorables,"org.paxle.lucene-db"))
+	#if($monitorableTool.exists("org.paxle.lucene-db"))
 	<tr>
 		<td>${text.ovDatabase.knownDocs}:</td>
-		<td>$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.lucene-db/docs.known").getInteger())</td>
+		<td>$numberTool.format($monitorableTool.getStatusVariable("org.paxle.lucene-db/docs.known").number)</td>
 	</tr>
 	#end
 	
 	## =========================================================
 	## Command DB status
 	## =========================================================	
-	#if($listTool.contains($monitorables,"org.paxle.data.cmddb"))
+	#if($monitorableTool.exists("org.paxle.data.cmddb"))
 	<tr>
 		<td>${text.ovDatabase.knownURI}:</td>
-		<td>$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.data.cmddb/size.total").getInteger())</td>
+		<td>$numberTool.format($monitorableTool.getStatusVariable("org.paxle.data.cmddb/size.total").number)</td>
 	</tr>
 	<tr>
 		<td>${text.ovDatabase.enqueuedURI}:</td>
-		<td>$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.data.cmddb/size.enqueued").getInteger())</td>
+		<td>$numberTool.format($monitorableTool.getStatusVariable("org.paxle.data.cmddb/size.enqueued").number)</td>
 	</tr>
 	#end
 	
 	## =========================================================
 	## URL-Extractor status
 	## =========================================================
-	#if($listTool.contains($monitorables,"org.paxle.data.UrlExtractor"))
+	#if($monitorableTool.exists("org.paxle.data.UrlExtractor"))
 	<tr>
 		<td>${text.ovDatabase.extractedURI}:</td>
-		<td>$numberTool.format($monitorAdmin.getStatusVariable("org.paxle.data.UrlExtractor/queue.size").getInteger())</td>
+		<td>$numberTool.format($monitorableTool.getStatusVariable("org.paxle.data.UrlExtractor/queue.size").number)</td>
 	</tr>
 	#end
 	</table>

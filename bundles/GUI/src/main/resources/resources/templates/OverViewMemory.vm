@@ -12,9 +12,7 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
 ## geting required services
-#set($monitorAdmin = $manager.getService('org.osgi.service.monitor.MonitorAdmin'))
 #set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
-#set($monitorables = $monitorAdmin.getMonitorableNames())
 
 ## loading resource-bundle
 #if(!$text)
@@ -37,20 +35,20 @@
 		##
 		## Memory usage monitorable
 		##
-		#if($listTool.contains($monitorables,'java.lang.runtime'))
+		#if($monitorableTool.exists('java.lang.runtime'))
 		<tr>
 			<td><b>${text.ovMemory.memUsed}</b></td>
-			#set($memUsed = ($monitorAdmin.getStatusVariable('java.lang.runtime/memory.used').getInteger()) / ( 1024 * 1024))
+			#set($memUsed = $monitorableTool.getStatusVariable('java.lang.runtime/memory.used').number / (1024*1024))
 			<td>$numberTool.format($memUsed) MiB</td>
 		</tr>
 		<tr>
 			<td><b>${text.ovMemory.memFree}</b></td>
-			#set($memFree = ($monitorAdmin.getStatusVariable('java.lang.runtime/memory.free').getInteger()) / ( 1024 * 1024))
+			#set($memFree = $monitorableTool.getStatusVariable('java.lang.runtime/memory.free').number / (1024*1024))
 			<td>$numberTool.format($memFree) MiB</td>
 		</tr>
 		<tr>
 			<td><b>${text.ovMemory.memTotal}</b></td>
-			#set($memTotal = ($monitorAdmin.getStatusVariable('java.lang.runtime/memory.total').getInteger()) / ( 1024 * 1024))
+			#set($memTotal = $monitorableTool.getStatusVariable('java.lang.runtime/memory.total').number / (1024*1024))
 			<td>$numberTool.format($memTotal) MiB</td>
 		</tr>
 		#end
@@ -58,10 +56,10 @@
 		##
 		## Disk usage monitorable
 		##
-		#if($listTool.contains($monitorables,'os.disk'))
+		#if($monitorableTool.exists('os.disk'))
 		<tr>
 			<td><b>${text.ovMemory.diskFree}</b></td>
-			#set($diskFree = $monitorAdmin.getStatusVariable('os.disk/disk.space.free').getFloat())
+			#set($diskFree = $monitorableTool.getStatusVariable('os.disk/disk.space.free').number)
 			<td>$numberTool.format($diskFree) MiB</td>
 		</tr>
 		#end

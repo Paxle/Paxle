@@ -200,6 +200,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		
 		Hashtable<String, String> tempFileManagerProps = new Hashtable<String, String>();
 		tempFileManagerProps.put(Constants.SERVICE_PID, TempFileManager.MONITOR_PID);
+		tempFileManagerProps.put("Monitorable-Localization", "/OSGI-INF/l10n/TempFileManager");
 		bc.registerService(new String[]{Monitorable.class.getName(), ITempFileManager.class.getName()}, this.tempFileManager, tempFileManagerProps);
 		
 		// register the master-worker-factory as a service
