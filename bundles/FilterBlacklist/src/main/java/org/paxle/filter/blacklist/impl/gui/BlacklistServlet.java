@@ -32,10 +32,10 @@ import org.paxle.gui.ALayoutServlet;
  * 				  label="Blacklist Servlet"
  * 				  description="A Servlet to manage your blacklists"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/blacklist"
- * @scr.property name="menu" value="%menu.administration/%menu.bundles/Blacklist"
- * @scr.property name="doUserAuth" value="true" type="Boolean"
- * @scr.property name="icon" value="/resources/images/book_link.png"
+ * @scr.property name="org.paxle.servlet.path" value="/blacklist"
+ * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.bundles/%blacklistServlet.menu"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
+ * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/book_link.png"
  */
 public class BlacklistServlet extends ALayoutServlet implements Servlet {
 

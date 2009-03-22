@@ -35,9 +35,9 @@ import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 /**
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/overview"
- * @scr.property name="menu" value="Info"
- * @scr.property name="doUserAuth" value="false" type="Boolean"
+ * @scr.property name="org.paxle.servlet.path" value="/overview"
+ * @scr.property name="org.paxle.servlet.menu" value="%menu.info"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
  */
 public class OverView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;

@@ -27,10 +27,10 @@ import org.paxle.gui.impl.ServiceManager;
 /**
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/queue"
- * @scr.property name="menu" value="Info/Queues"
- * @scr.property name="doUserAuth" value="false" type="Boolean"
- * @scr.property name="icon" value="/resources/images/table_link.png"
+ * @scr.property name="org.paxle.servlet.path" value="/queue"
+ * @scr.property name="org.paxle.servlet.menu" value="%menu.info/%menu.info.queues"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
+ * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/table_link.png"
  */
 public class QueueView extends ALayoutServlet {
 	

@@ -38,10 +38,10 @@ import org.paxle.gui.impl.ServiceManager;
 /**
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/crawler"
- * @scr.property name="menu" value="%menu.administration/%menu.bundles/Crawler"
- * @scr.property name="doUserAuth" value="true" type="Boolean"
- * @scr.property name="icon" value="/resources/images/link_go.png"
+ * @scr.property name="org.paxle.servlet.path" value="/crawler"
+ * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.bundles/%menu.bundles.crawler"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
+ * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/link_go.png"
  */
 public class CrawlerView extends ALayoutServlet {
 	

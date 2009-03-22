@@ -33,10 +33,10 @@ import org.paxle.gui.impl.log.OSGiLogReader;
 /**
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/log"
- * @scr.property name="menu" value="Info/Log"
- * @scr.property name="doUserAuth" value="false" type="Boolean"
- * @scr.property name="icon" value="/resources/images/script.png"
+ * @scr.property name="org.paxle.servlet.path" value="/log"
+ * @scr.property name="org.paxle.servlet.menu" value="%menu.info/%menu.info.log"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
+ * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/script.png"
  */
 public class LogView extends ALayoutServlet {	
 	private static final long serialVersionUID = 1L;

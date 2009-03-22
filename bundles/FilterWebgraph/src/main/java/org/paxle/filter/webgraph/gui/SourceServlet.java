@@ -16,10 +16,10 @@ import org.paxle.filter.webgraph.impl.GraphFilter;
 /**
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/domaingraphsource"
- * @scr.property name="menu" value="%menu.administration/%menu.bundles/Webgraph"
- * @scr.property name="doUserAuth" value="true" type="Boolean"
- * @scr.property name="icon" value="/resources/images/chart_organisation.png"
+ * @scr.property name="org.paxle.servlet.path" value="/domaingraphsource"
+ * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.bundles/Webgraph"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
+ * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/chart_organisation.png"
  */
 public class SourceServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;

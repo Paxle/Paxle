@@ -26,8 +26,8 @@ import org.paxle.gui.ALayoutServlet;
 /**
  * @scr.component immediate="true" metatype="false" name="org.paxle.gui.impl.servlets.RobotsTxt"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/robots.txt"
- * @scr.property name="doUserAuth" value="false" type="Boolean"
+ * @scr.property name="org.paxle.servlet.path" value="/robots.txt"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
  */
 public class RobotsTxt extends ALayoutServlet {
 

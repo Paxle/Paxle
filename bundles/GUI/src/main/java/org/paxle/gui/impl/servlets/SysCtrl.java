@@ -24,10 +24,10 @@ import org.paxle.gui.IServiceManager;
 /**
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/sysctrl"
- * @scr.property name="menu" value="%menu.administration/%menu.system/Shutdown"
- * @scr.property name="doUserAuth" value="true" type="Boolean"
- * @scr.property name="icon" value="/resources/images/shutdown_16.png"
+ * @scr.property name="org.paxle.servlet.path" value="/sysctrl"
+ * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.system/%menu.system.shutdown"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
+ * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/shutdown_16.png"
  */
 public class SysCtrl extends ALayoutServlet {
 

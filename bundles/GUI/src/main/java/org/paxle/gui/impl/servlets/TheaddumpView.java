@@ -25,8 +25,8 @@ import org.paxle.gui.ALayoutServlet;
 /**
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/threads"
- * @scr.property name="doUserAuth" value="false" type="Boolean"
+ * @scr.property name="org.paxle.servlet.path" value="/threads"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
  */
 public class TheaddumpView extends ALayoutServlet {
 	

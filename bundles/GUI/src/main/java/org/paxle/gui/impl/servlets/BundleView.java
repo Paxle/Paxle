@@ -50,10 +50,10 @@ import org.paxle.util.StringTools;
 /**
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/bundle"
- * @scr.property name="menu" value="%menu.administration/%menu.system/%menu.bundleControl"
- * @scr.property name="doUserAuth" value="false" type="Boolean"
- * @scr.property name="icon" value="/resources/images/brick.png"
+ * @scr.property name="org.paxle.servlet.path" value="/bundle"
+ * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.system/%menu.system.bundleControl"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
+ * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/brick.png"
  */
 public class BundleView extends ALayoutServlet {
 	

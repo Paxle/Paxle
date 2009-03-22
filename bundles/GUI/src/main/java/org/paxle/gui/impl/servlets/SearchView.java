@@ -32,10 +32,10 @@ import org.paxle.se.search.ISearchResult;
 /**
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/search"
- * @scr.property name="menu" value="Search"
- * @scr.property name="menu.pos" value="0" type="Integer"
- * @scr.property name="doUserAuth" value="false" type="Boolean"
+ * @scr.property name="org.paxle.servlet.path" value="/search"
+ * @scr.property name="org.paxle.servlet.menu" value="%menu.search"
+ * @scr.property name="org.paxle.servlet.menu.pos" value="0" type="Integer"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
  */
 public class SearchView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;

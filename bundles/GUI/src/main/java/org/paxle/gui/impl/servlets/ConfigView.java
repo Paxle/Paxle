@@ -74,10 +74,10 @@ import org.paxle.tools.ieporter.cm.IConfigurationIEPorter;
 /**
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/config"
- * @scr.property name="menu" value="%menu.administration/%menu.bundles/Config-Management"
- * @scr.property name="doUserAuth" value="true" type="Boolean"
- * @scr.property name="icon" value="/resources/images/bullet_wrench.png"
+ * @scr.property name="org.paxle.servlet.path" value="/config"
+ * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.bundles/%menu.system.configManagement"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
+ * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/bullet_wrench.png"
  */
 public class ConfigView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;

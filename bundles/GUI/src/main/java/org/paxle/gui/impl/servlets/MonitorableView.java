@@ -34,8 +34,8 @@ import org.paxle.gui.ALayoutServlet;
 /**
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/monitorable"
- * @scr.property name="doUserAuth" value="false" type="Boolean"
+ * @scr.property name="org.paxle.servlet.path" value="/monitorable"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
  */
 public class MonitorableView extends ALayoutServlet {	
 	private static final long serialVersionUID = 1L;

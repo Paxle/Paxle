@@ -46,10 +46,17 @@ import org.paxle.gui.IServletManager;
  * 				  policy="dynamic" 
  * 				  bind="addServlet" 
  * 				  unbind="removeServlet"
- * 				  target="(path=*)"
+ * 				  target="(org.paxle.servlet.path=*)"
  */
 public class ServletManager implements IServletManager {
 	
+	private static final String SERVLET_DO_USER_AUTH = "org.paxle.servlet.doUserAuth";
+	private static final String SERVLET_MENU_ICON = "org.paxle.servlet.menu.icon";
+	private static final String SERVLET_MENU_LOCALIZATION = "org.paxle.servlet.menu.localization";
+	private static final String SERVLET_MENU_POS = "org.paxle.servlet.menu.pos";
+	private static final String SERVLET_MENU_NAME = "org.paxle.servlet.menu";
+	private static final String SERVLET_PATH = "org.paxle.servlet.path";
+
 	/**
 	 * All registeres {@link Servlet servlets}
 	 */
@@ -138,7 +145,7 @@ public class ServletManager implements IServletManager {
 	
 	protected void addServlet(ServiceReference servletRef) {
 		// remember the servlet in our internal servlet-list
-		final String path = (String)servletRef.getProperty("path");
+		final String path = (String)servletRef.getProperty(SERVLET_PATH);
 		this.servlets.put(path, servletRef);
 		
 		// registering the servlet to the http-service
@@ -153,7 +160,7 @@ public class ServletManager implements IServletManager {
 		this.unregisterMenuItem(servletRef);
 		
 		// removing the servlet from our internal servlet-list
-		final String path = (String)servletRef.getProperty("path");
+		final String path = (String)servletRef.getProperty(SERVLET_PATH);
 		this.servlets.remove(path);
 		
 		// unregistering the servlet from the http-service
@@ -162,7 +169,7 @@ public class ServletManager implements IServletManager {
 	
 	private HttpContext createHttpAuthContext(ServiceReference servletRef) {
 		// checking if we need an authentication
-		Boolean userAuth = (Boolean)servletRef.getProperty("doUserAuth");		
+		Boolean userAuth = (Boolean)servletRef.getProperty(SERVLET_DO_USER_AUTH);		
 		if (userAuth == null) userAuth = Boolean.FALSE;
 		if (!userAuth.booleanValue()) return null;
 		
@@ -177,18 +184,18 @@ public class ServletManager implements IServletManager {
 		if (this.menuManager == null) return;
 		
 		// the name of the menu-item
-		String menuName = (String)servletRef.getProperty("menu");
+		String menuName = (String)servletRef.getProperty(SERVLET_MENU_NAME);
 		if (menuName == null || menuName.length() == 0) return;
 		
-		Integer menuPos = (Integer)servletRef.getProperty("menu.pos");
+		Integer menuPos = (Integer)servletRef.getProperty(SERVLET_MENU_POS);
 		if (menuPos == null) menuPos = Integer.valueOf(IMenuManager.DEFAULT_MENU_POS);
 		
 		// getting the path to use
-		String path = (String)servletRef.getProperty("path");
+		String path = (String)servletRef.getProperty(SERVLET_PATH);
 		
 		// path to an icon
 		URL iconURL = null;
-		String iconPath = (String)servletRef.getProperty("icon");
+		String iconPath = (String)servletRef.getProperty(SERVLET_MENU_ICON);
 		if (iconPath != null && iconPath.startsWith("/")) {
 			// getting the bundle 
 			iconURL = servletRef.getBundle().getEntry(iconPath);
@@ -207,7 +214,7 @@ public class ServletManager implements IServletManager {
 			 */
 			
 			// the resource-bundle basename
-			resourceBundleBase = (String) servletRef.getProperty("menu-localization");
+			resourceBundleBase = (String) servletRef.getProperty(SERVLET_MENU_LOCALIZATION);
 			if (resourceBundleBase == null)
 				resourceBundleBase = (String) servletRef.getBundle().getHeaders().get(Constants.BUNDLE_LOCALIZATION);
 			if (resourceBundleBase == null)
@@ -222,7 +229,7 @@ public class ServletManager implements IServletManager {
 	private void unregisterMenuItem(ServiceReference servletRef) {
 		if (this.menuManager == null) return;
 		
-		String menuName = (String)servletRef.getProperty("menu");
+		String menuName = (String)servletRef.getProperty(SERVLET_MENU_NAME);
 		if (menuName == null || menuName.length() == 0) return;
 		
 		this.menuManager.removeItem(menuName);
@@ -256,7 +263,7 @@ public class ServletManager implements IServletManager {
 			servletClass = servlet.getClass().getName();
 			
 			// getting the path to use
-			final String path = (String)servletRef.getProperty("path");
+			final String path = (String)servletRef.getProperty(SERVLET_PATH);
 			
 			// convert it into a full alias (pathprefix + alias)
 			fullAlias = this.getFullAlias(path);
@@ -303,7 +310,7 @@ public class ServletManager implements IServletManager {
 		String servletClass = null;
 		try {
 			// getting the path of the servlet
-			final String path = (String)servletRef.getProperty("path");
+			final String path = (String)servletRef.getProperty(SERVLET_PATH);
 			
 			// convert it into a full alias (pathprefix + alias)
 			fullAlias = this.getFullAlias(path);

@@ -47,10 +47,10 @@ import org.htmlparser.lexer.Page;
  * 				  label="RSS Search Servlet"
  * 				  description="A Servlet to configure your RSS resources"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/rsssearchconfig"
- * @scr.property name="menu" value="%menu.administration/%menu.bundles/RSS search sources"
- * @scr.property name="doUserAuth" value="true" type="Boolean"
- * @scr.property name="icon" value="/resources/icons/folder_feed.png"
+ * @scr.property name="org.paxle.servlet.path" value="/rsssearchconfig"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
+ * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.bundles/%configServlet.menu"
+ * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/icons/folder_feed.png"
  */
 public class ConfigServlet extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;

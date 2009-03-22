@@ -31,7 +31,7 @@ import org.paxle.gui.IMenuManager;
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="org.paxle.gui.IMenuManager"
  * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="path" value="/menu"
+ * @scr.property name="org.paxle.servlet.path" value="/menu"
  */
 public class MenuManager extends HttpServlet implements IMenuManager, Servlet {
 	private static final long serialVersionUID = 1L;
