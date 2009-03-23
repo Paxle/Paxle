@@ -49,7 +49,7 @@ Used Paxle Bundles:
 Used External Libraries:
 --------------------------------------------------
 - AC.lib-ICO: Java library for ICO files
-  Files: aclibico-2.1.jar
+  Files: aclibico-3.0.jar
   See: http://sourceforge.net/projects/aclibico/
   - Apache Log4J
     Files: log4j-1.2.8.jar
