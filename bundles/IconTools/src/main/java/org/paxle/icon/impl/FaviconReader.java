@@ -13,9 +13,9 @@
  */
 package org.paxle.icon.impl;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.net.URL;
-import java.util.ArrayList;
 
 import javax.imageio.spi.IIORegistry;
 
@@ -38,12 +38,12 @@ public class FaviconReader {
 		IIORegistry.getDefaultInstance().registerServiceProvider(new ICOImageReaderSPI());		
 	}
 
-	public static BufferedImage readIcoImage(URL theIconURL) {
+	public static Image readIcoImage(URL theIconURL) {
 		BufferedImage image = null;
 		try {
 			ICOFile lICOFile = new ICOFile(theIconURL);
-			ArrayList<BufferedImage> images = (ArrayList<BufferedImage>) lICOFile.getImages();
-			if (images != null && images.size() > 0) {
+			Image[] images = lICOFile.getImages();
+			if (images != null && images.length > 0) {
 				return selectBest(images);
 			} 
 		}  catch (Exception e)  {
@@ -52,12 +52,12 @@ public class FaviconReader {
 		return image;
 	}
 	
-	public static BufferedImage readIcoImage(byte[] content) {
+	public static Image readIcoImage(byte[] content) {
 		BufferedImage image = null;
 		try {
 			ICOFile lICOFile = new ICOFile(content);
-			ArrayList<BufferedImage> images = (ArrayList<BufferedImage>) lICOFile.getImages();
-			if (images != null && images.size() > 0) {
+			Image[] images = lICOFile.getImages();
+			if (images != null && images.length > 0) {
 				return selectBest(images);
 			} 
 		}  catch (Exception e)  {
@@ -66,9 +66,9 @@ public class FaviconReader {
 		return image;
 	}
 	
-	private static BufferedImage selectBest(ArrayList<BufferedImage> images) {
+	private static Image selectBest(Image[] images) {
 		if (images == null) return null;
 		// TODO: select image that fits best in size and quality
-		return images.get(0);
+		return images[0];
 	}
 }

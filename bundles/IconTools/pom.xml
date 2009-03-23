@@ -60,6 +60,7 @@
 							javax.swing.text.html, 
 							javax.swing.text.html.parser, 
 							javax.swing.text,
+							javax.swing.filechooser,
 							org.w3c.dom,
 							javax.crypto, 
 							javax.crypto.spec, 
@@ -105,7 +106,7 @@
 		<dependency>
 			<groupId>com.ctreber</groupId>
 			<artifactId>aclib</artifactId>
-			<version>3.0</version>
+			<version>3.0-java5</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-httpclient</groupId>
