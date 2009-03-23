@@ -37,12 +37,11 @@ public class FaviconReader {
 		// registering the ICO lib as new provider
 		IIORegistry.getDefaultInstance().registerServiceProvider(new ICOImageReaderSPI());		
 	}
-	
+
 	public static BufferedImage readIcoImage(URL theIconURL) {
 		BufferedImage image = null;
 		try {
 			ICOFile lICOFile = new ICOFile(theIconURL);
-			@SuppressWarnings("unchecked")
 			ArrayList<BufferedImage> images = (ArrayList<BufferedImage>) lICOFile.getImages();
 			if (images != null && images.size() > 0) {
 				return selectBest(images);
@@ -57,7 +56,6 @@ public class FaviconReader {
 		BufferedImage image = null;
 		try {
 			ICOFile lICOFile = new ICOFile(content);
-			@SuppressWarnings("unchecked")
 			ArrayList<BufferedImage> images = (ArrayList<BufferedImage>) lICOFile.getImages();
 			if (images != null && images.size() > 0) {
 				return selectBest(images);
