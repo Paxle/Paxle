@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>IPLocatorTools</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<name>Paxle - IPLocatorTool</name>
 	<url>http://wiki.paxle.net/dev/bundles/IPLocatorTool</url>
 
@@ -34,20 +34,22 @@
 				<configuration>
 					<instructions>
 						<Import-Package>
-							org.osgi.framework, 
-							javax.servlet, 
-							javax.servlet.http,
+							<!-- OSGi framework -->
+							org.osgi.framework;version="1.4",
+							<!-- Servlet API -->
+							javax.servlet;resolution:=optional,
+							javax.servlet.http;resolution:=optional,
+							<!-- Paxle Core Bundle -->
 							org.paxle.core.io,
 							!com.sun.jini.*, 
 							!net.jini.*
 						</Import-Package>
-						<DynamicImport-Package>javax.swing</DynamicImport-Package>
+						<DynamicImport-Package>
+							javax.swing
+						</DynamicImport-Package>
 						<Private-Package>
 							org.paxle.iplocator.impl
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.iplocator.impl.Activator
-						</Bundle-Activator>
 
 						<!-- embedding libs -->
 						<Embed-StripGroup>true</Embed-StripGroup>
@@ -57,6 +59,19 @@
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

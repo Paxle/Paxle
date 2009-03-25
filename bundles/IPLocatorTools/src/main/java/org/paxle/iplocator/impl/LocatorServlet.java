@@ -15,19 +15,46 @@ package org.paxle.iplocator.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.URI;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * @scr.component immediate="true" 
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="org.paxle.servlet.path" value="/ipLocator"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
+ */
 public class LocatorServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse rsp) throws IOException {
-		String hostNameIP = req.getParameter("ip");
+		String hostNameIP = null;
+		
+		if (req.getParameter("url") != null) {
+			URI url = URI.create(req.getParameter("url"));
+			hostNameIP = url.getHost();
+		} else if (req.getParameter("ip") != null) {
+			hostNameIP = req.getParameter("ip");
+		}		
+		
 		if (hostNameIP == null || hostNameIP.length() == 0) {
 			rsp.setStatus(404);
+			
+			PrintWriter writer = new PrintWriter(rsp.getOutputStream());
+			writer.write("<html><body>");
+			writer.write("<h1>IP-Locator Servlet</h1>");
+			writer.write("<form action=''>");
+			writer.write("Hostname: <input type='text' name='ip' value='' />");
+			writer.write("<input type='submit' name='locate' value='locate'/>");
+			writer.write("</form>");
+			writer.write("</body></html>");
+			writer.close();
+			
 			return;
 		}
 		
