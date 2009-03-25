@@ -21,10 +21,11 @@ import org.paxle.core.doc.IndexerDocument;
 import org.paxle.se.search.ISearchProvider;
 import org.paxle.se.search.ISearchRequest;
 
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.se.search.ISearchProvider"
+ */
 public class PaxleInfrastructureSearchProvider implements ISearchProvider {
-
-	public PaxleInfrastructureSearchProvider(){
-	}
 	
 	public void search(ISearchRequest searchRequest, List<IIndexerDocument> results) throws IOException, InterruptedException {
 		try {

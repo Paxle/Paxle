@@ -5,7 +5,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>SEProviderPaxleInfrastructure</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Search Engine Provider: Paxle Infrastructure</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -50,15 +50,25 @@
 						<Private-Package>
 							org.paxle.se.provider.paxleinfrastructure.impl
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.se.provider.paxleinfrastructure.impl.Activator
-						</Bundle-Activator>
 	
 						<!-- embedding libs -->
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 					</instructions>
 				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
