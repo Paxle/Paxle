@@ -25,29 +25,46 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.filter.FilterQueuePosition;
+import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.queue.ICommand;
 
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.core.filter.IFilter"
+ * @scr.property name="dataPath" value="plaintextDumper"
+ */
+@FilterTarget(@FilterQueuePosition(
+		queue = "org.paxle.parser.out", 
+		position = Integer.MAX_VALUE,
+		enabled = false
+))
 public class PlaintextDumperFilter implements IFilter<ICommand> {
 	/**
 	 * Path where the data should be stored
 	 */
-	private final File dataDir;
+	private File dataDir;
 	
 	/**
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 
-	public PlaintextDumperFilter(File dir) {
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
-		this.dataDir = dir;
-	}
+	/**
+	 * This function is called by the OSGi framework if this component is activated
+	 */
+	protected void activate(ComponentContext context)  {
+		String dataPath = (String) context.getProperties().get("dataPath");
+		
+		// getting the data directory to use
+		this.dataDir = new File(System.getProperty("paxle.data") + File.separatorChar + dataPath);
+		if (!dataDir.exists()) dataDir.mkdirs();		
+	}	
 
 	public File store(IParserDocument pDoc) throws IOException {
 		
