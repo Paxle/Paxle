@@ -21,6 +21,10 @@ import java.awt.Toolkit;
 import org.getopt.luke.Luke;
 import org.paxle.desktop.DIComponent;
 
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.desktop.DIComponent"
+ */
 public class LukeDIComponent implements DIComponent {
 	
 	private static final Dimension DEFAULT_DIM = new Dimension(700, 500);
