@@ -44,4 +44,24 @@ public interface ICommandFilteringContext<Cmd extends ICommand> {
 	 * @return <code>true</code> if the filtering-process has already finished or <code>false</code> if filtering is still in progress or was not started so far.
 	 */
 	public boolean done();
+	
+	/**
+	 * Returns the command that was passed to this filter-context before the command is actually filtered. 
+	 * To ensure that the returned command can not be modified, it is decorated using a dynamic proxy.
+	 * 
+	 * Currently only a view method-calls are allowed:
+	 * <ul>
+	 * 	<li>{@link ICommand#getProfileOID()}</li>
+	 *  <li>{@link ICommand#getDepth()}</li>
+	 *  <li>{@link ICommand#getLocation()}</li>
+	 *  <li>{@link ICommand#toString()}</li>
+	 *  <li>{@link ICommand#getCrawlerDocument()}</li>
+	 *  <li>{@link org.paxle.core.doc.ICrawlerDocument#getMimeType()}</li>
+	 *  <li>{@link org.paxle.core.doc.ICrawlerDocument#getSize()}</li>
+	 *  <li>{@link org.paxle.core.doc.ICrawlerDocument#toString()}</li>
+	 * </ul>
+	 *  
+	 * @return a proxy object decorating the pre-filtered command or <code>null</code> if the command was already filtered by this context 
+	 */
+	public Cmd getPreFilteredCmd();
 }

@@ -13,13 +13,19 @@
  */
 package org.paxle.core.queue.impl;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
 import java.net.URI;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
+import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.filter.CommandFilterEvent;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
@@ -51,6 +57,8 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 	 * and should be filtered via a call to {@link #filterCommand()}
 	 */
 	private Cmd command;
+	
+	private Cmd preFilteredCommand;
 	
 	/**
 	 * The command-location of the command to process before any filtering was applied
@@ -94,6 +102,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 		this.filterQueue = filterQueue;
 		this.command = command;
 		this.commandLocation = command.getLocation();
+		this.preFilteredCommand = this.createCmdWrapper(this.command);
 	}
 	
 	/**
@@ -123,6 +132,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 			}
 		} finally {
 			this.finished = true;
+			this.preFilteredCommand = null;
 		}
 	}
 	
@@ -138,6 +148,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 		try {
 			if (command == null) throw new NullPointerException("The command object is null");
 			this.commandLocation = command.getLocation();
+			this.preFilteredCommand = this.createCmdWrapper(command);
 			
 			this.preEnqueue(command);
 			
@@ -157,6 +168,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 			}
 		} finally {
 			this.finished = true;
+			this.preFilteredCommand = null;
 		}
 	}
 	
@@ -173,6 +185,10 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 	 */
 	public URI getLocation() {
 		return this.commandLocation;
+	}
+	
+	public Cmd getPreFilteredCmd() {
+		return this.preFilteredCommand;
 	}
 	
 	protected void firePreFilterEvent(Cmd cmd, IFilterContext filterContext) {
@@ -282,4 +298,94 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 	public boolean done() {
 		return this.finished;
 	}
+	
+	@SuppressWarnings("unchecked")
+	private Cmd createCmdWrapper(Cmd cmd) {
+		Class<?> i = null;
+		Type[] types = cmd.getClass().getInterfaces();
+		if (types != null) for (Type type : types) {
+			if (ICommand.class.isAssignableFrom((Class<?>) type)) {
+				i = (Class<?>) type;
+			}
+		}
+		
+		return (Cmd) Proxy.newProxyInstance(
+				i.getClassLoader(),
+                new Class[] { i },
+                new CmdWrapper(cmd)
+		);
+	}
+		
+	private static class CmdWrapper <Cmd extends ICommand> implements InvocationHandler {
+		@SuppressWarnings("serial")
+		private static final HashSet<String> allowedMethods = new HashSet<String>(){{
+			add("getProfileOID");
+			add("getDepth");
+			add("getLocation");
+			add("toString");
+		}};
+		
+		private final Cmd cmd;		
+		
+		public CmdWrapper(Cmd cmd) {
+			this.cmd = cmd;
+		}		
+		
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			if (allowedMethods.contains(method.getName())) {
+				return method.invoke(this.cmd, args);
+			} else if (method.getName().equals("getCrawlerDocument")) {
+				ICrawlerDocument cdoc = this.cmd.getCrawlerDocument();
+				if (cdoc == null) return null;
+				
+				return (ICrawlerDocument) Proxy.newProxyInstance(
+						ICrawlerDocument.class.getClassLoader(),
+		                new Class[] { ICrawlerDocument.class },
+		                new CrawlerDocWrapper(cdoc)
+				);
+			}
+			
+			throw new RuntimeException("Invalid method call");
+		}
+		
+		@Override
+		public String toString() {		
+			return this.cmd.toString();
+		}
+	}
+	
+	/**
+	 * A wrapper class around a {@link ICommand} instance. This wrapper is used
+	 * to ensure that the caller of function {@link ICommandFilteringContext#getPreFilteredCmd()}
+	 * is not able to modify the state of a pre-filtered {@link ICommand}.
+	 * 
+	 * Currently only a view method calls are allowed.
+	 */
+	private static class CrawlerDocWrapper implements InvocationHandler {
+		@SuppressWarnings("serial")
+		private static final HashSet<String> allowedMethods = new HashSet<String>(){{
+			add("getMimeType");
+			add("getSize");
+			add("toString");
+		}};		
+		
+		private final ICrawlerDocument cDoc;
+		
+		public CrawlerDocWrapper(ICrawlerDocument cDoc) {
+			this.cDoc = cDoc;
+		}
+
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			if (allowedMethods.contains(method.getName())) {
+				return method.invoke(this.cDoc, args);
+			}
+			
+			throw new RuntimeException("Invalid method call");
+		}
+		
+		@Override
+		public String toString() {
+			return this.cDoc.toString();
+		}		
+	}	
 }

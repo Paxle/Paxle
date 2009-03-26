@@ -183,6 +183,7 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
     		try {
 	    		// first step: getting the filtering context and pre-dequeue command
 	    		filteringContext = ((ICommandFilterQueue<ICommand>)this.inQueue).getFilteringContext();
+	    		this.command = (Data) filteringContext.getPreFilteredCmd();
 			} finally {
 				// notify the master that we have fetched the command
 				synchronized (this) {
