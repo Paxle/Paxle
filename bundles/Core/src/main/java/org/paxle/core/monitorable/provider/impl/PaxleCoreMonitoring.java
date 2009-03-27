@@ -27,7 +27,7 @@ import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
 /**
- * @scr.component name="org.paxle.core"
+ * @scr.component name="org.paxle.core" metatype="false"
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
  * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/PaxleCoreMonitoring"
  */

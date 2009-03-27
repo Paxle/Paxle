@@ -15,7 +15,6 @@ package org.paxle.core.monitorable.provider.impl;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 
@@ -25,7 +24,7 @@ import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
 /**
- * @scr.component name="os.network"
+ * @scr.component name="os.network" metatype="false"
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
  * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/NetworkMonitoring"
  */

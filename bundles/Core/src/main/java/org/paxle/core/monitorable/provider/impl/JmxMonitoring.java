@@ -29,7 +29,7 @@ import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
 /**
- * @scr.component name="java.lang.management"
+ * @scr.component name="java.lang.management" metatype="false"
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
  * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/JmxMonitoring"
  */

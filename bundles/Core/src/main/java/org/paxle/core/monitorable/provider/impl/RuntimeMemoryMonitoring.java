@@ -20,7 +20,7 @@ import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
 /**
- * @scr.component name="java.lang.runtime"
+ * @scr.component name="java.lang.runtime" metatype="false"
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
  * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/RuntimeMemoryMonitoring"
  */

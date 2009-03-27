@@ -27,9 +27,8 @@ import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
 /**
- * @scr.component 
+ * @scr.component name="os.usage.cpu" metatype="false"
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
- * @scr.property name="service.pid" value="os.usage.cpu"
  * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/CPUMonitoring"
  */
 public class CPUMonitoring implements CPUMonitoringListener, Monitorable {

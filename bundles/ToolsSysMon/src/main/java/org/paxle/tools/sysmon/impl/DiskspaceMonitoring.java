@@ -25,9 +25,8 @@ import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
 /**
- * @scr.component 
+ * @scr.component name="os.disk" metatype="false"
  * @scr.service interface="org.osgi.service.monitor.Monitorable"
- * @scr.property name="service.pid" value="os.disk"
  * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/DiskspaceMonitoring"
  */
 public class DiskspaceMonitoring implements Monitorable {
