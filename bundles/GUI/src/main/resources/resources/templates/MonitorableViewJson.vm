@@ -30,12 +30,12 @@
 #if($monitorables)
 {
     #foreach($monitorable in $loopTool.watch($monitorables,'monitorables'))
-        ${escTool.q}$monitorable${escTool.q} :
+        ${escTool.q}${monitorable.ID}${escTool.q} :
         {
                #set($statusVariables = $monitorable.getVariables($paramParser.getStrings("variableId")))
                #if($statusVariables)
                    #foreach($statusVariable in $loopTool.watch($sortTool.sort($statusVariables,["ID:asc"]),'variables'))
-                    ${escTool.q}$statusVariable.getID()${escTool.q} :
+                    ${escTool.q}${statusVariable.ID}${escTool.q} :
                     {
                         "id" : ${escTool.q}${statusVariable.ID}${escTool.q} ,
                         "type" : ${escTool.q}${statusVariable.typeName}${escTool.q} ,
