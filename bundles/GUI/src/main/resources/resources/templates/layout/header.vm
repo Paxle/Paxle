@@ -45,7 +45,7 @@
 	<li><a href="https://bugs.pxl.li" title="Bugs">Bugs</a></li>
 	<li><a href="http://wiki.paxle.net" title="Wiki">Wiki</a></li>
 	<li><a href="http://svn.paxle.net" title="SVN">SVN</a></li>
-	<li><a href="http://www2.paxle.net" title="Homepage">Homepage</a></li>
+	<li><a href="http://www.paxle.net" title="Homepage">Homepage</a></li>
 	<li class="active"><a href="${servletManager.getFullAlias('/')}" title="This Peer">This Peer</a></li>
 </ul>
 
