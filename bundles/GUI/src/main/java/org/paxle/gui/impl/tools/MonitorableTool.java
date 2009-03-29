@@ -119,6 +119,10 @@ public class MonitorableTool extends LocaleConfig {
     }
     
     public Monitorable[] getMonitorables(String[] monitorableIDs) {
+    	return this.getBundleMonitorables(null, monitorableIDs);
+    }
+    
+    public Monitorable[] getBundleMonitorables(Integer bundleID, String[] monitorableIDs) {
     	if (this.ma == null) return null;
     	
     	ArrayList<Monitorable> monitorables = new ArrayList<Monitorable>();    	
@@ -127,11 +131,19 @@ public class MonitorableTool extends LocaleConfig {
     	if (monitorableIDs != null) {
     		for (String monitorableID : monitorableIDs) {
     			Monitorable m = this.get(monitorableID);
-    			if (m != null) monitorables.add(m);
+    			if (m != null) {
+    				if (bundleID == null || bundleID.intValue() == m.getBundleID().intValue()) {
+    					monitorables.add(m);
+    				}
+    			}
     		}
     	}
     	
     	return monitorables.size() == 0 ? null : monitorables.toArray(new Monitorable[monitorables.size()]);
+    }
+    
+    public Monitorable[] getBundleMonitorables(Integer bundleID) {   	
+    	return this.getBundleMonitorables(bundleID, null);
     }
 	
     /**
@@ -185,7 +197,7 @@ public class MonitorableTool extends LocaleConfig {
     			);
     			if (refs != null && refs.length > 0) {
     				ServiceReference serviceRef = refs[0];
-    				serviceRef.getBundle();
+    				return serviceRef.getBundle();
     			}
     			return null;
     		} catch (Exception e) {
@@ -197,7 +209,7 @@ public class MonitorableTool extends LocaleConfig {
     	
     	public Long getBundleID() {
     		Bundle b = this.getBundle();
-    		return (b == null) ? null : Long.valueOf(b.getBundleId());
+    		return (b == null) ? Long.valueOf(-1) : Long.valueOf(b.getBundleId());
     	}
     	
     	public ResourceBundle getResourceBundle(Locale locale) {

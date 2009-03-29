@@ -40,6 +40,7 @@
 	<li><a href="#dbundlemanifest" onclick="fshow('bundlemanifest');" id="tbundlemanifest">${text.tab.bundleManifest}</a></li>
 	<li><a href="#dexportedservices" onclick="fshow('exportedservices');" id="texportedservices">${text.tab.exportedServices}</a></li>
 	<li><a href="#dimportedservices" onclick="fshow('importedservices');" id="timportedservices">${text.tab.importedServices}</a></li>
+	<li><a href="#dmiscellaneous" onclick="fshow('miscellaneous');" id="tmiscellaneous">${text.tab.miscellaneous}</a></li>
 </ul>
 
 <br />
@@ -146,6 +147,17 @@
 			</td>			
 		</tr>
 		#end
+	</table>
+</fieldset>
+<fieldset id="dmiscellaneous">
+	<legend>${text.legend.miscellaneous}</legend>
+	<table>
+	<tr>
+		<td class="monitorables">${text.miscellaneous.monitorables}</td><td><a href="monitorable?bundleID=${bundle.BundleId}"/>${text.view}</a></td>
+	</tr>
+	<tr>
+		<td class="config">${text.miscellaneous.configs}</td><td><a href="config?bundleID=${bundle.BundleId}"/>${text.view}</a></td>
+	</tr>	
 	</table>
 </fieldset>
 <div class="buttonBar">

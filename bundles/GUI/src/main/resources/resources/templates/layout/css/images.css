@@ -159,3 +159,17 @@ img.chart {
 	margin-bottom: 3px;
 	border: 0px;
 }
+
+.monitorables {
+	background-image: url(../images/monitor.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	padding-left: 20px;	
+}
+
+.config {
+	background-image: url(../images/bullet_wrench.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	padding-left: 20px;	
+}

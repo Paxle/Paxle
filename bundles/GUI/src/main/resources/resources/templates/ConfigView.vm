@@ -65,7 +65,7 @@
 
 #if( $metaTypeService && $configAdmin)
 	<h2>${text.tab.configManagement} #if($paramParser.getString("viewImportedConfig"))- ${text.import.title}#end</h2>
-	#if(($paramParser.getString("bundleID") || $paramParser.getString("bundleSymName")) && $paramParser.getString("pid"))
+	#if(($paramParser.getInteger("bundleID") || $paramParser.getString("bundleSymName")) && $paramParser.getString("pid"))
 		## the service-PID for which the configuration should be displayed
 		#set($PID = $paramParser.getString("pid"))
 		
@@ -75,8 +75,8 @@
 			#set($bundle = $manager.getBundle($bundleSymName))
 			#set($bundleID = $bundle.getBundleId())
 		#else
-			#set($bundleID = $paramParser.getString("bundleID"))
-			#set($bundle = $manager.getBundle($mathTool.toInteger($bundleID)))
+			#set($bundleID = $paramParser.getInteger("bundleID"))
+			#set($bundle = $manager.getBundle($bundleID))
 		#end
 		
 		
@@ -222,36 +222,43 @@
 			<th>${text.listConfig.desc}</th>
 		</tr>
 		#set($color = $alternatorTool.auto('r1','r2'))
+			## getting the bundles to operate on
+			#if($paramParser.getInteger("bundleID"))
+				#set($bundleID = $paramParser.getInteger("bundleID"))
+				#set($bundles = [$manager.getBundle($bundleID)])
+			#else
+				#set($bundles = $manager.getBundles())
+			#end
 		
     		## loop through each bundle to see if there are any metatypes	
-    		#foreach($bundle in $manager.getBundles())
+    		#foreach($bundle in $bundles)
     			#set($ocdCounter = 0)    			
-			#foreach($PID in ${configView.getMetaTypePIDs($manager,$bundle)})
+				#foreach($PID in ${configView.getMetaTypePIDs($manager,$bundle)})
 
-				## load service metatypes
-				#set($ocd = ${configView.getObjectClassDefinition($request, $manager,$bundle,$PID)})
+    				## load service metatypes
+    				#set($ocd = ${configView.getObjectClassDefinition($request, $manager,$bundle,$PID)})
 
-				## display data
-				#if($ocd && (!$paramParser.getString("viewImportedConfig") || ${importedConfigProps.containsKey($PID)}))
-					#if($ocdCounter == 0)
-						#set($bundleHeaders = $bundle.getHeaders())
-			    			<tr><th class="sub" colspan="3">$bundleHeaders.get('Bundle-Name')</th></tr>
-			    		#end
-			    		#set($ocdCounter = $ocdCounter + 1) 
-					<tr class="$color">
-						<td><img src="?bundleID=${bundle.getBundleId()}&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/></td>
-						<td>
-							<a href="?bundleID=${bundle.getBundleId()}&amp;pid=$PID#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${ocd.getName()}</a><br/>
-							<tt>[$PID]</tt>
-						</td>
-						<td class="descriptionText">
-							#if($ocd.getDescription())
-    							#set($desc = ${ocd.getDescription()})
-    							$desc.replaceAll("\n", "<br />")
-							#end
-						</td>
-					</tr>							
-				#end
+					## display data
+    				#if($ocd && (!$paramParser.getString("viewImportedConfig") || ${importedConfigProps.containsKey($PID)}))
+    					#if($ocdCounter == 0)
+    						#set($bundleHeaders = $bundle.getHeaders())
+    			    		<tr><th class="sub" colspan="3"><a href="bundle?bundleID=${bundle.getBundleId()}&action=details">$bundleHeaders.get('Bundle-Name')</a></th></tr>
+    			    	#end
+    			    	#set($ocdCounter = $ocdCounter + 1) 
+    					<tr class="$color">
+    						<td><img src="?bundleID=${bundle.getBundleId()}&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/></td>
+    						<td>
+    							<a href="?bundleID=${bundle.getBundleId()}&amp;pid=$PID#if($paramParser.getString("viewImportedConfig"))&amp;viewImportedConfig=#end">${ocd.getName()}</a><br/>
+    							<tt>[$PID]</tt>
+    						</td>
+    						<td class="descriptionText">
+    							#if($ocd.getDescription())
+        							#set($desc = ${ocd.getDescription()})
+        							$desc.replaceAll("\n", "<br />")
+    							#end
+    						</td>
+    					</tr>							
+    				#end
     			#end
 		#end
 		</table>

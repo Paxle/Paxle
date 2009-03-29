@@ -54,7 +54,6 @@
 							sun.awt.image,
 							sun.awt.X11		
 						</DynamicImport-Package>
-						<Bundle-Activator></Bundle-Activator>
 						
 						<!-- embedding libs -->
 						<Embed-StripGroup>true</Embed-StripGroup>
