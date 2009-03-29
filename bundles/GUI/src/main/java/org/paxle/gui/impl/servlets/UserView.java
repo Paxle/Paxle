@@ -25,6 +25,8 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
+import org.apache.velocity.tools.generic.ResourceTool;
+import org.apache.velocity.tools.generic.ResourceTool.Key;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
@@ -63,6 +65,10 @@ public class UserView extends ALayoutServlet {
 			final ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
 			final UserAdmin userAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
 			
+			// getting the resource-tool for error-message translation
+			final ResourceTool rt = (ResourceTool) context.get("resourceTool");
+			final Key k = rt.bundle("OSGI-INF/l10n/userview");			
+			
 			// getting some basic parameters
 			final String action = request.getParameter("action");
 			final String type = request.getParameter("type");
@@ -70,32 +76,42 @@ public class UserView extends ALayoutServlet {
 			Role role = (name==null)?null:userAdmin.getRole(name);
 			
 			if (userAdmin == null) {
-				context.put(ERROR_MSG, "Unable to find the user-admin service.");
-			} else if (action != null && name != null) {
+				String errorMsg = k.get("error.userAdmin.notFound").toString();
+				context.put(ERROR_MSG, errorMsg);
+			} else if (action != null && name != null) {						
 				boolean redirect = false;
 				
 				if (!action.equalsIgnoreCase(ACTION_CREATE) && role == null) {
-					context.put(ERROR_MSG,String.format("Role with name '%s' can not be found.",name));
+					String errorMsg = k.get("error.roleNotFound").insert(new String[]{name}).toString();
+					context.put(ERROR_MSG, errorMsg);
 				} else if (action.equalsIgnoreCase(ACTION_CREATE) && role != null) {
-					context.put(ERROR_MSG, String.format("Role with name '%s' already exists.",name));
+					String errorMsg = k.get("error.roleAlreadyExists").insert(new String[]{name}).toString();
+					context.put(ERROR_MSG, errorMsg);
 				} else if (action.equalsIgnoreCase(ACTION_DELETE)) {
 					if (role.getName().equals("Administrator")) {
-						context.put(ERROR_MSG,"You are not allowed to delete the Administrator account.");
+						String errorMsg = k.get("error.deletingAdminNotAllowed").toString();
+						context.put(ERROR_MSG, errorMsg);
 					} else {
 						userAdmin.removeRole(name);
 						redirect = true;
 					} 
 				} else if (action.equalsIgnoreCase(ACTION_CREATE) && type.equalsIgnoreCase(MODE_USER)) {
 					role = userAdmin.createRole(name, Role.USER);
-					this.updateUser(userAdmin, (User) role, request, context);
-					redirect = true;
+					this.updateUser(userAdmin, (User) role, request, context, k);
+					if (!context.containsKey(ERROR_MSG)) {
+						redirect = true;
+					} else {
+						userAdmin.removeRole(name);
+						role = null;
+					}
 				} else if (action.equalsIgnoreCase(ACTION_UPDATE) && type.equalsIgnoreCase(MODE_USER)) {
-					this.updateUser(userAdmin, (User) role, request, context);
-					redirect = true;
+					this.updateUser(userAdmin, (User) role, request, context, k);
+					if (!context.containsKey(ERROR_MSG)) redirect = true;
 				}  else if (action.equalsIgnoreCase(ACTION_CREATE) && type.equalsIgnoreCase(MODE_GROUP)) {
 					role = userAdmin.createRole(name, Role.GROUP);
 				} else if (action.equalsIgnoreCase(ACTION_UPDATE) && type.equalsIgnoreCase(MODE_GROUP)) {
-					context.put(ERROR_MSG, "Not implemented");
+					String errorMsg = k.get("error.notImplemented").toString();
+					context.put(ERROR_MSG, errorMsg);
 				}
 
 				// redirect request if required
@@ -120,9 +136,11 @@ public class UserView extends ALayoutServlet {
 		return template;
 	}
 	
-	private void updateUser(UserAdmin userAdmin, User user, HttpServletRequest request, Context context) throws InvalidSyntaxException, UnsupportedEncodingException {
+	
+	private void updateUser(UserAdmin userAdmin, User user, HttpServletRequest request, Context context, Key k) throws InvalidSyntaxException, UnsupportedEncodingException {
 		if (user == null) return;
-		
+
+		// getting the http.login name
 		String loginName = request.getParameter(HttpContextAuth.USER_HTTP_LOGIN);
 		
 		/* ===========================================================
@@ -130,18 +148,18 @@ public class UserView extends ALayoutServlet {
 		 * =========================================================== */
 		// check if the login-name is not empty
 		if (loginName == null || loginName.length() == 0) {
-			String errorMsg = String.format("The login name must not be null or empty.");
-			this.logger.warn(errorMsg);
-			context.put("errorMsg",errorMsg);
+			String errorMsg = k.get("error.emptyLoginName").toString();
+			this.logger.warn("The http.login name was empty or null.");
+			context.put(ERROR_MSG,errorMsg);
 			return;
 		}
 		
 		// check if the login name is unique
 		Role[] roles = userAdmin.getRoles(String.format("(%s=%s)",HttpContextAuth.USER_HTTP_LOGIN, loginName));
 		if (roles != null && (roles.length > 2 || (roles.length == 1 && !roles[0].equals(user)))) {
-			String errorMsg = String.format("The given login name '%s' is already used by a different user.", loginName);
-			this.logger.warn(errorMsg);
-			context.put("errorMsg",errorMsg);
+			String errorMsg = k.get("error.usernameAlreadyKnown").insert(new String[]{loginName}).toString();
+			this.logger.warn(String.format("The given login name '%s' is already used by a different user.", loginName));
+			context.put(ERROR_MSG,errorMsg);
 			return;
 		}
 		
@@ -149,9 +167,9 @@ public class UserView extends ALayoutServlet {
 		String pwd1 = request.getParameter(HttpContextAuth.USER_HTTP_PASSWORD);
 		String pwd2 = request.getParameter(HttpContextAuth.USER_HTTP_PASSWORD + "2");
 		if (pwd1 == null || pwd2 == null || !pwd1.equals(pwd2)) {
-			String errorMsg = String.format("The password for login name '%s' was not typed correctly.", loginName);
-			this.logger.warn(errorMsg);
-			context.put("errorMsg",errorMsg);
+			String errorMsg = k.get("error.invalidPassword").insert(new String[]{loginName}).toString();
+			this.logger.warn(String.format("The password for login name '%s' was not typed correctly.", loginName));
+			context.put(ERROR_MSG,errorMsg);
 			return;
 		}
 		
@@ -172,9 +190,9 @@ public class UserView extends ALayoutServlet {
 			// check if URL is unique
 			roles = userAdmin.getRoles(String.format("(openid.url=%s)", openIdURL));
 			if (roles != null && (roles.length > 2 || (roles.length == 1 && !roles[0].equals(user)))) {
-				String errorMsg = String.format("The given OpenID URL '%s' is already used by a different user.", openIdURL);
-				this.logger.warn(errorMsg);
-				context.put("errorMsg",errorMsg);
+				String errorMsg = k.get("error.invalidOpenIDURL").insert(new String[]{openIdURL}).toString();
+				this.logger.warn(String.format("The given OpenID URL '%s' is already used by a different user.", openIdURL));
+				context.put(ERROR_MSG,errorMsg);
 				return;
 			}
 			
