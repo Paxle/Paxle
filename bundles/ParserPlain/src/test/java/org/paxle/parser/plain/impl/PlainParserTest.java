@@ -31,7 +31,7 @@ public class PlainParserTest extends AParserTest {
 				null, new File("src/test/resources/draft-lafon-rfc2616bis-latest.txt"));
 		System.out.println(pdoc.getTitle());
 		// System.out.println(pdoc.getLinks().toString().replace(", ", "\n\t"));
-		System.out.println(pdoc.getLinks().size());
+		assertEquals("grep '://' finds 146 occurrences (are these correct URIs?)", 146, pdoc.getLinks().size());
 	}
 	
 	public void testPlainParser1() throws Exception {

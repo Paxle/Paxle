@@ -43,7 +43,7 @@ public class PlainParser implements ISubParser {
 	private static final int MAX_HEADLINE_LENTGH = 256;
 	
 	// From RFC 2396, Appendix B, changed to ensure a scheme- and host-part
-	static final Pattern URI_PATTERN = Pattern.compile("([A-Za-z\\.-]+)://([^/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?");
+	static final Pattern URI_PATTERN = Pattern.compile("([A-Za-z\\.-]+)://([^/?#]*)($|(/[^?#]*)(\\?([^#]*))?(#(.*))?)");
 	private static final String PRE_FIXES = "<([{\"'_";
 	private static final String POST_FIXES = ">)]}\"'_:.,;";
 	
@@ -85,15 +85,20 @@ public class PlainParser implements ISubParser {
 		final StringTokenizer st = new StringTokenizer(line, " \t\n\f\r");
 		while (st.hasMoreElements()) {
 			final String token = st.nextToken();
+			
 			boolean hasReference = false;
-			if (token.indexOf("://") > 0) {
+			if (token.indexOf("://") > 0) do {
 				final Matcher m = URI_PATTERN.matcher(token);
-				URI uri;
-				if (m.find() && (uri = refNorm.normalizeReference(removePrePostFixes(m.group(0)))) != null) {
-					hasReference = true;
-					pdoc.addReference(uri, token, "ParserPlain");
-				}
-			}
+				if (!m.find())
+					break;
+				final String plainUri = removePrePostFixes(m.group(0));
+				final URI uri = refNorm.normalizeReference(plainUri);
+				if (uri == null)
+					break;
+				pdoc.addReference(uri, token, "ParserPlain");
+				hasReference = true;
+			} while (false);
+			
 			if (!hasReference)
 				sb.append(token).append(' ');
 		}

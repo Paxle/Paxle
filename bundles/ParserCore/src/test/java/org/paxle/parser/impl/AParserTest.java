@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
@@ -77,7 +78,11 @@ public abstract class AParserTest extends MockObjectTestCase {
 		
 		this.aRefNormalizer = new IReferenceNormalizer() {
 			public URI normalizeReference(String reference) {
-				return URI.create(reference);
+				try {
+					return new URI(reference);
+				} catch (URISyntaxException e) {
+					throw new IllegalArgumentException(e.getMessage() + " for '" + reference + "'", e);
+				}
 			}
 			public URI normalizeReference(String reference, Charset charset) {
 				return normalizeReference(reference);
