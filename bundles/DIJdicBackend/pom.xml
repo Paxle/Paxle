@@ -65,7 +65,7 @@
 						</Embed-Dependency>
 						
 						<Bundle-NativeCode>							
-							binaries/linux/x86/libjdic.so;binaries/linux/x86/libtray.so;osname=Linux;processor=x86,
+							binaries/linux/x86/libjdic-5.so;binaries/linux/x86/libjdic-6.so;binaries/linux/x86/libtray.so;osname=Linux;processor=x86,
 							binaries/windows/x86/jdic.dll;binaries/windows/x86/tray.dll; osname=WindowsXP; osname=Windows XP; osname=WinXP; osname=WindowsVista; osname=Windows Vista;processor=x86	
 						</Bundle-NativeCode>
 					</instructions>

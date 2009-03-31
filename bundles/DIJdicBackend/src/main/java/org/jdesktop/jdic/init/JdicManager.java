@@ -260,7 +260,13 @@ public class JdicManager {
                 loadedLibraries.add(libName);
                 
                 // just let OSGi do the job
-                System.loadLibrary(libName);
+                if (libName.equals("jdic")) try {
+                	System.loadLibrary("jdic-5");
+                } catch (UnsatisfiedLinkError e) {
+                	System.loadLibrary("jdic-6");
+                } else {
+                	System.loadLibrary(libName);
+                }
             }
         } catch(Exception e) {
             throw new PrivilegedActionException(e);
