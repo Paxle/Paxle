@@ -3538,6 +3538,12 @@
 	<test offset="0" type="regex" comparator="!">/[^[:ascii:][:space:]]/</test>
 </match>
 -->
+<match>
+	<mimetype>application/x-sketchup</mimetype>
+	<extension>skp</extension>
+	<description>SketchUp Model</description>
+	<test offset="0" type="belong" comparator="=">0xfffeff0e</test>
+</match>
 
 <!-- types added for YaCy -->
 <match>
