@@ -30,11 +30,12 @@ public class HtmlParserTest extends AParserTest {
 		"javascript_test.html",
 		"baseHrefTest.html",
 		"draft-ietf-webdav-rfc2518bis-12-from-11.diff.html",
-		"imdb_biographies_o.html", // XXX: produced an stack-overflow error with htmlparser 2006
+		"imdb_biographies_o.html",		// XXX: produced an stack-overflow error with htmlparser 2006
 		"javascript_tcom.html",
 		"pc-welt_archiv02_knowhow.html",
-		"pc-welt_archiv07_knowhow.html"
-		// "imdb_biographies_s.html" // XXX: you need to set Xmx to 128m to run this
+		"pc-welt_archiv07_knowhow.html",
+//		"imdb_biographies_s.html",		// XXX: you need to set Xmx to 128m to run this
+//		"perltoc-search.cpan.org.html",	// XXX: you need to set Xmx to 128m to run this
 	};
 	
 	@Override

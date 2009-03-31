@@ -47,6 +47,7 @@ import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.html.impl.tags.AddressTag;
 import org.paxle.parser.html.impl.tags.BoldTag;
+import org.paxle.parser.html.impl.tags.FixedLink;
 import org.paxle.parser.html.impl.tags.ItalicTag;
 import org.paxle.parser.html.impl.tags.MetaTagManager;
 
@@ -75,6 +76,7 @@ public class NodeCollector extends NodeVisitor {
 		NODE_FACTORY.registerTag(new AddressTag());
 		NODE_FACTORY.registerTag(new BoldTag());
 		NODE_FACTORY.registerTag(new ItalicTag());
+		NODE_FACTORY.registerTag(new FixedLink());
 		NODE_FACTORY.registerTag(new MetaTag() {
 			private static final long serialVersionUID = 1L;
 			
