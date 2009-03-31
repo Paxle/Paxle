@@ -3539,7 +3539,7 @@
 </match>
 -->
 <match>
-	<mimetype>application/x-sketchup</mimetype>
+	<mimetype>application/vnd.sketchup.skp</mimetype>
 	<extension>skp</extension>
 	<description>SketchUp Model</description>
 	<test offset="0" type="belong" comparator="=">0xfffeff0e</test>
