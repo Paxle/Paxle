@@ -85,15 +85,17 @@ public class PlainParser implements ISubParser {
 		final StringTokenizer st = new StringTokenizer(line, " \t\n\f\r");
 		while (st.hasMoreElements()) {
 			final String token = st.nextToken();
-			if (token.indexOf("://") <= 0)
-				continue;
-			final Matcher m = URI_PATTERN.matcher(token);
-			URI uri;
-			if (m.find() && (uri = refNorm.normalizeReference(removePrePostFixes(m.group(1)))) != null) {
-				pdoc.addReference(uri, token, "ParserPlain");
-			} else {
-				sb.append(token).append(' ');
+			boolean hasReference = false;
+			if (token.indexOf("://") > 0) {
+				final Matcher m = URI_PATTERN.matcher(token);
+				URI uri;
+				if (m.find() && (uri = refNorm.normalizeReference(removePrePostFixes(m.group(0)))) != null) {
+					hasReference = true;
+					pdoc.addReference(uri, token, "ParserPlain");
+				}
 			}
+			if (!hasReference)
+				sb.append(token).append(' ');
 		}
 		return sb.toString();
 	}
