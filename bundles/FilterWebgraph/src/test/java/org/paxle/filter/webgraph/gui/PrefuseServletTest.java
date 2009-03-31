@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.map.LRUMap;
@@ -32,6 +34,7 @@ public class PrefuseServletTest extends MockObjectTestCase {
 	File testDir;
 	LRUMap dataMap;
 	HttpServletResponse resp;
+	HttpServletRequest req;
 	PrefuseServlet servlet;
 	
 	@SuppressWarnings("serial")
@@ -63,6 +66,7 @@ public class PrefuseServletTest extends MockObjectTestCase {
 		
 		// creating a dummy response
 		resp = mock(HttpServletResponse.class);
+		req = mock(HttpServletRequest.class);
 		
 		// creating servlet
 		servlet = new PrefuseServlet(){
@@ -73,7 +77,7 @@ public class PrefuseServletTest extends MockObjectTestCase {
 		};
 	}
 
-	public void testGenerateGraph() throws IOException {
+	public void testGenerateGraph() throws IOException, ServletException {
 		final File testFile = new File(testDir,"test.png");
 		if (testFile.exists()) assertTrue(testFile.delete());
 
@@ -87,9 +91,11 @@ public class PrefuseServletTest extends MockObjectTestCase {
 					fileOut.write(b);					
 				}				
 			}));
+			
+			allowing(req).getParameter("display"); will(returnValue("graph"));
 		}});
 		
-		this.servlet.doGet(null, this.resp);
+		this.servlet.doGet(this.req, this.resp);
 		
 		fileOut.flush();
 		fileOut.close();

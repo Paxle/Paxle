@@ -5,7 +5,7 @@
 	
 	<groupId>org.paxle.filter.webgraph</groupId>
 	<artifactId>FilterWebgraph</artifactId>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.3-SNAPSHOT</version>
 	<name>Paxle - Filter: Webgraph</name>
 	<packaging>bundle</packaging>
 
@@ -47,6 +47,11 @@
 							<!-- Servlet API -->
 							javax.servlet;resolution:=optional,
 							javax.servlet.http;resolution:=optional,
+							<!-- Apache Velocity (used by Paxle GUI bundle) -->
+							org.apache.velocity;resolution:=optional, 
+							org.apache.velocity.context;resolution:=optional,							
+							<!-- Paxle GUI Bundle -->
+							org.paxle.gui;version="[0.1.0,0.2.0)";resolution:=optional,							
 							<!-- Apache Velocity (used by Paxle GUI bundle) -->
 							org.apache.velocity;resolution:=optional, 
 							org.apache.velocity.context;resolution:=optional,
