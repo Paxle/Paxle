@@ -19,6 +19,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -171,7 +172,7 @@ class ActivityPanel extends Stats implements ActionListener {
 							cnt = 0;
 						} else try {
 							final Method getSub_List = subManager.getClass().getMethod("getSub" + comps[i].toString() + "s");
-							final Collection<?> list = (Collection<?>)getSub_List.invoke(subManager);
+							final Map<?,?> list = (Map<?,?>)getSub_List.invoke(subManager);
 							cnt = list.size();
 						} catch (Exception e) { e.printStackTrace(); cnt = -1; }
 					}
