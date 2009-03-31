@@ -5,7 +5,7 @@
 	
 	<groupId>org.paxle.filter.webgraph</groupId>
 	<artifactId>FilterWebgraph</artifactId>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Filter: Webgraph</name>
 	<packaging>bundle</packaging>
 
@@ -51,8 +51,18 @@
 							org.apache.velocity;resolution:=optional, 
 							org.apache.velocity.context;resolution:=optional,
 							<!-- Paxle GUI Bundle -->
-							org.paxle.gui;version="[0.1.0,0.2.0)";resolution:=optional
+							org.paxle.gui;version="[0.1.0,0.2.0)";resolution:=optional,
+							<!-- ingoring other packages -->
+							!org.apache.lucene.*							
 						</Import-Package>
+						<DynamicImport-Package>
+							javax.imageio,
+							javax.swing,
+							javax.swing.*,
+							javax.xml.parsers,
+							org.xml.sax, 
+							org.xml.sax.helpers
+						</DynamicImport-Package>						
 						<Private-Package>
 							org.paxle.filter.webgraph.impl,
 							org.paxle.filter.webgraph.gui
@@ -62,6 +72,7 @@
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
+							prefuse;scope=compile|runtime
 						</Embed-Dependency>										
 					</instructions>
 				</configuration>
@@ -92,6 +103,13 @@
 			<groupId>org.paxle</groupId>
 			<artifactId>GUI</artifactId>
 			<version>[0.1.11-SNAPSHOT,0.2.0)</version>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.prefuse</groupId>
+			<artifactId>prefuse</artifactId>
+			<version>beta-20071021</version>
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
