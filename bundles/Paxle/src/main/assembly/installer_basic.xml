@@ -52,8 +52,8 @@
 				<include>org.paxle:GUI</include>
 
 				<include>org.paxle:DesktopIntegration</include>
-				<include>org.paxle:DIJdicBackend</include>												
-				
+				<include>org.paxle:DIJdicBackend</include>	
+				<include>org.paxle:DIJre6Backend</include>															
 			</includes>
 
 			<binaries>
@@ -63,6 +63,7 @@
 				
 				<!-- The bundle-names should not include the version number (required for update URL) -->
 				<outputFileNameMapping>${module.artifactId}.${module.extension}</outputFileNameMapping>
+				<useStrictFiltering>false</useStrictFiltering>
 			</binaries>
 		</moduleSet>
 	</moduleSets>	
