@@ -30,6 +30,7 @@ import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommand.Result;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ISubParserManager;
+import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 
 public class ParserWorkerTest extends MockObjectTestCase {
@@ -48,6 +49,9 @@ public class ParserWorkerTest extends MockObjectTestCase {
 		
 		// creating worker
 		this.worker = new ParserWorker(this.subParserManager);
+		
+		// create a parser context with a dummy temp-file-manager		
+		ParserContext.setThreadLocal(new ParserContextLocal());
 	}
 	
 	@Override

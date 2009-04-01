@@ -73,6 +73,11 @@ public class CrawlerWorker extends AWorker<ICommand> {
 			// get the URL to crawl
 			final URI location = command.getLocation();
 			
+			// adding some properties to the crawler-context
+			CrawlerContext cc = CrawlerContext.getCurrentContext();
+			cc.setProperty("cmd", command);
+			cc.setProperty("cmd.profileOID",Integer.valueOf(command.getProfileOID()));
+			
 			// determine protocol to use
 			String protocol = location.getScheme();
 

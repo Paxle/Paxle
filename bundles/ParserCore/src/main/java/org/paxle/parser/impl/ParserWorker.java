@@ -146,6 +146,11 @@ public class ParserWorker extends AWorker<ICommand> {
 					parsers
 			));
 			
+			// adding some properties into the parser-context
+			ParserContext pc = ParserContext.getCurrentContext();
+			pc.setProperty("cmd", command);
+			pc.setProperty("cmd.profileOID",Integer.valueOf(command.getProfileOID()));
+			
 			// parse resource
 			final Iterator<ISubParser> it = parsers.iterator();
 			ISubParser parser;

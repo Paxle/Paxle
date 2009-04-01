@@ -20,6 +20,7 @@ import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
+import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.crawler.impl.CrawlerContextLocal;
@@ -85,6 +86,16 @@ public class CrawlerContext {
 		if (pm == null) return null;		
 		return pm.getProfileByID(profileID);
 	}		
+	
+	/**
+	 * @return the {@link ICommandProfile} that belongs to the {@link Command}
+	 * currently processed by the parser-worker thread
+	 */
+	public ICommandProfile getCommandProfile() {
+		Integer profileID = (Integer) this.getProperty("cmd.profileOID");
+		if (profileID == null) return null;		
+		return this.getCommandProfile(profileID.intValue());
+	}	
 	
 	/* ========================================================================
 	 * Function operating on the property bag
