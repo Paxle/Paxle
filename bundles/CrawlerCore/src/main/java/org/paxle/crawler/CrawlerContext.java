@@ -20,6 +20,8 @@ import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
+import org.paxle.core.queue.ICommandProfile;
+import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.crawler.impl.CrawlerContextLocal;
 
 public class CrawlerContext {
@@ -73,6 +75,16 @@ public class CrawlerContext {
 	public Set<String> getSupportedMimeTypes() {
 		return CrawlerContext.context.getSupportedMimeTypes();
 	}
+	
+	/**
+	 * TODO: currently this is an read-only {@link ICommandProfile}. We should wrap it with a transparent proxy
+	 * and should flush it back to db if one of the command-profile-properties were changed.
+	 */
+	public ICommandProfile getCommandProfile(int profileID) {
+		ICommandProfileManager pm = context.getCommandProfileManager();
+		if (pm == null) return null;		
+		return pm.getProfileByID(profileID);
+	}		
 	
 	/* ========================================================================
 	 * Function operating on the property bag

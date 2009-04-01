@@ -22,6 +22,7 @@ import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
+import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.crawler.CrawlerContext;
 
 /**
@@ -54,6 +55,11 @@ public class CrawlerContextLocal extends ThreadLocal<CrawlerContext> {
 	 * @scr.reference cardinality="0..1" policy="dynamic" 
 	 */
 	protected ITempFileManager tempFileManager;
+	    
+	/**
+	 * @scr.reference cardinality="0..1" policy="dynamic" 
+	 */
+	protected ICommandProfileManager cmdProfileManager;	
 	
 	protected Set<String> supportedMimeTypes = Collections.synchronizedSet(new HashSet<String>());
 	
@@ -108,4 +114,7 @@ public class CrawlerContextLocal extends ThreadLocal<CrawlerContext> {
 		return this.supportedMimeTypes;
 	}
 	
+	public ICommandProfileManager getCommandProfileManager() {
+		return this.cmdProfileManager;
+	}	
 }

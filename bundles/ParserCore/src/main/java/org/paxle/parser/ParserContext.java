@@ -19,6 +19,8 @@ import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.core.queue.ICommandProfile;
+import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.parser.impl.ParserContextLocal;
 
 public class ParserContext {	
@@ -71,6 +73,16 @@ public class ParserContext {
 	public IReferenceNormalizer getReferenceNormalizer() {
 		return context.getReferenceNormalizer();
 	}
+		
+	/**
+	 * TODO: currently this is an read-only {@link ICommandProfile}. We should wrap it with a transparent proxy
+	 * and should flush it back to db if one of the command-profile-properties were changed.
+	 */
+	public ICommandProfile getCommandProfile(int profileID) {
+		ICommandProfileManager pm = context.getCommandProfileManager();
+		if (pm == null) return null;		
+		return pm.getProfileByID(profileID);
+	}	
 	
 	/* ========================================================================
 	 * Function operating on the property bag

@@ -19,6 +19,7 @@ import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.parser.ISubParserManager;
 import org.paxle.parser.ParserContext;
 
@@ -56,6 +57,11 @@ public class ParserContextLocal extends ThreadLocal<ParserContext> {
 	 */
 	protected IReferenceNormalizer referenceNormalizer;
     
+	/**
+	 * @scr.reference cardinality="0..1" policy="dynamic" 
+	 */
+	protected ICommandProfileManager cmdProfileManager;
+	
 	public ParserContextLocal() {
 		ParserContext.setThreadLocal(this);
 	}    
@@ -83,5 +89,9 @@ public class ParserContextLocal extends ThreadLocal<ParserContext> {
 
 	public IReferenceNormalizer getReferenceNormalizer() {
 		return referenceNormalizer;
+	}
+	
+	public ICommandProfileManager getCommandProfileManager() {
+		return this.cmdProfileManager;
 	}
 }
