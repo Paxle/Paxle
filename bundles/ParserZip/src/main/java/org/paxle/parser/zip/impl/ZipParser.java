@@ -50,12 +50,21 @@ public class ZipParser implements ISubParser {
 		ZipEntry ze;
 		while ((ze = zis.getNextEntry()) != null) {
 			if (ze.isDirectory()) continue;
-			final SubParserDocOutputStream sos = new SubParserDocOutputStream(
-					context.getTempFileManager(),
-					context.getCharsetDetector(),
-					pdoc, location, ze.getName(), ze.getSize());
+			final long size = ze.getSize();
+			final SubParserDocOutputStream sos;
+			if (size == -1) {
+				sos = new SubParserDocOutputStream(
+						context.getTempFileManager(),
+						context.getCharsetDetector(),
+						pdoc, location, ze.getName());
+			} else {
+				sos = new SubParserDocOutputStream(
+						context.getTempFileManager(),
+						context.getCharsetDetector(),
+						pdoc, location, ze.getName(), size);
+			}
 			try {
-				IOTools.copy(zis, sos, ze.getSize());
+				IOTools.copy(zis, sos, size);						// size == -1 is ok here
 			} finally {
 				try { sos.close(); } catch (IOException e) {
 					if (e.getCause() instanceof ParserException) {
