@@ -21,6 +21,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.paxle.core.metadata.Attribute;
 import org.paxle.desktop.Utilities;
@@ -29,6 +31,7 @@ import org.paxle.desktop.impl.event.MultipleChangesListener;
 abstract class AbstractAttrConfig<E> {
 	
 	protected final AttributeDefinition ad;
+	protected final Log logger = LogFactory.getLog(getClass());
 	
 	protected AbstractAttrConfig(final AttributeDefinition ad) {
 		this.ad = ad;

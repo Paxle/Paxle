@@ -13,6 +13,7 @@
  */
 package org.paxle.desktop.impl.dialogues.settings;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.osgi.service.metatype.AttributeDefinition;
@@ -42,6 +43,16 @@ abstract class AbstractMultiAttrConfig extends AbstractAttrConfig<Object> {
 		
 		final int[] selectedIndices;
 		if (value == null) {
+			if (logger.isDebugEnabled()) {
+				final String stacktrace = Arrays.toString(new Throwable().getStackTrace()).replace(',', '\n');
+				logger.warn("normalizing null-value for '" + ad.getID() + "' from\n" + stacktrace.substring(1, stacktrace.length() - 1));
+			}
+			final String[] defs = ad.getDefaultValue();
+			if (defs != null) {
+				logger.info("falling back to default settings for " + ad.getID());
+				return normalize(defs);
+			}
+			logger.warn("no default value set for " + ad.getID());
 			selectedIndices = new int[1];
 		} else if (value.getClass().isArray()) {
 			final Object[] curVals = (Object[])value;

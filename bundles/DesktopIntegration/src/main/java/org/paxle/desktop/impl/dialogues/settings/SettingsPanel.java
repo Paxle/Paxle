@@ -323,7 +323,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 				final AbstractAttrConfig<?> aconf = AbstractAttrConfig.createAttrConfig(ad,
 						(attrMetadata == null) ? null : attrMetadata.get(id));
 				aconf.addConfigLine(
-						optionsComp, panel, (properties == null) ? null : properties.get(id),
+						optionsComp, panel, (properties == null) ? ad.getDefaultValue() : properties.get(id),
 						gbcLabel, gbcOptSingle, gbcOptMulti, gbcDesc);
 				aconfs.add(aconf);
 				incGridY(gbcLabel, gbcOptSingle, gbcOptMulti, gbcDesc);
