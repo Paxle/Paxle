@@ -77,7 +77,7 @@ public class PrefuseServletTest extends MockObjectTestCase {
 		};
 	}
 
-	public void testGenerateGraph() throws IOException, ServletException {
+	public void testGenerateGraphImage() throws IOException, ServletException {
 		final File testFile = new File(testDir,"test.png");
 		if (testFile.exists()) assertTrue(testFile.delete());
 
@@ -92,7 +92,7 @@ public class PrefuseServletTest extends MockObjectTestCase {
 				}				
 			}));
 			
-			allowing(req).getParameter("display"); will(returnValue("graph"));
+			allowing(req).getParameter("view"); will(returnValue("graph"));
 		}});
 		
 		this.servlet.doGet(this.req, this.resp);
@@ -100,4 +100,28 @@ public class PrefuseServletTest extends MockObjectTestCase {
 		fileOut.flush();
 		fileOut.close();
 	}
+	
+	public void testGenerateGraphML() throws IOException, ServletException {
+		final File testFile = new File(testDir,"test.xml");
+		if (testFile.exists()) assertTrue(testFile.delete());
+
+		assertTrue(testFile.createNewFile());
+		final FileOutputStream fileOut = new FileOutputStream(testFile);		
+		checking(new Expectations(){{
+			allowing(resp).setContentType("text/xml");
+			one(resp).getOutputStream(); will(returnValue(new ServletOutputStream(){
+				@Override
+				public void write(int b) throws IOException {
+					fileOut.write(b);					
+				}				
+			}));
+			
+			allowing(req).getParameter("view"); will(returnValue("graphML"));
+		}});
+		
+		this.servlet.doGet(this.req, this.resp);
+		
+		fileOut.flush();
+		fileOut.close();
+	}	
 }

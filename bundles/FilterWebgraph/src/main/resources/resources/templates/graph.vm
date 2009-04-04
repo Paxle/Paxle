@@ -15,4 +15,4 @@
 #set( $page_title = "Paxle RSS search providers" )
 
 <h2>Webgraph</h2>
-<img src="?display=graph"/>
+<img src="?view=graph"/>
