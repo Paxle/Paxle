@@ -327,7 +327,7 @@
 		<tr><th>${text.gui.path}</th><th>${text.gui.clazz}</th></tr>
 		#foreach( $servlet in $sortTool.sort( $servletManager.getServlets().entrySet(), ["key"]))
 		<tr>
-			<td><a href="$servlet.getKey()">$servlet.getKey()</a></td>
+			<td><a href="${servletManager.getFullAlias($servlet.getKey())}">${servlet.getKey()}</a></td>
 			<td>$servlet.getValue().getClass().getName()</td>
 		</tr>
 		#end
@@ -339,9 +339,9 @@
 	
 	<table>		
 		<tr><th>Path</th><th>Class</th></tr>
-		#foreach( $resources in $sortTool.sort( $servletManager.getResources().entrySet(), ["key"]))
+		#foreach( $resources in $sortTool.sort($servletManager.getResources().entrySet(), ["key"]))
 		<tr>
-			<td><a href="$resources.getKey()">${resources.getKey()}</a></td>
+			<td><a href="${servletManager.getFullAlias($resources.getKey())}">${resources.getKey()}</a></td>
 			<td>${resources.getValue()}</td>
 		</tr>
 		#end

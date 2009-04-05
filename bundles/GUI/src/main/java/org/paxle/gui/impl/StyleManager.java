@@ -174,8 +174,6 @@ public class StyleManager implements IStyleManager, MetaTypeProvider {
 	 * {@link ManagedService}. This data is displayed in the configuraton dialog.
 	 * 
 	 * @see MetaTypeProvider#getObjectClassDefinition(String, String)
-	 * 
-	 * TODO: localization required here
 	 */
 	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
 		// refresh the style list

@@ -19,13 +19,16 @@ import javax.servlet.ServletConfig;
 import org.apache.velocity.tools.view.JeeConfig;
 import org.apache.velocity.tools.view.VelocityView;
 import org.osgi.framework.BundleContext;
+import org.paxle.gui.IServletManager;
 import org.paxle.gui.IVelocityViewFactory;
 
 public class VelocityViewFactory implements IVelocityViewFactory {
 	private BundleContext bc;
+	private IServletManager sm;
 	
-	public VelocityViewFactory(@Nonnull BundleContext bc) {
+	public VelocityViewFactory(@Nonnull BundleContext bc, @Nonnull IServletManager sm) {
 		this.bc = bc;
+		this.sm = sm;
 	}
 
 	public VelocityView createVelocityView(ServletConfig config) {
@@ -42,6 +45,7 @@ public class VelocityViewFactory implements IVelocityViewFactory {
 		// put the bundle-context into the servlet-context to allow
 		// custom tools to access it
 		config.getServletContext().setAttribute("bc", this.bc);
+		config.getServletContext().setAttribute("servletManager", this.sm);
 		
 		return view;
 	}

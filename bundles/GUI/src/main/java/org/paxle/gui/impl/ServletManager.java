@@ -177,7 +177,7 @@ public class ServletManager implements IServletManager {
 		Bundle bundle = servletRef.getBundle();
 		
 		// creating an authentication context
-		return new HttpContextAuth(bundle, this.userAdmin);
+		return new HttpContextAuth(bundle, this.userAdmin, this);
 	}
 	
 	private void registerMenuItem(ServiceReference servletRef) {
@@ -270,11 +270,11 @@ public class ServletManager implements IServletManager {
 		if (this.context == null) return;
 		
 		String fullAlias = null;
-		String servletClass = null;
+		String servletPID = null;
 		try {
 			// getting the servlet class
 			Servlet servlet = (Servlet) this.context.locateService("servlets", servletRef);
-			servletClass = servlet.getClass().getName();
+			servletPID = (String) servletRef.getProperty(Constants.SERVICE_PID);
 			
 			// getting the path to use
 			final String path = (String)servletRef.getProperty(SERVLET_PATH);
@@ -297,13 +297,13 @@ public class ServletManager implements IServletManager {
 				props.put("bundle.location", bundleLocation);
 				
 				// injecting the velocity-view factory
-				((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory(bundleContext));
+				((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory(bundleContext, this));
 			}
 			
 			// registering the servlet
 			this.logger.info(String.format(
 					"Registering servlet '%s' for alias '%s'.", 
-					servlet.getClass().getName(), 
+					servletPID, 
 					fullAlias
 			));
 			this.http.registerServlet(fullAlias, servlet, props, httpContext);
@@ -311,7 +311,7 @@ public class ServletManager implements IServletManager {
 			this.logger.error(String.format(
 					"Unexpected '%s' while registering servlet '%s' for alias '%s'.",
 					e.getClass().getName(),
-					servletClass,
+					servletPID,
 					fullAlias
 			),e);
 		}
@@ -321,10 +321,11 @@ public class ServletManager implements IServletManager {
 		if (this.http == null) return;
 		
 		String fullAlias = null;
-		String servletClass = null;
+		String servletPID = null;
 		try {
 			// getting the path of the servlet
 			final String path = (String)servletRef.getProperty(SERVLET_PATH);
+			servletPID = (String)servletRef.getProperty(Constants.SERVICE_PID);
 			
 			// convert it into a full alias (pathprefix + alias)
 			fullAlias = this.getFullAlias(path);
@@ -332,14 +333,14 @@ public class ServletManager implements IServletManager {
 			// unregistering the servlet
 			this.logger.info(String.format(
 					"Unregistering servlet '%s' for alias '%s'.", 
-					servletClass, 
+					servletPID, 
 					fullAlias
 			));
 			this.http.unregister(fullAlias);
 		} catch (Throwable e) {
 			this.logger.error(String.format("Unexpected '%s' while unregistering servlet '%s' for alias '%s'.",
 					e.getClass().getName(),
-					servletClass,
+					servletPID,
 					fullAlias
 			),e);
 		}
@@ -530,9 +531,9 @@ public class ServletManager implements IServletManager {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) { /* ignore this */}
 			
-			this.unregisterAll();
+//			this.unregisterAll();
 			this.pathPrefix = path;
-			this.registerAll();
+//			this.registerAll();
 		}
 	}
 	

@@ -42,6 +42,7 @@
 
 ## getting resourcebundle to translate site
 #set($text = $resourceTool.bundle('OSGI-INF/l10n/configview'))
+#set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
 
 ## TODO redirect browser if the servlet path-prefix has changed
 #if($delayedRedirect)
@@ -86,7 +87,7 @@
 			<p>
 				<p>
 					<img src="?bundleID=$bundleID&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/>
-					<strong>$ocd.getName()</strong>&nbsp;[Bundle <a href="bundle?bundleID=$bundleID&amp;action=details">$bundleID</a>]<br/>
+					<strong>$ocd.getName()</strong>&nbsp;[Bundle <a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.BundleView')}?bundleID=$bundleID&amp;action=details">$bundleID</a>]<br/>
 					<div class="descriptionText">
 						#if($ocd.getDescription())
 							#set($desc = $ocd.getDescription())
@@ -242,7 +243,7 @@
     				#if($ocd && (!$paramParser.getString("viewImportedConfig") || ${importedConfigProps.containsKey($PID)}))
     					#if($ocdCounter == 0)
     						#set($bundleHeaders = $bundle.getHeaders())
-    			    		<tr><th class="sub" colspan="3"><a href="bundle?bundleID=${bundle.getBundleId()}&action=details">$bundleHeaders.get('Bundle-Name')</a></th></tr>
+    			    		<tr><th class="sub" colspan="3"><a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.BundleView')}?bundleID=${bundle.getBundleId()}&action=details">$bundleHeaders.get('Bundle-Name')</a></th></tr>
     			    	#end
     			    	#set($ocdCounter = $ocdCounter + 1) 
     					<tr class="$color">

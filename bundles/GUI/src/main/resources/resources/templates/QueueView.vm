@@ -24,7 +24,7 @@
 #set($page_headers = [$h1] )
 
 <ul class="tabs">
-	<li><a href="/queue" #if(!$paramParser.getString("queue"))class="active"#end>${text.tab.overview}</a></li>
+	<li><a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.QueueView')}" #if(!$paramParser.getString("queue"))class="active"#end>${text.tab.overview}</a></li>
 	#set($components = ['org.paxle.crawler', 'org.paxle.parser', 'org.paxle.indexer'])
 	#foreach($entry in ${components})
 		<li><a href="?queue=$entry" #if($paramParser.getString("queue","")==$entry)class="active"#end>$text.get("tab.$entry")</a></li>

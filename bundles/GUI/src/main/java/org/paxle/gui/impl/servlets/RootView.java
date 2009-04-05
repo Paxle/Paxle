@@ -13,10 +13,13 @@
  */
 package org.paxle.gui.impl.servlets;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IServletManager;
 
 /**
  * @scr.component immediate="true" metatype="false"
@@ -28,12 +31,19 @@ public class RootView extends ALayoutServlet {
 	
 	private static final long serialVersionUID = 1L;
 	
+	private IServletManager smanager = null;
+	
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		this.smanager = (IServletManager) config.getServletContext().getAttribute("servletManager");
+	}
+	
 	@Override
 	protected void doRequest(HttpServletRequest request, HttpServletResponse response) {
 		try {  	
 			// just a redirection to the search view
-			// TODO: path prefix handling is needed here
-			response.sendRedirect("/search");
+			response.sendRedirect(smanager.getFullServletPath(SearchView.class.getName()));
 		} catch (Throwable e) {
 			this.logger.error(e);
 		}			

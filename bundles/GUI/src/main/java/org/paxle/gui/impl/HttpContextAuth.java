@@ -29,6 +29,8 @@ import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
+import org.paxle.gui.IServletManager;
+import org.paxle.gui.impl.servlets.LoginView;
 
 /*
  * User authentication here. Please read
@@ -51,10 +53,13 @@ public class HttpContextAuth implements HttpContext {
 	 * The OSGI {@link UserAdmin} service required for user athentication
 	 */
 	private final UserAdmin userAdmin;
+	
+	private final IServletManager smanager;
 
-	public HttpContextAuth(Bundle b, UserAdmin userAdmin) {
+	public HttpContextAuth(Bundle b, UserAdmin userAdmin, IServletManager smanager) {
 		this.bundle = b;
 		this.userAdmin = userAdmin;
+		this.smanager = smanager;
 	}
 
 	public String getMimeType( String name) {
@@ -103,10 +108,11 @@ public class HttpContextAuth implements HttpContext {
 			// XXX: this currently just works for GET requests
 			session.setAttribute("login.target", target.toString());
 			response.sendRedirect(String.format(
-					"%s://%s:%d/login",
+					"%s://%s:%d%s",
 					request.getScheme(),
 					request.getServerName(),
-					Integer.valueOf(request.getServerPort())
+					Integer.valueOf(request.getServerPort()),
+					this.smanager.getFullServletPath(LoginView.class.getName())
 			));
 			return false;
 		} 

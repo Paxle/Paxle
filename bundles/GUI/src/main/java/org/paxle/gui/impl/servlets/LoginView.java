@@ -119,8 +119,10 @@ public class LoginView extends ALayoutServlet {
 				// redirect to target
     			if (session.getAttribute("login.target") != null) {
     				response.sendRedirect((String) session.getAttribute("login.target"));
+    				session.removeAttribute("login.target");
     			} else if (request.getParameter("login.target") != null) {
     				response.sendRedirect((String) request.getParameter("login.target"));
+    				request.removeAttribute("login.target");
     			} else {
     				response.sendRedirect("/");
     			}        		

@@ -151,12 +151,13 @@
 </fieldset>
 <fieldset id="dmiscellaneous">
 	<legend>${text.legend.miscellaneous}</legend>
+	#set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
 	<table>
 	<tr>
-		<td class="monitorables">${text.miscellaneous.monitorables}</td><td><a href="monitorable?bundleID=${bundle.BundleId}"/>${text.view}</a></td>
+		<td class="monitorables">${text.miscellaneous.monitorables}</td><td><a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.MonitorableView')}?bundleID=${bundle.BundleId}"/>${text.view}</a></td>
 	</tr>
 	<tr>
-		<td class="config">${text.miscellaneous.configs}</td><td><a href="config?bundleID=${bundle.BundleId}"/>${text.view}</a></td>
+		<td class="config">${text.miscellaneous.configs}</td><td><a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.ConfigView')}?bundleID=${bundle.BundleId}"/>${text.view}</a></td>
 	</tr>	
 	</table>
 </fieldset>

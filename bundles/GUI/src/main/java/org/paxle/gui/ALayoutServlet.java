@@ -63,6 +63,13 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 	};
 	
 	@Override
+	public void destroy() {
+		super.destroy();
+		this.view = null;
+		this.viewFactory = null;
+	}
+	
+	@Override
 	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
 		return super.handleRequest(request, response, context);
 	}

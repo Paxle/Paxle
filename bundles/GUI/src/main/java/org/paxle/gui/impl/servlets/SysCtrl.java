@@ -20,6 +20,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
+import org.paxle.gui.IServletManager;
 
 /**
  * @scr.component immediate="true" metatype="false"
@@ -47,17 +48,15 @@ public class SysCtrl extends ALayoutServlet {
 
 			if (request.getParameter(SHUTDOWN) != null) {
 				// check user authentication
-				if (!this.isUserAuthenticated(request, response, true)) {
-					response.sendRedirect("/login");
-				} else {
+				if (!this.isUserAuthenticated(request, response, true)) return null;
+				else {
 					manager.shutdownFrameworkDelayed(shutdownDelay);
 					context.put("action", SHUTDOWN);
 				}
 			} else if (request.getParameter(RESTART) != null) {
 				// check user authentication
-				if (!this.isUserAuthenticated(request, response, true)) {
-					response.sendRedirect("/login");
-				} else {
+				if (!this.isUserAuthenticated(request, response, true)) return null;
+				else {
 					manager.restartFrameworkDelayed(shutdownDelay);
 					context.put("action", RESTART);
 				}
