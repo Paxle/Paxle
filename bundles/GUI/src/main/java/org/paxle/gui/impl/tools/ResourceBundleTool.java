@@ -38,4 +38,7 @@ public class ResourceBundleTool extends ResourceTool {
 		return this.localeConfig.getLocale();
 	}
 
+    public Object get(Object k, String baseName, Object l) {
+    	return super.get(k, baseName, l);
+    }
 }

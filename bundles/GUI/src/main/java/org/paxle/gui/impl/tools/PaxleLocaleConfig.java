@@ -53,6 +53,7 @@ public class PaxleLocaleConfig extends LocaleConfig {
 	 */
 	@Override
 	public void configure(@SuppressWarnings("unchecked") Map props) {
+		super.configure(props);
 		if (props != null) {
 			// getting the bundle context
 			ServletContext servletContext = (ServletContext) props.get("servletContext");			
