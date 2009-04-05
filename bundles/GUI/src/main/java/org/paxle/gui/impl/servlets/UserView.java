@@ -205,6 +205,13 @@ public class UserView extends ALayoutServlet {
 		}
 		
 		/* ===========================================================
+		 * LANGUAGE
+		 * =========================================================== */
+		if (request.getParameter("user.language") != null) {
+			props.put("user.language",request.getParameter("user.language"));
+		}
+		
+		/* ===========================================================
 		 * MEMBERSHIP
 		 * =========================================================== */
 		// process membership

@@ -44,10 +44,11 @@
 </ul>
 
 <br />
-#set($bundleName = $bundle.getHeaders().get("Bundle-Name"))
-#set($bundleVersion = $bundle.getHeaders().get("Bundle-Version"))
-#set($bundleDescr = $bundle.getHeaders().get("Bundle-Description"))
-#set($bundleBuildNr = $bundle.getHeaders().get("Implementation-Build"))
+#set($bundleHeaders = $bundle.getHeaders($localeConfig.getLocaleStr()))
+#set($bundleName = $bundleHeaders.get("Bundle-Name"))
+#set($bundleVersion = $bundleHeaders.get("Bundle-Version"))
+#set($bundleDescr = $bundleHeaders.get("Bundle-Description"))
+#set($bundleBuildNr = $bundleHeaders.get("Implementation-Build"))
 
 <h3>#{if}($bundleName)$bundleName#{else}${bundle.getSymbolicName()}#{end} ($bundleVersion#{if}($$bundleBuildNr) - SVN Rev. $bundleBuildNr#{end})</h3>
 <br />
@@ -70,17 +71,16 @@
 	<legend>${text.legend.bundleManifest}</legend>
 	<table>
 		<tr><th>${text.bundleManifest.name}</th><th>${text.bundleManifest.value}</th></tr>
-		#set($headers = $bundle.getHeaders())	
-		#foreach($name in $headers.keys())		
+		#foreach($name in $bundleHeaders.keys())		
 		<tr>
 			<td><b>$name</b></td>
 			<td>
 			#if( $name == "Import-Package" || $name == "Export-Package" || $name == "Private-Package" || $name == "Ignore-Package" || $name == "Bundle-ClassPath" || $name == "Embed-Dependency")			
-    			#foreach( $package in $stringTools.quoteSplit($headers.get($name), ","))
+    			#foreach( $package in $stringTools.quoteSplit($bundleHeaders.get($name), ","))
      				$package<br />
     			#end
 			#else
-    			#set($value = $headers.get($name))
+    			#set($value = $bundleHeaders.get($name))
 				#displayValue($value)
 			#end
 			</td>

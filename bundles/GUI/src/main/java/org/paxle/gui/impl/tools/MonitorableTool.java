@@ -23,30 +23,21 @@ import java.util.ResourceBundle;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.tools.Scope;
 import org.apache.velocity.tools.config.DefaultKey;
 import org.apache.velocity.tools.config.ValidScope;
-import org.apache.velocity.tools.generic.LocaleConfig;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.monitor.MonitorAdmin;
 import org.osgi.service.monitor.StatusVariable;
+import org.paxle.gui.impl.ServletManager;
 import org.paxle.gui.impl.tools.MonitorableTool.Monitorable.Variable;
 
 @DefaultKey("metaData")
 @ValidScope(Scope.REQUEST)
-public class MonitorableTool extends LocaleConfig {
-	private BundleContext context;
-	
-	/**
-	 * For logging
-	 */
-	private Log logger = LogFactory.getLog(this.getClass());
-	
+public class MonitorableTool extends PaxleLocaleConfig {
 	private MonitorAdmin ma;
 	
 	/**
@@ -59,12 +50,10 @@ public class MonitorableTool extends LocaleConfig {
 	 * @param props
 	 */
 	public void configure(@SuppressWarnings("unchecked") Map props) {
-		if (props != null) {
-			// getting a reference to the bundle-context
-			ServletContext servletContext = (ServletContext) props.get("servletContext");			
-			this.context = (BundleContext) servletContext.getAttribute("bc");
-			
-			// getting the monitor admin service
+		super.configure(props);
+		
+		// getting the monitor admin service
+		if (this.context != null) {
 			ServiceReference ref = this.context.getServiceReference(MonitorAdmin.class.getName());
 			if (ref != null) {
 				this.ma = (MonitorAdmin) this.context.getService(ref);

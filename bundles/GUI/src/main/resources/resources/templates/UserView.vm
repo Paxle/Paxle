@@ -82,7 +82,16 @@
         					<td><input name='openid.url' value='$!role.getProperties().get("openid.url")'/></td>
         					<td>${text.prop.openIdUrl.desc}</td>
         				</tr>
-                	#end				
+					#end
+					<tr>
+						<td>${text.prop.language.name}</td>						
+						<td><select name="user.language" size="1">
+                              <option value="en" #if($!role.getProperties().get("user.language")=="en")selected="selected"#end>${text.prop.language.en}</option>
+							  <option value="de" #if($!role.getProperties().get("user.language")=="de")selected="selected"#end>${text.prop.language.de}</option>
+                            </select>
+						</td>
+						<td>${text.prop.language.desc}</td>
+					</tr>
     				<tr>
     					<td>${text.prop.groups.name}</td>
     					<td>

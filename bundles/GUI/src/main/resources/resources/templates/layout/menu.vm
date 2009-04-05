@@ -21,10 +21,10 @@
 				#if($item.getIconURL())
 					<img src="/menu?icon=$item.getIconURL()"/>
 				#end
-				$item.getName($request.getLocales())
+				$item.getName($localeConfig.getLocale())
 			</a>
 		#else
-			<strong>$item.getName($request.getLocales())</strong>
+			<strong>$item.getName($localeConfig.getLocale())</strong>
 		#end
 		#if($item.hasSubItems())
 			<ul class="subnav subnav$depth">

@@ -81,7 +81,7 @@
 		
 		
 		## load service metatypes
-		#set($ocd = ${configView.getObjectClassDefinition($request, $manager,$bundle,$PID)})
+		#set($ocd = ${configView.getObjectClassDefinition($localeConfig.getLocale(), $manager,$bundle,$PID)})
 		#if($ocd)										
 			<p>
 				<p>
@@ -236,7 +236,7 @@
 				#foreach($PID in ${configView.getMetaTypePIDs($manager,$bundle)})
 
     				## load service metatypes
-    				#set($ocd = ${configView.getObjectClassDefinition($request, $manager,$bundle,$PID)})
+    				#set($ocd = ${configView.getObjectClassDefinition($localeConfig.getLocale(), $manager,$bundle,$PID)})
 
 					## display data
     				#if($ocd && (!$paramParser.getString("viewImportedConfig") || ${importedConfigProps.containsKey($PID)}))

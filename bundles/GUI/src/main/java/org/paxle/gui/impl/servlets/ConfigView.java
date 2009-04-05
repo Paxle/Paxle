@@ -69,6 +69,7 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.IStyleManager;
 import org.paxle.gui.impl.ServiceManager;
+import org.paxle.gui.impl.tools.PaxleLocaleConfig;
 import org.paxle.tools.ieporter.cm.IConfigurationIEPorter;
 
 /**
@@ -422,7 +423,9 @@ public class ConfigView extends ALayoutServlet {
 		}
 		
 		// loading metadata
-		ObjectClassDefinition ocd = this.getObjectClassDefinition(request, manager, bundle, pid);
+		PaxleLocaleConfig localeConfig = (PaxleLocaleConfig) context.get("localeConfig");
+		Locale locale = (localeConfig == null) ? Locale.ENGLISH : localeConfig.getLocale();		
+		ObjectClassDefinition ocd = this.getObjectClassDefinition(locale, manager, bundle, pid);
 		if (ocd == null) {
 			response.sendError(501, String.format("No ObjectClassDefinition found for service with PID '%s'.",pid));
 			return;
@@ -512,7 +515,9 @@ public class ConfigView extends ALayoutServlet {
 			return;
 		}
 		
-		ObjectClassDefinition ocd = this.getObjectClassDefinition(request, manager, bundle, pid);
+		PaxleLocaleConfig localeConfig = (PaxleLocaleConfig) context.get("localeConfig");
+		Locale locale = (localeConfig == null) ? Locale.ENGLISH : localeConfig.getLocale();
+		ObjectClassDefinition ocd = this.getObjectClassDefinition(locale, manager, bundle, pid);
 		if (ocd == null) {
 			context.put(ERROR_MSG, String.format("No ObjectClassDefinition found for service with PID '%s'.",pid));
 			return;
@@ -785,9 +790,8 @@ public class ConfigView extends ALayoutServlet {
 		return null;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public ObjectClassDefinition getObjectClassDefinition(HttpServletRequest request, ServiceManager manager, Bundle bundle, String PID) {
-		final List<Locale> preferedLocale = Collections.list(request.getLocales());
+	public ObjectClassDefinition getObjectClassDefinition(Locale locale, ServiceManager manager, Bundle bundle, String PID) {
+		final List<Locale> preferedLocale = Arrays.asList(new Locale[]{locale});
 		
 		// try to find ocd via metatype-service
 		ObjectClassDefinition ocd = this.getObjectClassDefinitionFromMetaTypeService(manager, bundle, PID, preferedLocale);

@@ -77,7 +77,7 @@
 		#set($bundleID = $entry.key)
 		#set($bundleSymbolicName = $entry.value.symbolicName)
 		#set($bundleState = $states.get($entry.value.state))
-		#set($bundleHeaders = $entry.value.getHeaders())
+		#set($bundleHeaders = $entry.value.getHeaders($localeConfig.getLocaleStr()))
 			
 		<td><a class="$bundleState" href="?bundleID=$bundleID&amp;action=details">$bundleID</a></td>
 		<td class="bundle_$bundleState">
