@@ -15,7 +15,3 @@
 ## Otherwise blank lines appear in front of content, which may irritate browsers (e.g. FF and the OpenSearch description)
 #parse('/resources/templates/headers/SetServerName.vm')
 #parse('/resources/templates/headers/SetNoCaching.vm')
-##see http://wiki.paxle.net/dev/bundles/gui
-#if($contenttype)
-	#parse('/resources/templates/headers/SetContentType.vm')
-#end
