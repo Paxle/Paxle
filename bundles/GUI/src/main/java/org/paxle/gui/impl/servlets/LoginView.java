@@ -81,7 +81,8 @@ public class LoginView extends ALayoutServlet {
         try {
     		// Get the session
     		HttpSession session = request.getSession(true);
-        	
+        	boolean doRedirect = false;
+    		
         	if (request.getParameter("doLogin") != null) {
         		// getting user-name + password
         		String userName = request.getParameter("login.username");
@@ -101,14 +102,8 @@ public class LoginView extends ALayoutServlet {
     				// set user-data into the session
     				session.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.FORM_AUTH);
     				session.setAttribute(HttpContext.AUTHORIZATION, uAdmin.getAuthorization(user));
-    				session.setAttribute(HttpContext.REMOTE_USER, user);	        			
-        			
-    				// redirect to target
-        			if (session.getAttribute("login.target") != null) {
-        				response.sendRedirect((String) session.getAttribute("login.target"));
-        			} else {
-        				response.sendRedirect("/");
-        			}
+    				session.setAttribute(HttpContext.REMOTE_USER, user);
+    				doRedirect = true;
         		} else {
         			context.put("errorMsg","Unable to login. Username or password is invalid");
         		}
@@ -117,9 +112,21 @@ public class LoginView extends ALayoutServlet {
         		session.removeAttribute(HttpContext.AUTHENTICATION_TYPE);
         		session.removeAttribute(HttpContext.AUTHORIZATION);
         		session.removeAttribute(HttpContext.REMOTE_USER);
+        		doRedirect = true;
         	}
-            
-            template = this.getTemplate("/resources/templates/LoginView.vm");
+        	
+        	if (doRedirect) {
+				// redirect to target
+    			if (session.getAttribute("login.target") != null) {
+    				response.sendRedirect((String) session.getAttribute("login.target"));
+    			} else if (request.getParameter("login.target") != null) {
+    				response.sendRedirect((String) request.getParameter("login.target"));
+    			} else {
+    				response.sendRedirect("/");
+    			}        		
+        	} else {            
+        		template = this.getTemplate("/resources/templates/LoginView.vm");
+        	}
         } catch (Exception e ) {
         	this.logger.error(String.format(
         			"Unexpected '%s': %s",
