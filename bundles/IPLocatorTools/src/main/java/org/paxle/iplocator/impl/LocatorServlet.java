@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @scr.component immediate="true" 
+ * @scr.component immediate="true" metatype="false"
  * @scr.service interface="javax.servlet.Servlet"
  * @scr.property name="org.paxle.servlet.path" value="/ipLocator"
  * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
