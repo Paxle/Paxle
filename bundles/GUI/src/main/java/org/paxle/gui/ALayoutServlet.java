@@ -89,7 +89,7 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 				final Context velocityContext = getVelocityView().createContext(request, response);
 				final IServiceManager manager = (IServiceManager) velocityContext.get(SERVICE_MANAGER);				
 				final IServletManager servletManager = (IServletManager) manager.getService(IServletManager.class.getName());				    			
-				response.sendRedirect(servletManager.getFullAlias("/login"));				
+				response.sendRedirect(servletManager.getFullServletPath("org.paxle.gui.impl.servlets.LoginView"));				
 			}
 			return false;
 		}		

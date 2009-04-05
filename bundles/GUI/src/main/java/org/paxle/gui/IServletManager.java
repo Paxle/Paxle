@@ -38,4 +38,5 @@ public interface IServletManager {
 	 */
 	public String getFullAlias(String alias);
 	public String getFullAlias(String prefix, String alias);
+	public String getFullServletPath(String servletPID);
 }

@@ -250,6 +250,20 @@ public class ServletManager implements IServletManager {
 		}
 		return fullAlias;
 	}
+	
+	public String getFullServletPath(String servletPID) {
+		if (servletPID == null) return null;
+		
+		for (ServiceReference ref : this.servlets.values()) {
+			String servicePID = (String) ref.getProperty(Constants.SERVICE_PID);
+			if (servicePID != null && servicePID.equals(servletPID)) {
+				final String path = (String)ref.getProperty(SERVLET_PATH);
+				return this.getFullAlias(path);
+			}
+		}
+		
+		return null;
+	}
 		
 	private void registerServlet(ServiceReference servletRef) {
 		if (this.http == null) return;

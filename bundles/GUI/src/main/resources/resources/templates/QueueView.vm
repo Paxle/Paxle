@@ -35,7 +35,7 @@
 <script type="text/javascript">
 /*<![CDATA[*/
       var ajaxPopulater = function (id,reload) {
-         var url  = '${servletManager.getFullAlias("/queue")}?#{if}($paramParser.getString("queue"))queue=${paramParser.getString("queue")}&#{end}reload=' + reload;
+         var url  = '${servletManager.getFullServletPath("org.paxle.gui.impl.servlets.QueueView")}?#{if}($paramParser.getString("queue"))queue=${paramParser.getString("queue")}&#{end}reload=' + reload;
          new Ajax.PeriodicalUpdater(id, url, {
             method: 'post',
             frequency: 5,

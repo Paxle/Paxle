@@ -12,6 +12,7 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
 #set( $menuManager = $manager.getService("org.paxle.gui.IMenuManager"))
+#set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
 
 #macro(menu $parent $depth)
 	#foreach($item in $parent.getMenuItemList())
@@ -19,7 +20,7 @@
 		#if($item.getUrl())
 			<a #if($current == $item.getUrl())class="active"#end href="$!item.getUrl()">
 				#if($item.getIconURL())
-					<img src="/menu?icon=$item.getIconURL()"/>
+					<img src="${servletManager.getFullServletPath('org.paxle.gui.impl.MenuManager')}?icon=$item.getIconURL()"/>
 				#end
 				$item.getName($localeConfig.getLocale())
 			</a>

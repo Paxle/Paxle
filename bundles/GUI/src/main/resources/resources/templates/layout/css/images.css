@@ -66,6 +66,13 @@ input.btnDelGroup {
 	padding-left: 20px;
 }
 
+input.btnLogin {
+	background-image: url(../images/login.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	padding-left: 20px;
+}
+
 .btnGC {
 	background-image: url(../images/cog.png);
 	background-repeat: no-repeat;

@@ -30,15 +30,15 @@
 	#set($logintext = $resourceTool.bundle('OSGI-INF/l10n/loginview'))
 			#if($user)
 			<li id="loginStatus">
-				<a href="${servletManager.getFullAlias('/login')}?login.target=$escTool.url($context.get('request').getServletPath())&amp;doLogout="><img src="$imgPrefix/logout.png" width="16" height="16" alt="Logout"/>$user.getProperties().get("http.login")</a> 
+				<a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.LoginView')}?login.target=$escTool.url($context.get('request').getServletPath())&amp;doLogout="><img src="$imgPrefix/logout.png" width="16" height="16" alt="Logout"/>$user.getProperties().get("http.login")</a> 
 			</li>
 		#else
 			<li id="loginStatus">
 				##<a href="${servletManager.getFullAlias('/login')}"><img src="$imgPrefix/login.png" width="16" height="16" alt="Login"/>Not logged in</a>
-				<form id="loginForm" action="${servletManager.getFullAlias('/login')}?login.target=$escTool.url($context.get('request').getServletPath())" method="post">
+				<form id="loginForm" action="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.LoginView')}?login.target=$escTool.url($context.get('request').getServletPath())" method="post">
 				${logintext.formLogin.username}: <input type="text" name="login.username" size="16" value=""/>
 				${logintext.formLogin.userpwd}: <input type="password" name="login.password" size="16" value=""/>
-				<input type="submit" value="Login" name="doLogin"/>				
+				<input class="btnLogin" type="submit" value="Login" name="doLogin"/>				
                 </form>
 			</li>
 			#end	

@@ -26,7 +26,7 @@
 	var populaters = new Array();
 
 	var ajaxPopulater = function (id,reload){
-    		var url  = '${servletManager.getFullAlias("/overview")}?reload=' + reload;
+    		var url  = '${servletManager.getFullServletPath("org.paxle.gui.impl.servlets.OverView")}?reload=' + reload;
     		var populater = new Ajax.PeriodicalUpdater(id, url,   
     		{
 			method: 'post',
