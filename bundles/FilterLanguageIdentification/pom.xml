@@ -10,7 +10,7 @@
 	<packaging>bundle</packaging>
 	<version>0.1.0-SNAPSHOT</version>
 	<name>Paxle - Filter: FilterLanguageIdentification</name>
-	<url>http://wiki.paxle.net/dev/bundles/FilterLanguageIdentification</url>
+	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 	
 	<!-- Parent Project -->
 	<parent>
