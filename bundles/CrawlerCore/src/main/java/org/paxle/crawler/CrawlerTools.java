@@ -107,15 +107,13 @@ public class CrawlerTools {
 	 * @return <code>true</code> if the charset is not supported
 	 */
 	static boolean isUnsupportedCharset(String contentCharset) {		
-		boolean unsupportedCharset = false;		
+		boolean unsupportedCharset = true;		
 
 		try {
-			if (contentCharset != null && !Charset.isSupported(contentCharset)) {
-				unsupportedCharset = true;
+			if (contentCharset != null && Charset.isSupported(contentCharset)) {
+				unsupportedCharset = false;
 			}
-		} catch (IllegalCharsetNameException e) {
-			unsupportedCharset = true;
-		}
+		} catch (IllegalCharsetNameException e) {}
 		
 		return unsupportedCharset;
 	}

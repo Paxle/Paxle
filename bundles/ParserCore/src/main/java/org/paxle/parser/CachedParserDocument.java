@@ -39,11 +39,13 @@ public final class CachedParserDocument extends ParserDocument implements IParse
 	@Override
 	public void addText(CharSequence text) throws IOException {
 		if (text == null) return;
-		this.text.append(text.toString());
+		addText(text.toString());
 	}
 	
 	public void addText(String text) throws IOException {
 		if (text == null) return;
+		//Perhaps we should add a whitespace here?
+		//Otherwise addText("first") and addText("second") --> "firstsecond", which may not be expected behaviour.
 		this.text.append(text);
 	}
 		

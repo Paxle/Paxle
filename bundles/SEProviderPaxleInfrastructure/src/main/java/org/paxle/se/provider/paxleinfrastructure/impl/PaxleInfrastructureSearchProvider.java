@@ -36,13 +36,10 @@ public class PaxleInfrastructureSearchProvider implements ISearchProvider {
 				indexerDoc.set(IIndexerDocument.LOCATION, "http://wiki.paxle.net/");
 				indexerDoc.set(IIndexerDocument.TITLE, "Paxle Wiki");
 			}else if(request.toLowerCase().equals("paxle homepage")){
-				indexerDoc.set(IIndexerDocument.LOCATION, "http://www2.paxle.net/");
+				indexerDoc.set(IIndexerDocument.LOCATION, "http://www.paxle.net/");
 				indexerDoc.set(IIndexerDocument.TITLE, "Paxle Homepage");
-			}else if(request.toLowerCase().equals("paxle forum")){
-				indexerDoc.set(IIndexerDocument.LOCATION, "http://forum.paxle.info/");
-				indexerDoc.set(IIndexerDocument.TITLE, "Paxle Forum");
 			}else if(request.toLowerCase().equals("paxle bts")){
-				indexerDoc.set(IIndexerDocument.LOCATION, "http://bugs.paxle.net/");
+				indexerDoc.set(IIndexerDocument.LOCATION, "http://bugs.pxl.li/");
 				indexerDoc.set(IIndexerDocument.TITLE, "Paxle Bugtracker");
 			}else if(request.toLowerCase().startsWith("paxle bug #")){
 				String bugNum=request.substring(11);
