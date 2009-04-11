@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -86,20 +87,30 @@ public class RssSearchProviderManager implements IRssSearchProviderManager {
 		 * Creating the default provider list
 		 */
 		if(!this.providerFile.exists()){
-			ArrayList<String> defaults=new ArrayList<String>();
-			defaults.add("http://del.icio.us/rss/tag/%s");
-			defaults.add("http://www.mister-wong.com/rss/tags/%s");
+			InputStream defaultIn = this.getClass().getResourceAsStream("/resources/defaultProviders.txt");
+			ArrayList<String> defaults = this.loadUrls(defaultIn);
 			setUrls(defaults);
 		}
 		
 		// reading the providers from file
+		return this.loadUrls(this.providerFile);
+	}
+	
+	private ArrayList<String> loadUrls(File file) throws IOException {
+		return this.loadUrls(new FileInputStream(file));
+	}
+	
+	private ArrayList<String> loadUrls(InputStream in) throws IOException {
 		ArrayList<String> list=new ArrayList<String>();
 		BufferedReader is = null;
 		try {
-			is = new BufferedReader(new InputStreamReader(new FileInputStream(this.providerFile)));
+			is = new BufferedReader(new InputStreamReader(in));
 			
 			String line;			
-			while((line=is.readLine())!=null){
+			while((line=is.readLine())!=null) {
+				line = line.trim();
+				if (line.length() == 0) continue;
+				else if (line.startsWith("#")) continue;
 				list.add(line);
 			}
 		} finally {
@@ -107,8 +118,6 @@ public class RssSearchProviderManager implements IRssSearchProviderManager {
 		}
 		return list;
 	}
-	
-
 
 	/* (non-Javadoc)
 	 * @see org.paxle.se.provider.rsssearch.impl.IRssSearchProviderManager#setUrls(java.util.ArrayList)
