@@ -881,8 +881,7 @@
 				<module>../IconTools</module>
 				<module>../IPLocatorTools</module>
 
-				<!-- Optional SE bundles -->
-				<module>../SEProviderRssSearch</module>	
+				<!-- Optional SE bundles -->				
 
 				<!-- Optional Filter bundles -->
 				<module>../FilterPlaintextDumper</module>
@@ -1273,6 +1272,7 @@
 		<!-- search engine bundles -->
 		<module>../SearchEngine</module>
 		<module>../SEProviderPaxleInfrastructure</module>
+		<module>../SEProviderRssSearch</module>
 		
 		<!-- indexer bundles -->
 		<module>../Indexer</module>

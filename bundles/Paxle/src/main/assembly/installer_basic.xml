@@ -32,6 +32,7 @@
 				
 				<include>org.paxle:SearchEngine</include>
 				<include>org.paxle:SEProviderPaxleInfrastructure</include>
+				<include>org.paxle:SEProviderRssSearch</include>
 
 				<include>org.paxle:Indexer</include>	
 				<include>org.paxle:IndexLucene</include>			
