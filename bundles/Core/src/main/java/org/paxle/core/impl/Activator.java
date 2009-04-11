@@ -145,6 +145,9 @@ public class Activator implements BundleActivator, InvocationHandler {
 		// init logger
 		this.logger = LogFactory.getLog(this.getClass());
 		
+		// configuring some system properties
+		System.setProperty("paxle.version", (String) bc.getBundle().getHeaders().get(Constants.BUNDLE_VERSION));
+		
 		// starting paxle
 		logger.info("Starting ...");
 		System.out.println(

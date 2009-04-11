@@ -54,6 +54,12 @@
 				<Option label="%httpCrawler.cookiePolicy.ignoreCookies.name" value="ignoreCookies"/>
 		</AD>
 		
+		<AD name="%httpCrawler.userAgent.name"
+				type="String"
+				id="org.paxle.crawler.http.IHttpCrawler.userAgent"
+				default="Mozilla/5.0 (compatible; ${paxle.userAgent}/${paxle.version}; +http://www.paxle.net/en/bot)"
+				description="%httpCrawler.userAgent.desc"/>
+		
 		<AD name="%httpCrawler.transferRateLimit.name"
 				type="Integer"
 				id="org.paxle.crawler.http.IHttpCrawler.transferLimit"

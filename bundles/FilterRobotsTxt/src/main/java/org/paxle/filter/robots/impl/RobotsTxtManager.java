@@ -45,6 +45,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -95,6 +97,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	private static final String PROP_SOCKET_TIMEOUT 		= PID + '.' + "socketTimeout";
 	private static final String PROP_MAXCONNECTIONS_TOTAL 	= PID + '.' + "maxConnectionsTotal";
 	private static final String PROP_MAX_CACHE_SIZE 		= PID + '.' + "maxCacheSize";
+	private static final String PROP_USER_AGENT 			= PID + '.' + "userAgent";
 	
 	private static final String PROP_PROXY_USE 				= PID + '.' + "useProxy";
 	private static final String PROP_PROXY_HOST 			= PID + '.' + "proxyHost";
@@ -104,8 +107,6 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	
 	private static final String PROP_WORKER_MAX_ALIVE       = PID + '.' + "threads.maxAlive";
 	private static final String PROP_WORKER_MAX_IDLE        = PID + '.' + "threads.maxIdle";
-	
-	private static final String ROBOTS_AGENT_PAXLE = "paxle";
 	
 	/* =========================================================
 	 * OSGi Monitorable CONSTANTS
@@ -196,6 +197,11 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	private final ThreadPoolExecutor execService;
 	
 	/**
+	 * The User-Agent name to use
+	 */
+	private String userAgent = null;	
+	
+	/**
 	 * @param path the path where the {@link RobotsTxt} objects should be stored
 	 */
 	public RobotsTxtManager(IRuleStore loader) {
@@ -281,6 +287,9 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 		// a systemwidth unique ID needed by the CM
 		defaults.put(Constants.SERVICE_PID, IRobotsTxtManager.class.getName());
 		
+		// the user-agent string to use
+		defaults.put(PROP_USER_AGENT,"${paxle.userAgent}");
+		
 		return defaults;
 	}	
 	
@@ -351,6 +360,28 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 			if (maxConnections != null)
 				this.connectionManager.getParams().setMaxTotalConnections(maxConnections.intValue());
 			this.httpClient = new HttpClient(this.connectionManager);
+			
+			// the user-agent name that should be used
+			final String userAgent = (String)configuration.get(PROP_USER_AGENT);
+			if (userAgent != null) {
+				StringBuffer buf = new StringBuffer();
+				Pattern pattern = Pattern.compile("\\$\\{[^\\}]*}");
+				Matcher matcher = pattern.matcher(userAgent);
+	
+				// replacing property placeholders with system-properties
+				while (matcher.find()) {
+					String placeHolder = matcher.group();
+					String propName = placeHolder.substring(2,placeHolder.length()-1);					
+					String propValue = System.getProperty(propName);
+					if (propValue != null) matcher.appendReplacement(buf, propValue);
+				}
+				matcher.appendTail(buf);
+				
+				this.userAgent = buf.toString();
+			} else {
+				// Fallback
+				this.userAgent = "PaxleFramework";
+			}			
 			
 			// proxy configuration
 			final Boolean useProxyVal = (Boolean)configuration.get(PROP_PROXY_USE);
@@ -717,7 +748,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	public Map<String, String> getRobotsProperties(URI location) {
 		try {		
 			RobotsTxt robotsTxt = this.getRobotsTxt(location);
-			RuleBlock ruleBlock = robotsTxt.getRuleBlock(ROBOTS_AGENT_PAXLE);
+			RuleBlock ruleBlock = robotsTxt.getRuleBlock(this.userAgent);
 			return (ruleBlock == null) ? Collections.EMPTY_MAP : ruleBlock.getProperties();			
 		} catch (Exception e) {
 			this.logger.error(String.format(
@@ -824,7 +855,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 				assert(this.getHostPort(location).equals(hostPort));
 				String path = location.getPath();
 				
-				if (robotsTxt.isDisallowed(ROBOTS_AGENT_PAXLE, path)) {
+				if (robotsTxt.isDisallowed(this.userAgent, path)) {
 					disallowedList.add(location);
 				}
 			}

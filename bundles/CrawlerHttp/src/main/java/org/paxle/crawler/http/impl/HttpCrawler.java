@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipInputStream;
 
@@ -53,17 +55,14 @@ import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedService;
-
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.prefs.Properties;
 import org.paxle.crawler.ContentLengthLimitExceededException;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
-import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.http.IHttpCrawler;
 
 /**
@@ -82,6 +81,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	static final String PROP_ACCEPT_ENCODING 			= PID + '.' + "acceptEncodings";
 	static final String PROP_TRANSFER_LIMIT 			= PID + '.' + "transferLimit";			// in KB/s
 	static final String PROP_COOKIE_POLICY 			    = PID + '.' + "cookiePolicy";
+	static final String PROP_USER_AGENT 			    = PID + '.' + "userAgent";
 	
 	static final String PROP_PROXY_USE 					= PID + '.' + "useProxy";
 	static final String PROP_PROXY_HOST 				= PID + '.' + "proxyHost";
@@ -152,6 +152,11 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 */
 	private String cookiePolicy = null;
 	
+	/**
+	 * The User-Agent header the crawler should use
+	 */
+	private String userAgent = null;
+	
 	private Properties props = null;
 	private final ConcurrentHashMap<String,Integer> hostSettings;
 	
@@ -215,6 +220,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		defaults.put(PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(10485760));
 		defaults.put(PROP_ACCEPT_ENCODING, Boolean.TRUE);
 		defaults.put(PROP_COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+		defaults.put(PROP_USER_AGENT, "Mozilla/5.0 (compatible; ${paxle.userAgent}/${paxle.version}; +http://www.paxle.net/en/bot)");
 		defaults.put(PROP_TRANSFER_LIMIT, Integer.valueOf(-1));
 		
 		defaults.put(PROP_PROXY_USE, Boolean.FALSE);
@@ -281,6 +287,28 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			// the cookie policy to use for crawling
 			final String propCookiePolicy = (String)configuration.get(PROP_COOKIE_POLICY);
 			this.cookiePolicy = (propCookiePolicy == null || propCookiePolicy.length()==0) ? CookiePolicy.BROWSER_COMPATIBILITY : propCookiePolicy;
+			
+			// the http-user-agent string that should be used
+			final String userAgent = (String)configuration.get(PROP_USER_AGENT);
+			if (userAgent != null) {
+				StringBuffer buf = new StringBuffer();
+				Pattern pattern = Pattern.compile("\\$\\{[^\\}]*}");
+				Matcher matcher = pattern.matcher(userAgent);
+	
+				// replacing property placeholders with system-properties
+				while (matcher.find()) {
+					String placeHolder = matcher.group();
+					String propName = placeHolder.substring(2,placeHolder.length()-1);					
+					String propValue = System.getProperty(propName);
+					if (propValue != null) matcher.appendReplacement(buf, propValue);
+				}
+				matcher.appendTail(buf);
+				
+				this.userAgent = buf.toString();
+			} else {
+				// Fallback
+				this.userAgent = "PaxleFramework";
+			}
 			
 			// download limit in bytes
 			final Integer maxDownloadSize = (Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE);
@@ -357,8 +385,10 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		if (acceptEncoding && !isHostSettingSet(method.getURI().getHost(), PREF_NO_ENCODING))
 			method.setRequestHeader(HTTPHEADER_ACCEPT_ENCODING, "compress, gzip, identity, deflate");	// see RFC 2616, section 14.3
 		
-		// TODO: set some additional http headers
-		//method.setRequestHeader("User-Agent","xxx");
+		// set some additional http headers
+		if (this.userAgent != null) {
+			method.setRequestHeader("User-Agent",this.userAgent);
+		}
 	}
 	
 	/**

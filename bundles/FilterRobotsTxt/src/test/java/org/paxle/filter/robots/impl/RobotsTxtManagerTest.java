@@ -40,6 +40,10 @@ public class RobotsTxtManagerTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
+		// configuring some system properties
+		System.setProperty("paxle.userAgent","PaxleFramework");		
+		
+		// initialize the manager
 		this.manager = new RobotsTxtManager(new FileStore(new File("target/temp")));
 	}
 

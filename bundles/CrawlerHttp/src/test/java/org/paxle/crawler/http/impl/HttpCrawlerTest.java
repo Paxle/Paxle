@@ -39,6 +39,10 @@ public class HttpCrawlerTest extends MockObjectTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();		
 				
+		// configuring some system properties
+		System.setProperty("paxle.userAgent","PaxleFramework");
+		System.setProperty("paxle.version", "0.1.0");
+		
 		// create the crawler
 		this.crawler = new HttpCrawler(null);		
 		

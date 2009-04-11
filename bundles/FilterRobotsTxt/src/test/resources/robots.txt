@@ -6,6 +6,6 @@ Disallow:
 User-agent: agent1
 Disallow: /
 
-User-agent: paxle
+User-agent: PaxleFramework
 Disallow: /secret/
 

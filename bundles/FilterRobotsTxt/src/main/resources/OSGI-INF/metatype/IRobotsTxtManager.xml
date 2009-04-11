@@ -38,6 +38,12 @@
 				min="1000"
 				description="%robotsManager.connectionTimeout.desc"/>		
 		
+		<AD name="%robotsManager.userAgent.name"
+				type="String"
+				id="org.paxle.filter.robots.IRobotsTxtManager.userAgent"
+				default="${paxle.userAgent}"
+				description="%robotsManager.userAgent.desc"/>		
+		
 		<AD name="%robotsManager.proxyEnabled.name"
 				type="Boolean"
 				id="org.paxle.filter.robots.IRobotsTxtManager.useProxy"
