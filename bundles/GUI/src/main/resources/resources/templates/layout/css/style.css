@@ -141,15 +141,18 @@ td {
 
 #main {
 	margin: 0;
-	padding: 1%;
+	padding: 0;
 	float: right;
-	width: 82%;
+	width: 83%;
 	
 	background-color: #FFFFFF;
 	
 	border-top: solid 1em #444444;
 }
 
+#main-content {
+	margin: 1em;
+}
 
 .nav {
 	width: 15%;
