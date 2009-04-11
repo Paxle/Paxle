@@ -49,4 +49,11 @@
 	<li class="active"><a href="${servletManager.getFullAlias('/')}" title="This Peer">This Peer</a></li>
 </ul>
 
-<h1>Paxle</h1>
+<div id="head">
+	<h1>Paxle</h1>
+	<ul id="l10n">
+		<li><a href="?l10n=de">DE</a></li>
+		<li><a href="?l10n=en">EN</a></li>
+	</ul>
+	<br class="clearer" />
+</div>

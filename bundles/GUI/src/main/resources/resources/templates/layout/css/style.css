@@ -36,17 +36,12 @@ form#loginForm {
 }
 
 h1 {
-	margin: 0 0 0.25em 0;
-	padding: 0.3em 3.5em;
-	
-	background-color: #730002;
+	margin: 0;
+	padding: 0 3.5em;
+
 	color: #FFFFFF;
-	
 	font-size: 4em;
 	text-align: left;
-	
-	background-image: url('../images/header_bg.png');
-	background-repeat: no-repeat;
 }
 
 h2 {
@@ -139,6 +134,13 @@ td {
 	padding: 0 1%;
 }
 
+#head {
+	background-color: #730002;
+	background-image: url('../images/header_bg.png');
+	background-repeat: no-repeat;
+	margin-bottom: 1em;
+}
+
 #main {
 	margin: 0;
 	padding: 0;
@@ -152,6 +154,34 @@ td {
 
 #main-content {
 	margin: 1em;
+}
+
+#l10n {
+	float:right;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	margin-right: 3em;
+	border-right: 1px solid white;
+}
+
+#l10n li {
+	margin: 0;
+	padding: 0;
+	float:left;
+}
+
+#l10n li a {
+	padding: 0.5em;
+	border-left: 1px solid white;
+	display: block;
+	color: white;
+	text-decoration: none;
+}
+
+#l10n li a:hover, #l10n li a.active {
+	background-color: #96825F;
+	text-decoration: none;
 }
 
 .nav {
@@ -392,6 +422,10 @@ a.rssFeedLink {
 
 img {
 	border: 0;
+}
+
+.clearer {
+	clear: both;
 }
 
 .lastUpdate {
