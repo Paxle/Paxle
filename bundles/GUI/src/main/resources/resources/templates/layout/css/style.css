@@ -197,6 +197,10 @@ td {
 	border-bottom: dashed 0.05em #444444;
 }
 
+.nav li a {
+	background:url(../images/arrow-menu-left.png) no-repeat left center;
+}
+
 .nav li a:hover, .nav li a.active {
 	background-color: #730002;
 	color: #FFFFFF;
