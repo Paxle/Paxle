@@ -30,7 +30,7 @@
 	#set($logintext = $resourceTool.bundle('OSGI-INF/l10n/loginview'))
 			#if($user)
 			<li id="loginStatus">
-				<a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.LoginView')}?login.target=$escTool.url($context.get('request').getServletPath())&amp;doLogout="><img src="$imgPrefix/logout.png" width="16" height="16" alt="Logout"/>$user.getProperties().get("http.login")</a> 
+				<a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.LoginView')}?login.target=$escTool.url($context.get('request').getServletPath())&amp;doLogout="><img src="$imgPrefix/logout.png" width="16" height="16" alt="Logout" /> $user.getProperties().get("http.login")</a> 
 			</li>
 		#else
 			<li id="loginStatus">
