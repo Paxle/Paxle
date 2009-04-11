@@ -178,6 +178,10 @@ td {
 	border-top: 0.05em dashed #444444;
 }
 
+.nav #loginStatus input {
+	display: block;
+}
+
 .nav li a, .nav li strong {
 	margin: 0;
 	padding: 0.5em 0 0.5em 1em;

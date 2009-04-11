@@ -36,12 +36,14 @@
 			<li id="loginStatus">
 				##<a href="${servletManager.getFullAlias('/login')}"><img src="$imgPrefix/login.png" width="16" height="16" alt="Login"/>Not logged in</a>
 				<form id="loginForm" action="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.LoginView')}?login.target=$escTool.url($context.get('request').getServletPath())" method="post">
-				${logintext.formLogin.username}: <input type="text" name="login.username" size="16" value=""/>
-				${logintext.formLogin.userpwd}: <input type="password" name="login.password" size="16" value=""/>
-				<input class="btnLogin" type="submit" value="Login" name="doLogin"/>				
-                </form>
+				<label for="login.username-menuinput">${logintext.formLogin.username}</label>:
+				<input type="text" name="login.username" id="login.username-menuinput" size="16" value=""/>
+				<label for="login.password-menuinput">${logintext.formLogin.userpwd}</label>:
+				<input type="password" name="login.password" id="login.password-menuinput" size="16" value=""/>
+				<input class="btnLogin" type="submit" value="Login" name="doLogin"/>
+				</form>
 			</li>
-			#end	
+			#end
 	</ul>
 	<!-- end left nav -->
 

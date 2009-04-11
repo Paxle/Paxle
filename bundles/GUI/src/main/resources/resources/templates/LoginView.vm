@@ -37,10 +37,10 @@
     	
         <div>${text.formLogin.welcome}</div>
         <div id="login">
-            ${text.formLogin.username}:<br/>    
+            <label for="login.username-input">${text.formLogin.username}</label>:<br/>    
             <input type="text" class="inputtext" name="login.username" id="login.username-input" value="" title=""/>
             
-            ${text.formLogin.userpwd}:<br/>
+            <label for="login.password-input">${text.formLogin.userpwd}</label>:<br/>
             <input type="password" class="inputtext" name="login.password" id="login.password-input" value="" title=""/>
             <input type="submit" class="submit" value="${text.formLogin.doLogin}" id="login.login" name="doLogin"/>          
         </div>
