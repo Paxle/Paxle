@@ -55,7 +55,7 @@ public class RssSearchProviderManager implements IRssSearchProviderManager {
 	private BundleContext bc;
 	
 	/**
-	 * The data-file containing all known provider-URL
+	 * The data-file containing all known provider-URLs
 	 */
 	private File providerFile;
 	
@@ -150,7 +150,7 @@ public class RssSearchProviderManager implements IRssSearchProviderManager {
 			final RssSearchProvider provider = new RssSearchProvider(url);
 			
 			// the provider ID to use
-			final String providerID = "org.paxle.se.provider.rsssearch." + provider.getFeedUrlHost();
+			final String providerID = "org.paxle.se.provider.rsssearch." + provider.getFeedUrlHost(); //Using the host makes using two different feeds on the same site impossible!
 			
 			// register as a service to the framework
 			ServiceRegistration registration = this.bc.registerService(

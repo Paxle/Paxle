@@ -128,7 +128,9 @@ public interface IParserDocument extends Closeable {
 	public abstract void addSubDocument(String location, IParserDocument pdoc);
 
 	/**
-	 * Append (parts of) the extracted text. The single words will be findable after indexing
+	 * Append (parts of) the extracted text. The single words can be found after indexing.
+	 * The parsers have to take care for the single words to be separated by whitespaces correctly
+	 * when calling this method several times, as the input is simply appended.
 	 * @param text the text of the document as {@link String} in Java's default character encoding,
 	 *        Unicode
 	 */

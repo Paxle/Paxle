@@ -50,7 +50,7 @@ public class RssSearchProvider implements ISearchProvider,ManagedService, IMetaD
 	private static final String DEFAULT_CHARSET = "UTF-8";
 
 	/**
-	 * The base URL to connect to
+	 * The full RSS URL to connect to
 	 */
 	String feedURL;
 

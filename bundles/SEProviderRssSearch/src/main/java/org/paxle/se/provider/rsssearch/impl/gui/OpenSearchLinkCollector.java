@@ -44,7 +44,6 @@ public class OpenSearchLinkCollector  extends NodeVisitor{
 		return has_found;
 	}
 	/**
-	 * returns the Opensearch-XML URL
 	 * @return the Opensearch-XML URL
 	 */
 	public String getURL(){
