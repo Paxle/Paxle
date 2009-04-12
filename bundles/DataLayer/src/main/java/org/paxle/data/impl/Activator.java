@@ -256,6 +256,10 @@ public class Activator implements BundleActivator {
 				String.format("org.paxle.parser.out; %s=%d",IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(65))
 		});
 		
+		// properties for the meta-data service
+		profileFilterProps.put("org.paxle.metadata",Boolean.TRUE);
+		profileFilterProps.put("org.paxle.metadata.localization","/OSGI-INF/l10n/CommandProfileFilter");		
+		
 		this.profileFilter = new CommandProfileFilter(this.profileDB);
 		context.registerService(IFilter.class.getName(), this.profileFilter, profileFilterProps);	
 	}
