@@ -46,7 +46,7 @@
 			<th>${text.filters.pos}</th>
 			<th>${text.filters.status}</th>
 		</tr>
-	    #foreach($filter in $filters.entrySet())
+	    #foreach($filter in $sortTool.sort(${filters.entrySet()}, ["value.filterPosition:asc"]))
 			
 		<tr>
 		   <td>$velocityCount</td>
