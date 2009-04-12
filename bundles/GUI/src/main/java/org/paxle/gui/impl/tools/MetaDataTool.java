@@ -24,8 +24,6 @@ import org.paxle.core.metadata.IMetaData;
 import org.paxle.core.metadata.IMetaDataProvider;
 import org.paxle.core.metadata.IMetaDataService;
 
-import com.sun.jmx.mbeanserver.MetaData;
-
 @DefaultKey("metaData")
 @ValidScope(Scope.REQUEST)
 public class MetaDataTool extends PaxleLocaleConfig {
