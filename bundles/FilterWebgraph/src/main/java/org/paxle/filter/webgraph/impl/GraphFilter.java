@@ -37,6 +37,8 @@ import org.paxle.core.queue.ICommand;
  * 
  * @scr.component name="org.paxle.filter.webgraph.impl.GraphFilter"
  * @scr.service interface="org.paxle.core.filter.IFilter"
+ * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
+ * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/GraphFilter"
  */
 @FilterTarget(@FilterQueuePosition(
 		queue = "org.paxle.parser.out", 
