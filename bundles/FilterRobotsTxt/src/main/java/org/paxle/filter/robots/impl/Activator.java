@@ -47,6 +47,7 @@ public class Activator implements BundleActivator {
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */		
+	@SuppressWarnings("serial")
 	public void start(BundleContext bc) throws Exception {
 		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + DB_PATH;
 		
@@ -76,20 +77,33 @@ public class Activator implements BundleActivator {
 		 * Register Services provided by this bundle
 		 * ========================================================== */		
 		
-		// register the protocol filter as service
-		Hashtable<String, Object> filterProps = new Hashtable<String, Object>();
-		filterProps.put(Constants.SERVICE_PID, RobotsTxtFilter.class.getName());
-		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {
-				// apply filter to the crawler-input-queue
-				"org.paxle.crawler.in",
-				// apply filter to the parser-output-queue at pos 70
-				String.format("org.paxle.parser.out; %s=%d", IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(70))
-		});		
-		bc.registerService(IFilter.class.getName(), new RobotsTxtFilter(robotsTxtManager), filterProps);		
+		/*
+		 *  register the protocol filter as service
+		 */
+		bc.registerService(IFilter.class.getName(), new RobotsTxtFilter(robotsTxtManager), new Hashtable<String, Object>(){{
+			// service ID
+			put(Constants.SERVICE_PID, RobotsTxtFilter.class.getName());
+			
+			// filter properties
+			put(IFilter.PROP_FILTER_TARGET, new String[] {
+					// apply filter to the crawler-input-queue
+					"org.paxle.crawler.in",
+					// apply filter to the parser-output-queue at pos 70
+					String.format("org.paxle.parser.out; %s=%d", IFilter.PROP_FILTER_TARGET_POSITION,Integer.valueOf(70))
+			});		
+			
+			// meta-data service properties
+			put("org.paxle.metadata",Boolean.TRUE);
+			put("org.paxle.metadata.localization","/OSGI-INF/l10n/RobotsTxtFilter");	
+		}});		
 		
-		// register robots.txt manager as service
+		/* 
+		 * register robots.txt manager as service
+		 */
 		Hashtable<String,Object> managerProps = new Hashtable<String,Object>();
 		managerProps.put(Constants.SERVICE_PID, RobotsTxtManager.MONITOR_PID);
+		
+		// monitorable-localization properties
 		managerProps.put("Monitorable-Localization", "/OSGI-INF/l10n/IRobotsTxtManager");
 		bc.registerService(new String[] {
 				IRobotsTxtManager.class.getName(),

@@ -38,8 +38,10 @@ import org.paxle.filter.blacklist.IRegexpBlacklistFilter;
  * @author Matthias Soehnholz
  * @author Michael Hamann
  *
- * @scr.component
+ * @scr.component metatype="false"
  * @scr.service interface="org.paxle.core.filter.IFilter"
+ * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
+ * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/BlacklistFilter"
  */
 @FilterTarget({
 	@FilterQueuePosition(queue="org.paxle.crawler.in",position=0-1),

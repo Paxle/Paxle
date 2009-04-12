@@ -13,6 +13,6 @@
  */
 package org.paxle.core.metadata;
 
-public interface IMetaDataProvider {
+public interface IMetaDataService {
 	public IMetaData getMetadata(String id, String locale);
 }

@@ -23,11 +23,11 @@
 ## ---------------------------------------------------------------------------------------
 ## Define some macros 
 #macro(serviceinfo $service $serviceID)
-	#if($metaDataTool.getMetaData($service))
+	#if($metaDataTool.getMetaData($serviceID))
 		<img class="metaDataIcon" src="${context.request.servletPath}?metaDataIcon=$serviceID" width="16" height="16"/>
-		<div class="serviceName">$metaDataTool.getMetaData($service).name</div>
-		#if($metaDataTool.getMetaData($service).description)
-			<div class="descriptionText">$metaDataTool.getMetaData($service).description</div>
+		<div class="serviceName">$metaDataTool.getMetaData($serviceID).name</div>
+		#if($metaDataTool.getMetaData($serviceID).description)
+			<div class="descriptionText">$metaDataTool.getMetaData($serviceID).description</div>
 		#end
 	#else
 		${service.class.name}

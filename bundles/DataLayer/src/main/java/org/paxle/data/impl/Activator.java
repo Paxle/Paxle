@@ -232,6 +232,10 @@ public class Activator implements BundleActivator {
 		urlExtractorFilterProps.put(Constants.SERVICE_PID, UrlExtractorFilter.PID);
 		urlExtractorFilterProps.put("Monitorable-Localization","/OSGI-INF/l10n/UrlExtractorFilter");
 		
+		// properties for the meta-data service
+		urlExtractorFilterProps.put("org.paxle.metadata",Boolean.TRUE);
+		urlExtractorFilterProps.put("org.paxle.metadata.localization","/OSGI-INF/l10n/UrlExtractorFilter");
+		
 		// creating filter
 		this.urlExtractor = new UrlExtractorFilter();
 		

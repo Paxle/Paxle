@@ -93,10 +93,17 @@ public class Activator implements BundleActivator {
 		bc.registerService(ISubParserManager.class.getName(), subParserManager, null);		
 		
 		// register the MimeType filter as service
-		Hashtable<String, Object> filterProps = new Hashtable<String, Object>();
-		filterProps.put(Constants.SERVICE_PID, MimeTypeFilter.class.getName());
-		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{"org.paxle.parser.in"});
-		bc.registerService(IFilter.class.getName(), new MimeTypeFilter(subParserManager), filterProps);				
+		bc.registerService(IFilter.class.getName(), new MimeTypeFilter(subParserManager), new Hashtable<String, Object>(){{
+			// service ID
+			put(Constants.SERVICE_PID, MimeTypeFilter.class.getName());
+			
+			// filter properties
+			put(IFilter.PROP_FILTER_TARGET, new String[]{"org.paxle.parser.in"});
+			
+			// meta-data service props
+			put("org.paxle.metadata",Boolean.TRUE);
+			put("org.paxle.metadata.localization","/OSGI-INF/l10n/MimeTypeFilter");			
+		}});				
 	}
 	
 	/**

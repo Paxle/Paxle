@@ -215,7 +215,11 @@ public class MonitorableTool extends PaxleLocaleConfig {
     				ServiceReference serviceRef = refs[0];
     				
     				// getting the classloader
-    				cl = context.getService(serviceRef).getClass().getClassLoader();
+    				try {
+    					cl = context.getService(serviceRef).getClass().getClassLoader();
+    				} finally {
+    					context.ungetService(serviceRef);
+    				}
     				
     				// getting the bundle-name to use
     				bundleBase = (String) serviceRef.getProperty(MONITORABLE_LOCALIZATION);

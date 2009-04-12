@@ -13,23 +13,17 @@
  */
 package org.paxle.core.filter.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
-import org.paxle.core.metadata.IMetaData;
-import org.paxle.core.metadata.IMetaDataProvider;
 import org.paxle.core.queue.ICommand;
 
-public class AscendingPathUrlExtractionFilter implements IFilter<ICommand>, IMetaDataProvider {
+public class AscendingPathUrlExtractionFilter implements IFilter<ICommand> {
 
 	private Log logger = LogFactory.getLog(this.getClass());
 	
@@ -74,28 +68,5 @@ public class AscendingPathUrlExtractionFilter implements IFilter<ICommand>, IMet
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public IMetaData getMetadata(String id, String localeStr) {
-		final Locale locale = (localeStr == null) ? Locale.ENGLISH : new Locale(localeStr);
-		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + AscendingPathUrlExtractionFilter.class.getSimpleName(), locale);
-		
-		return new IMetaData() {			
-			public String getDescription() {
-				return rb.getString("metadata.desc");
-			}
-			
-			public InputStream getIcon(int size) throws IOException {
-				return null;
-			}
-			
-			public String getName() {
-				return rb.getString("metadata.name");
-			}
-			
-			public String getVersion() {
-				return null;
-			}
-		};
 	}
 }

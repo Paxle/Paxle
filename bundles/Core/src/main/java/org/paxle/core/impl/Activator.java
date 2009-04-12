@@ -141,6 +141,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
+	@SuppressWarnings("serial")
 	public void start(BundleContext bc) throws Exception {
 		// init logger
 		this.logger = LogFactory.getLog(this.getClass());
@@ -225,13 +226,20 @@ public class Activator implements BundleActivator, InvocationHandler {
         bc.registerService(IResourceBundleTool.class.getName(), new ResourceBundleToolFactory(), null);
         
         // add AscendingPathUrlExtraction filter
-		final Hashtable<String,Object> props2 = new Hashtable<String,Object>();
-		props2.put(Constants.SERVICE_PID, AscendingPathUrlExtractionFilter.class.getName());
-        props2.put(IFilter.PROP_FILTER_TARGET, new String[] {
-        		// apply filter to the parser-output-queue at position 60
-        		String.format("org.paxle.parser.out; %s=%d;",IFilter.PROP_FILTER_TARGET_POSITION, Integer.valueOf(60))
-        });
-        bc.registerService(IFilter.class.getName(), new AscendingPathUrlExtractionFilter(), props2);
+        bc.registerService(IFilter.class.getName(), new AscendingPathUrlExtractionFilter(), new Hashtable<String, Object>(){{
+        	// service ID
+        	put(Constants.SERVICE_PID, AscendingPathUrlExtractionFilter.class.getName());
+        	
+        	// filter properties
+        	put(IFilter.PROP_FILTER_TARGET, new String[] {
+            		// apply filter to the parser-output-queue at position 60
+            		String.format("org.paxle.parser.out; %s=%d;",IFilter.PROP_FILTER_TARGET_POSITION, Integer.valueOf(60))
+            });
+        	
+        	// meta-data service properties
+            put("org.paxle.metadata",Boolean.TRUE);
+            put("org.paxle.metadata.localization","/OSGI-INF/l10n/AscendingPathUrlExtractionFilter");        	
+        }});
         
         // getting the Event-Admin service
         ServiceReference eventAdminRef = bc.getServiceReference(EventAdmin.class.getName());

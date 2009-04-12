@@ -29,7 +29,6 @@ import org.osgi.service.metatype.MetaTypeProvider;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.filter.IFilter;
-import org.paxle.core.io.IOTools;
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.queue.ICommand;
@@ -54,6 +53,7 @@ public class Activator implements BundleActivator {
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */
+	@SuppressWarnings("serial")
 	public void start(BundleContext bc) throws Exception {		
 
 		// init the subcrawl manager
@@ -86,10 +86,17 @@ public class Activator implements BundleActivator {
 		 * ========================================================== */
 		
 		// register the protocol filter as service
-		Hashtable<String, Object> filterProps = new Hashtable<String, Object>();
-		filterProps.put(Constants.SERVICE_PID, ProtocolFilter.class.getName());
-		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in","org.paxle.parser.out"});
-		bc.registerService(IFilter.class.getName(), new ProtocolFilter(this.subCrawlerManager), filterProps);
+		bc.registerService(IFilter.class.getName(), new ProtocolFilter(this.subCrawlerManager), new Hashtable<String, Object>(){{
+			// service ID
+			put(Constants.SERVICE_PID, ProtocolFilter.class.getName());
+			
+			// filter props
+			put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in","org.paxle.parser.out"});
+
+			// meta-data service props
+			put("org.paxle.metadata",Boolean.TRUE);
+			put("org.paxle.metadata.localization","/OSGI-INF/l10n/ProtocolFilter");
+		}});
 	}
 
 	/**
@@ -144,7 +151,7 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 		// shutdown the thread pool
 		if (this.mwComponent != null) {
-			IMaster master = this.mwComponent.getMaster();
+			IMaster<?> master = this.mwComponent.getMaster();
 			master.terminate();
 		}
 		if (this.subCrawlerManager != null) {

@@ -13,6 +13,8 @@
  */
 package org.paxle.gui.impl.tools;
 
+import java.util.Map;
+
 import org.apache.velocity.tools.Scope;
 import org.apache.velocity.tools.config.DefaultKey;
 import org.apache.velocity.tools.config.ValidScope;
@@ -20,28 +22,25 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.paxle.core.metadata.IMetaData;
 import org.paxle.core.metadata.IMetaDataProvider;
+import org.paxle.core.metadata.IMetaDataService;
+
+import com.sun.jmx.mbeanserver.MetaData;
 
 @DefaultKey("metaData")
 @ValidScope(Scope.REQUEST)
 public class MetaDataTool extends PaxleLocaleConfig {
+	private IMetaDataService metaService = null;
 
-	public IMetaData getMetaData(Object obj) {
-		try {
-			if (obj == null) return null;
-			
-			// checking if the class is a metadata-provider
-			boolean isMetaDataProvider = IMetaDataProvider.class.isAssignableFrom(obj.getClass());
-			if (isMetaDataProvider) return ((IMetaDataProvider)obj).getMetadata(null, this.getLocale().toString());
-			
-			if (String.class.isAssignableFrom(obj.getClass())) {
-				return this.getMetaData((Long)obj);
+	public void configure(@SuppressWarnings("unchecked") Map props) {
+		super.configure(props);
+		
+		// getting the meta-data service
+		if (this.context != null) {
+			ServiceReference ref = this.context.getServiceReference(IMetaDataService.class.getName());
+			if (ref != null) {
+				this.metaService = (IMetaDataService) this.context.getService(ref);
 			}
-			
-			// TODO: check if there is metadata-available via a metadata-service
-		} catch (Exception e) {
-			this.logger.error(e);
 		}
-		return null;
 	}
 	
 	/**
@@ -72,6 +71,11 @@ public class MetaDataTool extends PaxleLocaleConfig {
 			} finally {
 				context.ungetService(refs[0]);
 			}
+			
+			if (this.metaService != null) {
+				return this.metaService.getMetadata(servicePID, this.getLocale().toString());
+			}
+			
 		} catch (Exception e) {
 			this.logger.error(e);
 		}
