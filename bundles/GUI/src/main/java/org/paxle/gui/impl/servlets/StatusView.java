@@ -14,12 +14,18 @@
 package org.paxle.gui.impl.servlets;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.URLConnection;
+import java.util.Iterator;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.framework.InvalidSyntaxException;
@@ -57,12 +63,51 @@ public class StatusView extends ALayoutServlet {
 				IMetaData metaData = tool.getMetaData(request.getParameter("metaDataIcon"));
 				if (metaData == null) return;
 				
+				// getting the icon
 				InputStream in = metaData.getIcon(16);
 				if (in == null) in = this.getClass().getResourceAsStream("/resources/images/cog.png");
 				
-				BufferedImage img = ImageIO.read(in);
-				response.setHeader("Content-Type","image/png");
-				ImageIO.write(img, "png", response.getOutputStream());
+				// loading date
+				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				IOUtils.copy(in, bout);
+				bout.close();
+				in.close();
+				
+				// trying to detect the mimetype of the image
+				ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
+				String contentType = URLConnection.guessContentTypeFromStream(bin);
+				bin.close();				
+				
+				// reading the image
+				BufferedImage img = null;
+				Iterator<ImageReader> readers = null;
+				if (contentType != null) {
+					readers = ImageIO.getImageReadersByMIMEType(contentType);				
+					while (readers != null && readers.hasNext() && img == null) {
+						// trying the next reader
+						ImageReader reader = readers.next();
+						
+						InputStream input = null;
+						try {
+							input = new ByteArrayInputStream(bout.toByteArray());
+							reader.setInput(ImageIO.createImageInputStream(input));
+							img = reader.read(0);
+						} catch (Exception e) {
+							this.log("Unable to read metadata icon", e);
+						} finally {					
+							if (input != null) input.close();
+						}
+					}
+				}
+					
+				if (img != null) {
+					response.setHeader("Content-Type","image/png");
+					ImageIO.write(img, "png", response.getOutputStream());
+					return;
+				} else {
+					response.sendError(404);
+					return;
+				}
 			} else if (request.getParameter("pauseCrawl") != null) {
 				// check user authentication
 				if (!this.isUserAuthenticated(request, response, true)) return;

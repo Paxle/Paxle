@@ -15,10 +15,16 @@ package org.paxle.gui.impl.servlets;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +41,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -435,22 +442,60 @@ public class ConfigView extends ALayoutServlet {
 			// trying to find a proper icon
 			int[] sizes = new int[] {16,32,64,128,256};
 
+			BufferedImage img = null;
 			for (int size : sizes) {
+				// trying to find an icon
 				InputStream in = ocd.getIcon(size);
-				if (in != null) {
-					BufferedImage img = ImageIO.read(in);
+				if (in == null) {
+					if (size == sizes[sizes.length-1]) {
+						// fallback to the default image
+						in = this.getClass().getResourceAsStream("/resources/images/cog.png");
+					} else continue;
+				}
+				
+				// loading date
+				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				IOUtils.copy(in, bout);
+				bout.close();
+				in.close();
+				
+				// trying to detect the mimetype of the image
+				ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
+				String contentType = URLConnection.guessContentTypeFromStream(bin);
+				bin.close();
+				
+				Iterator<ImageReader> readers = null;
+				if (contentType != null) {
+					readers = ImageIO.getImageReadersByMIMEType(contentType);
+				} else {
+					readers = ImageIO.getImageReadersByFormatName("png"); 
+				}
+				
+				while (readers.hasNext() && img == null) {
+					// trying the next reader
+					ImageReader reader = readers.next();
+					
+					InputStream input = null;
+					try {
+						input = new ByteArrayInputStream(bout.toByteArray());
+						reader.setInput(ImageIO.createImageInputStream(input));
+						img = reader.read(0);
+					} catch (Exception e) {
+						this.log("Unable to read image for pid " + pid, e);
+					} finally {					
+						if (input != null) input.close();
+					}
+				}
+
+				if (img != null) {
 					response.setHeader("Content-Type","image/png");
 					ImageIO.write(img, "png", response.getOutputStream());
 					return;
-				} 
+				}
 			}
 
-			// no icon found. loading a default icon now
-			BufferedImage img = ImageIO.read(this.getClass().getResourceAsStream("/resources/images/cog.png"));
-			response.setHeader("Content-Type","image/png");
-			ImageIO.write(img, "png", response.getOutputStream());
-			return;
-
+			// no icon found. 
+			response.sendError(404);
 		} catch (Throwable e) {			
 			response.sendError(404, e.getMessage());
 			return;
