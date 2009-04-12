@@ -35,7 +35,7 @@ import de.spieleck.app.cngram.NGramProfiles;
 /**
  * This helper class determines the language of a document and inserts its finding into a parser-doc and all of its subdocs 
  * 
- * @scr.component
+ * @scr.component metatype="false"
  * @scr.service interface="org.paxle.core.filter.IFilter"
  * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
  * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/LanguageManager"
