@@ -35,19 +35,22 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.ObjectClassDefinition;
+import org.osgi.util.tracker.ServiceTracker;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.metadata.IMetaData;
-import org.paxle.core.metadata.IMetaDataProvider;
+import org.paxle.core.metadata.IMetaDataService;
 
 public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedService {
 	public static final String PID = IFilterManager.class.getName();
@@ -111,7 +114,9 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 	/**
 	 * the CM {@link Configuration} applied to this {@link ManagedService}
 	 */
-	private final Configuration config;
+	private final Configuration config;	
+	
+	private ServiceTracker metaDataTracker = null;	
 	
 	/**
 	 * @param config the CM configuration that belongs to this component
@@ -120,7 +125,7 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 	 * @throws ConfigurationException 
 	 * @throws ConfigurationException
 	 */
-	public FilterManager(String[] locales, Configuration config, Properties props) throws IOException, ConfigurationException {
+	public FilterManager(String[] locales, Configuration config, final BundleContext context, Properties props) throws IOException, ConfigurationException {
 		if (locales == null) throw new NullPointerException("The locale array is null");
 		if (config == null) throw new NullPointerException("The configuration object is null");
 		if (props == null) throw new NullPointerException("The property object is null");
@@ -151,6 +156,10 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 				}
 			}
 		}
+		
+		// getting the meta-data service
+		this.metaDataTracker = new ServiceTracker(context,IMetaDataService.class.getName(),null);
+		this.metaDataTracker.open();
 	}
 	
 	private Dictionary<String, Object> getCMDefaults() {
@@ -163,6 +172,9 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 	public void close() {
 		// stopre pref. properties
 		this.props.put(PROPS_KNOWN_FILTERCONTEXTS, this.knownFilterContexts.toString());
+		
+		// shutdown tracker
+		this.metaDataTracker.close();
 	}
 	
 	/**
@@ -470,11 +482,12 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 		for (FilterContext fContext : filtersForTarget) {
 			// getting the filter-service
 			final IFilter<?> filter = fContext.getFilter();
+			final String PID = fContext.getFilterPID();
 			
 			// getting additional metadata (if available)
-			IMetaData metadata = null;
-			if (filter instanceof IMetaDataProvider) {
-				metadata = ((IMetaDataProvider)filter).getMetadata(null, localeStr);
+			IMetaData metadata = null; 
+			if (metaDataTracker.getService() != null) {
+				metadata = ((IMetaDataService)metaDataTracker.getService()).getMetadata(PID, localeStr);
 			}
 			
 			String name = (metadata != null)

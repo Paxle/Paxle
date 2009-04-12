@@ -39,17 +39,17 @@
 		<tr>
 			<td><b>${text.ovMemory.memUsed}</b></td>
 			#set($memUsed = $monitorableTool.getStatusVariable('java.lang.runtime/memory.used').number / (1024*1024))
-			<td>$numberTool.format($memUsed) MiB</td>
+			<td>$numberTool.format($memUsed) MB</td>
 		</tr>
 		<tr>
 			<td><b>${text.ovMemory.memFree}</b></td>
 			#set($memFree = $monitorableTool.getStatusVariable('java.lang.runtime/memory.free').number / (1024*1024))
-			<td>$numberTool.format($memFree) MiB</td>
+			<td>$numberTool.format($memFree) MB</td>
 		</tr>
 		<tr>
 			<td><b>${text.ovMemory.memTotal}</b></td>
 			#set($memTotal = $monitorableTool.getStatusVariable('java.lang.runtime/memory.total').number / (1024*1024))
-			<td>$numberTool.format($memTotal) MiB</td>
+			<td>$numberTool.format($memTotal) MB</td>
 		</tr>
 		#end
 		
@@ -60,7 +60,7 @@
 		<tr>
 			<td><b>${text.ovMemory.diskFree}</b></td>
 			#set($diskFree = $monitorableTool.getStatusVariable('os.disk/disk.space.free').number)
-			<td>$numberTool.format($diskFree) MiB</td>
+			<td>$numberTool.format($diskFree) MB</td>
 		</tr>
 		#end
 		<tr>

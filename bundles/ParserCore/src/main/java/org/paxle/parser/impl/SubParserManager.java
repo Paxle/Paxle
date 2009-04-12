@@ -44,6 +44,7 @@ import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.core.metadata.IMetaData;
 import org.paxle.core.metadata.IMetaDataProvider;
+import org.paxle.core.metadata.IMetaDataService;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ISubParserManager;
 
@@ -96,7 +97,9 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	 */
 	private final String[] locales;
 	
-	private boolean enableDefault = true;
+	private boolean enableDefault = true;	
+	
+	private IMetaDataService metaDataService = null;	
 	
 	private final BundleContext context;
 	private final Properties props;
@@ -128,6 +131,12 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		
 		// update configuration of this component
 		this.updated(config.getProperties());
+		
+		// getting the meta-data service
+		ServiceReference ref = context.getServiceReference(IMetaDataService.class.getName());
+		if (ref != null) {
+			this.metaDataService = (IMetaDataService) context.getService(ref);
+		}		
 	}
 	
 	public void close() {
@@ -472,14 +481,15 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 									try {
 										// getting the attribute-key to use
 										final String key = keyFor(entry.getKey(), ref);
+										final String PID = (String) ref.getProperty(Constants.SERVICE_PID);
 										
 										// getting the SubParser-service
 										final Object service = context.getService(ref);
 										
 										// getting additional-metadata (if available)
 										IMetaData metadata = null; 
-										if (service instanceof IMetaDataProvider) {
-											metadata = ((IMetaDataProvider)service).getMetadata(null, localeStr);
+										if (metaDataService != null) {
+											metadata = metaDataService.getMetadata(PID, localeStr);
 										}
 										
 										String name = (metadata != null)

@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserCore</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<name>Paxle - Parser: Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 

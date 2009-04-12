@@ -340,6 +340,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		FilterManager fManager = new FilterManager(
 				localeArray, 
 				cm.getConfiguration(FilterManager.PID),
+				bc,
 				props
 		);
 		

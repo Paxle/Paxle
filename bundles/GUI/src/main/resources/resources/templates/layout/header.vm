@@ -26,7 +26,7 @@
 
 	<link rel="shortcut icon" type="image/vnd.microsoft.icon" href="$imgPrefix/favicon.ico" />
 	<link rel="icon" type="image/vnd.microsoft.icon" href="$imgPrefix/favicon.ico" /> 
-	<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="$request.getScheme()://$request.getServerName():$request.getServerPort()/opensearch/osd.xml" />
+	<link rel="search" type="application/opensearchdescription+xml" title="Paxle Search" href="$request.getScheme()://$request.getServerName():${request.getServerPort()}${servletManager.getFullAlias('/opensearch/osd.xml')}" />
 		
 	<script type="text/javascript" src="$jsPrefix/tabs.js"></script>
  
@@ -56,8 +56,8 @@
 			$localeConfig.setLocaleStr($paramParser.getString("l10n"))
 		#end
 		#set($lang = $localeConfig.getLocaleStr())
-		<li><a href="?l10n=de" #if($lang=='de' || $lang.startsWith('de'))class="active"#end>DE</a></li>
-		<li><a href="?l10n=en" #if($lang=='en' || $lang.startsWith('en'))class="active"#end>EN</a></li>
+		<li><a href="${linkTool.addMissingRequestParams().set('l10n','de')}" #if($lang=='de' || $lang.startsWith('de'))class="active"#end>DE</a></li>
+		<li><a href="${linkTool.addMissingRequestParams().set('l10n','en')}" #if($lang=='en' || $lang.startsWith('en'))class="active"#end>EN</a></li>
 	</ul>
 	<br class="clearer" />
 </div>

@@ -21,11 +21,16 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.metatype.MetaTypeInformation;
+import org.osgi.service.metatype.MetaTypeService;
+import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.core.metadata.IMetaData;
+import org.paxle.core.metadata.IMetaDataProvider;
 import org.paxle.core.metadata.IMetaDataService;
 
 /**
@@ -43,6 +48,11 @@ public class MetaDataServiceImpl implements IMetaDataService {
 	 */
 	private final Log logger = LogFactory.getLog(this.getClass());
 
+	/**
+	 * @scr.reference
+	 */
+	protected MetaTypeService metaTypeService;
+	
 	protected void activate(ComponentContext context) {
 		this.ctx = context;
 	}	
@@ -52,14 +62,45 @@ public class MetaDataServiceImpl implements IMetaDataService {
 		final Locale locale = localeStr==null ? Locale.ENGLISH : new Locale(localeStr);
 		
 		// determine if there is a resource-bundle containing all metadata
-		MetaDataResourceBundle rb = this.getMetaDataResourceBundle(servicePID, locale);
-		if (rb != null) return rb;
+		IMetaData metaData = this.getMetaData(servicePID, locale);
+		if (metaData != null) return metaData;
 		
-		// TODO Auto-generated method stub
+		// no metadata found. we try to use the meta-type-information instead
+		metaData = this.getMetaDataFromMetaType(servicePID, locale);
+		if (metaData != null) return metaData;
+		
+		// XXX: any other fallback
 		return null;
 	}
 
-	private MetaDataResourceBundle getMetaDataResourceBundle(String servicePID, Locale locale) {
+	private IMetaData getMetaDataFromMetaType(String servicePID, Locale locale) {
+		try {
+			final BundleContext context = this.ctx.getBundleContext();
+			
+			// getting a reference to the service with the given ID
+			ServiceReference[] refs = context.getServiceReferences(
+					null, 
+					String.format("(%s=%s)",
+							Constants.SERVICE_PID,
+							servicePID
+					)
+			);
+			
+			if (refs == null || refs.length == 0) return null;
+
+			final Bundle bundle = refs[0].getBundle();
+			MetaTypeInformation metaType = this.metaTypeService.getMetaTypeInformation(bundle);
+			if (metaType != null) {
+				ObjectClassDefinition ocd = metaType.getObjectClassDefinition(servicePID, locale.toString());
+				if (ocd != null) return new MetaDataFromObjectClassDef(ocd);
+			}
+		} catch (Exception e) {
+			this.logger.error(e);
+		}
+		return null;
+	}
+	
+	private IMetaData getMetaData(String servicePID, Locale locale) {
 		try {
 			final BundleContext context = this.ctx.getBundleContext();
 			
@@ -74,27 +115,35 @@ public class MetaDataServiceImpl implements IMetaDataService {
 			if (refs == null || refs.length == 0) return null;
 			
 			for (int i=0; i < refs.length; i++) {
-				Boolean metaData = (Boolean) refs[i].getProperty("org.paxle.metadata");
-				if (metaData == null || !metaData.booleanValue()) continue;
-				
-				// getting the bundle base name
-				String bundleBase = (String) refs[i].getProperty("org.paxle.metadata.localization");
-				if (bundleBase == null) continue;
-				
-				// getting the classloader to use
-				ClassLoader cl = null; 
 				try {
-					cl = context.getService(refs[i]).getClass().getClassLoader();
+					// getting a reference to the service
+					Object service = context.getService(refs[i]);
+					
+					// checking if the service is an meta-data-provider
+					if (IMetaDataProvider.class.isAssignableFrom(service.getClass())) {
+						// getting the metadata
+						return ((IMetaDataProvider)service).getMetadata(servicePID, locale.toString());
+					}				
+					
+					Boolean metaData = (Boolean) refs[i].getProperty("org.paxle.metadata");
+					if (metaData == null || !metaData.booleanValue()) continue;
+					
+					// getting the bundle base name
+					String bundleBase = (String) refs[i].getProperty("org.paxle.metadata.localization");
+					if (bundleBase == null) continue;
+					
+					// getting the classloader to use
+					ClassLoader cl = service.getClass().getClassLoader();
+						
+	    			// loading the resource-bundle
+					ResourceBundle rb = (cl == null)
+					   ? ResourceBundle.getBundle(bundleBase, locale)
+					   : ResourceBundle.getBundle(bundleBase, locale, cl);
+					   
+					return new MetaDataResourceBundle(servicePID, cl, rb);
 				} finally {
 					context.ungetService(refs[i]);
 				}
-					
-    			// loading the resource-bundle
-				ResourceBundle rb = (cl == null)
-				   ? ResourceBundle.getBundle(bundleBase, locale)
-				   : ResourceBundle.getBundle(bundleBase, locale, cl);
-				   
-				return new MetaDataResourceBundle(servicePID, cl, rb);
 			}
 		} catch (Exception e) {
 			this.logger.debug(e);
@@ -141,6 +190,26 @@ public class MetaDataServiceImpl implements IMetaDataService {
 			} catch (MissingResourceException e) {
 				return key;
 			}
+		}
+	}
+	
+	private static class MetaDataFromObjectClassDef implements IMetaData {
+		private final ObjectClassDefinition ocd;
+		
+		public MetaDataFromObjectClassDef(ObjectClassDefinition ocd) {
+			this.ocd = ocd;
+		}
+		public String getDescription() {
+			return this.ocd.getDescription();
+		}
+		public InputStream getIcon(int size) throws IOException {
+			return this.ocd.getIcon(size);
+		}
+		public String getName() {
+			return this.ocd.getName();
+		}
+		public String getVersion() {
+			return null;
 		}
 	}
 }
