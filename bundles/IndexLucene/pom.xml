@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>IndexLucene</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.8-SNAPSHOT</version>
+	<version>0.1.9-SNAPSHOT</version>
 	<name>Paxle - Indexer: Lucene</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -50,7 +50,6 @@
 							org.paxle.core;version="[0.1.0,0.2.0)",
 							org.paxle.core.doc;version="[0.1.0,0.2.0)",
 							org.paxle.core.data;version="[0.1.0,0.2.0)",
-							org.paxle.core.metadata;version="[0.1.0,0.2.0)",
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
 							org.paxle.core.io;version="[0.1.0,0.2.0)",
 							<!-- Paxle Search-Engine Bundle -->

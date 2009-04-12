@@ -47,6 +47,7 @@ public class Activator implements BundleActivator {
 	private LuceneSearcher indexSearcher = null;
 	private SnippetFetcher snippetFetcher = null;
 	
+	@SuppressWarnings("serial")
 	public void start(BundleContext bc) throws Exception {
 		final Log logger = LogFactory.getLog(Activator.class);
 		
@@ -81,14 +82,21 @@ public class Activator implements BundleActivator {
 		
 		bc.registerService(IIndexWriter.class.getName(), indexWriterThread, new Hashtable<String,String>());
 		
-		final Hashtable<String,Object> props = new Hashtable<String,Object>();
-		props.put(Constants.SERVICE_PID, LuceneSearcher.PID);
-		props.put("Monitorable-Localization", "/OSGI-INF/l10n/LuceneSearcher");
 		bc.registerService(new String[] {
 				IIndexSearcher.class.getName(),
 				ISearchProvider.class.getName(),
 				Monitorable.class.getName()
-		}, indexSearcher, props);
+		}, indexSearcher, new Hashtable<String,Object>(){{
+			// service ID
+			put(Constants.SERVICE_PID, LuceneSearcher.PID);
+			
+			// monitorable properties
+			put("Monitorable-Localization", "/OSGI-INF/l10n/LuceneSearcher");
+			
+			// meta-data properties
+			put("org.paxle.metadata",Boolean.TRUE);
+			put("org.paxle.metadata.localization","/OSGI-INF/l10n/LuceneSearcher");			
+		}});
 		
 		bc.registerService(IIndexIteratable.class.getName(), lmanager, new Hashtable<String,String>());
 		
