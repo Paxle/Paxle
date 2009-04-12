@@ -14,6 +14,7 @@
 package org.paxle.gui.impl.servlets;
 
 import java.util.Dictionary;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.view.CookieTool;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Group;
@@ -73,7 +75,7 @@ public class LoginView extends ALayoutServlet {
 			credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, "");
 		}
 	}
-	
+		
 	@Override
 	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
         Template template = null;
@@ -103,6 +105,15 @@ public class LoginView extends ALayoutServlet {
     				session.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.FORM_AUTH);
     				session.setAttribute(HttpContext.AUTHORIZATION, uAdmin.getAuthorization(user));
     				session.setAttribute(HttpContext.REMOTE_USER, user);
+    				
+    				// keep user-settings in sync with user-language settings
+    				CookieTool cookieTool = (CookieTool) context.get("cookieTool");
+    				if (cookieTool.get("l10n") != null) {
+    					@SuppressWarnings("unchecked")
+    					Dictionary<String,Object> userProps = user.getProperties();    					
+    					userProps.put("user.language", cookieTool.get("l10n").getValue());
+    				}    				
+    				
     				doRedirect = true;
         		} else {
         			context.put("errorMsg","Unable to login. Username or password is invalid");

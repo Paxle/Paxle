@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
@@ -26,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.tools.Scope;
 import org.apache.velocity.tools.config.ValidScope;
 import org.apache.velocity.tools.generic.LocaleConfig;
+import org.apache.velocity.tools.view.CookieTool;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.User;
@@ -35,12 +37,21 @@ import org.paxle.gui.impl.ServletManager;
 public class PaxleLocaleConfig extends LocaleConfig {
 	protected BundleContext context;
 
-	protected String l10n;
+	protected String HttpSession;
 
 	/**
 	 * For logging
 	 */
 	protected Log logger = LogFactory.getLog(this.getClass());
+	
+	/**
+	 * Currently logged in user
+	 */
+	protected User user;
+	
+	protected String l10n;
+	
+	protected CookieTool cookieTool;
 
 	/**
 	 * This method is called by velocity during tool(box) initialization
@@ -55,21 +66,31 @@ public class PaxleLocaleConfig extends LocaleConfig {
 	public void configure(@SuppressWarnings("unchecked") Map props) {
 		super.configure(props);
 		if (props != null) {
-			// getting the bundle context
-			ServletContext servletContext = (ServletContext) props.get("servletContext");			
-			this.context = (BundleContext) servletContext.getAttribute("bc");
+			final HttpSession session = (HttpSession) props.get("session");
+			final HttpServletRequest request = (HttpServletRequest) props.get("request");
+			final HttpServletResponse response = (HttpServletResponse) props.get("response");
 			
-			// getting the configured user-language (if specified)
-			HttpSession session = (HttpSession) props.get("session");
+			// getting the bundle context
+			final ServletContext servletContext = (ServletContext) props.get("servletContext");			
+			this.context = (BundleContext) servletContext.getAttribute("bc");			
+			
+			// getting the configured user-language (if specified)			
 			if (session != null) {
-				User user = (User) session.getAttribute(HttpContext.REMOTE_USER);
+				this.user = (User) session.getAttribute(HttpContext.REMOTE_USER);
 				if (user != null) {
 					this.l10n = (String) user.getProperties().get("user.language");
-				}
+				} 
+			}
+			
+			// getting the language parameter from cookies			
+			this.cookieTool = new CookieTool();
+			this.cookieTool.setRequest(request);
+			this.cookieTool.setResponse(response);
+			if (this.cookieTool.get("l10n") != null) {
+				this.l10n = this.cookieTool.get("l10n").getValue();
 			}
 			
 			// getting the language parameter (if specified)
-			HttpServletRequest request = (HttpServletRequest) props.get("request");
 			if (request.getParameter("l10n") != null) {
 				this.l10n = request.getParameter("l10n");
 			}
@@ -90,6 +111,17 @@ public class PaxleLocaleConfig extends LocaleConfig {
 	public String getLocaleStr() {
 		Locale locale = this.getLocale();
 		return (locale == null) ? "en" : locale.toString();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void setLocaleStr(String locale) {
+		if (this.user != null) {
+			// updating user properties
+			user.getProperties().put("user.language", locale);
+		} 
+		
+		// keep cookies in sync
+		this.cookieTool.add("l10n", locale);
 	}
 	
 	public BundleContext getBundleContext() {

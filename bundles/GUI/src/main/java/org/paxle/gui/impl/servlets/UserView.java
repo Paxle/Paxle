@@ -27,6 +27,7 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.tools.generic.ResourceTool;
 import org.apache.velocity.tools.generic.ResourceTool.Key;
+import org.apache.velocity.tools.view.CookieTool;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
@@ -197,7 +198,6 @@ public class UserView extends ALayoutServlet {
 			}
 			
 			// configure the OpenID URL
-			props = user.getProperties();
 			props.put("openid.url", openIdURL);			
 		} else {
 			// delete old URL
@@ -208,7 +208,10 @@ public class UserView extends ALayoutServlet {
 		 * LANGUAGE
 		 * =========================================================== */
 		if (request.getParameter("user.language") != null) {
-			props.put("user.language",request.getParameter("user.language"));
+			String lang = request.getParameter("user.language");
+			props.put("user.language",lang);
+			CookieTool cookies = (CookieTool) context.get("cookieTool");
+			cookies.add("l10n", lang);
 		}
 		
 		/* ===========================================================

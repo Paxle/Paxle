@@ -52,8 +52,12 @@
 <div id="head">
 	<h1>Paxle</h1>
 	<ul id="l10n">
-		<li><a href="?l10n=de">DE</a></li>
-		<li><a href="?l10n=en">EN</a></li>
+		#if($paramParser.getString("l10n"))
+			$localeConfig.setLocaleStr($paramParser.getString("l10n"))
+		#end
+		#set($lang = $localeConfig.getLocaleStr())
+		<li><a href="?l10n=de" #if($lang=='de' || $lang.startsWith('de'))class="active"#end>DE</a></li>
+		<li><a href="?l10n=en" #if($lang=='en' || $lang.startsWith('en'))class="active"#end>EN</a></li>
 	</ul>
 	<br class="clearer" />
 </div>
