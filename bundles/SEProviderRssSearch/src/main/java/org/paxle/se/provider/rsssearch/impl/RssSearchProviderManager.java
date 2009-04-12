@@ -150,7 +150,8 @@ public class RssSearchProviderManager implements IRssSearchProviderManager {
 			final RssSearchProvider provider = new RssSearchProvider(url);
 			
 			// the provider ID to use
-			final String providerID = "org.paxle.se.provider.rsssearch." + provider.getFeedUrlHost(); //Using the host makes using two different feeds on the same site impossible!
+//			final String providerID = "org.paxle.se.provider.rsssearch." + provider.getFeedUrlHost(); //Using the host makes using two different feeds on the same site impossible!
+			final String providerID = "org.paxle.se.provider.rsssearch." + provider.feedURL; //Using the host makes using two different feeds on the same site impossible!
 			
 			// register as a service to the framework
 			ServiceRegistration registration = this.bc.registerService(

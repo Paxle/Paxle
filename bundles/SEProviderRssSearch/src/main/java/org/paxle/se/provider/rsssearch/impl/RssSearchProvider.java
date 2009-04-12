@@ -156,7 +156,8 @@ public class RssSearchProvider implements ISearchProvider,ManagedService, IMetaD
 	public IMetaData getMetadata(String pid, String localeStr) {
 		return new IMetaData() {
 			public String getName() {
-				return "RSS Search: " + getFeedUrlHost();
+//				return "RSS Search: " + getFeedUrlHost();
+				return "RSS Search: " + feedURL;
 			}			
 			
 			public String getDescription() {
