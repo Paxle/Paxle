@@ -37,6 +37,8 @@ import de.spieleck.app.cngram.NGramProfiles;
  * 
  * @scr.component
  * @scr.service interface="org.paxle.core.filter.IFilter"
+ * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
+ * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/LanguageManager"
  */
 @FilterTarget(@FilterQueuePosition(
 		queue = "org.paxle.parser.out", 
