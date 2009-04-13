@@ -35,7 +35,7 @@ import org.osgi.service.monitor.StatusVariable;
 import org.paxle.gui.impl.ServletManager;
 import org.paxle.gui.impl.tools.MonitorableTool.Monitorable.Variable;
 
-@DefaultKey("metaData")
+@DefaultKey("monitorableTool")
 @ValidScope(Scope.REQUEST)
 public class MonitorableTool extends PaxleLocaleConfig {
 	private MonitorAdmin ma;

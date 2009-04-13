@@ -16,6 +16,7 @@ package org.paxle.gui;
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -67,6 +68,18 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 		super.destroy();
 		this.view = null;
 		this.viewFactory = null;
+	}
+	
+	@Override
+	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		this.setDefaultResponseHeaders(resp);
+		super.service(req, resp);
+	}
+	
+	protected void setDefaultResponseHeaders(HttpServletResponse resp) {
+		resp.setHeader("Server","Paxle");
+		resp.setHeader("Pragma","no-cache");
+		resp.setHeader("Cache-Control","no-cache, no-store, must-revalidate");
 	}
 	
 	@Override

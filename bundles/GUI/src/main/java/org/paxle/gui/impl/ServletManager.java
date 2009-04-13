@@ -300,6 +300,8 @@ public class ServletManager implements IServletManager {
 				((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory(bundleContext, this));
 			}
 			
+			
+			
 			// registering the servlet
 			this.logger.info(String.format(
 					"Registering servlet '%s' for alias '%s'.", 

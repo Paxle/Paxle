@@ -27,27 +27,24 @@ import org.paxle.gui.ALayoutServlet;
  * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
  */
 public class OpenSearchDescription extends ALayoutServlet {
-
 	private static final long serialVersionUID = 1L;
-
+	
 	@Override
-	public Template handleRequest( 
-			HttpServletRequest request,
-			HttpServletResponse response,
-			Context context 
-	) {
-
-		Template template = null;
-		try {
-			template = this.getTemplate("/resources/opensearch/OpenSearchDescription.vm");
-		} catch (Exception e) {
-			this.logger.error("Error",e);
-		}
-
-		context.put("contenttype", "application/opensearchdescription+xml");
+	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
+		return this.getTemplate("/resources/opensearch/OpenSearchDescription.vm");
+	}
+	
+	@Override
+	protected void fillContext(Context context, HttpServletRequest request) {
 		context.put("layout", "plain.vm");
-		
-		return template;
 	}
 
+	@Override
+	protected void setContentType(HttpServletRequest request, HttpServletResponse response) {
+		if (request.getParameter("format") == null) {
+			response.setContentType("application/opensearchdescription+xml");
+		} else if (request.getParameter("format").equals("plain")) {
+			response.setContentType("text/plain");
+		}
+	}
 }
