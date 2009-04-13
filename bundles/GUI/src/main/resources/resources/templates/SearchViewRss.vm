@@ -76,5 +76,3 @@
    #end		
    </channel>
 </rss>
-
-##To-Do: According to http://www.opensearch.org/Specifications/OpenSearch/1.1#Elements we _can_ add more data to this feed
