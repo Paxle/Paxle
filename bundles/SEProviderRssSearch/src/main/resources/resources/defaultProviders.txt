@@ -1,2 +1,2 @@
 http://del.icio.us/rss/tag/%s
-http://www.mister-wong.com/rss/tags/%s
+http://www.mister-wong.com/rss/tags/%s/
