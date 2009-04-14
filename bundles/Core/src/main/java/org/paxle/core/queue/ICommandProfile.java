@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
  * - include/exclude parsers
  * 
  * == indexing specific params ==
- * - include/exclude mimetypes from indexing (even if they should be parsed) 
+ * - include/exclude mimetypes from indexing (even if they should be parsed)
  * 
  * == filter specific params ==
  * - e.g. special blacklist-filter 

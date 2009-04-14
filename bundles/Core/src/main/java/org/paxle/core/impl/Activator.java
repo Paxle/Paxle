@@ -174,7 +174,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		this.createAndRegisterRuntimeSettings(bc);
 		
 		dataManager = new DataManager<ICommand>();
-		tempFileManager = new TempFileManager(false);
+		tempFileManager = new TempFileManager();
 		cryptManager = new CryptManager();
 		referenceNormalizer = new ReferenceNormalizer();
 

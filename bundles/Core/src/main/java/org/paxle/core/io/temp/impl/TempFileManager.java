@@ -64,19 +64,13 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	private final Hashtable<File,ITempDir> fileMap = new Hashtable<File,ITempDir>();
 	
 	private final ITempDir defaultDir;
-	private final boolean deleteOnExit;
 	
-	public TempFileManager(ITempDir defaultDir, final boolean deleteOnExit) {
+	public TempFileManager(ITempDir defaultDir) {
 		this.defaultDir = defaultDir;
-		this.deleteOnExit = deleteOnExit;
-	}
-	
-	public TempFileManager(final boolean deleteOnExit) {
-		this(new DefaultTempDir(), deleteOnExit);
 	}
 	
 	public TempFileManager() {
-		this(true);
+		this(new DefaultTempDir());
 	}
 	
 	public void removeTempDirFor(String... classNames) {
@@ -100,10 +94,6 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 		// remember the created temp file for later cleanup
 		this.fileMap.put(ret, dir);				
 		this.totalCount.incrementAndGet();
-		
-		if (deleteOnExit) {
-			ret.deleteOnExit();
-		}
 		
 		return ret;
 	}
