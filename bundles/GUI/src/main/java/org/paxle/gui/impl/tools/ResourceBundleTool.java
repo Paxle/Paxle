@@ -15,7 +15,10 @@ package org.paxle.gui.impl.tools;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.tools.ConversionUtils;
 import org.apache.velocity.tools.Scope;
 import org.apache.velocity.tools.config.ValidScope;
 import org.apache.velocity.tools.generic.ResourceTool;
@@ -23,6 +26,7 @@ import org.apache.velocity.tools.generic.ResourceTool;
 @ValidScope(Scope.REQUEST)
 public class ResourceBundleTool extends ResourceTool {
 	private PaxleLocaleConfig localeConfig;
+	private ClassLoader cl;
 	
 	public void configure(@SuppressWarnings("unchecked") Map props) {
 		super.configure(props);		
@@ -30,6 +34,10 @@ public class ResourceBundleTool extends ResourceTool {
 			// reading the locale to use
 			this.localeConfig = new PaxleLocaleConfig();
 			this.localeConfig.configure(props);
+			
+			// the classoader-the current servlet was loaded with
+			VelocityEngine engine = (VelocityEngine) props.get("velocityEngine");
+			this.cl = (ClassLoader) engine.getApplicationAttribute("servlet.classloader");
 		}
 	}	
 	
@@ -38,7 +46,55 @@ public class ResourceBundleTool extends ResourceTool {
 		return this.localeConfig.getLocale();
 	}
 
-    public Object get(Object k, String baseName, Object l) {
-    	return super.get(k, baseName, l);
+	@Override
+    public Object get(Object k, String baseName, Object l)
+    {
+        if (baseName == null || k == null)
+        {
+            return null;
+        }
+        String key = k == null ? null : String.valueOf(k);
+        Locale locale;
+        if (l == null)
+        {
+            locale = getLocale();
+        }
+        else
+        {
+            locale = toLocale(l);
+            // if conversion fails, return null to indicate an error
+            if (locale == null)
+            {
+                return null;
+            }
+        }
+
+        ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale, this.cl);
+        if (bundle != null)
+        {
+            try
+            {
+                return bundle.getObject(key);
+            }
+            catch (Exception e)
+            {
+                // do nothing
+            }
+        }
+        return null;
     }
+	
+    private Locale toLocale(Object obj)
+    {
+        if (obj == null)
+        {
+            return null;
+        }
+        if (obj instanceof Locale)
+        {
+            return (Locale)obj;
+        }
+        String s = String.valueOf(obj);
+        return ConversionUtils.toLocale(s);
+    }	
 }

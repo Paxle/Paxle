@@ -297,7 +297,11 @@ public class ServletManager implements IServletManager {
 				props.put("bundle.location", bundleLocation);
 				
 				// injecting the velocity-view factory
-				((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory(bundleContext, this));
+				((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory(
+						bundleContext, 
+						this, 
+						servlet.getClass().getClassLoader()
+				));
 			}
 			
 			
