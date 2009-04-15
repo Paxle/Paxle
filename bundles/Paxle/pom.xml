@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Paxle</artifactId>
 	<packaging>pom</packaging>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<name>Paxle</name>
 	<url>http://www.paxle.net/</url>
 	<inceptionYear>2007</inceptionYear>
@@ -103,6 +103,9 @@
 		<equinox.data>configuration</equinox.data>
 		<log4j.config.file>file:${equinox.data}/log4j.properties</log4j.config.file>
 		<runtime.xmx.mb>128</runtime.xmx.mb>
+		
+		<!-- Release information -->
+		<paxle.release.number>0.1.0</paxle.release.number>
 		
 		<!-- Apache Felix related Properties -->
 		<felix.dependencies>target/dependency/felix</felix.dependencies>
@@ -578,7 +581,7 @@
 								<artifactItem>
  									<groupId>org.wymiwyg</groupId>  
  									<artifactId>wrhapi</artifactId>  
- 									<version>0.6</version>y>
+ 									<version>0.6</version>
  									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>org.wymiwyg.wrhapi-0.6.jar</destFileName>										
 								</artifactItem>

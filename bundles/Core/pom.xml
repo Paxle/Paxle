@@ -5,7 +5,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.21-SNAPSHOT</version>
+	<version>0.1.21</version>
 	<name>Paxle - Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -13,7 +13,7 @@
 	<parent>
 		<groupId>org.paxle</groupId>
 		<artifactId>Root</artifactId>
-		<version>0.1.0-SNAPSHOT</version>
+		<version>0.1.0</version>
 		<relativePath>../Root/pom.xml</relativePath>
 	</parent>
 

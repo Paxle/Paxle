@@ -147,7 +147,9 @@ public class Activator implements BundleActivator, InvocationHandler {
 		this.logger = LogFactory.getLog(this.getClass());
 		
 		// configuring some system properties
-		System.setProperty("paxle.version", (String) bc.getBundle().getHeaders().get(Constants.BUNDLE_VERSION));
+		String releaseVersion =  (String) bc.getBundle().getHeaders().get("Paxle-Release");
+		String bundleVersion = (String) bc.getBundle().getHeaders().get(Constants.BUNDLE_VERSION);
+		System.setProperty("paxle.version", releaseVersion == null ? bundleVersion + "-dev" : releaseVersion);
 		
 		// starting paxle
 		logger.info("Starting ...");
@@ -158,7 +160,8 @@ public class Activator implements BundleActivator, InvocationHandler {
 				"\t / ____/ /_/ />  </ /  __/ \r\n" +
 			    "\t/_/    \\__,_/_/|_/_/\\___/ \r\n" +
 			    "\r\n" +
-				"\tVersion: " + bc.getBundle().getHeaders().get(Constants.BUNDLE_VERSION)
+			    ((releaseVersion != null) ? "\tRelease-Version: " + releaseVersion + "\r\n" : "") + 
+			    							"\tBundle-Version:  " + bundleVersion
 		);		
 				
 		// processing data-path
