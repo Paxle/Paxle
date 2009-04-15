@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Paxle</artifactId>
 	<packaging>pom</packaging>
-	<version>0.1.0</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<name>Paxle</name>
 	<url>http://www.paxle.net/</url>
 	<inceptionYear>2007</inceptionYear>
@@ -105,7 +105,7 @@
 		<runtime.xmx.mb>128</runtime.xmx.mb>
 		
 		<!-- Release information -->
-		<paxle.release.number>0.1.0</paxle.release.number>
+		<paxle.release.number>0.1.1</paxle.release.number>
 		
 		<!-- Apache Felix related Properties -->
 		<felix.dependencies>target/dependency/felix</felix.dependencies>

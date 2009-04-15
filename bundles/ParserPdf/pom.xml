@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserPdf</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Parser: PDF</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.paxle</groupId>
 		<artifactId>Root</artifactId>
-		<version>0.1.0</version>
+		<version>0.1.1-SNAPSHOT</version>
 		<relativePath>../Root/pom.xml</relativePath>
 	</parent>
 
