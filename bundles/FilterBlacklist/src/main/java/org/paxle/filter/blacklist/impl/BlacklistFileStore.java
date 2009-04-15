@@ -73,7 +73,7 @@ class BlacklistFileStore implements IBlacklistStore {
 	@SuppressWarnings("unchecked")
 	private void readBlacklists() {
 		// init the blacklist objects
-		Iterator<?> eter = FileUtils.iterateFiles(this.blacklistDir, null, false);
+		Iterator<File> eter = FileUtils.iterateFiles(this.blacklistDir, null, false);
 		this.logger.info(String.format(
 					"Reading blacklists from directory: %s",
 					blacklistDir.toString()
@@ -81,7 +81,7 @@ class BlacklistFileStore implements IBlacklistStore {
 
 		final StringBuilder blacklistNames = new StringBuilder();
 		while (eter.hasNext()) {
-			final File blacklistFile = (File) eter.next();
+			final File blacklistFile = eter.next();
 			final String blacklistName = blacklistFile.getName();			
 			try {
 				final IBlacklist blacklist = new Blacklist(blacklistName, FileUtils.readLines(blacklistFile), this);
@@ -132,7 +132,7 @@ class BlacklistFileStore implements IBlacklistStore {
 	 */
 	public boolean deleteBlacklist(String name) {
 		if (this.blacklists.containsKey(name)) {
-			final File file = new File(this.blacklistDir.getName() + File.separatorChar + name);
+			final File file = new File(this.blacklistDir.getAbsolutePath() + File.separatorChar + name);
 			if (file.delete()) {
 				this.blacklists.remove(name);
 				return true;
