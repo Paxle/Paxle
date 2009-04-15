@@ -102,10 +102,10 @@
 			<url>${mvn-deploy-url}</url>
 		</snapshotRepository>
 	
-<!--		<repository>-->
-<!--			<id>paxle-release-repository</id>-->
-<!--			<url>scpexe://theli@tantal.xenim.de:2066/home/users/theli/osgi/m2/</url>-->
-<!--		</repository>-->
+		<repository>
+			<id>paxle-release-repository</id>
+			<url>${mvn-deploy-url}</url>
+		</repository>
 	</distributionManagement>
 
 	<licenses>
