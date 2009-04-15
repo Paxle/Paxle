@@ -94,7 +94,7 @@
 	<properties>
 		<!-- Eclipse Equinox related Properties -->
 		<equinox.dependencies>target/dependency/equinox</equinox.dependencies>
-		<equinox.runtime.jar>org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar</equinox.runtime.jar>
+		<equinox.runtime.jar>org.eclipse.osgi_3.4.3.R34x_v20081215-1030.jar</equinox.runtime.jar>
 		<equinox.bundledir>bundles</equinox.bundledir>
 		
 		<!-- properties that will be overwritten by the installer -->
@@ -242,7 +242,7 @@
 								<artifactItem>
 									<groupId>org.eclipse.osgi</groupId>
 									<artifactId>osgi</artifactId>
-									<version>3.4.2.R34x_v20080826-1230</version>
+									<version>3.4.3.R34x_v20081215-1030</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>${equinox.runtime.jar}</destFileName>
 								</artifactItem>
@@ -301,9 +301,9 @@
 								<artifactItem>
 									<groupId>org.eclipse.equinox</groupId>
 									<artifactId>cm</artifactId>
-									<version>1.0.0.v20080509-1800</version>
+									<version>1.0.1.R34x_v20090107-1200</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.equinox.cm_1.0.0.v20080509-1800.jar</destFileName>
+									<destFileName>org.eclipse.equinox.cm_1.0.1.R34x_v20090107-1200.jar</destFileName>
 								</artifactItem>	
 								
 								<artifactItem>
@@ -322,16 +322,12 @@
 									<destFileName>org.eclipse.equinox.ds_1.0.0.v20080427-0830.jar</destFileName>
 								</artifactItem>	
 								
-								<!-- 
-									 A patched version of the useradmin bundle including 
-								     a patch from: https://bugs.eclipse.org/bugs/show_bug.cgi?id=241663
-								-->
 								<artifactItem>
 									<groupId>org.eclipse.equinox</groupId>
 									<artifactId>useradmin</artifactId>
-									<version>1.1.100.200810030655</version>
+									<version>1.1.1.R34x_v20090107-1200</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.equinox.useradmin_1.1.100.200810030655.jar</destFileName>
+									<destFileName>org.eclipse.equinox.useradmin_1.1.1.R34x_v20090107-1200.jar</destFileName>
 								</artifactItem>																											
 																								
 								<!-- jetty based HTTP service -->
