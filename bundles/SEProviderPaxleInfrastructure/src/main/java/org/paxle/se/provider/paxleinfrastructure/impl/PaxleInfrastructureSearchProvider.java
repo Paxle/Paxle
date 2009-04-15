@@ -22,7 +22,7 @@ import org.paxle.se.search.ISearchProvider;
 import org.paxle.se.search.ISearchRequest;
 
 /**
- * @scr.component
+ * @scr.component metatype="false"
  * @scr.service interface="org.paxle.se.search.ISearchProvider"
  * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
  * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/SEProviderPaxleInfrastructure"

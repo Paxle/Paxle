@@ -35,7 +35,7 @@ import org.paxle.core.io.IOTools;
 import org.paxle.core.queue.ICommand;
 
 /**
- * @scr.component
+ * @scr.component metatype="false"
  * @scr.service interface="org.paxle.core.filter.IFilter"
  * @scr.property name="dataPath" value="plaintextDumper"
  */
