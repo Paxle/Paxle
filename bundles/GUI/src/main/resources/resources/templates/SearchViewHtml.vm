@@ -79,7 +79,7 @@
             			##set($disabledSEProviders = $searchProviderManager.disabledProviders())    				
         				<select name="seProviders" size="5" multiple="multiple">
         				#foreach($searchprovider in $searchProviderManager.getSearchProviders().entrySet())
-           					<option #if(!$seProviders || ${listTool.contains($seProviders,$searchprovider.key)})selected="selected"#end value="$searchprovider.key">#seProviderName($searchprovider.value)</option>
+           					<option #if(!$seProviders || ${listTool.contains($seProviders,$searchprovider.key)})selected="selected"#end value="$searchprovider.key">#seProviderName($searchprovider.key)</option>
            				#end
         				</select>
 					</td>
