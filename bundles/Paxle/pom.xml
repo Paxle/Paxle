@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Paxle</artifactId>
 	<packaging>pom</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 	<name>Paxle</name>
 	<url>http://www.paxle.net/</url>
 	<inceptionYear>2007</inceptionYear>
