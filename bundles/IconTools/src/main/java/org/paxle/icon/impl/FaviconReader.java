@@ -11,12 +11,12 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
+
 package org.paxle.icon.impl;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.net.URL;
-import java.util.List;
 
 import javax.imageio.spi.IIORegistry;
 
@@ -43,10 +43,10 @@ public class FaviconReader {
 		BufferedImage image = null;
 		try {
 			ICOFile lICOFile = new ICOFile(theIconURL);
-			List<?> images = lICOFile.getImages();
-			if (images != null && images.size() > 0) {
+			Image[] images = lICOFile.getImages();
+			if (images != null && images.length > 0) {
 				return selectBest(images);
-			}
+			} 
 		}  catch (Exception e)  {
 			logger.warn(String.format("Unable to load favicon from URL '%s'. %s", theIconURL, e.getMessage()));
 		}		
@@ -57,8 +57,8 @@ public class FaviconReader {
 		BufferedImage image = null;
 		try {
 			ICOFile lICOFile = new ICOFile(content);
-			List<?> images = lICOFile.getImages();
-			if (images != null && images.size() > 0) {
+			Image[] images = lICOFile.getImages();
+			if (images != null && images.length > 0) {
 				return selectBest(images);
 			} 
 		}  catch (Exception e)  {
@@ -67,9 +67,9 @@ public class FaviconReader {
 		return image;
 	}
 	
-	private static Image selectBest(List<?> images) {
+	private static Image selectBest(Image[] images) {
 		if (images == null) return null;
 		// TODO: select image that fits best in size and quality
-		return (Image)images.get(0);
+		return images[0];
 	}
 }
