@@ -14,4 +14,4 @@
 #
 
 
-java -jar uninstaller.jar 
+java -jar "$(dirname "$(realpath "$0")")"/uninstaller.jar
