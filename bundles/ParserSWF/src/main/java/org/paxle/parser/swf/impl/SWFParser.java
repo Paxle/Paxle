@@ -57,28 +57,38 @@ public class SWFParser extends ASubParser implements ISubParser {
 			
 			Exception ex;
 			
+			private final ISubParser htmlParser;
+			private final StringBuilder sb = new StringBuilder();
+			private boolean warnedNoHtmlParser = false;
+			
+			public SwfTextSink() {
+				htmlParser = context.getParser("text/html");
+			}
+			
 			public void addText(String text, boolean isHTML) {
 				try {
-					if (isHTML) {
-						final ISubParser htmlParser = context.getParser("text/html");
-						if (htmlParser == null) {
-							logger.warn("Cannot parse HTML content of SWF-file due to missing HTML-parser");
-						} else {
-							final ByteBuffer bb = UTF8.encode(text);
-							final IParserDocument htmlParserDoc = htmlParser.parse(
-									location,
-									UTF8.name(),
-									new ByteArrayInputStream(bb.array(), 0, bb.limit()));
-							if (htmlParserDoc.getStatus() != IParserDocument.Status.OK) {
-								logger.warn("Failed parsing HTML-content of SWF-file from '" + location + "'");
-							} else {
-								final StringBuilder sb = new StringBuilder();
-								IOTools.copy(htmlParserDoc.getTextAsReader(), sb);
-								pdoc.addText(sb);
-							}
-						}
-					} else {
+					if (!isHTML) {
 						pdoc.addText(text);
+						return;
+					}
+					if (htmlParser == null) {
+						if (!warnedNoHtmlParser) {
+							logger.warn("Cannot parse HTML content of SWF-file due to missing HTML-parser");
+							warnedNoHtmlParser = true;
+						}
+						return;
+					}
+					final ByteBuffer bb = UTF8.encode(text);
+					final IParserDocument htmlParserDoc = htmlParser.parse(
+							location,
+							UTF8.name(),
+							new ByteArrayInputStream(bb.array(), 0, bb.limit()));
+					if (htmlParserDoc.getStatus() != IParserDocument.Status.OK) {
+						logger.warn("Failed parsing HTML-content of SWF-file from '" + location + "': " + htmlParserDoc.getStatusText());
+					} else {
+						sb.setLength(0);
+						IOTools.copy(htmlParserDoc.getTextAsReader(), sb);
+						pdoc.addText(sb);
 					}
 				} catch (Exception e) { ex = e; }
 			}
