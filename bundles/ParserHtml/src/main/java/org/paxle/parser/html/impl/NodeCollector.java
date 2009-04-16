@@ -15,8 +15,6 @@ package org.paxle.parser.html.impl;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -38,8 +36,6 @@ import org.htmlparser.tags.ScriptTag;
 import org.htmlparser.tags.StyleTag;
 import org.htmlparser.tags.TableTag;
 import org.htmlparser.tags.TitleTag;
-import org.htmlparser.util.EncodingChangeException;
-import org.htmlparser.util.ParserException;
 import org.htmlparser.visitors.NodeVisitor;
 
 import org.paxle.core.doc.IParserDocument;
@@ -48,6 +44,7 @@ import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.html.impl.tags.AddressTag;
 import org.paxle.parser.html.impl.tags.BoldTag;
 import org.paxle.parser.html.impl.tags.FixedLink;
+import org.paxle.parser.html.impl.tags.FixedMetaTag;
 import org.paxle.parser.html.impl.tags.ItalicTag;
 import org.paxle.parser.html.impl.tags.MetaTagManager;
 
@@ -77,30 +74,7 @@ public class NodeCollector extends NodeVisitor {
 		NODE_FACTORY.registerTag(new BoldTag());
 		NODE_FACTORY.registerTag(new ItalicTag());
 		NODE_FACTORY.registerTag(new FixedLink());
-		NODE_FACTORY.registerTag(new MetaTag() {
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public void doSemanticAction() throws ParserException {
-				try {
-			        String httpEquiv = this.getHttpEquiv();
-			        if ("Content-Type".equalsIgnoreCase(httpEquiv)) {
-			        	String sourceEncoding = this.getPage().getSource().getEncoding();
-			        	String metaEncoding = this.getPage().getCharset(this.getAttribute("CONTENT"));
-			        	
-			        	if (sourceEncoding != null && metaEncoding != null && !sourceEncoding.toLowerCase().equals(metaEncoding.toLowerCase())) {
-			    			try {
-			    				if (Charset.isSupported(metaEncoding)) {
-			    					this.getPage().setEncoding(metaEncoding);
-			    				}
-			    			} catch (IllegalCharsetNameException e) {
-			    				// encoding not supported. leave encoding as is
-			    			}			                
-			            }
-			        }
-				} catch (EncodingChangeException e) { /* ignore this */ }
-			}
-		});		
+		NODE_FACTORY.registerTag(new FixedMetaTag());
 	}
 	
 	private static final HashSet<String> DiscardedTags = new HashSet<String>(Arrays.asList(
@@ -117,6 +91,8 @@ public class NodeCollector extends NodeVisitor {
 	
 	private boolean noParse = false;
 	private boolean noFollowLinks = false;
+	private boolean obeyRobotsNoindex = true;
+	private boolean obeyRobotsNofollow = true;
 	
 	public NodeCollector(final IParserDocument doc, final ParserLogger logger, final Page page, final IReferenceNormalizer refNorm) {
 		super(true, true);
@@ -134,12 +110,18 @@ public class NodeCollector extends NodeVisitor {
 		this.page = page;
 	}
 	
-	public void init(final IParserDocument doc, final IReferenceNormalizer refNorm) {
+	public void init(
+			final IParserDocument doc,
+			final IReferenceNormalizer refNorm,
+			final boolean obeyRobotsNoindex,
+			final boolean obeyRobotsNofollow) {
 		this.mtm.clear();
 		this.doc = doc;
 		this.refNorm = refNorm;
 		this.noParse = false;
 		this.noFollowLinks = false;
+		this.obeyRobotsNoindex = obeyRobotsNoindex;
+		this.obeyRobotsNofollow = obeyRobotsNofollow;
 	}
 	
 	/**
@@ -167,6 +149,8 @@ public class NodeCollector extends NodeVisitor {
 	 *  <dd>{@link MetaTagManager.Names#Subject}</dd>
 	 *  <dd>{@link MetaTagManager.Names#Title}</dd>
 	 *  <dd>{@link MetaTagManager.Names#Title_Alternative}</dd>
+	 *  <dt>The document's robots directives:</dt>
+	 *  <dd>{@link MetaTagManager.Names#Robots}</dd>
 	 * </dl>
 	 */
 	private void postProcessMeta() {
@@ -222,6 +206,16 @@ public class NodeCollector extends NodeVisitor {
 				if (uri != null)
 					this.doc.addReference(uri, unescaped, "ParserHtml");
 			}
+		
+		if (this.obeyRobotsNoindex || this.obeyRobotsNofollow) {
+			final Collection<String> robots = mtm.get(MetaTagManager.Names.Robots);
+			if (robots != null) {
+				if (this.obeyRobotsNoindex && robots.contains("noindex"))
+					this.doc.toggleFlags(IParserDocument.FLAG_NOINDEX);
+				if (this.obeyRobotsNofollow && robots.contains("nofollow"))
+					this.doc.toggleFlags(IParserDocument.FLAG_NOFOLLOW);
+			}
+		}
 	}
 	
 	private void addLanguages(String... languages) {
@@ -328,10 +322,10 @@ public class NodeCollector extends NodeVisitor {
 	
 	private void process(MetaTag tag) {
 		this.mtm.addMetaTag(tag);
-		if (!noFollowLinks) {
+		if (this.obeyRobotsNofollow && !noFollowLinks) {
 			final Collection<String> robotsVals = mtm.get(MetaTagManager.Names.Robots);
 			if (robotsVals != null)
-				noFollowLinks = robotsVals.contains("noindex") || robotsVals.contains("nofollow");
+				noFollowLinks = robotsVals.contains("nofollow");
 		}
 	}
 	
@@ -380,6 +374,7 @@ public class NodeCollector extends NodeVisitor {
 		final URI uri = refNorm.normalizeReference(HtmlTools.deReplaceHTML(link));
 		if (uri != null) {
 			final LinkInfo linkInfo = new LinkInfo(HtmlTools.deReplaceHTML(tag.getLinkText().trim()), "ParserHtml");
+			// TODO: don't set links to "filtered" initially, this is semantically wrong, rather set FLAG_NOFOLLOW in the document
 			if (noFollowLinks)
 				linkInfo.setStatus(LinkInfo.Status.FILTERED, "forbidden by HTML meta tag");
 			this.doc.addReference(uri, linkInfo);

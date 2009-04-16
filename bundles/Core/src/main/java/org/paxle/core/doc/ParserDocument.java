@@ -56,6 +56,7 @@ public class ParserDocument implements IParserDocument {
 	protected OutputStreamWriter contentOut = null;
 	protected String mimeType;
 	protected Charset charset = null;
+	protected int flags = 0;
 	
     public int getOID(){ 
     	return _oid; 
@@ -294,6 +295,18 @@ public class ParserDocument implements IParserDocument {
 	 */
 	public void setLinks(Map<URI,LinkInfo> links) {
 		this.links = links;
+	}
+	
+	public int getFlags() {
+		return this.flags;
+	}
+	
+	public void setFlags(int flags) {
+		this.flags = flags;
+	}
+	
+	public void toggleFlags(int flags) {
+		this.flags ^= flags;
 	}
 	
 	// don't manipulate the sub-docs

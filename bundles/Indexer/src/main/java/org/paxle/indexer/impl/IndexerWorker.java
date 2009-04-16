@@ -93,12 +93,14 @@ public class IndexerWorker extends AWorker<ICommand> {
 			
 			// generate the "main" indexer document from the "main" parser document including the
 			// data from the command object
-			indexerDoc = this.generateIIndexerDoc(
-					command.getLocation(),
-					command.getCrawlerDocument().getCrawlerDate(),
-					null,
-					command.getParserDocument()
-			);
+			if ((command.getParserDocument().getFlags() & IParserDocument.FLAG_NOINDEX) == 0) {
+				indexerDoc = this.generateIIndexerDoc(
+						command.getLocation(),
+						command.getCrawlerDocument().getCrawlerDate(),
+						null,
+						command.getParserDocument()
+				);
+			}
 			
 			// generate indexer docs from all parser-sub-documents and add them to the command
 			indexerSubDocs = new ArrayList<IIndexerDocument>();
@@ -119,13 +121,15 @@ public class IndexerWorker extends AWorker<ICommand> {
 			
 			while (!queue.isEmpty()) {
 				Entry e = queue.remove();
-				IIndexerDocument indexerSubDoc = this.generateIIndexerDoc(
-						command.getLocation(),
-						command.getCrawlerDocument().getCrawlerDate(),
-						e.key,
-						e.pdoc
-				);
-				indexerSubDocs.add(indexerSubDoc);
+				if ((e.pdoc.getFlags() & IParserDocument.FLAG_NOINDEX) == 0) {
+					IIndexerDocument indexerSubDoc = this.generateIIndexerDoc(
+							command.getLocation(),
+							command.getCrawlerDocument().getCrawlerDate(),
+							e.key,
+							e.pdoc
+					);
+					indexerSubDocs.add(indexerSubDoc);
+				}
 				
 				for (final Map.Entry<String,IParserDocument> pdoce : e.pdoc.getSubDocs().entrySet())
 					queue.add(new Entry(e.key + "/" + pdoce.getKey(), pdoce.getValue()));
@@ -135,19 +139,28 @@ public class IndexerWorker extends AWorker<ICommand> {
 			 * Process indexer response
 			 * ================================================================ */			
 			
-			if (indexerDoc == null) {
-				command.setResult(
-						ICommand.Result.Failure, 
-						String.format("Indexer returned no indexer-document.")
-				);
-				return;
-			} else if (indexerDoc.getStatus() == null || indexerDoc.getStatus() != IIndexerDocument.Status.OK) {
-				command.setResult(
-						ICommand.Result.Failure, 
-						String.format("Indexer-document status is '%s'.",indexerDoc.getStatus())
-				);
-				return;
-			}			
+			/* There may be the case, that - i.e. by a document's and it's parser's restriction - the main
+			 * document, from which the sub-docs are retrieved, may not be indexed, but links, and therefore
+			 * sub-docs, may be followed.
+			 * In this case we simply omit the main document. If the document has no children, then this is the
+			 * only thing we need to check for correctness. */
+			if (indexerSubDocs.size() == 0) {
+				
+				if (indexerDoc == null) {
+					command.setResult(
+							ICommand.Result.Failure, 
+							String.format("Indexer returned no indexer-document.")
+					);
+					return;
+				} else if (indexerDoc.getStatus() == null || indexerDoc.getStatus() != IIndexerDocument.Status.OK) {
+					command.setResult(
+							ICommand.Result.Failure, 
+							String.format("Indexer-document status is '%s'.",indexerDoc.getStatus())
+					);
+					return;
+				}
+				
+			}
 
 			// XXX: what to take if both (pdoc and cdoc) contain a different value for last mod?
 			if (command.getCrawlerDocument().getLastModDate() != null) {

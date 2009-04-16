@@ -79,7 +79,7 @@ public class CommandProfile implements ICommandProfile {
 
 	public void setName(String name) {
 		this.name = name;
-	}		
+	}
 
 	public LinkFilterMode getLinkFilterMode() {
 		return this.linkFilterMode;

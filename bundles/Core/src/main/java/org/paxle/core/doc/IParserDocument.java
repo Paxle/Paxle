@@ -34,6 +34,9 @@ public interface IParserDocument extends Closeable {
 		/** An error occured and parsing the document has to be stopped */
 		FAILURE
 	};
+	
+	public static final int FLAG_NOINDEX	= 1 << 0;
+	public static final int FLAG_NOFOLLOW	= 1 << 1;
 
 	/**
 	 * Returns the ID of this pDoc. It is unique across the command DB.
@@ -266,6 +269,30 @@ public interface IParserDocument extends Closeable {
 	 * @return the status of the parsing operation
 	 */
 	public abstract Status getStatus();
+	
+	/**
+	 * An {@link IParserDocument} may have flags set, which influence the way it takes through the
+	 * command pipeline and/or which filters apply.
+	 * @see #FLAG_NOFOLLOW
+	 * @see #FLAG_NOINDEX
+	 * @return the bit-array of flags, <code>1</code> means that the flag is set,
+	 *         i.e. if <code>(getFlags() & FLAG_NOINDEX) != 0)</code> is <code>true</code>.
+	 */
+	public int getFlags();
+	
+	/**
+	 * Sets all flags of this {@link IParserDocument}.
+	 * @see #getFlags()
+	 * @param flags the new flags
+	 */
+	public void setFlags(int flags);
+	
+	/**
+	 * Toggles the state of the specified flags (these may be OR'ed together) for this {@link IParserDocument}.
+	 * @see #getFlags()
+	 * @param flags the bits of the flags to change must be <code>1</code>
+	 */
+	public void toggleFlags(int flags);
 
 	/**
 	 * @see #addSubDocument(String, IParserDocument) for a more detailed description of what sub-documents are

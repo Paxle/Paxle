@@ -16,9 +16,11 @@ package org.paxle.parser.html.impl;
 import java.io.File;
 import java.net.URI;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
+import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.parser.impl.AParserTest;
 
 public class HtmlParserTest extends AParserTest {
@@ -99,6 +101,23 @@ public class HtmlParserTest extends AParserTest {
 		
 		for (int i=0; i<threads.length; i++)
 			threads[i].join();
+	}
+	
+	public void testIndexRestrictions() throws Exception {
+		final File testResource = new File("src/test/resources/restricted.html");
+		final IParserDocument pdoc = parser.parse(new URI("http://www.example.org/restricted.html"), null, testResource);
+		assertNotNull(pdoc);
+		
+		assertEquals(1, pdoc.getLinks().size());
+		final Map.Entry<URI,LinkInfo> link = pdoc.getLinks().entrySet().iterator().next();
+		assertTrue(link.getValue().hasStatus(Status.FILTERED));
+		assertEquals(new URI("http://www.example.org/test.html"), link.getKey());
+		assertEquals("Test-Link", link.getValue().getTitle());
+		
+		assertEquals("Restricted Test Page", pdoc.getTitle());
+		
+		final int flags = (IParserDocument.FLAG_NOFOLLOW | IParserDocument.FLAG_NOINDEX);
+		assertEquals(flags, pdoc.getFlags() & flags);
 	}
 	
 	private static final String[][] REPL_CASES = {

@@ -17,12 +17,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +35,7 @@ import org.htmlparser.lexer.Source;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.core.queue.ICommandProfile;
 import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
@@ -62,6 +62,9 @@ import org.paxle.parser.ParserException;
  * 				 values.4="text/sgml"
  */
 public class HtmlParser implements ISubParser, PoolableObjectFactory {
+	
+	private static final String PROP_VALIDATE_META_ROBOTS_NOINDEX = HtmlParser.class.getName() + ".validateMetaRobots.noindex";
+	private static final String PROP_VALIDATE_META_ROBOTS_NOFOLLOW = HtmlParser.class.getName() + ".validateMetaRobots.nofollow";
 	
 	private final Log logger = LogFactory.getLog(HtmlParser.class);
 	
@@ -170,8 +173,20 @@ public class HtmlParser implements ISubParser, PoolableObjectFactory {
 			final ParserContext context = ParserContext.getCurrentContext();
 			final IParserDocument doc = new CachedParserDocument(context.getTempFileManager());			
 			final InputStreamSource iss = new InputStreamSource(is, charset);
+			
+			boolean obeyRobotsNoindex = true, obeyRobotsNofollow = true;
+			final ICommandProfile cmdProfile = context.getCommandProfile();
+			if (cmdProfile != null) {
+				final Serializable robNoindex = cmdProfile.getProperty(PROP_VALIDATE_META_ROBOTS_NOINDEX);
+				final Serializable robNofollow = cmdProfile.getProperty(PROP_VALIDATE_META_ROBOTS_NOFOLLOW);
+				if (robNoindex != null)
+					obeyRobotsNoindex = Boolean.parseBoolean(robNoindex.toString());
+				if (robNofollow != null)
+					obeyRobotsNofollow = Boolean.parseBoolean(robNofollow.toString());
+			}
+			
 			try {
-				req.parse(location, doc, context.getReferenceNormalizer(), iss);
+				req.parse(location, doc, context.getReferenceNormalizer(), iss, obeyRobotsNoindex, obeyRobotsNofollow);
 				/*
 				final FixedPage page = new FixedPage(iss);
 				final ParserLogger pl = new ParserLogger(logger, location);
@@ -241,11 +256,13 @@ public class HtmlParser implements ISubParser, PoolableObjectFactory {
 				final URI location,
 				final IParserDocument doc,
 				final IReferenceNormalizer refNorm,
-				final Source source) throws org.htmlparser.util.ParserException {
+				final Source source,
+				boolean obeyRobotsNoindex,
+				boolean obeyRobotsNofollow) throws org.htmlparser.util.ParserException {
 			logger.setLocation(location);
 			page.init(source);
 			page.setUrl(location.toASCIIString());
-			nc.init(doc, refNorm);
+			nc.init(doc, refNorm, obeyRobotsNoindex, obeyRobotsNofollow);
 			parser.visitAllNodesWith(nc);
 		}
 	}
