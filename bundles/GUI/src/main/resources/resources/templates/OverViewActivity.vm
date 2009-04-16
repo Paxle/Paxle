@@ -70,9 +70,10 @@
     		</tr>
     					
         	#if($monitorableTool.exists(${entry.getId()}))
-        		#if($monitorableTool.get(${entry.getId()}).get("state.code").value != "OK")
+        	    #set( $statuscode = $monitorableTool.get(${entry.getId()}).get("state.code").value )
+        		#if($statuscode != "OK")
     				<tr>
-    					<td colspan="6" class="warning">$text.get("ovActivity.PAUSED_BY_OOM_CHECK").insert($entry.getName())</td>
+    					<td colspan="6" class="warning">$text.get("ovActivity.$statuscode").insert($entry.getName())</td>
     				</tr>
         		#end
         	#end	
