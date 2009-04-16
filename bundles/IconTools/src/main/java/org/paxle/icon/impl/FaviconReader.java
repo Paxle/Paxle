@@ -16,6 +16,7 @@ package org.paxle.icon.impl;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.util.List;
 
 import javax.imageio.spi.IIORegistry;
 
@@ -42,10 +43,10 @@ public class FaviconReader {
 		BufferedImage image = null;
 		try {
 			ICOFile lICOFile = new ICOFile(theIconURL);
-			Image[] images = lICOFile.getImages();
-			if (images != null && images.length > 0) {
+			List<?> images = lICOFile.getImages();
+			if (images != null && images.size() > 0) {
 				return selectBest(images);
-			} 
+			}
 		}  catch (Exception e)  {
 			logger.warn(String.format("Unable to load favicon from URL '%s'. %s", theIconURL, e.getMessage()));
 		}		
@@ -56,8 +57,8 @@ public class FaviconReader {
 		BufferedImage image = null;
 		try {
 			ICOFile lICOFile = new ICOFile(content);
-			Image[] images = lICOFile.getImages();
-			if (images != null && images.length > 0) {
+			List<?> images = lICOFile.getImages();
+			if (images != null && images.size() > 0) {
 				return selectBest(images);
 			} 
 		}  catch (Exception e)  {
@@ -66,9 +67,9 @@ public class FaviconReader {
 		return image;
 	}
 	
-	private static Image selectBest(Image[] images) {
+	private static Image selectBest(List<?> images) {
 		if (images == null) return null;
 		// TODO: select image that fits best in size and quality
-		return images[0];
+		return (Image)images.get(0);
 	}
 }
