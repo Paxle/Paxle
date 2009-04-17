@@ -49,7 +49,7 @@
 							org.apache.commons.pool;version="1.4",
 							org.apache.commons.pool.impl;version="1.4",
 							<!-- Paxle Core -->
-							org.paxle.core.doc;version="[0.1.23,0.2.0)", 
+							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
 							org.paxle.core.io.temp;version="[0.1.0,0.2.0)",
 							org.paxle.core.norm;version="[0.1.0,0.2.0)",
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
@@ -99,7 +99,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.23,0.2.0)</version>			
+			<version>[0.1.23-SNAPSHOT,0.2.0)</version>			
 		</dependency>
 	
 		<dependency>
