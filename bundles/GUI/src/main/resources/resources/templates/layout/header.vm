@@ -11,6 +11,10 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
+ 
+## getting resourcebundle to translate site
+#set( $text = $resourceTool.bundle('OSGI-INF/l10n/header'))
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -40,13 +44,13 @@
 <body#if( $bodyonload) onload="$bodyonload"#end>
 
 <ul id="global_banner">
-	<li><a href="http://paste.paxle.net" title="Paste">Paste</a></li>
-	<li><a href="http://lists.paxle.net" title="Mailinglists">Mailinglists</a></li>
+	<li><a href="http://paste.paxle.de" title="Paste">Paste</a></li>
+	<li><a href="http://lists.paxle.net" title="${text.mailinglists}">${text.mailinglists}</a></li>
 	<li><a href="https://bugs.pxl.li" title="Bugs">Bugs</a></li>
 	<li><a href="http://wiki.paxle.net" title="Wiki">Wiki</a></li>
 	<li><a href="http://svn.paxle.net" title="SVN">SVN</a></li>
 	<li><a href="http://www.paxle.net" title="Homepage">Homepage</a></li>
-	<li class="active"><a href="${servletManager.getFullAlias('/')}" title="This Paxle">This Paxle</a></li>
+	<li class="active"><a href="${servletManager.getFullAlias('/')}" title="${text.thisPaxle}">${text.thisPaxle}</a></li>
 </ul>
 
 <div id="head">
