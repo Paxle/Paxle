@@ -18,7 +18,6 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -28,10 +27,9 @@ import javax.swing.JLabel;
 import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.IMWComponent;
 import org.paxle.desktop.Utilities;
-import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
-import org.paxle.desktop.impl.DesktopServices.MWComponents;
+import org.paxle.desktop.impl.ServiceManager.MWComponents;
 import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel.Stats;
 
 class ActivityPanel extends Stats implements ActionListener {
@@ -45,9 +43,9 @@ class ActivityPanel extends Stats implements ActionListener {
 	private final JLabel[] lblsActive;
 	private final JLabel[] lblsEnqueued;
 	
-	private final DesktopServices services;
+	private final ServiceManager services;
 	
-	public ActivityPanel(final DesktopServices services) {
+	public ActivityPanel(final ServiceManager services) {
 		this.services = services;
 		
 		final int cnt = MWComponents.values().length;
@@ -151,8 +149,6 @@ class ActivityPanel extends Stats implements ActionListener {
 	
 	@Override
 	public boolean update() {
-		final ServiceManager manager = services.getServiceManager();
-		
 		final MWComponents[] comps = MWComponents.values();
 		boolean anyOk = false;
 		final Number[] ppms = new Number[comps.length];
@@ -161,13 +157,13 @@ class ActivityPanel extends Stats implements ActionListener {
 			
 			boolean ok = false;
 			try {
-				final IMWComponent<?>[] mwComps = manager.getServices(IMWComponent.class, comps[i].toQuery());
+				final IMWComponent<?>[] mwComps = services.getServices(IMWComponent.class, comps[i].toQuery());
 				if (mwComps != null && mwComps.length > 0) {
 					int cnt;
 					if (comps[i] == MWComponents.INDEXER) {
 						cnt = 1;
 					} else {
-						final Object subManager = manager.getService(comps[i].getID() + ".ISub" + comps[i].toString() + "Manager");
+						final Object subManager = services.getService(comps[i].getID() + ".ISub" + comps[i].toString() + "Manager");
 						if (subManager == null) {
 							cnt = 0;
 						} else try {

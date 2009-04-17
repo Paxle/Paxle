@@ -69,7 +69,6 @@ import org.paxle.core.io.IOTools;
 import org.paxle.core.metadata.Attribute;
 import org.paxle.core.metadata.Metadata;
 import org.paxle.desktop.Utilities;
-import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
 import org.paxle.desktop.impl.dialogues.DIServicePanel;
@@ -348,7 +347,6 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		SAVE, RESET, REFRESH, LIST_SELECT
 	}
 	
-	private final ServiceManager manager; 
 	private final ConfigurationAdmin cadmin;
 	private final MetaTypeService metatypeService;
 	private final Map<String,BundleConfig> confMap;
@@ -360,12 +358,11 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 	private JList list;
 	private JScrollPane optViewPanel;
 	
-	public SettingsPanel(final DesktopServices services) {
+	public SettingsPanel(final ServiceManager services) {
 		super(services, DIM_SETTINGS);
-		this.manager = services.getServiceManager();
-		this.cadmin = manager.getService(ConfigurationAdmin.class);
-		this.metatypeService = manager.getService(MetaTypeService.class);
-		this.confMap = Collections.synchronizedMap(initConfMap(manager.getBundles()));
+		this.cadmin = services.getService(ConfigurationAdmin.class);
+		this.metatypeService = services.getService(MetaTypeService.class);
+		this.confMap = Collections.synchronizedMap(initConfMap(services.getBundles()));
 		init();
 	}
 	
@@ -490,7 +487,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 					if (pid!= null) {			
 						HashSet<String> objectClassSet = new HashSet<String>(Arrays.asList((String[])ref.getProperty(Constants.OBJECTCLASS)));
 						if (objectClassSet.contains(MetaTypeProvider.class.getName()) && !confs.containsKey(pid)) {
-							confs.put(pid, new BundleConfig(ICON_SIZE, bundle, pid, manager.getService(ref, MetaTypeProvider.class)));
+							confs.put(pid, new BundleConfig(ICON_SIZE, bundle, pid, services.getService(ref, MetaTypeProvider.class)));
 						}
 					}
 				}

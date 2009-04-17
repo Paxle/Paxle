@@ -24,7 +24,7 @@ import javax.swing.JPanel;
 
 import org.osgi.framework.ServiceRegistration;
 import org.paxle.desktop.DIComponent;
-import org.paxle.desktop.impl.DesktopServices;
+import org.paxle.desktop.impl.ServiceManager;
 
 public abstract class DIServicePanel extends JPanel implements DIComponent {
 	
@@ -32,17 +32,17 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 	
 	public static final String PANEL_SIZE = "windowSize";
 	
-	protected final DesktopServices services;
+	protected final ServiceManager services;
 	protected Frame frame;
 	private final HashMap<Object,ServiceRegistration> regs = new HashMap<Object,ServiceRegistration>();
 	
-	public DIServicePanel(final DesktopServices services) {
+	public DIServicePanel(final ServiceManager services) {
 		this(services, null);
 	}
 	
-	public DIServicePanel(final DesktopServices services, final Dimension defaultWindowSize) {
+	public DIServicePanel(final ServiceManager services, final Dimension defaultWindowSize) {
 		this.services = services;
-		final String dimProp = services.getServiceManager().getServiceProperties().getProperty(getClass().getName() + "_" + PANEL_SIZE);
+		final String dimProp = services.getServiceProperties().getProperty(getClass().getName() + "_" + PANEL_SIZE);
 		Dimension dim = null;
 		if (dimProp != null) {
 			final int sep = dimProp.indexOf(',');
@@ -60,7 +60,7 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 		final ServiceRegistration reg = regs.get(key);
 		if (reg != null)
 			reg.unregister();
-		regs.put(key, services.getServiceManager().registerService(service, properties, clazzes));
+		regs.put(key, services.registerService(service, properties, clazzes));
 	}
 	
 	protected synchronized void unregisterService(final Object key) {
@@ -95,7 +95,7 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 	
 	public void close() {
 		final String dim = String.format("%d,%d", Integer.valueOf(super.getWidth()), Integer.valueOf(super.getHeight()));
-		services.getServiceManager().getServiceProperties().setProperty(getClass().getName() + "_" + PANEL_SIZE, dim);
+		services.getServiceProperties().setProperty(getClass().getName() + "_" + PANEL_SIZE, dim);
 		unregisterServices();
 	}
 }

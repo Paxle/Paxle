@@ -19,11 +19,13 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.desktop.IDesktopServices.Dialogues;
 
 public class DICommandProvider implements CommandProvider {
+
+	private final DesktopServices desktop;
+	private final DialogueServices dialogues;
 	
-	private final DesktopServices services;
-	
-	public DICommandProvider(final DesktopServices services) {
-		this.services = services;
+	public DICommandProvider(final DesktopServices desktop, final DialogueServices dialogue) {
+		this.desktop = desktop;
+		this.dialogues = dialogue;
 	}
 	
 	public void _desktop(final CommandInterpreter ci) throws InvalidSyntaxException {
@@ -52,10 +54,10 @@ public class DICommandProvider implements CommandProvider {
 					ci.println("dialogue '" + which + "' not available");
 					return;
 				}
-				services.openDialogue(dialogue);
+				dialogues.openDialogue(dialogue);
 			}
 		} else if (action.equals("tray")) {
-			services.setTrayMenuVisible(!services.isTrayMenuVisible());
+			desktop.setTrayMenuVisible(!desktop.isTrayMenuVisible());
 		} else {
 			ci.println("parameter '" + action + "' not understood");
 			return;

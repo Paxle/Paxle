@@ -31,7 +31,6 @@ import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.Utilities;
-import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
 import org.paxle.desktop.impl.dialogues.DIServicePanel;
@@ -103,7 +102,7 @@ public class StatisticsPanel extends DIServicePanel implements DIComponent, Runn
 	private final List<? extends Stats> stats;
 	private final Timer timer = new Timer("Desktop_StatsUpdater", true);
 	
-	public StatisticsPanel(final DesktopServices services) {
+	public StatisticsPanel(final ServiceManager services) {
 		super(services, WINDOW_SIZE);
 		stats = Arrays.asList(
 				new MemoryPanel(),
@@ -145,9 +144,8 @@ public class StatisticsPanel extends DIServicePanel implements DIComponent, Runn
 	 * 
 	 * @param context
 	 */
-	private void initChartServlet(final DesktopServices services) {
-		final ServiceManager manager = services.getServiceManager();
-		Bundle[] bundles = manager.getBundles();
+	private void initChartServlet(final ServiceManager services) {
+		Bundle[] bundles = services.getBundles();
 		for (Bundle bundle : bundles) {
 			// create charts now if the jfree bundle is already installed
 			if (bundle.getSymbolicName().equalsIgnoreCase("com.springsource.org.jfree")) {
@@ -157,7 +155,7 @@ public class StatisticsPanel extends DIServicePanel implements DIComponent, Runn
 		}		
 		
 		// register a bundle-listener to detect if the jfree-bundle will be removed
-		manager.addBundleListener(new BundleListener() {
+		services.addBundleListener(new BundleListener() {
 			public void bundleChanged(BundleEvent event) {
 				if (event.getBundle().getSymbolicName().equals("com.springsource.org.jfree")) {
 					if (event.getType() == BundleEvent.RESOLVED) {

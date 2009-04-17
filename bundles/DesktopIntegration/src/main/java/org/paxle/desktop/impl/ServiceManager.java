@@ -25,8 +25,11 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.paxle.core.IMWComponent;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.Properties;
+import org.paxle.core.queue.ICommand;
+import org.paxle.desktop.Utilities;
 
 public class ServiceManager {
 	
@@ -232,5 +235,120 @@ public class ServiceManager {
 	
 	public void removeBundleListener(final BundleListener bundleListener) {
 		this.context.removeBundleListener(bundleListener);
+	}
+	
+	/* ========================================================================== *
+	 * Convenience methods
+	 * ========================================================================== */
+	
+	@SuppressWarnings("unchecked")
+	private static final Class<IMWComponent> MWCOMP_CLASS = IMWComponent.class;
+	
+	@SuppressWarnings("unchecked")
+	public IMWComponent<ICommand> getMWComponent(final MWComponents comp) {
+		try {
+			final IMWComponent<?>[] comps = getServices(MWCOMP_CLASS, comp.toQuery());
+			if (comps != null && comps.length > 0)
+				return (IMWComponent<ICommand>)comps[0];
+		} catch (InvalidSyntaxException e) {
+			Utilities.showExceptionBox(e);
+			e.printStackTrace();
+		}
+		return null; 
+	}
+	
+	public boolean isServiceAvailable(MWComponents comp) {
+		try {
+			return hasService(MWCOMP_CLASS, comp.toQuery());
+		} catch (InvalidSyntaxException e) {
+			Utilities.showExceptionBox(e);
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	/**
+	 * Contains conveninience-constants for locating the {@link IMWComponent}s of the bundles
+	 * CrawlerCore, ParserCore and Indexer.
+	 */
+	public static enum MWComponents {
+		/** Refers to the {@link IMWComponent} provided by the bundle "CrawlerCore" */
+		CRAWLER,
+		/** Refers to the {@link IMWComponent} provided by the bundle "ParserCore" */
+		PARSER,
+		/** Refers to the {@link IMWComponent} provided by the bundle "Indexer" */
+		INDEXER
+		
+		;
+		
+		/**
+		 * @return the {@link org.osgi.framework.Constants#BUNDLE_SYMBOLICNAME symbolic-name}
+		 *         of this {@link IMWComponent}, which also denotes the value for
+		 *         {@link IMWComponent#COMPONENT_ID}
+		 */
+		public String getID() {
+			return String.format("org.paxle.%s", name().toLowerCase());
+		}
+		
+		/**
+		 * @return a LDAP-style expression which matches this components's
+		 *         {@link IMWComponent#COMPONENT_ID}
+		 */
+		public String toQuery() {
+			return toQuery(IMWComponent.COMPONENT_ID);
+		}
+		
+		/**
+		 * @param key the key of the resulting expression
+		 * @return a LDAP-style expression which matches the given <code>key</code> to this
+		 *         component's {@link IMWComponent#COMPONENT_ID}
+		 * @see #getID()
+		 */
+		public String toQuery(final String key) {
+			return String.format("(%s=%s)", key, getID());
+		}
+		
+		/**
+		 * @return the human-readable name of this component, such as "Crawler", "Parser" or
+		 *         "Indexer" 
+		 */
+		@Override
+		public String toString() {
+			return Character.toUpperCase(name().charAt(0)) + name().substring(1).toLowerCase();
+		}
+		
+		/**
+		 * @param id the {@link #getID() ID} of the component's representative constant to return
+		 * @return the {@link MWComponents}-constant whose ID is given by <code>id</code> or <code>null</code>
+		 *         if no such component is known 
+		 * @see #getID()
+		 */
+		public static MWComponents valueOfID(final String id) {
+			return valueOf(id.substring("org.paxle.".length()).toUpperCase());
+		}
+		
+		/**
+		 * @param name the {@link #toString() name} of the component's representative constant to return
+		 * @return the {@link MWComponents}-constant whose human-readable name is given by <code>name</code>
+		 *         or <code>null</code> if no such component is known
+		 * @see #toString()
+		 */
+		public static MWComponents valueOfHumanReadable(final String name) {
+			return valueOf(name.toUpperCase());
+		}
+		
+		/**
+		 * @return an array of the human-readable {@link #toString() names} of all known {@link IMWComponent}s
+		 *         in the order {@link #values()} returns the {@link Enum#valueOf(Class, String)}-constants
+		 * @see #values()
+		 * @see #toString() 
+		 */
+		public static String[] humanReadableNames() {
+			final MWComponents[] comps = values();
+			final String[] compStrs = new String[comps.length];
+			for (int i=0; i<comps.length; i++)
+				compStrs[i] = comps[i].toString();
+			return compStrs;
+		}
 	}
 }

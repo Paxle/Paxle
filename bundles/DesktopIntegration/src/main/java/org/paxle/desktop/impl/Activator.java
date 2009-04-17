@@ -99,6 +99,9 @@ public class Activator implements BundleActivator {
 		
 		final Iterator<Map.Entry<Float,String>> implIt = KNOWN_IMPLS.entrySet().iterator();
 		boolean started = false;
+		
+		// TODO: instantiate (and register) ServiceManager, DialogServices and the DICommandProvider here
+		
 		while (implIt.hasNext()) {
 			final Map.Entry<Float,String> impl = implIt.next();
 			
@@ -113,7 +116,7 @@ public class Activator implements BundleActivator {
 			}
 			
 			try {
-				// display icon				
+				// display icon
 				initUI(bc, impl.getValue());
 				started = true;
 				logger.info(String.format("Successfully started bundle using backend '%s'", impl));
@@ -166,7 +169,12 @@ public class Activator implements BundleActivator {
 		final IDIBackend dibackend = (IDIBackend) uiClassLoader.loadClass(diBackendCName).newInstance();		
 		final ServiceManager sm = new ServiceManager(context);
 		
-		this.initObject = new DesktopServices(sm,dibackend);
+		final DialogueServices dialogue = new DialogueServices(sm);
+		
+		// TODO: when CrawlerCore installed, set crawlHelper
+		CrawlStartHelper crawlHelper = null;
+		
+		this.initObject = new DesktopServices(sm, dibackend, dialogue, crawlHelper);
 		context.registerService(IDesktopServices.class.getName(), initObject, null);
 	}
 	

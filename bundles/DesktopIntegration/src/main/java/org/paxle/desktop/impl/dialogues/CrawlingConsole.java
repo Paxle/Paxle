@@ -67,9 +67,9 @@ import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.desktop.Utilities;
-import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.Messages;
-import org.paxle.desktop.impl.DesktopServices.MWComponents;
+import org.paxle.desktop.impl.ServiceManager;
+import org.paxle.desktop.impl.ServiceManager.MWComponents;
 
 public class CrawlingConsole extends DIServicePanel implements EventHandler, ActionListener {
 	
@@ -121,14 +121,14 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	private MWComponents currentComp;
 	private boolean currentEnq, currentDstr;
 	
-	public CrawlingConsole(final DesktopServices services) {
+	public CrawlingConsole(final ServiceManager services) {
 		super(services, DIM_CCONSOLE);
 		
-		cbox = new JComboBox(DesktopServices.MWComponents.humanReadableNames());
+		cbox = new JComboBox(MWComponents.humanReadableNames());
 		cbox.addActionListener(this);
-		tracker = services.getServiceManager().getService(ICommandTracker.class);
+		tracker = services.getService(ICommandTracker.class);
 		
-		final Properties props = services.getServiceManager().getServiceProperties();
+		final Properties props = services.getServiceProperties();
 		final String mwcomp = props.getProperty(PROP_DISPLAYED_MWCOMP, MWComponents.CRAWLER.name());
 		final String tableDisplay = props.getProperty(PROP_TABLE_DISPLAY,
 				// TableDisplay.WORKING_ON.name()
@@ -145,13 +145,13 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		//		: TableDisplay.valueOf(tableDisplay)
 				: TableColumns.DEFAULT
 		);
-		init(DesktopServices.MWComponents.valueOf(mwcomp),
+		init(MWComponents.valueOf(mwcomp),
 				Boolean.parseBoolean(showEnqueued),
 				Boolean.parseBoolean(showDestroyed));
 	}
 	
 	private int[] readColumnWidths(final TableColumnSpecs specs) {
-		final Properties props = services.getServiceManager().getServiceProperties();
+		final Properties props = services.getServiceProperties();
 		final String widthsProp = props.getProperty(PROP_COL_WIDTHS + specs.name(), null);
 		if (widthsProp == null || widthsProp.length() == 0)
 			return null;
@@ -171,13 +171,13 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 			if (++i < widths.length)
 				sb.append(',');
 		}
-		final Properties props = services.getServiceManager().getServiceProperties();
+		final Properties props = services.getServiceProperties();
 		props.put(PROP_COL_WIDTHS + specs.name(), sb.toString());
 	}
 	
 	@Override
 	public void close() {
-		final Properties props = super.services.getServiceManager().getServiceProperties();
+		final Properties props = super.services.getServiceProperties();
 		props.put(PROP_DISPLAYED_MWCOMP, MWComponents.valueOfHumanReadable((String)cbox.getSelectedItem()).name());
 		props.put(PROP_TABLE_DISPLAY, model.type.name());
 		props.put(PROP_SHOW_ENQUEUED, Boolean.toString(cbEnq.isSelected()));
@@ -238,7 +238,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		if (getState && setState)
 			throw new IllegalArgumentException("cannot set and get state at the same time"); //$NON-NLS-1$
 		final String item = (String)cbox.getSelectedItem();
-		final IMWComponent<?> mwComp = services.getMWComponent(DesktopServices.MWComponents.valueOfHumanReadable(item));
+		final IMWComponent<?> mwComp = services.getMWComponent(MWComponents.valueOfHumanReadable(item));
 		final boolean state = (getState && mwComp != null) ? mwComp.isPaused() : paused;
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -304,7 +304,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	}
 	
 	private void init(
-			final DesktopServices.MWComponents comp,
+			final MWComponents comp,
 			final boolean showEnqueued,
 			final boolean showDestroyed) {
 		scroll.setViewportView(table);

@@ -33,8 +33,8 @@ import org.osgi.framework.BundleEvent;
 
 import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.Utilities;
-import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.Messages;
+import org.paxle.desktop.impl.ServiceManager;
 import org.paxle.desktop.impl.dialogues.DIServicePanel;
 import org.paxle.desktop.impl.dialogues.ScrollablePanel;
 
@@ -57,17 +57,17 @@ public class BundlePanel extends DIServicePanel implements DIComponent, Document
 	
 	boolean multipleChanged = false;
 	
-	public BundlePanel(final DesktopServices services) {
+	public BundlePanel(final ServiceManager services) {
 		super(services);
-		super.services.getServiceManager().addBundleListener(bundleListModel);
+		super.services.addBundleListener(bundleListModel);
 		init();
-		for (final Bundle bundle : services.getServiceManager().getBundles())
+		for (final Bundle bundle : services.getBundles())
 			bundleListModel.bundleChanged(bundle, BundleEvent.RESOLVED);
 	}
 	
 	@Override
 	public void close() {
-		super.services.getServiceManager().removeBundleListener(bundleListModel);
+		super.services.removeBundleListener(bundleListModel);
 		bundleListModel.clearList();
 		super.close();
 	}

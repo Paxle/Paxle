@@ -23,6 +23,7 @@ import javax.swing.JLabel;
 import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.Messages;
+import org.paxle.desktop.impl.ServiceManager;
 import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel.Stats;
 
 class DatabasePanel extends Stats {
@@ -36,9 +37,9 @@ class DatabasePanel extends Stats {
 	private final JLabel lblUrisKnown = new JLabel();
 	private final JLabel lblEnqueued = new JLabel();
 	
-	private final DesktopServices services;
+	private final ServiceManager services;
 	
-	public DatabasePanel(final DesktopServices services) {
+	public DatabasePanel(final ServiceManager services) {
 		this.services = services;
 		init();
 	}
@@ -62,7 +63,7 @@ class DatabasePanel extends Stats {
 	
 	@Override
 	public boolean isStatsDataSupported() {
-		return services.getServiceManager().getService(IINDEXER_SEARCHER) != null;
+		return services.getService(IINDEXER_SEARCHER) != null;
 	}
 	
 	@Override
@@ -82,13 +83,13 @@ class DatabasePanel extends Stats {
 	public boolean update() {
 		Object docCount = null, size = null, enqueued = null;
 		
-		final Object indexSearcher = services.getServiceManager().getService(IINDEXER_SEARCHER);
+		final Object indexSearcher = services.getService(IINDEXER_SEARCHER);
 		if (indexSearcher != null) try {
 			final Method getDocCount = indexSearcher.getClass().getMethod("getDocCount"); //$NON-NLS-1$
 			docCount = getDocCount.invoke(indexSearcher);
 		} catch (Exception e) { e.printStackTrace(); }
 		
-		final Object cmddb = services.getServiceManager().getService(ICOMMAND_DB);
+		final Object cmddb = services.getService(ICOMMAND_DB);
 		if (cmddb != null) try {
 			final Class<?> clazz = cmddb.getClass();
 			final Method mSize = clazz.getMethod("size");
