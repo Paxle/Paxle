@@ -157,7 +157,7 @@ public class CrawlerTools {
 		
 		
 		// testing if the charset is supported by java
-		if (isUnsupportedCharset(doc.getCharset())) {
+		if (doc.getCharset() != null && isUnsupportedCharset(doc.getCharset())) {
 			logger.warn(String.format(
 					"The resource '%s' has an unsupported charset '%s'. Resetting charset ...", 
 					doc.getLocation(),
