@@ -180,9 +180,9 @@ public class HtmlParser implements ISubParser, PoolableObjectFactory {
 				final Serializable robNoindex = cmdProfile.getProperty(PROP_VALIDATE_META_ROBOTS_NOINDEX);
 				final Serializable robNofollow = cmdProfile.getProperty(PROP_VALIDATE_META_ROBOTS_NOFOLLOW);
 				if (robNoindex != null)
-					obeyRobotsNoindex = Boolean.parseBoolean(robNoindex.toString());
+					obeyRobotsNoindex = ((Boolean)robNoindex).booleanValue();
 				if (robNofollow != null)
-					obeyRobotsNofollow = Boolean.parseBoolean(robNofollow.toString());
+					obeyRobotsNofollow = ((Boolean)robNofollow).booleanValue();
 			}
 			
 			try {
