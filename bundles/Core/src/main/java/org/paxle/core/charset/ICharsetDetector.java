@@ -12,6 +12,8 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 package org.paxle.core.charset;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -25,4 +27,5 @@ public interface ICharsetDetector {
 	public String[] getSupportedCharsets();
 	public ACharsetDetectorOutputStream createOutputStream(OutputStream out);
 	public ACharsetDetectorInputStream createInputStream(InputStream in);
+	public String detectCharset(File file) throws IOException;
 }

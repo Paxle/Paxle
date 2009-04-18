@@ -14,6 +14,9 @@
 package org.paxle.charset.impl;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -86,6 +89,20 @@ public class CharsetDetector implements ICharsetDetector {
 	 */	
 	public CharsetDetectorInputStream createInputStream(InputStream in) {
 		return new CharsetDetectorInputStream(in);
+	}
+	
+	public String detectCharset(File file) throws IOException {
+		CharsetDetectorInputStream is = null;
+		try {
+			is = createInputStream(new FileInputStream(file));
+			byte[] buf = new byte[256];
+			
+			while (is.read(buf) != -1)
+				if (is.charsetDetected())
+					return is.getCharset();
+			
+			return null;
+		} finally { if (is != null) is.close(); }
 	}
 
 	/**

@@ -166,64 +166,65 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 			throw new URISyntaxException(url, "No protocol specified");
 		protocol = url.substring(0, colonpos).toLowerCase();
 		
-		final int protocolEnd;
+		int protocolEnd = colonpos + 1;
+		int slashAfterHost = url.indexOf('/', protocolEnd);
 		if (url.length() > (colonpos + 1) && url.charAt(colonpos + 1) == '/' && url.charAt(colonpos + 2) == '/') {
 			protocolEnd = colonpos + 3;
-		} else {
+
+			slashAfterHost = url.indexOf('/', protocolEnd);
+			// extract username / password
+			final int at = url.indexOf('@', protocolEnd);
+			final int hostStart;
+			final int credSepColon = url.indexOf(':', protocolEnd); //the colon which separates username and password
+			if (at != -1 && at < slashAfterHost) {
+				if (credSepColon > (protocolEnd + 1) && credSepColon < at) {
+					username = url.substring(protocolEnd, credSepColon);
+					password = url.substring(credSepColon + 1, at);
+				} else {
+					username = url.substring(protocolEnd, at);
+				}
+				hostStart = at + 1;
+			} else {
+				hostStart = protocolEnd;
+			}
+			
+			// extract the hostname
+			final int portColon = url.indexOf(':', hostStart);
+			final int hostEndTmp = (slashAfterHost == -1) ? url.length() : slashAfterHost;
+			final int hostEnd = (portColon > hostStart && portColon < hostEndTmp) ? portColon : hostEndTmp;
+			// TODO: de-punycode
+			// host = IDN.toUnicode(url.substring(hostStart, hostEnd).toLowerCase());		// de-punycode (sub-)domain(s) - java 1.6 code
+			host = url.substring(hostStart, hostEnd).toLowerCase();
+			
+			// extract the port
+			final int portEnd = (slashAfterHost == -1) ? url.length() : slashAfterHost;
+			if (portColon != -1 && portColon < portEnd) {
+				final String portNr = url.substring(portColon + 1, portEnd);
+				if (!PORT_PATTERN.matcher(portNr).matches())
+					throw new URISyntaxException(url, "Illegal port-number");
+				port = Integer.parseInt(portNr);
+				if (port < 1 || port > 65535)
+					throw new URISyntaxException(url, "Port-number out of range");
+			}
+			
+			if (includePort ^ port != -1) {
+				final Integer defPort = DEFAULT_PORTS.get(protocol);
+				if (includePort) {
+					// no port value in input, try to get it from the default ports for the protocol
+					if (defPort == null)
+						throw new URISyntaxException(url, "no port number given and no default port for protocol '" + protocol + "'");
+					port = defPort.intValue();
+				} else {
+					// don't make default port-number for the protocol part of the resulting url
+					if (defPort != null && port == defPort.intValue())
+						port = -1;
+				}
+			}
+		} else if (slashAfterHost == -1) {
 			throw new URISyntaxException(url, "No valid protocol identifier given");
 		}
 		
-		// extract username / password
-		final int slashAfterHost = url.indexOf('/', protocolEnd);
-		final int at = url.indexOf('@', protocolEnd);
-		final int hostStart;
-		final int credSepColon = url.indexOf(':', protocolEnd); //the colon which separates username and password
-		if (at != -1 && at < slashAfterHost) {
-			if (credSepColon > (protocolEnd + 1) && credSepColon < at) {
-				username = url.substring(protocolEnd, credSepColon);
-				password = url.substring(credSepColon + 1, at);
-			} else {
-				username = url.substring(protocolEnd, at);
-			}
-			hostStart = at + 1;
-		} else {
-			hostStart = protocolEnd;
-		}
-		
-		// extract the hostname
-		final int portColon = url.indexOf(':', hostStart);
-		final int hostEndTmp = (slashAfterHost == -1) ? url.length() : slashAfterHost;
-		final int hostEnd = (portColon > hostStart && portColon < hostEndTmp) ? portColon : hostEndTmp;
-		// TODO: de-punycode
-		// host = IDN.toUnicode(url.substring(hostStart, hostEnd).toLowerCase());		// de-punycode (sub-)domain(s) - java 1.6 code
-		host = url.substring(hostStart, hostEnd).toLowerCase();
-		
-		// extract the port
-		final int portEnd = (slashAfterHost == -1) ? url.length() : slashAfterHost;
-		if (portColon != -1 && portColon < portEnd) {
-			final String portNr = url.substring(portColon + 1, portEnd);
-			if (!PORT_PATTERN.matcher(portNr).matches())
-				throw new URISyntaxException(url, "Illegal port-number");
-			port = Integer.parseInt(portNr);
-			if (port < 1 || port > 65535)
-				throw new URISyntaxException(url, "Port-number out of range");
-		}
-		
-		if (includePort ^ port != -1) {
-			final Integer defPort = DEFAULT_PORTS.get(protocol);
-			if (includePort) {
-				// no port value in input, try to get it from the default ports for the protocol
-				if (defPort == null)
-					throw new URISyntaxException(url, "no port number given and no default port for protocol '" + protocol + "'");
-				port = defPort.intValue();
-			} else {
-				// don't make default port-number for the protocol part of the resulting url
-				if (defPort != null && port == defPort.intValue())
-					port = -1;
-			}
-		}
-		
-		final int hashmark = url.indexOf('#', (slashAfterHost == -1) ? hostEnd : slashAfterHost);
+		final int hashmark = url.indexOf('#', (slashAfterHost == -1) ? url.length() : slashAfterHost);
 		if (slashAfterHost != -1) {
 			// extract the path
 			final int qmark = url.indexOf('?', slashAfterHost);
@@ -306,16 +307,19 @@ public class ReferenceNormalizer implements IReferenceNormalizer, IFilter<IComma
 		
 		// output
 		final StringBuilder sb = new StringBuilder();
-		sb.append(protocol).append("://");
-		if (username != null) {
-			sb.append(username);
-			if (password != null)
-				sb.append(':').append(password);
-			sb.append('@');
+		sb.append(protocol).append(":");
+		if (host != null) {
+			sb.append("//");
+			if (username != null) {
+				sb.append(username);
+				if (password != null)
+					sb.append(':').append(password);
+				sb.append('@');
+			}
+			sb.append(host);
+			if (port != -1)
+				sb.append(':').append(port);
 		}
-		sb.append(host);
-		if (port != -1)
-			sb.append(':').append(port);
 		sb.append(path);
 		if (query != null)
 			sb.append('?').append(query);
