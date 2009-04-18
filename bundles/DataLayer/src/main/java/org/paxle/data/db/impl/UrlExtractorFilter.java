@@ -122,14 +122,9 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 		IParserDocument parserDoc = command.getParserDocument();
 		if (parserDoc == null) return;
 		
-		if ((parserDoc.getFlags() & IParserDocument.FLAG_NOFOLLOW) != 0) {
-			logger.info(String.format("Omitting link-extraction from '%s' due to 'nofollow'-flag", command.getLocation()));
-			return;
-		}
-		
 		// getting the link map
 		final Counter c = new Counter();
-		this.extractLinks(command, parserDoc, c);
+		this.extractLinks(command, null, parserDoc, c);
 		logger.info(String.format(
 				"Selected %d URI out of %d URI from '%s' for storage to DB.",
 				Integer.valueOf(c.enqueued), 
@@ -138,19 +133,26 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 		));
 	}
 	
-	private void extractLinks(final ICommand command, IParserDocument parserDoc, final Counter c) {
+	private void extractLinks(final ICommand command, String internalName, IParserDocument parserDoc, final Counter c) {
 		if (parserDoc == null) return;
 		
 		// getting the link map
 		Map<URI, LinkInfo> linkMap = parserDoc.getLinks();
 		if (linkMap != null) {
-			this.extractLinks(command, linkMap, c);
+			c.total += linkMap.size();
+			
+			if ((parserDoc.getFlags() & IParserDocument.FLAG_NOFOLLOW) == 0) {
+				this.extractLinks(command, linkMap, c);
+			} else {
+				logger.info(String.format("Omitting link-extraction from '%s' due to 'nofollow'-flag",
+						(internalName == null) ? command.getLocation() : internalName));
+			}
 		}
 		
 		Map<String,IParserDocument> subDocs = parserDoc.getSubDocs();
 		if (subDocs != null) {
-			for (IParserDocument subDoc : subDocs.values()) {
-				this.extractLinks(command, subDoc, c);
+			for (Entry<String,IParserDocument> subDocEntry : subDocs.entrySet()) {
+				this.extractLinks(command, subDocEntry.getKey(), subDocEntry.getValue(), c);
 			}
 		}
 	}
@@ -222,7 +224,7 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 					while (sink == null) UrlExtractorFilter.this.wait();
 				}
 				
-				while(!this.isInterrupted()) {
+				while (!this.isInterrupted()) {
 					try {
 						
 						// waiting for the next job
@@ -250,7 +252,7 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 				}
 			} catch (InterruptedException e) {
 				logger.info(String.format(
-						"Shutdown of' %s' finished. '%d' could not be stored.",
+						"Shutdown of '%s' finished. '%d' could not be stored.",
 						this.getName(),
 						Integer.valueOf(extractedUriQueue.size())
 				));
