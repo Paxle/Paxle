@@ -1,0 +1,99 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>CrawlerFs</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - Crawler: File System</name>
+	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.1-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<!-- localized bundle headers -->
+						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Name>%bundleName</Bundle-Name>
+						<Bundle-Description>%bundleDesc</Bundle-Description>
+						
+						<Bundle-Category>crawler</Bundle-Category>					
+						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
+						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
+						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+						
+						<Export-Package>
+							org.paxle.crawler.fs;version="${pom.version}"
+						</Export-Package>
+						<Import-Package>
+							<!-- OSGi framework -->
+							org.osgi.framework;version="1.4",
+							org.osgi.service.cm;version="1.2",
+							<!-- Logging framework -->
+							org.apache.commons.logging,
+							<!-- Paxle Core Bundle -->
+							org.paxle.core.charset;version="[0.1.0,0.2.0)",
+							org.paxle.core.io.temp;version="[0.1.0,0.2.0)",
+							org.paxle.core.mimetype;version="[0.1.0,0.2.0)",
+							org.paxle.core.queue;version="[0.1.0,0.2.0)",
+							org.paxle.core.doc;version="[0.1.0,0.2.0)",
+							org.paxle.core.prefs;version="[0.1.0,0.2.0)",
+							<!-- Paxle Crawler-Core Bundle -->
+							org.paxle.crawler;version="[0.1.0,0.2.0)"
+						</Import-Package>
+						<DynamicImport-Package>
+							javax.net.ssl
+						</DynamicImport-Package>
+						<Private-Package>
+							org.paxle.crawler.fs.impl
+						</Private-Package><!--
+						<Bundle-Activator>
+							org.paxle.crawler.fs.impl.Activator
+						</Bundle-Activator>-->
+					</instructions>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>[0.1.19,0.2.0)</version>				
+		</dependency>	
+	
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>CrawlerCore</artifactId>
+			<version>[0.1.4,0.2.0)</version>
+		</dependency>
+	</dependencies>
+</project>
