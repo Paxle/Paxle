@@ -854,6 +854,7 @@
 				<module>../CrawlerFtp</module>
 				<module>../CrawlerSmb</module>
 				<module>../CrawlerProxyHttp</module>
+				<module>../CrawlerFs</module>
 			</modules>			
 		</profile>
 
