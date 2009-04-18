@@ -60,13 +60,13 @@ public class FsCrawler implements IFsCrawler {
 		if (ctx == null) {
 			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,
 					"Cannot access CrawlerContext from " + Thread.currentThread().getName());
-			return null;
+			return cdoc;
 		}
 		final ITempFileManager tfm = ctx.getTempFileManager();
 		if (tfm == null) {
 			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,
 					"Cannot access ITempFileMananger from " + Thread.currentThread().getName());
-			return null;
+			return cdoc;
 		}
 		
 		final ICommandProfile cmdProfile = ctx.getCommandProfile();
@@ -280,7 +280,7 @@ public class FsCrawler implements IFsCrawler {
 				mimeTypeTested = true;
 			}
 			
-			if (charset == null && acis.charsetDetected())
+			if (charset == null && chardet != null && acis.charsetDetected())
 				charset = acis.getCharset();
 			
 			if ((mimedet == null || mimeType != null) && (chardet == null || charset != null))
