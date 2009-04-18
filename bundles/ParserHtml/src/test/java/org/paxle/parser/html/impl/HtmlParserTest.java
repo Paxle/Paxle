@@ -14,7 +14,9 @@
 package org.paxle.parser.html.impl;
 
 import java.io.File;
+import java.io.Reader;
 import java.net.URI;
+import java.nio.CharBuffer;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -36,6 +38,7 @@ public class HtmlParserTest extends AParserTest {
 		"javascript_tcom.html",
 		"pc-welt_archiv02_knowhow.html",
 		"pc-welt_archiv07_knowhow.html",
+		"maktoobblog.com.html",
 //		"imdb_biographies_s.html",		// XXX: you need to set Xmx to 128m to run this
 //		"perltoc-search.cpan.org.html",	// XXX: you need to set Xmx to 128m to run this
 	};
@@ -53,6 +56,19 @@ public class HtmlParserTest extends AParserTest {
 	protected void tearDown() throws Exception {
 		this.parser.deactivate(null);
 		super.tearDown();
+	}
+	
+	public static void printText(final IParserDocument pdoc) throws Exception {
+		final Reader r = pdoc.getTextAsReader();
+		if (r == null) {
+			System.out.println("null");
+			return;
+		}
+		CharBuffer buf = CharBuffer.allocate(80);
+		while (r.read(buf) != -1) {
+			buf.flip();
+			System.out.print(buf);
+		}
 	}
 	
 	public void testHtmlBaseHref() throws Exception {

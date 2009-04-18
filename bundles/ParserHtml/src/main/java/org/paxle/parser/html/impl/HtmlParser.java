@@ -32,6 +32,7 @@ import org.htmlparser.Parser;
 import org.htmlparser.lexer.InputStreamSource;
 import org.htmlparser.lexer.Lexer;
 import org.htmlparser.lexer.Source;
+import org.htmlparser.scanners.ScriptScanner;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
@@ -96,6 +97,7 @@ public class HtmlParser implements ISubParser, PoolableObjectFactory {
 	
 	protected void activate(ComponentContext context) {
 		this.pool = new GenericObjectPool(this);
+		ScriptScanner.STRICT = false;
 	}
 
 	protected void deactivate(ComponentContext context) throws Exception {
