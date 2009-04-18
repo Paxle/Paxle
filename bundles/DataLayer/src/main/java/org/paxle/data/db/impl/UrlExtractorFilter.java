@@ -164,7 +164,6 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 		for (Entry<URI, LinkInfo> link : linkMap.entrySet()) {
 			URI ref = link.getKey();
 			LinkInfo meta = link.getValue();
-			c.total++;
 			
 			// check if the URI exceeds max length
 			if (ref.toString().length() > 512) {
