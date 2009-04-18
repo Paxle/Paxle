@@ -122,6 +122,11 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 		IParserDocument parserDoc = command.getParserDocument();
 		if (parserDoc == null) return;
 		
+		if ((parserDoc.getFlags() & IParserDocument.FLAG_NOFOLLOW) != 0) {
+			logger.info(String.format("Omitting link-extraction from '%s' due to 'nofollow'-flag", command.getLocation()));
+			return;
+		}
+		
 		// getting the link map
 		final Counter c = new Counter();
 		this.extractLinks(command, parserDoc, c);

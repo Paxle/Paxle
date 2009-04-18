@@ -89,17 +89,25 @@ public class IndexerWorker extends AWorker<ICommand> {
 			 * Generate Indexer Document
 			 * ================================================================ */
 			
-			this.logger.info("Indexing of URL '" + command.getLocation() + "' (" + command.getCrawlerDocument().getMimeType() + ")");
-			
 			// generate the "main" indexer document from the "main" parser document including the
 			// data from the command object
 			if ((command.getParserDocument().getFlags() & IParserDocument.FLAG_NOINDEX) == 0) {
+				this.logger.info(String.format("Indexing of URL '%s' (%s) ...",
+						command.getLocation(),
+						command.getCrawlerDocument().getMimeType()));
+				
 				indexerDoc = this.generateIIndexerDoc(
 						command.getLocation(),
 						command.getCrawlerDocument().getCrawlerDate(),
 						null,
 						command.getParserDocument()
 				);
+			} else {
+				this.logger.info(String.format("Indexing of URL '%s' (%s) ommitted due to 'noindex'-flag",
+						command.getLocation(),
+						command.getCrawlerDocument().getMimeType()));
+				
+				// don't exit here already, we still have to process the sub-parser-docs
 			}
 			
 			// generate indexer docs from all parser-sub-documents and add them to the command

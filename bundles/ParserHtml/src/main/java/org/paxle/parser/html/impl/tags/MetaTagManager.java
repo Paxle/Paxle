@@ -163,13 +163,13 @@ public class MetaTagManager {
 		Names n;
 		n = getName(tag.getAttribute("name"));
 		if (n != null) {
-			add(n, value.replaceAll("\\s", " ").trim(), tag);
+			add(n, value.replaceAll("\\s", " ").trim().toLowerCase(), tag);
 			return;
 		}
 		
 		n = getName(tag.getHttpEquiv());
 		if (n != null) {
-			add(n, value.replaceAll("\\s", " ").trim(), tag);
+			add(n, value.replaceAll("\\s", " ").trim().toLowerCase(), tag);
 			return;
 		}
 	}
@@ -225,10 +225,10 @@ public class MetaTagManager {
 	private static Names getName(String attr) {
 		if (attr == null) return null;
 		for (final Names n : Names.values()) {
-			String ns = n.toString().replace('_', '.').toUpperCase();
+			String ns = n.toString().replace('_', '.').toLowerCase();
 			if (n.isPrefixed())
 				ns = n.getPrefix() + "." + ns;
-			if (attr.toUpperCase().matches(ns))
+			if (attr.toLowerCase().matches(ns))
 				return n;
 		}
 		return null;
