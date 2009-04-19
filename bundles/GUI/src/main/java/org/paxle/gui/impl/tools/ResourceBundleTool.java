@@ -15,6 +15,7 @@ package org.paxle.gui.impl.tools;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.apache.velocity.app.VelocityEngine;
@@ -47,7 +48,17 @@ public class ResourceBundleTool extends ResourceTool {
 	}
 
 	@Override
-    public Object get(Object k, String baseName, Object l)
+    public Object get(Object k, String baseName, Object l) {
+		try {
+			// trying to load the resource using the servlet classloader
+			return this.get(k, baseName, l, this.cl);
+		} catch (MissingResourceException e) {
+			// trying to fallback to the classloader of this tool class
+			return this.get(k, baseName, l, this.getClass().getClassLoader());
+		}
+	}
+
+    public Object get(Object k, String baseName, Object l, ClassLoader classloader)
     {
         if (baseName == null || k == null)
         {
@@ -69,7 +80,7 @@ public class ResourceBundleTool extends ResourceTool {
             }
         }
 
-        ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale, this.cl);
+        ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale, classloader);
         if (bundle != null)
         {
             try
