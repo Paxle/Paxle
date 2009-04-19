@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +38,7 @@ import org.paxle.core.queue.ICommandProfile;
 
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
-import org.paxle.crawler.CrawlerTools.FileListIt;
+import org.paxle.crawler.CrawlerTools.DirlistEntry;
 import org.paxle.crawler.fs.IFsCrawler;
 
 /**
@@ -121,12 +122,51 @@ public class FsCrawler implements IFsCrawler {
 	}
 	
 	static InputStream generateListing(final File dir, final URI location, final boolean omitHidden) {
-		return CrawlerTools.generateListing(new FileListIt<File>(dir.listFiles()) {
-			@Override protected boolean isDisallowed() { return omitHidden && current.isHidden(); }
-			@Override public String getFileName() { return current.getName(); }
-			@Override public long getLastModified() { return current.lastModified(); }
-			@Override public long getSize() { return current.length(); }
-		}, location);
+		final File[] list = dir.listFiles();
+		return CrawlerTools.generateListing(new Iterator<DirlistEntry>() {
+			
+			final class DirlistEntry0 implements DirlistEntry {
+				
+				File current;
+				
+				public URI getFileURI() { return null; }
+				public String getFileName() { return current.getName(); }
+				public long getLastModified() { return current.lastModified(); }
+				public long getSize() { return current.length(); }
+			};
+			
+			final DirlistEntry0 entry = new DirlistEntry0();
+			final DirlistEntry0 next = new DirlistEntry0();
+			int idx = -1;
+			
+			{
+				next.current = next0();
+			}
+			
+			private File next0() {
+				while (idx + 1 < list.length) {
+					idx++;
+					if (omitHidden && list[idx].isHidden())
+						continue;
+					return list[idx];
+				}
+				return null;
+			}
+			
+			public boolean hasNext() {
+				return next.current != null;
+			};
+			
+			public DirlistEntry next() {
+				entry.current = next.current;
+				next.current = next0();
+				return entry;
+			};
+			
+			public void remove() {
+				throw new UnsupportedOperationException();
+			};
+		}, location.toASCIIString(), list.length > 50);
 	}
 	
 	private File generateContentFile(final String readMode, final File file, final ICrawlerDocument cdoc, ITempFileManager tfm) {

@@ -26,7 +26,10 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.util.Formatter;
+import java.util.Iterator;
 import java.util.concurrent.Semaphore;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -106,60 +109,24 @@ public class CrawlerTools {
 	}
 	
 	/**
-	 * The abstract class represents an iterator over a list of files.
-	 * It is used by {@link CrawlerTools#generateListing(FileListIt, URI)} to generate a
-	 * file-listing in a standard format understood by Paxle.
-	 * <p>
-	 * The file-list is specified either via the {@link FileListIt#FileListIt(Object[]) constructor},
-	 * or may be set manually in the field {@link FileListIt#files}.
-	 * Additionally a field {@link FileListIt#current} exists which - if {@link FileListIt#next0()}
-	 * is not overwritten - always points to the current file-object in the array. {@link FileListIt#idx}
-	 * is the current index into the array.
-	 * <p>
-	 * To control whether a file should be present in the resulting listing, {@link FileListIt#isDisallowed()}
-	 * is used by the default implementation of {@link FileListIt#next()}. If it returns <code>false</code>
-	 * for the current file, this file is skipped.
-	 * 
-	 * @param <E> the object type of the file-list to use
+	 * Describes an entry in a dir-listing. Only one of the methods {@link DirlistEntry#getFileURI()}
+	 * and {@link DirlistEntry#getFileName()} needs to return something valid.
 	 */
-	public static abstract class FileListIt<E> {
+	public static interface DirlistEntry {
 		
-		protected E[] files;
-		protected E current;
-		protected int idx = 0;
-		
-		public FileListIt() {
-		}
-		
-		public FileListIt(final E[] files) {
-			this.files = files;
-			idx = -1;
-			next0();
-		}
-		
-		protected boolean next0() {
-			if (idx + 1 >= files.length)
-				return false;
-			current = files[++idx];
-			return true;
-		}
-		
-		public boolean next() {
-			do if (!next0()) return false; while (isDisallowed());
-			return true;
-		}
-		
-		protected boolean isDisallowed() {
-			return false;
-		}
-		
-		public URI getFileURI() {
-			return null;
-		}
-		
+		public abstract URI getFileURI();
 		public abstract String getFileName();
 		public abstract long getSize();
 		public abstract long getLastModified();
+	}
+	
+	/**
+	 * Uses compression
+	 * @see CrawlerTools#generateListing(FileListIt, String, boolean)
+	 * @return the listing as {@link InputStream}
+	 */
+	public static InputStream generateListing(final Iterator<DirlistEntry> fileListIt, final String location) {
+		return generateListing(fileListIt, location, true);
 	}
 	
 	/**
@@ -170,11 +137,15 @@ public class CrawlerTools {
 	 * 
 	 * @param fileListIt the file-listing providing the required information to include in the result
 	 * @param location the location where this listing has been obtained
+	 * @param compress determines whether the content should transparently be compressed (via GZip)
+	 *        to save memory. The format of the result is not impaired as it is being decompressed
+	 *        during reading. Compression reduces the size of the representation of large directories
+	 *        by up to a sixth.
 	 * @return an {@link InputStream} containing the binary representation in UTF-8 encoding of the
 	 *         resulting listing. It can be fed directly into any of the
 	 *         <code>CrawlerTools.saveInto()</code>-methods
 	 */
-	public static InputStream generateListing(final FileListIt<?> fileListIt, final URI location) {
+	public static InputStream generateListing(final Iterator<DirlistEntry> fileListIt, final String location, boolean compress) {
 		final class BAOS extends ByteArrayOutputStream {
 			
 			public byte[] getBuffer() {
@@ -183,15 +154,22 @@ public class CrawlerTools {
 		}
 		
 		final BAOS baos = new BAOS();
+		OutputStream writerOut = baos;
+		if (compress) try {
+			writerOut = new GZIPOutputStream(baos);
+		} catch (IOException e) {
+			throw new RuntimeException("I/O error when using gzip upon a byte-array-output-stream for " + location, e);
+		}
+		
 		final Formatter writer;
 		try {
-			writer = new Formatter(baos, "UTF-8");
+			writer = new Formatter(writerOut, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException("UTF-8 not supported, WTF?", e);
 		}
 		
 		// getting the base dir
-		String baseURL = location.toASCIIString();
+		String baseURL = location;
 		if (!baseURL.endsWith("/")) baseURL += "/";
 		
 		// getting the parent dir
@@ -206,12 +184,13 @@ public class CrawlerTools {
 		writer.format("<tr><td colspan=\"3\"><a href=\"%s\">Up to higher level directory</a></td></tr>\r\n",parentDir);
 		
 		// generate directory listing
-		while (fileListIt.next()) {
+		while (fileListIt.hasNext()) {
+			final DirlistEntry entry = fileListIt.next();
 			final String nexturi;
-			if (fileListIt.getFileURI() == null) {
-				nexturi = parentDir + fileListIt.getFileName();
+			if (entry.getFileURI() == null) {
+				nexturi = baseURL + entry.getFileName();
 			} else {
-				nexturi = fileListIt.getFileURI().toASCIIString();
+				nexturi = entry.getFileURI().toASCIIString();
 			}
 			writer.format(
 						"<tr>" +
@@ -220,15 +199,22 @@ public class CrawlerTools {
 							"<td>%4$tY-%4$tm-%4$td %4$tT</td>" +
 						"</tr>\r\n",
 					nexturi,
-					fileListIt.getFileName(),
-					Long.valueOf(fileListIt.getSize()),
-					Long.valueOf(fileListIt.getLastModified())
+					entry.getFileName(),
+					Long.valueOf(entry.getSize()),
+					Long.valueOf(entry.getLastModified())
 			);
 		}
 		
 		writer.format("</tbody></table><hr></body></html>");
 		writer.close();
-		return new ByteArrayInputStream(baos.getBuffer(), 0, baos.size());
+		
+		InputStream ret = new ByteArrayInputStream(baos.getBuffer(), 0, baos.size());
+		if (compress) try {
+			ret = new GZIPInputStream(ret);
+		} catch (IOException e) {
+			throw new RuntimeException("I/O error when using gzip upon a byte-array-input-stream for " + location, e);
+		}
+		return ret;
 	}
 	
 	/**
