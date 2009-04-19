@@ -14,13 +14,18 @@
 package org.paxle.crawler;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.util.Formatter;
 import java.util.concurrent.Semaphore;
 
 import org.apache.commons.logging.Log;
@@ -98,6 +103,132 @@ public class CrawlerTools {
 			} catch (InterruptedException e) { /* ignore, simply quit copying */ }
 			return rt;
 		}
+	}
+	
+	/**
+	 * The abstract class represents an iterator over a list of files.
+	 * It is used by {@link CrawlerTools#generateListing(FileListIt, URI)} to generate a
+	 * file-listing in a standard format understood by Paxle.
+	 * <p>
+	 * The file-list is specified either via the {@link FileListIt#FileListIt(Object[]) constructor},
+	 * or may be set manually in the field {@link FileListIt#files}.
+	 * Additionally a field {@link FileListIt#current} exists which - if {@link FileListIt#next0()}
+	 * is not overwritten - always points to the current file-object in the array. {@link FileListIt#idx}
+	 * is the current index into the array.
+	 * <p>
+	 * To control whether a file should be present in the resulting listing, {@link FileListIt#isDisallowed()}
+	 * is used by the default implementation of {@link FileListIt#next()}. If it returns <code>false</code>
+	 * for the current file, this file is skipped.
+	 * 
+	 * @param <E> the object type of the file-list to use
+	 */
+	public static abstract class FileListIt<E> {
+		
+		protected E[] files;
+		protected E current;
+		protected int idx = 0;
+		
+		public FileListIt() {
+		}
+		
+		public FileListIt(final E[] files) {
+			this.files = files;
+			idx = -1;
+			next0();
+		}
+		
+		protected boolean next0() {
+			if (idx + 1 >= files.length)
+				return false;
+			current = files[++idx];
+			return true;
+		}
+		
+		public boolean next() {
+			do if (!next0()) return false; while (isDisallowed());
+			return true;
+		}
+		
+		protected boolean isDisallowed() {
+			return false;
+		}
+		
+		public URI getFileURI() {
+			return null;
+		}
+		
+		public abstract String getFileName();
+		public abstract long getSize();
+		public abstract long getLastModified();
+	}
+	
+	/**
+	 * Generates a file-listing in a standard format understood by Paxle. Currently this format
+	 * consists of a rudimentary HTML-page linking to the files in the list given by
+	 * <code>fileListIt</code>. The resulting format of this list not yet finalized and subject
+	 * to change.
+	 * 
+	 * @param fileListIt the file-listing providing the required information to include in the result
+	 * @param location the location where this listing has been obtained
+	 * @return an {@link InputStream} containing the binary representation in UTF-8 encoding of the
+	 *         resulting listing. It can be fed directly into any of the
+	 *         <code>CrawlerTools.saveInto()</code>-methods
+	 */
+	public static InputStream generateListing(final FileListIt<?> fileListIt, final URI location) {
+		final class BAOS extends ByteArrayOutputStream {
+			
+			public byte[] getBuffer() {
+				return super.buf;
+			}
+		}
+		
+		final BAOS baos = new BAOS();
+		final Formatter writer;
+		try {
+			writer = new Formatter(baos, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("UTF-8 not supported, WTF?", e);
+		}
+		
+		// getting the base dir
+		String baseURL = location.toASCIIString();
+		if (!baseURL.endsWith("/")) baseURL += "/";
+		
+		// getting the parent dir
+		String parentDir = "/";
+		if (baseURL.length() > 1) {
+			parentDir = baseURL.substring(0,baseURL.length()-1);
+			int idx = parentDir.lastIndexOf("/");
+			parentDir = parentDir.substring(0,idx+1);
+		}
+		
+		writer.format("<html><head><title>Index of %s</title></head><hr><table><tbody>\r\n", location);
+		writer.format("<tr><td colspan=\"3\"><a href=\"%s\">Up to higher level directory</a></td></tr>\r\n",parentDir);
+		
+		// generate directory listing
+		while (fileListIt.next()) {
+			final String nexturi;
+			if (fileListIt.getFileURI() == null) {
+				nexturi = parentDir + fileListIt.getFileName();
+			} else {
+				nexturi = fileListIt.getFileURI().toASCIIString();
+			}
+			writer.format(
+						"<tr>" +
+							"<td><a href=\"%1$s\">%2$s</a></td>" +
+							"<td>%3$d Bytes</td>" +
+							"<td>%4$tY-%4$tm-%4$td %4$tT</td>" +
+						"</tr>\r\n",
+					nexturi,
+					fileListIt.getFileName(),
+					Long.valueOf(fileListIt.getSize()),
+					Long.valueOf(fileListIt.getLastModified())
+			);
+		}
+		
+		writer.format("</tbody></table><hr></body></html>");
+		writer.close();
+		return new ByteArrayInputStream(baos.getBuffer(), 0, baos.size());
 	}
 	
 	/**
