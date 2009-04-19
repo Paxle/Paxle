@@ -14,16 +14,12 @@
 
 package org.paxle.crawler.fs.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
-import java.io.Writer;
 import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.util.Date;
@@ -41,6 +37,7 @@ import org.paxle.core.queue.ICommandProfile;
 
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
+import org.paxle.crawler.CrawlerTools.FileListIt;
 import org.paxle.crawler.fs.IFsCrawler;
 
 /**
@@ -110,7 +107,7 @@ public class FsCrawler implements IFsCrawler {
 		cdoc.setLocation(location);
 		
 		if (file.isDirectory()) try {
-			CrawlerTools.saveInto(cdoc, generateListing(file, location));
+			CrawlerTools.saveInto(cdoc, generateListing(file, location, omitHidden));
 		} catch (IOException e) {
 			final String msg = String.format("Error generating dir-listing for '%s': %s", location, e.getMessage());
 			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
@@ -123,54 +120,13 @@ public class FsCrawler implements IFsCrawler {
 		return cdoc;
 	}
 	
-	static InputStream generateListing(final File dir, final URI location) throws IOException {
-		
-		final class BAOS extends ByteArrayOutputStream {
-			
-			public byte[] getBuffer() {
-				return super.buf;
-			}
-		}
-		
-		final BAOS baos = new BAOS();
-		Writer writer = new OutputStreamWriter(baos);
-		
-		// getting the base dir
-		String baseURL = location.toASCIIString();
-		if (!baseURL.endsWith("/")) baseURL += "/";
-		
-		// getting the parent dir
-		String parentDir = "/";
-		if (baseURL.length() > 1) {
-			parentDir = baseURL.substring(0,baseURL.length()-1);
-			int idx = parentDir.lastIndexOf("/");
-			parentDir = parentDir.substring(0,idx+1);
-		}
-		
-		writer.append(String.format("<html><head><title>Index of %s</title></head><hr><table><tbody>\r\n", location));
-		writer.append(String.format("<tr><td colspan=\"3\"><a href=\"%s\">Up to higher level directory</a></td></tr>\r\n",parentDir));
-
-		// generate directory listing
-		String[] files = dir.list();
-		for (String next : files) {
-			final File nextFile = new File(dir, next);
-			writer.append(
-					String.format(
-							"<tr>" + 
-								"<td><a href=\"%1$s\">%2$s</a></td>" + 
-								"<td>%3$d Bytes</td>" +
-								"<td>%4$tY-%4$tm-%4$td %4$tT</td>" +
-							"</tr>\r\n",
-							nextFile.toURI(),
-							nextFile.getName(),
-							Long.valueOf(nextFile.isDirectory() ? 0l : nextFile.length()),
-							Long.valueOf(nextFile.lastModified())
-					)
-			);
-		}
-		writer.append("</tbody></table><hr></body></html>");
-		writer.close();
-		return new ByteArrayInputStream(baos.getBuffer(), 0, baos.size());
+	static InputStream generateListing(final File dir, final URI location, final boolean omitHidden) {
+		return CrawlerTools.generateListing(new FileListIt<File>(dir.listFiles()) {
+			@Override protected boolean isDisallowed() { return omitHidden && current.isHidden(); }
+			@Override public String getFileName() { return current.getName(); }
+			@Override public long getLastModified() { return current.lastModified(); }
+			@Override public long getSize() { return current.length(); }
+		}, location);
 	}
 	
 	private File generateContentFile(final String readMode, final File file, final ICrawlerDocument cdoc, ITempFileManager tfm) {
