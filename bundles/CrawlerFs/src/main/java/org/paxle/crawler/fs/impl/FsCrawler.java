@@ -109,23 +109,21 @@ public class FsCrawler implements IFsCrawler {
 		cdoc.setLastModDate(new Date(file.lastModified()));
 		cdoc.setLocation(location);
 		
-		final File content;
 		if (file.isDirectory()) try {
-			content = generateListing(file, location, cdoc);
+			CrawlerTools.saveInto(cdoc, generateListing(file, location));
 		} catch (IOException e) {
 			final String msg = String.format("Error generating dir-listing for '%s': %s", location, e.getMessage());
 			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
 			logger.error(msg, e);
 			return cdoc;
 		} else {
-			content = generateContentFile(readMode, file, cdoc, tfm);
+			cdoc.setContent(generateContentFile(readMode, file, cdoc, tfm));
 		}
-		cdoc.setContent(content);
 		
 		return cdoc;
 	}
 	
-	private File generateListing(final File dir, final URI location, final ICrawlerDocument cdoc) throws IOException {
+	static InputStream generateListing(final File dir, final URI location) throws IOException {
 		
 		final class BAOS extends ByteArrayOutputStream {
 			
@@ -171,9 +169,8 @@ public class FsCrawler implements IFsCrawler {
 			);
 		}
 		writer.append("</tbody></table><hr></body></html>");
-		
-		CrawlerTools.saveInto(cdoc, new ByteArrayInputStream(baos.getBuffer(), 0, baos.size()));
-		return cdoc.getContent();
+		writer.close();
+		return new ByteArrayInputStream(baos.getBuffer(), 0, baos.size());
 	}
 	
 	private File generateContentFile(final String readMode, final File file, final ICrawlerDocument cdoc, ITempFileManager tfm) {
