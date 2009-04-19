@@ -17,6 +17,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 
@@ -50,7 +51,7 @@ public class CharsetDetectorTest  extends TestCase {
 	}
 	
 
-	public void testDetectCharsets() throws Exception {
+	public void testDetectCharsetsFromStream() throws Exception {
 
 		for (String[] testCase : testCases) {
 			File testFile = new File("src/test/resources/" + testCase[TESTFILE_NAME]);
@@ -75,6 +76,17 @@ public class CharsetDetectorTest  extends TestCase {
 			
 			// get the detected charser
 			String detectedCharset = output.getCharset();
+			assertNotNull(detectedCharset);
+			assertEquals(testCase[TESTFILE_CHARSET], detectedCharset);
+		}
+	}
+	
+	public void testDetectCharsetsFromFile() throws IOException {
+		for (String[] testCase : testCases) {
+			File testFile = new File("src/test/resources/" + testCase[TESTFILE_NAME]);
+			assertTrue(testFile.exists());
+			
+			String detectedCharset = this.detector.detectCharset(testFile);
 			assertNotNull(detectedCharset);
 			assertEquals(testCase[TESTFILE_CHARSET], detectedCharset);
 		}
