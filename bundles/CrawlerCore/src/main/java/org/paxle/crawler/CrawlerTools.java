@@ -146,6 +146,13 @@ public class CrawlerTools {
 	 *         <code>CrawlerTools.saveInto()</code>-methods
 	 */
 	public static InputStream generateListing(final Iterator<DirlistEntry> fileListIt, final String location, boolean compress) {
+		/* This method essentially traverses all items the iterator provides and saves their content
+		 * temporarily in a byte-array memory.
+		 * 
+		 * The class BAOS is used to get the byte-array from the ByteArrayOutputStream without
+		 * the need to copy it into another buffer, as the toByteArray()-method would do. This is not
+		 * needed here and we can therefore access the buffer directly via BAOS.getBuffer().
+		 */
 		final class BAOS extends ByteArrayOutputStream {
 			
 			public byte[] getBuffer() {
@@ -155,11 +162,23 @@ public class CrawlerTools {
 		
 		final BAOS baos = new BAOS();
 		OutputStream writerOut = baos;
-		if (compress) try {
-			writerOut = new GZIPOutputStream(baos);
-		} catch (IOException e) {
-			throw new RuntimeException("I/O error when using gzip upon a byte-array-output-stream for " + location, e);
+		
+		/* Since the generated format is plain text, contains much redundant information and can potentially
+		 * become quite large (several hundred KB), a parameter offering compression can be specified.
+		 * This has the effect, that the aforementioned byte-array will be many times smaller in memory,
+		 * since there is much redundant text and it is plain ascii.
+		 * 
+		 * The transparent compression is accomplished by inserting a gzip-compressor before writing to the
+		 * byte-array, and a decompressor before returning the result at the end of this method. */
+		if (compress) {
+			try {
+				writerOut = new GZIPOutputStream(baos);
+			} catch (IOException e) {
+				// can not occur, since we are writing to memory
+				throw new RuntimeException("I/O error when using gzip upon a byte-array-output-stream for " + location, e);
+			}
 		}
+		
 		
 		final Formatter writer;
 		try {
@@ -188,10 +207,11 @@ public class CrawlerTools {
 		while (fileListIt.hasNext()) {
 			final DirlistEntry entry = fileListIt.next();
 			final String nexturi;
-			if (entry.getFileURI() == null) {
+			final URI entryuri = entry.getFileURI();
+			if (entryuri == null) {
 				nexturi = baseURL + entry.getFileName();
 			} else {
-				nexturi = entry.getFileURI().toASCIIString();
+				nexturi = entryuri.toASCIIString();
 			}
 			writer.format(
 						"<tr>" +
@@ -209,12 +229,22 @@ public class CrawlerTools {
 		writer.format("</tbody></table><hr></body></html>");
 		writer.close();
 		
+		
+		/* An InputStream has to be returned, so the byte-array is being wrapped into a ByteArrayInputStream.
+		 * If compress was set to true, this still is the gzip-compressed data. */
 		InputStream ret = new ByteArrayInputStream(baos.getBuffer(), 0, baos.size());
-		if (compress) try {
-			ret = new GZIPInputStream(ret);
-		} catch (IOException e) {
-			throw new RuntimeException("I/O error when using gzip upon a byte-array-input-stream for " + location, e);
+		
+		/* Since compression needs to be transparent, we wrap a gzip-decompressor around the ByteArrayInputStream
+		 * which performs it's decompression without notice by the user of this method during the reading of the
+		 * stream. */
+		if (compress) {
+			try {
+				ret = new GZIPInputStream(ret);
+			} catch (IOException e) {
+				throw new RuntimeException("I/O error when using gzip upon a byte-array-input-stream for " + location, e);
+			}
 		}
+		
 		return ret;
 	}
 	
