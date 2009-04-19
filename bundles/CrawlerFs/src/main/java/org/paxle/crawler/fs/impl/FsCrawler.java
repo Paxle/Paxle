@@ -71,13 +71,13 @@ public class FsCrawler implements IFsCrawler {
 		
 		final ICommandProfile cmdProfile = ctx.getCommandProfile();
 		boolean omitHidden = true;
-		ReadMode readMode = ReadMode.STD;
+		String readMode = VAL_READ_MODE_STD;
 		if (cmdProfile != null) {
 			Serializable val;
 			if ((val = cmdProfile.getProperty(PROP_VALIDATE_NOT_HIDDEN)) != null)
 				omitHidden = ((Boolean)val).booleanValue();
 			if ((val = cmdProfile.getProperty(PROP_READ_MODE)) != null)
-				readMode = (ReadMode)val;
+				readMode = (String)val;
 		}
 		
 		ICrawlerDocument.Status status = ICrawlerDocument.Status.OK;
@@ -176,68 +176,61 @@ public class FsCrawler implements IFsCrawler {
 		return cdoc.getContent();
 	}
 	
-	private File generateContentFile(final ReadMode readMode, final File file, final ICrawlerDocument cdoc, ITempFileManager tfm) {
+	private File generateContentFile(final String readMode, final File file, final ICrawlerDocument cdoc, ITempFileManager tfm) {
 		final File content;
-		switch (readMode) {
-			case DIRECT: {
-				// TODO: prevent content from being deleted
-				content = file;
-			} break;
-			
-			case STD: {
-				FileInputStream fis = null;
+		if (VAL_READ_MODE_DIRECT.equals(readMode)) {
+			// TODO: prevent content from being deleted
+			content = file;
+		} else if (VAL_READ_MODE_STD.equals(readMode)) {
+			FileInputStream fis = null;
+			try {
+				fis = new FileInputStream(file);
+				CrawlerTools.saveInto(cdoc, fis);
+				content = cdoc.getContent();
+			} catch (IOException e) {
+				logger.error(String.format("Error saving '%s': %s", cdoc.getLocation(), e.getMessage()), e);
+				cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, e.getMessage());
+				return null;
+			} finally {
+				if (fis != null) try { fis.close(); } catch (IOException e) {/* ignore */}
+			}
+		} else if (VAL_READ_MODE_CHANNELED.equals(readMode) ||
+				VAL_READ_MODE_CHANNELED_FSYNC.equals(readMode)) {
+			FileInputStream fis = null;
+			FileOutputStream fos = null;
+			File out = null;
+			try {
+				out = tfm.createTempFile();
+				fis = new FileInputStream(file);
+				fos = new FileOutputStream(out);
+				
+				final FileChannel in_fc = fis.getChannel();
+				final FileChannel out_fc = fos.getChannel();
+				
+				long txed = 0L;
+				while (txed < in_fc.size())
+					txed += in_fc.transferTo(txed, in_fc.size() - txed, out_fc);
+				
+				if (VAL_READ_MODE_CHANNELED_FSYNC.equals(readMode))
+					out_fc.force(false);
+				out_fc.close();
+				
 				try {
-					fis = new FileInputStream(file);
-					CrawlerTools.saveInto(cdoc, fis);
-					content = cdoc.getContent();
-				} catch (IOException e) {
-					logger.error(String.format("Error saving '%s': %s", cdoc.getLocation(), e.getMessage()), e);
-					cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, e.getMessage());
-					return null;
-				} finally {
-					if (fis != null) try { fis.close(); } catch (IOException e) {/* ignore */}
+					detectFormats(cdoc, fis);
+				} catch (IOException ee) {
+					logger.warn(String.format("Error detecting format of '%s': %s", cdoc.getLocation(), ee.getMessage()));
 				}
-			} break;
-			
-			case CHANNELED:
-			case CHANNELED_FSYNC: {
-				FileInputStream fis = null;
-				FileOutputStream fos = null;
-				File out = null;
-				try {
-					out = tfm.createTempFile();
-					fis = new FileInputStream(file);
-					fos = new FileOutputStream(out);
-					
-					final FileChannel in_fc = fis.getChannel();
-					final FileChannel out_fc = fos.getChannel();
-					
-					long txed = 0L;
-					while (txed < in_fc.size())
-						txed += in_fc.transferTo(txed, in_fc.size() - txed, out_fc);
-					
-					if (readMode == ReadMode.CHANNELED_FSYNC)
-						out_fc.force(false);
-					out_fc.close();
-					
-					try {
-						detectFormats(cdoc, fis);
-					} catch (IOException ee) {
-						logger.warn(String.format("Error detecting format of '%s': %s", cdoc.getLocation(), ee.getMessage()));
-					}
-				} catch (IOException e) {
-					logger.error(String.format("Error copying '%s' to '%s': %s", cdoc.getLocation(), out, e.getMessage()), e);
-					cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, e.getMessage());
-					return null;
-				} finally {
-					if (fis != null) try { fis.close(); } catch (IOException e) {/* ignore */}
-					if (fos != null) try { fos.close(); } catch (IOException e) {/* ignore */}
-				}
-				content = out;
-			} break;
-			
-			default:
-				throw new RuntimeException("switch statement does not cover read-mode: " + readMode);
+			} catch (IOException e) {
+				logger.error(String.format("Error copying '%s' to '%s': %s", cdoc.getLocation(), out, e.getMessage()), e);
+				cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, e.getMessage());
+				return null;
+			} finally {
+				if (fis != null) try { fis.close(); } catch (IOException e) {/* ignore */}
+				if (fos != null) try { fos.close(); } catch (IOException e) {/* ignore */}
+			}
+			content = out;
+		} else {
+			throw new RuntimeException("switch statement does not cover read-mode: " + readMode);
 		}
 		return content;
 	}

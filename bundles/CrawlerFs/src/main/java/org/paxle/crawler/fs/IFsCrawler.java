@@ -18,10 +18,10 @@ import org.paxle.crawler.ISubCrawler;
 
 public interface IFsCrawler extends ISubCrawler {
 	
-	public static final String PROP_VALIDATE_NOT_HIDDEN = IFsCrawler.class.getName() + ".validate.not-hidden"; 
+	public static final String PROP_VALIDATE_NOT_HIDDEN = IFsCrawler.class.getName() + ".validate.not-hidden";
 	public static final String PROP_READ_MODE = IFsCrawler.class.getName() + ".read.mode";
-	
-	public static enum ReadMode {
-		STD, CHANNELED, CHANNELED_FSYNC, DIRECT
-	}
+	public static final String VAL_READ_MODE_STD = "std";
+	public static final String VAL_READ_MODE_CHANNELED = "channeled";
+	public static final String VAL_READ_MODE_CHANNELED_FSYNC = "channeled.fsync";
+	public static final String VAL_READ_MODE_DIRECT = "direct";
 }
