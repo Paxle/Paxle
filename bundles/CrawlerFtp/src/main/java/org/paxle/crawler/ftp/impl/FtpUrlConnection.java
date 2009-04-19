@@ -13,13 +13,13 @@
  */
 package org.paxle.crawler.ftp.impl;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Calendar;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +27,8 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.paxle.crawler.CrawlerTools;
+import org.paxle.crawler.CrawlerTools.DirlistEntry;
 
 public class FtpUrlConnection extends URLConnection {
 	private static final String DIR_MIMETYPE = "text/html";
@@ -131,43 +133,36 @@ public class FtpUrlConnection extends URLConnection {
 		if (!this.client.isConnected()) this.connect();
 
 		if (this.isDirectory) {
-			StringWriter writer = new StringWriter();
+			final FTPFile[] list = client.listFiles();
+			return CrawlerTools.generateListing(new Iterator<DirlistEntry>() {
+				
+				final class DirlistEntry0 implements DirlistEntry {
+					
+					FTPFile current;
+					
+					public URI getFileURI() { return null; }
+					public String getFileName() { return current.getName(); }
+					public long getLastModified() { return current.getTimestamp().getTimeInMillis(); }
+					public long getSize() { return current.getSize(); }
+				};
+				
+				final DirlistEntry0 entry = new DirlistEntry0();
+				int idx = 0;
+				
+				public boolean hasNext() {
+					return idx < list.length;
+				}
+				
+				public DirlistEntry next() {
+					entry.current = list[idx++];
+					return entry;
+				}
+				
+				public void remove() {
+					throw new UnsupportedOperationException();
+				}
+			}, this.path);
 			
-			// getting the base dir
-			String baseURL = this.path;
-			if (!baseURL.endsWith("/")) baseURL += "/";
-			
-			// getting the parent dir
-			String parentDir = "/";
-			if (baseURL.length() > 1) {
-				parentDir = baseURL.substring(0,baseURL.length()-1);
-				int idx = parentDir.lastIndexOf("/");
-				parentDir = parentDir.substring(0,idx+1);
-			}
-			
-			writer.append(String.format("<html><head><title>Index of %s</title></head><hr><table><tbody>\r\n",this.url));
-			writer.append(String.format("<tr><td colspan=\"3\"><a href=\"%s\">Up to higher level directory</a></td></tr>\r\n",parentDir));
-
-			// generate directory listing
-			FTPFile[] files = client.listFiles(path);
-			for (FTPFile nextFile : files) {
-				writer.append(
-						String.format(
-								"<tr>" + 
-									"<td><a href=\"%1$s\">%2$s</a></td>" + 
-									"<td>%3$d Bytes</td>" +
-									"<td>%4$tY-%4$tm-%4$td %4$tT</td>" +
-								"</tr>\r\n",
-								baseURL + nextFile.getName(),
-								nextFile.getName(),
-								Long.valueOf(nextFile.isDirectory() ? 0l : nextFile.getSize()),
-								nextFile.getTimestamp()
-						)
-				);
-			}
-			writer.append("</tbody></table><hr></body></html>");			
-		
-			return new FtpInputStream(new ByteArrayInputStream(writer.toString().getBytes("UTF-8")),this);		
 		} else {
 			// switching to binary file transfer
 			client.setFileType(FTPClient.BINARY_FILE_TYPE); 

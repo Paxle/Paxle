@@ -137,10 +137,10 @@ public class CrawlerTools {
 	 * 
 	 * @param fileListIt the file-listing providing the required information to include in the result
 	 * @param location the location where this listing has been obtained
-	 * @param compress determines whether the content should transparently be compressed (via GZip)
-	 *        to save memory. The format of the result is not impaired as it is being decompressed
+	 * @param compress determines whether the content should be compressed transparently (via GZip)
+	 *        to save memory. The format of the result is not impaired as the data is being decompressed
 	 *        during reading. Compression reduces the size of the representation of large directories
-	 *        by up to a sixth.
+	 *        up to a sixth.
 	 * @return an {@link InputStream} containing the binary representation in UTF-8 encoding of the
 	 *         resulting listing. It can be fed directly into any of the
 	 *         <code>CrawlerTools.saveInto()</code>-methods
@@ -184,6 +184,7 @@ public class CrawlerTools {
 		writer.format("<tr><td colspan=\"3\"><a href=\"%s\">Up to higher level directory</a></td></tr>\r\n",parentDir);
 		
 		// generate directory listing
+		// FIXME: we need to escape the urls properly here.
 		while (fileListIt.hasNext()) {
 			final DirlistEntry entry = fileListIt.next();
 			final String nexturi;
