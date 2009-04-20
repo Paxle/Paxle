@@ -19,7 +19,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URI;
+import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.Calendar;
 
@@ -44,7 +46,7 @@ public class PdfParser implements ISubParser {
 
 	public IParserDocument parse(URI location, String charset, InputStream fileIn)
 			throws ParserException, UnsupportedEncodingException, IOException {
-		CachedParserDocument parserDoc = null;
+		IParserDocument parserDoc = null;
 		PDDocument pddDoc = null;
 		
 		try {
@@ -104,7 +106,8 @@ public class PdfParser implements ISubParser {
 			
 			// init text stripper
 			PDFTextStripper stripper = new PDFTextStripper();
-			stripper.writeText(pddDoc, parserDoc.getTextWriter());
+			final AppenderWriter pdocWrapper = new AppenderWriter(parserDoc);
+			stripper.writeText(pddDoc, pdocWrapper);
 			
 			parserDoc.setStatus(IParserDocument.Status.OK);
 			return parserDoc;
@@ -112,6 +115,58 @@ public class PdfParser implements ISubParser {
 			throw new ParserException("Error parsing pdf document. " + e.getMessage(), e);
 		} finally {
 			if (pddDoc != null) try { pddDoc.close(); } catch (Exception e) {/* ignore this */}
+		}
+	}
+	
+	private static class AppenderWriter extends Writer {
+		
+		private final IParserDocument pdoc;
+		
+		public AppenderWriter(final IParserDocument pdoc) {
+			this.pdoc = pdoc;
+		}
+		
+		@Override
+		public void write(int c) throws IOException {
+			pdoc.append((char)(c & 0xFFFF));
+		}
+		
+		@Override
+		public void write(char[] cbuf, int off, int len) throws IOException {
+			pdoc.append(CharBuffer.wrap(cbuf, off, len));
+		}
+		
+		@Override
+		public Writer append(char c) throws IOException {
+			pdoc.append(c);
+			return this;
+		}
+		
+		@Override
+		public Writer append(CharSequence csq) throws IOException {
+			pdoc.append(csq);
+			return this;
+		}
+		
+		@Override
+		public Writer append(CharSequence csq, int start, int end) throws IOException {
+			pdoc.append(csq, start, end);
+			return this;
+		}
+		
+		@Override
+		public void write(String str, int off, int len) throws IOException {
+			pdoc.append(str, off, off + len);
+		}
+		
+		@Override
+		public void close() throws IOException {
+			// ignore
+		}
+		
+		@Override
+		public void flush() throws IOException {
+			// ignore
 		}
 	}
 	
