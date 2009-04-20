@@ -37,6 +37,7 @@ public final class CachedParserDocument extends ParserDocument implements IParse
 	}
 	
 	@Override
+	@Deprecated
 	public void addText(CharSequence text) throws IOException {
 		if (text == null) return;
 		addText(text.toString());
@@ -45,6 +46,24 @@ public final class CachedParserDocument extends ParserDocument implements IParse
 	public void addText(String text) throws IOException {
 		if (text == null) return;
 		this.text.append(text);
+	}
+	
+	@Override
+	public Appendable append(char c) throws IOException {
+		this.text.append(c);
+		return this;
+	}
+	
+	@Override
+	public Appendable append(CharSequence csq) throws IOException {
+		this.text.append(csq);
+		return this;
+	}
+	
+	@Override
+	public Appendable append(CharSequence csq, int start, int end) throws IOException {
+		this.text.append(csq, start, end);
+		return this;
 	}
 		
 	@Override

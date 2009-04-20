@@ -59,6 +59,7 @@ public class Activator implements BundleActivator {
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
+	@SuppressWarnings("serial")
 	public void start(BundleContext bc) throws Exception {
 		// init the sub-parser manager
 		this.subParserManager = this.createAndRegisterSubParserManager(bc);
@@ -156,7 +157,7 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 		// shutdown the thread pool
 		if (this.mwComponent != null) {
-			IMaster master = this.mwComponent.getMaster();
+			IMaster<?> master = this.mwComponent.getMaster();
 			master.terminate();
 		}
 		if (this.subParserManager != null) {

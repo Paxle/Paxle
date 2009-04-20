@@ -26,7 +26,7 @@ import java.util.Set;
 
 import javax.annotation.CheckForNull;
 
-public interface IParserDocument extends Closeable {
+public interface IParserDocument extends Closeable, Appendable {
 
 	public static enum Status {
 		/** Parsing finished without major errors so that the resulting document is usable. */
@@ -136,7 +136,11 @@ public interface IParserDocument extends Closeable {
 	 * when calling this method several times, as the input is simply appended.
 	 * @param text the text of the document as {@link String} in Java's default character encoding,
 	 *        Unicode
+	 * @deprecated Deprecated as of Paxle-1.1. Please use the
+	 *             {@link Appendable#append(CharSequence) append()}-methods of the interface
+	 *             {@link Appendable} instead, which this {@link IParserDocument} contains.
 	 */
+	@Deprecated
 	public abstract void addText(CharSequence text) throws IOException;
 
 	/**

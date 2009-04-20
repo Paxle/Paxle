@@ -141,8 +141,8 @@ public class ParserWorker extends AWorker<ICommand> {
 			}
 			this.logger.debug(String.format(
 					"%d parser(s) found for mime-type '%s': %s",
-					parsers.size(),
-					mimeType, 
+					Integer.valueOf(parsers.size()),
+					mimeType,
 					parsers
 			));
 			
@@ -285,11 +285,13 @@ public class ParserWorker extends AWorker<ICommand> {
 				
 				// general data
 				logMsg.append(String.format(
-							"Finished parsing of resource '%s' [mime-type: '%s', charset: '%s', size: %,d KB] in %d ms.\r\n",
+							"Finished parsing of resource '%s' [mime-type: '%s', charset: '%s', size: %,d KB%s%s] in %d ms.\r\n",
 							command.getLocation(),
 							cDocMimeType,
 							pDocCharset,
 							cDocSize,
+							(parserDoc != null && (parserDoc.getFlags() & IParserDocument.FLAG_NOINDEX) != 0) ? ", noindex" : "",
+							(parserDoc != null && (parserDoc.getFlags() & IParserDocument.FLAG_NOFOLLOW) != 0) ? ", nofollow" : "",
 							pDocProcessingTime
 				));
 				

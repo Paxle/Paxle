@@ -146,18 +146,42 @@ public class ParserDocument implements IParserDocument {
 		this.subDocs.put(whitespaces2Space(location), pdoc);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#addText(java.lang.CharSequence)
-	 */
-	public void addText(CharSequence text) throws IOException {
+	private void checkContentOut() throws IOException {
 		if (this.content == null) {
 			this.content = IOTools.getTempFileManager().createTempFile();
 		}
 		if (this.contentOut == null) {
 			this.contentOut = new OutputStreamWriter(new FileOutputStream(this.content),"UTF-8");
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.parser.IParserDocument#addText(java.lang.CharSequence)
+	 * @deprecated
+	 */
+	@Deprecated
+	public void addText(CharSequence text) throws IOException {
+		checkContentOut();
 		this.contentOut.write(text.toString());
+	}
+	
+	public Appendable append(char c) throws IOException {
+		checkContentOut();
+		this.contentOut.append(c);
+		return this;
+	}
+	
+	public Appendable append(CharSequence csq) throws IOException {
+		checkContentOut();
+		this.contentOut.append(csq);
+		return this;
+	}
+	
+	public Appendable append(CharSequence csq, int start, int end) throws IOException {
+		checkContentOut();
+		this.contentOut.append(csq, start, end);
+		return this;
 	}
 	
 	/**
