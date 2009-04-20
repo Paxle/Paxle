@@ -20,7 +20,7 @@
 		#if($item.getUrl())
 			<a #if($current == $item.getUrl())class="active"#end href="$!item.getUrl()">
 				#if($item.getIconURL())
-					<img src="${servletManager.getFullServletPath('org.paxle.gui.impl.MenuManager')}?icon=$item.getIconURL()"/>
+					<img src="${servletManager.getFullServletPath('org.paxle.gui.impl.MenuManager')}?icon=$item.getIconURL()" alt=""/>
 				#end
 				$item.getName($localeConfig.getLocale())
 			</a>

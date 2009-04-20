@@ -70,7 +70,7 @@
     	<p>
     		<input type="text" size="50" name="query" #if( $searchQuery) value="$searchQuery" #end/>
     		<input type="submit" value="Search"/>
-			<img src="$imgPrefix/bullet_arrow_down.png" onclick="$toggleSearchOptions" title="more options..."/>			
+			<img src="$imgPrefix/bullet_arrow_down.png" onclick="$toggleSearchOptions" title="more options..." alt="more options" />			
 			<div id="searchOptions">
 				<table>
 				<tr>
