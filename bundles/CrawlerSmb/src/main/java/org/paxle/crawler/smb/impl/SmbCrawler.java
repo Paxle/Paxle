@@ -13,14 +13,13 @@
  */
 package org.paxle.crawler.smb.impl;
 
-import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Date;
+import java.util.Iterator;
 
-import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 
 import org.apache.commons.logging.Log;
@@ -30,9 +29,9 @@ import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument.Status;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ISubCrawler;
-import org.paxle.crawler.smb.ISmbCrawler;
+import org.paxle.crawler.CrawlerTools.DirlistEntry;
 
-public class SmbCrawler implements ISubCrawler, ISmbCrawler {
+public class SmbCrawler implements ISubCrawler {
 	static final String[] PROTOCOLS = new String[]{"smb"};
 
 	/**
@@ -95,8 +94,16 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 					crawlerDoc.setLastModDate(new Date(creationTimeStamp));
 				}
 				
+				// getting the content of the directory
+				SmbFile[] smbFiles = smbFile.listFiles();
+				final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(smbFiles, false);				
+				
 				// generate dir listing
-				input = this.generateDirListing(smbFile);
+				input = CrawlerTools.generateListing(
+						dirlistIt,
+						smbFile.getURL().toURI().toASCIIString(),
+						smbFiles.length > 50 // if more than 50 files, use compression
+				);
 			} else if (smbFile.isFile()) {
 				// last modified timestamp
 				long modTimeStamp = smbFile.getLastModified();
@@ -120,7 +127,8 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 		} catch(Throwable e) {
 			crawlerDoc.setStatus(Status.UNKNOWN_FAILURE, "Unexpected Exception: " + e.getMessage());
 			
-			this.logger.warn(String.format("Unexpected '%s' while trying to crawl resource '%s'.",
+			this.logger.warn(String.format(
+					"Unexpected '%s' while trying to crawl resource '%s'.",
 					e.getClass().getName(),
 					requestUri
 			),e);
@@ -131,44 +139,60 @@ public class SmbCrawler implements ISubCrawler, ISmbCrawler {
 		return crawlerDoc;			
 	}
 	
-	private InputStream generateDirListing(SmbFile smbDir) throws SmbException {
-		StringWriter writer = new StringWriter();
+	/**
+	 * A wrapper class around a {@link File} which implements the methods necessary for
+	 * the dirlist-generation.
+	 */
+	private static class DirlistEntryImpl implements DirlistEntry {		
+		SmbFile file;
 		
-		String parentDir = smbDir.getParent();
-		writer.append(String.format("<html><head><title>Index of %s</title></head><hr><table><tbody>\r\n",smbDir.getURL()));
-		if (parentDir.length() > "smb://".length()) {
-			writer.append(String.format("<tr><td colspan=\"3\"><a href=\"%s\">Up to higher level directory</a></td></tr>\r\n",parentDir));
-		}
-
-		// generate directory listing
-		SmbFile[] smbFiles = smbDir.listFiles();
-		for (SmbFile smbFile : smbFiles) {
-			if (!smbFile.exists()) continue;
-			if (!smbFile.canRead()) continue;
-			if (smbFile.isHidden()) continue;
-			
-			// FIXME: we need to escape the urls properly here.
-			writer.append(
-					String.format(
-							"<tr>" + 
-								"<td><a href=\"%1$s\">%2$s</a></td>" + 
-								"<td>%3$d Bytes</td>" +
-								"<td>%4$tY-%4$tm-%4$td %4$tT</td>" +
-							"</tr>\r\n",
-							smbFile.getURL(),
-							smbFile.getName(),
-							Long.valueOf(smbFile.isDirectory() ? 0l : smbFile.getContentLength()),
-							Long.valueOf(smbFile.getLastModified())
-					)
-			);
-		}
-		writer.append("</tbody></table><hr></body></html>");	
+		public URI getFileURI() { return null; }
+		public String getFileName() { return file.getName(); }
+		public long getLastModified() { return file.getLastModified(); }
+		public long getSize() { return file.getContentLength(); }
+	};
+	
+	private static class DirlistIterator implements Iterator<DirlistEntry> {
 		
-		try {
-			return new ByteArrayInputStream(writer.toString().getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			assert(false) : "Unexpected error: " + e.getMessage();
+		private final DirlistEntryImpl entry = new DirlistEntryImpl();
+		private final boolean omitHidden;
+		private final SmbFile[] list;
+		
+		private SmbFile next = null;
+		private int idx = -1;
+		
+		public DirlistIterator(SmbFile[] list, boolean omitHidden) {
+			this.list = list; 
+			this.omitHidden = omitHidden;
+			this.next = findNext();
+		}
+		
+		private SmbFile findNext() {
+			while (this.idx + 1 < this.list.length) {
+				try {
+					this.idx++;
+					// check whether we are allowed to crawl this file
+					if (this.omitHidden && this.list[this.idx].isHidden()) continue;
+					return this.list[this.idx];
+				} catch (IOException e) {
+					// XXX: what to do in this case. aborting the whole operation?
+				}
+			}
 			return null;
 		}
-	}	
+		
+		public boolean hasNext() {
+			return this.next != null;
+		}
+		
+		public DirlistEntry next() {
+			this.entry.file = this.next;
+			this.next = findNext();
+			return this.entry;
+		}
+		
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
 }

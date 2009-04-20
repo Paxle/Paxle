@@ -23,7 +23,6 @@ import org.osgi.framework.Constants;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
 import org.paxle.crawler.ISubCrawler;
-import org.paxle.crawler.smb.ISmbCrawler;
 
 public class Activator implements BundleActivator {
 	/**
@@ -37,9 +36,9 @@ public class Activator implements BundleActivator {
 		// register this crawler as subcrawler
 		SmbCrawler crawler = new SmbCrawler();
 		Hashtable<String,Object> propsCrawler = new Hashtable<String, Object>();
-		propsCrawler.put(Constants.SERVICE_PID, ISmbCrawler.class.getName());
+		propsCrawler.put(Constants.SERVICE_PID, SmbCrawler.class.getName());
 		propsCrawler.put(ISubCrawler.PROP_PROTOCOL, SmbCrawler.PROTOCOLS);	  
-		bc.registerService(new String[]{ISubCrawler.class.getName(),ISmbCrawler.class.getName()}, crawler, propsCrawler);
+		bc.registerService(new String[]{ISubCrawler.class.getName()}, crawler, propsCrawler);
 		
 		// register URL handler service
 		Hashtable<String,String[]> propsUrlHandler = new Hashtable<String,String[]>(1);
