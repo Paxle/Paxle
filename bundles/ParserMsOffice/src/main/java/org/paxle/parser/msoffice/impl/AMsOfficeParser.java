@@ -59,7 +59,7 @@ public abstract class AMsOfficeParser implements ISubParser {
 	
 	public IParserDocument parse(URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException {
-		CachedParserDocument parserDoc = null;
+		IParserDocument parserDoc = null;
 		try {
 			// create an empty document
 			parserDoc = new CachedParserDocument(ParserContext.getCurrentContext().getTempFileManager());

@@ -91,6 +91,7 @@ public class SitemapParserImpl extends ASubParser implements SitemapParser {
 	/**
 	 * @see ISubParser#parse(URI, String, InputStream)
 	 */
+	@Override
 	public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException {
 		try {
 			// creating an empty parser document 
