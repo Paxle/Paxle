@@ -42,6 +42,7 @@ public class MimeTypeDetectorTest extends MockObjectTestCase {
 		{"test.7z","application/x-7z-compressed"},
 		{"test.lha","application/x-lha"},
 		{"test.tar","application/x-tar"},
+		{"Jameson.skp","application/vnd.sketchup.skp"},
 		{"rot3d.library",null},
 	};
 	
