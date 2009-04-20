@@ -61,7 +61,7 @@ $dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelNa
         #set($levelName = $logLevelNames.get($statsEntry.key))
         #set($levelText = $text.get("loglevel.$levelName"))
         <div class="log$levelName" titel="$levelText">
-			<input type="checkbox" checked="checked" onClick="checked ? Effect.multiple($$('tr.row_log$levelName'),Effect.Appear, { speed: 0 }) : Effect.multiple($$('tr.row_log$levelName'),Effect.Fade, { speed: 0 })"/>
+			<input type="checkbox" checked="checked" onclick="checked ? Effect.multiple($$('tr.row_log$levelName'),Effect.Appear, { speed: 0 }) : Effect.multiple($$('tr.row_log$levelName'),Effect.Fade, { speed: 0 })"/>
 			$statsEntry.value
 		</div>&nbsp;|&nbsp;
     #end

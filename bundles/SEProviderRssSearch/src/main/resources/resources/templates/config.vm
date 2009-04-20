@@ -14,25 +14,46 @@
 ## Set the page title
 #set( $page_title = "Paxle RSS search providers" )
 
-<h2>RSS search providers</h2>
+<div>
+	<h2>RSS search providers</h2>
 
-#if($manager)
-<form action="#" method="post">
-Opensearch XML import: <input type="text" name="opensearchurl" /><br />
-<input type="submit" value="import" />
-</form>
-<br />
-<form action="#" method="post">
-Opensearch import from webpage: <input type="text" name="opensearchhtmlurl" /><br />
-<input type="submit" value="import" />
-</form>
-<form action="#" method="post">
-    <dl>
-    <dt>RSS-URLs (%s will be replaced by search-phrase)</dt>
-    <dl><textarea name="urls" id="urls" cols="80" rows="15">
-#foreach ($url in $urls)$url
-#end</textarea></dd>
-    </dl>
-<input type="submit" value="OK" />
-</form>
+	<div>
+		#if($manager)
+		<fieldset>
+		<label>OpenSearch Import</label>
+			<div>
+				<form action="#" method="post">
+				<p>
+					Import from XML:<br />
+					<input type="text" name="opensearchurl" /><br />
+					<input type="submit" value="import" />
+				</p>
+				</form>
+			</div>
+			
+			<div>
+				<form action="#" method="post">
+				<p>
+					Import from webpage:<br />
+					<input type="text" name="opensearchhtmlurl" /><br />
+					<input type="submit" value="import" />
+				</p>
+				</form>
+			</div>
+		</fieldset>
+	</div>
+
+	<div>
+		<form action="#" method="post">
+  	  <dl>
+  	  	<dt>RSS-URLs (%s will be replaced by search-phrase)</dt>
+  		<dl><textarea name="urls" id="urls" cols="80" rows="15">
+		#foreach ($url in $urls)$url
+		#end</textarea></dd>
+  		</dl>
+		<input type="submit" value="OK" />
+		</form>
+	</div>
+	
+</div>
 #end
