@@ -71,7 +71,7 @@ public class PlainParser implements ISubParser {
 					if (ws == -1)
 						ws = MAX_HEADLINE_LENTGH;
 					pdoc.setTitle(l.substring(0, ws));
-					pdoc.addText(l.substring(ws));
+					pdoc.append(l.substring(ws)).append(' ');
 				} else {
 					pdoc.setTitle(l);
 				}
@@ -114,7 +114,7 @@ public class PlainParser implements ISubParser {
 			
 			final String l = extractRefs(line, refNorm, pdoc);
 			if (l.length() > 0)
-				pdoc.addText(l);
+				pdoc.append(l).append(' ');
 		}
 	}
 	

@@ -241,7 +241,7 @@ public class NodeCollector extends NodeVisitor {
 		if (!this.noParse) {
 			final String txt = HtmlTools.deReplaceHTML(string.getText()).trim();
 			if (txt.length() > 0) try {
-				this.doc.addText(txt);
+				this.doc.append(txt);
 			} catch (IOException e) {
 				logger.logError("Error processing string-node", string.getStartPosition(), e);
 			}

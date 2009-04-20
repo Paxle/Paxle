@@ -58,7 +58,6 @@ public class SWFParser extends ASubParser implements ISubParser {
 			Exception ex;
 			
 			private final ISubParser htmlParser;
-			private final StringBuilder sb = new StringBuilder();
 			private boolean warnedNoHtmlParser = false;
 			
 			public SwfTextSink() {
@@ -68,7 +67,7 @@ public class SWFParser extends ASubParser implements ISubParser {
 			public void addText(String text, boolean isHTML) {
 				try {
 					if (!isHTML) {
-						pdoc.addText(text);
+						pdoc.append(text).append(' ');
 						return;
 					}
 					if (htmlParser == null) {
@@ -86,9 +85,8 @@ public class SWFParser extends ASubParser implements ISubParser {
 					if (htmlParserDoc.getStatus() != IParserDocument.Status.OK) {
 						logger.warn("Failed parsing HTML-content of SWF-file from '" + location + "': " + htmlParserDoc.getStatusText());
 					} else {
-						sb.setLength(0);
-						IOTools.copy(htmlParserDoc.getTextAsReader(), sb);
-						pdoc.addText(sb);
+						IOTools.copy(htmlParserDoc.getTextAsReader(), pdoc);
+						pdoc.append(' ');
 					}
 				} catch (Exception e) { ex = e; }
 			}

@@ -38,6 +38,6 @@ public class MsExcelParser extends AMsOfficeParser {
 		final ExcelExtractor extractor = new ExcelExtractor(fs);
 		final String text = extractor.getText();
 		if (text != null && text.length() > 0)
-			parserDoc.addText(text);
+			parserDoc.append(text);
 	}
 }

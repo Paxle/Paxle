@@ -185,7 +185,7 @@ public class FeedParser extends ASubParser implements ISubParser {
 					// the item description
 					final String itemDescr = item.getDescription();
 					if (itemDescr != null) {
-						idoc.addText(itemDescr);
+						idoc.append(itemDescr).append(' ');
 					}
 					
 					// the item date

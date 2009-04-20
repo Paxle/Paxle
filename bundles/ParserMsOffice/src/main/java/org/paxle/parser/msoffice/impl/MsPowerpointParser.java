@@ -41,7 +41,7 @@ public class MsPowerpointParser extends AMsOfficeParser implements ISubParser {
 		PowerPointExtractor parser = new PowerPointExtractor(fs);
 		String text = parser.getText(true,true);
 		if (text != null && text.length() > 0) {
-			parserDoc.addText(text);
+			parserDoc.append(text);
 		}
 	}
 }

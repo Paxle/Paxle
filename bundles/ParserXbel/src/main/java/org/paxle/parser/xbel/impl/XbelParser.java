@@ -64,7 +64,7 @@ public class XbelParser extends ASubParser implements ISubParser {
 			if (title != null) pdoc.setTitle(title);
 			
 			String desc = xbelDoc.getDesc();
-			if (desc != null) pdoc.addText(desc + "\r\n");
+			if (desc != null) pdoc.append(desc + "\r\n");
 			
 			// loop through the bookmarks/folters
 			List<Object> items = xbelDoc.getBookmarkOrFolderOrAliasOrSeparator();
@@ -81,10 +81,10 @@ public class XbelParser extends ASubParser implements ISubParser {
 		if (folder == null) return;
 		
 		String title = folder.getTitle();
-		if (title != null) pdoc.addText(title + ":" + "\r\n");
+		if (title != null) pdoc.append(title + ":" + "\r\n");
 		
 		String descr = folder.getDesc();
-		if (descr != null) pdoc.addText(descr + "\r\n");
+		if (descr != null) pdoc.append(descr + "\r\n");
 		
 		List<Object> items = folder.getBookmarkOrFolderOrAliasOrSeparator();
 		this.extract(items, pdoc);
@@ -100,7 +100,7 @@ public class XbelParser extends ASubParser implements ISubParser {
 		}
 		
 		String desc = bm.getDesc();
-		if (desc != null) pdoc.addText(desc + "\r\n");
+		if (desc != null) pdoc.append(desc + "\r\n");
 	}
 	
 	private void extract(List<Object> items, IParserDocument pdoc) throws IOException {

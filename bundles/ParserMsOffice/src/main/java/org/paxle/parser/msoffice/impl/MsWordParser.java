@@ -46,7 +46,9 @@ public class MsWordParser extends AMsOfficeParser implements ISubParser {
 			Paragraph p = r.getParagraph(i);
 			
 			// append paragraph text
-			parserDoc.addText(p.text());					
+			parserDoc.append(p.text());
+			// we know that this is the end of a block of text, so we can include a separator
+			parserDoc.append(' ');
 		}
 	}
 }

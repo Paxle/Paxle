@@ -39,7 +39,7 @@ public class MsVisioParser extends AMsOfficeParser {
 		VisioTextExtractor parser = new VisioTextExtractor(fs);
 		String text = parser.getText();
 		if (text != null && text.length() > 0) {
-			parserDoc.addText(text);
+			parserDoc.append(text);
 		}			
 	}
 }

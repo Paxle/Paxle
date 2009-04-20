@@ -136,7 +136,7 @@ public interface IParserDocument extends Closeable, Appendable {
 	 * when calling this method several times, as the input is simply appended.
 	 * @param text the text of the document as {@link String} in Java's default character encoding,
 	 *        Unicode
-	 * @deprecated Deprecated as of Paxle-1.1. Please use the
+	 * @deprecated Deprecated as of Paxle-0.1.1. Please use the
 	 *             {@link Appendable#append(CharSequence) append()}-methods of the interface
 	 *             {@link Appendable} instead, which this {@link IParserDocument} contains.
 	 */
