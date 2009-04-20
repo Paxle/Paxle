@@ -122,7 +122,7 @@ public class CrawlerTools {
 	
 	/**
 	 * Uses compression
-	 * @see CrawlerTools#generateListing(FileListIt, String, boolean)
+	 * @see CrawlerTools#generateListing(Iterator, String, boolean)
 	 * @return the listing as {@link InputStream}
 	 */
 	public static InputStream generateListing(final Iterator<DirlistEntry> fileListIt, final String location) {

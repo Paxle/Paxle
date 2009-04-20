@@ -69,13 +69,13 @@ public class FsCrawler implements IFsCrawler {
 		
 		final ICommandProfile cmdProfile = ctx.getCommandProfile();
 		boolean omitHidden = true;
-		String readMode = VAL_READ_MODE_STD;
+		int readMode = VAL_READ_MODE_STD;
 		if (cmdProfile != null) {
 			Serializable val;
 			if ((val = cmdProfile.getProperty(PROP_VALIDATE_NOT_HIDDEN)) != null)
 				omitHidden = ((Boolean)val).booleanValue();
 			if ((val = cmdProfile.getProperty(PROP_READ_MODE)) != null)
-				readMode = (String)val;
+				readMode = ((Integer)val).intValue();
 		}
 		
 		ICrawlerDocument.Status status = ICrawlerDocument.Status.OK;
@@ -107,125 +107,162 @@ public class FsCrawler implements IFsCrawler {
 		cdoc.setLastModDate(new Date(file.lastModified()));
 		cdoc.setLocation(location);
 		
-		if (file.isDirectory()) try {
-			CrawlerTools.saveInto(cdoc, generateListing(file, location, omitHidden));
-		} catch (IOException e) {
-			final String msg = String.format("Error generating dir-listing for '%s': %s", location, e.getMessage());
-			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
-			logger.error(msg, e);
-			return cdoc;
+		if (file.isDirectory()) {
+			final File[] list = file.listFiles();
+			final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(list, omitHidden);
+			
+			final InputStream dirInstream = CrawlerTools.generateListing(
+					dirlistIt,
+					location.toASCIIString(),
+					list.length > 50);			// if more than 50 files, use compression
+			
+			try {
+				CrawlerTools.saveInto(cdoc, dirInstream);
+			} catch (IOException e) {
+				final String msg = String.format("Error saving dir-listing for '%s': %s", location, e.getMessage());
+				cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
+				logger.error(msg, e);
+				return cdoc;
+			}
+			
 		} else {
-			cdoc.setContent(generateContentFile(readMode, file, cdoc, tfm));
+			final File contentFile = generateContentFile(readMode, file, cdoc, tfm);
+			cdoc.setContent(contentFile);
 		}
 		
 		return cdoc;
 	}
 	
-	static InputStream generateListing(final File dir, final URI location, final boolean omitHidden) {
-		final File[] list = dir.listFiles();
-		return CrawlerTools.generateListing(new Iterator<DirlistEntry>() {
-			
-			final class DirlistEntry0 implements DirlistEntry {
-				
-				File current;
-				
-				public URI getFileURI() { return null; }
-				public String getFileName() { return current.getName(); }
-				public long getLastModified() { return current.lastModified(); }
-				public long getSize() { return current.length(); }
-			};
-			
-			final DirlistEntry0 entry = new DirlistEntry0();
-			final DirlistEntry0 next = new DirlistEntry0();
-			int idx = -1;
-			
-			{
-				next.current = next0();
+	/**
+	 * A wrapper class around a {@link File} which implements the methods necessary for
+	 * the dirlist-generation.
+	 */
+	private static class DirlistEntryImpl implements DirlistEntry {
+		
+		File file;
+		
+		public URI getFileURI() { return null; }
+		public String getFileName() { return file.getName(); }
+		public long getLastModified() { return file.lastModified(); }
+		public long getSize() { return file.length(); }
+	};
+	
+	private static class DirlistIterator implements Iterator<DirlistEntry> {
+		
+		private final DirlistEntryImpl entry = new DirlistEntryImpl();
+		private final boolean omitHidden;
+		private final File[] list;
+		
+		private File next = null;
+		private int idx = -1;
+		
+		public DirlistIterator(final File[] list, final boolean omitHidden) {
+			this.list = list; 
+			this.omitHidden = omitHidden;
+			next = next0();
+		}
+		
+		private File next0() {
+			while (idx + 1 < list.length) {
+				idx++;
+				// check whether we are allowed to crawl this file
+				if (omitHidden && list[idx].isHidden())
+					continue;
+				return list[idx];
 			}
-			
-			private File next0() {
-				while (idx + 1 < list.length) {
-					idx++;
-					if (omitHidden && list[idx].isHidden())
-						continue;
-					return list[idx];
-				}
-				return null;
-			}
-			
-			public boolean hasNext() {
-				return next.current != null;
-			};
-			
-			public DirlistEntry next() {
-				entry.current = next.current;
-				next.current = next0();
-				return entry;
-			};
-			
-			public void remove() {
-				throw new UnsupportedOperationException();
-			};
-		}, location.toASCIIString(), list.length > 50);
+			return null;
+		}
+		
+		public boolean hasNext() {
+			return next != null;
+		}
+		
+		public DirlistEntry next() {
+			entry.file = next;
+			next = next0();
+			return entry;
+		}
+		
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
 	}
 	
-	private File generateContentFile(final String readMode, final File file, final ICrawlerDocument cdoc, ITempFileManager tfm) {
+	private File generateContentFile(final int readMode, final File file, final ICrawlerDocument cdoc, ITempFileManager tfm) {
 		final File content;
-		if (VAL_READ_MODE_DIRECT.equals(readMode)) {
-			// TODO: prevent content from being deleted
-			content = file;
-		} else if (VAL_READ_MODE_STD.equals(readMode)) {
-			FileInputStream fis = null;
-			try {
-				fis = new FileInputStream(file);
-				CrawlerTools.saveInto(cdoc, fis);
-				content = cdoc.getContent();
-			} catch (IOException e) {
-				logger.error(String.format("Error saving '%s': %s", cdoc.getLocation(), e.getMessage()), e);
-				cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, e.getMessage());
-				return null;
-			} finally {
-				if (fis != null) try { fis.close(); } catch (IOException e) {/* ignore */}
-			}
-		} else if (VAL_READ_MODE_CHANNELED.equals(readMode) ||
-				VAL_READ_MODE_CHANNELED_FSYNC.equals(readMode)) {
-			FileInputStream fis = null;
-			FileOutputStream fos = null;
-			File out = null;
-			try {
-				out = tfm.createTempFile();
-				fis = new FileInputStream(file);
-				fos = new FileOutputStream(out);
-				
-				final FileChannel in_fc = fis.getChannel();
-				final FileChannel out_fc = fos.getChannel();
-				
-				long txed = 0L;
-				while (txed < in_fc.size())
-					txed += in_fc.transferTo(txed, in_fc.size() - txed, out_fc);
-				
-				if (VAL_READ_MODE_CHANNELED_FSYNC.equals(readMode))
-					out_fc.force(false);
-				out_fc.close();
-				
+		
+		switch (readMode) {
+			case VAL_READ_MODE_DIRECT:
+				// TODO: prevent content from being deleted
+				content = file;
+				break;
+			
+			case VAL_READ_MODE_STD: {
+				logger.info(String.format("Copying '%s' using a standard copy mechanism", file));
+				FileInputStream fis = null;
 				try {
-					detectFormats(cdoc, fis);
-				} catch (IOException ee) {
-					logger.warn(String.format("Error detecting format of '%s': %s", cdoc.getLocation(), ee.getMessage()));
+					fis = new FileInputStream(file);
+					CrawlerTools.saveInto(cdoc, fis);
+					content = cdoc.getContent();
+				} catch (IOException e) {
+					logger.error(String.format("Error saving '%s': %s", cdoc.getLocation(), e.getMessage()), e);
+					cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, e.getMessage());
+					return null;
+				} finally {
+					if (fis != null) try { fis.close(); } catch (IOException e) {/* ignore */}
 				}
-			} catch (IOException e) {
-				logger.error(String.format("Error copying '%s' to '%s': %s", cdoc.getLocation(), out, e.getMessage()), e);
-				cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, e.getMessage());
-				return null;
-			} finally {
-				if (fis != null) try { fis.close(); } catch (IOException e) {/* ignore */}
-				if (fos != null) try { fos.close(); } catch (IOException e) {/* ignore */}
-			}
-			content = out;
-		} else {
-			throw new RuntimeException("switch statement does not cover read-mode: " + readMode);
+			} break;
+			
+			case VAL_READ_MODE_CHANNELED:
+				content = copyChanneled(file, cdoc, tfm, false);
+				break;
+			case VAL_READ_MODE_CHANNELED_FSYNC:
+				content = copyChanneled(file, cdoc, tfm, true);
+				break;
+			
+			default:
+				throw new RuntimeException("switch statement does not cover read-mode: " + readMode);
 		}
+		
 		return content;
+	}
+	
+	private File copyChanneled(final File file, final ICrawlerDocument cdoc, final ITempFileManager tfm, final boolean useFsync) {
+		logger.info(String.format("Copying '%s' using the copy mechanism of the OS%s",
+				file,
+				(useFsync) ? " with fsync" : ""));
+		FileInputStream fis = null;
+		FileOutputStream fos = null;
+		File out = null;
+		try {
+			out = tfm.createTempFile();
+			fis = new FileInputStream(file);
+			fos = new FileOutputStream(out);
+			
+			final FileChannel in_fc = fis.getChannel();
+			final FileChannel out_fc = fos.getChannel();
+			
+			long txed = 0L;
+			while (txed < in_fc.size())
+				txed += in_fc.transferTo(txed, in_fc.size() - txed, out_fc);
+			
+			if (useFsync)
+				out_fc.force(false);
+			out_fc.close();
+			
+			try {
+				detectFormats(cdoc, fis);
+			} catch (IOException ee) {
+				logger.warn(String.format("Error detecting format of '%s': %s", cdoc.getLocation(), ee.getMessage()));
+			}
+		} catch (IOException e) {
+			logger.error(String.format("Error copying '%s' to '%s': %s", cdoc.getLocation(), out, e.getMessage()), e);
+			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, e.getMessage());
+		} finally {
+			if (fis != null) try { fis.close(); } catch (IOException e) {/* ignore */}
+			if (fos != null) try { fos.close(); } catch (IOException e) {/* ignore */}
+		}
+		return out;
 	}
 	
 	private void detectFormats(final ICrawlerDocument cdoc, InputStream is) throws IOException {

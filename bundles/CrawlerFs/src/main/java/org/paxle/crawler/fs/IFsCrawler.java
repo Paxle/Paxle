@@ -20,8 +20,8 @@ public interface IFsCrawler extends ISubCrawler {
 	
 	public static final String PROP_VALIDATE_NOT_HIDDEN = IFsCrawler.class.getName() + ".validate.not-hidden";
 	public static final String PROP_READ_MODE = IFsCrawler.class.getName() + ".read.mode";
-	public static final String VAL_READ_MODE_STD = "std";
-	public static final String VAL_READ_MODE_CHANNELED = "channeled";
-	public static final String VAL_READ_MODE_CHANNELED_FSYNC = "channeled.fsync";
-	public static final String VAL_READ_MODE_DIRECT = "direct";
+	public static final int VAL_READ_MODE_STD = 0;
+	public static final int VAL_READ_MODE_CHANNELED = 1;
+	public static final int VAL_READ_MODE_CHANNELED_FSYNC = 2;
+	public static final int VAL_READ_MODE_DIRECT = 3;
 }
