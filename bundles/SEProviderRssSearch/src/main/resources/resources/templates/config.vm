@@ -44,15 +44,23 @@
 	</div>
 
 	<div>
-		<form action="#" method="post">
-  	  <dl>
-  	  	<dt>RSS-URLs (%s will be replaced by search-phrase)</dt>
-  		<dl><textarea name="urls" id="urls" cols="80" rows="15">
-		#foreach ($url in $urls)$url
-		#end</textarea></dd>
-  		</dl>
-		<input type="submit" value="OK" />
-		</form>
+	<fieldset>
+		<label>RSS-URLs</label>
+		<div>
+		You can enter your URLs to RSS feeds here. <i>%s</i> will be replaced by the search-phrase.
+		</div>
+		<div>
+			<form action="#" method="post">
+				<p>
+  					<textarea name="urls" id="urls" cols="80" rows="15">
+#foreach ($url in $urls)$url
+#end
+					</textarea><br />
+					<input type="submit" value="OK" />
+				</p>
+			</form>
+		</div>
+	</fieldset>
 	</div>
 	
 </div>
