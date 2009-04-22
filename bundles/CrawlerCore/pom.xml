@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>CrawlerCore</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.8-SNAPSHOT</version>
+	<version>0.1.9-SNAPSHOT</version>
 	<name>Paxle - Crawler: Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 

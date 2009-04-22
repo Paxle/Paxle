@@ -14,8 +14,6 @@
 package org.paxle.crawler;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,7 +26,6 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.util.Formatter;
 import java.util.Iterator;
 import java.util.concurrent.Semaphore;
-import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.logging.Log;
@@ -40,12 +37,15 @@ import org.paxle.core.crypt.ACryptOutputStream;
 import org.paxle.core.crypt.ICrypt;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.io.IOTools;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.crawler.impl.ContentLengthLimitOutputStream;
 
 public class CrawlerTools {
 	
 	private static final Log logger = LogFactory.getLog(CrawlerTools.class);
+	
+	public static final int DEFAULT_BUFFER_SIZE_BYTES = 1024;
 	
 	public static class LimitedRateCopier {
 		
@@ -109,8 +109,10 @@ public class CrawlerTools {
 	}
 	
 	/**
-	 * Describes an entry in a dir-listing. Only one of the methods {@link DirlistEntry#getFileURI()}
-	 * and {@link DirlistEntry#getFileName()} needs to return something valid.
+	 * Describes an entry in a dir-listing. If the method {@link DirlistEntry#getFileURI()}
+	 * returns <code>null</code>, the resulting {@link URI} of the represented entry will be
+	 * constructed out of the <code>location</code> of the given {@link ICrawlerDocument}.
+	 * The implementation of this method therefore is optional. 
 	 */
 	public static interface DirlistEntry {
 		
@@ -122,11 +124,12 @@ public class CrawlerTools {
 	
 	/**
 	 * Uses compression
-	 * @see CrawlerTools#generateListing(Iterator, String, boolean)
-	 * @return the listing as {@link InputStream}
+	 * @see CrawlerTools#saveListing(Iterator, String, boolean)
 	 */
-	public static InputStream generateListing(final Iterator<DirlistEntry> fileListIt, final String location) {
-		return generateListing(fileListIt, location, true);
+	public static void saveListing(
+			final ICrawlerDocument cdoc,
+			final Iterator<DirlistEntry> fileListIt) throws IOException {
+		saveListing(cdoc, fileListIt, true);
 	}
 	
 	/**
@@ -135,117 +138,103 @@ public class CrawlerTools {
 	 * <code>fileListIt</code>. The resulting format of this list not yet finalized and subject
 	 * to change.
 	 * 
+	 * @param cdoc the {@link ICrawlerDocument} to save the dir-listing to
+	 * @param tfm if <code>cdoc</code> does not already contain a
+	 *        {@link ICrawlerDocument#getContent() content-file}, the {@link ITempFileManager} is
+	 *        used to create one.
 	 * @param fileListIt the file-listing providing the required information to include in the result
-	 * @param location the location where this listing has been obtained
 	 * @param compress determines whether the content should be compressed transparently (via GZip)
-	 *        to save memory. The format of the result is not impaired as the data is being decompressed
-	 *        during reading. Compression reduces the size of the representation of large directories
+	 *        to save space. Compression reduces the size of the representation of large directories
 	 *        up to a sixth.
-	 * @return an {@link InputStream} containing the binary representation in UTF-8 encoding of the
-	 *         resulting listing. It can be fed directly into any of the
-	 *         <code>CrawlerTools.saveInto()</code>-methods
 	 */
-	public static InputStream generateListing(final Iterator<DirlistEntry> fileListIt, final String location, boolean compress) {
-		/* This method essentially traverses all items the iterator provides and saves their content
-		 * temporarily in a byte-array memory.
-		 * 
-		 * The class BAOS is used to get the byte-array from the ByteArrayOutputStream without
-		 * the need to copy it into another buffer, as the toByteArray()-method would do. This is not
-		 * needed here and we can therefore access the buffer directly via BAOS.getBuffer().
-		 */
-		final class BAOS extends ByteArrayOutputStream {
+	public static void saveListing(
+			final ICrawlerDocument cdoc,
+			final Iterator<DirlistEntry> fileListIt,
+			boolean compress) throws IOException {
+		if (cdoc == null) throw new NullPointerException("The crawler-document is null.");
+		
+		File content = cdoc.getContent();
+		if (content == null) {
+			final CrawlerContext context = CrawlerContext.getCurrentContext();
+			if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");
 			
-			public byte[] getBuffer() {
-				return super.buf;
-			}
+			final ITempFileManager tfm = context.getTempFileManager();
+			if (tfm == null) throw new RuntimeException("Unexpected error. The tempfile-manager was null.");
+			
+			content = tfm.createTempFile();
+			cdoc.setContent(content);
 		}
 		
-		final BAOS baos = new BAOS();
-		OutputStream writerOut = baos;
+		final String charset = "UTF-8";
 		
-		/* Since the generated format is plain text, contains much redundant information and can potentially
-		 * become quite large (several hundred KB), a parameter offering compression can be specified.
-		 * This has the effect, that the aforementioned byte-array will be many times smaller in memory,
-		 * since there is much redundant text and it is plain ascii.
-		 * 
-		 * The transparent compression is accomplished by inserting a gzip-compressor before writing to the
-		 * byte-array, and a decompressor before returning the result at the end of this method. */
 		if (compress) {
-			try {
-				writerOut = new GZIPOutputStream(baos);
-			} catch (IOException e) {
-				// can not occur, since we are writing to memory
-				throw new RuntimeException("I/O error when using gzip upon a byte-array-output-stream for " + location, e);
-			}
+			cdoc.setMimeType("application/x-gzip");
+		} else {
+			cdoc.setMimeType("text/html");
+			cdoc.setCharset(charset);
 		}
 		
-		
-		final Formatter writer;
+		OutputStream writerOut = null;
+		Formatter writer = null;
 		try {
-			writer = new Formatter(writerOut, "UTF-8");
+			// no need to buffer here, the Formatter uses a buffer internally
+			writerOut = new FileOutputStream(content);
+		
+			/* Since the generated format is plain text, contains much redundant information and can potentially
+			 * become quite large (several hundred KB), a parameter offering compression can be specified. */
+			if (compress)
+				writerOut = new GZIPOutputStream(writerOut);
+			
+			writer = new Formatter(writerOut, charset);
+			
+			// getting the base dir
+			String baseURL = cdoc.getLocation().toASCIIString();
+			if (!baseURL.endsWith("/")) baseURL += "/";
+			
+			// getting the parent dir
+			String parentDir = "/";
+			if (baseURL.length() > 1) {
+				parentDir = baseURL.substring(0,baseURL.length()-1);
+				int idx = parentDir.lastIndexOf("/");
+				parentDir = parentDir.substring(0,idx+1);
+			}
+			
+			writer.format("<html><head><title>Index of %s</title></head><hr><table><tbody>\r\n", cdoc.getLocation());
+			writer.format("<tr><td colspan=\"3\"><a href=\"%s\">Up to higher level directory</a></td></tr>\r\n",parentDir);
+			
+			// generate directory listing
+			// FIXME: we need to escape the urls properly here.
+			while (fileListIt.hasNext()) {
+				final DirlistEntry entry = fileListIt.next();
+				final String nexturi;
+				final URI entryuri = entry.getFileURI();
+				if (entryuri == null) {
+					nexturi = baseURL + entry.getFileName();
+				} else {
+					nexturi = entryuri.toASCIIString();
+				}
+				writer.format(
+							"<tr>" +
+								"<td><a href=\"%1$s\">%2$s</a></td>" +
+								"<td>%3$d Bytes</td>" +
+								"<td>%4$tY-%4$tm-%4$td %4$tT</td>" +
+							"</tr>\r\n",
+						nexturi,
+						entry.getFileName(),
+						Long.valueOf(entry.getSize()),
+						Long.valueOf(entry.getLastModified())
+				);
+			}
+			writer.format("</tbody></table><hr></body></html>");
+			
+			cdoc.setStatus(ICrawlerDocument.Status.OK);
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("UTF-8 not supported, WTF?", e);
+			// XXX: shouldn't this be an Error?
+			throw new RuntimeException(charset + " not supported", e);
+		} finally {
+			if (writer != null) writer.close();
+			else if (writerOut != null) writerOut.close();
 		}
-		
-		// getting the base dir
-		String baseURL = location;
-		if (!baseURL.endsWith("/")) baseURL += "/";
-		
-		// getting the parent dir
-		String parentDir = "/";
-		if (baseURL.length() > 1) {
-			parentDir = baseURL.substring(0,baseURL.length()-1);
-			int idx = parentDir.lastIndexOf("/");
-			parentDir = parentDir.substring(0,idx+1);
-		}
-		
-		writer.format("<html><head><title>Index of %s</title></head><hr><table><tbody>\r\n", location);
-		writer.format("<tr><td colspan=\"3\"><a href=\"%s\">Up to higher level directory</a></td></tr>\r\n",parentDir);
-		
-		// generate directory listing
-		// FIXME: we need to escape the urls properly here.
-		while (fileListIt.hasNext()) {
-			final DirlistEntry entry = fileListIt.next();
-			final String nexturi;
-			final URI entryuri = entry.getFileURI();
-			if (entryuri == null) {
-				nexturi = baseURL + entry.getFileName();
-			} else {
-				nexturi = entryuri.toASCIIString();
-			}
-			writer.format(
-						"<tr>" +
-							"<td><a href=\"%1$s\">%2$s</a></td>" +
-							"<td>%3$d Bytes</td>" +
-							"<td>%4$tY-%4$tm-%4$td %4$tT</td>" +
-						"</tr>\r\n",
-					nexturi,
-					entry.getFileName(),
-					Long.valueOf(entry.getSize()),
-					Long.valueOf(entry.getLastModified())
-			);
-		}
-		
-		writer.format("</tbody></table><hr></body></html>");
-		writer.close();
-		
-		
-		/* An InputStream has to be returned, so the byte-array is being wrapped into a ByteArrayInputStream.
-		 * If compress was set to true, this still is the gzip-compressed data. */
-		InputStream ret = new ByteArrayInputStream(baos.getBuffer(), 0, baos.size());
-		
-		/* Since compression needs to be transparent, we wrap a gzip-decompressor around the ByteArrayInputStream
-		 * which performs it's decompression without notice by the user of this method during the reading of the
-		 * stream. */
-		if (compress) {
-			try {
-				ret = new GZIPInputStream(ret);
-			} catch (IOException e) {
-				throw new RuntimeException("I/O error when using gzip upon a byte-array-input-stream for " + location, e);
-			}
-		}
-		
-		return ret;
 	}
 	
 	/**
@@ -434,54 +423,5 @@ public class CrawlerTools {
 		} finally { 
 			if (os != null) os.close(); 
 		}
-	}
-	
-	public static final int DEFAULT_BUFFER_SIZE_BYTES = 1024;
-	
-	/**
-	 * Copies all data from the given {@link InputStream} to the given {@link OutputStream}
-	 * using the {@link #copy(InputStream, OutputStream, long)}-method.
-	 * <p><i>Note: this method does neither close the supplied InputStream nor the OutputStream.</i></p>
-	 * 
-	 * @see #copy(InputStream, OutputStream, long) for details
-	 * @param is the stream to read from
-	 * @param os the stream to write to
-	 * @return the number of copied bytes
-	 * @throws <b>IOException</b> if an I/O-error occures
-	 */
-	public static long copy(InputStream is, OutputStream os) throws IOException {
-		return copy(is, os, -1);
-	}
-	
-	/**
-	 * Copies an amount of data from the given {@link InputStream} to the given {@link OutputStream}.
-	 * <p><i>Note: this method does neither close the supplied InputStream nor the OutputStream.</i></p>
-	 * 
-	 * @see #DEFAULT_BUFFER_SIZE_BYTES for the size of the buffer
-	 * @see InputStream#read(byte[], int, int)
-	 * @see OutputStream#write(byte[], int, int)
-	 * @param is the stream to read from
-	 * @param os the stream to write to
-	 * @param bytes the number of bytes to copy
-	 * @return the number of copied bytes
-	 * @throws <b>IOException</b> if an I/O-error occures
-	 */
-	public static long copy(InputStream is, OutputStream os, long bytes) throws IOException {
-		final byte[] buf = new byte[DEFAULT_BUFFER_SIZE_BYTES];                
-		int cs = (int)((bytes > 0 && bytes < DEFAULT_BUFFER_SIZE_BYTES) ? bytes : DEFAULT_BUFFER_SIZE_BYTES);
-		
-		int rn;
-		long rt = 0;
-		while ((rn = is.read(buf, 0, cs)) > 0) {
-			os.write(buf, 0, rn);
-			rt += rn;
-			
-			if (bytes > 0) {
-				cs = (int)Math.min(bytes - rt, DEFAULT_BUFFER_SIZE_BYTES);
-				if (cs == 0) break;
-			}
-		}
-		os.flush();
-		return rt;
 	}
 }

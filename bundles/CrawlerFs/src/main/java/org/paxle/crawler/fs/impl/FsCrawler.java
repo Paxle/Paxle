@@ -40,6 +40,7 @@ import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.CrawlerTools.DirlistEntry;
 import org.paxle.crawler.fs.IFsCrawler;
+import org.paxle.parser.ParserContext;
 
 /**
  * @scr.component
@@ -58,12 +59,6 @@ public class FsCrawler implements IFsCrawler {
 		if (ctx == null) {
 			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,
 					"Cannot access CrawlerContext from " + Thread.currentThread().getName());
-			return cdoc;
-		}
-		final ITempFileManager tfm = ctx.getTempFileManager();
-		if (tfm == null) {
-			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,
-					"Cannot access ITempFileMananger from " + Thread.currentThread().getName());
 			return cdoc;
 		}
 		
@@ -111,13 +106,8 @@ public class FsCrawler implements IFsCrawler {
 			final File[] list = file.listFiles();
 			final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(list, omitHidden);
 			
-			final InputStream dirInstream = CrawlerTools.generateListing(
-					dirlistIt,
-					location.toASCIIString(),
-					list.length > 50);			// if more than 50 files, use compression
-			
 			try {
-				CrawlerTools.saveInto(cdoc, dirInstream);
+				CrawlerTools.saveListing(cdoc, dirlistIt, list.length > 0);
 			} catch (IOException e) {
 				final String msg = String.format("Error saving dir-listing for '%s': %s", location, e.getMessage());
 				cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
@@ -126,7 +116,7 @@ public class FsCrawler implements IFsCrawler {
 			}
 			
 		} else {
-			final File contentFile = generateContentFile(readMode, file, cdoc, tfm);
+			final File contentFile = generateContentFile(readMode, file, cdoc);
 			cdoc.setContent(contentFile);
 		}
 		
@@ -188,7 +178,7 @@ public class FsCrawler implements IFsCrawler {
 		}
 	}
 	
-	private File generateContentFile(final int readMode, final File file, final ICrawlerDocument cdoc, ITempFileManager tfm) {
+	private File generateContentFile(final int readMode, final File file, final ICrawlerDocument cdoc) {
 		final File content;
 		
 		switch (readMode) {
@@ -214,10 +204,10 @@ public class FsCrawler implements IFsCrawler {
 			} break;
 			
 			case VAL_READ_MODE_CHANNELED:
-				content = copyChanneled(file, cdoc, tfm, false);
+				content = copyChanneled(file, cdoc, false);
 				break;
 			case VAL_READ_MODE_CHANNELED_FSYNC:
-				content = copyChanneled(file, cdoc, tfm, true);
+				content = copyChanneled(file, cdoc, true);
 				break;
 			
 			default:
@@ -227,10 +217,18 @@ public class FsCrawler implements IFsCrawler {
 		return content;
 	}
 	
-	private File copyChanneled(final File file, final ICrawlerDocument cdoc, final ITempFileManager tfm, final boolean useFsync) {
+	private File copyChanneled(final File file, final ICrawlerDocument cdoc, final boolean useFsync) {
 		logger.info(String.format("Copying '%s' using the copy mechanism of the OS%s",
 				file,
 				(useFsync) ? " with fsync" : ""));
+		
+		final ITempFileManager tfm = ParserContext.getCurrentContext().getTempFileManager();
+		if (tfm == null) {
+			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,
+					"Cannot access ITempFileMananger from " + Thread.currentThread().getName());
+			return null;
+		}
+		
 		FileInputStream fis = null;
 		FileOutputStream fos = null;
 		File out = null;

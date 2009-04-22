@@ -13,22 +13,23 @@
  */
 package org.paxle.crawler.ftp.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Calendar;
-import java.util.Iterator;
+import java.util.Formatter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPListParseEngine;
 import org.apache.commons.net.ftp.FTPReply;
-import org.paxle.crawler.CrawlerTools;
-import org.paxle.crawler.CrawlerTools.DirlistEntry;
 
 public class FtpUrlConnection extends URLConnection {
 	private static final String DIR_MIMETYPE = "text/html";
@@ -126,48 +127,100 @@ public class FtpUrlConnection extends URLConnection {
 
 		this.isDirectory = (file.length() == 0);
 		this.connected = true;
-	}	
-
+	}
+	
+	public boolean isDirectory() throws IOException {
+		if (!this.client.isConnected()) this.connect();
+		return this.isDirectory;
+	}
+	
+	public FTPFile[] listFiles() throws IOException {
+		if (!this.client.isConnected()) this.connect();
+		return client.listFiles();
+	}
+	
+	private static final class BAOS extends ByteArrayOutputStream {
+		public byte[] getBuffer() {
+			return super.buf;
+		}
+	}
+	
+	private static final int[] FILE_ACCESS_MODES = { FTPFile.USER_ACCESS, FTPFile.GROUP_ACCESS, FTPFile.WORLD_ACCESS };
+	
+	/* Generates a listing like the following (this example is from ftp.debian.org/debian):
+	 *
+-rw-r--r--   1      1176      1176          1060  2009-04-11 17:05  README
+-rw-r--r--   1      1176      1176          1290  2000-12-04 00:00  README.CD-manufacture
+-rw-r--r--   1      1176      1176          2581  2009-04-11 17:06  README.html
+-rw-r--r--   1      1176      1176        123286  2009-04-20 13:53  README.mirrors.html
+-rw-r--r--   1      1176      1176         61886  2009-04-20 13:53  README.mirrors.txt
+drwxr-xr-x  11      1176      1176          4096  2009-04-11 17:06  dists
+drwxr-xr-x   4      1176      1176          4096  2009-04-22 19:53  doc
+drwxr-xr-x   3      1176      1176          4096  2009-04-22 20:48  indices
+-rw-r--r--   1      1176      1176       5207034  2009-04-22 20:48  ls-lR.gz
+-rw-r--r--   1      1176      1176         91849  2009-04-22 20:48  ls-lR.patch.gz
+drwxr-xr-x   5      1176      1176          4096  2000-12-19 00:00  pool
+drwxr-xr-x   4      1176      1176          4096  2008-11-17 23:05  project
+drwxr-xr-x   2      1176      1176          4096  2009-02-07 00:33  tools
+	 */
+	private static void formatStdDirlisting(final OutputStream into, final FTPListParseEngine fileParseEngine) {
+		final Formatter writer = new Formatter(into);
+		FTPFile[] files;
+		while (fileParseEngine.hasNext()) {
+			files = fileParseEngine.getNext(16);
+			for (final FTPFile file : files) {
+				if (file == null)
+					continue;
+				
+				// directory
+				char c;
+				switch (file.getType()) {
+					case FTPFile.DIRECTORY_TYPE:     c = 'd'; break;
+					case FTPFile.SYMBOLIC_LINK_TYPE: c = 's'; break;
+					default:                         c = '-'; break;
+				}
+				writer.format("%c", Character.valueOf(c));
+				
+				// permissions
+				for (final int access : FILE_ACCESS_MODES) {
+					writer.format("%c%c%c",
+							Character.valueOf(file.hasPermission(access, FTPFile.READ_PERMISSION)    ? 'r' : '-'),
+							Character.valueOf(file.hasPermission(access, FTPFile.WRITE_PERMISSION)   ? 'w' : '-'),
+							Character.valueOf(file.hasPermission(access, FTPFile.EXECUTE_PERMISSION) ? 'x' : '-'));
+				}
+				
+				// other information
+				writer.format("  %2d", Integer.valueOf(file.getHardLinkCount()));
+				writer.format("  %8s", file.getUser());
+				writer.format("  %8s", file.getGroup());
+				writer.format("  %12d", Long.valueOf(file.getSize()));
+				writer.format("  %1$tY-%1$tm-%1$td %1$tH:%1$tM", Long.valueOf(file.getTimestamp().getTimeInMillis()));
+				writer.format("  %s", file.getName());
+				
+				writer.format("%s", System.getProperty("line.separator"));
+			}
+		}
+		
+		writer.flush();
+	}
+	
 	@Override
 	public InputStream getInputStream() throws IOException {
 		if (!this.client.isConnected()) this.connect();
 
 		if (this.isDirectory) {
-			final FTPFile[] list = client.listFiles();
-			return CrawlerTools.generateListing(new Iterator<DirlistEntry>() {
-				
-				final class DirlistEntry0 implements DirlistEntry {
-					
-					FTPFile current;
-					
-					public URI getFileURI() { return null; }
-					public String getFileName() { return current.getName(); }
-					public long getLastModified() { return current.getTimestamp().getTimeInMillis(); }
-					public long getSize() { return current.getSize(); }
-				};
-				
-				final DirlistEntry0 entry = new DirlistEntry0();
-				int idx = 0;
-				
-				public boolean hasNext() {
-					return idx < list.length;
-				}
-				
-				public DirlistEntry next() {
-					entry.current = list[idx++];
-					return entry;
-				}
-				
-				public void remove() {
-					throw new UnsupportedOperationException();
-				}
-			}, this.path);
+			final BAOS baos = new BAOS();
+			
+			final FTPListParseEngine fileParseEngine = client.initiateListParsing();
+			formatStdDirlisting(baos, fileParseEngine);
+			
+			return new ByteArrayInputStream(baos.getBuffer(), 0, baos.size());
 			
 		} else {
 			// switching to binary file transfer
 			client.setFileType(FTPClient.BINARY_FILE_TYPE); 
 			reply = client.getReplyCode();
-			if(!FTPReply.isPositiveCompletion(reply)) {
+			if (!FTPReply.isPositiveCompletion(reply)) {
 				client.disconnect();
 				String msg = String.format("FTP server '%s' changing transfer mode failed. ReplyCode: %s",url.getHost(),client.getReplyString());
 				this.logger.warn(msg);

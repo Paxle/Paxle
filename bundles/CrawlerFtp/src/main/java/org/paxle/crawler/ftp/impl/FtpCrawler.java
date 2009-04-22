@@ -19,16 +19,18 @@ import java.net.URI;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.net.ftp.FTPFile;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.crawler.CrawlerTools;
-import org.paxle.crawler.ISubCrawler;
+import org.paxle.crawler.CrawlerTools.DirlistEntry;
 import org.paxle.crawler.ftp.IFtpCrawler;
 
 public class FtpCrawler implements IFtpCrawler, ManagedService {
@@ -103,14 +105,22 @@ public class FtpCrawler implements IFtpCrawler, ManagedService {
 				}
 			}
 			
-			// get input stream
-			InputStream input = ftpConnection.getInputStream();
-							
-			// copy data into file
-			CrawlerTools.saveInto(crawlerDoc, input);
-			
-			// close connection
-			input.close();
+			if (ftpConnection.isDirectory()) {
+				final FTPFile[] list = ftpConnection.listFiles();
+				final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(list);
+				
+				// generate & save dir-listing into file
+				CrawlerTools.saveListing(crawlerDoc, dirlistIt, list.length > 50);
+			} else {
+				// get input stream
+				InputStream input = ftpConnection.getInputStream();
+				
+				// copy data into file
+				CrawlerTools.saveInto(crawlerDoc, input);
+				
+				// close connection
+				input.close();
+			}
 				
 			// finished
 			crawlerDoc.setStatus(ICrawlerDocument.Status.OK);
@@ -129,6 +139,43 @@ public class FtpCrawler implements IFtpCrawler, ManagedService {
 
 		return crawlerDoc;
 	}
+	
+	/**
+	 * A wrapper class around a {@link FTPFile} which implements the methods necessary for
+	 * the dirlist-generation.
+	 */
+	private static class DirlistEntryImpl implements DirlistEntry {		
+		FTPFile file;
+		
+		public URI getFileURI() { return null; }
+		public String getFileName() { return file.getName(); }
+		public long getLastModified() { return file.getTimestamp().getTimeInMillis(); }
+		public long getSize() { return file.getSize(); }
+	};
+	
+	private static class DirlistIterator implements Iterator<DirlistEntry> {
+		
+		private final DirlistEntryImpl entry = new DirlistEntryImpl();
+		private final FTPFile[] list;
+		private int idx = 0;
+		
+		public DirlistIterator(final FTPFile[] list) {
+			this.list = list;
+		}
+		
+		public boolean hasNext() {
+			return idx < list.length;
+		}
+		
+		public DirlistEntry next() {
+			entry.file = list[idx++];
+			return entry;
+		}
+		
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
 
 	public Hashtable<String,Object> getDefaults() {
 		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
@@ -144,6 +191,7 @@ public class FtpCrawler implements IFtpCrawler, ManagedService {
 	/**
 	 * @see ManagedService#updated(Dictionary)
 	 */
+	@SuppressWarnings("unchecked")
 	public void updated(Dictionary configuration) throws ConfigurationException {
 		if (configuration == null ) {
 			logger.debug("Configuration is null. Using default configuration ...");

@@ -13,7 +13,6 @@
  */
 package org.paxle.crawler.smb.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -98,10 +97,10 @@ public class SmbCrawler implements ISubCrawler {
 				SmbFile[] smbFiles = smbFile.listFiles();
 				final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(smbFiles, false);				
 				
-				// generate dir listing
-				input = CrawlerTools.generateListing(
+				// generate & save dir listing
+				CrawlerTools.saveListing(
+						crawlerDoc,
 						dirlistIt,
-						smbFile.getURL().toURI().toASCIIString(),
 						smbFiles.length > 50 // if more than 50 files, use compression
 				);
 			} else if (smbFile.isFile()) {
@@ -140,7 +139,7 @@ public class SmbCrawler implements ISubCrawler {
 	}
 	
 	/**
-	 * A wrapper class around a {@link File} which implements the methods necessary for
+	 * A wrapper class around a {@link SmbFile} which implements the methods necessary for
 	 * the dirlist-generation.
 	 */
 	private static class DirlistEntryImpl implements DirlistEntry {		
