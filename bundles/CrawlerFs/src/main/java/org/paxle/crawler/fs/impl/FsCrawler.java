@@ -40,7 +40,6 @@ import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.CrawlerTools.DirlistEntry;
 import org.paxle.crawler.fs.IFsCrawler;
-import org.paxle.parser.ParserContext;
 
 /**
  * @scr.component
@@ -222,7 +221,7 @@ public class FsCrawler implements IFsCrawler {
 				file,
 				(useFsync) ? " with fsync" : ""));
 		
-		final ITempFileManager tfm = ParserContext.getCurrentContext().getTempFileManager();
+		final ITempFileManager tfm = CrawlerContext.getCurrentContext().getTempFileManager();
 		if (tfm == null) {
 			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,
 					"Cannot access ITempFileMananger from " + Thread.currentThread().getName());
