@@ -577,16 +577,16 @@
 								<artifactItem>
  									<groupId>org.wymiwyg</groupId>  
  									<artifactId>wrhapi</artifactId>  
- 									<version>0.6</version>
+ 									<version>0.8-SNAPSHOT</version>
  									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.wymiwyg.wrhapi-0.6.jar</destFileName>										
+									<destFileName>org.wymiwyg.wrhapi-0.8-SNAPSHOT.jar</destFileName>										
 								</artifactItem>
 								<artifactItem>
  									<groupId>org.wymiwyg</groupId>  
  									<artifactId>wrhapi-jetty</artifactId>  
- 									<version>0.6</version>y>
+ 									<version>0.7</version>
  									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.wymiwyg.wrhapi-jetty-0.6.jar</destFileName>										
+									<destFileName>org.wymiwyg.wrhapi-jetty-0.7.jar</destFileName>										
 								</artifactItem>
 								<artifactItem>
  									<groupId>javax.ws.rs</groupId>  
@@ -597,10 +597,17 @@
 								</artifactItem>
 								<artifactItem>
  									<groupId>org.trialox</groupId>  
- 									<artifactId>org.trialox.jaxrs</artifactId>  
- 									<version>0.5</version>
+ 									<artifactId>org.trialox.triaxrs</artifactId>  
+ 									<version>0.6</version>
  									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.trialox.jaxrs-0.5.jar</destFileName>										
+									<destFileName>org.trialox.triaxrs-0.6.jar</destFileName>										
+								</artifactItem>
+								<artifactItem>
+ 									<groupId>org.trialox</groupId>  
+ 									<artifactId>org.trialox.jaxrs.extensions</artifactId>  
+ 									<version>0.1</version>
+ 									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.trialox.jaxrs.extensions-0.1.jar</destFileName>										
 								</artifactItem>
 
 								<!-- ==================================================================-->

@@ -56,16 +56,22 @@
 							org.paxle.core;version="[0.1.0,0.2.0)",
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
+							<!-- For authentication -->
+							org.wymiwyg.wrhapi,
+							org.wymiwyg.wrhapi.filter,
 							<!-- Logging framework -->
 							org.apache.commons.logging,					
 						    <!-- Servlet API -->		
 							javax.ws.rs,
 							javax.ws.rs.core,
 							javax.ws.rs.ext,
+							<!-- Apache Commons Codec -->
+							org.apache.commons.codec.binary,
 							<!-- image processing -->
 							javax.imageio
 						</Import-Package>
 						<Private-Package>
+							org.paxle.api.jaxrs.impl,
 							org.paxle.api.jaxrs.monitorable.impl,
 							org.paxle.api.jaxrs.cm.impl
 						</Private-Package>
@@ -88,6 +94,14 @@
 		</plugins>
 	</build>
 
+	<repositories>
+		<repository>
+			<id>Wymiwyg-repository</id>
+			<name>Wymiwyg Repository</name>
+			<url>http://wymiwyg.berlios.de/maven2/</url>
+		</repository>		
+	</repositories>
+
 	<dependencies>
 		<!-- Paxle dependendies -->
 		<dependency>
@@ -101,6 +115,20 @@
 		    <groupId>javax.ws.rs</groupId>
 		    <artifactId>jsr311-api</artifactId>
 		    <version>1.0</version>
+		</dependency>
+
+		<!-- required to implement the wrhapi filter -->
+		<dependency>
+			<groupId>org.wymiwyg</groupId>
+			<artifactId>wrhapi</artifactId>
+			<version>0.8-SNAPSHOT</version>
+		</dependency>
+
+		<!-- required for base64 encoding/decoding -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec-osgi</artifactId>
+			<optional>true</optional>
 		</dependency>	
 	</dependencies>
 </project>

@@ -45,6 +45,7 @@ import edu.umd.cs.findbugs.annotations.SuppressWarnings;
  * @scr.component 
  * @scr.service interface="java.lang.Object"
  * @scr.property name="javax.ws.rs" type="Boolean" value="true" private="true"
+ * @scr.property name="org.paxle.api.protected" value="true" private="true"
  * @scr.reference name="metaTypeProviders" 
  * 				  interface="org.osgi.service.metatype.MetaTypeProvider" 
  * 				  cardinality="0..n" 
