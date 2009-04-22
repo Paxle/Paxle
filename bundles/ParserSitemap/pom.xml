@@ -101,7 +101,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>ParserCore</artifactId>
-			<version>[0.1.3,0.2.0)</version>
+			<version>[0.1.7-SNAPSHOT,0.2.0)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.paxle</groupId>
