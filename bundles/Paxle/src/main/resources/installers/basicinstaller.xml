@@ -116,7 +116,7 @@
 			<file targetdir="$INSTALL_PATH" src="${basedir}/src/main/resources/equinox/start.ini"/>
 			<parsable targetfile="$INSTALL_PATH/start.ini"/>
 			
-			<!-- parsing and including the runtime-property file -->
+			<!-- parsing and including the log4j config file -->
 			<file targetdir="$equinox.data.path" src="${basedir}/src/main/resources/logging/log4j.properties"/>
 
 			<!-- uninstaller shell script -->

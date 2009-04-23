@@ -7,7 +7,12 @@
 			<source>${equinox.dependencies}/start.exe</source>
 			<outputDirectory>/</outputDirectory>
 			<filtered>false</filtered>
-		</file>			
-
+		</file>
+		<file>
+			<fileMode>755</fileMode>
+			<source>src/main/resources/equinox/start.bat</source>
+			<outputDirectory>/</outputDirectory>
+			<filtered>true</filtered>
+		</file>	
 	</files>		
 </component>
