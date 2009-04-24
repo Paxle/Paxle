@@ -229,7 +229,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>1.0-alpha-4</version>
+					<version>1.0-beta-1</version>
 				</plugin>	
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -261,6 +261,11 @@
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>2.3</version>
 				</plugin> 
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+    				<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.4.3</version>
+				</plugin>
 				<!-- required maven 2.0.9 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -473,6 +478,13 @@
 				<artifactId>commons-pool</artifactId>
 				<version>1.4</version>
 			</dependency>
+			
+			<!-- Commons IO -->
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>1.4</version>
+			</dependency>
 
 			<!-- 
 				Eclipse Equinox dependencies needed for compiling
@@ -481,7 +493,7 @@
 				<!-- Equinox framework bundle: needed by new console-command-handlers -->
 				<groupId>org.eclipse.osgi</groupId>
 				<artifactId>osgi</artifactId>
-				<version>3.4.2.R34x_v20080826-1230</version>
+				<version>3.4.3.R34x_v20081215-1030</version>
 			</dependency>
 
 			<!--
