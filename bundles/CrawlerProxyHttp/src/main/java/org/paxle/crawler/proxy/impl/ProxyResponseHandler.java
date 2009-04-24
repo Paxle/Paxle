@@ -23,6 +23,7 @@ import java.net.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.crawler.CrawlerContext;
+import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.proxy.impl.io.ExtenedPipedInputStream;
 import org.paxle.crawler.proxy.impl.io.ExtendedPipedOutputStream;
 import org.xsocket.Execution;
@@ -156,7 +157,7 @@ public class ProxyResponseHandler implements IHttpResponseHandler, IHttpResponse
 		/*
 		 * check if we support the mimetype
 		 */
-		final CrawlerContext context = CrawlerContext.getCurrentContext();
+		final ICrawlerContext context = CrawlerContext.getCurrentContext();
 		if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");
 		
 		String contentType = resHdr.getContentType();

@@ -22,6 +22,7 @@ import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 import org.paxle.crawler.CrawlerContext;
+import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.ISubCrawlerManager;
 
@@ -74,7 +75,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 			final URI location = command.getLocation();
 			
 			// adding some properties to the crawler-context
-			CrawlerContext cc = CrawlerContext.getCurrentContext();
+			ICrawlerContext cc = CrawlerContext.getCurrentContext();
 			cc.setProperty("cmd", command);
 			cc.setProperty("cmd.profileOID",Integer.valueOf(command.getProfileOID()));
 			

@@ -38,6 +38,7 @@ import org.paxle.core.queue.ICommandProfile;
 
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
+import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.CrawlerTools.DirlistEntry;
 import org.paxle.crawler.fs.IFsCrawler;
 
@@ -54,7 +55,7 @@ public class FsCrawler implements IFsCrawler {
 		
 		final ICrawlerDocument cdoc = new CrawlerDocument();
 		
-		final CrawlerContext ctx = CrawlerContext.getCurrentContext();
+		final ICrawlerContext ctx = CrawlerContext.getCurrentContext();
 		if (ctx == null) {
 			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,
 					"Cannot access CrawlerContext from " + Thread.currentThread().getName());
@@ -263,7 +264,7 @@ public class FsCrawler implements IFsCrawler {
 	}
 	
 	private void detectFormats(final ICrawlerDocument cdoc, InputStream is) throws IOException {
-		final CrawlerContext ctx = CrawlerContext.getCurrentContext();
+		final ICrawlerContext ctx = CrawlerContext.getCurrentContext();
 		final ICharsetDetector chardet = ctx.getCharsetDetector();
 		final IMimeTypeDetector mimedet = ctx.getMimeTypeDetector();
 		if (chardet == null && mimedet == null)

@@ -155,7 +155,7 @@ public class CrawlerTools {
 		
 		File content = cdoc.getContent();
 		if (content == null) {
-			final CrawlerContext context = CrawlerContext.getCurrentContext();
+			final ICrawlerContext context = CrawlerContext.getCurrentContext();
 			if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");
 			
 			final ITempFileManager tfm = context.getTempFileManager();
@@ -289,7 +289,7 @@ public class CrawlerTools {
 		if (doc == null) throw new NullPointerException("The crawler-document is null.");
 		if (is == null) throw new NullPointerException("The content inputstream is null.");
 		
-		final CrawlerContext context = CrawlerContext.getCurrentContext();
+		final ICrawlerContext context = CrawlerContext.getCurrentContext();
 		if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");
 		
 		

@@ -63,6 +63,7 @@ import org.paxle.core.prefs.Properties;
 import org.paxle.crawler.ContentLengthLimitExceededException;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
+import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.http.IHttpCrawler;
 
 /**
@@ -446,7 +447,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			doc.setMimeType(contentMimeType);
 			
 			// check if we support the mimetype
-			final CrawlerContext context = CrawlerContext.getCurrentContext();
+			final ICrawlerContext context = CrawlerContext.getCurrentContext();
 			if (context == null)
 				throw new RuntimeException("Unexpected error. The crawler-context was null.");
 			
