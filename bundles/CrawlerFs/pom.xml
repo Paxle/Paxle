@@ -93,7 +93,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>CrawlerCore</artifactId>
-			<version>[0.1.11-SNAPSHOT,0.2.0)</version>
+			<version>[0.1.12-SNAPSHOT,0.2.0)</version>
 		</dependency>
 	</dependencies>
 </project>
