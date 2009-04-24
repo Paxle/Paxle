@@ -129,7 +129,7 @@ public class CrawlerTools {
 	public static void saveListing(
 			final ICrawlerDocument cdoc,
 			final Iterator<DirlistEntry> fileListIt) throws IOException {
-		saveListing(cdoc, fileListIt, true);
+		saveListing(cdoc, fileListIt, true, true);
 	}
 	
 	/**
@@ -150,6 +150,7 @@ public class CrawlerTools {
 	public static void saveListing(
 			final ICrawlerDocument cdoc,
 			final Iterator<DirlistEntry> fileListIt,
+			boolean inclParent,
 			boolean compress) throws IOException {
 		if (cdoc == null) throw new NullPointerException("The crawler-document is null.");
 		
@@ -191,16 +192,18 @@ public class CrawlerTools {
 			String baseURL = cdoc.getLocation().toASCIIString();
 			if (!baseURL.endsWith("/")) baseURL += "/";
 			
-			// getting the parent dir
-			String parentDir = "/";
-			if (baseURL.length() > 1) {
-				parentDir = baseURL.substring(0,baseURL.length()-1);
-				int idx = parentDir.lastIndexOf("/");
-				parentDir = parentDir.substring(0,idx+1);
-			}
-			
 			writer.format("<html><head><title>Index of %s</title></head><hr><table><tbody>\r\n", cdoc.getLocation());
-			writer.format("<tr><td colspan=\"3\"><a href=\"%s\">Up to higher level directory</a></td></tr>\r\n",parentDir);
+			if (inclParent) {
+				// getting the parent dir
+				String parentDir = "/";
+				if (baseURL.length() > 1) {
+					parentDir = baseURL.substring(0,baseURL.length()-1);
+					int idx = parentDir.lastIndexOf("/");
+					parentDir = parentDir.substring(0,idx+1);
+				}
+				
+				writer.format("<tr><td colspan=\"3\"><a href=\"%s\">Up to higher level directory</a></td></tr>\r\n",parentDir);
+			}
 			
 			// generate directory listing
 			// FIXME: we need to escape the urls properly here.

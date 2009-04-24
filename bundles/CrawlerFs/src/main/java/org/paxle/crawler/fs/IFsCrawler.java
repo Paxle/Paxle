@@ -24,4 +24,5 @@ public interface IFsCrawler extends ISubCrawler {
 	public static final int VAL_READ_MODE_CHANNELED = 1;
 	public static final int VAL_READ_MODE_CHANNELED_FSYNC = 2;
 	public static final int VAL_READ_MODE_DIRECT = 3;
+	public static final String PROP_INCLUDE_PARENT_DIR = IFsCrawler.class.getName() + ".include.parent-dir";
 }

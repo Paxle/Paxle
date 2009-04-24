@@ -101,6 +101,7 @@ public class SmbCrawler implements ISubCrawler {
 				CrawlerTools.saveListing(
 						crawlerDoc,
 						dirlistIt,
+						true,
 						smbFiles.length > 50 // if more than 50 files, use compression
 				);
 			} else if (smbFile.isFile()) {

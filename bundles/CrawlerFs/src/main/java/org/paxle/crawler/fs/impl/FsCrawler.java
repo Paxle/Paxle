@@ -64,6 +64,7 @@ public class FsCrawler implements IFsCrawler {
 		
 		final ICommandProfile cmdProfile = ctx.getCommandProfile();
 		boolean omitHidden = true;
+		boolean inclParent = false;
 		int readMode = VAL_READ_MODE_STD;
 		if (cmdProfile != null) {
 			Serializable val;
@@ -71,6 +72,8 @@ public class FsCrawler implements IFsCrawler {
 				omitHidden = ((Boolean)val).booleanValue();
 			if ((val = cmdProfile.getProperty(PROP_READ_MODE)) != null)
 				readMode = ((Integer)val).intValue();
+			if ((val = cmdProfile.getProperty(PROP_INCLUDE_PARENT_DIR)) != null)
+				inclParent = ((Boolean)val).booleanValue();
 		}
 		
 		ICrawlerDocument.Status status = ICrawlerDocument.Status.OK;
@@ -107,7 +110,7 @@ public class FsCrawler implements IFsCrawler {
 			final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(list, omitHidden);
 			
 			try {
-				CrawlerTools.saveListing(cdoc, dirlistIt, list.length > 0);
+				CrawlerTools.saveListing(cdoc, dirlistIt, inclParent, list.length > 0);
 			} catch (IOException e) {
 				final String msg = String.format("Error saving dir-listing for '%s': %s", location, e.getMessage());
 				cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);

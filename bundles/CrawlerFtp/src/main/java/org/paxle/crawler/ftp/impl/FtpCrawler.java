@@ -110,7 +110,7 @@ public class FtpCrawler implements IFtpCrawler, ManagedService {
 				final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(list);
 				
 				// generate & save dir-listing into file
-				CrawlerTools.saveListing(crawlerDoc, dirlistIt, list.length > 50);
+				CrawlerTools.saveListing(crawlerDoc, dirlistIt, true, list.length > 50);
 			} else {
 				// get input stream
 				InputStream input = ftpConnection.getInputStream();
