@@ -141,6 +141,27 @@ td {
 	margin-bottom: 1em;
 }
 
+/*
+ * make #head and #wrapper enclosing,
+ * see http://www.positioniseverything.net/easyclearing.html
+ * for the used technique, for #wrapper that's because of
+ * the guillotine bug of ie, see
+ * http://www.positioniseverything.net/explorer/guillotine.html
+ */
+#head:after, #wrapper:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+
+/* \*/
+* html #head, * html #wrapper { height: 1%; }
+/* */
+
+
 #main {
 	margin: 0;
 	padding: 0;
@@ -219,7 +240,7 @@ td {
 	padding: 0.5em 0 0.5em 1em;
 	
 	display: block;
-  height: 1%;
+	height: 1%;
 	
 	color: #000000;
 	
@@ -243,6 +264,7 @@ td {
 	list-style: none;
 	padding-left: 0px;
 	font-size: 0.85em;
+	margin: 0;
 }
 
 .subnav0 li a {
