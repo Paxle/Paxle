@@ -13,63 +13,23 @@
  */
 package org.paxle.crawler.ftp.impl;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URI;
 import java.util.Dictionary;
 
-import junit.framework.TestCase;
-
 import org.osgi.service.cm.ConfigurationException;
 import org.paxle.core.doc.ICrawlerDocument;
-import org.paxle.core.io.temp.ITempDir;
-import org.paxle.core.io.temp.ITempFileManager;
-import org.paxle.crawler.CrawlerContext;
-import org.paxle.crawler.impl.CrawlerContextLocal;
+import org.paxle.crawler.impl.ACrawlerTest;
 
-public class FtpCrawlerOnlineTest extends TestCase {
+public class FtpCrawlerOnlineTest extends ACrawlerTest {
 	
 	private FtpCrawler crawler;
-	private ITempFileManager tempManager;
-	private ICrawlerDocument crawlerDoc;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		// create dummy temp-file manager
-		this.tempManager = new ITempFileManager() {
-			public File createTempFile() throws IOException {
-				File tmp = File.createTempFile("test", ".tmp");
-				tmp.deleteOnExit();
-				return tmp;
-			}
-			public void releaseTempFile(File file) throws FileNotFoundException, IOException {
-				if (!file.delete()) throw new IOException("Unable to delte file: " + file);				
-			}
-			public void removeTempDirFor(String... arg0) { }
-			public void setTempDirFor(ITempDir arg0, String... arg1) { }
-			public boolean isKnown(File file) { return true; }			
-		};
-		
-		// init crawler-context
-		CrawlerContextLocal threadLocal = new CrawlerContextLocal(){{
-			this.supportedMimeTypes.add("text/html");
-			this.tempFileManager = tempManager;
-		}};
-		CrawlerContext.setThreadLocal(threadLocal);
-		
 		// create crawler
 		this.crawler = new FtpCrawler();
-	}
-	
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		if (this.tempManager != null && this.crawlerDoc != null && this.crawlerDoc.getContent() != null) {
-			this.tempManager.releaseTempFile(this.crawlerDoc.getContent());
-		}
 	}
 	
 	public void testReadDirectory() {

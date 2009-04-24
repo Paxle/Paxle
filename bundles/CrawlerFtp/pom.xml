@@ -91,6 +91,15 @@
 			<artifactId>commons-net</artifactId>
 			<version>2.0</version>
 		</dependency>
+		
+		<!-- Additional dependencies for testing -->
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>CrawlerCore</artifactId>
+			<version>[0.1.10-SNAPSHOT,0.2.0)</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>			
 
 <!--		<dependency>-->
 <!--			<groupId>org.mockftpserver</groupId>-->
