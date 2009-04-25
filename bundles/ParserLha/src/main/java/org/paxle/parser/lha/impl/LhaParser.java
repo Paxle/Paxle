@@ -29,6 +29,7 @@ import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.parser.ASubParser;
+import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -52,7 +53,7 @@ public class LhaParser extends ASubParser implements ISubParser {
 	@Override
 	public IParserDocument parse(URI location, String charset, File content) throws ParserException, UnsupportedEncodingException, IOException {
 		// some helper tools required for parsing
-		final ParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = ParserContext.getCurrentContext();
 		final ITempFileManager tfm = context.getTempFileManager();
 		final ICharsetDetector cd = context.getCharsetDetector();
 

@@ -24,6 +24,7 @@ import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.CachedParserDocument;
+import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -46,7 +47,7 @@ public class P7zipParser extends ASubParser implements ISubParser {
 		final Handler archive = new Handler();
 		archive.Open(new RAFInStream(content));
 		
-		final ParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = ParserContext.getCurrentContext();
 		final ITempFileManager tfm = context.getTempFileManager();
 		final CachedParserDocument doc = new CachedParserDocument(tfm);
 		final SZParserExtractCallback aec = new SZParserExtractCallback(location, doc, archive, tfm, context.getCharsetDetector());

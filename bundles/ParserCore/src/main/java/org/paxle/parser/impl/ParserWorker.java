@@ -27,6 +27,7 @@ import org.paxle.core.doc.ICrawlerDocument.Status;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommand.Result;
 import org.paxle.core.threading.AWorker;
+import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ISubParserManager;
 import org.paxle.parser.ParserContext;
@@ -147,7 +148,7 @@ public class ParserWorker extends AWorker<ICommand> {
 			));
 			
 			// adding some properties into the parser-context
-			ParserContext pc = ParserContext.getCurrentContext();
+			IParserContext pc = ParserContext.getCurrentContext();
 			pc.setProperty("cmd", command);
 			pc.setProperty("cmd.profileOID",Integer.valueOf(command.getProfileOID()));
 			

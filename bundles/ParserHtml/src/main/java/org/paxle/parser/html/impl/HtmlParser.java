@@ -38,6 +38,7 @@ import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.parser.CachedParserDocument;
+import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -172,7 +173,7 @@ public class HtmlParser implements ISubParser, PoolableObjectFactory {
 			req = (HtmlParserRequisites) this.pool.borrowObject();
 			
 			// parsing content
-			final ParserContext context = ParserContext.getCurrentContext();
+			final IParserContext context = ParserContext.getCurrentContext();
 			final IParserDocument doc = new CachedParserDocument(context.getTempFileManager());			
 			final InputStreamSource iss = new InputStreamSource(is, charset);
 			

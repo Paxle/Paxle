@@ -25,6 +25,7 @@ import java.util.zip.ZipInputStream;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.io.IOTools;
+import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -44,7 +45,7 @@ public class ZipParser implements ISubParser {
 	public IParserDocument parse(URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException 
 	{
-		final ParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = ParserContext.getCurrentContext();
 		final IParserDocument pdoc = new ParserDocument();
 		final ZipInputStream zis = new ZipInputStream(is);
 		ZipEntry ze;

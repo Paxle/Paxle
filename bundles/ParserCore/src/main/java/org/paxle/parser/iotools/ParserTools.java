@@ -26,6 +26,7 @@ import org.paxle.core.charset.ACharsetDetectorInputStream;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.mimetype.IMimeTypeDetector;
+import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -47,7 +48,7 @@ public class ParserTools {
 	}
 	
 	public static String getCharset(File file, String mimeType) throws IOException, ParserException {
-		final ParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = ParserContext.getCurrentContext();
 		if (context == null)
 			throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
 		return getCharset(file, context.getCharsetDetector(), mimeType);
@@ -68,7 +69,7 @@ public class ParserTools {
 	}
 	
 	public static String getMimeType(File file) throws IOException, ParserException {
-		final ParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = ParserContext.getCurrentContext();
 		if (context == null)
 			throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
 		return getMimeType(file, context.getMimeTypeDetector());
@@ -89,7 +90,7 @@ public class ParserTools {
 	}
 	
 	public static String getMimeType(final byte[] buf, final String logName) throws IOException, ParserException {
-		final ParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = ParserContext.getCurrentContext();
 		if (context == null)
 			throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
 		return getMimeType(buf, logName, context.getMimeTypeDetector());
@@ -119,10 +120,10 @@ public class ParserTools {
 	 * 
 	 * @see #getMimeType(File)
 	 * @see #getCharset(File, String)
-	 * @see ParserContext#getCurrentContext()
-	 * @see ParserContext#getMimeTypeDetector()
-	 * @see ParserContext#getCharsetDetector()
-	 * @see ParserContext#getParser(String)
+	 * @see IParserContext#getCurrentContext()
+	 * @see IParserContext#getMimeTypeDetector()
+	 * @see IParserContext#getCharsetDetector()
+	 * @see IParserContext#getParser(String)
 	 * @see ISubParser#parse(String, String, File)
 	 * @param  location name or location of the resource within the container
 	 * @param  content {@link File} containing the raw content of the (uncompressed) file
@@ -131,10 +132,10 @@ public class ParserTools {
 	 * @throws <b>ParserException</b>:
 	 * <ul>
 	 *  <li>
-	 *   if no {@link ParserContext} is available because this method has not been called
+	 *   if no {@link IParserContext} is available because this method has not been called
 	 *   from the thread executing the {@link ISubParser}
 	 *  </li>
-	 *  <li>if no MIME type detector object could be retrieved from the {@link ParserContext}</li>
+	 *  <li>if no MIME type detector object could be retrieved from the {@link IParserContext}</li>
 	 *  <li>if a MIME type detection error occured</li>
 	 *  <li>if no sub-parser handling the detected MIME type could be found</li>
 	 *  <li>
@@ -170,7 +171,7 @@ public class ParserTools {
 	public static IParserDocument parse(URI location, String mimeType, String charset, File content) throws ParserException,
 			IOException, UnsupportedEncodingException {
 		// retrieve the sub-parser for the found MIME type, parse content and return the document
-		final ParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = ParserContext.getCurrentContext();
 		if (context == null)
 			throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
 		
@@ -195,7 +196,7 @@ public class ParserTools {
 			IOException, UnsupportedEncodingException {
 		try {
 			// retrieve the sub-parser for the found MIME type, parse content and return the document
-			final ParserContext context = ParserContext.getCurrentContext();
+			final IParserContext context = ParserContext.getCurrentContext();
 			if (context == null)
 				throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
 			

@@ -41,7 +41,7 @@ public abstract class ASubParser implements ISubParser {
 	
 	public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException {
 		// getting a reference to the  parser-context
-		final ParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = ParserContext.getCurrentContext();
 		if (context == null) throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
 		
 		// getting a reference to the temp file manager

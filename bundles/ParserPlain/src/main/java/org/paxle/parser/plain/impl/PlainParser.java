@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.CachedParserDocument;
+import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -145,7 +146,7 @@ public class PlainParser implements ISubParser {
 	public IParserDocument parse(URI location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		
-		final ParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = ParserContext.getCurrentContext();
 		final IParserDocument pdoc = new CachedParserDocument((int)Math.min(content.length(), Integer.MAX_VALUE), context.getTempFileManager());
 		final FileInputStream fis = new FileInputStream(content);
 		try {

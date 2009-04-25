@@ -32,6 +32,7 @@ import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.CachedParserDocument;
+import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -69,7 +70,7 @@ public class FeedParser extends ASubParser implements ISubParser {
 		IParserDocument pdoc = null;		
 		try {
 			// getting required tools
-			final ParserContext context = ParserContext.getCurrentContext();
+			final IParserContext context = ParserContext.getCurrentContext();
 			final ITempFileManager tempFileManager =  context.getTempFileManager();
 			final IReferenceNormalizer refNorm = context.getReferenceNormalizer();
 
