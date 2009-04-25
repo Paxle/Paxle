@@ -125,7 +125,11 @@
 			<id>paxle-snapshot-repository</id>
 			<url>${mvn-deploy-url}</url>
 		</snapshotRepository>
-	
+		<site>
+			<id>paxle-website</id>
+			<name>Paxle Website</name>
+			<url>file:///tmp/paxle</url>
+		</site>
 		<repository>
 			<id>paxle-release-repository</id>
 			<url>${mvn-deploy-url}</url>

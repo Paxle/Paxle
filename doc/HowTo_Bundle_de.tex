@@ -1,0 +1,615 @@
+\documentclass[a4paper,12pt]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage[left=1.5cm,right=1.5cm,top=0.5cm,bottom=1.5cm,includeheadfoot]{geometry}
+\usepackage[colorlinks=true,linkcolor=blue]{hyperref}
+\usepackage[usenames]{color}
+\definecolor{yellow}{rgb}{1.0,1.0,0.0}
+\usepackage{listings}
+\lstset{
+	basicstyle=\itshape\scriptsize,
+	keywordstyle=\bfseries,
+	identifierstyle=,
+	numbers=none,
+	numberstyle=\tiny,
+	stepnumber=1,
+	breaklines=true,
+	frame=none,
+	showstringspaces=false,
+	tabsize=4,
+	backgroundcolor=\color{yellow},
+	captionpos=b,
+	float=htbp,
+}
+
+
+\title{Erstellung eines OSGi-Bundles mit Filter-Funktion für das Suchframework Paxle}
+\author{Roland Ramthun \and Martin Thelian}
+\date{Version 1.0RC2 vom 07.10.2008}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\section{Einleitung}
+Um Paxle besser an die eigenen Bedürfnisse anpassen zu können, haben sich die Autoren des Paxle-Frameworks früh für die Verwendung der OSGi-Technik entschieden.\\
+Was genau ist OSGi?\\
+\href{http://de.wikipedia.org/w/index.php?title=OSGi&oldid=50875074}{Wikipedia} schreibt dazu:
+\begin{quotation}
+Die OSGi Alliance (früher "`Open Services Gateway initiative"') spezifiziert eine hardware-unabhängige dynamische Softwareplattform, die es erleichtert, Anwendungen und ihre Dienste per Komponentenmodell ("`Bundle"'/"`Service"') zu modularisieren und zu verwalten ("`Service Registry"'). Die OSGi-Plattform setzt eine Java Virtual Machine (JVM) voraus und bietet darauf aufbauend das OSGi-Framework.
+\end{quotation}
+Die Arbeit mit dem OSGi-Framework und/oder dem bei Paxle eingesetzten Apache Maven ist für viele nichtprofessionelle Software-Entwickler anfangs ungewohnt.\\
+Dieses Tutorial hilft Ihnen deshalb bei der Erstellung eines Dummy-Bundles, in deren Verlauf alle relevanten Schritte zur Erstellung eigener Bundles für Paxle durchgegangen werden.\\
+Aus Gründen der Vereinfachung für den Autoren, ist das Dummy-Bundle das Grundgerüst eines echten Bundles, nämlich einer Sprachenerkennung. Da die Logik der Sprachenermittlung jedoch nicht Teil dieses Tutorials ist, wird unser Bundle kaum Programmcode enthalten und immer "`unknown"' als Sprache des aktuell indexierten Dokuments ermitteln.
+\subsection{Adressaten}
+Dieses Dokument richtet sich an Programmierer, die Java und die üblichen Entwicklungswerkzeuge (Eclipse, SVN, XML-Editoren, ...) sicher beherrschen, aber noch nie mit Paxle gearbeitet haben.\\
+Sie sind am Ende dieses Tutorials kein OSGi- oder Maven-Experte, können aber anhand des gewonnenen Wissens anfangen, einfache Bundle selber zu entwickeln und existierende Bundle anzupassen.\\
+
+\section{Herstellen einer geeigneten Ordnerstruktur}
+Checken Sie das Paxle Subversion-Repository aus, die Daten finden Sie in unserem \href{http://wiki.paxle.net/project/infrastructure/svn}{Wiki-Artikel zum Thema SVN}.\\
+In der Verzeichnisstruktur unseres SVN-Repositories befinden sich alle Bundles im Ordner \lstinline[breaklines=false, basicstyle=\itshape]|/trunk/bundles|.\\
+Ein \emph{Bundle} ist die atomare Struktur in Paxle und implementiert eine bestimmte Funktion. Bundles sind als Ganzes austauschbar (z.B. jeweils ein Bundle für verschiedene Datenbank-Implementierungen). Jedes Bundle hat einen eigenen Ordner.\\
+Wechseln sie in den Bundle-Ordner.\\
+\begin{lstlisting}[caption=Navigation in den passenden Ordner]
+	cd trunk/bundles/
+\end{lstlisting}
+Nun legen Sie folgende Ordnerstruktur für Ihr eigenes Bundle an:\\
+BundleName (in diesem Beispiel \lstinline[breaklines=false, basicstyle=\itshape]|FilterLangIdent|) $\rightarrow$ src $\rightarrow$ main $\rightarrow$ java
+\begin{lstlisting}[caption=Anlegen der korrekten Ordnerstruktur für ein eigenes Bundle]
+	mkdir -p FilterLangIdent/src/main/java
+\end{lstlisting}
+
+\section{Das POM}
+Wie bereits erwähnt, benutzt Paxle zum Erstellen seiner Bundles das Buildsystem Maven.\\
+Die Konfiguration von Maven erfolgt mit XML-Dateien names \lstinline|pom.xml|. Das POM (Project Object Model) ist die Konfiguration eines jeden Projekts, das mit Maven verwaltet wird.\\
+Jedes Bundle ist, für Maven, ein eigenes Projekt und benötigt deshalb ein solches POM in seinem Wurzelverzeichnis.\\
+Folglich müssen wir auch für unser Beispielbundle ein POM anlegen, in unserem Fall also im Wurzelverzeichnis des Bundles unter \lstinline[breaklines=false, basicstyle=\itshape]|trunk/bundles/FilterLangIdent/|.
+\begin{lstlisting}
+	cd FilterLangIdent/
+	nano pom.xml
+\end{lstlisting}
+
+\begin{lstlisting}[numbers=left, caption=Vorlage für pom.xml unseres FilterLangIdent-Beispielbundle]
+	<project xmlns="http://maven.apache.org/POM/4.0.0"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+		http://maven.apache.org/maven-v4_0_0.xsd">
+		<modelVersion>4.0.0</modelVersion>
+		
+		
+		<groupId></groupId>
+		<artifactId></artifactId>
+		<packaging>bundle</packaging>
+		<version>0.1.0-SNAPSHOT</version>
+		<name>Paxle - NAME</name>
+		<url>http://wiki.paxle.net/dev/bundles/NAME</url>
+		
+		<!-- Parent Project -->
+		<parent>
+			<groupId>org.paxle</groupId>
+			<artifactId>Root</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+			<relativePath>../Root/pom.xml</relativePath>
+		</parent>
+		
+		<build>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<extensions>true</extensions>
+					<configuration>
+						<instructions>
+							<Import-Package>org.osgi.framework</Import-Package>
+							<Private-Package></Private-Package>
+							<Bundle-Activator></Bundle-Activator>
+						</instructions>
+					</configuration>
+				</plugin>
+			</plugins>
+		</build>
+	</project>
+\end{lstlisting}
+
+An dieser Vorlage sind nun einige Anpassungen vorzunehmen.\\
+Zuerst muss die \lstinline[breaklines=false, basicstyle=\itshape]|<artifactId>| geändert werden. Diese muss systemweit eindeutig sein und dient als untergeordneter Identifier unter der \lstinline[breaklines=false, basicstyle=\itshape]|<groupId>|.\\
+Empfehlenswert für Paxle-Module ist auch, dass das Root-POM als Parent eingetragen ist, weil dort einige Basiskonfigurationen (z.B. das Paxle-Repository oder Versionsnummern verschiedener Standard-Plugins) schon enthalten sind. Prüfen Sie, ob die Versionsangabe \lstinline[breaklines=false, basicstyle=\itshape]|0.1.0| des Root-Bundles noch aktuell ist, vermutlich gibt es bereits eine neuere Version.\\
+Passen Sie die Zeilen 8, 9, 12 und 13 an (Group-ID, Artifact-ID, Name, URL).\\
+Für unser Beispielbundle sähe das Ergebnis so aus:
+\begin{lstlisting}
+	[...]
+	<groupId>li.pxl</groupId>
+	<artifactId>FilterLangIdent</artifactId>
+	[...]
+	<name>Paxle - FilterLangident</name>
+	<url>http://wiki.paxle.net/dev/bundles/FilterLangIdent</url>
+	[...]
+\end{lstlisting}
+
+\subsection{Versionsschema}
+Wie Sie in der Vorlage sehen, enthält das POM auch Angaben über die Version des Bundles.\\
+Versionen, die nicht in Form eines Releases veröffentlicht werden, sollten immer die Bezeichnung \lstinline[breaklines=false, basicstyle=\itshape]|SNAPSHOT| am Ende des Namens tragen (z.B. \lstinline[breaklines=false, basicstyle=\itshape]|CrawlerCore-0.1.5-SNAPSHOT|). Das ist Maven-Konvention und hilft Entwicklerversionen für den internen Gebrauch von zumeist stabilen, getesteten Releaseversionen zu unterscheiden.\\
+Das Versionsschema der Bundle-Versionen sollte x.y.z sein. Werden die exportierten Interfaces des Bundles verändert, müssen x oder y verändert werden, eine Änderung in z bedeutet, dass keine Interfaceänderungen stattgefunden haben.\\
+So können Bundles einfach eine Abhängigkeit auf bestimmte Versionsbereiche anderer Bundles definieren.
+
+\subsection{Die Packaging-Anweisung}
+Die Anweisung \lstinline[breaklines=false, basicstyle=\itshape]|<packaging>bundle</packaging>| ist wichtig, damit Maven während des Kompilierens anstelle eines "`normalen"' JAR-Archivs, ein OSGi-Bundle erzeugt.\\
+Wenn unser Bundle ein normales Java-Projekt wäre, würde dort dann z.B "`jar"' stehen und man bräuchte den gesamten \lstinline[breaklines=false, basicstyle=\itshape]|<plugin>|-Bereich um \lstinline[breaklines=false, basicstyle=\itshape]|maven-bundle-plugin| nicht.
+
+\section{Das leere Bundle mit Logik füllen}
+
+Die Vorbereitungen sind abgeschlossen, Sie können nun mit Hilfe von Maven ein Eclipse-Projekt erzeugen und dieses dann zur weiteren Bearbeitung in Eclipse importieren.\\
+
+\subsection{Eclipse-Projekt für Ihr Bundle erzeugen und importieren}
+Allgemeine Informationen zum weiteren Eclipse/Maven-Setup finden Sie im \href{http://wiki.paxle.net/dev/build/maven}{Paxle Wiki}, bitte setzen Sie Ihre Eclipse-Installation entsprechend auf. Danach sollten Sie alle Paxle-Default-Bundle in Eclipse integriert haben, unser Beispielbundle \lstinline[breaklines=false, basicstyle=\itshape]|FilterLangIdent| fehlt allerdings noch.\\
+Falls Sie aktiv an Paxle mitarbeiten wollen, sollten Sie nun auch das SVN-Plugin, gemäß der Anleitung unter \href{http://wiki.paxle.net/project/infrastructure/svn}{http://wiki.paxle.net/project/infrastructure/svn} installieren.\\
+Wechseln Sie nun wieder in das Verzeichnis des FilterLangIdent-Bundles und rufen \lstinline[breaklines=false, basicstyle=\itshape]|mvn eclipse:eclipse| auf. Dieser Befehl erzeugt die Eclipse-Projektdateien für das Bundle, in dessen Ordner Sie sich gerade befinden.\\
+Nach Durchlauf des Befehls können Sie das fertige Projekt nun, wie vorher schon die Standard-Paxle-Bundles, importieren.\\
+\\
+Wie Sie sehen, werden bereits "`Referenced Libraries"' bei Ihrem Bundle/Projekt angezeigt, obwohl Sie noch keine Zeile Java-Code geschrieben haben und es folglich auch noch keine Imports gibt.\\
+Das liegt daran, dass häufig benötigte Bibliotheken (z.B. ein Logger) bereits über das Root-POM importiert werden, auf das in unserem bundlespezifischen POM ja verwiesen wird. Bitte beachten Sie, dass ab nun alle Imports, die Sie in Ihren Java-Quellcode verwenden möchten, über das POM erfolgen müssen!\\
+Das führt zu folgendem, in der Entwicklung stetig wiederholtem, Ablauf:\\
+Bedarf an Imports, die auf externe Bibliotheken verweisen, identifizieren, dafür dann Imports und ggf. Dependencies im POM definieren, Eclipse-Projektdateien mit Maven neu generieren (\lstinline[breaklines=false, basicstyle=\itshape]|mvn eclipse:clean eclipse:eclipse|) und dann in Eclipse aktualisieren, Java-Quellcode (der dann die Imports benötigt) schreiben.\\
+Ein Sonderfall sind Imports, die zwar das JRE stellt, die aber nicht aus der java.*-Hierachie oder "`richtigen"' externen Bibliotheken stammen, wie z.B. die \lstinline[breaklines=false, basicstyle=\itshape]|javax.*|-Klassen. Diese müssen ebenfalls im POM importiert werden und zwar über einen sogenannten \lstinline[breaklines=false, basicstyle=\itshape]|DynamicImport|.
+\begin{lstlisting}[caption=\lstinline|DynamicImport|-Beispiel aus dem DesktopIntegration-Bundle]
+	<DynamicImport-Package>
+		javax.swing, 
+		javax.swing.*,
+		javax.swing.plaf,
+		javax.swing.plaf.*,
+		javax.swing.plaf.basic,
+		javax.swing.plaf.basic.*,
+		sun.awt,
+		sun.awt.X11,
+		sun.awt.*,
+		sun.awt.motif.*
+	</DynamicImport-Package>
+\end{lstlisting}
+Der gewohnte Weg, direkt den Java-Code zu schreiben, nur dort die Imports zu definieren und die Bibliotheken dann irgendwie in den Classpath zu legen, funktioniert nicht!
+
+\subsection{Eigenes Java-Package anlegen}
+Legen Sie also nun in Eclipse ein Package für den Quellcode des Beispielbundles an.\\
+Hier gibt es eine Namenskonvention: Alle aus Bundle-Sicht privaten Klassen (also implementierungsabhängige Dinge, die nicht per Interface o.ä. Mechanismen exportiert werden), kommen in ein Package, dessen Name auf "`impl"' (Implementation) endet.\\
+Für unser Beispiel wäre das \lstinline[breaklines=false, basicstyle=\itshape]|li.pxl.filterlangident.impl|.\\
+Das so erzeugte Package muss dann im POM eintragen werden, damit das Maven-Plugin auch weiß, dass es privat ist. Eine Angabe gilt immer nur für genau das eine angegebene Package. Enthalten z.B. dessen Subpackages ebenfalls nur private Klassen, so sind diese Subpackages ebenfalls einzutragen.
+\begin{lstlisting}
+	[...]
+	<Private-Package>li.pxl.filterlangident.impl</Private-Package>
+	[...]
+\end{lstlisting}
+
+In diesem Package legen Sie nun eine Klasse an, mit deren Hilfe das Bundle später vom Framework gestartet werden kann. Üblicherweise nennt man diese Klasse \lstinline[breaklines=false, basicstyle=\itshape]|Activator.java|.\\
+Wichtig ist, dass Sie das Interface \lstinline[breaklines=false, basicstyle=\itshape]|BundleActivator| implementiert.\\
+\\
+Das erzeugt Source-File sollte dann etwa so aussehen:
+\begin{lstlisting}[caption=Einfacher Activator für unser FilterLangIdent-Beispielbundle]
+	package li.pxl.filterlangident.impl;
+	
+	import org.osgi.framework.BundleActivator;
+	import org.osgi.framework.BundleContext;
+	
+	public class Activator implements BundleActivator {
+	
+		public void start(BundleContext context) throws Exception {
+			// TODO Auto-generated method stub
+			
+		}
+	
+		public void stop(BundleContext context) throws Exception {
+			// TODO Auto-generated method stub
+			
+		}
+	
+	}
+\end{lstlisting}
+Damit das Framwork nun weiß, wo es den Activator finden kann, ist auch er mit seinem eindeutigen Namen (fully qualified name) in das POM einzutragen:
+\begin{lstlisting}
+	[...]
+	<Bundle-Activator>li.pxl.filterlangident.impl.Activator</Bundle-Activator>
+	[...]
+\end{lstlisting}
+Dieser Eintrag bewirkt, dass später im Manifest des Bundles der Activator eingetragen wird.\\
+Dies ist eine Eigenheit \emph{aktiver Bundles}, im Unterschied zu \emph{passiven Bundles} oder \emph{Bundle-Fragmenten}.\\
+Passive Bundles exportieren für gewöhnlich nur Klassen oder Interfaces, registrieren aber keine Services am Framework. Ein weiterer Spezialfall sind Bundle-Fragmente - auf beide Typen gehen wir in diesem Dokument nicht näher ein, beachten Sie ggf. die Literaturangaben am Ende des Dokuments.\\
+\\
+Um zu sehen, ob das Bundle später überhaupt richtig geladen wird, fügen wir den \lstinline[breaklines=false, basicstyle=\itshape]|start()|- und \lstinline[breaklines=false, basicstyle=\itshape]|stop()|-Methoden jeweils eine kleine Ausgabe hinzu.
+\begin{lstlisting}[caption=Einfacher Activator mit Ausgabe für unser FilterLangIdent-Beispielbundle]
+	package li.pxl.filterlangident.impl;
+	
+	import org.osgi.framework.BundleActivator;
+	import org.osgi.framework.BundleContext;
+	
+	public class Activator implements BundleActivator {
+	
+		public void start(BundleContext context) throws Exception {
+			System.out.println("Bundle gestartet");
+		}
+	
+		public void stop(BundleContext context) throws Exception {
+			System.out.println("Bundle gestoppt");
+		}
+	
+	}
+\end{lstlisting}
+
+\subsection{Bundle erzeugen, hochladen und starten}
+
+Nun sind die Vorbereitungen abgeschlossen, das Bundle kann von Maven kompiliert werden. Wechseln Sie wieder in den Ordner \lstinline[breaklines=false, basicstyle=\itshape]|trunk/bundles/FilterLangIdent/|.\\
+\begin{lstlisting}
+	mvn install
+\end{lstlisting}
+Dies wird ein fertiges Bundle \lstinline[breaklines=false, basicstyle=\itshape]|FilterLangIdent.jar| im Ordner \lstinline[breaklines=false, basicstyle=\itshape]|trunk/bundles/FilterLangIdent/target| erzeugen.\\
+Starten Sie Paxle und Sie können diese Datei über das Paxle Webinterface hochladen, installieren und starten/stoppen.\\
+Wenn Sie das Bundle starten und stoppen, sollten Sie auf \lstinline[breaklines=false, basicstyle=\itshape]|stdout| jeweils die "`Bundle gestartet/gestoppt"'-Meldung sehen.\\
+\\
+Glückwunsch, Ihr erstes, einfaches Bundle läuft.
+
+\section{Das Minimalbundle in den Datenfluss integrieren}
+
+\subsection{Abhängigkeiten definieren}
+
+Eine der Stärken des bei Paxle verwendeten Maven-Systems, ist die automatische Beschaffung externer Abhängigkeiten.\\
+D.h. Sie definieren eine Abhängigkeit im POM Ihres Projekts, und Maven lädt diese automatisch herunter, trägt sie in den Classpath für Eclipse ein, fügt sie den fertigen JAR hinzu, usw..\\
+\\
+Um dies einmal praktisch zu sehen, benutzten wir nun zur Anzeige der "`Bundle gestartet/gestoppt"'-Meldungen einen richtigen Logger, anstelle des einfachen \lstinline[breaklines=false, basicstyle=\itshape]|System.out.println()|.\\
+Normalerweise würde man in diesem Fall einen zusätzlichen \lstinline[breaklines=false, basicstyle=\itshape]|<dependency>|-Eintrag im Projekt-POM benötigen, in diesem Fall haben wir aber Glück: Das Paxle-Team hat sich früh auf die Benutzung von Apaches \lstinline[breaklines=false, basicstyle=\itshape]|commons-logging| geeinigt, weshalb diese Abhängigkeit schon im Root-POM definiert wird, von dem unser POM erbt (s.o.).\\
+\\
+Öffnen Sie das Root-POM. Dort steht folgendes:
+\begin{lstlisting}
+	[...]
+	<!-- Commons Logging API -->
+	<dependency>
+		<artifactId>commons-logging</artifactId>
+		<groupId>commons-logging</groupId>
+		<version>1.0.4</version>
+	</dependency>
+	[...]
+\end{lstlisting}
+Wenn es sich um eine Library handeln würde, die nur in Ihrem eigenen Bundle gebraucht wird, definieren Sie die Abhängigkeit einfach im POM Ihres Bundles. Die Syntax bleibt dabei gleich.\\
+Sobald Sie eigene Dependencies angeben, müssen Sie die Eclipse-Projektdateien neu erzeugen, damit Eclipse die \lstinline[breaklines=false, basicstyle=\itshape]|import|-Anweisungen im Java-Quelltext korrekt auflösen kann.\\
+Dafür rufen Sie \lstinline[breaklines=false, basicstyle=\itshape]|mvn eclipse:clean eclipse:eclipse| auf und importieren anschließend die Projektdateien neu (s.o.).\\
+Es stellt sich die Frage, wie Maven diese Angaben in den POMs in reale Dateien umsetzt. Irgendwie muss aus diesen Angaben ja der Ort abgeleitet werden, an dem die Libraries liegen und wo man sie herunterladen kann.\\
+Diese Orte nennt man Maven-Repositories, eine Auswahl sehen Sie in unserem Root-POM.
+\begin{lstlisting}
+	<repositories>
+		<repository>
+			<id>paxle-repository</id>
+			<url>http://maven.repository.paxle.net/</url>
+		</repository>
+		<repository>
+			<id>java.net</id>
+			<url>http://download.java.net/maven/2/</url>
+		</repository>
+		<repository>
+			<id>apache.snapshots</id>
+			<name>Apache Snapshot Repository</name>
+			<url>http://people.apache.org/repo/m2-snapshot-repository</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases </name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+	</repositories>
+\end{lstlisting}
+Damit sind nun die Wurzelverzeichnisse bekannt, trotzdem müssen die \lstinline[breaklines=false, basicstyle=\itshape]|<dependency>|-Einträge noch auf den vollen Pfad umgeschrieben werden. Aus diesem Grund hat ein Maven-Repository eine feste Struktur und der Dateiname ergibt sich aus [repository]/[group-id]/[artifact-id]/[version]/.\\
+Zusätzlich zu den selbst definierten Repositories gibt es noch ein Default-Repository, das Maven standardmäßig abfragt, nämlich \href{http://repo1.maven.org/maven2}{http://repo1.maven.org/maven2}.\\
+\\
+Im Fall von commons-logging wird auch eben dieses verwendet, so dass sich als URL \href{http://repo1.maven.org/maven2/commons-logging/commons-logging/1.0.4/}{http://repo1.maven.org/maven2/commons-logging/commons-logging/1.0.4/} ergibt. In diesem Verzeichnis findet Maven dann alle benötigten Quellen, Binaries, Metadaten und Prüfsummen.\\
+\\
+Ersetzen wir nun also das \lstinline[breaklines=false, basicstyle=\itshape]|System.out.println()| durch einen Logger, sieht der Activator folgendermaßen aus:
+\begin{lstlisting}
+	package li.pxl.filterlangident.impl;
+	
+	import org.apache.commons.logging.Log;
+	import org.apache.commons.logging.LogFactory;
+	import org.osgi.framework.BundleActivator;
+	import org.osgi.framework.BundleContext;
+	
+	public class Activator implements BundleActivator {
+	
+		private Log logger = LogFactory.getLog(this.getClass());
+		
+		public void start(BundleContext context) throws Exception {
+			logger.info("Bundle gestartet");
+		}
+	
+		public void stop(BundleContext context) throws Exception {
+			logger.info("Bundle gestoppt");
+		}
+	
+	}
+\end{lstlisting}
+So scheint alles korrekt zu sein, Eclipse kann die Imports ohne weiteres auflösen, denn in den "`Referenced Libraries"' steht, dank des Root-POMs, die org.apache.commons.logging.*-Package-Hierachie drin.\\
+Sollten Sie einmal selbst auf der Suche nach dem passenden Dependency für eine bestimmte Bibliothek sein, lohnt ein Blick auf die Bundle-Suchmaschine unter \href{http://mvnrepository.com/}{http://mvnrepository.com/}.\\
+\\
+Folglich sollte der Quellcode nun mit Maven übersetzbar sein, dazu wechseln wir wieder ins Verzeichnis des FilterLangIdent-Bundles und machen ein \lstinline[breaklines=false, basicstyle=\itshape]|mvn clean && mvn install|.\\
+Doch dabei erscheint folgendes:
+\begin{lstlisting}
+	[ERROR] Error building bundle li.pxl:FilterLangIdent:bundle:0.1.0-SNAPSHOT : Unresolved references to [org.apache.commons.logging] by class(es) on the Bundle-Classpath[Jar:dot]: [li/pxl/filterlangident/impl/Activator.class]
+	[ERROR] Error(s) found in bundle configuration
+	[INFO] ------------------------------------------------------------------------
+	[ERROR] BUILD ERROR
+	[INFO] ------------------------------------------------------------------------
+	[INFO] Error(s) found in bundle configuration
+\end{lstlisting}
+Warum beschwert sich Maven hier über \lstinline[breaklines=false, basicstyle=\itshape]|Unresolved References|, wenn Eclipse diese auflösen konnte?\\
+\\
+Wenn man Dependencies "`nur"' im POM definiert, ist Eclipse anschließend zufrieden gestellt, denn normalerweise sind alle Libraries im Classpath von Java runtimeweit sichtbar.\\
+Im OSGi-Modell gibt es aber mit Absicht getrennte Classloader für jedes Bundle, wodurch diese streng voneinander getrennt werden. Deshalb muss alles, was nicht aus den java[x]-Packages kommt, erst noch einmal im Bundle-POM importiert werden, um es verwenden zu können.\\
+Der davon unabhängige \lstinline[breaklines=false, basicstyle=\itshape]|<dependency>|-Eintrag hat in Verbindung mit den \lstinline[breaklines=false, basicstyle=\itshape]|<Import-Package>|-Einträgen die Funktion, sehr fein Abhängigkeiten auf Java-Package-Ebene zusammen mit Versionsbereichen definieren zu können, eine Funktion, die Java von Haus aus nicht bietet.\\
+\\
+Das genutzte Package \lstinline[breaklines=false, basicstyle=\itshape]|org.apache.commons.logging| muss also erst noch in unserem Bundle-POM importiert werden, bauen Sie dazu den existierenden Eintrag aus.
+\begin{lstlisting}
+	<Import-Package>
+	org.osgi.framework,
+	org.apache.commons.logging
+	</Import-Package>
+\end{lstlisting}
+Da wir auch den Quellcode verändert haben, sollte auch die Version unseres Bundles in der letzten Stelle erhöht werden. Dadurch weiß das Framework später, dass das Bundle aktualisiert worden ist und wird ein Update von einer älteren Version zulassen.
+\begin{lstlisting}
+	<version>0.1.1-SNAPSHOT</version>
+\end{lstlisting}
+Rufen Sie nun "`mvn install"' auf, der Vorgang wird diesmal erfolgreich abgeschlossen und Sie erhalten wieder eine JAR-Datei, die sie, wie vorher beschrieben, in Paxle laden können.\\
+Wie Sie sehen, werden die Meldungen diesmal durch das Logging-System angezeigt und automatisch mit einem Zeitstempel versehen.
+
+\subsection{Filter ins Framework einbinden}
+Nun binden wir unser Bundle in den paxle-internen Datenfluss ein.\\
+Dafür gibt es das Konzept der sogenannten Filter, die Daten auf dem Weg durch das Paxle-Framework verändern, hinzufügen oder löschen können. Unser Filter muss das Dokument bearbeiten, das die Parser erzeugen (das sogenannte Parser-Document oder pDoc).\\
+Zuerst müssen wir also das Dokument an der Stelle, wo es aus dem Parser kommt, abfangen. Dafür bauen wir den Activator aus, damit er sich am Framework anmeldet und in den Datenfluss integriert wird. Dafür muss das Framework zuerst wissen, an welcher Stelle die Einbindung erfolgen soll.
+\begin{lstlisting}[caption=Quellcode zum Einfügen in die \lstinline|start(BundleContext context)|-Methode des Activators]
+	final Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
+	filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {
+			"org.paxle.parser.out; " + IFilter.PROP_FILTER_TARGET_POSITION + "=" + (Integer.MAX_VALUE-1000)
+	});
+\end{lstlisting}
+Dadurch weiß das Framework, dass dieser Filter hinter \emph{org.paxle.parser.out} eingebunden wird. Diese Stelle ist eine der \emph{Command-Filter-Queues}. Diese treten immer paarig auf (*.in und *.out), z.b. \lstinline[breaklines=false, basicstyle=\itshape]|crawler.out|, \lstinline[breaklines=false, basicstyle=\itshape]|parser.in|, \lstinline[breaklines=false, basicstyle=\itshape]|parser.out|, usw.\\
+In der Menge aller Filter an dieser Position \lstinline[breaklines=false, basicstyle=\itshape]|parser.out|, steht er sehr weit hinten (\lstinline[breaklines=false, basicstyle=\itshape]|Integer.MAX_VALUE-1000|), d.h. seine Funktion entfaltet er vermutlich als letzter Filter an dieser Stelle.\\
+Wir verwenden zwei Konstanten aus \lstinline[breaklines=false, basicstyle=\itshape]|IFilter|, einem Interface, dass im Paxle-Core definiert wird. Deshalb müssen wir den Paxle-\lstinline[breaklines=false, basicstyle=\itshape]|Core| über das POM importieren. \\
+Ergänzen Sie das POM um den Core-Import:
+\begin{lstlisting}[caption=Zusätzliche Imports und Dependencies im pom.xml]
+	[...]
+	<Import-Package>
+	org.osgi.framework,
+	org.apache.commons.logging,
+	org.paxle.core.doc;version="[0.1.0,0.2.0)",
+	org.paxle.core.queue;version="[0.1.0,0.2.0)",
+	org.paxle.core.filter;version="[0.1.0,0.2.0)"
+	</Import-Package>
+	[...]
+		<dependencies>
+			<dependency>
+				<groupId>org.paxle</groupId>
+				<artifactId>Core</artifactId>
+				<version>[,0.2.0)</version>
+				<exclusions>
+					<exclusion>
+						<groupId>commons-pool</groupId>
+						<artifactId>commons-pool</artifactId>
+					</exclusion>
+				</exclusions>				
+			</dependency>
+		</dependencies>
+	[...]
+	\end{lstlisting}
+Beachten Sie die Versionsangaben bei manchen Imports, die Schreibweise folgt der \href{http://docs.codehaus.org/display/MAVEN/Dependency+Mediation+and+Conflict+Resolution#DependencyMediationandConflictResolution-DependencyVersionRanges}{üblichen Notation für Intervalle}.\\
+Wenn Sie das POM aktualisiert haben, wechseln Sie wieder in den Ordner \lstinline[breaklines=false, basicstyle=\itshape]|trunk/bundles/FilterLangIdent/| und aktualisieren die Eclipse-Projektdateien mit \lstinline[breaklines=false, basicstyle=\itshape]|mvn eclipse:clean eclipse:eclipse|. Aktualisieren Sie das Projekt in Eclipse, woraufhin die Imports aufgelöst werden können.\\
+Nun müssen wir natürlich noch eine Klasse implementieren, die den eigentlichen Filter-Vorgang übernimmt. Diese Klasse müssen wir beim Framework anmelden.
+Dafür erstellen wir die folgende \lstinline[breaklines=false, basicstyle=\itshape]|FilterLangIdent|-Klasse, die das Interface \lstinline[breaklines=false, basicstyle=\itshape]|IFilter| implementiert.
+\begin{lstlisting}[numbers=left, caption=FilterLangIdent.java]
+	package li.pxl.filterlangident.impl;
+	
+	import java.util.HashSet;
+	
+	import org.apache.commons.logging.Log;
+	import org.apache.commons.logging.LogFactory;
+	import org.paxle.core.doc.IParserDocument;
+	import org.paxle.core.filter.IFilter;
+	import org.paxle.core.filter.IFilterContext;
+	import org.paxle.core.queue.ICommand;
+	
+	public class FilterLangIdent implements IFilter<ICommand> {
+	
+		/**
+		* Logger for logging
+		*/
+		private Log logger = LogFactory.getLog(this.getClass());
+	
+		public void filter(ICommand command, IFilterContext arg1) {
+			if (command == null) throw new NullPointerException("The command object is null.");
+	
+			logger.warn("Filtered in Langident!");
+			
+			if (command.getResult() != ICommand.Result.Passed) return;
+	
+			IParserDocument pDoc = command.getParserDocument();
+			if (pDoc.getStatus() != IParserDocument.Status.OK) return;
+	
+			HashSet<String> lng = new HashSet<String>();
+			lng.add("unknown");
+			pDoc.setLanguages(lng);	
+		}
+	}
+\end{lstlisting}
+Diese Klasse wird jedes Mal, wenn ein Parser-Dokument sie durchläuft, eine Meldung ausgeben und die Sprache auf \lstinline[breaklines=false, basicstyle=\itshape]|unknown| setzen.\\
+Wir haben dem Framework bereits gesagt, \emph{wo} wir den Filter einhängen, aber nicht, aus \emph{was} genau der Filter besteht.\\
+Das holen wir nun nach und bauen den Activator weiter aus.
+\begin{lstlisting}
+	final Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
+	filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {
+			"org.paxle.parser.out; " + IFilter.PROP_FILTER_TARGET_POSITION + "=" + (Integer.MAX_VALUE-1000)
+	});
+	context.registerService(IFilter.class.getName(), new FilterLangIdent(), filterProps);
+\end{lstlisting}
+Nun weiß das Framework auch, dass der Filter aus einer Instanz des \lstinline[breaklines=false, basicstyle=\itshape]|FilterLangIdent|-Objekts besteht.\\
+Sie sollten die Versionsangabe des Bundles im POM noch einmal in der letzten Stelle erhöhen.\\
+\\
+Der Übersicht halber hier nochmal die Inhalte aller Dateien, die wir bis jetzt erstellt haben.
+\begin{lstlisting}[numbers=left, caption=pom.xml]
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+	http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	
+	<groupId>li.pxl</groupId>
+	<artifactId>FilterLangIdent</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.2-SNAPSHOT</version>
+	<name>Paxle - FilterLangIdent</name>
+	<url>http://wiki.paxle.net/dev/bundles/FilterLangIdent</url>
+	
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Import-Package>
+							org.osgi.framework,
+							org.apache.commons.logging,
+							org.paxle.core.doc;version="[0.1.0,0.2.0)",
+							org.paxle.core.queue;version="[0.1.0,0.2.0)",
+							org.paxle.core.filter;version="[0.1.0,0.2.0)"
+						</Import-Package>
+						<Private-Package>li.pxl.filterlangident.impl</Private-Package>
+						<Bundle-Activator>li.pxl.filterlangident.impl.Activator</Bundle-Activator>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>[,0.2.0)</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+					<artifactId>commons-pool</artifactId>
+				</exclusion>
+			</exclusions>				
+		</dependency>
+	</dependencies>
+	
+</project>
+\end{lstlisting}
+\begin{lstlisting}[numbers=left, caption=Activator.java]
+package li.pxl.filterlangident.impl;
+
+import java.util.Hashtable;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.paxle.core.filter.IFilter;
+
+public class Activator implements BundleActivator {
+
+	private Log logger = LogFactory.getLog(this.getClass());
+	
+	public void start(BundleContext context) throws Exception {
+		logger.info("Bundle gestartet");
+		
+		final Hashtable<String, String[]> filterProps = new Hashtable<String, String[]>();
+		filterProps.put(IFilter.PROP_FILTER_TARGET, new String[] {
+				"org.paxle.parser.out; " + IFilter.PROP_FILTER_TARGET_POSITION + "=" + (Integer.MAX_VALUE-1000)
+		});
+		context.registerService(IFilter.class.getName(), new FilterLangIdent(), filterProps);
+		
+	}
+
+	public void stop(BundleContext context) throws Exception {
+		logger.info("Bundle gestoppt");
+	}
+
+}
+\end{lstlisting}
+\begin{lstlisting}[numbers=left, caption=FilterLangIdent.java]
+package li.pxl.filterlangident.impl;
+
+import java.util.HashSet;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.filter.IFilter;
+import org.paxle.core.filter.IFilterContext;
+import org.paxle.core.queue.ICommand;
+
+public class FilterLangIdent implements IFilter<ICommand> {
+
+	/**
+	 * Logger for logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
+
+	public void filter(ICommand command, IFilterContext arg1) {
+		if (command == null) throw new NullPointerException("The command object is null.");
+
+		logger.warn("Filtered in Langident!");
+		
+		if (command.getResult() != ICommand.Result.Passed) return;
+
+		IParserDocument pDoc = command.getParserDocument();
+		if (pDoc.getStatus() != IParserDocument.Status.OK) return;
+
+		HashSet<String> lng = new HashSet<String>();
+		lng.add("unknown");
+		pDoc.setLanguages(lng);	
+	}
+}
+\end{lstlisting}
+Damit ist das Bundle fertig. Wechseln Sie auf der Konsole noch einmal in das Bundle-Verzeichnis und bauen Sie mit \lstinline[breaklines=false, basicstyle=\itshape]|mvn clean && mvn install| die JAR-Datei.\\
+\\
+Starten Sie Paxle, laden Sie das Bundle hoch und starten Sie es.\\
+\\
+Wenn Sie nun anfangen Seiten zu crawlen, werden Sie sehen, dass alle Seiten unseren Filter durchlaufen, jedes mal eine Meldung dabei erzeugen und die Sprache auf \lstinline[breaklines=false, basicstyle=\itshape]|unknown| gesetzt wird.\\
+\\
+Damit ist das Ziel dieses Tutorials, einen eigenen Filter zu schreiben, erreicht.\\
+Wir wünschen Ihnen viel Spass bei der Programmierung mit Paxle.
+
+\newpage
+\section{Kommentierte Literaturliste}
+
+Natürlich werden viele Möglichkeiten der verwendeten Hilfsmittel für den Programmierer in einem solchen Dokument nur angerissen.\\
+Deshalb möchten wir Ihnen bei Interesse an diesem Gebiet die folgende Literatur empfehlen.
+\subsection{Subversion}
+
+\begin{description}
+\item[\href{http://svnbook.red-bean.com/nightly/de/svn-book.html}{Version Control with Subversion}] 
+Englisch (teilweise Deutsch), üblicherweise zu umfangreich zur vollständigen Lektüre, gut strukturiert und eignet sich so zum Nachlesen einzelner Sachverhalte
+\end{description}
+
+\subsection{Maven}
+\begin{description}
+\item[\href{http://www.sonatype.com/book/reference/public-book.html}{Maven: The Definitive Guide}]
+Englisch, üblicherweise zu umfangreich zur vollständigen Lektüre, bei vorhandenen Stichworten exzellentes Nachschlagewerk
+\item[\href{http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html}{Maven in 5 Minutes}]
+Englisch, sehr übersichtlich, nur grundlegendes Wissen, für Maven-Neulinge sehr zu empfehlen
+\end{description}
+\end{document}

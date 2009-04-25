@@ -1,0 +1,53 @@
+System-properties interpreted by Paxle:
+
+Core:
+~~~~~
+ - paxle.data
+   Allowed values: A path to a directory. It is allowed to use java 
+   				   system-properties in the path. 
+				   Usage examples:
+				   - "${user.home}/paxle"
+				   - "/var/lib/paxle/data"
+				   - "./data"
+   				   
+   
+   Description:
+   ~~~~~~~~~~~~
+   The given path is used to store all of the non-OSGi-specific files Paxle
+   uses and creates during runtime.
+
+DIJdicBackend:
+~~~~~~~~~~~~~~
+ - paxle.desktop.jdic.browse
+   Allowed values: "default", "reflect"
+   
+   Description:
+   ~~~~~~~~~~~~
+   This is a debug-property, which enables usage of a specialized method,
+   accessing the internals of JDIC to retrieve the return value of the call
+   to the Windows system-library which is used to start the user's default
+   web-browser. This property is only evaluated when run under a Windows-OS
+   and should be left on "default".
+
+FilterRobotsTxt:
+~~~~~~~~~~~~~~~~
+ - robots.Db4oStore.skipCleanup
+   Allowed values: "true", "false"
+   Default: "true"
+   
+   Description:
+   ~~~~~~~~~~~~
+   This property may be used to enable or disable the cleanup-thread of the
+   Db4o-database which may be used by the robots.txt-filter.
+
+DataLayer:
+~~~~~~~~~~
+ - CommandDB.configFile
+   Allowed values: "derby", "H2" or URL to a XML-config file. 
+   				   The URL may be a file://-, bundleentry://- or an web-based 
+   				   URL for which Java provides support by default, such as http://.
+   
+   Description:
+   ~~~~~~~~~~~~
+   The URL is used to retrieve the XML-config file, which describes how to
+   connect to the database-backend used by the CommandDB.
