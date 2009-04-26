@@ -16,15 +16,15 @@ package org.paxle.indexer.impl;
 import java.net.URI;
 import java.util.HashSet;
 
-import org.paxle.core.doc.CrawlerDocument;
+import junit.framework.TestCase;
+
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ParserDocument;
+import org.paxle.core.doc.impl.BasicCrawlerDocument;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
-
-import junit.framework.TestCase;
 
 public class IndexerWorkerTest extends TestCase {
 	
@@ -54,7 +54,8 @@ public class IndexerWorkerTest extends TestCase {
 		final ICommand cmd = new Command();
 		cmd.setLocation(URI.create("http://www.example.org/"));
 		cmd.setResult(ICommand.Result.Passed);
-		final ICrawlerDocument cdoc = new CrawlerDocument();
+		
+		final ICrawlerDocument cdoc = new BasicCrawlerDocument();
 		cdoc.setLocation(cmd.getLocation());
 		cdoc.setStatus(ICrawlerDocument.Status.OK);
 		cmd.setCrawlerDocument(cdoc);

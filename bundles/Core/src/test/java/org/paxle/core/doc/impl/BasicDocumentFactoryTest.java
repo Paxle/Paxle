@@ -11,13 +11,24 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.doc;
+package org.paxle.core.doc.impl;
 
-import org.paxle.core.doc.impl.BasicCrawlerDocument;
+import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.IDocumentFactory;
 
-/**
- * @deprecated please use the {@link IDocumentFactory#createDocument(Class)} instead
- */
-public class CrawlerDocument extends BasicCrawlerDocument {
+import junit.framework.TestCase;
 
+public class BasicDocumentFactoryTest extends TestCase {
+	private IDocumentFactory docFactory;
+	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		this.docFactory = new BasicDocumentFactory();
+	}
+	
+	public void testCreateCrawlerDocument() {
+		ICrawlerDocument cdoc = this.docFactory.createDocument(ICrawlerDocument.class);
+		assertNotNull(cdoc);
+	}
 }

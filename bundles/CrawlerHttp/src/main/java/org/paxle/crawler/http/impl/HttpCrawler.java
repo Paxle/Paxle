@@ -57,7 +57,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedService;
-import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.prefs.Properties;
 import org.paxle.crawler.ContentLengthLimitExceededException;
@@ -404,11 +403,11 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * 
 	 * @see #HTTPHEADER_CONTENT_TYPE
 	 * @param contentTypeHeader the HTTP-{@link Header}'s <code>Content-Type</code> attribute
-	 * @param doc the {@link CrawlerDocument} the resulting MIME-type and charset shall be set in
+	 * @param doc the {@link ICrawlerDocument} the resulting MIME-type and charset shall be set in
 	 * @return <code>true</code> if proceeding with the URL may continue or <code>false</code> if
 	 *         it shall be aborted due to an unsupported MIME-type of the requested document
 	 */
-	boolean handleContentTypeHeader(final Header contentTypeHeader, final CrawlerDocument doc) {
+	boolean handleContentTypeHeader(final Header contentTypeHeader, final ICrawlerDocument doc) {
 		if (contentTypeHeader == null)
 			// might be ok, might be not, we don't know yet
 			return true;
@@ -475,17 +474,17 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * are being compared and if the further exceeds the latter, <code>false</code> is retured,
 	 * <code>true</code> otherwise
 	 * <p>
-	 * No values are set in the {@link CrawlerDocument} in case of a positive result, otherwise
+	 * No values are set in the {@link ICrawlerDocument} in case of a positive result, otherwise
 	 * the document's <code>result</code> is set to {@link ICrawlerDocument.Status#UNKNOWN_FAILURE}
 	 * and a warning message is logged.
 	 * 
 	 * @see #maxDownloadSize
 	 * @param contentTypeLength the HTTP-{@link Header}'s <code>Content-Length</code> attribute
-	 * @param doc the {@link CrawlerDocument} the resulting MIME-type and charset shall be set in
+	 * @param doc the {@link ICrawlerDocument} the resulting MIME-type and charset shall be set in
 	 * @return <code>true</code> if proceeding with the URL may continue or <code>false</code> if
 	 *         it shall be aborted due to an exceeded maximum file-size of the document
 	 */
-	private boolean handleContentLengthHeader(final Header contentTypeLength, final CrawlerDocument doc) {
+	private boolean handleContentLengthHeader(final Header contentTypeLength, final ICrawlerDocument doc) {
 		if (contentTypeLength == null)
 			// no Content-Length given, continue
 			return true;
@@ -522,12 +521,16 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		if (requestUri == null) throw new NullPointerException("URL was null");
 		this.logger.debug(String.format("Crawling URL '%s' ...",requestUri));
 		
-		CrawlerDocument doc = new CrawlerDocument();
-		
-		doc.setLocation(requestUri);
-		
+		ICrawlerDocument doc = null;
 		HttpMethod method = null;
 		try {
+			final ICrawlerContext ctx = CrawlerContext.getCurrentContext();
+			if (ctx == null) throw new IllegalStateException("Cannot access CrawlerContext from " + Thread.currentThread().getName());
+			
+			// creating an empty crawler-document
+			doc = ctx.createDocument();				
+			doc.setLocation(requestUri);
+			
 			final String uriAsciiString = requestUri.toASCIIString();
 			
 			/* ==============================================================================
@@ -703,7 +706,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		return doc;
 	}
 	
-	private static void extractHttpHeaders(final HttpMethod method, final CrawlerDocument doc) throws IOException {
+	private static void extractHttpHeaders(final HttpMethod method, final ICrawlerDocument doc) throws IOException {
 		// getting the document languages
 		Header contentLanguageHeader = method.getResponseHeader(HTTPHEADER_CONTENT_LANGUAGE);
 		if (contentLanguageHeader != null) {
@@ -737,11 +740,12 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		doc.setLastModDate(lastModDate);			
 		
 		// ETAG
-		Header etageHeader = method.getResponseHeader(HTTPHEADER_ETAG);
-		if (etageHeader != null) {
-			String etag = etageHeader.getValue();
-			doc.setEtag(etag);
-		}
+		// XXX: this is protocol specific. How to store this in a generic crawler-document?
+//		Header etageHeader = method.getResponseHeader(HTTPHEADER_ETAG);
+//		if (etageHeader != null) {
+//			String etag = etageHeader.getValue();
+//			doc.setEtag(etag);
+//		}
 	}
 	
 	private static InputStream handleContentEncoding(final Header contentEncodingHeader, final InputStream responseBody) throws IOException {

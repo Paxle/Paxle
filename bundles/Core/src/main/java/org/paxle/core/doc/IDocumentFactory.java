@@ -13,11 +13,8 @@
  */
 package org.paxle.core.doc;
 
-import org.paxle.core.doc.impl.BasicCrawlerDocument;
-
-/**
- * @deprecated please use the {@link IDocumentFactory#createDocument(Class)} instead
- */
-public class CrawlerDocument extends BasicCrawlerDocument {
-
+public interface IDocumentFactory {
+	public static final String DOCUMENT_TYPE = "docType";
+	
+	public <Doc> Doc createDocument(Class<Doc> docInterface);
 }

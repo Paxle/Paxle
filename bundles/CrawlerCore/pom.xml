@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>CrawlerCore</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.12-SNAPSHOT</version>
+	<version>0.1.13-SNAPSHOT</version>
 	<name>Paxle - Crawler: Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -45,7 +45,8 @@
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.cm;version="1.2",
-							org.osgi.service.metatype;version="1.1",						
+							org.osgi.service.metatype;version="1.1",
+							org.osgi.service.component;version="1.0",					
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Apache Commons IO -->
@@ -108,7 +109,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.12,0.2.0)</version>				
+			<version>[0.1.26-SNAPSHOT,0.2.0)</version>				
 		</dependency>
 		<dependency>
 			<groupId>org.paxle</groupId>
@@ -120,6 +121,13 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>1.4</version>
+		</dependency>
+		
+		<!-- dependencies for testing -->
+		<dependency>
+			<groupId>org.eclipse.osgi</groupId>
+			<artifactId>osgi</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

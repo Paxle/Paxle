@@ -18,7 +18,6 @@ import java.util.Dictionary;
 
 import org.apache.commons.httpclient.Header;
 import org.mortbay.jetty.testing.ServletTester;
-import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.crawler.impl.ACrawlerTest;
 
@@ -120,7 +119,7 @@ public class HttpCrawlerTest extends ACrawlerTest {
 	}
 	
 	public void testHandleContentTypeHeader() {		
-		final CrawlerDocument cdoc = new CrawlerDocument();
+		final ICrawlerDocument cdoc = this.docFactory.createDocument(ICrawlerDocument.class);
 		Header h = null;
 		
 		cdoc.setCharset(null);

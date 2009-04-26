@@ -27,15 +27,12 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.paxle.core.charset.ACharsetDetectorInputStream;
 import org.paxle.core.charset.ICharsetDetector;
-import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.queue.ICommandProfile;
-
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ICrawlerContext;
@@ -53,14 +50,11 @@ public class FsCrawler implements IFsCrawler {
 	
 	public ICrawlerDocument request(URI location) {
 		
-		final ICrawlerDocument cdoc = new CrawlerDocument();
-		
 		final ICrawlerContext ctx = CrawlerContext.getCurrentContext();
-		if (ctx == null) {
-			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,
-					"Cannot access CrawlerContext from " + Thread.currentThread().getName());
-			return cdoc;
-		}
+		if (ctx == null) throw new IllegalStateException("Cannot access CrawlerContext from " + Thread.currentThread().getName());
+		
+		// creating an empty crawler-document
+		final ICrawlerDocument cdoc = ctx.createDocument();
 		
 		final ICommandProfile cmdProfile = ctx.getCommandProfile();
 		boolean omitHidden = true;

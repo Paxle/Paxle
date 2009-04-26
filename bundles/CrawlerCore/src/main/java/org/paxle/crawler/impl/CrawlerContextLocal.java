@@ -17,13 +17,24 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
-import org.paxle.core.queue.Command;
+import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.crawler.CrawlerContext;
@@ -38,8 +49,26 @@ import org.paxle.crawler.ICrawlerContext;
  * 				  bind="addSubParser" 
  * 				  unbind="removeSubParser"
  * 				  target="(MimeTypes=*)
+ * 
+ * @scr.reference name="docFactory" 
+ * 				  interface="org.paxle.core.doc.IDocumentFactory" 
+ * 				  cardinality="0..n" 
+ * 				  policy="dynamic" 
+ * 				  bind="addDocFactory" 
+ * 				  unbind="removeDocFactory"
+ * 				  target="(docType=*)
  */
 public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
+	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+	private final Lock r = rwl.readLock();
+	private final Lock w = rwl.writeLock();	
+	
+	/**
+	 * The {@link ComponentContext} of this component
+	 * @see #activate(ComponentContext)
+	 */
+	protected ComponentContext ctx;
+	
 	/**
 	 * @scr.reference cardinality="0..1" policy="dynamic" 
 	 */
@@ -65,21 +94,58 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
 	 */
 	protected ICommandProfileManager cmdProfileManager;	
 	
+	/**
+	 * All {@link IDocumentFactory document-factories} registered to the system. 
+	 * @see #createDocumentForInterface(Class, String)
+	 */
+	protected SortedSet<ServiceReference> docFactoryRefs = new TreeSet<ServiceReference>();
+	
+	/**
+	 * A list of mime-types supported by parsers installed to the system.
+	 * TODO: for a crawler-only installation we need to change this
+	 */
 	protected Set<String> supportedMimeTypes = Collections.synchronizedSet(new HashSet<String>());
+	
+	/**
+	 * For logging
+	 */
+	protected Log logger = LogFactory.getLog(this.getClass());
 	
 	public CrawlerContextLocal() {
 		CrawlerContext.setThreadLocal(this);
 	}
 	
+	protected void activate(ComponentContext context) {
+		this.ctx = context;
+	}
+	
+	protected void addDocFactory(ServiceReference docFactory) {
+		try {
+			w.lock();
+			this.docFactoryRefs.add(docFactory);
+		} finally {
+			w.unlock();
+		}
+	}
+	
+	protected void removeDocFactory(ServiceReference docFactory) {
+		try {
+			w.lock();
+			this.docFactoryRefs.remove(docFactory);
+		} finally {
+			w.unlock();
+		}
+	}
+	
 	protected void addSubParser(ServiceReference subParser) {
-		String[] mimeTypes = this.getSubParserMimeTypes(subParser);		
+		final String[] mimeTypes = this.getSubParserMimeTypes(subParser);		
 		for (String mimeType : mimeTypes) {
 			this.supportedMimeTypes.add(mimeType.trim());
 		}
 	}
 	
 	public void removeSubParser(ServiceReference subParser) {
-		String[] mimeTypes = this.getSubParserMimeTypes(subParser);		
+		final String[] mimeTypes = this.getSubParserMimeTypes(subParser);		
 		for (String mimeType : mimeTypes) {
 			this.supportedMimeTypes.remove(mimeType.trim());
 		}
@@ -97,10 +163,37 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
 	protected ICrawlerContext initialValue() {
 		return new Context();
 	}
+	
+	protected <DOC> DOC createDocumentForInterface(Class<DOC> docInterface, String filter) throws InvalidSyntaxException {
+		final Filter classFilter = ctx.getBundleContext().createFilter(String.format("(%s=%s)",IDocumentFactory.DOCUMENT_TYPE,docInterface.getName()));
+		final Filter propsFilter = (filter==null)?null:ctx.getBundleContext().createFilter(filter);
+		
+		ServiceReference factoryRef = null;
+		try {
+			r.lock();
+			
+			// loop through all doc-factories and find one that matches 
+			for (ServiceReference ref : docFactoryRefs) {
+				if (classFilter.match(ref) && (propsFilter == null || propsFilter.match(ref))) {
+					factoryRef = ref;
+					break;
+				}
+			}
+		} finally {
+			r.unlock();
+		}
+		
+		// no factory found
+		if (factoryRef == null) return null;
+
+		// creating an document
+		final IDocumentFactory factory = (IDocumentFactory) ctx.locateService("docFactory", factoryRef);
+		if (factory == null) return null;			
+		return factory.createDocument(docInterface);
+	}	
 
 	private class Context implements ICrawlerContext {
-		private final HashMap<String, Object> bag = new HashMap<String, Object>();
-		
+		private final HashMap<String, Object> bag = new HashMap<String, Object>();		
 		
 		/**
 		 * @return a class that can be used to detect the charset of a resource
@@ -147,7 +240,7 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
 		}		
 		
 		/**
-		 * @return the {@link ICommandProfile} that belongs to the {@link Command}
+		 * @return the {@link ICommandProfile} that belongs to the {@link ICommand}
 		 * currently processed by the parser-worker thread
 		 */
 		public ICommandProfile getCommandProfile() {
@@ -155,6 +248,20 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
 			if (profileID == null) return null;		
 			return this.getCommandProfile(profileID.intValue());
 		}			
+		
+		public ICrawlerDocument createDocument() {
+			try {
+				return this.createDocument(ICrawlerDocument.class, null);
+			} catch (InvalidSyntaxException e) {
+				// this should not occur
+				throw new RuntimeException(e.getMessage());
+			}
+		}
+		
+		public <DocInterface> DocInterface createDocument(Class<DocInterface> docInterface, String filter) throws InvalidSyntaxException {
+			if (docInterface == null) throw new NullPointerException("The interface-class must not be null");
+			return createDocumentForInterface(docInterface, filter);
+		}		
 		
 		/* ========================================================================
 		 * Function operating on the property bag
@@ -174,6 +281,6 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
 		
 		public void reset() {
 			this.bag.clear();
-		}		
+		}	
 	}
 }

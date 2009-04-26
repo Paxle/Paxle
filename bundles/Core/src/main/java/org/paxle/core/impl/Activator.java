@@ -50,6 +50,9 @@ import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.data.impl.DataListener;
 import org.paxle.core.data.impl.DataManager;
+import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.impl.AscendingPathUrlExtractionFilter;
@@ -202,6 +205,9 @@ public class Activator implements BundleActivator, InvocationHandler {
 		/* ==========================================================
 		 * Register Services
 		 * ========================================================== */
+		// registering document factories		
+		this.createAndRegisterDocumentFactories(bc);
+		
 		// register runtime-memory monitorable
 		this.createAndRegisterMonitorableObservers(bc);
 		
@@ -266,6 +272,20 @@ public class Activator implements BundleActivator, InvocationHandler {
         this.initEclipseApplication(bc);
 	}
 		
+	@SuppressWarnings("serial")
+	private void createAndRegisterDocumentFactories(BundleContext bc) {
+		bc.registerService(
+				IDocumentFactory.class.getName(), 
+				new BasicDocumentFactory(),
+				new Hashtable<String, Object>(){{
+					// all document types supported by this factory 
+					put(IDocumentFactory.DOCUMENT_TYPE,new String[]{
+							ICrawlerDocument.class.getName()
+					});
+				}}
+		);
+	}
+	
 	@SuppressWarnings("serial")
 	private void createAndRegisterMonitorableObservers(BundleContext bc) throws InvalidSyntaxException, SecurityException, NoSuchMethodException {
 		/*

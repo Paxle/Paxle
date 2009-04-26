@@ -21,7 +21,7 @@ import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.norm.IReferenceNormalizer;
-import org.paxle.core.queue.Command;
+import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.parser.IParserContext;
@@ -123,7 +123,7 @@ public class ParserContextLocal extends ThreadLocal<IParserContext> {
 		}	
 		
 		/**
-		 * @return the {@link ICommandProfile} that belongs to the {@link Command}
+		 * @return the {@link ICommandProfile} that belongs to the {@link ICommand}
 		 * currently processed by the parser-worker thread
 		 */
 		public ICommandProfile getCommandProfile() {

@@ -76,7 +76,7 @@ public class ProxyDataProviderCallable implements Callable<ICrawlerDocument> {
 	}
 
 	
-	private void extractHeaderData(final HttpResponseHeader resHdr, final CrawlerDocument doc) throws IOException {
+	private void extractHeaderData(final HttpResponseHeader resHdr, final ICrawlerDocument doc) throws IOException {
 		// content-type and charset
 		String contentType = resHdr.getContentType();
 		int idx = contentType.indexOf(";");
@@ -111,9 +111,9 @@ public class ProxyDataProviderCallable implements Callable<ICrawlerDocument> {
 		doc.setLastModDate(lastModDate);			
 		
 		// ETAG
-		String etageHeader = resHdr.getHeader(ProxyResponseHandler.HTTPHEADER_ETAG);
-		if (etageHeader != null) {
-			doc.setEtag(etageHeader);
-		}
+//		String etageHeader = resHdr.getHeader(ProxyResponseHandler.HTTPHEADER_ETAG);
+//		if (etageHeader != null) {
+//			doc.setEtag(etageHeader);
+//		}
 	}
 }

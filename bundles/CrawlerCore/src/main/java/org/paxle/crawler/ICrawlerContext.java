@@ -15,11 +15,14 @@ package org.paxle.crawler;
 
 import java.util.Set;
 
+import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
-import org.paxle.core.queue.Command;
+import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandProfile;
 
 public interface ICrawlerContext {	
@@ -55,10 +58,27 @@ public interface ICrawlerContext {
 	public ICommandProfile getCommandProfile(int profileID);
 	
 	/**
-	 * @return the {@link ICommandProfile} that belongs to the {@link Command}
+	 * @return the {@link ICommandProfile} that belongs to the {@link ICommand}
 	 * currently processed by the parser-worker thread
 	 */
 	public ICommandProfile getCommandProfile();
+	
+	/**
+	 * A function to create a new and empty {@link ICrawlerDocument} via 
+	 * one of the {@link IDocumentFactory document-factories} registered to the system. 
+	 * @return a newly created {@link ICrawlerDocument}
+	 */
+	public ICrawlerDocument createDocument();
+	
+	/**
+	 * A function to create a new and empty document of the given type. The second arguments can be used
+	 * to select between different {@link IDocumentFactory document-factories} generating the same type.
+	 * 
+	 * @param docInterface that interface of the document to be created
+	 * @param props
+	 * @return a newly created document of the given type
+	 */
+	public <DocInterface> DocInterface createDocument(Class<DocInterface> docInterface, String filter) throws InvalidSyntaxException;
 	
 	/* ========================================================================
 	 * Function operating on the property bag

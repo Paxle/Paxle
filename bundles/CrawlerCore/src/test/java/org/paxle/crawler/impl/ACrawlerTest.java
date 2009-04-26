@@ -18,7 +18,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.jmock.integration.junit3.MockObjectTestCase;
+import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.crawler.CrawlerContext;
@@ -28,6 +31,8 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 	protected ICrawlerDocument crawlerDoc;
 	
 	protected ITempFileManager aTempManager;
+	
+	protected IDocumentFactory docFactory;
 	
 	protected String[] mimeTypes = new String[] {"text/html"};
 	
@@ -56,16 +61,12 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 	protected void initCrawlerContext(final String[] mimeTypes) {
 		// creating a dummy temp-file manager
 		this.aTempManager = new TestTempFileManager();
+
+		// a dummy doc factory
+		this.docFactory = new BasicDocumentFactory();
 		
-		CrawlerContextLocal threadLocal = new CrawlerContextLocal() {{
-			// all mimetypes supported in the system
-			for (String mimeType : mimeTypes) {
-				this.supportedMimeTypes.add(mimeType);
-			}
-			
-			// a dummy temp-file manager
-			this.tempFileManager = aTempManager;
-		}};
+		// initializing the crawler context
+		CrawlerContextLocal threadLocal = new TestCrawlerContextLocal(mimeTypes, this.aTempManager);
 		CrawlerContext.setThreadLocal(threadLocal);
 	}
 	
@@ -81,5 +82,25 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 		public void removeTempDirFor(String... arg0) { }
 		public void setTempDirFor(ITempDir arg0, String... arg1) { }
 		public boolean isKnown(File file) { return true; }		
+	}
+	
+	private class TestCrawlerContextLocal extends CrawlerContextLocal {
+		public TestCrawlerContextLocal(String[] mimeTypes, ITempFileManager tempFileManager) {
+			// all mimetypes supported in the system
+			for (String mimeType : mimeTypes) {
+				this.supportedMimeTypes.add(mimeType);
+			}
+			
+			this.tempFileManager = tempFileManager;	
+		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		protected <DOC> DOC createDocumentForInterface(Class<DOC> docInterface, String filter) throws InvalidSyntaxException {
+			if (docInterface.isAssignableFrom(ICrawlerDocument.class)) {
+				return (DOC) docFactory.createDocument(ICrawlerDocument.class);
+			}
+			throw new IllegalArgumentException("Unexpected invocation");
+		}
 	}
 }

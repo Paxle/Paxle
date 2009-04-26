@@ -27,9 +27,10 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
-import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
+import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.CrawlerTools.DirlistEntry;
 import org.paxle.crawler.ftp.IFtpCrawler;
 
@@ -61,10 +62,13 @@ public class FtpCrawler implements IFtpCrawler, ManagedService {
 		if (requestUri == null) throw new NullPointerException("URL was null");
 		this.logger.info(String.format("Crawling URL '%s' ...", requestUri));		
 		
-		CrawlerDocument crawlerDoc = null;
+		ICrawlerDocument crawlerDoc = null;
 		try {
+			final ICrawlerContext ctx = CrawlerContext.getCurrentContext();
+			if (ctx == null) throw new IllegalStateException("Cannot access CrawlerContext from " + Thread.currentThread().getName());
+			
 			// creating a crawler-doc and set some basic properties
-			crawlerDoc = new CrawlerDocument();
+			crawlerDoc = ctx.createDocument();
 			crawlerDoc.setCrawlerDate(new Date());
 			crawlerDoc.setLocation(requestUri);
 			

@@ -23,10 +23,11 @@ import jcifs.smb.SmbFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument.Status;
+import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
+import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.CrawlerTools.DirlistEntry;
 
@@ -42,12 +43,17 @@ public class SmbCrawler implements ISubCrawler {
 		if (requestUri == null) throw new NullPointerException("URL was null");
 		this.logger.info(String.format("Crawling URL '%s' ...", requestUri));	
 		
-		CrawlerDocument crawlerDoc = new CrawlerDocument();
-		crawlerDoc.setCrawlerDate(new Date());
-		crawlerDoc.setLocation(requestUri);
-		
+		ICrawlerDocument crawlerDoc = null;
 		InputStream input = null;
 		try {
+			final ICrawlerContext ctx = CrawlerContext.getCurrentContext();
+			if (ctx == null) throw new IllegalStateException("Cannot access CrawlerContext from " + Thread.currentThread().getName());
+			
+			// creating an empty crawler-document
+			crawlerDoc = ctx.createDocument();			
+			crawlerDoc.setCrawlerDate(new Date());
+			crawlerDoc.setLocation(requestUri);			
+			
 			/* 
 			 * Create a temp URI to ensure that the port is set properly
 			 * This is required otherwise jcifs throws an exception.
