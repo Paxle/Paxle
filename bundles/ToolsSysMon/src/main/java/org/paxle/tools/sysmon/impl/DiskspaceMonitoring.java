@@ -66,14 +66,27 @@ public class DiskspaceMonitoring implements Monitorable {
 		}
 		
 		try {
-			long freeDisk = FileSystemUtils.freeSpaceKb(new File(System.getProperty("paxle.data")).getCanonicalPath());
-			freeDisk /= 1024;
+			/* 
+			 * Query free disk space.
+			 * 
+			 * We need to call this within a separate thread due to the following bug: 
+			 * https://bugs.pxl.li/view.php?id=278
+			 */
+			long freeDisk = -1;
+			FreeSpaceThread queryThread = new FreeSpaceThread();
+			queryThread.start();
+			
+			// waiting for the result
+			queryThread.join(10000);
+	
+			if (queryThread.isAlive()) {
+				this.logger.warn("FreeSpace query thread is still alive!");
+			} else {
+				freeDisk = queryThread.freeSpace;
+			}
+			
 			return new StatusVariable(name, StatusVariable.CM_GAUGE, freeDisk);
-		} catch (IOException e) {
-			this.logger.error(String.format(
-					"Unexpected '%s' while trying to query free disk-space.",
-					e.getClass().getName()
-			),e);
+		} catch (InterruptedException e) {
 			return null;
 		}
 	}
@@ -84,5 +97,29 @@ public class DiskspaceMonitoring implements Monitorable {
 
 	public boolean resetStatusVariable(String name) throws IllegalArgumentException {
 		return false;
+	}
+	
+	private static class FreeSpaceThread extends Thread {
+		/**
+		 * For logging
+		 */
+		private Log logger = LogFactory.getLog(this.getClass());		
+		
+		public long freeSpace = 0;
+		
+		@Override
+		public void run() {
+			try {
+				long freeDisk = FileSystemUtils.freeSpaceKb(new File(System.getProperty("paxle.data")).getCanonicalPath());
+				freeDisk /= 1024;
+				this.freeSpace = freeDisk;
+			} catch (IOException e) {
+				this.logger.error(String.format(
+						"Unexpected '%s' while trying to query free disk-space.",
+						e.getClass().getName()
+				),e);
+				this.freeSpace = -1;
+			}
+		}
 	}
 }
