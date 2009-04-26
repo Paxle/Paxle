@@ -145,7 +145,7 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 			// waiting for new commands
 			while(!this.stopped && !Thread.interrupted()) {
 				try {
-					// fetch the next complete command
+					// fetch the next complete crawler document
 					ICrawlerDocument crawlerDoc = execCompletionService.take().get();
 					if (crawlerDoc != null && crawlerDoc.getStatus() == ICrawlerDocument.Status.OK) {
 
@@ -155,7 +155,7 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 						
 						/* Sending event via command-tracker!
 						 * 
-						 * Callig this function should also created a valid command OID for us
+						 * Calling this function should also created a valid command OID for us
 						 */ 
 						this.commandTracker.commandCreated(this.getClass().getName(), cmd);
 						if (cmd.getOID() <= 0) {

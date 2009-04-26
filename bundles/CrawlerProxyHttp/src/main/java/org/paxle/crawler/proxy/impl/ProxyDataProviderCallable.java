@@ -80,7 +80,7 @@ public class ProxyDataProviderCallable implements Callable<ICrawlerDocument> {
 		// content-type and charset
 		String contentType = resHdr.getContentType();
 		int idx = contentType.indexOf(";");
-		if (idx != -1) contentType = contentType.substring(idx+1).trim();		
+		if (idx != -1) contentType = contentType.substring(0,idx).trim();
 		
 		doc.setMimeType(contentType);
 		doc.setCharset(resHdr.getCharacterEncoding());

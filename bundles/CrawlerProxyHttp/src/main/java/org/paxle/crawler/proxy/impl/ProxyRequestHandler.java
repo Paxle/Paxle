@@ -141,7 +141,7 @@ public class ProxyRequestHandler implements IHttpRequestHandler, ILifeCycle {
 				return false;
 			}
 
-			if(!user.hasCredential("http.password", password.getBytes("UTF-8"))) {
+			if(!user.hasCredential("http.password", password)) {
 				this.logger.info(String.format("[%s] Wrong password for username '%s'.", request.getRemoteHost(), userName));
 				this.sendProxyAuthenticateResponse(responseCtx, "Unknown user or invalid password");
 				return false;
