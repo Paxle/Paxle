@@ -15,6 +15,7 @@ package org.paxle.parser.html.impl;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -295,12 +296,20 @@ public class HtmlTools {
 				"\u203A","&rsaquo;",	// single right-pointing angle quotation mark
 				"\u20AC","&euro;",		// euro sign
 		};
+		
 		for (int i=0; i<htmlentities.length; i+=2) {
 			final ByteBuffer bb1 = UTF8.encode(htmlentities[i+1]);
 			final ByteBuffer bb0 = UTF8.encode(htmlentities[i]);
+			final byte[] buf;
+			if (bb0.array().length == bb0.limit()) {
+				buf = bb0.array();
+			} else {
+				buf = new byte[bb0.limit()];
+				System.arraycopy(bb0.array(), 0, buf, 0, bb0.limit());
+			}
 			HTML_ENTITY_TREE.addPattern(
 					bb1.array(), 0, bb1.limit(),
-					ArrayByteBuffer.wrap(bb0.array(), bb0.limit()).toByteArray());
+					buf);
 		}
 		HTML_ENTITY_TREE.createFailTransitions();
 	}
@@ -335,21 +344,23 @@ public class HtmlTools {
 	public static String deReplaceHTMLEntities(String text) {
 		// return deReplace(text, htmlentities);
 		
-		int last = 0;
-		final ByteBuffer bb = UTF8.encode(text);		// creates a HeapByteBuffer which uses a backing array
+		// allocates a new HeapByteBuffer which uses a backing array, see CharsetEncoder#encode(java.nio.CharBuffer)
+		final ByteBuffer bb = UTF8.encode(text);
 		final byte[] data = bb.array();
 		final int len = bb.limit();
+		
+		final Iterator<SearchResult<byte[]>> resultIt = HTML_ENTITY_TREE.search(data, 0, len).iterator();
+		if (!resultIt.hasNext())
+			return text;
+		
 		final ArrayByteBuffer abb = new ArrayByteBuffer(len);
-		for (final SearchResult<byte[]> r : HTML_ENTITY_TREE.search(data, 0, len)) {
+		int last = 0;
+		while (resultIt.hasNext()) {
+			final SearchResult<byte[]> r = resultIt.next();
 			abb.append(data, last, r.getMatchBegin() - last).append(r.getValue());
 			last = r.getMatchEnd() + 1;
 		}
-		
-		if (last > 0) {
-			return abb.append(data, last, len - last).toString(UTF8);
-		} else {
-			return text;
-		}
+		return abb.append(data, last, len - last).toString(UTF8);
 	}
 	
 	public static String deReplaceXMLEntities(String text) {

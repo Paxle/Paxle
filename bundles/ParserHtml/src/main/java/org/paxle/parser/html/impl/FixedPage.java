@@ -30,7 +30,7 @@ public class FixedPage extends Page {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private final ParserLogger logger;
+	final ParserLogger logger;
 	
 	public FixedPage(Source source, final ParserLogger logger) {
 		super(source);

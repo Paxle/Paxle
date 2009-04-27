@@ -15,6 +15,8 @@ package org.paxle.parser.html.impl;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -32,16 +34,20 @@ import org.htmlparser.tags.JspTag;
 import org.htmlparser.tags.LinkTag;
 import org.htmlparser.tags.MetaTag;
 import org.htmlparser.tags.ParagraphTag;
+import org.htmlparser.tags.ProcessingInstructionTag;
 import org.htmlparser.tags.ScriptTag;
 import org.htmlparser.tags.StyleTag;
 import org.htmlparser.tags.TableTag;
 import org.htmlparser.tags.TitleTag;
+import org.htmlparser.util.ParserException;
 import org.htmlparser.visitors.NodeVisitor;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.parser.html.impl.tags.AbbrTag;
 import org.paxle.parser.html.impl.tags.AddressTag;
+import org.paxle.parser.html.impl.tags.AreaTag;
 import org.paxle.parser.html.impl.tags.BoldTag;
 import org.paxle.parser.html.impl.tags.FixedLink;
 import org.paxle.parser.html.impl.tags.FixedMetaTag;
@@ -65,16 +71,23 @@ public class NodeCollector extends NodeVisitor {
 	 * <p>Tags additionally used by this implementation besides the inbuilt ones:</p>
 	 * <ul>
 	 *  <li>{@link org.paxle.parser.html.impl.tags.AddressTag}</li>
+	 *  <li>{@link org.paxle.parser.html.impl.tags.BoldTag}</li>
+	 *  <li>{@link org.paxle.parser.html.impl.tags.ItalicTag}</li>
+	 *  <li>{@link org.paxle.parser.html.impl.tags.FixedLink}</li>
+	 *  <li>{@link org.paxle.parser.html.impl.tags.FixedMetaTag}</li>
+	 *  <li>{@link org.paxle.parser.html.impl.tags.AbbrTag}</li>
+	 *  <li>{@link org.paxle.parser.html.impl.tags.AreaTag}</li>
 	 * </ul>
 	 */
-	public static final PrototypicalNodeFactory NODE_FACTORY = new PrototypicalNodeFactory();
+	public static final PrototypicalNodeFactory NODE_FACTORY = new PrototypicalNodeFactory(false);
 	static {
-		NODE_FACTORY.registerTag(new DoctypeTag());
 		NODE_FACTORY.registerTag(new AddressTag());
 		NODE_FACTORY.registerTag(new BoldTag());
 		NODE_FACTORY.registerTag(new ItalicTag());
 		NODE_FACTORY.registerTag(new FixedLink());
 		NODE_FACTORY.registerTag(new FixedMetaTag());
+		NODE_FACTORY.registerTag(new AbbrTag());
+		NODE_FACTORY.registerTag(new AreaTag());
 	}
 	
 	private static final HashSet<String> DiscardedTags = new HashSet<String>(Arrays.asList(
@@ -279,23 +292,24 @@ public class NodeCollector extends NodeVisitor {
 			if (DiscardedTags.contains(tag.getRawTagName().toLowerCase())) {
 				return;
 			}
-			else if (tag instanceof DoctypeTag)     process((DoctypeTag)tag);
-			else if (tag instanceof AddressTag)		{ process((AddressTag)tag); noParse = true; }
-			else if (tag instanceof BoldTag)		; // handled by visitStringNode(), TODO: extra weight
-		//	else if (tag instanceof DoctypeTag)     process((DoctypeTag)tag);
-			else if (tag instanceof HeadingTag)		{ process((HeadingTag)tag); noParse = true; }
-			else if (tag instanceof Html)			process((Html)tag);
-			else if (tag instanceof ImageTag)		process((ImageTag)tag);
-			else if (tag instanceof ItalicTag)		; // handled by visitStringNode(), TODO: extra weight
-			else if (tag instanceof JspTag)			this.noParse = true;
-			else if (tag instanceof LinkTag)		process((LinkTag)tag);
-			else if (tag instanceof MetaTag) 		process((MetaTag)tag);
-			else if (tag instanceof ParagraphTag)	; // handled by visitStringNode()
-			else if (tag instanceof RemarkNode)		this.noParse = true;
-			else if (tag instanceof ScriptTag)		this.noParse = true;
-			else if (tag instanceof StyleTag)		this.noParse = true;
-			else if (tag instanceof TableTag)		process((TableTag)tag);
-			else if (tag instanceof TitleTag) 		{ process((TitleTag)tag); noParse = true; }
+			else if (tag instanceof ProcessingInstructionTag) 	process((ProcessingInstructionTag)tag);
+			else if (tag instanceof DoctypeTag) 				process((DoctypeTag)tag);
+			else if (tag instanceof AddressTag)					{ process((AddressTag)tag); noParse = true; }
+			else if (tag instanceof BoldTag)					; // handled by visitStringNode(), TODO: extra weight
+		//	else if (tag instanceof DoctypeTag)     			process((DoctypeTag)tag);
+			else if (tag instanceof HeadingTag)					{ process((HeadingTag)tag); noParse = true; }
+			else if (tag instanceof Html)						process((Html)tag);
+			else if (tag instanceof ImageTag)					process((ImageTag)tag);
+			else if (tag instanceof ItalicTag)					; // handled by visitStringNode(), TODO: extra weight
+			else if (tag instanceof JspTag)						this.noParse = true;
+			else if (tag instanceof LinkTag)					process((LinkTag)tag);
+			else if (tag instanceof MetaTag) 					process((MetaTag)tag);
+			else if (tag instanceof ParagraphTag)				; // handled by visitStringNode()
+			else if (tag instanceof RemarkNode)					this.noParse = true;
+			else if (tag instanceof ScriptTag)					this.noParse = true;
+			else if (tag instanceof StyleTag)					this.noParse = true;
+			else if (tag instanceof TableTag)					process((TableTag)tag);
+			else if (tag instanceof TitleTag) 					{ process((TitleTag)tag); noParse = true; }
 			else if (!tag.isEndTag())
 				this.logger.logDebug("missed named tag " + tag.getClass().getSimpleName() + " (" + tag.getRawTagName() + ")", tag.getStartingLineNumber());
 		} catch (Throwable e) {
@@ -318,6 +332,29 @@ public class NodeCollector extends NodeVisitor {
 			else if (ntag instanceof StyleTag)		noParse = false;
 			else if (ntag instanceof TitleTag)		noParse = false;
 		}
+	}
+	
+	private void process(ProcessingInstructionTag tag) {
+		String tagstr = tag.toHtml();
+		tagstr = tagstr.substring(2, tagstr.length() - 3);		// '<?xml [..]?>' => 'xml [..]'
+		final String[] props = tagstr.split("[ \t\n\r\f]");
+		if (props.length < 2)
+			return;
+		if (!"xml".equals(props[0]))
+			return;
+		for (int i=1; i<props.length; i++)
+			if (props[i].startsWith("encoding=\"") && props[i].charAt(props[i].length() - 1) == '"') {
+				final String encName = props[i].substring("encoding=\"".length(), props[i].length() - 1).trim();
+				try {
+					if (Charset.isSupported(encName))
+						page.setEncoding(encName);
+				} catch (IllegalCharsetNameException e) {
+					logger.warning("illegal charset name detected in processing instruction: '" + encName + "'");
+				} catch (ParserException e) {
+					logger.error("cannot set charset '" + encName + "' requested by document", e);
+				}
+				break;
+			}
 	}
 	
 	private void process(MetaTag tag) {
