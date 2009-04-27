@@ -79,6 +79,7 @@ public class ProxyDataProviderCallable implements Callable<ICrawlerDocument> {
 	private void extractHeaderData(final HttpResponseHeader resHdr, final ICrawlerDocument doc) throws IOException {
 		// content-type and charset
 		String contentType = resHdr.getContentType();
+		if (contentType == null) contentType = "application/octet-stream";
 		int idx = contentType.indexOf(";");
 		if (idx != -1) contentType = contentType.substring(0,idx).trim();
 		

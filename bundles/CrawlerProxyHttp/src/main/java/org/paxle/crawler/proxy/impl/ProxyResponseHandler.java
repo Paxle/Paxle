@@ -161,6 +161,7 @@ public class ProxyResponseHandler implements IHttpResponseHandler, IHttpResponse
 		if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");
 		
 		String contentType = resHdr.getContentType();
+		if (contentType == null) contentType = "application/octet-stream";
 		int idx = contentType.indexOf(";");
 		if (idx != -1) contentType = contentType.substring(0,idx).trim();
 		
