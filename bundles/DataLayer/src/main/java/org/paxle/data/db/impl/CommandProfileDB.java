@@ -101,6 +101,8 @@ public class CommandProfileDB implements ICommandProfileManager {
 	 * @see ICommandProfileManager#getProfileByID(int)
 	 */
 	public ICommandProfile getProfileByID(int profileID) {		
+		if (profileID < 0) return null;
+		
 		Session session = null;
 		Transaction transaction = null;
 		final Integer profileIDInt = Integer.valueOf(profileID);
