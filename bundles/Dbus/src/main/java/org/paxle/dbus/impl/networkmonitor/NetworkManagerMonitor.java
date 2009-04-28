@@ -14,7 +14,6 @@
 package org.paxle.dbus.impl.networkmonitor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -29,36 +28,29 @@ import org.freedesktop.dbus.DBusSignal;
 import org.freedesktop.dbus.Path;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.exceptions.DBusExecutionException;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.IMWComponent;
-import org.paxle.dbus.IDbusService;
 
 /**
  * A class to receive signals from the {@link NetworkManager}
+ * 
+ * @scr.component immediate="true"
  */
-public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbusService, ServiceTrackerCustomizer {
+public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal> {
 	private static final String BUSNAME = "org.freedesktop.NetworkManager";
 	private static final String OBJECTPATH = "/org/freedesktop/NetworkManager";
 	
-	private Log logger = LogFactory.getLog(this.getClass());
-	
-	private BundleContext context = null;
-	
 	/**
-	 * An OSGi {@link ServiceTracker} to track the paxle crawler service.
+	 * For logging
 	 */
-	private ServiceTracker tracker = null; 
+	private Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
 	 * Reference to the crawler component
+	 * @scr.reference target="(component.ID=org.paxle.crawler)"
 	 */
-	private IMWComponent<?> crawler = null;
+	protected IMWComponent<?> crawler;
 	
 	/**
 	 * The connection to the dbus
@@ -73,28 +65,18 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 	/**
 	 * The list of {@link DBusSignal signals} to (un)register.
 	 */
-	@SuppressWarnings("unchecked")
-	private static ArrayList<Class> signals = new ArrayList<Class>(Arrays.asList(new Class[]{
-			NetworkManager.DeviceNoLongerActive.class,
-			NetworkManager.DeviceNowActive.class,
-			NetworkManager.DevicesChanged.class
-	}));
+	@SuppressWarnings({"unchecked","serial"})
+	private static ArrayList<Class> signals = new ArrayList<Class>(){{
+			add(NetworkManager.DeviceNoLongerActive.class);
+			add(NetworkManager.DeviceNowActive.class);
+			add(NetworkManager.DevicesChanged.class);
+	}};
 	
-	public NetworkManagerMonitor(BundleContext context) throws DBusException, InvalidSyntaxException {
+	protected void activate(ComponentContext context) throws DBusException, InvalidSyntaxException {
 		try {
 			// connecting to dbus
 			this.logger.info("Connecting to dbus ...");
 			this.conn = DBusConnection.getConnection(DBusConnection.SYSTEM);
-
-			// registering an OSGi service tracker
-			this.context = context;
-			Filter filter = context.createFilter(String.format(
-					"(&(%s=%s)(component.ID=org.paxle.crawler))",
-					Constants.OBJECTCLASS, 
-					IMWComponent.class.getName())
-			);
-			this.tracker = new ServiceTracker(this.context,filter,this);
-			this.tracker.open();
 
 			// getting the network-manager via dbus
 			this.logger.info(String.format("Getting reference to %s ...", BUSNAME));
@@ -104,39 +86,37 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 				this.logger.debug(String.format("%d device(s) detected: %s", Integer.valueOf(deviceList.size()), deviceList.toString()));
 				this.devices.addAll(deviceList);
 			}
+			
+			this.registerSignalListener();
 		} catch (DBusExecutionException e) {
 			if (e instanceof NoReply) {
 				this.logger.error(String.format("'%s' did not reply within specified time.",BUSNAME));
 			} else {
 				this.logger.warn(String.format(
-						"Unexpected '%s' while trying to connect to '%s'.",
-						e.getClass().getName(),
-						BUSNAME
+					"Unexpected '%s' while trying to connect to '%s'.",
+					e.getClass().getName(),
+					BUSNAME
 				),e);
 			}
 
-			// disconnecting from dbus
-			this.terminate();		
-			throw e;
+			// disabling this component
+			context.disableComponent(this.getClass().getName());
+			// XXX: should we re-throw the exceptoin here? 
+			// throw e;
 		}
 
 	}
 	
-	/**
-	 * @see IDbusService#terminate()
-	 */
-	public void terminate() {
-		// close tracker
-		if (this.tracker != null) this.tracker.close();
-		
+	protected void deactivate(ComponentContext context) {
+		// unregistering signal listener
+		this.unregisterSignalListener();
+			
 		// disconnecting from dbus
-		if (this.conn != null) this.conn.disconnect();
+		this.conn.disconnect();
 	}
 	
-	private void registerSignalListener(IMWComponent<?> crawler) {
+	private void registerSignalListener() {
 		try {
-			this.crawler = crawler;
-			
 			this.logger.info("Register network-manager signal listeners ...");
 			for (Class<DeviceSignal> signal : signals) {
 				conn.addSigHandler(signal, this);
@@ -148,11 +128,9 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 	
 	private void unregisterSignalListener() {
 		try {
-			this.crawler = null;
-			
 			this.logger.info("Unregister network-manager signal listeners ...");
 			for (Class<DeviceSignal> signal : signals) {
-				conn.removeSigHandler(signal,this);
+				this.conn.removeSigHandler(signal,this);
 			}
 		} catch (DBusException e) {
 			this.logger.error("Unable to unregister as dbus-signal-listener",e);
@@ -163,7 +141,7 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 	 * @see DBusSigHandler#handle(DBusSignal)
 	 */
 	public void handle(DeviceSignal signal) {
-		Path device = signal.getDevice();
+		final Path device = signal.getDevice();
 		
 		if (signal instanceof NetworkManager.DeviceNoLongerActive) {
 			this.logger.info(String.format("Device %s was deactivated.",signal.getDevice()));
@@ -183,32 +161,5 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal>, IDbu
 			this.logger.info("Device was changed: " + signal.toString());
 			// TODO: what todo here?
 		}
-	}
-
-	/**
-	 * @see ServiceTrackerCustomizer#addingService(ServiceReference)
-	 */
-	public Object addingService(ServiceReference reference) {
-		// a reference to the service
-		IMWComponent<?> crawler = (IMWComponent<?>) this.context.getService(reference);			
-		
-		// new service was installed
-		this.registerSignalListener(crawler);
-		return crawler;
-	}
-
-	/**
-	 * @see ServiceTrackerCustomizer#removedService(ServiceReference, Object)
-	 */
-	public void removedService(ServiceReference reference, Object service) {
-		// service was uninstalled
-		this.unregisterSignalListener();
-	}
-
-	/**
-	 * @see ServiceTrackerCustomizer#modifiedService(ServiceReference, Object)
-	 */
-	public void modifiedService(ServiceReference reference, Object service) {
-		// nothing todo here
 	}
 }

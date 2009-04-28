@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Dbus</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.3-SNAPSHOT</version>
 	<name>Paxle - API: Dbus</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -36,13 +36,11 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						
-						<Export-Package>
-							org.paxle.dbus;version="${pom.version}"
-						</Export-Package>
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.util.tracker;version="1.3",
+							org.osgi.service.component;version="1.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Paxle Core Bundle -->
@@ -66,10 +64,7 @@
 							org.freedesktop;-split-package:=first,
 							org.gnome
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.dbus.impl.Activator
-						</Bundle-Activator>
-
+						
 						<Bundle-NativeCode>
 							libunix-java.so; processor=i386 ; osname=Linux
 						</Bundle-NativeCode>
@@ -85,6 +80,19 @@
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

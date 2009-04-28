@@ -17,10 +17,10 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,15 +31,19 @@ import org.freedesktop.Tracker.Search;
 import org.freedesktop.dbus.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.exceptions.DBusExecutionException;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IndexerDocument;
-import org.paxle.dbus.IDbusService;
 import org.paxle.se.index.IFieldManager;
 import org.paxle.se.search.ISearchProvider;
 import org.paxle.se.search.ISearchRequest;
 
-public class TrackerSearchProvider implements ISearchProvider, IDbusService {
+/**
+ * @scr.component immediate="true"
+ * @scr.service interface="org.paxle.se.search.ISearchProvider"
+ */
+public class TrackerSearchProvider implements ISearchProvider {
 	public static final String TRACKER_BUSNAME = "org.freedesktop.Tracker";
 	public static final String TRACKER_OBJECTPATH = "/org/freedesktop/tracker";
 
@@ -50,20 +54,21 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 	public static final String FILE_SIZE = SERVICE_FILE + ":Size";
 	public static final String FILE_MODIFIED = SERVICE_FILE + ":Modified";
 	
-	public static ArrayList<String> fileProperties = new ArrayList<String>(Arrays.asList(new String[]{
-			FILE_NAME, 
-			FILE_MIME, 
-			FILE_SIZE,
-			FILE_MODIFIED
-	}));
+	@SuppressWarnings("serial")
+	private static ArrayList<String> fileProperties = new ArrayList<String>() {{
+			add(FILE_NAME); 
+			add(FILE_MIME); 
+			add(FILE_SIZE);
+			add(FILE_MODIFIED);
+	}};
 	
-	public static HashMap<String, Field<?>> propToFieldMapper = new HashMap<String, Field<?>>();
-	static {
-		propToFieldMapper.put(FILE_NAME, IIndexerDocument.TITLE);
-		propToFieldMapper.put(FILE_MIME, IIndexerDocument.MIME_TYPE);
-		propToFieldMapper.put(FILE_SIZE, IIndexerDocument.SIZE);
-		propToFieldMapper.put(FILE_MODIFIED, IIndexerDocument.LAST_MODIFIED);
-	}
+	@SuppressWarnings("serial")
+	private static HashMap<String, Field<?>> propToFieldMapper = new HashMap<String, Field<?>>(){{
+		put(FILE_NAME, IIndexerDocument.TITLE);
+		put(FILE_MIME, IIndexerDocument.MIME_TYPE);
+		put(FILE_SIZE, IIndexerDocument.SIZE);
+		put(FILE_MODIFIED, IIndexerDocument.LAST_MODIFIED);
+	}};
 	
 //	public static ArrayList<String> properties = new ArrayList<String>(Arrays.asList(new String[]{
 ////			"DC:Title",
@@ -89,19 +94,35 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 	 */
 	private DBusConnection conn = null;
 	
+	/**
+	 * For logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
+	/**
+	 * A reference to the Tracker service
+	 */
 	private Tracker tracker = null;
 	
+	/**
+	 * A reference to the Tracker-search service
+	 */
 	private Search search = null;
 	
+	/**
+	 * A reference to the Tracker-metadata service
+	 */
 	private Metadata metadata = null;
 	
-	private IFieldManager fieldManager = null;
+	/**
+	 * A reference to the paxle field-manager
+	 * @scr.reference
+	 */
+	protected IFieldManager fieldManager;
 	
-	private int searchID = 0;
+	private AtomicInteger searchID = new AtomicInteger(0);
 	
-	public TrackerSearchProvider() throws DBusException {
+	protected void activate(ComponentContext context) throws DBusException {
 		try {
 			// connect to dbus
 			this.logger.info(String.format("Connecting to dbus ..."));
@@ -126,13 +147,14 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 				),e);
 			}
 			
-			// disconnecting from dbus
-			if (this.conn != null) this.conn.disconnect();			
-			throw e;
+			// disabling this component
+			context.disableComponent(this.getClass().getName());
+			// XXX: should we re-throw the exceptoin here? 
+			// throw e;
 		}
 	}
 	
-	public void terminate() {
+	protected void deactivate(ComponentContext context) {
 		this.conn.disconnect();
 	}
 	
@@ -146,7 +168,7 @@ public class TrackerSearchProvider implements ISearchProvider, IDbusService {
 			final int maxCount = searchRequest.getMaxResultCount();
 			final long timeout = searchRequest.getTimeout();
 			
-			List<String> result = this.search.Text(searchID++, Tracker.SERVICE_FILES, request, 0, maxCount);
+			List<String> result = this.search.Text(this.searchID.incrementAndGet(), Tracker.SERVICE_FILES, request, 0, maxCount);
 			if (result != null) {
 				for (String uri : result) {
 					// check if we need to hurry up
