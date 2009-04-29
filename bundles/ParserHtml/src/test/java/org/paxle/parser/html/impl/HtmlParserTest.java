@@ -17,8 +17,11 @@ import java.io.File;
 import java.io.Reader;
 import java.net.URI;
 import java.nio.CharBuffer;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
@@ -40,7 +43,7 @@ public class HtmlParserTest extends AParserTest {
 		"pc-welt_archiv07_knowhow.html",
 		"maktoobblog.com.html",
 //		"imdb_biographies_s.html",		// XXX: you need to set Xmx to 128m to run this
-//		"perltoc-search.cpan.org.html",	// XXX: you need to set Xmx to 128m to run this
+//		"perltoc-search.cpan.org.html",	// XXX: you need to set Xmx to 128m to run this */
 	};
 	
 	@Override
@@ -68,6 +71,134 @@ public class HtmlParserTest extends AParserTest {
 		while (r.read(buf) != -1) {
 			buf.flip();
 			System.out.print(buf);
+		}
+	}
+	
+	private static class HCardSubDocComparable {
+		public String fn;
+		public String[] urls;
+		public String[] org;
+		public String[] imgs;
+		
+		public void check(IParserDocument doc, int t, int i) {
+			if (fn != null)
+				assertEquals("#" + t + "," + i + ": author", fn, doc.getAuthor());
+			if (urls != null)
+				check(urls, doc.getLinks().keySet(), "uris", t, i);
+			// todo: test orgs
+			if (imgs != null)
+				check(imgs, doc.getImages().keySet(), "images", t, i);
+		}
+		
+		private static void check(final String[] expected, final Collection<?> actual, final String name, final int t, final int i) {
+			assertEquals("#" + t + "," + i + ": number " + name, expected.length, actual.size());
+			final HashSet<String> set = new HashSet<String>();
+			for (final String el_a : expected)
+				set.add(el_a.intern());
+			for (final Object el_b : actual)
+				assertTrue("#" + t + "," + i + ": found additional url in pdoc: '" + el_b + "'", set.remove(el_b.toString().intern()));
+			assertEquals("#" + t + "," + i + ": " + name + " unmatched: " + set, 0, set.size());
+		}
+	}
+	
+	/* this array is indexed as follows: hcardCmps[testIdx][hcardIdx]
+	 * whereas testIdx is the number of the test-file in src/test/resources/hcard/microformats.org/tests/hcard
+	 * (they all follow the pattern [0-9]{2}-.*\.html and begin with number 01)
+	 * and hcardIdx is the number of the hcard defined in the html-file */
+	private static final HCardSubDocComparable[][] hcardCmps = {
+		null,
+		new HCardSubDocComparable[] {			// #01
+				new HCardSubDocComparable() {{
+					fn = "Tantek Çelik";
+					urls = new String[] { "http://tantek.com/" };
+					org = new String[] { "Technorati" };
+				}}
+		},
+		null,
+		new HCardSubDocComparable[] {			// #03
+				new HCardSubDocComparable() {{ fn = "Ryan King"; }},
+				new HCardSubDocComparable() {{ fn = "Ryan King"; }},
+				new HCardSubDocComparable() {{ fn = "Ryan King"; }},
+				new HCardSubDocComparable() {{ fn = "Brian Suda"; }},
+				new HCardSubDocComparable() {{ fn = "King, Ryan"; }},
+				new HCardSubDocComparable() {{ fn = "King, R"; }},
+				new HCardSubDocComparable() {{ fn = "King R"; }},
+				new HCardSubDocComparable() {{ fn = "King R."; }},
+				new HCardSubDocComparable() {{ fn = "Jesse James Garrett"; }},
+				new HCardSubDocComparable() {{ fn = "Thomas Vander Wal"; }},
+		},
+		new HCardSubDocComparable[] {			// #04
+				new HCardSubDocComparable() {{ fn = "Ryan King"; }}
+		},
+		null,
+		null,
+		new HCardSubDocComparable[] {			// #07
+				new HCardSubDocComparable() {{
+					fn = "John Doe";
+					/* TODO: fails, only "/home/blah" is returned
+					urls = new String[] { "http//www.example.org/home/blah" }; */
+				}}
+		},
+		new HCardSubDocComparable[] {			// #08
+				new HCardSubDocComparable() {{
+					fn = "John Doe";
+					urls = new String[] { "http://example.org/home/blah" };		// see base-tag in the file
+				}}
+		},
+		null,
+		null,
+		new HCardSubDocComparable[] {			// #11
+				new HCardSubDocComparable() {{
+					fn = "John Doe";
+					urls = new String[] { "http://example.com/foo", "http://example.com/bar" };
+				}}
+		},
+		new HCardSubDocComparable[] {			// #12
+				new HCardSubDocComparable() {{
+					fn = "John Doe";
+					urls = new String[] { "http://example.org/picture.png" };
+				}}
+		},
+		new HCardSubDocComparable[] {			// #13
+				new HCardSubDocComparable() {{
+					fn = "John Doe";
+					imgs = new String[] { "http://example.org/picture.png" };
+				}}
+		},
+		null,
+		null,
+		null,
+		null,
+		new HCardSubDocComparable[] {			// #18
+				new HCardSubDocComparable() {{
+					fn = "John Doe";
+					urls = imgs = new String[] { "http://example.com/foo.png" };
+				}}
+		},
+		null,
+		new HCardSubDocComparable[] {			// #20
+				new HCardSubDocComparable() {{
+					fn = "John Doe";
+					imgs = new String[] { "http://example.com/foo.png" };
+				}}
+		},
+	};
+	
+	public void testHCard() throws Exception {
+		final File testDir = new File("src/test/resources/hcard/microformats.org/tests/hcard");
+		for (final String testName : testDir.list()) {
+			final int testnr = Integer.parseInt(testName.substring(0, 2));
+			if (hcardCmps.length <= testnr || hcardCmps[testnr] == null)
+				continue;
+			
+			final IParserDocument pdoc = parser.parse(new URI("http//www.example.org/hcard/" + testName), null, new File(testDir, testName));
+			final HCardSubDocComparable[] cmps = hcardCmps[testnr];
+			assertEquals(pdoc.getSubDocs().keySet().toString(), cmps.length, pdoc.getSubDocs().size());
+			// TreeMap sorts numerically after sub-doc-location which has this format: "#n: $name"
+			final IParserDocument[] sdocs = new TreeMap<String,IParserDocument>(pdoc.getSubDocs())
+					.values().toArray(new IParserDocument[pdoc.getSubDocs().size()]);
+			for (int i=0; i<sdocs.length; i++)
+				cmps[i].check(sdocs[i], testnr, i);
 		}
 	}
 	
