@@ -66,7 +66,7 @@ public class PlaintextDumperFilter implements IFilter<ICommand> {
 		if (!dataDir.exists()) dataDir.mkdirs();		
 	}	
 
-	public File store(IParserDocument pDoc) throws IOException {
+	File store(IParserDocument pDoc) throws IOException {
 		
 		Map<String,IParserDocument> subDocs = pDoc.getSubDocs();
 		if (subDocs != null) {
