@@ -220,6 +220,7 @@ public class NodeCollector extends NodeVisitor {
 					this.doc.addReference(uri, unescaped, "ParserHtml");
 			}
 		
+		// robots meta-tag: noindex / nofollow
 		if (this.obeyRobotsNoindex || this.obeyRobotsNofollow) {
 			final Collection<String> robots = mtm.get(MetaTagManager.Names.Robots);
 			if (robots != null) {
@@ -252,9 +253,8 @@ public class NodeCollector extends NodeVisitor {
 			//System.err.println();
 		} else */
 		if (!this.noParse) {
-			final String txt = HtmlTools.deReplaceHTML(string.getText()).trim();
-			if (txt.length() > 0) try {
-				this.doc.append(txt);
+			try {
+				this.doc.append(HtmlTools.deReplaceHTML(string.getText()));
 			} catch (IOException e) {
 				logger.logError("Error processing string-node", string.getStartPosition(), e);
 			}
@@ -334,6 +334,8 @@ public class NodeCollector extends NodeVisitor {
 		}
 	}
 	
+	private static final String PI_ENCODING_START = "encoding=\"";
+	
 	private void process(ProcessingInstructionTag tag) {
 		String tagstr = tag.toHtml();
 		tagstr = tagstr.substring(2, tagstr.length() - 3);		// '<?xml [..]?>' => 'xml [..]'
@@ -343,8 +345,10 @@ public class NodeCollector extends NodeVisitor {
 		if (!"xml".equals(props[0]))
 			return;
 		for (int i=1; i<props.length; i++)
-			if (props[i].startsWith("encoding=\"") && props[i].charAt(props[i].length() - 1) == '"') {
-				final String encName = props[i].substring("encoding=\"".length(), props[i].length() - 1).trim();
+			if (props[i].length() > PI_ENCODING_START.length() &&
+					props[i].startsWith(PI_ENCODING_START) &&
+					props[i].charAt(props[i].length() - 1) == '"') {
+				final String encName = props[i].substring(PI_ENCODING_START.length(), props[i].length() - 1).trim();
 				try {
 					if (Charset.isSupported(encName))
 						page.setEncoding(encName);

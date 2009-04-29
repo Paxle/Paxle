@@ -22,17 +22,27 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.htmlparser.Node;
 import org.htmlparser.Parser;
 import org.htmlparser.lexer.InputStreamSource;
 import org.htmlparser.lexer.Lexer;
 import org.htmlparser.lexer.Source;
 import org.htmlparser.scanners.ScriptScanner;
+import org.htmlparser.util.NodeIterator;
+import org.htmlparser.visitors.NodeVisitor;
+import org.microformats.hCard.HCard;
+import org.microformats.hCard.HCardParser.HCardVisitor;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
@@ -42,6 +52,7 @@ import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
+import org.paxle.parser.html.IHtmlParser;
 
 /**
  * Parses (X)HTML-pages using the html parser from
@@ -63,10 +74,7 @@ import org.paxle.parser.ParserException;
  * 				 values.4="text/xml"
  * 				 values.4="text/sgml"
  */
-public class HtmlParser implements ISubParser, PoolableObjectFactory {
-	
-	private static final String PROP_VALIDATE_META_ROBOTS_NOINDEX = HtmlParser.class.getName() + ".validateMetaRobots.noindex";
-	private static final String PROP_VALIDATE_META_ROBOTS_NOFOLLOW = HtmlParser.class.getName() + ".validateMetaRobots.nofollow";
+public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactory {
 	
 	private final Log logger = LogFactory.getLog(HtmlParser.class);
 	
@@ -75,19 +83,25 @@ public class HtmlParser implements ISubParser, PoolableObjectFactory {
 		final File dir = new File(args[0]);
 		final String[] files = dir.list();
 		for (int i=0; i<files.length; i++) try {
-			ParserDocument doc = new ParserDocument();
-			Page page = new PPage(new InputStreamSource(new FileInputStream(new File(dir, files[i]))));
-			page.setUrl("http://www.example.com/");
-			Parser parser = new Parser(new Lexer(page));
+			// IParserDocument doc = new CachedParserDocument(null);
+			final String url = "http://www.example.com/";
+			FixedPage page = new FixedPage(new InputStreamSource(new FileInputStream(new File(dir, files[i]))),
+					new ParserLogger(LogFactory.getLog(HtmlParser.class), URI.create(url)));
+			page.setUrl(url);
+			final Lexer lexer = new Lexer(page);
+			lexer.setNodeFactory(NodeCollector.NODE_FACTORY);
+			Parser parser = new Parser(lexer);
 			System.out.println("PARSING: " + parser.getURL());
 			parser.setNodeFactory(NodeCollector.NODE_FACTORY);
-			NodeCollector nc = new NodeCollector(doc);
 			System.out.println(files[i]);
+			NodeCollector nc = new NodeCollector(page.logger, page);
+			final IParserDocument pdoc = new CachedParserDocument(null);
+			nc.init(pdoc, null, false, false);
 			parser.visitAllNodesWith(nc);
 			page.close();
 			System.out.println("-------------------------------------------------------------------------------------------");
 			System.out.println();
-			System.out.println(doc.toString());
+			System.out.println(pdoc.toString());
 		} catch (final Exception e) { e.printStackTrace(); }
 	}*/
 	
@@ -96,12 +110,12 @@ public class HtmlParser implements ISubParser, PoolableObjectFactory {
 	 */
 	private ObjectPool pool = null;
 	
-	protected void activate(ComponentContext context) {
+	protected void activate(@SuppressWarnings("unused") ComponentContext context) {
 		this.pool = new GenericObjectPool(this);
 		ScriptScanner.STRICT = false;
 	}
 
-	protected void deactivate(ComponentContext context) throws Exception {
+	protected void deactivate(@SuppressWarnings("unused") ComponentContext context) throws Exception {
 		this.pool.close();
 		this.pool = null;
 	}
@@ -174,33 +188,33 @@ public class HtmlParser implements ISubParser, PoolableObjectFactory {
 			
 			// parsing content
 			final IParserContext context = ParserContext.getCurrentContext();
+			
+			boolean obeyRobotsNoindex = true, obeyRobotsNofollow = true;
+			boolean useHcards = true;
+			final ICommandProfile cmdProfile = context.getCommandProfile();
+			if (cmdProfile != null) {
+				Serializable v;
+				if ((v = cmdProfile.getProperty(PROP_VALIDATE_META_ROBOTS_NOINDEX)) != null)
+					obeyRobotsNoindex = ((Boolean)v).booleanValue();
+				if ((v = cmdProfile.getProperty(PROP_VALIDATE_META_ROBOTS_NOFOLLOW)) != null)
+					obeyRobotsNofollow = ((Boolean)v).booleanValue();
+				if ((v = cmdProfile.getProperty(PROP_HCARD_ENABLE)) != null)
+					useHcards = ((Boolean)v).booleanValue();
+			}
+			
 			final IParserDocument doc = new CachedParserDocument(context.getTempFileManager());			
 			final InputStreamSource iss = new InputStreamSource(is, charset);
 			
-			boolean obeyRobotsNoindex = true, obeyRobotsNofollow = true;
-			final ICommandProfile cmdProfile = context.getCommandProfile();
-			if (cmdProfile != null) {
-				final Serializable robNoindex = cmdProfile.getProperty(PROP_VALIDATE_META_ROBOTS_NOINDEX);
-				final Serializable robNofollow = cmdProfile.getProperty(PROP_VALIDATE_META_ROBOTS_NOFOLLOW);
-				if (robNoindex != null)
-					obeyRobotsNoindex = ((Boolean)robNoindex).booleanValue();
-				if (robNofollow != null)
-					obeyRobotsNofollow = ((Boolean)robNofollow).booleanValue();
-			}
-			
 			try {
-				req.parse(location, doc, context.getReferenceNormalizer(), iss, obeyRobotsNoindex, obeyRobotsNofollow);
-				/*
-				final FixedPage page = new FixedPage(iss);
-				final ParserLogger pl = new ParserLogger(logger, location);
-				final Parser parser = new Parser(new Lexer(page), pl);
-				
-				final NodeCollector nc = new NodeCollector(doc, pl, page, context.getReferenceNormalizer());
-				parser.visitAllNodesWith(nc);
-				page.close();
-				*/
+				req.parse(
+						location,
+						doc,
+						context.getReferenceNormalizer(),
+						iss,
+						obeyRobotsNoindex, obeyRobotsNofollow,
+						useHcards);
 			} finally {
-				iss.destroy();
+				iss.destroy();			// performs the same operation as page.close()
 			}
 			
 			// return parser-requisites into pool
@@ -239,6 +253,7 @@ public class HtmlParser implements ISubParser, PoolableObjectFactory {
 		final Lexer lexer = new Lexer(page);
 		final Parser parser = new Parser(lexer, logger);
 		final NodeCollector nc = new NodeCollector(logger, page);
+		HCardVisitor hc = null;
 		
 		public HtmlParserRequisites() {
 	        lexer.setNodeFactory(NodeCollector.NODE_FACTORY);
@@ -252,7 +267,7 @@ public class HtmlParser implements ISubParser, PoolableObjectFactory {
 			 *  - the cursor, which is done above
 			 */
 			// no need to reset the parser, it would only reset the lexer - see above
-			// no need to reset the nc, this is done prior to each parsing process by the parse()-method
+			// no need to reset the nc & hc, this is done prior to each parsing process by the parse()-method
 		}
 		
 		public void parse(
@@ -260,13 +275,83 @@ public class HtmlParser implements ISubParser, PoolableObjectFactory {
 				final IParserDocument doc,
 				final IReferenceNormalizer refNorm,
 				final Source source,
-				boolean obeyRobotsNoindex,
-				boolean obeyRobotsNofollow) throws org.htmlparser.util.ParserException {
+				final boolean obeyRobotsNoindex, final boolean obeyRobotsNofollow,
+				final boolean useHcards) throws org.htmlparser.util.ParserException, IOException {
 			logger.setLocation(location);
+			
 			page.init(source);
 			page.setUrl(location.toASCIIString());
+			
 			nc.init(doc, refNorm, obeyRobotsNoindex, obeyRobotsNofollow);
-			parser.visitAllNodesWith(nc);
+			
+			if (useHcards) {
+				if (hc == null)
+					hc = new HCardVisitor();
+				hc.init(location);
+				
+				// we cannot reposition the source-stream to the beginning, so we have to run the visitors simultanously
+				visitAllNodesWithAll(nc, hc);
+				
+				// extract hcard-information into pdoc
+				extractHcardInfos(doc);
+			} else {
+				parser.visitAllNodesWith(nc);
+			}
+		}
+		
+		private void extractHcardInfos(final IParserDocument doc) throws IOException {
+			final Iterator<HCard> it = hc.parsedHCards().iterator();
+			while (it.hasNext()) {
+				final HCard hcard = it.next();
+				
+				/* Since the HCard and all of it's content is immutable, we need to seperate the
+				 * information ourselves here instead of simply clearing the lists containing the URLs. */
+				
+				// add all extracted links
+				for (final URI agentUri : hcard.agents) doc.addReference(agentUri, "", "HCardParser");
+				for (final URI logoUri  : hcard.logos)  doc.addReference(logoUri, "", "HCardParser");
+				for (final URI photoUri : hcard.photos) doc.addReference(photoUri, "", "HCardParser");
+				for (final URI soundUri : hcard.sounds) doc.addReference(soundUri, "", "HCardParser");
+				for (final URI uri      : hcard.urls)   doc.addReference(uri, "", "HCardParser");
+				
+				// append all other information
+				doc.append('\n').append("hCard for ").append(hcard.fn).append('\n');
+				if ( !hcard.n.isEmpty() ) doc.append("  Name: ").append(hcard.n.toString()).append('\n');
+				if ( hcard.nicknames.size() > 0 ) doc.append("  Nickname: ").append(printCommaList(hcard.nicknames)).append('\n');
+				if ( hcard.bday != null ) doc.append("  Birth day: ").append(printDate(hcard.bday.longValue())).append('\n');
+				if ( hcard.tels.size() > 0 ) doc.append("  Tel Nr: ").append(printCommaList(hcard.tels)).append('\n');
+				if ( hcard.emails.size() > 0 ) doc.append("  Email: ").append(printCommaList(hcard.emails)).append('\n');
+				if ( hcard.geo != null ) doc.append("  Geolocation: ").append(hcard.geo.toString()).append('\n');
+				if ( hcard.tz != null ) doc.append("  Timezone: ").append(hcard.tz.toString()).append('\n');
+				if ( hcard.adrs.size() > 0 ) doc.append("  Address:\n").append(printBlockList(hcard.adrs));
+				if ( hcard.labels.size() > 0 ) doc.append("  Label:\n").append(printBlockList(hcard.labels));
+				if ( hcard.mailers.size() > 0 ) doc.append(" Mailer:").append(printLineList(hcard.mailers)).append('\n');
+				if ( hcard.titles.size() > 0 ) doc.append("  Title:").append(printCommaList(hcard.titles)).append('\n');
+				if ( hcard.orgs.size() > 0 ) doc.append("  Organization: ").append(printLineList(hcard.orgs)).append('\n');
+				if ( hcard.roles.size() > 0 ) doc.append("  Roles: ").append(printCommaList(hcard.roles)).append('\n');
+				if ( hcard.categories.size() > 0 ) doc.append("  Category: ").append(printCommaList(hcard.categories)).append('\n');
+				if ( hcard.keys.size() > 0 ) doc.append("  Key: ").append(printBlockList(hcard.keys));
+				if ( hcard.notes.size() > 0 ) doc.append("  Note: ").append(printBlockList(hcard.notes));
+				if ( hcard.rev != null ) doc.append("  Rev: ").append(printDate(hcard.rev.longValue())).append('\n');
+				if ( hcard.sortString != null ) doc.append("  SortString: ").append(hcard.sortString).append('\n');
+				if ( hcard.uid != null ) doc.append("  UID: " ).append(hcard.uid).append('\n');
+				
+				it.remove();
+			}
+		}
+		
+		private void visitAllNodesWithAll(final NodeVisitor... visitors) throws org.htmlparser.util.ParserException {
+	        Node node;
+	        for (final NodeVisitor visitor : visitors)
+	        	visitor.beginParsing();
+	        for (NodeIterator e = parser.elements(); e.hasMoreNodes(); )
+	        {
+	            node = e.nextNode();
+	            for (final NodeVisitor visitor : visitors)
+	            	node.accept(visitor);
+	        }
+	        for (final NodeVisitor visitor : visitors)
+		        visitor.finishedParsing();
 		}
 	}
 	
@@ -281,5 +366,47 @@ public class HtmlParser implements ISubParser, PoolableObjectFactory {
 		} finally {
 			fis.close();
 		}
+	}
+	
+	/* The following 4 print*()-methods are copied from org.microformats.hcard.HCard */
+	
+	private static String printDate(long millis) {
+		return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.ENGLISH).format(new Date(millis));
+	}
+	
+	private static String printLineList(List<?> list) {
+		if ( list.size() == 1 ) return list.get(0).toString();
+		
+		StringBuilder sb = new StringBuilder();
+		for ( Object o : list ) sb.append("\n    ").append(o);
+		return sb.toString();
+	}
+	
+	private static String printBlockList(List<?> list) {
+		boolean first = true;
+		StringBuilder sb = new StringBuilder();
+		for ( Object o : list ) {
+			if ( first ) first = false;
+			else sb.append(" ---- \n");
+			String item = o.toString();
+			if ( item.endsWith("\n") ) item = item.substring(0, item.length() -1);
+			sb.append("    ");
+			sb.append(item.replaceAll("\n", "\n    "));
+			sb.append('\n');
+		}
+		
+		return sb.toString();
+	}
+	
+	private static String printCommaList(List<?> list) {
+		boolean first = true;
+		StringBuilder sb = new StringBuilder();
+		for ( Object o : list ) {
+			if ( first ) first = false;
+			else sb.append(", ");
+			sb.append(o);
+		}
+		
+		return sb.toString();
 	}
 }

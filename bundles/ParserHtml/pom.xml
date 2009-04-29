@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserHtml</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<name>Paxle - Parser: HTML</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -35,7 +35,6 @@
 						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
-						
 						<Export-Package>
 							org.paxle.parser.html;version="${pom.version}"
 						</Export-Package>
@@ -74,7 +73,9 @@
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
 							htmlparser;scope=compile|runtime,
-							htmllexer;scope=compile|runtime
+							htmllexer;scope=compile|runtime,
+							org.microformats.hCard;scope=compile|runtime,
+							joda-time;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
@@ -117,6 +118,17 @@
 			<groupId>org.htmlparser</groupId>
 			<artifactId>htmllexer</artifactId>
 			<version>2.0-20081201</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.zwitserloot</groupId>
+			<artifactId>org.microformats.hCard</artifactId>
+			<version>0.1.0-20090429</version>
+		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>1.6</version>
 		</dependency>
 		
 		<dependency>
