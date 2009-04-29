@@ -29,6 +29,9 @@ public class IOTools {
 		tempFileManager = manager;
 	}
 	
+	/**
+	 * @deprecated
+	 */
 	public static ITempFileManager getTempFileManager() {
 		return tempFileManager;
 	}

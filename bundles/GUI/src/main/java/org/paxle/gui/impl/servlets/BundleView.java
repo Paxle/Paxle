@@ -83,7 +83,12 @@ public class BundleView extends ALayoutServlet {
 		states.put(Integer.valueOf(Bundle.STARTING), "starting");
 		states.put(Integer.valueOf(Bundle.STOPPING), "stopping");
 		states.put(Integer.valueOf(Bundle.UNINSTALLED), "uninstalled");
-	}
+	};
+	
+	/**
+	 * @scr.reference
+	 */
+	protected ITempFileManager tfm;	
 	
 	@Override
 	public Template handleRequest( HttpServletRequest request,
@@ -322,7 +327,6 @@ public class BundleView extends ALayoutServlet {
 		
 		private final boolean replace;
 		private final File dir;
-		private final ITempFileManager tfm;
 		private final Context context;
 		
 		private HashMap<String,Bundle> bundleLocations = null;
@@ -334,9 +338,6 @@ public class BundleView extends ALayoutServlet {
 		private boolean wasStarted = false;
 		
 		public BundleUpdater(final boolean replace, final File dir, final Context context) {
-			tfm = IOTools.getTempFileManager();
-			if (tfm == null)
-				logger.info("No temp-file manager found, inspection of uploaded bundles is disabled");
 			this.replace = replace;
 			this.dir = dir;
 			this.context = context;
