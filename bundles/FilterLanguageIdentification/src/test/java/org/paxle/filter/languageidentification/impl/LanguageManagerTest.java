@@ -11,11 +11,12 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.filterlanguagedetection.impl;
+package org.paxle.filter.languageidentification.impl;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Hashtable;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -33,9 +34,13 @@ public class LanguageManagerTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
+		Hashtable<String, Object> config = new Hashtable<String, Object>();
+		
+		config.put(LanguageManager.SDT, new Float(0.6));
+		
 		// create language manager
-		this.lngmanager = new LanguageManager();
-
+				this.lngmanager = new LanguageManager();
+				this.lngmanager.init(config);
 	}
 	
 	private ICommand createTestCommand(File testText) throws IOException {

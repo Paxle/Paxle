@@ -18,11 +18,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
@@ -35,19 +37,24 @@ import de.spieleck.app.cngram.NGramProfiles;
 /**
  * This helper class determines the language of a document and inserts its finding into a parser-doc and all of its subdocs 
  * 
- * @scr.component metatype="false"
+ * @scr.component name="FilterLanguageManager" metatype="true"
  * @scr.service interface="org.paxle.core.filter.IFilter"
- * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
- * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/LanguageManager"
  */
+
 @FilterTarget(@FilterQueuePosition(
 		queue = "org.paxle.parser.out", 
 		position = Integer.MAX_VALUE-1000)
 )
 public class LanguageManager implements IFilter<ICommand> {
+	
+	 /** @scr.property type="Float" value="0.6" label="%sdt.label" description="%sdt.desc" */
+	static final String SDT = "sdtv";
 
 	private Log logger = LogFactory.getLog(this.getClass());
 	NGramProfiles nps = null;
+	
+	/** If a language has a value >= this, it is considered the (sole) language of the document */
+	float sdt;
 
 	public LanguageManager() throws IOException  {
 		this.nps = new NGramProfiles();
@@ -101,7 +108,7 @@ public class LanguageManager implements IFilter<ICommand> {
 		HashSet<String> lngs = null;
 		if (res != null) {
 			lngs = new HashSet<String>(1);
-			if (res.getScore(0) > 0.6) {
+			if (res.getScore(0) > this.sdt) {
 				logger.debug("Primary language of document '" + parserDoc.getOID() + "' is: " + res.getName(0) + ", " + res.getScore(0));
 				lngs.add(res.getName(0));
 			} else if (res.getScore(0) > 0.35 && res.getScore(1) > 0.35) {
@@ -149,4 +156,13 @@ public class LanguageManager implements IFilter<ICommand> {
 
 	}
 
+	protected void activate(ComponentContext ctx) {
+		this.init(ctx.getProperties());
+	}
+	
+	@SuppressWarnings("unchecked") //only implementing the interface
+	void init(Dictionary config) {
+		this.sdt = ((Float) config.get(SDT)).floatValue();
+		logger.debug("SDT set to " + this.sdt);
+	}
 }

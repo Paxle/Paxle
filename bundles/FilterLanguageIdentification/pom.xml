@@ -8,7 +8,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>FilterLanguageIdentification</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Filter: FilterLanguageIdentification</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 	
@@ -36,6 +36,7 @@
 					
 						<Import-Package>
 							org.osgi.framework,
+							org.osgi.service.component;version="1.0",
 							org.apache.commons.logging,
 							org.paxle.core.doc;version="[0.1.0,0.2.0)",
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
