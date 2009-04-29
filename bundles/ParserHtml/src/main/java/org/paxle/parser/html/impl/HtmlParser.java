@@ -324,25 +324,25 @@ public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactor
 				for (final URI uri      : hcard.urls)   subdoc.addReference(uri, hcard.fn, "HCardParser");
 				
 				// append all other information as text (copied from HCard.toString() and omitted the URL-fields)
-				if ( !hcard.n.isEmpty() )          subdoc.append("  Name: ").append(hcard.n.toString()).append('\n');
-				if ( hcard.nicknames.size() > 0 )  subdoc.append("  Nickname: ").append(printCommaList(hcard.nicknames)).append('\n');
-				if ( hcard.bday != null )          subdoc.append("  Birth day: ").append(printDate(hcard.bday.longValue())).append('\n');
-				if ( hcard.tels.size() > 0 )       subdoc.append("  Tel Nr: ").append(printCommaList(hcard.tels)).append('\n');
-				if ( hcard.emails.size() > 0 )     subdoc.append("  Email: ").append(printCommaList(hcard.emails)).append('\n');
-				if ( hcard.geo != null )           subdoc.append("  Geolocation: ").append(hcard.geo.toString()).append('\n');
-				if ( hcard.tz != null )            subdoc.append("  Timezone: ").append(hcard.tz.toString()).append('\n');
-				if ( hcard.adrs.size() > 0 )       subdoc.append("  Address:\n").append(printBlockList(hcard.adrs));
-				if ( hcard.labels.size() > 0 )     subdoc.append("  Label:\n").append(printBlockList(hcard.labels));
-				if ( hcard.mailers.size() > 0 )    subdoc.append("  Mailer:").append(printLineList(hcard.mailers)).append('\n');
-				if ( hcard.titles.size() > 0 )     subdoc.append("  Title:").append(printCommaList(hcard.titles)).append('\n');
-				if ( hcard.orgs.size() > 0 )       subdoc.append("  Organization: ").append(printLineList(hcard.orgs)).append('\n');
-				if ( hcard.roles.size() > 0 )      subdoc.append("  Roles: ").append(printCommaList(hcard.roles)).append('\n');
-				if ( hcard.categories.size() > 0 ) subdoc.append("  Category: ").append(printCommaList(hcard.categories)).append('\n');
-				if ( hcard.keys.size() > 0 )       subdoc.append("  Key: ").append(printBlockList(hcard.keys));
-				if ( hcard.notes.size() > 0 )      subdoc.append("  Note: ").append(printBlockList(hcard.notes));
-				if ( hcard.rev != null )           subdoc.append("  Rev: ").append(printDate(hcard.rev.longValue())).append('\n');
-				if ( hcard.sortString != null )    subdoc.append("  SortString: ").append(hcard.sortString).append('\n');
-				if ( hcard.uid != null )           subdoc.append("  UID: " ).append(hcard.uid).append('\n');
+				if ( !hcard.n.isEmpty() )          subdoc.append("Name: ").append(hcard.n.toString()).append('\n');
+				if ( hcard.nicknames.size() > 0 )  subdoc.append("Nickname: ").append(printCommaList(hcard.nicknames)).append('\n');
+				if ( hcard.bday != null )          subdoc.append("Birth day: ").append(printDate(hcard.bday.longValue())).append('\n');
+				if ( hcard.tels.size() > 0 )       subdoc.append("Tel Nr: ").append(printCommaList(hcard.tels)).append('\n');
+				if ( hcard.emails.size() > 0 )     subdoc.append("Email: ").append(printCommaList(hcard.emails)).append('\n');
+				if ( hcard.geo != null )           subdoc.append("Geolocation: ").append(hcard.geo.toString()).append('\n');
+				if ( hcard.tz != null )            subdoc.append("Timezone: ").append(hcard.tz.toString()).append('\n');
+				if ( hcard.adrs.size() > 0 )       subdoc.append("Address:\n").append(printBlockList(hcard.adrs));
+				if ( hcard.labels.size() > 0 )     subdoc.append("Label:\n").append(printBlockList(hcard.labels));
+				if ( hcard.mailers.size() > 0 )    subdoc.append("Mailer:").append(printLineList(hcard.mailers)).append('\n');
+				if ( hcard.titles.size() > 0 )     subdoc.append("Title:").append(printCommaList(hcard.titles)).append('\n');
+				if ( hcard.orgs.size() > 0 )       subdoc.append("Organization: ").append(printLineList(hcard.orgs)).append('\n');
+				if ( hcard.roles.size() > 0 )      subdoc.append("Roles: ").append(printCommaList(hcard.roles)).append('\n');
+				if ( hcard.categories.size() > 0 ) subdoc.append("Category: ").append(printCommaList(hcard.categories)).append('\n');
+				if ( hcard.keys.size() > 0 )       subdoc.append("Key: ").append(printBlockList(hcard.keys));
+				if ( hcard.notes.size() > 0 )      subdoc.append("Note: ").append(printBlockList(hcard.notes));
+				if ( hcard.rev != null )           subdoc.append("Rev: ").append(printDate(hcard.rev.longValue())).append('\n');
+				if ( hcard.sortString != null )    subdoc.append("SortString: ").append(hcard.sortString).append('\n');
+				if ( hcard.uid != null )           subdoc.append("UID: " ).append(hcard.uid).append('\n');
 				
 				subdoc.setAuthor(hcard.fn);
 				subdoc.setTitle("hCard for " + hcard.fn);

@@ -77,27 +77,38 @@ public class HtmlParserTest extends AParserTest {
 	private static class HCardSubDocComparable {
 		public String fn;
 		public String[] urls;
-		public String[] org;
+	//	public String[] org;
 		public String[] imgs;
 		
 		public void check(IParserDocument doc, int t, int i) {
 			if (fn != null)
-				assertEquals("#" + t + "," + i + ": author", fn, doc.getAuthor());
+				assertEquals(fmt(t, i, "author"),
+						fn,
+						doc.getAuthor());
 			if (urls != null)
-				check(urls, doc.getLinks().keySet(), "uris", t, i);
-			// todo: test orgs
+				check(urls, doc.getLinks().keySet(), "uri", t, i);
+			// TODO: test orgs
 			if (imgs != null)
-				check(imgs, doc.getImages().keySet(), "images", t, i);
+				check(imgs, doc.getImages().keySet(), "image", t, i);
 		}
 		
 		private static void check(final String[] expected, final Collection<?> actual, final String name, final int t, final int i) {
-			assertEquals("#" + t + "," + i + ": number " + name, expected.length, actual.size());
+			assertEquals(fmt(t, i, "number " + name + "s"),
+					expected.length,
+					actual.size());
 			final HashSet<String> set = new HashSet<String>();
 			for (final String el_a : expected)
 				set.add(el_a.intern());
 			for (final Object el_b : actual)
-				assertTrue("#" + t + "," + i + ": found additional url in pdoc: '" + el_b + "'", set.remove(el_b.toString().intern()));
-			assertEquals("#" + t + "," + i + ": " + name + " unmatched: " + set, 0, set.size());
+				assertTrue(fmt(t, i, "found additional " + name + " in pdoc: '" + el_b + "'"),
+						set.remove(el_b.toString().intern()));
+			assertEquals(fmt(t, i, name + "s unmatched: " + set),
+					0,
+					set.size());
+		}
+		
+		private static String fmt(final int t, final int i, final String s) {
+			return String.format("#%d,%d: %s", Integer.valueOf(t), Integer.valueOf(i), s);
 		}
 	}
 	
@@ -111,7 +122,7 @@ public class HtmlParserTest extends AParserTest {
 				new HCardSubDocComparable() {{
 					fn = "Tantek Çelik";
 					urls = new String[] { "http://tantek.com/" };
-					org = new String[] { "Technorati" };
+				//	org = new String[] { "Technorati" };
 				}}
 		},
 		null,
@@ -187,6 +198,8 @@ public class HtmlParserTest extends AParserTest {
 	public void testHCard() throws Exception {
 		final File testDir = new File("src/test/resources/hcard/microformats.org/tests/hcard");
 		for (final String testName : testDir.list()) {
+			if (testName.equals(".svn"))
+				continue;
 			final int testnr = Integer.parseInt(testName.substring(0, 2));
 			if (hcardCmps.length <= testnr || hcardCmps[testnr] == null)
 				continue;
@@ -194,7 +207,8 @@ public class HtmlParserTest extends AParserTest {
 			final IParserDocument pdoc = parser.parse(new URI("http//www.example.org/hcard/" + testName), null, new File(testDir, testName));
 			final HCardSubDocComparable[] cmps = hcardCmps[testnr];
 			assertEquals(pdoc.getSubDocs().keySet().toString(), cmps.length, pdoc.getSubDocs().size());
-			// TreeMap sorts numerically after sub-doc-location which has this format: "#n: $name"
+			/* TreeMap sorts (numerically) after sub-doc-location which has this format: "#n: name"
+			 * n: idx of hcard in the file, name: name of the person (fn-property in hcard) */
 			final IParserDocument[] sdocs = new TreeMap<String,IParserDocument>(pdoc.getSubDocs())
 					.values().toArray(new IParserDocument[pdoc.getSubDocs().size()]);
 			for (int i=0; i<sdocs.length; i++)
