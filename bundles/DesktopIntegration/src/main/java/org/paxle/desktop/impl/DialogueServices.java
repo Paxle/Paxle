@@ -40,8 +40,8 @@ import org.paxle.desktop.IDIEventListener;
 import org.paxle.desktop.IDesktopServices;
 import org.paxle.desktop.Utilities;
 import org.paxle.desktop.IDesktopServices.Dialogues;
-import org.paxle.desktop.impl.dialogues.CrawlingConsole;
 import org.paxle.desktop.impl.dialogues.bundles.BundlePanel;
+import org.paxle.desktop.impl.dialogues.cconsole.CrawlingConsole;
 import org.paxle.desktop.impl.dialogues.settings.SettingsPanel;
 import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel;
 

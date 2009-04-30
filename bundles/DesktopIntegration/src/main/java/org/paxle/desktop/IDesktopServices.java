@@ -70,7 +70,7 @@ public interface IDesktopServices {
 		 * @see org.paxle.desktop.impl.dialogues.bundles.BundlePanel
 		 */
 		BUNDLES
-	}
+	};
 	
 	/**
 	 * Opens and displays a dialoge provided by this bundle. If the dialogue already is open,

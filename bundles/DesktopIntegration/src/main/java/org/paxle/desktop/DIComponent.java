@@ -36,11 +36,11 @@ public interface DIComponent {
 	/**
 	 * Typically a {@link DIComponent} is shown in it's own {@link Frame}. The title of the
 	 * frame is set with the value this method returns.
+	 * <p><i>Please note: the title should be set on the {@link Frame} when {@link #setFrame(Frame)}
+	 * has been invoked by the DesktopBundle. This method shall just provide a name for
+	 * referencing this component.</i>
 	 * @return a title for this {@link DIComponent} which can be displayed as a frame-title.
-	 * @deprecated the title should be set on the {@link Frame} when {@link #setFrame(Frame)}
-	 *             has been invoked by the DesktopBundle
 	 */
-	@Deprecated
 	public abstract String getTitle();
 	
 	/**
