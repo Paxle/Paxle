@@ -29,7 +29,6 @@ import org.paxle.core.IMWComponent;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.Properties;
 import org.paxle.core.queue.ICommand;
-import org.paxle.desktop.Utilities;
 
 public class ServiceManager {
 	
@@ -251,7 +250,7 @@ public class ServiceManager {
 			if (comps != null && comps.length > 0)
 				return (IMWComponent<ICommand>)comps[0];
 		} catch (InvalidSyntaxException e) {
-			Utilities.showExceptionBox(e);
+			Utilities.instance.showExceptionBox(e);
 			e.printStackTrace();
 		}
 		return null; 
@@ -261,7 +260,7 @@ public class ServiceManager {
 		try {
 			return hasService(MWCOMP_CLASS, comp.toQuery());
 		} catch (InvalidSyntaxException e) {
-			Utilities.showExceptionBox(e);
+			Utilities.instance.showExceptionBox(e);
 			e.printStackTrace();
 		}
 		return false;

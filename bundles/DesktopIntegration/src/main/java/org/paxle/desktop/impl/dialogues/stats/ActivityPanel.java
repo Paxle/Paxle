@@ -26,9 +26,9 @@ import javax.swing.JLabel;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.IMWComponent;
-import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
+import org.paxle.desktop.impl.Utilities;
 import org.paxle.desktop.impl.ServiceManager.MWComponents;
 import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel.Stats;
 
@@ -108,7 +108,7 @@ class ActivityPanel extends Stats implements ActionListener {
 		final MWComponents[] comps = MWComponents.values();
 		for (int i=0; i<comps.length; i++) {
 			super.add(lblsCount[i] = new JLabel(), 		gbcNums); gbcNums.gridy++;
-			lblsStatus[i] = Utilities.setButtonProps(new JButton(), null, this, comps[i].name(), -1, null);
+			lblsStatus[i] = Utilities.instance.setButtonProps(new JButton(), null, this, comps[i].name(), -1, null);
 			super.add(lblsStatus[i], 					gbcBtns); gbcBtns.gridy++;
 			super.add(lblsComp[i] = new JLabel(), 		gbcDesc); gbcDesc.gridy++;
 			super.add(lblsPPM[i] = new JLabel(), 		gbcVals); gbcVals.gridx++;

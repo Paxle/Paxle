@@ -175,7 +175,7 @@ public class Activator implements BundleActivator {
 		CrawlStartHelper crawlHelper = null;
 		
 		this.initObject = new DesktopServices(sm, dibackend, dialogue, crawlHelper);
-		context.registerService(IDesktopServices.class.getName(), initObject, null);
+		// context.registerService(IDesktopServices.class.getName(), initObject, null);
 	}
 	
 	private static Bundle findBundle(BundleContext context, String symbolicName) {

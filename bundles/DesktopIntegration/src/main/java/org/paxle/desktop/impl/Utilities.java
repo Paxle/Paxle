@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.desktop;
+package org.paxle.desktop.impl;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -68,16 +68,20 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
-public class Utilities {
+import org.paxle.desktop.IDesktopUtilities;
+
+public class Utilities implements IDesktopUtilities {
 	
-	public static final Object LOCATION_CENTER = new Object();
-	public static final Object LOCATION_BY_PLATFORM = new Object();
-	public static final Dimension SIZE_PACK = new Dimension();
+	public static final Utilities instance = new Utilities();
+	
+	private Utilities() {
+	}
+	
 	private static final String KE_CLOSE = new String();
 	private static final String KE_CANCEL = new String();
 	private static final Point POINT_ORIGIN = new Point();
 	
-	public static <E extends AbstractButton> E setButtonProps(
+	public <E extends AbstractButton> E setButtonProps(
 			final E b,
 			final String text,
 			final ActionListener al,
@@ -95,7 +99,7 @@ public class Utilities {
 		return b;
 	}
 	
-	public static File chooseSingleFile(
+	public File chooseSingleFile(
 			final Component parent,
 			final String title,
 			final boolean load,
@@ -195,7 +199,7 @@ public class Utilities {
 		}
 	}
 	
-	public static <E extends Window> void setWindowProps(
+	public <E extends Window> void setWindowProps(
 			final E frame,
 			final Container container,
 			final JButton defaultButton,
@@ -253,7 +257,7 @@ public class Utilities {
 		}
 	}
 	
-	public static void addListeners(final Object frame, final EventListener... listeners) {
+	public void addListeners(final Object frame, final EventListener... listeners) {
 		if (listeners != null && listeners.length > 0) {
 			for (final Method m : frame.getClass().getMethods()) {
 				final Class<?>[] pt = m.getParameterTypes();
@@ -276,7 +280,7 @@ public class Utilities {
 		}
 	}
 	
-	public static <E extends Frame> E setFrameProps(
+	public <E extends Frame> E setFrameProps(
 			final E frame,
 			final Container container,
 			final String title,
@@ -295,7 +299,7 @@ public class Utilities {
 		return frame;
 	}
 	
-	public static <E extends Dialog> E setDialogProps(
+	public <E extends Dialog> E setDialogProps(
 			final E dialog,
 			final Container container,
 			final String title,
@@ -352,25 +356,23 @@ public class Utilities {
 	}
 	
 	private static final GridBagConstraints gbc = new GridBagConstraints();
-	public static final Insets INSETS_DEFAULT = new Insets(5, 5, 5, 5);
-	public static final Insets INSETS_ZERO = gbc.insets;
 	static {
 		gbc.insets = INSETS_DEFAULT;
 	}
 	
-	public static <E extends Component> E addGridbag(final JComponent comp, final E obj, final int x, final int y) {
+	public <E extends Component> E addGridbag(final JComponent comp, final E obj, final int x, final int y) {
 		return addGridbag(comp, obj, x, y, gbc.gridwidth, gbc.gridheight, gbc.anchor, gbc.fill, 0.0, 0.0);
 	}
 	
-	public static JPanel addGridbagSpacer(final JComponent comp, final int x, final int y) {
+	public JPanel addGridbagSpacer(final JComponent comp, final int x, final int y) {
 		return addGridbag(comp, new JPanel(), x, y, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, 1.0, 1.0);
 	}
 	
-	public static <E extends Component> E addGridbag(final JComponent comp, final E obj, final int x, final int y, final int width, final int height, final int align, final int fill, final double weightx, final double weighty) {
+	public <E extends Component> E addGridbag(final JComponent comp, final E obj, final int x, final int y, final int width, final int height, final int align, final int fill, final double weightx, final double weighty) {
 		return addGridbag(comp, obj, x, y, width, height, align, fill, weightx, weighty, INSETS_DEFAULT);
 	}
 	
-	public static <E extends Component> E addGridbag(final JComponent comp, final E obj, final int x, final int y, final int width, final int height, final int align, final int fill, final double weightx, final double weighty, final Insets insets) {
+	public <E extends Component> E addGridbag(final JComponent comp, final E obj, final int x, final int y, final int width, final int height, final int align, final int fill, final double weightx, final double weighty, final Insets insets) {
 		gbc.gridx = x; gbc.gridy = y;
 		gbc.gridwidth = width; gbc.gridheight = height;
 		gbc.anchor = align; gbc.fill = fill;
@@ -380,7 +382,7 @@ public class Utilities {
 		return obj;
 	}
 	
-	public static void addGridbagLine(final JComponent comp, final JComponent left, final JComponent right, int y) {
+	public void addGridbagLine(final JComponent comp, final JComponent left, final JComponent right, int y) {
 		gbc.gridx = 0; gbc.gridy = y;
 		gbc.anchor = GridBagConstraints.EAST;
 		gbc.fill = GridBagConstraints.NONE;
@@ -393,7 +395,7 @@ public class Utilities {
 		comp.add(right, gbc);
 	}
 	
-	public static void showURLErrorMessage(final String message, final String url) {
+	public void showURLErrorMessage(final String message, final String url) {
 		final JButton close = new JButton("Close");
 		final JPanel panel = new JPanel(new GridBagLayout());
 		final JFrame frame = setFrameProps(new JFrame(), panel, "Error", Utilities.SIZE_PACK, false, LOCATION_CENTER, close, false);
@@ -439,7 +441,7 @@ public class Utilities {
 		frame.setVisible(true);
 	}
 	
-	public static <E extends JTextComponent> E setTextLabelDefaults(final E textComponent) {
+	public <E extends JTextComponent> E setTextLabelDefaults(final E textComponent) {
 		final UIDefaults def = UIManager.getLookAndFeelDefaults();
 		textComponent.setFont(def.getFont("OptionPane.font"));
 		textComponent.setBackground(def.getColor("OptionPane.background"));
@@ -450,11 +452,11 @@ public class Utilities {
 		return textComponent;
 	}
 	
-	public static void centerOnScreen(final Component component) {
+	public void centerOnScreen(final Component component) {
 		centerOn(component, Toolkit.getDefaultToolkit().getScreenSize(), POINT_ORIGIN);
 	}
 	
-	public static void centerOn(final Component component, final Component parent) {
+	public void centerOn(final Component component, final Component parent) {
 		if (parent == null) {
 			centerOnScreen(component);
 		} else {
@@ -462,15 +464,15 @@ public class Utilities {
 		}
 	}
 	
-	public static void centerOn(final Component component, final Rectangle r) {
+	public void centerOn(final Component component, final Rectangle r) {
 		centerOn(component, r.getSize(), r.getLocation());
 	}
 	
-	public static void centerOn(final Component component, final Dimension d, final Point off) {
+	public void centerOn(final Component component, final Dimension d, final Point off) {
 		centerOn(component, component.getSize(), d, off);
 	}
 	
-	public static void centerOn(final Component component, final Dimension cdim, final Dimension d, final Point off) {
+	public void centerOn(final Component component, final Dimension cdim, final Dimension d, final Point off) {
 		component.setLocation(off.x + Math.max(0, (d.width - cdim.width) / 2), off.y + Math.max(0, (d.height - cdim.height) / 2));
 	}
 	
@@ -496,7 +498,7 @@ public class Utilities {
 	private static final String AC_HIDE = new String();
 	private static final String AC_CPY = new String();
 	
-	public static void showExceptionBox(final Frame parent, final String detail, final Throwable ex) {
+	public void showExceptionBox(final Frame parent, final String detail, final Throwable ex) {
 		final JPanel displayPanel = new JPanel(new GridBagLayout());
 		
 		final GridBagConstraints gbc = new GridBagConstraints();
@@ -596,11 +598,11 @@ public class Utilities {
 		eb.setVisible(true);
 	}
 	
-	public static void showExceptionBox(final String detail, final Throwable ex) {
+	public void showExceptionBox(final String detail, final Throwable ex) {
 		showExceptionBox(null, detail, ex);
 	}
 	
-	public static void showExceptionBox(final Throwable ex) {
+	public void showExceptionBox(final Throwable ex) {
 		showExceptionBox(null, ex.getMessage(), ex);
 	}
 }

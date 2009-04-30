@@ -51,9 +51,9 @@ import org.paxle.core.prefs.Properties;
 import org.paxle.core.queue.CommandEvent;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
-import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
+import org.paxle.desktop.impl.Utilities;
 import org.paxle.desktop.impl.ServiceManager.MWComponents;
 import org.paxle.desktop.impl.dialogues.DIServicePanel;
 
@@ -93,11 +93,11 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 	
 	private final Log           logger = LogFactory.getLog(CrawlingConsole.class);
 	private final JScrollPane   scroll = new JScrollPane();
-	private final JButton       clear  = Utilities.setButtonProps(new JButton(), Messages.getString("crawlingConsole.clear"), this, AC_CLEAR, KeyEvent.VK_C, null); //$NON-NLS-1$
-	private final JCheckBox     cbEnq  = Utilities.setButtonProps(new JCheckBox(), Messages.getString("crawlingConsole.enqueued"), this, AC_ENQUEUED, -1, null); //$NON-NLS-1$
-	private final JCheckBox     cbDstr = Utilities.setButtonProps(new JCheckBox(), Messages.getString("crawlingConsole.rejected"), this, AC_DESTROYED, -1, null); //$NON-NLS-1$
+	private final JButton       clear  = Utilities.instance.setButtonProps(new JButton(), Messages.getString("crawlingConsole.clear"), this, AC_CLEAR, KeyEvent.VK_C, null); //$NON-NLS-1$
+	private final JCheckBox     cbEnq  = Utilities.instance.setButtonProps(new JCheckBox(), Messages.getString("crawlingConsole.enqueued"), this, AC_ENQUEUED, -1, null); //$NON-NLS-1$
+	private final JCheckBox     cbDstr = Utilities.instance.setButtonProps(new JCheckBox(), Messages.getString("crawlingConsole.rejected"), this, AC_DESTROYED, -1, null); //$NON-NLS-1$
 	
-	private final JToggleButton cpb    = Utilities.setButtonProps(new JToggleButton(), null, this, AC_CRAWL, KeyEvent.VK_S, null);
+	private final JToggleButton cpb    = Utilities.instance.setButtonProps(new JToggleButton(), null, this, AC_CRAWL, KeyEvent.VK_S, null);
 	private final JTable        table;
 	private final ConsoleTableModel model;
 	private final JComboBox     cbox;
@@ -314,7 +314,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 		
 		final JPanel bbRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		clear.setEnabled(false);
-		bbRight.add(Utilities.setButtonProps(new JToggleButton(), "\u2193 " + Messages.getString("crawlingConsole.settings"), this, AC_SETTINGS, KeyEvent.VK_S, null));
+		bbRight.add(Utilities.instance.setButtonProps(new JToggleButton(), "\u2193 " + Messages.getString("crawlingConsole.settings"), this, AC_SETTINGS, KeyEvent.VK_S, null));
 		bbRight.add(clear);
 		
 		
@@ -450,7 +450,7 @@ public class CrawlingConsole extends DIServicePanel implements EventHandler, Act
 				}
 			};
 			
-			options.add(Utilities.setButtonProps(cbox, col.getL10n(), new CboxAC(), null, -1, null), gbc);
+			options.add(Utilities.instance.setButtonProps(cbox, col.getL10n(), new CboxAC(), null, -1, null), gbc);
 			
 			if (gbc.gridy < 5) {
 				gbc.gridy++;

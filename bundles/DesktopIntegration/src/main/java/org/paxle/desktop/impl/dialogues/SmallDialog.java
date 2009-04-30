@@ -34,7 +34,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.paxle.desktop.Utilities;
+import org.paxle.desktop.impl.Utilities;
 
 public class SmallDialog extends JDialog implements Runnable {
 	
@@ -92,7 +92,7 @@ public class SmallDialog extends JDialog implements Runnable {
 		panel.add(this.text, BorderLayout.CENTER);
 		panel.add(this.btn, BorderLayout.EAST);
 		super.setContentPane(panel);
-		Utilities.setDialogProps(this, panel, null, DIALOG_DIMENSION, false, Utilities.LOCATION_CENTER, btn, null, false, new DWindowListener());
+		Utilities.instance.setDialogProps(this, panel, null, DIALOG_DIMENSION, false, Utilities.LOCATION_CENTER, btn, null, false, new DWindowListener());
 		
 		this.btn.addActionListener(new BtnListener());
 		this.text.addKeyListener(new TextListener());

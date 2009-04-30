@@ -38,7 +38,6 @@ import org.osgi.framework.ServiceReference;
 import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.IDIEventListener;
 import org.paxle.desktop.IDesktopServices;
-import org.paxle.desktop.Utilities;
 import org.paxle.desktop.IDesktopServices.Dialogues;
 import org.paxle.desktop.impl.dialogues.bundles.BundlePanel;
 import org.paxle.desktop.impl.dialogues.cconsole.CrawlingConsole;
@@ -217,7 +216,7 @@ public class DialogueServices implements ServiceListener {
 	 * ========================================================================== */
 	
 	private Frame createDefaultFrame(final DIComponent container, final Long id) {
-		return Utilities.setFrameProps(
+		return Utilities.instance.setFrameProps(
 				new JFrame(),
 				container.getContainer(),
 				container.getTitle(),

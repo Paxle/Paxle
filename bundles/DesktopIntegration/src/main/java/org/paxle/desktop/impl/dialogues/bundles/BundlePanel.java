@@ -32,9 +32,9 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 
 import org.paxle.desktop.DIComponent;
-import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
+import org.paxle.desktop.impl.Utilities;
 import org.paxle.desktop.impl.dialogues.DIServicePanel;
 import org.paxle.desktop.impl.dialogues.ScrollablePanel;
 
@@ -106,8 +106,8 @@ public class BundlePanel extends DIServicePanel implements DIComponent, Document
 		super.setLayout(new BorderLayout(0, 0));
 		
 		final JPanel searchPanel = new JPanel(new GridBagLayout());
-		Utilities.addGridbag(searchPanel, new JLabel(Messages.getString("bundlePanel.search")), 0, 0, 1, 1, GridBagConstraints.WEST, GridBagConstraints.NONE, 0.0, 0.0);
-		Utilities.addGridbag(searchPanel, searchField, 1, 0, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, 1.0, 0.0);
+		Utilities.instance.addGridbag(searchPanel, new JLabel(Messages.getString("bundlePanel.search")), 0, 0, 1, 1, GridBagConstraints.WEST, GridBagConstraints.NONE, 0.0, 0.0);
+		Utilities.instance.addGridbag(searchPanel, searchField, 1, 0, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, 1.0, 0.0);
 		searchField.getDocument().addDocumentListener(this);
 		super.add(searchPanel, BorderLayout.NORTH);
 		

@@ -26,7 +26,6 @@ import org.paxle.core.queue.CommandProfile;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.desktop.ServiceException;
-import org.paxle.desktop.Utilities;
 
 // * @scr.implementation class="CrawlStartHelper"
 /**
@@ -83,7 +82,7 @@ public class CrawlStartHelper {
 		try {
 			startCrawl(location, DEFAULT_PROFILE_MAX_DEPTH);
 		} catch (ServiceException ee) {
-			Utilities.showURLErrorMessage("Starting crawl failed: " + ee.getMessage(), location);
+			Utilities.instance.showURLErrorMessage("Starting crawl failed: " + ee.getMessage(), location);
 			logger.error("Starting crawl of URL '" + location + "' failed: " + ee.getMessage(), ee);
 		}
 	}
@@ -98,7 +97,7 @@ public class CrawlStartHelper {
 				final Object result = isDisallowed.invoke(robots, uri);
 				if (((Boolean)result).booleanValue()) {
 					logger.info("Domain does not allow crawling of '" + uri + "' due to robots.txt blockage");
-					Utilities.showURLErrorMessage(
+					Utilities.instance.showURLErrorMessage(
 							"This URI is blocked by the domain's robots.txt, see",
 							uri.resolve(URI.create("/robots.txt")).toString());
 					return;

@@ -49,8 +49,8 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
-import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.Messages;
+import org.paxle.desktop.impl.Utilities;
 
 public final class BundleListRow implements ActionListener, Comparable<BundleListRow> {
 	
@@ -120,19 +120,19 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 	private final JLabel icon = new JLabel();
 	private final JLabel title = new JLabel();
 	private final JLabel symbolicName = new JLabel();
-	private final JTextArea description = Utilities.setTextLabelDefaults(new JTextArea());
+	private final JTextArea description = Utilities.instance.setTextLabelDefaults(new JTextArea());
 	private final JLabel version = new JLabel();
-	private final JButton btnGo = Utilities.setButtonProps(new JButton(), Messages.getString("bundlePanel.cell.comp.go"), this, AC_GO, KeyEvent.VK_O, null);
+	private final JButton btnGo = Utilities.instance.setButtonProps(new JButton(), Messages.getString("bundlePanel.cell.comp.go"), this, AC_GO, KeyEvent.VK_O, null);
 	
 	private final JComboBox actions = new JComboBox(BundleStateActions.values());
 	private final JPanel btnsPanel = new JPanel();
 	private final JPanel infoMainPanel = new JPanel(new GridBagLayout());
 	private final JPanel[] infoPanels = new JPanel[4];
 	private final JToggleButton[] infoBtns = new JToggleButton[] {
-			Utilities.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.runtime"), this, AC_SHOW_RUNTIME_INFO, -1, null),
-			Utilities.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.manifest"), this, AC_SHOW_MANIFEST, -1, null),
-			Utilities.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.exported"), this, AC_SHOW_EXPORTED, -1, null),
-			Utilities.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.imported"), this, AC_SHOW_IMPORTED, -1, null)
+			Utilities.instance.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.runtime"), this, AC_SHOW_RUNTIME_INFO, -1, null),
+			Utilities.instance.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.manifest"), this, AC_SHOW_MANIFEST, -1, null),
+			Utilities.instance.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.exported"), this, AC_SHOW_EXPORTED, -1, null),
+			Utilities.instance.setButtonProps(new JToggleButton(), Messages.getString("bundlePanel.cell.show.imported"), this, AC_SHOW_IMPORTED, -1, null)
 	};
 	private int infoPanelsInitialized = 0;
 	
@@ -417,7 +417,7 @@ public final class BundleListRow implements ActionListener, Comparable<BundleLis
 		gbc.anchor = GridBagConstraints.NORTHWEST;
 		for (gbc.gridy=1; gbc.gridy<=data.length; gbc.gridy++)
 			for (gbc.gridx=0; gbc.gridx<data[gbc.gridy-1].length; gbc.gridx++) {
-				JTextArea comp = Utilities.setTextLabelDefaults(new JTextArea(data[gbc.gridy-1][gbc.gridx]));
+				JTextArea comp = Utilities.instance.setTextLabelDefaults(new JTextArea(data[gbc.gridy-1][gbc.gridx]));
 				if (gbc.gridx > 0) {
 					comp.setWrapStyleWord(true);
 					comp.setLineWrap(true);

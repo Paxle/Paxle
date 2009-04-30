@@ -20,10 +20,9 @@ import java.lang.reflect.Method;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
-import org.paxle.desktop.Utilities;
-import org.paxle.desktop.impl.DesktopServices;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
+import org.paxle.desktop.impl.Utilities;
 import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel.Stats;
 
 class DatabasePanel extends Stats {
@@ -56,9 +55,9 @@ class DatabasePanel extends Stats {
 		gbc.anchor = GridBagConstraints.CENTER;
 		super.add(chart, gbc);
 		
-		Utilities.addGridbagLine(this, new JLabel(Messages.getString("statisticsPanel.database.docsKnown")), lblDocsKnown, ++gbc.gridy);
-		Utilities.addGridbagLine(this, new JLabel(Messages.getString("statisticsPanel.database.urisKnown")), lblUrisKnown, ++gbc.gridy);
-		Utilities.addGridbagLine(this, new JLabel(Messages.getString("statisticsPanel.database.enqueued")), lblEnqueued, ++gbc.gridy);
+		Utilities.instance.addGridbagLine(this, new JLabel(Messages.getString("statisticsPanel.database.docsKnown")), lblDocsKnown, ++gbc.gridy);
+		Utilities.instance.addGridbagLine(this, new JLabel(Messages.getString("statisticsPanel.database.urisKnown")), lblUrisKnown, ++gbc.gridy);
+		Utilities.instance.addGridbagLine(this, new JLabel(Messages.getString("statisticsPanel.database.enqueued")), lblEnqueued, ++gbc.gridy);
 	}
 	
 	@Override

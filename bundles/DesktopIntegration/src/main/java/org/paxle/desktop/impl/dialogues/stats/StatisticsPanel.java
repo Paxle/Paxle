@@ -30,9 +30,9 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.paxle.desktop.DIComponent;
-import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
+import org.paxle.desktop.impl.Utilities;
 import org.paxle.desktop.impl.dialogues.DIServicePanel;
 
 public class StatisticsPanel extends DIServicePanel implements DIComponent, Runnable {
@@ -126,7 +126,7 @@ public class StatisticsPanel extends DIServicePanel implements DIComponent, Runn
 						for (final Stats s : stats)
 							s.generateImage();
 					}
-				} catch (Throwable e) { Utilities.showExceptionBox(frame, "Error during run of Statistics-update-timer", e); }
+				} catch (Throwable e) { Utilities.instance.showExceptionBox(frame, "Error during run of Statistics-update-timer", e); }
 			}
 		}, 0, 1000L);
 	}

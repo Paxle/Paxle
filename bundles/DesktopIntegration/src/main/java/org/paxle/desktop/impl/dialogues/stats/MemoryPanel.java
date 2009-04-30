@@ -22,8 +22,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
-import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.Messages;
+import org.paxle.desktop.impl.Utilities;
 import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel.Stats;
 
 class MemoryPanel extends Stats implements ActionListener {
@@ -70,7 +70,7 @@ class MemoryPanel extends Stats implements ActionListener {
 		
 		gbc.gridx = 0;
 		gbc.gridwidth = 2;
-		super.add(Utilities.setButtonProps(new JButton(), Messages.getString("statisticsPanel.memory.runGC"), this, AC_GC, -1, null), gbc); //$NON-NLS-1$
+		super.add(Utilities.instance.setButtonProps(new JButton(), Messages.getString("statisticsPanel.memory.runGC"), this, AC_GC, -1, null), gbc); //$NON-NLS-1$
 	}
 	
 	@Override

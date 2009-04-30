@@ -25,7 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.paxle.core.metadata.Attribute;
-import org.paxle.desktop.Utilities;
+import org.paxle.desktop.impl.Utilities;
 import org.paxle.desktop.impl.event.MultipleChangesListener;
 
 abstract class AbstractAttrConfig<E> {
@@ -102,7 +102,7 @@ abstract class AbstractAttrConfig<E> {
 	
 	protected JTextArea createDescription(final String desc) {
 		final JTextArea df = new JTextArea(desc);
-		Utilities.setTextLabelDefaults(df);
+		Utilities.instance.setTextLabelDefaults(df);
 		df.setLineWrap(true);
 		df.setWrapStyleWord(true);
 		return df;

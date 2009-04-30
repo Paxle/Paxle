@@ -68,9 +68,9 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.metadata.Attribute;
 import org.paxle.core.metadata.Metadata;
-import org.paxle.desktop.Utilities;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
+import org.paxle.desktop.impl.Utilities;
 import org.paxle.desktop.impl.dialogues.DIServicePanel;
 import org.paxle.desktop.impl.dialogues.ScrollablePanel;
 import org.paxle.desktop.impl.event.MultipleChangesListener;
@@ -300,7 +300,7 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 			final GridBagConstraints gbcDesc = createGbcDesc(y);
 			
 			panel.add(new JLabel(Messages.getString("settingsPanel.description")), gbcLabel); //$NON-NLS-1$
-			panel.add(Utilities.setTextLabelDefaults(new JTextArea(ocd.getDescription())), gbcHeader);
+			panel.add(Utilities.instance.setTextLabelDefaults(new JTextArea(ocd.getDescription())), gbcHeader);
 			incGridY(gbcHeader, gbcLabel, gbcOptSingle, gbcOptMulti, gbcDesc);
 			panel.add(new JLabel(Messages.getString("settingsPanel.bundle")), gbcLabel); //$NON-NLS-1$
 			panel.add(new JLabel(bundle.getSymbolicName()), gbcHeader);

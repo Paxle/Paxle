@@ -43,7 +43,6 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.desktop.IDesktopServices;
-import org.paxle.desktop.Utilities;
 import org.paxle.desktop.backend.IDIBackend;
 
 public class DesktopServices implements ManagedService, MetaTypeProvider {
@@ -204,7 +203,7 @@ public class DesktopServices implements ManagedService, MetaTypeProvider {
 		try {
 			manager.shutdownFramework();
 		} catch (BundleException e) {
-			Utilities.showExceptionBox("error shutting down framework", e);
+			Utilities.instance.showExceptionBox("error shutting down framework", e);
 			logger.error("error shutting down framework", e);
 		}
 	}
@@ -213,7 +212,7 @@ public class DesktopServices implements ManagedService, MetaTypeProvider {
 		try {
 			manager.restartFramework();
 		} catch (BundleException e) {
-			Utilities.showExceptionBox("error restarting framework", e);
+			Utilities.instance.showExceptionBox("error restarting framework", e);
 			logger.error("error restarting framework", e);
 		}
 	}
@@ -417,12 +416,12 @@ public class DesktopServices implements ManagedService, MetaTypeProvider {
 			if ((browserOpenable = backend.getDesktop().browse(url))) {
 				return true;
 			} else if (displayErrMsg) {
-				Utilities.showURLErrorMessage(
+				Utilities.instance.showURLErrorMessage(
 						"Couldn't launch system browser due to an error in Paxle's system integration\n" +
 						"bundle. Please review the log for details. The requested URL was:", url);
 			}
 		} catch (MalformedURLException e) {
-			Utilities.showExceptionBox("Generated mal-formed URL", e);
+			Utilities.instance.showExceptionBox("Generated mal-formed URL", e);
 			logger.error("Generated mal-formed URL '" + url + "': " + e.getMessage(), e);
 		}
 		return false;
