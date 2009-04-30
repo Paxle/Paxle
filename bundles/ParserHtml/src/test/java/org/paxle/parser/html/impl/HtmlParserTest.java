@@ -120,7 +120,7 @@ public class HtmlParserTest extends AParserTest {
 		null,
 		new HCardSubDocComparable[] {			// #01
 				new HCardSubDocComparable() {{
-					fn = "Tantek Çelik";
+					fn = "Tantek \u00c7elik";
 					urls = new String[] { "http://tantek.com/" };
 				//	org = new String[] { "Technorati" };
 				}}
