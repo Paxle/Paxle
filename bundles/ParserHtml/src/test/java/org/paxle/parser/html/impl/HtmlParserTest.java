@@ -13,13 +13,18 @@
  */
 package org.paxle.parser.html.impl;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.Reader;
 import java.net.URI;
 import java.nio.CharBuffer;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -77,22 +82,55 @@ public class HtmlParserTest extends AParserTest {
 	private static class HCardSubDocComparable {
 		public String fn;
 		public String[] urls;
-	//	public String[] org;
+		public String[] orgs;
 		public String[] imgs;
 		
-		public void check(IParserDocument doc, int t, int i) {
+		public void check(IParserDocument doc, int t, int i) throws IOException {
 			if (fn != null)
 				assertEquals(fmt(t, i, "author"),
 						fn,
 						doc.getAuthor());
 			if (urls != null)
 				check(urls, doc.getLinks().keySet(), "uri", t, i);
-			// TODO: test orgs
 			if (imgs != null)
 				check(imgs, doc.getImages().keySet(), "image", t, i);
+			final Map<String,List<String>> fields = text2Fields(doc);
+			if (orgs != null)
+				check(orgs, fields.get("Organization"), "orgs", t, i);
+		}
+		
+		private static Map<String,List<String>> text2Fields(final IParserDocument pdoc) throws IOException {
+			final BufferedReader r = new BufferedReader(pdoc.getTextAsReader());
+			final Map<String,List<String>> m = new HashMap<String,List<String>>();
+			String line;
+			String key = null;
+			List<String> dataLines = new LinkedList<String>();
+			while ((line = r.readLine()) != null) {
+				line = line.trim();
+				if (line.length() == 0)
+					continue;
+				int colon = line.indexOf(':');
+				if (colon < 0 || line.indexOf(' ') < colon) {
+					dataLines.add(line);
+					continue;
+				}
+				if (dataLines.size() > 0) {
+					m.put(key, dataLines);
+					dataLines = new LinkedList<String>();
+				}
+				key = line.substring(0, colon);
+				String val = line.substring(colon + 2);
+				if (val.length() > 0)
+					dataLines.add(val);
+			}
+			if (key != null)
+				m.put(key, dataLines);
+			return m;
 		}
 		
 		private static void check(final String[] expected, final Collection<?> actual, final String name, final int t, final int i) {
+			assertNotNull(fmt(t, i, "field '" + name + "'"),
+					actual);
 			assertEquals(fmt(t, i, "number " + name + "s"),
 					expected.length,
 					actual.size());
@@ -118,80 +156,79 @@ public class HtmlParserTest extends AParserTest {
 	 * and hcardIdx is the number of the hcard defined in the html-file */
 	private static final HCardSubDocComparable[][] hcardCmps = {
 		null,
-		new HCardSubDocComparable[] {			// #01
-				new HCardSubDocComparable() {{
-					fn = "Tantek \u00c7elik";
-					urls = new String[] { "http://tantek.com/" };
-				//	org = new String[] { "Technorati" };
-				}}
+		{			// #01
+			new HCardSubDocComparable() {{
+				fn = "Tantek \u00c7elik";
+				urls = new String[] { "http://tantek.com/" };
+				orgs = new String[] { "Technorati" };
+			}}
 		},
 		null,
-		new HCardSubDocComparable[] {			// #03
-				new HCardSubDocComparable() {{ fn = "Ryan King"; }},
-				new HCardSubDocComparable() {{ fn = "Ryan King"; }},
-				new HCardSubDocComparable() {{ fn = "Ryan King"; }},
-				new HCardSubDocComparable() {{ fn = "Brian Suda"; }},
-				new HCardSubDocComparable() {{ fn = "King, Ryan"; }},
-				new HCardSubDocComparable() {{ fn = "King, R"; }},
-				new HCardSubDocComparable() {{ fn = "King R"; }},
-				new HCardSubDocComparable() {{ fn = "King R."; }},
-				new HCardSubDocComparable() {{ fn = "Jesse James Garrett"; }},
-				new HCardSubDocComparable() {{ fn = "Thomas Vander Wal"; }},
+		{			// #03
+			new HCardSubDocComparable() {{ fn = "Ryan King"; }},
+			new HCardSubDocComparable() {{ fn = "Ryan King"; }},
+			new HCardSubDocComparable() {{ fn = "Ryan King"; }},
+			new HCardSubDocComparable() {{ fn = "Brian Suda"; }},
+			new HCardSubDocComparable() {{ fn = "King, Ryan"; }},
+			new HCardSubDocComparable() {{ fn = "King, R"; }},
+			new HCardSubDocComparable() {{ fn = "King R"; }},
+			new HCardSubDocComparable() {{ fn = "King R."; }},
+			new HCardSubDocComparable() {{ fn = "Jesse James Garrett"; }},
+			new HCardSubDocComparable() {{ fn = "Thomas Vander Wal"; }},
 		},
-		new HCardSubDocComparable[] {			// #04
-				new HCardSubDocComparable() {{ fn = "Ryan King"; }}
-		},
-		null,
-		null,
-		new HCardSubDocComparable[] {			// #07
-				new HCardSubDocComparable() {{
-					fn = "John Doe";
-					/* TODO: fails, only "/home/blah" is returned
-					urls = new String[] { "http//www.example.org/home/blah" }; */
-				}}
-		},
-		new HCardSubDocComparable[] {			// #08
-				new HCardSubDocComparable() {{
-					fn = "John Doe";
-					urls = new String[] { "http://example.org/home/blah" };		// see base-tag in the file
-				}}
+		{			// #04
+			new HCardSubDocComparable() {{ fn = "Ryan King"; }}
 		},
 		null,
 		null,
-		new HCardSubDocComparable[] {			// #11
-				new HCardSubDocComparable() {{
-					fn = "John Doe";
-					urls = new String[] { "http://example.com/foo", "http://example.com/bar" };
-				}}
+		{			// #07
+			new HCardSubDocComparable() {{
+				fn = "John Doe";
+				urls = new String[] { "http://www.example.org/home/blah" };
+			}}
 		},
-		new HCardSubDocComparable[] {			// #12
-				new HCardSubDocComparable() {{
-					fn = "John Doe";
-					urls = new String[] { "http://example.org/picture.png" };
-				}}
-		},
-		new HCardSubDocComparable[] {			// #13
-				new HCardSubDocComparable() {{
-					fn = "John Doe";
-					imgs = new String[] { "http://example.org/picture.png" };
-				}}
+		{			// #08
+			new HCardSubDocComparable() {{
+				fn = "John Doe";
+				urls = new String[] { "http://example.org/home/blah" };		// see base-tag in the file
+			}}
 		},
 		null,
 		null,
-		null,
-		null,
-		new HCardSubDocComparable[] {			// #18
-				new HCardSubDocComparable() {{
-					fn = "John Doe";
-					urls = imgs = new String[] { "http://example.com/foo.png" };
-				}}
+		{			// #11
+			new HCardSubDocComparable() {{
+				fn = "John Doe";
+				urls = new String[] { "http://example.com/foo", "http://example.com/bar" };
+			}}
+		},
+		{			// #12
+			new HCardSubDocComparable() {{
+				fn = "John Doe";
+				urls = new String[] { "http://example.org/picture.png" };
+			}}
+		},
+		{			// #13
+			new HCardSubDocComparable() {{
+				fn = "John Doe";
+				imgs = new String[] { "http://example.org/picture.png" };
+			}}
 		},
 		null,
-		new HCardSubDocComparable[] {			// #20
-				new HCardSubDocComparable() {{
-					fn = "John Doe";
-					imgs = new String[] { "http://example.com/foo.png" };
-				}}
+		null,
+		null,
+		null,
+		{			// #18
+			new HCardSubDocComparable() {{
+				fn = "John Doe";
+				urls = imgs = new String[] { "http://example.com/foo.png" };
+			}}
+		},
+		null,
+		{			// #20
+			new HCardSubDocComparable() {{
+				fn = "John Doe";
+				imgs = new String[] { "http://example.com/foo.png" };
+			}}
 		},
 	};
 	
@@ -204,7 +241,7 @@ public class HtmlParserTest extends AParserTest {
 			if (hcardCmps.length <= testnr || hcardCmps[testnr] == null)
 				continue;
 			
-			final IParserDocument pdoc = parser.parse(new URI("http//www.example.org/hcard/" + testName), null, new File(testDir, testName));
+			final IParserDocument pdoc = parser.parse(new URI("http://www.example.org/hcard/" + testName), null, new File(testDir, testName));
 			final HCardSubDocComparable[] cmps = hcardCmps[testnr];
 			assertEquals(pdoc.getSubDocs().keySet().toString(), cmps.length, pdoc.getSubDocs().size());
 			/* TreeMap sorts (numerically) after sub-doc-location which has this format: "#n: name"

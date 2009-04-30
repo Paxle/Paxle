@@ -326,8 +326,8 @@ public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactor
 				// append all other information as text (copied from HCard.toString() and omitted the URL-fields)
 				if ( !hcard.n.isEmpty() )          subdoc.append("Name: ").append(hcard.n.toString()).append('\n');
 				if ( hcard.nicknames.size() > 0 )  subdoc.append("Nickname: ").append(printCommaList(hcard.nicknames)).append('\n');
-				if ( hcard.bday != null )          subdoc.append("Birth day: ").append(printDate(hcard.bday.longValue())).append('\n');
-				if ( hcard.tels.size() > 0 )       subdoc.append("Tel Nr: ").append(printCommaList(hcard.tels)).append('\n');
+				if ( hcard.bday != null )          subdoc.append("Birthday: ").append(printDate(hcard.bday.longValue())).append('\n');
+				if ( hcard.tels.size() > 0 )       subdoc.append("TelNr: ").append(printCommaList(hcard.tels)).append('\n');
 				if ( hcard.emails.size() > 0 )     subdoc.append("Email: ").append(printCommaList(hcard.emails)).append('\n');
 				if ( hcard.geo != null )           subdoc.append("Geolocation: ").append(hcard.geo.toString()).append('\n');
 				if ( hcard.tz != null )            subdoc.append("Timezone: ").append(hcard.tz.toString()).append('\n');
