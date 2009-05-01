@@ -52,70 +52,75 @@ public class FsCrawler implements IFsCrawler {
 		
 		final ICrawlerContext ctx = CrawlerContext.getCurrentContext();
 		if (ctx == null) throw new IllegalStateException("Cannot access CrawlerContext from " + Thread.currentThread().getName());
-		
-		// creating an empty crawler-document
-		final ICrawlerDocument cdoc = ctx.createDocument();
-		
-		final ICommandProfile cmdProfile = ctx.getCommandProfile();
-		boolean omitHidden = true;
-		boolean inclParent = false;
-		int readMode = VAL_READ_MODE_STD;
-		if (cmdProfile != null) {
-			Serializable val;
-			if ((val = cmdProfile.getProperty(PROP_VALIDATE_NOT_HIDDEN)) != null)
-				omitHidden = ((Boolean)val).booleanValue();
-			if ((val = cmdProfile.getProperty(PROP_READ_MODE)) != null)
-				readMode = ((Integer)val).intValue();
-			if ((val = cmdProfile.getProperty(PROP_INCLUDE_PARENT_DIR)) != null)
-				inclParent = ((Boolean)val).booleanValue();
-		}
-		
-		ICrawlerDocument.Status status = ICrawlerDocument.Status.OK;
-		String err = null;
-		final File file = new File(location);
-		
-		if (!file.exists()) {
-			err = "File not found";
-			status = ICrawlerDocument.Status.NOT_FOUND;
-		} else if (!file.canRead()) {
-			err = "Read permission denied";
-			status = ICrawlerDocument.Status.UNKNOWN_FAILURE;/*		java 1.6
-		} else if (file.isDirectory() && !file.canExecute()) {
-			err = "Permission to enter directory denied";
-			status = ICrawlerDocument.Status.UNKNOWN_FAILURE;*/
-		} else if (omitHidden && file.isHidden()) {
-			err = "Hidden";
-			status = ICrawlerDocument.Status.UNKNOWN_FAILURE;
-		}
-		
-		cdoc.setStatus(status);
-		if (err != null) {
-			logger.warn(String.format("Error crawling %s: %s", location, err));
-			cdoc.setStatusText(err);
-			return cdoc;
-		}
-		
-		cdoc.setCrawlerDate(new Date());
-		cdoc.setLastModDate(new Date(file.lastModified()));
-		cdoc.setLocation(location);
-		
-		if (file.isDirectory()) {
-			final File[] list = file.listFiles();
-			final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(list, omitHidden);
+				
+		ICrawlerDocument cdoc = null;
+		try {
+			// creating an empty crawler-document
+			cdoc = ctx.createDocument();
 			
-			try {
-				CrawlerTools.saveListing(cdoc, dirlistIt, inclParent, list.length > 0);
-			} catch (IOException e) {
-				final String msg = String.format("Error saving dir-listing for '%s': %s", location, e.getMessage());
-				cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
-				logger.error(msg, e);
+			final ICommandProfile cmdProfile = ctx.getCommandProfile();
+			boolean omitHidden = true;
+			boolean inclParent = false;
+			int readMode = VAL_READ_MODE_STD;
+			if (cmdProfile != null) {
+				Serializable val;
+				if ((val = cmdProfile.getProperty(PROP_VALIDATE_NOT_HIDDEN)) != null)
+					omitHidden = ((Boolean)val).booleanValue();
+				if ((val = cmdProfile.getProperty(PROP_READ_MODE)) != null)
+					readMode = ((Integer)val).intValue();
+				if ((val = cmdProfile.getProperty(PROP_INCLUDE_PARENT_DIR)) != null)
+					inclParent = ((Boolean)val).booleanValue();
+			}
+			
+			ICrawlerDocument.Status status = ICrawlerDocument.Status.OK;
+			String err = null;
+			final File file = new File(location);
+			
+			if (!file.exists()) {
+				err = "File not found";
+				status = ICrawlerDocument.Status.NOT_FOUND;
+			} else if (!file.canRead()) {
+				err = "Read permission denied";
+				status = ICrawlerDocument.Status.UNKNOWN_FAILURE;/*		java 1.6
+			} else if (file.isDirectory() && !file.canExecute()) {
+				err = "Permission to enter directory denied";
+				status = ICrawlerDocument.Status.UNKNOWN_FAILURE;*/
+			} else if (omitHidden && file.isHidden()) {
+				err = "Hidden";
+				status = ICrawlerDocument.Status.UNKNOWN_FAILURE;
+			}
+			
+			cdoc.setStatus(status);
+			if (err != null) {
+				logger.warn(String.format("Error crawling %s: %s", location, err));
+				cdoc.setStatusText(err);
 				return cdoc;
 			}
 			
-		} else {
-			final File contentFile = generateContentFile(readMode, file, cdoc);
-			cdoc.setContent(contentFile);
-		}
+			cdoc.setCrawlerDate(new Date());
+			cdoc.setLastModDate(new Date(file.lastModified()));
+			cdoc.setLocation(location);
+			
+			if (file.isDirectory()) {
+				final File[] list = file.listFiles();
+				final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(list, omitHidden);
+				
+	
+					CrawlerTools.saveListing(cdoc, dirlistIt, inclParent, list.length > 0);
+	
+				
+			} else {
+				final File contentFile = generateContentFile(readMode, file, cdoc);
+				cdoc.setContent(contentFile);
+			}
+		
+		} catch (IOException e) {
+			final String msg = String.format("Error saving dir-listing for '%s': %s", location, e.getMessage());			
+			logger.error(msg, e);
+			if (cdoc != null) {
+				cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
+			}
+		}		
 		
 		return cdoc;
 	}
