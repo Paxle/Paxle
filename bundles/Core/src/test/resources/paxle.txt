@@ -1,0 +1,49 @@
+What is Paxle?
+
+Paxle is a framework targeted at indexing and searching documents. It is based on OSGi and already contains all modules needed to operate a search engine (crawler, indexer, storage, controlling the modules, …). However, in Paxle the modules are interchangable, following the model of Lego bricks.
+
+You can just change the part you're interested in or which need to modify and thus with minimal effort, you get a full-fledged search engine adjusted to your needs which conforms to web-standards, because without any additional changes all other modules co-operate just as before.
+
+Therefore Paxle is ideal for research, teaching and also as a foundation for your own projects.
+What can you do with Paxle?
+
+    *
+      Paxle is a multi-purpose tool and can be adjusted in many ways, i.e.:
+          o
+            Paxle as a full-fledged search engine + crawler for intra- or internet
+          o
+            Paxle as a search engine for a wiki or forum (can be triggered as soon as new content is committed)
+          o
+            Paxle creates a Lucene index which can be used by external applications
+          o
+            Paxle as a crawler for textual content in the web for further scientific processing (media studies, communcation sciences)
+          o
+            Paxle as a framework for parser development
+          o
+            Paxle as a means to analyze the structure of the web
+          o
+            […]
+    *
+      Paxle consolidates search results from multiple sources
+          o
+            Define the sources relevant to you and build a fully customized meta search engine
+    *
+      Paxle is easily approachable
+          o
+            Simple installation procedure. There is no need to do all the work programming a search engine again. For most use cases just a bundle needs to be exchanged or added (i.e. to enable processing of a proprietary data format).
+
+Is it difficult to use Paxle?
+
+For a program of this complexity, Paxle is very easy to use.
+It is written in Java and can be easily administered via a web-interface at http://localhost:8080 via web browser.
+Have a look at the Webinterface.
+
+If you want to adjust Paxle to your own requirements, you need to be good at coding Java, but the sole use of the software does not require any further programming expertise.
+
+Only 3 simple steps are necessary to install Paxle.
+
+Nevertheless, if there's trouble our community is glad to help.
+
+Feel free to contact us.
+
+http://www.paxle.net/en/start#what_is_paxle

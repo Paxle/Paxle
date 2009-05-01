@@ -36,7 +36,7 @@ import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.crypt.ACryptOutputStream;
 import org.paxle.core.crypt.ICrypt;
 import org.paxle.core.doc.ICrawlerDocument;
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.crawler.impl.ContentLengthLimitOutputStream;
@@ -340,7 +340,8 @@ public class CrawlerTools {
 			/* ================================================================
 			 * COPY DATA
 			 * ================================================================ */
-			final long copied = (lrc == null) ? IOTools.copy(is, os) : lrc.copy(is, os, -1);
+			final IIOTools ioTools = context.getIoTools();
+			final long copied = (lrc == null) ? ioTools.copy(is, os) : lrc.copy(is, os, -1);
 			
 			/* ================================================================
 			 * CHARSET DETECTION

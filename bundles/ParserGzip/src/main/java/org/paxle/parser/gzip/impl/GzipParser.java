@@ -22,7 +22,7 @@ import java.net.URI;
 import java.util.zip.GZIPInputStream;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
@@ -45,9 +45,10 @@ public class GzipParser implements ISubParser {
 			throws ParserException, UnsupportedEncodingException, IOException {
 		final GZIPInputStream cfis = new GZIPInputStream(is);
 		final IParserContext context = ParserContext.getCurrentContext();
+		final IIOTools iotools = context.getIoTools();
 		final ParserDocOutputStream pdos = new ParserDocOutputStream(context.getTempFileManager(), context.getCharsetDetector());
-		try {
-			IOTools.copy(cfis, pdos);
+		try {			
+			iotools.copy(cfis, pdos);
 		} finally {
 			cfis.close();
 			pdos.close();

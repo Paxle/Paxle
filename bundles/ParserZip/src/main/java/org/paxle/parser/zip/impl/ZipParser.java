@@ -23,8 +23,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.ParserDocument;
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
@@ -46,7 +45,8 @@ public class ZipParser implements ISubParser {
 			throws ParserException, UnsupportedEncodingException, IOException 
 	{
 		final IParserContext context = ParserContext.getCurrentContext();
-		final IParserDocument pdoc = new ParserDocument();
+		final IIOTools iotools = context.getIoTools();
+		final IParserDocument pdoc = context.createDocument();
 		final ZipInputStream zis = new ZipInputStream(is);
 		ZipEntry ze;
 		while ((ze = zis.getNextEntry()) != null) {
@@ -64,8 +64,8 @@ public class ZipParser implements ISubParser {
 						context.getCharsetDetector(),
 						pdoc, location, ze.getName(), size);
 			}
-			try {
-				IOTools.copy(zis, sos, size);						// size == -1 is ok here
+			try {				
+				iotools.copy(zis, sos, size);						// size == -1 is ok here
 			} finally {
 				try { sos.close(); } catch (IOException e) {
 					if (e.getCause() instanceof ParserException) {

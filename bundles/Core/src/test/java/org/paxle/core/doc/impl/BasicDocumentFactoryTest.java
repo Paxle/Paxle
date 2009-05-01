@@ -13,22 +13,34 @@
  */
 package org.paxle.core.doc.impl;
 
-import org.paxle.core.doc.ICrawlerDocument;
-import org.paxle.core.doc.IDocumentFactory;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 
+import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.core.io.temp.impl.TempFileManager;
+
 public class BasicDocumentFactoryTest extends TestCase {
+	private ITempFileManager tempFileManager;
 	private IDocumentFactory docFactory;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.docFactory = new BasicDocumentFactory();
+		this.tempFileManager = new TempFileManager();
+		this.docFactory = new BasicDocumentFactory(this.tempFileManager);
 	}
 	
-	public void testCreateCrawlerDocument() {
+	public void testCreateCrawlerDocument() throws IOException {
 		ICrawlerDocument cdoc = this.docFactory.createDocument(ICrawlerDocument.class);
 		assertNotNull(cdoc);
+	}
+	
+	public void testCreateParserDocument() throws IOException {
+		IParserDocument pdoc = this.docFactory.createDocument(IParserDocument.class);
+		assertNotNull(pdoc);
 	}
 }

@@ -26,7 +26,6 @@ import javax.xml.bind.Unmarshaller;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ASubParser;
-import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -54,7 +53,7 @@ public class XbelParser extends ASubParser implements ISubParser {
 		
 		try {
 			// creating an empty parser document 
-			final IParserDocument pdoc = new CachedParserDocument(ParserContext.getCurrentContext().getTempFileManager());
+			final IParserDocument pdoc = ParserContext.getCurrentContext().createDocument();
 			
 			// parsing the xbel stream
 			Unmarshaller unmarshaller = this.jaxbContext.createUnmarshaller();

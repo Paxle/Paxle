@@ -21,8 +21,9 @@ import junit.framework.TestCase;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.doc.impl.BasicCrawlerDocument;
+import org.paxle.core.doc.impl.BasicParserDocument;
+import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 
@@ -35,14 +36,14 @@ public class IndexerWorkerTest extends TestCase {
 		
 		final HashSet<String> expectedTitles = new HashSet<String>();
 		
-		final IParserDocument pdoc = new ParserDocument();
+		final IParserDocument pdoc = new BasicParserDocument(new TempFileManager());
 		String title = "container";
 		expectedTitles.add(title);
 		pdoc.setTitle(title);
 		pdoc.setMimeType("test/mime-type");
 		IParserDocument container = pdoc;
 		for (int i=0; i<depth; i++) {
-			final IParserDocument subpdoc = new ParserDocument();
+			final IParserDocument subpdoc = new BasicParserDocument(new TempFileManager());
 			title = "child_depth_" + i;
 			expectedTitles.add(title);
 			subpdoc.setTitle(title);

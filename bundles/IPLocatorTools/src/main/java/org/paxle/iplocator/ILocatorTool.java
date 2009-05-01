@@ -11,18 +11,13 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.iplocator.impl;
+package org.paxle.iplocator;
 
-public class IconData {
-	public String mimeType = "image/png";
-	public byte[] data = null;
-	
-	public IconData(byte[] data) {
-		this.data = data;
-	}
-	
-	public IconData(String mimeType, byte[] data) {
-		this.mimeType = mimeType;
-		this.data = data;
-	}
+import java.io.InputStream;
+import java.util.Locale;
+
+public interface ILocatorTool {
+	public Locale getLocale(String host);
+	public InputStream getIcon(String hostNameIp);
+	public InputStream getIcon(Locale locale);
 }

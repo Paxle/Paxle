@@ -14,10 +14,13 @@
 package org.paxle.parser.plain.impl;
 
 import java.io.File;
+import java.io.Reader;
 import java.net.URI;
-import java.util.Iterator;
 import java.util.Map;
 
+import junitx.framework.StringAssert;
+
+import org.apache.commons.io.IOUtils;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.parser.impl.AParserTest;
@@ -36,9 +39,9 @@ public class PlainParserTest extends AParserTest {
 	
 	public void testPlainParser1() throws Exception {
 		final PlainParser pp = new PlainParser();
-		final IParserDocument pdoc = pp.parse(new URI("http://www.example.org"), "UTF-8", new File("src/test/resources/threaddump"));
+		final IParserDocument pdoc = pp.parse(new URI("http://www.paxle.net/en/start"), "UTF-8", new File("src/test/resources/paxle.txt"));
 		assertNotNull(pdoc.getTitle());
-		assertEquals("bli bla blo", pdoc.getTitle());
+		assertEquals("What is Paxle?", pdoc.getTitle());
 		assertNull(pdoc.getAuthor());
 		assertNull(pdoc.getLastChanged());
 		assertNull(pdoc.getMimeType());
@@ -47,10 +50,18 @@ public class PlainParserTest extends AParserTest {
 		assertTrue(pdoc.getImages().size() == 0);
 		assertTrue(pdoc.getKeywords().size() == 0);
 		assertNull(pdoc.getLanguages());
-		assertTrue(pdoc.getLinks().size() == 2);
-		final Iterator<Map.Entry<URI,LinkInfo>> it = pdoc.getLinks().entrySet().iterator();
-		assertEquals(URI.create("http://www.example.org/bla?blubb=#tmp"), it.next().getKey());
-		assertEquals(URI.create("http://lists.w3.org/Archives/Public/ietf-http-wg/"), it.next().getKey());
 		assertTrue(pdoc.getSubDocs().size() == 0);
+		
+		assertTrue(pdoc.getLinks().size() == 2);		
+		final Map<URI,LinkInfo> links = pdoc.getLinks();
+		assertTrue(links.containsKey(URI.create("http://localhost:8080")));
+		assertTrue(links.containsKey(URI.create("http://www.paxle.net/en/start#what_is_paxle")));		
+		
+		Reader reader = pdoc.getTextAsReader();
+		assertNotNull(reader);
+		String content = IOUtils.toString(reader);
+		assertNotNull(content);
+		StringAssert.assertStartsWith("Paxle is a framework targeted", content);
+		StringAssert.assertContains("Paxle as a crawler for textual content in the web", content);
 	}
 }

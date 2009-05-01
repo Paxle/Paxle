@@ -32,7 +32,6 @@ import org.apache.poi.poifs.filesystem.DocumentEntry;
 import org.apache.poi.poifs.filesystem.DocumentInputStream;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -62,7 +61,7 @@ public abstract class AMsOfficeParser implements ISubParser {
 		IParserDocument parserDoc = null;
 		try {
 			// create an empty document
-			parserDoc = new CachedParserDocument(ParserContext.getCurrentContext().getTempFileManager());
+			parserDoc = ParserContext.getCurrentContext().createDocument();
 			
 			// open the POI filesystem
 			POIFSFileSystem fs = new POIFSFileSystem(is);

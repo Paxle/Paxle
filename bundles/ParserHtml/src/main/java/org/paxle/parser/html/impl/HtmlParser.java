@@ -45,10 +45,8 @@ import org.microformats.hCard.HCard;
 import org.microformats.hCard.HCardParser.HCardVisitor;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.ICommandProfile;
-import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
@@ -61,7 +59,7 @@ import org.paxle.parser.html.IHtmlParser;
  * <p>
  *  It uses a kind of iterator with callback to walk through the node-tree of
  *  the HTML page, extracting information whereever supported and putting it
- *  into the {@link CachedParserDocument}.
+ *  into the {@link IParserDocument}.
  * </p>
  * @see org.htmlparser.Parser#visitAllNodesWith(org.htmlparser.visitors.NodeVisitor) for the iterator
  * @see org.paxle.parser.html.impl.NodeCollector for the callback
@@ -203,7 +201,7 @@ public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactor
 					useHcards = ((Boolean)v).booleanValue();
 			}
 			
-			final IParserDocument doc = new CachedParserDocument(context.getTempFileManager());			
+			final IParserDocument doc = context.createDocument();	
 			final InputStreamSource iss = new InputStreamSource(is, charset);
 			
 			try {
@@ -211,7 +209,7 @@ public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactor
 						location,
 						doc,
 						context.getReferenceNormalizer(),
-						context.getTempFileManager(),
+						context,
 						iss,
 						obeyRobotsNoindex, obeyRobotsNofollow,
 						useHcards);
@@ -276,7 +274,7 @@ public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactor
 				final URI location,
 				final IParserDocument doc,
 				final IReferenceNormalizer refNorm,
-				final ITempFileManager tfm,
+				final IParserContext context,
 				final Source source,
 				final boolean obeyRobotsNoindex, final boolean obeyRobotsNofollow,
 				final boolean useHcards) throws org.htmlparser.util.ParserException, IOException {
@@ -296,13 +294,13 @@ public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactor
 				visitAllNodesWithAll(nc, hc);
 				
 				// extract hcard-information into pdoc
-				extractHcardInfos(doc, tfm);
+				extractHcardInfos(doc, context);
 			} else {
 				parser.visitAllNodesWith(nc);
 			}
 		}
 		
-		private void extractHcardInfos(final IParserDocument doc, final ITempFileManager tfm) throws IOException {
+		private void extractHcardInfos(final IParserDocument doc, final IParserContext context) throws IOException {
 			/* TODO:
 			 *  - junit test case */
 			final List<HCard> parsedHCards = hc.parsedHCards();
@@ -311,7 +309,7 @@ public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactor
 			int i = 0;
 			while (it.hasNext()) {
 				final HCard hcard = it.next();
-				final IParserDocument subdoc = new CachedParserDocument(tfm);
+				final IParserDocument subdoc = context.createDocument();
 				
 				/* Since the HCard and all of it's content is immutable, we need to seperate the
 				 * information ourselves here instead of simply clearing the lists containing the URLs. */

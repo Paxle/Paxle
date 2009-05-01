@@ -34,27 +34,14 @@ import org.paxle.parser.ParserNotFoundException;
 
 public class ParserTools {
 	
-	/**
-	 * Replaces every non-space whitespace character with a space character and truncates
-	 * multiple spaces to a single one. This results in the text-representation free of
-	 * obscurities.
-	 *  
-	 * @param text the text to process
-	 * @return the words of the given text each separated by only a single space
-	 */
-	public static String whitespaces2Space(String text) {
-		if (text == null) return null;
-		return text.replaceAll("\\s", " ").trim();
-	}
-	
-	public static String getCharset(File file, String mimeType) throws IOException, ParserException {
+	private static String getCharset(File file, String mimeType) throws IOException, ParserException {
 		final IParserContext context = ParserContext.getCurrentContext();
 		if (context == null)
 			throw new ParserException("cannot access ParserContext whereas this method must be used from within a sub-parser");
 		return getCharset(file, context.getCharsetDetector(), mimeType);
 	}
 	
-	public static String getCharset(File file, ICharsetDetector cd, String mimeType) throws IOException, ParserException {
+	private static String getCharset(File file, ICharsetDetector cd, String mimeType) throws IOException, ParserException {
 		if (cd == null)
 			throw new ParserException("no charset detector service available");
 		if (mimeType != null && !cd.isInspectable(mimeType))
@@ -75,7 +62,7 @@ public class ParserTools {
 		return getMimeType(file, context.getMimeTypeDetector());
 	}
 	
-	public static String getMimeType(File file, IMimeTypeDetector mtd) throws IOException, ParserException {
+	private static String getMimeType(File file, IMimeTypeDetector mtd) throws IOException, ParserException {
 		if (mtd == null)
 			throw new ParserException("cannot determine the MIME type of " + file + " due to missing MIME type detector");
 		final String mimeType;

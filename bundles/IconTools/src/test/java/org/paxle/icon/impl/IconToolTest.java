@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.IOTools;
 
 import junit.framework.TestCase;
@@ -28,6 +29,8 @@ import junitx.framework.ArrayAssert;
 public class IconToolTest extends TestCase {
 	private static final int TESTCASE_FILENAME = 0;
 	private static final int TESTCASE_MIMETYPE = 1;
+	
+	private IIOTools iotools = new org.paxle.core.io.impl.IOTools();
 	
 	/**
 	 * Testfiles to test
@@ -55,7 +58,7 @@ public class IconToolTest extends TestCase {
 		assertNotNull(iconInput);
 		
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		IOTools.copy(iconInput, bout);
+		iotools.copy(iconInput, bout);
 		iconInput.close();
 		bout.close();
 		

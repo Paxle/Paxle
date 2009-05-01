@@ -22,6 +22,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
+import org.paxle.core.io.impl.IOTools;
 import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.crawler.CrawlerContext;
@@ -63,7 +64,7 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 		this.aTempManager = new TestTempFileManager();
 
 		// a dummy doc factory
-		this.docFactory = new BasicDocumentFactory();
+		this.docFactory = new BasicDocumentFactory(this.aTempManager);
 		
 		// initializing the crawler context
 		CrawlerContextLocal threadLocal = new TestCrawlerContextLocal(mimeTypes, this.aTempManager);
@@ -92,11 +93,12 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 			}
 			
 			this.tempFileManager = tempFileManager;	
+			this.ioTools = new IOTools();
 		}
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		protected <DOC> DOC createDocumentForInterface(Class<DOC> docInterface, String filter) throws InvalidSyntaxException {
+		protected <DOC> DOC createDocumentForInterface(Class<DOC> docInterface, String filter) throws InvalidSyntaxException, IOException {
 			if (docInterface.isAssignableFrom(ICrawlerDocument.class)) {
 				return (DOC) docFactory.createDocument(ICrawlerDocument.class);
 			}

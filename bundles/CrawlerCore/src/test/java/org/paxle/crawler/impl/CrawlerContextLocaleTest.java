@@ -13,6 +13,7 @@
  */
 package org.paxle.crawler.impl;
 
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -27,6 +28,8 @@ import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
+import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.crawler.ICrawlerContext;
 
 public class CrawlerContextLocaleTest extends MockObjectTestCase {	
@@ -52,6 +55,7 @@ public class CrawlerContextLocaleTest extends MockObjectTestCase {
 		this.crawlerDocFactoryProps.put(IDocumentFactory.DOCUMENT_TYPE, new String[]{ICrawlerDocument.class.getName()});
 		
 		final Filter classFilter = mock(Filter.class);
+		final ITempFileManager tempFileManager = mock(ITempFileManager.class);
 		
 		checking(new Expectations(){{
 			// allowing to fetch the bundle-context
@@ -60,7 +64,7 @@ public class CrawlerContextLocaleTest extends MockObjectTestCase {
 			
 			// allowing to locate the doc-factory
 			allowing(componentContext).locateService("docFactory", crawlerDocFactoryRef);
-			will(returnValue(new BasicDocumentFactory()));
+			will(returnValue(new BasicDocumentFactory(tempFileManager)));
 			
 			// allowing to create the filter
 			allowing(bc).createFilter(with(any(String.class)));
@@ -72,18 +76,20 @@ public class CrawlerContextLocaleTest extends MockObjectTestCase {
 					new FilterImpl(String.format("(%s=%s)",IDocumentFactory.DOCUMENT_TYPE,ICrawlerDocument.class.getName()))
 					.match(crawlerDocFactoryProps))
 			);
+			
+			allowing(tempFileManager).createTempFile(); 
 		}});
 		
 		// creating the crawler-context
 		this.crawlerContext = new TestCrawlerContextLocale(this.componentContext, this.crawlerDocFactoryRef).createContext();		
 	}
 	
-	public void testCreateDocument() {
+	public void testCreateDocument() throws IOException {
 		ICrawlerDocument cdoc = this.crawlerContext.createDocument();
 		assertNotNull(cdoc);
 	}
 	
-	public void testCreateDocumentForType() throws InvalidSyntaxException {
+	public void testCreateDocumentForType() throws InvalidSyntaxException, IOException {
 		ICrawlerDocument cdoc = this.crawlerContext.createDocument(ICrawlerDocument.class, null);
 		assertNotNull(cdoc);
 	}

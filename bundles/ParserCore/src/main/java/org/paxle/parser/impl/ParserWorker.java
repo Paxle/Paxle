@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.ParserDocument;
 import org.paxle.core.doc.ICrawlerDocument.Status;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommand.Result;
@@ -192,7 +191,7 @@ public class ParserWorker extends AWorker<ICommand> {
 					}
 					
 					if (!it.hasNext()) {
-						parserDoc = new ParserDocument();
+						parserDoc = pc.createDocument();
 						parserDoc.setStatus(IParserDocument.Status.FAILURE, e.getMessage());
 					}
 				}

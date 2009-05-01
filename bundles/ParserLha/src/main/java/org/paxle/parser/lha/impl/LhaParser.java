@@ -25,8 +25,7 @@ import lha.LhaFile;
 
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.ParserDocument;
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.IParserContext;
@@ -56,9 +55,10 @@ public class LhaParser extends ASubParser implements ISubParser {
 		final IParserContext context = ParserContext.getCurrentContext();
 		final ITempFileManager tfm = context.getTempFileManager();
 		final ICharsetDetector cd = context.getCharsetDetector();
+		final IIOTools iotools = context.getIoTools();
 
 		// the result object
-		final IParserDocument pdoc = new ParserDocument();
+		final IParserDocument pdoc = context.createDocument();
 		
 		// open the file and loop through all entries
 		final LhaFile lhaf = new LhaFile(content);
@@ -72,7 +72,7 @@ public class LhaParser extends ASubParser implements ISubParser {
 			final SubParserDocOutputStream spdos = new SubParserDocOutputStream(tfm, cd, pdoc, location, ef.getPath(), e.getOriginalSize());
 			final InputStream lis = lhaf.getInputStream(e);
 			try {
-				IOTools.copy(lis, spdos);
+				iotools.copy(lis, spdos);
 			} finally {
 				try { lis.close(); } catch (IOException ex) { /* ignore */ }
 				try { spdos.close(); } catch (IOException ex) { /* ignore */ }

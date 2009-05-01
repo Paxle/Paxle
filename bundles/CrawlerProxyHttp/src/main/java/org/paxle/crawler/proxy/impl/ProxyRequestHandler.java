@@ -90,7 +90,7 @@ public class ProxyRequestHandler implements IHttpRequestHandler, ILifeCycle {
 
 			// .. and forward the request
 			httpClient.send(request, new ProxyResponseHandler(request, responseCtx));
-		} catch (ConnectException ce) {
+		} catch (IOException ce) {
 			responseCtx.sendError(502, ce.toString());
 		}
 	}

@@ -17,18 +17,18 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
+import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
-import org.paxle.core.doc.ParserDocument;
+import org.paxle.core.doc.impl.BasicParserDocument;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 import org.paxle.filter.blacklist.IBlacklist;
 import org.paxle.filter.blacklist.InvalidBlacklistnameException;
 
-public class BlacklistFilterTest extends TestCase {
+public class BlacklistFilterTest extends MockObjectTestCase {
 	private static final String TESTDIR_NAME = "target/testDir";
 
 	private File testDir = null;
@@ -98,7 +98,7 @@ public class BlacklistFilterTest extends TestCase {
 		testCommand.setLocation(URI.create("http://xyz/"));
 		
 		// creating dummy p-doc
-		IParserDocument pDoc = new ParserDocument();
+		IParserDocument pDoc = new BasicParserDocument(mock(ITempFileManager.class));
 		pDoc.addReference(okURI, new LinkInfo());
 		pDoc.addReference(blockedURI, new LinkInfo());
 		testCommand.setParserDocument(pDoc);

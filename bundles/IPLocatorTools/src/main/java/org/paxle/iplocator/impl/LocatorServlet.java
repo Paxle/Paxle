@@ -14,6 +14,7 @@
 package org.paxle.iplocator.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -21,6 +22,8 @@ import java.net.URI;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.paxle.core.io.IIOTools;
 
 /**
  * @scr.component immediate="true" metatype="false"
@@ -31,6 +34,16 @@ import javax.servlet.http.HttpServletResponse;
 public class LocatorServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * @scr.reference;
+	 */
+	protected LocatorTool locatorTool;
+	
+	/**
+	 * @scr.reference;
+	 */
+	protected IIOTools iotools;
+	
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse rsp) throws IOException {
 		String hostNameIP = null;
@@ -58,12 +71,11 @@ public class LocatorServlet extends HttpServlet {
 			return;
 		}
 		
-		IconData icon = LocatorTool.getIcon(hostNameIP);
+		InputStream icon = locatorTool.getIcon(hostNameIP);
 		if (icon != null) {
-			rsp.setContentType(icon.mimeType);
-			
 			OutputStream out = rsp.getOutputStream();
-			out.write(icon.data);
+			rsp.setContentType("image/png");
+			iotools.copy(icon, out);
 			out.close();
 			return;
 		} else {

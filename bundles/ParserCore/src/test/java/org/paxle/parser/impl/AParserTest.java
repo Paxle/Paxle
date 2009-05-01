@@ -29,7 +29,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jmock.integration.junit3.MockObjectTestCase;
+import org.osgi.framework.InvalidSyntaxException;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
@@ -44,11 +47,11 @@ public abstract class AParserTest extends MockObjectTestCase {
 	protected HashMap<String,String> fileNameToMimeTypeMap = null;
 	protected HashMap<String, ISubParser> mimeTypeToParserMap = null;
 	
-	protected ParserContext parserContext = null;
 	protected ITempFileManager aTempFileManager = null;
 	protected IReferenceNormalizer aRefNormalizer = null;
 	protected IMimeTypeDetector aMimetypeDetector = null;
 	protected ISubParserManager aSubParserManager = null;
+	protected IDocumentFactory docFactory;
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -158,16 +161,32 @@ public abstract class AParserTest extends MockObjectTestCase {
 			}
 		};
 		
+		this.docFactory = new BasicDocumentFactory(this.aTempFileManager);
+		
 		// create a parser context with a dummy temp-file-manager		
-		ParserContext.setThreadLocal(new ParserContextLocal() {{
+		ParserContext.setThreadLocal(new TestParserContextLocale());
+	}
+	
+	private class TestParserContextLocale extends ParserContextLocal {
+		public TestParserContextLocale() {
 			this.subParserManager = aSubParserManager;
 			this.mimeTypeDetector = aMimetypeDetector;
 			this.charsetDetector = null;
 			this.tempFileManager = aTempFileManager;
+			this.ioTools = new org.paxle.core.io.impl.IOTools();
 			this.referenceNormalizer = aRefNormalizer;
-		}});
-		this.parserContext = new ParserContext();
+		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		protected <DOC> DOC createDocumentForInterface(Class<DOC> docInterface, String filter) throws InvalidSyntaxException, IOException {
+			if (docInterface.isAssignableFrom(IParserDocument.class)) {
+				return (DOC) docFactory.createDocument(IParserDocument.class);
+			}
+			throw new IllegalArgumentException("Unexpected invocation");
+		}
 	}
+	
 	
 	protected void printParserDoc(final IParserDocument pdoc, final String name) throws IOException {
 		final Reader r = pdoc.getTextAsReader();

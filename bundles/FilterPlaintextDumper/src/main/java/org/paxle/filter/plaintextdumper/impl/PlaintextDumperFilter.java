@@ -31,7 +31,7 @@ import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.queue.ICommand;
 
 /**
@@ -55,6 +55,11 @@ public class PlaintextDumperFilter implements IFilter<ICommand> {
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 
+	/**
+	 * @scr.reference
+	 */
+	protected IIOTools ioTools;
+	
 	/**
 	 * This function is called by the OSGi framework if this component is activated
 	 */
@@ -92,7 +97,7 @@ public class PlaintextDumperFilter implements IFilter<ICommand> {
 			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile),"UTF-8"));
 			
 			// copy files
-			IOTools.copy(br, bw);
+			this.ioTools.copy(br, bw);
 		} finally {
             if (br != null) try { br.close(); } catch (Exception e) {/* ignore this */}
             if (bw != null) try { bw.close(); } catch (Exception e) {/* ignore this */}	

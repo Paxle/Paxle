@@ -30,7 +30,6 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ASubParser;
-import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -95,7 +94,7 @@ public class SitemapParserImpl extends ASubParser implements SitemapParser {
 	public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException {
 		try {
 			// creating an empty parser document 
-			final IParserDocument pdoc = new CachedParserDocument(ParserContext.getCurrentContext().getTempFileManager());
+			final IParserDocument pdoc = ParserContext.getCurrentContext().createDocument();
 			// TODO: we need a way to mark the document as "parsing-only" and to disallow indexing
 			
 			Urlset urls = this.getUrlSet(is);

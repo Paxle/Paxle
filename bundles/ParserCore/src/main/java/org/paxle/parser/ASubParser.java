@@ -24,7 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 
 public abstract class ASubParser implements ISubParser {
@@ -48,13 +48,15 @@ public abstract class ASubParser implements ISubParser {
 		final ITempFileManager tfm = context.getTempFileManager();
 		if (tfm == null) throw new ParserException("cannot access temp-file manager");
 		
+		final IIOTools iotools = context.getIoTools();
+		
 		File content = null;		
 		BufferedOutputStream bos = null;
 		try {
 			// copying data from the stream into the temp file
 			content = tfm.createTempFile();
 			bos = new BufferedOutputStream(new FileOutputStream(content));
-			IOTools.copy(is, bos);			
+			iotools.copy(is, bos);			
 			bos.close();
 			bos = null;
 			

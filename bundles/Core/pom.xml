@@ -5,7 +5,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.26-SNAPSHOT</version>
+	<version>0.1.27-SNAPSHOT</version>
 	<name>Paxle - Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -72,6 +72,8 @@
 							<!-- Apache Commons Pool -->
 							org.apache.commons.pool;version="1.4",
 							org.apache.commons.pool.impl;version="1.4",
+							<!-- Apache Commons IO -->
+							org.apache.commons.io.output;version="1.4",
 							<!-- ignoring compile time annotations -->
 							!javax.annotation
 						</Import-Package>
@@ -121,6 +123,11 @@
 			<artifactId>commons-pool</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<optional>true</optional>
+		</dependency>	
 		
 		<dependency>
 			<groupId>org.eclipse.osgi</groupId>

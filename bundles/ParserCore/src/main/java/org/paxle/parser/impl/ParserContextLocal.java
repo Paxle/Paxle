@@ -13,11 +13,23 @@
  */
 package org.paxle.parser.impl;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.norm.IReferenceNormalizer;
@@ -31,8 +43,25 @@ import org.paxle.parser.ParserContext;
 
 /**
  * @scr.component
+ * @scr.reference name="docFactory" 
+ * 				  interface="org.paxle.core.doc.IDocumentFactory" 
+ * 				  cardinality="0..n" 
+ * 				  policy="dynamic" 
+ * 				  bind="addDocFactory" 
+ * 				  unbind="removeDocFactory"
+ * 				  target="(docType=*)
  */
-public class ParserContextLocal extends ThreadLocal<IParserContext> {		
+public class ParserContextLocal extends ThreadLocal<IParserContext> {	
+	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+	private final Lock r = rwl.readLock();
+	private final Lock w = rwl.writeLock();		
+	
+	/**
+	 * The {@link ComponentContext} of this component
+	 * @see #activate(ComponentContext)
+	 */
+	protected ComponentContext ctx;	
+	
 	/**
 	 * for logging
 	 */
@@ -54,10 +83,15 @@ public class ParserContextLocal extends ThreadLocal<IParserContext> {
 	protected ISubParserManager subParserManager;
     
 	/**
-	 * @scr.reference cardinality="0..1" policy="dynamic" 
+	 * @scr.reference cardinality="1..1" policy="dynamic" 
 	 */
 	protected ITempFileManager tempFileManager;
     
+	/**
+	 * @scr.reference cardinality="1..1" policy="dynamic" 
+	 */
+	protected IIOTools ioTools;	
+	
 	/**
 	 * @scr.reference cardinality="0..1" policy="dynamic" 
 	 */
@@ -68,14 +102,70 @@ public class ParserContextLocal extends ThreadLocal<IParserContext> {
 	 */
 	protected ICommandProfileManager cmdProfileManager;
 	
+	/**
+	 * All {@link IDocumentFactory document-factories} registered to the system. 
+	 * @see #createDocumentForInterface(Class, String)
+	 */
+	protected SortedSet<ServiceReference> docFactoryRefs = new TreeSet<ServiceReference>();	
+	
 	public ParserContextLocal() {
 		ParserContext.setThreadLocal(this);
 	}    
+		
+	protected void activate(ComponentContext context) {
+		this.ctx = context;
+	}	
+		
+	protected void addDocFactory(ServiceReference docFactory) {
+		try {
+			w.lock();
+			this.docFactoryRefs.add(docFactory);
+		} finally {
+			w.unlock();
+		}
+	}
+	
+	protected void removeDocFactory(ServiceReference docFactory) {
+		try {
+			w.lock();
+			this.docFactoryRefs.remove(docFactory);
+		} finally {
+			w.unlock();
+		}
+	}	
 	
 	@Override
 	protected IParserContext initialValue() {
 		return new Context();
 	}
+	
+	protected <DOC> DOC createDocumentForInterface(Class<DOC> docInterface, String filter) throws InvalidSyntaxException, IOException {
+		final Filter classFilter = ctx.getBundleContext().createFilter(String.format("(%s=%s)",IDocumentFactory.DOCUMENT_TYPE,docInterface.getName()));
+		final Filter propsFilter = (filter==null)?null:ctx.getBundleContext().createFilter(filter);
+		
+		ServiceReference factoryRef = null;
+		try {
+			r.lock();
+			
+			// loop through all doc-factories and find one that matches 
+			for (ServiceReference ref : docFactoryRefs) {
+				if (classFilter.match(ref) && (propsFilter == null || propsFilter.match(ref))) {
+					factoryRef = ref;
+					break;
+				}
+			}
+		} finally {
+			r.unlock();
+		}
+		
+		// no factory found
+		if (factoryRef == null) return null;
+
+		// creating an document
+		final IDocumentFactory factory = (IDocumentFactory) ctx.locateService("docFactory", factoryRef);
+		if (factory == null) return null;			
+		return factory.createDocument(docInterface);
+	}		
 	
 	private class Context implements IParserContext {
 	    private HashMap<String, Object> bag = new HashMap<String, Object>();	
@@ -109,6 +199,10 @@ public class ParserContextLocal extends ThreadLocal<IParserContext> {
 			return tempFileManager;
 		}
 		
+		public IIOTools getIoTools() {
+			return ioTools;
+		}		
+		
 		public IReferenceNormalizer getReferenceNormalizer() {
 			return referenceNormalizer;
 		}
@@ -131,6 +225,20 @@ public class ParserContextLocal extends ThreadLocal<IParserContext> {
 			if (profileID == null) return null;		
 			return this.getCommandProfile(profileID.intValue());
 		}
+		
+		public IParserDocument createDocument() throws IOException {
+			try {
+				return this.createDocument(IParserDocument.class, null);
+			} catch (InvalidSyntaxException e) {
+				// this should not occur
+				throw new RuntimeException(e.getMessage());
+			}
+		}
+		
+		public <DocInterface> DocInterface createDocument(Class<DocInterface> docInterface, String filter) throws InvalidSyntaxException, IOException {
+			if (docInterface == null) throw new NullPointerException("The interface-class must not be null");
+			return createDocumentForInterface(docInterface, filter);
+		}			
 		
 		/* ========================================================================
 		 * Function operating on the property bag

@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>IPLocatorTools</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.3-SNAPSHOT</version>
 	<name>Paxle - IPLocatorTool</name>
 	<url>http://wiki.paxle.net/dev/bundles/IPLocatorTool</url>
 
@@ -33,6 +33,9 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+						<Export-Package>
+							org.paxle.iplocator;version="${pom.version}"
+						</Export-Package>
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",

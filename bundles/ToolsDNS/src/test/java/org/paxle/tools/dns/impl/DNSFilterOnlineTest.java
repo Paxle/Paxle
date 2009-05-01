@@ -18,9 +18,10 @@ import java.net.URI;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
-import org.paxle.core.doc.ParserDocument;
+import org.paxle.core.doc.impl.BasicParserDocument;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 
@@ -56,7 +57,7 @@ public class DNSFilterOnlineTest extends MockObjectTestCase {
 		final URI knownDomain = URI.create("http://paxle.org");
 		final URI unknownDomain = URI.create("http://xxxpaxle.net");
 		
-		final IParserDocument pDoc = new ParserDocument();
+		final IParserDocument pDoc = new BasicParserDocument(mock(ITempFileManager.class));
 		pDoc.addReference(knownDomain, new LinkInfo());
 		pDoc.addReference(unknownDomain, new LinkInfo());
 		

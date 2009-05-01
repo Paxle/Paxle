@@ -13,18 +13,31 @@
  */
 package org.paxle.core.doc.impl;
 
+import java.io.IOException;
+
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.io.temp.ITempFileManager;
 
 public class BasicDocumentFactory implements IDocumentFactory {
+	
+	private final ITempFileManager tempFileManager;
+	
+	public BasicDocumentFactory(ITempFileManager tempFileManager) {
+		this.tempFileManager = tempFileManager;
+	}
 
 	@SuppressWarnings("unchecked")
-	public <Doc> Doc createDocument(Class<Doc> docInterface) {
+	public <Doc> Doc createDocument(Class<Doc> docInterface) throws IOException {
 		if (docInterface == null) throw new NullPointerException("The document-interface must not be null.");
 		
 		if (docInterface.equals(ICrawlerDocument.class)) {		
 			// currently we can simply create a new class here
 			return (Doc) new BasicCrawlerDocument();
+		} else if (docInterface.equals(IParserDocument.class)) {
+			// return (Doc) new BasicParserDocument(this.tempFileManager);
+			return (Doc) new CachedParserDocument(this.tempFileManager);
 		}
 		
 		throw new IllegalArgumentException("Unexpected doc-type");

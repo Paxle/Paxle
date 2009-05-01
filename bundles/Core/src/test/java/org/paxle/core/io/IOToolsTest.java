@@ -30,8 +30,11 @@ public class IOToolsTest extends TestCase {
 	private static final int TESTFILE_INPUT = 0;
 	private static final int TESTFILE_OUTPUT = 1;
 
+	private IIOTools iotools;
+	
 	protected void setUp() throws Exception {
 		super.setUp();
+		this.iotools = new org.paxle.core.io.impl.IOTools();
 	}
 
 	private File createTempData(int size) throws IOException {
@@ -83,7 +86,7 @@ public class IOToolsTest extends TestCase {
 			OutputStream fOut = new BufferedOutputStream(new FileOutputStream(testFiles[TESTFILE_OUTPUT]));
 			
 			// copy data
-			IOTools.copy(fIn, fOut);
+			this.iotools.copy(fIn, fOut);
 			fIn.close();
 			fOut.close();
 			
@@ -112,7 +115,7 @@ public class IOToolsTest extends TestCase {
 			OutputStream fOut = new BufferedOutputStream(new FileOutputStream(testFiles[TESTFILE_OUTPUT]));
 			
 			// copy data
-			IOTools.copy(fIn, fOut, limit);
+			this.iotools.copy(fIn, fOut, limit);
 			fIn.close();
 			fOut.close();
 			
@@ -142,7 +145,7 @@ public class IOToolsTest extends TestCase {
 			OutputStream fOut = new BufferedOutputStream(new FileOutputStream(testFiles[TESTFILE_OUTPUT]));
 			
 			long start = System.currentTimeMillis();
-			IOTools.copy(fIn, fOut, size, limitKBps);
+			this.iotools.copy(fIn, fOut, size, limitKBps);
 			long end = System.currentTimeMillis();
 			
 			fIn.close();

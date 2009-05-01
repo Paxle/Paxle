@@ -13,6 +13,7 @@
  */
 package org.paxle.crawler.http.impl;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Dictionary;
 
@@ -118,7 +119,7 @@ public class HttpCrawlerTest extends ACrawlerTest {
 		assertEquals(ICrawlerDocument.Status.UNKNOWN_FAILURE, this.crawlerDoc.getStatus());		
 	}
 	
-	public void testHandleContentTypeHeader() {		
+	public void testHandleContentTypeHeader() throws IOException {		
 		final ICrawlerDocument cdoc = this.docFactory.createDocument(ICrawlerDocument.class);
 		Header h = null;
 		

@@ -27,11 +27,8 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.ParserDocument;
-import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.ASubParser;
-import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
@@ -71,11 +68,10 @@ public class FeedParser extends ASubParser implements ISubParser {
 		try {
 			// getting required tools
 			final IParserContext context = ParserContext.getCurrentContext();
-			final ITempFileManager tempFileManager =  context.getTempFileManager();
 			final IReferenceNormalizer refNorm = context.getReferenceNormalizer();
 
 			// creating an empty document
-			pdoc = new CachedParserDocument(tempFileManager);
+			pdoc = context.createDocument();
 			
 			// parse the feed
 			final ChannelBuilder builder = new ChannelBuilder();
@@ -160,7 +156,7 @@ public class FeedParser extends ASubParser implements ISubParser {
 						}
 					}
 					if (idoc == null) {
-						idoc = new ParserDocument();
+						idoc = context.createDocument();
 						idoc.setMimeType("text/plain");
 					}
 					

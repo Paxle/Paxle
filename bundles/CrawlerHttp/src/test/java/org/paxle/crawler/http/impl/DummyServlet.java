@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 
 public class DummyServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -47,6 +47,8 @@ public class DummyServlet extends HttpServlet {
 	private String testFileMimeType = null;
 	private String testFileCharset = null;	
 	private Integer serverStatusCode = null;
+	
+	private IIOTools ioTools = new org.paxle.core.io.impl.IOTools();
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -91,7 +93,7 @@ public class DummyServlet extends HttpServlet {
 		if (this.testFileName != null) {
 			File dataFile = new File(this.resourcesDir,this.testFileName);
 			FileInputStream fin = new FileInputStream(dataFile);			
-			IOTools.copy(fin, cout);
+			this.ioTools.copy(fin, cout);
 			fin.close();			
 		} else {
 			byte[] temp = new byte[256];

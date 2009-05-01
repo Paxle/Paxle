@@ -13,7 +13,13 @@
  */
 package org.paxle.parser;
 
+import java.io.IOException;
+
+import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.norm.IReferenceNormalizer;
@@ -42,6 +48,8 @@ public interface IParserContext {
 	
 	public ITempFileManager getTempFileManager();
 	
+	public IIOTools getIoTools();
+	
 	public IReferenceNormalizer getReferenceNormalizer();
 		
 	/**
@@ -55,6 +63,23 @@ public interface IParserContext {
 	 * currently processed by the parser-worker thread
 	 */
 	public ICommandProfile getCommandProfile();
+	
+	/**
+	 * A function to create a new and empty {@link IParserDocument} via 
+	 * one of the {@link IDocumentFactory document-factories} registered to the system. 
+	 * @return a newly created {@link IParserDocument}
+	 */
+	public IParserDocument createDocument() throws IOException;
+	
+	/**
+	 * A function to create a new and empty document of the given type. The second arguments can be used
+	 * to select between different {@link IDocumentFactory document-factories} generating the same type.
+	 * 
+	 * @param docInterface that interface of the document to be created
+	 * @param props
+	 * @return a newly created document of the given type
+	 */
+	public <DocInterface> DocInterface createDocument(Class<DocInterface> docInterface, String filter) throws InvalidSyntaxException, IOException;	
 	
 	/* ========================================================================
 	 * Function operating on the property bag

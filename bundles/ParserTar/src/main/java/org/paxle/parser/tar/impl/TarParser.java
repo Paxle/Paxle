@@ -19,8 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.ParserDocument;
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
@@ -42,11 +41,11 @@ import com.ice.tar.TarInputStream;
 public class TarParser extends ASubParser implements ISubParser {
 	
 	@Override
-	public IParserDocument parse(URI location, String charset, InputStream is)
-			throws ParserException, UnsupportedEncodingException, IOException {
+	public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException {
 		final TarInputStream tis = new TarInputStream(is);
-		final IParserDocument pdoc = new ParserDocument();
 		final IParserContext context = ParserContext.getCurrentContext();
+		final IIOTools iotools = context.getIoTools();
+		final IParserDocument pdoc = context.createDocument();
 		
 		TarEntry te;
 		while ((te = tis.getNextEntry()) != null) {
@@ -55,8 +54,8 @@ public class TarParser extends ASubParser implements ISubParser {
 						context.getTempFileManager(),
 						context.getCharsetDetector(),
 						pdoc, location, te.getName(), te.getSize());
-				try {
-					IOTools.copy(tis, pdos, te.getSize());
+				try {					
+					iotools.copy(tis, pdos, te.getSize());
 				} finally {
 					try { pdos.close(); } catch (IOException e) {
 						if (e.getCause() instanceof ParserException) {

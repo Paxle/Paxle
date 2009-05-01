@@ -11,12 +11,20 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.parser.iotools;
+package org.paxle.core.doc.impl;
 
 import java.io.IOException;
 
-public interface Seekable {
+public class BasicParserDocumentTest extends AParserDocumentTest {	
 	
-	public abstract long seekRelative(long pos) throws IOException;
-	public abstract long seekAbsolute(long pos) throws IOException; 
+	public void testParserDocInFile() throws IOException {
+		// creating an in-memory parser-doc
+		BasicParserDocument pdoc = new BasicParserDocument(this.tempFilemanager);
+		
+		// copying data
+		this.copyData(TESTFILE, pdoc);
+		assertTrue(this.outputFile.exists());
+		assertEquals(TESTFILE, pdoc.getTextAsReader());
+		assertEquals(TESTFILE, pdoc.getTextFile());
+	}	
 }

@@ -13,6 +13,7 @@
  */
 package org.paxle.crawler;
 
+import java.io.IOException;
 import java.util.Set;
 
 import org.osgi.framework.InvalidSyntaxException;
@@ -20,6 +21,7 @@ import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.queue.ICommand;
@@ -36,6 +38,8 @@ public interface ICrawlerContext {
 	public ICryptManager getCryptManager();
 	
 	public ITempFileManager getTempFileManager();
+	
+	public IIOTools getIoTools();
 	
 	/**
 	 * @return a class that can be used to detect the mime-type of a resource
@@ -68,7 +72,7 @@ public interface ICrawlerContext {
 	 * one of the {@link IDocumentFactory document-factories} registered to the system. 
 	 * @return a newly created {@link ICrawlerDocument}
 	 */
-	public ICrawlerDocument createDocument();
+	public ICrawlerDocument createDocument() throws IOException;
 	
 	/**
 	 * A function to create a new and empty document of the given type. The second arguments can be used
@@ -78,7 +82,7 @@ public interface ICrawlerContext {
 	 * @param props
 	 * @return a newly created document of the given type
 	 */
-	public <DocInterface> DocInterface createDocument(Class<DocInterface> docInterface, String filter) throws InvalidSyntaxException;
+	public <DocInterface> DocInterface createDocument(Class<DocInterface> docInterface, String filter) throws InvalidSyntaxException, IOException;
 	
 	/* ========================================================================
 	 * Function operating on the property bag

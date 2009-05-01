@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.parser.CachedParserDocument;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -51,7 +50,8 @@ public class PdfParser implements ISubParser {
 		
 		try {
 			// create an empty document
-			parserDoc = new CachedParserDocument(ParserContext.getCurrentContext().getTempFileManager());
+			parserDoc = ParserContext.getCurrentContext().createDocument();
+			
 			// parse it
 			PDFParser parser = new PDFParser(fileIn);
 			parser.parse();

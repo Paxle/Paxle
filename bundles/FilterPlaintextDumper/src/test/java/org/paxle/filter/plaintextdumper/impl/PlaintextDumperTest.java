@@ -18,20 +18,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Properties;
-
-import junit.framework.TestCase;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
-import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.ParserDocument;
-import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.core.doc.impl.BasicParserDocument;
+import org.paxle.core.io.impl.IOTools;
 import org.paxle.core.io.temp.impl.TempFileManager;
-import org.paxle.filter.plaintextdumper.impl.PlaintextDumperFilter;
-import org.paxle.parser.CachedParserDocument;
 
 public class PlaintextDumperTest extends MockObjectTestCase {
 
@@ -51,7 +45,7 @@ public class PlaintextDumperTest extends MockObjectTestCase {
 		System.setProperty("paxle.data", tmpdir.getAbsolutePath());
 		
 		// creating a dummy parser-doc
-		this.pdoc = new ParserDocument();
+		this.pdoc = new BasicParserDocument(new TempFileManager());
 		this.pdoc.setTextFile(tmpFile);
 		this.pdoc.setStatus(IParserDocument.Status.OK);
 		
@@ -64,6 +58,7 @@ public class PlaintextDumperTest extends MockObjectTestCase {
 		}});
 		
 		dumper = new PlaintextDumperFilter(){{
+			this.ioTools = new IOTools();
 			this.activate(ctx);
 		}};
 	}
@@ -81,7 +76,7 @@ public class PlaintextDumperTest extends MockObjectTestCase {
 	
 	public void testTextExtraction() throws IOException {
 		String test = "a test text";
-		this.pdoc.addText(test);
+		this.pdoc.append(test);
 		this.pdoc.close();
 		
 		File target = dumper.store(this.pdoc);

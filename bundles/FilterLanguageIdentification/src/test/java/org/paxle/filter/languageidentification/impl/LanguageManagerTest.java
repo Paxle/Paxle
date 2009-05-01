@@ -22,10 +22,10 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.ParserDocument;
+import org.paxle.core.doc.impl.BasicParserDocument;
+import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
-import org.paxle.filter.languageidentification.impl.LanguageManager;
 
 public class LanguageManagerTest extends TestCase {
 	private LanguageManager lngmanager;
@@ -46,7 +46,7 @@ public class LanguageManagerTest extends TestCase {
 	private ICommand createTestCommand(File testText) throws IOException {
 		ICommand command = Command.createCommand(URI.create("http://xyz.abc"));
 		
-		IParserDocument pdoc = new ParserDocument();
+		IParserDocument pdoc = new BasicParserDocument(new TempFileManager());
 		pdoc.setOID((int) System.currentTimeMillis());
 		pdoc.setStatus(IParserDocument.Status.OK);
 		pdoc.setTextFile(testText);
@@ -62,7 +62,7 @@ public class LanguageManagerTest extends TestCase {
 	
 	public void testProcessNotOKPdoc() {
 		ICommand command = Command.createCommand(URI.create("http://xyz.abc"));
-		IParserDocument pdoc = new ParserDocument();
+		IParserDocument pdoc = new BasicParserDocument(new TempFileManager());
 		pdoc.setStatus(IParserDocument.Status.FAILURE);
 		command.setParserDocument(pdoc);
 		this.lngmanager.filter(command, null);

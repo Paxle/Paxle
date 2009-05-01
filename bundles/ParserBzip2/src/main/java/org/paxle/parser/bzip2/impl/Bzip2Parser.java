@@ -22,7 +22,7 @@ import java.net.URI;
 
 import org.apache.tools.bzip2.CBZip2InputStream;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.parser.IParserContext;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -51,10 +51,11 @@ public class Bzip2Parser implements IBzip2Parser {
 		
 		final CBZip2InputStream bis = new CBZip2InputStream(is);
 		final IParserContext context = ParserContext.getCurrentContext();
+		final IIOTools iotools = context.getIoTools();
 		final ParserDocOutputStream pdos = new ParserDocOutputStream(context.getTempFileManager(), context.getCharsetDetector());
 		
-		try {
-			IOTools.copy(bis, pdos);			
+		try {			
+			iotools.copy(bis, pdos);			
 		} finally {
 			is.close();
 			pdos.close();

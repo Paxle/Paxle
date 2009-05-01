@@ -13,6 +13,7 @@
  */
 package org.paxle.crawler.impl;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.queue.ICommand;
@@ -85,10 +87,15 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
 	protected ICryptManager cryptManager;
 	
 	/**
-	 * @scr.reference cardinality="0..1" policy="dynamic" 
+	 * @scr.reference cardinality="1..1" policy="dynamic" 
 	 */
 	protected ITempFileManager tempFileManager;
 	    
+	/**
+	 * @scr.reference cardinality="1..1" policy="dynamic" 
+	 */
+	protected IIOTools ioTools;
+	
 	/**
 	 * @scr.reference cardinality="0..1" policy="dynamic" 
 	 */
@@ -164,7 +171,7 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
 		return new Context();
 	}
 	
-	protected <DOC> DOC createDocumentForInterface(Class<DOC> docInterface, String filter) throws InvalidSyntaxException {
+	protected <DOC> DOC createDocumentForInterface(Class<DOC> docInterface, String filter) throws InvalidSyntaxException, IOException {
 		final Filter classFilter = ctx.getBundleContext().createFilter(String.format("(%s=%s)",IDocumentFactory.DOCUMENT_TYPE,docInterface.getName()));
 		final Filter propsFilter = (filter==null)?null:ctx.getBundleContext().createFilter(filter);
 		
@@ -212,6 +219,10 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
 			return tempFileManager;
 		}
 		
+		public IIOTools getIoTools() {
+			return ioTools;
+		}
+		
 		/**
 		 * @return a class that can be used to detect the mime-type of a resource
 		 * 	       This reference may be <code>null</code> if no 
@@ -249,7 +260,7 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
 			return this.getCommandProfile(profileID.intValue());
 		}			
 		
-		public ICrawlerDocument createDocument() {
+		public ICrawlerDocument createDocument() throws IOException {
 			try {
 				return this.createDocument(ICrawlerDocument.class, null);
 			} catch (InvalidSyntaxException e) {
@@ -258,7 +269,7 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
 			}
 		}
 		
-		public <DocInterface> DocInterface createDocument(Class<DocInterface> docInterface, String filter) throws InvalidSyntaxException {
+		public <DocInterface> DocInterface createDocument(Class<DocInterface> docInterface, String filter) throws InvalidSyntaxException, IOException {
 			if (docInterface == null) throw new NullPointerException("The interface-class must not be null");
 			return createDocumentForInterface(docInterface, filter);
 		}		

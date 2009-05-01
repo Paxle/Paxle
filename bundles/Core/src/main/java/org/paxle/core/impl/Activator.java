@@ -58,6 +58,7 @@ import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.impl.AscendingPathUrlExtractionFilter;
 import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.IOTools;
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.io.impl.ResourceBundleTool;
@@ -211,10 +212,15 @@ public class Activator implements BundleActivator, InvocationHandler {
 		// register runtime-memory monitorable
 		this.createAndRegisterMonitorableObservers(bc);
 		
+		// registering temp-file manager
 		Hashtable<String, String> tempFileManagerProps = new Hashtable<String, String>();
 		tempFileManagerProps.put(Constants.SERVICE_PID, TempFileManager.MONITOR_PID);
 		tempFileManagerProps.put("Monitorable-Localization", "/OSGI-INF/l10n/TempFileManager");
 		bc.registerService(new String[]{Monitorable.class.getName(), ITempFileManager.class.getName()}, this.tempFileManager, tempFileManagerProps);
+		IOTools.setTempFileManager(this.tempFileManager);
+		
+		// registering IOTools
+		bc.registerService(IIOTools.class.getName(), new IOTools(), null);
 		
 		// register the master-worker-factory as a service
 		bc.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(
@@ -222,7 +228,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 		
 		// register crypt-manager
 		bc.registerService(ICryptManager.class.getName(), this.cryptManager, null);
-		IOTools.setTempFileManager(this.tempFileManager);
 		
 		// register protocol-handlers listener which updates the table of known protocols for the reference normalization filter below
 		final ServiceListener protocolUpdater = new URLStreamHandlerListener(bc, ReferenceNormalizer.DEFAULT_PORTS);
@@ -276,7 +281,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 	private void createAndRegisterDocumentFactories(BundleContext bc) {
 		bc.registerService(
 				IDocumentFactory.class.getName(), 
-				new BasicDocumentFactory(),
+				new BasicDocumentFactory(this.tempFileManager),
 				new Hashtable<String, Object>(){{
 					// all document types supported by this factory 
 					put(IDocumentFactory.DOCUMENT_TYPE,new String[]{

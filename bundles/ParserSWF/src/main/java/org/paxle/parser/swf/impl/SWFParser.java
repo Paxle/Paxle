@@ -27,8 +27,7 @@ import org.karlchenofhell.swf.TextExtractorTagFactory;
 import org.karlchenofhell.swf.TextSink;
 import org.karlchenofhell.swf.parser.SWFTagReader;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.ParserDocument;
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
@@ -50,9 +49,11 @@ public class SWFParser extends ASubParser implements ISubParser {
 	public IParserDocument parse(final URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		
-		final IParserDocument pdoc = new ParserDocument();
-		
 		final IParserContext context = ParserContext.getCurrentContext();
+		
+		final IIOTools iotools = context.getIoTools();
+
+		final IParserDocument pdoc = context.createDocument();	
 		
 		final class SwfTextSink implements TextSink {
 			
@@ -86,7 +87,7 @@ public class SWFParser extends ASubParser implements ISubParser {
 					if (htmlParserDoc.getStatus() != IParserDocument.Status.OK) {
 						logger.warn("Failed parsing HTML-content of SWF-file from '" + location + "': " + htmlParserDoc.getStatusText());
 					} else {
-						IOTools.copy(htmlParserDoc.getTextAsReader(), pdoc);
+						iotools.copy(htmlParserDoc.getTextAsReader(), pdoc);
 						pdoc.append(' ');
 					}
 				} catch (Exception e) { ex = e; }
