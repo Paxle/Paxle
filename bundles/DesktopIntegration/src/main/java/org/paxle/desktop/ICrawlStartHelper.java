@@ -16,5 +16,5 @@ package org.paxle.desktop;
 
 public interface ICrawlStartHelper {
 	public void startDefaultCrawl(final String location);
-	public void startCrawl(final String location, final int depth) throws ServiceException;
+	public void startCrawl(final String location, final int depth);
 }

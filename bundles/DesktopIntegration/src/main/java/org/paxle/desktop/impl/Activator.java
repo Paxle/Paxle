@@ -49,8 +49,6 @@ public class Activator implements BundleActivator {
 	 * Contains all currently known implementations of the desktop integration backend descendingly
 	 * sorted by the first supported Java version number
 	 */
-	// XXX: maybe this can work with the execution environments the respective bundle manifest specifies,
-	// all I currently know is that J2SE-1.5 or something like that seems not to be a legal value here
 	private static final TreeMap<Float,String> KNOWN_IMPLS = new TreeMap<Float,String>(
 			// negative comparator
 			new Comparator<Float>() {

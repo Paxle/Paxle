@@ -25,7 +25,6 @@ import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.queue.CommandProfile;
 import org.paxle.core.queue.ICommandProfile;
 import org.paxle.core.queue.ICommandProfileManager;
-import org.paxle.desktop.ServiceException;
 
 // * @scr.implementation class="CrawlStartHelper"
 /**
@@ -79,15 +78,19 @@ public class CrawlStartHelper {
 	}
 	
 	public void startDefaultCrawl(final String location) {
+		startCrawl(location, DEFAULT_PROFILE_MAX_DEPTH);
+	}
+	
+	public void startCrawl(final String location, final int depth) {
 		try {
-			startCrawl(location, DEFAULT_PROFILE_MAX_DEPTH);
+			startCrawlImpl(location, depth);
 		} catch (ServiceException ee) {
 			Utilities.instance.showURLErrorMessage("Starting crawl failed: " + ee.getMessage(), location);
 			logger.error("Starting crawl of URL '" + location + "' failed: " + ee.getMessage(), ee);
 		}
 	}
 	
-	public void startCrawl(final String location, final int depth) throws ServiceException {
+	private void startCrawlImpl(final String location, final int depth) throws ServiceException {
 		final URI uri = refNormalizer.normalizeReference(location);
 		
 		// check uri against robots.txt
