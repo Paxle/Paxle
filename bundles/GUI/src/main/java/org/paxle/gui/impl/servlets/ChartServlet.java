@@ -468,8 +468,8 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 						"Broken pipe while writing chart '%s'.",
 						chartType
 				));
-//			} else if (e instanceof EofException) { //c.f. bug #293
-//				this.logger.debug("Broken connection while writing charts.");
+			} else if (e.getClass().getName().equals("org.mortbay.jetty.EofException")) { //c.f. bug #293
+				this.logger.debug(String.format("Broken connection while writing chart '%s'.", chartType));
 			} else {
 				this.logger.error(String.format(
 						"Unexpected '%s' while writing chart '%s'.",
