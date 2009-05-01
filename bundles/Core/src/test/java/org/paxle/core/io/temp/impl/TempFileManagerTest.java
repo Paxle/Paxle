@@ -33,6 +33,7 @@ public class TempFileManagerTest extends TestCase {
 		assertTrue(temp.exists());
 		assertTrue(temp.canRead());
 		assertTrue(temp.canWrite());
+		assertTrue(temp.delete());
 	}
 
 	public void testCreateTempFileInTempDir() throws IOException {

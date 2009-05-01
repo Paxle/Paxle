@@ -17,11 +17,11 @@
 #if($action)
 	#if($action == "restart")
 		#set($page_title = ${text.browser.title.restart})
-		<img src="../images/restart.png">
+		<img src="../images/restart.png" alt="">
 		<h2>${text.restartMsg}</h2>
 	#elseif($action == "shutdown")
 		#set($page_title = ${text.browser.title.shutdown})
-		<img src="../images/shutdown.png">
+		<img src="../images/shutdown.png" alt="">
 		<h2>${text.shutdownMsg}</h2>
 	#end
 #else
