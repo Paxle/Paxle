@@ -14,7 +14,6 @@
 package org.paxle.gui.impl.servlets;
 
 import java.util.Dictionary;
-import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
