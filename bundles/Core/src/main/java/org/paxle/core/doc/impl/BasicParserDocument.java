@@ -14,11 +14,14 @@
 package org.paxle.core.doc.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
 
@@ -90,7 +93,7 @@ public class BasicParserDocument extends AParserDocument {
 	@Override
 	public Reader getTextAsReader() throws IOException {
 		close();
-		return (this.content == null) ? null : new FileReader(this.content);
+		return (this.content == null) ? null : new InputStreamReader(new FileInputStream(this.content),Charset.forName("UTF-8"));
 	}
 	
 	@Override

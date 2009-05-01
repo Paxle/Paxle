@@ -15,6 +15,7 @@ package org.paxle.core.doc.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -105,7 +106,7 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 				return new FileReader(this.content);
 			}
 		} else {
-			return new FileReader(this.content);
+			return new InputStreamReader(new FileInputStream(this.content),Charset.forName("UTF-8"));
 		}
 	}
 
