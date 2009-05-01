@@ -41,7 +41,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
@@ -89,6 +89,11 @@ public class BundleView extends ALayoutServlet {
 	 * @scr.reference
 	 */
 	protected ITempFileManager tfm;	
+	
+	/**
+	 * @scr.reference
+	 */
+	protected IIOTools iotools;
 	
 	@Override
 	public Template handleRequest( HttpServletRequest request,
@@ -402,7 +407,7 @@ public class BundleView extends ALayoutServlet {
 				try {
 					final FileOutputStream fos = new FileOutputStream(targetTemp);
 					try {
-						IOTools.copy(content, fos);
+						iotools.copy(content, fos);
 					} finally { fos.close(); }
 					final JarFile targetJar = new JarFile(targetTemp);
 					try {
