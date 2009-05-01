@@ -44,7 +44,7 @@ import javax.swing.event.DocumentListener;
 
 import org.osgi.service.component.ComponentContext;
 import org.paxle.desktop.DIComponent;
-import org.paxle.desktop.Utilities;
+import org.paxle.desktop.IDesktopUtilities;
 import org.paxle.filter.blacklist.IBlacklist;
 import org.paxle.filter.blacklist.IBlacklistManager;
 import org.paxle.filter.blacklist.InvalidBlacklistnameException;
@@ -62,6 +62,9 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	 */
 	protected IBlacklistManager blacklistFilter = null;
 	
+	/** @scr.reference */
+	protected final IDesktopUtilities utilities = null;
+	
 	private static final Dimension DIM = new Dimension(400, 400);
 	
 	private static final String AC_LIST_CREATE = "LIST_CREATE";
@@ -74,11 +77,11 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	private FilterListsComboBoxModel flm;
 	private JComboBox listSelCBox;
 	private final JList itemList = new JList();
-	private final JButton listAddB = Utilities.setButtonProps(new JButton(), "Create", this, AC_LIST_CREATE, -1, null);
-	private final JButton listDelB = Utilities.setButtonProps(new JButton(), "Delete", this, AC_LIST_DELETE, -1, null);
-	private final JButton itemAddB = Utilities.setButtonProps(new JButton(), "Add Entry", this, AC_ITEM_ADD, -1, null);
-	private final JButton itemDelB = Utilities.setButtonProps(new JButton(), "Remove Entry", this, AC_ITEM_DEL, -1, null);
-	private final JButton itemEditB = Utilities.setButtonProps(new JButton(), "Edit Entry", this, AC_ITEM_EDIT, -1, null);
+	private final JButton listAddB = utilities.setButtonProps(new JButton(), "Create", this, AC_LIST_CREATE, -1, null);
+	private final JButton listDelB = utilities.setButtonProps(new JButton(), "Delete", this, AC_LIST_DELETE, -1, null);
+	private final JButton itemAddB = utilities.setButtonProps(new JButton(), "Add Entry", this, AC_ITEM_ADD, -1, null);
+	private final JButton itemDelB = utilities.setButtonProps(new JButton(), "Remove Entry", this, AC_ITEM_DEL, -1, null);
+	private final JButton itemEditB = utilities.setButtonProps(new JButton(), "Edit Entry", this, AC_ITEM_EDIT, -1, null);
 	private final JTextField itemF = new JTextField();
 	private final ListModel nullModel = new AbstractListModel() {
 		private static final long serialVersionUID = 1L;
