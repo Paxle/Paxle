@@ -104,18 +104,23 @@ public class FsCrawler implements IFsCrawler {
 			if (file.isDirectory()) {
 				final File[] list = file.listFiles();
 				final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(list, omitHidden);
-				
-	
+				try {
 					CrawlerTools.saveListing(cdoc, dirlistIt, inclParent, list.length > 0);
-	
-				
+				} catch (IOException e) {
+					final String msg = String.format("Error saving dir-listing for '%s': %s", location, e.getMessage());			
+					logger.error(msg, e);
+					cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
+					return cdoc;
+				}
 			} else {
 				final File contentFile = generateContentFile(readMode, file, cdoc);
 				cdoc.setContent(contentFile);
 			}
 		
-		} catch (IOException e) {
-			final String msg = String.format("Error saving dir-listing for '%s': %s", location, e.getMessage());			
+		} catch (Exception e) {
+			final String msg = String.format("Unexpected %s while crawling '%s'",
+					e.getClass().getName(),
+					location);			
 			logger.error(msg, e);
 			if (cdoc != null) {
 				cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
