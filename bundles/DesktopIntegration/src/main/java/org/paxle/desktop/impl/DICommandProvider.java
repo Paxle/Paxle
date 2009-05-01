@@ -16,7 +16,7 @@ package org.paxle.desktop.impl;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.InvalidSyntaxException;
-import org.paxle.desktop.IDesktopServices.Dialogues;
+import org.paxle.desktop.IDialogueServices.Dialogues;
 
 public class DICommandProvider implements CommandProvider {
 
