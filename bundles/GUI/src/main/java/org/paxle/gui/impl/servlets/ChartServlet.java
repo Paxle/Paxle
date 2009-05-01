@@ -48,7 +48,6 @@ import org.jfree.data.time.Minute;
 import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.mortbay.jetty.EofException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -469,8 +468,8 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 						"Broken pipe while writing chart '%s'.",
 						chartType
 				));
-			} else if (e instanceof EofException) { //c.f. bug #293
-				this.logger.debug("Broken connection while writing charts.");
+//			} else if (e instanceof EofException) { //c.f. bug #293
+//				this.logger.debug("Broken connection while writing charts.");
 			} else {
 				this.logger.error(String.format(
 						"Unexpected '%s' while writing chart '%s'.",

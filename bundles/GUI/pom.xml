@@ -128,7 +128,7 @@
 							org.paxle.gui.*;
 							javax.imageio,
 							javax.imageio.*,
-							org.mortbay.jetty.*,
+<!-- 						org.mortbay.jetty.*,  -->
 							<!-- ignore others -->
 							!*
 						</Import-Package>
@@ -350,11 +350,13 @@
 			<optional>true</optional>
 		</dependency>
 		
+	<!--	
 		<dependency>
 		   <groupId>org.mortbay.jetty</groupId>
  		   <artifactId>jetty</artifactId>
  		   <version>6.1H.10</version>
 		</dependency>
+		-->
 		
 		<!-- 
 			XML parser dependencies
