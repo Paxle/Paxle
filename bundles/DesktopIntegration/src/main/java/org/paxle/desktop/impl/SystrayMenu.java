@@ -32,7 +32,7 @@ import org.osgi.service.http.HttpService;
 import org.paxle.core.IMWComponent;
 import org.paxle.desktop.IDIEventListener;
 import org.paxle.desktop.IDIServiceEvent;
-import org.paxle.desktop.IDesktopServices.Dialogues;
+import org.paxle.desktop.IDialogueServices.Dialogues;
 import org.paxle.desktop.backend.IDIBackend;
 import org.paxle.desktop.backend.IPopupMenuListener;
 import org.paxle.desktop.backend.tray.IMenuItem;
