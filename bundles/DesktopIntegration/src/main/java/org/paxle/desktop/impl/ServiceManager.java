@@ -119,49 +119,9 @@ public class ServiceManager {
 		return (reference == null) ? null : getService(reference, service);
 	}
 	
-	/**
-	 * This invocation handler simply redirects all method-calls to the corresponding method-calls on
-	 * the object given at instantiation. It therefore tries to solve the issues with different
-	 * incompatible class-loaders occuring specifically during interaction with the DI-bundle which
-	 * uses an own class-loader to handle JDIC-specifics.
-	 * 
-	 * @see org.paxle.desktop.impl.HelperClassLoader
-	 * @see DIJdicBundle for details regarding JDIC
-	 * @see ServiceManager#getService(ServiceReference, Class) for an example of how this class is used
-	 */
-	/* this stub is necessary because this class as well as the DIComponent-interface are loaded
-	 * by the HelperClassLoader which is incompatible to OSGi's default bundle class-loader. *//*
-	private final class RedirectingInvocationHandler implements InvocationHandler {
-		
-		private final Object s;
-		private final Class<?> clazz;
-		
-		public RedirectingInvocationHandler(final Object s) {
-			this.s = s;
-			clazz = s.getClass();
-		}
-		
-		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-			// method represents the Method-object from the interface given at instantiation of our
-			// proxy object. This interface has been loaded by a classloader different from the one
-			// the object's class has been loaded and is therefore not compatible to it. That's why
-			// we have to retrieve and invoke the correct Method-object from the object's class here
-			return clazz.getMethod(method.getName(), method.getParameterTypes()).invoke(s, args);
-		}
-	}*/
-	
 	public <E> E getService(final ServiceReference ref, final Class<E> clazz) {
 		final Object service = context.getService(ref);
-		try {
-			// if (clazz.isInstance(service)) {
-				return clazz.cast(service);
-			/*} else {
-				return clazz.cast(Proxy.newProxyInstance(
-						Thread.currentThread().getContextClassLoader(),
-						new Class<?>[] { clazz },
-						new RedirectingInvocationHandler(service)));
-			}*/
-		} catch (Throwable t) { t.printStackTrace(); return null; }
+		return clazz.cast(service);
 	}
 	
 	public void ungetService(final ServiceReference ref) {

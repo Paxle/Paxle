@@ -23,6 +23,7 @@ import java.util.Iterator;
 import javax.swing.JPanel;
 
 import org.osgi.framework.ServiceRegistration;
+import org.paxle.core.prefs.Properties;
 import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.impl.ServiceManager;
 
@@ -42,14 +43,17 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 	
 	public DIServicePanel(final ServiceManager services, final Dimension defaultWindowSize) {
 		this.services = services;
-		final String dimProp = services.getServiceProperties().getProperty(getClass().getName() + "_" + PANEL_SIZE);
 		Dimension dim = null;
-		if (dimProp != null) {
-			final int sep = dimProp.indexOf(',');
-			if (sep != -1)
-				dim = new Dimension(
-						Integer.parseInt(dimProp.substring(0, sep)),
-						Integer.parseInt(dimProp.substring(sep + 1)));
+		final Properties props = services.getServiceProperties();
+		if (props != null) {
+			final String dimProp = props.getProperty(getClass().getName() + "_" + PANEL_SIZE);
+			if (dimProp != null) {
+				final int sep = dimProp.indexOf(',');
+				if (sep != -1)
+					dim = new Dimension(
+							Integer.parseInt(dimProp.substring(0, sep)),
+							Integer.parseInt(dimProp.substring(sep + 1)));
+			}
 		}
 		if (dim == null)
 			dim = defaultWindowSize;
@@ -89,13 +93,16 @@ public abstract class DIServicePanel extends JPanel implements DIComponent {
 	
 	public abstract String getTitle();
 	
+	@Deprecated
 	public Dimension getWindowSize() {
 		return super.getPreferredSize();
 	}
 	
 	public void close() {
 		final String dim = String.format("%d,%d", Integer.valueOf(super.getWidth()), Integer.valueOf(super.getHeight()));
-		services.getServiceProperties().setProperty(getClass().getName() + "_" + PANEL_SIZE, dim);
+		final Properties props = services.getServiceProperties();
+		if (props != null)
+			props.setProperty(getClass().getName() + "_" + PANEL_SIZE, dim);
 		unregisterServices();
 	}
 }

@@ -65,7 +65,7 @@ import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.metadata.Attribute;
 import org.paxle.core.metadata.Metadata;
 import org.paxle.desktop.impl.Messages;
@@ -219,15 +219,17 @@ public class SettingsPanel extends DIServicePanel implements ConfigurationListen
 		
 		public ImageIcon getIcon() {
 			if (icon == null) try {
-				InputStream is = getOCD().getIcon(iconSize);
-				if (is == null) {
+				final IIOTools ioTools = services.getService(IIOTools.class);
+				InputStream is;
+				if (ioTools != null && (is = getOCD().getIcon(iconSize)) != null) {
+					final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					ioTools.copy(is, baos);
+					is.close();
+					icon = new ImageIcon(baos.toByteArray());
+				} else {
 					// fallback to default icon
-					is = this.getClass().getResourceAsStream("/OSGI-INF/images/cog.png"); //$NON-NLS-1$
-				}					
-				final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				IOTools.copy(is, baos);
-				is.close();
-				icon = new ImageIcon(baos.toByteArray());
+					icon = new ImageIcon(this.getClass().getResource("/OSGI-INF/images/cog.png")); //$NON-NLS-1$
+				}
 			} catch (IOException e) { e.printStackTrace(); }
 			return icon;
 		}
