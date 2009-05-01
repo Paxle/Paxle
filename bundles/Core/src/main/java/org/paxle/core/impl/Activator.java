@@ -52,6 +52,7 @@ import org.paxle.core.data.impl.DataListener;
 import org.paxle.core.data.impl.DataManager;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterManager;
@@ -220,7 +221,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 		IOTools.setTempFileManager(this.tempFileManager);
 		
 		// registering IOTools
-		bc.registerService(IIOTools.class.getName(), new IOTools(), null);
+		bc.registerService(IIOTools.class.getName(), new org.paxle.core.io.impl.IOTools(), null);
 		
 		// register the master-worker-factory as a service
 		bc.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(
@@ -285,7 +286,8 @@ public class Activator implements BundleActivator, InvocationHandler {
 				new Hashtable<String, Object>(){{
 					// all document types supported by this factory 
 					put(IDocumentFactory.DOCUMENT_TYPE,new String[]{
-							ICrawlerDocument.class.getName()
+							ICrawlerDocument.class.getName(),
+							IParserDocument.class.getName()
 					});
 				}}
 		);
