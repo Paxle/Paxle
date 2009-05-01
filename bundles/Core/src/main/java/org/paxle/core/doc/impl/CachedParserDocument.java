@@ -103,7 +103,7 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 			if (dos.isInMemory()) {
 				return new InputStreamReader(new ByteArrayInputStream(dos.getData()),Charset.forName("UTF-8"));
 			} else {
-				return new FileReader(this.content);
+				return new InputStreamReader(new FileInputStream(this.content),Charset.forName("UTF-8"));
 			}
 		} else {
 			return new InputStreamReader(new FileInputStream(this.content),Charset.forName("UTF-8"));
