@@ -100,8 +100,11 @@ public class HtmlParserTest extends AParserTest {
 		}
 		
 		private static Map<String,List<String>> text2Fields(final IParserDocument pdoc) throws IOException {
-			final BufferedReader r = new BufferedReader(pdoc.getTextAsReader());
 			final Map<String,List<String>> m = new HashMap<String,List<String>>();
+			final Reader textReader = pdoc.getTextAsReader();
+			if (textReader == null) return m;
+			
+			final BufferedReader r = new BufferedReader(textReader);
 			String line;
 			String key = null;
 			List<String> dataLines = new LinkedList<String>();
