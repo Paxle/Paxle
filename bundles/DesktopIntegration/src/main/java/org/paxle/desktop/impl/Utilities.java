@@ -71,8 +71,10 @@ import javax.swing.text.JTextComponent;
 import org.paxle.desktop.IDesktopUtilities;
 
 public class Utilities implements IDesktopUtilities {
-	
-	public static final Utilities instance = new Utilities();
+
+	/** @scr.component
+	 *  @scr.service interface="org.paxle.desktop.IDesktopUtilities" */
+	public static final IDesktopUtilities instance = new Utilities();
 	
 	private Utilities() {
 	}

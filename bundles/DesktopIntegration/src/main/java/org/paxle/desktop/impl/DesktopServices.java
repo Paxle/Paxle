@@ -45,7 +45,11 @@ import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.desktop.IDesktopServices;
 import org.paxle.desktop.backend.IDIBackend;
 
-public class DesktopServices implements ManagedService, MetaTypeProvider {
+/**
+ * @scr.component
+ * @scr.service interface="org.paxle.desktop.IDesktopServices"
+ */
+public class DesktopServices implements ManagedService, MetaTypeProvider, IDesktopServices {
 	
 	/**
 	 * Denotes a relative path the the Paxle-icon used for the tray.
@@ -433,20 +437,40 @@ public class DesktopServices implements ManagedService, MetaTypeProvider {
 	
 	public void browseServlet(final String servlet, final boolean displayErrMsg) {
 		final Object servletManager = manager.getService(ISERVLET_MANAGER);
-		if (servletManager == null) {
-			final String msg = "Cannot open servlet '" + servlet + "', GUI ServletManager not available";
-			logger.warn(msg);
-			if (displayErrMsg)
-				JOptionPane.showMessageDialog(null, msg, "Error opening servlet", JOptionPane.ERROR_MESSAGE);
-		} else try {
-			final Class<?> servletManagerClazz = servletManager.getClass();
-			final Method getFullAlias = servletManagerClazz.getMethod("getFullAlias", String.class);
-			final String servletPath = (String)getFullAlias.invoke(servletManager, servlet);
-			final String url = getPaxleUrl(servletPath);
-			logger.debug("Opening browser: " + url);
-			final boolean success = browseUrl(url, true, displayErrMsg);
-			logger.info(((success) ? "Succeeded" : "Failed") + " opening browser for " + url);
-		} catch (Exception e) { e.printStackTrace(); }
+		String msg;
+		do {
+			if (servletManager == null) {
+				msg = "GUI ServletManager not available";
+				break;
+			}
+			
+			try {
+				final Class<?> servletManagerClazz = servletManager.getClass();
+				// first check whether the servlet is available
+				final Method hasServlet = servletManagerClazz.getMethod("hasServlet", String.class);
+				final Object hasServletRes = hasServlet.invoke(servletManager, servlet);
+				if (hasServletRes == null || !((Boolean)hasServletRes).booleanValue()) {
+					msg = "servlet has not been registered";
+					break;
+				}
+				// then get the path for which it has been registered to construct the final URI
+				final Method getFullAlias = servletManagerClazz.getMethod("getFullAlias", String.class);
+				final String servletPath = (String)getFullAlias.invoke(servletManager, servlet);
+				final String url = getPaxleUrl(servletPath);
+				
+				logger.debug("Opening browser: " + url);
+				final boolean success = browseUrl(url, true, displayErrMsg);
+				logger.info(((success) ? "Succeeded" : "Failed") + " opening browser for " + url);
+				
+				return;
+			} catch (Exception e) { e.printStackTrace(); msg = "[" + e.getClass() + "]: " + e.getMessage(); }
+			
+		} while (false);
+		
+		msg = "Cannot open servlet '" + servlet + "', " + msg;
+		logger.warn(msg);
+		if (displayErrMsg)
+			JOptionPane.showMessageDialog(null, msg, "Error opening servlet", JOptionPane.ERROR_MESSAGE);
 	}
 	
 	public ServiceManager getServiceManager() {

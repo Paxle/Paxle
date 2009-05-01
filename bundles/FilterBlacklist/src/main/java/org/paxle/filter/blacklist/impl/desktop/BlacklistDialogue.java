@@ -63,7 +63,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	protected IBlacklistManager blacklistFilter = null;
 	
 	/** @scr.reference */
-	protected final IDesktopUtilities utilities = null;
+	protected IDesktopUtilities utilities = null;
 	
 	private static final Dimension DIM = new Dimension(400, 400);
 	
@@ -76,12 +76,12 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	
 	private FilterListsComboBoxModel flm;
 	private JComboBox listSelCBox;
-	private final JList itemList = new JList();
-	private final JButton listAddB = utilities.setButtonProps(new JButton(), "Create", this, AC_LIST_CREATE, -1, null);
-	private final JButton listDelB = utilities.setButtonProps(new JButton(), "Delete", this, AC_LIST_DELETE, -1, null);
-	private final JButton itemAddB = utilities.setButtonProps(new JButton(), "Add Entry", this, AC_ITEM_ADD, -1, null);
-	private final JButton itemDelB = utilities.setButtonProps(new JButton(), "Remove Entry", this, AC_ITEM_DEL, -1, null);
-	private final JButton itemEditB = utilities.setButtonProps(new JButton(), "Edit Entry", this, AC_ITEM_EDIT, -1, null);
+	private JList itemList = new JList();
+	private JButton listAddB = null;
+	private JButton listDelB = null;
+	private JButton itemAddB = null;
+	private JButton itemDelB = null;
+	private JButton itemEditB = null;
 	private final JTextField itemF = new JTextField();
 	private final ListModel nullModel = new AbstractListModel() {
 		private static final long serialVersionUID = 1L;
@@ -95,9 +95,15 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	
 	private ItemListModel ilm = null;
 	
-	protected void activate(ComponentContext context) {
+	protected void activate(@SuppressWarnings("unused") ComponentContext context) {
 		this.flm = new FilterListsComboBoxModel(blacklistFilter);
 		this.listSelCBox = new JComboBox(flm);
+		
+		listAddB = utilities.setButtonProps(new JButton(), "Create", this, AC_LIST_CREATE, -1, null);
+		listDelB = utilities.setButtonProps(new JButton(), "Delete", this, AC_LIST_DELETE, -1, null);
+		itemAddB = utilities.setButtonProps(new JButton(), "Add Entry", this, AC_ITEM_ADD, -1, null);
+		itemDelB = utilities.setButtonProps(new JButton(), "Remove Entry", this, AC_ITEM_DEL, -1, null);
+		itemEditB = utilities.setButtonProps(new JButton(), "Edit Entry", this, AC_ITEM_EDIT, -1, null);
 		init();
 	}
 	
@@ -206,6 +212,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 		} catch (InvalidBlacklistnameException ee) {  }
 	}
 	
+	@Deprecated
 	public Dimension getWindowSize() {
 		return DIM;
 	}
@@ -307,7 +314,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 		}
 		
 		private int indexOf(final Object item) {
-			return Arrays.binarySearch(this.getSortedNames(), (String)item);
+			return Arrays.binarySearch(this.getSortedNames(), item);
 		}
 		
 		public int getSize() {

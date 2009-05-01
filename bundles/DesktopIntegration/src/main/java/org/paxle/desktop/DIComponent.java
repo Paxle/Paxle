@@ -23,7 +23,6 @@ import java.awt.Frame;
  * this component to the SystemTray- and other menus it provides to access to Paxle's
  * GUI-elements.
  */
-// TODO: add a getName()-method instead of getTitle()
 public interface DIComponent {
 	
 	/**

@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>FilterBlacklist</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>Paxle - Filter: Blacklist</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -118,7 +118,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>DesktopIntegration</artifactId>
-			<version>[,0.2.0)</version>
+			<version>[0.1.6-SNAPSHOT,0.2.0)</version>
 			<optional>true</optional>
 		</dependency>
 

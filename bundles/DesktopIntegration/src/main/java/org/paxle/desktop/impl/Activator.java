@@ -29,6 +29,8 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.paxle.desktop.IDesktopServices;
+import org.paxle.desktop.IDesktopUtilities;
+import org.paxle.desktop.IDialogueServices;
 import org.paxle.desktop.backend.IDIBackend;
 
 public class Activator implements BundleActivator {
@@ -122,10 +124,10 @@ public class Activator implements BundleActivator {
 				logger.info(String.format("Successfully started bundle using backend '%s'", impl));
 				break;
 			} catch (Exception e) {
-				final Throwable ex = (e instanceof InvocationTargetException) ? e.getCause() : e;
-				final String cause =
-					(ex instanceof UnsupportedOperationException) ? "Java claims your system to not support the system-tray." :
-					ex.toString();
+				final Throwable ex = ((e instanceof InvocationTargetException) ? e.getCause() : e);
+				final String cause = ((ex instanceof UnsupportedOperationException)
+						? "Java claims your system to not support the system-tray."
+						: ex.toString());
 				final String err = String.format("Error starting bundle using backend '%s': %s Skipping implementation...", impl, cause);
 				if (logger.isDebugEnabled()) {
 					logger.error(err, ex);
@@ -175,14 +177,16 @@ public class Activator implements BundleActivator {
 		CrawlStartHelper crawlHelper = null;
 		
 		this.initObject = new DesktopServices(sm, dibackend, dialogue, crawlHelper);
-		// context.registerService(IDesktopServices.class.getName(), initObject, null);
+		
+		context.registerService(IDesktopUtilities.class.getName(), Utilities.instance, null);
+		context.registerService(IDialogueServices.class.getName(), dialogue, null);
+		context.registerService(IDesktopServices.class.getName(), initObject, null);
 	}
 	
 	private static Bundle findBundle(BundleContext context, String symbolicName) {
 		for (Bundle b : context.getBundles()) {
-			final Object bundleSymbolicName = b.getHeaders().get(Constants.BUNDLE_SYMBOLICNAME);
-			final boolean eq = bundleSymbolicName.equals(symbolicName);
-			if (eq) return b;
+			if (symbolicName.equals(b.getHeaders().get(Constants.BUNDLE_SYMBOLICNAME)))
+				return b;
 		}
 		return null;
 	}

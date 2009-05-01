@@ -38,14 +38,13 @@ import org.osgi.framework.ServiceReference;
 import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.IDIEventListener;
 import org.paxle.desktop.IDesktopServices;
-import org.paxle.desktop.IDesktopServices.Dialogues;
+import org.paxle.desktop.IDialogueServices;
 import org.paxle.desktop.impl.dialogues.bundles.BundlePanel;
 import org.paxle.desktop.impl.dialogues.cconsole.CrawlingConsole;
 import org.paxle.desktop.impl.dialogues.settings.SettingsPanel;
 import org.paxle.desktop.impl.dialogues.stats.StatisticsPanel;
 
-
-public class DialogueServices implements ServiceListener {
+public class DialogueServices implements ServiceListener, IDialogueServices {
 	
 	/**
 	 * A {@link WindowAdapter} which silently removes the associated {@link DIComponent} from the map of active
