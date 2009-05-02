@@ -53,7 +53,7 @@ public abstract class AParserDocumentTest extends MockObjectTestCase {
 		// creating a dummy temp-file-manager
 		this.tempFilemanager = mock(ITempFileManager.class);
 		checking(new Expectations(){{
-			one(tempFilemanager).createTempFile();
+			atMost(1).of(tempFilemanager).createTempFile();
 			will(returnValue(outputFile));
 		}});
 	}

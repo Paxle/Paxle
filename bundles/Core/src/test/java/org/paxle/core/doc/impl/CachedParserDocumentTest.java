@@ -13,7 +13,9 @@
  */
 package org.paxle.core.doc.impl;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 
 public class CachedParserDocumentTest extends AParserDocumentTest {	
 	public void testParserDocInMemory() throws IOException {
@@ -41,4 +43,17 @@ public class CachedParserDocumentTest extends AParserDocumentTest {
 		assertEquals(TESTFILE, pdoc.getTextAsReader());
 		assertEquals(TESTFILE, pdoc.getTextFile());
 	}	
+	
+	public void testEmptyContent() throws IOException {
+		// creating an in-memory parser-doc
+		CachedParserDocument pdoc = new CachedParserDocument(this.tempFilemanager,0);
+		
+		// if no content is available the reader should be null
+		Reader reader = pdoc.getTextAsReader();
+		assertNull(reader);
+		
+		// if no content is available the file should be null
+		File file = pdoc.getTextFile();
+		assertNull(file);
+	}
 }

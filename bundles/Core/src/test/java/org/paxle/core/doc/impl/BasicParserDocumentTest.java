@@ -13,7 +13,9 @@
  */
 package org.paxle.core.doc.impl;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 
 public class BasicParserDocumentTest extends AParserDocumentTest {	
 	
@@ -26,5 +28,18 @@ public class BasicParserDocumentTest extends AParserDocumentTest {
 		assertTrue(this.outputFile.exists());
 		assertEquals(TESTFILE, pdoc.getTextAsReader());
 		assertEquals(TESTFILE, pdoc.getTextFile());
+	}	
+	
+	public void testEmptyContent() throws IOException {
+		// creating an in-memory parser-doc
+		BasicParserDocument pdoc = new BasicParserDocument(this.tempFilemanager);
+		
+		// if no content is available the reader should be null
+		Reader reader = pdoc.getTextAsReader();
+		assertNull(reader);
+		
+		// if no content is available the file should be null
+		File file = pdoc.getTextFile();
+		assertNull(file);
 	}	
 }

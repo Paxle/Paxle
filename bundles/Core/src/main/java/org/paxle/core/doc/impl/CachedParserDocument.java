@@ -84,6 +84,8 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 		if (this.os instanceof InMemoryOutputStream) {
 			final InMemoryOutputStream dos = (InMemoryOutputStream)os;
 			if (dos.isInMemory()) {
+				if (dos.getByteCount() == 0) return null;
+				
 				// writing data into a file
 				FileOutputStream fout = new FileOutputStream(this.content);
 				dos.writeTo(fout);
@@ -91,6 +93,7 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 			} 
 		}
 		
+		if (!this.content.exists() || this.content.length() == 0) return null;
 		return this.content;
 	}	
 			
@@ -100,13 +103,13 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 		if (this.os instanceof InMemoryOutputStream) {
 			final InMemoryOutputStream dos = (InMemoryOutputStream)os;
 			if (dos.isInMemory()) {
+				if (dos.getByteCount() == 0) return null;
 				return new InputStreamReader(new ByteArrayInputStream(dos.getData()),Charset.forName("UTF-8"));
-			} else {
-				return new InputStreamReader(new FileInputStream(this.content),Charset.forName("UTF-8"));
-			}
-		} else {
-			return new InputStreamReader(new FileInputStream(this.content),Charset.forName("UTF-8"));
-		}
+			} 
+		} 
+		
+		if (!this.content.exists() || this.content.length() == 0) return null;
+		return new InputStreamReader(new FileInputStream(this.content),Charset.forName("UTF-8"));
 	}
 
 	@Override
