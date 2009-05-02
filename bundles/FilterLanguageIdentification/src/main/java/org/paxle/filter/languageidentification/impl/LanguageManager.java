@@ -14,6 +14,7 @@
 package org.paxle.filter.languageidentification.impl;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Map;
@@ -72,17 +73,23 @@ public class LanguageManager implements IFilter<ICommand> {
 		double start = System.currentTimeMillis();
 
 		NGramProfiles.RankResult res = null;
+		Reader pdr = null;
 
 		try {
-			if (parserDoc.getTextAsReader() != null) {
+			pdr = parserDoc.getTextAsReader();
+			if (pdr != null) {
 				NGramProfiles.Ranker ranker = nps.getRanker();
-				ranker.account(parserDoc.getTextAsReader());
+				ranker.account(pdr);
 				res = ranker.getRankResult();
 			} else {
 				logger.info("No language for document '" + parserDoc.getOID() + "', as it contains no text");
 			}
 		} catch (IOException e) {
 			logger.warn("Exception while trying to determine language of document '" +  parserDoc.getOID() + "'", e);
+		} finally {
+			try {
+				pdr.close();
+			} catch (Exception e) {/* ignore */}
 		}
 
 		double end = System.currentTimeMillis();

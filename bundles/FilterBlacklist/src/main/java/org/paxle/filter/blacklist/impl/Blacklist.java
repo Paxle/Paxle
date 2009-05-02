@@ -122,7 +122,6 @@ public class Blacklist implements IBlacklist {
 			Matcher m = temp.matcher(url);
 			if (m.matches()) {
 				time = System.currentTimeMillis() - time;
-				//System.out.println("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Duration in 'isListed()' for blacklistcheck: " + time + " ms . URL: " + url);
 				}
@@ -130,7 +129,6 @@ public class Blacklist implements IBlacklist {
 			}
 		}
 		time = System.currentTimeMillis() - time;
-		//System.out.println("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
 		}
