@@ -112,28 +112,28 @@
 		<dependency>
 			<groupId>org.getopt</groupId>
 			<artifactId>luke</artifactId>
-			<version>0.9.1</version>
+			<version>0.9.2</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-core</artifactId>
-			<version>2.4.0</version>
+			<version>2.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-analyzers</artifactId>
-			<version>2.4.0</version>
+			<version>2.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-snowball</artifactId>
-			<version>2.4.0</version>
+			<version>2.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-misc</artifactId>
-			<version>2.4.0</version>
+			<version>2.4.1</version>
 		</dependency>
 	</dependencies>
 </project>
