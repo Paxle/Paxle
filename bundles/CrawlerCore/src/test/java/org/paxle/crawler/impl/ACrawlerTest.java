@@ -16,6 +16,8 @@ package org.paxle.crawler.impl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.framework.InvalidSyntaxException;
@@ -54,14 +56,16 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 		super.tearDown();
 		
 		// cleanup temp-file
-		if (this.aTempManager != null && this.crawlerDoc != null && this.crawlerDoc.getContent() != null) {
-			this.aTempManager.releaseTempFile(this.crawlerDoc.getContent());
-		}		
+		for (File tempFile : ((TestTempFileManager)aTempManager).tempFiles)	{
+			if (tempFile.exists() && !tempFile.delete()) 
+				throw new IOException("Unable to delte file: " + tempFile);
+		}
 	}
 	
 	protected void initCrawlerContext(final String[] mimeTypes) {
 		// creating a dummy temp-file manager
 		this.aTempManager = new TestTempFileManager();
+		org.paxle.core.io.IOTools.setTempFileManager(this.aTempManager);
 
 		// a dummy doc factory
 		this.docFactory = new BasicDocumentFactory(this.aTempManager);
@@ -71,18 +75,26 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 		CrawlerContext.setThreadLocal(threadLocal);
 	}
 	
-	private static class TestTempFileManager implements ITempFileManager {
+	/**
+	 * A dummy temp-file-manager
+	 */
+	private class TestTempFileManager implements ITempFileManager {
+		public List<File> tempFiles = new ArrayList<File>();
+		
 		public File createTempFile() throws IOException {
 			File tmp = File.createTempFile("test", ".tmp");
-			tmp.deleteOnExit();
+			tempFiles.add(tmp);
 			return tmp;
 		}
 		public void releaseTempFile(File file) throws FileNotFoundException, IOException {
-			if (!file.delete()) throw new IOException("Unable to delete file: " + file);				
+			tempFiles.remove(file);
+			if (file.exists() && !file.delete()) throw new IOException("Unable to delete file: " + file);				
 		}
+		public boolean isKnown(File file) { 
+			return tempFiles.contains(file); 
+		}			
 		public void removeTempDirFor(String... arg0) { }
-		public void setTempDirFor(ITempDir arg0, String... arg1) { }
-		public boolean isKnown(File file) { return true; }		
+		public void setTempDirFor(ITempDir arg0, String... arg1) { }	
 	}
 	
 	private class TestCrawlerContextLocal extends CrawlerContextLocal {

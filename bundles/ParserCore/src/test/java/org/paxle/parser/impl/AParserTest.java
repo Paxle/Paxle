@@ -21,10 +21,12 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,6 +46,8 @@ import org.paxle.parser.ParserContext;
 
 
 public abstract class AParserTest extends MockObjectTestCase {
+	protected List<File> tempFiles = new ArrayList<File>();
+	
 	protected HashMap<String,String> fileNameToMimeTypeMap = null;
 	protected HashMap<String, ISubParser> mimeTypeToParserMap = null;
 	
@@ -60,25 +64,11 @@ public abstract class AParserTest extends MockObjectTestCase {
 		this.fileNameToMimeTypeMap = new HashMap<String,String>();
 		this.mimeTypeToParserMap = new HashMap<String, ISubParser>();
 		
-		this.aTempFileManager = new ITempFileManager() {		
-			public void setTempDirFor(ITempDir arg0, String... arg1) { }		
-			public void removeTempDirFor(String... arg0) { }
-
-			public void releaseTempFile(File arg0) throws FileNotFoundException, IOException {
-				if (arg0 != null) {
-					if (!arg0.delete()) throw new IOException("Unable to delte file: " + arg0);
-				}
-			}
-
-			public File createTempFile() throws IOException {
-				File tempfile = File.createTempFile("parserTest", ".tmp");
-				tempfile.deleteOnExit();
-				return tempfile;
-			}
-			public boolean isKnown(File file) { return true; }
-		};
+		// a dummy temp-file managager
+		this.aTempFileManager = new TestTempFileManager();
 		IOTools.setTempFileManager(this.aTempFileManager);
 		
+		// a dummy reference normalizer
 		this.aRefNormalizer = new IReferenceNormalizer() {
 			public URI normalizeReference(String reference) {
 				try {
@@ -96,6 +86,7 @@ public abstract class AParserTest extends MockObjectTestCase {
 			}
 		};
 		
+		// a dummy mime-type detector
 		this.aMimetypeDetector = new IMimeTypeDetector() {
 			public String getMimeType(byte[] arg0, String fileName) throws Exception {
 				return fileNameToMimeTypeMap.get(fileName);
@@ -166,6 +157,38 @@ public abstract class AParserTest extends MockObjectTestCase {
 		// create a parser context with a dummy temp-file-manager		
 		ParserContext.setThreadLocal(new TestParserContextLocale());
 	}
+	
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		
+		// deleting all previously created temp-file
+		for (File tempFile : tempFiles) {
+			if (tempFile.exists() && !tempFile.delete()) throw new IOException("Unable to delte file: " + tempFile);
+		}		
+	}
+	
+	/**
+	 * A dummy temp-file-manager
+	 */	
+	private class TestTempFileManager implements ITempFileManager {
+		public List<File> tempFiles = new ArrayList<File>();
+		
+		public File createTempFile() throws IOException {
+			File tmp = File.createTempFile("test", ".tmp");
+			tempFiles.add(tmp);
+			return tmp;
+		}
+		public void releaseTempFile(File file) throws FileNotFoundException, IOException {
+			tempFiles.remove(file);
+			if (file.exists() && !file.delete()) throw new IOException("Unable to delete file: " + file);				
+		}
+		public boolean isKnown(File file) { 
+			return tempFiles.contains(file); 
+		}			
+		public void removeTempDirFor(String... arg0) { }
+		public void setTempDirFor(ITempDir arg0, String... arg1) { }	
+	}	
 	
 	private class TestParserContextLocale extends ParserContextLocal {
 		public TestParserContextLocale() {
