@@ -12,7 +12,7 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
 ## Set the page title
-#set( $page_title = "Paxle RSS search providers" )
+#set( $page_title = "Paxle Webgraph" )
 
 <h2>Webgraph</h2>
 <img src="?view=graph"/>
