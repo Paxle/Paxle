@@ -13,11 +13,7 @@
  */
 package org.paxle.filter.languageidentification.impl;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,13 +42,13 @@ import de.spieleck.app.cngram.NGramProfiles;
 		position = Integer.MAX_VALUE-1000)
 )
 public class LanguageManager implements IFilter<ICommand> {
-	
-	 /** @scr.property type="Float" value="0.6" label="%sdt.label" description="%sdt.desc" */
+
+	/** @scr.property type="Float" value="0.6" label="%sdt.label" description="%sdt.desc" */
 	static final String SDT = "sdtv";
 
 	private Log logger = LogFactory.getLog(this.getClass());
 	NGramProfiles nps = null;
-	
+
 	/** If a language has a value >= this, it is considered the (sole) language of the document */
 	float sdt;
 
@@ -77,28 +73,16 @@ public class LanguageManager implements IFilter<ICommand> {
 
 		NGramProfiles.RankResult res = null;
 
-		InputStreamReader isr = null;
 		try {
-			if (parserDoc.getTextFile() != null) {
-
+			if (parserDoc.getTextAsReader() != null) {
 				NGramProfiles.Ranker ranker = nps.getRanker();
-
-				Charset pdoccs = parserDoc.getCharset();
-				if (pdoccs == null) pdoccs = Charset.forName("UTF-8"); //try to read pdocs without encoding as UTF-8
-
-				isr = new InputStreamReader(new BufferedInputStream(new FileInputStream(parserDoc.getTextFile())), pdoccs);
-				ranker.account(isr);
+				ranker.account(parserDoc.getTextAsReader());
 				res = ranker.getRankResult();
-
 			} else {
 				logger.info("No language for document '" + parserDoc.getOID() + "', as it contains no text");
 			}
 		} catch (IOException e) {
 			logger.warn("Exception while trying to determine language of document '" +  parserDoc.getOID() + "'", e);
-		} finally {
-			try {
-				isr.close();
-			} catch (Exception e) {/* ignore */ }
 		}
 
 		double end = System.currentTimeMillis();
@@ -159,7 +143,7 @@ public class LanguageManager implements IFilter<ICommand> {
 	protected void activate(ComponentContext ctx) {
 		this.init(ctx.getProperties());
 	}
-	
+
 	@SuppressWarnings("unchecked") //only implementing the interface
 	void init(Dictionary config) {
 		this.sdt = ((Float) config.get(SDT)).floatValue();

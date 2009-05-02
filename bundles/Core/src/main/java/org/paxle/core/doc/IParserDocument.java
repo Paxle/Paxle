@@ -152,7 +152,7 @@ public interface IParserDocument extends Closeable, Appendable {
 	public abstract void setAuthor(String author);
 
 	/**
-	 * Returns the Charset of this pDoc.
+	 * Returns the source Charset of this pDoc, i.e. the encoding of the original file.
 	 * If this value has not been set via {@link #setCharset(Charset)}, this is <code>null</code>.
 	 * @see #setCharset(Charset)
 	 */
@@ -323,7 +323,7 @@ public interface IParserDocument extends Closeable, Appendable {
 	public abstract Reader getTextAsReader() throws IOException;
 
 	/**
-	 * Gets the content of this document as File.
+	 * Returns the content of this document as UTF-8 encoded File.
 	 * @return File if addText() has been used with this document, <code>null</code> otherwise (e.g. archives)
 	 * @throws IOException
 	 */
