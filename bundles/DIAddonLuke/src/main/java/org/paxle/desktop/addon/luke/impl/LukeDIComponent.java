@@ -19,21 +19,39 @@ import java.awt.Frame;
 import java.awt.Toolkit;
 
 import org.getopt.luke.Luke;
+
 import org.paxle.desktop.DIComponent;
 
 /**
  * @scr.component
  * @scr.service interface="org.paxle.desktop.DIComponent"
  */
+@SuppressWarnings("serial")
 public class LukeDIComponent implements DIComponent {
 	
 	private static final Dimension DEFAULT_DIM = new Dimension(700, 500);
-	private static final String TITLE = "Luke - Lucene Index Toolbox, v 0.9.1 (2008-11-22)";
+	private static final String TITLE = "Luke - Lucene Index Toolbox, v 0.9.2 (2009-03-20)";
 	
-	private final Luke luke = new Luke();
+	private Frame f;
+	private final Luke luke = new Luke() {
+		
+		private boolean closing = false;
+		@Override
+		public boolean destroy() {
+			if (closing) {
+				super.destroy();
+				closing = false;
+			} else {
+				// if f == null this is an error and shall be fixed, so we don't test here
+				f.dispose();
+				closing = true;
+			}
+			return true;
+		}
+	};
 	
 	public void close() {
-		luke.actionClose();
+		luke.actionExit();
 	}
 	
 	public Container getContainer() {
@@ -49,6 +67,7 @@ public class LukeDIComponent implements DIComponent {
 	}
 	
 	public void setFrame(Frame f) {
+		this.f = f;
 		f.setTitle(TITLE);
 		f.setPreferredSize(DEFAULT_DIM);
 	    f.setIconImage(Toolkit.getDefaultToolkit().createImage(Luke.class.getResource("/img/luke.gif")));

@@ -139,9 +139,9 @@ public class ServiceManager {
 	public boolean hasService(String name, String query) throws InvalidSyntaxException {
 		try {
 			return this.context.getServiceReferences(name, query) != null;
+		} catch (InvalidSyntaxException e) {
+			throw e;
 		} catch (Exception e) {
-			if (e instanceof InvalidSyntaxException)
-				throw (InvalidSyntaxException)e;
 			return false;
 		}
 	}

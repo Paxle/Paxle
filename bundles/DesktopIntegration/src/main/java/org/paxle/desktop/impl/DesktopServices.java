@@ -30,7 +30,6 @@ import javax.swing.JOptionPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
@@ -179,10 +178,7 @@ public class DesktopServices implements ManagedService, MetaTypeProvider, IDeskt
 						// TODO: we need a better solution here
 						Thread.sleep(3000);
 						browseDefaultServlet(false);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					} catch (InterruptedException e) { /* ignore */ }
 				}
 			}.run();			
 		}
@@ -203,24 +199,6 @@ public class DesktopServices implements ManagedService, MetaTypeProvider, IDeskt
 	 * OSGi Services related methods
 	 * ========================================================================== */
 	
-	public void shutdownFramework() {
-		try {
-			manager.shutdownFramework();
-		} catch (BundleException e) {
-			Utilities.instance.showExceptionBox("error shutting down framework", e);
-			logger.error("error shutting down framework", e);
-		}
-	}
-	
-	public void restartFramework() {
-		try {
-			manager.restartFramework();
-		} catch (BundleException e) {
-			Utilities.instance.showExceptionBox("error restarting framework", e);
-			logger.error("error restarting framework", e);
-		}
-	}
-	
 	private static Hashtable<String,Object> getDefaults() {
 		final Hashtable<String,Object> defaults = new Hashtable<String,Object>();
 		defaults.put(PREF_OPEN_BROWSER_STARTUP, Boolean.TRUE);
@@ -230,7 +208,7 @@ public class DesktopServices implements ManagedService, MetaTypeProvider, IDeskt
 	}
 	
 	public String[] getLocales() {
-		return this.locales==null?null:this.locales.clone();
+		return (this.locales == null) ? null : this.locales.clone();
 	}
 	
 	public ObjectClassDefinition getObjectClassDefinition(String id, String loc) {
@@ -284,49 +262,53 @@ public class DesktopServices implements ManagedService, MetaTypeProvider, IDeskt
 			}
 		}
 		
+		final class OpenBrowserAD extends SingleAD {
+			
+			private final String defaultValue;
+			private final String[] servletNames; 
+			
+			public OpenBrowserAD(final Object servletManager) {
+				super(PREF_OPEN_BROWSER_SERVLET);
+				try {
+					final Class<?> servletManagerClazz = servletManager.getClass();
+					final Method getServlets = servletManagerClazz.getMethod("getServlets");
+					
+					final Map<?,?> servlets = (Map<?,?>)getServlets.invoke(servletManager);
+					servletNames = new String[servlets.size()];
+					int idx = 0;
+					String defVal = null;
+					final Iterator<?> it = servlets.keySet().iterator();
+					while (it.hasNext()) {
+						final String name = (String)it.next();
+						servletNames[idx] = name;
+						if (name.equals(PREF_OPEN_BROWSER_SERVLET_DEFAULT))
+							defVal = name;
+						idx++;
+					}
+					defaultValue = defVal;
+					Arrays.sort(servletNames);
+				} catch (Exception e) { throw new RuntimeException(e); }
+			}
+			
+			public String[] getDefaultValue() {	return new String[] { defaultValue }; }
+			public String[] getOptionLabels() {	return servletNames; }
+			public String[] getOptionValues() { return servletNames; }
+			public int getType() { return STRING; }
+			public String validate(String value) { return null; }
+		}
+		
 		return new ObjectClassDefinition() {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {
 				final Object servletManager = manager.getService(ISERVLET_MANAGER);
 				final boolean hasWebUi = (servletManager != null);
 				
-				final AttributeDefinition[] ads = new AttributeDefinition[(hasWebUi) ? 3 : 2];
 				int idx = 0;
+				final AttributeDefinition[] ads = new AttributeDefinition[(hasWebUi) ? 3 : 2];
 				ads[idx++] = new BooleanAD(PREF_OPEN_BROWSER_STARTUP);	// option for opening the browser on start-up
-				
-				if (hasWebUi) {
-					ads[idx++] = new SingleAD(PREF_OPEN_BROWSER_SERVLET) {
-						
-						private final String defaultValue;
-						private final String[] servletNames; {
-							try {
-								final Class<?> servletManagerClazz = servletManager.getClass();
-								final Method getServlets = servletManagerClazz.getMethod("getServlets");
-								
-								final Map<?,?> servlets = (Map<?,?>)getServlets.invoke(servletManager);
-								servletNames = new String[servlets.size()];
-								int idx = 0;
-								String defVal = null;
-								final Iterator<?> it = servlets.keySet().iterator();
-								while (it.hasNext()) {
-									final String name = (String)it.next();
-									servletNames[idx] = name;
-									if (name.equals(PREF_OPEN_BROWSER_SERVLET_DEFAULT))
-										defVal = name;
-									idx++;
-								}
-								defaultValue = defVal;
-								Arrays.sort(servletNames);
-							} catch (Exception e) { throw new RuntimeException(e); }
-						}
-						
-						public String[] getDefaultValue() {	return new String[] { defaultValue }; }
-						public String[] getOptionLabels() {	return servletNames; }
-						public String[] getOptionValues() { return servletNames; }
-						public int getType() { return STRING; }
-						public String validate(String value) { return null; }
-					};
-				}
+				if (hasWebUi)
+					ads[idx++] = new OpenBrowserAD(servletManager);
 				ads[idx++] = new BooleanAD(PREF_SHOW_SYSTRAY);			// option to show/hide the system tray icon
+				
 				return ads;
 			}
 			public String getDescription() { return rb.getString("desktopService.desc"); }
@@ -417,11 +399,13 @@ public class DesktopServices implements ManagedService, MetaTypeProvider, IDeskt
 		if (url == null) {
 			JOptionPane.showMessageDialog(null, "HTTP service not accessible", "Error", JOptionPane.ERROR_MESSAGE);
 		} else if (browserOpenable || force) try {
-			if ((browserOpenable = backend.getDesktop().browse(url))) {
+			browserOpenable = backend.getDesktop().browse(url);
+			if (browserOpenable)
 				return true;
-			} else if (displayErrMsg) {
+			
+			if (displayErrMsg) {
 				Utilities.instance.showURLErrorMessage(
-						"Couldn't launch system browser due to an error in Paxle's system integration\n" +
+						"Couldn't launch system browser due to an error in Paxle's desktop integration\n" +
 						"bundle. Please review the log for details. The requested URL was:", url);
 			}
 		} catch (MalformedURLException e) {
@@ -471,10 +455,6 @@ public class DesktopServices implements ManagedService, MetaTypeProvider, IDeskt
 		logger.warn(msg);
 		if (displayErrMsg)
 			JOptionPane.showMessageDialog(null, msg, "Error opening servlet", JOptionPane.ERROR_MESSAGE);
-	}
-	
-	public ServiceManager getServiceManager() {
-		return manager;
 	}
 	
 	public IDIBackend getBackend() {

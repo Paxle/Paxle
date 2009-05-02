@@ -27,6 +27,7 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.osgi.framework.BundleException;
 import org.osgi.service.http.HttpService;
 
 import org.paxle.core.IMWComponent;
@@ -153,12 +154,11 @@ public class SystrayMenu implements ActionListener {
 			crawlItem.setEnabled(hasCrawler);
 			crawlprItem.setEnabled(hasCrawler);
 			
-			final ServiceManager manager = desktop.getServiceManager();
-			final boolean hasWebServer = manager.hasService(HttpService.class);
-			final boolean hasWebui = manager.hasService(CLZ_ISERVLET_MANAGER) && hasWebServer;
+			final boolean hasWebServer = services.hasService(HttpService.class);
+			final boolean hasWebui = services.hasService(CLZ_ISERVLET_MANAGER) && hasWebServer;
 			browseItem.setEnabled(desktop.isBrowserOpenable() && hasWebui);
 			
-			final boolean hasSearch = manager.hasService(CLZ_ISEARCH_PROVIDER_MANAGER);
+			final boolean hasSearch = services.hasService(CLZ_ISEARCH_PROVIDER_MANAGER);
 			// remove "&& hasWebUi" if we have other methods of displaying the searchresults
 			searchItem.setEnabled(desktop.isBrowserOpenable() && hasSearch && hasWebui);
 			
@@ -349,11 +349,21 @@ public class SystrayMenu implements ActionListener {
 					break;
 				
 				case RESTART:
-					desktop.restartFramework();
+					try {
+						services.restartFramework();
+					} catch (BundleException e) {
+						Utilities.instance.showExceptionBox("error restarting framework", e);
+						logger.error("error restarting framework", e);
+					}
 					break;
 				
 				case QUIT:
-					desktop.shutdownFramework();
+					try {
+						services.shutdownFramework();
+					} catch (BundleException e) {
+						Utilities.instance.showExceptionBox("error shutting down framework", e);
+						logger.error("error shutting down framework", e);
+					}
 					break;
 				
 				default:

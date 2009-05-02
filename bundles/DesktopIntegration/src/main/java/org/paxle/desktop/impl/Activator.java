@@ -76,6 +76,7 @@ public class Activator implements BundleActivator {
 	public static ClassLoader uiClassLoader = Activator.class.getClassLoader();
 	
 	public DesktopServices initObject = null;
+	public DialogueServices dialogue = null;
 	
 	public void start(final BundleContext bc) throws Exception {
 		
@@ -140,6 +141,7 @@ public class Activator implements BundleActivator {
 	
 	public void stop(BundleContext context) throws Exception {
 		this.initObject.shutdown();
+		this.dialogue.shutdown();
 		initObject = null;
 	}
 	
@@ -169,11 +171,12 @@ public class Activator implements BundleActivator {
 		final IDIBackend dibackend = (IDIBackend) uiClassLoader.loadClass(diBackendCName).newInstance();		
 		final ServiceManager sm = new ServiceManager(context);
 		
-		final DialogueServices dialogue = new DialogueServices(sm);
+		dialogue = new DialogueServices(sm);
 		
 		// TODO: when CrawlerCore installed, set crawlHelper
 		CrawlStartHelper crawlHelper = null;
 		
+		dialogue.init();
 		this.initObject = new DesktopServices(sm, dibackend, dialogue, crawlHelper);
 		
 		context.registerService(IDesktopUtilities.class.getName(), Utilities.instance, null);
