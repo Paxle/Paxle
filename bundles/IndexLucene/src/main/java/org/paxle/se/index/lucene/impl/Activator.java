@@ -28,7 +28,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.monitor.Monitorable;
 import org.paxle.core.data.IDataConsumer;
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.se.index.IFieldManager;
 import org.paxle.se.index.IIndexIteratable;
@@ -46,10 +46,18 @@ public class Activator implements BundleActivator {
 	private LuceneWriter indexWriterThread = null;
 	private LuceneSearcher indexSearcher = null;
 	private SnippetFetcher snippetFetcher = null;
+	private IIOTools ioTools = null;
 	
 	@SuppressWarnings("serial")
 	public void start(BundleContext bc) throws Exception {
 		final Log logger = LogFactory.getLog(Activator.class);
+		
+		// getting the ioTools
+		final ServiceReference ioToolsRef = bc.getServiceReference(IIOTools.class.getName());
+		if (ioToolsRef == null) throw new NullPointerException("IoTools not found");
+		
+		this.ioTools = (IIOTools) bc.getService(ioToolsRef);
+		if (ioTools == null) throw new NullPointerException("IoTools not found");
 		
 		// getting the command-tracker
 		ServiceReference commandTrackerRef = bc.getServiceReference(ICommandTracker.class.getName());
@@ -77,7 +85,7 @@ public class Activator implements BundleActivator {
 		lmanager = new AFlushableLuceneManager(dataPath, stopwordsManager.getDefaultAnalyzer());
 		indexWriterThread = new LuceneWriter(lmanager, stopwordsManager, commandTracker);
 		indexWriterThread.setPriority(3);
-		snippetFetcher = new SnippetFetcher(bc, stopwordsManager.getDefaultAnalyzer());
+		snippetFetcher = new SnippetFetcher(bc, stopwordsManager.getDefaultAnalyzer(), this.ioTools);
 		indexSearcher = new LuceneSearcher(lmanager, snippetFetcher);
 		
 		bc.registerService(IIndexWriter.class.getName(), indexWriterThread, new Hashtable<String,String>());
@@ -109,9 +117,8 @@ public class Activator implements BundleActivator {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static void copyNatives(final BundleContext context, final String searchPath, final File root) throws IOException {
-		if (!root.exists())
-			root.mkdirs();
+	private void copyNatives(final BundleContext context, final String searchPath, final File root) throws IOException {
+		if (!root.exists()) root.mkdirs();
 		
 		final Enumeration<URL> stopwords = context.getBundle().findEntries(searchPath, "*" + StopwordsManager.STOPWORDS_FILE_EXT, true);
 		while (stopwords.hasMoreElements()) {
@@ -131,7 +138,7 @@ public class Activator implements BundleActivator {
 				
 				final FileOutputStream out = new FileOutputStream(swFile);
 				// open the URL and copy everything to the new file
-				IOTools.copy(swFileURL.openStream(), out);
+				ioTools.copy(swFileURL.openStream(), out);
 				out.close();
 			}
 		}

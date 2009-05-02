@@ -38,7 +38,7 @@ import org.paxle.core.IMWComponent;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.IParserDocument.Status;
-import org.paxle.core.io.IOTools;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommand.Result;
@@ -64,13 +64,19 @@ public class SnippetFetcher {
 	 */
 	protected ServiceTracker parser;
 	
+	protected IIOTools ioTools;
+	
 	protected PaxleAnalyzer analyzer;
 	
-	public SnippetFetcher(BundleContext ctx, PaxleAnalyzer analyzer) throws InvalidSyntaxException {
+	public SnippetFetcher(BundleContext ctx, PaxleAnalyzer analyzer, IIOTools ioTools) throws InvalidSyntaxException {
+		this.ioTools = ioTools;
+		
 		this.crawler = new ServiceTracker(ctx, ctx.createFilter("(&(objectClass=org.paxle.core.IMWComponent)(component.ID=org.paxle.crawler))"),null);
 		this.crawler.open();
+		
 		this.parser = new ServiceTracker(ctx, ctx.createFilter("(&(objectClass=org.paxle.core.IMWComponent)(component.ID=org.paxle.parser))"),null);
-		this.parser.open();		
+		this.parser.open();
+		
 		this.analyzer = analyzer;
 		this.execService = Executors.newCachedThreadPool();
 	}
@@ -115,7 +121,7 @@ public class SnippetFetcher {
 			
 			// reading some text
 			StringBuilder text = new StringBuilder();
-			IOTools.copy(content, text, 10240);
+			this.ioTools.copy(content, text, 10240);
 			
 	        final Highlighter highlighter = new Highlighter(new QueryScorer(query));
 			final TokenStream tokenStream = this.analyzer.tokenStream("content", new StringReader(text.toString()));
