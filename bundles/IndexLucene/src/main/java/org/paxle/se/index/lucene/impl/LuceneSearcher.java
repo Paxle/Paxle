@@ -33,7 +33,9 @@ import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IndexException;
 import org.paxle.se.index.lucene.ILuceneSearcher;
 import org.paxle.se.query.tokens.AToken;
+import org.paxle.se.search.ISearchProviderContext;
 import org.paxle.se.search.ISearchRequest;
+import org.paxle.se.search.SearchProviderContext;
 
 public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
 	
@@ -80,6 +82,7 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
 	 *       the indirection over String and the query-factory
 	 */
 	public void search(ISearchRequest searchRequest, List<IIndexerDocument> results) throws IOException, InterruptedException {
+		final ISearchProviderContext context = SearchProviderContext.getCurrentContext();
 		final AToken request = searchRequest.getSearchQuery();  // the query string
 		final long timeout = searchRequest.getTimeout();        // the search timeout
 		final int maxCount = searchRequest.getMaxResultCount(); // max amount of items to return 
@@ -100,18 +103,26 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
 		
 		final long deadline = System.currentTimeMillis() + timeout;
 		this.logger.debug("searching for query '" + query + "' (" + request + ")");
-		this.manager.search(query, new IIndexerDocHitCollector(results, maxCount, query, deadline));
+		this.manager.search(query, new IIndexerDocHitCollector(
+				context, 
+				results, 
+				maxCount, 
+				query, 
+				deadline)
+		);
 	}
 	
 	private class IIndexerDocHitCollector extends AHitCollector {
 		
+		private final ISearchProviderContext context;
 		private final List<IIndexerDocument> results;
 		private final int max;
 		private int current = 0;
 		private Query query;
 		private long deadline;
 		
-		public IIndexerDocHitCollector(List<IIndexerDocument> results, int max, Query query, long deadline) {
+		public IIndexerDocHitCollector(ISearchProviderContext context, List<IIndexerDocument> results, int max, Query query, long deadline) {
+			this.context = context;
 			this.results = results;
 			this.max = max;
 			this.query = query;
@@ -123,16 +134,17 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
 			LuceneSearcher.this.logger.debug("collecting search result " + this.current + "/" + this.max + ", document id '" + doc + "', score: " + score);
 			if (this.current++ < this.max) try {
 				// reading the document from the lucene index
-				final Document rdoc = this.searcher.doc(doc);
+				final Document sourceDoc = this.searcher.doc(doc);
+				IIndexerDocument targetDoc = this.context.createDocument();
 				
 				// converting the document into an indexer-doc
-				IIndexerDocument idoc = Converter.luceneDoc2IIndexerDoc(rdoc);
+				 Converter.luceneDoc2IIndexerDoc(sourceDoc, targetDoc);
 				if (snippetFetcher != null) {					
-					idoc = snippetFetcher.createProxy(idoc, this.query, this.deadline);
+					targetDoc = snippetFetcher.createProxy(targetDoc, this.query, this.deadline);
 				}
 				
 				// adding to result list
-				this.results.add(idoc);
+				this.results.add(targetDoc);
 			} catch (ParseException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

@@ -34,10 +34,11 @@ import org.freedesktop.dbus.exceptions.DBusExecutionException;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.core.doc.IndexerDocument;
 import org.paxle.se.index.IFieldManager;
 import org.paxle.se.search.ISearchProvider;
+import org.paxle.se.search.ISearchProviderContext;
 import org.paxle.se.search.ISearchRequest;
+import org.paxle.se.search.SearchProviderContext;
 
 /**
  * @scr.component immediate="true"
@@ -164,6 +165,7 @@ public class TrackerSearchProvider implements ISearchProvider {
 		
 		long start = System.currentTimeMillis();
 		try {
+			final ISearchProviderContext context = SearchProviderContext.getCurrentContext();
 			final String request = new TrackerQueryFactory().transformToken(searchRequest.getSearchQuery());
 			final int maxCount = searchRequest.getMaxResultCount();
 			final long timeout = searchRequest.getTimeout();
@@ -174,7 +176,7 @@ public class TrackerSearchProvider implements ISearchProvider {
 					// check if we need to hurry up
 					if (System.currentTimeMillis()-start >= timeout-500) break;
 					
-					IIndexerDocument indexerDoc = new IndexerDocument();
+					IIndexerDocument indexerDoc = context.createDocument();
 					indexerDoc.set(IIndexerDocument.PROTOCOL, "file");
 					indexerDoc.set(IIndexerDocument.LOCATION, "file://" + uri);        		
 

@@ -28,6 +28,8 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.monitor.Monitorable;
 import org.paxle.core.data.IDataConsumer;
+import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.io.IIOTools;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.se.index.IFieldManager;
@@ -59,6 +61,16 @@ public class Activator implements BundleActivator {
 		this.ioTools = (IIOTools) bc.getService(ioToolsRef);
 		if (ioTools == null) throw new NullPointerException("IoTools not found");
 		
+		// getting a document-factory to build indexer-docs
+		final ServiceReference[] docFactoryRefs = bc.getServiceReferences(
+				IDocumentFactory.class.getName(), 
+				String.format("(%s=%s)",IDocumentFactory.DOCUMENT_TYPE,IIndexerDocument.class.getName())
+		);
+		if (docFactoryRefs == null || docFactoryRefs.length == 0) throw new NullPointerException("No doc-factory found.");
+		
+		final IDocumentFactory idocFactory = (IDocumentFactory) bc.getService(docFactoryRefs[0]);
+		if (idocFactory == null) throw new NullPointerException("No doc-factory found.");
+		
 		// getting the command-tracker
 		ServiceReference commandTrackerRef = bc.getServiceReference(ICommandTracker.class.getName());
 		ICommandTracker commandTracker = (commandTrackerRef == null) ? null : (ICommandTracker)bc.getService(commandTrackerRef);
@@ -82,7 +94,7 @@ public class Activator implements BundleActivator {
 		copyNatives(bc, "/stopwords/snowball/", stopwordsRoot);
 		final StopwordsManager stopwordsManager = new StopwordsManager(stopwordsRoot);
 		
-		lmanager = new AFlushableLuceneManager(dataPath, stopwordsManager.getDefaultAnalyzer());
+		lmanager = new AFlushableLuceneManager(dataPath, stopwordsManager.getDefaultAnalyzer(), idocFactory);
 		indexWriterThread = new LuceneWriter(lmanager, stopwordsManager, commandTracker);
 		indexWriterThread.setPriority(3);
 		snippetFetcher = new SnippetFetcher(bc, stopwordsManager.getDefaultAnalyzer(), this.ioTools);

@@ -52,6 +52,7 @@ import org.paxle.core.data.impl.DataListener;
 import org.paxle.core.data.impl.DataManager;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.core.filter.IFilter;
@@ -287,7 +288,8 @@ public class Activator implements BundleActivator, InvocationHandler {
 					// all document types supported by this factory 
 					put(IDocumentFactory.DOCUMENT_TYPE,new String[]{
 							ICrawlerDocument.class.getName(),
-							IParserDocument.class.getName()
+							IParserDocument.class.getName(),
+							IIndexerDocument.class.getName()
 					});
 				}}
 		);

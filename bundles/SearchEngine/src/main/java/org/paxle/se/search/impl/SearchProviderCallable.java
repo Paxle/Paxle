@@ -27,6 +27,7 @@ import org.paxle.se.query.tokens.AToken;
 import org.paxle.se.search.ISearchProvider;
 import org.paxle.se.search.ISearchRequest;
 import org.paxle.se.search.ISearchResult;
+import org.paxle.se.search.SearchProviderContext;
 
 public class SearchProviderCallable implements Callable<ISearchResult> {
 	
@@ -75,7 +76,7 @@ public class SearchProviderCallable implements Callable<ISearchResult> {
 			query = this.searchRequest.getSearchQuery();
 			
 			// the provider to use
-			ISearchProvider provider = (ISearchProvider) this.ctx.getBundleContext().getService(this.providerRef);
+			final ISearchProvider provider = (ISearchProvider) this.ctx.getBundleContext().getService(this.providerRef);
 			
 			// the provider-ID (may be used to fetch additional metadata)
 			providerID = (String) this.providerRef.getProperty(Constants.SERVICE_PID);
@@ -94,6 +95,9 @@ public class SearchProviderCallable implements Callable<ISearchResult> {
 					query,
 					providerID
 			),e);
+		} finally {
+			// context cleanup
+			SearchProviderContext.removeCurrentContext();
 		}
 		return new SearchResult(providerID, this.results, System.currentTimeMillis() - start);
 	}

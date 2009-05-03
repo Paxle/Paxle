@@ -17,6 +17,7 @@ import java.io.IOException;
 
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 
@@ -38,6 +39,8 @@ public class BasicDocumentFactory implements IDocumentFactory {
 		} else if (docInterface.equals(IParserDocument.class)) {
 			// return (Doc) new BasicParserDocument(this.tempFileManager);
 			return (Doc) new CachedParserDocument(this.tempFileManager);
+		} else if (docInterface.equals(IIndexerDocument.class)) {
+			return (Doc) new BasicIndexerDocument();
 		}
 		
 		throw new IllegalArgumentException("Unexpected doc-type");

@@ -19,6 +19,8 @@ import org.osgi.framework.ServiceReference;
 
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
+import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorkerFactory;
@@ -35,6 +37,16 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
 	public void start(BundleContext bc) throws Exception {
+		// getting a document-factory to build indexer-docs
+		final ServiceReference[] docFactoryRefs = bc.getServiceReferences(
+				IDocumentFactory.class.getName(), 
+				String.format("(%s=%s)",IDocumentFactory.DOCUMENT_TYPE,IIndexerDocument.class.getName())
+		);
+		if (docFactoryRefs == null || docFactoryRefs.length == 0) throw new NullPointerException("No doc-factory found.");
+		
+		final IDocumentFactory idocFactory = (IDocumentFactory) bc.getService(docFactoryRefs[0]);
+		if (idocFactory == null) throw new NullPointerException("No doc-factory found.");		
+		
 		/* ==========================================================
 		 * Get services provided by other bundles
 		 * ========================================================== */			
@@ -44,7 +56,7 @@ public class Activator implements BundleActivator {
 		if (reference != null) {
 			// getting the service class instance
 			IMWComponentFactory componentFactory = (IMWComponentFactory)bc.getService(reference);
-			IWorkerFactory<IndexerWorker> workerFactory = new WorkerFactory();
+			IWorkerFactory<IndexerWorker> workerFactory = new WorkerFactory(idocFactory);
 			mwComponent = componentFactory.createCommandComponent(workerFactory, 5, ICommand.class);
 			componentFactory.registerComponentServices(mwComponent, bc);
 		}			

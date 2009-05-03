@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.io.temp.impl.TempFileManager;
@@ -42,5 +43,10 @@ public class BasicDocumentFactoryTest extends TestCase {
 	public void testCreateParserDocument() throws IOException {
 		IParserDocument pdoc = this.docFactory.createDocument(IParserDocument.class);
 		assertNotNull(pdoc);
+	}
+	
+	public void testCreateIndexerDocument() throws IOException {
+		IIndexerDocument idoc = this.docFactory.createDocument(IIndexerDocument.class);
+		assertNotNull(idoc);
 	}
 }

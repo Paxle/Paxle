@@ -39,6 +39,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.paxle.core.doc.Field;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IIndexIteratable;
 
@@ -55,6 +56,10 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	public final ReentrantReadWriteLock.ReadLock rlock = this.rwlock.readLock();
 	public final ReentrantReadWriteLock.WriteLock wlock = this.rwlock.writeLock();
 	
+	/**
+	 * A factory to create new {@link IIndexerDocument indexer-documents}
+	 */
+	protected final IDocumentFactory docFactory;
 	protected final String path;
 	protected final IndexWriter writer;
 	protected final Log logger = LogFactory.getLog(AFlushableLuceneManager.class);
@@ -69,7 +74,8 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	 */
 	private final Timer flushTimer;
 	
-	public AFlushableLuceneManager(final String path, final PaxleAnalyzer analyzer) throws IOException {
+	public AFlushableLuceneManager(final String path, final PaxleAnalyzer analyzer, IDocumentFactory docFactory) throws IOException {
+		this.docFactory = docFactory;
 		this.path = path;
 		this.analyzer = analyzer;
 		final Directory dir = FSDirectory.getDirectory(path);
@@ -291,11 +297,16 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 				throw new NoSuchElementException();
 			} else try {
 				this.next = next0();
-				final Document doc;
 				
-					doc = AFlushableLuceneManager.this.reader.document(this.current);
+				// getting next lucene-doc
+				final Document sourceDoc = AFlushableLuceneManager.this.reader.document(this.current);
 				
-				return Converter.luceneDoc2IIndexerDoc(doc);
+				// copy data
+				final IIndexerDocument targetDoc = docFactory.createDocument(IIndexerDocument.class);				
+				Converter.luceneDoc2IIndexerDoc(sourceDoc,targetDoc);
+				
+				// return next
+				return targetDoc;
 			} catch (IOException e) {
 				throw new RuntimeException("I/O error iterating through documents", e);
 			} catch (ParseException e) {

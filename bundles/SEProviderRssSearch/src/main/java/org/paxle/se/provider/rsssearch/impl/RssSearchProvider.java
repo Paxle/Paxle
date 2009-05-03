@@ -33,11 +33,12 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.core.doc.IndexerDocument;
 import org.paxle.core.metadata.IMetaData;
 import org.paxle.core.metadata.IMetaDataProvider;
 import org.paxle.se.search.ISearchProvider;
+import org.paxle.se.search.ISearchProviderContext;
 import org.paxle.se.search.ISearchRequest;
+import org.paxle.se.search.SearchProviderContext;
 
 import de.nava.informa.core.ChannelIF;
 import de.nava.informa.core.ItemIF;
@@ -71,6 +72,7 @@ public class RssSearchProvider implements ISearchProvider,ManagedService, IMetaD
 	public void search(ISearchRequest searchRequest, List<IIndexerDocument> results) throws IOException, InterruptedException {
         String url = null;
 		try {
+			final ISearchProviderContext context = SearchProviderContext.getCurrentContext();
 			final String request=new RssSearchQueryFactor().transformToken(searchRequest.getSearchQuery());
 			final int maxCount = searchRequest.getMaxResultCount();
 			
@@ -104,7 +106,7 @@ public class RssSearchProvider implements ISearchProvider,ManagedService, IMetaD
 		        int count=0;
 		        while(it.hasNext() && count++<maxCount){
 		        	ItemIF item=it.next();		        	
-		        	IIndexerDocument indexerDoc = new IndexerDocument();
+		        	IIndexerDocument indexerDoc = context.createDocument();
 		        	
 					indexerDoc.set(IIndexerDocument.LOCATION, item.getLink().toString());
 					indexerDoc.set(IIndexerDocument.PROTOCOL, item.getLink().getProtocol());

@@ -35,9 +35,7 @@ import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
-
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.core.doc.IndexerDocument;
 import org.paxle.se.index.IFieldManager;
 
 public class Converter {
@@ -270,19 +268,19 @@ public class Converter {
 	/* ========================================================================== */
 	/* ========================================================================== */
 	/* ========================================================================== */
-	
-	public static IIndexerDocument luceneDoc2IIndexerDoc(Document ldoc) throws ParseException, IOException {
-		final IndexerDocument doc = new IndexerDocument();
+		
+	@SuppressWarnings("unchecked")
+	public static void luceneDoc2IIndexerDoc(final Document ldoc, final IIndexerDocument idoc) throws ParseException, IOException {
 		final Iterator<?> it = ldoc.getFields().iterator();
 		while (it.hasNext()) {
 			final Fieldable field = (Fieldable)it.next();
-			if (!field.isStored())
-				continue;
-			final org.paxle.core.doc.Field<?> pfield = fieldManager.get(field.name());
-			if (pfield != null)
-				doc.put(pfield, field2any(field, pfield));
+			if (!field.isStored()) continue;
+			
+			final org.paxle.core.doc.Field pfield = fieldManager.get(field.name());
+			if (pfield != null) {
+				idoc.set(pfield, field2any(field, pfield));
+			}
 		}
-		return doc;
 	}
 	
 	public static <E extends Serializable> E field2any(Fieldable lfield, org.paxle.core.doc.Field<E> pfield) throws ParseException, IOException {

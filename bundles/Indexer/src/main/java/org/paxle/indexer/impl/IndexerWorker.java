@@ -26,15 +26,21 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.IndexerDocument;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 
 public class IndexerWorker extends AWorker<ICommand> {
 	
 	private final Log logger = LogFactory.getLog(IndexerWorker.class);
+	
+	private final IDocumentFactory idocFactory;
+	
+	public IndexerWorker(IDocumentFactory idocFactory) {
+		this.idocFactory = idocFactory;
+	}
 	
 	@Override
 	protected void execute(ICommand command) {		
@@ -245,8 +251,8 @@ public class IndexerWorker extends AWorker<ICommand> {
 			final URI location,
 			final Date lastCrawled,
 			final String name,
-			final IParserDocument pdoc) {
-		final IIndexerDocument idoc = new IndexerDocument();
+			final IParserDocument pdoc) throws IOException {
+		final IIndexerDocument idoc = this.idocFactory.createDocument(IIndexerDocument.class);
 		try {
 			final Collection<String> kw = pdoc.getKeywords();
 			final Set<String> lng = pdoc.getLanguages();

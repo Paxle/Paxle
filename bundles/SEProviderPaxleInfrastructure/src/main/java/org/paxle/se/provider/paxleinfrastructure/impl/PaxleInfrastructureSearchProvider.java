@@ -17,9 +17,10 @@ import java.io.IOException;
 import java.util.List;
 
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.core.doc.IndexerDocument;
 import org.paxle.se.search.ISearchProvider;
+import org.paxle.se.search.ISearchProviderContext;
 import org.paxle.se.search.ISearchRequest;
+import org.paxle.se.search.SearchProviderContext;
 
 /**
  * @scr.component metatype="false"
@@ -31,8 +32,9 @@ public class PaxleInfrastructureSearchProvider implements ISearchProvider {
 	
 	public void search(ISearchRequest searchRequest, List<IIndexerDocument> results) throws IOException, InterruptedException {
 		try {
+			final ISearchProviderContext context = SearchProviderContext.getCurrentContext();
 			String request = new PaxleInfrastructureQueryFactor().transformToken(searchRequest.getSearchQuery());
-			IIndexerDocument indexerDoc = new IndexerDocument();
+			IIndexerDocument indexerDoc = context.createDocument();
 			System.out.println(request);
 			if(request.toLowerCase().equals("paxle wiki")){
 				indexerDoc.set(IIndexerDocument.LOCATION, "http://wiki.paxle.net/");

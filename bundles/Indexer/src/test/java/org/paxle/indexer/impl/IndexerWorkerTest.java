@@ -16,18 +16,25 @@ package org.paxle.indexer.impl;
 import java.net.URI;
 import java.util.HashSet;
 
-import junit.framework.TestCase;
-
+import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.impl.BasicCrawlerDocument;
-import org.paxle.core.doc.impl.BasicParserDocument;
+import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 
-public class IndexerWorkerTest extends TestCase {
+public class IndexerWorkerTest extends MockObjectTestCase {
+	
+	private IDocumentFactory docFactory;
+	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		this.docFactory = new BasicDocumentFactory(new TempFileManager());
+	}
 	
 	public void testDeepConversion() throws Exception {
 		final int depth = (int)(Math.random() * 10);
@@ -36,14 +43,14 @@ public class IndexerWorkerTest extends TestCase {
 		
 		final HashSet<String> expectedTitles = new HashSet<String>();
 		
-		final IParserDocument pdoc = new BasicParserDocument(new TempFileManager());
+		final IParserDocument pdoc = this.docFactory.createDocument(IParserDocument.class);
 		String title = "container";
 		expectedTitles.add(title);
 		pdoc.setTitle(title);
 		pdoc.setMimeType("test/mime-type");
 		IParserDocument container = pdoc;
 		for (int i=0; i<depth; i++) {
-			final IParserDocument subpdoc = new BasicParserDocument(new TempFileManager());
+			final IParserDocument subpdoc = this.docFactory.createDocument(IParserDocument.class);
 			title = "child_depth_" + i;
 			expectedTitles.add(title);
 			subpdoc.setTitle(title);
@@ -56,14 +63,14 @@ public class IndexerWorkerTest extends TestCase {
 		cmd.setLocation(URI.create("http://www.example.org/"));
 		cmd.setResult(ICommand.Result.Passed);
 		
-		final ICrawlerDocument cdoc = new BasicCrawlerDocument();
+		final ICrawlerDocument cdoc = this.docFactory.createDocument(ICrawlerDocument.class);
 		cdoc.setLocation(cmd.getLocation());
 		cdoc.setStatus(ICrawlerDocument.Status.OK);
 		cmd.setCrawlerDocument(cdoc);
 		pdoc.setStatus(IParserDocument.Status.OK);
 		cmd.setParserDocument(pdoc);
 		
-		final IndexerWorker iw = new IndexerWorker();
+		final IndexerWorker iw = new IndexerWorker(this.docFactory);
 		iw.execute(cmd);
 		iw.destroy();
 		

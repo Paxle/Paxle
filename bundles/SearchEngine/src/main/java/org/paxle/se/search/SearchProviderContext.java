@@ -11,13 +11,25 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.doc;
+package org.paxle.se.search;
 
-import org.paxle.core.doc.impl.BasicIndexerDocument;
+import org.paxle.se.search.impl.SearchProviderContextLocal;
 
 /**
- * @deprecated please use the {@link IDocumentFactory#createDocument(Class)} instead
+ * @since 0.1.5-SNAPSHOT
  */
-public class IndexerDocument extends BasicIndexerDocument {
-
+public class SearchProviderContext {
+	private static SearchProviderContextLocal context = null;
+    
+	public static void setThreadLocal(SearchProviderContextLocal threadLocal) {
+		context = threadLocal;
+	}
+	
+	public static ISearchProviderContext getCurrentContext() {
+		return context.get();		
+	}	
+	
+	public static void removeCurrentContext() {
+		context.remove();
+	}
 }

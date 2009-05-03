@@ -19,6 +19,7 @@ import java.util.TimerTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.doc.IDocumentFactory;
 
 public class TimerLuceneManager extends AFlushableLuceneManager {
 	
@@ -37,8 +38,8 @@ public class TimerLuceneManager extends AFlushableLuceneManager {
 		}
 	}
 	
-	public TimerLuceneManager(String path, final PaxleAnalyzer analyzer, int flushDelay, int flushPeriod) throws IOException {
-		super(path, analyzer);
+	public TimerLuceneManager(String path, final PaxleAnalyzer analyzer, IDocumentFactory docFactory, int flushDelay, int flushPeriod) throws IOException {
+		super(path, analyzer, docFactory);
 		this.timer.schedule(this.flushTTask, flushDelay, flushPeriod);
 	}
 	
