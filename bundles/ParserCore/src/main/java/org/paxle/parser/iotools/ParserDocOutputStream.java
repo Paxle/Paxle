@@ -50,13 +50,16 @@ public class ParserDocOutputStream extends OutputStream {
 	private boolean closed = false;
 	private final OutputStream os;
 	private final DeferredFileOutputStream cos;
+	private final ITempFileManager tfm;
 	
 	public ParserDocOutputStream(final ITempFileManager tfm, final ICharsetDetector cd, final long expectedSize) throws IOException {
 		this(tfm, cd);
 	}
 	
 	public ParserDocOutputStream(final ITempFileManager tfm, final ICharsetDetector cd) throws IOException {
-		File tempFile = tfm.createTempFile();
+		this.tfm = tfm;
+		File tempFile = this.tfm.createTempFile();
+		
 		this.cos = new DeferredFileOutputStream(MAX_CACHED_SIZE, tempFile);
 		this.os = (cd == null) ? cos : cd.createOutputStream(cos);
 	}
@@ -104,18 +107,24 @@ public class ParserDocOutputStream extends OutputStream {
 		 */
 		if (!closed) this.close();
 		
-		final String charset = getCharset();
-		logger.debug(String.format("Parsing contained file in '%s' with mime-type '%s' and charset '%s'", location, mimeType, charset));
-		try {
+		String charset = getCharset();
+		File dataFile = null;
+		try {			
+			logger.debug(String.format("Parsing contained file in '%s' with mime-type '%s' and charset '%s'", location, mimeType, charset));
+			
 			if (!cos.isInMemory()) {
 				// the file created by cos.toFile(null) is being removed when cos is finalized
-				return ParserTools.parse(location, mimeType, charset, cos.getFile());
+				dataFile = cos.getFile();
+				return ParserTools.parse(location, mimeType, charset, dataFile);
 			} else {
 				ByteArrayInputStream bin = new ByteArrayInputStream(cos.getData());
 				return ParserTools.parse(location, mimeType, charset, bin);
 			}
 		} catch (UnsupportedEncodingException e) {
 			throw new ParserException("Error parsing file on close due to incorrectly detected charset '" + charset + "'", e);
+		} finally {
+			// release temp file
+			this.tfm.releaseTempFile(dataFile);
 		}
 	}
 	
