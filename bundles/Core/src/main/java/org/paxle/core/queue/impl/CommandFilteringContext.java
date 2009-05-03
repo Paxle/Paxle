@@ -300,7 +300,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Cmd createCmdWrapper(Cmd cmd) {
+	Cmd createCmdWrapper(Cmd cmd) {
 		Class<?> i = null;
 		Type[] types = cmd.getClass().getInterfaces();
 		if (types != null) for (Type type : types) {
@@ -318,7 +318,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 		
 	private static class CmdWrapper <Cmd extends ICommand> implements InvocationHandler {
 		@SuppressWarnings("serial")
-		private static final HashSet<String> allowedMethods = new HashSet<String>(){{
+		private static final HashSet<String> ALLOWED_CMD_METHODS = new HashSet<String>(){{
 			add("getProfileOID");
 			add("getDepth");
 			add("getLocation");
@@ -332,7 +332,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 		}		
 		
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-			if (allowedMethods.contains(method.getName())) {
+			if (ALLOWED_CMD_METHODS.contains(method.getName())) {
 				return method.invoke(this.cmd, args);
 			} else if (method.getName().equals("getCrawlerDocument")) {
 				ICrawlerDocument cdoc = this.cmd.getCrawlerDocument();
@@ -363,7 +363,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 	 */
 	private static class CrawlerDocWrapper implements InvocationHandler {
 		@SuppressWarnings("serial")
-		private static final HashSet<String> allowedMethods = new HashSet<String>(){{
+		private static final HashSet<String> ALLOWED_CDOC_METHODS = new HashSet<String>(){{
 			add("getMimeType");
 			add("getSize");
 			add("toString");
@@ -376,7 +376,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 		}
 
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-			if (allowedMethods.contains(method.getName())) {
+			if (ALLOWED_CDOC_METHODS.contains(method.getName())) {
 				return method.invoke(this.cDoc, args);
 			}
 			
