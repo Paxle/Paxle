@@ -124,7 +124,7 @@ public class ParserDocOutputStream extends OutputStream {
 			throw new ParserException("Error parsing file on close due to incorrectly detected charset '" + charset + "'", e);
 		} finally {
 			// release temp file
-			this.tfm.releaseTempFile(dataFile);
+			if (dataFile != null) this.tfm.releaseTempFile(dataFile);
 		}
 	}
 	
