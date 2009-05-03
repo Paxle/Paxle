@@ -63,11 +63,6 @@ public abstract class ASubParser implements ISubParser {
 			// parsing data
 			return parse(location, charset, content);
 		} catch (Throwable e) {
-			// releasing temp-file
-			if (content != null && tfm.isKnown(content)) {
-				tfm.releaseTempFile(content);
-			}
-			
 			// re-throw well known exceptions
 			if (e instanceof ParserException) throw (ParserException) e;
 			else if (e instanceof UnsupportedEncodingException) throw (UnsupportedEncodingException) e;
@@ -76,7 +71,13 @@ public abstract class ASubParser implements ISubParser {
 			// wrap unknown exceptions into a parser-exception
 			throw new ParserException(e);
 		} finally { 
-			if (bos != null) bos.close(); 
+			// closing stream
+			if (bos != null) bos.close();
+			
+			// releasing temp-file
+			if (content != null && tfm.isKnown(content)) {
+				tfm.releaseTempFile(content);
+			}			
 		}
 	}
 }
