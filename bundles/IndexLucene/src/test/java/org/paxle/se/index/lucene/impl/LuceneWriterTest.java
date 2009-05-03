@@ -38,11 +38,6 @@ import org.paxle.se.index.lucene.ILuceneWriter;
 
 public class LuceneWriterTest extends MockObjectTestCase {
 	/**
-	 * Directory containing stopwords resource files
-	 */
-	private final File stopwordsRoot = new File("src/main/resources/stopwords/snowball/");	
-
-	/**
 	 * Path were the test-db should be stored
 	 */
 	private final String dbPath = "target/lucene-db";
@@ -56,6 +51,7 @@ public class LuceneWriterTest extends MockObjectTestCase {
 	private AFlushableLuceneManager lmanager = null;
 	private LuceneWriter writer = null;
 	
+
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -71,7 +67,7 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		this.docFactory = new BasicDocumentFactory(mock(ITempFileManager.class));
 		
 		// init stopwordsmanager
-		this.stopwordsManager = new StopwordsManager(this.stopwordsRoot);
+		this.stopwordsManager = new StopwordsManager(StopwordsManagerTest.getStopwordsFiles());
 	
 		// init lucene manager
 		this.lmanager = new AFlushableLuceneManager(this.dbPath, this.stopwordsManager.getDefaultAnalyzer(), this.docFactory);

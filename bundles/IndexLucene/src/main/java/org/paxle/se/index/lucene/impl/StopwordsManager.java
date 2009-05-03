@@ -13,8 +13,11 @@
  */
 package org.paxle.se.index.lucene.impl;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -22,20 +25,35 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.StopAnalyzer;
 
-public class StopwordsManager {
-	
+public class StopwordsManager {	
 	public static final String STOPWORDS_FILE_EXT = ".stopwords";
 	
-	private final HashMap<String,PaxleAnalyzer> map = new HashMap<String,PaxleAnalyzer>();
-	private final Log logger = LogFactory.getLog(StopwordsManager.class);
-	private final File rootdir;
-	private PaxleAnalyzer defaultAnalyzer = null;
+	private final HashMap<String, URL> urlMap = new HashMap<String, URL>();
+	private final HashMap<String,PaxleAnalyzer> analyzerMap = new HashMap<String,PaxleAnalyzer>();
 	
 	/**
-	 * @param rootdir The root-directory where the stopword files are in
+	 * For logging
 	 */
-	public StopwordsManager(final File rootdir) {
-		this.rootdir = rootdir;
+	private final Log logger = LogFactory.getLog(StopwordsManager.class);
+	
+	/**
+	 * The default analyzer
+	 */
+	PaxleAnalyzer defaultAnalyzer = null;
+	
+	/**
+	 * @param stopWordsURLs a list of {@link URL URLs} pointing to the stopwords files to use
+	 */
+	public StopwordsManager(Collection<URL> stopWordsURLs) {
+		if (stopWordsURLs != null) {
+			for (URL stopWordsFile : stopWordsURLs) {
+				String fileName = stopWordsFile.getFile();
+				fileName = fileName.substring(fileName.lastIndexOf('/')+1);
+				String lang = fileName.substring(0,fileName.length()-STOPWORDS_FILE_EXT.length());
+				
+				this.urlMap.put(lang, stopWordsFile);
+			}
+		}
 	}
 	
 	/**
@@ -43,27 +61,38 @@ public class StopwordsManager {
 	 * @param language
 	 */
 	public PaxleAnalyzer getAnalyzer(final String language) {
-		logger.debug("providing analyzer for language '" + language + "'");
-		if (language == null)
-			return getDefaultAnalyzer();
-		PaxleAnalyzer pa = map.get(language);
+		this.logger.debug("providing analyzer for language '" + language + "'");
+		if (language == null) return getDefaultAnalyzer();
+		
+		PaxleAnalyzer pa = analyzerMap.get(language.toLowerCase());
 		if (pa == null) {
-			final File swFile = new File(rootdir, language + STOPWORDS_FILE_EXT);
-			if (!swFile.exists()) {
+			final URL swURL = urlMap.get(language.toLowerCase());			
+			if (swURL == null) {
 				logger.warn("no stopwords declaration file found for language '" + language + "', falling back to lucene's default");
 				return getDefaultAnalyzer();
 			}
+			
+			Reader reader = null;
 			try {
+				reader = new InputStreamReader(swURL.openStream(),Charset.forName("UTF-8"));
+				
 				// TODO adapt to multiple formats, i.e. pass wordlist-loader to this instance on creation
-				final Set<String> stopwords = MultiFormatWordlistLoader.getSnowballSet(swFile);
+				final Set<String> stopwords = MultiFormatWordlistLoader.getSnowballSet(reader);
 				pa = new PaxleAnalyzer(stopwords);
-				map.put(language, pa);
-			} catch (IOException e) {
-				logger.error("Error reading in stopwords declaration file '" + swFile + "': " + e.getMessage() + ", falling back to lucene's default");
-				return getDefaultAnalyzer();
+				
+				analyzerMap.put(language, pa);
+			} catch (Throwable e) {
+				logger.error(String.format(
+						"Unexpected %s reading in stopwords declaration '%s', falling back to lucene's default.",
+						e.getClass().getName(),
+						swURL,
+						e.getMessage()
+				),e);
+			} finally {
+				if (reader != null) try { reader.close(); } catch (Exception e) {/* ignore this */}
 			}
 		}
-		return pa;
+		return (pa!=null)?pa:getDefaultAnalyzer();
 	}
 	
 	/**

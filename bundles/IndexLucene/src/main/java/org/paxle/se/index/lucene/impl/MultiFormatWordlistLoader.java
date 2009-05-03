@@ -28,7 +28,7 @@ public class MultiFormatWordlistLoader extends WordlistLoader {
 	public static Set<String> getSnowballSet(final File stopwords) throws IOException {
 		return getSnowballSet(new BufferedReader(new FileReader(stopwords)));
 	}
-	
+
 	public static Set<String> getSnowballSet(final Reader reader) throws IOException {
 		final BufferedReader br = (reader instanceof BufferedReader) ? (BufferedReader)reader : new BufferedReader(reader);
 		final Set<String> r = new HashSet<String>();
