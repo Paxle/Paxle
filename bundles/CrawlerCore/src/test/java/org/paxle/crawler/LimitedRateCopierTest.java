@@ -23,7 +23,7 @@ import org.apache.commons.io.input.NullInputStream;
 import org.apache.commons.io.output.NullOutputStream;
 import org.paxle.crawler.CrawlerTools.LimitedRateCopier;
 
-public class CrawlerToolsTest extends TestCase {
+public class LimitedRateCopierTest extends TestCase {
 
 	public void testThreadedCopy() throws Exception {
 		// FIXME if size is in the order of magnitude of limitKBps, this test works, but ...
