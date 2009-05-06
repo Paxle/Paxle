@@ -13,6 +13,7 @@
  */
 package org.paxle.core.doc.impl;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +33,7 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 	
 	private static final int DEFAULT_MAX_TEXT_SIZE_RAM = 1 * 1024 * 1024; // 1 mio. characters == 2 MB
 	
+	protected ITempFileManager tfm;
 	protected File content;
 	protected OutputStreamWriter text;
 	protected OutputStream os;
@@ -41,7 +43,8 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 	}
 	
 	public CachedParserDocument(ITempFileManager tfm, int threshold) throws IOException {
-		this.content = tfm.createTempFile();
+		this.tfm = tfm;
+		this.content = this.tfm.createTempFile();
 		this.os = new InMemoryOutputStream(threshold, this.content);
 		this.text = new OutputStreamWriter(this.os,"UTF-8");
 	}	
@@ -55,42 +58,59 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 	
 	@Override
 	public Appendable append(char c) throws IOException {
+		if (this.text == null) throw new IOException("Document already closed.");
 		this.text.append(c);
 		return this;
 	}
 	
 	@Override
 	public Appendable append(CharSequence csq) throws IOException {
+		if (this.text == null) throw new IOException("Document already closed.");
 		this.text.append(csq);
 		return this;
 	}
 	
 	@Override
 	public Appendable append(CharSequence csq, int start, int end) throws IOException {
+		if (this.text == null) throw new IOException("Document already closed.");
 		this.text.append(csq, start, end);
 		return this;
 	}
 		
 	@Override
 	public void setTextFile(File file) throws IOException {
+		// closing old streams
+		this.close();
+		
+		// releasing old temp-file
+		if (!file.equals(this.content)) {
+			if (this.tfm.isKnown(this.content)) this.tfm.releaseTempFile(this.content);
+		}
+		
+		// opening a new writer
 		this.content = file;
-		this.os = new FileOutputStream(this.content);
+		this.os = new BufferedOutputStream(new FileOutputStream(this.content,true));
 		this.text = new OutputStreamWriter(this.os,"UTF-8");
 	}
 		
 	@Override
 	public File getTextFile() throws IOException {
-		this.text.close();
-		if (this.os instanceof InMemoryOutputStream) {
+		this.close();
+		if (this.inMemory()) {
 			final InMemoryOutputStream dos = (InMemoryOutputStream)os;
-			if (dos.isInMemory()) {
-				if (dos.getByteCount() == 0) return null;
+			if (dos.getByteCount() == 0) return null;
 				
-				// writing data into a file
-				FileOutputStream fout = new FileOutputStream(this.content);
+			// writing data into a file
+			OutputStream fout = null;
+			try {
+				fout = new BufferedOutputStream(new FileOutputStream(this.content));
 				dos.writeTo(fout);
-				fout.close();		
-			} 
+			} finally {
+				if (fout != null) fout.close();
+			}
+
+			this.text = null;
+			this.os = null;
 		}
 		
 		if (!this.content.exists() || this.content.length() == 0) return null;
@@ -99,13 +119,11 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 			
 	@Override
 	public Reader getTextAsReader() throws IOException {
-		this.text.close();
-		if (this.os instanceof InMemoryOutputStream) {
+		this.close();
+		if (this.inMemory()) {
 			final InMemoryOutputStream dos = (InMemoryOutputStream)os;
-			if (dos.isInMemory()) {
-				if (dos.getByteCount() == 0) return null;
-				return new InputStreamReader(new ByteArrayInputStream(dos.getData()),Charset.forName("UTF-8"));
-			} 
+			if (dos.getByteCount() == 0) return null;
+			return new InputStreamReader(new ByteArrayInputStream(dos.getData()),Charset.forName("UTF-8"));
 		} 
 		
 		if (!this.content.exists() || this.content.length() == 0) return null;
@@ -114,14 +132,16 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 
 	@Override
 	public void close() throws IOException {
-		this.text.close();
+		if (this.text != null) {
+			this.text.close();
+		}
 	}
 	
 	/**
 	 * This function is used for testing only
 	 */
 	boolean inMemory() {
-		if (this.os instanceof InMemoryOutputStream) {
+		if (this.os != null && this.os instanceof InMemoryOutputStream) {
 			return ((InMemoryOutputStream)this.os).isInMemory();
 		}
 		return false;

@@ -24,6 +24,7 @@ public class BasicParserDocumentTest extends AParserDocumentTest {
 		BasicParserDocument pdoc = new BasicParserDocument(this.tempFilemanager);
 		
 		// copying data
+		assertFalse(this.outputFile.exists());
 		this.copyData(TESTFILE, pdoc);
 		assertTrue(this.outputFile.exists());
 		assertEquals(TESTFILE, pdoc.getTextAsReader());
@@ -41,5 +42,6 @@ public class BasicParserDocumentTest extends AParserDocumentTest {
 		// if no content is available the file should be null
 		File file = pdoc.getTextFile();
 		assertNull(file);
+		assertFalse(this.outputFile.exists());
 	}	
 }

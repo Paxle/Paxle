@@ -41,7 +41,7 @@ public class BasicParserDocument extends AParserDocument {
 			this.content = this.tempFileManager.createTempFile();
 		}
 		if (this.contentOut == null) {
-			this.contentOut = new OutputStreamWriter(new FileOutputStream(this.content),"UTF-8");
+			this.contentOut = new OutputStreamWriter(new FileOutputStream(this.content,true),"UTF-8");
 		}
 	}
 	
@@ -80,6 +80,16 @@ public class BasicParserDocument extends AParserDocument {
 	
 	@Override
 	public void setTextFile(File file) throws IOException {
+		// closing old streams
+		this.close();
+		this.contentOut = null;
+		
+		// releasing old temp-file
+		if (!file.equals(this.content)) {
+			if (this.tempFileManager.isKnown(this.content)) 
+				this.tempFileManager.releaseTempFile(this.content);
+		}
+		
 		this.content = file;
 	}
 		

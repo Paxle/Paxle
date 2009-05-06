@@ -25,11 +25,20 @@ public class CachedParserDocumentTest extends AParserDocumentTest {
 		
 		// copying data
 		this.copyData(TESTFILE, pdoc);
+		
+		// data must have been kept in memory
 		assertTrue(pdoc.inMemory());
 		assertFalse(this.outputFile.exists());
+		
+		// getting a reader without dumping data to disk
 		assertEquals(TESTFILE, pdoc.getTextAsReader());
-		assertEquals(TESTFILE, pdoc.getTextFile());
+		assertFalse(this.outputFile.exists());
 		assertTrue(pdoc.inMemory());
+		
+		// getting a file
+		assertEquals(TESTFILE, pdoc.getTextFile());
+		assertTrue(this.outputFile.exists());
+		assertFalse(pdoc.inMemory());
 	}
 	
 	public void testParserDocInFile() throws IOException {
@@ -42,6 +51,7 @@ public class CachedParserDocumentTest extends AParserDocumentTest {
 		assertTrue(this.outputFile.exists());
 		assertEquals(TESTFILE, pdoc.getTextAsReader());
 		assertEquals(TESTFILE, pdoc.getTextFile());
+		assertFalse(pdoc.inMemory());
 	}	
 	
 	public void testEmptyContent() throws IOException {

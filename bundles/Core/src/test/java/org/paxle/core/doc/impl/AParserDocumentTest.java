@@ -91,6 +91,7 @@ public abstract class AParserDocumentTest extends MockObjectTestCase {
 			buffer.flip();
 			sourceText.append(buffer);
 			target.append(buffer.toString());
+			buffer.clear();
 		}
 		sourceReader.close();
 		target.close();
