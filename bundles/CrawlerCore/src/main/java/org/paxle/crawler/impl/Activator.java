@@ -26,13 +26,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.metatype.MetaTypeProvider;
-import org.paxle.core.IMWComponent;
-import org.paxle.core.IMWComponentFactory;
-import org.paxle.core.filter.IFilter;
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.prefs.IPropertiesStore;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.threading.IMaster;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.ISubCrawlerManager;
 
@@ -42,7 +37,7 @@ public class Activator implements BundleActivator {
 	 * A reference to the {@link IMWComponent master-worker-component} used
 	 * by this bundle.
 	 */
-	private IMWComponent<ICommand> mwComponent;
+	// private IMWComponent<ICommand> mwComponent;
 	
 	/**
 	 * A component to manage {@link ISubCrawler sub-crawlers}
@@ -53,50 +48,16 @@ public class Activator implements BundleActivator {
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */
-	@SuppressWarnings("serial")
 	public void start(BundleContext bc) throws Exception {		
 
 		// init the subcrawl manager
 		this.subCrawlerManager = this.createAndRegisterSubCrawlerManager(bc);
 		
-		// init the thread factory
-		WorkerFactory workerFactory = new WorkerFactory(this.subCrawlerManager);
-		
 		/* ==========================================================
 		 * Register Service Listeners
 		 * ========================================================== */		
 		// registering a service listener to notice if a new sub-crawler was (un)deployed
-		bc.addServiceListener(new SubCrawlerListener((SubCrawlerManager)this.subCrawlerManager, bc),SubCrawlerListener.FILTER);	
-		
-		/* ==========================================================
-		 * Get services provided by other bundles
-		 * ========================================================== */			
-		// getting a reference to the threadpack generator service
-		ServiceReference reference = bc.getServiceReference(IMWComponentFactory.class.getName());
-
-		if (reference != null) {
-			// getting the service class instance
-			IMWComponentFactory componentFactory = (IMWComponentFactory)bc.getService(reference);
-			this.mwComponent = componentFactory.createCommandComponent(workerFactory, 5, ICommand.class);
-			componentFactory.registerComponentServices(this.mwComponent, bc);
-		}
-		
-		/* ==========================================================
-		 * Register Services provided by this bundle
-		 * ========================================================== */
-		
-		// register the protocol filter as service
-		bc.registerService(IFilter.class.getName(), new ProtocolFilter(this.subCrawlerManager), new Hashtable<String, Object>(){{
-			// service ID
-			put(Constants.SERVICE_PID, ProtocolFilter.class.getName());
-			
-			// filter props
-			put(IFilter.PROP_FILTER_TARGET, new String[] {"org.paxle.crawler.in","org.paxle.parser.out"});
-
-			// meta-data service props
-			put("org.paxle.metadata",Boolean.TRUE);
-			put("org.paxle.metadata.localization","/OSGI-INF/l10n/ProtocolFilter");
-		}});
+		bc.addServiceListener(new SubCrawlerListener((SubCrawlerManager)this.subCrawlerManager, bc),SubCrawlerListener.FILTER);		
 	}
 
 	/**
@@ -149,11 +110,6 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#stop(BundleContext)
 	 */	
 	public void stop(BundleContext context) throws Exception {
-		// shutdown the thread pool
-		if (this.mwComponent != null) {
-			IMaster<?> master = this.mwComponent.getMaster();
-			master.terminate();
-		}
 		if (this.subCrawlerManager != null) {
 			this.subCrawlerManager.close();
 			this.subCrawlerManager = null;

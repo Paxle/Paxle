@@ -31,7 +31,9 @@ public class ProtocolFilterTest extends MockObjectTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.crawlerManager = mock(ISubCrawlerManager.class);
-		this.filter = new ProtocolFilter(this.crawlerManager);
+		this.filter = new ProtocolFilter() {{
+			this.subCrawlerManager = crawlerManager;
+		}};
 	}
 	
 	public void testProtocolIsSupported() throws ProtocolFilterException {

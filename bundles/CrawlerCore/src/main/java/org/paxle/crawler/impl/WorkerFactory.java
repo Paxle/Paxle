@@ -13,21 +13,65 @@
  */
 package org.paxle.crawler.impl;
 
+import java.io.IOException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.ComponentContext;
+import org.paxle.core.IMWComponent;
+import org.paxle.core.IMWComponentFactory;
+import org.paxle.core.queue.ICommand;
+import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 import org.paxle.crawler.ISubCrawlerManager;
 
+/**
+ * @scr.component metatype="false" immediate="true" 
+ * @scr.service interface="org.paxle.core.threading.IWorkerFactory"
+ */
 public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 	
-	private final ISubCrawlerManager subCrawlerManager;
+	/**
+	 * @scr.reference
+	 */
+	protected ISubCrawlerManager subCrawlerManager;
 
 	/**
-	 * @param subCrawlerManager a reference to the {@link SubCrawlerManager subcrawler-manager} which should
-	 * be passed to a newly created {@link CrawlerWorker}.
+	 * @scr.reference
 	 */
-	public WorkerFactory(ISubCrawlerManager subCrawlerManager) {
-		this.subCrawlerManager = subCrawlerManager;
+	protected IMWComponentFactory componentFactory;
+
+	/**
+	 * A reference to the {@link IMWComponent master-worker-component} used
+	 * by this bundle.
+	 */
+	private IMWComponent<ICommand> mwComponent;	
+	
+	/**
+	 * for logging
+	 */
+	private final Log logger = LogFactory.getLog(this.getClass());
+
+	protected void activate(ComponentContext context) throws IOException {
+		final BundleContext bc = context.getBundleContext();
+		this.logger.info("Initializing mwcomponent for bundle: " + bc.getBundle().getSymbolicName());
+		
+		this.mwComponent = componentFactory.createCommandComponent(this, 5, ICommand.class);
+		this.componentFactory.registerComponentServices(this.mwComponent, bc);
 	}
+	
+	protected void deactivate(ComponentContext context ){
+		if (this.mwComponent != null) {
+			// shutdown threads
+			IMaster<?> master = this.mwComponent.getMaster();
+			master.terminate();
+			
+			// unregister mw-components
+			// TODO: this.componentFactory.unregisterComponentServices(componentID, component, bc);		
+		}		
+	}	
 	
 	/**
 	 * Creates a new {@link CrawlerWorker} by order of the worker-pool

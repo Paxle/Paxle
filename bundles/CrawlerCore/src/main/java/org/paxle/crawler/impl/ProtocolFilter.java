@@ -23,6 +23,8 @@ import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
+import org.paxle.core.filter.FilterQueuePosition;
+import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
@@ -32,7 +34,16 @@ import org.paxle.crawler.ISubCrawlerManager;
 /**
  * Filters {@link ICommand commands} out if the protocol of the
  * resource is not supported by one of the available {@link ISubCrawler sub-crawlers}
+ * 
+ * @scr.component metatype="false"
+ * @scr.service interface="org.paxle.core.filter.IFilter"
+ * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
+ * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/ProtocolFilter"
  */
+@FilterTarget({
+	@FilterQueuePosition(queue="org.paxle.crawler.in"),
+	@FilterQueuePosition(queue="org.paxle.parser.out")
+})
 public class ProtocolFilter implements IFilter<ICommand> {
 
 	/* ==============================================================
@@ -51,12 +62,9 @@ public class ProtocolFilter implements IFilter<ICommand> {
 	 * of the installed {@link ISubCrawler}s.
 	 * 
 	 * @see ISubCrawlerManager#isSupported(String)
+	 * @scr.reference
 	 */
-	private ISubCrawlerManager subCrawlerManager = null;
-
-	public ProtocolFilter(ISubCrawlerManager subCrawlerManager) {
-		this.subCrawlerManager = subCrawlerManager;
-	}
+	protected ISubCrawlerManager subCrawlerManager;
 
 	/**
 	 * @see IFilter#filter(ICommand)
