@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Console</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - UI: Console</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -31,7 +31,8 @@
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>					
 						<Import-Package>
 							<!-- OSGi framework -->
-							org.osgi.framework;version="1.4", 
+							org.osgi.framework;version="1.4",
+							org.osgi.service.component;version="1.0", 
 							<!-- Logging framework -->
 							org.apache.commons.logging, 
 							<!-- Eclipse Equinox Console -->
@@ -42,12 +43,22 @@
 						<Private-Package>
 							org.paxle.console.impl
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.console.impl.Activator
-						</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>			
 		</plugins>
 	</build>
 

@@ -18,8 +18,13 @@ import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.IMWComponent;
 
+/**
+ * @scr.component
+ * @scr.service interface="org.eclipse.osgi.framework.console.CommandProvider"
+ */
 public class PaxleCommandProvider implements CommandProvider {
 
 	private static enum COMPONENT {
@@ -33,10 +38,10 @@ public class PaxleCommandProvider implements CommandProvider {
 		};
 	}
 	
-	private final BundleContext context;
+	private BundleContext context;
 	
-	public PaxleCommandProvider(BundleContext context) {
-		this.context = context;
+	protected void activate(ComponentContext context) {
+		this.context = context.getBundleContext();
 	}
 
 	private IMWComponent getMWComponent(COMPONENT component) throws InvalidSyntaxException {
@@ -122,10 +127,10 @@ public class PaxleCommandProvider implements CommandProvider {
 		buf.append("Paxle commands:\r\n")
 		   .append("---Controlling the Crawler/Parser/Indexer---\r\n")
 		   .append("\tcrawler|parser|indexer|components - Paxle component related commands\r\n")
-		   .append("\t   status - print current status\r\n")
-		   .append("\t   overview - display the amount of active and enqueued jobs")
-		   .append("\t   pause - pause component\r\n")
-		   .append("\t   resume - resume component\r\n");
+		   .append("\tstatus - print current status\r\n")
+		   .append("\toverview - display the amount of active and enqueued jobs\r\n")
+		   .append("\tpause - pause component\r\n")
+		   .append("\tresume - resume component\r\n");
 		
 		return buf.toString();
 	}
