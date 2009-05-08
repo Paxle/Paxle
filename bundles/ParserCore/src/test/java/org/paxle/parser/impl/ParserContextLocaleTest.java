@@ -29,7 +29,6 @@ import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.core.io.temp.ITempFileManager;
-import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.parser.IParserContext;
 
 public class ParserContextLocaleTest extends MockObjectTestCase {
