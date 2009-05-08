@@ -13,21 +13,66 @@
  */
 package org.paxle.parser.impl;
 
+import java.io.IOException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.ComponentContext;
+import org.paxle.core.IMWComponent;
+import org.paxle.core.IMWComponentFactory;
+import org.paxle.core.queue.ICommand;
+import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 import org.paxle.parser.ISubParserManager;
 
+/**
+ * @scr.component metatype="false" immediate="true" 
+ * @scr.service interface="org.paxle.core.threading.IWorkerFactory"
+ */
 public class WorkerFactory implements IWorkerFactory<ParserWorker> {
 	
-	private final ISubParserManager subParserManager;
+	/**
+	 * @scr.reference
+	 */	
+	protected ISubParserManager subParserManager;
+
+	/**
+	 * @scr.reference
+	 */
+	protected IMWComponentFactory componentFactory;
+
+	/**
+	 * A reference to the {@link IMWComponent master-worker-component} used
+	 * by this bundle.
+	 */
+	private IMWComponent<ICommand> mwComponent;	
 	
 	/**
-	 * @param subParserManager the {@link SubParserManager} that should be passed 
-	 *        to the {@link ParserWorker worker-thread} on {@link #createWorker() worker-creation}
+	 * for logging
 	 */
-	public WorkerFactory(ISubParserManager subParserManager) {
-		this.subParserManager = subParserManager;
+	private final Log logger = LogFactory.getLog(this.getClass());
+	
+
+	protected void activate(ComponentContext context) throws IOException {
+		final BundleContext bc = context.getBundleContext();
+		this.logger.info("Initializing mwcomponent for bundle: " + bc.getBundle().getSymbolicName());
+		
+		this.mwComponent = componentFactory.createCommandComponent(this, 5, ICommand.class);
+		this.componentFactory.registerComponentServices(this.mwComponent, bc);
 	}
+	
+	protected void deactivate(ComponentContext context ){
+		if (this.mwComponent != null) {
+			// shutdown threads
+			IMaster<?> master = this.mwComponent.getMaster();
+			master.terminate();
+			
+			// unregister mw-components
+			// TODO: this.componentFactory.unregisterComponentServices(componentID, component, bc);		
+		}		
+	}	
 	
 	/**
 	 * {@inheritDoc}

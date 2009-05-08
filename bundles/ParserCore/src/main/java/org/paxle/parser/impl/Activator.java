@@ -26,85 +26,32 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.metatype.MetaTypeProvider;
-import org.paxle.core.IMWComponent;
-import org.paxle.core.IMWComponentFactory;
-import org.paxle.core.filter.IFilter;
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.prefs.IPropertiesStore;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.threading.IMaster;
-import org.paxle.core.threading.IWorkerFactory;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ISubParserManager;
 
 public class Activator implements BundleActivator {
-	
-	/**
-	 * A reference to the {@link IMWComponent master-worker-component} used
-	 * by this bundle.
-	 */
-	private IMWComponent<ICommand> mwComponent;	
-	
+
 	/**
 	 * A class to manage {@link ISubParser sub-parsers}
 	 */
 	private ISubParserManager subParserManager = null;
 	
 	/**
-	 * A worker-factory to create new parser-worker threads
-	 */
-	private IWorkerFactory<ParserWorker> workerFactory = null;
-	
-	/**
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
-	@SuppressWarnings("serial")
 	public void start(BundleContext bc) throws Exception {
 		// init the sub-parser manager
 		this.subParserManager = this.createAndRegisterSubParserManager(bc);
-		
-		// init thead worker-factory
-		this.workerFactory = new WorkerFactory(this.subParserManager);
-		
+
 		/* ==========================================================
 		 * Register Service Listeners
 		 * ========================================================== */		
 		// registering a service listener to notice if a new sub-parser
 		// was (un)deployed
-		bc.addServiceListener(new SubParserListener((SubParserManager) subParserManager,bc),SubParserListener.FILTER);	
-		
-		/* ==========================================================
-		 * Get services provided by other bundles
-		 * ========================================================== */			
-		// getting a reference to the threadpack generator service
-		ServiceReference reference = bc.getServiceReference(IMWComponentFactory.class.getName());
-		
-		if (reference != null) {
-			// getting the service class instance
-			IMWComponentFactory componentFactory = (IMWComponentFactory)bc.getService(reference);			
-			mwComponent = componentFactory.createCommandComponent(workerFactory, 5, ICommand.class);
-			componentFactory.registerComponentServices(mwComponent, bc);
-		}			
-		
-		/* ==========================================================
-		 * Register Services provided by this bundle
-		 * ========================================================== */		
-		// register the SubParser-Manager as service
-		bc.registerService(ISubParserManager.class.getName(), subParserManager, null);		
-		
-		// register the MimeType filter as service
-		bc.registerService(IFilter.class.getName(), new MimeTypeFilter(subParserManager), new Hashtable<String, Object>(){{
-			// service ID
-			put(Constants.SERVICE_PID, MimeTypeFilter.class.getName());
-			
-			// filter properties
-			put(IFilter.PROP_FILTER_TARGET, new String[]{"org.paxle.parser.in"});
-			
-			// meta-data service props
-			put("org.paxle.metadata",Boolean.TRUE);
-			put("org.paxle.metadata.localization","/OSGI-INF/l10n/MimeTypeFilter");			
-		}});				
+		bc.addServiceListener(new SubParserListener((SubParserManager) subParserManager,bc),SubParserListener.FILTER);			
 	}
 	
 	/**
@@ -155,11 +102,6 @@ public class Activator implements BundleActivator {
 	 * @see BundleActivator#stop(BundleContext)
 	 */	
 	public void stop(BundleContext context) throws Exception {
-		// shutdown the thread pool
-		if (this.mwComponent != null) {
-			IMaster<?> master = this.mwComponent.getMaster();
-			master.terminate();
-		}
 		if (this.subParserManager != null) {
 			this.subParserManager.close();
 			this.subParserManager = null;
@@ -167,6 +109,5 @@ public class Activator implements BundleActivator {
 		
 		// cleanup
 		this.subParserManager = null;
-		this.workerFactory = null;
 	}
 }
