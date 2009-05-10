@@ -13,6 +13,7 @@
  */
 package org.paxle.indexer.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -257,7 +258,8 @@ public class IndexerWorker extends AWorker<ICommand> {
 			final Collection<String> kw = pdoc.getKeywords();
 			final Set<String> lng = pdoc.getLanguages();
 			
-			String protocol = location.getScheme();
+			final String protocol = location.getScheme();
+			final File textFile = pdoc.getTextFile();
 			
 			/* this non-standard format has been chosen intentionally to allow an easy overview about which fields
 			 * are set
@@ -274,8 +276,8 @@ public class IndexerWorker extends AWorker<ICommand> {
 		                                       idoc.set(IIndexerDocument.MIME_TYPE,     pdoc.getMimeType());
 			if (protocol != null)              idoc.set(IIndexerDocument.PROTOCOL,      protocol);
 			if (pdoc.getSummary() != null)     idoc.set(IIndexerDocument.SUMMARY,       pdoc.getSummary());
-			if (pdoc.getTextFile() != null)    idoc.set(IIndexerDocument.TEXT,          pdoc.getTextFile());
-			if (pdoc.getTitle() != null)       idoc.set(IIndexerDocument.TITLE,         pdoc.getTitle());
+			if (pdoc.getTitle() != null)       idoc.set(IIndexerDocument.TITLE,         pdoc.getTitle());			
+			if (textFile != null)    		   idoc.set(IIndexerDocument.TEXT,          textFile);
 			// TODO: IIndexerDocument.TOPICS
 			
 			idoc.setStatus(IIndexerDocument.Status.OK);

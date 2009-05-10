@@ -13,6 +13,7 @@
  */
 package org.paxle.indexer.impl;
 
+import java.io.File;
 import java.net.URI;
 import java.util.HashSet;
 
@@ -27,7 +28,7 @@ import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 
 public class IndexerWorkerTest extends MockObjectTestCase {
-	
+	private static final File TESTFILE = new File("src/test/resources/paxle.txt");
 	private IDocumentFactory docFactory;
 	
 	@Override
@@ -48,6 +49,7 @@ public class IndexerWorkerTest extends MockObjectTestCase {
 		expectedTitles.add(title);
 		pdoc.setTitle(title);
 		pdoc.setMimeType("test/mime-type");
+		pdoc.setTextFile(TESTFILE);
 		IParserDocument container = pdoc;
 		for (int i=0; i<depth; i++) {
 			final IParserDocument subpdoc = this.docFactory.createDocument(IParserDocument.class);
