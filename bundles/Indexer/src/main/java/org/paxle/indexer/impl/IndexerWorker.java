@@ -99,7 +99,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 			// generate the "main" indexer document from the "main" parser document including the
 			// data from the command object
 			if ((command.getParserDocument().getFlags() & IParserDocument.FLAG_NOINDEX) == 0) {
-				this.logger.info(String.format("Indexing of URL '%s' (%s) ...",
+				this.logger.debug(String.format("Indexing of URL '%s' (%s) ...",
 						command.getLocation(),
 						command.getCrawlerDocument().getMimeType()));
 				

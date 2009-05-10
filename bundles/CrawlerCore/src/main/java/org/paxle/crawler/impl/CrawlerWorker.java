@@ -97,7 +97,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 			this.logger.debug(String.format("Crawler '%s' found for protocol '%s'.", crawler.getClass().getName(), protocol));
 			
 			// pass the URL to the crawler
-			this.logger.info(String.format("Crawling resource '%s' using protocol '%s' ...", location, protocol));
+			this.logger.debug(String.format("Crawling resource '%s' using protocol '%s' ...", location, protocol));
 			crawlerDoc = crawler.request(location);
 			
 			/* ================================================================

@@ -156,7 +156,7 @@ public class ParserWorker extends AWorker<ICommand> {
 			ISubParser parser;
 			do {
 				parser = it.next();
-				this.logger.info(String.format("Parsing resource '%s' (%s) with parser '%s' ...",
+				this.logger.debug(String.format("Parsing resource '%s' (%s) with parser '%s' ...",
 						command.getLocation(), mimeType, parser.getClass().getName()));
 				try {
 					// parsing the document using the next available parser
