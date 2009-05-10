@@ -13,16 +13,64 @@
  */
 package org.paxle.indexer.impl;
 
+import java.io.IOException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.ComponentContext;
+import org.paxle.core.IMWComponent;
+import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.queue.ICommand;
+import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 
+/**
+ * @scr.component metatype="false" immediate="true" 
+ * @scr.service interface="org.paxle.core.threading.IWorkerFactory"
+ */
 public class WorkerFactory implements IWorkerFactory<IndexerWorker> {
 	
-	private final IDocumentFactory idocFactory;
+	/**
+	 * @scr.reference target="(docType=org.paxle.core.doc.IIndexerDocument)"
+	 */
+	protected IDocumentFactory idocFactory;	
+
+	/**
+	 * @scr.reference
+	 */
+	protected IMWComponentFactory componentFactory;
+
+	/**
+	 * A reference to the {@link IMWComponent master-worker-component} used
+	 * by this bundle.
+	 */
+	private IMWComponent<ICommand> mwComponent;	
 	
-	public WorkerFactory(IDocumentFactory idocFactory) {
-		this.idocFactory = idocFactory;
+	/**
+	 * for logging
+	 */
+	private final Log logger = LogFactory.getLog(this.getClass());	
+	
+	protected void activate(ComponentContext context) throws IOException {
+		final BundleContext bc = context.getBundleContext();
+		this.logger.info("Initializing mwcomponent for bundle: " + bc.getBundle().getSymbolicName());
+		
+		this.mwComponent = componentFactory.createCommandComponent(this, 5, ICommand.class);
+		this.componentFactory.registerComponentServices(this.mwComponent, bc);
+	}
+	
+	protected void deactivate(ComponentContext context ){
+		if (this.mwComponent != null) {
+			// shutdown threads
+			IMaster<?> master = this.mwComponent.getMaster();
+			master.terminate();
+			
+			// unregister mw-components
+			// TODO: this.componentFactory.unregisterComponentServices(componentID, component, bc);		
+		}		
 	}
 	
 	public IndexerWorker createWorker() throws Exception {

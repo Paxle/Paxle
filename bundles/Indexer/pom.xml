@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Indexer</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<name>Paxle - Indexer: Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -44,6 +44,7 @@
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
+							org.osgi.service.component;version="1.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Paxle Core Bundle -->
@@ -55,12 +56,22 @@
 						<Private-Package>
 							org.paxle.indexer.impl
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.indexer.impl.Activator
-						</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>			
 		</plugins>
 	</build>
 
