@@ -35,7 +35,7 @@ import org.paxle.crawler.ISubCrawlerManager;
  * Filters {@link ICommand commands} out if the protocol of the
  * resource is not supported by one of the available {@link ISubCrawler sub-crawlers}
  * 
- * @scr.component metatype="false"
+ * @scr.component metatype="false" immediate="true" 
  * @scr.service interface="org.paxle.core.filter.IFilter"
  * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
  * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/ProtocolFilter"

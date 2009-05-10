@@ -34,12 +34,6 @@ import org.paxle.crawler.ISubCrawlerManager;
 public class Activator implements BundleActivator {
 	
 	/**
-	 * A reference to the {@link IMWComponent master-worker-component} used
-	 * by this bundle.
-	 */
-	// private IMWComponent<ICommand> mwComponent;
-	
-	/**
 	 * A component to manage {@link ISubCrawler sub-crawlers}
 	 */
 	private ISubCrawlerManager subCrawlerManager = null;
