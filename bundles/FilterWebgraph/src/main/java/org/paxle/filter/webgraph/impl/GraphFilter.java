@@ -58,6 +58,14 @@ public class GraphFilter implements IFilter<ICommand> {
 		try {
 			// getting the domain name of the location
 			String domain1=command.getLocation().getHost();
+			if (domain1 == null || domain1.length() == 0) {
+				this.logger.info(String.format(
+						"Invalid hostname detected for command with location '%s'.",
+						command.getLocation()
+				));
+				return;
+			}			
+			
 			if(domain1.startsWith("www.")) domain1=domain1.substring(4);
 			
 			// loop through all extracted links
@@ -69,7 +77,18 @@ public class GraphFilter implements IFilter<ICommand> {
 			
 			Iterator<URI> it = links.keySet().iterator();			
 			while(it.hasNext()){
-				String domain2 = it.next().getHost();
+				final URI next = it.next();
+				
+				String domain2 = next.getHost();
+				if (domain2 == null || domain2.length() == 0) {
+					this.logger.info(String.format(
+							"Invalid hostname detected for link '%s' of command with location '%s'.",
+							next.toString(),
+							command.getLocation()
+					));
+					continue;
+				}				
+				
 				if(domain2.startsWith("www.")) domain2=domain2.substring(4);
 				if (!domain1.equalsIgnoreCase(domain2)) {
 					domains.add(domain2);
