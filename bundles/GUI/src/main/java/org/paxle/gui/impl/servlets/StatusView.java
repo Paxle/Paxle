@@ -226,7 +226,7 @@ public class StatusView extends ALayoutServlet {
 	}	
 	
 	private IMWComponent<?> getCrawler(IServiceManager sm) throws InvalidSyntaxException {
-		Object[] crawlers = sm.getServices("org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)");		
+		Object[] crawlers = sm.getServices("org.paxle.core.IMWComponent","(mwcomponent.ID=org.paxle.crawler)");		
 		if (crawlers == null || crawlers.length == 0) return null;
 		return (IMWComponent<?>) crawlers[0];
 	}

@@ -35,7 +35,7 @@ import org.paxle.core.threading.IWorker;
  * </ul>
  */
 public interface IMWComponent<Data> {
-	public static final String COMPONENT_ID = "component.ID";
+	public static final String COMPONENT_ID = "mwcomponent.ID";
 	public static final String POSTFIX_SOURCE_ID = ".source";
 	public static final String POSTFIX_SINK_ID = ".sink";
 	

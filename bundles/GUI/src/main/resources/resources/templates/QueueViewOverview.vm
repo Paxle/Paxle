@@ -24,9 +24,9 @@
 			<th>${text.table.enqueued}</th>
 		</tr>
 		#foreach($entry in ${components})
-    		#if($manager.getServices("org.paxle.core.IMWComponent", "(component.ID=$entry)"))
+    		#if($manager.getServices("org.paxle.core.IMWComponent", "(mwcomponent.ID=$entry)"))
     		<tr>
-			#set($compQueue = $listTool.get($manager.getServices("org.paxle.core.IMWComponent", "(component.ID=$entry)"),0))
+			#set($compQueue = $listTool.get($manager.getServices("org.paxle.core.IMWComponent", "(mwcomponent.ID=$entry)"),0))
     			<td><a href="?queue=$entry">$text.get("tab.$entry")</a></td>
     			<td>${compQueue.getActiveJobCount()}</td>
     			<td>${compQueue.getEnqueuedJobCount()}</td>

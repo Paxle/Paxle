@@ -118,7 +118,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 	private ReferenceNormalizer referenceNormalizer = null;
 	
 	/**
-	 * A component used to track {@link org.paxle.core.queue.Command commands}
+	 * A component used to track {@link org.paxle.core.queue.ICommand commands}
 	 */
 	private CommandTracker commandTracker = null;
 	

@@ -83,7 +83,7 @@
 #if($subCrawlerManager)
 <fieldset id="dcrawler">
 	<legend>${text.legend.crawler}</legend>
-	#set( $crawlers = $manager.getServices( "org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
+	#set( $crawlers = $manager.getServices( "org.paxle.core.IMWComponent","(mwcomponent.ID=org.paxle.crawler)"))
 	#if ( $crawlers)
 		#foreach( $crawler in $crawlers)
 			#if($crawler.isPaused())
@@ -164,7 +164,7 @@
 #if( $subParserManager)
 <fieldset id="dparser">
 	<legend>${text.legend.parser}</legend>
-	#set($parsers = $manager.getServices( "org.paxle.core.IMWComponent", "(component.ID=org.paxle.crawler)"))	
+	#set($parsers = $manager.getServices( "org.paxle.core.IMWComponent", "(mwcomponent.ID=org.paxle.crawler)"))	
 	#if($parsers)
     	#foreach( $parser in $parsers)
     		<p>

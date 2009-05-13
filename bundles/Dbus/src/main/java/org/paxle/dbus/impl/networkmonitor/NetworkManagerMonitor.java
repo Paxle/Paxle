@@ -48,7 +48,7 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal> {
 	
 	/**
 	 * Reference to the crawler component
-	 * @scr.reference target="(component.ID=org.paxle.crawler)"
+	 * @scr.reference target="(mwcomponent.ID=org.paxle.crawler)"
 	 */
 	protected IMWComponent<?> crawler;
 	

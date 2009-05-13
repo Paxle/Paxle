@@ -43,7 +43,7 @@ public class QueueView extends ALayoutServlet {
 
 			String queue = request.getParameter("queue");
 			if (queue != null && queue.length() > 0) {
-				Object[] services = manager.getServices("org.paxle.core.IMWComponent","(component.ID="+queue+")");
+				Object[] services = manager.getServices("org.paxle.core.IMWComponent","(mwcomponent.ID="+queue+")");
 				if (services != null && services.length == 1 && services[0] instanceof IMWComponent) {
 					List<?> activeJobs = ((IMWComponent<?>)services[0]).getActiveJobs();
 					context.put("activeJobs", activeJobs);

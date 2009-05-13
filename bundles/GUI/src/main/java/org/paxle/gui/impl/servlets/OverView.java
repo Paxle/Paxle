@@ -88,7 +88,7 @@ public class OverView extends ALayoutServlet {
 			final LinkedList<Entry> servicesList = new LinkedList<Entry>();
 			for (final String queue : QUEUES) {
 				final String id = "org.paxle." + queue;
-				final Object[] services = manager.getServices("org.paxle.core.IMWComponent", String.format("(component.ID=%s)", id));
+				final Object[] services = manager.getServices("org.paxle.core.IMWComponent", String.format("(mwcomponent.ID=%s)", id));
 				if (services != null && services.length == 1 && services[0] instanceof IMWComponent) {
 					final String name = Character.toUpperCase(queue.charAt(0)) + queue.substring(1);
 					

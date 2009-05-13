@@ -55,12 +55,12 @@ public class SnippetFetcher {
 	protected Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
-	 * @scr.reference target="(component.ID=org.paxle.crawler)" 
+	 * @scr.reference target="(mwcomponent.ID=org.paxle.crawler)" 
 	 */
 	protected ServiceTracker crawler;
 	
 	/**
-	 * @scr.reference target="(component.ID=org.paxle.parser)"
+	 * @scr.reference target="(mwcomponent.ID=org.paxle.parser)"
 	 */
 	protected ServiceTracker parser;
 	
@@ -71,10 +71,10 @@ public class SnippetFetcher {
 	public SnippetFetcher(BundleContext ctx, PaxleAnalyzer analyzer, IIOTools ioTools) throws InvalidSyntaxException {
 		this.ioTools = ioTools;
 		
-		this.crawler = new ServiceTracker(ctx, ctx.createFilter("(&(objectClass=org.paxle.core.IMWComponent)(component.ID=org.paxle.crawler))"),null);
+		this.crawler = new ServiceTracker(ctx, ctx.createFilter("(&(objectClass=org.paxle.core.IMWComponent)(mwcomponent.ID=org.paxle.crawler))"),null);
 		this.crawler.open();
 		
-		this.parser = new ServiceTracker(ctx, ctx.createFilter("(&(objectClass=org.paxle.core.IMWComponent)(component.ID=org.paxle.parser))"),null);
+		this.parser = new ServiceTracker(ctx, ctx.createFilter("(&(objectClass=org.paxle.core.IMWComponent)(mwcomponent.ID=org.paxle.parser))"),null);
 		this.parser.open();
 		
 		this.analyzer = analyzer;

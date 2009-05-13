@@ -92,7 +92,35 @@ public class CrawlerToolsTest extends MockObjectTestCase {
 		long copied = CrawlerTools.saveInto(cdoc, fileIn);
 		assertEquals(copied, TESTFILE.length());
 		assertTrue(this.outFile.exists());
-		// FileAssert.assertBinaryEquals(TESTFILE, this.outFile);
+		FileAssert.assertBinaryEquals(TESTFILE, this.outFile);
 	}
-
+	
+	public void _testSaveIntoDummyData() throws IOException {
+		final long max = 20*1024*1024;
+		final InputStream fileIn = new InputStream() {
+			private long count = 0;			
+			private Random rand = new Random();			
+			public int read() throws IOException {
+				if (++count > max) return -1;				
+				return rand.nextInt(Byte.MAX_VALUE);
+			};
+		};
+		final ICrawlerDocument cdoc = mock(ICrawlerDocument.class);
+		
+		checking(new Expectations(){{
+			// some doc properties
+			allowing(cdoc).getCharset(); will(returnValue("UTF-8"));
+			allowing(cdoc).getMimeType(); will(returnValue("text/plain"));
+			one(cdoc).setContent(outFile);
+			
+			// no charset-detector
+			one(context).getCharsetDetector(); will(returnValue(null));
+			
+			// no cryptManager
+			one(context).getCryptManager(); will(returnValue(null)); 			
+		}});
+		long copied = CrawlerTools.saveInto(cdoc, fileIn);
+		assertTrue(this.outFile.exists());
+		assertEquals(max, copied);
+	}
 }

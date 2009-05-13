@@ -50,7 +50,7 @@
 ##
 ## testing if crawling is currently disabled
 ##
-#set($crawlers = $manager.getServices( "org.paxle.core.IMWComponent","(component.ID=org.paxle.crawler)"))
+#set($crawlers = $manager.getServices( "org.paxle.core.IMWComponent","(mwcomponent.ID=org.paxle.crawler)"))
 #if ($crawlers && ${listTool.size($crawlers)} > 0)
 	#if($listTool.get($crawlers,0).isPaused())
 		<p class="info">

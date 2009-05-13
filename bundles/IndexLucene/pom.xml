@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>IndexLucene</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.11-SNAPSHOT</version>
+	<version>0.1.12-SNAPSHOT</version>
 	<name>Paxle - Indexer: Lucene</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -82,7 +82,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.28-SNAPSHOT,0.2.0)</version>				
+			<version>[0.1.29-SNAPSHOT,0.2.0)</version>				
 		</dependency>
 		<dependency>
 			<groupId>org.paxle</groupId>
