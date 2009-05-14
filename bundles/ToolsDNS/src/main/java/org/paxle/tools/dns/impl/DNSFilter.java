@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
@@ -30,6 +31,7 @@ import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.queue.ICommand;
 import org.xbill.DNS.Address;
+import org.xbill.DNS.ResolverConfig;
 
 /**
  * @scr.component
@@ -47,7 +49,25 @@ import org.xbill.DNS.Address;
 })
 public class DNSFilter implements IFilter<ICommand> {
 
+	/**
+	 * For logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
+	
+	protected void activate(ComponentContext context) {
+		// checking if the DNS server could be determined properly
+		final ResolverConfig config = ResolverConfig.getCurrentConfig();
+		final String dnsServer = config.server();
+		if (dnsServer == null) {
+			this.logger.warn("DNSjava was unable to determine the DNS server to use. Skipping DNS-filtering ...");
+			context.disableComponent(this.getClass().getName());
+		} else {
+			this.logger.info(String.format(
+					"Starting DNS-Filter using DNS server '%s'.",
+					config.server()
+			));
+		}
+	}	
 	
 	public void filter(ICommand command, IFilterContext filterContext) {		
 		try {

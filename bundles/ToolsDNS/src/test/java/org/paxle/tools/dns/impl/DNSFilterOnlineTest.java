@@ -16,6 +16,7 @@ package org.paxle.tools.dns.impl;
 import java.net.URI;
 
 import org.jmock.integration.junit3.MockObjectTestCase;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.impl.BasicParserDocument;
@@ -32,7 +33,9 @@ public class DNSFilterOnlineTest extends MockObjectTestCase {
 	protected void setUp() throws Exception {	
 		super.setUp();
 		
-		this.filter = new DNSFilter();
+		this.filter = new DNSFilter() {{
+			this.activate(mock(ComponentContext.class));
+		}};
 	}
 	
 	public void testFilterKnownHost() {
