@@ -282,7 +282,7 @@ public class IndexerWorker extends AWorker<ICommand> {
 			
 			idoc.setStatus(IIndexerDocument.Status.OK);
 		} catch (Exception e) {
-			this.logger.info("Unable to index the sub-document '" + name + "' of '" + location + "': " + e.getMessage(), e);
+			this.logger.warn("Unable to index the sub-document '" + name + "' of '" + location + "': " + e.getMessage(), e);
 			idoc.setStatus((e instanceof IOException) ? IIndexerDocument.Status.IOError : IIndexerDocument.Status.IndexerError, e.getMessage());
 		}
 		return idoc;
