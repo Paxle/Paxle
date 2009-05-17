@@ -131,7 +131,12 @@ public class LogView extends ALayoutServlet {
 	 */
 	@Override
 	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
-		return this.getTemplate("/resources/templates/LogView.vm");
+		final String type = request.getParameter("type");
+		if (type != null && type.equals("plain")) {
+			return this.getTemplate("/resources/templates/LogViewPlain.vm");
+		} else {
+			return this.getTemplate("/resources/templates/LogViewHtml.vm");
+		}
 	}
 	
 	@Override
