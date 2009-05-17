@@ -394,7 +394,7 @@ span.error {
 	background-repeat: no-repeat;	
 }
 
-.logMessage {
+.logMessage, .logLoggerName {
 	font-family: monospace;
 }
 

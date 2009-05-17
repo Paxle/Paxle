@@ -57,7 +57,7 @@ public class Log4jMemoryAppender extends AppenderSkeleton implements ILogReader 
 		return new LogData(this.fifo);
 	}	
 
-	class Entry implements LogEntry {
+	private static class Entry implements LogDataEntry {
 		private final LoggingEvent log4jevent;
 
 		public Entry(LoggingEvent log4jevent) {
@@ -105,6 +105,10 @@ public class Log4jMemoryAppender extends AppenderSkeleton implements ILogReader 
 
 		public long getTime() {
 			return this.log4jevent.timeStamp;
+		}
+
+		public String getLoggerName() {
+			return this.log4jevent.getLoggerName();
 		}
 
 	}

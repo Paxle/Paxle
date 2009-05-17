@@ -1,4 +1,4 @@
-#*
+/**
  * This file is part of the Paxle project.
  * Visit http://www.paxle.net for more information.
  * Copyright 2007-2009 the original author or authors.
@@ -10,15 +10,11 @@
  *
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *#
-## getting resourcebundle to translate site
-#set( $text = $resourceTool.bundle('OSGI-INF/l10n/logview'))
-#foreach($logEntry in ${logReader.getLog()})
-#set($level = ${logEntry.getLevel()})
-#set($dateFormat = ${text.logmsg.time.format})
-#if( $level <= $filterLogLevel)
-#set($levelName = $logLevelNames.get($level))
-$dateTool.format("$dateFormat",$logEntry.getTime()) $text.get("loglevel.$levelName")#if($paramParser.getString("verbose","")=="true") ${logEntry.loggerName}#end - $logEntry.getMessage()#if($logEntry.getException()) $logView.toString($logEntry.getException())#end
+ */
+package org.paxle.gui.impl.log;
 
-#end
-#end
+import org.osgi.service.log.LogEntry;
+
+public interface LogDataEntry extends LogEntry {
+	public String getLoggerName();
+}

@@ -22,15 +22,15 @@ import java.util.Map;
 import org.osgi.service.log.LogEntry;
 
 public class LogData {
-	private ArrayList<LogEntry> logData = new ArrayList<LogEntry>();
+	private ArrayList<LogDataEntry> logData = new ArrayList<LogDataEntry>();
 	private HashMap<Integer, Integer> logStats = new HashMap<Integer, Integer>();
 	
-	public LogData(Collection<LogEntry> fifo) {
+	public LogData(Collection<LogDataEntry> fifo) {
 		this(fifo,0);
 	}
 	
-	public LogData(Collection<LogEntry> fifo, long timestamp) {
-		for (LogEntry entry : fifo) {
+	public LogData(Collection<LogDataEntry> fifo, long timestamp) {
+		for (LogDataEntry entry : fifo) {
 			if (entry.getTime() <= timestamp) continue;
 			
 			Integer logLevel = Integer.valueOf(entry.getLevel());
@@ -49,7 +49,7 @@ public class LogData {
 	/**
 	 * @return a list of buffered {@link LogEntry log-messages}
 	 */
-	public List<LogEntry> getLog() {
+	public List<LogDataEntry> getLog() {
 		return this.logData;
 	}
 	
