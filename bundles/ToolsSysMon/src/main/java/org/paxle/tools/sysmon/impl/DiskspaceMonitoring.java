@@ -80,7 +80,11 @@ public class DiskspaceMonitoring implements Monitorable {
 			queryThread.join(10000);
 	
 			if (queryThread.isAlive()) {
-				this.logger.warn("FreeSpace query thread is still alive!");
+				final StackTraceElement[] stackTrace = queryThread.getStackTrace();
+				final Exception rte = new RuntimeException("Query thread is still alive");
+				rte.setStackTrace(stackTrace);
+				this.logger.warn("FreeSpace query thread is still alive!", rte);
+				
 			} else {
 				freeDisk = queryThread.freeSpace;
 			}
