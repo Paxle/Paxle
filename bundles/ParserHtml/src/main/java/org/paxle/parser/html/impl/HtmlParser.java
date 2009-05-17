@@ -310,6 +310,7 @@ public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactor
 			while (it.hasNext()) {
 				final HCard hcard = it.next();
 				final IParserDocument subdoc = context.createDocument();
+				subdoc.setMimeType("text/x-vcard");
 				
 				/* Since the HCard and all of it's content is immutable, we need to seperate the
 				 * information ourselves here instead of simply clearing the lists containing the URLs. */
