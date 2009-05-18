@@ -20,15 +20,11 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.log.LogReaderService;
 import org.osgi.service.log.LogService;
 import org.paxle.gui.ALayoutServlet;
-import org.paxle.gui.impl.log.Log4jMemoryAppender;
-import org.paxle.gui.impl.log.OSGiLogReader;
+import org.paxle.gui.impl.log.ILogReader;
 
 /**
  * @scr.component immediate="true" metatype="false"
@@ -43,49 +39,14 @@ public class LogView extends ALayoutServlet {
 	
 	/**
 	 * Log4j appender to intercept log4j messages
+	 * @scr.reference target="(logreader.type=log4j)"
 	 */
-	private Log4jMemoryAppender log4jAppender;
-	
-	private OSGiLogReader osgiAppender;
+	protected ILogReader log4jAppender;
 	
 	/**
-	 * @scr.reference cardinality="0..1"
+	 * @scr.reference target="(logreader.type=osgi)"
 	 */
-	private LogReaderService osgiLogReader;
-	
-	protected void activate(ComponentContext context) {
-		/* =======================================
-		 * LOG4J
-		 * ======================================= */
-		// creating a custom appender to intercept log4j events
-		this.log4jAppender = new Log4jMemoryAppender();
-		
-		// getting the Log4j root logger
-		Logger rootLogger = Logger.getRootLogger();
-		
-		// append our custom in memory appender
-		rootLogger.addAppender(log4jAppender);
-		
-		/* =======================================
-		 * OSGI logging
-		 * ======================================= */
-		// creating the log-listener
-		this.osgiAppender = new OSGiLogReader();
-		if (osgiLogReader != null) osgiLogReader.addLogListener(this.osgiAppender);
-	}
-		
-	protected void deactivate(ComponentContext context) {
-		/* =======================================
-		 * LOG4J
-		 * ======================================= */
-		this.log4jAppender = null;
-		
-		/* =======================================
-		 * OSGI logging
-		 * ======================================= */
-		if (osgiLogReader != null) osgiLogReader.removeLogListener(this.osgiAppender);
-		this.osgiAppender = null;
-	}	
+	protected ILogReader osgiAppender;
 	
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {

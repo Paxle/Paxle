@@ -21,12 +21,41 @@ import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogEntry;
 import org.osgi.service.log.LogListener;
+import org.osgi.service.log.LogReaderService;
 
-public class OSGiLogReader implements LogListener, ILogReader {
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="org.paxle.gui.impl.log.ILogReader"
+ * @scr.property name="logreader.type" value="osgi"
+ */
+public class OSGiLogReader implements LogListener, ILogReader {	
+	/**
+	 * @scr.reference cardinality="0..1"
+	 */
+	private LogReaderService osgiLogReader;	
+	
+	/**
+	 * A internal buffer for logging-messages
+	 */
 	final Buffer fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(200));
 
+	protected void activate(ComponentContext context) {		
+		// adding this class as log-listener
+		this.osgiLogReader.addLogListener(this);
+	}	
+	
+	protected void deactivate(ComponentContext context) {
+		// removing this class from the log-listeners
+		this.osgiLogReader.removeLogListener(this);
+		
+		// clear messages
+		this.fifo.clear();		
+	}	
+	
+	
 	@SuppressWarnings("unchecked")
 	public void logged(LogEntry logEntry) {
 		this.fifo.add(new Entry(logEntry));

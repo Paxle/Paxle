@@ -20,16 +20,45 @@ import org.apache.commons.collections.BufferUtils;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.spi.ThrowableInformation;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogEntry;
 import org.osgi.service.log.LogService;
 
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="org.paxle.gui.impl.log.ILogReader"
+ * @scr.property name="logreader.type" value="log4j"
+ */
 public class Log4jMemoryAppender extends AppenderSkeleton implements ILogReader {
+	/**
+	 * A internal buffer for logging-messages
+	 */
 	final Buffer fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(200));
 
+	protected void activate(ComponentContext context) {
+		// getting the Log4j root logger
+		Logger rootLogger = Logger.getRootLogger();
+		
+		// configuring this class as memory appender
+		rootLogger.addAppender(this);		
+	}
+	
+	protected void deactivate(ComponentContext context) {
+		// getting the Log4j root logger
+		Logger rootLogger = Logger.getRootLogger();
+		
+		// removing this class from the appenders
+		rootLogger.removeAppender(this);
+		
+		// clear messages
+		this.fifo.clear();
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void append(LoggingEvent event) {
