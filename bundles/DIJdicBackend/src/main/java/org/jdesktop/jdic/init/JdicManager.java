@@ -249,6 +249,8 @@ public class JdicManager {
     private static boolean initNativeLoader = false;        
     private static HashSet<String> loadedLibraries = new HashSet<String>();  
     
+    private static String[] jdicLibNames = new String[] {"jdic","jdic-5","jdic-6"};
+    
     /**
      * Function changed by Paxle
      */
@@ -260,10 +262,23 @@ public class JdicManager {
                 loadedLibraries.add(libName);
                 
                 // just let OSGi do the job
-                if (libName.equals("jdic")) try {
-                	System.loadLibrary("jdic-5");
-                } catch (UnsatisfiedLinkError e) {
-                	System.loadLibrary("jdic-6");
+                if (libName.equals("jdic")) {
+                	boolean loaded = false;
+                	
+                	for (String jdicLibName : jdicLibNames) {
+                    	try {
+                    		// trying to load the library
+                    		System.loadLibrary(jdicLibName);
+                    		
+                    		// success
+                    		loaded = true;
+                    		break;
+                    	} catch (UnsatisfiedLinkError e) {
+                    		// we faild to load the library
+                    		// just continue here
+                    	} 	
+                	}
+                	if (!loaded) throw new UnsatisfiedLinkError("Unable to load the native library jdic.");
                 } else {
                 	System.loadLibrary(libName);
                 }
