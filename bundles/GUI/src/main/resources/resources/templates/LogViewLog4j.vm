@@ -54,6 +54,7 @@
 	
 <fieldset id="dlogconfig">
 	<legend>Configuration</legend>
+	<h3>Set Loglevel</h3>
 	<form method="get" action="${request.getServletPath()}">
 		<input type="hidden" name="action" value="setLevel"/>
 		
@@ -70,5 +71,16 @@
 		</select>	
 		
 		<input type="submit" name="setLevel" value="set Level" />
+	</form>
+	<hr />
+	<h3>Get Loglevel</h3>
+	#if($loggerName)
+		<p class="box info">The loglevel of "<tt>$loggerName</tt>" is "<tt>$loggerLevel</tt>"</p>
+	#end
+	<form method="get" action="${request.getServletPath()}#dlogconfig">
+		<input type="hidden" name="action" value="getLevel"/>
+    	<label for="log4j.logger.name">Logger-Name</label>
+    	<input id="log4j.logger.name" type="text" name="logger"/>
+    	<input type="submit" name="setLevel" value="get Level" />
 	</form>
 </fieldset>

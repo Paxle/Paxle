@@ -147,6 +147,8 @@ public class Log4jReader extends ALayoutServlet implements ILogReader {
 					theLogger.setLevel(Level.toLevel(loggerLevel));
 					
 					response.sendRedirect(request.getServletPath() + "#dlogconfig");
+				} else {		
+					super.doRequest(request, response);
 				}
 			} else {		
 				super.doRequest(request, response);
@@ -183,7 +185,8 @@ public class Log4jReader extends ALayoutServlet implements ILogReader {
 			final String loggerName = request.getParameter("logger");
 			if (action.equals("getLevel")) {
 				final Logger theLogger = Logger.getLogger(loggerName);
-				context.put("level", theLogger.getEffectiveLevel());
+				context.put("loggerName", loggerName);
+				context.put("loggerLevel", theLogger.getEffectiveLevel());
 			}
 		}
 	}
