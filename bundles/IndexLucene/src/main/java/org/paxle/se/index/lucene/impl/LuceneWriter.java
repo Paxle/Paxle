@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 
 import org.paxle.core.data.IDataConsumer;
@@ -215,15 +216,29 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 		}
 	}
 	
-    public void delete(String location) throws IOException, IndexException {
-//        this.logger.debug("Adding document to index: " + document.get(IIndexerDocument.LOCATION));
-        try {
-            Term term = new Term(IIndexerDocument.LOCATION.getName(),location);
-            this.manager.delete(term);
-        } catch (CorruptIndexException e) {
-//            throw new IndexException("error deleting lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
-        }
-    }
+	public void delete(String location) throws IOException, IndexException {
+//		this.logger.debug("Adding document to index: " + document.get(IIndexerDocument.LOCATION));
+		try {
+			Term term = new Term(IIndexerDocument.LOCATION.getName(),location);
+			this.manager.delete(term);
+		} catch (CorruptIndexException e) {
+//			throw new IndexException("error deleting lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
+		}
+	}
+
+	public void mergeIndex(String pathToIndex) {
+		IndexReader [] readers = new IndexReader[1];
+		try {
+			readers[0] = IndexReader.open(pathToIndex);
+			this.manager.writer.addIndexes(readers);
+		} catch (CorruptIndexException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
     
 	public void close() throws IOException {
 		this.interrupt();
