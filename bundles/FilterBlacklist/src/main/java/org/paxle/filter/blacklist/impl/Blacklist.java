@@ -121,15 +121,15 @@ public class Blacklist implements IBlacklist {
 			Pattern temp = eter.nextElement();
 			Matcher m = temp.matcher(url);
 			if (m.matches()) {
-				time = System.currentTimeMillis() - time;
 				if (logger.isDebugEnabled()) {
+					time = System.currentTimeMillis() - time;
 					logger.debug("Duration in 'isListed()' for blacklistcheck: " + time + " ms . URL: " + url);
 				}
 				return new FilterResult(FilterResult.LOCATION_REJECTED, temp.pattern());
 			}
 		}
-		time = System.currentTimeMillis() - time;
 		if (logger.isDebugEnabled()) {
+			time = System.currentTimeMillis() - time;
 			logger.debug("Duration in 'isListed()' for blacklistcheck: "+ time + " ms . URL: " + url);
 		}
 		return FilterResult.LOCATION_OKAY_RESULT;

@@ -8,7 +8,7 @@
 	<packaging>bundle</packaging>
 	<version>0.1.1-SNAPSHOT</version>
 	<name>Paxle - UI: DesktopIntegration (JRE6)</name>
-	<url>http://wiki.paxle.net/dev/bundles/DIJre6Backend</url>
+	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
 	<parent>

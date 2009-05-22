@@ -7,7 +7,7 @@
 	<artifactId>DIJdicBackend</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.1-SNAPSHOT</version>
-	<name>Paxle - DesktopIntegration JDIC</name>
+	<name>Paxle - UI: DesktopIntegration JDIC</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
