@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -99,22 +100,46 @@ public class Log4jReader extends ALayoutServlet implements ILogReader {
 		try {
 			final String action = request.getParameter("action");
 			if (action != null) {
+				final String fileName = request.getParameter("file");
+				final File file = (fileName==null)?null: this.findLogFile(fileName);
+				
 				if (action.equals("download")) {
-					// getting the logfile to download
-					final String fileName = request.getParameter("file");
-					final File file = this.findLogFile(fileName);
+					// getting the file-format
+					final String format = request.getParameter("format");
+					if (format != null && format.equals("gzip")) {
+						response.setContentType("application/gzip");
+						response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".gz");
+					} else {					
+						response.setHeader("Content-Type","text/plain");
+					}
 					
-					response.setHeader("Content-Type","text/plain");
 					InputStream fileInput = null;
-					try {
+					try {					
+						// create I/O streams
 						fileInput = new BufferedInputStream(new FileInputStream(file));
-						OutputStream clientOut = response.getOutputStream();
+						OutputStream clientOut = null;
+						if (format != null && format.equals("gzip")) {
+							clientOut = new GZIPOutputStream(response.getOutputStream());
+						} else {
+							clientOut = response.getOutputStream();
+						}
 						
 						// copy data
 						IOUtils.copy(fileInput, clientOut);
+						clientOut.flush();
+						
+						// finish gzip stream
+						if (clientOut instanceof GZIPOutputStream) {
+							((GZIPOutputStream)clientOut).finish();
+						}
+						
 					} finally {
 						if (fileInput != null) fileInput.close();
 					}
+				} else if (action.equals("delete")) {
+					// deleting the logfile
+					file.delete();					
+					response.sendRedirect(request.getServletPath());
 				}
 			} else {		
 				super.doRequest(request, response);

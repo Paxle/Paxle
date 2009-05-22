@@ -26,14 +26,16 @@
 		<th>Filename</th>
 		<th>Size</th>
 		<th>Date</th>
-		<th>&nbsp;</th>
+		<th>Download</th>
+		<th>Delete</th>
 	</tr>
     #foreach($logFile in $logfiles)
 		<tr>
 			<td>${logFile.name}</td>
 			<td>${logFile.length()}</td>
-			<td>${logFile.lastModified()}</td>
-            <td><a href="?action=download&amp;file=${logFile.name}">Download</a></td>
+			<td>$dateTool.format('medium',$logFile.lastModified())</td>
+            <td>[<a href="?action=download&amp;file=${logFile.name}">TXT</a>]&nbsp;|&nbsp;[<a href="?action=download&amp;file=${logFile.name}&amp;format=gzip">GZIP</a>]</td>
+			<td><a href="?action=delete&amp;file=${logFile.name}">Delete</a>
 		</tr>
 	#end
 </table>
