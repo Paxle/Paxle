@@ -13,39 +13,66 @@
  */
 package org.paxle.gui.impl.log;
 
-import java.util.Iterator;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Enumeration;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.BufferUtils;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.spi.ThrowableInformation;
+import org.apache.velocity.Template;
+import org.apache.velocity.context.Context;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.log.LogEntry;
 import org.osgi.service.log.LogService;
+import org.paxle.gui.ALayoutServlet;
 
 /**
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="org.paxle.gui.impl.log.ILogReader"
+ * @scr.service interface="javax.servlet.Servlet"
+ * @scr.property name="org.paxle.servlet.path" value="/log/log4j"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
  * @scr.property name="logreader.type" value="log4j"
  */
-public class Log4jMemoryAppender extends AppenderSkeleton implements ILogReader {
+public class Log4jReader extends ALayoutServlet implements ILogReader {
+	private static final long serialVersionUID = 1L;
+
+	protected Log logger = LogFactory.getLog(this.getClass());
+	
 	/**
 	 * A internal buffer for logging-messages
 	 */
 	final Buffer fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(200));
 
+	/**
+	 * A in-memory log4j appender
+	 */
+	protected Log4jAppender appender;
+	
 	protected void activate(ComponentContext context) {
 		// getting the Log4j root logger
 		Logger rootLogger = Logger.getRootLogger();
 		
 		// configuring this class as memory appender
-		rootLogger.addAppender(this);		
+		this.appender = new Log4jAppender();
+		rootLogger.addAppender(this.appender);		
 	}
 	
 	protected void deactivate(ComponentContext context) {
@@ -53,39 +80,77 @@ public class Log4jMemoryAppender extends AppenderSkeleton implements ILogReader 
 		Logger rootLogger = Logger.getRootLogger();
 		
 		// removing this class from the appenders
-		rootLogger.removeAppender(this);
+		rootLogger.removeAppender(this.appender);
+		this.appender = null;
 		
 		// clear messages
 		this.fifo.clear();
 	}
+		
+	@Override
+	protected void fillContext(Context context, HttpServletRequest request) {
+		// getting the Log4j root logger
+		Logger rootLogger = Logger.getRootLogger();
+		
+		// getting all appenders
+		@SuppressWarnings("unchecked")
+		Enumeration<Appender> appenders = rootLogger.getAllAppenders();
+		while(appenders.hasMoreElements()) {
+			Appender appender = appenders.nextElement();
+			
+			// searching for the file-appender
+			if (appender instanceof FileAppender) {
+				try {
+					FileAppender fileAppender = (FileAppender)appender;
+					
+					// getting the basic logfile name
+					final String logFileName = fileAppender.getFile();					
+					final File logFile = new File(logFileName).getCanonicalFile();
+					final File logDir = logFile.getParentFile();
+					final String logFileNameFilter = logFile.getName();
+					context.put("logDir", logDir);
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void append(LoggingEvent event) {
-		this.fifo.add(new Entry(event));
+					// getting all files including the rotated logfiles					
+					final FileFilter logFileFilter = new WildcardFileFilter(logFileNameFilter + "*");		
+					File[] logFiles = logDir.listFiles(logFileFilter);
+					Arrays.sort(logFiles);
+					context.put("logfiles", logFiles);
+				} catch (IOException e) {
+					this.logger.error("Unexpected error while reading log4j-configuration",e);
+				}
+			}
+		}
 	}
-
+	
 	@Override
-	public void close() {
-		// cleanup buffer
-		this.fifo.clear();
-	}
-
-	@Override
-	public boolean requiresLayout() {
-		return false;
-	}
-
-	@SuppressWarnings("unchecked")
-	public Iterator<LogEntry> getLog() {
-		return fifo.iterator();
+	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
+		return this.getTemplate("/resources/templates/LogViewLog4j.vm");
 	}
 	
 	@SuppressWarnings("unchecked")
 	public LogData getLogData() {
 		return new LogData(this.fifo);
 	}	
-
+	
+	private class Log4jAppender extends AppenderSkeleton {
+		@SuppressWarnings("unchecked")
+		@Override
+		protected void append(LoggingEvent event) {
+			fifo.add(new Entry(event));
+		}
+	
+		@Override
+		public void close() {
+			// cleanup buffer
+			fifo.clear();
+		}
+	
+		@Override
+		public boolean requiresLayout() {
+			return false;
+		}
+	}	
+	
 	private static class Entry implements LogDataEntry {
 		private final LoggingEvent log4jevent;
 

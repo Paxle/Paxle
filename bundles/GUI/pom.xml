@@ -71,6 +71,7 @@
 							org.apache.commons.collections.buffer.*;version="3.2.1",
 							<!-- Apache Commons IO -->
 							org.apache.commons.io;version="1.4",
+							org.apache.commons.io.filefilter;version="1.4",
 							<!-- Apache Commons FileUpload -->
 							org.apache.commons.fileupload;version="1.2.1",
 						    org.apache.commons.fileupload.disk;version="1.2.1",

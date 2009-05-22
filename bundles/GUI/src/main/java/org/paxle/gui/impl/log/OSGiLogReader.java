@@ -13,8 +13,6 @@
  */
 package org.paxle.gui.impl.log;
 
-import java.util.Iterator;
-
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.BufferUtils;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
@@ -53,17 +51,11 @@ public class OSGiLogReader implements LogListener, ILogReader {
 		
 		// clear messages
 		this.fifo.clear();		
-	}	
-	
+	}		
 	
 	@SuppressWarnings("unchecked")
 	public void logged(LogEntry logEntry) {
 		this.fifo.add(new Entry(logEntry));
-	}
-
-	@SuppressWarnings("unchecked")
-	public Iterator<LogEntry> getLog() {
-		return fifo.iterator();
 	}
 
 	@SuppressWarnings("unchecked")
