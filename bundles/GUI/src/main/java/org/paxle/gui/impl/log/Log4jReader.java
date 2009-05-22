@@ -140,6 +140,13 @@ public class Log4jReader extends ALayoutServlet implements ILogReader {
 					// deleting the logfile
 					file.delete();					
 					response.sendRedirect(request.getServletPath());
+				} else if (action.equals("setLevel")) {
+					final String loggerName = request.getParameter("logger");
+					final String loggerLevel = request.getParameter("level");
+					final Logger theLogger = Logger.getLogger(loggerName);
+					theLogger.setLevel(Level.toLevel(loggerLevel));
+					
+					response.sendRedirect(request.getServletPath() + "#dlogconfig");
 				}
 			} else {		
 				super.doRequest(request, response);
@@ -168,6 +175,15 @@ public class Log4jReader extends ALayoutServlet implements ILogReader {
 				context.put("logfiles", logFiles);
 			} catch (IOException e) {
 				this.logger.error("Unexpected error while reading log4j-configuration",e);
+			}
+		}
+		
+		final String action = request.getParameter("action");
+		if (action != null) {
+			final String loggerName = request.getParameter("logger");
+			if (action.equals("getLevel")) {
+				final Logger theLogger = Logger.getLogger(loggerName);
+				context.put("level", theLogger.getEffectiveLevel());
 			}
 		}
 	}

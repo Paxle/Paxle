@@ -17,26 +17,58 @@
 ## Set the page title
 #set( $page_title = ${text.browser.title} )
 
+## Activate onload
+#set ( $bodyonload = "initTabs('logfiles');")
+
 ## the regular content
 <h2>${text.page.title}</h2>
 
-#if($logfiles)
-<table>
-	<tr>
-		<th>Filename</th>
-		<th>Size</th>
-		<th>Date</th>
-		<th>Download</th>
-		<th>Delete</th>
-	</tr>
-    #foreach($logFile in $logfiles)
-		<tr>
-			<td>${logFile.name}</td>
-			<td>${logFile.length()}</td>
-			<td>$dateTool.format('medium',$logFile.lastModified())</td>
-            <td>[<a href="?action=download&amp;file=${logFile.name}">TXT</a>]&nbsp;|&nbsp;[<a href="?action=download&amp;file=${logFile.name}&amp;format=gzip">GZIP</a>]</td>
-			<td><a href="?action=delete&amp;file=${logFile.name}">Delete</a>
-		</tr>
-	#end
-</table>
-#end
+<ul class="tabs">
+	<li><a href="#dlogfiles" onclick="fshow('logfiles');" id="tlogfiles">Logfiles</a></li>
+	<li><a href="#dlogconfig" onclick="fshow('logconfig');" id="tlogconfig">Configuration</a></li>
+</ul>
+
+<fieldset id="dlogfiles">
+	<legend>Logfiles</legend>
+    #if($logfiles)
+    <table>
+    	<tr>
+    		<th>Filename</th>
+    		<th>Size</th>
+    		<th>Date</th>
+    		<th>Download</th>
+    		<th>Delete</th>
+    	</tr>
+        #foreach($logFile in $logfiles)
+    		<tr>
+    			<td>${logFile.name}</td>
+    			<td>${logFile.length()}</td>
+    			<td>$dateTool.format('medium',$logFile.lastModified())</td>
+                <td>[<a href="?action=download&amp;file=${logFile.name}">TXT</a>]&nbsp;|&nbsp;[<a href="?action=download&amp;file=${logFile.name}&amp;format=gzip">GZIP</a>]</td>
+    			<td><a href="?action=delete&amp;file=${logFile.name}">Delete</a></td>
+    		</tr>
+    	#end
+    </table>
+    #end
+</fieldset>
+	
+<fieldset id="dlogconfig">
+	<legend>Configuration</legend>
+	<form method="get" action="${request.getServletPath()}">
+		<input type="hidden" name="action" value="setLevel"/>
+		
+		<label for="log4j.logger.name">Logger-Name</label>
+		<input id="log4j.logger.name" type="text" name="logger"/>
+		
+		<label for="log4j.logger.level">Log-Level</label>
+		<select id="log4j.logger.level" name="level">			
+			<option>DEBUG</option>
+			<option>INFO</option>
+			<option>WARN</option>
+			<option>ERROR</option>
+			<option>OFF</option>
+		</select>	
+		
+		<input type="submit" name="setLevel" value="set Level" />
+	</form>
+</fieldset>
