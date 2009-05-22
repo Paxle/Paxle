@@ -13,19 +13,29 @@
  */
 package org.paxle.se.index.lucene.impl;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.StopAnalyzer;
+import org.osgi.service.component.ComponentContext;
 
-public class StopwordsManager {	
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="org.paxle.se.index.lucene.impl.IStopwordsManager"
+ */
+public class StopwordsManager implements IStopwordsManager {	
 	public static final String STOPWORDS_FILE_EXT = ".stopwords";
 	
 	private final HashMap<String, URL> urlMap = new HashMap<String, URL>();
@@ -41,10 +51,17 @@ public class StopwordsManager {
 	 */
 	PaxleAnalyzer defaultAnalyzer = null;
 	
-	/**
-	 * @param stopWordsURLs a list of {@link URL URLs} pointing to the stopwords files to use
-	 */
-	public StopwordsManager(Collection<URL> stopWordsURLs) {
+	protected void activate(ComponentContext context) {
+		@SuppressWarnings("unchecked")
+		final Enumeration<URL> stopwords = context.getBundleContext().getBundle().findEntries("/stopwords/snowball/", "*" + StopwordsManager.STOPWORDS_FILE_EXT, true);
+		final Collection<URL> stopWordsURLs = (stopwords != null) ? Collections.list(stopwords) : null;	
+		this.initStopWords(stopWordsURLs);
+	}
+	
+	void initStopWords(Collection<URL> stopWordsURLs) {
+		this.urlMap.clear();
+		this.analyzerMap.clear();
+		
 		if (stopWordsURLs != null) {
 			for (URL stopWordsFile : stopWordsURLs) {
 				String fileName = stopWordsFile.getFile();
@@ -77,7 +94,7 @@ public class StopwordsManager {
 				reader = new InputStreamReader(swURL.openStream(),Charset.forName("UTF-8"));
 				
 				// TODO adapt to multiple formats, i.e. pass wordlist-loader to this instance on creation
-				final Set<String> stopwords = MultiFormatWordlistLoader.getSnowballSet(reader);
+				final Set<String> stopwords = this.getSnowballSet(reader);
 				pa = new PaxleAnalyzer(stopwords);
 				
 				analyzerMap.put(language, pa);
@@ -103,5 +120,22 @@ public class StopwordsManager {
 		if (defaultAnalyzer == null)
 			defaultAnalyzer = new PaxleAnalyzer(StopAnalyzer.ENGLISH_STOP_WORDS);
 		return defaultAnalyzer;
+	}
+
+	private Set<String> getSnowballSet(final Reader reader) throws IOException {
+		final BufferedReader br = (reader instanceof BufferedReader) ? (BufferedReader)reader : new BufferedReader(reader);
+		final Set<String> r = new HashSet<String>();
+		try {
+			String line;
+			while ((line = br.readLine()) != null) {
+				final int comment = line.indexOf('|');
+				if (comment > -1)
+					line = line.substring(0, comment);
+				line = line.trim();
+				if (line.length() > 0)
+					r.add(line);
+			}
+		} finally { br.close(); }
+		return r;
 	}
 }

@@ -13,6 +13,7 @@
  */
 package org.paxle.se.index.lucene.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
@@ -38,12 +39,20 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.se.index.IFieldManager;
 import org.paxle.se.index.IIndexIteratable;
 
-public class AFlushableLuceneManager implements IIndexIteratable {
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="org.paxle.se.index.IIndexIteratable"
+ * @scr.service interface="org.paxle.se.index.lucene.impl.ILuceneManager"
+ * @scr.property name="dataPath" value="lucene-db"
+ */
+public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager {
 	
 	/**
 	 * A {@link Term}-object with the {@link IIndexerDocument#LOCATION}-field and a <code>null</code>-value.
@@ -52,33 +61,78 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	 */
 	static final Term CACHED_LOCATION_TERM = new Term(IIndexerDocument.LOCATION.getName(), null);
 	
+	/**
+	 * For logging
+	 */
+	protected final Log logger = LogFactory.getLog(AFlushableLuceneManager.class);	
+	
 	public final ReentrantReadWriteLock rwlock = new ReentrantReadWriteLock(true);
 	public final ReentrantReadWriteLock.ReadLock rlock = this.rwlock.readLock();
 	public final ReentrantReadWriteLock.WriteLock wlock = this.rwlock.writeLock();
 	
 	/**
 	 * A factory to create new {@link IIndexerDocument indexer-documents}
+	 * @scr.reference target="(docType=org.paxle.core.doc.IIndexerDocument)"
 	 */
-	protected final IDocumentFactory docFactory;
-	protected final String path;
-	protected final IndexWriter writer;
-	protected final Log logger = LogFactory.getLog(AFlushableLuceneManager.class);
-	protected final PaxleAnalyzer analyzer;
+	protected IDocumentFactory docFactory;
+	
+	/**
+	 * @scr.reference
+	 */
+	protected IFieldManager fieldManager;	
+	
+	/**
+	 * @scr.reference
+	 */
+	protected IStopwordsManager stopWordsManager;
+	
+	/**
+	 * The default {@link Analyzer}
+	 */
+	protected PaxleAnalyzer analyzer;
+	
+	protected String fullPath;
+	
+	protected IndexWriter writer;
+
 	protected IndexReader reader;
 	
 	private boolean dirty = false;
+	
+	/**
+	 * the amount of known documents
+	 */
 	private int docCount = -1;
 	
 	/**
 	 * A timer to periodically trigger a writer flush
 	 */
-	private final Timer flushTimer;
-	
-	public AFlushableLuceneManager(final String path, final PaxleAnalyzer analyzer, IDocumentFactory docFactory) throws IOException {
-		this.docFactory = docFactory;
-		this.path = path;
-		this.analyzer = analyzer;
-		final Directory dir = FSDirectory.getDirectory(path);
+	private Timer flushTimer;
+
+	protected void activate(ComponentContext context) throws IOException, InterruptedException {
+		// the default analyzer to use
+		this.analyzer = this.stopWordsManager.getDefaultAnalyzer();
+		
+		// init the converter
+		// TODO: this is bad. we need to remove this
+		Converter.fieldManager = this.fieldManager;
+		
+		// the path were the data should be stored
+		this.fullPath = System.getProperty("paxle.data") + File.separatorChar + context.getProperties().get("dataPath");
+		final File writeLock = new File(this.fullPath, "write.lock");
+		if (writeLock.exists()) {
+			logger.warn(
+				"Lucene index directory is locked, removing lock. " +
+				"Shutdown now if any other lucene-compatible application currently accesses the directory '" +
+				writeLock.getPath()
+			);
+			Thread.sleep(5000l);
+			writeLock.delete();
+		}
+		writeLock.deleteOnExit();
+		
+		// opening index-reader and -writer
+		final Directory dir = FSDirectory.getDirectory(fullPath);
 		this.writer = new IndexWriter(dir, analyzer, MaxFieldLength.UNLIMITED);
 		this.reader = IndexReader.open(dir, true);		// open a read-only index, deletions are performed by the writer
 				
@@ -93,6 +147,21 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 		LogByteSizeMergePolicy policy = new LogByteSizeMergePolicy();
 		policy.setMaxMergeMB(2048);
 		this.writer.setMergePolicy(policy);
+	}
+	
+	protected void deactivate(ComponentContext context) throws IOException {
+		// canceling the flush timer
+		this.flushTimer.cancel();		
+		// XXX should we wait for a while here?
+		
+		// closing readers and writers
+		this.wlock.lock();
+		try {
+			this.writer.close();
+			this.reader.close();
+		} finally { 
+			this.wlock.unlock(); 
+		}
 	}
 	
 	/**
@@ -152,22 +221,7 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 	protected void setDirty() {
 		this.dirty = true;
 	}
-	
-	public void close() throws IOException {
-		// canceling the flush timer
-		this.flushTimer.cancel();		
-		// XXX should we wait for a while here?
-		
-		// closing readers and writers
-		this.wlock.lock();
-		try {
-			this.writer.close();
-			this.reader.close();
-		} finally { 
-			this.wlock.unlock(); 
-		}
-	}
-	
+
 	public Document getDocument(int doc) throws IOException {
 		this.rlock.lock();
 		try {
@@ -218,6 +272,11 @@ public class AFlushableLuceneManager implements IIndexIteratable {
 			this.docCount--;
 		} finally { this.wlock.unlock(); }
 	}
+	
+
+	public void addIndexes(IndexReader[] readers) throws CorruptIndexException, IOException {
+		this.writer.addIndexes(readers);
+	}	
 	
 	/* ================================================================================
 	 * Iterators

@@ -37,7 +37,7 @@ public class StopwordsManagerTest extends TestCase {
 		
 		List<URL> stopwordsURLs = new ArrayList<URL>();
 		for (File stopwordsFile : stopwordsFiles) {
-			stopwordsURLs.add(stopwordsFile.toURL());
+			stopwordsURLs.add(stopwordsFile.toURI().toURL());
 		}
 		
 		return stopwordsURLs;
@@ -46,7 +46,9 @@ public class StopwordsManagerTest extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.stopwordsmanager = new StopwordsManager(getStopwordsFiles());
+		this.stopwordsmanager = new StopwordsManager(){{
+			this.initStopWords(getStopwordsFiles());
+		}};
 	}
 	
 	public void testGetAnalyzerDE() {

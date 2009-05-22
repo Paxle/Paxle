@@ -13,7 +13,6 @@
  */
 package org.paxle.se.index.lucene.impl;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashSet;
@@ -27,20 +26,28 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.se.index.IIndexSearcher;
 import org.paxle.se.index.IndexException;
-import org.paxle.se.index.lucene.ILuceneSearcher;
 import org.paxle.se.query.tokens.AToken;
+import org.paxle.se.search.ISearchProvider;
 import org.paxle.se.search.ISearchProviderContext;
 import org.paxle.se.search.ISearchRequest;
 import org.paxle.se.search.SearchProviderContext;
 
-public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
-	
-	public static final String PID = "org.paxle.lucene-db";
-	
+/**
+ * @scr.component name="org.paxle.lucene-db" immediate="true" metatype="false"
+ * @scr.service interface="org.paxle.se.index.IIndexSearcher"
+ * @scr.service interface="org.paxle.se.search.ISearchProvider"
+ * @scr.service interface="org.osgi.service.monitor.Monitorable"
+ * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/LuceneSearcher
+ * @scr.property name="org.paxle.metadata" value="true" type="Boolean"
+ * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/LuceneSearcher"
+ */
+public class LuceneSearcher implements IIndexSearcher, ISearchProvider, Monitorable {
 	/* ====================================================================
 	 * Names of MA StatusVariables
 	 * ==================================================================== */
@@ -68,13 +75,20 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
 	 */
 	private final Log logger = LogFactory.getLog(LuceneSearcher.class);
 	
-	private final LuceneQueryFactory ltf = new LuceneQueryFactory(IIndexerDocument.TEXT, IIndexerDocument.TITLE);
-	private final AFlushableLuceneManager manager;
-	private final SnippetFetcher snippetFetcher;
+	/**
+	 * @scr.reference
+	 */
+	protected ILuceneManager manager;
 	
-	public LuceneSearcher(AFlushableLuceneManager manager, SnippetFetcher snippetFetcher) {
-		this.manager = manager;
-		this.snippetFetcher = snippetFetcher;
+	/**
+	 * @scr.reference
+	 */	
+	protected ISnippetFetcher snippetFetcher;
+	
+	private final LuceneQueryFactory ltf = new LuceneQueryFactory(IIndexerDocument.TEXT, IIndexerDocument.TITLE);	
+	
+	protected void activate(ComponentContext context) {
+		this.logger.debug(this.getClass().getSimpleName() + " started");
 	}
 	
 	/* TODO: how to handle the timeout properly?
@@ -151,10 +165,6 @@ public class LuceneSearcher implements ILuceneSearcher, Closeable, Monitorable {
 				e.printStackTrace();
 			}
 		}
-	}
-	
-	public void close() throws IOException {
-		this.manager.close();
 	}
 	
 	public int getDocCount() {

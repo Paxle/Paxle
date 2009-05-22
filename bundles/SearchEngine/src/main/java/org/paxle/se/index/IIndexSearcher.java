@@ -13,17 +13,13 @@
  */
 package org.paxle.se.index;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 import org.paxle.se.search.ISearchProvider;
 
-public interface IIndexSearcher extends ISearchProvider, Closeable {
-	
-	public int getDocCount() throws IOException;
-	
+public interface IIndexSearcher extends ISearchProvider {
 	/**
-	 * @see Closeable#close()
+	 * @return the total number of documents that are searchable by this {@link ISearchProvider}
 	 */
-	public void close() throws IOException;
+	public int getDocCount() throws IOException;
 }

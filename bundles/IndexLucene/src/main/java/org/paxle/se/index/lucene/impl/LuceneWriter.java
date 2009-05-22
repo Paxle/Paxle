@@ -23,17 +23,23 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
-
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
+import org.paxle.se.index.IIndexWriter;
 import org.paxle.se.index.IndexException;
-import org.paxle.se.index.lucene.ILuceneWriter;
 
-public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer<ICommand> {
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="org.paxle.se.index.IIndexWriter"
+ * @scr.service interface="org.paxle.core.data.IDataConsumer"
+ * @scr.property name="org.paxle.core.data.IDataConsumer.id" value="org.paxle.indexer.source"
+ */
+public class LuceneWriter extends Thread implements IIndexWriter, IDataConsumer<ICommand> {
 	
 	/**
 	 * A {@link IDataSource data-source} to read {@link ICommand commands}
@@ -43,23 +49,38 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 	/**
 	 * The local logger
 	 */
-	private Log logger = null;
+	private Log logger = LogFactory.getLog(LuceneWriter.class);
 	
-	private ICommandTracker commandTracker;
+	/**
+	 * @scr.reference
+	 */
+	protected ICommandTracker commandTracker;
 	
-	private final AFlushableLuceneManager manager;
-	private final StopwordsManager stopwordsManager;
-	private final Converter defaultCv;
+	/**
+	 * @scr.reference
+	 */
+	protected ILuceneManager manager;
 	
-	public LuceneWriter(AFlushableLuceneManager manager, final StopwordsManager stopwordsManager, final ICommandTracker commandTracker) {
-		this.manager = manager;
-		this.stopwordsManager = stopwordsManager;
-		this.commandTracker = commandTracker;
-		this.defaultCv = new Converter(stopwordsManager.getDefaultAnalyzer());
+	/**
+	 * @scr.reference
+	 */
+	protected IStopwordsManager stopwordsManager;
+	
+	protected Converter defaultCv;
+	
+	protected void activate(ComponentContext context) {
+		this.defaultCv = new Converter(this.stopwordsManager.getDefaultAnalyzer());
+	
+		this.setPriority(3);
 		this.setName("LuceneWriter");
 		this.start();
-		this.logger = LogFactory.getLog(LuceneWriter.class);
+		
 		this.logger.info("Lucene writer has been started");
+	}
+	
+	protected void deactivate(ComponentContext context) throws IOException {
+		this.interrupt();
+		try { this.join(); } catch (InterruptedException e) { /* ignore this */ }
 	}
 	
 	/*
@@ -128,7 +149,7 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 				} finally {
 					if (this.commandTracker != null && command != null) {
 						// notify the command-tracker about the destruction of the command-event
-						this.commandTracker.commandDestroyed(ILuceneWriter.class.getName(), command);
+						this.commandTracker.commandDestroyed(LuceneWriter.class.getName(), command);
 					}
 				}
 			}
@@ -136,7 +157,6 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 			this.logger.info("Lucene writer was interrupted, quitting...");
 		} catch (Throwable e) {
 			this.logger.error("Internal error in lucene writer thread", e);
-			e.printStackTrace();
 		} 
 	}
 	
@@ -230,7 +250,7 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 		IndexReader [] readers = new IndexReader[1];
 		try {
 			readers[0] = IndexReader.open(pathToIndex);
-			this.manager.writer.addIndexes(readers);
+			this.manager.addIndexes(readers);
 		} catch (CorruptIndexException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -238,10 +258,5 @@ public class LuceneWriter extends Thread implements ILuceneWriter, IDataConsumer
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-    
-	public void close() throws IOException {
-		this.interrupt();
-		try { this.join(); } catch (InterruptedException e) { /* ignore this */ }
 	}
 }

@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.commons.io.FileUtils;
@@ -25,6 +27,7 @@ import org.jmock.Expectations;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.jmock.integration.junit3.MockObjectTestCase;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
@@ -34,7 +37,6 @@ import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandTracker;
 import org.paxle.se.index.IIndexWriter;
-import org.paxle.se.index.lucene.ILuceneWriter;
 
 public class LuceneWriterTest extends MockObjectTestCase {
 	/**
@@ -59,6 +61,9 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		
 		this.queue = new ArrayBlockingQueue<ICommand>(5);
 		this.dataSource = new DummySource();
+
+		// some required system-properties
+		System.setProperty("paxle.data", dbPath);
 		
 		// create a dummy command tracker
 		this.cmdTracker = mock(ICommandTracker.class);		
@@ -67,13 +72,30 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		this.docFactory = new BasicDocumentFactory(mock(ITempFileManager.class));
 		
 		// init stopwordsmanager
-		this.stopwordsManager = new StopwordsManager(StopwordsManagerTest.getStopwordsFiles());
-	
+		this.stopwordsManager = new StopwordsManager(){{
+			initStopWords(StopwordsManagerTest.getStopwordsFiles());
+		}};		
+		
 		// init lucene manager
-		this.lmanager = new AFlushableLuceneManager(this.dbPath, this.stopwordsManager.getDefaultAnalyzer(), this.docFactory);
+		final Dictionary<String, Object> props = new Hashtable<String, Object>();
+		props.put("dataPath", "lucene-db");
+		final ComponentContext compContext = mock(ComponentContext.class);
+		checking(new Expectations(){{
+			allowing(compContext).getProperties(); will(returnValue(props));
+		}});
+		this.lmanager = new AFlushableLuceneManager() {{
+			this.docFactory = LuceneWriterTest.this.docFactory;
+			this.stopWordsManager = LuceneWriterTest.this.stopwordsManager;
+			this.activate(compContext);
+		}};
 		assertEquals(0, this.lmanager.getDocCount());
 		
-		this.writer = new LuceneWriter(this.lmanager, this.stopwordsManager, this.cmdTracker);
+		this.writer = new LuceneWriter() {{
+			this.manager = lmanager;
+			this.stopwordsManager = LuceneWriterTest.this.stopwordsManager;
+			this.commandTracker = LuceneWriterTest.this.cmdTracker;
+			this.activate(null);
+		}};
 		this.writer.setDataSource(this.dataSource);
 	}
 	
@@ -82,8 +104,8 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		super.tearDown();
 		
 		// stopping lucene-writer and -manager
-		this.lmanager.close();
-		this.writer.close();
+		this.lmanager.deactivate(null);
+		this.writer.deactivate(null);
 		
 		// delete files
 		FileUtils.deleteDirectory(new File(this.dbPath));
@@ -158,7 +180,7 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		final WaitForIndexer waitforIndexer = new WaitForIndexer();
 		checking(new Expectations(){{
 			// indexer must use command-tracking
-			one(cmdTracker).commandDestroyed(ILuceneWriter.class.getName(), testCmd); 
+			one(cmdTracker).commandDestroyed(LuceneWriter.class.getName(), testCmd); 
 			will(waitforIndexer);
 		}});
 		

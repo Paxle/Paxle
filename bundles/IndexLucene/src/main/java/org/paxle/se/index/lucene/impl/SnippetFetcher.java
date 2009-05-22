@@ -27,13 +27,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
@@ -43,7 +42,11 @@ import org.paxle.core.queue.Command;
 import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommand.Result;
 
-public class SnippetFetcher {
+/**
+ * @scr.component immediate="true" metatype="false"
+ * @scr.service interface="org.paxle.se.index.lucene.impl.ISnippetFetcher"
+ */
+public class SnippetFetcher implements ISnippetFetcher {
 	/**
 	 * Thread pool service
 	 */
@@ -57,57 +60,50 @@ public class SnippetFetcher {
 	/**
 	 * @scr.reference target="(mwcomponent.ID=org.paxle.crawler)" 
 	 */
-	protected ServiceTracker crawler;
+	protected IMWComponent<ICommand> crawler;
 	
 	/**
 	 * @scr.reference target="(mwcomponent.ID=org.paxle.parser)"
 	 */
-	protected ServiceTracker parser;
+	protected IMWComponent<ICommand> parser;
 	
+	/**
+	 * @scr.reference
+	 */
+	protected IStopwordsManager stopwordsManager;
+	
+	/**
+	 * @scr.reference
+	 */	
 	protected IIOTools ioTools;
 	
+	/**
+	 * The default {@link Analyzer}
+	 */
 	protected PaxleAnalyzer analyzer;
 	
-	public SnippetFetcher(BundleContext ctx, PaxleAnalyzer analyzer, IIOTools ioTools) throws InvalidSyntaxException {
-		this.ioTools = ioTools;
-		
-		this.crawler = new ServiceTracker(ctx, ctx.createFilter("(&(objectClass=org.paxle.core.IMWComponent)(mwcomponent.ID=org.paxle.crawler))"),null);
-		this.crawler.open();
-		
-		this.parser = new ServiceTracker(ctx, ctx.createFilter("(&(objectClass=org.paxle.core.IMWComponent)(mwcomponent.ID=org.paxle.parser))"),null);
-		this.parser.open();
-		
-		this.analyzer = analyzer;
+	protected void activate(ComponentContext context) {
+		this.analyzer = this.stopwordsManager.getDefaultAnalyzer();
 		this.execService = Executors.newCachedThreadPool();
 	}
-	
-	public void close() {
-		this.crawler.close();
-		this.parser.close();
-	}
 		
+	protected void deactivate(ComponentContext context) {
+		// shutdown thread-pool
+		this.execService.shutdown();
+	}
+	
 	public String getSnippet(Query query, String locationStr) {
 		try {
 			// creating a dummy command
 			URI locationURI = URI.create(locationStr);
 			ICommand cmd = Command.createCommand(locationURI);
-			
-			// getting the crawler
-			@SuppressWarnings("unchecked")
-			IMWComponent<ICommand> crawlerComp = (IMWComponent<ICommand>) crawler.getService();
-			if (crawlerComp == null) return null;
-			
-			// getting the parser
-			@SuppressWarnings("unchecked")
-			IMWComponent<ICommand> parserComp = (IMWComponent<ICommand>) parser.getService();
-			if (parserComp == null) return null;
-		
+
 			// crawling the resource
-			crawlerComp.process(cmd);
+			this.crawler.process(cmd);
 			if (cmd.getResult() != Result.Passed) return null;
 			
 			// parsing the resource
-			parserComp.process(cmd);
+			this.parser.process(cmd);
 			if (cmd.getResult() != Result.Passed) return null;
 			
 			// trying to get the parsed content
