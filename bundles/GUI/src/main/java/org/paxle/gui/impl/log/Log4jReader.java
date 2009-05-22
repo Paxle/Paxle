@@ -13,11 +13,17 @@
  */
 package org.paxle.gui.impl.log;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.BufferUtils;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,7 +55,7 @@ import org.paxle.gui.ALayoutServlet;
  * @scr.service interface="org.paxle.gui.impl.log.ILogReader"
  * @scr.service interface="javax.servlet.Servlet"
  * @scr.property name="org.paxle.servlet.path" value="/log/log4j"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
+ * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
  * @scr.property name="logreader.type" value="log4j"
  */
 public class Log4jReader extends ALayoutServlet implements ILogReader {
@@ -86,9 +93,91 @@ public class Log4jReader extends ALayoutServlet implements ILogReader {
 		// clear messages
 		this.fifo.clear();
 	}
+	
+	@Override
+	protected void doRequest(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			final String action = request.getParameter("action");
+			if (action != null) {
+				if (action.equals("download")) {
+					// getting the logfile to download
+					final String fileName = request.getParameter("file");
+					final File file = this.findLogFile(fileName);
+					
+					response.setHeader("Content-Type","text/plain");
+					InputStream fileInput = null;
+					try {
+						fileInput = new BufferedInputStream(new FileInputStream(file));
+						OutputStream clientOut = response.getOutputStream();
+						
+						// copy data
+						IOUtils.copy(fileInput, clientOut);
+					} finally {
+						if (fileInput != null) fileInput.close();
+					}
+				}
+			} else {		
+				super.doRequest(request, response);
+			}
+		} catch (Throwable e) {
+			this.logger.error(e);
+		}	
+	}
 		
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {
+		// loop throug all file-appenders
+		for (FileAppender fileAppender : this.getFileAppenders()) {
+			try {
+				// getting the basic logfile name
+				final String logFileName = fileAppender.getFile();					
+				final File logFile = new File(logFileName).getCanonicalFile();
+				final File logDir = logFile.getParentFile();
+				final String logFileNameFilter = logFile.getName();
+				context.put("logDir", logDir);
+
+				// getting all files including the rotated logfiles					
+				final FileFilter logFileFilter = new WildcardFileFilter(logFileNameFilter + "*");		
+				File[] logFiles = logDir.listFiles(logFileFilter);
+				Arrays.sort(logFiles);
+				context.put("logfiles", logFiles);
+			} catch (IOException e) {
+				this.logger.error("Unexpected error while reading log4j-configuration",e);
+			}
+		}
+	}
+	
+	protected File findLogFile(String fileName) throws IOException {
+		// loop throug all file-appenders
+		for (FileAppender fileAppender : this.getFileAppenders()) {
+			// getting all files of this appender
+			File[] logFiles = this.getLogFiles(fileAppender);
+			if (logFiles != null) {
+				for (File logFile : logFiles) {
+					if (logFile.getName().equals(fileName)) {
+						return logFile;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	public File[] getLogFiles(FileAppender fileAppender) throws IOException {
+		final String logFileName = fileAppender.getFile();					
+		final File logFile = new File(logFileName).getCanonicalFile();
+		final File logDir = logFile.getParentFile();
+
+		// getting all files including the rotated logfiles					
+		final FileFilter logFileFilter = new WildcardFileFilter(logFile.getName() + "*");		
+		File[] logFiles = logDir.listFiles(logFileFilter);
+		Arrays.sort(logFiles);
+		return logFiles;
+	}
+	
+	public List<FileAppender> getFileAppenders() {
+		ArrayList<FileAppender> fileAppenders = new ArrayList<FileAppender>();
+		
 		// getting the Log4j root logger
 		Logger rootLogger = Logger.getRootLogger();
 		
@@ -100,26 +189,11 @@ public class Log4jReader extends ALayoutServlet implements ILogReader {
 			
 			// searching for the file-appender
 			if (appender instanceof FileAppender) {
-				try {
-					FileAppender fileAppender = (FileAppender)appender;
-					
-					// getting the basic logfile name
-					final String logFileName = fileAppender.getFile();					
-					final File logFile = new File(logFileName).getCanonicalFile();
-					final File logDir = logFile.getParentFile();
-					final String logFileNameFilter = logFile.getName();
-					context.put("logDir", logDir);
-	
-					// getting all files including the rotated logfiles					
-					final FileFilter logFileFilter = new WildcardFileFilter(logFileNameFilter + "*");		
-					File[] logFiles = logDir.listFiles(logFileFilter);
-					Arrays.sort(logFiles);
-					context.put("logfiles", logFiles);
-				} catch (IOException e) {
-					this.logger.error("Unexpected error while reading log4j-configuration",e);
-				}
+				fileAppenders.add((FileAppender)appender);
 			}
-		}
+		}		
+		
+		return fileAppenders;
 	}
 	
 	@Override
