@@ -111,6 +111,10 @@ public class DiskspaceMonitoring implements Monitorable {
 		
 		public long freeSpace = 0;
 		
+		public FreeSpaceThread() {
+			super("FreeDiskSpaceThread");
+		}
+		
 		@Override
 		public void run() {
 			try {
