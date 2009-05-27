@@ -273,6 +273,11 @@ public class MonitorableTool extends PaxleLocaleConfig {
         		this.var = ma.getStatusVariable(this.getPath());
         	}
         	
+        	@Override
+        	public String toString() {
+        		return this.getValue();
+        	}
+        	
         	public String getValue() {
         		switch (this.var.getType()) {
         			case StatusVariable.TYPE_INTEGER:

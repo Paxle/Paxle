@@ -14,8 +14,6 @@
 package org.paxle.gui.impl.servlets;
 
 import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -73,16 +71,6 @@ public class OverView extends ALayoutServlet {
 			context.put("osgiVersion", manager.getProperty(Constants.FRAMEWORK_VERSION));
 			context.put("frameworkVendor", manager.getProperty(Constants.FRAMEWORK_VENDOR));
 			context.put("frameworkVersion", manager.getProperty("osgi.framework.version"));
-			
-			// set host
-			try {
-				final InetAddress localhost = InetAddress.getLocalHost();
-				context.put("hostname", localhost.getCanonicalHostName());
-				context.put("ip", localhost.getHostAddress());
-			} catch (UnknownHostException e) {
-				context.put("hostname", "localhost");
-				context.put("ip", "127.0.0.1");
-			}
 			
 			// set activity
 			final LinkedList<Entry> servicesList = new LinkedList<Entry>();

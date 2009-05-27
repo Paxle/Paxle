@@ -86,11 +86,11 @@
 		</tr>
 		<tr>
 			<td><b>${text.ovHost.hostname}</b></td>
-			<td>$hostname</td>
+			<td>$monitorableTool.getStatusVariable('os.network/hostname')</td>
 		</tr>
 		<tr>
 			<td><b>${text.ovHost.ip}</b></td>
-			<td>$ip:$port</td>
+			<td>$monitorableTool.getStatusVariable('os.network/ip-address'):$port</td>
 		</tr>
 	</table>
 </fieldset>
