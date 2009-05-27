@@ -336,7 +336,7 @@ public class Activator implements BundleActivator, InvocationHandler {
         			        put("mon.observer.listener.id","org.paxle.crawler");
         			        put("org.paxle.crawler.state.active", Boolean.FALSE);
         			        put("org.paxle.crawler.state.code","PAUSED_BY_OOM_CHECK");
-        				}})
+        				}},false)
         		),
         		new ObserverRule(
         				// Filter based condition
@@ -346,7 +346,7 @@ public class Activator implements BundleActivator, InvocationHandler {
         			        put("mon.observer.listener.id","org.paxle.crawler");
         			        put("org.paxle.crawler.state.active", Boolean.FALSE);
         			        put("org.paxle.crawler.state.code","PAUSED_BY_OOD_CHECK");
-        				}})
+        				}},false)
         		),
         		new ObserverRule(
         				// Filter based condition
@@ -356,7 +356,7 @@ public class Activator implements BundleActivator, InvocationHandler {
         			        put("mon.observer.listener.id","org.paxle.crawler");
         			        put("org.paxle.crawler.state.active", Boolean.TRUE);
         			        put("org.paxle.crawler.state.code","OK");
-        				}})
+        				}},true)
         		)
         );      
 	}

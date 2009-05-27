@@ -177,7 +177,16 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 			String valueStr = (String) event.getProperty("mon.statusvariable.value");
 
 			// updating ovserver state
-			this.updateState(fullPath, valueStr);
+			boolean updated = this.updateState(fullPath, valueStr);
+			if (!updated) {
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(String.format(
+							"Event for monitorable '%s' received but no value update detected.",
+							fullPath
+					));
+				}
+				return;
+			}
 
 			// testing if one filter matches current state
 			for (IObserverRule rule : this.rules) {
@@ -204,26 +213,27 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 	 * updates the internal {@link #currentState state-map}
 	 * @param fullPath the full path of the {@link StatusVariable}
 	 * @param valueStr the current value of the {@link StatusVariable} as string
+	 * @return <code>true</code> if the current variable value was updated
 	 */
-	private void updateState(String fullPath, String valueStr) {
-		Object value = null;
+	private boolean updateState(String fullPath, String valueStr) {
+		Object newValue = null;
 		Integer type = this.typeList.get(fullPath);
 		if (type != null) {
 			switch (type.intValue()) {
 				case StatusVariable.TYPE_FLOAT:					
-					value = Float.valueOf(valueStr);
+					newValue = Float.valueOf(valueStr);
 					break;
 				
 				case StatusVariable.TYPE_INTEGER:
-					value = Integer.valueOf(valueStr);
+					newValue = Integer.valueOf(valueStr);
 					break;							
 					
 				case StatusVariable.TYPE_BOOLEAN:
-					value = Boolean.valueOf(valueStr);
+					newValue = Boolean.valueOf(valueStr);
 					break;
 					
 				case StatusVariable.TYPE_STRING:
-					value = valueStr;
+					newValue = valueStr;
 					break;
 					
 				default:
@@ -232,11 +242,16 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 		}
 		
 		// removing old value
-		currentState.remove(fullPath);
+		Object oldValue = currentState.remove(fullPath);
 		
-		if (value != null) {
-			currentState.put(fullPath, value);
+		if (newValue != null) {
+			currentState.put(fullPath, newValue);
 		}
+		
+		if (newValue == null && oldValue == null) return false;
+		else if (newValue == null && oldValue != null) return true;
+		else if (newValue != null && oldValue == null) return true;
+		else return !oldValue.equals(newValue);
 	}
 
 	/**

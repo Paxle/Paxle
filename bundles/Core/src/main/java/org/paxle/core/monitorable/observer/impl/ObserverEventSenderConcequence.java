@@ -32,10 +32,17 @@ public class ObserverEventSenderConcequence implements IObserverConcequence {
 	 */
 	private EventAdmin eventAdmin;
 	
+	private boolean sendAsync = true;
+	
 	private Hashtable<String, Object> eventProperties;
 	
 	public ObserverEventSenderConcequence(BundleContext bc, Hashtable<String, Object> eventProperties) throws InvalidSyntaxException {
+		this(bc, eventProperties, true);
+	}
+	
+	public ObserverEventSenderConcequence(BundleContext bc, Hashtable<String, Object> eventProperties, boolean sendAsync) throws InvalidSyntaxException {
 		this.eventProperties = eventProperties;
+		this.sendAsync = sendAsync;
 		
 		// getting event sender
 		ServiceReference evnetAdminRef = bc.getServiceReference(EventAdmin.class.getName());
@@ -48,8 +55,12 @@ public class ObserverEventSenderConcequence implements IObserverConcequence {
 		props.put("mon.observer.state", currentState.clone());
 		props.put("mon.observer.date", new Date());
 		
-		Event outEvent = new Event(EVENT_TOPIC,props);	
-		this.eventAdmin.postEvent(outEvent);
+		Event outEvent = new Event(EVENT_TOPIC,props);
+		if (this.sendAsync) {
+			this.eventAdmin.postEvent(outEvent);
+		} else {
+			this.eventAdmin.sendEvent(outEvent);
+		}
 	}
 
 	@Override

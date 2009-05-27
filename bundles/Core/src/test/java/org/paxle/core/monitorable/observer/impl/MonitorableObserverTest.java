@@ -141,7 +141,7 @@ public class MonitorableObserverTest extends MockObjectTestCase {
 			allowing(monitorable).getStatusVariable(VAR_NAME); will(returnValue(var));
 			
 			// at least one event must be sent
-			one(eventAdmin).postEvent(with(any(Event.class)));
+			atMost(1).of(eventAdmin).sendEvent(with(any(Event.class)));
 		}});
 		
 		// creating an observer
@@ -155,7 +155,7 @@ public class MonitorableObserverTest extends MockObjectTestCase {
 						{
         			        put("prop1","test1");
         			        put("prop2", Boolean.FALSE);
-        				}})
+        				}}, false)
         		)
         ); 
 		
@@ -166,7 +166,10 @@ public class MonitorableObserverTest extends MockObjectTestCase {
 			put("mon.statusvariable.value",Integer.toString(varValue));
 		}});		
 		
-		// send event
+		// send 1. event which causes an observer event to be sent
+		observer.handleEvent(event);
+		
+		// send 2. event which does not change the value of the variable
 		observer.handleEvent(event);
 	}
 }
