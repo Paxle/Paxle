@@ -36,7 +36,7 @@ public class IconTool {
 	 * Connection manager used for http connection pooling
 	 */
 	private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
-	
+
 	/**
 	 * A map containing a mapping between <code>mime-types</code> and
 	 * <code>file-names</code>, e.g.<br />
@@ -45,34 +45,34 @@ public class IconTool {
 	 * This map is loaded from the properties file <code>iconmap.properties</code>.
 	 */
 	static Properties iconMap = new Properties();
-	
+
 	/**
 	 * default icon for unknown mime-types
 	 */
 	static IconData defaultIcon = null;
-	
+
 	/**
 	 * default icon for html pages without favicon
 	 */
 	static IconData defaultHtmlIcon = null;
-	
+
 	/*
 	 * Initialize the icon-map and load the default icons
 	 */
 	static {
 		// configure connection manager
 		connectionManager.getParams().setDefaultMaxConnectionsPerHost(10);
-		
+
 		/* configure mime-type to resource-file map */		
 		try {
 			InputStream mapStream = IconTool.class.getResourceAsStream("/resources/iconmap.properties");
 			iconMap.load(mapStream);
 			mapStream.close();
-			
+
 			// load the default icon
 			byte[] data = readFileIconPng("unknown");
 			if (data != null) defaultIcon = new IconData(data);
-			
+
 			data = readFileIconPng("text/html");
 			if (data != null) defaultHtmlIcon = new IconData(data);
 		} catch (Exception e) {
@@ -95,16 +95,16 @@ public class IconTool {
 	public static IconData getIcon(URL url) {
 		return getIcon(url,0);
 	}
-	
+
 	/**
 	 * @param url the location of the resource, for which the favicon should be loaded
-	 * @param deep protection against endless loops, e.g. if the icon link returned by
+	 * @param depth protection against endless loops, e.g. if the icon link returned by
 	 *        a page is another html site.
 	 * @return the loaded image data.
 	 */
-	private static IconData getIcon(URL url, int deep) {	
+	private static IconData getIcon(URL url, int depth) {	
 		if (url == null) return defaultIcon;
-		
+
 		GetMethod method = null;
 		try {
 			/*
@@ -115,7 +115,7 @@ public class IconTool {
 				byte[] data = readFileIconPng(expectedType);
 				return data == null ? defaultIcon : new IconData(data);
 			}
-			
+
 			/*
 			 * Handling of http URLs 
 			 */
@@ -123,7 +123,7 @@ public class IconTool {
 			int status = httpClient.executeMethod(method);
 			if (status != 200) {
 				// TODO: logging
-				return null;
+				return defaultIcon;
 			}
 
 			// getting the mimetype and charset
@@ -134,7 +134,7 @@ public class IconTool {
 				int idx = contentMimeType.indexOf(";");
 				if (idx != -1) contentMimeType = contentMimeType.substring(0,idx);
 			}
-			
+
 			byte[] body = null;
 			String iconType = "image/png";
 			if (contentMimeType.equals("text/html")) {
@@ -142,7 +142,7 @@ public class IconTool {
 					// the website returned the favicon.ico als html!
 					return defaultHtmlIcon;
 				} 
-				
+
 				/* Download content until we get the
 				 * <LINK REL="SHORTCUT ICON" HREF="icons/matex.ico">
 				 * header
@@ -151,7 +151,7 @@ public class IconTool {
 				HtmlReader reader = new HtmlReader(bodyStream);
 				HtmlParserCallback theParser = new HtmlParserCallback(reader);
 				new ParserDelegator().parse(reader, theParser, true);
-				
+
 				// get the parsed favicon url
 				String urlString = theParser.getFaviconUrl();
 				URL faviconURL = null;
@@ -161,7 +161,7 @@ public class IconTool {
 				} else {			
 					faviconURL = new URL(url,urlString);				
 				}
-				IconData faviconData = getIcon(faviconURL,++deep);
+				IconData faviconData = getIcon(faviconURL,++depth);
 				return (faviconData == null || faviconData == defaultIcon) ? defaultHtmlIcon : faviconData; 
 			} else if (contentMimeType.equals("image/x-icon") || 
 					contentMimeType.equals("image/vnd.microsoft.icon")) {
@@ -172,35 +172,43 @@ public class IconTool {
 				body = method.getResponseBody();
 				iconType = contentMimeType;
 			} else {
-				InputStream bodyStream = method.getResponseBodyAsStream();
-				ByteArrayOutputStream bout = new ByteArrayOutputStream();
-				IOTools.copy(bodyStream, bout, 4);
-				
-				byte[] bodyPrefix = bout.toByteArray();
-				if ((bodyPrefix != null) && (bodyPrefix.length >= 4) && (bodyPrefix[0] == 0) && (bodyPrefix[1] == 0) && (bodyPrefix[2] == 1) && (bodyPrefix[3] == 0)) {
-					IOTools.copy(bodyStream, bout);					
-					byte[] data = bout.toByteArray();
-					
-					// trying to read icon
-					Image icon = FaviconReader.readIcoImage(data);					
-					if (icon != null) body = IconTool.toBytes(icon);
-				} else {
-					body = readFileIconPng(contentMimeType);
-					iconType = "image/png";
+				InputStream bodyStream = null;
+				ByteArrayOutputStream bout = null;
+				try {
+					bodyStream = method.getResponseBodyAsStream();
+					bout = new ByteArrayOutputStream();
+					IOTools.copy(bodyStream, bout, 4);
+
+					byte[] bodyPrefix = bout.toByteArray();
+					if ((bodyPrefix != null) && (bodyPrefix.length >= 4) && (bodyPrefix[0] == 0) && (bodyPrefix[1] == 0) && (bodyPrefix[2] == 1) && (bodyPrefix[3] == 0)) {
+						IOTools.copy(bodyStream, bout);					
+						byte[] data = bout.toByteArray();
+
+						// trying to read icon
+						Image icon = FaviconReader.readIcoImage(data);					
+						if (icon != null) body = IconTool.toBytes(icon);
+					} else {
+						body = readFileIconPng(contentMimeType);
+						iconType = "image/png";
+					}
+				} catch (IOException e) {
+					// TODO: logging
+				} finally {
+					if (bodyStream != null) bodyStream.close();
+					if (bout != null) bout.close();
 				}
-				bout.close();
 			}
-			
+
 			return (body == null) ? defaultIcon : new IconData(iconType,body);
 		} catch (Exception e) {
 			// TODO: logging
 			e.printStackTrace();
-			return null;
+			return defaultIcon;
 		} finally {
 			if (method != null) method.releaseConnection();
 		}
 	}
-	
+
 	public static byte[] readFileIconPng(String contentType) throws IOException {
 		InputStream iconInput = null;
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -215,7 +223,7 @@ public class IconTool {
 			// get icon stream
 			iconInput = IconTool.class.getResourceAsStream("/resources/icons/" + iconFileName);
 			if (iconInput == null) return null;
-			
+
 			// load data
 			IOTools.copy(iconInput, bout);
 			return bout.toByteArray();
