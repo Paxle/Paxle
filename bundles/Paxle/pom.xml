@@ -415,10 +415,10 @@
 								<!-- log4j dependency -->
 								<artifactItem>
 									<groupId>org.apache.log4j</groupId>
-									<artifactId>log4j-osgi</artifactId>
-									<version>1.2.13.v200706111418</version>
+									<artifactId>com.springsource.org.apache.log4j</artifactId>
+									<version>1.2.15</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>log4j-osgi-1.2.13.v200706111418.jar</destFileName>
+									<destFileName>com.springsource.org.apache.log4j_1.2.15.jar</destFileName>
 								</artifactItem>								
 								
 								<!-- Apache commons pool dependencies -->
