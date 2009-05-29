@@ -11,8 +11,10 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
+
+#set( $text = $resourceTool.bundle('OSGI-INF/l10n/Blacklist'))
 ## Set the page title
-#set( $page_title = "Paxle Blacklist Filter" )
+#set( $page_title = $text.page.title )
 
 <h2>Blacklist</h2>
 
@@ -28,45 +30,45 @@
 		
 		
 			#if ($action == "newList")
-				<li><a class="active" href="/blacklist?action=newList">New list</a></li>
+				<li><a class="active" href="/blacklist?action=newList">${text.newBlacklist}</a></li>
 			#else
-				<li><a href="/blacklist?action=newList">New List</a></li>
+				<li><a href="/blacklist?action=newList">${text.newBlacklist}</a></li>
 			#end		
 	</ul>
 	#if ($InvalidFilenameException)
 	    <div class="error">$escTool.xml($InvalidBlacklistnameException.getMessage())</div>
 	#else
 		#if ($action != "newList" && $action != "delList")
-			<p><a href="/blacklist?action=delList&amp;list=$escTool.url( $curList.getName() )">Delete this list</a></p>
+			<p><a href="/blacklist?action=delList&amp;list=$escTool.url( $curList.getName() )">${text.deleteBlacklist}</a></p>
 		#end
 		#if ($action == "newList")
-			<h3>Create a new List</h3>
+			<h3>${text.header.newBlacklist}</h3>
 			<form method="post" action="/blacklist">
 				<p>
 					<input type="text" name="listName" id="listName" value="" />
 					<input type="hidden" name="action" value="addList" />
-					<input type="submit" value="Create" />
+					<input type="submit" value="${text.create}" />
 				</p>
 			</form>
 		#elseif ($action == "delList")
-			<h3>Delete this List?</h3>
-			<p class="warning"><strong>Warning:</strong> this will permanently delete this list. This operation can not be undone! <a href="/blacklist?list=$escTool.url($curList)">Cancel</a></p>
+			<h3>${text.header.deleteBlacklist}</h3>
+			<p class="warning"><strong>${text.warning}:</strong> ${text.deleteHint} <a href="/blacklist?list=$escTool.url($curList)">${text.cancel}</a></p>
 			<form method="post" action="/blacklist">
 				<p>
 					<input type="hidden" name="action" value="removeList" />
 					<input type="hidden" name="list" value="$escTool.html( $curList.getName() )" />
-					<input type="submit" value="Delete!" />
+					<input type="submit" value="${text.delete}" />
 				</p>
 			</form>
 		#elseif($action == "editPattern")
-			<h3>Edit pattern $escTool.html($fromPattern)</h3>
+			<h3>${text.editPattern} $escTool.html($fromPattern)</h3>
 			<form method="post" action="/blacklist">
 				<p>
 					<input type="hidden" name="action" value="editPattern" />
 					<input type="hidden" name="list" value="$escTool.html($curList.getName())" />
 					<input type="hidden" name="fromPattern" value="$escTool.html($fromPattern)" />
 					<input type="text" name="toPattern" value="$escTool.html($fromPattern)" />
-					<input type="submit" value="Edit" />
+					<input type="submit" value="${text.edit}" />
 				</p>
 			</form>
 		#else
@@ -75,7 +77,7 @@
 					<input type="hidden" name="action" value="addPattern" />
 					<input type="hidden" name="list" value="$escTool.html( $curList.getName() )" />
 					<input type="text" name="pattern" value="" />
-					<input type="submit" value="Add this pattern" />
+					<input type="submit" value="${text.addPattern}" />
 				</p>
 			</form>
 			<form method="get" action="/blacklist">
@@ -83,19 +85,19 @@
 					<input type="hidden" name="action" value="testURL" />
 					<input type="hidden" name="list" value="$escTool.html($curList.getName() )" />
 					<input type="text" name="URL" value="" />
-					<input type="submit" value="Test this URL against this blacklist" />
+					<input type="submit" value="${text.testUrl}" />
 				</p>
 			</form>
 #if ($action == "testURL")
-			<p>The URL $escTool.html($url) was #if($filterResult.getStatus() == $fieldTool.in($filterResult).LOCATION_OKAY )not#end matched.</p>
+			<p>${text.theUrl} $escTool.html($url) ${text.was} #if($filterResult.getStatus() == $fieldTool.in($filterResult).LOCATION_OKAY )${text.not}#end ${text.matched}.</p>
 #if ($filterResult.getStatus() == $fieldTool.in($filterResult).LOCATION_REJECTED)
-			<p> The matching pattern is <font color="red">$escTool.html($filterResult.getRejectPattern() )</font>.</p>
+			<p>${text.matchingPatternIs} <font color="red">$escTool.html($filterResult.getRejectPattern() )</font>.</p>
 #end
 #end
 			<table>
 				<tr>
-					<th>Pattern</th>
-					<th colspan="2">Action</th>
+					<th>${text.pattern}</th>
+					<th colspan="2">${text.action}</th>
 				</tr>
 				#foreach ($pattern in $curList.getPatternList())
 					<tr>
@@ -106,7 +108,7 @@
 									<input type="hidden" name="action" value="removePattern" />
 									<input type="hidden" name="list" value="$escTool.html($curList.getName())" />
 									<input type="hidden" name="pattern" value="$escTool.html($pattern)" />
-									<input type="submit" value="Delete Pattern" />
+									<input type="submit" value="${text.deletePattern}" />
 								</div>
 							</form>
 						</td>
@@ -116,7 +118,7 @@
 									<input type="hidden" name="action" value="editPattern" />
 									<input type="hidden" name="list" value="$escTool.html($curList.getName())" />
 									<input type="hidden" name="fromPattern" value="$escTool.html($pattern)" />
-									<input type="submit" value="Edit Pattern" />
+									<input type="submit" value="${text.editPattern}" />
 								</div>
 							</form>
 						</td>
