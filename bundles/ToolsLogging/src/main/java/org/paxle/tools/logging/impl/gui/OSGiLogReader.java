@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.gui.impl.log;
+package org.paxle.tools.logging.impl.gui;
 
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.BufferUtils;
@@ -26,7 +26,7 @@ import org.osgi.service.log.LogReaderService;
 
 /**
  * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.gui.impl.log.ILogReader"
+ * @scr.service interface="org.paxle.tools.logging.impl.gui.ILogReader"
  * @scr.property name="logreader.type" value="osgi"
  */
 public class OSGiLogReader implements LogListener, ILogReader {	

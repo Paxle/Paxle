@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.gui.impl.servlets;
+package org.paxle.tools.logging.impl.gui;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -24,7 +24,6 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.service.log.LogService;
 import org.paxle.gui.ALayoutServlet;
-import org.paxle.gui.impl.log.ILogReader;
 
 /**
  * @scr.component immediate="true" metatype="false"

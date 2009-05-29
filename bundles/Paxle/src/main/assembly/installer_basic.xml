@@ -40,7 +40,8 @@
 				<include>org.paxle:CharsetDetector</include>
 				<include>org.paxle:MimeType</include>
 				<include>org.paxle.tools:ToolsIExport</include>
-				<include>org.paxle.tools:ToolsSysMon</include>	
+				<include>org.paxle.tools:ToolsSysMon</include>
+				<include>org.paxle.tools:ToolsLogging</include>
 				
 				<include>org.paxle:DataLayer</include>
 				<include>org.paxle:DataLayerDerby</include>

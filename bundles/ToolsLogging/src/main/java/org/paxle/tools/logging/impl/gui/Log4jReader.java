@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.gui.impl.log;
+package org.paxle.tools.logging.impl.gui;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -53,7 +53,7 @@ import org.paxle.gui.ALayoutServlet;
 
 /**
  * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.gui.impl.log.ILogReader"
+ * @scr.service interface="org.paxle.tools.logging.impl.gui.ILogReader"
  * @scr.service interface="javax.servlet.Servlet"
  * @scr.property name="org.paxle.servlet.path" value="/log/log4j"
  * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"

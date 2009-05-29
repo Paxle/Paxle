@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>GUI</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.18-SNAPSHOT</version>
+	<version>0.1.19-SNAPSHOT</version>
 	<name>Paxle - UI: Browser</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -51,7 +51,6 @@
 							org.osgi.framework;version="1.4",
 							org.osgi.service.http;version="1.2",
 							org.osgi.util.tracker;version="1.3",
-							org.osgi.service.log;version="1.3",
 							org.osgi.service.cm;version="1.2";resolution:=optional,
 							org.osgi.service.metatype;version="1.1";resolution:=optional,
 							org.osgi.service.useradmin;version="1.1";resolution:=optional,
@@ -106,9 +105,6 @@
 							org.paxle.se.query;version="[0.1.0,0.2.0)";resolution:=optional,
 							<!-- Paxle DataLayer Bundle -->
 							org.paxle.data.db;version="[0.1.0,0.2.0)";resolution:=optional,
-							<!-- Log4j logging -->
-							org.apache.log4j,
-							org.apache.log4j.spi,
 							<!-- JFreeCharts -->
 							org.jfree.ui;resolution:=optional,
 							org.jfree.chart;resolution:=optional,
@@ -134,7 +130,6 @@
 						</Import-Package>
 						<Private-Package>
 							org.paxle.gui.impl,
-							org.paxle.gui.impl.log,
 							org.paxle.gui.impl.servlets,
 							org.paxle.gui.impl.tools
 						</Private-Package>
@@ -373,27 +368,6 @@
 			<version>2.0.2</version>
 			<scope>compile</scope>
 			<optional>true</optional>
-		</dependency>				
-
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.13</version>
-			<optional>true</optional>
-			<exclusions>
-				<exclusion>
-					<groupId>com.sun.jdmk</groupId>
-					<artifactId>jmxtools</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.jms</groupId>
-					<artifactId>jms</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jmx</groupId>
-					<artifactId>jmxri</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>				
+		</dependency>			
 	</dependencies>
 </project>

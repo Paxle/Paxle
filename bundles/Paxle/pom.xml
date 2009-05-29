@@ -1291,6 +1291,7 @@
 		<module>../MimeType</module>
 		<module>../ToolsIExport</module>
 		<module>../ToolsSysMon</module>
+		<module>../ToolsLogging</module>
 		
 		<!-- datalayer bundles -->
 		<module>../DataLayer</module>
@@ -1308,6 +1309,5 @@
 		<!-- Desktop Integration -->
 		<module>../DesktopIntegration</module>
 		<module>../DIJdicBackend</module>
-				
 	</modules>
 </project>
