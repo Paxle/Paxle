@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ApiJaxRsCore</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - API: JaxRs Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -40,7 +40,8 @@
 						
 						<Export-Package>
 							org.paxle.api.jaxrs.monitorable;version="${pom.version}",
-							org.paxle.api.jaxrs.cm;version="${pom.version}"
+							org.paxle.api.jaxrs.cm;version="${pom.version}",
+							org.paxle.api.jaxrs.logging;version="${pom.version}"
 						</Export-Package>
 						<Import-Package>
 							<!-- OSGi framework -->
@@ -56,6 +57,7 @@
 							org.paxle.core;version="[0.1.0,0.2.0)",
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
+							org.paxle.tools.logging;version="[0.1.0,0.2.0)";resolution:=optional,
 							<!-- For authentication -->
 							org.wymiwyg.wrhapi,
 							org.wymiwyg.wrhapi.filter,
@@ -73,7 +75,8 @@
 						<Private-Package>
 							org.paxle.api.jaxrs.impl,
 							org.paxle.api.jaxrs.monitorable.impl,
-							org.paxle.api.jaxrs.cm.impl
+							org.paxle.api.jaxrs.cm.impl,
+							org.paxle.api.jaxrs.logging.impl
 						</Private-Package>
 					</instructions>
 				</configuration>
@@ -109,8 +112,13 @@
 			<artifactId>Core</artifactId>
 			<version>[,0.2.0)</version>			
 		</dependency>
+		<dependency>
+			<groupId>org.paxle.tools</groupId>
+			<artifactId>ToolsLogging</artifactId>
+			<version>[,0.2.0)</version>			
+		</dependency>
 	
-		<!-- Servlet Dependency -->
+		<!-- JAX-RS API -->
 		<dependency>
 		    <groupId>javax.ws.rs</groupId>
 		    <artifactId>jsr311-api</artifactId>

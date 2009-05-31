@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ApiJaxRsJson</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - API: JaxRs Json</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -55,14 +55,17 @@
 							org.paxle.core;version="[0.1.0,0.2.0)",
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
 							org.paxle.core.queue;version="[0.1.0,0.2.0)",
+							org.paxle.tools.logging;resolution:=optional;version="[0.1.0,0.2.0)",
+							<!-- Dependencies to the JAX-RS Core Bundle -->
+							org.paxle.api.jaxrs.monitorable,
+							org.paxle.api.jaxrs.cm,
+							org.paxle.api.jaxrs.logging,
 							<!-- Logging framework -->
 							org.apache.commons.logging,					
-						    <!-- Servlet API -->		
+						    <!-- JaxRS API -->		
 							javax.ws.rs,
 							javax.ws.rs.core,
-							javax.ws.rs.ext,
-							org.paxle.api.jaxrs.monitorable,
-							org.paxle.api.jaxrs.cm
+							javax.ws.rs.ext
 						</Import-Package>
 						<Private-Package>
 							org.paxle.api.jaxrs.json.impl
@@ -99,7 +102,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>ApiJaxRsCore</artifactId>
-			<version>[,0.2.0)</version>			
+			<version>[0.1.2-SNAPSHOT,0.2.0)</version>			
 		</dependency>
 	
 		<!-- JAX-RS Dependency -->
