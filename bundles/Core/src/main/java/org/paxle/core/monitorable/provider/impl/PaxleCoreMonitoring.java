@@ -38,6 +38,11 @@ public class PaxleCoreMonitoring implements Monitorable {
 	private static final String TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 	
 	/**
+	 * The <code>Paxle-Release</code> header of the core-bundle
+	 */
+	private static final String VARNAME_RELEASE_VERSION = "release.version";
+	
+	/**
 	 * The <code>Implementation-Version</code> header of the core-bundle
 	 */
 	private static final String VARNAME_CORE_IMPL_VERSION = "core.impl.version";
@@ -62,6 +67,7 @@ public class PaxleCoreMonitoring implements Monitorable {
 	 */
 	@SuppressWarnings("serial")
 	private static final HashSet<String> VAR_NAMES =  new HashSet<String>(){{
+			add(VARNAME_RELEASE_VERSION);
 			add(VARNAME_CORE_IMPL_VERSION);
 			add(VARNAME_CORE_BUILD_VERSION);
 			add(VARNAME_CORE_BUILD_TIME);
@@ -102,7 +108,9 @@ public class PaxleCoreMonitoring implements Monitorable {
 				
 		Bundle core = this.bc.getBundle();		
 		String value= null;
-		if (name.equalsIgnoreCase(VARNAME_CORE_IMPL_VERSION)) {
+		if (name.equalsIgnoreCase(VARNAME_RELEASE_VERSION)) {
+			value = (String) core.getHeaders().get("Paxle-Release");
+		} else if (name.equalsIgnoreCase(VARNAME_CORE_IMPL_VERSION)) {
 			value = (String) core.getHeaders().get("Implementation-Version");
 		} else if (name.equalsIgnoreCase(VARNAME_CORE_BUILD_VERSION)) {
 			value = (String) core.getHeaders().get("Implementation-Build");

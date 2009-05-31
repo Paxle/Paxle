@@ -115,6 +115,13 @@ input.btnLogin {
 	padding-left: 20px;	
 }
 
+.ovPaxle {
+	background-image: url(../images/paxle.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	padding-left: 20px;	
+}
+
 .bundleNotInstalled, .bundle_error {
 	background-image: url(../images/plugin_error.png);
 	background-repeat: no-repeat;

@@ -95,4 +95,22 @@
 	</table>
 </fieldset>
 
+<fieldset class="infobox" id="dpaxle">
+	<legend class="ovPaxle">Paxle</legend>
+	<table>
+		<tr>
+			<th>${text.table.name}</th>
+			<th>${text.table.value}</th>
+		</tr>
+		<tr>
+			<td>${text.ovPaxle.releaseVersion}</td>
+			<td>$monitorableTool.getStatusVariable('org.paxle.core/release.version')</td>			
+		</tr>
+		<tr>
+			<td>${text.ovPaxle.coreVersion}</td>
+			<td>${monitorableTool.getStatusVariable('org.paxle.core/core.impl.version')}&nbsp;(${monitorableTool.getStatusVariable('org.paxle.core/core.build.version')})</td>
+		</tr>
+	</table>
+</fieldset>
+
 <br style="clear:left;" />
