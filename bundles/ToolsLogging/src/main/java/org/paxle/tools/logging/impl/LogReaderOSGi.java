@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.tools.logging.impl.gui;
+package org.paxle.tools.logging.impl;
 
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.BufferUtils;
@@ -23,13 +23,16 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogEntry;
 import org.osgi.service.log.LogListener;
 import org.osgi.service.log.LogReaderService;
+import org.paxle.tools.logging.ILogData;
+import org.paxle.tools.logging.ILogDataEntry;
+import org.paxle.tools.logging.ILogReader;
 
 /**
  * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.tools.logging.impl.gui.ILogReader"
- * @scr.property name="logreader.type" value="osgi"
+ * @scr.service interface="org.paxle.tools.logging.ILogReader"
+ * @scr.property name="org.paxle.tools.logging.ILogReader.type" value="osgi"
  */
-public class OSGiLogReader implements LogListener, ILogReader {	
+public class LogReaderOSGi implements LogListener, ILogReader {	
 	/**
 	 * @scr.reference cardinality="0..1"
 	 */
@@ -59,11 +62,11 @@ public class OSGiLogReader implements LogListener, ILogReader {
 	}
 
 	@SuppressWarnings("unchecked")
-	public LogData getLogData() {
+	public ILogData getLogData() {
 		return new LogData(this.fifo);
 	}
 
-	private static class Entry implements LogDataEntry {
+	private static class Entry implements ILogDataEntry {
 		private final LogEntry logEntry;
 		
 		public Entry(LogEntry logEntry) {

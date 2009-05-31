@@ -24,6 +24,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.service.log.LogService;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.tools.logging.ILogReader;
 
 /**
  * @scr.component immediate="true" metatype="false"
@@ -38,12 +39,12 @@ public class LogView extends ALayoutServlet {
 	
 	/**
 	 * Log4j appender to intercept log4j messages
-	 * @scr.reference target="(logreader.type=log4j)"
+	 * @scr.reference target="(org.paxle.tools.logging.ILogReader.type=log4j)"
 	 */
 	protected ILogReader log4jAppender;
 	
 	/**
-	 * @scr.reference target="(logreader.type=osgi)"
+	 * @scr.reference target="(org.paxle.tools.logging.ILogReader.type=osgi)"
 	 */
 	protected ILogReader osgiAppender;
 	
@@ -60,7 +61,7 @@ public class LogView extends ALayoutServlet {
 				context.put("logType", "log4j");
 				context.put("logReader",this.log4jAppender);
 			} else {
-				context.put("logType", request.getParameter( "logType"));
+				context.put("logType", request.getParameter("logType"));
 				context.put("logReader",this.osgiAppender);
 			}
 			

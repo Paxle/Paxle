@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.tools.logging.impl.gui;
+package org.paxle.tools.logging.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,18 +19,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.osgi.service.log.LogEntry;
+import org.paxle.tools.logging.ILogData;
+import org.paxle.tools.logging.ILogDataEntry;
 
-public class LogData {
-	private ArrayList<LogDataEntry> logData = new ArrayList<LogDataEntry>();
+public class LogData implements ILogData {
+	private ArrayList<ILogDataEntry> logData = new ArrayList<ILogDataEntry>();
 	private HashMap<Integer, Integer> logStats = new HashMap<Integer, Integer>();
 	
-	public LogData(Collection<LogDataEntry> fifo) {
+	public LogData(Collection<ILogDataEntry> fifo) {
 		this(fifo,0);
 	}
 	
-	public LogData(Collection<LogDataEntry> fifo, long timestamp) {
-		for (LogDataEntry entry : fifo) {
+	public LogData(Collection<ILogDataEntry> fifo, long timestamp) {
+		for (ILogDataEntry entry : fifo) {
 			if (entry.getTime() <= timestamp) continue;
 			
 			Integer logLevel = Integer.valueOf(entry.getLevel());
@@ -46,16 +47,15 @@ public class LogData {
 		}
 	}
 	
-	/**
-	 * @return a list of buffered {@link LogEntry log-messages}
+	/* (non-Javadoc)
+	 * @see org.paxle.tools.logging.impl.gui.ILogData#getLog()
 	 */
-	public List<LogDataEntry> getLog() {
+	public List<ILogDataEntry> getLog() {
 		return this.logData;
 	}
 	
-	/**
-	 * @return a map containing the {@link LogEntry#getLevel() log-level} as key and 
-	 * the number of {@link LogEntry messages} with this level as value.
+	/* (non-Javadoc)
+	 * @see org.paxle.tools.logging.impl.gui.ILogData#getStatistics()
 	 */
 	public Map<Integer,Integer> getStatistics() {
 		return this.logStats;

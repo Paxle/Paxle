@@ -26,86 +26,51 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.collections.Buffer;
-import org.apache.commons.collections.BufferUtils;
-import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Appender;
-import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
-import org.apache.log4j.spi.ThrowableInformation;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.log.LogService;
 import org.paxle.gui.ALayoutServlet;
 
 /**
  * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.tools.logging.impl.gui.ILogReader"
  * @scr.service interface="javax.servlet.Servlet"
  * @scr.property name="org.paxle.servlet.path" value="/log/log4j"
  * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
- * @scr.property name="logreader.type" value="log4j"
  */
-public class Log4jReader extends ALayoutServlet implements ILogReader {
-	private static final long serialVersionUID = 1L;
+public class Log4jView extends ALayoutServlet implements Servlet {
+	private static final long serialVersionUID = 1L;	
+	
+	private static final String ACTION_GET_LEVEL = "getLevel";
+	private static final String ACTION_SET_LEVEL = "setLevel";
+	private static final String ACTION_DELETE = "delete";
+	private static final String ACTION_DOWNLOAD = "download";	
+	
+	private static final String PARAM_LEVEL = "level";
+	private static final String PARAM_LOGGER = "logger";
+	private static final String PARAM_ACTION = "action";
+	private static final String PARAM_FORMAT = "format";
+	private static final String PARAM_FILE = "file";
 
-	protected Log logger = LogFactory.getLog(this.getClass());
-	
-	/**
-	 * A internal buffer for logging-messages
-	 */
-	final Buffer fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(200));
-
-	/**
-	 * A in-memory log4j appender
-	 */
-	protected Log4jAppender appender;
-	
-	protected void activate(ComponentContext context) {
-		// getting the Log4j root logger
-		Logger rootLogger = Logger.getRootLogger();
-		
-		// configuring this class as memory appender
-		this.appender = new Log4jAppender();
-		rootLogger.addAppender(this.appender);		
-	}
-	
-	protected void deactivate(ComponentContext context) {
-		// getting the Log4j root logger
-		Logger rootLogger = Logger.getRootLogger();
-		
-		// removing this class from the appenders
-		rootLogger.removeAppender(this.appender);
-		this.appender = null;
-		
-		// clear messages
-		this.fifo.clear();
-	}
-	
 	@Override
 	protected void doRequest(HttpServletRequest request, HttpServletResponse response) {
 		try {
-			final String action = request.getParameter("action");
+			final String action = request.getParameter(PARAM_ACTION);
 			if (action != null) {
-				final String fileName = request.getParameter("file");
+				final String fileName = request.getParameter(PARAM_FILE);
 				final File file = (fileName==null)?null: this.findLogFile(fileName);
 				
-				if (action.equals("download")) {
+				if (action.equals(ACTION_DOWNLOAD)) {
 					// getting the file-format
-					final String format = request.getParameter("format");
+					final String format = request.getParameter(PARAM_FORMAT);
 					if (format != null && format.equals("gzip")) {
 						response.setContentType("application/gzip");
 						response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".gz");
@@ -136,13 +101,13 @@ public class Log4jReader extends ALayoutServlet implements ILogReader {
 					} finally {
 						if (fileInput != null) fileInput.close();
 					}
-				} else if (action.equals("delete")) {
+				} else if (action.equals(ACTION_DELETE)) {
 					// deleting the logfile
 					file.delete();					
 					response.sendRedirect(request.getServletPath());
-				} else if (action.equals("setLevel")) {
-					final String loggerName = request.getParameter("logger");
-					final String loggerLevel = request.getParameter("level");
+				} else if (action.equals(ACTION_SET_LEVEL)) {
+					final String loggerName = request.getParameter(PARAM_LOGGER);
+					final String loggerLevel = request.getParameter(PARAM_LEVEL);
 					final Logger theLogger = Logger.getLogger(loggerName);
 					theLogger.setLevel(Level.toLevel(loggerLevel));
 					
@@ -180,10 +145,10 @@ public class Log4jReader extends ALayoutServlet implements ILogReader {
 			}
 		}
 		
-		final String action = request.getParameter("action");
+		final String action = request.getParameter(PARAM_ACTION);
 		if (action != null) {
-			final String loggerName = request.getParameter("logger");
-			if (action.equals("getLevel")) {
+			final String loggerName = request.getParameter(PARAM_LOGGER);
+			if (action.equals(ACTION_GET_LEVEL)) {
 				final Logger theLogger = Logger.getLogger(loggerName);
 				context.put("loggerName", loggerName);
 				context.put("loggerLevel", theLogger.getEffectiveLevel());
@@ -243,85 +208,5 @@ public class Log4jReader extends ALayoutServlet implements ILogReader {
 	@Override
 	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
 		return this.getTemplate("/resources/templates/LogViewLog4j.vm");
-	}
-	
-	@SuppressWarnings("unchecked")
-	public LogData getLogData() {
-		return new LogData(this.fifo);
-	}	
-	
-	private class Log4jAppender extends AppenderSkeleton {
-		@SuppressWarnings("unchecked")
-		@Override
-		protected void append(LoggingEvent event) {
-			fifo.add(new Entry(event));
-		}
-	
-		@Override
-		public void close() {
-			// cleanup buffer
-			fifo.clear();
-		}
-	
-		@Override
-		public boolean requiresLayout() {
-			return false;
-		}
-	}	
-	
-	private static class Entry implements LogDataEntry {
-		private final LoggingEvent log4jevent;
-
-		public Entry(LoggingEvent log4jevent) {
-			this.log4jevent = log4jevent;
-		}
-
-		public Bundle getBundle() {
-			return null;
-		}
-
-		public Throwable getException() {
-			ThrowableInformation ti = log4jevent.getThrowableInformation();
-			return (ti == null)?null:ti.getThrowable();
-		}
-
-		public int getLevel() {
-			Level level = this.log4jevent.getLevel();
-			switch (level.toInt()) {
-				case Level.FATAL_INT:
-				case Level.ERROR_INT:
-					return LogService.LOG_ERROR;
-	
-				case Level.WARN_INT:
-					return LogService.LOG_WARNING;
-					
-				case Level.INFO_INT:
-					return LogService.LOG_INFO;
-					
-				case Level.DEBUG_INT:
-				case Level.TRACE_INT:
-					return LogService.LOG_DEBUG;
-				
-				default:
-					return LogService.LOG_DEBUG;
-			}
-		}
-
-		public String getMessage() {
-			return this.log4jevent.getMessage().toString();
-		}
-
-		public ServiceReference getServiceReference() {
-			return null;
-		}
-
-		public long getTime() {
-			return this.log4jevent.timeStamp;
-		}
-
-		public String getLoggerName() {
-			return this.log4jevent.getLoggerName();
-		}
-
 	}
 }

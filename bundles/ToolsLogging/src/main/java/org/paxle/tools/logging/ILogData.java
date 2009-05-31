@@ -11,10 +11,24 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.tools.logging.impl.gui;
+package org.paxle.tools.logging;
+
+import java.util.List;
+import java.util.Map;
 
 import org.osgi.service.log.LogEntry;
 
-public interface LogDataEntry extends LogEntry {
-	public String getLoggerName();
+public interface ILogData {
+
+	/**
+	 * @return a list of buffered {@link LogEntry log-messages}
+	 */
+	public List<ILogDataEntry> getLog();
+
+	/**
+	 * @return a map containing the {@link LogEntry#getLevel() log-level} as key and 
+	 * the number of {@link LogEntry messages} with this level as value.
+	 */
+	public Map<Integer, Integer> getStatistics();
+
 }
