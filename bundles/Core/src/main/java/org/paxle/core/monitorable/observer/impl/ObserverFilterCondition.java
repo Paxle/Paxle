@@ -29,7 +29,7 @@ public class ObserverFilterCondition implements IObserverCondition {
 		this.filter = filter;
 	}
 	
-	public boolean match(Dictionary dictionary) {
+	public boolean match(Dictionary<String, Object> dictionary) {
 		return this.filter.match(dictionary);
 	}
 

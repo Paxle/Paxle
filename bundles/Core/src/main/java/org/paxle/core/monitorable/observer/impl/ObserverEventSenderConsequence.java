@@ -22,9 +22,9 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
-import org.paxle.core.monitorable.observer.IObserverConcequence;
+import org.paxle.core.monitorable.observer.IObserverConsequence;
 
-public class ObserverEventSenderConcequence implements IObserverConcequence {
+public class ObserverEventSenderConsequence implements IObserverConsequence {
 	private static final String EVENT_TOPIC = "org/paxle/monitorable/observer";
 	
 	/**
@@ -36,11 +36,11 @@ public class ObserverEventSenderConcequence implements IObserverConcequence {
 	
 	private Hashtable<String, Object> eventProperties;
 	
-	public ObserverEventSenderConcequence(BundleContext bc, Hashtable<String, Object> eventProperties) throws InvalidSyntaxException {
+	public ObserverEventSenderConsequence(BundleContext bc, Hashtable<String, Object> eventProperties) throws InvalidSyntaxException {
 		this(bc, eventProperties, true);
 	}
 	
-	public ObserverEventSenderConcequence(BundleContext bc, Hashtable<String, Object> eventProperties, boolean sendAsync) throws InvalidSyntaxException {
+	public ObserverEventSenderConsequence(BundleContext bc, Hashtable<String, Object> eventProperties, boolean sendAsync) throws InvalidSyntaxException {
 		this.eventProperties = eventProperties;
 		this.sendAsync = sendAsync;
 		
@@ -50,9 +50,9 @@ public class ObserverEventSenderConcequence implements IObserverConcequence {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void triggerAction(Hashtable<String, Object> currentState) {
+	public void triggerAction(Dictionary<String, Object> currentState) {
 		Dictionary<String, Object> props = (Dictionary<String, Object>) this.eventProperties.clone();
-		props.put("mon.observer.state", currentState.clone());
+		// props.put("mon.observer.state", new Hashtable<String, Object>(currentState));
 		props.put("mon.observer.date", new Date());
 		
 		Event outEvent = new Event(EVENT_TOPIC,props);

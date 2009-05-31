@@ -20,6 +20,7 @@
 <ul class="tabs">
 	<li><a href="?type=vars" #if($activeTab=="vars")class="active"#end>${text.tab.vars}</a></li>
 	<li><a href="?type=jobs" #if($activeTab=="jobs")class="active"#end>${text.tab.jobs}</a></li>
+	<li><a href="?type=observers" #if($activeTab=="observers")class="active"#end>${text.tab.observers}</a></li>
 </ul>
 
 ## the monitor admin service
@@ -29,5 +30,7 @@
 		#parse('/resources/templates/MonitorableViewVariables.vm')
 	#elseif($activeTab=="jobs")
 		#parse('/resources/templates/MonitorableViewJobs.vm')
+	#elseif($activeTab=="observers")
+		#parse('/resources/templates/MonitorableViewObservers.vm')
 	#end
 </fieldset>

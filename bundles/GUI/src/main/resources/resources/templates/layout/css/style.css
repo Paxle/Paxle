@@ -109,14 +109,14 @@ table {
 	border-collapse: collapse;
 }
 
-th {
+th, td.main {
 	background-color: #e1d7b1;
 	border-left: 1px solid #96825F;
 	border-right: 1px solid #96825F;
 	border-bottom: 1px solid #96825F;
 }
 
-th.sub {
+th.sub, td.sub {
 	background-color: #ece6cf;
 }
 
@@ -429,11 +429,11 @@ span.error {
 	color:red;
 }
 
-.statusEnabled {
+.statusEnabled, .statusActive {
 	color:green;
 }
 
-.statusDisabled {
+.statusDisabled, .statusInactive {
 	color:red;
 }
 

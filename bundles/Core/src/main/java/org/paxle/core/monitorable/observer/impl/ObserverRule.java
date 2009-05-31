@@ -14,31 +14,34 @@
 package org.paxle.core.monitorable.observer.impl;
 
 import java.util.Dictionary;
-import java.util.Hashtable;
 
-import org.paxle.core.monitorable.observer.IObserverConcequence;
+import org.paxle.core.monitorable.observer.IObserverConsequence;
 import org.paxle.core.monitorable.observer.IObserverCondition;
 import org.paxle.core.monitorable.observer.IObserverRule;
 
 public class ObserverRule implements IObserverRule {
 	private IObserverCondition condition;
-	private IObserverConcequence concequence;
+	private IObserverConsequence consequence;
 	
-	public ObserverRule(IObserverCondition condition, IObserverConcequence concequence) {
+	public ObserverRule(IObserverCondition condition, IObserverConsequence consequence) {
 		this.condition = condition;
-		this.concequence = concequence;
+		this.consequence = consequence;
 	}
 		
-	public boolean match(@SuppressWarnings("unchecked") Dictionary dictionary) {
+	public boolean match(Dictionary<String, Object> dictionary) {
 		return this.condition.match(dictionary);		
 	}
 	
-	public void triggerAction(Hashtable<String, Object> currentState) {
-		this.concequence.triggerAction(currentState);
+	public void triggerAction(Dictionary<String, Object> currentState) {
+		this.consequence.triggerAction(currentState);
 	}
 	
 	public IObserverCondition getCondition() {
 		return this.condition;
+	}
+	
+	public IObserverConsequence getConsequence() {
+		return this.consequence;
 	}
 	
 	@Override
@@ -47,7 +50,7 @@ public class ObserverRule implements IObserverRule {
 		
 		buf.append(this.condition.toString())
 		   .append(" -> ")
-		   .append(this.concequence.toString());
+		   .append(this.consequence.toString());
 		
 		return buf.toString();
 	}

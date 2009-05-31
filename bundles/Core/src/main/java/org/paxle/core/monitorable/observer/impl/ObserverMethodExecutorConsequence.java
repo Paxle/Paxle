@@ -14,23 +14,23 @@
 package org.paxle.core.monitorable.observer.impl;
 
 import java.lang.reflect.Method;
-import java.util.Hashtable;
+import java.util.Dictionary;
 
-import org.paxle.core.monitorable.observer.IObserverConcequence;
+import org.paxle.core.monitorable.observer.IObserverConsequence;
 
-public class ObserverMethodExecutorConcequence implements IObserverConcequence {
+public class ObserverMethodExecutorConsequence implements IObserverConsequence {
 
 	private final Method m;
 	private final Object o;
 	private final Object[] p;
 	
-	public ObserverMethodExecutorConcequence(Method m, Object o, Object[] p) {
+	public ObserverMethodExecutorConsequence(Method m, Object o, Object[] p) {
 		this.m = m;
 		this.o = o;
 		this.p = p;
 	}
 	
-	public void triggerAction(Hashtable<String, Object> currentState) {
+	public void triggerAction(Dictionary<String, Object> currentState) {
 		try {
 			m.invoke(o, (Object[]) p);
 		} catch (Throwable e) {

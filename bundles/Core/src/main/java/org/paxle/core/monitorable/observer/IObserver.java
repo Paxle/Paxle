@@ -13,8 +13,13 @@
  */
 package org.paxle.core.monitorable.observer;
 
-import java.util.Hashtable;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
-public interface IObserverConcequence {
-	public void triggerAction(Hashtable<String, Object> currentState);
+public interface IObserver {
+	public String getObserverID();
+	public List<IObserverRule> getRules();
+	public Map<String, Object> getCurrentState();
+	public Date getLastStateUpdate();
 }

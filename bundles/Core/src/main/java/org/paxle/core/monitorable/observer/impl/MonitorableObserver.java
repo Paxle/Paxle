@@ -15,6 +15,8 @@ package org.paxle.core.monitorable.observer.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,16 +40,19 @@ import org.osgi.service.monitor.MonitorAdmin;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.MonitoringJob;
 import org.osgi.service.monitor.StatusVariable;
+import org.paxle.core.monitorable.observer.IObserver;
 import org.paxle.core.monitorable.observer.IObserverCondition;
 import org.paxle.core.monitorable.observer.IObserverRule;
 
-public class MonitorableObserver implements EventHandler, ServiceListener {
+public class MonitorableObserver implements EventHandler, ServiceListener, IObserver {
 	/**
 	 * The current state of this observer. The key of this {@link Dictionary} is the fullpath
 	 * of a {@link StatusVariable}, the value is the last received value
 	 * of this variable.
 	 */
 	private Hashtable<String, Object> currentState = new Hashtable<String, Object>();
+	
+	private long lastStateUpdate = 0;
 	
 	/**
 	 * A map containing the fullpath of a {@link StatusVariable} as key and the it's 
@@ -186,6 +191,8 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 					));
 				}
 				return;
+			} else {
+				this.lastStateUpdate = System.currentTimeMillis();
 			}
 
 			// testing if one filter matches current state
@@ -360,7 +367,19 @@ public class MonitorableObserver implements EventHandler, ServiceListener {
 		);		
 	}
 	
-	private String getObserverID() {
+	public String getObserverID() {
 		return this.getClass().getSimpleName() + "_" + this.hashCode();
+	}
+	
+	public List<IObserverRule> getRules() {
+		return Collections.unmodifiableList(this.rules);
+	}
+	
+	public Map<String, Object> getCurrentState() {
+		return Collections.unmodifiableMap(this.currentState);
+	}
+	
+	public Date getLastStateUpdate() {
+		return new Date(this.lastStateUpdate);
 	}
 }

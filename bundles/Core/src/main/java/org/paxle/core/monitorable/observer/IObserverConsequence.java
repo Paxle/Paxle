@@ -15,9 +15,6 @@ package org.paxle.core.monitorable.observer;
 
 import java.util.Dictionary;
 
-public interface IObserverRule {
-	public IObserverCondition getCondition();	
-	public IObserverConsequence getConsequence();
-	public boolean match(Dictionary<String, Object> dictionary);
+public interface IObserverConsequence {
 	public void triggerAction(Dictionary<String, Object> currentState);
 }

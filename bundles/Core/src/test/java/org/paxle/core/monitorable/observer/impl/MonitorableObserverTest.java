@@ -151,7 +151,7 @@ public class MonitorableObserverTest extends MockObjectTestCase {
         				// Filter based condition
         				new ObserverFilterCondition(testFilter),
         				// triggers an event
-        				new ObserverEventSenderConcequence(bc, new Hashtable<String, Object>(){
+        				new ObserverEventSenderConsequence(bc, new Hashtable<String, Object>(){
 						{
         			        put("prop1","test1");
         			        put("prop2", Boolean.FALSE);

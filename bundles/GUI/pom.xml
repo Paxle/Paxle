@@ -91,6 +91,7 @@
 							org.paxle.core.io;version="[0.1.0,0.2.0)",
 							org.paxle.core.io.temp;version="[0.1.0,0.2.0)",
 							org.paxle.core.metadata;version="[0.1.0,0.2.0)",
+							org.paxle.core.monitorable.observer;version="[0.1.0,0.2.0)",
 							<!-- Paxle Crawler Core Bundle -->
 							org.paxle.crawler;version="[0.1.0,0.2.0)";resolution:=optional,
 							<!-- Paxle Parser Core Bundle -->
@@ -164,7 +165,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.29-SNAPSHOT,0.2.0)</version>			
+			<version>[0.1.30-SNAPSHOT,0.2.0)</version>			
 		</dependency>
 		
 		<dependency>

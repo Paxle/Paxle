@@ -68,10 +68,11 @@ import org.paxle.core.io.impl.ResourceBundleToolFactory;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.io.temp.impl.CommandTempReleaser;
 import org.paxle.core.io.temp.impl.TempFileManager;
+import org.paxle.core.monitorable.observer.IObserver;
 import org.paxle.core.monitorable.observer.impl.MonitorableObserver;
-import org.paxle.core.monitorable.observer.impl.ObserverEventSenderConcequence;
+import org.paxle.core.monitorable.observer.impl.ObserverEventSenderConsequence;
 import org.paxle.core.monitorable.observer.impl.ObserverFilterCondition;
-import org.paxle.core.monitorable.observer.impl.ObserverMethodExecutorConcequence;
+import org.paxle.core.monitorable.observer.impl.ObserverMethodExecutorConsequence;
 import org.paxle.core.monitorable.observer.impl.ObserverRule;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.core.norm.impl.ReferenceNormalizer;
@@ -320,19 +321,19 @@ public class Activator implements BundleActivator, InvocationHandler {
         //out of resources (to resolve the effects of the filters above)
         Filter oorResolvedFilter = bc.createFilter("(&(org.paxle.crawler/status.paused=true)(|(org.paxle.crawler/state.code=PAUSED_BY_OOM_CHECK)(org.paxle.crawler/state.code=PAUSED_BY_OOD_CHECK))(java.lang.runtime/memory.free >= " + 11*1024*1024 + ")(os.disk/disk.space.free>=1024))");
         
-        new MonitorableObserver(
+        final IObserver observer = new MonitorableObserver(
         		bc, 
         		new ObserverRule(
         				// Filter based condition
         				new ObserverFilterCondition(gcFilter),
         				// triggers an event
-        				new ObserverMethodExecutorConcequence(System.class.getMethod("gc", (Class[])null), null, null)
+        				new ObserverMethodExecutorConsequence(System.class.getMethod("gc", (Class[])null), null, null)
         		),
         		new ObserverRule(
         				// Filter based condition
         				new ObserverFilterCondition(oomFilter),
         				// triggers an event
-        				new ObserverEventSenderConcequence(bc, new Hashtable<String, Object>(){{
+        				new ObserverEventSenderConsequence(bc, new Hashtable<String, Object>(){{
         			        put("mon.observer.listener.id","org.paxle.crawler");
         			        put("org.paxle.crawler.state.active", Boolean.FALSE);
         			        put("org.paxle.crawler.state.code","PAUSED_BY_OOM_CHECK");
@@ -342,7 +343,7 @@ public class Activator implements BundleActivator, InvocationHandler {
         				// Filter based condition
         				new ObserverFilterCondition(oodFilter),
         				// triggers an event
-        				new ObserverEventSenderConcequence(bc, new Hashtable<String, Object>(){{
+        				new ObserverEventSenderConsequence(bc, new Hashtable<String, Object>(){{
         			        put("mon.observer.listener.id","org.paxle.crawler");
         			        put("org.paxle.crawler.state.active", Boolean.FALSE);
         			        put("org.paxle.crawler.state.code","PAUSED_BY_OOD_CHECK");
@@ -352,13 +353,18 @@ public class Activator implements BundleActivator, InvocationHandler {
         				// Filter based condition
         				new ObserverFilterCondition(oorResolvedFilter),
         				// triggers an event
-        				new ObserverEventSenderConcequence(bc, new Hashtable<String, Object>(){{
+        				new ObserverEventSenderConsequence(bc, new Hashtable<String, Object>(){{
         			        put("mon.observer.listener.id","org.paxle.crawler");
         			        put("org.paxle.crawler.state.active", Boolean.TRUE);
         			        put("org.paxle.crawler.state.code","OK");
         				}},true)
         		)
-        );      
+        );
+        
+        // register the observer as service
+        bc.registerService(IObserver.class.getName(), observer, new Hashtable<String, Object>(){{
+        	put(Constants.SERVICE_PID,observer.getObserverID());
+        }});
 	}
 	
 	private IPropertiesStore createAndRegisterPropertyStore(BundleContext bc) {

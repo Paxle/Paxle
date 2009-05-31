@@ -17,6 +17,6 @@ import java.util.Dictionary;
 import java.util.List;
 
 public interface IObserverCondition {
-	public boolean match(Dictionary dictionary);
+	public boolean match(Dictionary<String, Object> dictionary);
 	public List<String> getMonitorableVariableIDs();
 }

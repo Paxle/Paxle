@@ -1,0 +1,59 @@
+#*
+ * This file is part of the Paxle project.
+ * Visit http://www.paxle.net for more information.
+ * Copyright 2007-2009 the original author or authors.
+ *
+ * Licensed under the terms of the Common Public License 1.0 ("CPL 1.0").
+ * Any use, reproduction or distribution of this program constitutes the recipient's acceptance of this agreement.
+ * The full license text is available under http://www.opensource.org/licenses/cpl1.0.txt
+ * or in the file LICENSE.txt in the root directory of the Paxle distribution.
+ *
+ * Unless required by applicable law or agreed to in writing, this software is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *#
+#set($observers = $manager.getServices("org.paxle.core.monitorable.observer.IObserver",null))
+#if($observers)
+
+	#foreach($observer in $observers)
+		#set($state = $observer.currentState)
+		#set($rules = $observer.rules)
+		<h3>${observer.observerID}</h3>
+		
+		<p>
+			<b>${text.observer.rules}</b>
+		</p>
+		<table>
+    		#foreach($rule in $loopTool.watch($rules))
+        		<tr>
+        			<td class="main" rowspan="2">$velocityCount</td>
+					<td rowspan="2">
+						#if($rule.match($state))
+							<span class="statusActive">${text.observer.rule.active}</span>
+						#else
+							<span class="statusInactive">${text.observer.rule.inactive}</span>
+						#end
+					</td>
+        			<td class="sub">${text.observer.condition}</td>
+        			<td><tt>$rule.condition</tt></td>
+        		</tr>
+        		<tr>
+        			<td class="sub">${text.observer.consequence}</td>
+        			<td><tt>$rule.consequence</tt></td>
+        		</tr>
+    		#end
+		</table>
+		<p>
+			<b>${text.observer.state}</b><br/>
+			${text.observer.state.lastUpdate}: $dateTool.format('medium',$observer.lastStateUpdate)
+		</p>
+		<table>
+    		<tr><th>${text.observer.state.variable.name}</th><th>${text.observer.state.variable.value}</th></tr>
+    		#foreach($entry in $loopTool.watch($sortTool.sort($state.entrySet(), ["key:asc"])))
+        		<tr>
+        			<td><tt>$entry.key</tt></td>
+        			<td><tt>$entry.value</tt></td>
+        		</tr>
+    		#end
+		</table>
+	#end
+#end
