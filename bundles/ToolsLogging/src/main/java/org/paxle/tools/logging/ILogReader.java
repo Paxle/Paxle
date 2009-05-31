@@ -15,5 +15,7 @@ package org.paxle.tools.logging;
 
 
 public interface ILogReader {
+	public static final String TYPE = ILogReader.class.getName() + ".type";
+	
 	public ILogData getLogData();
 }

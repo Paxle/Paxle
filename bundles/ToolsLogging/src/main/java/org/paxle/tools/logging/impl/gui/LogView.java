@@ -22,6 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogService;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.tools.logging.ILogReader;
@@ -33,45 +35,68 @@ import org.paxle.tools.logging.ILogReader;
  * @scr.property name="org.paxle.servlet.menu" value="%menu.info/%menu.info.log"
  * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
  * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/script.png"
+ * 
+ * @scr.reference name="logReaders" 
+ * 				  interface="org.paxle.tools.logging.ILogReader" 
+ * 				  cardinality="0..n" 
+ * 				  policy="dynamic" 
+ * 				  bind="addReader" 
+ * 				  unbind="removeReader"
+ * 				  target="(org.paxle.tools.logging.ILogReader.type=*)
  */
 public class LogView extends ALayoutServlet {	
 	private static final long serialVersionUID = 1L;
 	
-	/**
-	 * Log4j appender to intercept log4j messages
-	 * @scr.reference target="(org.paxle.tools.logging.ILogReader.type=log4j)"
-	 */
-	protected ILogReader log4jAppender;
+	@SuppressWarnings("serial")
+	private final HashMap<Integer, String> LOGLEVEL_NAMES = new HashMap<Integer, String>(){{
+		put(Integer.valueOf(LogService.LOG_ERROR) , "error");
+		put(Integer.valueOf(LogService.LOG_WARNING), "warn");
+		put(Integer.valueOf(LogService.LOG_INFO), "info");
+		put(Integer.valueOf(LogService.LOG_DEBUG), "debug");
+	}};
+	
+	private HashMap<String, ServiceReference> logReaders = new HashMap<String, ServiceReference>();
 	
 	/**
-	 * @scr.reference target="(org.paxle.tools.logging.ILogReader.type=osgi)"
+	 * The context of this component
 	 */
-	protected ILogReader osgiAppender;
+	protected ComponentContext ctx;		
+	
+	protected void activate(ComponentContext context) {
+		this.ctx = context;
+	}
+	
+	protected void addReader(ServiceReference ref) {
+		final String type = (String) ref.getProperty(ILogReader.TYPE);
+		this.logReaders.put(type, ref);
+	}
+	
+	protected void removeReader(ServiceReference ref) {
+		final String type = (String) ref.getProperty(ILogReader.TYPE);
+		this.logReaders.remove(type);
+	}
 	
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {
 		try {
 			if( request.getParameter("filterLogLevel") != null) {
-				context.put( "filterLogLevel", new Integer(request.getParameter( "filterLogLevel")));
+				context.put( "filterLogLevel", new Integer(request.getParameter("filterLogLevel")));
 			} else {
 				context.put( "filterLogLevel", Integer.valueOf(LogService.LOG_DEBUG));
 			}
 			
-			if(request.getParameter("logType") == null || request.getParameter("logType").equals("log4j")) {
-				context.put("logType", "log4j");
-				context.put("logReader",this.log4jAppender);
-			} else {
-				context.put("logType", request.getParameter("logType"));
-				context.put("logReader",this.osgiAppender);
-			}
+			String readerType = "log4j";
+			if(request.getParameter("logType") != null) readerType = request.getParameter("logType");
+			context.put("logType",readerType);
 			
-			//HashMap to determine LogLevelName
-			HashMap<Integer, String> logLevelName = new HashMap<Integer, String>();
-			logLevelName.put(Integer.valueOf(LogService.LOG_ERROR) , "error");
-			logLevelName.put(Integer.valueOf(LogService.LOG_WARNING), "warn");
-			logLevelName.put(Integer.valueOf(LogService.LOG_INFO), "info");
-			logLevelName.put(Integer.valueOf(LogService.LOG_DEBUG), "debug");
-			context.put( "logLevelNames" , logLevelName);
+			// adding the requested reader into the context
+			ServiceReference ref = this.logReaders.get(readerType);
+			ILogReader logReader = (ref==null)?null:(ILogReader)this.ctx.locateService("logReaders", ref);
+			context.put("logReader",logReader);			
+			
+			// adding available readers and log-levels
+			context.put("logLevelNames", LOGLEVEL_NAMES);
+			context.put("logReaders",this.logReaders);
 			
 			final String type = request.getParameter("type");
 			if (type == null || type.equals("default")) {

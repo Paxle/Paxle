@@ -35,6 +35,7 @@ import org.paxle.tools.logging.ILogReader;
  * @scr.component immediate="true" metatype="false"
  * @scr.service interface="org.paxle.tools.logging.ILogReader"
  * @scr.property name="org.paxle.tools.logging.ILogReader.type" value="log4j"
+ * @scr.property name="servlet.pid" value="org.paxle.tools.logging.impl.gui.Log4jView"
  */
 public class LogReaderLog4j implements ILogReader {
 	private static final long serialVersionUID = 1L;
