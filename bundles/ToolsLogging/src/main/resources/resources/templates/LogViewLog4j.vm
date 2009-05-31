@@ -29,23 +29,24 @@
 </ul>
 
 <fieldset id="dlogfiles">
-	<legend>Logfiles</legend>
+	<legend>${text.logfiles.legend}</legend>
+	<p>$text.logFiles.overviewMessage.insert($listTool.size($logfiles)).insert($numberTool.format($totalSize))</p>
     #if($logfiles)
     <table>
     	<tr>
-    		<th>Filename</th>
-    		<th>Size</th>
-    		<th>Date</th>
-    		<th>Download</th>
-    		<th>Delete</th>
+    		<th>${text.logfiles.table.col.fileName}</th>
+    		<th>${text.logfiles.table.col.fileSize}</th>
+    		<th>${text.logfiles.table.col.fileDate}</th>
+    		<th>${text.logfiles.table.col.action.download}</th>
+    		<th>${text.logfiles.table.col.action.delete}</th>
     	</tr>
         #foreach($logFile in $logfiles)
     		<tr>
     			<td>${logFile.name}</td>
-    			<td>${logFile.length()}</td>
+    			<td>$numberTool.format(${logFile.length()})</td>
     			<td>$dateTool.format('medium',$logFile.lastModified())</td>
                 <td>[<a href="?action=download&amp;file=${logFile.name}">TXT</a>]&nbsp;|&nbsp;[<a href="?action=download&amp;file=${logFile.name}&amp;format=gzip">GZIP</a>]</td>
-    			<td><a href="?action=delete&amp;file=${logFile.name}">Delete</a></td>
+    			<td><a href="?action=delete&amp;file=${logFile.name}">${text.logfiles.table.col.action.delete}</a></td>
     		</tr>
     	#end
     </table>
@@ -53,15 +54,15 @@
 </fieldset>
 	
 <fieldset id="dlogconfig">
-	<legend>Configuration</legend>
-	<h3>Set Loglevel</h3>
+	<legend>${text.config.legend}</legend>
+	<h3>${text.config.title.setLogLevel}</h3>
 	<form method="get" action="${request.getServletPath()}">
 		<input type="hidden" name="action" value="setLevel"/>
 		
-		<label for="log4j.logger.name">Logger-Name</label>
+		<label for="log4j.logger.name">${text.config.LoggerName}</label>
 		<input id="log4j.logger.name" type="text" name="logger"/>
 		
-		<label for="log4j.logger.level">Log-Level</label>
+		<label for="log4j.logger.level">${text.config.LogLevel}</label>
 		<select id="log4j.logger.level" name="level">			
 			<option>DEBUG</option>
 			<option>INFO</option>
@@ -70,17 +71,19 @@
 			<option>OFF</option>
 		</select>	
 		
-		<input type="submit" name="setLevel" value="set Level" />
+		<input type="submit" name="setLevel" value="${text.config.btn.setLogLevel}" />
 	</form>
+	
 	<hr />
-	<h3>Get Loglevel</h3>
+	
+	<h3>${text.config.title.getLogLevel}</h3>
 	#if($loggerName)
-		<p class="box info">The loglevel of "<tt>$loggerName</tt>" is "<tt>$loggerLevel</tt>"</p>
+		<p class="box info">$text.config.info.loglevelMessage.insert($loggerName).insert($loggerLevel)</p>
 	#end
 	<form method="get" action="${request.getServletPath()}#dlogconfig">
 		<input type="hidden" name="action" value="getLevel"/>
-    	<label for="log4j.logger.name">Logger-Name</label>
+    	<label for="log4j.logger.name">${text.config.LoggerName}</label>
     	<input id="log4j.logger.name" type="text" name="logger"/>
-    	<input type="submit" name="setLevel" value="get Level" />
+    	<input type="submit" name="setLevel" value="${text.config.btn.getLogLevel}" />
 	</form>
 </fieldset>

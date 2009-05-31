@@ -140,6 +140,11 @@ public class Log4jView extends ALayoutServlet implements Servlet {
 				File[] logFiles = logDir.listFiles(logFileFilter);
 				Arrays.sort(logFiles);
 				context.put("logfiles", logFiles);
+				
+				// calculating total size
+				long totalSize = 0;
+				for (File nextLogFile : logFiles) totalSize += nextLogFile.length();
+				context.put("totalSize",Long.valueOf(totalSize));				
 			} catch (IOException e) {
 				this.logger.error("Unexpected error while reading log4j-configuration",e);
 			}
