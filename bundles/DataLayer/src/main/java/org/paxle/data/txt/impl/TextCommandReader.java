@@ -21,6 +21,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.paxle.core.queue.Command;
+import org.paxle.core.queue.ICommand;
 import org.paxle.data.impl.ACommandReader;
 
 public class TextCommandReader extends ACommandReader {
@@ -40,7 +41,7 @@ public class TextCommandReader extends ACommandReader {
 			if (line.length() == 0) continue;
 			else if (line.startsWith("#")) continue;
 			try {
-				Command cmd = Command.createCommand(new URI(line));
+				ICommand cmd = Command.createCommand(new URI(line));
 				this.enqueue(cmd);
 			} catch (URISyntaxException e) {
 				throw new IOException(String.format("location '%s' not a valid URI: %s", line, e.getMessage()));
