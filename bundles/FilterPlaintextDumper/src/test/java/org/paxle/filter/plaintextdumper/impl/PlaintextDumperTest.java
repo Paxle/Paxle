@@ -13,12 +13,13 @@
  */
 package org.paxle.filter.plaintextdumper.impl;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Hashtable;
 
+import org.apache.commons.io.IOUtils;
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.service.component.ComponentContext;
@@ -38,6 +39,7 @@ public class PlaintextDumperTest extends MockObjectTestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		if (tmpFile.exists()) tmpFile.delete();
 		
 		// creating the temp directory 
 		this.tmpdir.mkdir();
@@ -62,27 +64,22 @@ public class PlaintextDumperTest extends MockObjectTestCase {
 			this.activate(ctx);
 		}};
 	}
-
-	private String loadFile(File file) throws IOException {
-		BufferedReader br = new BufferedReader(new FileReader(file));
-		StringBuffer sb = new StringBuffer(2048);
-		String line;
-		while ((line = br.readLine()) != null) {
-			sb.append(line);
-		}
-		br.close();
-		return sb.toString();
-	}
 	
 	public void testTextExtraction() throws IOException {
 		String test = "a test text";
 		this.pdoc.append(test);
 		this.pdoc.close();
 		
-		File target = dumper.store(this.pdoc);
-		
-		assertTrue(test.equals(loadFile(target)));
-		target.delete();
+		InputStream input = null;
+		File target = null;
+		try {
+			target = dumper.store(this.pdoc);		
+			String targetString = IOUtils.toString(input = new FileInputStream(target), "UTF-8");
+			assertEquals(test, targetString);
+		} finally {
+			if (input != null) input.close();
+			if (target != null) target.delete();
+		}
 	}
 	
 	@Override
