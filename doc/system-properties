@@ -16,6 +16,19 @@ Core:
    The given path is used to store all of the non-OSGi-specific files Paxle
    uses and creates during runtime.
 
+
+GUI:
+~~~~~
+ - org.paxle.gui.autologin.user[.<ip-address>]
+   
+   Description:
+   ~~~~~~~~~~~~
+   If this property is set, a client is automatically logged in as given user.   
+   E.g. use "org.paxle.gui.autologin.user=admin" to login all clients as admin,
+   or use "org.paxle.gui.autologin.user.127.0.0.1=admin" to just allow 
+   clients from localhost to automatically log in.
+
+
 DIJdicBackend:
 ~~~~~~~~~~~~~~
  - paxle.desktop.jdic.browse
