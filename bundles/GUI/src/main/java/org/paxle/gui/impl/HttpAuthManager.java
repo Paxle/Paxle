@@ -56,6 +56,26 @@ public class HttpAuthManager implements IHttpAuthManager {
 	 */
 	protected IServletManager smanager;
 
+	public User autoLogin(final HttpServletRequest request) {
+		User user = null;
+		
+		final String[] autoLoginProperties = new String[] {
+			"org.paxle.gui.autologin.user",
+			"org.paxle.gui.autologin.user." + request.getRemoteHost(),
+			"org.paxle.gui.autologin.user." + request.getRemoteAddr()
+		};
+		
+		for (String autoLoginProperty : autoLoginProperties) {
+			String autoLoginUser = System.getProperty(autoLoginProperty);
+	 		if (autoLoginUser != null && autoLoginUser.length() > 0) {
+	 			user = userAdmin.getUser(USER_HTTP_LOGIN,System.getProperty(autoLoginProperty));
+	 			if (user != null) break;
+	 		} 
+		}
+		
+		return user;
+	}
+	
 	public User httpAuth(final HttpServletRequest request, String httpAuthHeader) throws UnsupportedEncodingException {		
 		if (httpAuthHeader == null || httpAuthHeader.length() <= "Basic ".length()) {
 			return null;
@@ -139,13 +159,10 @@ public class HttpAuthManager implements IHttpAuthManager {
 			
 			// determine if http-auth can be done
 			if (done == null) {
-				User user = null;
+				// auto login feature
+				User user = autoLogin(request);
 				
-		 		if (System.getProperty("org.paxle.gui.autologin.user") != null) {
-		 			user = userAdmin.getUser(USER_HTTP_LOGIN,System.getProperty("org.paxle.gui.autologin.user"));
-		 		}
-				
-				// auth. user
+				// auth. user via http-auth header
 		 		if (user == null) user = httpAuth(request, httpAuth);			
 				if (user != null) {
 					done = Boolean.TRUE;
