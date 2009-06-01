@@ -108,7 +108,7 @@
 		</tr>
 		<tr>
 			<td>${text.ovPaxle.coreVersion}</td>
-			<td>${monitorableTool.getStatusVariable('org.paxle.core/core.impl.version')}&nbsp;(${monitorableTool.getStatusVariable('org.paxle.core/core.build.version')})</td>
+			<td>${monitorableTool.getStatusVariable('org.paxle.core/core.impl.version')}&nbsp;(<a href="http://svn.paxle.net/wsvn/paxle?op=revision&rev=${monitorableTool.getStatusVariable('org.paxle.core/core.build.version')}">${monitorableTool.getStatusVariable('org.paxle.core/core.build.version')}</a>)</td>
 		</tr>
 	</table>
 </fieldset>
