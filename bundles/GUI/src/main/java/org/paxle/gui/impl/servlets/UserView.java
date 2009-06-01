@@ -35,7 +35,7 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.paxle.gui.ALayoutServlet;
-import org.paxle.gui.impl.HttpContextAuth;
+import org.paxle.gui.impl.HttpAuthManager;
 import org.paxle.gui.impl.ServiceManager;
 
 /**
@@ -142,7 +142,7 @@ public class UserView extends ALayoutServlet {
 		if (user == null) return;
 
 		// getting the http.login name
-		String loginName = request.getParameter(HttpContextAuth.USER_HTTP_LOGIN);
+		String loginName = request.getParameter(HttpAuthManager.USER_HTTP_LOGIN);
 		
 		/* ===========================================================
 		 * USERNAME + PWD
@@ -156,7 +156,7 @@ public class UserView extends ALayoutServlet {
 		}
 		
 		// check if the login name is unique
-		Role[] roles = userAdmin.getRoles(String.format("(%s=%s)",HttpContextAuth.USER_HTTP_LOGIN, loginName));
+		Role[] roles = userAdmin.getRoles(String.format("(%s=%s)",HttpAuthManager.USER_HTTP_LOGIN, loginName));
 		if (roles != null && (roles.length > 2 || (roles.length == 1 && !roles[0].equals(user)))) {
 			String errorMsg = k.get("error.usernameAlreadyKnown").insert(new String[]{loginName}).toString();
 			this.logger.warn(String.format("The given login name '%s' is already used by a different user.", loginName));
@@ -165,8 +165,8 @@ public class UserView extends ALayoutServlet {
 		}
 		
 		// check if the password is typed correctly
-		String pwd1 = request.getParameter(HttpContextAuth.USER_HTTP_PASSWORD);
-		String pwd2 = request.getParameter(HttpContextAuth.USER_HTTP_PASSWORD + "2");
+		String pwd1 = request.getParameter(HttpAuthManager.USER_HTTP_PASSWORD);
+		String pwd2 = request.getParameter(HttpAuthManager.USER_HTTP_PASSWORD + "2");
 		if (pwd1 == null || pwd2 == null || !pwd1.equals(pwd2)) {
 			String errorMsg = k.get("error.invalidPassword").insert(new String[]{loginName}).toString();
 			this.logger.warn(String.format("The password for login name '%s' was not typed correctly.", loginName));
@@ -177,11 +177,11 @@ public class UserView extends ALayoutServlet {
 		// configure http-login data
 		@SuppressWarnings("unchecked")
 		Dictionary<String, Object> props = user.getProperties();
-		props.put(HttpContextAuth.USER_HTTP_LOGIN, loginName);
+		props.put(HttpAuthManager.USER_HTTP_LOGIN, loginName);
 		
 		@SuppressWarnings("unchecked")
 		Dictionary<String, Object> credentials = user.getCredentials();
-		credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, pwd1);
+		credentials.put(HttpAuthManager.USER_HTTP_PASSWORD, pwd1);
 		
 		/* ===========================================================
 		 * OPEN-ID

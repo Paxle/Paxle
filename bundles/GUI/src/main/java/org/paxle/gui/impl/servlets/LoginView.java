@@ -29,7 +29,8 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.paxle.gui.ALayoutServlet;
-import org.paxle.gui.impl.HttpContextAuth;
+import org.paxle.gui.impl.HttpAuthManager;
+import org.paxle.gui.impl.IHttpAuthManager;
 import org.paxle.gui.impl.ServiceManager;
 
 /**
@@ -46,6 +47,11 @@ public class LoginView extends ALayoutServlet {
 	 * @scr.reference
 	 */
 	protected UserAdmin userAdmin;
+	
+	/**
+	 * @scr.reference
+	 */
+	private IHttpAuthManager guiAuthManager;
 	
 	/**
 	 * This function is called the OSGI DS during component activation 
@@ -67,11 +73,11 @@ public class LoginView extends ALayoutServlet {
 			// configure http-login data
 			@SuppressWarnings("unchecked")
 			Dictionary<String, Object> props = admin.getProperties();
-			props.put(HttpContextAuth.USER_HTTP_LOGIN, "admin");
+			props.put(HttpAuthManager.USER_HTTP_LOGIN, "admin");
 
 			@SuppressWarnings("unchecked")
 			Dictionary<String, Object> credentials = admin.getCredentials();
-			credentials.put(HttpContextAuth.USER_HTTP_PASSWORD, "");
+			credentials.put(HttpAuthManager.USER_HTTP_PASSWORD, "");
 		}
 	}
 		
@@ -95,7 +101,7 @@ public class LoginView extends ALayoutServlet {
         		UserAdmin uAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
         		
         		// auth user
-        		User user = HttpContextAuth.authenticatedAs(uAdmin, request, userName, password);        		
+        		final User user = this.guiAuthManager.authenticatedAs(request, userName, password);        		
         		if (user != null){
         			// remember login state
         			session.setAttribute("logon.isDone", Boolean.TRUE);

@@ -31,7 +31,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
-import org.osgi.service.useradmin.UserAdmin;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IMenuManager;
 import org.paxle.gui.IServletManager;
@@ -74,28 +73,21 @@ public class ServletManager implements IServletManager {
 	private HttpService http;
 	
 	/**
-	 * The OSGI {@link UserAdmin} service required for authentication
-	 * @see #createHttpContext(ServiceReference)
-	 * @scr.reference
-	 */
-	private UserAdmin userAdmin;
-	
-	/**
 	 * @scr.reference
 	 */
 	private IMenuManager menuManager;
 	
 	/**
+	 * This service is required for authentication
+	 * @see #createHttpContext(ServiceReference)
+	 * @scr.reference
+	 */
+	private IHttpAuthManager authManager;
+	
+	/**
 	 * Default Servlet properties
 	 */
 	private Hashtable<String, String> defaultProps;
-	
-	/**
-	 * The default context that is used to register servlets and resources.
-	 * Leaving this to <code>null</code> means that the {@link HttpService}
-	 * creates a new context for each resource/servlet
-	 */
-	private HttpContext defaultContext = null;
 	
 	/**
 	 * For logging
@@ -177,7 +169,7 @@ public class ServletManager implements IServletManager {
 		Bundle bundle = servletRef.getBundle();
 		
 		// creating an authentication context
-		return new HttpContextAuth(bundle, this.userAdmin, this);
+		return this.authManager.createHttpAuthContext(bundle);
 	}
 	
 	private void registerMenuItem(ServiceReference servletRef) {
@@ -353,7 +345,7 @@ public class ServletManager implements IServletManager {
 	}
 	
 	public void addResources(String alias, String name) {
-		this.addResources(alias, name, this.defaultContext);
+		this.addResources(alias, name, null);
 	}
 	
 	public void addResources(String alias, String name, HttpContext httpContext) {
