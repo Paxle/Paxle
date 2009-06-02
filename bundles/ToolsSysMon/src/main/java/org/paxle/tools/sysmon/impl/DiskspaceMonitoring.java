@@ -15,6 +15,8 @@ package org.paxle.tools.sysmon.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 
@@ -30,16 +32,17 @@ import org.osgi.service.monitor.StatusVariable;
  * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/DiskspaceMonitoring"
  */
 public class DiskspaceMonitoring implements Monitorable {
-	public static final String PID = "os.disk";		
-	public static final String VAR_SPACE_FREE = "disk.space.free";
+	static enum Mode {
+		commons_io,
+		jre6
+	};
 	
-	/**
-	 * For logging
-	 */
-	private Log logger = LogFactory.getLog(this.getClass());	
-
+	static final String VAR_QUERY_MODE = "query.mode";
+	static final String VAR_SPACE_FREE = "disk.space.free";
+	
 	@SuppressWarnings("serial")
 	private static final HashSet<String> VAR_NAMES = new HashSet<String>() {{
+		add(VAR_QUERY_MODE);
 		add(VAR_SPACE_FREE);
 	}};	
 	
@@ -47,6 +50,26 @@ public class DiskspaceMonitoring implements Monitorable {
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
 	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/DiskspaceMonitoring");	
+
+	/**
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());	
+
+	/**
+	 * Defines if commons-io or the appropriate method of java 6.0
+	 * should be used for disk space querying.
+	 */
+	private Mode queryMode = Mode.commons_io;		
+	
+	public DiskspaceMonitoring() {
+		try {
+			File.class.getMethod("getUsableSpace", (Class[])null);
+			this.queryMode = Mode.jre6;
+		} catch (NoSuchMethodException e) {
+			this.queryMode = Mode.commons_io;
+		}
+	}
 	
 	public String[] getStatusVariableNames() {
 		return VAR_NAMES.toArray(new String[VAR_NAMES.size()]);
@@ -63,36 +86,42 @@ public class DiskspaceMonitoring implements Monitorable {
 	public StatusVariable getStatusVariable(String name) throws IllegalArgumentException {
 		if (!VAR_NAMES.contains(name)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
-		}
+		}		
 		
-		try {
-			/* 
-			 * Query free disk space.
-			 * 
-			 * We need to call this within a separate thread due to the following bug: 
-			 * https://bugs.pxl.li/view.php?id=278
-			 */
+		if (name.equalsIgnoreCase(VAR_SPACE_FREE)) {
 			long freeDisk = -1;
-			FreeSpaceThread queryThread = new FreeSpaceThread();
-			queryThread.start();
-			
-			// waiting for the result
-			queryThread.join(10000);
-	
-			if (queryThread.isAlive()) {
-				final StackTraceElement[] stackTrace = queryThread.getStackTrace();
-				final Exception rte = new RuntimeException("Query thread is still alive");
-				rte.setStackTrace(stackTrace);
-				this.logger.warn("FreeSpace query thread is still alive!", rte);
+			try {
+				/* 
+				 * Query free disk space.
+				 * 
+				 * We need to call this within a separate thread due to the following bug: 
+				 * https://bugs.pxl.li/view.php?id=278
+				 */				
+				FreeSpaceThread queryThread = new FreeSpaceThread();
+				queryThread.start();
 				
-			} else {
-				freeDisk = queryThread.freeSpace;
+				// waiting for the result
+				queryThread.join(10000);
+		
+				if (queryThread.isAlive()) {
+					final StackTraceElement[] stackTrace = queryThread.getStackTrace();
+					final Exception rte = new RuntimeException("Query thread is still alive");
+					rte.setStackTrace(stackTrace);
+					this.logger.warn("FreeSpace query thread is still alive!", rte);
+					
+				} else {
+					freeDisk = queryThread.freeSpace;
+				}
+			} catch (InterruptedException e) { 
+				// ignore this
 			}
 			
 			return new StatusVariable(name, StatusVariable.CM_GAUGE, freeDisk);
-		} catch (InterruptedException e) {
-			return null;
+		} else if (name.equalsIgnoreCase(VAR_QUERY_MODE)) {
+			return new StatusVariable(name, StatusVariable.CM_SI, this.queryMode.toString());
 		}
+		
+		return null;
 	}
 
 	public boolean notifiesOnChange(String name) throws IllegalArgumentException {
@@ -103,11 +132,11 @@ public class DiskspaceMonitoring implements Monitorable {
 		return false;
 	}
 	
-	private static class FreeSpaceThread extends Thread {
+	private class FreeSpaceThread extends Thread {
 		/**
 		 * For logging
 		 */
-		private Log logger = LogFactory.getLog(this.getClass());		
+		private final Log logger = LogFactory.getLog(this.getClass());		
 		
 		public long freeSpace = 0;
 		
@@ -118,16 +147,35 @@ public class DiskspaceMonitoring implements Monitorable {
 		@Override
 		public void run() {
 			try {
-				long freeDisk = FileSystemUtils.freeSpaceKb(new File(System.getProperty("paxle.data")).getCanonicalPath());
-				freeDisk /= 1024;
-				this.freeSpace = freeDisk;
-			} catch (IOException e) {
+				final File paxleDir = new File(System.getProperty("paxle.data")).getCanonicalFile();
+				switch (queryMode) {
+					case jre6:
+						this.freeSpace = freeSpaceMB_jre6(paxleDir);
+						break;
+						
+					default:
+						this.freeSpace = freeSpaceMB_commons(paxleDir);
+						break;
+				}
+			} catch (Throwable e) {
 				this.logger.error(String.format(
 						"Unexpected '%s' while trying to query free disk-space.",
 						e.getClass().getName()
 				),e);
 				this.freeSpace = -1;
 			}
+		}
+		
+		private long freeSpaceMB_commons(File paxleDir) throws IOException {
+			long freeDisk = FileSystemUtils.freeSpaceKb(paxleDir.toString());
+			freeDisk /= 1024;
+			return freeDisk;
+		}
+		
+		private long freeSpaceMB_jre6(File paxleDir) throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+			Method m = File.class.getMethod("getUsableSpace", (Class[])null);
+			Long bytes = (Long) m.invoke(paxleDir, (Object[])null);
+			return bytes.longValue() / (1024*1024);
 		}
 	}
 }

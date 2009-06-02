@@ -31,5 +31,10 @@ public class DiskspaceMonitoringTest extends TestCase {
 	public void testQueryFreeDiskSpace() {
 		StatusVariable var = this.mon.getStatusVariable(DiskspaceMonitoring.VAR_SPACE_FREE);
 		assertNotNull(var);
+		System.out.println(var);
+		
+		var = this.mon.getStatusVariable(DiskspaceMonitoring.VAR_QUERY_MODE);
+		assertNotNull(var);
+		System.out.println(var);
 	}
 }
