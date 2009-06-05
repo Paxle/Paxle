@@ -17,7 +17,6 @@ import java.util.concurrent.Semaphore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.IInputQueue;
 import org.paxle.core.queue.IOutputQueue;
 import org.paxle.core.threading.IMaster;

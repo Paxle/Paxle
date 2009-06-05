@@ -17,7 +17,6 @@ import java.util.List;
 
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
-import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.IInputQueue;
 import org.paxle.core.queue.IOutputQueue;
 import org.paxle.core.threading.IMaster;
