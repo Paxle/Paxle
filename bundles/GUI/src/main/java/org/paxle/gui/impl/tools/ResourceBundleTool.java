@@ -46,55 +46,30 @@ public class ResourceBundleTool extends ResourceTool {
 	public Locale getLocale() {
 		return this.localeConfig.getLocale();
 	}
-
+	
 	@Override
-    public Object get(Object k, String baseName, Object l) {
-		try {
-			// trying to load the resource using the servlet classloader
-			return this.get(k, baseName, l, this.cl);
-		} catch (MissingResourceException e) {
-			// trying to fallback to the classloader of this tool class
-			return this.get(k, baseName, l, this.getClass().getClassLoader());
-		}
-	}
-
-    public Object get(Object k, String baseName, Object l, ClassLoader classloader)
-    {
-        if (baseName == null || k == null)
-        {
+	protected ResourceBundle getBundle(String baseName, Object loc) {
+        Locale locale = (loc == null) ? getLocale() : toLocale(loc);
+        if (baseName == null || locale == null) {
             return null;
         }
-        String key = k == null ? null : String.valueOf(k);
-        Locale locale;
-        if (l == null)
-        {
-            locale = getLocale();
-        }
-        else
-        {
-            locale = toLocale(l);
-            // if conversion fails, return null to indicate an error
-            if (locale == null)
-            {
-                return null;
-            }
-        }
-
-        ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale, classloader);
-        if (bundle != null)
-        {
-            try
-            {
-                return bundle.getObject(key);
-            }
-            catch (Exception e)
-            {
-                // do nothing
-            }
-        }
-        return null;
-    }
+		
+		try {
+			// trying to load the resource using the servlet classloader
+			return ResourceBundle.getBundle(baseName, locale, this.cl);
+		} catch (MissingResourceException e) {
+			// trying to fallback to the classloader of this tool class
+			return ResourceBundle.getBundle(baseName, locale, this.getClass().getClassLoader());
+		}
+	}
 	
+	/**
+	 * This function was copied from {@link ResourceTool} because it was declared
+	 * as private but is needed within {@link #getBundle(String, Object)}
+	 * 
+	 * @param obj
+	 * @return
+	 */
     private Locale toLocale(Object obj)
     {
         if (obj == null)

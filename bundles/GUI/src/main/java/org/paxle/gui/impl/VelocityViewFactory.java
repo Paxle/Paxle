@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 import javax.servlet.ServletConfig;
 
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.tools.view.JeeConfig;
+import org.apache.velocity.tools.view.JeeServletConfig;
 import org.apache.velocity.tools.view.VelocityView;
 import org.osgi.framework.BundleContext;
 import org.paxle.gui.IServletManager;
@@ -40,7 +40,7 @@ public class VelocityViewFactory implements IVelocityViewFactory {
 		
 		// create and init a new velocity view
 		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-		VelocityView view = new PaxleVelocityView(new JeeConfig(config));
+		VelocityView view = new PaxleVelocityView(new JeeServletConfig(config));
 		
 		// re-set old classloader
 		if (oldCl != null) Thread.currentThread().setContextClassLoader(oldCl);
