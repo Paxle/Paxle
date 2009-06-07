@@ -31,14 +31,14 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
+import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandProfile;
-import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.ICrawlerContext;
 

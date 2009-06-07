@@ -17,14 +17,14 @@ import java.io.IOException;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.norm.IReferenceNormalizer;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandProfile;
 
 public interface IParserContext {
 

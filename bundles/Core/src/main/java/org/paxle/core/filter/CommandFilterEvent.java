@@ -16,10 +16,13 @@ package org.paxle.core.filter;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
-import org.paxle.core.queue.CommandEvent;
-import org.paxle.core.queue.ICommand;
+import org.paxle.core.doc.CommandEvent;
+import org.paxle.core.doc.ICommand;
 
 public class CommandFilterEvent extends CommandEvent {
 	/* ======================================================================
@@ -61,12 +64,12 @@ public class CommandFilterEvent extends CommandEvent {
 		properties.put(PROP_FILTER_NAME, context.getFilter().getClass().getName());
 	}
 	
-	public static Event createEvent(String stageID, String topic, ICommand command, IFilterContext context) {
+	public static Event createEvent(@Nonnull String stageID, @Nonnull String topic, @Nonnull ICommand command, @Nonnull IFilterContext context) {
 		return createEvent(stageID, topic, command, context, null);
 	}
 	
-	public static Event createEvent(String stageID, String topic, ICommand command, IFilterContext context, Throwable exception) {
-		Hashtable<String, Object> props = new Hashtable<String, Object>();
+	public static Event createEvent(@Nonnull String stageID, @Nonnull String topic, @Nonnull ICommand command, @Nonnull IFilterContext context, @Nullable Throwable exception) {
+		final Hashtable<String, Object> props = new Hashtable<String, Object>();
 		
 		// extracting filter-context-props
 		extractFilterContextProps(context, props);
@@ -83,5 +86,13 @@ public class CommandFilterEvent extends CommandEvent {
 		// create general and append general command-props 
 		Event event = CommandEvent.createEvent(stageID, topic, command, props);
 		return event;
+	}
+	
+	/**
+	 * Direct instantiation of this class not allowed, use function <code>createEvent</code> instead.
+	 * @see #createEvent(String, String, ICommand, IFilterContext)
+	 * @see #createEvent(String, String, ICommand, IFilterContext, Throwable)
+	 */
+	protected CommandFilterEvent() {
 	}
 }

@@ -50,11 +50,15 @@ import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.data.impl.DataListener;
 import org.paxle.core.data.impl.DataManager;
+import org.paxle.core.doc.CommandEvent;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandTracker;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
+import org.paxle.core.doc.impl.CommandTracker;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.impl.AscendingPathUrlExtractionFilter;
@@ -79,10 +83,6 @@ import org.paxle.core.norm.impl.ReferenceNormalizer;
 import org.paxle.core.norm.impl.URLStreamHandlerListener;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.impl.PropertiesStore;
-import org.paxle.core.queue.CommandEvent;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandTracker;
-import org.paxle.core.queue.impl.CommandTracker;
 
 public class Activator implements BundleActivator, InvocationHandler {
 	
@@ -119,7 +119,7 @@ public class Activator implements BundleActivator, InvocationHandler {
 	private ReferenceNormalizer referenceNormalizer = null;
 	
 	/**
-	 * A component used to track {@link org.paxle.core.queue.ICommand commands}
+	 * A component used to track {@link org.paxle.core.doc.ICommand commands}
 	 */
 	private CommandTracker commandTracker = null;
 	

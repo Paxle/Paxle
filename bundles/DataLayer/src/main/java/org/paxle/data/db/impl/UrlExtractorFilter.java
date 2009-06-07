@@ -30,12 +30,12 @@ import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
-import org.paxle.core.queue.ICommand;
 import org.paxle.data.db.URIQueueEntry;
 
 public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQueueEntry>, Monitorable {

@@ -20,7 +20,7 @@ import java.io.Reader;
 
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
-import org.paxle.core.queue.ICommand;
+import org.paxle.core.doc.ICommand;
 
 public abstract class ACommandReader extends Thread implements IDataProvider<ICommand> {
 	/**

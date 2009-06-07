@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>FilterForum</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Filter: Forum</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -40,7 +40,6 @@
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.paxle.core.filter;version="[0.1.0,0.2.0)",
-							org.paxle.core.queue;version="[0.1.0,0.2.0)",
 							org.paxle.core.doc;version="[0.1.0,0.2.0)"
 						</Import-Package>
 						<Private-Package>
@@ -63,7 +62,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[,0.2.0)</version>				
+			<version>[0.1.32-SNAPSHOT,0.2.0)</version>				
 		</dependency>	
 	</dependencies>
 </project>

@@ -27,9 +27,10 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 import org.paxle.core.data.IDataProvider;
+import org.paxle.core.doc.ICommandTracker;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.Properties;
-import org.paxle.core.queue.ICommandTracker;
 import org.paxle.crawler.proxy.IHttpProxy;
 
 public class Activator implements BundleActivator {
@@ -80,9 +81,14 @@ public class Activator implements BundleActivator {
         if (commandTracker == null) {
         	this.logger.warn("No CommandTracker-service found. Command-tracking will not work.");
         }
+        
+        // getting the document-factory
+        ServiceReference[] docFactoryRefs = context.getServiceReferences(IDocumentFactory.class.getName(),"(docType=org.paxle.core.doc.ICrawlerDocument)");
+        if (docFactoryRefs == null || docFactoryRefs.length == 0) throw new IllegalStateException("No DocFactory found.");
+        final IDocumentFactory docFactory = (IDocumentFactory) context.getService(docFactoryRefs[0]);
 		
 		// init data provider
-		this.dataProvider = new ProxyDataProvider(providerPrefs, commandTracker);
+		this.dataProvider = new ProxyDataProvider(providerPrefs, commandTracker, docFactory);
 		final Hashtable<String,String> providerProps = new Hashtable<String,String>();
 		providerProps.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.parser.sink");		
 		context.registerService(new String[]{IDataProvider.class.getName()}, this.dataProvider, providerProps);

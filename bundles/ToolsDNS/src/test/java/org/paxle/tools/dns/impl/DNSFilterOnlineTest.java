@@ -17,14 +17,14 @@ import java.net.URI;
 
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.service.component.ComponentContext;
+import org.paxle.core.doc.Command;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.impl.BasicParserDocument;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.io.temp.ITempFileManager;
-import org.paxle.core.queue.Command;
-import org.paxle.core.queue.ICommand;
 
 public class DNSFilterOnlineTest extends MockObjectTestCase {
 	private IFilter<ICommand> filter;

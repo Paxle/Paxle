@@ -24,14 +24,14 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandProfileManager;
 
 
 public class FilterListenerTest extends MockObjectTestCase {

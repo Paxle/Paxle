@@ -14,7 +14,7 @@
 #if(!$text)
 	#set( $text = $resourceTool.bundle('OSGI-INF/l10n/crawlerview'))
 #end
-#if(${manager.getService("org.paxle.core.queue.ICommandProfileManager")})
+#if(${manager.getService("org.paxle.core.doc.ICommandProfileManager")})
 <fieldset>
 	<legend>${text.cmdprofile.legend}</legend>
 	<table>

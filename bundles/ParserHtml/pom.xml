@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserHtml</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.6-SNAPSHOT</version>
+	<version>0.1.7-SNAPSHOT</version>
 	<name>Paxle - Parser: HTML</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -51,7 +51,6 @@
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
 							org.paxle.core.io.temp;version="[0.1.0,0.2.0)",
 							org.paxle.core.norm;version="[0.1.0,0.2.0)",
-							org.paxle.core.queue;version="[0.1.0,0.2.0)",
 							org.paxle.util.buffer;version="[0.1.0,0.2.0)",
 							org.paxle.util.ac;version="[0.1.0,0.2.0)",
 							<!-- Paxle Parser Core -->
@@ -100,7 +99,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.27-SNAPSHOT,0.2.0)</version>			
+			<version>[0.1.32-SNAPSHOT,0.2.0)</version>			
 		</dependency>
 	
 		<dependency>

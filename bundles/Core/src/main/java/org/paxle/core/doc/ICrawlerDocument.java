@@ -46,24 +46,21 @@ public interface ICrawlerDocument extends Closeable {
 	public String getMimeType();
 	public void setMimeType(String mimeType);
 	
-	public long getSize();
+	public long getSize();	
 	
-	@CheckForNull
-	public File getContent();
-	public void setContent(File content);
+	public @CheckForNull File getContent();
+	public void setContent(File content);	
 	
-	@CheckForNull
-	public String[] getLanguages();	
+	public @CheckForNull String[] getLanguages();	
 	public void setLanguages(String[] lang);
 	
 	public Date getCrawlerDate();
 	public void setCrawlerDate(Date crawlerDate);
 	
 	public Date getLastModDate();
-	public void setLastModDate(Date lastModDate);
+	public void setLastModDate(Date lastModDate);	
 	
-	@CheckForNull
-	public byte[] getMD5Sum();
+	public @CheckForNull byte[] getMD5Sum();
 	public void setMD5Sum(byte[] md5Sum);
 	
 	public void close() throws IOException;

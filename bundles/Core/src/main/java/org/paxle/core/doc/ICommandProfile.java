@@ -11,11 +11,15 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.queue;
+package org.paxle.core.doc;
 
 import java.io.Serializable;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * TODO:
@@ -101,7 +105,7 @@ public interface ICommandProfile {
 	public void setProperties(Map<String, Serializable> props);
 	public Map<String, Serializable> getProperties();
 	
-	public Serializable getProperty(String propertyName);
-	public Serializable removeProperty(String propertyName);
-	public void setProperty(String propertyName, Serializable propertyValue);
+	public @CheckForNull Serializable getProperty(@Nonnull String propertyName);
+	public @CheckForNull Serializable removeProperty(@Nonnull String propertyName);
+	public void setProperty(@Nonnull String propertyName, @Nullable Serializable propertyValue);
 }

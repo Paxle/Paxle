@@ -17,7 +17,7 @@ import java.io.IOException;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.paxle.core.queue.ICommand;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 

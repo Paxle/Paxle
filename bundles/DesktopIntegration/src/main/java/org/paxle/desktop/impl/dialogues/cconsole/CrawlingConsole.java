@@ -46,11 +46,11 @@ import org.osgi.service.event.EventHandler;
 
 import org.paxle.core.IMWComponent;
 import org.paxle.core.MWComponentEvent;
+import org.paxle.core.doc.CommandEvent;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandTracker;
 import org.paxle.core.filter.CommandFilterEvent;
 import org.paxle.core.prefs.Properties;
-import org.paxle.core.queue.CommandEvent;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandTracker;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager;
 import org.paxle.desktop.impl.Utilities;

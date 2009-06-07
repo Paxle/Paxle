@@ -15,6 +15,8 @@ package org.paxle.core.doc.impl;
 
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
@@ -25,7 +27,7 @@ public class BasicDocumentFactory implements IDocumentFactory {
 	
 	private final ITempFileManager tempFileManager;
 	
-	public BasicDocumentFactory(ITempFileManager tempFileManager) {
+	public BasicDocumentFactory(@Nonnull ITempFileManager tempFileManager) {
 		this.tempFileManager = tempFileManager;
 	}
 

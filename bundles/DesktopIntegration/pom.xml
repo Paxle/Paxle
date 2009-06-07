@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>DesktopIntegration</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.6-SNAPSHOT</version>
+	<version>0.1.7-SNAPSHOT</version>
 	<name>Paxle - UI: DesktopIntegration</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -56,8 +56,7 @@
 							org.eclipse.osgi.framework.console;resolution:=optional,
 							<!-- Logging framework -->
 							org.apache.commons.logging,
-							<!-- Paxle Core Bundle -->
-							org.paxle.core.queue;version="[0.1.0,0.2.0)", 
+							<!-- Paxle Core Bundle --> 
 							org.paxle.core.io;version="[0.1.0,0.2.0)",
 							org.paxle.core;version="[0.1.0,0.2.0)",
 							org.paxle.core.doc;version="[0.1.0,0.2.0)",
@@ -123,7 +122,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[,0.2.0)</version>
+			<version>[0.1.32-SNAPSHOT,0.2.0)</version>
 			<optional>true</optional>	
 		</dependency>
 		

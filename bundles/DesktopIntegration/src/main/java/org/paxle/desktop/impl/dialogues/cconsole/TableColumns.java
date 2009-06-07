@@ -24,10 +24,10 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.osgi.service.event.Event;
+import org.paxle.core.doc.CommandEvent;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.queue.CommandEvent;
-import org.paxle.core.queue.ICommand;
 import org.paxle.desktop.impl.Messages;
 import org.paxle.desktop.impl.ServiceManager.MWComponents;
 import org.paxle.desktop.impl.dialogues.cconsole.CrawlingConsole.TableColumnSpecs;

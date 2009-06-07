@@ -27,9 +27,9 @@ import org.osgi.service.component.ComponentContext;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.doc.Field;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandTracker;
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandTracker;
 import org.paxle.se.index.IIndexWriter;
 import org.paxle.se.index.IndexException;
 

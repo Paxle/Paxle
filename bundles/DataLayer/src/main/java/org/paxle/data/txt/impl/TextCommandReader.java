@@ -20,8 +20,8 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.paxle.core.queue.Command;
-import org.paxle.core.queue.ICommand;
+import org.paxle.core.doc.Command;
+import org.paxle.core.doc.ICommand;
 import org.paxle.data.impl.ACommandReader;
 
 public class TextCommandReader extends ACommandReader {

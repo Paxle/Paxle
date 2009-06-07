@@ -17,10 +17,10 @@ import java.io.Serializable;
 
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
-import org.paxle.core.queue.Command;
-import org.paxle.core.queue.CommandProfile;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandProfile;
+import org.paxle.core.doc.Command;
+import org.paxle.core.doc.CommandProfile;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
 
 public class InterfaceInterceptor extends EmptyInterceptor {
 	private static final long serialVersionUID = 1L;

@@ -11,9 +11,12 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.queue;
+package org.paxle.core.doc;
 
 import java.net.URI;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 import org.osgi.service.event.EventAdmin;
 
@@ -27,7 +30,7 @@ public interface ICommandTracker {
 	 * @param componendID unique ID of the component that created the {@link ICommand command}
 	 * @param command
 	 */
-	public void commandCreated(String componendID, ICommand command);
+	public void commandCreated(@Nonnull String componendID, @Nonnull ICommand command);
 	
 	/**
 	 * Notifies the {@link ICommandTracker command-tracker} about the destruction of a 
@@ -38,21 +41,21 @@ public interface ICommandTracker {
 	 * @param componendID unique ID of the component that consumed the {@link ICommand command}
 	 * @param command
 	 */
-	public void commandDestroyed(String componendID, ICommand command);
+	public void commandDestroyed(@Nonnull String componendID, @Nonnull ICommand command);
 	
 	/**
 	 * Lookup a {@link ICommand} by {@link ICommand#getLocation() location}.
 	 * @param commandLocation the {@link ICommand#getLocation() command-location}
 	 * @return the {@link ICommand} or <code>null</code> if unknown
 	 */
-	public ICommand getCommandByLocation(URI commandLocation);
+	public @CheckForNull ICommand getCommandByLocation(URI commandLocation);
 	
 	/**
 	 * Lookup a {@link ICommand} by {@link ICommand#getOID() ID}.
 	 * @param commandID the  {@link ICommand#getOID() command-ID}
 	 * @return the {@link ICommand} or <code>null</code> if unknown
 	 */
-	public ICommand getCommandByID(Long commandID);
+	public @CheckForNull ICommand getCommandByID(Long commandID);
 	
 	/**
 	 * @return the amount of {@link ICommand commands} tracked by this component

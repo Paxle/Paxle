@@ -33,8 +33,8 @@ import org.apache.commons.logging.LogFactory;
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.data.IDataSink;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandTracker;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandTracker;
 import org.paxle.core.threading.PPM;
 
 public class CommandDBTest extends MockObjectTestCase {

@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.queue;
+package org.paxle.core.doc;
 
 import java.net.URI;
 import java.util.Properties;
@@ -21,7 +21,9 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
-import org.paxle.core.queue.ICommand.Result;
+import org.paxle.core.doc.CommandEvent;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommand.Result;
 
 public class CommandEventTest extends MockObjectTestCase {
 	public void testCreateEvent() {

@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.queue.impl;
+package org.paxle.core.doc.impl;
 
 import java.net.URI;
 import java.util.Random;
@@ -24,9 +24,10 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
-import org.paxle.core.queue.Command;
-import org.paxle.core.queue.CommandEvent;
-import org.paxle.core.queue.ICommand;
+import org.paxle.core.doc.Command;
+import org.paxle.core.doc.CommandEvent;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.impl.CommandTracker;
 
 public class CommandTrackerTest extends MockObjectTestCase {
 	private EventAdmin eAdmin;

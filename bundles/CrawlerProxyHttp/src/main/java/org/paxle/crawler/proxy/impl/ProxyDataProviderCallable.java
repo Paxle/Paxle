@@ -21,8 +21,8 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxle.core.doc.CrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.crawler.CrawlerTools;
 import org.xsocket.connection.http.HttpResponseHeader;
 
@@ -32,25 +32,28 @@ public class ProxyDataProviderCallable implements Callable<ICrawlerDocument> {
 	 */
 	private final Log logger = LogFactory.getLog(this.getClass());	
 	
+	private final IDocumentFactory docFactory;
 	private final URI location;
 	private final HttpResponseHeader responseHeaders;
 	private final InputStream bodyInputStream;	
 	
-	public ProxyDataProviderCallable(URI location, HttpResponseHeader responseHeaders, InputStream bodyInputStream) {
+	public ProxyDataProviderCallable(URI location, HttpResponseHeader responseHeaders, InputStream bodyInputStream, IDocumentFactory docFactory) {
 		if (location == null) throw new NullPointerException("The command object was null.");
 		if (responseHeaders == null) throw new NullPointerException("The response-headers were null.");
 		if (bodyInputStream == null) throw new NullPointerException("The response-body wasnull.");
+		if (docFactory == null) throw new NullPointerException("No doc-factory found");
 		
 		this.location = location;
 		this.responseHeaders = responseHeaders;
 		this.bodyInputStream = bodyInputStream;
+		this.docFactory = docFactory;
 	}
 	
 	public ICrawlerDocument call() throws Exception {
-		CrawlerDocument doc = null;
+		ICrawlerDocument doc = null;
 		try {					
 			// create a new CrawlerDocument
-			doc = new CrawlerDocument();
+			doc = this.docFactory.createDocument(ICrawlerDocument.class);
 			
 			// getting the content location
 			doc.setLocation(this.location);

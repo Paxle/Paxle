@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping default-lazy="false">
-	<class name="org.paxle.core.queue.ICommandProfile" table="Profile" lazy="false">
+	<class name="org.paxle.core.doc.ICommandProfile" table="Profile" lazy="false">
 		<cache usage="read-write" />
 	
 		<!-- unique identifier needed for ORM mapping-->
@@ -20,7 +20,7 @@
 		 -->
 		 <property name="linkFilterMode">
 			<type name="org.paxle.data.db.impl.EnumUserType">
-				<param name="enumClassName">org.paxle.core.queue.ICommandProfile$LinkFilterMode</param>
+				<param name="enumClassName">org.paxle.core.doc.ICommandProfile$LinkFilterMode</param>
 			</type>		 
 		 </property>
 		 <property name="linkFilterExpression"/>

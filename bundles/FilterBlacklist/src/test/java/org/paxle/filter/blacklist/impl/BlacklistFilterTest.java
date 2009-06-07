@@ -19,12 +19,12 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.integration.junit3.MockObjectTestCase;
+import org.paxle.core.doc.Command;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.impl.BasicParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
-import org.paxle.core.queue.Command;
-import org.paxle.core.queue.ICommand;
 import org.paxle.filter.blacklist.IBlacklist;
 import org.paxle.filter.blacklist.InvalidBlacklistnameException;
 

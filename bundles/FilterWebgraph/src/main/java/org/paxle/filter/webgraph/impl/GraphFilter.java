@@ -25,12 +25,12 @@ import java.util.Set;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
-import org.paxle.core.queue.ICommand;
 
 /**
  * This helper class determines the language of a document and inserts its finding into a parser-doc and all of its subdocs 

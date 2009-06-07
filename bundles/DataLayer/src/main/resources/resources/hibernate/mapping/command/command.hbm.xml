@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping default-lazy="false">
-    <class name="org.paxle.core.queue.ICommand" table="EnqueuedCommand" lazy="false" entity-name="EnqueuedCommand">
+    <class name="org.paxle.core.doc.ICommand" table="EnqueuedCommand" lazy="false" entity-name="EnqueuedCommand">
         <id name="OID" column="id">
             <generator class="native"/>          
         </id>      
@@ -10,7 +10,7 @@
         <!-- the command processing result -->
         <property name="result" node="Result/Code">
 			<type name="org.paxle.data.db.impl.EnumUserType">
-				<param name="enumClassName">org.paxle.core.queue.ICommand$Result</param>
+				<param name="enumClassName">org.paxle.core.doc.ICommand$Result</param>
 			</type>
       	</property>
       	<property name="resultText" index="resultText_idx" />    
@@ -27,7 +27,7 @@
     	</property>
     </class>
     
-    <class name="org.paxle.core.queue.ICommand" table="CrawledCommand" lazy="false" entity-name="CrawledCommand">
+    <class name="org.paxle.core.doc.ICommand" table="CrawledCommand" lazy="false" entity-name="CrawledCommand">
         <id name="OID" column="id">
             <generator class="native"/>          
         </id>
@@ -35,7 +35,7 @@
         <!-- the command processing result -->
         <property name="result" node="Result/Code">
 			<type name="org.paxle.data.db.impl.EnumUserType">
-				<param name="enumClassName">org.paxle.core.queue.ICommand$Result</param>
+				<param name="enumClassName">org.paxle.core.doc.ICommand$Result</param>
 			</type>
       	</property>
       	<property name="resultText" node="Result/Text" index="resultText_idx" />    

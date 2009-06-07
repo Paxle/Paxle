@@ -203,7 +203,7 @@ public class FeedParser extends ASubParser implements ISubParser {
 			pdoc.setStatus(IParserDocument.Status.OK);
 			return pdoc;
 		} catch (Throwable e) {
-			throw new ParserException("error parsing feed", e);
+			throw new ParserException("error parsing feed: " + e.getMessage(), e);
 		}
 	}
 }

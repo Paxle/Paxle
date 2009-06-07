@@ -28,10 +28,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.paxle.core.queue.CommandProfile;
-import org.paxle.core.queue.ICommandProfile;
-import org.paxle.core.queue.ICommandProfileManager;
-import org.paxle.core.queue.ICommandProfile.LinkFilterMode;
+import org.paxle.core.doc.CommandProfile;
+import org.paxle.core.doc.ICommandProfile;
+import org.paxle.core.doc.ICommandProfileManager;
+import org.paxle.core.doc.ICommandProfile.LinkFilterMode;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
 

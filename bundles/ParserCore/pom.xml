@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserCore</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.10-SNAPSHOT</version>
+	<version>0.1.11-SNAPSHOT</version>
 	<name>Paxle - Parser: Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -53,8 +53,7 @@
 							<!-- Apache Commons IO -->
 							org.apache.commons.io.output;version="1.4",
 							<!-- Paxle Core -->
-							org.paxle.core;version="[0.1.0,0.2.0)",
-							org.paxle.core.queue;version="[0.1.0,0.2.0)", 
+							org.paxle.core;version="[0.1.0,0.2.0)", 
 							org.paxle.core.threading;version="[0.1.0,0.2.0)", 
 							org.paxle.core.filter;version="[0.1.0,0.2.0)", 
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
@@ -108,7 +107,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.27-SNAPSHOT,0.2.0)</version>
+			<version>[0.1.32-SNAPSHOT,0.2.0)</version>
 		</dependency>
 		
 		<dependency>

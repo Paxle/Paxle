@@ -20,15 +20,15 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
+import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilterContext;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandProfile;
-import org.paxle.core.queue.ICommandProfileManager;
 import org.paxle.filter.blacklist.IBlacklistManager;
 import org.paxle.filter.blacklist.IFilterResult;
 import org.paxle.filter.blacklist.IRegexpBlacklistFilter;

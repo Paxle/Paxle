@@ -67,11 +67,11 @@ import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
-import org.paxle.core.queue.Command;
-import org.paxle.core.queue.CommandEvent;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandProfile;
-import org.paxle.core.queue.ICommandTracker;
+import org.paxle.core.doc.Command;
+import org.paxle.core.doc.CommandEvent;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
+import org.paxle.core.doc.ICommandTracker;
 import org.paxle.data.db.ICommandDB;
 import org.paxle.data.db.URIQueueEntry;
 

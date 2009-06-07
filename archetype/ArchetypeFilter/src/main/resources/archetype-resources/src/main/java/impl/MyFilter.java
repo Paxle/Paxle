@@ -6,7 +6,7 @@ import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
-import org.paxle.core.queue.ICommand;
+import org.paxle.core.doc.ICommand;
 
 /**
  * TODO: description of MyFilter

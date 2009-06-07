@@ -11,16 +11,21 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.queue;
+package org.paxle.core.doc;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
+import org.paxle.core.queue.IInputQueue;
+import org.paxle.core.queue.IOutputQueue;
 
 public class CommandEvent {
 	/* ======================================================================
@@ -169,7 +174,7 @@ public class CommandEvent {
 	 * @return an {@link Event} with the given {@link Event#getTopic() topic} and
 	 * {@link Event#getPropertyNames() properties}.
 	 */
-	public static Event createEvent(String componentID, String topic, ICommand command) {
+	public static Event createEvent(@Nonnull String componentID, @Nonnull String topic, @Nonnull ICommand command) {
 		return createEvent(componentID, topic, command,new Hashtable<String, Object>());
 	}
 	
@@ -185,7 +190,7 @@ public class CommandEvent {
 	 * {@link Event#getPropertyNames() properties}.
 	 */
 	@SuppressWarnings("unchecked")
-	public static Event createEvent(String componentID, String topic, ICommand command, Dictionary properties) {
+	public static Event createEvent(@Nonnull String componentID, @Nonnull String topic, @Nonnull ICommand command, @Nullable Dictionary properties) {
 		if (componentID == null) throw new NullPointerException("The component-ID is null");
 		if (topic == null) throw new NullPointerException("No topic specified.");
 		if (command == null) throw new NullPointerException("No command specified.");
@@ -202,5 +207,14 @@ public class CommandEvent {
 		
 		// return an event object
 		return new Event(topic, properties);
+	}
+	
+	/**
+	 * Direct instantiation of this class not allowed, use function <code>createEvent</code> instead.
+	 * 
+	 * @see #createEvent(String, String, ICommand)
+	 * @see #createEvent(String, String, ICommand, Dictionary)
+	 */
+	protected CommandEvent() {
 	}
 }

@@ -24,12 +24,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
+import org.paxle.core.doc.Command;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
+import org.paxle.core.doc.ICommandTracker;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.prefs.Properties;
-import org.paxle.core.queue.Command;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandProfile;
-import org.paxle.core.queue.ICommandTracker;
 import org.xsocket.connection.http.HttpResponseHeader;
 
 public class ProxyDataProvider extends Thread implements IDataProvider<ICommand> {
@@ -65,6 +66,8 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 	 */
 	private final ICommandTracker commandTracker;
 	
+	private final IDocumentFactory docFactory;
+	
 	/**
 	 * indicates if this thread was terminated
 	 * @see #terminate()
@@ -87,9 +90,10 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 	 */
 	private int commandProfileID = -1;	
 	
-	public ProxyDataProvider(Properties props, ICommandTracker cmdTracker) {
+	public ProxyDataProvider(Properties props, ICommandTracker cmdTracker, IDocumentFactory docFactory) {
 		singleton = this;
 		this.commandTracker = cmdTracker;
+		this.docFactory = docFactory;
 		
 		// init threadpool
 		// XXX should we set the thread-pool size? 
@@ -131,7 +135,7 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 		// TODO: check if we are overloaded
 		
 		if (this.logger.isDebugEnabled()) this.logger.debug(String.format("Starting a new worker for '%s'.", location));
-		this.execCompletionService.submit(new ProxyDataProviderCallable(location, resHdr, bodyInputStream));
+		this.execCompletionService.submit(new ProxyDataProviderCallable(location, resHdr, bodyInputStream, this.docFactory));
 	}
 	
 	@Override

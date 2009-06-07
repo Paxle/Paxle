@@ -1,10 +1,10 @@
 package org.paxle.se.index.mg4j.impl;
 
 import it.unimi.dsi.fastutil.io.BinIO;
+import it.unimi.dsi.io.FileLinesCollection;
 import it.unimi.dsi.mg4j.document.DocumentFactory;
 import it.unimi.dsi.mg4j.index.CompressionFlags;
 import it.unimi.dsi.mg4j.index.DiskBasedIndex;
-import it.unimi.dsi.io.FileLinesCollection;
 import it.unimi.dsi.mg4j.tool.Concatenate;
 import it.unimi.dsi.mg4j.tool.IndexBuilder;
 import it.unimi.dsi.mg4j.util.ImmutableExternalTriePrefixDictionary;

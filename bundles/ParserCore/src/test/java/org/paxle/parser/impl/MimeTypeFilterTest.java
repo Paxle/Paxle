@@ -17,10 +17,10 @@ import java.net.URI;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.ICommand.Result;
 import org.paxle.core.filter.IFilter;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommand.Result;
 import org.paxle.parser.ISubParserManager;
 
 public class MimeTypeFilterTest extends MockObjectTestCase {

@@ -23,12 +23,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
+import org.paxle.core.doc.CommandEvent;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandTracker;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
-import org.paxle.core.queue.CommandEvent;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandTracker;
 
 public class CommandTempReleaser implements EventHandler {
 	

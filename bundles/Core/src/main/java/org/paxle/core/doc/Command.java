@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.queue;
+package org.paxle.core.doc;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,9 +19,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.paxle.core.doc.ICrawlerDocument;
-import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.core.doc.IParserDocument;
 
 public class Command implements ICommand {
 	
@@ -78,7 +75,7 @@ public class Command implements ICommand {
 
 	/**
 	 * @param location the location of the document to process.
-	 * @return a new {@link CommandEvent} object representing the job for processing the given {@link URI}
+	 * @return a new {@link Command} object representing the job for processing the given {@link URI}
 	 */
 	public static Command createCommand(URI location) {
 		return createCommand(location, -1);

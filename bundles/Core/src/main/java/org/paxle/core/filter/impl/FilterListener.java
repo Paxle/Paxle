@@ -29,6 +29,7 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
+import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
@@ -36,7 +37,6 @@ import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
-import org.paxle.core.queue.ICommandProfileManager;
 
 /**
  * A class to listen for registered and unregistered {@link IFilter filters}.

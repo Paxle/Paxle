@@ -26,11 +26,11 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.queue.ICommand;
 import org.paxle.core.threading.AWorker;
 
 public class IndexerWorker extends AWorker<ICommand> {

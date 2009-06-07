@@ -48,7 +48,7 @@ public interface IDialogueServices {
 		STATS,
 		
 		/**
-		 * A debug-dialogue which provides access to the {@link org.paxle.core.queue.ICommand ICommands}
+		 * A debug-dialogue which provides access to the {@link org.paxle.core.doc.ICommand ICommands}
 		 * currently processed by the core-components via {@link org.osgi.service.event.Event events}.
 		 */
 		/*

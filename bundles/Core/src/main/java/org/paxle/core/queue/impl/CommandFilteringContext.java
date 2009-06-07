@@ -25,15 +25,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
+import org.paxle.core.doc.CommandEvent;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.ICommand.Result;
 import org.paxle.core.filter.CommandFilterEvent;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
-import org.paxle.core.queue.CommandEvent;
-import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandFilteringContext;
-import org.paxle.core.queue.ICommand.Result;
 
 abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommandFilteringContext<Cmd> {
 	

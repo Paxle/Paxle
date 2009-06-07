@@ -26,9 +26,9 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.paxle.core.IMWComponent;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.Properties;
-import org.paxle.core.queue.ICommand;
 
 public class ServiceManager {
 	

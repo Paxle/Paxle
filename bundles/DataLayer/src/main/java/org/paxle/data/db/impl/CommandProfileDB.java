@@ -23,8 +23,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import org.paxle.core.queue.ICommandProfile;
-import org.paxle.core.queue.ICommandProfileManager;
+import org.paxle.core.doc.ICommandProfile;
+import org.paxle.core.doc.ICommandProfileManager;
 
 public class CommandProfileDB implements ICommandProfileManager {
 	

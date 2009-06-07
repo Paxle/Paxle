@@ -30,8 +30,8 @@ public class Test {
 //		testOpenIndex();
 		
 		try {
-			String baseName = "paxle";
-			String datadir = "/home/theli/paxle/workspace/runtime-osgi/test/";
+			String baseName = "test1229065079958";
+			String datadir = "/home/theli/paxle/workspace/IndexMG4J/target";
 			
 //			DocumentCollection collection = (DocumentCollection) BinIO.loadObject( new File( datadir, "test.collection" ));
 			
@@ -58,7 +58,7 @@ public class Test {
 
 			queryEngine.score( new Scorer[] { new VignaScorer() },new double[] { 1 } );
 			
-			String query = "apache";
+			String query = "MG4J";
 			int start = 0, maxNumItems = 100;
 			
 			ObjectArrayList<DocumentScoreInfo<Reference2ObjectMap<Index,SelectedInterval[]>>> results = new ObjectArrayList<DocumentScoreInfo<Reference2ObjectMap<Index,SelectedInterval[]>>>();

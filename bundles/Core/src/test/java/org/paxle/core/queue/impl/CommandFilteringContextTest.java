@@ -25,9 +25,9 @@ import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.service.event.EventAdmin;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.filter.IFilterQueue;
-import org.paxle.core.queue.ICommand;
 
 public class CommandFilteringContextTest extends MockObjectTestCase {
 	private CommandFilteringContext<ICommand> cmdCtx;

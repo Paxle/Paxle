@@ -20,11 +20,11 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.ICommand.Result;
 import org.paxle.core.doc.ICrawlerDocument.Status;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommand.Result;
 import org.paxle.core.threading.AWorker;
 import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;

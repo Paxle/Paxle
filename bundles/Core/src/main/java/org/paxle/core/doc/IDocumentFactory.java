@@ -15,8 +15,10 @@ package org.paxle.core.doc;
 
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 public interface IDocumentFactory {
 	public static final String DOCUMENT_TYPE = "docType";
 	
-	public <Doc> Doc createDocument(Class<Doc> docInterface) throws IOException;
+	public <Doc> Doc createDocument(@Nonnull Class<Doc> docInterface) throws IOException;
 }

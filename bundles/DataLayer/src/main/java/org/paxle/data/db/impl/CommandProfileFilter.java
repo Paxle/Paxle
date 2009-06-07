@@ -22,16 +22,16 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.doc.CommandProfile;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
+import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
+import org.paxle.core.doc.ICommandProfile.LinkFilterMode;
 import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
-import org.paxle.core.queue.CommandProfile;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandProfile;
-import org.paxle.core.queue.ICommandProfileManager;
-import org.paxle.core.queue.ICommandProfile.LinkFilterMode;
 
 /**
  * XXX: This is just a fist step. later we'll split this filter into 
@@ -152,7 +152,7 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 				this.checkLinks(profile, command, parserDoc, c);
 				
 				String logMessage = String.format(
-						"Blocking %d URLs from reference map(s) of '%s' due to command-profile (MaxDepth is %d).",
+						"Blocking %d URLs from reference map(s) of '%s' due to command-profile.",
 						Integer.valueOf(c.c), 
 						command.getLocation(),
 						Integer.valueOf(profile.getMaxDepth())

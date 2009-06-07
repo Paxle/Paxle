@@ -11,17 +11,18 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.queue;
+package org.paxle.core.doc;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import org.paxle.core.doc.ICrawlerDocument;
-import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.queue.IInputQueue;
+import org.paxle.core.queue.IOutputQueue;
 
 /**
  * Represents a command-object that is passed to components
@@ -48,11 +49,11 @@ public interface ICommand extends Closeable {
 	};
 
 	public Result getResult();
-	public boolean isResult(Result result);
+	public boolean isResult(@Nonnull Result result);
 	public String getResultText();
-	public void setResultText(String description);
-	public void setResult(Result result);
-	public void setResult(Result result, String description);
+	public void setResultText(@Nullable String description);
+	public void setResult(@Nonnull Result result);
+	public void setResult(@Nonnull Result result, @Nullable String description);
 	
 	/**
 	 * @return the systemwidth unique ID of this command. 
@@ -87,42 +88,24 @@ public interface ICommand extends Closeable {
 	 * Sets the URL
 	 * @param location
 	 */
-	public void setLocation(URI location);
+	public void setLocation(@Nonnull URI location);
 	
 	public int getDepth();
 	
 	public void setDepth(int depth);
 	
-	@CheckForNull
-	public ICrawlerDocument getCrawlerDocument();
-	public void setCrawlerDocument(ICrawlerDocument crawlerDoc);
 	
-	@CheckForNull
-	public IParserDocument getParserDocument();
+	public @CheckForNull ICrawlerDocument getCrawlerDocument();
+	public void setCrawlerDocument(ICrawlerDocument crawlerDoc);	
+	
+	public @CheckForNull IParserDocument getParserDocument();
 	public void setParserDocument(IParserDocument parserDoc);
 	
-	public IIndexerDocument[] getIndexerDocuments();
+	public @CheckForNull IIndexerDocument[] getIndexerDocuments();
+	
 	public void setIndexerDocuments(IIndexerDocument[] indexerDocs);
 	public void addIndexerDocument(IIndexerDocument indexerDoc);
 	
 	// TODO: call this method after the ICommand passed through the whole processing
-	public void close() throws IOException;
-	
-//	/* =======================================================
-//	 * Crawler-related information
-//	 * ======================================================= */
-//	
-//	public String getLocation();
-//	public void setLocation(String location);
-//	
-//	public File getCrawlerContent();
-//	public void setCrawlerContent(File content);	
-//	public int getCrawlerContentSize();
-//	
-//	public String getCharset();	
-//	public void setCharset(String charset);
-//	public boolean isCharsetSet();
-//	
-//	public Date getDocumentDate();
-//	public void setDocumentDate(Date documentDate);
+	public void close() throws IOException;	
 }

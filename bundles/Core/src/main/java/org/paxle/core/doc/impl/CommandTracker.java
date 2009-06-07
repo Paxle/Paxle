@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.queue.impl;
+package org.paxle.core.doc.impl;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
@@ -31,10 +31,10 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.paxle.core.doc.CommandEvent;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandTracker;
 import org.paxle.core.filter.CommandFilterEvent;
-import org.paxle.core.queue.CommandEvent;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandTracker;
 
 public class CommandTracker extends Thread implements ICommandTracker, EventHandler {
 	/**

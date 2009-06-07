@@ -23,10 +23,10 @@ import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
+import org.paxle.core.doc.Command;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
-import org.paxle.core.queue.Command;
-import org.paxle.core.queue.ICommand;
 
 public class FilterOutputQueueTest extends AFilterQueueTest {
 

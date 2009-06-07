@@ -34,13 +34,13 @@ import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.IMWComponent;
+import org.paxle.core.doc.Command;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.ICommand.Result;
 import org.paxle.core.doc.IParserDocument.Status;
 import org.paxle.core.io.IIOTools;
-import org.paxle.core.queue.Command;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommand.Result;
 
 /**
  * @scr.component immediate="true" metatype="false"

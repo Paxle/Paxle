@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>CrawlerProxyHttp</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.3-SNAPSHOT</version>
+	<version>0.1.4-SNAPSHOT</version>
 	<name>Paxle - Crawler: HTTP-Proxy</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -56,7 +56,6 @@
 							org.paxle.core.doc;version="[0.1.0,0.2.0)",
 							org.paxle.core.data;version="[0.1.0,0.2.0)", 
 							org.paxle.core.prefs;version="[0.1.0,0.2.0)", 
-							org.paxle.core.queue;version="[0.1.0,0.2.0)",
 							<!-- Paxle Core Crawler Bundle -->
 							org.paxle.crawler;version="[0.1.0,0.2.0)",
 							<!-- Apache Commons Codec (Used for base64 encoding) -->
@@ -92,7 +91,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[,0.2.0)</version>			
+			<version>[0.1.32-SNAPSHOT,0.2.0)</version>			
 		</dependency>	
 	
 		<dependency>

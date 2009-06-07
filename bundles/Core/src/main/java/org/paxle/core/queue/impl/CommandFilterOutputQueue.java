@@ -16,11 +16,11 @@ package org.paxle.core.queue.impl;
 import java.util.Collections;
 import java.util.List;
 
+import org.paxle.core.doc.CommandEvent;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.impl.MWComponentFactory;
-import org.paxle.core.queue.CommandEvent;
-import org.paxle.core.queue.ICommand;
 import org.paxle.core.queue.ICommandFilterQueue;
 import org.paxle.core.queue.ICommandFilteringContext;
 import org.paxle.core.queue.OutputQueue;

@@ -19,13 +19,13 @@ import java.util.Properties;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.util.tracker.ServiceTracker;
+import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.IFilterQueue;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
-import org.paxle.core.queue.ICommandProfileManager;
 
 
 public class FilterContext implements Comparable<FilterContext>, IFilterContext {

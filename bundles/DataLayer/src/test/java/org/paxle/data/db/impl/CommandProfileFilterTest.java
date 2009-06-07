@@ -19,14 +19,14 @@ import java.util.Map;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
+import org.paxle.core.doc.Command;
+import org.paxle.core.doc.CommandProfile;
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
+import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
-import org.paxle.core.queue.Command;
-import org.paxle.core.queue.CommandProfile;
-import org.paxle.core.queue.ICommand;
-import org.paxle.core.queue.ICommandProfile;
-import org.paxle.core.queue.ICommandProfileManager;
 
 public class CommandProfileFilterTest extends MockObjectTestCase {
 	private CommandProfileFilter filter;

@@ -11,13 +11,14 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.queue;
+package org.paxle.core.doc;
 
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Pattern;
+
 
 public class CommandProfile implements ICommandProfile {
 	/**

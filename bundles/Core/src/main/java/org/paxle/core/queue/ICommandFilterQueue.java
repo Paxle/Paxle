@@ -13,6 +13,7 @@
  */
 package org.paxle.core.queue;
 
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.filter.IFilterQueue;
 
 public interface ICommandFilterQueue<Cmd extends ICommand> extends IFilterQueue {

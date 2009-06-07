@@ -15,6 +15,8 @@ package org.paxle.core.queue;
 
 import java.net.URI;
 
+import org.paxle.core.doc.ICommand;
+
 /**
  * The purpose of this context object is to encapsulate the whole filtering process that is done
  * by an {@link ICommandFilterQueue filter-queue}.

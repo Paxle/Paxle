@@ -21,10 +21,10 @@ import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.paxle.core.doc.CommandProfile;
+import org.paxle.core.doc.ICommandProfile;
+import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
-import org.paxle.core.queue.CommandProfile;
-import org.paxle.core.queue.ICommandProfile;
-import org.paxle.core.queue.ICommandProfileManager;
 
 // * @scr.implementation class="CrawlStartHelper"
 /**

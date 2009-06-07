@@ -21,11 +21,11 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.paxle.core.doc.Command;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.impl.BasicParserDocument;
 import org.paxle.core.io.temp.impl.TempFileManager;
-import org.paxle.core.queue.Command;
-import org.paxle.core.queue.ICommand;
 
 public class LanguageManagerTest extends TestCase {
 	private LanguageManager lngmanager;

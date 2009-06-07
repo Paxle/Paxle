@@ -16,10 +16,10 @@ package org.paxle.core.filter;
 import java.net.URI;
 import java.util.Properties;
 
+import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.filter.impl.FilterContext;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.norm.IReferenceNormalizer;
-import org.paxle.core.queue.ICommandProfileManager;
 
 /**
  * A {@link IFilterContext} is a {@link IFilter} applied to a specific {@link IFilterQueue} at a specific {@link #getFilterPosition() position}.

@@ -21,7 +21,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
-import org.paxle.core.queue.ICommand;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
