@@ -15,6 +15,7 @@ package org.paxle.crawler.proxy.impl;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Map;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
@@ -24,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandTracker;
@@ -66,7 +66,11 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 	 */
 	private final ICommandTracker commandTracker;
 	
-	private final IDocumentFactory docFactory;
+	/**
+	 * {@link IDocumentFactory document-factories} to create {@link ICommand}s and
+	 * {@link ICrawlerDocument}s
+	 */
+	private final Map<String, IDocumentFactory> docFactories;
 	
 	/**
 	 * indicates if this thread was terminated
@@ -90,10 +94,10 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 	 */
 	private int commandProfileID = -1;	
 	
-	public ProxyDataProvider(Properties props, ICommandTracker cmdTracker, IDocumentFactory docFactory) {
+	public ProxyDataProvider(Properties props, ICommandTracker cmdTracker, Map<String, IDocumentFactory> docFactories) {
 		singleton = this;
 		this.commandTracker = cmdTracker;
-		this.docFactory = docFactory;
+		this.docFactories = docFactories;
 		
 		// init threadpool
 		// XXX should we set the thread-pool size? 
@@ -135,7 +139,12 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 		// TODO: check if we are overloaded
 		
 		if (this.logger.isDebugEnabled()) this.logger.debug(String.format("Starting a new worker for '%s'.", location));
-		this.execCompletionService.submit(new ProxyDataProviderCallable(location, resHdr, bodyInputStream, this.docFactory));
+		this.execCompletionService.submit(new ProxyDataProviderCallable(
+				location, 
+				resHdr, 
+				bodyInputStream, 
+				this.docFactories.get(ICrawlerDocument.class.getName())
+		));
 	}
 	
 	@Override
@@ -154,7 +163,11 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 					if (crawlerDoc != null && crawlerDoc.getStatus() == ICrawlerDocument.Status.OK) {
 
 						// create a new ICommand
-						ICommand cmd = Command.createCommand(crawlerDoc.getLocation(), this.getProfileID(), 0);
+						final IDocumentFactory cmdFactory = this.docFactories.get(ICommand.class.getName());
+						final ICommand cmd = cmdFactory.createDocument(ICommand.class);
+						cmd.setLocation(crawlerDoc.getLocation());
+						cmd.setProfileOID(this.getProfileID());
+						cmd.setDepth(0);
 						cmd.setResult(ICommand.Result.Passed, null);
 						
 						/* Sending event via command-tracker!

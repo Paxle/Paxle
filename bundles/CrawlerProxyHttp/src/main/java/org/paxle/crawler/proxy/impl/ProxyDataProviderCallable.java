@@ -32,28 +32,28 @@ public class ProxyDataProviderCallable implements Callable<ICrawlerDocument> {
 	 */
 	private final Log logger = LogFactory.getLog(this.getClass());	
 	
-	private final IDocumentFactory docFactory;
+	private final IDocumentFactory crawlerDocFactory;
 	private final URI location;
 	private final HttpResponseHeader responseHeaders;
 	private final InputStream bodyInputStream;	
 	
-	public ProxyDataProviderCallable(URI location, HttpResponseHeader responseHeaders, InputStream bodyInputStream, IDocumentFactory docFactory) {
+	public ProxyDataProviderCallable(URI location, HttpResponseHeader responseHeaders, InputStream bodyInputStream, IDocumentFactory crawlerDocFactory) {
 		if (location == null) throw new NullPointerException("The command object was null.");
 		if (responseHeaders == null) throw new NullPointerException("The response-headers were null.");
 		if (bodyInputStream == null) throw new NullPointerException("The response-body wasnull.");
-		if (docFactory == null) throw new NullPointerException("No doc-factory found");
+		if (crawlerDocFactory == null) throw new NullPointerException("No doc-factory found");
 		
 		this.location = location;
 		this.responseHeaders = responseHeaders;
 		this.bodyInputStream = bodyInputStream;
-		this.docFactory = docFactory;
+		this.crawlerDocFactory = crawlerDocFactory;
 	}
 	
 	public ICrawlerDocument call() throws Exception {
 		ICrawlerDocument doc = null;
 		try {					
 			// create a new CrawlerDocument
-			doc = this.docFactory.createDocument(ICrawlerDocument.class);
+			doc = this.crawlerDocFactory.createDocument(ICrawlerDocument.class);
 			
 			// getting the content location
 			doc.setLocation(this.location);

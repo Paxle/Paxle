@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -37,6 +38,7 @@ import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.doc.ICommandTracker;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.filter.IFilter;
 import org.paxle.data.db.ICommandDB;
 import org.paxle.data.db.impl.CommandDB;
@@ -78,6 +80,16 @@ public class Activator implements BundleActivator {
 		// init logger
 		this.logger = LogFactory.getLog(this.getClass());
 
+        // getting the doc-factory
+        final ServiceReference[] profileFactoryRefs = context.getServiceReferences(
+        		IDocumentFactory.class.getName(),
+        		String.format("(%s=%s)",
+        				IDocumentFactory.DOCUMENT_TYPE,
+        				ICommandProfile.class.getName())
+        );
+        if (profileFactoryRefs == null || profileFactoryRefs.length == 0) throw new IllegalStateException("No DocFactory found.");
+        final IDocumentFactory profileFactory = (IDocumentFactory) context.getService(profileFactoryRefs[0]);				
+		
 		/* =========================================================
 		 * INIT DATABASES
 		 * ========================================================= */		
@@ -88,13 +100,13 @@ public class Activator implements BundleActivator {
 		this.createAndRegisterCommandDB(hibernateConfigFile, context);
 
 		// init the command-profile-DB
-		this.createAndRegisterProfileDB(hibernateConfigFile, context);
+		this.createAndRegisterProfileDB(hibernateConfigFile, context, profileFactory);
 
 		/* =========================================================
 		 * INIT COMMAND-FILTERS
 		 * ========================================================= */		
 		this.createAndRegisterUrlExtractorFilter(context);
-		this.createAndRegisterCommandProfileFilter(context);
+		this.createAndRegisterCommandProfileFilter(context, profileFactory);
 
 		/* =========================================================
 		 * DATABASE-STARTUP
@@ -179,20 +191,28 @@ public class Activator implements BundleActivator {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void createAndRegisterCommandDB(URL hibernateConfigFile, BundleContext context) {
+	private void createAndRegisterCommandDB(URL hibernateConfigFile, BundleContext context) throws InvalidSyntaxException {
         // getting the Event-Admin service
         ServiceReference commandTrackerRef = context.getServiceReference(ICommandTracker.class.getName());
         ICommandTracker commandTracker = (commandTrackerRef == null) ? null :  (ICommandTracker) context.getService(commandTrackerRef);
-        if (commandTracker == null) {
-        	this.logger.warn("No CommandTracker-service found. Command-tracking will not work.");
-        }		
+        if (commandTracker == null) throw new IllegalStateException("No CommandTracker-service found. Command-tracking will not work.");
+        
+        // getting the doc-factory
+        ServiceReference[] cmdFactoryRefs = context.getServiceReferences(
+        		IDocumentFactory.class.getName(),
+        		String.format("(%s=%s)",
+        				IDocumentFactory.DOCUMENT_TYPE,
+        				ICommand.class.getName())
+        );
+        if (cmdFactoryRefs == null || cmdFactoryRefs.length == 0) throw new IllegalStateException("No DocFactory found.");
+        final IDocumentFactory cmdFactory = (IDocumentFactory) context.getService(cmdFactoryRefs[0]);
 		
 		// getting the mapping files to use
 		Enumeration<URL> mappingFileEnum = context.getBundle().findEntries("/resources/hibernate/mapping/command/", "command.hbm.xml", true);
 		ArrayList<URL> mappings = Collections.list(mappingFileEnum);
 
 		// init command DB
-		this.commandDB = new CommandDB(hibernateConfigFile, mappings, commandTracker);		
+		this.commandDB = new CommandDB(hibernateConfigFile, mappings, commandTracker, cmdFactory);		
 		
 		final Hashtable<String,Object> props = new Hashtable<String,Object>();
 		props.put(IDataSink.PROP_DATASINK_ID, ICommandDB.PROP_URL_ENQUEUE_SINK);
@@ -210,13 +230,13 @@ public class Activator implements BundleActivator {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void createAndRegisterProfileDB(URL hibernateConfigFile, BundleContext context) {
+	private void createAndRegisterProfileDB(URL hibernateConfigFile, BundleContext context, IDocumentFactory profileFactory) throws InvalidSyntaxException {
 		// getting the mapping files to use
 		Enumeration<URL> mappingFileEnum = context.getBundle().findEntries("/resources/hibernate/mapping/profile/", "*.hbm.xml", true);
 		ArrayList<URL> mappings = Collections.list(mappingFileEnum);
 		
 		// create the profile-DB
-		this.profileDB = new CommandProfileDB(hibernateConfigFile, mappings);
+		this.profileDB = new CommandProfileDB(hibernateConfigFile, mappings, profileFactory);
 		
 		// register it to the framework
 		context.registerService(ICommandProfileManager.class.getName(), this.profileDB, null);
@@ -248,7 +268,7 @@ public class Activator implements BundleActivator {
 		);
 	}
 	
-	private void createAndRegisterCommandProfileFilter(BundleContext context) {		
+	private void createAndRegisterCommandProfileFilter(BundleContext context, IDocumentFactory profileFactory) {		
 		Hashtable<String, Object> profileFilterProps = new Hashtable<String, Object>();
 		profileFilterProps.put(Constants.SERVICE_PID, CommandProfileFilter.class.getName());
 		profileFilterProps.put(IFilter.PROP_FILTER_TARGET, new String[]{
@@ -260,7 +280,7 @@ public class Activator implements BundleActivator {
 		profileFilterProps.put("org.paxle.metadata",Boolean.TRUE);
 		profileFilterProps.put("org.paxle.metadata.localization","/OSGI-INF/l10n/CommandProfileFilter");		
 		
-		this.profileFilter = new CommandProfileFilter(this.profileDB);
+		this.profileFilter = new CommandProfileFilter(this.profileDB, profileFactory);
 		context.registerService(IFilter.class.getName(), this.profileFilter, profileFilterProps);	
 	}
 	

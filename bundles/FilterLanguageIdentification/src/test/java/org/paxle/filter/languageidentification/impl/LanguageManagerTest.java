@@ -21,9 +21,9 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.impl.BasicCommand;
 import org.paxle.core.doc.impl.BasicParserDocument;
 import org.paxle.core.io.temp.impl.TempFileManager;
 
@@ -43,8 +43,14 @@ public class LanguageManagerTest extends TestCase {
 				this.lngmanager.init(config);
 	}
 	
+	private ICommand createCommand(URI location) {
+		ICommand cmd = new BasicCommand();
+		cmd.setLocation(location);
+		return cmd;
+	}
+	
 	private ICommand createTestCommand(File testText) throws IOException {
-		ICommand command = Command.createCommand(URI.create("http://xyz.abc"));
+		ICommand command = this.createCommand(URI.create("http://xyz.abc"));
 		
 		IParserDocument pdoc = new BasicParserDocument(new TempFileManager());
 		pdoc.setOID((int) System.currentTimeMillis());
@@ -56,12 +62,12 @@ public class LanguageManagerTest extends TestCase {
 	}
 	
 	public void testProcessNullPDoc() {
-		ICommand command = Command.createCommand(URI.create("http://xyz.abc"));
+		ICommand command = this.createCommand(URI.create("http://xyz.abc"));
 		this.lngmanager.filter(command, null);
 	}
 	
 	public void testProcessNotOKPdoc() {
-		ICommand command = Command.createCommand(URI.create("http://xyz.abc"));
+		ICommand command = this.createCommand(URI.create("http://xyz.abc"));
 		IParserDocument pdoc = new BasicParserDocument(new TempFileManager());
 		pdoc.setStatus(IParserDocument.Status.FAILURE);
 		command.setParserDocument(pdoc);

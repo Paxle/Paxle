@@ -25,6 +25,7 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandProfileManager;
+import org.paxle.core.doc.IDocumentFactory;
 
 public class CommandProfileDB implements ICommandProfileManager {
 	
@@ -32,6 +33,11 @@ public class CommandProfileDB implements ICommandProfileManager {
 	 * The logger
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());	
+	
+	/**
+	 * A factory to create new {@link ICommandProfile}s
+	 */
+	private IDocumentFactory profileFactory;
 	
 	/**
 	 * The currently used db configuration
@@ -47,11 +53,12 @@ public class CommandProfileDB implements ICommandProfileManager {
 	 * @param configURL an {@link URL} to the DB configuration
 	 * @param mappings a list of {@link URL} to the hibernate-mapping files to use
 	 */
-	public CommandProfileDB(URL configURL, List<URL> mappings) {
+	public CommandProfileDB(URL configURL, List<URL> mappings, IDocumentFactory profileFactory) {
 		if (configURL == null) throw new NullPointerException("The URL to the hibernate config file is null.");
 		if (mappings == null) throw new NullPointerException("The list of mapping files was null.");
 		
 		try {
+			this.profileFactory = profileFactory;
 			
 			/* ===========================================================================
 			 * Init Hibernate
@@ -64,7 +71,7 @@ public class CommandProfileDB implements ICommandProfileManager {
 				this.config = new Configuration().configure(configURL);
 				
 				// register an interceptor (required to support our interface-based command model)
-				this.config.setInterceptor(new InterfaceInterceptor());
+				this.config.setInterceptor(new InterfaceInterceptor(this.profileFactory));
 				
 				// configure caching
 				this.config.setProperty("hibernate.cache.provider_class", "net.sf.ehcache.hibernate.SingletonEhCacheProvider");

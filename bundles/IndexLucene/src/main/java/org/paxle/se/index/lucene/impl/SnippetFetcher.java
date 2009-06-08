@@ -34,8 +34,8 @@ import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.IMWComponent;
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ICommand.Result;
@@ -68,6 +68,11 @@ public class SnippetFetcher implements ISnippetFetcher {
 	protected IMWComponent<ICommand> parser;
 	
 	/**
+	 * @scr.reference target="(docType=org.paxle.core.doc.ICommand)"
+	 */
+	protected IDocumentFactory docFactory;
+	
+	/**
 	 * @scr.reference
 	 */
 	protected IStopwordsManager stopwordsManager;
@@ -96,7 +101,8 @@ public class SnippetFetcher implements ISnippetFetcher {
 		try {
 			// creating a dummy command
 			URI locationURI = URI.create(locationStr);
-			ICommand cmd = Command.createCommand(locationURI);
+			ICommand cmd = this.docFactory.createDocument(ICommand.class);
+			cmd.setLocation(locationURI);
 
 			// crawling the resource
 			this.crawler.process(cmd);

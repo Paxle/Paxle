@@ -20,13 +20,15 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.data.impl.ACommandReader;
 
 public class TextCommandReader extends ACommandReader {
 	
-	public TextCommandReader(InputStream inputStream) {
+	private IDocumentFactory cmdFactory;
+	
+	public TextCommandReader(IDocumentFactory cmdFactory, InputStream inputStream) {
 		super(inputStream);
 	}
 	
@@ -41,7 +43,8 @@ public class TextCommandReader extends ACommandReader {
 			if (line.length() == 0) continue;
 			else if (line.startsWith("#")) continue;
 			try {
-				ICommand cmd = Command.createCommand(new URI(line));
+				final ICommand cmd = this.cmdFactory.createDocument(ICommand.class);
+				cmd.setLocation(new URI(line));
 				this.enqueue(cmd);
 			} catch (URISyntaxException e) {
 				throw new IOException(String.format("location '%s' not a valid URI: %s", line, e.getMessage()));

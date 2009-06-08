@@ -104,7 +104,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.32-SNAPSHOT,0.2.0)</version>			
+			<version>[0.1.33-SNAPSHOT,0.2.0)</version>			
 		</dependency>	
 	
 		<dependency>

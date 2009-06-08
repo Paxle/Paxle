@@ -22,8 +22,8 @@ import org.jmock.Expectations;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.jmock.integration.junit3.MockObjectTestCase;
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.impl.BasicCommand;
 import org.paxle.core.queue.IOutputQueue;
 import org.paxle.core.queue.impl.CommandFilterInputQueue;
 import org.paxle.core.threading.AWorker;
@@ -38,7 +38,9 @@ public class MasterTest extends MockObjectTestCase {
 	@SuppressWarnings("unchecked")
 	public void testTriggerWorker() throws Exception {
 		// creating a test command
-		final ICommand command = Command.createCommand(URI.create("http://test.xyz"));		
+		final ICommand command = new BasicCommand();
+		command.setLocation(URI.create("http://test.xyz"));
+		
 		final IPool<ICommand> pool = mock(IPool.class);
 		final CommandFilterInputQueue<ICommand> inQueue = new CommandFilterInputQueue<ICommand>(8);
 		final IOutputQueue<ICommand> outQueue = mock(IOutputQueue.class);
@@ -85,7 +87,8 @@ public class MasterTest extends MockObjectTestCase {
 	@SuppressWarnings("unchecked")
 	public void testProcess() throws Exception {
 		// creating a test command
-		final ICommand command = Command.createCommand(URI.create("http://test.xyz"));
+		final ICommand command = new BasicCommand();
+		command.setLocation(URI.create("http://test.xyz"));
 		
 		// a dummy worker pool
 		final IPool<ICommand> pool = mock(IPool.class);

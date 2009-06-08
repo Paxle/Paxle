@@ -13,6 +13,7 @@
  */
 package org.paxle.data.db.impl;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,10 +23,10 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxle.core.doc.CommandProfile;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandProfileManager;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.ICommandProfile.LinkFilterMode;
@@ -79,10 +80,16 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 	 * Component to load and store crawling profiles
 	 */
 	private final ICommandProfileManager profileDB;
+	
+	/**
+	 * A factory to create {@link ICommandProfile}s
+	 */
+	private final IDocumentFactory profileFactory;
 
-	public CommandProfileFilter(ICommandProfileManager profileDB) {
+	public CommandProfileFilter(ICommandProfileManager profileDB, IDocumentFactory profileFactory) {
 		if (profileDB == null) throw new NullPointerException("The profile-db is null.");
 		this.profileDB = profileDB;
+		this.profileFactory = profileFactory;
 	}
 
 	public void filter(ICommand command, IFilterContext context) {
@@ -173,9 +180,9 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 		}
 	}
 
-	private ICommandProfile createDummyProfile() {
+	private ICommandProfile createDummyProfile() throws IOException {
 		// create a dummy profile
-		CommandProfile profile = new CommandProfile();
+		ICommandProfile profile = this.profileFactory.createDocument(ICommandProfile.class);
 		profile.setMaxDepth(DEFAULT_DEPTH);
 		profile.setLinkFilterMode(DEFAULT_LINKFILTER_MODE);
 		profile.setLinkFilterExpression(DEFAULT_LINKFILTER_EXPR);

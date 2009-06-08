@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>CrawlerProxyHttp</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<name>Paxle - Crawler: HTTP-Proxy</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -91,7 +91,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.32-SNAPSHOT,0.2.0)</version>			
+			<version>[0.1.33-SNAPSHOT,0.2.0)</version>			
 		</dependency>	
 	
 		<dependency>

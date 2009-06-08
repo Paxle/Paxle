@@ -23,8 +23,8 @@ import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.impl.BasicCommand;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 
@@ -32,7 +32,7 @@ public class FilterOutputQueueTest extends AFilterQueueTest {
 
 	@SuppressWarnings("unchecked")
 	public void testEnqueueRejectedCommand() throws Exception {
-		final ICommand command = new Command();
+		final ICommand command = new BasicCommand();
 		command.setLocation(URI.create("http://testxyz.de"));
 		
 		final IFilter<ICommand> filter = mock(IFilter.class);
@@ -74,7 +74,7 @@ public class FilterOutputQueueTest extends AFilterQueueTest {
 	
 	@SuppressWarnings("unchecked")
 	public void testEnqueuePassedCommand() throws InterruptedException {
-		final ICommand command = new Command();
+		final ICommand command = new BasicCommand();
 		command.setLocation(URI.create("http://testxyz.de"));
 		
 		final IFilter<ICommand> filter = mock(IFilter.class);

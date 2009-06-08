@@ -25,8 +25,8 @@ import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.impl.BasicCommand;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 
@@ -34,7 +34,7 @@ public class FilterInputQueueTest extends AFilterQueueTest {
 
 	@SuppressWarnings("unchecked")
 	public void testDequeueRejectedCommand() throws Exception {
-		final ICommand command = new Command();
+		final ICommand command = new BasicCommand();
 		command.setLocation(URI.create("http://testxyz.de"));
 		
 		final IFilter<ICommand> filter = mock(IFilter.class);
@@ -80,7 +80,7 @@ public class FilterInputQueueTest extends AFilterQueueTest {
 	
 	@SuppressWarnings("unchecked")
 	public void testDequeuePassedCommand() throws InterruptedException {
-		final ICommand command = new Command();
+		final ICommand command = new BasicCommand();
 		command.setLocation(URI.create("http://testxyz.de"));
 		
 		final IFilter<ICommand> filter = mock(IFilter.class);
@@ -117,14 +117,14 @@ public class FilterInputQueueTest extends AFilterQueueTest {
 	}
 	
 	/**
-	 * Testing if a {@link Command} is filtered properly even if an {@link Exception} 
+	 * Testing if a {@link BasicCommand} is filtered properly even if an {@link Exception} 
 	 * is thrown during filtering.
 	 *  
 	 * @throws InterruptedException
 	 */
 	@SuppressWarnings("unchecked")
 	public void testDequeueWithException() throws InterruptedException {
-		final ICommand command = new Command();
+		final ICommand command = new BasicCommand();
 		command.setLocation(URI.create("http://testxyz.de"));
 		
 		final IFilter<ICommand> filter = mock(IFilter.class);
@@ -162,7 +162,7 @@ public class FilterInputQueueTest extends AFilterQueueTest {
 	}
 	
 	public void testWaitForNext() throws InterruptedException {
-		final ICommand command = new Command();
+		final ICommand command = new BasicCommand();
 		command.setLocation(URI.create("http://testxyz.de"));
 		
 		final CommandFilterInputQueue<ICommand> queue = new CommandFilterInputQueue<ICommand>(8);

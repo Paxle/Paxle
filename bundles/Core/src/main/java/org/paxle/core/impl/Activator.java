@@ -52,6 +52,7 @@ import org.paxle.core.data.impl.DataListener;
 import org.paxle.core.data.impl.DataManager;
 import org.paxle.core.doc.CommandEvent;
 import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandTracker;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
@@ -282,12 +283,13 @@ public class Activator implements BundleActivator, InvocationHandler {
 		
 	@SuppressWarnings("serial")
 	private void createAndRegisterDocumentFactories(BundleContext bc) {
-		bc.registerService(
-				IDocumentFactory.class.getName(), 
+		bc.registerService(IDocumentFactory.class.getName(),
 				new BasicDocumentFactory(this.tempFileManager),
 				new Hashtable<String, Object>(){{
 					// all document types supported by this factory 
 					put(IDocumentFactory.DOCUMENT_TYPE,new String[]{
+							ICommand.class.getName(),
+							ICommandProfile.class.getName(),
 							ICrawlerDocument.class.getName(),
 							IParserDocument.class.getName(),
 							IIndexerDocument.class.getName()

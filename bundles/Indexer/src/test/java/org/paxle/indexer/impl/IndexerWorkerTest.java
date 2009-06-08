@@ -18,12 +18,12 @@ import java.net.URI;
 import java.util.HashSet;
 
 import org.jmock.integration.junit3.MockObjectTestCase;
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.impl.BasicCommand;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.core.io.temp.impl.TempFileManager;
 
@@ -61,7 +61,7 @@ public class IndexerWorkerTest extends MockObjectTestCase {
 			container = subpdoc;
 		}
 		
-		final ICommand cmd = new Command();
+		final ICommand cmd = new BasicCommand();
 		cmd.setLocation(URI.create("http://www.example.org/"));
 		cmd.setResult(ICommand.Result.Passed);
 		

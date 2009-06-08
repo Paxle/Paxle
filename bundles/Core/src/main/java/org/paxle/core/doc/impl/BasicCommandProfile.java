@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.doc;
+package org.paxle.core.doc.impl;
 
 import java.io.Serializable;
 import java.net.URI;
@@ -19,8 +19,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.paxle.core.doc.ICommandProfile;
 
-public class CommandProfile implements ICommandProfile {
+
+public class BasicCommandProfile implements ICommandProfile {
 	/**
 	 * Primary key required by Object-EER mapping 
 	 */

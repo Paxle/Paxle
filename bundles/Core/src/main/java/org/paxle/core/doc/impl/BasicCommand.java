@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core.doc;
+package org.paxle.core.doc.impl;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,8 +19,13 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.core.doc.IParserDocument;
 
-public class Command implements ICommand {
+
+public class BasicCommand implements ICommand {
 	
 	/**
 	 * Primary key required by Object-EER mapping 
@@ -72,26 +77,6 @@ public class Command implements ICommand {
 	 * The indexed {@link IIndexerDocument documents}-
 	 */
 	private List<IIndexerDocument> indexerDocs = new LinkedList<IIndexerDocument>();
-
-	/**
-	 * @param location the location of the document to process.
-	 * @return a new {@link Command} object representing the job for processing the given {@link URI}
-	 */
-	public static Command createCommand(URI location) {
-		return createCommand(location, -1);
-	}
-	
-	public static Command createCommand(URI location, int profileOID) {
-		return createCommand(location, profileOID, 0);
-	}
-	
-	public static Command createCommand(URI location, int profileOID, int depth) {
-		Command cmd = new Command();
-		cmd.setLocation(location);
-		cmd.setProfileOID(profileOID);
-		cmd.setDepth(depth);
-		return cmd;
-	}
 
     public int getOID(){ 
     	return _oid; 

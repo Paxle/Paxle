@@ -24,7 +24,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.CommandEvent;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.impl.CommandTracker;
@@ -54,7 +53,8 @@ public class CommandTrackerTest extends MockObjectTestCase {
 		final int commandOID = Math.abs(this.rand.nextInt());
 		final URI commandURI = URI.create("http://xxx.yyy");
 		
-		final ICommand command = Command.createCommand(commandURI);
+		final ICommand command = new BasicCommand();
+		command.setLocation(commandURI);
 		command.setOID(commandOID);
 		
 		final EventInterceptor interceptor = new EventInterceptor();
@@ -84,7 +84,8 @@ public class CommandTrackerTest extends MockObjectTestCase {
 		final int commandOID = Math.abs(this.rand.nextInt());
 		final URI commandURI = URI.create("http://xxx.yyy");
 		
-		final ICommand command = Command.createCommand(commandURI);
+		final ICommand command = new BasicCommand();
+		command.setLocation(commandURI);
 		
 		final EventInterceptor interceptor = new EventInterceptor();
 		checking(new Expectations() {{
@@ -138,7 +139,8 @@ public class CommandTrackerTest extends MockObjectTestCase {
 		// create a dummy command but without configuring the OID
 		final int commandOID = Math.abs(this.rand.nextInt());
 		final URI commandURI = URI.create("http://xxx.yyy");		
-		final ICommand command = Command.createCommand(commandURI);
+		final ICommand command = new BasicCommand();
+		command.setLocation(commandURI);
 		command.setOID(commandOID);
 		
 		final EventInterceptor interceptor = new EventInterceptor();

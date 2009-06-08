@@ -17,6 +17,8 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
@@ -33,6 +35,18 @@ public class BasicDocumentFactoryTest extends TestCase {
 		super.setUp();
 		this.tempFileManager = new TempFileManager();
 		this.docFactory = new BasicDocumentFactory(this.tempFileManager);
+	}
+	
+	public void testCreateCommand() throws IOException {
+		ICommand cmd = this.docFactory.createDocument(ICommand.class);
+		assertNotNull(cmd);
+		assertEquals(0, cmd.getOID());
+		assertEquals(-1, cmd.getProfileOID());
+	}
+	
+	public void testCreateCommandProfile() throws IOException {
+		ICommandProfile profile = this.docFactory.createDocument(ICommandProfile.class);
+		assertNotNull(profile);
 	}
 	
 	public void testCreateCrawlerDocument() throws IOException {

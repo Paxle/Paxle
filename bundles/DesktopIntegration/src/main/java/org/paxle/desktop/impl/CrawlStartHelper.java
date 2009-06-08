@@ -14,6 +14,7 @@
 
 package org.paxle.desktop.impl;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.HashMap;
@@ -21,9 +22,9 @@ import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
-import org.paxle.core.doc.CommandProfile;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandProfileManager;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.norm.IReferenceNormalizer;
 
 // * @scr.implementation class="CrawlStartHelper"
@@ -61,8 +62,12 @@ public class CrawlStartHelper {
 	
 	/** @scr.reference */
 	private IReferenceNormalizer refNormalizer;
+	
 	/** @scr.reference */
 	private ICommandProfileManager profileDB;
+	
+	/** @scr.reference target="(docType=org.paxle.core.doc.ICommandProfile)" */
+	private IDocumentFactory profileFactory;
 	
 	// synchronization via "this"-object; ideally use RWLock, but so many crawls are not started concurrently
 	private Object robots;
@@ -84,13 +89,13 @@ public class CrawlStartHelper {
 	public void startCrawl(final String location, final int depth) {
 		try {
 			startCrawlImpl(location, depth);
-		} catch (ServiceException ee) {
+		} catch (Exception ee) {
 			Utilities.instance.showURLErrorMessage("Starting crawl failed: " + ee.getMessage(), location);
 			logger.error("Starting crawl of URL '" + location + "' failed: " + ee.getMessage(), ee);
 		}
 	}
 	
-	private void startCrawlImpl(final String location, final int depth) throws ServiceException {
+	private void startCrawlImpl(final String location, final int depth) throws ServiceException, IOException {
 		final URI uri = refNormalizer.normalizeReference(location);
 		
 		// check uri against robots.txt
@@ -120,7 +125,7 @@ public class CrawlStartHelper {
 			cp = profileDB.getProfileByID(id.intValue());
 		if (cp == null) {
 			// create a new profile
-			cp = new CommandProfile();
+			cp = this.profileFactory.createDocument(ICommandProfile.class);
 			cp.setMaxDepth(depth);
 			cp.setName(DEFAULT_NAME);
 			profileDB.storeProfile(cp);

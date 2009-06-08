@@ -19,24 +19,29 @@ import java.util.Map;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
-import org.paxle.core.doc.Command;
-import org.paxle.core.doc.CommandProfile;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandProfileManager;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
+import org.paxle.core.doc.impl.BasicCommand;
+import org.paxle.core.doc.impl.BasicCommandProfile;
+import org.paxle.core.doc.impl.BasicDocumentFactory;
+import org.paxle.core.io.temp.ITempFileManager;
 
 public class CommandProfileFilterTest extends MockObjectTestCase {
 	private CommandProfileFilter filter;
 	private ICommandProfileManager manager;
+	private IDocumentFactory profileFactory;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.manager = mock(ICommandProfileManager.class);
-		this.filter = new CommandProfileFilter(this.manager);
+		this.profileFactory = new BasicDocumentFactory(mock(ITempFileManager.class));
+		this.filter = new CommandProfileFilter(this.manager,this.profileFactory);
 	}
 	
 	public void testCheckLinks() {
@@ -50,10 +55,10 @@ public class CommandProfileFilterTest extends MockObjectTestCase {
 		}});
 		
 		// check URIs: maxdepth > current-depth
-		final ICommandProfile profile = new CommandProfile();
+		final ICommandProfile profile = new BasicCommandProfile();
 		profile.setMaxDepth(2);
 		
-		final ICommand command1 = new Command();
+		final ICommand command1 = new BasicCommand();
 		command1.setDepth(1);
 		
 		this.filter.checkLinks(profile, command1, pDoc, new CommandProfileFilter.Counter());
@@ -64,7 +69,7 @@ public class CommandProfileFilterTest extends MockObjectTestCase {
 		}
 		
 		// check URIs: maxdepth > current-depth
-		final ICommand command2 = new Command();
+		final ICommand command2 = new BasicCommand();
 		command2.setDepth(2);		
 		this.filter.checkLinks(profile, command2, pDoc, new CommandProfileFilter.Counter());
 		

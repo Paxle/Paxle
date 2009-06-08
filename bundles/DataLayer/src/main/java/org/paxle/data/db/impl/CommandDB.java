@@ -67,11 +67,11 @@ import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.CommandEvent;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandTracker;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.data.db.ICommandDB;
 import org.paxle.data.db.URIQueueEntry;
 
@@ -131,6 +131,11 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	private ICommandTracker commandTracker;
 
 	/**
+	 * A factory class to create new Commands
+	 */
+	private IDocumentFactory commandFactory;
+	
+	/**
 	 * A {@link IDataSink data-sink} to write the loaded {@link ICommand commands} out
 	 */
 	private IDataSink<ICommand> sink = null;	
@@ -178,16 +183,17 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 	 */
 	private volatile long cntCrawlerQueue;
 
-	public CommandDB(URL configURL, List<URL> mappings, ICommandTracker commandTracker) {
-		this(configURL, mappings, null, commandTracker);
+	public CommandDB(URL configURL, List<URL> mappings, ICommandTracker commandTracker, IDocumentFactory commandFactory) {
+		this(configURL, mappings, null, commandTracker, commandFactory);
 	}
 
-	public CommandDB(URL configURL, List<URL> mappings, Properties extraProperties, ICommandTracker commandTracker) {
+	public CommandDB(URL configURL, List<URL> mappings, Properties extraProperties, ICommandTracker commandTracker, IDocumentFactory commandFactory) {
 		if (configURL == null) throw new NullPointerException("The URL to the hibernate config file is null.");
 		if (mappings == null) throw new NullPointerException("The list of mapping files was null.");
 
 		try {
 			this.commandTracker = commandTracker;
+			this.commandFactory = commandFactory;
 
 			/* ===========================================================================
 			 * Init Hibernate
@@ -200,7 +206,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 				this.config = new Configuration().configure(configURL);
 
 				// register an interceptor (required to support our interface-based command model)
-				this.config.setInterceptor(new InterfaceInterceptor());
+				this.config.setInterceptor(new InterfaceInterceptor(this.commandFactory));
 
 				// merge with additional properties
 				if (extraProperties != null) {
@@ -879,7 +885,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			final int depth,
 			final LinkedList<URI> locations,
 			final Session session
-	) {
+	) throws IOException {
 
 		final Iterator<URI> locationIterator = locations.iterator();
 		final long time = System.currentTimeMillis();
@@ -896,42 +902,50 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		final DynamicBloomFilter bloomFilter = this.bloomFilter;
 		final Cache urlExistsCache = this.urlExistsCache;
 		while (locationIterator.hasNext()) {
-			counter++;
+			try {
+				counter++;
 
-			final URI loc = locationIterator.next();
-			if (checkBloom) {
-				try {
+				final URI loc = locationIterator.next();
+				if (checkBloom) {
+					// the bloom-filter key
 					key.set(loc.toString().getBytes(UTF8), 1.0);
-				} catch (UnsupportedEncodingException e) {
-					/* UTF-8 support should be implemented in the JVM */
-					throw new RuntimeException(e);
-				}
-				if (!bloomFilter.membershipTest(key)) {
-					// process all URIs which are not known to the double-URIs-cache;
-					// these URIs don't have to be checked against the DB again for the
-					// cache does not return false negatives
-					bloomFilter.add(key);
-					session.saveOrUpdate("EnqueuedCommand", Command.createCommand(loc, profileID, depth));
-					cntCrawlerQueue++;
-					cntTotal++;
 
-					Element element = new Element(loc, null);
-					this.urlExistsCache.put(element);
+					if (!bloomFilter.membershipTest(key)) {
+						// creating a new command
+						final ICommand cmd = this.commandFactory.createDocument(ICommand.class);
+						cmd.setLocation(loc);
+						cmd.setProfileOID(profileID);
+						cmd.setDepth(depth);
+
+						// process all URIs which are not known to the double-URIs-cache;
+						// these URIs don't have to be checked against the DB again for the
+						// cache does not return false negatives
+						bloomFilter.add(key);
+						session.saveOrUpdate("EnqueuedCommand", cmd);
+						cntCrawlerQueue++;
+						cntTotal++;
+
+						Element element = new Element(loc, null);
+						this.urlExistsCache.put(element);
+						locationIterator.remove();
+						cacheChecked++;
+
+						if (this.logger.isTraceEnabled()) {
+							buf.append(String.format("\n\t[%3d] %s", Integer.valueOf(counter), loc.toString()));
+						}					
+
+						continue;
+					}
+				}
+
+				if (urlExistsCache.get(loc) != null) {
 					locationIterator.remove();
-					cacheChecked++;
-
-					if (this.logger.isTraceEnabled()) {
-						buf.append(String.format("\n\t[%3d] %s", Integer.valueOf(counter), loc.toString()));
-					}					
-
-					continue;
+					known++;
 				}
-			}
-
-			if (urlExistsCache.get(loc) != null) {
-				locationIterator.remove();
-				known++;
-			}
+			} catch (UnsupportedEncodingException e) {
+				/* UTF-8 support should be implemented in the JVM */
+				throw new RuntimeException(e);
+			}			
 		}
 
 		if (this.logger.isDebugEnabled()) {
@@ -966,7 +980,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			final LinkedList<URI> locations,
 			final Session session,
 			final int chunkSize
-	) throws UnsupportedEncodingException {
+	) throws IOException {
 
 		int total = locations.size();
 		int known = 0;
@@ -1015,8 +1029,14 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 			cntCrawlerQueue++;
 			i++;			
 
+			// create a new command
+			final ICommand cmd = this.commandFactory.createDocument(ICommand.class);
+			cmd.setLocation(location);
+			cmd.setProfileOID(profileID);
+			cmd.setDepth(depth);
+			
 			// store new command into DB
-			session.saveOrUpdate("EnqueuedCommand",Command.createCommand(location,profileID,depth));	
+			session.saveOrUpdate("EnqueuedCommand",cmd);	
 
 			// add to bloom filter
 			key.set(location.toString().getBytes(UTF8), 1.0);

@@ -22,7 +22,7 @@ import org.xbill.DNS.Address;
 /**
  * Just a wrapper for {@link org.xbill.DNS.Address}
  * 
- * @scr.component
+ * @scr.component metatype="false"
  * @scr.service interface="org.paxle.tools.dns.IAddressTool"
  */
 public class AddressTool implements IAddressTool {

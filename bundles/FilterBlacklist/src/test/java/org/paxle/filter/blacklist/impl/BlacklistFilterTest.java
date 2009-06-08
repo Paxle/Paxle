@@ -19,10 +19,10 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.integration.junit3.MockObjectTestCase;
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
+import org.paxle.core.doc.impl.BasicCommand;
 import org.paxle.core.doc.impl.BasicParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.filter.blacklist.IBlacklist;
@@ -63,7 +63,7 @@ public class BlacklistFilterTest extends MockObjectTestCase {
 	}	
 
 	public void testCommandIsListed() throws Exception {
-		ICommand testCommand = new Command();
+		ICommand testCommand = new BasicCommand();
 		testCommand.setLocation(new URI("http://test/"));
 		filter.filter(testCommand, null);
 		assertEquals(ICommand.Result.Passed, testCommand.getResult());
@@ -82,7 +82,7 @@ public class BlacklistFilterTest extends MockObjectTestCase {
 		filter.filter(testCommand, null);
 		assertEquals(ICommand.Result.Rejected, testCommand.getResult());
 
-		testCommand = new Command();
+		testCommand = new BasicCommand();
 		testCommand.setLocation(new URI("http://asd/"));		
 		testList.removePattern(".*asd.*");
 		filter.filter(testCommand, null);
@@ -94,7 +94,7 @@ public class BlacklistFilterTest extends MockObjectTestCase {
 		final URI blockedURI = URI.create("http://asd/");
 		
 		// creating test command
-		ICommand testCommand = new Command();
+		ICommand testCommand = new BasicCommand();
 		testCommand.setLocation(URI.create("http://xyz/"));
 		
 		// creating dummy p-doc

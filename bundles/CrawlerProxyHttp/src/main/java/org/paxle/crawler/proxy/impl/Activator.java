@@ -13,7 +13,9 @@
  */
 package org.paxle.crawler.proxy.impl;
 
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,7 +29,9 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 import org.paxle.core.data.IDataProvider;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandTracker;
+import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.Properties;
@@ -82,13 +86,32 @@ public class Activator implements BundleActivator {
         	this.logger.warn("No CommandTracker-service found. Command-tracking will not work.");
         }
         
-        // getting the document-factory
-        ServiceReference[] docFactoryRefs = context.getServiceReferences(IDocumentFactory.class.getName(),"(docType=org.paxle.core.doc.ICrawlerDocument)");
-        if (docFactoryRefs == null || docFactoryRefs.length == 0) throw new IllegalStateException("No DocFactory found.");
-        final IDocumentFactory docFactory = (IDocumentFactory) context.getService(docFactoryRefs[0]);
+        // getting the required document-factories
+        Map<String, IDocumentFactory> docFactories = new HashMap<String, IDocumentFactory>();
+        
+        ServiceReference[] docFactoryRefs = context.getServiceReferences(
+        		IDocumentFactory.class.getName(), String.format(
+        		"(|(docType=%s)(docType=%s))",
+        		ICrawlerDocument.class.getName(),
+        		ICommand.class.getName()
+        ));
+        if (docFactoryRefs == null || docFactoryRefs.length == 0) throw new IllegalStateException("No DocFactories found.");
+        for (ServiceReference docFactoryRef : docFactoryRefs) {
+        	String[] docTypes = null; 
+        	Object docTypeProp = docFactoryRef.getProperty(IDocumentFactory.DOCUMENT_TYPE);
+        	
+        	if (docTypeProp instanceof String) docTypes = new String[]{(String) docTypeProp};
+        	else if (docTypeProp instanceof String[]) docTypes = (String[]) docTypeProp;        	
+        	
+        	final IDocumentFactory docFactory = (IDocumentFactory) context.getService(docFactoryRef);
+        	for (String docType : docTypes) {
+        		docFactories.put(docType, docFactory);
+        	}        	
+        }
+        
 		
 		// init data provider
-		this.dataProvider = new ProxyDataProvider(providerPrefs, commandTracker, docFactory);
+		this.dataProvider = new ProxyDataProvider(providerPrefs, commandTracker, docFactories);
 		final Hashtable<String,String> providerProps = new Hashtable<String,String>();
 		providerProps.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.parser.sink");		
 		context.registerService(new String[]{IDataProvider.class.getName()}, this.dataProvider, providerProps);

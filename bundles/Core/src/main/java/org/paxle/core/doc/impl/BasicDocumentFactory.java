@@ -14,9 +14,12 @@
 package org.paxle.core.doc.impl;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 import javax.annotation.Nonnull;
 
+import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
@@ -24,6 +27,14 @@ import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 
 public class BasicDocumentFactory implements IDocumentFactory {
+	@SuppressWarnings("serial")
+	private static final HashSet<Class<?>> SUPPORTED_CLASSES =  new HashSet<Class<?>>() {{
+		add(ICrawlerDocument.class);
+		add(IParserDocument.class);
+		add(IIndexerDocument.class);
+		add(ICommand.class);
+		add(ICommandProfile.class);
+	}};
 	
 	private final ITempFileManager tempFileManager;
 	
@@ -34,6 +45,7 @@ public class BasicDocumentFactory implements IDocumentFactory {
 	@SuppressWarnings("unchecked")
 	public <Doc> Doc createDocument(Class<Doc> docInterface) throws IOException {
 		if (docInterface == null) throw new NullPointerException("The document-interface must not be null.");
+		else if (!SUPPORTED_CLASSES.contains(docInterface)) throw new IllegalArgumentException("Unsupported doc-type");
 		
 		if (docInterface.equals(ICrawlerDocument.class)) {		
 			// currently we can simply create a new class here
@@ -43,9 +55,16 @@ public class BasicDocumentFactory implements IDocumentFactory {
 			return (Doc) new CachedParserDocument(this.tempFileManager);
 		} else if (docInterface.equals(IIndexerDocument.class)) {
 			return (Doc) new BasicIndexerDocument();
+		} else if (docInterface.equals(ICommand.class)) {
+			return (Doc) new BasicCommand();
+		} else if (docInterface.equals(ICommandProfile.class)) {
+			return (Doc) new BasicCommandProfile();
 		}
 		
 		throw new IllegalArgumentException("Unexpected doc-type");
 	}
 
+	public boolean isSupported(Class<?> docInterface) {
+		return SUPPORTED_CLASSES.contains(docInterface);
+	}
 }

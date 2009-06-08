@@ -14,6 +14,7 @@
 package org.paxle.gui.impl.servlets;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -28,9 +29,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.paxle.core.doc.CommandProfile;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandProfileManager;
+import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.ICommandProfile.LinkFilterMode;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
@@ -48,6 +49,11 @@ public class CrawlerView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+	
+	/**
+	 * @scr.reference target="(docType=org.paxle.core.doc.ICommandProfile)"
+	 */
+	protected IDocumentFactory profileFactory;
 	
 	private class UrlTank {
 		/**
@@ -212,7 +218,7 @@ public class CrawlerView extends ALayoutServlet {
 		return this.getTemplate("/resources/templates/CrawlerView.vm");
 	}	
 	
-	private void setProfileDepth(HttpServletRequest request, final CommandProfile profile) {
+	private void setProfileDepth(HttpServletRequest request, final ICommandProfile profile) {
 		int depth = 0;
 		String depthStr = request.getParameter("crawlDepth");
 		
@@ -228,13 +234,13 @@ public class CrawlerView extends ALayoutServlet {
 		profile.setMaxDepth(depth);
 	}
 	
-	private void setProfileName(HttpServletRequest request, final CommandProfile profile) {
+	private void setProfileName(HttpServletRequest request, final ICommandProfile profile) {
 		String name = request.getParameter("profileName");
 		if (name == null) name = "Crawl " + this.formatter.format(new Date());
 		profile.setName(name);
 	}
 	
-	private void setProfileLinkFilterMode(HttpServletRequest request, final CommandProfile profile) {
+	private void setProfileLinkFilterMode(HttpServletRequest request, final ICommandProfile profile) {
 		LinkFilterMode filterMode = LinkFilterMode.none;
 		String filterExpression = null;
 		
@@ -254,7 +260,7 @@ public class CrawlerView extends ALayoutServlet {
 		profile.setLinkFilterExpression(filterExpression);
 	}
 	
-	private ICommandProfile createProfile(HttpServletRequest request, Context context) {
+	private ICommandProfile createProfile(HttpServletRequest request, Context context) throws IOException {
 		// getting the service manager
 		final ServiceManager sm = (ServiceManager)context.get(SERVICE_MANAGER);
 		if (sm == null) throw new NullPointerException("No service-manager found.");
@@ -264,7 +270,7 @@ public class CrawlerView extends ALayoutServlet {
 		if (pm == null) throw new NullPointerException("No profile-manager found.");
 		
 		// create a new profile
-		final CommandProfile profile = new CommandProfile();
+		final ICommandProfile profile = this.profileFactory.createDocument(ICommandProfile.class);
 		this.setProfileDepth(request, profile);
 		this.setProfileName(request, profile);
 		this.setProfileLinkFilterMode(request, profile);

@@ -17,10 +17,10 @@ import java.net.URI;
 
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.service.component.ComponentContext;
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
+import org.paxle.core.doc.impl.BasicCommand;
 import org.paxle.core.doc.impl.BasicParserDocument;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
@@ -38,9 +38,15 @@ public class DNSFilterOnlineTest extends MockObjectTestCase {
 		}};
 	}
 	
+	private ICommand createCommand(URI location) {
+		ICommand cmd = new BasicCommand();
+		cmd.setLocation(location);
+		return cmd;
+	}
+	
 	public void testFilterKnownHost() {
 		final IFilterContext context = mock(IFilterContext.class);
-		final ICommand cmd = Command.createCommand(URI.create("http://svn.paxle.net"));
+		final ICommand cmd = this.createCommand(URI.create("http://svn.paxle.net"));
 		
 		this.filter.filter(cmd, context);
 		assertEquals(ICommand.Result.Passed, cmd.getResult());
@@ -48,7 +54,7 @@ public class DNSFilterOnlineTest extends MockObjectTestCase {
 	
 	public void testFilterUnKnownHost() {
 		final IFilterContext context = mock(IFilterContext.class);
-		final ICommand cmd = Command.createCommand(URI.create("http://xyz.paxle.net"));
+		final ICommand cmd = this.createCommand(URI.create("http://xyz.paxle.net"));
 		
 		this.filter.filter(cmd, context);
 		assertEquals(ICommand.Result.Rejected, cmd.getResult());
@@ -64,7 +70,7 @@ public class DNSFilterOnlineTest extends MockObjectTestCase {
 		pDoc.addReference(knownDomain, new LinkInfo());
 		pDoc.addReference(unknownDomain, new LinkInfo());
 		
-		final ICommand cmd = Command.createCommand(URI.create("http://svn.paxle.net"));
+		final ICommand cmd = this.createCommand(URI.create("http://svn.paxle.net"));
 		cmd.setParserDocument(pDoc);
 		
 		this.filter.filter(cmd, context);
@@ -76,7 +82,7 @@ public class DNSFilterOnlineTest extends MockObjectTestCase {
 	public void testFilterInvalidHost() {
 		final IFilterContext context = mock(IFilterContext.class);		
 		final URI invalidDomain = URI.create("http://www.xyz.net%20target=/");
-		final ICommand cmd = Command.createCommand(invalidDomain);
+		final ICommand cmd = this.createCommand(invalidDomain);
 		
 		assertEquals(ICommand.Result.Passed, cmd.getResult());
 		this.filter.filter(cmd, context);

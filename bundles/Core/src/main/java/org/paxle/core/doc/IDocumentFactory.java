@@ -20,5 +20,18 @@ import javax.annotation.Nonnull;
 public interface IDocumentFactory {
 	public static final String DOCUMENT_TYPE = "docType";
 	
+	/**
+	 * A function to create a new document of the given Type
+	 * @param docInterface the interface of the class that should be created
+	 * @return a newly created document of the given type
+	 * @throws IOException
+	 */
 	public <Doc> Doc createDocument(@Nonnull Class<Doc> docInterface) throws IOException;
+	
+	/**
+	 * @param docInterface
+	 * @return <code>true</code> if this {@link IDocumentFactory} is capable to create a document
+	 * of the given type
+	 */
+	public boolean isSupported(Class<?> docInterface);
 }

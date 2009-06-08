@@ -34,7 +34,7 @@ import org.xbill.DNS.Address;
 import org.xbill.DNS.ResolverConfig;
 
 /**
- * @scr.component
+ * @scr.component metatype="false"
  * @scr.service interface="org.paxle.core.filter.IFilter"
  */
 @FilterTarget({

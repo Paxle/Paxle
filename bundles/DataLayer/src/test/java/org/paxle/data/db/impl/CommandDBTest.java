@@ -35,6 +35,9 @@ import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandTracker;
+import org.paxle.core.doc.IDocumentFactory;
+import org.paxle.core.doc.impl.BasicDocumentFactory;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.threading.PPM;
 
 public class CommandDBTest extends MockObjectTestCase {
@@ -52,6 +55,8 @@ public class CommandDBTest extends MockObjectTestCase {
 	
 	private ICommandTracker cmdTracker;
 	private CommandDB cmdDB;
+	
+	private IDocumentFactory cmdFactory;
 	
 	/**
 	 * @return the hibernate mapping files to use
@@ -110,6 +115,9 @@ public class CommandDBTest extends MockObjectTestCase {
 		// create a dummy command tracker
 		this.cmdTracker = mock(ICommandTracker.class);
 		
+		// a doc-factory
+		this.cmdFactory = new BasicDocumentFactory(mock(ITempFileManager.class));
+		
 		// delete dirs
 		this.deleteTestDataDirs();
 	}
@@ -120,7 +128,8 @@ public class CommandDBTest extends MockObjectTestCase {
 				this.getConfigFile(hibernateConfigFile),
 				this.getMappingFiles(),
 				this.getExtraProperties(connectionURL, username, password),
-				this.cmdTracker		
+				this.cmdTracker,
+				this.cmdFactory
 		);
 		
 		// startup DB
@@ -155,7 +164,7 @@ public class CommandDBTest extends MockObjectTestCase {
 	/**
 	 * A dummy data-sink which just prints out the data
 	 */
-	private class DummyDataSink implements IDataSink<ICommand> {
+	private static class DummyDataSink implements IDataSink<ICommand> {
 		private final Semaphore semaphore;
 		private final PPM ppm = new PPM();
 		private final Log logger = LogFactory.getLog(this.getClass());

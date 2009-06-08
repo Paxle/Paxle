@@ -29,11 +29,11 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.data.IDataSource;
-import org.paxle.core.doc.Command;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandTracker;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.core.doc.impl.BasicCommand;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.se.index.IIndexWriter;
@@ -150,7 +150,7 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		File testData = new File("src/test/resources/test.txt");
 		assertTrue(testData.exists());
 		
-		Command cmd = new Command();
+		ICommand cmd = new BasicCommand();
 		cmd.setLocation(URI.create("http://www.paxle.net"));
 		cmd.setOID((int)System.currentTimeMillis());
 		cmd.setResult(ICommand.Result.Passed);
