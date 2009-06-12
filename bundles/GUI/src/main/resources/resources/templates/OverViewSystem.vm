@@ -20,7 +20,7 @@
 	<legend class="ovSystem">${text.legend.ovSystem}</legend>
 	#if($servletManager.hasServlet('/chart'))
 		<a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.ChartServlet')}?display=embedded&amp;t=system">
-			<img class="chart" id="ovSystemChart" src="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.ChartServlet')}?t=system&amp;w=385&amp;h=200&amp;t=${dateTool.get('yyyy-M-dH:m')}" height="200" width="385" alt="${text.chart.ovSystem.alt}"/>
+			<img class="chart" id="ovSystemChart" src="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.ChartServlet')}?t=system&amp;w=385&amp;h=200&amp;d=${dateTool.get('yyyy-M-dH:m')}" height="200" width="385" alt="${text.chart.ovSystem.alt}"/>
 		</a>
 	#end	
 	<table>
