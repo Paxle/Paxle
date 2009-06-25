@@ -523,7 +523,17 @@
 				<groupId>net.sourceforge.findbugs</groupId>
 				<artifactId>annotations</artifactId>
 				<version>1.3.2</version>
-			</dependency>			
+			</dependency>
+			
+			<!--
+				Annotation for the maven-scr-plugin 
+			 -->
+			<dependency>
+			    <groupId>org.apache.felix</groupId>
+			    <artifactId>org.apache.felix.scr.annotations</artifactId>
+			    <version>0.9.0</version>
+			</dependency>
+			
 		</dependencies>
 	</dependencyManagement>
 
@@ -606,7 +616,15 @@
 		<dependency>
 			<groupId>net.sourceforge.findbugs</groupId>
 			<artifactId>annotations</artifactId>
-		</dependency>		
+		</dependency>
+		
+		<!--
+			Annotation for the maven-scr-plugin 
+		 -->
+		<dependency>
+		    <groupId>org.apache.felix</groupId>
+		    <artifactId>org.apache.felix.scr.annotations</artifactId>
+		</dependency>	
 	</dependencies>
 
 	<!-- ==================================================================== -->
