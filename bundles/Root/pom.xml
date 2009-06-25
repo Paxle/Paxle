@@ -219,7 +219,7 @@
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-scr-plugin</artifactId>
-					<version>1.0.8</version>
+					<version>1.2.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
