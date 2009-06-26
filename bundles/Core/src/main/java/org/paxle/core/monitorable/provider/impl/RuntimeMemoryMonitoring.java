@@ -16,20 +16,35 @@ package org.paxle.core.monitorable.provider.impl;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
+import org.osgi.framework.Constants;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
-/**
- * @scr.component name="java.lang.runtime" metatype="false"
- * @scr.service interface="org.osgi.service.monitor.Monitorable"
- * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/RuntimeMemoryMonitoring"
- */
+@Component(metatype=false, name=RuntimeMemoryMonitoring.PID)
+@Service(Monitorable.class)
+@Property(name="Monitorable-Localization", value=RuntimeMemoryMonitoring.RB_BASENAME)
 public class RuntimeMemoryMonitoring implements Monitorable {
+	/**
+	 * The {@link Constants#SERVICE_PID} of this {@link Monitorable}
+	 */
+	private static final String PID = "java.lang.runtime";
+	
+	/**
+	 * {@link ResourceBundle} basename
+	 */
+	private static final String RB_BASENAME = "OSGI-INF/l10n/RuntimeMemoryMonitoring";
+	
 	private static final String MEMORY_FREE = "memory.free";
 	private static final String MEMORY_MAX = "memory.max";
 	private static final String MEMORY_TOTAL = "memory.total";
 	private static final String MEMORY_USED = "memory.used";
 
+	/**
+	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
 	@SuppressWarnings("serial")
 	private static final HashSet<String> VAR_NAMES = new HashSet<String>() {{
 		add(MEMORY_FREE);
@@ -41,7 +56,7 @@ public class RuntimeMemoryMonitoring implements Monitorable {
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/RuntimeMemoryMonitoring");	
+	private final ResourceBundle rb = ResourceBundle.getBundle(RB_BASENAME);	
 	
 	/**
 	 * @see Monitorable#getStatusVariableNames()

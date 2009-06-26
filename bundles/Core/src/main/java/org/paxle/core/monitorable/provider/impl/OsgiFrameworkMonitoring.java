@@ -16,18 +16,29 @@ package org.paxle.core.monitorable.provider.impl;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
-/**
- * @scr.component name="org.osgi.framework" metatype="false"
- * @scr.service interface="org.osgi.service.monitor.Monitorable"
- * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/OsgiFrameworkMonitoring"
- */
+@Component(metatype=false, name=OsgiFrameworkMonitoring.PID)
+@Service(Monitorable.class)
+@Property(name="Monitorable-Localization", value=OsgiFrameworkMonitoring.RB_BASENAME)
 public class OsgiFrameworkMonitoring implements Monitorable {
+	/**
+	 * The {@link Constants#SERVICE_PID} of this {@link Monitorable}
+	 */
+	private static final String PID = "org.osgi.framework";
+	
+	/**
+	 * {@link ResourceBundle} basename
+	 */
+	private static final String RB_BASENAME = "OSGI-INF/l10n/OsgiFrameworkMonitoring";	
+	
 	private static final String FRAMEWORK_PROP_PREFIX = "org.osgi.framework.";
 	
 	/**
@@ -47,7 +58,7 @@ public class OsgiFrameworkMonitoring implements Monitorable {
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/OsgiFrameworkMonitoring");
+	private final ResourceBundle rb = ResourceBundle.getBundle(RB_BASENAME);
 	
 	/**
 	 * An OSGi BundleContext required to get OSGi-Framework properties

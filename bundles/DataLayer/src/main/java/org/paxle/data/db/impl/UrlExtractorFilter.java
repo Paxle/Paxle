@@ -44,6 +44,9 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 	 */
 	public static final String PID = "org.paxle.data.UrlExtractor";
 
+	/**
+	 * Number of URI-packages enqueued for storage to DB.
+	 */
 	private static final String VAR_NAME_QUEUE_SIZE = "queue.size";	
 	
 	/**

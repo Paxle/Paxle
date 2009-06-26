@@ -23,23 +23,45 @@ import java.util.ResourceBundle;
 import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
+import org.osgi.framework.Constants;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
-/**
- * @scr.component name="os.disk" metatype="false"
- * @scr.service interface="org.osgi.service.monitor.Monitorable"
- * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/DiskspaceMonitoring"
- */
+@Component(metatype=false, name=DiskspaceMonitoring.PID)
+@Service(Monitorable.class)
+@Property(name="Monitorable-Localization", value=DiskspaceMonitoring.RB_BASENAME)
 public class DiskspaceMonitoring implements Monitorable {
-	static enum Mode {
+	/**
+	 * The {@link Constants#SERVICE_PID} of this {@link Monitorable}
+	 */
+	private static final String PID = "os.disk";
+	
+	/**
+	 * {@link ResourceBundle} basename
+	 */
+	private static final String RB_BASENAME = "OSGI-INF/l10n/DiskspaceMonitoring";	
+	
+	private static enum Mode {
 		commons_io,
 		jre6
 	};
 	
+	/**
+	 * Query mode: jre6 or commons-io
+	 */
 	static final String VAR_QUERY_MODE = "query.mode";
+	
+	/**
+	 * Free disk space in MB.
+	 */
 	static final String VAR_SPACE_FREE = "disk.space.free";
 	
+	/**
+	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */	
 	@SuppressWarnings("serial")
 	private static final HashSet<String> VAR_NAMES = new HashSet<String>() {{
 		add(VAR_QUERY_MODE);
@@ -49,7 +71,7 @@ public class DiskspaceMonitoring implements Monitorable {
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/DiskspaceMonitoring");	
+	private final ResourceBundle rb = ResourceBundle.getBundle(RB_BASENAME);	
 
 	/**
 	 * For logging

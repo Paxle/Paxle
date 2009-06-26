@@ -25,16 +25,31 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
+import org.osgi.framework.Constants;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
-/**
- * @scr.component name="java.lang.management" metatype="false"
- * @scr.service interface="org.osgi.service.monitor.Monitorable"
- * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/JmxMonitoring"
- */
+@Component(metatype=false, name=JmxMonitoring.PID)
+@Service(Monitorable.class)
+@Property(name="Monitorable-Localization", value=JmxMonitoring.RB_BASENAME)
 public class JmxMonitoring implements Monitorable {
-	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/JmxMonitoring");
+	/**
+	 * The {@link Constants#SERVICE_PID} of this {@link Monitorable}
+	 */
+	private static final String PID = "java.lang.management";
+	
+	/**
+	 * {@link ResourceBundle} basename
+	 */
+	private static final String RB_BASENAME = "OSGI-INF/l10n/JmxMonitoring";		
+	
+	/**
+	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
+	 */
+	private final ResourceBundle rb = ResourceBundle.getBundle(RB_BASENAME);
 	
 	/* =========================================================================
 	 * OPERATING SYSTEM props

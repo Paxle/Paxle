@@ -22,23 +22,37 @@ import jsysmon.JSysmon;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
-/**
- * @scr.component name="os.usage.cpu" metatype="false"
- * @scr.service interface="org.osgi.service.monitor.Monitorable"
- * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/CPUMonitoring"
- */
+@Component(metatype=false, name=CPUMonitoring.PID)
+@Service(Monitorable.class)
+@Property(name="Monitorable-Localization", value=CPUMonitoring.RB_BASENAME)
 public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
-	public static final String PID = "os.usage.cpu";
+	/**
+	 * The {@link Constants#SERVICE_PID} of this {@link Monitorable}
+	 */
+	private static final String PID = "os.usage.cpu";
+	
+	/**
+	 * {@link ResourceBundle} basename
+	 */
+	private static final String RB_BASENAME = "OSGI-INF/l10n/CPUMonitoring";
+	
+	/**
+	 * XXXX CPU Usage
+	 */
 	private static final String VAR_PREFIX_USAGE = "cpu.usage";
 	
 	/**
 	 * Textual description of all available {@link #VAR_NAMES monitoring-variables}
 	 */
-	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/CPUMonitoring");
+	private final ResourceBundle rb = ResourceBundle.getBundle(RB_BASENAME);
 	
 	/**
 	 * A map containing the {@link Monitorable#getStatusVariableNames() variable-name} as key
