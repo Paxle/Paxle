@@ -21,6 +21,8 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
@@ -33,10 +35,8 @@ import org.paxle.core.filter.IFilterContext;
 import org.xbill.DNS.Address;
 import org.xbill.DNS.ResolverConfig;
 
-/**
- * @scr.component metatype="false"
- * @scr.service interface="org.paxle.core.filter.IFilter"
- */
+@Component(metatype=false)
+@Service(IFilter.class)
 @FilterTarget({
 	@FilterQueuePosition(
 		queue = "org.paxle.crawler.in", 
