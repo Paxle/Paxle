@@ -34,12 +34,12 @@ public class NetworkMonitoring implements Monitorable {
 	/**
 	 * The {@link Constants#SERVICE_PID} of this {@link Monitorable}
 	 */
-	private static final String PID = "os.network";
+	static final String PID = "os.network";
 	
 	/**
 	 * {@link ResourceBundle} basename
 	 */
-	private static final String RB_BASENAME = "OSGI-INF/l10n/NetworkMonitoring";
+	static final String RB_BASENAME = "OSGI-INF/l10n/NetworkMonitoring";
 	
 	/**
 	 * The hostname of the peer

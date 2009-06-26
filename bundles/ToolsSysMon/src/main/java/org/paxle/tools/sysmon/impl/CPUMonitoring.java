@@ -37,12 +37,12 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 	/**
 	 * The {@link Constants#SERVICE_PID} of this {@link Monitorable}
 	 */
-	private static final String PID = "os.usage.cpu";
+	static final String PID = "os.usage.cpu";
 	
 	/**
 	 * {@link ResourceBundle} basename
 	 */
-	private static final String RB_BASENAME = "OSGI-INF/l10n/CPUMonitoring";
+	static final String RB_BASENAME = "OSGI-INF/l10n/CPUMonitoring";
 	
 	/**
 	 * XXXX CPU Usage

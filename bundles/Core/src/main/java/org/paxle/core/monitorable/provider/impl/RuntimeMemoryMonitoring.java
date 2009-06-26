@@ -30,12 +30,12 @@ public class RuntimeMemoryMonitoring implements Monitorable {
 	/**
 	 * The {@link Constants#SERVICE_PID} of this {@link Monitorable}
 	 */
-	private static final String PID = "java.lang.runtime";
+	static final String PID = "java.lang.runtime";
 	
 	/**
 	 * {@link ResourceBundle} basename
 	 */
-	private static final String RB_BASENAME = "OSGI-INF/l10n/RuntimeMemoryMonitoring";
+	static final String RB_BASENAME = "OSGI-INF/l10n/RuntimeMemoryMonitoring";
 	
 	private static final String MEMORY_FREE = "memory.free";
 	private static final String MEMORY_MAX = "memory.max";

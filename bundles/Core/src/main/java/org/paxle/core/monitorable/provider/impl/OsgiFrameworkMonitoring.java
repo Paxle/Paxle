@@ -32,12 +32,12 @@ public class OsgiFrameworkMonitoring implements Monitorable {
 	/**
 	 * The {@link Constants#SERVICE_PID} of this {@link Monitorable}
 	 */
-	private static final String PID = "org.osgi.framework";
+	static final String PID = "org.osgi.framework";
 	
 	/**
 	 * {@link ResourceBundle} basename
 	 */
-	private static final String RB_BASENAME = "OSGI-INF/l10n/OsgiFrameworkMonitoring";	
+	static final String RB_BASENAME = "OSGI-INF/l10n/OsgiFrameworkMonitoring";	
 	
 	private static final String FRAMEWORK_PROP_PREFIX = "org.osgi.framework.";
 	

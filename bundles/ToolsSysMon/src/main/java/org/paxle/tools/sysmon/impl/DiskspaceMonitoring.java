@@ -37,12 +37,12 @@ public class DiskspaceMonitoring implements Monitorable {
 	/**
 	 * The {@link Constants#SERVICE_PID} of this {@link Monitorable}
 	 */
-	private static final String PID = "os.disk";
+	static final String PID = "os.disk";
 	
 	/**
 	 * {@link ResourceBundle} basename
 	 */
-	private static final String RB_BASENAME = "OSGI-INF/l10n/DiskspaceMonitoring";	
+	static final String RB_BASENAME = "OSGI-INF/l10n/DiskspaceMonitoring";	
 	
 	private static enum Mode {
 		commons_io,
