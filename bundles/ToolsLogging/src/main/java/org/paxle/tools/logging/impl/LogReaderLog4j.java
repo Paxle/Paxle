@@ -18,6 +18,10 @@ import org.apache.commons.collections.BufferUtils;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -31,12 +35,12 @@ import org.paxle.tools.logging.ILogData;
 import org.paxle.tools.logging.ILogDataEntry;
 import org.paxle.tools.logging.ILogReader;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.tools.logging.ILogReader"
- * @scr.property name="org.paxle.tools.logging.ILogReader.type" value="log4j"
- * @scr.property name="servlet.pid" value="org.paxle.tools.logging.impl.gui.Log4jView"
- */
+@Component(immediate=true, metatype=false)
+@Service(ILogReader.class)
+@Properties({
+	@Property(name=ILogReader.TYPE, value="log4j"),
+	@Property(name=ILogReader.SERVLET_PID, value="org.paxle.tools.logging.impl.gui.Log4jView")
+})
 public class LogReaderLog4j implements ILogReader {
 	private static final long serialVersionUID = 1L;
 

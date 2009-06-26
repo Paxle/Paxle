@@ -23,6 +23,8 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.log4j.Logger;
 import org.apache.log4j.lf5.LF5Appender;
 import org.apache.log4j.lf5.LogLevel;
@@ -31,10 +33,8 @@ import org.apache.log4j.lf5.viewer.LogTable;
 import org.apache.log4j.lf5.viewer.configure.ConfigurationManager;
 import org.paxle.desktop.DIComponent;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.desktop.DIComponent"
- */
+@Component
+@Service(DIComponent.class)
 public class LogFactor5DIComponent implements DIComponent {
 
 	private static final Dimension DEFAULT_DIM = new Dimension(700, 500);

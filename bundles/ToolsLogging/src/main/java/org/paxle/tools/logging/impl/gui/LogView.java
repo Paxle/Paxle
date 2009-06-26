@@ -17,9 +17,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.framework.ServiceReference;
@@ -28,22 +36,23 @@ import org.osgi.service.log.LogService;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.tools.logging.ILogReader;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/log"
- * @scr.property name="org.paxle.servlet.menu" value="%menu.info/%menu.info.log"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
- * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/script.png"
- * 
- * @scr.reference name="logReaders" 
- * 				  interface="org.paxle.tools.logging.ILogReader" 
- * 				  cardinality="0..n" 
- * 				  policy="dynamic" 
- * 				  bind="addReader" 
- * 				  unbind="removeReader"
- * 				  target="(org.paxle.tools.logging.ILogReader.type=*)
- */
+@Component(immediate=true, metatype=false)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/log"),
+	@Property(name="org.paxle.servlet.menu", value="%menu.info/%menu.info.log"),
+	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/script.png"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue = false)
+})
+@Reference(
+	name="logReaders",
+	referenceInterface=ILogReader.class,
+	cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
+	policy=ReferencePolicy.DYNAMIC,
+	bind="addReader",
+	unbind="removeReader",
+	target="(org.paxle.tools.logging.ILogReader.type=*)"
+)
 public class LogView extends ALayoutServlet {	
 	private static final long serialVersionUID = 1L;
 	
@@ -55,6 +64,9 @@ public class LogView extends ALayoutServlet {
 		put(Integer.valueOf(LogService.LOG_DEBUG), "debug");
 	}};
 	
+	/**
+	 * All currently known {@link ILogReader}s
+	 */
 	private HashMap<String, ServiceReference> logReaders = new HashMap<String, ServiceReference>();
 	
 	/**

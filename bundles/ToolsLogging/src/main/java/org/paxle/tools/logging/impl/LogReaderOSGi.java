@@ -16,6 +16,11 @@ package org.paxle.tools.logging.impl;
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.BufferUtils;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
@@ -27,15 +32,12 @@ import org.paxle.tools.logging.ILogData;
 import org.paxle.tools.logging.ILogDataEntry;
 import org.paxle.tools.logging.ILogReader;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.tools.logging.ILogReader"
- * @scr.property name="org.paxle.tools.logging.ILogReader.type" value="osgi"
- */
+@Component(immediate=true, metatype=false)
+@Service(ILogReader.class)
+@Property(name=ILogReader.TYPE, value="osgi")
 public class LogReaderOSGi implements LogListener, ILogReader {	
-	/**
-	 * @scr.reference cardinality="0..1"
-	 */
+
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL_UNARY)
 	private LogReaderService osgiLogReader;	
 	
 	/**
