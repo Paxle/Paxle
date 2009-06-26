@@ -18,9 +18,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
@@ -38,14 +43,14 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.HttpAuthManager;
 import org.paxle.gui.impl.ServiceManager;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/users"
- * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.system/%menu.bundles.userAdmin"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
- * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/user.png"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/users"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=true),
+	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.system/%menu.bundles.userAdmin"), 
+	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/user.png")
+})
 public class UserView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	

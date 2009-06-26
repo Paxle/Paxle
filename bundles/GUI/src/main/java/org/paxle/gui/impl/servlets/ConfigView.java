@@ -39,6 +39,7 @@ import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
+import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,6 +53,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
@@ -76,14 +81,14 @@ import org.paxle.gui.impl.ServiceManager;
 import org.paxle.gui.impl.tools.PaxleLocaleConfig;
 import org.paxle.tools.ieporter.cm.IConfigurationIEPorter;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/config"
- * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.bundles/%menu.system.configManagement"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
- * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/bullet_wrench.png"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/config"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=true),
+	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.bundles/%menu.system.configManagement"), 
+	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/bullet_wrench.png")
+})
 public class ConfigView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	

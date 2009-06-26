@@ -28,14 +28,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.Services;
 import org.paxle.gui.IMenuManager;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.gui.IMenuManager"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/menu"
- */
+@Component(metatype=false, immediate=true)
+@Services({
+	@Service(Servlet.class),
+	@Service(IMenuManager.class)
+})
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/menu"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
+})
 public class MenuManager extends HttpServlet implements IMenuManager, Servlet {
 	private static final long serialVersionUID = 1L;
 	

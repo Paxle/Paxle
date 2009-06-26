@@ -29,12 +29,18 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.imageio.IIOException;
+import javax.servlet.Servlet;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.jfree.chart.ChartFactory;
@@ -64,12 +70,12 @@ import org.osgi.service.monitor.MonitoringJob;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.gui.ALayoutServlet;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/chart"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/chart"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
+})
 public class ChartServlet extends ALayoutServlet implements EventHandler, ServiceListener {
 	private static final long serialVersionUID = 1L;	
 	
@@ -179,8 +185,8 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 	
 	/**
 	 * OSGI Monitor Admin Service
-	 * @scr.reference 
 	 */
+	@Reference
 	private MonitorAdmin monitorService;
 	
 	/**

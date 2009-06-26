@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
@@ -27,6 +28,11 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
@@ -42,22 +48,21 @@ import org.htmlparser.PrototypicalNodeFactory;
 import org.htmlparser.lexer.Lexer;
 import org.htmlparser.lexer.Page;
 
-/**
- * @scr.component immediate="true" 
- * 				  label="RSS Search Servlet"
- * 				  description="A Servlet to configure your RSS resources"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/rsssearchconfig"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
- * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.bundles/%configServlet.menu"
- * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/icons/folder_feed.png"
- */
+@Component(metatype=false, immediate=true,
+		label="RSS Search Servlet",
+		description="A Servlet to configure your RSS resources"
+)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/rsssearchconfig"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=true),
+	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.bundles/%configServlet.menu"), 
+	@Property(name="org.paxle.servlet.menu.icon", value="/resources/icons/folder_feed.png")
+})
 public class ConfigServlet extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
-	/** 
-	 * @scr.reference
-	 */
+	@Reference
 	protected IRssSearchProviderManager pManager;
 
 	@Override

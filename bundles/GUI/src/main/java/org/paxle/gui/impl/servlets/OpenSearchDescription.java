@@ -13,19 +13,24 @@
  */
 package org.paxle.gui.impl.servlets;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/opensearch/osd.xml"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/opensearch/osd.xml"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
+})
 public class OpenSearchDescription extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	

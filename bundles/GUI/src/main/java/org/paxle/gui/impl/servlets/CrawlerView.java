@@ -24,9 +24,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.core.doc.ICommandProfile;
@@ -36,23 +42,21 @@ import org.paxle.core.doc.ICommandProfile.LinkFilterMode;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/crawler"
- * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.bundles/%menu.bundles.crawler"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
- * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/link_go.png"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/crawler"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=true),
+	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.bundles/%menu.bundles.crawler"), 
+	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/link_go.png")
+})
 public class CrawlerView extends ALayoutServlet {
 	
 	private static final long serialVersionUID = 1L;
 	
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 	
-	/**
-	 * @scr.reference target="(docType=org.paxle.core.doc.ICommandProfile)"
-	 */
+	@Reference(target="(docType=org.paxle.core.doc.ICommandProfile)")
 	protected IDocumentFactory profileFactory;
 	
 	private class UrlTank {

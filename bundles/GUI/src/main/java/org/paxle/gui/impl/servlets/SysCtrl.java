@@ -13,22 +13,27 @@
  */
 package org.paxle.gui.impl.servlets;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/sysctrl"
- * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.system/%menu.system.shutdown"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
- * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/shutdown_16.png"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/sysctrl"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=true),
+	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.system/%menu.system.shutdown"), 
+	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/shutdown_16.png")
+})
 public class SysCtrl extends ALayoutServlet {
 
 	private static final long serialVersionUID = 1L;

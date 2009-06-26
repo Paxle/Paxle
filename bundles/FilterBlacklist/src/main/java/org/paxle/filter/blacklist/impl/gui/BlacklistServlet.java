@@ -20,6 +20,11 @@ import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.filter.blacklist.IBlacklist;
@@ -27,23 +32,22 @@ import org.paxle.filter.blacklist.IBlacklistManager;
 import org.paxle.filter.blacklist.InvalidBlacklistnameException;
 import org.paxle.gui.ALayoutServlet;
 
-/**
- * @scr.component immediate="true" 
- * 				  label="Blacklist Servlet"
- * 				  description="A Servlet to manage your blacklists"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/blacklist"
- * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.bundles/%blacklistServlet.menu"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
- * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/book_link.png"
- */
+@Component(metatype=false, immediate=true,
+		label="Blacklist Servlet",
+		description="A Servlet to manage your blacklists"
+)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/blacklist"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=true),
+	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.bundles/%blacklistServlet.menu"), 
+	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/book_link.png")
+})
 public class BlacklistServlet extends ALayoutServlet implements Servlet {
 
 	private static final long serialVersionUID = 1L;
 	
-	/** 
-	 * @scr.reference
-	 */
+	@Reference
 	protected IBlacklistManager blacklistManager = null;
 
 	@Override

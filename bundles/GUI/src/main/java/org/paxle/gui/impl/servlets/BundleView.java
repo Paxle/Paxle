@@ -27,6 +27,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -35,6 +36,11 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.framework.Bundle;
@@ -47,14 +53,17 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.ServiceManager;
 import org.paxle.util.StringTools;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/bundle"
- * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.system/%menu.system.bundleControl"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
- * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/brick.png"
- */
+@Component(metatype=false, immediate=true,
+		label="Bundle Servlet",
+		description="A Servlet to display all installed OSGi bundles"
+)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/bundle"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false),
+	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.system/%menu.system.bundleControl"), 
+	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/brick.png")
+})
 public class BundleView extends ALayoutServlet {
 	
 	private static final String PARAM_BUNDLE_PATH = "bundlePath";
@@ -85,14 +94,10 @@ public class BundleView extends ALayoutServlet {
 		states.put(Integer.valueOf(Bundle.UNINSTALLED), "uninstalled");
 	};
 	
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected ITempFileManager tfm;	
-	
-	/**
-	 * @scr.reference
-	 */
+
+	@Reference
 	protected IIOTools iotools;
 	
 	@Override

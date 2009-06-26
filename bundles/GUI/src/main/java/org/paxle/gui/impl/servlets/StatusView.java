@@ -22,10 +22,15 @@ import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.framework.InvalidSyntaxException;
@@ -38,14 +43,14 @@ import org.paxle.gui.impl.tools.MetaDataTool;
 import org.paxle.parser.ISubParserManager;
 import org.paxle.se.search.ISearchProviderManager;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/status"
- * @scr.property name="org.paxle.servlet.menu" value="%menu.info/%menu.info.status"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
- * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/monitor.png"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/status"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false),
+	@Property(name="org.paxle.servlet.menu", value="%menu.info/%menu.info.status"), 
+	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/monitor.png")
+})
 public class StatusView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 

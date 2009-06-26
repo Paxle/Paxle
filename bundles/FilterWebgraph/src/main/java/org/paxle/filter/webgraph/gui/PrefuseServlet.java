@@ -18,10 +18,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.paxle.core.filter.IFilter;
 import org.paxle.filter.webgraph.impl.GraphFilter;
@@ -50,20 +56,18 @@ import prefuse.visual.VisualItem;
 import prefuse.visual.expression.InGroupPredicate;
 
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/domaingraph/prefuse"
- * @scr.property name="org.paxle.servlet.menu" value="%menu.administration/%menu.bundles/Webgraph"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
- * @scr.property name="org.paxle.servlet.menu.icon" value="/resources/images/chart_organisation.png"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/domaingraph/prefuse"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=true),
+	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.bundles/Webgraph"), 
+	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/chart_organisation.png")
+})
 public class PrefuseServlet extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
-	/** 
-	 * @scr.reference target="(service.pid=org.paxle.filter.webgraph.impl.GraphFilter)"
-	 */
+	@Reference(target="(service.pid=org.paxle.filter.webgraph.impl.GraphFilter)")
 	protected IFilter<?> filter;	
 	
 	protected LRUMap getRelations() {

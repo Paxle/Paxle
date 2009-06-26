@@ -32,6 +32,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.log4j.Appender;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
@@ -40,12 +44,15 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/log/log4j"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
- */
+@Component(metatype=false, immediate=true,
+		label="Logging Servlet",
+		description="A Servlet to display log-messages"
+)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/log/log4j"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=true)
+})
 public class Log4jView extends ALayoutServlet implements Servlet {
 	private static final long serialVersionUID = 1L;	
 	

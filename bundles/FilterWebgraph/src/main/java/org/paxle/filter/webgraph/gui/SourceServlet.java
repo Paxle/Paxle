@@ -18,26 +18,30 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.filter.IFilter;
 import org.paxle.filter.webgraph.impl.GraphFilter;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/domaingraph/graphviz"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="true" type="Boolean"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/domaingraph/graphviz"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=true)
+})
 public class SourceServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	/** 
-	 * @scr.reference target="(service.pid=org.paxle.filter.webgraph.impl.GraphFilter)"
-	 */
+	@Reference(target="(service.pid=org.paxle.filter.webgraph.impl.GraphFilter)")
 	protected IFilter<?> filter;
 	
 	@Override

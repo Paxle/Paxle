@@ -15,10 +15,16 @@ package org.paxle.gui.impl.servlets;
 
 import java.util.Dictionary;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.view.CookieTool;
@@ -33,24 +39,20 @@ import org.paxle.gui.impl.HttpAuthManager;
 import org.paxle.gui.impl.IHttpAuthManager;
 import org.paxle.gui.impl.ServiceManager;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/login"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/login"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
+})
 public class LoginView extends ALayoutServlet {
 
 	private static final long serialVersionUID = 1L;
 	
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected UserAdmin userAdmin;
 	
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	private IHttpAuthManager guiAuthManager;
 	
 	/**

@@ -17,9 +17,14 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.framework.Constants;
@@ -30,13 +35,13 @@ import org.paxle.gui.impl.ServiceManager;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/overview"
- * @scr.property name="org.paxle.servlet.menu" value="%menu.info"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/overview"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false),
+	@Property(name="org.paxle.servlet.menu", value="%menu.info")
+})
 public class OverView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 

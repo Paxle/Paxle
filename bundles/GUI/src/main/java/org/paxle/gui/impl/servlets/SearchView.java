@@ -17,9 +17,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.gui.ALayoutServlet;
@@ -29,14 +34,14 @@ import org.paxle.se.search.ISearchProviderManager;
 import org.paxle.se.search.ISearchRequest;
 import org.paxle.se.search.ISearchResult;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/search"
- * @scr.property name="org.paxle.servlet.menu" value="%menu.search"
- * @scr.property name="org.paxle.servlet.menu.pos" value="0" type="Integer"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/search"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false),
+	@Property(name="org.paxle.servlet.menu", value="%menu.search"), 
+	@Property(name="org.paxle.servlet.menu.pos", intValue=0)
+})
 public class SearchView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
