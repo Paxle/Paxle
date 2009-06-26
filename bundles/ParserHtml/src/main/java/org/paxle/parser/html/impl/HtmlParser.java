@@ -33,6 +33,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
 import org.htmlparser.lexer.InputStreamSource;
@@ -63,16 +66,10 @@ import org.paxle.parser.html.IHtmlParser;
  * </p>
  * @see org.htmlparser.Parser#visitAllNodesWith(org.htmlparser.visitors.NodeVisitor) for the iterator
  * @see org.paxle.parser.html.impl.NodeCollector for the callback
- * 
- * @scr.component
- * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" private="true" 
- * 				 values.1="text/html"
- * 				 values.2="application/xhtml+xml"
- * 			     values.3="application/xml"
- * 				 values.4="text/xml"
- * 				 values.4="text/sgml"
  */
+@Component(metatype=false)
+@Service(ISubParser.class)
+@Property(name=ISubParser.PROP_MIMETYPES, value={"text/html","application/xhtml+xml"})
 public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactory {
 	
 	private final Log logger = LogFactory.getLog(HtmlParser.class);

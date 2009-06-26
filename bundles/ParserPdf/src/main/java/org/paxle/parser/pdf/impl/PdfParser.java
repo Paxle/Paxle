@@ -25,6 +25,9 @@ import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.Calendar;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
@@ -35,16 +38,12 @@ import org.pdfbox.pdmodel.PDDocumentInformation;
 import org.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
 import org.pdfbox.util.PDFTextStripper;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" private="true" 
- * 				 values.1="application/pdf"
- */
+@Component(metatype=false)
+@Service(ISubParser.class)
+@Property(name=ISubParser.PROP_MIMETYPES, value={"application/pdf"})
 public class PdfParser implements ISubParser {
 
-	public IParserDocument parse(URI location, String charset, InputStream fileIn)
-			throws ParserException, UnsupportedEncodingException, IOException {
+	public IParserDocument parse(URI location, String charset, InputStream fileIn) throws ParserException, UnsupportedEncodingException, IOException {
 		IParserDocument parserDoc = null;
 		PDDocument pddDoc = null;
 		

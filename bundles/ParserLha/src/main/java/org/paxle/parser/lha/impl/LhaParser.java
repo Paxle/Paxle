@@ -23,6 +23,9 @@ import java.util.Enumeration;
 import lha.LhaEntry;
 import lha.LhaFile;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.IIOTools;
@@ -34,19 +37,18 @@ import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.iotools.SubParserDocOutputStream;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" private="true" 
- * 				 values.1="application/x-lzh-compressed"
- * 				 values.2="application/x-lzh-archive"
- * 			     values.3="application/lzh"
- * 				 values.4="application/x-lzh"
- * 				 values.4="application/x-lha"
- * 				 values.5="application/x-compress"
- * 				 values.6="application/x-compressed"
- * 				 values.7="application/x-lzh-archive"
- */
+@Component(metatype=false)
+@Service(ISubParser.class)
+@Property(name=ISubParser.PROP_MIMETYPES, value={
+		"application/x-lzh-compressed",
+		"application/x-lzh-archive",
+		"application/lzh",
+		"application/x-lzh",
+		"application/x-lha",
+		"application/x-compress",
+		"application/x-compressed",
+		"application/x-lzh-archive"
+})
 public class LhaParser extends ASubParser implements ISubParser {
 	
 	@Override

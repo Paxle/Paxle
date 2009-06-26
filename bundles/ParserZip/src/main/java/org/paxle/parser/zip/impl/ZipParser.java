@@ -22,6 +22,9 @@ import java.net.URI;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.IIOTools;
 import org.paxle.parser.IParserContext;
@@ -30,15 +33,14 @@ import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.iotools.SubParserDocOutputStream;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" private="true" 
- * 				 values.1="application/zip"
- * 				 values.2="application/x-zip"
- * 			     values.3="application/x-zip-compressed"
- * 				 values.4="application/java-archive"
- */
+@Component(metatype=false)
+@Service(ISubParser.class)
+@Property(name=ISubParser.PROP_MIMETYPES, value={
+		"application/zip",
+		"application/x-zip",
+		"application/x-zip-compressed",
+		"application/java-archive"
+})
 public class ZipParser implements ISubParser {
 
 	public IParserDocument parse(URI location, String charset, InputStream is)

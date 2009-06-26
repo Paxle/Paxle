@@ -20,6 +20,9 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.parser.ASubParser;
@@ -30,12 +33,9 @@ import org.paxle.parser.ParserException;
 
 import SevenZip.Archive.SevenZip.Handler;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" private="true" 
- * 				 values.1="application/x-7z-compressed"
- */
+@Component(metatype=false)
+@Service(ISubParser.class)
+@Property(name=ISubParser.PROP_MIMETYPES, value={"application/x-7z-compressed"})
 public class P7zipParser extends ASubParser implements ISubParser {
 	
 	public static final List<String> MIME_TYPES = Arrays.asList("application/x-7z-compressed");

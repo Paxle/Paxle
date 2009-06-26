@@ -15,20 +15,18 @@ package org.paxle.parser.msoffice.impl;
 
 import java.io.IOException;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.poi.hslf.extractor.PowerPointExtractor;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserException;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" private="true" 
- * 				 values.1="application/mspowerpoint"
- * 				 values.2="application/powerpoint"
- * 				 values.3="application/vnd.ms-powerpoint"
- */
+@Component(metatype=false)
+@Service(ISubParser.class)
+@Property(name=ISubParser.PROP_MIMETYPES, value={"application/mspowerpoint","application/powerpoint","application/vnd.ms-powerpoint"})
 public class MsPowerpointParser extends AMsOfficeParser implements ISubParser {
 	
 	public MsPowerpointParser() {

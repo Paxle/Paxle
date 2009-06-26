@@ -20,25 +20,22 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.tools.bzip2.CBZip2InputStream;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.IIOTools;
 import org.paxle.parser.IParserContext;
+import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
-import org.paxle.parser.bzip2.IBzip2Parser;
 import org.paxle.parser.iotools.ParserDocOutputStream;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.service interface="org.paxle.parser.bzip2.IBzip2Parser"
- * @scr.property name="MimeTypes" private="true" 
- * 				 values.1="application/x-bzip2"
- * 				 values.2="application/bzip2"
- * 			     values.3="application/x-bz2"
- */
-public class Bzip2Parser implements IBzip2Parser {
+@Component(metatype=false)
+@Service(ISubParser.class)
+@Property(name=ISubParser.PROP_MIMETYPES, value={"application/x-bzip2","application/bzip2","application/x-bz2"})
+public class Bzip2Parser implements ISubParser {
 	
 	public IParserDocument parse(URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException {

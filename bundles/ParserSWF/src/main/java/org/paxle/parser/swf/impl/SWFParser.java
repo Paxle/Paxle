@@ -23,6 +23,9 @@ import java.nio.charset.Charset;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.karlchenofhell.swf.TextExtractorTagFactory;
 import org.karlchenofhell.swf.TextSink;
 import org.karlchenofhell.swf.parser.SWFTagReader;
@@ -34,12 +37,9 @@ import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" private="true" 
- * 				 values.1="application/x-shockwave-flash"
- */
+@Component(metatype=false)
+@Service(ISubParser.class)
+@Property(name=ISubParser.PROP_MIMETYPES, value={"application/x-shockwave-flash"})
 public class SWFParser extends ASubParser implements ISubParser {
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	

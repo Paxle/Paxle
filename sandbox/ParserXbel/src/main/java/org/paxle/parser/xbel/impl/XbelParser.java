@@ -24,6 +24,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.ISubParser;
@@ -33,13 +36,9 @@ import org.paxle.parser.xbel.api.Bookmark;
 import org.paxle.parser.xbel.api.Folder;
 import org.paxle.parser.xbel.api.Xbel;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" private="true" 
- * 				 values.1="application/xbel+xml"
- * 				 values.2="application/x-xbel"
- */
+@Component(metatype=false)
+@Service(ISubParser.class)
+@Property(name=ISubParser.PROP_MIMETYPES, value={"application/xbel+xml","application/x-xbel"})
 public class XbelParser extends ASubParser implements ISubParser {
 
 	private final JAXBContext jaxbContext;

@@ -21,6 +21,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.IIOTools;
 import org.paxle.parser.IParserContext;
@@ -29,13 +32,9 @@ import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.iotools.ParserDocOutputStream;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" private="true" 
- * 				 values.1="application/x-gzip"
- * 				 values.2="application/gzip"
- */
+@Component(metatype=false)
+@Service(ISubParser.class)
+@Property(name=ISubParser.PROP_MIMETYPES, value={"application/x-gzip","application/gzip"})
 public class GzipParser implements ISubParser {
 	
 	/**

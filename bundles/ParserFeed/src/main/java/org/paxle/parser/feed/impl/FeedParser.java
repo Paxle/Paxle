@@ -26,6 +26,9 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.ASubParser;
@@ -41,15 +44,9 @@ import de.nava.informa.core.ImageIF;
 import de.nava.informa.core.ItemIF;
 import de.nava.informa.impl.basic.ChannelBuilder;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" private="true" 
- * 				 values.1="application/rdf+xml"
- * 				 values.2="application/rss+xml"
- * 			     values.3="application/atom+xml"
- * 				 values.4="text/rss"
- */
+@Component(metatype=false)
+@Service(ISubParser.class)
+@Property(name=ISubParser.PROP_MIMETYPES, value={"application/rdf+xml","application/rss+xml","application/atom+xml","text/rss"})
 public class FeedParser extends ASubParser implements ISubParser {
 	private static final String MIMETYPE_RDF = "application/rdf+xml";
 	private static final String MIMETYPE_RSS = "application/rss+xml";

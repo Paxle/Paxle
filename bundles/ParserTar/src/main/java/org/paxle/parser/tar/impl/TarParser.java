@@ -18,6 +18,9 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.IIOTools;
 import org.paxle.parser.ASubParser;
@@ -30,14 +33,13 @@ import org.paxle.parser.iotools.SubParserDocOutputStream;
 import com.ice.tar.TarEntry;
 import com.ice.tar.TarInputStream;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.parser.ISubParser"
- * @scr.property name="MimeTypes" private="true" 
- * 				 values.1="application/x-tar"
- * 				 values.2="application/x-gtar"
- * 			     values.3="application/x-ustar"
- */
+@Component(metatype=false)
+@Service(ISubParser.class)
+@Property(name=ISubParser.PROP_MIMETYPES, value={
+		"application/x-tar",
+		"application/x-gtar",
+		"application/x-ustar"
+})
 public class TarParser extends ASubParser implements ISubParser {
 	
 	@Override
