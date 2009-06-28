@@ -18,14 +18,14 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Toolkit;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.getopt.luke.Luke;
 
 import org.paxle.desktop.DIComponent;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.desktop.DIComponent"
- */
+@Component
+@Service(DIComponent.class)
 @SuppressWarnings("serial")
 public class LukeDIComponent implements DIComponent {
 	

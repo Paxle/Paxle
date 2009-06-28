@@ -26,21 +26,23 @@ import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.mozilla.intl.chardet.nsDetector;
 import org.mozilla.intl.chardet.nsPSMDetector;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.charset.ICharsetDetector;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.core.charset.ICharsetDetector"
- * @scr.property name="mimeTypeFile" value="/mimeTypes"
- */
+@Component(immediate=true, metatype=false)
+@Service(ICharsetDetector.class)
+@Property(name="mimeTypeFile", value="/mimeTypes")
 public class CharsetDetector implements ICharsetDetector {
 	private Log logger = LogFactory.getLog(this.getClass());
 	protected HashSet<String> inspectableMimeTypes = null;
 
 	protected void activate(ComponentContext context) {
+		// TODO: mimeTypeFile Property should be used here!
 		URL mimeTypes = context.getBundleContext().getBundle().getEntry("/mimeTypes");
 		this.inspectableMimeTypes = this.readMimeTypeSet(mimeTypes);
 	}

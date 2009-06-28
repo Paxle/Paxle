@@ -27,6 +27,9 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.charset.ACharsetDetectorInputStream;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.ICommandProfile;
@@ -36,14 +39,13 @@ import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ICrawlerContext;
+import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.CrawlerTools.DirlistEntry;
 import org.paxle.crawler.fs.IFsCrawler;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.crawler.ISubCrawler"
- * @scr.property name="Protocol" value="file"
- */
+@Component
+@Service(ISubCrawler.class)
+@Property(name=ISubCrawler.PROP_PROTOCOL, value={"file"})
 public class FsCrawler implements IFsCrawler {
 	
 	private final Log logger = LogFactory.getLog(FsCrawler.class);

@@ -30,10 +30,6 @@ import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 
-/**
- * @scr.component metatype="false" immediate="true" 
- * @scr.service interface="org.paxle.core.threading.IWorkerFactory"
- */
 @Component(metatype=false, immediate=true)
 @Service(IWorkerFactory.class)
 public class WorkerFactory implements IWorkerFactory<IndexerWorker> {
