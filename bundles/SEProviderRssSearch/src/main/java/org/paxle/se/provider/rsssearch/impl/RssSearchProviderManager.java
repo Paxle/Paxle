@@ -27,6 +27,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.Component;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
@@ -34,10 +36,8 @@ import org.osgi.service.component.ComponentContext;
 import org.paxle.se.provider.rsssearch.IRssSearchProviderManager;
 import org.paxle.se.search.ISearchProvider;
 
-/**
- * @scr.component 
- * @scr.service interface="org.paxle.se.provider.rsssearch.IRssSearchProviderManager"
- */
+@Component(immediate=true)
+@Service(IRssSearchProviderManager.class)
 public class RssSearchProviderManager implements IRssSearchProviderManager {	
 	/**
 	 * All currently registered RSS-search providers
