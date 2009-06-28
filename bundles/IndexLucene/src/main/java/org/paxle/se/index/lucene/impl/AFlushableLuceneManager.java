@@ -25,6 +25,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.Services;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
@@ -46,12 +51,12 @@ import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IFieldManager;
 import org.paxle.se.index.IIndexIteratable;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.se.index.IIndexIteratable"
- * @scr.service interface="org.paxle.se.index.lucene.impl.ILuceneManager"
- * @scr.property name="dataPath" value="lucene-db"
- */
+@Component(immediate=true, metatype=false)
+@Services({
+	@Service(IIndexIteratable.class),
+	@Service(ILuceneManager.class)
+})
+@Property(name="dataPath",value="lucene-db")
 public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager {
 	
 	/**
@@ -72,18 +77,14 @@ public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager
 	
 	/**
 	 * A factory to create new {@link IIndexerDocument indexer-documents}
-	 * @scr.reference target="(docType=org.paxle.core.doc.IIndexerDocument)"
 	 */
+	@Reference(target="(docType=org.paxle.core.doc.IIndexerDocument)")
 	protected IDocumentFactory docFactory;
 	
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected IFieldManager fieldManager;	
 	
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected IStopwordsManager stopWordsManager;
 	
 	/**

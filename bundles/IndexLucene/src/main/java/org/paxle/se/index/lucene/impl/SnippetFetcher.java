@@ -27,6 +27,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.search.Query;
@@ -42,10 +45,8 @@ import org.paxle.core.doc.ICommand.Result;
 import org.paxle.core.doc.IParserDocument.Status;
 import org.paxle.core.io.IIOTools;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.se.index.lucene.impl.ISnippetFetcher"
- */
+@Component(immediate=true, metatype=false)
+@Service(ISnippetFetcher.class)
 public class SnippetFetcher implements ISnippetFetcher {
 	/**
 	 * Thread pool service
@@ -58,28 +59,27 @@ public class SnippetFetcher implements ISnippetFetcher {
 	protected Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
-	 * @scr.reference target="(mwcomponent.ID=org.paxle.crawler)" 
+	 * The crawler component
 	 */
+	@Reference(target="(mwcomponent.ID=org.paxle.crawler)" )
 	protected IMWComponent<ICommand> crawler;
 	
 	/**
-	 * @scr.reference target="(mwcomponent.ID=org.paxle.parser)"
+	 * The parser component
 	 */
+	@Reference(target="(mwcomponent.ID=org.paxle.parser)")
 	protected IMWComponent<ICommand> parser;
 	
 	/**
-	 * @scr.reference target="(docType=org.paxle.core.doc.ICommand)"
+	 * The indexer component
 	 */
+	@Reference(target="(docType=org.paxle.core.doc.ICommand)")
 	protected IDocumentFactory docFactory;
 	
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected IStopwordsManager stopwordsManager;
 	
-	/**
-	 * @scr.reference
-	 */	
+	@Reference
 	protected IIOTools ioTools;
 	
 	/**

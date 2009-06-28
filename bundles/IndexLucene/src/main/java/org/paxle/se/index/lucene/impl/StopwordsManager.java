@@ -28,13 +28,13 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.lucene.analysis.StopAnalyzer;
 import org.osgi.service.component.ComponentContext;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.se.index.lucene.impl.IStopwordsManager"
- */
+@Component(immediate=true, metatype=false)
+@Service(IStopwordsManager.class)
 public class StopwordsManager implements IStopwordsManager {	
 	public static final String STOPWORDS_FILE_EXT = ".stopwords";
 	

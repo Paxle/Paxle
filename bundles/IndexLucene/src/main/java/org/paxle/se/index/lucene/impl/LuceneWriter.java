@@ -19,6 +19,11 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.Services;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
@@ -33,12 +38,12 @@ import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IIndexWriter;
 import org.paxle.se.index.IndexException;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.se.index.IIndexWriter"
- * @scr.service interface="org.paxle.core.data.IDataConsumer"
- * @scr.property name="org.paxle.core.data.IDataConsumer.id" value="org.paxle.indexer.source"
- */
+@Component(immediate=true, metatype=false)
+@Services({
+	@Service(IIndexWriter.class),
+	@Service(IDataConsumer.class)
+})
+@Property(name = IDataConsumer.PROP_DATACONSUMER_ID, value="org.paxle.indexer.source")
 public class LuceneWriter extends Thread implements IIndexWriter, IDataConsumer<ICommand> {
 	
 	/**
@@ -51,19 +56,13 @@ public class LuceneWriter extends Thread implements IIndexWriter, IDataConsumer<
 	 */
 	private Log logger = LogFactory.getLog(LuceneWriter.class);
 	
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected ICommandTracker commandTracker;
 	
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected ILuceneManager manager;
 	
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected IStopwordsManager stopwordsManager;
 	
 	protected Converter defaultCv;

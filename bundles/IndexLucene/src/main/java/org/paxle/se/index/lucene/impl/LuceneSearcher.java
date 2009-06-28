@@ -21,11 +21,18 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.Services;
 import org.apache.lucene.LucenePackage;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
@@ -38,16 +45,28 @@ import org.paxle.se.search.ISearchProviderContext;
 import org.paxle.se.search.ISearchRequest;
 import org.paxle.se.search.SearchProviderContext;
 
-/**
- * @scr.component name="org.paxle.lucene-db" immediate="true" metatype="false"
- * @scr.service interface="org.paxle.se.index.IIndexSearcher"
- * @scr.service interface="org.paxle.se.search.ISearchProvider"
- * @scr.service interface="org.osgi.service.monitor.Monitorable"
- * @scr.property name="Monitorable-Localization" value="/OSGI-INF/l10n/LuceneSearcher
- * @scr.property name="org.paxle.metadata" value="true" type="Boolean"
- * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/LuceneSearcher"
- */
+@Component(immediate=true, metatype=false, name=LuceneSearcher.PID)
+@Services({
+	@Service(IIndexSearcher.class),
+	@Service(ISearchProvider.class),
+	@Service(Monitorable.class)
+})
+@Properties({
+	@Property(name="Monitorable-Localization", value="/OSGI-INF/l10n/LuceneSearcher"),
+	@Property(name="org.paxle.metadata", boolValue=true),
+	@Property(name="org.paxle.metadata.localization", value="/OSGI-INF/l10n/LuceneSearcher")
+})
 public class LuceneSearcher implements IIndexSearcher, ISearchProvider, Monitorable {
+	/**
+	 * The {@link Constants#SERVICE_PID} of this {@link Monitorable}
+	 */
+	static final String PID = "org.paxle.lucene-db";
+	
+	/**
+	 * {@link ResourceBundle} basename
+	 */
+	static final String RB_BASENAME = "OSGI-INF/l10n/LuceneSearcher";		
+	
 	/* ====================================================================
 	 * Names of MA StatusVariables
 	 * ==================================================================== */
@@ -68,21 +87,17 @@ public class LuceneSearcher implements IIndexSearcher, ISearchProvider, Monitora
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
-	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/LuceneSearcher");	
+	private final ResourceBundle rb = ResourceBundle.getBundle(RB_BASENAME);	
 	
 	/**
 	 * For logging
 	 */
 	private final Log logger = LogFactory.getLog(LuceneSearcher.class);
 	
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected ILuceneManager manager;
 	
-	/**
-	 * @scr.reference
-	 */	
+	@Reference
 	protected ISnippetFetcher snippetFetcher;
 	
 	private final LuceneQueryFactory ltf = new LuceneQueryFactory(IIndexerDocument.TEXT, IIndexerDocument.TITLE);	

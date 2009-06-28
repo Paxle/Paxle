@@ -29,22 +29,27 @@ import net.sf.jmimemagic.MagicParser;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.mimetype.IDetectionHelper;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.core.mimetype.IMimeTypeDetector"
- * @scr.reference name="detectionHelpers" 
- * 				  interface="org.paxle.mimetype.IDetectionHelper" 
- * 				  cardinality="0..n" 
- * 				  policy="dynamic" 
- * 				  bind="addDetectionHelper" 
- * 				  unbind="removeDetectionHelper"
- * 				  target="(MimeTypes=*)
- */
+@Component
+@Service(IMimeTypeDetector.class)
+@Reference(
+	name="detectionHelpers",
+	referenceInterface=IDetectionHelper.class,
+	cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
+	policy=ReferencePolicy.DYNAMIC,
+	bind="addDetectionHelper",
+	unbind="removeDetectionHelper",
+	target="(MimeTypes=*)"
+)
 public class MimeTypeDetector implements IMimeTypeDetector {
 	private Log logger = LogFactory.getLog(this.getClass());
 
@@ -82,7 +87,7 @@ public class MimeTypeDetector implements IMimeTypeDetector {
 	}
 
 	protected void addDetectionHelper(ServiceReference detectionHelperRef) {
-		// TODO: 
+		throw new RuntimeException("Not implemented!");
 	}
 	
 	protected void removeDetectionHelper(ServiceReference detectionHelperRef) {
