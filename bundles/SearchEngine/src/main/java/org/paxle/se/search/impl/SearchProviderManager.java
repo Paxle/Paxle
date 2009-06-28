@@ -33,6 +33,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
@@ -45,17 +50,17 @@ import org.paxle.se.search.ISearchResult;
 import org.paxle.se.search.ISearchResultCollector;
 import org.paxle.se.search.SearchException;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.se.search.ISearchProviderManager"
- * @scr.reference name="searchProviders" 
- * 				  interface="org.paxle.se.search.ISearchProvider" 
- * 				  cardinality="0..n" 
- * 				  policy="dynamic" 
- * 				  bind="addProvider" 
- * 				  unbind="removeProvider"
- * 				  target="(service.pid=*)
- */
+@Component
+@Service(ISearchProviderManager.class)
+@Reference(
+	name="searchProviders",
+	referenceInterface=ISearchProvider.class,
+	cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
+	policy=ReferencePolicy.DYNAMIC,
+	bind="addProvider",
+	unbind="removeProvider",
+	target="(service.pid=*)"
+)
 public class SearchProviderManager implements ISearchProviderManager {
 	private final AtomicInteger requestIdGenerator = new AtomicInteger(0);
 	

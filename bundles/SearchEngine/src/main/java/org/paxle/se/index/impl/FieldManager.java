@@ -22,14 +22,14 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.index.IFieldManager;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.se.index.IFieldManager"
- */
+@Component
+@Service(IFieldManager.class)
 public class FieldManager extends AbstractMap<String, Field<?>> implements IFieldManager {
 	/**
 	 * For logging

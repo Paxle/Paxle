@@ -16,18 +16,22 @@ package org.paxle.se.provider.paxleinfrastructure.impl;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.search.ISearchProvider;
 import org.paxle.se.search.ISearchProviderContext;
 import org.paxle.se.search.ISearchRequest;
 import org.paxle.se.search.SearchProviderContext;
 
-/**
- * @scr.component metatype="false"
- * @scr.service interface="org.paxle.se.search.ISearchProvider"
- * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
- * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/SEProviderPaxleInfrastructure"
- */
+@Component(metatype=false)
+@Service(ISearchProvider.class)
+@Properties({
+	@Property(name="org.paxle.metadata", boolValue=true),
+	@Property(name="org.paxle.metadata.localization", value="/OSGI-INF/l10n/SEProviderPaxleInfrastructure")
+})
 public class PaxleInfrastructureSearchProvider implements ISearchProvider {
 	
 	public void search(ISearchRequest searchRequest, List<IIndexerDocument> results) throws IOException, InterruptedException {

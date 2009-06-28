@@ -21,6 +21,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -30,16 +34,16 @@ import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.search.ISearchProviderContext;
 import org.paxle.se.search.SearchProviderContext;
 
-/**
- * @scr.component
- * @scr.reference name="docFactory" 
- * 				  interface="org.paxle.core.doc.IDocumentFactory" 
- * 				  cardinality="0..n" 
- * 				  policy="dynamic" 
- * 				  bind="addDocFactory" 
- * 				  unbind="removeDocFactory"
- * 				  target="(docType=*)
- */
+@Component
+@Reference(
+	name="docFactory", 
+	referenceInterface = IDocumentFactory.class,
+	cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
+	policy=ReferencePolicy.DYNAMIC,
+	bind="addDocFactory",
+	unbind="removeDocFactory",
+	target="(docType=*)"
+)
 public class SearchProviderContextLocal extends ThreadLocal<ISearchProviderContext> {
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 	private final Lock r = rwl.readLock();
