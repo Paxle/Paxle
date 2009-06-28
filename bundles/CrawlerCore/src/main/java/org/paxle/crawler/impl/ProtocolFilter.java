@@ -20,6 +20,11 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
@@ -34,12 +39,13 @@ import org.paxle.crawler.ISubCrawlerManager;
 /**
  * Filters {@link ICommand commands} out if the protocol of the
  * resource is not supported by one of the available {@link ISubCrawler sub-crawlers}
- * 
- * @scr.component metatype="false" immediate="true" 
- * @scr.service interface="org.paxle.core.filter.IFilter"
- * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
- * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/ProtocolFilter"
  */
+@Component(metatype=false, immediate=true)
+@Service(IFilter.class)
+@Properties({
+	@Property(name="org.paxle.metadata", boolValue=true),
+	@Property(name="org.paxle.metadata.localization", value="/OSGI-INF/l10n/ProtocolFilter")
+})
 @FilterTarget({
 	@FilterQueuePosition(queue="org.paxle.crawler.in"),
 	@FilterQueuePosition(queue="org.paxle.parser.out")
@@ -62,8 +68,8 @@ public class ProtocolFilter implements IFilter<ICommand> {
 	 * of the installed {@link ISubCrawler}s.
 	 * 
 	 * @see ISubCrawlerManager#isSupported(String)
-	 * @scr.reference
 	 */
+	@Reference
 	protected ISubCrawlerManager subCrawlerManager;
 
 	/**
