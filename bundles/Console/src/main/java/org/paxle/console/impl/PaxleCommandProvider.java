@@ -13,6 +13,8 @@
  */
 package org.paxle.console.impl;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
@@ -21,10 +23,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.IMWComponent;
 
-/**
- * @scr.component
- * @scr.service interface="org.eclipse.osgi.framework.console.CommandProvider"
- */
+@Component
+@Service(CommandProvider.class)
 public class PaxleCommandProvider implements CommandProvider {
 
 	private static enum COMPONENT {

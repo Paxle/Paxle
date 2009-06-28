@@ -21,6 +21,9 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -33,10 +36,8 @@ import org.paxle.core.metadata.IMetaData;
 import org.paxle.core.metadata.IMetaDataProvider;
 import org.paxle.core.metadata.IMetaDataService;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.core.metadata.IMetaDataService"
- */
+@Component(immediate=true)
+@Service(IMetaDataService.class)
 public class MetaDataServiceImpl implements IMetaDataService {
 	
 	/**
@@ -48,9 +49,7 @@ public class MetaDataServiceImpl implements IMetaDataService {
 	 */
 	private final Log logger = LogFactory.getLog(this.getClass());
 
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected MetaTypeService metaTypeService;
 	
 	protected void activate(ComponentContext context) {
