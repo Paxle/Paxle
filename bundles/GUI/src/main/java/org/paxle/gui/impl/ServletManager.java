@@ -23,6 +23,12 @@ import javax.servlet.Servlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.tools.view.VelocityView;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -35,18 +41,18 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IMenuManager;
 import org.paxle.gui.IServletManager;
 
-/**
- * @scr.component immediate="true" metatype="false" name="org.paxle.gui.IServletManager"
- * @scr.service interface="org.paxle.gui.IServletManager"
- * @scr.property name="org.paxle.gui.IServletManager.pathPrefix" value=""
- * @scr.reference name="servlets" 
- * 				  interface="javax.servlet.Servlet" 
- * 				  cardinality="0..n" 
- * 				  policy="dynamic" 
- * 				  bind="addServlet" 
- * 				  unbind="removeServlet"
- * 				  target="(org.paxle.servlet.path=*)"
- */
+@Component(immediate=true, metatype=false, name="org.paxle.gui.IServletManager")
+@Service(IServletManager.class)
+@Property(name="org.paxle.gui.IServletManager.pathPrefix", value="")
+@Reference(
+	name="servlets",
+	referenceInterface=Servlet.class,
+	cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
+	policy=ReferencePolicy.DYNAMIC,
+	bind="addServlet",
+	unbind="removeServlet",
+	target="(org.paxle.servlet.path=*)"
+)
 public class ServletManager implements IServletManager {
 	
 	private static final String SERVLET_DO_USER_AUTH = "org.paxle.servlet.doUserAuth";
@@ -68,21 +74,19 @@ public class ServletManager implements IServletManager {
 	
 	/**
 	 * The OSGI {@link HttpService Http-Service}
-	 * @scr.reference
 	 */
-	private HttpService http;
+	@Reference
+	protected HttpService http;
 	
-	/**
-	 * @scr.reference
-	 */
-	private IMenuManager menuManager;
+	@Reference
+	protected IMenuManager menuManager;
 	
 	/**
 	 * This service is required for authentication
 	 * @see #createHttpContext(ServiceReference)
-	 * @scr.reference
 	 */
-	private IHttpAuthManager authManager;
+	@Reference
+	protected IHttpAuthManager authManager;
 	
 	/**
 	 * Default Servlet properties

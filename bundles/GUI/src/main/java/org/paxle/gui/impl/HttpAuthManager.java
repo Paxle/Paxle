@@ -24,6 +24,11 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
@@ -32,10 +37,8 @@ import org.osgi.service.useradmin.UserAdmin;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.impl.servlets.LoginView;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.gui.impl.IHttpAuthManager"
- */
+@Component(immediate=true, metatype=false)
+@Service(IHttpAuthManager.class)
 public class HttpAuthManager implements IHttpAuthManager {
 	public static final String USER_HTTP_PASSWORD = "http.password";
 	public static final String USER_HTTP_LOGIN = "http.login";
@@ -47,13 +50,11 @@ public class HttpAuthManager implements IHttpAuthManager {
 
 	/**
 	 * The OSGI {@link UserAdmin} service required for user athentication
-	 * @scr.reference
 	 */
+	@Reference
 	protected UserAdmin userAdmin;
 	
-	/**
-	 * @scr.reference cardinality="0..1" policy="dynamic"
-	 */
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL_UNARY, policy=ReferencePolicy.DYNAMIC)
 	protected IServletManager smanager;
 
 	public User autoLogin(final HttpServletRequest request) {

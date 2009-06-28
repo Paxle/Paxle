@@ -28,6 +28,10 @@ import java.util.jar.JarFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.Services;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
@@ -38,13 +42,13 @@ import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.IStyleManager;
 
-/**
- * @scr.component immediate="true" metatype="false" name="org.paxle.gui.IStyleManager"
- * @scr.service interface="org.paxle.gui.IStyleManager"
- * @scr.service interface="org.osgi.service.metatype.MetaTypeProvider"
- */
+@Component(immediate=true, metatype=false, name=StyleManager.PID)
+@Services({
+	@Service(IStyleManager.class),
+	@Service(MetaTypeProvider.class)
+})
 public class StyleManager implements IStyleManager, MetaTypeProvider {
-	public static final String PID = IStyleManager.class.getName();	
+	public static final String PID = "org.paxle.gui.IStyleManager";	
 	private static final String PROP_STYLE = PID + '.' + "style";
 
 	/** 
@@ -52,15 +56,13 @@ public class StyleManager implements IStyleManager, MetaTypeProvider {
 	 */
 	private Log logger = LogFactory.getLog( StyleManager.class);
 
-	/**
-	 * @scr.reference 
-	 */
+	@Reference
 	private IResourceBundleTool resourceBundleTool;
 	
 	/**
 	 * A manager to manage http servlets and resources.
-	 * @scr.reference
 	 */
+	@Reference
 	private IServletManager servletManager;
 	
 	/**
