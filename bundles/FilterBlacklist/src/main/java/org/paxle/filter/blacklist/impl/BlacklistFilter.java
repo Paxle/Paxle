@@ -20,6 +20,11 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandProfileManager;
@@ -28,6 +33,7 @@ import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
+import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.filter.blacklist.IBlacklistManager;
 import org.paxle.filter.blacklist.IFilterResult;
@@ -37,12 +43,13 @@ import org.paxle.filter.blacklist.IRegexpBlacklistFilter;
  * This is a RegExp-based Blacklistfilter
  * @author Matthias Soehnholz
  * @author Michael Hamann
- *
- * @scr.component metatype="false"
- * @scr.service interface="org.paxle.core.filter.IFilter"
- * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
- * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/BlacklistFilter"
  */
+@Component(metatype=false)
+@Service(IFilter.class)
+@Properties({
+	@Property(name="org.paxle.metadata", boolValue=true),
+	@Property(name="org.paxle.metadata.localization", value="/OSGI-INF/l10n/BlacklistFilter")
+})
 @FilterTarget({
 	@FilterQueuePosition(queue="org.paxle.crawler.in",position=0-1),
 	@FilterQueuePosition(queue="org.paxle.parser.out",position=66)
@@ -54,9 +61,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
-	/** 
-	 * @scr.reference
-	 */
+	@Reference
 	IBlacklistManager manager;
 	
 	/**

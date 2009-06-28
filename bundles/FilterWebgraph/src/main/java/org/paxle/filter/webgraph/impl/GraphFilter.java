@@ -25,6 +25,10 @@ import java.util.Set;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.filter.FilterQueuePosition;
@@ -34,12 +38,13 @@ import org.paxle.core.filter.IFilterContext;
 
 /**
  * This helper class determines the language of a document and inserts its finding into a parser-doc and all of its subdocs 
- * 
- * @scr.component name="org.paxle.filter.webgraph.impl.GraphFilter"
- * @scr.service interface="org.paxle.core.filter.IFilter"
- * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
- * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/GraphFilter"
  */
+@Component(name="org.paxle.filter.webgraph.impl.GraphFilter")
+@Service(IFilter.class)
+@Properties({
+	@Property(name="org.paxle.metadata", boolValue=true),
+	@Property(name="org.paxle.metadata.localization", value="/OSGI-INF/l10n/GraphFilter")
+})
 @FilterTarget(@FilterQueuePosition(
 		queue = "org.paxle.parser.out", 
 		position = 0,

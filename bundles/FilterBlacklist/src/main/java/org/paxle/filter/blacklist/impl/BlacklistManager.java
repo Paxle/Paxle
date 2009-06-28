@@ -16,6 +16,8 @@ package org.paxle.filter.blacklist.impl;
 import java.util.Collection;
 import java.util.ArrayList;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.filter.blacklist.IBlacklist;
 import org.paxle.filter.blacklist.IBlacklistStore;
@@ -23,10 +25,8 @@ import org.paxle.filter.blacklist.IBlacklistManager;
 import org.paxle.filter.blacklist.IFilterResult;
 import org.paxle.filter.blacklist.InvalidBlacklistnameException;
 
-/**
- * @scr.component immediate="true"
- * @scr.service interface="org.paxle.filter.blacklist.IBlacklistManager"
- */
+@Component(immediate=true)
+@Service(IBlacklistManager.class)
 public class BlacklistManager implements IBlacklistManager {
 
 	/**

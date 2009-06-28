@@ -42,6 +42,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.IDesktopUtilities;
@@ -49,20 +52,16 @@ import org.paxle.filter.blacklist.IBlacklist;
 import org.paxle.filter.blacklist.IBlacklistManager;
 import org.paxle.filter.blacklist.InvalidBlacklistnameException;
 
-/**
- * @scr.component immediate="true"
- * @scr.service interface="org.paxle.desktop.DIComponent"
- */
+@Component(immediate=true)
+@Service(DIComponent.class)
 public class BlacklistDialogue extends JPanel implements DIComponent, ActionListener, DocumentListener {
 	
 	private static final long serialVersionUID = 1L;
 
-	/** 
-	 * @scr.reference
-	 */
+	@Reference
 	protected IBlacklistManager blacklistFilter = null;
 	
-	/** @scr.reference */
+	@Reference
 	protected IDesktopUtilities utilities = null;
 	
 	private static final Dimension DIM = new Dimension(400, 400);
