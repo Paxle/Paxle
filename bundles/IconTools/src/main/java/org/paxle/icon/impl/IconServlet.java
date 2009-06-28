@@ -17,18 +17,24 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/favicon"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/favicon"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
+})
 public class IconServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
