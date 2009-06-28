@@ -34,7 +34,7 @@ import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.se.search.ISearchProviderContext;
 import org.paxle.se.search.SearchProviderContext;
 
-@Component
+@Component(immediate=true)
 @Reference(
 	name="docFactory", 
 	referenceInterface = IDocumentFactory.class,

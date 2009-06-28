@@ -17,6 +17,9 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.IMWComponent;
@@ -27,20 +30,14 @@ import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
 import org.paxle.parser.ISubParserManager;
 
-/**
- * @scr.component metatype="false" immediate="true" 
- * @scr.service interface="org.paxle.core.threading.IWorkerFactory"
- */
+@Component(metatype=false, immediate=true)
+@Service(IWorkerFactory.class)
 public class WorkerFactory implements IWorkerFactory<ParserWorker> {
 	
-	/**
-	 * @scr.reference
-	 */	
+	@Reference
 	protected ISubParserManager subParserManager;
 
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected IMWComponentFactory componentFactory;
 
 	/**

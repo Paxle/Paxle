@@ -15,6 +15,11 @@ package org.paxle.parser.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
@@ -26,12 +31,13 @@ import org.paxle.parser.ISubParserManager;
 /**
  * Filters {@link ICommand commands} out if the mime-type of the
  * resource is not supported by one of the available {@link ISubParser sub-parsers}
- * 
- * @scr.component metatype="false" immediate="true" 
- * @scr.service interface="org.paxle.core.filter.IFilter"
- * @scr.property name="org.paxle.metadata" value="true" value="true" type="Boolean"
- * @scr.property name="org.paxle.metadata.localization" value="/OSGI-INF/l10n/MimeTypeFilter"
  */
+@Component(metatype=false, immediate=true)
+@Service(IFilter.class)
+@Properties({
+	@Property(name="org.paxle.metadata", boolValue=true),
+	@Property(name="org.paxle.metadata.localization", value="/OSGI-INF/l10n/MimeTypeFilter")
+})
 @FilterTarget({
 	@FilterQueuePosition(queue="org.paxle.parser.in")
 })
@@ -43,8 +49,8 @@ public class MimeTypeFilter implements IFilter<ICommand> {
 	
 	/**
 	 * A component to manage all {@link ISubParser}s installed on the system
-	 * @scr.reference
 	 */
+	@Reference
 	protected ISubParserManager subParserManager;
 	
 	public void filter(ICommand command, IFilterContext context) {
