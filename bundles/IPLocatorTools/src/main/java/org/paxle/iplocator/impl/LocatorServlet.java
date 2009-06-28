@@ -19,29 +19,31 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.io.IIOTools;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="javax.servlet.Servlet"
- * @scr.property name="org.paxle.servlet.path" value="/ipLocator"
- * @scr.property name="org.paxle.servlet.doUserAuth" value="false" type="Boolean"
- */
+@Component(metatype=false, immediate=true)
+@Service(Servlet.class)
+@Properties({
+	@Property(name="org.paxle.servlet.path", value="/ipLocator"),
+	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
+})
 public class LocatorServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * @scr.reference;
-	 */
+	@Reference
 	protected LocatorTool locatorTool;
 	
-	/**
-	 * @scr.reference;
-	 */
+	@Reference
 	protected IIOTools iotools;
 	
 	@Override

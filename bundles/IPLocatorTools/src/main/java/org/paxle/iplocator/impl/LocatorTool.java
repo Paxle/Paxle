@@ -19,12 +19,12 @@ import java.util.Locale;
 import net.sf.javainetlocator.InetAddressLocator;
 import net.sf.javainetlocator.InetAddressLocatorException;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.iplocator.ILocatorTool;
 
-/**
- * @scr.component immediate="true" metatype="false"
- * @scr.service interface="org.paxle.iplocator.ILocatorTool"
- */
+@Component(immediate=true, metatype=false)
+@Service(ILocatorTool.class)
 public class LocatorTool implements ILocatorTool {
 	public Locale getLocale(String host) {
 		try {
