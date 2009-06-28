@@ -21,7 +21,7 @@ package org.paxle.core.data;
  * could also be implemented as a network-connection to a remote host.
  */
 public interface IDataSink<Data> {
-	public static final String PROP_DATASINK_ID = IDataSink.class.getName() + ".id";
+	public static final String PROP_DATASINK_ID = "org.paxle.core.data.IDataSink.id";
 	
 	/**
 	 * Writes the specified element to the sink, waiting if necessary for a new element 
