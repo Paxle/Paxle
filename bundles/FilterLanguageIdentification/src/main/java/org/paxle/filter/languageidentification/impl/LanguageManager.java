@@ -21,6 +21,9 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
@@ -33,18 +36,16 @@ import de.spieleck.app.cngram.NGramProfiles;
 
 /**
  * This helper class determines the language of a document and inserts its finding into a parser-doc and all of its subdocs 
- * 
- * @scr.component name="FilterLanguageManager" metatype="true"
- * @scr.service interface="org.paxle.core.filter.IFilter"
  */
-
+@Component(immediate=true, metatype=true, label="FilterLanguageManager")
+@Service(IFilter.class)
 @FilterTarget(@FilterQueuePosition(
 		queue = "org.paxle.parser.out", 
 		position = Integer.MAX_VALUE-1000)
 )
 public class LanguageManager implements IFilter<ICommand> {
 
-	/** @scr.property type="Float" value="0.6" label="%sdt.label" description="%sdt.desc" */
+	@Property(label="%sdt.label", description="%sdt.desc", floatValue=0.6f)
 	static final String SDT = "sdtv";
 
 	private Log logger = LogFactory.getLog(this.getClass());

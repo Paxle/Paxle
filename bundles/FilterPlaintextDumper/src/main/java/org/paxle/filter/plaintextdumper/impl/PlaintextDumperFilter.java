@@ -25,6 +25,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
@@ -34,11 +38,9 @@ import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.io.IIOTools;
 
-/**
- * @scr.component metatype="false"
- * @scr.service interface="org.paxle.core.filter.IFilter"
- * @scr.property name="dataPath" value="plaintextDumper"
- */
+@Component(metatype=false)
+@Service(IFilter.class)
+@Property(name="dataPath", value="plaintextDumper")
 @FilterTarget(@FilterQueuePosition(
 		queue = "org.paxle.parser.out", 
 		position = Integer.MAX_VALUE,
@@ -55,9 +57,7 @@ public class PlaintextDumperFilter implements IFilter<ICommand> {
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected IIOTools ioTools;
 	
 	/**
