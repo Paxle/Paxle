@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -45,9 +46,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-/**
- * @scr.component
- */
+@Component(immediate=true)
 public class TikaParserManager {
 	/**
 	 * For logging
@@ -74,7 +73,7 @@ public class TikaParserManager {
 				
 				final ISubParser paxleParser = new ParserWrapper(mimeType, tikaParser);
 				final Hashtable<String, Object> paxleParserProps = new Hashtable<String, Object>();
-				paxleParserProps.put("MimeTypes", new String[]{mimeType});
+				paxleParserProps.put(ISubParser.PROP_MIMETYPES, new String[]{mimeType});
 				paxleParserProps.put(Constants.SERVICE_PID, tikaParser.getClass().getName()+"_"+mimeType.hashCode());
 				final ServiceRegistration reg = bc.registerService(ISubParser.class.getName(), paxleParser, paxleParserProps);
 				this.services.add(reg);
