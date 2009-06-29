@@ -30,6 +30,11 @@ import javax.ws.rs.Path;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.useradmin.Authorization;
@@ -44,24 +49,22 @@ import org.wymiwyg.wrhapi.Response;
 import org.wymiwyg.wrhapi.ResponseStatus;
 import org.wymiwyg.wrhapi.filter.Filter;
 
-/**
- * @scr.component immediate="true" 
- * @scr.service interface="org.wymiwyg.wrhapi.filter.Filter"
- * @scr.reference name="resources" 
- * 				  interface="java.lang.Object" 
- * 				  cardinality="0..n" 
- * 				  policy="dynamic" 
- * 				  bind="addResource" 
- * 				  unbind="removeResource"
- * 				  target="(&(javax.ws.rs=true)(org.paxle.api.protected=true))
- */
+@Component(immediate=true)
+@Service(Filter.class)
+@Reference(
+	name="resources",
+	referenceInterface=Object.class,
+	cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
+	policy=ReferencePolicy.DYNAMIC,
+	bind="addResource",
+	unbind="removeResource",
+	target="(&(javax.ws.rs=true)(org.paxle.api.protected=true))"
+)
 public class AuthenticatingFilter implements Filter {
 	public static final String USER_HTTP_PASSWORD = "http.password";
 	public static final String USER_HTTP_LOGIN = "http.login";
 
-	/**
-	 * @scr.reference
-	 */
+	@Reference
 	protected UserAdmin userAdmin;
 	
 	/**

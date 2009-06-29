@@ -27,16 +27,17 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeReference;
 import org.paxle.api.jaxrs.cm.PropertyResource;
 
-/**
- * @scr.component 
- * @scr.service interface="java.lang.Object"
- * @scr.property name="javax.ws.rs" type="Boolean" value="true" private="true"
- */  
+@Component
+@Service(Object.class)
+@Property(name="javax.ws.rs", boolValue=true, propertyPrivate=true)
 @SuppressWarnings("unchecked")
 @Provider 
 @Consumes("application/json") 

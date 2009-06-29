@@ -25,20 +25,25 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.monitor.MonitorAdmin;
 import org.paxle.api.jaxrs.monitorable.MonitorableResource;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
-/**
- * @scr.component 
- * @scr.service interface="java.lang.Object"
- * @scr.property name="javax.ws.rs" type="Boolean" value="true" private="true"
- */  
+@Component
+@Service(Object.class)
+@Properties({
+	@Property(name="javax.ws.rs", boolValue=true, propertyPrivate=true)
+})
 @Path("/monitorables")
 public class Monitorables {
 	
-	/** @scr.reference */
+	@Reference
 	@SuppressWarnings({"NP_UNWRITTEN_FIELD","UWF_UNWRITTEN_FIELD"})
 	private MonitorAdmin monitorAdmin;
 	

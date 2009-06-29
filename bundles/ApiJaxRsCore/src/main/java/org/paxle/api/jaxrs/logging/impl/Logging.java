@@ -19,23 +19,32 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.api.jaxrs.logging.LogResource;
 import org.paxle.tools.logging.ILogReader;
 
-/**
- * @scr.component 
- * @scr.service interface="java.lang.Object"
- * @scr.property name="javax.ws.rs" type="Boolean" value="true" private="true"
- * @scr.reference name="logReaders" 
- * 				  interface="org.paxle.tools.logging.ILogReader" 
- * 				  cardinality="0..n" 
- * 				  policy="dynamic" 
- * 				  bind="addReader" 
- * 				  unbind="removeReader"
- * 				  target="(org.paxle.tools.logging.ILogReader.type=*)
- */  
+@Component
+@Service(Object.class)
+@Properties({
+	@Property(name="javax.ws.rs", boolValue=true, propertyPrivate=true)
+})
+@Reference(
+	name="logReaders",
+	referenceInterface=ILogReader.class,
+	cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
+	policy=ReferencePolicy.DYNAMIC,
+	bind="addReader",
+	unbind="removeReader",
+	target="(org.paxle.tools.logging.ILogReader.type=*)"
+)
 @Path("/log")
 public class Logging {
 	private HashMap<String, ServiceReference> logReaders = new HashMap<String, ServiceReference>();

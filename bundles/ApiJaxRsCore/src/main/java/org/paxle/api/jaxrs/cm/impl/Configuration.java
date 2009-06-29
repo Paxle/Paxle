@@ -28,6 +28,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
@@ -41,19 +48,21 @@ import org.paxle.api.jaxrs.cm.BundleResource;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
-/**
- * @scr.component 
- * @scr.service interface="java.lang.Object"
- * @scr.property name="javax.ws.rs" type="Boolean" value="true" private="true"
- * @scr.property name="org.paxle.api.protected" value="true" private="true"
- * @scr.reference name="metaTypeProviders" 
- * 				  interface="org.osgi.service.metatype.MetaTypeProvider" 
- * 				  cardinality="0..n" 
- * 				  policy="dynamic" 
- * 				  bind="addProvider" 
- * 				  unbind="removeProvider"
- * 				  target="(service.pid=*)
- */  
+@Component
+@Service(Object.class)
+@Properties({
+	@Property(name="javax.ws.rs", boolValue=true, propertyPrivate=true),
+	@Property(name="org.paxle.api.protected", boolValue=true, propertyPrivate=true)
+})
+@Reference(
+	name="metaTypeProviders",
+	referenceInterface=MetaTypeProvider.class,
+	cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
+	policy=ReferencePolicy.DYNAMIC,
+	bind="addProvider",
+	unbind="removeProvider",
+	target="(service.pid=*)"
+)
 @Path("/configurations")
 public class Configuration {
 	
@@ -64,15 +73,15 @@ public class Configuration {
 	
 	/**
 	 * The OSGI {@link ConfigurationAdmin} service 
-	 * @scr.reference 
 	 */
+	@Reference
 	@SuppressWarnings({"NP_UNWRITTEN_FIELD","UWF_UNWRITTEN_FIELD"})
 	private ConfigurationAdmin configAdmin;
 
 	/** 
-	 * The OSGi {@link MetaTypeService}
-	 * @scr.reference 
+	 * The OSGi {@link MetaTypeService} 
 	 */
+	@Reference
 	@SuppressWarnings({"NP_UNWRITTEN_FIELD","UWF_UNWRITTEN_FIELD"})
 	private MetaTypeService metaTypeService;
 	
