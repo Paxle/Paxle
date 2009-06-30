@@ -29,6 +29,8 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
@@ -44,10 +46,8 @@ import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.desktop.IDesktopServices;
 import org.paxle.desktop.backend.IDIBackend;
 
-/**
- * @scr.component
- * @scr.service interface="org.paxle.desktop.IDesktopServices"
- */
+@Component
+@Service(IDesktopServices.class)
 public class DesktopServices implements ManagedService, MetaTypeProvider, IDesktopServices {
 	
 	/**

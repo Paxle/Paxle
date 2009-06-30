@@ -139,6 +139,20 @@
 			<version>[,0.2.0)</version>
 			<optional>true</optional>
 		</dependency>
+		
+		<!-- compile time dependencies -->
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>FilterRobotsTxt</artifactId>
+			<version>[,0.2.0)</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>DataLayer</artifactId>
+			<version>[,0.2.0)</version>
+			<optional>true</optional>
+		</dependency>
 
 		<!-- required for equinox console command provider -->
 		<dependency>

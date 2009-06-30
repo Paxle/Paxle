@@ -68,12 +68,13 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.desktop.IDesktopUtilities;
 
+@org.apache.felix.scr.annotations.Component
+@Service(IDesktopUtilities.class)
 public class Utilities implements IDesktopUtilities {
 
-	/** @scr.component
-	 *  @scr.service interface="org.paxle.desktop.IDesktopUtilities" */
 	public static final IDesktopUtilities instance = new Utilities();
 	
 	private Utilities() {

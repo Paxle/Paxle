@@ -21,27 +21,38 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.References;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.data.db.ICommandDB;
+import org.paxle.desktop.ICrawlStartHelper;
+import org.paxle.filter.robots.IRobotsTxtManager;
 
-// * @scr.implementation class="CrawlStartHelper"
-/**
- * @scr.component immediate="true"
- * @scr.service interface="org.paxle.desktop.ICrawlStartHelper"
- * @scr.reference name="robots"
- *                interface="org.paxle.filter.robots.IRobotsTxtManager"
- *                bind="setRobots"
- *                unbind="unsetRobots"
- *                cardinality="0..1"
- *                policy="dynamic"
- * @scr.reference name="commandDB"
- *                interface="org.paxle.data.db.ICommandDB"
- *                policy="static"
- */
-public class CrawlStartHelper {
+@Component(immediate=true)
+@Service(ICrawlStartHelper.class)
+@References({
+	@Reference(
+		name="robots",
+		referenceInterface=IRobotsTxtManager.class,
+		bind="setRobots",
+		unbind="unsetRobots",
+		cardinality=ReferenceCardinality.OPTIONAL_UNARY,
+		policy=ReferencePolicy.DYNAMIC
+	),
+	@Reference(
+		name="commandDB",
+		referenceInterface=ICommandDB.class
+	)
+})
+public class CrawlStartHelper implements ICrawlStartHelper {
 	
 	private static final Log logger = LogFactory.getLog(CrawlStartHelper.class);
 	
@@ -60,13 +71,13 @@ public class CrawlStartHelper {
 		profileDepthMap.clear();
 	}
 	
-	/** @scr.reference */
+	@Reference
 	private IReferenceNormalizer refNormalizer;
 	
-	/** @scr.reference */
+	@Reference
 	private ICommandProfileManager profileDB;
 	
-	/** @scr.reference target="(docType=org.paxle.core.doc.ICommandProfile)" */
+	@Reference(target="(docType=org.paxle.core.doc.ICommandProfile)")
 	private IDocumentFactory profileFactory;
 	
 	// synchronization via "this"-object; ideally use RWLock, but so many crawls are not started concurrently
