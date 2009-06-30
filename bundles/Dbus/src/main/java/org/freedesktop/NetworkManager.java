@@ -66,12 +66,19 @@ public interface NetworkManager extends DBusInterface {
 	 * Args:    1) Device object        (DBUS_TYPE_STRING) - The deactivated network device
 	 * </pre>
 	 * @see <a href="http://people.redhat.com/dcbw/NetworkManager/NetworkManager%20DBUS%20API.txt">NetworkManager DBUS API.txt</a>
+	 * @deprecated use {@link DeviceRemoved} instead
 	 */
 	public static class DeviceNoLongerActive extends DeviceSignal {
 		public DeviceNoLongerActive(String path, Path device) throws DBusException {
 			super(path, device);
 		}
 	}	
+	
+	public static class DeviceRemoved extends DBusSignal {
+		protected DeviceRemoved(String arg0, Object[] arg1) throws DBusException {
+			super(arg0, arg1);
+		}
+	}
 
 	/**
 	 * <pre>
@@ -79,6 +86,7 @@ public interface NetworkManager extends DBusInterface {
 	 * Args:    1) Device object        (DBUS_TYPE_STRING) - The newly activated network device
 	 * </pre>
 	 * @see <a href="http://people.redhat.com/dcbw/NetworkManager/NetworkManager%20DBUS%20API.txt">NetworkManager DBUS API.txt</a>
+	 * @deprecated use {@link DeviceAdded} instead
 	 */
 	public static class DeviceNowActive extends DeviceSignal {
 		public DeviceNowActive(String path, Path device) throws DBusException {
@@ -86,18 +94,26 @@ public interface NetworkManager extends DBusInterface {
 		}
 	}	
 
+	public static class DeviceAdded extends DBusSignal {
+		protected DeviceAdded(String arg0, Object[] arg1) throws DBusException {
+			super(arg0, arg1);
+		}
+	}
+	
 	/**
 	 * <pre>
 	 * Name:    DevicesChanged          Signals that a device was either added or removed from the system
 	 * Args:    1) Device object        (DBUS_TYPE_STRING) - The device which was added or removed
 	 * </pre>
 	 * @see <a href="http://people.redhat.com/dcbw/NetworkManager/NetworkManager%20DBUS%20API.txt">NetworkManager DBUS API.txt</a>
+	 * @deprecated use {@link StateChanged} instead
 	 */
 	public static class DevicesChanged extends DeviceSignal {
 		public DevicesChanged(String path, Path device) throws DBusException {
 			super(path, device);
 		}
 	}	
+	
 
 	/* ========================================================================
 	 * NETWORK-MANAGER DEVICE OBJECTS
@@ -111,6 +127,7 @@ public interface NetworkManager extends DBusInterface {
 	 * DBUS Interface:      "org.freedesktop.NetworkManager.Devices"
 	 * </pre>
 	 * @see <a href="http://people.redhat.com/dcbw/NetworkManager/NetworkManager%20DBUS%20API.txt">NetworkManager DBUS API.txt</a>
+	 * @deprecated
 	 */
 	public static interface Devices extends DBusInterface {
 		/**
@@ -170,6 +187,10 @@ public interface NetworkManager extends DBusInterface {
 		 */
 		public boolean getLinkActive();
 	}	
+	
+	public static interface Device extends DBusInterface {
+		
+	}
 
 	/**
 	 * <pre>
@@ -196,6 +217,13 @@ public interface NetworkManager extends DBusInterface {
 	 * <p />
 	 * 
 	 * @see <a href="http://people.redhat.com/dcbw/NetworkManager/NetworkManager%20DBUS%20API.txt">NetworkManager DBUS API.txt</a>
+	 * @deprecated use {@link #GetDevices()} instead
 	 */
 	public List<Path> getDevices();
+	
+	/**
+	 * @since DBus 0.7.0
+	 * @return
+	 */
+	public List<Path> GetDevices();
 }

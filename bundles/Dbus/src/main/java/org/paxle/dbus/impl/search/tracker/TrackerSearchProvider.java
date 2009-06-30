@@ -24,6 +24,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.freedesktop.Tracker;
 import org.freedesktop.DBus.Error.NoReply;
 import org.freedesktop.Tracker.Metadata;
@@ -40,10 +43,8 @@ import org.paxle.se.search.ISearchProviderContext;
 import org.paxle.se.search.ISearchRequest;
 import org.paxle.se.search.SearchProviderContext;
 
-/**
- * @scr.component immediate="true"
- * @scr.service interface="org.paxle.se.search.ISearchProvider"
- */
+@Component(immediate=false)
+@Service(ISearchProvider.class)
 public class TrackerSearchProvider implements ISearchProvider {
 	public static final String TRACKER_BUSNAME = "org.freedesktop.Tracker";
 	public static final String TRACKER_OBJECTPATH = "/org/freedesktop/tracker";
@@ -117,8 +118,8 @@ public class TrackerSearchProvider implements ISearchProvider {
 	
 	/**
 	 * A reference to the paxle field-manager
-	 * @scr.reference
 	 */
+	@Reference
 	protected IFieldManager fieldManager;
 	
 	private AtomicInteger searchID = new AtomicInteger(0);

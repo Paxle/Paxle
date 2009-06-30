@@ -19,8 +19,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
 import org.freedesktop.NetworkManager;
 import org.freedesktop.DBus.Error.NoReply;
+import org.freedesktop.DBus.Error.UnknownMethod;
 import org.freedesktop.NetworkManager.DeviceSignal;
 import org.freedesktop.dbus.DBusConnection;
 import org.freedesktop.dbus.DBusSigHandler;
@@ -34,9 +37,8 @@ import org.paxle.core.IMWComponent;
 
 /**
  * A class to receive signals from the {@link NetworkManager}
- * 
- * @scr.component immediate="true"
  */
+@Component(enabled=false)
 public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal> {
 	private static final String BUSNAME = "org.freedesktop.NetworkManager";
 	private static final String OBJECTPATH = "/org/freedesktop/NetworkManager";
@@ -48,8 +50,8 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal> {
 	
 	/**
 	 * Reference to the crawler component
-	 * @scr.reference target="(mwcomponent.ID=org.paxle.crawler)"
 	 */
+	@Reference(target="(mwcomponent.ID=org.paxle.crawler)")
 	protected IMWComponent<?> crawler;
 	
 	/**
@@ -70,6 +72,9 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal> {
 			add(NetworkManager.DeviceNoLongerActive.class);
 			add(NetworkManager.DeviceNowActive.class);
 			add(NetworkManager.DevicesChanged.class);
+			
+			add(NetworkManager.DeviceAdded.class);
+			add(NetworkManager.DeviceRemoved.class);
 	}};
 	
 	protected void activate(ComponentContext context) throws DBusException, InvalidSyntaxException {
@@ -80,8 +85,16 @@ public class NetworkManagerMonitor implements DBusSigHandler<DeviceSignal> {
 
 			// getting the network-manager via dbus
 			this.logger.info(String.format("Getting reference to %s ...", BUSNAME));
-			NetworkManager nm = conn.getRemoteObject(BUSNAME, OBJECTPATH, NetworkManager.class);
-			List<Path> deviceList = nm.getDevices();
+			final NetworkManager nm = conn.getRemoteObject(BUSNAME, OBJECTPATH, NetworkManager.class);
+			
+			// getting all devices
+			List<Path> deviceList = null;
+			try {
+				deviceList = nm.getDevices();
+			} catch (UnknownMethod um) {
+				// fallback to new method
+				deviceList = nm.GetDevices();
+			}
 			if (deviceList != null) {
 				this.logger.debug(String.format("%d device(s) detected: %s", Integer.valueOf(deviceList.size()), deviceList.toString()));
 				this.devices.addAll(deviceList);
