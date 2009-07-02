@@ -75,17 +75,17 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 	/**
 	 * All {@link Class classes} that are supported by the {@link ConfigurationAdmin} service.
 	 */
-	private static final HashSet<Class<?>> SUPPORTED_CLASSES =  new HashSet<Class<?>>(Arrays.asList(new Class<?>[]{
-			String.class,
-			Long.class,
-			Integer.class,
-			Short.class,
-			Character.class,
-			Byte.class,
-			Double.class,
-			Float.class,
-			Boolean.class
-	}));
+	private static final HashSet<Class<?>> SUPPORTED_CLASSES =  new HashSet<Class<?>>(){{
+		add(String.class);
+		add(Long.class);
+		add(Integer.class);
+		add(Short.class);
+		add(Character.class);
+		add(Byte.class);
+		add(Double.class);
+		add(Float.class);
+		add(Boolean.class);
+	}};
 	
 	private static final HashMap<String, Class<?>> WRAPPERS =  new HashMap<String, Class<?>>();
 	private static final HashMap<String, Class<?>> NAMELOOKUP = new HashMap<String, Class<?>>();

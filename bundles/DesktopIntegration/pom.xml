@@ -102,19 +102,18 @@
 					</instructions>
 				</configuration>
 			</plugin>
-			<!--
+
+			<!-- Disabling inherited plugin configuration -->
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-scr-plugin</artifactId>
 				<executions>
 					<execution>
 						<id>generate-scr-scrdescriptor</id>
-						<goals>
-							<goal>scr</goal>
-						</goals>
+						<phase>none</phase>
 					</execution>
 				</executions>
-			</plugin>-->
+			</plugin>
 		</plugins>
 	</build>
 

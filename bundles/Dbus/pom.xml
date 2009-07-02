@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Dbus</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>Paxle - API: Dbus</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -43,6 +43,8 @@
 							org.osgi.service.component;version="1.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
+							<!-- Apache Commons IO -->
+							org.apache.commons.io;version="1.4",
 							<!-- Paxle Core Bundle -->
 							org.paxle.core;version="[0.1.0,0.2.0)", 
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
@@ -58,6 +60,7 @@
 						<Private-Package>
 							org.paxle.dbus.impl,
 							org.paxle.dbus.impl.networkmonitor,
+							org.paxle.dbus.impl.notification,
 							org.paxle.dbus.impl.screensaver,
 							org.paxle.dbus.impl.search,
 							org.paxle.dbus.impl.search.tracker,
@@ -80,19 +83,6 @@
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
-			</plugin>
-			
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-scr-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>generate-scr-scrdescriptor</id>
-						<goals>
-							<goal>scr</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

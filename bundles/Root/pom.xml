@@ -418,6 +418,29 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			
+			<!--
+				A plugin to generate OSGI DS XML files
+			 -->
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-scr-scrdescriptor</id>
+						<goals>
+							<goal>scr</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<!-- disabling javadoc parsing -->
+					<!--  <parseJavadoc>false</parseJavadoc> -->
+					<processAnnotations>true</processAnnotations>
+					<strictMode>true</strictMode>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 

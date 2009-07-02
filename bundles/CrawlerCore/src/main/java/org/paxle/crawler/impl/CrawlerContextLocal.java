@@ -148,7 +148,7 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
 		}
 	}
 	
-	public void removeSubParser(ServiceReference subParser) {
+	protected void removeSubParser(ServiceReference subParser) {
 		final String[] mimeTypes = this.getSubParserMimeTypes(subParser);		
 		for (String mimeType : mimeTypes) {
 			this.supportedMimeTypes.remove(mimeType.trim());
