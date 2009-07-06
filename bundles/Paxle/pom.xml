@@ -484,16 +484,7 @@
 									<version>1.2.0.v200711021015</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>org.apache.commons.codec_1.2.0.v200711021015.jar</destFileName>
-								</artifactItem>								
-
-								<!-- DB4O -->
-								<artifactItem>
-									<groupId>com.db4o</groupId>
-									<artifactId>db4o-osgi</artifactId>
-									<version>7.6.62.11779</version>
-									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>db4o-osgi-7.6.62.11779.jar</destFileName>
-								</artifactItem>		
+								</artifactItem>
 
 								<!-- Ehcache dependencies -->
 								<artifactItem>

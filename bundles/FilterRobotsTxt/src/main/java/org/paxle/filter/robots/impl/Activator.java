@@ -28,12 +28,9 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.monitor.Monitorable;
 import org.paxle.core.filter.IFilter;
 import org.paxle.filter.robots.IRobotsTxtManager;
-import org.paxle.filter.robots.impl.store.Db4oStore;
 import org.paxle.filter.robots.impl.store.EhCacheDiskStore;
 import org.paxle.filter.robots.impl.store.FileStore;
 import org.paxle.filter.robots.impl.store.IRuleStore;
-
-import com.db4o.osgi.Db4oService;
 
 public class Activator implements BundleActivator {
 	private static String DB_PATH = "robots-db";
@@ -51,13 +48,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bc) throws Exception {
 		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + DB_PATH;
 		
-		// testing if the DB4o Service is available
-		ServiceReference db4oServiceRef = bc.getServiceReference("com.db4o.osgi.Db4oService");
-		if (db4oServiceRef != null && DB_TYPE.equalsIgnoreCase("db4o")) {
-			// using DB4O
-			Db4oService dboService = (Db4oService) bc.getService(db4oServiceRef);			
-			this.ruleStore = new Db4oStore(dboService, new File(dataPath));
-		} else if (DB_TYPE.equalsIgnoreCase("file")) {
+		if (DB_TYPE.equalsIgnoreCase("file")) {
 			// using a file-store
 			this.ruleStore = new FileStore(new File(DB_PATH));
 			

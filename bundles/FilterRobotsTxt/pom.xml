@@ -48,10 +48,6 @@
 							org.apache.commons.logging,
 							<!-- Apache Commons HttpClient -->
 							org.apache.commons.httpclient.*;version="3.1.0",
-							<!-- DB4o Database -->
-							com.db4o;resolution:=optional,
-							com.db4o.io;resolution:=optional,
-							com.db4o.*;resolution:=optional,
 							<!-- Ehcache -->
 							net.sf.ehcache;version="1.5.0",
 							net.sf.ehcache.config;version="1.5.0",
@@ -113,16 +109,7 @@
 			</exclusions>		    
 		</dependency>
 		
-		<!-- db4o dependencies -->
-		<dependency>
-			<groupId>com.db4o</groupId>
-			<artifactId>db4o-java5</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.db4o</groupId>
-			<artifactId>db4o-osgi</artifactId>
-		</dependency>
-		
+		<!-- Dependencies for testing -->
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
