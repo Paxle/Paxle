@@ -22,6 +22,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -31,12 +33,13 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.paxle.filter.robots.impl.rules.RobotsTxt;
-import org.paxle.filter.robots.impl.store.FileStore;
+import org.paxle.filter.robots.impl.store.IRuleStore;
 
 public class RobotsTxtManagerTest extends TestCase {
 	
 	private RobotsTxtManager manager = null;
 
+	@SuppressWarnings("serial")
 	protected void setUp() throws Exception {
 		super.setUp();
 		
@@ -44,13 +47,17 @@ public class RobotsTxtManagerTest extends TestCase {
 		System.setProperty("paxle.userAgent","PaxleFramework");		
 		
 		// initialize the manager
-		this.manager = new RobotsTxtManager(new FileStore(new File("target/temp")));
+		this.manager = new RobotsTxtManager() {{
+			this.loader = new DummyStore();
+		}};
+		this.manager.init(new Hashtable<String, Object>(){{
+			this.put("org.paxle.filter.robots.IRobotsTxtManager.userAgent", "${paxle.userAgent}");
+		}});
 	}
 
 	protected void tearDown() throws Exception {
-		this.manager.terminate();
-		
 		super.tearDown();
+		this.manager.deactivate(null);
 	}
 	
 	private RobotsTxt getRobotsTxt(File robotsTxtFile) throws IOException {
@@ -272,5 +279,21 @@ public class RobotsTxtManagerTest extends TestCase {
 		assertEquals(1, props.size());
 		assertTrue(props.containsKey("Crawl-Delay"));
 		assertEquals("3", props.get("Crawl-Delay"));
+	}
+	
+	public static class DummyStore extends HashMap<String, RobotsTxt> implements IRuleStore {
+		private static final long serialVersionUID = 1L;
+
+		public void close() throws IOException {
+		}
+
+		public RobotsTxt read(String hostPort) throws IOException {
+			return this.get(hostPort);
+		}
+
+		public void write(RobotsTxt robotsTxt) throws IOException {
+			this.put(robotsTxt.getHostPort(), robotsTxt);
+		}
+		
 	}
 }

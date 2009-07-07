@@ -25,14 +25,15 @@ import org.paxle.filter.robots.impl.rules.RobotsTxt;
 public class EhCacheStoreTest extends TestCase {
 
 	private File tempFile;
-	private IRuleStore store;
+	private EhCacheDiskStore store;
 	
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.tempFile = new File("target/temp" + System.currentTimeMillis());
 		URL configURL = new File("src/main/resources/resources/ehCache.xml").toURL();
 		
-		this.store = new EhCacheDiskStore(this.tempFile.toString(),configURL);
+		this.store = new EhCacheDiskStore();
+		this.store.init(this.tempFile.toString(),configURL);
 	}
 
 	@Override

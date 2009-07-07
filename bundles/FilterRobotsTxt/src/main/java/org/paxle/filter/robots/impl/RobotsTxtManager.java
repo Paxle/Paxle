@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -43,8 +42,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,11 +64,17 @@ import org.apache.commons.httpclient.RedirectException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.Services;
 import org.osgi.framework.Constants;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.filter.robots.IRobotsTxtManager;
@@ -81,39 +84,63 @@ import org.paxle.filter.robots.impl.rules.RobotsTxt;
 import org.paxle.filter.robots.impl.rules.RuleBlock;
 import org.paxle.filter.robots.impl.store.IRuleStore;
 
-public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Monitorable {
-	private static final String CACHE_NAME = "robotsTxtCache";
-	
+@Component(immediate=true, metatype=false, name=RobotsTxtManager.PID)
+@Services({
+	@Service(IRobotsTxtManager.class),
+	@Service(Monitorable.class)
+})
+@Properties({
+	@Property(name="Monitorable-Localization",value="/OSGI-INF/l10n/IRobotsTxtManager")
+})
+public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	/**
 	 * Systemwidth unique ID
 	 * @see Constants#SERVICE_PID
 	 */
-	private static final String PID = IRobotsTxtManager.class.getName();
+	public static final String PID = "org.paxle.filter.robots.IRobotsTxtManager";	
+	
+	private static final String CACHE_NAME = "robotsTxt.cache";
 	
 	/* =========================================================
 	 * Config Properties
 	 * ========================================================= */	
-	private static final String PROP_CONNECTION_TIMEOUT 	= PID + '.' + "connectionTimeout";
-	private static final String PROP_SOCKET_TIMEOUT 		= PID + '.' + "socketTimeout";
-	private static final String PROP_MAXCONNECTIONS_TOTAL 	= PID + '.' + "maxConnectionsTotal";
-	private static final String PROP_MAX_CACHE_SIZE 		= PID + '.' + "maxCacheSize";
-	private static final String PROP_USER_AGENT 			= PID + '.' + "userAgent";
+	@Property(intValue=15000)
+	public static final String PROP_CONNECTION_TIMEOUT 	= "org.paxle.filter.robots.IRobotsTxtManager.connectionTimeout";
+	@Property(intValue=15000)
+	public static final String PROP_SOCKET_TIMEOUT 		= "org.paxle.filter.robots.IRobotsTxtManager.socketTimeout";
+	@Property(intValue=MultiThreadedHttpConnectionManager.DEFAULT_MAX_TOTAL_CONNECTIONS)
+	public static final String PROP_MAXCONNECTIONS_TOTAL 	= "org.paxle.filter.robots.IRobotsTxtManager.maxConnectionsTotal";
+	@Property(intValue=1000)
+	public static final String PROP_MAX_CACHE_SIZE 		= "org.paxle.filter.robots.IRobotsTxtManager.maxCacheSize";
 	
-	private static final String PROP_PROXY_USE 				= PID + '.' + "useProxy";
-	private static final String PROP_PROXY_HOST 			= PID + '.' + "proxyHost";
-	private static final String PROP_PROXY_PORT 			= PID + '.' + "proxyPort";
-	private static final String PROP_PROXY_USER 			= PID + '.' + "proxyUser";
-	private static final String PROP_PROXY_PASSWORD 		= PID + '.' + "proxyPassword";
+	/**
+	 * the user-agent string to use
+	 */
+	@Property(value="${paxle.userAgent}")
+	public static final String PROP_USER_AGENT 			= "org.paxle.filter.robots.IRobotsTxtManager.userAgent";
 	
-	private static final String PROP_WORKER_MAX_ALIVE       = PID + '.' + "threads.maxAlive";
-	private static final String PROP_WORKER_MAX_IDLE        = PID + '.' + "threads.maxIdle";
+	// default proxy settings
+	@Property(boolValue=false)
+	public static final String PROP_PROXY_USE 				= "org.paxle.filter.robots.IRobotsTxtManager.useProxy";
+	@Property(value="")
+	public static final String PROP_PROXY_HOST 			= "org.paxle.filter.robots.IRobotsTxtManager.proxyHost";
+	@Property(intValue=3128)
+	public static final String PROP_PROXY_PORT 			= "org.paxle.filter.robots.IRobotsTxtManager.proxyPort";
+	@Property(value="")
+	public static final String PROP_PROXY_USER 			= "org.paxle.filter.robots.IRobotsTxtManager.proxyUser";
+	@Property(value="")
+	public static final String PROP_PROXY_PASSWORD 		= "org.paxle.filter.robots.IRobotsTxtManager.proxyPassword";
+	
+	// default thread pool executor settings
+	@Property(intValue=20)
+	public static final String PROP_WORKER_MAX_ALIVE = "org.paxle.filter.robots.IRobotsTxtManager.threads.maxAlive";
+	@Property(intValue=20)
+	public static final String PROP_WORKER_MAX_IDLE = "org.paxle.filter.robots.IRobotsTxtManager.threads.maxIdle";
 	
 	/* =========================================================
 	 * OSGi Monitorable CONSTANTS
 	 * ========================================================= */		
-	public static final String MONITOR_PID = "org.paxle.robots-txt";
 	private static final String MONITOR_STORE_SIZE = "store.size";
-	
 	private static final String MONITOR_JOBS_PREFIX = "jobs";
 	private static final String MONITOR_JOBS_ACTIVE = MONITOR_JOBS_PREFIX + ".active";
 	private static final String MONITOR_JOBS_IDLE = MONITOR_JOBS_PREFIX + ".idle";
@@ -139,29 +166,6 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	private final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/IRobotsTxtManager");	
 
 	/**
-	 * Lock object required to synchronize functions affected by {@link #updated(Dictionary)} 
-	 * 
-	 * @see #updated(Dictionary)
-	 * @see #getFromCache(String)
-	 * @see #putIntoCache(String, RobotsTxt)
-	 * @see #getFromWeb(URI)
-	 * 
-	 * @see #httpClient
-	 * @see #cache
-	 */
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
-	
-	/**
-	 * @see #rwl
-	 */
-	private final Lock r = rwl.readLock();
-	
-	/**
-	 * @see #rwl
-	 */
-	private final Lock w = rwl.writeLock();
-	
-	/**
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
@@ -179,7 +183,8 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	/**
 	 * Component to read and write {@link RobotsTxt} objects
 	 */
-	private IRuleStore loader;
+	@Reference
+	protected IRuleStore loader;
 	
 	/**
 	 * Connection manager used for http connection pooling
@@ -194,7 +199,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	/**
 	 * Thread pool
 	 */
-	private final ThreadPoolExecutor execService;
+	private ThreadPoolExecutor execService;
 	
 	/**
 	 * The User-Agent name to use
@@ -204,25 +209,105 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	/**
 	 * @param path the path where the {@link RobotsTxt} objects should be stored
 	 */
-	public RobotsTxtManager(IRuleStore loader) {
-		// data storage
-		this.loader = loader;
-
+	protected void activate(ComponentContext context) {
+		@SuppressWarnings("unchecked")
+		Dictionary<String, Object> configuration = context.getProperties();
+		this.init(configuration);
+	}
+	
+	void init(Dictionary<String, Object> configuration) {
 		// configure caching manager
 		this.manager = CacheManager.getInstance();
 		
-		// init threadpool
-		final int nThreads = 20;
-		this.execService = new ThreadPoolExecutor(nThreads, nThreads,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>());
+		/* =================================================================================
+		 * init a new cache
+		 * ================================================================================= */
+		Integer maxCacheSize = (Integer) configuration.get(PROP_MAX_CACHE_SIZE);
+		if (maxCacheSize == null) maxCacheSize = Integer.valueOf(1000);
+		this.cache = new Cache(CACHE_NAME, maxCacheSize.intValue(), false, false, 60*60, 30*60);
+		this.manager.addCache(this.cache);				
 		
-		// configure with default configuration
-		try {
-			this.updated(this.getDefaults());
-		} catch (ConfigurationException e) {
-			throw new RuntimeException("error configuring with defaults: " + e.getReason(), e);
-		}
+		/* =================================================================================
+		 * init threadpool
+		 * ================================================================================= */
+		Integer maxIdle = (Integer)configuration.get(PROP_WORKER_MAX_IDLE);
+		if (maxIdle == null) maxIdle = Integer.valueOf(20);
+		
+		Integer maxAlive = (Integer)configuration.get(PROP_WORKER_MAX_ALIVE);
+		if (maxAlive == null) maxAlive = Integer.valueOf(20);		
+		if (maxAlive.compareTo(maxIdle) < 0) maxAlive = maxIdle;
+		
+		this.execService = new ThreadPoolExecutor(
+				maxIdle.intValue(), maxAlive.intValue(),
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>());		
+		
+		/* =================================================================================
+		 * init http-client
+		 * ================================================================================= */
+		this.connectionManager = new MultiThreadedHttpConnectionManager();
+		HttpConnectionManagerParams params = this.connectionManager.getParams();
+		
+		final Integer connectionTimeout = (Integer) configuration.get(PROP_CONNECTION_TIMEOUT);
+		if (connectionTimeout != null) params.setConnectionTimeout(connectionTimeout.intValue());
+		final Integer socketTimeout = (Integer) configuration.get(PROP_SOCKET_TIMEOUT);
+		if (socketTimeout != null) params.setSoTimeout(socketTimeout.intValue());
+		final Integer maxConnections = (Integer) configuration.get(PROP_MAXCONNECTIONS_TOTAL);
+		if (maxConnections != null) params.setMaxTotalConnections(maxConnections.intValue());
+		
+		this.httpClient = new HttpClient(this.connectionManager);		
+		
+		/* =================================================================================
+		 * proxy configuration
+		 * ================================================================================= */
+		final Boolean useProxyVal = (Boolean)configuration.get(PROP_PROXY_USE);
+		final boolean useProxy = (useProxyVal == null) ? false : useProxyVal.booleanValue();
+		final String host = (String)configuration.get(PROP_PROXY_HOST);
+		final Integer portVal = (Integer)configuration.get(PROP_PROXY_PORT);
+		
+		if (useProxy && host != null && host.length() > 0 && portVal != null) {
+			final int port = portVal.intValue();
+			this.logger.info(String.format("Proxy is enabled: %s:%d",host,Integer.valueOf(port)));
+			final ProxyHost proxyHost = new ProxyHost(host, port);
+			this.httpClient.getHostConfiguration().setProxyHost(proxyHost);
+			
+			final String user = (String)configuration.get(PROP_PROXY_HOST);
+			final String pwd = (String)configuration.get(PROP_PROXY_PASSWORD);
+			
+			if (user != null && user.length() > 0 && pwd != null && pwd.length() > 0)
+				this.httpClient.getState().setProxyCredentials(
+						new AuthScope(host, port),
+						new UsernamePasswordCredentials(user, pwd)
+				);
+		} else {
+			this.logger.info("Proxy is disabled");
+			this.httpClient.getHostConfiguration().setProxyHost(null);
+			this.httpClient.getState().clearCredentials();
+		}			
+		
+		/* =================================================================================
+		 * the user-agent name that should be used
+		 * ================================================================================= */
+		final String userAgent = (String)configuration.get(PROP_USER_AGENT);
+		if (userAgent != null) {
+			final StringBuffer buf = new StringBuffer();
+			Pattern pattern = Pattern.compile("\\$\\{[^\\}]*}");
+			Matcher matcher = pattern.matcher(userAgent);
+
+			// replacing property placeholders with system-properties
+			while (matcher.find()) {
+				String placeHolder = matcher.group();
+				String propName = placeHolder.substring(2,placeHolder.length()-1);					
+				String propValue = System.getProperty(propName);
+				if (propValue != null) matcher.appendReplacement(buf, propValue);
+			}
+			matcher.appendTail(buf);
+			
+			this.userAgent = buf.toString();
+		} else {
+			// Fallback
+			this.userAgent = "PaxleFramework";
+		}			
 				
 		this.logger.info(String.format(
 				"Robots.txt manager initialized. Using '%s' rule-store with %d stored entries.",
@@ -231,8 +316,9 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 		));
 	}
 	
-	public void terminate() {
-		if (this.manager.getStatus().equals(Status.STATUS_ALIVE)) {
+	protected void deactivate(ComponentContext context ){
+		final Status status = this.manager.getStatus();
+		if (status.equals(Status.STATUS_ALIVE)) {
 			// clear cache
 			this.manager.removeCache(CACHE_NAME);
 		}
@@ -257,165 +343,6 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	 */
 	Cache getCache() {
 		return this.cache;
-	}
-	
-	/**
-	 * @return the default configuration of this service
-	 */
-	public Hashtable<String,Object> getDefaults() {
-		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
-		
-		// default connection manager properties
-		defaults.put(PROP_MAXCONNECTIONS_TOTAL, Integer.valueOf(MultiThreadedHttpConnectionManager.DEFAULT_MAX_TOTAL_CONNECTIONS));
-		defaults.put(PROP_CONNECTION_TIMEOUT, Integer.valueOf(15000));
-		defaults.put(PROP_SOCKET_TIMEOUT, Integer.valueOf(15000));
-		
-		// default cache props
-		defaults.put(PROP_MAX_CACHE_SIZE, Integer.valueOf(1000));
-		
-		// default proxy settings
-		defaults.put(PROP_PROXY_USE, Boolean.FALSE);
-		defaults.put(PROP_PROXY_HOST, "");
-		defaults.put(PROP_PROXY_PORT, Integer.valueOf(3128));		// default squid port
-		defaults.put(PROP_PROXY_USER, "");
-		defaults.put(PROP_PROXY_PASSWORD, "");
-		
-		// default thread pool executor settings
-		defaults.put(PROP_WORKER_MAX_ALIVE, Integer.valueOf(20));
-		defaults.put(PROP_WORKER_MAX_IDLE, Integer.valueOf(20));
-		
-		// a systemwidth unique ID needed by the CM
-		defaults.put(Constants.SERVICE_PID, IRobotsTxtManager.class.getName());
-		
-		// the user-agent string to use
-		defaults.put(PROP_USER_AGENT,"${paxle.userAgent}");
-		
-		return defaults;
-	}	
-	
-	/**
-	 * @see ManagedService#updated(Dictionary)
-	 */
-	@SuppressWarnings("unchecked")		// we're only implementing an interface
-	public void updated(Dictionary configuration) throws ConfigurationException {
-		// our caller catches all runtime-exceptions and silently ignores them, leaving us confused behind,
-		// so this try/catch-block exists for debugging purposes
-		try {
-			if (configuration == null) {
-				logger.warn("updated configuration is null");
-				/*
-				 * Generate default configuration
-				 */
-				configuration = this.getDefaults();
-			}
-			
-			// enter critical section
-			this.w.lock();
-			
-			// remove old cache
-			final Integer maxCacheSize = (Integer) configuration.get(PROP_MAX_CACHE_SIZE);
-			if (maxCacheSize != null || this.cache == null) {
-				this.manager.removeCache(CACHE_NAME);
-				this.cache = null;
-				
-				// init a new cache 
-				this.cache = new Cache(CACHE_NAME, (maxCacheSize == null) ? 1000 : maxCacheSize.intValue(), false, false, 60*60, 30*60);
-				this.manager.addCache(this.cache);
-			}
-			
-			// configure thread pool min. idle and max. alive sizes
-			final Integer maxIdle = (Integer)configuration.get(PROP_WORKER_MAX_IDLE);
-			final Integer maxAlive = (Integer)configuration.get(PROP_WORKER_MAX_ALIVE);
-			if (maxIdle != null) {
-				final int maxIdleVal = maxIdle.intValue();
-				final int maxAliveNow = (maxAlive == null) ? execService.getMaximumPoolSize() : maxAlive.intValue();
-				if (maxAliveNow < maxIdleVal)
-					throw new ConfigurationException(PROP_WORKER_MAX_IDLE, "max. idle threads must be <= min alive threads");
-				if (maxIdleVal <= 0)
-					throw new ConfigurationException(PROP_WORKER_MAX_IDLE, "max. idle threads must be >= 0");
-				execService.setCorePoolSize(maxIdleVal);
-			}
-			if (maxAlive != null) {
-				final int maxAliveVal = maxAlive.intValue();
-				if (maxAliveVal < execService.getCorePoolSize())
-					throw new ConfigurationException(PROP_WORKER_MAX_ALIVE, "max. alive threads must be >= min idle threads");
-				if (maxAliveVal <= 0)
-					throw new ConfigurationException(PROP_WORKER_MAX_ALIVE, "max. alive threads must be >= 0");
-				execService.setMaximumPoolSize(maxAliveVal);
-			}
-			
-			// shutdown old connection-manager
-			if (this.connectionManager != null) this.connectionManager.shutdown();
-			this.connectionManager = null;
-			
-			// init http-client
-			this.connectionManager = new MultiThreadedHttpConnectionManager();
-			final Integer connectionTimeout = (Integer) configuration.get(PROP_CONNECTION_TIMEOUT);
-			if (connectionTimeout != null)
-				this.connectionManager.getParams().setConnectionTimeout(connectionTimeout.intValue());
-			final Integer socketTimeout = (Integer) configuration.get(PROP_SOCKET_TIMEOUT);
-			if (socketTimeout != null)
-				this.connectionManager.getParams().setSoTimeout(socketTimeout.intValue());
-			final Integer maxConnections = (Integer) configuration.get(PROP_MAXCONNECTIONS_TOTAL);
-			if (maxConnections != null)
-				this.connectionManager.getParams().setMaxTotalConnections(maxConnections.intValue());
-			this.httpClient = new HttpClient(this.connectionManager);
-			
-			// the user-agent name that should be used
-			final String userAgent = (String)configuration.get(PROP_USER_AGENT);
-			if (userAgent != null) {
-				StringBuffer buf = new StringBuffer();
-				Pattern pattern = Pattern.compile("\\$\\{[^\\}]*}");
-				Matcher matcher = pattern.matcher(userAgent);
-	
-				// replacing property placeholders with system-properties
-				while (matcher.find()) {
-					String placeHolder = matcher.group();
-					String propName = placeHolder.substring(2,placeHolder.length()-1);					
-					String propValue = System.getProperty(propName);
-					if (propValue != null) matcher.appendReplacement(buf, propValue);
-				}
-				matcher.appendTail(buf);
-				
-				this.userAgent = buf.toString();
-			} else {
-				// Fallback
-				this.userAgent = "PaxleFramework";
-			}			
-			
-			// proxy configuration
-			final Boolean useProxyVal = (Boolean)configuration.get(PROP_PROXY_USE);
-			final boolean useProxy = (useProxyVal == null) ? false : useProxyVal.booleanValue();
-			final String host = (String)configuration.get(PROP_PROXY_HOST);
-			final Integer portVal = (Integer)configuration.get(PROP_PROXY_PORT);
-			
-			if (useProxy && host != null && host.length() > 0 && portVal != null) {
-				final int port = portVal.intValue();
-				this.logger.info(String.format("Proxy is enabled: %s:%d",host,Integer.valueOf(port)));
-				final ProxyHost proxyHost = new ProxyHost(host, port);
-				this.httpClient.getHostConfiguration().setProxyHost(proxyHost);
-				
-				final String user = (String)configuration.get(PROP_PROXY_HOST);
-				final String pwd = (String)configuration.get(PROP_PROXY_PASSWORD);
-				
-				if (user != null && user.length() > 0 && pwd != null && pwd.length() > 0)
-					this.httpClient.getState().setProxyCredentials(
-							new AuthScope(host, port),
-							new UsernamePasswordCredentials(user, pwd)
-					);
-			} else {
-				this.logger.info("Proxy is disabled");
-				this.httpClient.getHostConfiguration().setProxyHost(null);
-				this.httpClient.getState().clearCredentials();
-			}			
-			
-		} catch (Throwable e) {
-			this.logger.error("Internal exception during configuring", e);
-			if (e instanceof ConfigurationException)
-				throw (ConfigurationException)e;
-		} finally {
-			this.w.unlock();
-		}
 	}
 	
 	/* =========================================================================
@@ -529,8 +456,6 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 		InputStream inputStream = null;
 		HttpMethod getMethod = null;
 		try {
-			this.r.lock();
-			
 			getMethod = new GetMethod(robotsURL.toASCIIString());
 			int code = this.httpClient.executeMethod(getMethod);
 			statusLine = getMethod.getStatusLine().toString();
@@ -598,7 +523,6 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 		} finally {
 			if (inputStream != null) try { inputStream.close(); } catch (Exception e) {/* ignore this */}
 			if (getMethod != null) getMethod.releaseConnection();
-			this.r.unlock();
 		}
 	}
 
@@ -914,19 +838,8 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	 * @param robotsTxt the robots.txt file
 	 */
 	private void putIntoCache(String hostPort, RobotsTxt robotsTxt) {
-		try {
-			/* Synchronize access to the cache with the update function
-			 * 
-			 * A r-lock is ok here, because writing to cache is synchronized internally.
-			 * A "write" in our situation is an update to the component via CM
-			 */
-			this.r.lock();
-			
-			Element element = new Element(hostPort, robotsTxt);
-			this.cache.put(element);
-		} finally {
-			this.r.unlock();
-		}
+		Element element = new Element(hostPort, robotsTxt);
+		this.cache.put(element);
 	}
 	
 	/**
@@ -935,14 +848,8 @@ public class RobotsTxtManager implements IRobotsTxtManager, ManagedService, Moni
 	 * @return the robots.txt file
 	 */
 	private RobotsTxt getFromCache(String hostPort) {
-		try {
-			this.r.lock();
-			
-			Element element = this.cache.get(hostPort);
-			return (element == null) ? null : (RobotsTxt) element.getValue();
-		} finally {
-			this.r.unlock();
-		}
+		Element element = this.cache.get(hostPort);
+		return (element == null) ? null : (RobotsTxt) element.getValue();
 	}	
 	
 	/**

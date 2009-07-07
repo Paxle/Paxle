@@ -22,14 +22,31 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
+import org.paxle.core.filter.FilterQueuePosition;
+import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.filter.robots.IRobotsTxtManager;
 
+@Component(immediate=true, metatype=false)
+@Service(IFilter.class)
+@Properties({
+	@Property(name="org.paxle.metadata",boolValue=true),
+	@Property(name="org.paxle.metadata.localization",value="/OSGI-INF/l10n/RobotsTxtFilter")
+})
+@FilterTarget({
+	@FilterQueuePosition(queue="org.paxle.crawler.in"),
+	@FilterQueuePosition(queue="org.paxle.parser.out",position=70)
+})
 public class RobotsTxtFilter implements IFilter<ICommand> {
 	
 	/**
@@ -55,14 +72,8 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 	/**
 	 * A component to check URLs against robots.txt files.
 	 */
-	private IRobotsTxtManager robotsTxtManager = null;
-	
-	/**
-	 * @param robotsTxtManager the robots.txt manager to use
-	 */
-	public RobotsTxtFilter(IRobotsTxtManager robotsTxtManager) {
-		this.robotsTxtManager = robotsTxtManager;
-	}
+	@Reference
+	protected IRobotsTxtManager robotsTxtManager;
 	
 	/**
 	 * @see IFilter#filter(ICommand)

@@ -23,18 +23,32 @@ import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.filter.robots.impl.rules.RobotsTxt;
 
+@Component(immediate=true, metatype=false, enabled=false)
+@Service(IRuleStore.class)
 public class FileStore implements IRuleStore {
-
+	private static String DB_PATH = "robots-db";
+	
 	/**
 	 * Path where {@link RobotsTxt} objects should be stored
 	 */
-	private final File path;
+	private File path;
 	
-	public FileStore(File path) {
-		this.path = path;
+	private FileStoreCleanupThread robotsTxtCleanupThread = null;
+	
+	protected void activate(ComponentContext context) {
+		// getting data path
+		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + DB_PATH + File.separatorChar + "files";
+		this.path = new File(dataPath);
 		if (!this.path.exists()) this.path.mkdirs();
+				
+		// init a cleanup thread
+		this.robotsTxtCleanupThread = new FileStoreCleanupThread(this.path);
+		this.robotsTxtCleanupThread.start();
 	}
 	
 	public RobotsTxt read(String hostPort) throws IOException {
@@ -91,7 +105,10 @@ public class FileStore implements IRuleStore {
 	}
 
 	public void close() throws IOException {
-		// nothing todo here
+		if (this.robotsTxtCleanupThread != null) {
+			this.robotsTxtCleanupThread.interrupt();
+			this.robotsTxtCleanupThread = null;
+		}
 	}
 	
 	public int size() {

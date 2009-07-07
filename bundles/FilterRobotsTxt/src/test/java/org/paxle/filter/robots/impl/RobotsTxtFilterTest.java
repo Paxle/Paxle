@@ -33,7 +33,9 @@ public class RobotsTxtFilterTest extends MockObjectTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.manager = mock(IRobotsTxtManager.class);
-		this.filter = new RobotsTxtFilter(this.manager);
+		this.filter = new RobotsTxtFilter(){{
+			this.robotsTxtManager = manager;
+		}};
 	}
 	
 	public void testFilterURI() {
@@ -47,7 +49,7 @@ public class RobotsTxtFilterTest extends MockObjectTestCase {
 		uriMap.put(link3, new LinkInfo());
 		
 		// define mock conditions
-		checking(new Expectations() {{			
+		checking(new Expectations() {{
 			one(manager).isDisallowed(with(any(Collection.class))); 
 			will(returnValue(Arrays.asList(new URI[]{
 				link1,

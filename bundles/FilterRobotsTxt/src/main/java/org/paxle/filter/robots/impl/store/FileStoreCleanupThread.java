@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.filter.robots.impl;
+package org.paxle.filter.robots.impl.store;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -27,12 +27,12 @@ import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedService;
 import org.paxle.filter.robots.impl.rules.RobotsTxt;
 
-public class RobotsTxtCleanupThread extends Thread implements ManagedService
+public class FileStoreCleanupThread extends Thread implements ManagedService
 { 
 	/** the directory where the robots.txt data is stored */
 	File dir = null;
 	
-	private static final String PID = RobotsTxtCleanupThread.class.getName();
+	private static final String PID = FileStoreCleanupThread.class.getName();
 	
 	/** The time in minutes between each cleaning */
 	public static final String PROP_CLEANDELAY = PID + '.' + "cleandelay";
@@ -53,7 +53,7 @@ public class RobotsTxtCleanupThread extends Thread implements ManagedService
 	 * Generates a thread which wipes out robots.txt entries from the cache, which are older than their ExpirationDate
 	 * @param dir the directory where the robots.txt objects are stored
 	 */
-	RobotsTxtCleanupThread(File dir) 
+	FileStoreCleanupThread(File dir) 
 	{
 		this.dir = dir;
 		this.setName("RobotsTxtCleanupThread");
