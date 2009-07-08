@@ -29,6 +29,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.paxle.core.io.IOTools;
 
 public class IconTool {
@@ -61,11 +62,15 @@ public class IconTool {
 	 */
 	static {
 		// configure connection manager
-		connectionManager.getParams().setDefaultMaxConnectionsPerHost(10);
-
-		/* configure mime-type to resource-file map */		
+		HttpConnectionManagerParams cmParams = connectionManager.getParams();
+		cmParams.setDefaultMaxConnectionsPerHost(10);
+		cmParams.setConnectionTimeout(15000);
+		cmParams.setSoTimeout(15000);
+		
+		/* configure mime-type to resource-file map */
+		InputStream mapStream = null;
 		try {
-			InputStream mapStream = IconTool.class.getResourceAsStream("/resources/iconmap.properties");
+			mapStream = IconTool.class.getResourceAsStream("/resources/iconmap.properties");
 			iconMap.load(mapStream);
 			mapStream.close();
 
@@ -77,6 +82,8 @@ public class IconTool {
 			if (data != null) defaultHtmlIcon = new IconData(data);
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			if (mapStream != null) try { mapStream.close(); } catch (Exception e) {/* ignore this */}
 		}
 	}
 
@@ -104,6 +111,7 @@ public class IconTool {
 	 */
 	private static IconData getIcon(URL url, int depth) {	
 		if (url == null) return defaultIcon;
+		else if (depth > 20) return defaultIcon;
 
 		GetMethod method = null;
 		try {
