@@ -37,23 +37,24 @@
 	
 		#foreach($dump in $dumps.entrySet())
 			#set($thread = $dump.getKey())
-			
-			## thread-name
-			<tt><a name="${thread.getId()}">"$thread.getName()"&nbsp;</a></tt>
-			
-			## if it is a deamon
-			<tt>#if($thread.isDaemon())daemon&nbsp;#{end}</tt>
+			<div class="thread_${thread.getState()}">
+				## thread-name
+				<tt><a name="${thread.getId()}">"$thread.getName()"&nbsp;</a></tt>
 				
-			## priority
-			<tt>prio=$thread.getPriority()&nbsp;</tt>
-			
-			## tid
-			<tt>tid=$thread.getId()&nbsp;</tt>
-			
-			## nid?
-			<tt>$thread.getState()&nbsp;</tt>
-			
-			<pre>#foreach($element in $dump.getValue())&nbsp;&nbsp;&nbsp;&nbsp;$element<br/>#{end}</pre>
+				## if it is a deamon
+				<tt>#if($thread.isDaemon())daemon&nbsp;#{end}</tt>
+					
+				## priority
+				<tt>prio=$thread.getPriority()&nbsp;</tt>
+				
+				## tid
+				<tt>tid=$thread.getId()&nbsp;</tt>
+				
+				## nid?
+				<tt>$thread.getState()&nbsp;</tt>
+				
+				<pre>#foreach($element in $dump.getValue())&nbsp;&nbsp;&nbsp;&nbsp;$element<br/>#{end}</pre>
+			</div>
 		#end		
 #end
 

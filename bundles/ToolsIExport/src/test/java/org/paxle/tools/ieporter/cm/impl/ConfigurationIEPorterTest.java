@@ -23,18 +23,16 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.jxpath.JXPathContext;
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.paxle.tools.ieporter.cm.impl.ConfigurationIEPorter;
 import org.w3c.dom.Document;
 
 
 public class ConfigurationIEPorterTest extends MockObjectTestCase {
 	
-	private BundleContext bc;
-	private ServiceReference cmRef;
+	/**
+	 * The OSGi Configuration-Admin service
+	 */
 	private ConfigurationAdmin cmService;
 	
 	private ConfigurationIEPorter ieporter;
@@ -45,21 +43,11 @@ public class ConfigurationIEPorterTest extends MockObjectTestCase {
 		
 		// mock the configuration-admin service
 		this.cmService = mock(ConfigurationAdmin.class);
-		this.cmRef = mock(ServiceReference.class);
 		
-		// mock bundle context
-		this.bc = mock(BundleContext.class);
-		checking(new Expectations(){{
-			// allow to fetch the cm-service reference
-			allowing(bc).getServiceReference(ConfigurationAdmin.class.getName());
-			will(returnValue(cmRef));
-			
-			// allowing to fetch the cm-service
-			allowing(bc).getService(cmRef);
-			will(returnValue(cmService));
-		}});
-		
-		this.ieporter = new ConfigurationIEPorter(this.bc);
+		// init the configuration importer/exporter
+		this.ieporter = new ConfigurationIEPorter(){{
+			this.cm = cmService;
+		}};
 	}
 	
 	public void testExportNullConfiguration() throws ParserConfigurationException {

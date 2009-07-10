@@ -5,7 +5,7 @@
 	<groupId>org.paxle.tools</groupId>
 	<artifactId>ToolsIExport</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Tools: Import Export</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 	<!-- Parent Project -->
@@ -53,12 +53,8 @@
 							org.w3c.dom
 						</Import-Package>
 						<Private-Package>
-							org.paxle.tools.ieporter.impl,
 							org.paxle.tools.ieporter.cm.impl
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.tools.ieporter.impl.Activator
-						</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>

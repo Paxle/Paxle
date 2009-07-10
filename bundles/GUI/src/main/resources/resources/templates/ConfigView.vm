@@ -267,7 +267,7 @@
 		#if(!$paramParser.getString("viewImportedConfig"))
 		<p><b>${text.export.title}</b></p>
 		<div class="descriptionText">${text.export.desc}</div>
-			<form action="">
+			<form action="" method="post">
 							<p>
 								<input type="submit" name="doExportConfig" value="${text.export.doExport}" />
 							</p>

@@ -25,7 +25,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -52,9 +51,12 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.IOUtils;
-import org.osgi.framework.BundleContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.paxle.tools.ieporter.cm.IConfigurationIEPorter;
@@ -63,6 +65,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+@SuppressWarnings("serial")
+@Component(immediate=true, metatype=false)
+@Service(IConfigurationIEPorter.class)
 public class ConfigurationIEPorter implements IConfigurationIEPorter {
 	private static final String ELEM_VALUE = "value";
 	private static final String ELEM_VALUES = "values";
@@ -111,11 +116,13 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 		}
 	}
 	
-	private BundleContext context;
+	@Reference
+	protected ConfigurationAdmin cm;
 	
-	public ConfigurationIEPorter(BundleContext context) {
-		this.context = context;
-	}
+	/**
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
 	
 	private Document createNewXMLDocument(String rootElementName, String namespaceURI) throws ParserConfigurationException {
 		// creating a new document builder factory
@@ -168,7 +175,7 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 	public Map<String, Dictionary<String, Object>> importConfigurations(File file) throws Exception {
 		BufferedInputStream input = null;
 		Map<String, Dictionary<String, Object>> configs = new HashMap<String, Dictionary<String,Object>>();
-		try {
+		try {			
 			input = new BufferedInputStream(new FileInputStream(file),5);
 			
 			// pre-read data to detect file type
@@ -271,14 +278,6 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 	public Map<String, Document> exportConfigsAsDoc(Map<String, String> pidBundleLocationTupel) throws Exception {
 		if (pidBundleLocationTupel == null) return null;
 		
-		// getting the configuration-admin service
-		ServiceReference ref = this.context.getServiceReference(ConfigurationAdmin.class.getName());
-		if (ref == null) return null;
-		
-		// getting the configuration-admin service
-		ConfigurationAdmin cm = (ConfigurationAdmin) this.context.getService(ref);
-		if (cm == null) return null;		
-		
 		// build result structure
 		HashMap<String, Document> docs = new HashMap<String, Document>();
 		for (Entry<String, String> entry : pidBundleLocationTupel.entrySet()) {
@@ -286,7 +285,7 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 			String bundleLocation = entry.getValue();
 			
 			// getting the configuration
-			Configuration config = cm.getConfiguration(pid, bundleLocation);
+			Configuration config = this.cm.getConfiguration(pid, bundleLocation);
 			if (config != null) {
 				Map<String, Document> doc = this.exportConfiguration(config);
 				docs.putAll(doc);
