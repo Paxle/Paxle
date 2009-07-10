@@ -15,12 +15,21 @@ package org.paxle.filter.forum.impl;
 
 import java.util.regex.Pattern;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.filter.FilterQueuePosition;
+import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.filter.forum.impl.wbb.WBBForum;
 
+@Component(immediate=true, metatype=false)
+@Service(IFilter.class)
+@FilterTarget(@FilterQueuePosition(
+		queue = "org.paxle.parser.out")
+)
 public class ForumFilter implements IFilter<ICommand> {
 	private static final Pattern PHPBB_PATTERN = Pattern.compile("Powered\\s+by\\s+<a\\s+href\\s*=\\s*[\"']http://www.phpbb.com[^>]+>.*phpBB");
 

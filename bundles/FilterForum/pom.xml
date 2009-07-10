@@ -49,9 +49,6 @@
 							org.paxle.filter.forum.impl.vbulletin,
 							org.paxle.filter.forum.impl.wbb
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.filter.forum.impl.Activator
-						</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>
