@@ -30,6 +30,7 @@ import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
@@ -59,7 +60,8 @@ public class GraphFilter implements IFilter<ICommand> {
 	
 	public void filter(ICommand command, IFilterContext context) {
 		if (command == null) throw new NullPointerException("The command object is null.");
-		if (command.getResult() != ICommand.Result.Passed) return;
+		else if (command.getResult() != ICommand.Result.Passed) return;
+		
 		try {
 			// getting the domain name of the location
 			String domain1=command.getLocation().getHost();
@@ -74,7 +76,10 @@ public class GraphFilter implements IFilter<ICommand> {
 			if(domain1.startsWith("www.")) domain1=domain1.substring(4);
 			
 			// loop through all extracted links
-			Map<URI, LinkInfo> links=command.getParserDocument().getLinks();
+			final IParserDocument pdoc = command.getParserDocument();
+			if (pdoc == null) return;
+			
+			Map<URI, LinkInfo> links = pdoc.getLinks();
 			if (links == null || links.size() == 0) return;
 			
 			// getting the domainmap for the current domain
