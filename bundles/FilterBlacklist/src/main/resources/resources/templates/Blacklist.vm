@@ -68,7 +68,7 @@
 					<input type="hidden" name="list" value="$escTool.html($curList.getName())" />
 					<input type="hidden" name="fromPattern" value="$escTool.html($fromPattern)" />
 					<input type="text" name="toPattern" value="$escTool.html($fromPattern)" />
-					<input type="submit" value="${text.edit}" />
+					<input type="submit" value="${text.save}" />
 				</p>
 			</form>
 		#else
