@@ -61,7 +61,7 @@ public class MonitorableObserverTest extends MockObjectTestCase {
 			will(new Action(){
 				public void describeTo(Description arg0) {}
 				public Object invoke(Invocation invocation) throws Throwable {					
-					return new FilterImpl((String)invocation.getParameter(0));
+					return FilterImpl.newInstance((String)invocation.getParameter(0));
 				}				
 			});
 
@@ -96,7 +96,7 @@ public class MonitorableObserverTest extends MockObjectTestCase {
 //	}
 	
 	public void testFilter() throws InvalidSyntaxException {
-		Filter f = new FilterImpl("(|(java.lang.runtime/memory.free <= 10240)(os.disk/disk.space.free<=256))");
+		Filter f = FilterImpl.newInstance("(|(java.lang.runtime/memory.free <= 10240)(os.disk/disk.space.free<=256))");
 		
 		Dictionary<String, Object> values = new Hashtable<String, Object>();
 		assertFalse(f.match(values));
@@ -107,7 +107,7 @@ public class MonitorableObserverTest extends MockObjectTestCase {
 		values.put("java.lang.runtime/memory.free", Integer.valueOf(10000));
 		assertTrue(f.match(values));
 		
-		f = new FilterImpl("(os.usage.cpu/cpu.usage.total >= 0.8)");
+		f = FilterImpl.newInstance("(os.usage.cpu/cpu.usage.total >= 0.8)");
 		values = new Hashtable<String, Object>();
 		values.put("os.usage.cpu/cpu.usage.total", new Float(0.7));
 		assertFalse(f.match(values));

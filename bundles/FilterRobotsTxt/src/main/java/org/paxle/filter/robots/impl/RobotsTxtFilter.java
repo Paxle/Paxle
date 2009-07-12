@@ -167,7 +167,6 @@ public class RobotsTxtFilter implements IFilter<ICommand> {
 						debugMsg.toString()
 				));
 			}
-
 		}	
 	}
 	

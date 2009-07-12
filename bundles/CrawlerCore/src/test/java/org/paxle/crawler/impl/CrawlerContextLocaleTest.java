@@ -73,7 +73,7 @@ public class CrawlerContextLocaleTest extends MockObjectTestCase {
 			// mathing the filter against the doc-factory service-registration properties
 			allowing(classFilter).match(crawlerDocFactoryRef);
 			will(returnValue(
-					new FilterImpl(String.format("(%s=%s)",IDocumentFactory.DOCUMENT_TYPE,ICrawlerDocument.class.getName()))
+					FilterImpl.newInstance(String.format("(%s=%s)",IDocumentFactory.DOCUMENT_TYPE,ICrawlerDocument.class.getName()))
 					.match(crawlerDocFactoryProps))
 			);
 			

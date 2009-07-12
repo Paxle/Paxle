@@ -72,7 +72,7 @@ public class ParserContextLocaleTest extends MockObjectTestCase {
 			// mathing the filter against the doc-factory service-registration properties
 			allowing(classFilter).match(parserDocFactoryRef);
 			will(returnValue(
-					new FilterImpl(String.format("(%s=%s)",IDocumentFactory.DOCUMENT_TYPE,IParserDocument.class.getName()))
+					FilterImpl.newInstance(String.format("(%s=%s)",IDocumentFactory.DOCUMENT_TYPE,IParserDocument.class.getName()))
 					.match(parserDocFactoryProps))
 			);
 			
