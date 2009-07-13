@@ -184,6 +184,7 @@ td {
 	padding: 0;
 	margin-right: 3em;
 	border-right: 1px solid white;
+    border-left: 1px solid white;
 }
 
 #l10n li {
@@ -193,10 +194,10 @@ td {
 }
 
 #l10n li a {
-	padding: 0.5em;
-	border-left: 1px solid white;
+	padding: 0;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
 	display: block;
-	color: white;
 	text-decoration: none;
 }
 
@@ -328,7 +329,7 @@ td {
 	padding: 1em;
 	font-size: 1.2em;
 	color: #FFFFFF;
-	background: #730002 url('../images/log-error.png') no-repeat croll left center;
+	background: #730002 url('../images/log-error.png') no-repeat scroll left center;
 }
 
 .warning {
@@ -406,12 +407,12 @@ span.error {
 .summary {
 	margin: 0px 0px 10px 0px;
 	padding: 5px 0px;
-	background-color: lightgrey;
+	background-color: #D3D3D3;
 }
 
 .summary div {
 	color: black;
-	background-color: lightgrey;
+	background-color: #D3D3D3;
 	display: inline;
 	background-position: center left;
 	vertical-align: middle;
@@ -498,7 +499,6 @@ div.descriptionText {
 	float: right;
 	font-size:smaller;
 }
-
 
 img.searchResultFavicon {
 	float:left;
