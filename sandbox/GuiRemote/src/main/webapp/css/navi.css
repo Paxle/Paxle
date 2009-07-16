@@ -1,0 +1,47 @@
+#global_banner {
+	margin: 0;
+	padding: 0;
+	
+	width: 100%;
+	min-width: 20em;
+	height: 1.9em;
+
+	background-color: #730002;
+
+	font-family: "Lucida Grande", Verdana, Lucida, Helvetica, Arial, sans-serif;
+}
+
+
+#global_banner li {
+	list-style-type: none;
+	float: right;
+	height: 1em;
+}
+
+#global_banner li a {
+	display: block;
+	
+	margin: 0;
+	padding: 0.7em 1em 0.7em 1em;
+	
+	color: #FFFFFF;
+
+	border-left: 0.1em solid #AAAAAA;
+
+	font-size: 0.8em;
+	font-weight: bold;
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
+}
+
+#global_banner li a:hover {
+	color: #FFFFFF;
+	background-color: #96825F;
+}
+
+
+#global_banner li.active a {
+	color: #FFFFFF;
+	background-color: #96825F;
+}

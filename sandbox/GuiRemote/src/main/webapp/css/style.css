@@ -1,0 +1,118 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	background-color: #CCCCCC;
+	color: #000000;
+	font-family: Arial,sans-serif;
+}
+
+form {
+	margin: 0;
+	padding: 0;
+}
+
+h1 {
+	margin: 0 0 0.25em 0;
+	padding: 0.3em 3.5em;
+	
+	background-color: #730002;
+	color: #FFFFFF;
+	
+	font-size: 4em;
+	text-align: left;
+	
+	background-image: url('../images/header_bg.png');
+	background-repeat: no-repeat;
+}
+
+h2 {
+	background-color: #8f3335;
+	color: white;
+	font-size: 2em;
+	font-weight: normal;
+	margin: -0.5em -0.5em 0.75em;
+	padding: 0.3em 0.3em 0.3em 0.5em;
+	text-align: center;
+}
+
+h3 {
+	color: black;
+	font-size: 1.2em;
+	font-weight: normal;
+	padding: 0.3em;
+	text-align: center;
+}
+
+table {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border-collapse: collapse;
+}
+
+th {
+	background-color: #e1d7b1;
+	border-left: 1px solid #96825F;
+	border-right: 1px solid #96825F;
+	border-bottom: 1px solid #96825F;
+}
+
+th.sub {
+	background-color: #ece6cf;
+}
+
+tr:hover {
+	background-color: #F9F8E0;
+}
+
+td {
+	vertical-align: top;
+	border: 1px solid #96825F;
+	padding: 0.2em;
+}
+
+.summary {
+	margin: 0px 0px 10px 0px;
+	padding: 5px 0px;
+	background-color: lightgrey;
+}
+
+.summary div {
+	color: black;
+	background-color: lightgrey;
+	display: inline;
+	background-position: center left;
+	vertical-align: middle;
+}
+
+.descriptionText {
+	font-style: italic;
+}
+
+div.descriptionText {
+	margin: 5px 0 5px 0;
+}
+
+#main {
+	margin: 0;
+	padding: 1%;
+	/*float: right;*/
+	/* width: 100%; */
+	
+	background-color: #FFFFFF;
+	
+	border-top: solid 1em #444444;
+}
+
+a.button {
+	color: #444444;
+	text-decoration: none;
+	border: 0.1em solid #96825F;
+	font-size:13px;
+	padding:0.26em;
+}
+
+div.buttonBar {
+	padding-top: 5px;
+}
+

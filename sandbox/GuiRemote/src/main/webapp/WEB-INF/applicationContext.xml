@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+
+	<!-- STRUTS ACTIONS -->
+	<bean id="AddPeerAction" scope="prototype" class="org.paxle.gui.remote.actions.AddPeerAction">
+		<constructor-arg ref="PeerService" />
+	</bean>
+	
+	<bean id="ListPeerAction" scope="prototype" class="org.paxle.gui.remote.actions.ListPeerAction">
+		<constructor-arg ref="PeerService" />
+	</bean>
+	
+	<bean id="ViewChartAction" scope="prototype" class="org.paxle.gui.remote.actions.ViewChartAction">
+		<constructor-arg ref="PeerService" />
+	</bean>		
+	
+	<bean id="ViewPeerAction" scope="prototype" class="org.paxle.gui.remote.actions.ViewPeerAction"/>	
+	<bean id="ListPeerConfigAction" scope="prototype" class="org.paxle.gui.remote.actions.ListPeerConfigAction"/>
+	<bean id="PeerConfigAction" scope="prototype" class="org.paxle.gui.remote.actions.PeerConfigAction">
+		<constructor-arg ref="httpClient" />
+	</bean>
+
+	<!-- SERVICE BEANS -->
+	<bean id="PeerService" class="org.paxle.gui.remote.PeerService"/>
+
+	<!-- http client -->
+	<bean id="httpClient" class="org.apache.commons.httpclient.HttpClient">
+		<property name="httpConnectionManager">
+			<bean
+				class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager" destroy-method="shutdown">
+				<property name="params">
+					<bean class="org.apache.commons.httpclient.params.HttpConnectionManagerParams">
+						<property name="defaultMaxConnectionsPerHost" value="20" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Scheduling -->
+	<bean id="updatePeerStatusTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+	    <property name="delay" value="10000" />
+	    <property name="period" value="10000" />
+	    <property name="fixedRate" value="false" />
+	    <property name="timerTask" ref="updatePeerStatus" />
+	</bean>
+
+	<bean id="updatePeerStatus" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+		<property name="targetObject" ref="PeerService" />
+		<property name="targetMethod" value="updateStatus" />
+	</bean>
+	
+	<bean id="timerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean">
+		<property name="scheduledTimerTasks">
+			<list>
+				<ref bean="updatePeerStatusTask" />
+			</list>
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,54 @@
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<include file="struts-default.xml"/>
+	<constant name="struts.objectFactory" value="spring" />
+
+    <package name="strutsbasics" extends="struts-default">        
+		<interceptors>
+			<interceptor-stack name="ParamsPrepareStack">
+		      <interceptor-ref name="params"/>
+		      <interceptor-ref name="prepare"/>
+		      <interceptor-ref name="defaultStack"/>
+			</interceptor-stack>
+		</interceptors>  
+		
+		<default-interceptor-ref name="ParamsPrepareStack"/>    
+    
+        <action name="AddPeer" class="AddPeerAction">
+        	<result name="input">/addPeer.jsp</result>
+            <result name="success" type="redirectAction">ListPeers</result>
+        </action>
+        
+        <action name="ListPeers" class="ListPeerAction">
+            <result>/listPeers.jsp</result>
+        </action>
+        
+        <action name="ViewPeer" class="ViewPeerAction">
+            <result>/viewPeer.jsp</result>
+        </action>
+        
+        <action name="ListPeerConfigList" class="ListPeerConfigAction">
+            <result>/listPeerConfig.jsp</result>
+        </action>   
+        
+        <action name="PeerConfigView" class="PeerConfigAction" method="view">
+        	<result>/editPeerConfig.jsp</result>
+        </action> 
+        
+        <action name="PeerConfigEdit" class="PeerConfigAction">
+        	<result name="input">/editPeerConfig.jsp</result>
+			<result type="redirect">ListPeerConfigList.action?peerUrl=${peerUrl}</result>
+        </action>
+    </package>
+    
+    <package name="charts" extends="jfreechart-default">
+		<action name="ViewChart" class="ViewChartAction">
+			<result name="success" type="chart">
+				<param name="width">400</param>
+				<param name="height">300</param>
+			</result>
+		</action>
+    </package>
+</struts> 
