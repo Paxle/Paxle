@@ -1,0 +1,107 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.paxle</groupId>
+	<artifactId>CrawlerUrlRedirector</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - Crawler: URL Redirector</name>
+	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
+
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.1-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<!-- localized bundle headers -->
+						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Name>%bundleName</Bundle-Name>
+						<Bundle-Description>%bundleDesc</Bundle-Description>
+						
+						<Bundle-Category>crawler</Bundle-Category>					
+						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
+						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
+						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+						
+						<Export-Package>
+							org.paxle.crawler.urlRedirector;version="${pom.version}"
+						</Export-Package>
+						<Import-Package>
+							<!-- OSGi framework -->
+							org.osgi.framework;version="1.4",
+							org.osgi.service.component;version="1.0",
+							<!-- Logging framework -->
+							org.apache.commons.logging,
+							<!-- Paxle Core Bundle -->
+							org.paxle.core.doc;version="[0.1.0,0.2.0)",
+							org.paxle.core.norm;version="[0.1.0,0.2.0)",
+							<!-- Paxle DataLayer Bundl -->
+							org.paxle.data.db;version="[0.1.0,0.2.0)",
+							<!-- Paxle Crawler-Core Bundle -->
+							org.paxle.crawler;version="[0.1.0,0.2.0)",
+							<!-- Apache Commons HttpClient (for http downloads) -->
+							org.apache.commons.httpclient.*;version="3.1.0",
+							<!-- ignore some packages -->
+							!javax.management, 
+							!javax.net.ssl
+						</Import-Package>
+						<Private-Package>
+							org.paxle.crawler.urlRedirector.impl
+						</Private-Package>
+						
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							xSocket;scope=compile|runtime
+						</Embed-Dependency>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>Core</artifactId>
+			<version>[0.1.32-SNAPSHOT,0.2.0)</version>				
+		</dependency>	
+	
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>CrawlerCore</artifactId>
+			<version>[0.1.13-SNAPSHOT,0.2.0)</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>DataLayer</artifactId>
+			<version>[0.1.8-SNAPSHOT,0.2.0)</version>
+		</dependency>		
+	
+		<dependency>
+			<groupId>org.xsocket</groupId>
+			<artifactId>xSocket</artifactId>
+			<version>2.5.3</version>
+		</dependency>
+
+		<!-- HTTP-client dependencies -->
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient-osgi</artifactId>
+		</dependency>
+	</dependencies>
+</project>
