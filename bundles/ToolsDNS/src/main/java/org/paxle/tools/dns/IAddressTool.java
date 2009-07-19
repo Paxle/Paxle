@@ -16,6 +16,14 @@ package org.paxle.tools.dns;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.xbill.DNS.ResolverConfig;
+
 public interface IAddressTool {
+	/**
+	 * @return Returns the first located server
+	 * @see ResolverConfig#server()
+	 */
+	public String getServer();
+	
 	public InetAddress getByName(String hostName) throws UnknownHostException;
 }

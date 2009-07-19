@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ToolsDNS</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.6-SNAPSHOT</version>
+	<version>0.1.7-SNAPSHOT</version>
 	<name>Paxle - Tools: DNS</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -38,7 +38,8 @@
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4", 
-							org.osgi.service.component;version="1.0",					
+							org.osgi.service.component;version="1.0",
+							org.osgi.service.monitor;version="0.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Paxle bundles -->

@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICommand;
@@ -32,8 +33,7 @@ import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
-import org.xbill.DNS.Address;
-import org.xbill.DNS.ResolverConfig;
+import org.paxle.tools.dns.IAddressTool;
 
 @Component(metatype=false)
 @Service(IFilter.class)
@@ -54,17 +54,19 @@ public class DNSFilter implements IFilter<ICommand> {
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
+	@Reference
+	protected IAddressTool dns;
+	
 	protected void activate(ComponentContext context) {
 		// checking if the DNS server could be determined properly
-		final ResolverConfig config = ResolverConfig.getCurrentConfig();
-		final String dnsServer = config.server();
+		final String dnsServer = this.dns.getServer();
 		if (dnsServer == null) {
 			this.logger.warn("DNSjava was unable to determine the DNS server to use. Skipping DNS-filtering ...");
 			context.disableComponent(this.getClass().getName());
 		} else {
 			this.logger.info(String.format(
 					"Starting DNS-Filter using DNS server '%s'.",
-					config.server()
+					dnsServer
 			));
 		}
 	}	
@@ -83,7 +85,7 @@ public class DNSFilter implements IFilter<ICommand> {
 			}
 			
 			// trying to do a dns lookup
-			Address.getByName(hostName);
+			this.dns.getByName(hostName);
 		} catch (UnknownHostException e) {
 			command.setResult(ICommand.Result.Rejected, "Unable to resolve hostname.");
 			logger.info(String.format(
@@ -138,7 +140,7 @@ public class DNSFilter implements IFilter<ICommand> {
 					continue;
 				}
 				
-				Address.getByName(location.getHost());
+				this.dns.getByName(location.getHost());
 			} catch (UnknownHostException e) {
 				meta.setStatus(Status.FILTERED, "Unable to resolve hostname.");
 				this.logger.info(String.format(
