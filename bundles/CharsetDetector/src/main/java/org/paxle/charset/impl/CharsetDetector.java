@@ -36,7 +36,7 @@ import org.mozilla.intl.chardet.nsPSMDetector;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.charset.ICharsetDetector;
 
-@Component(immediate=true)
+@Component(immediate=true, metatype=true, label="Charset-Detector", description="A component to detect the charset of text files")
 @Service(ICharsetDetector.class)
 public class CharsetDetector implements ICharsetDetector {
 	
