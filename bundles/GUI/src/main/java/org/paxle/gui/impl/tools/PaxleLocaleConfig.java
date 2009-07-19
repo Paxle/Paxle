@@ -28,7 +28,10 @@ import org.apache.velocity.tools.Scope;
 import org.apache.velocity.tools.config.ValidScope;
 import org.apache.velocity.tools.generic.LocaleConfig;
 import org.apache.velocity.tools.view.CookieTool;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.User;
 import org.paxle.gui.impl.ServletManager;
@@ -72,7 +75,7 @@ public class PaxleLocaleConfig extends LocaleConfig {
 			
 			// getting the bundle context
 			final ServletContext servletContext = (ServletContext) props.get("servletContext");			
-			this.context = (BundleContext) servletContext.getAttribute("bc");			
+			this.context = (BundleContext) servletContext.getAttribute("bc");
 			
 			// getting the configured user-language (if specified)			
 			if (session != null) {
@@ -127,4 +130,33 @@ public class PaxleLocaleConfig extends LocaleConfig {
 	public BundleContext getBundleContext() {
 		return this.context;
 	}
+	
+	protected Bundle getBundleByBundleID(Integer bundleID) {
+		// getting a reference to the requested bundle
+		final Bundle bundle = this.context.getBundle(bundleID.longValue());
+		if (bundle != null) return bundle;
+		
+		this.logger.warn(String.format(
+				"No bundle found for ID '%d'.",
+				bundleID
+		));
+		return null;
+	}	
+	
+	protected Bundle getBundleByServicePID(String servicePID) {
+		ServiceReference[] refs = null;
+		try {
+			refs = context.getAllServiceReferences(null, String.format("(%s=%s)",Constants.SERVICE_PID,servicePID));
+			if (refs != null && refs.length > 0) {
+				ServiceReference serviceRef = refs[0];
+				return serviceRef.getBundle();
+			}
+			return null;
+		} catch (Exception e) {
+			this.logger.warn(String.format("No bundle found providing service '%s'.", servicePID));
+		} finally {
+			if (refs != null) for(ServiceReference ref : refs) context.ungetService(ref);
+		}
+		return null;
+	}	
 }

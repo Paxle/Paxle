@@ -23,18 +23,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -63,14 +59,8 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ManagedService;
 import org.osgi.service.metatype.AttributeDefinition;
-import org.osgi.service.metatype.MetaTypeInformation;
-import org.osgi.service.metatype.MetaTypeProvider;
-import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.core.metadata.Attribute;
 import org.paxle.core.metadata.Metadata;
@@ -78,7 +68,8 @@ import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.IStyleManager;
 import org.paxle.gui.impl.ServiceManager;
-import org.paxle.gui.impl.tools.PaxleLocaleConfig;
+import org.paxle.gui.impl.tools.ConfigTool;
+import org.paxle.gui.impl.tools.ConfigTool.Configurable;
 import org.paxle.tools.ieporter.cm.IConfigurationIEPorter;
 
 @Component(metatype=false, immediate=true)
@@ -124,40 +115,28 @@ public class ConfigView extends ALayoutServlet {
 	 * 		{@link Bundle#getLocation() bundle-locations} as values.
 	 */
 	private Map<String, String> generatePidBundleLocationMap(HttpServletRequest request, Context context) {
-		// getting the service manager
-		ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
-		if (manager == null) throw new IllegalStateException("ServiceManager not found");
+		// getting the config-tool
+		final ConfigTool configTool = (ConfigTool) context.get("configTool");
+		if (configTool == null) throw new IllegalStateException("Config-Tool not found");
 		
-		// getting the metatype service
-		MetaTypeService metaTypeService = (MetaTypeService) manager.getService(MetaTypeService.class.getName());
-		if (metaTypeService == null) throw new IllegalStateException("MetaTypeService not found");
-
-		String bundleID = request.getParameter("bundleID");
-		String pid = request.getParameter("pid");
+		// getting the bundle-id and service-PID (if available)
+		final String bundleID = request.getParameter("bundleID");
+		final String pid = request.getParameter("pid");
 		
-		Map<String, String> pidBundleLocationTupel = new HashMap<String, String>();
+		// getting all specified configurables
+		final List<Configurable> configurables = new ArrayList<Configurable>();		
 		if (bundleID != null && pid != null) {
-			Bundle bundle = manager.getBundle(Integer.parseInt(bundleID));
-			pidBundleLocationTupel.put(pid, bundle.getLocation());
+			Configurable configurable = configTool.getConfigurable(Integer.valueOf(bundleID), pid);
+			if (configurable != null) configurables.add(configurable);
 		} else {		
-			// loop through all bundles to see if they contain manageable services			
-			for (Bundle bundle: manager.getBundles()) {
-				HashSet<String> metaTypePIDs = new HashSet<String>();
-
-				// Loopup the PIDs of all metatypes provided via the metatype-service
-				metaTypePIDs.addAll(this.getMetaTypeServicePIDs(manager, bundle));		
-
-				// search for additional metatype-providers
-				metaTypePIDs.addAll(this.getMetaTypeProviderPIDs(bundle));
-
-				if (metaTypePIDs != null && metaTypePIDs.size() > 0) {
-					for (String nextPid : metaTypePIDs) {
-						pidBundleLocationTupel.put(nextPid, bundle.getLocation());
-					}
-				}
-			}
+			configurables.addAll(configTool.getConfigurables());
 		}
 		
+		// converting configurable list into a list of PID:Bundle-Location
+		Map<String, String> pidBundleLocationTupel = new HashMap<String, String>();
+		for (Configurable configurable : configurables) {
+			pidBundleLocationTupel.put(configurable.getPID(), configurable.getBundle().getLocation());
+		}		
 		return pidBundleLocationTupel;
 	}
 	
@@ -418,23 +397,24 @@ public class ConfigView extends ALayoutServlet {
 			return;
 		}
 		
-		ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
-		if (manager == null) {
-			response.sendError(501, "No ServiceManager found.");
+		ConfigTool configTool = (ConfigTool) context.get("configTool");
+		if (configTool == null) {
+			response.sendError(501, "Config-Tool not found.");
 			return;
 		}
 		
-		// getting the bundle the managed service belongs to
-		Bundle bundle = manager.getBundle(Long.parseLong(bundleID));
-		if (bundle == null) {
-			response.sendError(501, String.format("No bundle with ID '%s' found.",bundleID));
+		Configurable configurabel = configTool.getConfigurable(Integer.valueOf(bundleID), pid);
+		if (configurabel == null) {
+			response.sendError(501, String.format(
+					"No configurable component found for bundle-ID '%s' and PID '%s'.",
+					bundleID,
+					pid
+			));
 			return;
 		}
 		
 		// loading metadata
-		PaxleLocaleConfig localeConfig = (PaxleLocaleConfig) context.get("localeConfig");
-		Locale locale = (localeConfig == null) ? Locale.ENGLISH : localeConfig.getLocale();		
-		ObjectClassDefinition ocd = this.getObjectClassDefinition(locale, manager, bundle, pid);
+		ObjectClassDefinition ocd = configurabel.getObjectClassDefinition();
 		if (ocd == null) {
 			response.sendError(501, String.format("No ObjectClassDefinition found for service with PID '%s'.",pid));
 			return;
@@ -502,25 +482,7 @@ public class ConfigView extends ALayoutServlet {
 			response.sendError(404, e.getMessage());
 			return;
 		}
-	}
-	
-	public String getPreferedLocale(List<Locale> preferedLocales, String[] supportedLocalesArray) {
-		String localeToUse = Locale.ENGLISH.getLanguage();
-		
-		// getting languages provided by the available metatypes
-		HashSet<String> supportedLocale = new HashSet<String>(Arrays.asList(supportedLocalesArray==null?new String[0]:supportedLocalesArray));
-		
-		// find best match
-		for (Locale preferedLocale : preferedLocales) {
-			if (supportedLocale.contains(preferedLocale.toString())) {
-				localeToUse = preferedLocale.toString();
-				break;
-			}
-		}
-		
-		return localeToUse;
-	}
-		
+	}	
 	
 	public void setPropertyValues(HttpServletRequest request, HttpServletResponse response, Context context, final boolean reset) throws Exception {		
 		Dictionary<String, Object> props = new Hashtable<String, Object>();		
@@ -537,34 +499,29 @@ public class ConfigView extends ALayoutServlet {
 			return;
 		}
 		
-		ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
-		if (manager == null) {
-			context.put(ERROR_MSG, "No ServiceManager found.");
+		ConfigTool configTool = (ConfigTool) context.get("configTool");
+		if (configTool == null) {
+			context.put(ERROR_MSG, "Config-Tool not found.");
 			return;
 		}
 		
-		// getting the bundle the managed service belongs to
-		Bundle bundle = manager.getBundle(Long.parseLong(bundleID));
-		if (bundle == null) {
-			context.put(ERROR_MSG, String.format("No bundle with ID '%s' found.",bundleID));
-			return;
-		}
-
-		ConfigurationAdmin configAdmin = (ConfigurationAdmin) manager.getService(ConfigurationAdmin.class.getName());
-		if (configAdmin == null) {
-			context.put(ERROR_MSG, "ConfigurationAdmin service not found.");
+		Configurable configurabel = configTool.getConfigurable(Integer.valueOf(bundleID), pid);
+		if (configurabel == null) {
+			context.put(ERROR_MSG, String.format(
+					"No configurable component found for bundle-ID '%s' and PID '%s'.",
+					bundleID,
+					pid
+			));
 			return;
 		}
 		
-		Configuration config = configAdmin.getConfiguration(pid, bundle.getLocation());
+		Configuration config = configurabel.getConfiguration();
 		if (config == null) {
 			context.put(ERROR_MSG, "Configuration object not found.");
 			return;
 		}
 		
-		PaxleLocaleConfig localeConfig = (PaxleLocaleConfig) context.get("localeConfig");
-		Locale locale = (localeConfig == null) ? Locale.ENGLISH : localeConfig.getLocale();
-		ObjectClassDefinition ocd = this.getObjectClassDefinition(locale, manager, bundle, pid);
+		ObjectClassDefinition ocd = configurabel.getObjectClassDefinition();
 		if (ocd == null) {
 			context.put(ERROR_MSG, String.format("No ObjectClassDefinition found for service with PID '%s'.",pid));
 			return;
@@ -737,115 +694,6 @@ public class ConfigView extends ALayoutServlet {
 		}
 		
 		return finalAttributeValues;
-	}
-	
-	public Object getPropertyValue(@SuppressWarnings("unchecked") Dictionary props, AttributeDefinition attribute) {
-		if (attribute == null) throw new NullPointerException("Attribute definition is null");
-		
-		String propertyKey = attribute.getID();
-		Object value = (props == null)?null:props.get(propertyKey);
-		String[] defaultValues = attribute.getDefaultValue();
-		
-		if (value != null) {
-			return value;
-		} else if (defaultValues != null && defaultValues.length > 0){
-			return (attribute.getCardinality()==0)?defaultValues[0]:defaultValues;
-		} else {
-			return null;
-		}
-	}
-	
-	/**
-	 * @return the {@link Constants#SERVICE_PID PID} of all {@link ManagedService managed-services}
-	 * whose {@link MetaTypeInformation metatype-informations} are managed by the {@link MetaTypeService}
-	 */
-	private Set<String> getMetaTypeServicePIDs(ServiceManager manager, Bundle bundle) {		
-		MetaTypeService metaTypeService = (MetaTypeService) manager.getService(MetaTypeService.class.getName());
-		if (metaTypeService == null) throw new NullPointerException("Unable to find the metatype service");	
-		
-		MetaTypeInformation mti = metaTypeService.getMetaTypeInformation(bundle);
-		String[] pidArray = (mti==null)?null:mti.getPids();
-		if (pidArray != null) {
-			return new HashSet<String>(Arrays.asList(pidArray));
-		} else {
-			return Collections.emptySet();
-		}
-	}
-	
-	/**
-	 * @return the {@link Constants#SERVICE_PID PID} of all {@link ManagedService managed-services}
-	 * whose {@link MetaTypeInformation metatype-informations} are provided by a {@link MetaTypeProvider}
-	 */
-	private Set<String> getMetaTypeProviderPIDs(Bundle bundle) {
-		final HashSet<String> metaTypePIDs = new HashSet<String>();
-		
-		final ServiceReference[] serviceRefs = bundle.getRegisteredServices();
-		if (serviceRefs != null) {
-			for (ServiceReference ref : serviceRefs) {
-				// a managed-service always has a PID
-				String pid = (String) ref.getProperty(Constants.SERVICE_PID);
-				if (pid!= null) {			
-					HashSet<String> objectClassSet = new HashSet<String>(Arrays.asList((String[])ref.getProperty(Constants.OBJECTCLASS)));
-					if (objectClassSet.contains(MetaTypeProvider.class.getName()) && !metaTypePIDs.contains(pid)) {
-						metaTypePIDs.add(pid);
-					}
-				}
-			}
-		}
-		
-		return metaTypePIDs;
-	}
-	
-	public String[] getMetaTypePIDs(ServiceManager manager, Bundle bundle) {
-		final HashSet<String> metaTypePIDs = new HashSet<String>();
-
-		// Loopup the PIDs of all metatypes provided via the metatype-service
-		metaTypePIDs.addAll(this.getMetaTypeServicePIDs(manager, bundle));		
-		
-		// search for additional metatype-providers
-		metaTypePIDs.addAll(this.getMetaTypeProviderPIDs(bundle));
-		
-		return metaTypePIDs.toArray(new String[metaTypePIDs.size()]);
-	}	
-	
-	private ObjectClassDefinition getObjectClassDefinitionFromMetaTypeService(ServiceManager manager, Bundle bundle, String PID, List<Locale> locales) {
-		MetaTypeService metaTypeService = (MetaTypeService) manager.getService(MetaTypeService.class.getName());
-		if (metaTypeService == null) throw new NullPointerException("Unable to find the metatype service");	
-		
-		if (this.getMetaTypeServicePIDs(manager, bundle).contains(PID)) { 
-			MetaTypeInformation mti = metaTypeService.getMetaTypeInformation(bundle);			
-			String locale = this.getPreferedLocale(locales, mti.getLocales());			
-			return mti.getObjectClassDefinition(PID, locale);
-		} else {
-			return null;
-		}
-	}
-	
-	private ObjectClassDefinition getObjectClassDefinitionFromMetaTypeProvider(ServiceManager manager, Bundle bundle, String PID, List<Locale> locales) {
-		ServiceReference[] serviceRefs = bundle.getRegisteredServices();
-		if (serviceRefs != null) {
-			for (ServiceReference ref : serviceRefs) {
-				// a managed-service always has a PID
-				String nextPID = (String) ref.getProperty(Constants.SERVICE_PID);
-				if (nextPID!= null && nextPID.equals(PID)) {
-					MetaTypeProvider mProvider = (MetaTypeProvider) manager.getService(ref);
-					String locale = this.getPreferedLocale(locales, mProvider.getLocales());
-					return mProvider.getObjectClassDefinition(PID, locale);
-				}
-			}
-		}
-		return null;
-	}
-	
-	public ObjectClassDefinition getObjectClassDefinition(Locale locale, ServiceManager manager, Bundle bundle, String PID) {
-		final List<Locale> preferedLocale = Arrays.asList(new Locale[]{locale});
-		
-		// try to find ocd via metatype-service
-		ObjectClassDefinition ocd = this.getObjectClassDefinitionFromMetaTypeService(manager, bundle, PID, preferedLocale);
-		if (ocd != null) return ocd;
-		
-		// try to find ocd via metatype-provider 
-		return this.getObjectClassDefinitionFromMetaTypeProvider(manager, bundle, PID, preferedLocale);
 	}
 	
 	public HashMap<String,Attribute> getAttributeMetadataMap(final ObjectClassDefinition ocd) {

@@ -15,6 +15,7 @@ package org.paxle.gui.impl.tools;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -60,6 +61,10 @@ public class MonitorableTool extends PaxleLocaleConfig {
 			}
 		}
 	}
+	
+	public boolean isMonitorable(String serviceID) {
+		return this.exists(serviceID);
+	}
 
 	public boolean exists(String monitorableID) {
     	if (monitorableID == null) return false;
@@ -103,18 +108,18 @@ public class MonitorableTool extends PaxleLocaleConfig {
     	return this.ma.getMonitorableNames();
     }
     
-    public Monitorable[] getMonitorables() {
+    public List<Monitorable> getMonitorables() {
     	return this.getMonitorables(this.getMonitorableNames());
     }
     
-    public Monitorable[] getMonitorables(String[] monitorableIDs) {
+    public List<Monitorable> getMonitorables(String[] monitorableIDs) {
     	return this.getBundleMonitorables(null, monitorableIDs);
     }
     
-    public Monitorable[] getBundleMonitorables(Integer bundleID, String[] monitorableIDs) {
+    public List<Monitorable> getBundleMonitorables(Integer bundleID, String[] monitorableIDs) {
     	if (this.ma == null) return null;
     	
-    	ArrayList<Monitorable> monitorables = new ArrayList<Monitorable>();    	
+    	final ArrayList<Monitorable> monitorables = new ArrayList<Monitorable>();    	
 
     	if (monitorableIDs == null) monitorableIDs = this.getMonitorableNames();
     	if (monitorableIDs != null) {
@@ -128,10 +133,18 @@ public class MonitorableTool extends PaxleLocaleConfig {
     		}
     	}
     	
-    	return monitorables.size() == 0 ? null : monitorables.toArray(new Monitorable[monitorables.size()]);
+    	return monitorables;
     }
     
-    public Monitorable[] getBundleMonitorables(Integer bundleID) {   	
+    public boolean hasBundleMonitorables(Integer bundleID) {
+    	return this.getBundleMonitorables(bundleID).size() > 0;
+    }
+    
+    public boolean hasBundleMonitorables(Bundle bundle) {
+    	return this.hasBundleMonitorables(Integer.valueOf((int)bundle.getBundleId()));
+    }    
+    
+    public List<Monitorable> getBundleMonitorables(Integer bundleID) {   	
     	return this.getBundleMonitorables(bundleID, null);
     }
 	

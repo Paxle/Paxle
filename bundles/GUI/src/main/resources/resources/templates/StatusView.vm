@@ -17,20 +17,43 @@
 
 ## Set the page title
 #set( $page_title = ${text.browser.title})
+
 ## Activate onload
 #set ( $bodyonload = "initTabs('crawler');" )
+
+## some required services
+#set( $servletManager = $manager.getService( "org.paxle.gui.IServletManager"))
 
 ## ---------------------------------------------------------------------------------------
 ## Define some macros 
 #macro(serviceinfo $service $serviceID)
+	#set($bundle = $bundleTool.getByPID($serviceID))	
 	#if($metaDataTool.getMetaData($serviceID))
-		<img class="metaDataIcon" src="${context.request.servletPath}?metaDataIcon=$serviceID" width="16" height="16" alt=""/>
+		<!-- Bundle: $bundle.getBundleId() -->
+		<img class="metaDataIcon" src="${context.request.servletPath}?metaDataIcon=${escTool.url($serviceID)}" width="16" height="16" alt=""/>
 		<div class="serviceName">$metaDataTool.getMetaData($serviceID).name</div>
+		<div class="serviceActions">			
+			#if($configTool.isConfigurable($bundle,$serviceID))
+				<a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.ConfigView')}?bundleID=${bundle.BundleId}&amp;pid=$serviceID">
+					<img src="images/bullet_wrench.png"/>
+				</a>
+			#end
+			#if($monitorableTool.isMonitorable($serviceID))
+				<a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.MonitorableView')}?bundleID=${bundle.BundleId}&amp;monitorableId=${serviceID}">
+					<img src="images/monitor.png"/>
+				</a>
+			#end
+		</div>
 		#if($metaDataTool.getMetaData($serviceID).description)
-			<div class="descriptionText">$metaDataTool.getMetaData($serviceID).description</div>
+			<div class="serviceDescription">$metaDataTool.getMetaData($serviceID).description</div>
 		#end
 	#else
-		${service.class.name}
+		<div class="serviceName">${service.class.name}</div>
+		<div class="serviceActions">			
+			#if($configTool.isConfigurable($bundle,$serviceID))
+				<img src="images/bullet_wrench.png"/>
+			#end
+		</div>
 	#end
 #end
 
@@ -303,7 +326,6 @@
 ## ==================================================================================
 ## GUI STATUS
 ## ==================================================================================
-#set( $servletManager = $manager.getService( "org.paxle.gui.IServletManager"))
 #if( $servletManager)
 <fieldset id="dgui">
 	<legend>${text.legend.gui}</legend>
@@ -325,7 +347,7 @@
 	
 	<table>		
 		<tr><th>${text.gui.path}</th><th>${text.gui.clazz}</th></tr>
-		#foreach( $servlet in $sortTool.sort( $servletManager.getServlets().entrySet(), ["key"]))
+		#foreach($servlet in $sortTool.sort( $servletManager.getServlets().entrySet(), ["key"]))
 		<tr>
 			<td><a href="${servletManager.getFullAlias($servlet.getKey())}">${servlet.getKey()}</a></td>
 			<td>$servlet.getValue().getClass().getName()</td>

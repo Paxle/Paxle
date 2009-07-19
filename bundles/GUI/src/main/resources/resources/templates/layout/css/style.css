@@ -513,3 +513,16 @@ img.metaDataIcon {
 	margin:5px;
 	width:16px;
 }
+
+.serviceName {
+	float: left;
+}
+
+.serviceActions {
+	float: right;
+}
+
+.serviceDescription {
+	font-style: italic;
+	clear: both;
+}

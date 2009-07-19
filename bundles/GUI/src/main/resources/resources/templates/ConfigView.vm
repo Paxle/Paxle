@@ -44,7 +44,7 @@
 #set($text = $resourceTool.bundle('OSGI-INF/l10n/configview'))
 #set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
 
-## TODO redirect browser if the servlet path-prefix has changed
+## redirect browser if the servlet path-prefix has changed
 #if($delayedRedirect)
 	#set($redirectURL = "$request.getScheme()://$request.getServerName():$request.getServerPort()$delayedRedirect")
 	#set($h1 = "<meta http-equiv='Refresh' content='5; url=$redirectURL'>")
@@ -82,15 +82,16 @@
 		
 		
 		## load service metatypes
-		#set($ocd = ${configView.getObjectClassDefinition($localeConfig.getLocale(), $manager,$bundle,$PID)})
-		#if($ocd)										
+		#set($configurable = $configTool.getConfigurable($bundle,$PID))
+		#set($ocd = $configurable.getObjectClassDefinition())
+		#if($ocd)
 			<p>
 				<p>
 					<img src="?bundleID=$bundleID&amp;pid=$PID&amp;getImage=" alt="${ocd.getName()}"/>
-					<strong>$ocd.getName()</strong>&nbsp;[Bundle <a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.BundleView')}?bundleID=$bundleID&amp;action=details">$bundleID</a>]<br/>
+					<strong>${ocd.name}</strong>&nbsp;[Bundle <a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.BundleView')}?bundleID=$bundleID&amp;action=details">$bundleID</a>]<br/>
 					<div class="descriptionText">
-						#if($ocd.getDescription())
-							#set($desc = $ocd.getDescription())
+						#if(${ocd.description})
+							#set($desc = ${ocd.description})
 							$desc.replaceAll("\n", "<br />")
 						#end
 					</div>
@@ -105,16 +106,16 @@
 					<div>${text.listConfig.viewDetailedConfig}:</div>
 					
 					## getting the current configuration
-					#set($configProps = $configAdmin.getConfiguration($PID,${bundle.getLocation()}).getProperties())
+					#set($configProps = ${configurable.configuration.properties})
 				#end
 				
 				## getting the configuration attributes
 				#set($attributes = $ocd.getAttributeDefinitions(-1))
 				#if($attributes)
-					#set($attrMetadataMap = $configView.getAttributeMetadataMap($ocd))
+					#set($attrMetadataMap = ${configurable.attributeMetadataMap})
 					<form action="" method="post">
 						<input type="hidden" name="pid" value="$PID"/>
-						<input type="hidden" name="bundleID" value="${bundle.getBundleId()}"/>
+						<input type="hidden" name="bundleID" value="${bundle.bundleId()}"/>
 						
 						<table>
 						<tr>
@@ -124,9 +125,9 @@
 							<th>${text.listConfig.desc}</th>
                     	</tr>
                     	#foreach($attribute in $attributes)
-							#set($attributeID = ${attribute.getID()})								
-							#set($attribValue = ${configView.getPropertyValue($configProps,$attribute)})
-							#set($attribType = ${dataTypes.get($attribute.getType())})
+							#set($attributeID = ${attribute.getID()})
+							#set($attribValue = ${configurable.getPropertyValue($configProps,$attribute)})
+							#set($attribType = ${dataTypes.get($attribute.getType())})	
 							#set($attribCardinality = ${attribute.getCardinality()})
 							#set($optionsAvailable = ${attribute.getOptionLabels()} && $listTool.size(${attribute.getOptionLabels()}) > 0)
 							#set($optionLabels = ${attribute.getOptionLabels()})
@@ -233,13 +234,15 @@
 		
     		## loop through each bundle to see if there are any metatypes	
     		#foreach($bundle in $bundles)
-    			#set($ocdCounter = 0)    			
-				#foreach($PID in ${configView.getMetaTypePIDs($manager,$bundle)})
+    			#set($ocdCounter = 0)
+				#foreach($configurable in $configTool.getConfigurables($bundle))
+					#set($PID = $configurable.PID)
 
     				## load service metatypes
-    				#set($ocd = ${configView.getObjectClassDefinition($localeConfig.getLocale(), $manager,$bundle,$PID)})
+    				#set($ocd = $configurable.getObjectClassDefinition())
 
 					## display data
+					## TODO: re-enable import!
     				#if($ocd && (!$paramParser.getString("viewImportedConfig") || ${importedConfigProps.containsKey($PID)}))
     					#if($ocdCounter == 0)
     						#set($bundleHeaders = $bundle.getHeaders())
@@ -267,10 +270,10 @@
 		#if(!$paramParser.getString("viewImportedConfig"))
 		<p><b>${text.export.title}</b></p>
 		<div class="descriptionText">${text.export.desc}</div>
-			<form action="" method="post">
-							<p>
-								<input type="submit" name="doExportConfig" value="${text.export.doExport}" />
-							</p>
+		<form action="" method="post">
+			<p>
+				<input type="submit" name="doExportConfig" value="${text.export.doExport}" />
+			</p>
 		</form>	
 				
 		<p><b>${text.import.title}</b></p>
