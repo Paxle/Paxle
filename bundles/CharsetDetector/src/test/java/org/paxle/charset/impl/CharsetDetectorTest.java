@@ -18,6 +18,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import junit.framework.TestCase;
 
@@ -42,14 +44,24 @@ public class CharsetDetectorTest  extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		
-		// init all required classes
+
+		// set detector properties
 		final File mimeTypesFile = new File("src/main/resources/mimeTypes");
-		this.detector = new CharsetDetector(){{
-			this.inspectableMimeTypes = this.readMimeTypeSet(mimeTypesFile.toURI().toURL());
-		}};
+		final Dictionary<String, Object> props = new Hashtable<String, Object>();
+		props.put(CharsetDetector.MIMETYPE_FILE, mimeTypesFile.toURI().toURL().toExternalForm());
+		
+		// create and activate component
+		this.detector = new CharsetDetector();
+		this.detector.activate(props);
 	}
 	
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		
+		// deactivate detector
+		this.detector.deactivate(null);
+	}
 
 	public void testDetectCharsetsFromStream() throws Exception {
 

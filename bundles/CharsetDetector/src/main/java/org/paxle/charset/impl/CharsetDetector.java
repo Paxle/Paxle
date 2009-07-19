@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Dictionary;
 import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
@@ -34,16 +36,48 @@ import org.mozilla.intl.chardet.nsPSMDetector;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.charset.ICharsetDetector;
 
-@Component(immediate=true, metatype=false)
+@Component(immediate=true)
 @Service(ICharsetDetector.class)
-@Property(name="mimeTypeFile", value="/mimeTypes")
 public class CharsetDetector implements ICharsetDetector {
+	
+	@Property(label="Supported MimeTypes", value="/mimeTypes")
+	static final String MIMETYPE_FILE = "org.paxle.charset.impl.CharsetDetector.mimeTypeFile";
+	
+	/**
+	 * For logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
+	
+	/**
+	 * A list of mime-types this component is capable to inspect
+	 */
 	protected HashSet<String> inspectableMimeTypes = null;
 
-	protected void activate(ComponentContext context) {
-		// TODO: mimeTypeFile Property should be used here!
-		URL mimeTypes = context.getBundleContext().getBundle().getEntry("/mimeTypes");
+	protected ComponentContext context;
+	
+	protected void activate(ComponentContext context) throws MalformedURLException {
+		this.context = context;
+		
+		// getting the service properties
+		@SuppressWarnings("unchecked")
+		Dictionary<String, Object> props = context.getProperties();
+		
+		// init this component
+		this.activate(props);
+	}
+		
+	protected void activate(Dictionary<String, Object> props) throws MalformedURLException {
+		// getting the location of the mime-type file
+		String mimeTypeFile = (String) props.get(MIMETYPE_FILE);
+		if (mimeTypeFile == null) mimeTypeFile = "/mimeTypes";
+		
+		URL mimeTypes = null;
+		if (mimeTypeFile.startsWith("/")) {			
+			mimeTypes = this.context.getBundleContext().getBundle().getEntry("/mimeTypes");
+		} else {
+			mimeTypes = new URL(mimeTypeFile);
+		}
+		
 		this.inspectableMimeTypes = this.readMimeTypeSet(mimeTypes);
 	}
 
@@ -58,10 +92,11 @@ public class CharsetDetector implements ICharsetDetector {
 	 */
 	protected HashSet<String> readMimeTypeSet(URL url) {
 		HashSet<String> set = new HashSet<String>();
+		
+		BufferedReader reader = null;
 		try {
-			URLConnection connection = url.openConnection();
-			InputStream connectionIn = connection.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(connectionIn));
+			final URLConnection connection = url.openConnection();
+			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
 			String line = null;		
 			while ((line = reader.readLine())!=null) {
@@ -69,9 +104,10 @@ public class CharsetDetector implements ICharsetDetector {
 			}
 
 			reader.close();
-			connectionIn.close();
 		} catch (Exception e) {
 			this.logger.warn("Unable to read inspectable mimeTypes from " + url,e);
+		} finally {
+			if (reader != null) try { reader.close(); } catch (Exception ignore) {}
 		}
 
 		return set;
