@@ -31,7 +31,6 @@ import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.data.db.ICommandDB;
 import org.xsocket.connection.BlockingConnection;
 import org.xsocket.connection.IBlockingConnection;
-import org.xsocket.connection.IDataHandler;
 
 public class UrlRedirectorServerTest extends MockObjectTestCase {
 	
@@ -71,7 +70,7 @@ public class UrlRedirectorServerTest extends MockObjectTestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-
+		
 		// detemine a free port
 		this.port = findFreePort();
 		
@@ -83,17 +82,10 @@ public class UrlRedirectorServerTest extends MockObjectTestCase {
 		this.refNormalizer = mock(IReferenceNormalizer.class);		
 		this.cmdDB = mock(ICommandDB.class);
 		
-		final IDataHandler urlHandler = new UrlRedirectorHandler() {{
-			this.commandDB = cmdDB;
-			this.referenceNormalizer = refNormalizer;
-			
-			// activate component
-			this.activate((Dictionary)null);
-		}};
-		
 		// create and init server
 		this.server = new UrlRedirectorServer(){{
-			this.urlDataHandler = urlHandler;
+			this.commandDB = cmdDB;
+			this.referenceNormalizer = refNormalizer;
 			
 			// activate component
 			this.activate(props);

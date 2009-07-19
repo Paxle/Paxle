@@ -14,15 +14,22 @@
 package org.paxle.crawler.urlRedirector.impl;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Dictionary;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.osgi.service.component.ComponentContext;
-import org.xsocket.connection.IDataHandler;
+import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.data.db.ICommandDB;
 import org.xsocket.connection.IServer;
 import org.xsocket.connection.Server;
 
@@ -39,8 +46,28 @@ public class UrlRedirectorServer {
 	 */
 	protected IServer srv = null;
 	
-	@Reference(target="(type=UrlRedirectorHandler)", cardinality=ReferenceCardinality.MANDATORY_UNARY)
-	protected IDataHandler urlDataHandler;
+	/**
+	 * Thread pool
+	 */
+	private ThreadPoolExecutor execService;	
+	
+	/**
+	 * The paxle command-DB
+	 */
+	@Reference
+	protected ICommandDB commandDB;
+	
+	/**
+	 * The paxle reference normalizer
+	 */
+	@Reference(cardinality=ReferenceCardinality.MANDATORY_UNARY)
+	protected  IReferenceNormalizer referenceNormalizer;
+	
+	@Reference(target="(type=HttpTester)", cardinality=ReferenceCardinality.OPTIONAL_UNARY)
+	protected IUrlTester httpTester;	
+	
+	@Reference(target="(type=BlacklistTester)", cardinality=ReferenceCardinality.OPTIONAL_UNARY)
+	protected IUrlTester blacklistTester;
 	
 	protected void activate(ComponentContext context) throws UnknownHostException, IOException {
 		// getting the service properties
@@ -55,8 +82,15 @@ public class UrlRedirectorServer {
 		Integer port = (Integer) props.get(PORT);
 		if (port == null) port = Integer.valueOf(8090);
 		
+		// init thread-pool
+		this.execService = new ThreadPoolExecutor(
+				5,20,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>()
+        );		
+		
 		// create server
-		this.srv = new Server(port, this.urlDataHandler);
+		this.srv = new Server(port, new UrlRedirectorHandler(this));
 		
 		// start it
 		this.srv.start();
@@ -66,5 +100,67 @@ public class UrlRedirectorServer {
 		// shutdown the server
 		this.srv.close();
 		this.srv = null;
+		
+		// shutdown thread pool
+		this.execService.shutdown();
+	}
+	
+	void process(String originalURL) {
+		this.execService.execute(new UrlHandlerJob(originalURL));
+	}
+	
+	class UrlHandlerJob implements Runnable {
+		/**
+		 * For logging
+		 */
+		private Log logger = LogFactory.getLog(this.getClass());
+		
+		/**
+		 * The HTTP URI that should be processed
+		 */
+		private String requestUri;
+		
+		public UrlHandlerJob(String url) {
+			this.requestUri = url;
+		}
+		
+		public void run() {
+			// normalize URL
+			final URI normalizedURL = referenceNormalizer.normalizeReference(this.requestUri);
+					
+			// blacklist testing
+			if (blacklistTester != null) {
+				boolean rejected = blacklistTester.reject(normalizedURL);
+				if (rejected) {
+					logger.info(String.format(
+							"Rejecting URL '%s'. URL rejected by blacklist.",
+							this.requestUri
+					));	
+					return;
+				}
+			}
+			
+			// testing http-status and mime-type of URI
+			if (httpTester != null) {
+				boolean rejected = httpTester.reject(normalizedURL);
+				if (rejected) {
+					logger.info(String.format(
+							"Rejecting URL '%s'. URL rejected by http-tester.",
+							this.requestUri
+					));	
+					return;
+				}
+			}
+			
+			// enqueue URL to command-DB
+			boolean enqueued = commandDB.enqueue(normalizedURL, -1, 0);
+			if (!enqueued) {
+				logger.info(String.format(
+						"Rejecting URL '%s'. URL already known to DB.",
+						this.requestUri
+				));		
+			}
+		}
+
 	}
 }

@@ -14,24 +14,13 @@
 package org.paxle.crawler.urlRedirector.impl;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.UnknownHostException;
 import java.nio.BufferUnderflowException;
-import java.util.Dictionary;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.component.ComponentContext;
-import org.paxle.core.norm.IReferenceNormalizer;
-import org.paxle.data.db.ICommandDB;
 import org.xsocket.MaxReadSizeExceededException;
 import org.xsocket.connection.IDataHandler;
 import org.xsocket.connection.INonBlockingConnection;
@@ -43,51 +32,15 @@ import org.xsocket.connection.INonBlockingConnection;
 @Service(IDataHandler.class)
 @Property(name="type", value="UrlRedirectorHandler")
 public class UrlRedirectorHandler implements IDataHandler {
-
-	/**
-	 * The paxle command-DB
-	 */
-	@Reference
-	protected ICommandDB commandDB;
-	
-	/**
-	 * The paxle reference normalizer
-	 */
-	@Reference(cardinality=ReferenceCardinality.MANDATORY_UNARY)
-	protected  IReferenceNormalizer referenceNormalizer;
-	
-	@Reference(target="(type=HttpTester)", cardinality=ReferenceCardinality.OPTIONAL_UNARY)
-	protected IUrlTester httpTester;	
-	
-	@Reference(target="(type=BlacklistTester)", cardinality=ReferenceCardinality.OPTIONAL_UNARY)
-	protected IUrlTester blacklistTester;
+	private final UrlRedirectorServer server;
 	
 	/**
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
-	/**
-	 * Thread pool
-	 */
-	private ThreadPoolExecutor execService;	
-
-	protected void activate(ComponentContext context) throws UnknownHostException, IOException {
-		// getting the service properties
-		@SuppressWarnings("unchecked")
-		Dictionary<String, Object> props = context.getProperties();
-		
-		// init this component
-		this.activate(props);
-	}
-	
-	protected void activate(Dictionary<String, Object> props) throws UnknownHostException, IOException {		
-		// init thread-pool
-		this.execService = new ThreadPoolExecutor(
-				5,20,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>()
-        );
+	public UrlRedirectorHandler(UrlRedirectorServer server) {
+		this.server = server;
 	}
 	
 	/**
@@ -130,58 +83,8 @@ public class UrlRedirectorHandler implements IDataHandler {
 		}				
 
 		// async. processing of the new URL
-		this.execService.execute(new UrlHandlerJob(originalURL));
+		this.server.process(originalURL);
 		
 		return true;
-	}
-	
-	class UrlHandlerJob implements Runnable {
-		/**
-		 * The HTTP URI that should be processed
-		 */
-		private String requestUri;
-		
-		public UrlHandlerJob(String url) {
-			this.requestUri = url;
-		}
-		
-		public void run() {
-			// normalize URL
-			final URI normalizedURL = referenceNormalizer.normalizeReference(this.requestUri);
-					
-			// blacklist testing
-			if (blacklistTester != null) {
-				boolean rejected = blacklistTester.reject(normalizedURL);
-				if (rejected) {
-					logger.info(String.format(
-							"Rejecting URL '%s'. URL rejected by blacklist.",
-							this.requestUri
-					));	
-					return;
-				}
-			}
-			
-			// testing http-status and mime-type of URI
-			if (httpTester != null) {
-				boolean rejected = httpTester.reject(normalizedURL);
-				if (rejected) {
-					logger.info(String.format(
-							"Rejecting URL '%s'. URL rejected by http-tester.",
-							this.requestUri
-					));	
-					return;
-				}
-			}
-			
-			// enqueue URL to command-DB
-			boolean enqueued = commandDB.enqueue(normalizedURL, -1, 0);
-			if (!enqueued) {
-				logger.info(String.format(
-						"Rejecting URL '%s'. URL already known to DB.",
-						this.requestUri
-				));		
-			}
-		}
-
 	}
 }
