@@ -48,12 +48,14 @@
 							<!-- Paxle Core Bundle -->
 							org.paxle.core.doc;version="[0.1.0,0.2.0)",
 							org.paxle.core.norm;version="[0.1.0,0.2.0)",
-							<!-- Paxle DataLayer Bundl -->
+							<!-- Paxle DataLayer Bundle -->
 							org.paxle.data.db;version="[0.1.0,0.2.0)",
+							<!-- Paxle Blacklist Bundle -->
+							org.paxle.filter.blacklist;version="[0.1.0,0.2.0)";resolution:=optional,
 							<!-- Paxle Crawler-Core Bundle -->
 							org.paxle.crawler;version="[0.1.0,0.2.0)",
 							<!-- Apache Commons HttpClient (for http downloads) -->
-							org.apache.commons.httpclient.*;version="3.1.0",
+							org.apache.commons.httpclient.*;version="3.1.0";resolution:=optional,
 							<!-- ignore some packages -->
 							!javax.management, 
 							!javax.net.ssl
@@ -91,6 +93,12 @@
 			<artifactId>DataLayer</artifactId>
 			<version>[0.1.8-SNAPSHOT,0.2.0)</version>
 		</dependency>		
+	
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>FilterBlacklist</artifactId>
+			<version>[0.1.9-SNAPSHOT,0.2.0)</version>
+		</dependency>	
 	
 		<dependency>
 			<groupId>org.xsocket</groupId>

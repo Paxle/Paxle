@@ -13,53 +13,74 @@
  */
 package org.paxle.crawler.urlRedirector.impl;
 
+import java.io.IOException;
 import java.net.ConnectException;
 import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.Dictionary;
 
 import org.apache.commons.httpclient.CircularRedirectException;
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NoHttpResponseException;
 import org.apache.commons.httpclient.methods.HeadMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.crawler.ContentLengthLimitExceededException;
 
-class UrlHandlerJob implements Runnable {
+@Component(immediate=true, metatype=false)
+@Service(IUrlTester.class)
+@Property(name = IUrlTester.TYPE, value = "HttpTester")
+public class HttpTester extends AUrlTester {
+	
 	/**
-	 * 
+	 * http client class
 	 */
-	private final UrlHandler urlHandler;
-
-	private URI requestUri;
+	protected HttpClient httpClient;			
 	
-	private Log logger = LogFactory.getLog(this.getClass());
+	/**
+	 * Connection manager used for http connection pooling
+	 */
+	protected MultiThreadedHttpConnectionManager connectionManager;		
 	
-	public UrlHandlerJob(UrlHandler urlHandler, URI url) {
-		this.urlHandler = urlHandler;
-		this.requestUri = url;
+	protected void activate(ComponentContext context) throws UnknownHostException, IOException {
+		// getting the service properties
+		@SuppressWarnings("unchecked")
+		Dictionary<String, Object> props = context.getProperties();
+		
+		// init this component
+		this.activate(props);
 	}
 	
-	public void run() {
-		// TODO: doing a head request to guess the mime-type
+	protected void activate(Dictionary<String, Object> props) throws UnknownHostException, IOException {
+		// init http-client
+		this.connectionManager = new MultiThreadedHttpConnectionManager();
+		this.httpClient = new HttpClient(this.connectionManager);	
+	}	
+	
+	public boolean reject(URI requestUri) {
+		// doing a head request to determine the mime-type
 		HeadMethod head = null;
 		try {
 			// trying to do a head request
-			head = new HeadMethod(this.requestUri.toString());
-			final int status = this.urlHandler.httpClient.executeMethod(head);
+			head = new HeadMethod(requestUri.toString());
+			final int status = this.httpClient.executeMethod(head);
 			
 			// skipping not OK ressources
 			if (status != HttpStatus.SC_OK) {
 				logger.info(String.format(
 						"Rejecting URL '%s'. Status-Code was: %s",
-						this.requestUri,
+						requestUri,
 						head.getStatusLine()
 				));					
-				return;
+				return true;
 			}
 			
 			// getting mime-type
@@ -73,13 +94,14 @@ class UrlHandlerJob implements Runnable {
 			) {
 				logger.info(String.format(
 						"Rejecting URL '%s'. Unsupported mime-type: %s",
-						this.requestUri,
+						requestUri,
 						mimeType
 				));
-				return;
+				return true;
 			}
 			
-			// TODO: skipping unsupported mime-types
+			// URI seems to be ok
+			return false;
 		} catch (NoRouteToHostException e) {
 			this.logger.warn(String.format("Rejecting URL %s: %s", requestUri, e.getMessage()));
 		} catch (UnknownHostException e) {
@@ -99,23 +121,16 @@ class UrlHandlerJob implements Runnable {
 		} catch (Throwable e) {
 			logger.error(String.format(
 					"Rejecting URL '%s': ",
-					this.requestUri,
+					requestUri,
 					e.getMessage()
 			),e);
 		} finally {
 			if (head != null) head.releaseConnection();
-		}				
-			
+		}	
 		
-		// enqueue URL to command-DB
-		boolean enqueued = this.urlHandler.commandDB.enqueue(requestUri, -1, 0);
-		if (!enqueued) {
-			logger.info(String.format(
-					"Rejecting URL '%s'. URL already known to DB.",
-					this.requestUri
-			));		
-		}
+		return true;
 	}
+
 	
 	private String getMimeType(HeadMethod head) {
 		final Header contentTypeHeader = head.getResponseHeader("Content-Type");
