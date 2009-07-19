@@ -102,7 +102,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 		
 		// checking command location
 		IFilterResult result = this.manager.isListed(command.getLocation().toString(), enabledBlacklistNames);		// XXX should this be .toASCIIString()?
-		if(result.hasStatus(FilterResult.LOCATION_REJECTED)) {
+		if(result.hasStatus(IFilterResult.LOCATION_REJECTED)) {
 			command.setResult(ICommand.Result.Rejected, "rejected by blacklistentry: " + result.getRejectPattern());
 			logger.info(command.getLocation() + " rejected by blacklistentry: " + result.getRejectPattern());
 			return;
@@ -174,7 +174,7 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 			IFilterResult result = this.manager.isListed(location.toString(), enabledBlacklistNames);		// XXX should this be .toASCIIString()?
 			
 			// mark URI as rejected
-			if (result.hasStatus(FilterResult.LOCATION_REJECTED)) {
+			if (result.hasStatus(IFilterResult.LOCATION_REJECTED)) {
 				meta.setStatus(Status.FILTERED, "Rejected by blacklistentry: " + result.getRejectPattern());
 				this.logger.debug(String.format("%s rejected by blacklistentry: %s", location, result.getRejectPattern()));
 				cnt++;

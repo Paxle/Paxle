@@ -17,9 +17,6 @@ import org.paxle.filter.blacklist.IFilterResult;
 
 public class FilterResult implements IFilterResult {
 	
-	public final static int LOCATION_OKAY = 0;
-	public final static int LOCATION_REJECTED = 1;
-	
 	public static final IFilterResult LOCATION_OKAY_RESULT = new FilterResult(LOCATION_OKAY, null);
 	
 	private int status;

@@ -15,6 +15,9 @@ package org.paxle.filter.blacklist;
 
 public interface IFilterResult {
 
+	public static final int LOCATION_OKAY = 0;
+	public static final int LOCATION_REJECTED = 1;
+
 	public int getStatus();
 
 	public boolean hasStatus(int status);

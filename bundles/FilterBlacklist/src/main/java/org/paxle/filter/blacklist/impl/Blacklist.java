@@ -125,7 +125,7 @@ public class Blacklist implements IBlacklist {
 					time = System.currentTimeMillis() - time;
 					logger.debug("Duration in 'isListed()' for blacklistcheck: " + time + " ms . URL: " + url);
 				}
-				return new FilterResult(FilterResult.LOCATION_REJECTED, temp.pattern());
+				return new FilterResult(IFilterResult.LOCATION_REJECTED, temp.pattern());
 			}
 		}
 		if (logger.isDebugEnabled()) {

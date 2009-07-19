@@ -69,7 +69,7 @@ public class BlacklistManager implements IBlacklistManager {
 	public IFilterResult isListed(String url, String[] enabledBlacklistNames) {
 		for (IBlacklist blacklist : this.getEnabledLists(enabledBlacklistNames)) {
 			IFilterResult result = blacklist.isListed(url);
-			if (result.getStatus() == FilterResult.LOCATION_REJECTED)
+			if (result.getStatus() == IFilterResult.LOCATION_REJECTED)
 				return result;
 		}
 		return FilterResult.LOCATION_OKAY_RESULT;
