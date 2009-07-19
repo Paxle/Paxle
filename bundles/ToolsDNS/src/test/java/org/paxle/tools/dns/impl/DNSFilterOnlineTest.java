@@ -25,6 +25,7 @@ import org.paxle.core.doc.impl.BasicParserDocument;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.tools.dns.IAddressTool;
 
 public class DNSFilterOnlineTest extends MockObjectTestCase {
 	private IFilter<ICommand> filter;
@@ -32,9 +33,16 @@ public class DNSFilterOnlineTest extends MockObjectTestCase {
 	@Override
 	protected void setUp() throws Exception {	
 		super.setUp();
+
+		// init dns-tool
+		final IAddressTool dnsTool = new AddressTool() {{
+			this.activate(mock(ComponentContext.class, "dnsToolContext"));
+		}};
 		
+		// init dns-filter
 		this.filter = new DNSFilter() {{
-			this.activate(mock(ComponentContext.class));
+			this.dns = dnsTool;
+			this.activate(mock(ComponentContext.class, "dnsFilterContext"));
 		}};
 	}
 	
