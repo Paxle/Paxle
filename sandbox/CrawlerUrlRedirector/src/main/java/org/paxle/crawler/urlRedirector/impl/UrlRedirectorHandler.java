@@ -18,9 +18,6 @@ import java.nio.BufferUnderflowException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Service;
 import org.xsocket.MaxReadSizeExceededException;
 import org.xsocket.connection.IDataHandler;
 import org.xsocket.connection.INonBlockingConnection;
@@ -28,9 +25,6 @@ import org.xsocket.connection.INonBlockingConnection;
 /**
  * http://wiki.squid-cache.org/Features/Redirectors
  */
-@Component(immediate=true, metatype=false)
-@Service(IDataHandler.class)
-@Property(name="type", value="UrlRedirectorHandler")
 public class UrlRedirectorHandler implements IDataHandler {
 	private final UrlRedirectorServer server;
 	

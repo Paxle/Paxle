@@ -14,15 +14,12 @@
 package org.paxle.crawler.urlRedirector.impl;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Dictionary;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
@@ -106,61 +103,6 @@ public class UrlRedirectorServer {
 	}
 	
 	void process(String originalURL) {
-		this.execService.execute(new UrlHandlerJob(originalURL));
-	}
-	
-	class UrlHandlerJob implements Runnable {
-		/**
-		 * For logging
-		 */
-		private Log logger = LogFactory.getLog(this.getClass());
-		
-		/**
-		 * The HTTP URI that should be processed
-		 */
-		private String requestUri;
-		
-		public UrlHandlerJob(String url) {
-			this.requestUri = url;
-		}
-		
-		public void run() {
-			// normalize URL
-			final URI normalizedURL = referenceNormalizer.normalizeReference(this.requestUri);
-					
-			// blacklist testing
-			if (blacklistTester != null) {
-				boolean rejected = blacklistTester.reject(normalizedURL);
-				if (rejected) {
-					logger.info(String.format(
-							"Rejecting URL '%s'. URL rejected by blacklist.",
-							this.requestUri
-					));	
-					return;
-				}
-			}
-			
-			// testing http-status and mime-type of URI
-			if (httpTester != null) {
-				boolean rejected = httpTester.reject(normalizedURL);
-				if (rejected) {
-					logger.info(String.format(
-							"Rejecting URL '%s'. URL rejected by http-tester.",
-							this.requestUri
-					));	
-					return;
-				}
-			}
-			
-			// enqueue URL to command-DB
-			boolean enqueued = commandDB.enqueue(normalizedURL, -1, 0);
-			if (!enqueued) {
-				logger.info(String.format(
-						"Rejecting URL '%s'. URL already known to DB.",
-						this.requestUri
-				));		
-			}
-		}
-
+		this.execService.execute(new UrlHandlerJob(this, originalURL));
 	}
 }
