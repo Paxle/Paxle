@@ -18,6 +18,10 @@ import java.io.IOException;
 
 import org.paxle.core.io.temp.ITempDir;
 
+/**
+ * This implementation uses the system/Java default temp dir to store the temp files on disk
+ * @see FSTempDir
+ */
 public class DefaultTempDir extends ATempDir implements ITempDir {
 	
 	public DefaultTempDir() {

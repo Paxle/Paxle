@@ -138,7 +138,7 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 	}
 	
 	/**
-	 * This function is used for testing only
+	 * Checks if this ParserDocument is held in memory or on disk
 	 */
 	boolean inMemory() {
 		if (this.os != null && this.os instanceof InMemoryOutputStream) {

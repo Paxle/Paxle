@@ -25,6 +25,7 @@ public abstract class ATempDir implements ITempDir {
 	protected static final AtomicInteger num = new AtomicInteger(0);
 	protected static int numLength = 3;
 	
+	/** Prefix for the generated temp file names in this directory, can be null */
 	protected final String prefix;
 	
 	public ATempDir(String prefix) {

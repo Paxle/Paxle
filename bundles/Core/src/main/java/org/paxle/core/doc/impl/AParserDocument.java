@@ -443,28 +443,12 @@ abstract class AParserDocument implements IParserDocument {
 	public abstract Appendable append(CharSequence csq) throws IOException;
 	
 	public abstract Appendable append(CharSequence csq, int start, int end) throws IOException;		
-	
-	/**
-	 * {@inheritDoc}
-	 * @see IParserDocument#setTextFile(File)
-	 */
+
 	public abstract void setTextFile(File file) throws IOException;		
-	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.core.doc.IParserDocument#getTextFile()
-	 */
+
 	public abstract File getTextFile() throws IOException;		
-	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#getText()
-	 */
+
 	public abstract Reader getTextAsReader() throws IOException;
 	
-	/**
-	 * {@inheritDoc}
-	 * @see java.io.Closeable#close()
-	 */
 	public abstract void close() throws IOException;
 }

@@ -17,8 +17,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+/**
+ * Represents a directory which is used to store temporary files in it
+ */
 public interface ITempDir {
 	
+	/**
+	 * Tries to create a new temporary file with the given pre- and suffix in this directory
+	 * @param prefix
+	 * @param suffix
+	 * @return the <code>File</code> object of the new temp file
+	 * @throws IOException
+	 */
 	public File createTempFile(String prefix, String suffix) throws IOException;
 	
 	/**

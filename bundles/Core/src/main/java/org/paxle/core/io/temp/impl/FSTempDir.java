@@ -20,6 +20,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.io.temp.ITempDir;
 
+/**
+ * Implements a temp store in the given directory (which can be different from the system default temp dir)
+ * @see DefaultTempDir
+ */
 public class FSTempDir extends ATempDir implements ITempDir {
 	
 	private final File directory;
@@ -30,7 +34,7 @@ public class FSTempDir extends ATempDir implements ITempDir {
 		this.directory = dir;
 		if (!dir.exists())
 			if (!dir.mkdirs())
-				throw new IOException("Couldn't create directory for temporay files: " + dir);
+				throw new IOException("Couldn't create directory for temporary files: " + dir);
 	}
 	
 	public FSTempDir(File dir) throws IOException {

@@ -36,6 +36,10 @@ public class BasicParserDocument extends AParserDocument {
 		this.tempFileManager = tempFileManager;
 	}
 	
+	/**
+	 * Ensures proper setup of content output writer 
+	 * @throws IOException
+	 */
 	private void checkContentOut() throws IOException {
 		if (this.content == null) {
 			this.content = this.tempFileManager.createTempFile();

@@ -63,6 +63,9 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	 */
 	private final Hashtable<File,ITempDir> fileMap = new Hashtable<File,ITempDir>();
 	
+	/**
+	 * This is the default directory used to store temporary files
+	 */
 	private final ITempDir defaultDir;
 	
 	public TempFileManager(ITempDir defaultDir) {
@@ -104,7 +107,10 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	}
 	
 	public void releaseTempFile(File file) throws FileNotFoundException, IOException {
-		if (!this.isKnown(file)) return;
+		if (!this.isKnown(file)) {
+			this.logger.warn("Tried to release unknown temp file '" + file + "'");
+			return;
+		}
 		
 		// getting the temp-dir where the temp-file is stored in
 		final ITempDir dir = this.fileMap.remove(file);
