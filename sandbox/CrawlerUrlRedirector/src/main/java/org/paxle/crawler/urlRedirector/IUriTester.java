@@ -11,14 +11,15 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.crawler.urlRedirector.impl;
+package org.paxle.crawler.urlRedirector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.net.URI;
 
-public abstract class AUrlTester implements IUrlTester {	
-	/**
-	 * For logging
-	 */
-	protected Log logger = LogFactory.getLog(this.getClass());
+/**
+ * This is an internal interface. Do not export it!
+ */
+public interface IUriTester {
+	public static final String TYPE = "IUrlTester.type";
+	
+	public boolean reject(URI location);
 }

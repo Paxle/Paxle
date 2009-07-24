@@ -61,7 +61,8 @@
 							!javax.net.ssl
 						</Import-Package>
 						<Private-Package>
-							org.paxle.crawler.urlRedirector.impl
+							org.paxle.crawler.urlRedirector.impl,
+							org.paxle.crawler.urlRedirector.impl.testers
 						</Private-Package>
 						
 						<Embed-StripGroup>true</Embed-StripGroup>

@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.crawler.urlRedirector.impl;
+package org.paxle.crawler.urlRedirector.impl.testers;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -34,10 +34,14 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.crawler.ContentLengthLimitExceededException;
+import org.paxle.crawler.urlRedirector.IUriTester;
 
+/**
+ * A component to test and reject {@link URI} based on their http-status
+ */
 @Component(immediate=true, metatype=false)
-@Service(IUrlTester.class)
-@Property(name = IUrlTester.TYPE, value = "HttpTester")
+@Service(IUriTester.class)
+@Property(name = IUriTester.TYPE, value = "HttpTester")
 public class HttpTester extends AUrlTester {
 	
 	/**
@@ -87,7 +91,8 @@ public class HttpTester extends AUrlTester {
 			final String mimeType = this.getMimeType(head);
 			
 			// skipping images / css
-			if (mimeType.startsWith("image/") || 
+			if (mimeType == null ||
+				mimeType.startsWith("image/") || 
 				mimeType.equalsIgnoreCase("text/css") || 
 				mimeType.equalsIgnoreCase("text/javascript") ||
 				mimeType.equalsIgnoreCase("application/x-javascript")

@@ -14,9 +14,11 @@
 package org.paxle.crawler.urlRedirector.impl;
 
 import java.net.URI;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.crawler.urlRedirector.IUriTester;
 
 class UrlHandlerJob implements Runnable {
 	/**
@@ -43,25 +45,15 @@ class UrlHandlerJob implements Runnable {
 		// normalize URL
 		final URI normalizedURL = this.urlRedirectorServer.referenceNormalizer.normalizeReference(this.requestUri);
 				
-		// blacklist testing
-		if (this.urlRedirectorServer.blacklistTester != null) {
-			boolean rejected = this.urlRedirectorServer.blacklistTester.reject(normalizedURL);
+		// test URI against all testers
+		final List<IUriTester> uriTesters = this.urlRedirectorServer.getUriTesters();
+		for (IUriTester tester : uriTesters) {
+			boolean rejected = tester.reject(normalizedURL);
 			if (rejected) {
 				logger.info(String.format(
-						"Rejecting URL '%s'. URL rejected by blacklist.",
-						this.requestUri
-				));	
-				return;
-			}
-		}
-		
-		// testing http-status and mime-type of URI
-		if (this.urlRedirectorServer.httpTester != null) {
-			boolean rejected = this.urlRedirectorServer.httpTester.reject(normalizedURL);
-			if (rejected) {
-				logger.info(String.format(
-						"Rejecting URL '%s'. URL rejected by http-tester.",
-						this.requestUri
+						"Rejecting URL '%s'. URL rejected by tester '%s'.",
+						this.requestUri,
+						tester.getClass().getName()
 				));	
 				return;
 			}
