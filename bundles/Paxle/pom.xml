@@ -543,6 +543,17 @@
 									<destFileName>org.karlchenofhell.swf-0.1.jar</destFileName>
 								</artifactItem>
 								
+								<!-- XSocket related dependencies -->
+								<!--  TODO
+								<artifactItem>
+									<groupId>org.xsocket</groupId>
+									<artifactId>xSocket</artifactId>
+									<version>2.5.3</version>
+									<outputDirectory>${equinox.dependencies}</outputDirectory>
+									<destFileName>org.xsocket.xSocket-2.5.3.jar</destFileName>
+								</artifactItem>								
+								 -->
+								
 								<!-- JDOM -->
 								<artifactItem>
 									<groupId>org.jdom</groupId>
@@ -848,6 +859,7 @@
 				<module>../CrawlerSmb</module>
 				<module>../CrawlerProxyHttp</module>
 				<module>../CrawlerFs</module>
+				<module>../CrawlerUrlRedirector</module>
 			</modules>			
 		</profile>
 
