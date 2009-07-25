@@ -27,6 +27,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.Services;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
@@ -36,6 +41,15 @@ import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandTracker;
 import org.paxle.core.filter.CommandFilterEvent;
 
+/**
+ * A component used to track {@link org.paxle.core.doc.ICommand commands}
+ */
+@Component(immediate=true, metatype=false)
+@Services({
+	@Service(ICommandTracker.class),
+	@Service(EventHandler.class)
+})
+@Property(name=EventConstants.EVENT_TOPIC, value={CommandEvent.TOPIC_ALL})
 public class CommandTracker extends Thread implements ICommandTracker, EventHandler {
 	/**
 	 * Maximum time in ms an already destroyed {@link ICommand} is kept in the
@@ -64,7 +78,8 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	 * The OSGi event-admin service. We use it to send events via
 	 * {@link #commandCreated(String, ICommand)} and {@link #commandDestroyed(String, ICommand)}.
 	 */
-	private final EventAdmin eventService;
+	@org.apache.felix.scr.annotations.Reference
+	protected EventAdmin eventService;
 
 	/**
 	 * A queue containing  {@link WeakReference weak-references} to 
@@ -74,7 +89,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	 * {@link ICommand Commands} that are receive via this queue were not 
 	 * released properly via a call of {@link #commandDestroyed(String, ICommand)}.
 	 */
-	private final ReferenceQueue<ICommand> refQueue;
+	private ReferenceQueue<ICommand> refQueue;
 
 	/**
 	 * A command-lookup table. Keys are the {@Link ICommand#getOID() command-IDs},
@@ -85,7 +100,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	 * to call {@link #commandDestroyed(String, ICommand)} after the processing of a
 	 * {@link ICommand} has finished.
 	 */
-	private final Hashtable<Long, WeakReference<ICommand>> commandIDTable;
+	private Hashtable<Long, WeakReference<ICommand>> commandIDTable;
 
 	/**
 	 * A command-lookup table. Keys are the {@Link ICommand#getLocation() command-locations},
@@ -96,7 +111,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	 * to call {@link #commandDestroyed(String, ICommand)} after the processing of a
 	 * {@link ICommand} has finished.
 	 */
-	private final Hashtable<URI, WeakReference<ICommand>> commandLocationTable;
+	private Hashtable<URI, WeakReference<ICommand>> commandLocationTable;
 
 	/**
 	 * This list is used to ensure that a reference is kept to a {@link ICommand} to avoid
@@ -106,20 +121,13 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	 * sorted by the timestamps. Commands that are older than {@link #MAX_HOLDBACK_TIME} 
 	 * were removed from this list allowing the gc to free the object.
 	 */
-	private final LinkedList<DestroyedCommandData> destroyedCommandMap;
+	private LinkedList<DestroyedCommandData> destroyedCommandMap;
 
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();	
 
-	/**
-	 * @param eventService the OSGi event-admin service. This is required to send out events 
-	 * when calling {@link #commandCreated(String, ICommand)} and {@link #commandDestroyed(String, ICommand)}
-	 */
-	public CommandTracker(EventAdmin eventService) {
-		if (eventService == null) throw new NullPointerException("The event-service is null.");
-
-		this.eventService = eventService;
+	protected void activate(ComponentContext context) {
 		this.refQueue = new ReferenceQueue<ICommand>();
 
 		this.commandIDTable = new Hashtable<Long, WeakReference<ICommand>>();
@@ -240,7 +248,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	 * Terminates the {@link #run() cleanup-thread}
 	 * @throws InterruptedException
 	 */
-	public void terminate() throws InterruptedException {
+	protected void deactivate(ComponentContext context) throws InterruptedException {
 		this.interrupt();
 		this.join(2000);
 	}

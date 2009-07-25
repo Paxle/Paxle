@@ -37,12 +37,15 @@ public class CommandTrackerTest extends MockObjectTestCase {
 		super.setUp();
 		this.rand = new Random();
 		this.eAdmin = mock(EventAdmin.class);
-		this.tracker = new CommandTracker(this.eAdmin);		
+		this.tracker = new CommandTracker(){{
+			this.eventService = eAdmin;
+			this.activate(null);
+		}};
 	}
 	
 	@Override
 	protected void tearDown() throws Exception {	
-		this.tracker.terminate();
+		this.tracker.deactivate(null);
 		super.tearDown();
 	}
 	

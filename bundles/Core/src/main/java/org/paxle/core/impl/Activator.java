@@ -36,9 +36,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.prefs.PreferencesService;
@@ -49,10 +46,7 @@ import org.paxle.core.data.IDataSink;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.data.impl.DataListener;
 import org.paxle.core.data.impl.DataManager;
-import org.paxle.core.doc.CommandEvent;
 import org.paxle.core.doc.ICommand;
-import org.paxle.core.doc.ICommandTracker;
-import org.paxle.core.doc.impl.CommandTracker;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.impl.FilterListener;
@@ -63,7 +57,6 @@ import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.io.impl.ResourceBundleTool;
 import org.paxle.core.io.impl.ResourceBundleToolFactory;
 import org.paxle.core.io.temp.ITempFileManager;
-import org.paxle.core.io.temp.impl.CommandTempReleaser;
 import org.paxle.core.io.temp.impl.TempFileManager;
 import org.paxle.core.monitorable.observer.IObserver;
 import org.paxle.core.monitorable.observer.impl.MonitorableObserver;
@@ -104,11 +97,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 	 * A component to normalize URLs
 	 */
 	private ReferenceNormalizer referenceNormalizer = null;
-	
-	/**
-	 * A component used to track {@link org.paxle.core.doc.ICommand commands}
-	 */
-	private CommandTracker commandTracker = null;
 	
 	/**
 	 * For logging
@@ -212,19 +200,6 @@ public class Activator implements BundleActivator, InvocationHandler {
         
         // register rb-tool
         bc.registerService(IResourceBundleTool.class.getName(), new ResourceBundleToolFactory(), null);
-        
-        // getting the Event-Admin service
-        ServiceReference eventAdminRef = bc.getServiceReference(EventAdmin.class.getName());
-        if (eventAdminRef != null) {
-        	EventAdmin eventAdmin = (EventAdmin) bc.getService(eventAdminRef);
-        	
-	        // the command-tracker
-	        final Hashtable<String, Object> trackerProps = new Hashtable<String, Object>();
-	        trackerProps.put(EventConstants.EVENT_TOPIC, new String[]{CommandEvent.TOPIC_ALL});
-	        bc.registerService(new String[]{EventHandler.class.getName(),ICommandTracker.class.getName()}, this.commandTracker = new CommandTracker(eventAdmin), trackerProps);
-        } else {
-        	this.logger.warn("No EventAdmin-service found. Command-tracking will not work.");
-        }
         
         this.initEclipseApplication(bc);
 	}
@@ -406,9 +381,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 		this.dataManager = null;
 		this.filterManager.close();
 		this.filterManager = null;
-		if (this.commandTracker != null) {
-			this.commandTracker.terminate();
-		}
 	}
 
 	/**
