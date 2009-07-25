@@ -23,7 +23,9 @@ import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.crawler.impl.ACrawlerTest;
 
 public class HttpCrawlerTest extends ACrawlerTest {
-
+	private static final String TESTFILE_MIMETYPE = "text/html";
+	private static final String TESTFILE_NAME = "test1.html";
+	
 	private ServletTester tester;
 	private HttpCrawler crawler = null;
 	private String servletURL = null;
@@ -50,16 +52,16 @@ public class HttpCrawlerTest extends ACrawlerTest {
 	}
 	
 	public void testDownloadHtmlResourceOK() throws Exception {
-		this.tester.setAttribute(DummyServlet.ATTR_FILE_NAME, "test1.html");
-		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, "text/html");
-		this.tester.setAttribute(DummyServlet.ATTR_FILE_CHARSET, "iso-8859-1");
+		this.tester.setAttribute(DummyServlet.ATTR_FILE_NAME, TESTFILE_NAME);
+		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, TESTFILE_MIMETYPE);
+		this.tester.setAttribute(DummyServlet.ATTR_FILE_CHARSET, "utf-8");
 		
 		// do some crawling
 		this.crawlerDoc = this.crawler.request(URI.create(this.servletURL));
 		assertNotNull(this.crawlerDoc);
 		assertEquals(ICrawlerDocument.Status.OK, this.crawlerDoc.getStatus());
-		assertEquals("text/html", this.crawlerDoc.getMimeType());
-		assertEquals("iso-8859-1", this.crawlerDoc.getCharset());
+		assertEquals(TESTFILE_MIMETYPE, this.crawlerDoc.getMimeType());
+		assertEquals("utf-8", this.crawlerDoc.getCharset());
 	}
 	
 	public void testDownloadNotFoundResource() {
@@ -91,7 +93,7 @@ public class HttpCrawlerTest extends ACrawlerTest {
 	
 	public void testMaxDownloadSizeExceeded() {
 		this.tester.setAttribute(DummyServlet.ATTR_FILE_SIZE, Integer.valueOf(1200));
-		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, "text/html");
+		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, TESTFILE_MIMETYPE);
 		
 		// change crawler settings
 		Dictionary<String, Object> props = this.crawler.getDefaults();
@@ -106,7 +108,7 @@ public class HttpCrawlerTest extends ACrawlerTest {
 	
 	public void testMaxDownloadSizeExceededTransferEncoding() {	
 		this.tester.setAttribute(DummyServlet.ATTR_FILE_SIZE, Integer.valueOf(-1200));
-		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, "text/html");
+		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, TESTFILE_MIMETYPE);
 		
 		// change crawler settings
 		Dictionary<String, Object> props = this.crawler.getDefaults();
