@@ -51,13 +51,7 @@ import org.paxle.core.data.impl.DataListener;
 import org.paxle.core.data.impl.DataManager;
 import org.paxle.core.doc.CommandEvent;
 import org.paxle.core.doc.ICommand;
-import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandTracker;
-import org.paxle.core.doc.ICrawlerDocument;
-import org.paxle.core.doc.IDocumentFactory;
-import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.core.doc.impl.CommandTracker;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterManager;
@@ -141,7 +135,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 	 * This function is called by the osgi-framework to start the bundle.
 	 * @see BundleActivator#start(BundleContext) 
 	 */	
-	@SuppressWarnings("serial")
 	public void start(BundleContext bc) throws Exception {
 		// init logger
 		this.logger = LogFactory.getLog(this.getClass());
