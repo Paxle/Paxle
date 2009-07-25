@@ -61,7 +61,6 @@ import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.core.doc.impl.CommandTracker;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterManager;
-import org.paxle.core.filter.impl.AscendingPathUrlExtractionFilter;
 import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
 import org.paxle.core.io.IIOTools;
@@ -228,22 +227,6 @@ public class Activator implements BundleActivator, InvocationHandler {
         
         // register rb-tool
         bc.registerService(IResourceBundleTool.class.getName(), new ResourceBundleToolFactory(), null);
-        
-        // add AscendingPathUrlExtraction filter
-        bc.registerService(IFilter.class.getName(), new AscendingPathUrlExtractionFilter(), new Hashtable<String, Object>(){{
-        	// service ID
-        	put(Constants.SERVICE_PID, AscendingPathUrlExtractionFilter.class.getName());
-        	
-        	// filter properties
-        	put(IFilter.PROP_FILTER_TARGET, new String[] {
-            		// apply filter to the parser-output-queue at position 60
-            		String.format("org.paxle.parser.out; %s=%d;",IFilter.PROP_FILTER_TARGET_POSITION, Integer.valueOf(60))
-            });
-        	
-        	// meta-data service properties
-            put("org.paxle.metadata",Boolean.TRUE);
-            put("org.paxle.metadata.localization","/OSGI-INF/l10n/AscendingPathUrlExtractionFilter");        	
-        }});
         
         // getting the Event-Admin service
         ServiceReference eventAdminRef = bc.getServiceReference(EventAdmin.class.getName());

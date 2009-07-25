@@ -18,11 +18,27 @@ import java.net.URISyntaxException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.filter.FilterQueuePosition;
+import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 
+@Component(immediate=true, metatype=false)
+@Service(IFilter.class)
+@Properties({
+	@Property(name="org.paxle.metadata", boolValue=true),
+	@Property(name="org.paxle.metadata.localization", value="/OSGI-INF/l10n/AscendingPathUrlExtractionFilter")
+})
+@FilterTarget(@FilterQueuePosition(
+		queue = "org.paxle.parser.out", 
+		position = 60)
+)
 public class AscendingPathUrlExtractionFilter implements IFilter<ICommand> {
 
 	private Log logger = LogFactory.getLog(this.getClass());
