@@ -5,7 +5,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.33-SNAPSHOT</version>
+	<version>0.1.34-SNAPSHOT</version>
 	<name>Paxle - Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -82,6 +82,7 @@
 						</DynamicImport-Package>
 						<Private-Package>
 							org.paxle.core.impl,
+							org.paxle.core.crypt.impl,
 							org.paxle.core.data.impl,
 							org.paxle.core.doc.impl,
 							org.paxle.core.filter.impl,

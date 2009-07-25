@@ -17,6 +17,9 @@ import java.util.Collection;
 
 import org.paxle.core.crypt.ICrypt;
 
+/**
+ * A component providing cypt-functions, e.g. to genererate MD5 checksums, etc.
+ */
 public interface ICryptManager {
 	
 	public ICrypt getCrypt(String name);

@@ -42,7 +42,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.prefs.PreferencesService;
-import org.paxle.core.ICryptManager;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataProvider;
@@ -102,12 +101,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 	 * </ul>
 	 */
 	private DataManager<ICommand> dataManager = null;
-	
-	/**
-	 * A component providing cypt-functions, e.g. 
-	 * to genererate MD5 checksums, etc.
-	 */
-	private CryptManager cryptManager = null;
 	
 	/**
 	 * A component to create (and cleanup) temp-files
@@ -186,7 +179,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 		
 		dataManager = new DataManager<ICommand>();
 		tempFileManager = new TempFileManager();
-		cryptManager = new CryptManager();
 		referenceNormalizer = new ReferenceNormalizer();
 
 		
@@ -203,9 +195,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 //		bc.addServiceListener(dataListener,DataListener.DATASINK_FILTER);
 //		bc.addServiceListener(dataListener,DataListener.DATAPROVIDER_FILTER);
 //		bc.addServiceListener(dataListener,DataListener.DATACONSUMER_FILTER);
-		
-		final CryptListener cryptListener = new CryptListener(bc, this.cryptManager);
-		bc.addServiceListener(cryptListener, CryptListener.FILTER);
 		
 		/* ==========================================================
 		 * Register Services
@@ -229,9 +218,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 		// register the master-worker-factory as a service
 		bc.registerService(IMWComponentFactory.class.getName(), new MWComponentServiceFactory(
 				rbTool.getLocaleArray(MWComponent.class.getSimpleName(), Locale.ENGLISH)), null);
-		
-		// register crypt-manager
-		bc.registerService(ICryptManager.class.getName(), this.cryptManager, null);
 		
 		// register protocol-handlers listener which updates the table of known protocols for the reference normalization filter below
 		final ServiceListener protocolUpdater = new URLStreamHandlerListener(bc, ReferenceNormalizer.DEFAULT_PORTS);
