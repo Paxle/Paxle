@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>CryptUtils</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Tools: CryptUtils</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -46,9 +46,6 @@
 							org.paxle.crypt.impl,
 							org.paxle.crypt.impl.md5
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.crypt.impl.Activator
-						</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>
