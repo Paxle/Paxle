@@ -21,7 +21,12 @@ import java.util.Queue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.paxle.core.doc.CommandEvent;
 import org.paxle.core.doc.ICommand;
@@ -30,6 +35,12 @@ import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 
+/**
+ * This component releases all the temporary files associated with a command on desctruction of the latter object
+ */
+@Component(immediate=true, metatype=false)
+@Service(EventHandler.class)
+@Property(name=EventConstants.EVENT_TOPIC, value={CommandEvent.TOPIC_DESTROYED})
 public class CommandTempReleaser implements EventHandler {
 	
 	/**
@@ -37,13 +48,11 @@ public class CommandTempReleaser implements EventHandler {
 	 */
 	private final Log logger = LogFactory.getLog(CommandTempReleaser.class);
 		
-	private final ICommandTracker tracker;
-	private final ITempFileManager tfm;
+	@Reference
+	protected ICommandTracker tracker;
 	
-	public CommandTempReleaser(final ITempFileManager tfm, final ICommandTracker tracker) {
-		this.tfm = tfm;
-		this.tracker = tracker;
-	}
+	@Reference
+	protected ITempFileManager tfm;
 	
 	private void releaseCommandFiles(final ICommand cmd, final Long id) {
 		try {

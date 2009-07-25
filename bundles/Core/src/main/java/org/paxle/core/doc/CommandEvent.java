@@ -31,7 +31,7 @@ public class CommandEvent {
 	/* ======================================================================
 	 * Event Topics
 	 * ====================================================================== */
-	public static final String TOPIC_ = CommandEvent.class.getName().replace('.', '/') + "/";
+	public static final String TOPIC_ = "org/paxle/core/doc/CommandEvent/";
 	
 	public static final String TOPIC_ALL = TOPIC_ + "*";
 	

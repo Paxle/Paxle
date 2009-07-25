@@ -111,11 +111,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 	private CommandTracker commandTracker = null;
 	
 	/**
-	 * This component releases all the temporary files associated with a command on desctruction of the latter object
-	 */
-	private CommandTempReleaser commandReleaser = null;
-	
-	/**
 	 * For logging
 	 */
 	private Log logger;
@@ -227,12 +222,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 	        final Hashtable<String, Object> trackerProps = new Hashtable<String, Object>();
 	        trackerProps.put(EventConstants.EVENT_TOPIC, new String[]{CommandEvent.TOPIC_ALL});
 	        bc.registerService(new String[]{EventHandler.class.getName(),ICommandTracker.class.getName()}, this.commandTracker = new CommandTracker(eventAdmin), trackerProps);
-	        
-	        // the command temp releaser
-	        commandReleaser = new CommandTempReleaser(tempFileManager, commandTracker);
-	        final Hashtable<String,Object> releaserProps = new Hashtable<String,Object>();
-	        releaserProps.put(EventConstants.EVENT_TOPIC, new String[] { CommandEvent.TOPIC_DESTROYED });
-	        bc.registerService(EventHandler.class.getName(), commandReleaser, releaserProps);
         } else {
         	this.logger.warn("No EventAdmin-service found. Command-tracking will not work.");
         }
@@ -420,7 +409,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 		if (this.commandTracker != null) {
 			this.commandTracker.terminate();
 		}
-		this.commandReleaser = null;
 	}
 
 	/**
