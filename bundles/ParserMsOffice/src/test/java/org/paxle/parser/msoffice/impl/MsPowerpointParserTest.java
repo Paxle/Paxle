@@ -20,13 +20,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+
+import junitx.framework.ListAssert;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.impl.AParserTest;
-
-import junitx.framework.ListAssert;
 
 public class MsPowerpointParserTest extends AParserTest {
 

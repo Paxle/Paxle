@@ -19,11 +19,10 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.paxle.core.io.IIOTools;
-import org.paxle.core.io.IOTools;
-
 import junit.framework.TestCase;
 import junitx.framework.ArrayAssert;
+
+import org.paxle.core.io.IIOTools;
 
 
 public class IconToolTest extends TestCase {
