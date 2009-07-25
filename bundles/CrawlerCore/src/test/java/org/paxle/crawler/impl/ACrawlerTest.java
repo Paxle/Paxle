@@ -68,7 +68,9 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 		org.paxle.core.io.IOTools.setTempFileManager(this.aTempManager);
 
 		// a dummy doc factory
-		this.docFactory = new BasicDocumentFactory(this.aTempManager);
+		this.docFactory = new BasicDocumentFactory(){{
+			this.tempFileManager = aTempManager;
+		}};
 		
 		// initializing the crawler context
 		CrawlerContextLocal threadLocal = new TestCrawlerContextLocal(mimeTypes, this.aTempManager);

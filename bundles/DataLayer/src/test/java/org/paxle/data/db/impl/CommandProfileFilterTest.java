@@ -29,7 +29,6 @@ import org.paxle.core.doc.LinkInfo.Status;
 import org.paxle.core.doc.impl.BasicCommand;
 import org.paxle.core.doc.impl.BasicCommandProfile;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
-import org.paxle.core.io.temp.ITempFileManager;
 
 public class CommandProfileFilterTest extends MockObjectTestCase {
 	private CommandProfileFilter filter;
@@ -40,7 +39,7 @@ public class CommandProfileFilterTest extends MockObjectTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.manager = mock(ICommandProfileManager.class);
-		this.profileFactory = new BasicDocumentFactory(mock(ITempFileManager.class));
+		this.profileFactory = new BasicDocumentFactory();
 		this.filter = new CommandProfileFilter(this.manager,this.profileFactory);
 	}
 	

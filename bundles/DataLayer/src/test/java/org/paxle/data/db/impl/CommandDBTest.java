@@ -37,7 +37,6 @@ import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandTracker;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
-import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.threading.PPM;
 
 public class CommandDBTest extends MockObjectTestCase {
@@ -73,7 +72,7 @@ public class CommandDBTest extends MockObjectTestCase {
 		
 		List<URL> mappingFileURLs = new ArrayList<URL>();
 		for (File mappingFile : mappingFiles) {
-			mappingFileURLs.add(mappingFile.toURL());
+			mappingFileURLs.add(mappingFile.toURI().toURL());
 		}
 		
 		return mappingFileURLs;
@@ -86,7 +85,7 @@ public class CommandDBTest extends MockObjectTestCase {
 	private URL getConfigFile(String configFile) throws MalformedURLException {
 		final File derbyConfigFile = new File(configFile);
 		assertTrue(derbyConfigFile.exists());
-		return derbyConfigFile.toURL();
+		return derbyConfigFile.toURI().toURL();
 	}	
 	
 	/**
@@ -116,7 +115,7 @@ public class CommandDBTest extends MockObjectTestCase {
 		this.cmdTracker = mock(ICommandTracker.class);
 		
 		// a doc-factory
-		this.cmdFactory = new BasicDocumentFactory(mock(ITempFileManager.class));
+		this.cmdFactory = new BasicDocumentFactory();
 		
 		// delete dirs
 		this.deleteTestDataDirs();

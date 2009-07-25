@@ -27,14 +27,16 @@ import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.io.temp.impl.TempFileManager;
 
 public class BasicDocumentFactoryTest extends TestCase {
-	private ITempFileManager tempFileManager;
+	private ITempFileManager tmpFileManager;
 	private IDocumentFactory docFactory;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.tempFileManager = new TempFileManager();
-		this.docFactory = new BasicDocumentFactory(this.tempFileManager);
+		this.tmpFileManager = new TempFileManager();
+		this.docFactory = new BasicDocumentFactory() {{
+			this.tempFileManager = tmpFileManager;
+		}};
 	}
 	
 	public void testCreateCommand() throws IOException {

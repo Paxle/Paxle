@@ -16,8 +16,13 @@ package org.paxle.core.doc.impl;
 import java.io.IOException;
 import java.util.HashSet;
 
-import javax.annotation.Nonnull;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICrawlerDocument;
@@ -26,7 +31,22 @@ import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 
+@Component(immediate=true, metatype=false)
+@Service(IDocumentFactory.class)
+@Property(
+	name = IDocumentFactory.DOCUMENT_TYPE,
+	value = {
+		"org.paxle.core.doc.ICommand",
+		"org.paxle.core.doc.ICommandProfile",
+		"org.paxle.core.doc.ICrawlerDocument",
+		"org.paxle.core.doc.IParserDocument",
+		"org.paxle.core.doc.IIndexerDocument"
+	}
+)
 public class BasicDocumentFactory implements IDocumentFactory {
+	/**
+	 * A list of documents that this {@link IDocumentFactory} is capable to create.
+	 */
 	@SuppressWarnings("serial")
 	private static final HashSet<Class<?>> SUPPORTED_CLASSES =  new HashSet<Class<?>>() {{
 		add(ICrawlerDocument.class);
@@ -36,12 +56,18 @@ public class BasicDocumentFactory implements IDocumentFactory {
 		add(ICommandProfile.class);
 	}};
 	
-	private final ITempFileManager tempFileManager;
+	/**
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
 	
-	public BasicDocumentFactory(@Nonnull ITempFileManager tempFileManager) {
-		this.tempFileManager = tempFileManager;
-	}
+	@Reference
+	protected ITempFileManager tempFileManager;
 
+	protected void activate(ComponentContext context) {
+		this.logger.info(this.getClass().getSimpleName() + " registered.");
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <Doc> Doc createDocument(Class<Doc> docInterface) throws IOException {
 		if (docInterface == null) throw new NullPointerException("The document-interface must not be null.");

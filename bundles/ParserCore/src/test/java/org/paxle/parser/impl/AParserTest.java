@@ -152,7 +152,9 @@ public abstract class AParserTest extends MockObjectTestCase {
 			}
 		};
 		
-		this.docFactory = new BasicDocumentFactory(this.aTempFileManager);
+		this.docFactory = new BasicDocumentFactory() {{
+			this.tempFileManager = aTempFileManager;
+		}};
 		
 		// create a parser context with a dummy temp-file-manager		
 		ParserContext.setThreadLocal(new TestParserContextLocale());

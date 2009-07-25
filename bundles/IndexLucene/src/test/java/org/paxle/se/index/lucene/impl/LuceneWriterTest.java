@@ -35,7 +35,6 @@ import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.impl.BasicCommand;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
-import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.se.index.IIndexWriter;
 
 public class LuceneWriterTest extends MockObjectTestCase {
@@ -69,7 +68,7 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		this.cmdTracker = mock(ICommandTracker.class);		
 		
 		// init the doc-factory
-		this.docFactory = new BasicDocumentFactory(mock(ITempFileManager.class));
+		this.docFactory = new BasicDocumentFactory();
 		
 		// init stopwordsmanager
 		this.stopwordsManager = new StopwordsManager(){{

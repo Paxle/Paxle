@@ -198,9 +198,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 		/* ==========================================================
 		 * Register Services
 		 * ========================================================== */
-		// registering document factories		
-		this.createAndRegisterDocumentFactories(bc);
-		
 		// register runtime-memory monitorable
 		this.createAndRegisterMonitorableObservers(bc);
 		
@@ -248,23 +245,6 @@ public class Activator implements BundleActivator, InvocationHandler {
         }
         
         this.initEclipseApplication(bc);
-	}
-		
-	@SuppressWarnings("serial")
-	private void createAndRegisterDocumentFactories(BundleContext bc) {
-		bc.registerService(IDocumentFactory.class.getName(),
-				new BasicDocumentFactory(this.tempFileManager),
-				new Hashtable<String, Object>(){{
-					// all document types supported by this factory 
-					put(IDocumentFactory.DOCUMENT_TYPE,new String[]{
-							ICommand.class.getName(),
-							ICommandProfile.class.getName(),
-							ICrawlerDocument.class.getName(),
-							IParserDocument.class.getName(),
-							IIndexerDocument.class.getName()
-					});
-				}}
-		);
 	}
 	
 	@SuppressWarnings("serial")

@@ -34,7 +34,9 @@ public class IndexerWorkerTest extends MockObjectTestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.docFactory = new BasicDocumentFactory(new TempFileManager());
+		this.docFactory = new BasicDocumentFactory(){{
+			this.tempFileManager = new TempFileManager();
+		}};
 	}
 	
 	public void testDeepConversion() throws Exception {

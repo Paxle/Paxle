@@ -54,7 +54,7 @@ public class ParserContextLocaleTest extends MockObjectTestCase {
 		this.parserDocFactoryProps.put(IDocumentFactory.DOCUMENT_TYPE, new String[]{IParserDocument.class.getName()});
 		
 		final Filter classFilter = mock(Filter.class);
-		final ITempFileManager tempFileManager = mock(ITempFileManager.class);
+		final ITempFileManager aTempFileManager = mock(ITempFileManager.class);
 		
 		checking(new Expectations(){{
 			// allowing to fetch the bundle-context
@@ -63,7 +63,9 @@ public class ParserContextLocaleTest extends MockObjectTestCase {
 			
 			// allowing to locate the doc-factory
 			allowing(componentContext).locateService("docFactory", parserDocFactoryRef);
-			will(returnValue(new BasicDocumentFactory(tempFileManager)));
+			will(returnValue(new BasicDocumentFactory(){{
+				this.tempFileManager = aTempFileManager;
+			}}));
 			
 			// allowing to create the filter
 			allowing(bc).createFilter(with(any(String.class)));
@@ -76,7 +78,7 @@ public class ParserContextLocaleTest extends MockObjectTestCase {
 					.match(parserDocFactoryProps))
 			);
 			
-			allowing(tempFileManager).createTempFile(); 
+			allowing(aTempFileManager).createTempFile(); 
 		}});
 		
 		// creating the crawler-context
