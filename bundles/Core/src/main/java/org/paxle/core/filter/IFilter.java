@@ -13,6 +13,8 @@
  */
 package org.paxle.core.filter;
 
+import javax.annotation.Nonnull;
+
 public interface IFilter<C> {
 	/**
 	 * Property to specify the target of a {@link IFilter filter}, e.g.:
@@ -70,5 +72,5 @@ public interface IFilter<C> {
 	 * @param filterContext an object containing context-specific parameters that should
 	 * be passed to the filter. 
 	 */
-	public void filter(C command, IFilterContext filterContext);
+	public void filter(@Nonnull C command, @Nonnull IFilterContext filterContext);
 }

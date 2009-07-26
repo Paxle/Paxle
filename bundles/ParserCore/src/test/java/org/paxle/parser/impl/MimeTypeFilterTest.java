@@ -21,6 +21,7 @@ import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.ICommand.Result;
 import org.paxle.core.filter.IFilter;
+import org.paxle.core.filter.IFilterContext;
 import org.paxle.parser.ISubParserManager;
 
 public class MimeTypeFilterTest extends MockObjectTestCase {
@@ -55,7 +56,7 @@ public class MimeTypeFilterTest extends MockObjectTestCase {
 			one(parserManager).isSupported(mimeType); will(returnValue(Boolean.TRUE));
 		}});
 		
-		this.mimeTypeFilter.filter(this.cmd, null);
+		this.mimeTypeFilter.filter(this.cmd, mock(IFilterContext.class));
 	}
 	
 	public void testFilterUnknownMimeType() {
@@ -71,6 +72,6 @@ public class MimeTypeFilterTest extends MockObjectTestCase {
 			one(cmd).setResult(with(equal(Result.Rejected)),with(any(String.class)));
 		}});
 		
-		this.mimeTypeFilter.filter(this.cmd, null);
+		this.mimeTypeFilter.filter(this.cmd, mock(IFilterContext.class));
 	}	
 }

@@ -11,18 +11,20 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.core;
+package org.paxle.core.crypt;
 
 import java.util.Collection;
 
-import org.paxle.core.crypt.ICrypt;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 
 /**
  * A component providing cypt-functions, e.g. to genererate MD5 checksums, etc.
  */
 public interface ICryptManager {
 	
-	public ICrypt getCrypt(String name);
-	public Collection<ICrypt> getCrypts();
-	public Collection<String> getNames();
+	public @Nullable ICrypt getCrypt(@Nonnull String name);
+	public @Nonnull Collection<ICrypt> getCrypts();
+	public @Nonnull Collection<String> getNames();
 }

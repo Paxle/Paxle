@@ -152,7 +152,7 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 	 * if there is enough free memory available for the runtime
 	 * we could allow to allocate more memory
 	 */	
-	private class InMemoryOutputStream extends DeferredFileOutputStream {
+	private static class InMemoryOutputStream extends DeferredFileOutputStream {
 
 		public InMemoryOutputStream(int threshold, File outputFile) {
 			super(threshold, outputFile);

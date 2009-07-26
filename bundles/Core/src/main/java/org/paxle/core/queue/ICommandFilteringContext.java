@@ -15,6 +15,9 @@ package org.paxle.core.queue;
 
 import java.net.URI;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.paxle.core.doc.ICommand;
 
 /**
@@ -27,7 +30,7 @@ public interface ICommandFilteringContext<Cmd extends ICommand> {
 	 * @return the filtered command or <code>null</code> if the command was filtered by one of the applied command-filters
 	 * @throws IllegalStateException if you call this method on an filtering-context created by an output-queue
 	 */
-	public Cmd dequeue();
+	public @Nullable Cmd dequeue();
 	
 	/**
 	 * Function to enqueue a command into an output-queue.
@@ -35,7 +38,7 @@ public interface ICommandFilteringContext<Cmd extends ICommand> {
 	 * @throws InterruptedException
 	 * @throws IllegalStateException if you call this method on an filtering-context created by an input-queue
 	 */
-	public void enqueue(Cmd command) throws InterruptedException;
+	public void enqueue(@Nonnull Cmd command) throws InterruptedException;
 	
 	/**
 	 * @return the location of the command that is filtered by filters within the filtering-context
@@ -65,5 +68,5 @@ public interface ICommandFilteringContext<Cmd extends ICommand> {
 	 *  
 	 * @return a proxy object decorating the pre-filtered command or <code>null</code> if the command was already filtered by this context 
 	 */
-	public Cmd getPreFilteredCmd();
+	public @Nullable Cmd getPreFilteredCmd();
 }

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public interface ICrawlerDocument extends Closeable {
 	public static enum Status {
@@ -48,10 +48,10 @@ public interface ICrawlerDocument extends Closeable {
 	
 	public long getSize();	
 	
-	public @CheckForNull File getContent();
+	public @Nullable File getContent();
 	public void setContent(File content);	
 	
-	public @CheckForNull String[] getLanguages();	
+	public @Nullable String[] getLanguages();	
 	public void setLanguages(String[] lang);
 	
 	public Date getCrawlerDate();
@@ -60,7 +60,7 @@ public interface ICrawlerDocument extends Closeable {
 	public Date getLastModDate();
 	public void setLastModDate(Date lastModDate);	
 	
-	public @CheckForNull byte[] getMD5Sum();
+	public @Nullable byte[] getMD5Sum();
 	public void setMD5Sum(byte[] md5Sum);
 	
 	public void close() throws IOException;

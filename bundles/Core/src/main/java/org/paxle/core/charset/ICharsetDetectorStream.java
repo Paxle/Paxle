@@ -13,12 +13,14 @@
  */
 package org.paxle.core.charset;
 
+import javax.annotation.Nullable;
+
 public interface ICharsetDetectorStream {
 	
 	/**
 	 * @return the detected charset or <code>null</code> if detection failed
 	 */
-	public String getCharset();
+	public @Nullable String getCharset();
 	
 	/**
 	 * @return <code>true</code> if charset detection was done successfully.

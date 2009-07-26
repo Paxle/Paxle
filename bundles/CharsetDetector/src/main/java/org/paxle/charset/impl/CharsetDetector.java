@@ -140,7 +140,9 @@ public class CharsetDetector implements ICharsetDetector {
 					return is.getCharset();
 			
 			return null;
-		} finally { if (is != null) is.close(); }
+		} finally { 
+			if (is != null) is.close(); 
+		}
 	}
 
 	/**
@@ -149,7 +151,8 @@ public class CharsetDetector implements ICharsetDetector {
 	 * @see nsDetector#getProbableCharsets()
 	 */		
 	public String[] getSupportedCharsets() {
-		return new nsDetector(nsPSMDetector.ALL).getProbableCharsets();
+		String[] charsets = new nsDetector(nsPSMDetector.ALL).getProbableCharsets();
+		return (charsets==null) ? new String[0] : charsets;
 	}
 
 	/**

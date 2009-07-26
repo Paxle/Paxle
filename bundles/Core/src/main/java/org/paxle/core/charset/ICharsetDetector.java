@@ -17,15 +17,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public interface ICharsetDetector {
 	public boolean isInspectable(String mimeType);
-	public String[] getInspectableMimeTypes();
+	public @Nonnull String[] getInspectableMimeTypes();
 	
 	/**
 	 * @return an array containing all detectable charsets.
 	 */
-	public String[] getSupportedCharsets();
-	public ACharsetDetectorOutputStream createOutputStream(OutputStream out);
-	public ACharsetDetectorInputStream createInputStream(InputStream in);
-	public String detectCharset(File file) throws IOException;
+	public @Nonnull String[] getSupportedCharsets();
+	public @Nonnull ACharsetDetectorOutputStream createOutputStream(@Nonnull OutputStream out);
+	public @Nonnull ACharsetDetectorInputStream createInputStream(@Nonnull InputStream in);
+	public @Nullable String detectCharset(@Nonnull File file) throws IOException;
 }

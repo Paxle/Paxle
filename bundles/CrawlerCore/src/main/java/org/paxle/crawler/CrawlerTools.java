@@ -30,11 +30,11 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ACharsetDetectorOutputStream;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.crypt.ACryptOutputStream;
 import org.paxle.core.crypt.ICrypt;
+import org.paxle.core.crypt.ICryptManager;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;

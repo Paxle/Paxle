@@ -123,7 +123,16 @@ public class LuceneWriter extends Thread implements IIndexWriter, IDataConsumer<
 					}
 
 					// loop through the indexer docs
-					for (IIndexerDocument indexerDoc : command.getIndexerDocuments()) {
+					IIndexerDocument[] indexerDocs = command.getIndexerDocuments();
+					if (indexerDocs == null) {
+						this.logger.warn(String.format(
+								"Won't save document '%s'. No indexer-documents available.",
+								command.getLocation()
+						));
+						continue;						
+					}
+					
+					for (IIndexerDocument indexerDoc : indexerDocs) {
 						if (indexerDoc.getStatus() == IIndexerDocument.Status.OK) try {
 							// write indexer-doc to the index
 							this.write(indexerDoc);

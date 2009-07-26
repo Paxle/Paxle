@@ -41,7 +41,7 @@ public class LuceneWriterTest extends MockObjectTestCase {
 	/**
 	 * Path were the test-db should be stored
 	 */
-	private final String dbPath = "target/lucene-db";
+	private static final String dbPath = "target/lucene-db";
 	
 	private ICommandTracker cmdTracker;	
 	private ArrayBlockingQueue<ICommand> queue = null;
@@ -123,7 +123,7 @@ public class LuceneWriterTest extends MockObjectTestCase {
 	 * A helper jmock-action to wait for the {@link IIndexWriter} to finish processing of the
 	 * test-command.
 	 */
-	class WaitForIndexer implements Action {
+	static class WaitForIndexer implements Action {
 		private boolean returned = false;
 
 		public synchronized void waitForIndexer() throws InterruptedException {

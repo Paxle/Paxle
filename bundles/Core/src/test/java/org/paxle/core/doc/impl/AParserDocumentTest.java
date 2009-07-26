@@ -48,7 +48,8 @@ public abstract class AParserDocumentTest extends MockObjectTestCase {
 		super.setUp();
 		
 		// deleting files from a previous run
-		if (this.outputFile.exists()) outputFile.delete();
+		if (this.outputFile.exists()) 
+			assertTrue(outputFile.delete());
 		
 		// creating a dummy temp-file-manager
 		this.tempFilemanager = mock(ITempFileManager.class);
@@ -61,7 +62,8 @@ public abstract class AParserDocumentTest extends MockObjectTestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		if (this.outputFile.exists()) outputFile.delete();
+		if (this.outputFile.exists()) 
+			assertTrue(outputFile.delete());
 	}
 	
 	protected static void assertEquals(File expected, Reader actual) throws IOException {

@@ -64,7 +64,8 @@ public class ASubParserTest extends MockObjectTestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		if (testFile.exists()) testFile.delete();
+		if (testFile != null && testFile.exists()) 
+			assertTrue(testFile.delete());
 	}
 	
 	public void testParseFromStream() throws IOException, ParserException {

@@ -28,8 +28,8 @@ import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
-import org.paxle.core.ICryptManager;
 import org.paxle.core.crypt.ICrypt;
+import org.paxle.core.crypt.ICryptManager;
 
 @Component(immediate=true, metatype=false)
 @Service(ICryptManager.class)

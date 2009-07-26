@@ -52,7 +52,8 @@
 							<!-- Apache Commons IO -->
 							org.apache.commons.io.output;version="1.4",
 							<!-- Paxle Core bundle -->
-							org.paxle.core;version="[0.1.0,0.2.0)", 
+							org.paxle.core;version="[0.1.0,0.2.0)",
+							org.paxle.core.crypt;version="[0.1.0,0.2.0)", 
 							org.paxle.core.threading;version="[0.1.0,0.2.0)", 
 							org.paxle.core.filter;version="[0.1.0,0.2.0)", 
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 

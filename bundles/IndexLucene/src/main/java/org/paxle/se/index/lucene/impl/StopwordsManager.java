@@ -102,8 +102,7 @@ public class StopwordsManager implements IStopwordsManager {
 				logger.error(String.format(
 						"Unexpected %s reading in stopwords declaration '%s', falling back to lucene's default.",
 						e.getClass().getName(),
-						swURL,
-						e.getMessage()
+						swURL
 				),e);
 			} finally {
 				if (reader != null) try { reader.close(); } catch (Exception e) {/* ignore this */}

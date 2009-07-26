@@ -21,6 +21,8 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.event.Event;
@@ -136,15 +138,15 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 		}
 	}
 	
-	public void preDequeue(Cmd command) {
+	public void preDequeue(@Nonnull Cmd command) {
 		// nothing todo here
 	}
 		
-	public Cmd postDequeuing(Cmd command) {
+	public Cmd postDequeuing(@Nonnull Cmd command) {
 		throw new RuntimeException("not implemented");
 	}	
 	
-	public void enqueue(Cmd command) throws InterruptedException {
+	public void enqueue(@Nonnull Cmd command) throws InterruptedException {
 		try {
 			if (command == null) throw new NullPointerException("The command object is null");
 			this.commandLocation = command.getLocation();
@@ -172,11 +174,11 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 		}
 	}
 	
-	public void preEnqueue(Cmd command) {
+	public void preEnqueue(@Nonnull Cmd command) {
 		// nothing todo here
 	}
 
-	public void postEnqueuing(Cmd command) throws InterruptedException {
+	public void postEnqueuing(@Nonnull Cmd command) throws InterruptedException {
 		throw new RuntimeException("not implemented");
 	}
 	
@@ -228,7 +230,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 		));
 	}	
 		
-	protected void filter(final Cmd command) {
+	protected void filter(@Nonnull final Cmd command) {
 		final String filterQueueID = this.filterQueue.getFilterQueueID();
 		final List<IFilterContext> filterList = this.filterQueue.getFilters();
 		if (filterList == null) return;
@@ -308,6 +310,7 @@ abstract class CommandFilteringContext<Cmd extends ICommand> implements ICommand
 				i = (Class<?>) type;
 			}
 		}
+		if (i == null) throw new IllegalArgumentException("Argument was no command.");
 		
 		return (Cmd) Proxy.newProxyInstance(
 				i.getClassLoader(),

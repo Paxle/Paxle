@@ -173,7 +173,7 @@ public abstract class AParserTest extends MockObjectTestCase {
 	/**
 	 * A dummy temp-file-manager
 	 */	
-	private class TestTempFileManager implements ITempFileManager {
+	private static class TestTempFileManager implements ITempFileManager {
 		public List<File> tempFiles = new ArrayList<File>();
 		
 		public File createTempFile() throws IOException {

@@ -13,6 +13,8 @@
  */
 package org.paxle.core.data;
 
+import javax.annotation.Nonnull;
+
 /**
  * A {@link IDataSink data-sink} is filled by a {@link IDataProvider data-provider}
  * with data.
@@ -30,7 +32,7 @@ public interface IDataSink<Data> {
 	 * @param data
 	 * @throws Exception
 	 */
-	public void putData(Data data) throws Exception;
+	public void putData(@Nonnull Data data) throws Exception;
 	
 	/**
 	 * Writes the specified element to the sink if possible, 
@@ -43,7 +45,7 @@ public interface IDataSink<Data> {
 	 * 
 	 * @since 0.1.4
 	 */
-	public boolean offerData(Data data) throws Exception;
+	public boolean offerData(@Nonnull Data data) throws Exception;
 	
 	/**
 	 * @return the number of elements that are accepted by the {@link IDataSink data-sink} without blocking 

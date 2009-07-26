@@ -40,8 +40,6 @@ import org.paxle.gui.impl.ServletManager;
 public class PaxleLocaleConfig extends LocaleConfig {
 	protected BundleContext context;
 
-	protected String HttpSession;
-
 	/**
 	 * For logging
 	 */

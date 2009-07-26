@@ -13,6 +13,8 @@
  */
 package org.paxle.core.data;
 
+import javax.annotation.Nonnull;
+
 /**
  * A {@link IDataSource data-source} is read by a {@link IDataConsumer data-consumer}
  */
@@ -23,5 +25,5 @@ public interface IDataSource<Data> {
 	 * Reads the next element from the data-source, waiting if no elements 
 	 * are available.
 	 */
-	public Data getData() throws Exception;
+	public @Nonnull Data getData() throws Exception;
 }

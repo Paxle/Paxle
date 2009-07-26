@@ -21,6 +21,7 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
@@ -53,11 +54,12 @@ public class MimeTypeFilter implements IFilter<ICommand> {
 	@Reference
 	protected ISubParserManager subParserManager;
 	
-	public void filter(ICommand command, IFilterContext context) {
-		if (command.getCrawlerDocument() == null) return;
+	public void filter(ICommand command, IFilterContext context) {		
+		final ICrawlerDocument cdoc = command.getCrawlerDocument();
+		if (cdoc == null) return;
 		
 		// get the mimetype of the document
-		String mimeType = command.getCrawlerDocument().getMimeType();
+		final String mimeType = cdoc.getMimeType();
 		
 		// check if the mime-type is supported by one of the 
 		// available sub-parsers

@@ -20,8 +20,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.osgi.framework.InvalidSyntaxException;
-import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
+import org.paxle.core.crypt.ICryptManager;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICrawlerDocument;

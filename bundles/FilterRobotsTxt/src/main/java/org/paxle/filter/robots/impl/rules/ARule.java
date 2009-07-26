@@ -15,6 +15,8 @@ package org.paxle.filter.robots.impl.rules;
 
 import java.io.Serializable;
 
+import javax.annotation.Nullable;
+
 
 public abstract class ARule implements Serializable {
 	protected String rule = null; 
@@ -23,5 +25,5 @@ public abstract class ARule implements Serializable {
 		this.rule = rule;
 	}
 	
-	public abstract Boolean isDisallowed(String path);
+	public abstract @Nullable Boolean isDisallowed(String path);
 }

@@ -16,6 +16,8 @@ package org.paxle.core.filter;
 import java.net.URI;
 import java.util.Properties;
 
+import javax.annotation.Nonnull;
+
 import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.filter.impl.FilterContext;
 import org.paxle.core.io.temp.ITempFileManager;
@@ -40,13 +42,13 @@ public interface IFilterContext {
 	 * 		   where the filter should be applied to.
 	 * @see org.paxle.core.filter.IFilter#PROP_FILTER_TARGET
 	 */
-	public String getTargetID();
+	public @Nonnull String getTargetID();
 	
 	/**
 	 * @return the {@link org.paxle.core.filter.IFilter} this context
 	 * belongs to.
 	 */
-	public IFilter<?> getFilter();
+	public @Nonnull IFilter<?> getFilter();
 	
 	/**
 	 * Specifies if this {@link FilterContext} was disabled by the user via configuration.
@@ -58,7 +60,7 @@ public interface IFilterContext {
 	 * @return some {@link #getTargetID() target-} and {@link #getFilterPosition() position-}
 	 * specific properties.
 	 */
-	public Properties getFilterProperties();
+	public @Nonnull Properties getFilterProperties();
 	
 	/**
 	 * @return the {@link ITempFileManager temp-file-manager} that should be used by the filter

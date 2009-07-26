@@ -227,7 +227,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	public void close() {
 	}
 	
-	private class ItemListModel extends AbstractListModel implements ListModel {
+	private static class ItemListModel extends AbstractListModel implements ListModel {
 		
 		private static final long serialVersionUID = 1L;
 		
@@ -286,7 +286,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 		}
 	}
 	
-	private class FilterListsComboBoxModel extends AbstractListModel implements ComboBoxModel {
+	private static class FilterListsComboBoxModel extends AbstractListModel implements ComboBoxModel {
 		
 		private static final long serialVersionUID = 1L;
 

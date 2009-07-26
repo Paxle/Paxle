@@ -74,7 +74,7 @@ public class ResourceBundleTool implements IResourceBundleTool {
 				if (localeString == null && defaultLocale != null) {
 					// language of the default resourcebundle file
 					localeString = defaultLocale.toString();
-				} else {
+				} else if (localeString != null) {
 					// trim first "_"
 					localeString = localeString.substring(1);
 				}
