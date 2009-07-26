@@ -28,6 +28,7 @@ import org.paxle.core.io.impl.IOTools;
 import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.crawler.CrawlerContext;
+import org.paxle.crawler.ICrawlerContextLocal;
 
 public abstract class ACrawlerTest extends MockObjectTestCase {
 
@@ -36,6 +37,8 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 	protected ITempFileManager aTempManager;
 	
 	protected IDocumentFactory docFactory;
+	
+	protected ICrawlerContextLocal crawlerContextLocal;
 	
 	protected String[] mimeTypes = new String[] {"text/html"};
 	
@@ -73,8 +76,8 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 		}};
 		
 		// initializing the crawler context
-		CrawlerContextLocal threadLocal = new TestCrawlerContextLocal(mimeTypes, this.aTempManager);
-		CrawlerContext.setThreadLocal(threadLocal);
+		this.crawlerContextLocal = new TestCrawlerContextLocal(mimeTypes, this.aTempManager);
+		CrawlerContext.setThreadLocal((CrawlerContextLocal) this.crawlerContextLocal);
 	}
 	
 	/**

@@ -21,7 +21,6 @@ import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.threading.AWorker;
-import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.ISubCrawler;
 

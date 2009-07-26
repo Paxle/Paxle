@@ -239,12 +239,12 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 		if (this.logger.isInfoEnabled()) {
 			final StringBuilder msg = new StringBuilder();
 			msg.append(String.format(
-					"Crawler '%s' uninstalled. %d supported protocols: \r\n",
+					"Crawler '%s' uninstalled. %d supported protocols: ",
 					crawlerPid,
 					protocols.length
 			));
 			for (String protocol : protocols) {
-				msg.append("\t").
+				msg.append("\r\n\t").
 					append(protocol).
 					append(": ").
 					append(this.isEnabled(protocol, ref)?"enabled":"disabled");

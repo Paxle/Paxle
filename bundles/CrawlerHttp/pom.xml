@@ -78,7 +78,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>CrawlerCore</artifactId>
-			<version>[0.1.13-SNAPSHOT,0.2.0)</version>
+			<version>[0.1.18-SNAPSHOT,0.2.0)</version>
 		</dependency>
 
 		<!-- Apache Commons HttpClient dependencies -->

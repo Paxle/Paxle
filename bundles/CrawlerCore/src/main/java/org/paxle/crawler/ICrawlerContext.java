@@ -16,6 +16,9 @@ package org.paxle.crawler;
 import java.io.IOException;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.ICryptManager;
 import org.paxle.core.charset.ICharsetDetector;
@@ -33,39 +36,39 @@ public interface ICrawlerContext {
 	 *         This reference may be <code>null</code> if no 
 	 *         {@link ICharsetDetector charset-detector} is available.
 	 */
-	public ICharsetDetector getCharsetDetector();
+	public @Nullable ICharsetDetector getCharsetDetector();
 	
-	public ICryptManager getCryptManager();
+	public @Nullable ICryptManager getCryptManager();
 	
-	public ITempFileManager getTempFileManager();
+	public @Nullable ITempFileManager getTempFileManager();
 	
-	public IIOTools getIoTools();
+	public @Nullable IIOTools getIoTools();
 	
 	/**
 	 * @return a class that can be used to detect the mime-type of a resource
 	 * 	       This reference may be <code>null</code> if no 
 	 *         {@link IMimeTypeDetector mimetype-detector} is available.
 	 */
-	public IMimeTypeDetector getMimeTypeDetector();
+	public @Nullable IMimeTypeDetector getMimeTypeDetector();
 	
 	/**
 	 * @return a set of mime-types supported by the 
 	 * 		   {@link org.paxle.parser.ISubParser subparsers} that are 
 	 *         currently registered on the system.
 	 */
-	public Set<String> getSupportedMimeTypes();
+	public @Nonnull Set<String> getSupportedMimeTypes();
 	
 	/**
 	 * TODO: currently this is an read-only {@link ICommandProfile}. We should wrap it with a transparent proxy
 	 * and should flush it back to db if one of the command-profile-properties were changed.
 	 */
-	public ICommandProfile getCommandProfile(int profileID);
+	public @Nullable ICommandProfile getCommandProfile(int profileID);
 	
 	/**
 	 * @return the {@link ICommandProfile} that belongs to the {@link ICommand}
 	 * currently processed by the parser-worker thread
 	 */
-	public ICommandProfile getCommandProfile();
+	public @Nullable ICommandProfile getCommandProfile();
 	
 	/**
 	 * A function to create a new and empty {@link ICrawlerDocument} via 
@@ -82,7 +85,7 @@ public interface ICrawlerContext {
 	 * @param props
 	 * @return a newly created document of the given type
 	 */
-	public <DocInterface> DocInterface createDocument(Class<DocInterface> docInterface, String filter) throws InvalidSyntaxException, IOException;
+	public <DocInterface> DocInterface createDocument(@Nonnull Class<DocInterface> docInterface, @Nullable String filter) throws InvalidSyntaxException, IOException;
 	
 	/* ========================================================================
 	 * Function operating on the property bag

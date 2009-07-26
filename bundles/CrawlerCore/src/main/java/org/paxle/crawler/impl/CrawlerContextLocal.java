@@ -47,6 +47,7 @@ import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.ICrawlerContext;
+import org.paxle.crawler.ICrawlerContextAware;
 import org.paxle.crawler.ICrawlerContextLocal;
 import org.paxle.parser.ISubParser;
 
@@ -54,7 +55,7 @@ import org.paxle.parser.ISubParser;
 @Service(ICrawlerContextLocal.class)
 @References({
 	@Reference(
-		name="subParser", 
+		name=CrawlerContextLocal.REFERENCE_SUBPARSERS, 
 		referenceInterface = ISubParser.class,
 		cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
 		policy=ReferencePolicy.DYNAMIC,
@@ -63,7 +64,15 @@ import org.paxle.parser.ISubParser;
 		target="(MimeTypes=*)"
 	),
 	@Reference(
-		name="docFactory", 
+		name=CrawlerContextLocal.REFERENCE_CRAWLERCONTEXT_AWARE, 
+		referenceInterface = ICrawlerContextAware.class,
+		cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
+		policy=ReferencePolicy.DYNAMIC,
+		bind="addCrawlerContextAware",
+		unbind="removeCrawlerContextAware"
+	),
+	@Reference(
+		name=CrawlerContextLocal.REFERENCE_DOCFACTORY, 
 		referenceInterface = IDocumentFactory.class,
 		cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
 		policy=ReferencePolicy.DYNAMIC,
@@ -73,6 +82,10 @@ import org.paxle.parser.ISubParser;
 	)
 })
 public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> implements ICrawlerContextLocal {
+	static final String REFERENCE_SUBPARSERS = "subParser";
+	static final String REFERENCE_CRAWLERCONTEXT_AWARE = "crawlerContextAware";
+	static final String REFERENCE_DOCFACTORY = "docFactory";
+	
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();	
@@ -151,6 +164,14 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> implements
 			w.unlock();
 		}
 	}
+
+	protected void addCrawlerContextAware(ICrawlerContextAware crawlerContextAware) {
+		crawlerContextAware.setCrawlerContextLocal(this);
+	}
+	
+	protected void removeCrawlerContextAware(ICrawlerContextAware crawlerContextAware) {
+		crawlerContextAware.setCrawlerContextLocal(null);
+	}
 	
 	protected void addSubParser(ServiceReference subParser) {
 		final String[] mimeTypes = this.getSubParserMimeTypes(subParser);		
@@ -202,7 +223,7 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> implements
 		if (factoryRef == null) return null;
 
 		// creating an document
-		final IDocumentFactory factory = (IDocumentFactory) ctx.locateService("docFactory", factoryRef);
+		final IDocumentFactory factory = (IDocumentFactory) ctx.locateService(REFERENCE_DOCFACTORY, factoryRef);
 		if (factory == null) return null;			
 		return factory.createDocument(docInterface);
 	}	

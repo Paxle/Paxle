@@ -24,6 +24,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.Properties;
+import org.paxle.crawler.ICrawlerContextAware;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.http.IHttpCrawler;
 
@@ -54,7 +55,10 @@ public class Activator implements BundleActivator {
 		Hashtable<String,Object> props = new Hashtable<String, Object>();
 		props.put(Constants.SERVICE_PID, IHttpCrawler.class.getName());
 		props.put(ISubCrawler.PROP_PROTOCOL, HttpCrawler.PROTOCOLS);	  
-		context.registerService(new String[]{ISubCrawler.class.getName(),IHttpCrawler.class.getName()}, this.crawler, props);
+		context.registerService(new String[]{
+				ISubCrawler.class.getName(),
+				IHttpCrawler.class.getName(),
+				ICrawlerContextAware.class.getName()}, this.crawler, props);
 		
 		/*
 		 * Create configuration if not available

@@ -60,15 +60,16 @@ import org.osgi.service.cm.ManagedService;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.prefs.Properties;
 import org.paxle.crawler.ContentLengthLimitExceededException;
-import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ICrawlerContext;
+import org.paxle.crawler.ICrawlerContextAware;
+import org.paxle.crawler.ICrawlerContextLocal;
 import org.paxle.crawler.http.IHttpCrawler;
 
 /**
  * TODO: javadoc
  */
-public class HttpCrawler implements IHttpCrawler, ManagedService {
+public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContextAware {
 	/* =========================================================
 	 * Config Properties
 	 * ========================================================= */
@@ -92,7 +93,6 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	/* =========================================================
 	 * Constants for HTTP headers
 	 * ========================================================= */
-	private static final String HTTPHEADER_ETAG = "ETag";
 	private static final String HTTPHEADER_LAST_MODIFIED = "Last-Modified";
 	private static final String HTTPHEADER_DATE = "Date";
 	private static final String HTTPHEADER_CONTENT_LANGUAGE = "Content-Language";
@@ -121,6 +121,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 	 * The protocol(s) supported by this crawler
 	 */
 	static final String[] PROTOCOLS = new String[]{"http","https"};
+	
+	protected ICrawlerContextLocal contextLocal;
 	
 	/**
 	 * Connection manager used for http connection pooling
@@ -175,6 +177,10 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		} else {
 			hostSettings = new ConcurrentHashMap<String,Integer>(10, 0.75f, 10);
 		}
+	}
+	
+	public void setCrawlerContextLocal(ICrawlerContextLocal contextLocal) {
+		this.contextLocal = contextLocal;		
 	}
 	
 	public void saveProperties() {
@@ -446,9 +452,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 			doc.setMimeType(contentMimeType);
 			
 			// check if we support the mimetype
-			final ICrawlerContext context = CrawlerContext.getCurrentContext();
-			if (context == null)
-				throw new RuntimeException("Unexpected error. The crawler-context was null.");
+			final ICrawlerContext context = this.contextLocal.getCurrentContext();
+			if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");
 			
 			if (!context.getSupportedMimeTypes().contains(contentMimeType)) {
 				// abort
@@ -524,7 +529,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 		ICrawlerDocument doc = null;
 		HttpMethod method = null;
 		try {
-			final ICrawlerContext ctx = CrawlerContext.getCurrentContext();
+			final ICrawlerContext ctx = this.contextLocal.getCurrentContext();
 			if (ctx == null) throw new IllegalStateException("Cannot access CrawlerContext from " + Thread.currentThread().getName());
 			
 			// creating an empty crawler-document
@@ -748,29 +753,28 @@ public class HttpCrawler implements IHttpCrawler, ManagedService {
 //		}
 	}
 	
-	private static InputStream handleContentEncoding(final Header contentEncodingHeader, final InputStream responseBody) throws IOException {
-		if (contentEncodingHeader == null)
-			return responseBody;
+	private static InputStream handleContentEncoding(final Header contentEncodingHeader, InputStream responseBody) throws IOException {
+		if (contentEncodingHeader == null) return responseBody;
 		
 		final String contentEncoding = contentEncodingHeader.getValue();
-		InputStream r = responseBody;
-		// apply decompression methods in the order given, see RFC 2616, section 14.11
 		final StringTokenizer st = new StringTokenizer(contentEncoding, ",");
+		
+		// apply decompression methods in the order given, see RFC 2616, section 14.11		
 		while (st.hasMoreTokens()) {
 			String encoding = st.nextToken().trim();
 			// the "identity"-encoding does not need any transformation
 			
 			if (encoding.equals("deflate")) {
-				r = new ZipInputStream(r);
+				responseBody = new ZipInputStream(responseBody);
 			} else {
 				// support for the recommendation of the W3C, see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.5
 				if (encoding.startsWith("x-"))
 					encoding = encoding.substring("x-".length());
 				if (encoding.equals("gzip") || encoding.equals("compress")) {
-					r = new GZIPInputStream(r);
+					responseBody = new GZIPInputStream(responseBody);
 				}
 			}
 		}
-		return r;
+		return responseBody;
 	}
 }

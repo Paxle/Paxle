@@ -35,7 +35,8 @@ public class HttpCrawlerTest extends ACrawlerTest {
 		super.setUp();		
 		
 		// create the crawler
-		this.crawler = new HttpCrawler(null);		
+		this.crawler = new HttpCrawler(null);
+		this.crawler.setCrawlerContextLocal(this.crawlerContextLocal);
 
 		// create a dummy server
 		this.tester = new ServletTester();
