@@ -156,9 +156,11 @@ public class StatusView extends ALayoutServlet {
 				
 				// enable or disable protocol
 				if (request.getParameter("doEnableProtocol") != null) {
-					crawlerManager.enableProtocol(protocol);
+					// TODO: we need to replace this using the config-tool 
+					// crawlerManager.enableProtocol(protocol);
 				} else if (request.getParameter("doDisableProtocol") != null) {
-					crawlerManager.disableProtocol(protocol);
+					// TODO: we need to replace this using the config-tool
+					// crawlerManager.disableProtocol(protocol);
 				}
 				
 				// redirecting request
