@@ -24,7 +24,6 @@ import org.paxle.core.threading.AWorker;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.ISubCrawler;
-import org.paxle.crawler.ISubCrawlerManager;
 
 public class CrawlerWorker extends AWorker<ICommand> {
 	
@@ -33,10 +32,10 @@ public class CrawlerWorker extends AWorker<ICommand> {
 	/**
 	 * A class to manage {@link ISubCrawler sub-crawlers}
 	 */
-	private final ISubCrawlerManager subCrawlerManager;
+	private final WorkerFactory wf;
 		
-	public CrawlerWorker(ISubCrawlerManager subCrawlerManager) {
-		this.subCrawlerManager = subCrawlerManager;
+	public CrawlerWorker(WorkerFactory wf) {
+		this.wf = wf;
 	}
 
 	@Override
@@ -75,7 +74,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 			final URI location = command.getLocation();
 			
 			// adding some properties to the crawler-context
-			ICrawlerContext cc = CrawlerContext.getCurrentContext();
+			final ICrawlerContext cc = this.wf.contextLocal.getCurrentContext();
 			cc.setProperty("cmd", command);
 			cc.setProperty("cmd.profileOID",Integer.valueOf(command.getProfileOID()));
 			
@@ -84,7 +83,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 
 			// get a sub-crawler that is capable to handle the specified protocol
 			this.logger.debug(String.format("Getting crawler for protocol '%s' ...", protocol));			
-			ISubCrawler crawler = this.subCrawlerManager.getSubCrawler(protocol);
+			final ISubCrawler crawler = this.wf.subCrawlerManager.getSubCrawler(protocol);
 						
 			if (crawler == null) {
 				this.logger.error(String.format("No crawler for resource '%s' and protocol '%s' found.", location, protocol));
@@ -170,7 +169,7 @@ public class CrawlerWorker extends AWorker<ICommand> {
 	@Override
 	protected void reset() {
 		// do some cleanup
-		CrawlerContext.removeCurrentContext();
+		((CrawlerContextLocal)this.wf.contextLocal).removeCurrentContext();
 		
 		// reset all from parent
 		super.reset();

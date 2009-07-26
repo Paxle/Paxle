@@ -25,7 +25,28 @@ public interface ISubCrawler {
 	/*
 	 * A list of service properties
 	 */
-	/** the network protocol supported by a sub-crawler */
+	/** 
+	 * The network protocols supported by the sub-crawler. <br/>The value of this property must
+	 * be of type String[].
+	 * <p/>
+	 * <i>Usage Example:</i>
+	 * <pre><code>
+	 * public class Activator implements BundleActivator {
+	 *    public void start(BundleContext bc) throws Exception {
+	 *       // creating the crawler
+	 *       ISubCrawler myCrawler = new MyCrawler();
+	 * 
+	 *       // setting the crawler properties
+	 *       Hashtable<String,Object> propsCrawler = new Hashtable<String, Object>();
+	 *       propsCrawler.put(Constants.SERVICE_PID, MyCrawler.class.getName());
+	 *       propsCrawler.put(ISubCrawler.PROP_PROTOCOL, new String[]{"myProtocol"});	  
+	 * 
+     *       // registering the crawler as a service to the framework
+	 *       bc.registerService(new String[]{ISubCrawler.class.getName()}, myCrawler, propsCrawler);
+	 *    }
+	 * }
+	 * </code></pre>
+	 */
 	public static final String PROP_PROTOCOL = "Protocol";
 	
 	public ICrawlerDocument request(URI requestUri);

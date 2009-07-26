@@ -19,6 +19,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
@@ -28,18 +30,22 @@ import org.paxle.core.doc.ICommand;
 import org.paxle.core.threading.IMaster;
 import org.paxle.core.threading.IWorker;
 import org.paxle.core.threading.IWorkerFactory;
+import org.paxle.crawler.ICrawlerContextLocal;
 import org.paxle.crawler.ISubCrawlerManager;
 
 @Component(metatype=false, immediate=true)
 @Service(IWorkerFactory.class)
 public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 	
-	@Reference
+	@Reference(policy=ReferencePolicy.DYNAMIC, cardinality=ReferenceCardinality.OPTIONAL_UNARY)
 	protected ISubCrawlerManager subCrawlerManager;
 
+	@Reference(policy=ReferencePolicy.DYNAMIC)
+	protected ICrawlerContextLocal contextLocal;	
+	
 	@Reference
 	protected IMWComponentFactory componentFactory;
-
+	
 	/**
 	 * A reference to the {@link IMWComponent master-worker-component} used
 	 * by this bundle.
@@ -74,7 +80,7 @@ public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 	 * Creates a new {@link CrawlerWorker} by order of the worker-pool
 	 */
 	public CrawlerWorker createWorker() throws Exception {
-		return new CrawlerWorker(subCrawlerManager);
+		return new CrawlerWorker(this);
 	}
 
 	/**

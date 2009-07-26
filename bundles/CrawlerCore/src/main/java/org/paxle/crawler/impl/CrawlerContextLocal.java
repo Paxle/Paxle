@@ -30,6 +30,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.References;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -46,9 +47,11 @@ import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.ICrawlerContext;
+import org.paxle.crawler.ICrawlerContextLocal;
 import org.paxle.parser.ISubParser;
 
 @Component(immediate=true)
+@Service(ICrawlerContextLocal.class)
 @References({
 	@Reference(
 		name="subParser", 
@@ -69,7 +72,7 @@ import org.paxle.parser.ISubParser;
 		target="(docType=*)"
 	)
 })
-public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
+public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> implements ICrawlerContextLocal {
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();	
@@ -117,6 +120,14 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> {
 	
 	public CrawlerContextLocal() {
 		CrawlerContext.setThreadLocal(this);
+	}
+	
+	public ICrawlerContext getCurrentContext() {
+		return this.get();
+	}
+	
+	public void removeCurrentContext() {
+		this.remove();
 	}
 	
 	protected void activate(ComponentContext context) {

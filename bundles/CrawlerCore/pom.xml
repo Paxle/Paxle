@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>CrawlerCore</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.16-SNAPSHOT</version>
+	<version>0.1.17-SNAPSHOT</version>
 	<name>Paxle - Crawler: Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -64,14 +64,13 @@
 							org.paxle.core.prefs;version="[0.1.0,0.2.0)",
 							org.paxle.core.metadata;version="[0.1.0,0.2.0)",
 							<!-- Paxle Parser bundle -->
-							org.paxle.parser;version="[0.1.0,0.2.0)";resolution:=optional		
+							org.paxle.parser;version="[0.1.0,0.2.0)";resolution:=optional,
+							<!-- ignoring compile time annotations -->
+							!javax.annotation
 						</Import-Package>
 						<Private-Package>
 							org.paxle.crawler.impl
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.crawler.impl.Activator
-						</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>

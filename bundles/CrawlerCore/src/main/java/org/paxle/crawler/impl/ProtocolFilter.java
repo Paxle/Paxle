@@ -89,7 +89,7 @@ public class ProtocolFilter implements IFilter<ICommand> {
 			}
 			
 			// check the extracted links
-			IParserDocument parserDoc = command.getParserDocument();
+			final IParserDocument parserDoc = command.getParserDocument();
 			this.checkProtocol(parserDoc);
 		} catch (Exception e) {
 			this.logger.error(String.format(

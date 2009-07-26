@@ -15,6 +15,9 @@ package org.paxle.crawler;
 
 import org.paxle.crawler.impl.CrawlerContextLocal;
 
+/**
+ * @deprecated use {@link ICrawlerContextAware#setCrawlerContextLocal(ThreadLocal)} instead
+ */
 public class CrawlerContext {    
 	private static CrawlerContextLocal context = null;    
     
