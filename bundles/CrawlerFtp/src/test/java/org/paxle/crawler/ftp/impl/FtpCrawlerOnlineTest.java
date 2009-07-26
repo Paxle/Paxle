@@ -15,6 +15,7 @@ package org.paxle.crawler.ftp.impl;
 
 import java.net.URI;
 import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.osgi.service.cm.ConfigurationException;
 import org.paxle.core.doc.ICrawlerDocument;
@@ -29,7 +30,9 @@ public class FtpCrawlerOnlineTest extends ACrawlerTest {
 		super.setUp();
 		
 		// create crawler
-		this.crawler = new FtpCrawler();
+		this.crawler = new FtpCrawler(){{
+			this.contextLocal = crawlerContextLocal;
+		}};
 	}
 	
 	public void testReadDirectory() {
@@ -55,13 +58,13 @@ public class FtpCrawlerOnlineTest extends ACrawlerTest {
 		assertTrue(crawlerDoc.getContent().length() > 0);
 	}
 	
-	public void _testReadDocumentMaxDownloadSizeLimit() throws ConfigurationException {
+	public void testReadDocumentMaxDownloadSizeLimit() throws ConfigurationException {
 		URI testUri = URI.create("ftp://ftp.debian.org/debian/README");
 
 		// change crawler settings
-		Dictionary<String, Object> props = this.crawler.getDefaults();
+		final Dictionary<String, Object> props = new Hashtable<String, Object>();
 		props.put(FtpCrawler.PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(500));
-		this.crawler.updated(props);
+		this.crawler.activate(props);
 		
 		// download document
 		this.crawlerDoc = this.crawler.request(testUri);

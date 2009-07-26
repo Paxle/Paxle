@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>CrawlerFtp</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>Paxle - Crawler: FTP</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -44,6 +44,7 @@
 							org.osgi.framework;version="1.4",
 							org.osgi.service.url;version="1.0",
 							org.osgi.service.cm;version="1.2",
+							org.osgi.service.component;version="1.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Paxle Core Bundle -->
@@ -57,9 +58,6 @@
 						<Private-Package>
 							org.paxle.crawler.ftp.impl
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.crawler.ftp.impl.Activator
-						</Bundle-Activator>
 
 						<!-- embedding libs -->
 						<Embed-StripGroup>true</Embed-StripGroup>

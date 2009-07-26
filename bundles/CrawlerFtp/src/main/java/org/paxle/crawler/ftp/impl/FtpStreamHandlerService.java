@@ -18,12 +18,17 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.apache.commons.net.ftp.FTP;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
+import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
 
+@Component(metatype=false)
+@Service(URLStreamHandlerService.class)
+@Property(name=URLConstants.URL_HANDLER_PROTOCOL,value="ftp")
 public class FtpStreamHandlerService extends AbstractURLStreamHandlerService implements URLStreamHandlerService {
-	public static final String PROTOCOL = "ftp";
-
 	@Override
 	public URLConnection openConnection(URL url) throws IOException {
 		return new FtpUrlConnection(url);

@@ -18,30 +18,44 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Date;
 import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTPFile;
-import org.osgi.framework.Constants;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.Services;
+import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICrawlerDocument;
-import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ICrawlerContext;
+import org.paxle.crawler.ICrawlerContextLocal;
+import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.CrawlerTools.DirlistEntry;
 import org.paxle.crawler.ftp.IFtpCrawler;
 
-public class FtpCrawler implements IFtpCrawler, ManagedService {
+@Component(metatype=false, immediate=true, name = FtpCrawler.PID)
+@Services({
+	@Service(IFtpCrawler.class),
+	@Service(ISubCrawler.class)
+})
+@Property(name=ISubCrawler.PROP_PROTOCOL, value={"ftp"})
+public class FtpCrawler implements IFtpCrawler {
 	/* =========================================================
 	 * Config Properties
 	 * ========================================================= */
-	static final String PID = IFtpCrawler.class.getName();
+	static final String PID = "org.paxle.crawler.ftp.IFtpCrawler";
 	
+	@Property(intValue=15000)
 	static final String PROP_CONNECTION_TIMEOUT 		= PID + '.' + "connectionTimeout";
+	
+	@Property(intValue=15000)
 	static final String PROP_SOCKET_TIMEOUT 			= PID + '.' + "socketTimeout";
+	
+	@Property(intValue=10485760)
 	static final String PROP_MAXDOWNLOAD_SIZE 			= PID + '.' + "maxDownloadSize";	
 	
 	private int connectionTimeout = 15000;
@@ -49,23 +63,39 @@ public class FtpCrawler implements IFtpCrawler, ManagedService {
 	private int maxDownloadSize = 10485760;
 	
 	/**
-	 * The protocol(s) supported by this crawler
-	 */
-	static final String[] PROTOCOLS = new String[]{"ftp"};
-	
-	/**
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 
+	@Reference
+	protected ICrawlerContextLocal contextLocal;
+	
+	protected void activate(ComponentContext context) {
+		@SuppressWarnings("unchecked")
+		final Dictionary<String, Object> configuration = context.getProperties();
+		this.activate(configuration);
+	}
+	
+	protected void activate(Dictionary<String, Object> configuration) {
+		// configuring timeouts
+		final Integer connectionTimeout = (Integer) configuration.get(PROP_CONNECTION_TIMEOUT);
+		if (connectionTimeout != null) this.connectionTimeout = connectionTimeout.intValue();
+		
+		final Integer socketTimeout = (Integer) configuration.get(PROP_SOCKET_TIMEOUT);
+		if (socketTimeout != null) this.socketTimeout = socketTimeout.intValue();
+		
+		// download limit in bytes
+		final Integer maxDownloadSize = (Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE);
+		if (maxDownloadSize != null) this.maxDownloadSize = maxDownloadSize.intValue();		
+	}
+	
 	public ICrawlerDocument request(URI requestUri) {
 		if (requestUri == null) throw new NullPointerException("URL was null");
 		this.logger.info(String.format("Crawling URL '%s' ...", requestUri));		
 		
 		ICrawlerDocument crawlerDoc = null;
 		try {
-			final ICrawlerContext ctx = CrawlerContext.getCurrentContext();
-			if (ctx == null) throw new IllegalStateException("Cannot access CrawlerContext from " + Thread.currentThread().getName());
+			final ICrawlerContext ctx = this.contextLocal.getCurrentContext();
 			
 			// creating a crawler-doc and set some basic properties
 			crawlerDoc = ctx.createDocument();
@@ -179,42 +209,5 @@ public class FtpCrawler implements IFtpCrawler, ManagedService {
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
-	}
-
-	public Hashtable<String,Object> getDefaults() {
-		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
-		
-		defaults.put(PROP_CONNECTION_TIMEOUT, Integer.valueOf(15000));
-		defaults.put(PROP_SOCKET_TIMEOUT, Integer.valueOf(15000));
-		defaults.put(PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(10485760));		
-		defaults.put(Constants.SERVICE_PID, IFtpCrawler.class.getName());
-		
-		return defaults;
-	}	
-	
-	/**
-	 * @see ManagedService#updated(Dictionary)
-	 */
-	@SuppressWarnings("unchecked")
-	public void updated(Dictionary configuration) throws ConfigurationException {
-		if (configuration == null ) {
-			logger.debug("Configuration is null. Using default configuration ...");
-			
-			/*
-			 * Generate default configuration
-			 */
-			configuration = this.getDefaults();
-		}
-		
-		// configuring timeouts
-		final Integer connectionTimeout = (Integer) configuration.get(PROP_CONNECTION_TIMEOUT);
-		if (connectionTimeout != null) this.connectionTimeout = connectionTimeout.intValue();
-		
-		final Integer socketTimeout = (Integer) configuration.get(PROP_SOCKET_TIMEOUT);
-		if (socketTimeout != null) this.socketTimeout = socketTimeout.intValue();
-		
-		// download limit in bytes
-		final Integer maxDownloadSize = (Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE);
-		if (maxDownloadSize != null) this.maxDownloadSize = maxDownloadSize.intValue();		
 	}
 }
