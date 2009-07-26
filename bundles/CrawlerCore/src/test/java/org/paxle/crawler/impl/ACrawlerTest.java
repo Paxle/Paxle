@@ -68,7 +68,6 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 	protected void initCrawlerContext(final String[] mimeTypes) {
 		// creating a dummy temp-file manager
 		this.aTempManager = new TestTempFileManager();
-		org.paxle.core.io.IOTools.setTempFileManager(this.aTempManager);
 
 		// a dummy doc factory
 		this.docFactory = new BasicDocumentFactory(){{

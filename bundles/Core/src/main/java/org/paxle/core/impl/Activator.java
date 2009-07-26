@@ -52,7 +52,6 @@ import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.impl.FilterListener;
 import org.paxle.core.filter.impl.FilterManager;
 import org.paxle.core.io.IIOTools;
-import org.paxle.core.io.IOTools;
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.io.impl.ResourceBundleTool;
 import org.paxle.core.io.impl.ResourceBundleToolFactory;
@@ -182,7 +181,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 		tempFileManagerProps.put(Constants.SERVICE_PID, TempFileManager.MONITOR_PID);
 		tempFileManagerProps.put("Monitorable-Localization", "/OSGI-INF/l10n/TempFileManager");
 		bc.registerService(new String[]{Monitorable.class.getName(), ITempFileManager.class.getName()}, this.tempFileManager, tempFileManagerProps);
-		IOTools.setTempFileManager(this.tempFileManager);
 		
 		// registering IOTools
 		bc.registerService(IIOTools.class.getName(), new org.paxle.core.io.impl.IOTools(), null);
@@ -373,7 +371,6 @@ public class Activator implements BundleActivator, InvocationHandler {
 	 * @see BundleActivator#stop(BundleContext)
 	 */		
 	public void stop(BundleContext context) throws Exception {
-		IOTools.setTempFileManager(null);
 		// cleanup
 		this.tempFileManager = null;
 		this.referenceNormalizer = null;

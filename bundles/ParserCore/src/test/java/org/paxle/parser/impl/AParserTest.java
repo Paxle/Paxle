@@ -35,7 +35,6 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
-import org.paxle.core.io.IOTools;
 import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
@@ -66,7 +65,6 @@ public abstract class AParserTest extends MockObjectTestCase {
 		
 		// a dummy temp-file managager
 		this.aTempFileManager = new TestTempFileManager();
-		IOTools.setTempFileManager(this.aTempFileManager);
 		
 		// a dummy reference normalizer
 		this.aRefNormalizer = new IReferenceNormalizer() {
