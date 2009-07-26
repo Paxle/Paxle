@@ -19,11 +19,17 @@ import java.net.URLConnection;
 
 import jcifs.smb.SmbFile;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
+import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
 
+@Component(metatype=false)
+@Service(URLStreamHandlerService.class)
+@Property(name=URLConstants.URL_HANDLER_PROTOCOL,value="smb")
 public class SmbStreamHandlerService extends AbstractURLStreamHandlerService implements URLStreamHandlerService  {
-	public static final String PROTOCOL = "smb";
 
 	@Override
 	public URLConnection openConnection(URL url) throws IOException {

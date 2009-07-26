@@ -23,22 +23,32 @@ import jcifs.smb.SmbFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.url.URLStreamHandlerService;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument.Status;
-import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ICrawlerContext;
+import org.paxle.crawler.ICrawlerContextLocal;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.CrawlerTools.DirlistEntry;
 
+@Component(metatype=false)
+@Service(ISubCrawler.class)
+@Property(name=ISubCrawler.PROP_PROTOCOL, value={"smb"})
 public class SmbCrawler implements ISubCrawler {
-	static final String[] PROTOCOLS = new String[]{"smb"};
 
 	/**
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 
+	@Reference
+	protected ICrawlerContextLocal contextLocal;
+	
 	public ICrawlerDocument request(URI requestUri) {
 		if (requestUri == null) throw new NullPointerException("URL was null");
 		this.logger.info(String.format("Crawling URL '%s' ...", requestUri));	
@@ -46,8 +56,7 @@ public class SmbCrawler implements ISubCrawler {
 		ICrawlerDocument crawlerDoc = null;
 		InputStream input = null;
 		try {
-			final ICrawlerContext ctx = CrawlerContext.getCurrentContext();
-			if (ctx == null) throw new IllegalStateException("Cannot access CrawlerContext from " + Thread.currentThread().getName());
+			final ICrawlerContext ctx = this.contextLocal.getCurrentContext();
 			
 			// creating an empty crawler-document
 			crawlerDoc = ctx.createDocument();			

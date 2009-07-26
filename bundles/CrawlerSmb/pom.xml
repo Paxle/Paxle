@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>CrawlerSmb</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>Paxle - Crawler: SMB</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -53,9 +53,6 @@
 						<Private-Package>
 							org.paxle.crawler.smb.impl
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.crawler.smb.impl.Activator
-						</Bundle-Activator>
 
 						<!-- embedding libs -->
 						<Embed-StripGroup>true</Embed-StripGroup>
@@ -79,7 +76,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>CrawlerCore</artifactId>
-			<version>[0.1.13-SNAPSHOT,0.2.0)</version>
+			<version>[0.1.17-SNAPSHOT,0.2.0)</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-pool</groupId>
