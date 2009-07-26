@@ -27,7 +27,6 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.url.URLStreamHandlerService;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument.Status;
 import org.paxle.crawler.CrawlerTools;
