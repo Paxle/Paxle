@@ -15,6 +15,8 @@ package org.paxle.crawler;
 
 import java.net.URI;
 
+import javax.annotation.Nonnull;
+
 import org.paxle.core.doc.ICrawlerDocument;
 
 
@@ -63,5 +65,5 @@ public interface ISubCrawler {
 	 */
 	public static final String PROP_PROTOCOL = "Protocol";
 	
-	public ICrawlerDocument request(URI requestUri);
+	public ICrawlerDocument request(@Nonnull URI requestUri);
 }

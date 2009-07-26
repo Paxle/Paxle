@@ -42,7 +42,7 @@ public class CrawlerToolsTest extends MockObjectTestCase {
 		
 		// clean old files if required
 		if (this.outFile != null && this.outFile.exists()) 
-			this.outFile.delete();		
+			assertTrue(this.outFile.delete());
 		
 		// init dummy temp-file-manager
 		this.tempFileManager = mock(ITempFileManager.class);
@@ -70,7 +70,7 @@ public class CrawlerToolsTest extends MockObjectTestCase {
 		
 		// cleanup
 		if (this.outFile != null && this.outFile.exists()) 
-			this.outFile.delete();
+			assertTrue(this.outFile.delete());
 	}
 	
 	public void testSaveInto() throws IOException {

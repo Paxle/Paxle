@@ -13,6 +13,8 @@
  */
 package org.paxle.crawler;
 
+import javax.annotation.Nonnull;
+
 
 
 
@@ -42,5 +44,5 @@ package org.paxle.crawler;
  * a {@link ISubCrawler} can also implement the {@link ICrawlerContextAware} interface.
  */
 public interface ICrawlerContextLocal {
-	public ICrawlerContext getCurrentContext();
+	public @Nonnull ICrawlerContext getCurrentContext();
 }
