@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.net.URL;
 
 import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +28,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.paxle.core.io.IIOTools;
+import org.paxle.icon.IIconData;
+import org.paxle.icon.IIconTool;
 
 @Component(metatype=false, immediate=true)
 @Service(Servlet.class)
@@ -38,8 +43,14 @@ import org.apache.felix.scr.annotations.Service;
 public class IconServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * For logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 
+	@Reference
+	protected IIconTool iconTool;
+	
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse rsp) throws IOException {		
 		String url = null;
@@ -50,13 +61,14 @@ public class IconServlet extends HttpServlet {
 				return;
 			}
 
-			IconData icon = IconTool.getIcon(new URL(url));
+			final IIconData icon = this.iconTool.getIcon(new URL(url));
 			if (icon != null) {
-				rsp.setContentType(icon.mimeType);
+				rsp.setContentType(icon.getMimeType());
 
 				OutputStream out = rsp.getOutputStream();
-				out.write(icon.data);
+				out.write(icon.getData());
 				out.close();
+				
 				return;
 			} else {
 				rsp.setStatus(404);

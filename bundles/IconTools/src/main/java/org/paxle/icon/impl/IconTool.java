@@ -30,14 +30,32 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
-import org.paxle.core.io.IOTools;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.component.ComponentContext;
+import org.paxle.core.io.IIOTools;
+import org.paxle.icon.IIconTool;
 
-public class IconTool {
+@Component
+@Service(IIconTool.class)
+public class IconTool implements IIconTool {
 	/**
 	 * Connection manager used for http connection pooling
 	 */
-	private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
+	private MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
 
+	/**
+	 * http client class
+	 */
+	private HttpClient httpClient;	
+	
+	/**
+	 * Copy tool
+	 */
+	@Reference
+	protected IIOTools ioTool;
+	
 	/**
 	 * A map containing a mapping between <code>mime-types</code> and
 	 * <code>file-names</code>, e.g.<br />
@@ -45,41 +63,44 @@ public class IconTool {
 	 * 
 	 * This map is loaded from the properties file <code>iconmap.properties</code>.
 	 */
-	static Properties iconMap = new Properties();
+	Properties iconMap = new Properties();
 
 	/**
 	 * default icon for unknown mime-types
 	 */
-	static IconData defaultIcon = null;
+	IconData defaultIcon = null;
 
 	/**
 	 * default icon for html pages without favicon
 	 */
-	static IconData defaultHtmlIcon = null;
+	IconData defaultHtmlIcon = null;
 
-	/*
-	 * Initialize the icon-map and load the default icons
-	 */
-	static {
+	protected void activate(ComponentContext context) {		
+		/*
+		 * Initialize the icon-map and load the default icons
+		 */
 		// configure connection manager
-		HttpConnectionManagerParams cmParams = connectionManager.getParams();
+		HttpConnectionManagerParams cmParams = this.connectionManager.getParams();
 		cmParams.setDefaultMaxConnectionsPerHost(10);
 		cmParams.setConnectionTimeout(15000);
 		cmParams.setSoTimeout(15000);
+		
+		// create the http-client
+		this.httpClient = new HttpClient(this.connectionManager); 	
 		
 		/* configure mime-type to resource-file map */
 		InputStream mapStream = null;
 		try {
 			mapStream = IconTool.class.getResourceAsStream("/resources/iconmap.properties");
-			iconMap.load(mapStream);
+			this.iconMap.load(mapStream);
 			mapStream.close();
 
 			// load the default icon
 			byte[] data = readFileIconPng("unknown");
-			if (data != null) defaultIcon = new IconData(data);
+			if (data != null) this.defaultIcon = new IconData(data);
 
 			data = readFileIconPng("text/html");
-			if (data != null) defaultHtmlIcon = new IconData(data);
+			if (data != null) this.defaultHtmlIcon = new IconData(data);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -88,18 +109,13 @@ public class IconTool {
 	}
 
 	/**
-	 * http client class
-	 */
-	private static HttpClient httpClient = new HttpClient(connectionManager); 	
-
-	/**
 	 * Loads the favicon for the given http-resource. If no favicon can be found,
 	 * an icon is loaded using the icon-map
 	 * 
 	 * @param url the location of the resource, for which the favicon should be loaded
 	 * @return the loaded image data.
 	 */
-	public static IconData getIcon(URL url) {
+	public IconData getIcon(URL url) {
 		return getIcon(url,0);
 	}
 
@@ -109,7 +125,7 @@ public class IconTool {
 	 *        a page is another html site.
 	 * @return the loaded image data.
 	 */
-	private static IconData getIcon(URL url, int depth) {	
+	private IconData getIcon(URL url, int depth) {	
 		if (url == null) return defaultIcon;
 		else if (depth > 20) return defaultIcon;
 
@@ -185,11 +201,11 @@ public class IconTool {
 				try {
 					bodyStream = method.getResponseBodyAsStream();
 					bout = new ByteArrayOutputStream();
-					IOTools.copy(bodyStream, bout, 4);
+					this.ioTool.copy(bodyStream, bout, 4);
 
 					byte[] bodyPrefix = bout.toByteArray();
 					if ((bodyPrefix != null) && (bodyPrefix.length >= 4) && (bodyPrefix[0] == 0) && (bodyPrefix[1] == 0) && (bodyPrefix[2] == 1) && (bodyPrefix[3] == 0)) {
-						IOTools.copy(bodyStream, bout);					
+						this.ioTool.copy(bodyStream, bout);					
 						byte[] data = bout.toByteArray();
 
 						// trying to read icon
@@ -217,7 +233,7 @@ public class IconTool {
 		}
 	}
 
-	public static byte[] readFileIconPng(String contentType) throws IOException {
+	public byte[] readFileIconPng(String contentType) throws IOException {
 		InputStream iconInput = null;
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		try {
@@ -233,7 +249,7 @@ public class IconTool {
 			if (iconInput == null) return null;
 
 			// load data
-			IOTools.copy(iconInput, bout);
+			this.ioTool.copy(iconInput, bout);
 			return bout.toByteArray();
 		} finally {
 			bout.close();

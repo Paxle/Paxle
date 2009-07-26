@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>IconTools</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<name>Paxle - Tools: Icon</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -36,9 +36,13 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						
+						<Export-Package>
+							org.paxle.icon;version="${pom.version}"
+						</Export-Package>
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4", 
+							org.osgi.service.component;version="1.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							org.apache.log4j,
@@ -48,7 +52,9 @@
 							javax.servlet, 
 							javax.servlet.http,
 							<!-- Paxle Core Bundle -->
-							org.paxle.core.io;version="[0.1.0,0.2.0)"
+							org.paxle.core.io;version="[0.1.0,0.2.0)",
+							<!-- ignoring compile time annotations -->
+							!javax.annotation
 						</Import-Package>
 						<DynamicImport-Package>
 							javax.imageio, 

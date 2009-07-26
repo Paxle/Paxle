@@ -11,28 +11,11 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.icon.impl;
+package org.paxle.icon;
 
-import org.paxle.icon.IIconData;
+import javax.annotation.Nonnull;
 
-public class IconData implements IIconData {
-	private String mimeType = "image/png";
-	private byte[] data = null;
-	
-	public IconData(byte[] data) {
-		this.data = data;
-	}
-	
-	public IconData(String mimeType, byte[] data) {
-		this.mimeType = mimeType;
-		this.data = data;
-	}
-	
-	public byte[] getData() {
-		return this.data;
-	}
-	
-	public String getMimeType() {
-		return this.mimeType;
-	}
+public interface IIconData {
+	public @Nonnull String getMimeType();
+	public @Nonnull byte[] getData();
 }

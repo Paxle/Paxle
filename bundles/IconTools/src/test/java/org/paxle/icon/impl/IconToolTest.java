@@ -23,13 +23,16 @@ import junit.framework.TestCase;
 import junitx.framework.ArrayAssert;
 
 import org.paxle.core.io.IIOTools;
+import org.paxle.core.io.impl.IOTools;
+import org.paxle.icon.IIconData;
 
 
 public class IconToolTest extends TestCase {
 	private static final int TESTCASE_FILENAME = 0;
 	private static final int TESTCASE_MIMETYPE = 1;
 	
-	private IIOTools iotools = new org.paxle.core.io.impl.IOTools();
+	private IconTool iconTool;
+	private IIOTools iotools = new IOTools();
 	
 	/**
 	 * Testfiles to test
@@ -40,16 +43,28 @@ public class IconToolTest extends TestCase {
 		{"test.pdf","application/pdf"}
 	};
 	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		// init icon tool
+		this.iconTool = new IconTool(){{
+			this.ioTool = iotools;
+			this.activate(null);
+		}};		
+	}
+	
 	public void _testInvalidFavicon() throws MalformedURLException {
 		// this website delivers the favicon.ico as html!
 		URL url = new URL("http://www.forum.nokia.com/document/Java_ME_Developers_Library_v1/index.html?content=GUID-545CA84A-8378-4DFA-9035-94479F5BE26E.html");
 		
 		// try to fetch the favicon
-		IconTool.getIcon(url);
+		IIconData data = this.iconTool.getIcon(url);
+		assertNotNull(data);
 	}
 	
 	private byte[] loadIconData(String contentType) throws IOException {
-		String fileName = IconTool.iconMap.getProperty(contentType);
+		String fileName = this.iconTool.iconMap.getProperty(contentType);
 		assertNotNull(fileName);
 		
 		// get icon stream
@@ -66,10 +81,10 @@ public class IconToolTest extends TestCase {
 	}
 	
 	public void testNullURL() {
-		IconData iconData = IconTool.getIcon(null);
+		IIconData iconData = this.iconTool.getIcon(null);
 		assertNotNull(iconData);
-		assertNotNull(iconData.data);
-		assertEquals(IconTool.defaultIcon, iconData);
+		assertNotNull(iconData.getData());
+		assertEquals(this.iconTool.defaultIcon, iconData);
 	}
 	
 	public void testFileURLs() throws IOException {
@@ -78,11 +93,11 @@ public class IconToolTest extends TestCase {
 			String fileName = testcase[TESTCASE_FILENAME];
 			String mime = testcase[TESTCASE_MIMETYPE];
 
-			IconData iconData = IconTool.getIcon(new URL("file:///xyz/" + fileName));
+			IIconData iconData = this.iconTool.getIcon(new URL("file:///xyz/" + fileName));
 			assertNotNull(iconData);
-			assertNotNull(iconData.data);
+			assertNotNull(iconData.getData());
 
-			byte[] actualBytes = iconData.data;
+			byte[] actualBytes = iconData.getData();
 			byte[] expectedBytes = this.loadIconData(mime);
 
 			ArrayAssert.assertEquals(expectedBytes, actualBytes);
