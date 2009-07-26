@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.charset.ACharsetDetectorInputStream;
 import org.paxle.core.charset.ICharsetDetector;
@@ -36,9 +37,9 @@ import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
-import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ICrawlerContext;
+import org.paxle.crawler.ICrawlerContextLocal;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.CrawlerTools.DirlistEntry;
 import org.paxle.crawler.fs.IFsCrawler;
@@ -47,13 +48,17 @@ import org.paxle.crawler.fs.IFsCrawler;
 @Service(ISubCrawler.class)
 @Property(name=ISubCrawler.PROP_PROTOCOL, value={"file"})
 public class FsCrawler implements IFsCrawler {
-	
+	/**
+	 * For logging
+	 */
 	private final Log logger = LogFactory.getLog(FsCrawler.class);
+	
+	@Reference
+	protected ICrawlerContextLocal contextLocal;
 	
 	public ICrawlerDocument request(URI location) {
 		
-		final ICrawlerContext ctx = CrawlerContext.getCurrentContext();
-		if (ctx == null) throw new IllegalStateException("Cannot access CrawlerContext from " + Thread.currentThread().getName());
+		final ICrawlerContext ctx = this.contextLocal.getCurrentContext();
 				
 		ICrawlerDocument cdoc = null;
 		try {
@@ -231,7 +236,7 @@ public class FsCrawler implements IFsCrawler {
 				file,
 				(useFsync) ? " with fsync" : ""));
 		
-		final ITempFileManager tfm = CrawlerContext.getCurrentContext().getTempFileManager();
+		final ITempFileManager tfm = this.contextLocal.getCurrentContext().getTempFileManager();
 		if (tfm == null) {
 			cdoc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE,
 					"Cannot access ITempFileMananger from " + Thread.currentThread().getName());
@@ -273,7 +278,7 @@ public class FsCrawler implements IFsCrawler {
 	}
 	
 	private void detectFormats(final ICrawlerDocument cdoc, InputStream is) throws IOException {
-		final ICrawlerContext ctx = CrawlerContext.getCurrentContext();
+		final ICrawlerContext ctx = this.contextLocal.getCurrentContext();
 		final ICharsetDetector chardet = ctx.getCharsetDetector();
 		final IMimeTypeDetector mimedet = ctx.getMimeTypeDetector();
 		if (chardet == null && mimedet == null)
