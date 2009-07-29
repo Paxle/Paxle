@@ -16,6 +16,8 @@ package org.paxle.core;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import javax.annotation.Nonnull;
+
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 
@@ -37,7 +39,7 @@ public class MWComponentEvent {
 	 * ====================================================================== */
 	public static final String PROP_COMPONENT_ID = "componentID";	
 	
-	public static Event createEvent(String componentID, String topic) {
+	public static Event createEvent(@Nonnull String componentID, @Nonnull String topic) {
 		if (componentID == null) throw new NullPointerException("The component-ID is null");
 		if (topic == null) throw new NullPointerException("No topic specified.");
 		

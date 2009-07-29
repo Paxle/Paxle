@@ -15,8 +15,9 @@ package org.paxle.core.doc;
 
 import java.net.URI;
 
-import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.osgi.service.event.EventAdmin;
 
@@ -48,14 +49,14 @@ public interface ICommandTracker {
 	 * @param commandLocation the {@link ICommand#getLocation() command-location}
 	 * @return the {@link ICommand} or <code>null</code> if unknown
 	 */
-	public @CheckForNull ICommand getCommandByLocation(URI commandLocation);
+	public @Nullable ICommand getCommandByLocation(@Nonnull URI commandLocation);
 	
 	/**
 	 * Lookup a {@link ICommand} by {@link ICommand#getOID() ID}.
 	 * @param commandID the  {@link ICommand#getOID() command-ID}
 	 * @return the {@link ICommand} or <code>null</code> if unknown
 	 */
-	public @CheckForNull ICommand getCommandByID(Long commandID);
+	public @Nullable ICommand getCommandByID(@Nonnull @Nonnegative Long commandID);
 	
 	/**
 	 * @return the amount of {@link ICommand commands} tracked by this component

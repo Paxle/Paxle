@@ -16,6 +16,7 @@ package org.paxle.core.doc;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface IDocumentFactory {
 	public static final String DOCUMENT_TYPE = "docType";
@@ -33,5 +34,5 @@ public interface IDocumentFactory {
 	 * @return <code>true</code> if this {@link IDocumentFactory} is capable to create a document
 	 * of the given type
 	 */
-	public boolean isSupported(Class<?> docInterface);
+	public boolean isSupported(@Nullable Class<?> docInterface);
 }

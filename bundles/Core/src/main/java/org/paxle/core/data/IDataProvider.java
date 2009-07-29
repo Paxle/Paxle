@@ -13,6 +13,8 @@
  */
 package org.paxle.core.data;
 
+import javax.annotation.Nonnull;
+
 /**
  * This class "pushes" data actively into a {@link IDataSink data-sink}.
  */
@@ -23,5 +25,5 @@ public interface IDataProvider<Data> {
 	 * Assign a {@link IDataSink data-sink} to the {@link IDataProvider data-provider}.
 	 * @param dataSource
 	 */	
-	public void setDataSink(IDataSink<Data> dataSink);
+	public void setDataSink(@Nonnull IDataSink<Data> dataSink);
 }

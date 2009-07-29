@@ -13,6 +13,8 @@
  */
 package org.paxle.core.data;
 
+import javax.annotation.Nonnull;
+
 /**
  *	This class actively "pulls" data frin a {@link IDataSource data-source}.
  */
@@ -23,5 +25,5 @@ public interface IDataConsumer<Data> {
 	 * Assign a {@link IDataSource data-source} to the {@link IDataConsumer data-consumer}
 	 * @param dataSource
 	 */
-	public void setDataSource(IDataSource<Data> dataSource);
+	public void setDataSource(@Nonnull IDataSource<Data> dataSource);
 }

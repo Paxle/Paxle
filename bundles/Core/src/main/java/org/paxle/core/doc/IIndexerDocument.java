@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 
 public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
 	
@@ -43,8 +44,8 @@ public interface IIndexerDocument extends Iterable<Map.Entry<Field<?>,Object>> {
     public int getOID(); 
     public void setOID(int OID);	
 	
-	public <Type extends Serializable> void set(Field<Type> prop, Type data);
-	public <Type extends Serializable> Type get(Field<Type> prop);
+	public <Type extends Serializable> void set(@Nonnull Field<Type> prop, @Nonnull Type data);
+	public <Type extends Serializable> Type get(@Nonnull Field<Type> prop);
 	
 	public void setFields(Map<Field<?>, ?> fields);
 	public Map<Field<?>, ?> getFields();
