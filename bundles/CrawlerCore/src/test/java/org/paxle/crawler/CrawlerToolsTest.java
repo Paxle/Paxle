@@ -27,7 +27,7 @@ import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.io.impl.IOTools;
 import org.paxle.core.io.temp.ITempFileManager;
-import org.paxle.crawler.impl.CrawlerContextLocal;
+import org.paxle.crawler.impl.CrawlerTools;
 
 public class CrawlerToolsTest extends MockObjectTestCase {
 	private static final File TESTFILE = new File("src/test/resources/paxle.txt");
@@ -35,6 +35,7 @@ public class CrawlerToolsTest extends MockObjectTestCase {
 	private File outFile = new File("target/test.txt");
 	private ITempFileManager tempFileManager; 
 	private ICrawlerContext context; 
+	private ICrawlerTools crawlerTools;
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -52,16 +53,10 @@ public class CrawlerToolsTest extends MockObjectTestCase {
 		
 		// initialize crawler context
 		this.context = mock(ICrawlerContext.class);
-		CrawlerContext.setThreadLocal(new CrawlerContextLocal() {
-			@Override
-			public ICrawlerContext get() {
-				return context;
-			}
-		});
-		checking(new Expectations(){{
-			allowing(context).getTempFileManager(); will(returnValue(tempFileManager));
-			allowing(context).getIoTools(); will(returnValue(new IOTools()));
-		}});		
+		this.crawlerTools = new CrawlerTools(){{
+			this.tfm = tempFileManager;
+			this.ioTools = new IOTools();
+		}};	
 	}
 	
 	@Override
@@ -81,15 +76,9 @@ public class CrawlerToolsTest extends MockObjectTestCase {
 			// some doc properties
 			allowing(cdoc).getCharset(); will(returnValue("UTF-8"));
 			allowing(cdoc).getMimeType(); will(returnValue("text/plain"));
-			one(cdoc).setContent(outFile);
-			
-			// no charset-detector
-			one(context).getCharsetDetector(); will(returnValue(null));
-			
-			// no cryptManager
-			one(context).getCryptManager(); will(returnValue(null)); 			
+			one(cdoc).setContent(outFile);	
 		}});
-		long copied = CrawlerTools.saveInto(cdoc, fileIn);
+		long copied = this.crawlerTools.saveInto(cdoc, fileIn);
 		assertEquals(copied, TESTFILE.length());
 		assertTrue(this.outFile.exists());
 		FileAssert.assertBinaryEquals(TESTFILE, this.outFile);
@@ -111,15 +100,9 @@ public class CrawlerToolsTest extends MockObjectTestCase {
 			// some doc properties
 			allowing(cdoc).getCharset(); will(returnValue("UTF-8"));
 			allowing(cdoc).getMimeType(); will(returnValue("text/plain"));
-			one(cdoc).setContent(outFile);
-			
-			// no charset-detector
-			one(context).getCharsetDetector(); will(returnValue(null));
-			
-			// no cryptManager
-			one(context).getCryptManager(); will(returnValue(null)); 			
+			one(cdoc).setContent(outFile);		
 		}});
-		long copied = CrawlerTools.saveInto(cdoc, fileIn);
+		long copied = this.crawlerTools.saveInto(cdoc, fileIn);
 		assertTrue(this.outFile.exists());
 		assertEquals(max, copied);
 	}

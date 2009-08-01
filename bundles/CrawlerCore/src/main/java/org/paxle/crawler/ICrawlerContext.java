@@ -44,6 +44,8 @@ public interface ICrawlerContext {
 	
 	public @Nullable IIOTools getIoTools();
 	
+	public @Nullable ICrawlerTools getCrawlerTools();
+	
 	/**
 	 * @return a class that can be used to detect the mime-type of a resource
 	 * 	       This reference may be <code>null</code> if no 

@@ -49,6 +49,7 @@ import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.ICrawlerContextAware;
 import org.paxle.crawler.ICrawlerContextLocal;
+import org.paxle.crawler.ICrawlerTools;
 import org.paxle.parser.ISubParser;
 
 @Component(immediate=true)
@@ -110,6 +111,9 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> implements
 	    
 	@Reference(cardinality=ReferenceCardinality.MANDATORY_UNARY, policy=ReferencePolicy.DYNAMIC)
 	protected IIOTools ioTools;
+	
+	@Reference(cardinality=ReferenceCardinality.MANDATORY_UNARY, policy=ReferencePolicy.DYNAMIC)
+	protected ICrawlerTools crawlerTools;
 	
 	@Reference(cardinality=ReferenceCardinality.OPTIONAL_UNARY, policy=ReferencePolicy.DYNAMIC)
 	protected ICommandProfileManager cmdProfileManager;	
@@ -251,6 +255,10 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> implements
 		public IIOTools getIoTools() {
 			return ioTools;
 		}
+		
+		public ICrawlerTools getCrawlerTools() {
+			return crawlerTools;
+		}		
 		
 		/**
 		 * @return a class that can be used to detect the mime-type of a resource

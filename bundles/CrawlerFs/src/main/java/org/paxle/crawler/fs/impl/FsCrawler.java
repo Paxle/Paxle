@@ -37,12 +37,13 @@ import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
-import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.ICrawlerContextLocal;
+import org.paxle.crawler.ICrawlerTools;
 import org.paxle.crawler.ISubCrawler;
-import org.paxle.crawler.CrawlerTools.DirlistEntry;
+import org.paxle.crawler.ICrawlerTools.DirlistEntry;
 import org.paxle.crawler.fs.IFsCrawler;
+import org.paxle.crawler.impl.CrawlerTools;
 
 @Component
 @Service(ISubCrawler.class)
@@ -108,11 +109,12 @@ public class FsCrawler implements IFsCrawler {
 			cdoc.setLastModDate(new Date(file.lastModified()));
 			cdoc.setLocation(location);
 			
+			final ICrawlerTools crawlerTools = ctx.getCrawlerTools();
 			if (file.isDirectory()) {
 				final File[] list = file.listFiles();
 				final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(list, omitHidden);
 				try {
-					CrawlerTools.saveListing(cdoc, dirlistIt, inclParent, list.length > 0);
+					crawlerTools.saveListing(cdoc, dirlistIt, inclParent, list.length > 0);
 				} catch (IOException e) {
 					final String msg = String.format("Error saving dir-listing for '%s': %s", location, e.getMessage());			
 					logger.error(msg, e);
@@ -206,7 +208,7 @@ public class FsCrawler implements IFsCrawler {
 				FileInputStream fis = null;
 				try {
 					fis = new FileInputStream(file);
-					CrawlerTools.saveInto(cdoc, fis);
+					this.contextLocal.getCurrentContext().getCrawlerTools().saveInto(cdoc, fis);
 					content = cdoc.getContent();
 				} catch (IOException e) {
 					logger.error(String.format("Error saving '%s': %s", cdoc.getLocation(), e.getMessage()), e);

@@ -25,7 +25,9 @@ import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.ISubCrawler;
 
 public class CrawlerWorker extends AWorker<ICommand> {
-	
+	/**
+	 * For logging
+	 */
 	protected Log logger = LogFactory.getLog(CrawlerWorker.class);
 	
 	/**

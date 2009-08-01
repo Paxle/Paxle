@@ -31,6 +31,7 @@ import org.paxle.core.doc.ICommandTracker;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.prefs.Properties;
+import org.paxle.crawler.ICrawlerTools;
 import org.xsocket.connection.http.HttpResponseHeader;
 
 public class ProxyDataProvider extends Thread implements IDataProvider<ICommand> {
@@ -66,6 +67,8 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 	 */
 	private final ICommandTracker commandTracker;
 	
+	private final ICrawlerTools crawlerTools;
+	
 	/**
 	 * {@link IDocumentFactory document-factories} to create {@link ICommand}s and
 	 * {@link ICrawlerDocument}s
@@ -94,10 +97,11 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 	 */
 	private int commandProfileID = -1;	
 	
-	public ProxyDataProvider(Properties props, ICommandTracker cmdTracker, Map<String, IDocumentFactory> docFactories) {
+	public ProxyDataProvider(Properties props, ICommandTracker cmdTracker, Map<String, IDocumentFactory> docFactories, ICrawlerTools crawlerTools) {
 		singleton = this;
 		this.commandTracker = cmdTracker;
 		this.docFactories = docFactories;
+		this.crawlerTools = crawlerTools;
 		
 		// init threadpool
 		// XXX should we set the thread-pool size? 
@@ -143,7 +147,8 @@ public class ProxyDataProvider extends Thread implements IDataProvider<ICommand>
 				location, 
 				resHdr, 
 				bodyInputStream, 
-				this.docFactories.get(ICrawlerDocument.class.getName())
+				this.docFactories.get(ICrawlerDocument.class.getName()),
+				this.crawlerTools
 		));
 	}
 	

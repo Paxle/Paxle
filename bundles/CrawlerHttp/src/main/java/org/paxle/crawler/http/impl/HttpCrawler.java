@@ -60,11 +60,13 @@ import org.osgi.service.cm.ManagedService;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.prefs.Properties;
 import org.paxle.crawler.ContentLengthLimitExceededException;
-import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.ICrawlerContextAware;
 import org.paxle.crawler.ICrawlerContextLocal;
+import org.paxle.crawler.ICrawlerTools;
+import org.paxle.crawler.ICrawlerTools.ILimitedRateCopier;
 import org.paxle.crawler.http.IHttpCrawler;
+import org.paxle.crawler.impl.CrawlerTools;
 
 /**
  * TODO: javadoc
@@ -146,7 +148,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 	private int maxDownloadSize = -1;
 	
 	private boolean acceptEncoding = true;
-	private CrawlerTools.LimitedRateCopier lrc = null;
+	private ILimitedRateCopier lrc = null;
 	
 	/**
 	 * The Cookie policy to use for crawling
@@ -327,7 +329,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 			if (transferLimit != null)
 				limitKBps = transferLimit.intValue();
 			logger.debug("transfer rate limit: " + limitKBps + " kb/s");
-			lrc = (limitKBps > 0) ? new CrawlerTools.LimitedRateCopier(limitKBps) : null;
+			// TODO: lrc = (limitKBps > 0) ? new CrawlerTools.LimitedRateCopier(limitKBps) : null;
 			
 			// proxy configuration
 			final Boolean useProxyVal = (Boolean)configuration.get(PROP_PROXY_USE);
@@ -648,7 +650,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 				int copyLimit = (this.maxDownloadSize <= 0 || contentLengthHeader != null) ? -1 : this.maxDownloadSize;
 				
 				// copy the content to file
-				CrawlerTools.saveInto(doc, respBody, lrc, copyLimit);
+				final ICrawlerTools crawlerTools = ctx.getCrawlerTools();
+				crawlerTools.saveInto(doc, respBody, lrc, copyLimit);
 				
 				doc.setStatus(ICrawlerDocument.Status.OK);
 				this.logger.debug(String.format("Crawling of URL '%s' finished.", requestUri));

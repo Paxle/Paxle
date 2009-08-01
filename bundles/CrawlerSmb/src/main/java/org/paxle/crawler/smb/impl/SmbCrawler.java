@@ -29,11 +29,11 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.ICrawlerDocument.Status;
-import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.ICrawlerContextLocal;
+import org.paxle.crawler.ICrawlerTools;
 import org.paxle.crawler.ISubCrawler;
-import org.paxle.crawler.CrawlerTools.DirlistEntry;
+import org.paxle.crawler.ICrawlerTools.DirlistEntry;
 
 @Component(metatype=false)
 @Service(ISubCrawler.class)
@@ -87,6 +87,7 @@ public class SmbCrawler implements ISubCrawler {
 				return crawlerDoc;				
 			}
 			
+			final ICrawlerTools crawlerTools = ctx.getCrawlerTools();
 			if (smbFile.isDirectory()) {
 				/* Append '/' if necessary. Otherwise we will get:
 				 * jcifs.smb.SmbException: smb://srver/dir directory must end with '/'
@@ -112,7 +113,7 @@ public class SmbCrawler implements ISubCrawler {
 				final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(smbFiles, false);				
 				
 				// generate & save dir listing
-				CrawlerTools.saveListing(
+				crawlerTools.saveListing(
 						crawlerDoc,
 						dirlistIt,
 						true,
@@ -131,7 +132,7 @@ public class SmbCrawler implements ISubCrawler {
 			
 			if (input != null) {
 				// copy data into file
-				CrawlerTools.saveInto(crawlerDoc, input);
+				crawlerTools.saveInto(crawlerDoc, input);
 					
 				// finished
 				crawlerDoc.setStatus(Status.OK);

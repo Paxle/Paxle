@@ -30,11 +30,11 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Services;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICrawlerDocument;
-import org.paxle.crawler.CrawlerTools;
 import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.ICrawlerContextLocal;
+import org.paxle.crawler.ICrawlerTools;
 import org.paxle.crawler.ISubCrawler;
-import org.paxle.crawler.CrawlerTools.DirlistEntry;
+import org.paxle.crawler.ICrawlerTools.DirlistEntry;
 import org.paxle.crawler.ftp.IFtpCrawler;
 
 @Component(metatype=false, immediate=true, name = FtpCrawler.PID)
@@ -50,13 +50,13 @@ public class FtpCrawler implements IFtpCrawler {
 	static final String PID = "org.paxle.crawler.ftp.IFtpCrawler";
 	
 	@Property(intValue=15000)
-	static final String PROP_CONNECTION_TIMEOUT 		= PID + '.' + "connectionTimeout";
+	static final String PROP_CONNECTION_TIMEOUT = PID + '.' + "connectionTimeout";
 	
 	@Property(intValue=15000)
-	static final String PROP_SOCKET_TIMEOUT 			= PID + '.' + "socketTimeout";
+	static final String PROP_SOCKET_TIMEOUT = PID + '.' + "socketTimeout";
 	
 	@Property(intValue=10485760)
-	static final String PROP_MAXDOWNLOAD_SIZE 			= PID + '.' + "maxDownloadSize";	
+	static final String PROP_MAXDOWNLOAD_SIZE = PID + '.' + "maxDownloadSize";	
 	
 	private int connectionTimeout = 15000;
 	private int socketTimeout = 15000;
@@ -139,18 +139,19 @@ public class FtpCrawler implements IFtpCrawler {
 				}
 			}
 			
+			final ICrawlerTools crawlerTools = ctx.getCrawlerTools();
 			if (ftpConnection.isDirectory()) {
 				final FTPFile[] list = ftpConnection.listFiles();
 				final Iterator<DirlistEntry> dirlistIt = new DirlistIterator(list);
 				
 				// generate & save dir-listing into file
-				CrawlerTools.saveListing(crawlerDoc, dirlistIt, true, list.length > 50);
+				crawlerTools.saveListing(crawlerDoc, dirlistIt, true, list.length > 50);
 			} else {
 				// get input stream
 				InputStream input = ftpConnection.getInputStream();
 				
 				// copy data into file
-				CrawlerTools.saveInto(crawlerDoc, input);
+				crawlerTools.saveInto(crawlerDoc, input);
 				
 				// close connection
 				input.close();

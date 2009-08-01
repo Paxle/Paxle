@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.crawler;
+package org.paxle.crawler.impl;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -30,6 +30,11 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.charset.ACharsetDetectorOutputStream;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.crypt.ACryptOutputStream;
@@ -39,15 +44,48 @@ import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
-import org.paxle.crawler.impl.ContentLengthLimitOutputStream;
+import org.paxle.crawler.ContentLengthLimitExceededException;
+import org.paxle.crawler.ICrawlerTools;
 
-public class CrawlerTools {
+@Component(immediate=true)
+@Service(ICrawlerTools.class)
+public class CrawlerTools implements ICrawlerTools {
 	
-	private static final Log logger = LogFactory.getLog(CrawlerTools.class);
+	/**
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog(CrawlerTools.class);
+	
+	/**
+	 * A component to create temp-files
+	 */
+	@Reference
+	protected ITempFileManager tfm;
+	
+	/**
+	 * A copy tool
+	 */
+	@Reference
+	protected IIOTools ioTools;
+	
+	/**
+	 * A tool to detect the charset encoding of a text
+	 */
+	@Reference(policy=ReferencePolicy.DYNAMIC, cardinality=ReferenceCardinality.OPTIONAL_UNARY)
+	protected ICharsetDetector chardet; 
+
+	/**
+	 * A tool to detect the mime-type of a content
+	 */
+	@Reference(policy=ReferencePolicy.DYNAMIC, cardinality=ReferenceCardinality.OPTIONAL_UNARY)
+	protected IMimeTypeDetector mimeTypeDetector;	
+	
+	@Reference(policy=ReferencePolicy.DYNAMIC, cardinality=ReferenceCardinality.OPTIONAL_UNARY)
+	protected ICryptManager cryptManager;
 	
 	public static final int DEFAULT_BUFFER_SIZE_BYTES = 1024;
 	
-	public static class LimitedRateCopier {
+	private static class LimitedRateCopier implements ILimitedRateCopier {
 		
 		private final Semaphore sem = new Semaphore(1);
 		private final long minDelta;
@@ -108,25 +146,15 @@ public class CrawlerTools {
 		}
 	}
 	
-	/**
-	 * Describes an entry in a dir-listing. If the method {@link DirlistEntry#getFileURI()}
-	 * returns <code>null</code>, the resulting {@link URI} of the represented entry will be
-	 * constructed out of the <code>location</code> of the given {@link ICrawlerDocument}.
-	 * The implementation of this method therefore is optional. 
-	 */
-	public static interface DirlistEntry {
-		
-		public abstract URI getFileURI();
-		public abstract String getFileName();
-		public abstract long getSize();
-		public abstract long getLastModified();
+	public ILimitedRateCopier createLimitedRateCopier(final int maxKBps) {
+		return new LimitedRateCopier(maxKBps);
 	}
 	
 	/**
 	 * Uses compression
 	 * @see CrawlerTools#saveListing(Iterator, String, boolean)
 	 */
-	public static void saveListing(
+	public void saveListing(
 			final ICrawlerDocument cdoc,
 			final Iterator<DirlistEntry> fileListIt) throws IOException {
 		saveListing(cdoc, fileListIt, true, true);
@@ -147,7 +175,7 @@ public class CrawlerTools {
 	 *        to save space. Compression reduces the size of the representation of large directories
 	 *        up to a sixth.
 	 */
-	public static void saveListing(
+	public void saveListing(
 			final ICrawlerDocument cdoc,
 			final Iterator<DirlistEntry> fileListIt,
 			boolean inclParent,
@@ -156,13 +184,7 @@ public class CrawlerTools {
 		
 		File content = cdoc.getContent();
 		if (content == null) {
-			final ICrawlerContext context = CrawlerContext.getCurrentContext();
-			if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");
-			
-			final ITempFileManager tfm = context.getTempFileManager();
-			if (tfm == null) throw new RuntimeException("Unexpected error. The tempfile-manager was null.");
-			
-			content = tfm.createTempFile();
+			content = this.tfm.createTempFile();
 			cdoc.setContent(content);
 		}
 		
@@ -246,7 +268,7 @@ public class CrawlerTools {
 	 * @param contentCharset the charset to test
 	 * @return <code>true</code> if the charset is not supported
 	 */
-	static boolean isUnsupportedCharset(String contentCharset) {		
+	boolean isUnsupportedCharset(String contentCharset) {		
 		boolean unsupportedCharset = true;		
 
 		try {
@@ -258,11 +280,11 @@ public class CrawlerTools {
 		return unsupportedCharset;
 	}
 	
-	public static long saveInto(ICrawlerDocument doc, InputStream is) throws IOException {
+	public long saveInto(ICrawlerDocument doc, InputStream is) throws IOException {
 		return saveInto(doc, is, null);
 	}
 	
-	public static long saveInto(ICrawlerDocument doc, InputStream is, final LimitedRateCopier lrc) throws IOException {
+	public long saveInto(ICrawlerDocument doc, InputStream is, final ILimitedRateCopier lrc) throws IOException {
 		return saveInto(doc, is, lrc, -1);
 	}
 	
@@ -286,15 +308,11 @@ public class CrawlerTools {
 	 * @throws ContentLengthLimitExceededException if the content-length read via the input stream exceeds the
 	 * 	limit defined via maxFileSize
 	 */
-	public static long saveInto(ICrawlerDocument doc, InputStream is, final LimitedRateCopier lrc, final int maxFileSize) 
+	public long saveInto(ICrawlerDocument doc, InputStream is, final ILimitedRateCopier lrc, final int maxFileSize) 
 		throws IOException, ContentLengthLimitExceededException 
 	{
 		if (doc == null) throw new NullPointerException("The crawler-document is null.");
 		if (is == null) throw new NullPointerException("The content inputstream is null.");
-		
-		final ICrawlerContext context = CrawlerContext.getCurrentContext();
-		if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");
-		
 		
 		// testing if the charset is supported by java
 		if (doc.getCharset() != null && isUnsupportedCharset(doc.getCharset())) {
@@ -310,7 +328,7 @@ public class CrawlerTools {
 		OutputStream os = null;
 		try {
 			// init file output-stream
-			file = context.getTempFileManager().createTempFile();
+			file = this.tfm.createTempFile();
 			os = new BufferedOutputStream(new FileOutputStream(file));
 			
 			// limit file size
@@ -322,15 +340,13 @@ public class CrawlerTools {
 			
 			// init charset detection stream
 			ACharsetDetectorOutputStream chardetos = null;
-			final ICharsetDetector chardet = context.getCharsetDetector();
-			if (chardet != null) {
-				chardetos = chardet.createOutputStream(os);
+			if (this.chardet != null) {
+				chardetos = this.chardet.createOutputStream(os);
 				os = chardetos;
 			}
 			
 			// init md5-calculation stream
 			ACryptOutputStream md5os = null;		
-			ICryptManager cryptManager = context.getCryptManager();
 			final ICrypt md5 = (cryptManager==null)?null:cryptManager.getCrypt("md5");
 			if (md5 != null) {
 				md5os = md5.createOutputStream(os);
@@ -340,7 +356,6 @@ public class CrawlerTools {
 			/* ================================================================
 			 * COPY DATA
 			 * ================================================================ */
-			final IIOTools ioTools = context.getIoTools();
 			final long copied = (lrc == null) ? ioTools.copy(is, os) : lrc.copy(is, os, -1);
 			
 			/* ================================================================
@@ -382,7 +397,6 @@ public class CrawlerTools {
 			 * MIME-TYPE DETECTION
 			 * ================================================================ */
 			if (doc.getMimeType() == null) {
-				IMimeTypeDetector mimeTypeDetector = context.getMimeTypeDetector();
 				if (mimeTypeDetector != null) {
 					String mimeType = null;
 					try {
@@ -414,7 +428,7 @@ public class CrawlerTools {
 				}
 				
 				// releasing temp file
-				context.getTempFileManager().releaseTempFile(file);
+				this.tfm.releaseTempFile(file);
 			}
 			
 			// re-throw IO-Exceptions

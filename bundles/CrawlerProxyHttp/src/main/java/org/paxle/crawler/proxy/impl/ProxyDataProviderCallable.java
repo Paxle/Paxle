@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
-import org.paxle.crawler.CrawlerTools;
+import org.paxle.crawler.ICrawlerTools;
 import org.xsocket.connection.http.HttpResponseHeader;
 
 public class ProxyDataProviderCallable implements Callable<ICrawlerDocument> {
@@ -32,12 +32,19 @@ public class ProxyDataProviderCallable implements Callable<ICrawlerDocument> {
 	 */
 	private final Log logger = LogFactory.getLog(this.getClass());	
 	
+	private final ICrawlerTools crawlerTools;
 	private final IDocumentFactory crawlerDocFactory;
 	private final URI location;
 	private final HttpResponseHeader responseHeaders;
 	private final InputStream bodyInputStream;	
 	
-	public ProxyDataProviderCallable(URI location, HttpResponseHeader responseHeaders, InputStream bodyInputStream, IDocumentFactory crawlerDocFactory) {
+	public ProxyDataProviderCallable(
+			URI location, 
+			HttpResponseHeader responseHeaders, 
+			InputStream bodyInputStream, 
+			IDocumentFactory crawlerDocFactory,
+			ICrawlerTools crawlerTools
+	) {
 		if (location == null) throw new NullPointerException("The command object was null.");
 		if (responseHeaders == null) throw new NullPointerException("The response-headers were null.");
 		if (bodyInputStream == null) throw new NullPointerException("The response-body wasnull.");
@@ -47,6 +54,7 @@ public class ProxyDataProviderCallable implements Callable<ICrawlerDocument> {
 		this.responseHeaders = responseHeaders;
 		this.bodyInputStream = bodyInputStream;
 		this.crawlerDocFactory = crawlerDocFactory;
+		this.crawlerTools = crawlerTools;
 	}
 	
 	public ICrawlerDocument call() throws Exception {
@@ -62,7 +70,7 @@ public class ProxyDataProviderCallable implements Callable<ICrawlerDocument> {
 			this.extractHeaderData(this.responseHeaders, doc);						
 			
 			// copy the content to file
-			CrawlerTools.saveInto(doc, bodyInputStream, null);			
+			this.crawlerTools.saveInto(doc, bodyInputStream);			
 
 			doc.setStatus(ICrawlerDocument.Status.OK);
 			this.logger.debug(String.format("Processing of URL '%s' finished.", this.location));

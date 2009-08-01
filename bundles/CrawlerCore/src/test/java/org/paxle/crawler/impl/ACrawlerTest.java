@@ -24,21 +24,27 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
+import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.impl.IOTools;
 import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.crawler.CrawlerContext;
 import org.paxle.crawler.ICrawlerContextLocal;
+import org.paxle.crawler.ICrawlerTools;
 
 public abstract class ACrawlerTest extends MockObjectTestCase {
 
 	protected ICrawlerDocument crawlerDoc;
 	
-	protected ITempFileManager aTempManager;
+	protected ITempFileManager theTempFileManager;
 	
 	protected IDocumentFactory docFactory;
 	
 	protected ICrawlerContextLocal crawlerContextLocal;
+	
+	protected ICrawlerTools theCrawlerTools;
+	
+	protected IIOTools theIoTools;
 	
 	protected String[] mimeTypes = new String[] {"text/html"};
 	
@@ -59,7 +65,7 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 		super.tearDown();
 		
 		// cleanup temp-file
-		for (File tempFile : ((TestTempFileManager)aTempManager).tempFiles)	{
+		for (File tempFile : ((TestTempFileManager)theTempFileManager).tempFiles)	{
 			if (tempFile.exists() && !tempFile.delete()) 
 				throw new IOException("Unable to delte file: " + tempFile);
 		}
@@ -67,15 +73,21 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 	
 	protected void initCrawlerContext(final String[] mimeTypes) {
 		// creating a dummy temp-file manager
-		this.aTempManager = new TestTempFileManager();
+		this.theTempFileManager = new TestTempFileManager();
 
 		// a dummy doc factory
 		this.docFactory = new BasicDocumentFactory(){{
-			this.tempFileManager = aTempManager;
+			this.tempFileManager = theTempFileManager;
+		}};
+		
+		this.theIoTools = new IOTools();
+		this.theCrawlerTools = new CrawlerTools() {{
+			this.tfm = theTempFileManager;
+			this.ioTools = theIoTools;
 		}};
 		
 		// initializing the crawler context
-		this.crawlerContextLocal = new TestCrawlerContextLocal(mimeTypes, this.aTempManager);
+		this.crawlerContextLocal = new TestCrawlerContextLocal(mimeTypes);
 		CrawlerContext.setThreadLocal((CrawlerContextLocal) this.crawlerContextLocal);
 	}
 	
@@ -102,14 +114,15 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 	}
 	
 	private class TestCrawlerContextLocal extends CrawlerContextLocal {
-		public TestCrawlerContextLocal(String[] mimeTypes, ITempFileManager tempFileManager) {
+		public TestCrawlerContextLocal(String[] mimeTypes) {
 			// all mimetypes supported in the system
 			for (String mimeType : mimeTypes) {
 				this.supportedMimeTypes.add(mimeType);
 			}
 			
-			this.tempFileManager = tempFileManager;	
-			this.ioTools = new IOTools();
+			this.tempFileManager = theTempFileManager;	
+			this.ioTools = theIoTools;
+			this.crawlerTools = theCrawlerTools;
 		}
 		
 		@SuppressWarnings("unchecked")

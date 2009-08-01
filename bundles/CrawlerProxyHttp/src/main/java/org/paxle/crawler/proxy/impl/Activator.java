@@ -35,6 +35,7 @@ import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.Properties;
+import org.paxle.crawler.ICrawlerTools;
 import org.paxle.crawler.proxy.IHttpProxy;
 
 public class Activator implements BundleActivator {
@@ -86,6 +87,12 @@ public class Activator implements BundleActivator {
         	this.logger.warn("No CommandTracker-service found. Command-tracking will not work.");
         }
         
+        final ServiceReference crawlerToolsRef = context.getServiceReference(ICrawlerTools.class.getName());
+        final ICrawlerTools crawlerTools = (crawlerToolsRef == null) ? null :  (ICrawlerTools) context.getService(crawlerToolsRef);
+        if (crawlerTools == null) {
+        	this.logger.warn("No crawler-tools found.");
+        }        
+        
         // getting the required document-factories
         Map<String, IDocumentFactory> docFactories = new HashMap<String, IDocumentFactory>();
         
@@ -111,7 +118,7 @@ public class Activator implements BundleActivator {
         
 		
 		// init data provider
-		this.dataProvider = new ProxyDataProvider(providerPrefs, commandTracker, docFactories);
+		this.dataProvider = new ProxyDataProvider(providerPrefs, commandTracker, docFactories, crawlerTools);
 		final Hashtable<String,String> providerProps = new Hashtable<String,String>();
 		providerProps.put(IDataProvider.PROP_DATAPROVIDER_ID, "org.paxle.parser.sink");		
 		context.registerService(new String[]{IDataProvider.class.getName()}, this.dataProvider, providerProps);
