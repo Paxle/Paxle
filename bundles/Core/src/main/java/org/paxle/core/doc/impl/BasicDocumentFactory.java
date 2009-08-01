@@ -91,6 +91,7 @@ public class BasicDocumentFactory implements IDocumentFactory {
 	}
 
 	public boolean isSupported(Class<?> docInterface) {
+		if (docInterface == null) return false;
 		return SUPPORTED_CLASSES.contains(docInterface);
 	}
 }

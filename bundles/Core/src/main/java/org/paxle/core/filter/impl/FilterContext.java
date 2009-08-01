@@ -16,6 +16,8 @@ package org.paxle.core.filter.impl;
 import java.net.URI;
 import java.util.Properties;
 
+import javax.annotation.Nonnull;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.util.tracker.ServiceTracker;
@@ -98,10 +100,10 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	 * @param props additional properties accessible by the {@link Filter} via {@link #getFilterProperties()}
 	 */
 	public FilterContext(
-			String filterPID,
-			Long serviceID, 
-			IFilter<?> filterImpl, 
-			String targetID, 
+			@Nonnull String filterPID,
+			@Nonnull Long serviceID, 
+			@Nonnull IFilter<?> filterImpl, 
+			@Nonnull String targetID, 
 			int filterPos, 
 			boolean enabled,
 			Properties props

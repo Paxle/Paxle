@@ -19,6 +19,9 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.CharBuffer;
 
+import javax.annotation.Nonnull;
+import javax.annotation.WillNotClose;
+
 import net.jcip.annotations.ThreadSafe;
 
 @ThreadSafe
@@ -34,7 +37,7 @@ public interface IIOTools {
 	 * @return the number of copied characters
 	 * @throws <b>IOException</b> if an I/O-error occures
 	 */
-	public long copy(Reader in, Appendable out) throws IOException;
+	public long copy(@Nonnull @WillNotClose Reader in, @Nonnull Appendable out) throws IOException;
 	
 	/**
 	 * Copies an amount of data from the given {@link Reader} to the given {@link Appendable}.
@@ -50,7 +53,7 @@ public interface IIOTools {
 	 * @return the number of copied characters
 	 * @throws <b>IOException</b> if an I/O-error occures
 	 */
-	public long copy(Reader in, Appendable out, long chars) throws IOException;
+	public long copy(@Nonnull @WillNotClose Reader in, @Nonnull Appendable out, long chars) throws IOException;
 	
 	/**
 	 * Copies all data from the given {@link InputStream} to the given {@link OutputStream}
@@ -63,7 +66,7 @@ public interface IIOTools {
 	 * @return the number of copied bytes
 	 * @throws <b>IOException</b> if an I/O-error occures
 	 */
-	public long copy(InputStream is, OutputStream os) throws IOException;
+	public long copy(@Nonnull @WillNotClose InputStream is, @Nonnull @WillNotClose OutputStream os) throws IOException;
 	
 	/**
 	 * Copies an amount of data from the given {@link InputStream} to the given {@link OutputStream}.
@@ -78,7 +81,7 @@ public interface IIOTools {
 	 * @return the number of copied bytes
 	 * @throws <b>IOException</b> if an I/O-error occures
 	 */
-	public long copy(InputStream is, OutputStream os, long bytes) throws IOException;
+	public long copy(@Nonnull @WillNotClose InputStream is, @Nonnull @WillNotClose OutputStream os, long bytes) throws IOException;
 	
-	public long copy(final InputStream is, final OutputStream os, final long bytes, final int limitKBps) throws IOException;
+	public long copy(@Nonnull @WillNotClose  InputStream is, @Nonnull @WillNotClose OutputStream os, final long bytes, final int limitKBps) throws IOException;
 }
