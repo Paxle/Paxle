@@ -24,20 +24,20 @@ public class BasicCrawlerDocument implements ICrawlerDocument {
 	/**
 	 * Primary key required by Object-EER mapping 
 	 */
-	private int _oid;
+	protected int _oid;
 	
-	private ICrawlerDocument.Status status = null;
-	private String statusText = null;
+	protected ICrawlerDocument.Status status = null;
+	protected String statusText = null;
 	/** The location, i.e. URL of this document */
-	private URI location = null;
-	private String mimeType = null;
-	private String charset = null;
-	private String[] languages = null; 
-	private File content = null;
-	private Date crawlerDate = null;
-	private Date lastModDate = null;
-	private String etag;
-	private byte[] md5Sum = null;
+	protected URI location = null;
+	protected String mimeType = null;
+	protected String charset = null;
+	protected String[] languages = null; 
+	protected File content = null;
+	protected Date crawlerDate = null;
+	protected Date lastModDate = null;
+	protected String etag;
+	protected byte[] md5Sum = null;
 
     public int getOID(){ 
     	return _oid; 

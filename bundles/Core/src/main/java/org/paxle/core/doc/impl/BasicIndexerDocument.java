@@ -21,8 +21,7 @@ import java.util.Map;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
 
-public class BasicIndexerDocument extends HashMap<Field<?>,Object> implements IIndexerDocument {
-	
+public class BasicIndexerDocument extends HashMap<Field<?>,Object> implements IIndexerDocument {	
 	private static final long serialVersionUID = 1L;
 	
 	/**
@@ -30,8 +29,9 @@ public class BasicIndexerDocument extends HashMap<Field<?>,Object> implements II
 	 */
 	protected int _oid;		
 	
-	private IIndexerDocument.Status status = null;
-	private String statusText = null;
+	protected IIndexerDocument.Status status = null;
+	
+	protected String statusText = null;
 	
     public int getOID(){ 
     	return _oid; 

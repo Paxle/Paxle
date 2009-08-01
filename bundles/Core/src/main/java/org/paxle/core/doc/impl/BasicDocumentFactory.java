@@ -59,7 +59,7 @@ public class BasicDocumentFactory implements IDocumentFactory {
 	/**
 	 * For logging
 	 */
-	private Log logger = LogFactory.getLog(this.getClass());
+	protected Log logger = LogFactory.getLog(this.getClass());
 	
 	@Reference
 	protected ITempFileManager tempFileManager;

@@ -26,18 +26,18 @@ public class BasicCommandProfile implements ICommandProfile {
 	/**
 	 * Primary key required by Object-EER mapping 
 	 */
-	private int _oid;
+	protected int _oid;
 	
 	/**
 	 * Defines how many childs of the starting-{@link URI locations}
 	 * should be processed.
 	 */
-	private int maxDepth = 0;
+	protected int maxDepth = 0;
 	
 	/**
 	 * The name of this profile
 	 */
-	private String name = null;
+	protected String name = null;
 	
 	/**
 	 * Specifies which mode is used to filter links:
@@ -46,18 +46,18 @@ public class BasicCommandProfile implements ICommandProfile {
 	 * <tr><td><code>regexp</code></td><td>filtering using regular expressions</td></tr>
 	 * </table>
 	 */
-	private LinkFilterMode linkFilterMode = LinkFilterMode.none;
+	protected LinkFilterMode linkFilterMode = LinkFilterMode.none;
 	
 	/**
 	 * The expression that is used to filter links. For {@link LinkFilterMode#none} this value is <code>null</code>, 
 	 * for {@link LinkFilterMode#regexp} this is a valid {@link Pattern} in {@link String}-format.
 	 */
-	private String linkFilterExpression = null;
+	protected String linkFilterExpression = null;
 	
 	/**
 	 * Other properties, e.g. special properties for command-filters
 	 */
-	private Map<String, Serializable> properties = Collections.emptyMap();
+	protected Map<String, Serializable> properties = Collections.emptyMap();
 	
     public int getOID(){ 
     	return _oid; 

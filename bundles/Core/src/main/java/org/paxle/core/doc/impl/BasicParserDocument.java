@@ -40,7 +40,7 @@ public class BasicParserDocument extends AParserDocument {
 	 * Ensures proper setup of content output writer 
 	 * @throws IOException
 	 */
-	private void checkContentOut() throws IOException {
+	protected void checkContentOut() throws IOException {
 		if (this.content == null) {
 			this.content = this.tempFileManager.createTempFile();
 		}
