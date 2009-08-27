@@ -16,7 +16,7 @@
 		
     	<!-- memory configuration -->
         <field type="rule" align="left" variable="runtime.xmx.mb">
-            <description align="left" txt="The amount of main-memory (in MB) paxle is allowed to consume." id="settings.xmx.desc"/>
+            <description align="left" txt="The amount of main-memory (in MB) Paxle is allowed to consume." id="settings.xmx.desc"/>
             <spec txt="Memory" size="5" set="0:256" layout="N:5:5" id="settings.xmx.name"/>
         </field>
 
