@@ -123,7 +123,7 @@
 		<!-- required for base64 encoding/decoding -->
 		<dependency>
 			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec-osgi</artifactId>
+			<artifactId>commons-codec</artifactId>
 			<optional>true</optional>
 		</dependency>	
 	</dependencies>

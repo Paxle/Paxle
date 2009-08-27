@@ -90,7 +90,7 @@
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec-osgi</artifactId>
+			<artifactId>commons-codec</artifactId>
 		</dependency>		
 
 		<!-- cache dependencies -->
