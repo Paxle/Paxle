@@ -18,7 +18,6 @@ import java.io.OutputStream;
 import java.net.URL;
 
 import javax.servlet.Servlet;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,7 +29,6 @@ import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.paxle.core.io.IIOTools;
 import org.paxle.icon.IIconData;
 import org.paxle.icon.IIconTool;
 

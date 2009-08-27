@@ -20,8 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.Properties;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import javax.swing.text.html.parser.ParserDelegator;
 
@@ -35,6 +38,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.io.IIOTools;
+import org.paxle.icon.IIconData;
 import org.paxle.icon.IIconTool;
 
 @Component
@@ -49,6 +53,8 @@ public class IconTool implements IIconTool {
 	 * http client class
 	 */
 	private HttpClient httpClient;	
+	
+	private HashMap<URL, IconData> iconcache = new HashMap<URL, IconData>(21,1);
 	
 	/**
 	 * Copy tool
@@ -108,21 +114,38 @@ public class IconTool implements IIconTool {
 		}
 	}
 
+	public IIconData getIcon(@Nullable URL url) {
+		return getIcon(url, true);
+	}
+	
 	/**
 	 * Loads the favicon for the given http-resource. If no favicon can be found,
 	 * an icon is loaded using the icon-map
 	 * 
 	 * @param url the location of the resource, for which the favicon should be loaded
+	 * @param useIconCache if the cache of recently loaded favicons should be used
 	 * @return the loaded image data.
 	 */
-	public IconData getIcon(URL url) {
+	public IconData getIcon(@Nullable URL url, boolean useIconCache) {
+		if (useIconCache) {
+			if (iconcache.get(url) != null) { //cache knows favicon for this URL
+				return iconcache.get(url);
+			} else {
+				@Nonnull IconData favicon = getIcon(url,0); //load favicon from web
+				if (url != null) { 
+					if (iconcache.size() > 20) { iconcache = new HashMap<URL, IconData>(21,1); }  //clear the cache. To-Do: More elegant, but slower, would be a rotation.
+					iconcache.put(url, favicon);
+				}
+				return favicon;
+			}
+		}
 		return getIcon(url,0);
 	}
 
 	/**
 	 * @param url the location of the resource, for which the favicon should be loaded
 	 * @param depth protection against endless loops, e.g. if the icon link returned by
-	 *        a page is another html site.
+	 *        a page is another html site. Maximum is 20.
 	 * @return the loaded image data.
 	 */
 	private IconData getIcon(URL url, int depth) {	
@@ -151,7 +174,7 @@ public class IconTool implements IIconTool {
 			}
 
 			// getting the mimetype and charset
-			String contentMimeType = null;
+			String contentMimeType = "unknown"; //to allow this to be null, the code below (like contentMimeType.equals("text/html")) must be refactored
 			Header contentTypeHeader = method.getResponseHeader("Content-Type");
 			if (contentTypeHeader != null) {
 				contentMimeType = contentTypeHeader.getValue();

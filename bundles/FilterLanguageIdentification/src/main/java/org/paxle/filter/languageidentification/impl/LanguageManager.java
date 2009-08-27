@@ -37,7 +37,7 @@ import de.spieleck.app.cngram.NGramProfiles;
 /**
  * This helper class determines the language of a document and inserts its finding into a parser-doc and all of its subdocs 
  */
-@Component(immediate=true, metatype=true, label="FilterLanguageManager")
+@Component(immediate=true, metatype=true, label="FilterLanguageManager", description="A filter which determines the language of a given document")
 @Service(IFilter.class)
 @FilterTarget(@FilterQueuePosition(
 		queue = "org.paxle.parser.out", 
