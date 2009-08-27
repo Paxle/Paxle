@@ -20,13 +20,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashMap;
 import java.util.Properties;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import javax.swing.text.html.parser.ParserDelegator;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -54,8 +58,12 @@ public class IconTool implements IIconTool {
 	 */
 	private HttpClient httpClient;	
 	
-	private HashMap<URL, IconData> iconcache = new HashMap<URL, IconData>(21,1);
-	
+	/**
+	 * A cache for the favicons, based on ehCache, max. 30 entries per default
+	 */
+	private CacheManager cachemanager = new CacheManager(IconTool.class.getResource("/resources/ehCache.xml"));
+	private Cache iconcache = cachemanager.getCache("favicon.store");
+	 
 	/**
 	 * Copy tool
 	 */
@@ -113,6 +121,10 @@ public class IconTool implements IIconTool {
 			if (mapStream != null) try { mapStream.close(); } catch (Exception e) {/* ignore this */}
 		}
 	}
+	
+	protected void deactivate(ComponentContext context ){
+		this.cachemanager.shutdown(); 
+	}
 
 	public IIconData getIcon(@Nullable URL url) {
 		return getIcon(url, true);
@@ -129,12 +141,11 @@ public class IconTool implements IIconTool {
 	public IconData getIcon(@Nullable URL url, boolean useIconCache) {
 		if (useIconCache) {
 			if (iconcache.get(url) != null) { //cache knows favicon for this URL
-				return iconcache.get(url);
+				return (IconData) iconcache.get(url).getObjectValue();
 			} else {
 				@Nonnull IconData favicon = getIcon(url,0); //load favicon from web
 				if (url != null) { 
-					if (iconcache.size() > 20) { iconcache = new HashMap<URL, IconData>(21,1); }  //clear the cache. To-Do: More elegant, but slower, would be a rotation.
-					iconcache.put(url, favicon);
+					iconcache.put(new Element(url, favicon));
 				}
 				return favicon;
 			}

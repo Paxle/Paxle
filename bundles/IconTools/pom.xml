@@ -46,6 +46,10 @@
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							org.apache.log4j,
+							<!-- Ehcache -->
+							net.sf.ehcache;version="1.5.0",
+							net.sf.ehcache.config;version="1.5.0",
+							net.sf.ehcache.*;version="1.5.0",
 							<!-- Apache Commons HttpClient -->
 							org.apache.commons.httpclient.*;version="3.1.0",
 							<!-- Servlet API -->
@@ -100,6 +104,20 @@
 			<groupId>com.ctreber</groupId>
 			<artifactId>aclib</artifactId>
 			<version>3.0-java5</version>
+		</dependency>
+		<dependency>
+		    <groupId>net.sf.ehcache</groupId>
+		    <artifactId>ehcache</artifactId>
+			<exclusions>
+				<exclusion>
+				    <groupId>net.sf.jsr107cache</groupId>
+				    <artifactId>jsr107cache</artifactId>
+				</exclusion>
+				<exclusion>
+				    <groupId>commons-collections</groupId>
+				    <artifactId>commons-collections</artifactId>
+				</exclusion>				
+			</exclusions>		    
 		</dependency>
 		<dependency>
 			<groupId>commons-httpclient</groupId>
