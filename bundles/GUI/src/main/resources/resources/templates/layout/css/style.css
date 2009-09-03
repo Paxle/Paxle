@@ -31,8 +31,10 @@ form {
 	padding: 0;
 }
 
-form#loginForm {
-	padding: 1em;
+form#loginForm, input.btnLogin {
+	padding: 0.5em;
+	margin-top: 0.5em;
+	font-size: 70%;
 }
 
 h1 {

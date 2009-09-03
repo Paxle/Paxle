@@ -423,7 +423,7 @@ abstract class AParserDocument implements IParserDocument {
 	 */
 	private static String whitespaces2Space(String text) {
 		if (text == null) return null;
-		return text.replaceAll("\\s", " ").trim();
+		return text.replaceAll("\\s+", " ").trim();
 	}
 	
 	/* =========================================================================
