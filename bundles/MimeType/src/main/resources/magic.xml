@@ -3545,7 +3545,6 @@
 	<test offset="0" type="belong" comparator="=">0xfffeff0e</test>
 </match>
 
-<!-- types added for YaCy -->
 <match>
 	<mimetype>text/Calendar</mimetype>
 	<extension>.ics</extension>

@@ -79,7 +79,7 @@ public interface ICommand extends Closeable {
     public void setProfileOID(int profileOID);
 	
 	/**
-	 * Returns the URL as String
+	 * Returns the URL as URI
 	 * @return the URL
 	 */
 	public URI getLocation();

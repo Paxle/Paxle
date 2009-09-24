@@ -14,12 +14,13 @@
 package org.paxle.filter.wordlistcreator.impl;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICommand;
@@ -27,7 +28,6 @@ import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
-import org.paxle.core.io.IIOTools;
 
 @Component(immediate=true, metatype=true, label="FilterWordlistCreator")
 @Service(IFilter.class)
@@ -40,38 +40,46 @@ import org.paxle.core.io.IIOTools;
 public class WordlistCreatorFilter implements IFilter<ICommand> {
 
 	/**
-	 * Path where the data should be stored
-	 */
-	private File dataDir;
-	
-	/**
 	 * For logging
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
-	
-	@Reference
-	protected IIOTools ioTools;
-	
+
+	private TokenManager tm = null;
+
 	/**
 	 * This function is called by the OSGi framework if this component is activated
 	 */
 	protected void activate(ComponentContext context)  {
-		System.out.println("######################ACTIVATED######################################");
-		System.out.println("######################ACTIVATED######################################");
-		logger.warn("######################ACTIVATED######################################");
-		logger.warn("######################ACTIVATED######################################");
 		String dataPath = (String) context.getProperties().get("dataPath");
-		
+
 		// getting the data directory to use
-		this.dataDir = new File(System.getProperty("paxle.data") + File.separatorChar + dataPath);
-		if (!dataDir.exists()) dataDir.mkdirs();		
+		try {
+			this.tm = new TokenManager(new File(System.getProperty("paxle.data") + File.separatorChar + dataPath));
+		} catch (IOException e) {
+			this.tm = null;
+			logger.error("The token manager couldn't be initialized, is the data directory writeable?", e);
+		}
 	}
-	
-	public void filter(ICommand command, IFilterContext context) {
+
+	protected void deactivate(ComponentContext context ){
+		if (this.tm != null)
+			this.tm.close();
+	}
+
+	synchronized public void filter(ICommand command, IFilterContext context) {
 		if (command == null) throw new NullPointerException("The command object is null.");
 		if (command.getResult() != ICommand.Result.Passed) return;
-		if (command.getParserDocument() == null) return;	
+		if (command.getParserDocument() == null) return;
+		if (this.tm == null) return;
+
+		try {
+			Scanner scanner = new Scanner(command.getParserDocument().getTextAsReader()).useDelimiter("[^aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZöäüÖÄÜß]");
+			while (scanner.hasNext()) {
+				String token = scanner.next();
+				this.tm.registerToken(token, command);
+			} 
+		} catch (IOException e) {
+			logger.warn("Exception", e);
+		}
 	}
-
-
 }

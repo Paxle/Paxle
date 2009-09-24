@@ -43,18 +43,71 @@
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Apache Commons IO -->
-						    org.apache.commons.io;version="1.4",
-							org.apache.commons.io.*;version="1.4",
+							org.apache.commons.io;version="1.4",
+						   	org.apache.commons.io.*;version="1.4",
+							<!-- Servlet API -->
+							javax.servlet;resolution:=optional,
+							javax.servlet.http;resolution:=optional,
+							<!-- Annotations -->
+							javax.annotation;resolution:=optional,
+							<!-- Apache Velocity (used by Paxle GUI bundle) -->
+							org.apache.velocity;resolution:=optional, 
+							org.apache.velocity.context;resolution:=optional,
+							<!-- XML de-/serialization -->
+							com.thoughtworks.xstream.*,
 							<!-- Paxle Core Bundle -->
 							org.paxle.core.doc;version="[0.1.0,0.2.0)",
-							org.paxle.core.filter;version="[0.1.0,0.2.0)", 
-							org.paxle.core.io;version="[0.1.0,0.2.0)"
+							org.paxle.core.filter;version="[0.1.0,0.2.0)",
+							<!-- Paxle GUI Bundle -->
+							org.paxle.gui;version="[0.1.0,0.2.0)";resolution:=optional
 						</Import-Package>
 						<DynamicImport-Package>
+						javax.swing,
+						javax.swing.plaf, 	
+						javax.security.auth,
+						javax.xml.*, 
+						javax.xml.transform.sax, 
+						net.sf.cglib.proxy, 
+						nu.xom, 
+						org.codehaus.jettison, 
+						org.codehaus.jettison.mapped, 
+						org.dom4j, 
+						org.dom4j.*, 
+						org.jdom, 
+						org.jdom.input, 
+						org.joda.time, 
+						org.joda.time.format, 
+						org.w3c.dom, 
+						org.xml.sax, 
+						org.xml.sax.helpers, 
+						org.xmlpull.*, 
+						sun.misc,
+						sun.reflect,
+						javax.naming, 
+						javax.naming.spi, 
+						javax.net, 
+						javax.net.ssl, 
+						javax.sql, 
+						javax.transaction.xa, 
+						org.apache.lucene.analysis, 
+						org.apache.lucene.analysis.standard,
+						 org.apache.lucene.document, 
+						 org.apache.lucene.index, 
+						 org.apache.lucene.queryParser, 
+						 org.apache.lucene.search, 
+						 org.slf4j
 						</DynamicImport-Package>
 						<Private-Package>
-							org.paxle.filter.wordlistcreator.impl
+							org.paxle.filter.wordlistcreator.impl,
+							org.paxle.filter.wordlistcreator.impl.gui,
+							org.paxle.filter.wordlistcreator.impl.wordlist
 						</Private-Package>
+						<!-- embed dependencies -->
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-Dependency>
+							h2;scope=compile|runtime
+						</Embed-Dependency>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -76,9 +129,113 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>GUI</artifactId>
+			<version>[0.1.11,0.2.0)</version>
+			<optional>true</optional>
+		</dependency>
+		
+		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>1.4</version>
+		</dependency>
+
+		<dependency>
+ 	   		<groupId>com.h2database</groupId>
+ 	  		<artifactId>h2</artifactId>
+	    	<version>1.1.118</version>
+		</dependency>
+
+		<!-- Servlet Dependency -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.4</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>1.6.2</version>
+			<exclusions>
+				<!-- Must be present if you have Velocity configured to automatically escape references . Otherwise, it is not needed. -->
+				<exclusion>
+					<groupId>oro</groupId>
+					<artifactId>oro</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity-tools</artifactId>
+			<version>2.0-beta4</version>
+			<exclusions>
+				<exclusion>
+					<groupId>velocity</groupId>
+					<artifactId>velocity</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+				
+				<!-- Required only for XmlTool -->
+				<exclusion>
+					<groupId>dom4j</groupId>
+					<artifactId>dom4j</artifactId>
+				</exclusion>
+				
+				<!-- Required for xml configuration -->
+				<exclusion>
+					<groupId>commons-digester</groupId>
+					<artifactId>commons-digester</artifactId>
+				</exclusion>	
+				
+				<!-- Required for ValidatorTool -->
+				<exclusion>
+					<groupId>commons-validator</groupId>
+					<artifactId>commons-validator</artifactId>
+				</exclusion>
+				
+				<!-- Required for ??? -->
+				<exclusion>
+					<groupId>commons-chain</groupId>
+					<artifactId>commons-chain</artifactId>
+				</exclusion>
+				
+				<!-- Required for ??? -->
+				<exclusion>
+					<groupId>oro</groupId>
+					<artifactId>oro</artifactId>
+				</exclusion>
+				
+				<!-- Required for SecureLinkTool -->
+				<exclusion>
+					<groupId>sslext</groupId>
+					<artifactId>sslext</artifactId>
+				</exclusion>
+				
+				<!-- Required for struts -->
+				<exclusion>
+					<groupId>org.apache.struts</groupId>
+					<artifactId>struts-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.struts</groupId>
+					<artifactId>struts-taglib</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.struts</groupId>
+					<artifactId>struts-tiles</artifactId>
+				</exclusion>
+				
+				<!-- imported with a higher version number below -->
+				<exclusion>
+					<groupId>commons-beanutils</groupId>
+					<artifactId>commons-beanutils</artifactId>
+				</exclusion>
+			</exclusions>	
 		</dependency>
 	</dependencies>
 </project>
