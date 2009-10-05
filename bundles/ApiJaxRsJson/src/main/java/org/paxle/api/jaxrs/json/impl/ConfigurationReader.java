@@ -32,7 +32,7 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeReference;
+import org.codehaus.jackson.type.TypeReference;
 import org.paxle.api.jaxrs.cm.PropertyResource;
 
 @Component
