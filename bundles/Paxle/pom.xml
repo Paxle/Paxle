@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Paxle</artifactId>
 	<packaging>pom</packaging>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.2.1-SNAPSHOT</version>
 	<name>Paxle</name>
 	<url>http://www.paxle.net/</url>
 	<inceptionYear>2007</inceptionYear>
@@ -493,20 +493,6 @@
 									<version>1.5.0</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>com.springsource.net.sf.ehcache-1.5.0.jar</destFileName>									
-								</artifactItem>
-								<artifactItem>
-									<groupId>net.sourceforge.jsr107cache</groupId>
-									<artifactId>com.springsource.net.sf.jsr107cache</artifactId>
-									<version>1.0.0</version>
-									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>com.springsource.net.sf.jsr107cache-1.0.0.jar</destFileName>										
-								</artifactItem>
-								<artifactItem>
-									<groupId>edu.emory.mathcs.backport</groupId>
-									<artifactId>com.springsource.edu.emory.mathcs.backport</artifactId>
-									<version>3.1.0</version>
-									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>com.springsource.edu.emory.mathcs.backport-3.1.0.jar</destFileName>										
 								</artifactItem>
 								
 								<!-- Bloomfilter dependencies -->

@@ -47,9 +47,9 @@
 							org.apache.commons.logging,
 							org.apache.log4j,
 							<!-- Ehcache -->
-							net.sf.ehcache;version="1.5.0",
-							net.sf.ehcache.config;version="1.5.0",
-							net.sf.ehcache.*;version="1.5.0",
+							net.sf.ehcache;version="1.6.2",
+							net.sf.ehcache.config;version="1.6.2",
+							net.sf.ehcache.*;version="1.6.2",
 							<!-- Apache Commons HttpClient -->
 							org.apache.commons.httpclient.*;version="3.1.0",
 							<!-- Servlet API -->
@@ -108,11 +108,8 @@
 		<dependency>
 		    <groupId>net.sf.ehcache</groupId>
 		    <artifactId>ehcache</artifactId>
+		    <version>1.6.2</version>
 			<exclusions>
-				<exclusion>
-				    <groupId>net.sf.jsr107cache</groupId>
-				    <artifactId>jsr107cache</artifactId>
-				</exclusion>
 				<exclusion>
 				    <groupId>commons-collections</groupId>
 				    <artifactId>commons-collections</artifactId>
