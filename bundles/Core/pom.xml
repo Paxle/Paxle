@@ -5,7 +5,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.36-SNAPSHOT</version>
+	<version>0.1.37-SNAPSHOT</version>
 	<name>Paxle - Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -70,8 +70,8 @@
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Apache Commons Pool -->
-							org.apache.commons.pool;version="1.4",
-							org.apache.commons.pool.impl;version="1.4",
+							org.apache.commons.pool,
+							org.apache.commons.pool.impl,
 							<!-- Apache Commons IO -->
 							org.apache.commons.io.output;version="1.4",
 							<!-- ignoring compile time annotations -->
@@ -110,6 +110,7 @@
 		<dependency>
 			<groupId>commons-pool</groupId>
 			<artifactId>commons-pool</artifactId>
+			<version>1.5</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>

@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserHtml</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.7-SNAPSHOT</version>
+	<version>0.1.8-SNAPSHOT</version>
 	<name>Paxle - Parser: HTML</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -45,8 +45,8 @@
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Apache Commons Pool -->
-							org.apache.commons.pool;version="1.4",
-							org.apache.commons.pool.impl;version="1.4",
+							org.apache.commons.pool,
+							org.apache.commons.pool.impl,
 							<!-- Paxle Core -->
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
 							org.paxle.core.io.temp;version="[0.1.0,0.2.0)",
@@ -120,6 +120,7 @@
 		<dependency>
 			<groupId>commons-pool</groupId>
 			<artifactId>commons-pool</artifactId>
+			<version>1.5</version>
 		</dependency>
 		
 		<!-- Additional dependencies for testing -->
