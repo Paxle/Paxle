@@ -17,12 +17,6 @@
 			<url>http://maven.repository.paxle.net</url>
 		</repository>
 		<repository>
-			<id>codehaus-repository</id>
-			<url>http://repository.codehaus.org/</url>
-			<releases><enabled>true</enabled></releases>
-			<snapshots><enabled>false</enabled></snapshots>
-		</repository>		
-		<repository>
 			<id>java.net</id>
 			<url>http://download.java.net/maven/2</url>
 		</repository>
