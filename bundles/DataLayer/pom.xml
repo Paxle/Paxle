@@ -79,11 +79,8 @@
 						</Private-Package>
 						<Export-Package>
 							org.paxle.data.db;version="${pom.version}",
-							<!-- exporting cache package required by ehcache
-								 XXX: we export a wrong version here because ehcache specifies:
-								      org.hibernate.cache;version="[3.2.6.ga, 3.3.0)"
-							 -->
-							org.hibernate.cache;version="3.2.6.ga"
+							<!-- exporting cache package required by ehcache -->
+							org.hibernate.cache;version="3.3.2.ga"
 						</Export-Package>
 						<Bundle-Activator>
 							org.paxle.data.impl.Activator
