@@ -490,9 +490,9 @@
 								<artifactItem>
 									<groupId>net.sourceforge.ehcache</groupId>
 									<artifactId>com.springsource.net.sf.ehcache</artifactId>
-									<version>1.5.0</version>
+									<version>1.6.2</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>com.springsource.net.sf.ehcache-1.5.0.jar</destFileName>									
+									<destFileName>com.springsource.net.sf.ehcache-1.6.2.jar</destFileName>									
 								</artifactItem>
 								
 								<!-- Bloomfilter dependencies -->

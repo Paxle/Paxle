@@ -96,21 +96,13 @@
 		<!-- cache dependencies -->
 		<dependency>
 		    <groupId>net.sf.ehcache</groupId>
-		    <artifactId>ehcache</artifactId>
-		    <version>1.6.2</version>
-			<exclusions>
-				<exclusion>
-				    <groupId>commons-collections</groupId>
-				    <artifactId>commons-collections</artifactId>
-				</exclusion>				
-			</exclusions>		    
+		    <artifactId>ehcache</artifactId>	    
 		</dependency>
 		
 		<!-- Dependencies for testing -->
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>1.4</version>
 			<scope>test</scope>
 		</dependency>				
 	</dependencies>
