@@ -420,9 +420,9 @@
 								<artifactItem>
 									<groupId>commons-pool</groupId>
 									<artifactId>commons-pool</artifactId>
-									<version>1.4</version>
+									<version>1.5.3</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.pool_1.4.jar</destFileName>
+									<destFileName>org.apache.commons.pool_1.5.3.jar</destFileName>
 								</artifactItem>								
 
 								<!-- Apache commons collection dependencies -->

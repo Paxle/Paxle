@@ -45,8 +45,8 @@
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Apache Commons Pool -->
-							org.apache.commons.pool,
-							org.apache.commons.pool.impl,
+							org.apache.commons.pool;version="1.5.3",
+							org.apache.commons.pool.impl;version="1.5.3",
 							<!-- Paxle Core -->
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
 							org.paxle.core.io.temp;version="[0.1.0,0.2.0)",
@@ -120,7 +120,6 @@
 		<dependency>
 			<groupId>commons-pool</groupId>
 			<artifactId>commons-pool</artifactId>
-			<version>1.5.3</version>
 		</dependency>
 		
 		<!-- Additional dependencies for testing -->

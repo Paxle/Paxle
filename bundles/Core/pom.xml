@@ -70,8 +70,8 @@
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Apache Commons Pool -->
-							org.apache.commons.pool,
-							org.apache.commons.pool.impl,
+							org.apache.commons.pool;version="1.5.3",
+							org.apache.commons.pool.impl;version="1.5.3",
 							<!-- Apache Commons IO -->
 							org.apache.commons.io.output;version="1.4",
 							<!-- ignoring compile time annotations -->
@@ -110,7 +110,6 @@
 		<dependency>
 			<groupId>commons-pool</groupId>
 			<artifactId>commons-pool</artifactId>
-			<version>1.5.3</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
