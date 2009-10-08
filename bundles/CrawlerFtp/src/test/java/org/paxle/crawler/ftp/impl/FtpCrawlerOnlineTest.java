@@ -14,8 +14,8 @@
 package org.paxle.crawler.ftp.impl;
 
 import java.net.URI;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.osgi.service.cm.ConfigurationException;
 import org.paxle.core.doc.ICrawlerDocument;
@@ -62,7 +62,7 @@ public class FtpCrawlerOnlineTest extends ACrawlerTest {
 		URI testUri = URI.create("ftp://ftp.debian.org/debian/README");
 
 		// change crawler settings
-		final Dictionary<String, Object> props = new Hashtable<String, Object>();
+		final Map<String, Object> props = new HashMap<String, Object>();
 		props.put(FtpCrawler.PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(500));
 		this.crawler.activate(props);
 		

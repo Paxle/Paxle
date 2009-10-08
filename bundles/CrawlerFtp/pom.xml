@@ -44,7 +44,6 @@
 							org.osgi.framework;version="1.4",
 							org.osgi.service.url;version="1.0",
 							org.osgi.service.cm;version="1.2",
-							org.osgi.service.component;version="1.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Paxle Core Bundle -->

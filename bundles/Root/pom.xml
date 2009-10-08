@@ -432,6 +432,7 @@
 					<!--  <parseJavadoc>false</parseJavadoc> -->
 					<processAnnotations>true</processAnnotations>
 					<strictMode>true</strictMode>
+					<specVersion>1.1</specVersion>
 				</configuration>
 			</plugin>
 

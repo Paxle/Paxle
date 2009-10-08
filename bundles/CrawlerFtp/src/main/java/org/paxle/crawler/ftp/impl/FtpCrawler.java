@@ -17,8 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,7 +28,6 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Services;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.ICrawlerContextLocal;
@@ -70,13 +69,7 @@ public class FtpCrawler implements IFtpCrawler {
 	@Reference
 	protected ICrawlerContextLocal contextLocal;
 	
-	protected void activate(ComponentContext context) {
-		@SuppressWarnings("unchecked")
-		final Dictionary<String, Object> configuration = context.getProperties();
-		this.activate(configuration);
-	}
-	
-	protected void activate(Dictionary<String, Object> configuration) {
+	protected void activate(Map<String, Object> configuration) {
 		// configuring timeouts
 		final Integer connectionTimeout = (Integer) configuration.get(PROP_CONNECTION_TIMEOUT);
 		if (connectionTimeout != null) this.connectionTimeout = connectionTimeout.intValue();
