@@ -12,6 +12,14 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
 
+#macro(formatValue $statusVariable)
+	#if(${statusVariable.typeName} == "Integer")
+		$numberTool.format(${statusVariable.value})
+	#else 
+		${statusVariable.value}
+	#end
+#end
+
 #set($monitorables = $monitorableTool.getBundleMonitorables($paramParser.getInteger("bundleID"),$paramParser.getStrings("monitorableId")))
 #if($monitorables && $listTool.size($monitorables) > 1)	
 	<div class="summary">#foreach($monitorable in $sortTool.sort($monitorables,["ID:asc"]))
@@ -39,7 +47,7 @@
 				<td><tt><a href="?monitorableId=${monitorable.ID}&amp;variableId=${statusVariable.ID}">${statusVariable.ID}</a></tt></td>
 				<td><tt>${statusVariable.typeName}</tt></td>
 				<td><tt>$dateTool.format('medium',${statusVariable.timeStamp})</tt></td>
-				<td><tt>${statusVariable.value}</tt></td>
+				<td><tt>#formatValue($statusVariable)</tt></td>
 				<td><div class="descriptionText">${statusVariable.description}</div></td>
 			</tr>
 			#end
