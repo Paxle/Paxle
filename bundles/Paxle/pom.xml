@@ -517,7 +517,7 @@
 									<artifactId>com.springsource.org.jfree</artifactId>
 									<version>1.0.12</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>com.springsource.org.jfree-1.0.9.jar</destFileName>										
+									<destFileName>com.springsource.org.jfree-1.0.12.jar</destFileName>										
 								</artifactItem>
 
 								<!-- SWF Parser -->								
