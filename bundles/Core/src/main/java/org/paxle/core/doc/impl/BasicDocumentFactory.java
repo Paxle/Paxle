@@ -15,6 +15,7 @@ package org.paxle.core.doc.impl;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,7 +23,6 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICrawlerDocument;
@@ -64,7 +64,7 @@ public class BasicDocumentFactory implements IDocumentFactory {
 	@Reference
 	protected ITempFileManager tempFileManager;
 
-	protected void activate(ComponentContext context) {
+	protected void activate(Map<String, Object> props) {
 		this.logger.info(this.getClass().getSimpleName() + " registered.");
 	}
 	

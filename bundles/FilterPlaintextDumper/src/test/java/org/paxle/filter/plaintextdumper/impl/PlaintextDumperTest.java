@@ -17,12 +17,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.impl.BasicParserDocument;
 import org.paxle.core.io.impl.IOTools;
@@ -52,16 +51,12 @@ public class PlaintextDumperTest extends MockObjectTestCase {
 		this.pdoc.setStatus(IParserDocument.Status.OK);
 		
 		// creating the dumper filter
-		final Hashtable<String, String> props = new Hashtable<String, String>();
+		final Map<String, Object> props = new HashMap<String, Object>();
 		props.put("dataPath", "plaintext-dumper");		
-		final ComponentContext ctx = mock(ComponentContext.class);
-		checking(new Expectations(){{
-			allowing(ctx).getProperties(); will(returnValue(props));
-		}});
 		
 		dumper = new PlaintextDumperFilter(){{
 			this.ioTools = new IOTools();
-			this.activate(ctx);
+			this.activate(props);
 		}};
 	}
 	

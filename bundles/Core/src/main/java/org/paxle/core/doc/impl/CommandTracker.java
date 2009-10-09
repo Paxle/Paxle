@@ -31,7 +31,6 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Services;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
@@ -127,7 +126,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();	
 
-	protected void activate(ComponentContext context) {
+	protected void activate(Map<String, Object> props) {
 		this.refQueue = new ReferenceQueue<ICommand>();
 
 		this.commandIDTable = new Hashtable<Long, WeakReference<ICommand>>();
@@ -248,7 +247,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	 * Terminates the {@link #run() cleanup-thread}
 	 * @throws InterruptedException
 	 */
-	protected void deactivate(ComponentContext context) throws InterruptedException {
+	protected void deactivate() throws InterruptedException {
 		this.interrupt();
 		this.join(2000);
 	}

@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -98,9 +97,9 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	 * @see Constants#SERVICE_PID
 	 */
 	public static final String PID = "org.paxle.filter.robots.IRobotsTxtManager";	
-	
+
 	private static final String CACHE_NAME = "robotsTxt.cache";
-	
+
 	/* =========================================================
 	 * Config Properties
 	 * ========================================================= */	
@@ -112,13 +111,13 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	public static final String PROP_MAXCONNECTIONS_TOTAL 	= "org.paxle.filter.robots.IRobotsTxtManager.maxConnectionsTotal";
 	@Property(intValue=1000)
 	public static final String PROP_MAX_CACHE_SIZE 		= "org.paxle.filter.robots.IRobotsTxtManager.maxCacheSize";
-	
+
 	/**
 	 * the user-agent string to use
 	 */
 	@Property(value="${paxle.userAgent}")
 	public static final String PROP_USER_AGENT 			= "org.paxle.filter.robots.IRobotsTxtManager.userAgent";
-	
+
 	// default proxy settings
 	@Property(boolValue=false)
 	public static final String PROP_PROXY_USE 				= "org.paxle.filter.robots.IRobotsTxtManager.useProxy";
@@ -130,13 +129,13 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	public static final String PROP_PROXY_USER 			= "org.paxle.filter.robots.IRobotsTxtManager.proxyUser";
 	@Property(value="")
 	public static final String PROP_PROXY_PASSWORD 		= "org.paxle.filter.robots.IRobotsTxtManager.proxyPassword";
-	
+
 	// default thread pool executor settings
 	@Property(intValue=20)
 	public static final String PROP_WORKER_MAX_ALIVE = "org.paxle.filter.robots.IRobotsTxtManager.threads.maxAlive";
 	@Property(intValue=20)
 	public static final String PROP_WORKER_MAX_IDLE = "org.paxle.filter.robots.IRobotsTxtManager.threads.maxIdle";
-	
+
 	/* =========================================================
 	 * OSGi Monitorable CONSTANTS
 	 * ========================================================= */		
@@ -147,7 +146,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	private static final String MONITOR_JOBS_MAX = MONITOR_JOBS_PREFIX + ".max";
 	private static final String MONITOR_JOBS_PENDING = MONITOR_JOBS_PREFIX + ".pending";
 	private static final String MONITOR_JOBS_TOTAL = MONITOR_JOBS_PREFIX + ".total";
-	
+
 	/**
 	 * The names of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
@@ -159,7 +158,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 			MONITOR_JOBS_PENDING,
 			MONITOR_JOBS_TOTAL
 	}));	
-	
+
 	/**
 	 * Descriptions of all {@link StatusVariable status-variables} supported by this {@link Monitorable}
 	 */
@@ -185,7 +184,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	 */
 	@Reference
 	protected IRuleStore loader;
-	
+
 	/**
 	 * Connection manager used for http connection pooling
 	 */
@@ -200,80 +199,80 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	 * Thread pool
 	 */
 	private ThreadPoolExecutor execService;
-	
+
 	/**
 	 * The User-Agent name to use
 	 */
 	private String userAgent = null;	
-	
+
 	/**
 	 * @param path the path where the {@link RobotsTxt} objects should be stored
 	 */
-	protected void activate(ComponentContext context) {
-		@SuppressWarnings("unchecked")
-		Dictionary<String, Object> configuration = context.getProperties();
-		this.init(configuration);
+	protected void activate(Map<String, Object> props) {
+		if (props != null) {
+			this.init(props);
+		}
 	}
-	
-	void init(Dictionary<String, Object> configuration) {
+
+	void init(Map<String, Object> props) {
 		// configure caching manager
 		this.manager = CacheManager.getInstance();
-		
+
 		/* =================================================================================
 		 * init a new cache
 		 * ================================================================================= */
-		Integer maxCacheSize = (Integer) configuration.get(PROP_MAX_CACHE_SIZE);
+		Integer maxCacheSize = (Integer) props.get(PROP_MAX_CACHE_SIZE);
 		if (maxCacheSize == null) maxCacheSize = Integer.valueOf(1000);
 		this.cache = new Cache(CACHE_NAME, maxCacheSize.intValue(), false, false, 60*60, 30*60);
 		this.manager.addCache(this.cache);				
-		
+
 		/* =================================================================================
 		 * init threadpool
 		 * ================================================================================= */
-		Integer maxIdle = (Integer)configuration.get(PROP_WORKER_MAX_IDLE);
+		Integer maxIdle = (Integer)props.get(PROP_WORKER_MAX_IDLE);
 		if (maxIdle == null) maxIdle = Integer.valueOf(20);
-		
-		Integer maxAlive = (Integer)configuration.get(PROP_WORKER_MAX_ALIVE);
+
+		Integer maxAlive = (Integer)props.get(PROP_WORKER_MAX_ALIVE);
 		if (maxAlive == null) maxAlive = Integer.valueOf(20);		
 		if (maxAlive.compareTo(maxIdle) < 0) maxAlive = maxIdle;
-		
+
 		this.execService = new ThreadPoolExecutor(
 				maxIdle.intValue(), maxAlive.intValue(),
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>());		
-		
+				0L, TimeUnit.MILLISECONDS,
+				new LinkedBlockingQueue<Runnable>());		
+
 		/* =================================================================================
 		 * init http-client
 		 * ================================================================================= */
 		this.connectionManager = new MultiThreadedHttpConnectionManager();
 		HttpConnectionManagerParams params = this.connectionManager.getParams();
-		
-		final Integer connectionTimeout = (Integer) configuration.get(PROP_CONNECTION_TIMEOUT);
+
+		final Integer connectionTimeout = (Integer) props.get(PROP_CONNECTION_TIMEOUT);
 		if (connectionTimeout != null) params.setConnectionTimeout(connectionTimeout.intValue());
-		final Integer socketTimeout = (Integer) configuration.get(PROP_SOCKET_TIMEOUT);
+		final Integer socketTimeout = (Integer) props.get(PROP_SOCKET_TIMEOUT);
 		if (socketTimeout != null) params.setSoTimeout(socketTimeout.intValue());
-		final Integer maxConnections = (Integer) configuration.get(PROP_MAXCONNECTIONS_TOTAL);
+		final Integer maxConnections = (Integer) props.get(PROP_MAXCONNECTIONS_TOTAL);
 		if (maxConnections != null) params.setMaxTotalConnections(maxConnections.intValue());
-		
+
 		this.httpClient = new HttpClient(this.connectionManager);		
-		
+
 		/* =================================================================================
 		 * proxy configuration
 		 * ================================================================================= */
-		final Boolean useProxyVal = (Boolean)configuration.get(PROP_PROXY_USE);
+		final Boolean useProxyVal = (Boolean)props.get(PROP_PROXY_USE);
 		final boolean useProxy = (useProxyVal == null) ? false : useProxyVal.booleanValue();
-		final String host = (String)configuration.get(PROP_PROXY_HOST);
-		final Integer portVal = (Integer)configuration.get(PROP_PROXY_PORT);
-		
+		final String host = (String)props.get(PROP_PROXY_HOST);
+		final Integer portVal = (Integer)props.get(PROP_PROXY_PORT);
+
 		if (useProxy && host != null && host.length() > 0 && portVal != null) {
 			final int port = portVal.intValue();
 			this.logger.info(String.format("Proxy is enabled: %s:%d",host,Integer.valueOf(port)));
 			final ProxyHost proxyHost = new ProxyHost(host, port);
 			this.httpClient.getHostConfiguration().setProxyHost(proxyHost);
-			
-			final String user = (String)configuration.get(PROP_PROXY_HOST);
-			final String pwd = (String)configuration.get(PROP_PROXY_PASSWORD);
-			
+
+			final String user = (String)props.get(PROP_PROXY_HOST);
+			final String pwd = (String)props.get(PROP_PROXY_PASSWORD);
+
 			if (user != null && user.length() > 0 && pwd != null && pwd.length() > 0)
 				this.httpClient.getState().setProxyCredentials(
 						new AuthScope(host, port),
@@ -284,11 +283,11 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 			this.httpClient.getHostConfiguration().setProxyHost(null);
 			this.httpClient.getState().clearCredentials();
 		}			
-		
+
 		/* =================================================================================
 		 * the user-agent name that should be used
 		 * ================================================================================= */
-		final String userAgent = (String)configuration.get(PROP_USER_AGENT);
+		final String userAgent = (String)props.get(PROP_USER_AGENT);
 		if (userAgent != null) {
 			final StringBuffer buf = new StringBuffer();
 			Pattern pattern = Pattern.compile("\\$\\{[^\\}]*}");
@@ -302,28 +301,28 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 				if (propValue != null) matcher.appendReplacement(buf, propValue);
 			}
 			matcher.appendTail(buf);
-			
+
 			this.userAgent = buf.toString();
 		} else {
 			// Fallback
 			this.userAgent = "PaxleFramework";
 		}			
-				
+
 		this.logger.info(String.format(
 				"Robots.txt manager initialized. Using '%s' rule-store with %d stored entries.",
 				loader.getClass().getSimpleName(),
 				loader.size()
 		));
 	}
-	
-	protected void deactivate(ComponentContext context ){
+
+	protected void deactivate(){
 		final Status status = this.manager.getStatus();
 		if (status.equals(Status.STATUS_ALIVE)) {
 			// clear cache
 			this.manager.removeCache(CACHE_NAME);
 		}
 		this.manager = null;
-		
+
 
 		// cleanup http-client
 		if (this.connectionManager != null) {
@@ -331,7 +330,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 			this.connectionManager = null;
 			this.httpClient = null;
 		}		
-		
+
 		// shutdown exec-service
 		// XXX maybe we should use shutdownNow here?
 		this.execService.shutdown();
@@ -344,11 +343,11 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	Cache getCache() {
 		return this.cache;
 	}
-	
+
 	/* =========================================================================
 	 * Monitorable support
 	 * ========================================================================= */
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @see org.osgi.service.monitor.Monitorable#getDescription(String)
@@ -357,10 +356,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 		if (!VAR_NAMES.contains(id)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + id);
 		}		
-		
+
 		return this.rb.getString(id);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @see org.osgi.service.monitor.Monitorable#getStatusVariable(String)
@@ -369,10 +368,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 		if (!VAR_NAMES.contains(id)) {
 			throw new IllegalArgumentException("Invalid Status Variable name " + id);
 		}
-		
+
 		int val = 0;
 		int type = StatusVariable.CM_GAUGE;
-		
+
 		if (id.equals(MONITOR_STORE_SIZE)) {
 			val = this.loader.size();
 		} else if (id.startsWith(MONITOR_JOBS_PREFIX)) {
@@ -395,10 +394,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 				type = StatusVariable.CM_CC;
 			}
 		}
-		
+
 		return new StatusVariable(id, type, val);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @see org.osgi.service.monitor.Monitorable#getStatusVariableNames()
@@ -406,7 +405,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	public String[] getStatusVariableNames() {
 		return VAR_NAMES.toArray(new String[VAR_NAMES.size()]);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @see org.osgi.service.monitor.Monitorable#notifiesOnChange(String)
@@ -414,7 +413,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	public boolean notifiesOnChange(String id) throws IllegalArgumentException {
 		return false;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @see org.osgi.service.monitor.Monitorable#resetStatusVariable(String)
@@ -431,13 +430,13 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 		String prot = location.getScheme();
 		String host = location.getHost();
 		int port = location.getPort();
-		
+
 		if (port == -1 && prot.equals("http")) port = 80;
 		if (port == -1 && prot.equals("https")) port = 443;
-		
+
 		return String.format("%s:%d",host,Integer.valueOf(port));
 	}
-	
+
 	/**
 	 * Downloads a <i>robots.txt</i> file from the given url and parses it
 	 * @param robotsUrlStr the URL to the robots.txt. This must be a http(s) resource
@@ -476,29 +475,29 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 				// the robots.txt seems not to be available
 				return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_ERROR, "Wrong mimeType " + contentTypeHeader.getValue());
 			}
-			
+
 			inputStream = getMethod.getResponseBodyAsStream();
 			RobotsTxt robotsTxt = new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_DEFAULT, statusLine);
 			return this.parseRobotsTxt(robotsTxt, inputStream);
 		} catch (IOException e) {
 			long reloadInterval = RobotsTxt.RELOAD_INTERVAL_TEMP_ERROR;
 			String status = e.getMessage();
-			
+
 			if (e instanceof UnknownHostException) {
 				reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
 				status = "Unknown host";
 				logger.info(String.format("Unknown host '%s'.",robotsURL.getHost()));	
 			} else if (
-				e instanceof CircularRedirectException || 
-				e instanceof RedirectException || 
-				e instanceof InvalidRedirectLocationException
+					e instanceof CircularRedirectException || 
+					e instanceof RedirectException || 
+					e instanceof InvalidRedirectLocationException
 			) {
 				reloadInterval = RobotsTxt.RELOAD_INTERVAL_ERROR;
 				logger.info(String.format("Invalid redirection on host '%s'.",hostPort));				
 			} else if (
-				e instanceof SocketTimeoutException || 
-				e instanceof ConnectTimeoutException ||
-				e instanceof NoHttpResponseException
+					e instanceof SocketTimeoutException || 
+					e instanceof ConnectTimeoutException ||
+					e instanceof NoHttpResponseException
 			) {
 				logger.debug(String.format("TimeOut while loading robots.txt from host '%s'.",hostPort));
 			} else if (!(
@@ -519,7 +518,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 			// we treat it like a 404, see above
 			logger.info(String.format("Invalid redirection URI on host '%s'.", hostPort));
 			return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_DEFAULT, "Redirected to illegal URI");
-			
+
 		} finally {
 			if (inputStream != null) try { inputStream.close(); } catch (Exception e) {/* ignore this */}
 			if (getMethod != null) getMethod.releaseConnection();
@@ -590,20 +589,20 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 				}
 			} else if (line.toLowerCase().startsWith("Crawl-Delay:".toLowerCase())) {
 				line = line.substring("Crawl-Delay:".length()).trim();
-				
+
 				/* 
 				 * According to [1] this should be the "time in seconds between page requests" [1]
 				 * [1] http://drupal.org/node/14177
 				 */
 				try {
 					// just test if it's a valid number
-                	float crawlDelayFloat = Float.parseFloat(line);
-                	int crawlDelay = Math.round(crawlDelayFloat);
-                	if (currentBlock != null) {
-                		currentBlock.addProperty("Crawl-Delay", Integer.toString(crawlDelay));
-                	} else {
-                		this.logger.warn(robotsTxt.getHostPort() + ": Crawl-Delay not within a rule block.");
-                	}
+					float crawlDelayFloat = Float.parseFloat(line);
+					int crawlDelay = Math.round(crawlDelayFloat);
+					if (currentBlock != null) {
+						currentBlock.addProperty("Crawl-Delay", Integer.toString(crawlDelay));
+					} else {
+						this.logger.warn(robotsTxt.getHostPort() + ": Crawl-Delay not within a rule block.");
+					}
 				} catch (Exception e) {
 					this.logger.error(String.format("Invalid crawl delay directive '%s' in robots.txt from host '%s': %s",
 							line,
@@ -613,7 +612,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 				}
 			} else if (line.toLowerCase().startsWith("Sitemap:".toLowerCase())) {
 				line = line.substring("Sitemap:".length()).trim();
-				
+
 				// fix for uses that do not understand the syntax of the sitemap directive
 				if (line.startsWith("<") && line.endsWith(">") && line.length() > 2) {
 					line = line.substring(1, line.length()-1);
@@ -638,17 +637,17 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 
 		return robotsTxt;
 	}
-	
+
 	private String cutOfComments(String line) {
 		int pos = line.indexOf("#");
 		if (pos != -1) line = line.substring(0,pos).trim();
 		return line;
 	}
-	
+
 	public Collection<URI> getSitemaps(String location) {
 		return this.getSitemaps(URI.create(location));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Collection<URI> getSitemaps(URI location) {
 		try {		
@@ -663,11 +662,11 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 			return Collections.EMPTY_LIST;
 		} 
 	}
-	
+
 	public Map<String, String> getRobotsProperties(String location) {
 		return this.getRobotsProperties(URI.create(location));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Map<String, String> getRobotsProperties(URI location) {
 		try {		
@@ -683,7 +682,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 			return Collections.EMPTY_MAP;
 		} 
 	}
-	
+
 	/**
 	 * Check weather the specified {@link URI} is blocked by the robots.txt of the server hosting the {@link URI}
 	 * @return <code>true</code> if crawling of the {@link URI} is disallowed
@@ -691,7 +690,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	public boolean isDisallowed(String location) {
 		return isDisallowed(URI.create(location));		// XXX please re-check whether non-escaped hosts (i.e. "umlaut-domains") work
 	}
-	
+
 	/**
 	 * Check whether the specified {@link URI} is blocked by the robots.txt of the server which hosts the {@link URI}
 	 * @return <code>true</code> if crawling of the {@link URI} is disallowed
@@ -706,7 +705,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 		// check if the URI is blocked
 		return this.isDisallowed(Arrays.asList(location)).size() == 1;
 	}
-	
+
 	/**
 	 * Check a list of {@link URI URI} against the robots.txt file of the servers hosting the {@link URI}.
 	 * @param hostPort the web-server hosting the {@link URI URIs}
@@ -716,7 +715,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	 */
 	public List<URI> isDisallowed(Collection<URI> urlList) {
 		if (urlList == null) throw new NullPointerException("The URI-list is null.");
-		
+
 		// group the URL list based on hostname:port
 		HashMap<URI, List<URI>> uriBlocks = this.groupURI(urlList);
 		ArrayList<URI> disallowedURI = new ArrayList<URI>();
@@ -725,14 +724,14 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 		 * Asynchronous execution and parallel check of all blocks 
 		 */
 		final CompletionService<Collection<URI>> execCompletionService = new ExecutorCompletionService<Collection<URI>>(this.execService);
-		
+
 		// loop through the blocks and start a worker for each block
 		for (Entry<URI, List<URI>> uriBlock : uriBlocks.entrySet()) {
 			URI baseUri = uriBlock.getKey();
 			List<URI> uriList = uriBlock.getValue();			
 			execCompletionService.submit(new RobotsTxtManagerCallable(baseUri,uriList));
 		}
-		
+
 		// wait for the worker-threads to finish execution
 		for (int i = 0; i < uriBlocks.size(); ++i) {
 			try {
@@ -749,10 +748,10 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 				),e);
 			}
 		}
-		
+
 		return disallowedURI;
 	}
-	
+
 	/**
 	 * Check a list of {@link URI URI} against the robots.txt file of the specified server.
 	 * @param baseUri the base-URI of the server hosting the {@link URI URIs}
@@ -765,20 +764,20 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 		if (uriList == null) throw new NullPointerException("The URI-list is null.");
 		if (!baseUri.getScheme().startsWith("http")) throw new IllegalArgumentException("Only http(s) resources are allowed.");
 		if (baseUri.getPath().length() > 1) throw new IllegalArgumentException("Invalid base-URI.");
-		
+
 		ArrayList<URI> disallowedList = new ArrayList<URI>();
-		
+
 		try {
 			String hostPort = this.getHostPort(baseUri);
-			
+
 			// getting the RobotsTxt-info for this host[:port]
 			RobotsTxt robotsTxt = this.getRobotsTxt(baseUri);
-			
+
 			// loop through each URI and check against the robots.txt
 			for (URI location : uriList) {
 				assert(this.getHostPort(location).equals(hostPort));
 				String path = location.getPath();
-				
+
 				if (robotsTxt.isDisallowed(this.userAgent, path)) {
 					disallowedList.add(location);
 				}
@@ -790,16 +789,16 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 					baseUri.toASCIIString()
 			),e);
 		}
-		
+
 		return disallowedList;
 	}
 
 	private RobotsTxt getRobotsTxt(URI baseUri) throws IOException, URISyntaxException {
 		String hostPort = this.getHostPort(baseUri);
-		
+
 		synchronized (hostPort.intern()) {
 			RobotsTxt robotsTxt = null;
-			
+
 			// trying to get the robots.txt from cache
 			robotsTxt = this.getFromCache(hostPort);
 
@@ -814,7 +813,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 							baseUri.toASCIIString()
 					),e);
 				}
-				
+
 				if (robotsTxt != null) {
 					this.putIntoCache(hostPort, robotsTxt);
 				}
@@ -827,11 +826,11 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 				this.putIntoCache(hostPort, robotsTxt);
 				this.loader.write(robotsTxt);
 			}
-			
+
 			return robotsTxt;
 		}
 	}
-	
+
 	/**
 	 * Function to put a robots.txt file into the {@link #cache}
 	 * @param hostPort the <code>hostname:port</code> the robots.txt file belongs to
@@ -841,7 +840,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 		Element element = new Element(hostPort, robotsTxt);
 		this.cache.put(element);
 	}
-	
+
 	/**
 	 * Function to get a robots.txt file from {@link #cache}
 	 * @param hostPort the <code>hostname:port</code> for which the robots.txt file should be fetched
@@ -851,7 +850,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 		Element element = this.cache.get(hostPort);
 		return (element == null) ? null : (RobotsTxt) element.getValue();
 	}	
-	
+
 	/**
 	 * Groups a list of {@link URI} into blocks hosted by a single server. 
 	 * {@link URI} which are not accessible via <code>http(s)</code> are ignored.
@@ -862,14 +861,14 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	 */
 	private HashMap<URI, List<URI>> groupURI(Collection<URI> urlList) {
 		HashMap<URI, List<URI>> group = new HashMap<URI, List<URI>>();
-		
+
 		for (URI uri : urlList) {
 			if (!uri.getScheme().startsWith("http")) continue;
-			
+
 			// getting hostname:port
 			String hostPort = this.getHostPort(uri);
 			URI baseURI = URI.create(uri.getScheme() + "://" + hostPort);
-			
+
 			List<URI> pathList = null;
 			if (!group.containsKey(baseURI)) {
 				pathList = new ArrayList<URI>();
@@ -879,17 +878,17 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 			}
 			pathList.add(uri);			
 		}
-		
+
 		return group;
 	}
-	
+
 	/**
 	 * Callable class for async. execution of {@link RobotsTxtManager#isDisallowed(URI, Collection)} check.
 	 */
 	class RobotsTxtManagerCallable implements Callable<Collection<URI>> {		
 		private URI baseUri = null;
 		private List<URI> uriList = null;
-		
+
 		public RobotsTxtManagerCallable(URI baseUri, List<URI> uriList) {
 			if (baseUri == null) throw new NullPointerException("The base-URI is null.");
 			if (uriList == null) throw new NullPointerException("The URI-list is null.");
@@ -903,7 +902,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 			try {
 				Thread.currentThread().setName(String.format("Robots.txt: %s", this.baseUri));
 				Thread.currentThread().setContextClassLoader(RobotsTxtManager.class.getClassLoader());
-				
+
 				long start = System.currentTimeMillis(); 
 				Collection<URI> disallowedList = isDisallowed(this.baseUri, this.uriList);
 				long total = System.currentTimeMillis() - start;
@@ -912,7 +911,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 					int totalCount = this.uriList.size();
 					int disallowedCount = (disallowedList==null)?0:disallowedList.size();
 					int allowedCount = totalCount - disallowedCount;
-					
+
 					String msg = String.format(
 							"Robots.txt check of %d URI hosted on '%s' took %d ms." +
 							"\n\t%d URI disallowed, " +
@@ -923,7 +922,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 							Integer.valueOf(disallowedCount),
 							Integer.valueOf(allowedCount)
 					);
-					
+
 					if (total <= 500) logger.debug(msg); 
 					else logger.info(msg);  
 				}

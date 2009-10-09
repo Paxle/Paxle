@@ -36,7 +36,6 @@
 					
 						<Import-Package>
 							org.osgi.framework,
-							org.osgi.service.component;version="1.0",
 							org.apache.commons.logging,
 							org.paxle.core.doc;version="[0.1.0,0.2.0)",
 							org.paxle.core.filter;version="[0.1.0,0.2.0)"

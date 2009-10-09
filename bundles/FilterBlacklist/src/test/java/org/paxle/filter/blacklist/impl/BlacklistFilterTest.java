@@ -56,7 +56,7 @@ public class BlacklistFilterTest extends MockObjectTestCase {
 	
 	@Override
 	protected void tearDown() throws Exception {
-		this.manager.deactivate(null);
+		this.manager.deactivate();
 		
 		// delete data directory
 		if(this.testDir.exists()) FileUtils.deleteDirectory(testDir);

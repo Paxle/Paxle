@@ -15,10 +15,10 @@ package org.paxle.filter.blacklist.impl;
 
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.filter.blacklist.IBlacklist;
 import org.paxle.filter.blacklist.IBlacklistStore;
 import org.paxle.filter.blacklist.IBlacklistManager;
@@ -42,15 +42,15 @@ public class BlacklistManager implements IBlacklistManager {
 	/**
 	 * This function is called by the OSGi framework if this component is activated
 	 */
-	protected void activate(ComponentContext context) throws InvalidBlacklistnameException {
+	protected void activate(Map<String, Object> props) throws InvalidBlacklistnameException {
 		this.blacklistStore = new BlacklistFileStore();
-		if (context != null)
-			this.enabledBlacklistNames = (String[]) context.getProperties().get("enabledBlacklistNames");
+		if (props != null)
+			this.enabledBlacklistNames = (String[]) props.get("enabledBlacklistNames");
 		else
 			this.enabledBlacklistNames = null;
 	}
 
-	protected void deactivate(ComponentContext context) throws Exception {
+	protected void deactivate() throws Exception {
 		// clear blacklist map
 		this.blacklistStore = null;
 		this.enabledBlacklistNames = null;

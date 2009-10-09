@@ -57,7 +57,7 @@ public class RobotsTxtManagerTest extends TestCase {
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		this.manager.deactivate(null);
+		this.manager.deactivate();
 	}
 	
 	private RobotsTxt getRobotsTxt(File robotsTxtFile) throws IOException {

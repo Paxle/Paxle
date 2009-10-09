@@ -29,7 +29,6 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.filter.FilterQueuePosition;
@@ -51,7 +50,7 @@ public class PlaintextDumperFilter implements IFilter<ICommand> {
 	 * Path where the data should be stored
 	 */
 	private File dataDir;
-	
+
 	/**
 	 * For logging
 	 */
@@ -59,57 +58,60 @@ public class PlaintextDumperFilter implements IFilter<ICommand> {
 
 	@Reference
 	protected IIOTools ioTools;
-	
+
 	/**
 	 * This function is called by the OSGi framework if this component is activated
 	 */
-	protected void activate(ComponentContext context)  {
-		String dataPath = (String) context.getProperties().get("dataPath");
-		
+	protected void activate(Map<String, Object> props)  {
+
+		String dataPath = "";
+		if (props != null) {
+			dataPath = (String) props.get("dataPath");
+		}
 		// getting the data directory to use
 		this.dataDir = new File(System.getProperty("paxle.data") + File.separatorChar + dataPath);
 		if (!dataDir.exists()) dataDir.mkdirs();		
 	}	
 
 	File store(IParserDocument pDoc) throws IOException {
-		
+
 		Map<String,IParserDocument> subDocs = pDoc.getSubDocs();
 		if (subDocs != null) {
 			for (IParserDocument subDoc : subDocs.values()) {
 				this.store(subDoc);
 			}
 		}
-		
+
 		BufferedReader br = null;
 		BufferedWriter bw = null;
 		File targetFile = null;
-		
+
 		try {
 			if (pDoc.getStatus() != IParserDocument.Status.OK) return null;
-			
+
 			// getting the source file
 			final File sourceFile = pDoc.getTextFile();
 			if (sourceFile == null || sourceFile.length() == 0) return null;
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile), "UTF-8"));
-			
+
 			// creating the target file			
 			targetFile = File.createTempFile("datadumper-", ".txt", this.dataDir);
 			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile),"UTF-8"));
-			
+
 			// copy files
 			this.ioTools.copy(br, bw);
 		} finally {
-            if (br != null) try { br.close(); } catch (Exception e) {/* ignore this */}
-            if (bw != null) try { bw.close(); } catch (Exception e) {/* ignore this */}	
+			if (br != null) try { br.close(); } catch (Exception e) {/* ignore this */}
+			if (bw != null) try { bw.close(); } catch (Exception e) {/* ignore this */}	
 		}
 		return targetFile;
 	}
-	
+
 	public void filter(ICommand command, IFilterContext context) {
 		if (command == null) throw new NullPointerException("The command object is null.");
 		if (command.getResult() != ICommand.Result.Passed) return;
 		if (command.getParserDocument() == null) return;
-		
+
 		try {
 			this.store(command.getParserDocument());
 		} catch (Throwable e) {

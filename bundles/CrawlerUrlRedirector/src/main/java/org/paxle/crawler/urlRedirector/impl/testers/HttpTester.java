@@ -19,7 +19,7 @@ import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.util.Dictionary;
+import java.util.Map;
 
 import org.apache.commons.httpclient.CircularRedirectException;
 import org.apache.commons.httpclient.ConnectTimeoutException;
@@ -32,7 +32,6 @@ import org.apache.commons.httpclient.methods.HeadMethod;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.crawler.ContentLengthLimitExceededException;
 import org.paxle.crawler.urlRedirector.IUriTester;
 
@@ -54,16 +53,7 @@ public class HttpTester extends AUrlTester {
 	 */
 	protected MultiThreadedHttpConnectionManager connectionManager;		
 	
-	protected void activate(ComponentContext context) throws UnknownHostException, IOException {
-		// getting the service properties
-		@SuppressWarnings("unchecked")
-		Dictionary<String, Object> props = context.getProperties();
-		
-		// init this component
-		this.activate(props);
-	}
-	
-	protected void activate(Dictionary<String, Object> props) throws UnknownHostException, IOException {
+	protected void activate(Map<String, Object> props) throws UnknownHostException, IOException {
 		// init http-client
 		this.connectionManager = new MultiThreadedHttpConnectionManager();
 		this.httpClient = new HttpClient(this.connectionManager);	

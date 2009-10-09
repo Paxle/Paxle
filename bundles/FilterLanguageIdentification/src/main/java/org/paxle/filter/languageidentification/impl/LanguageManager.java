@@ -15,7 +15,6 @@ package org.paxle.filter.languageidentification.impl;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -24,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.filter.FilterQueuePosition;
@@ -148,13 +146,14 @@ public class LanguageManager implements IFilter<ICommand> {
 
 	}
 
-	protected void activate(ComponentContext ctx) {
-		this.init(ctx.getProperties());
+	protected void activate(Map<String, Object> props) {
+		this.init(props);
 	}
 
-	@SuppressWarnings("unchecked") //only implementing the interface
-	void init(Dictionary config) {
-		this.sdt = ((Float) config.get(SDT)).floatValue();
-		logger.debug("SDT set to " + this.sdt);
+	void init(Map<String, Object> config) {
+		if (config != null) {
+			this.sdt = ((Float) config.get(SDT)).floatValue();
+			logger.debug("SDT set to " + this.sdt);
+		}
 	}
 }

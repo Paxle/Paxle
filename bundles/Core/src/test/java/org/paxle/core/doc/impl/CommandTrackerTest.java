@@ -45,7 +45,7 @@ public class CommandTrackerTest extends MockObjectTestCase {
 	
 	@Override
 	protected void tearDown() throws Exception {	
-		this.tracker.deactivate(null);
+		this.tracker.deactivate();
 		super.tearDown();
 	}
 	

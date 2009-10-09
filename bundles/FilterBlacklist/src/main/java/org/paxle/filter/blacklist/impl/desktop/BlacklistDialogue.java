@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -45,7 +46,6 @@ import javax.swing.event.DocumentListener;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.desktop.DIComponent;
 import org.paxle.desktop.IDesktopUtilities;
 import org.paxle.filter.blacklist.IBlacklist;
@@ -94,7 +94,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	
 	private ItemListModel ilm = null;
 	
-	protected void activate(@SuppressWarnings("unused") ComponentContext context) {
+	protected void activate(Map<String, Object> props) {
 		this.flm = new FilterListsComboBoxModel(blacklistFilter);
 		this.listSelCBox = new JComboBox(flm);
 		
