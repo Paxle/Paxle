@@ -154,6 +154,10 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 	 */	
 	private static class InMemoryOutputStream extends DeferredFileOutputStream {
 
+		/**
+		 * @param threshold if more bytes than this value are written into the stream it is cached into file outputFile
+		 * @param outputFile the file used for caching
+		 */
 		public InMemoryOutputStream(int threshold, File outputFile) {
 			super(threshold, outputFile);
 		}

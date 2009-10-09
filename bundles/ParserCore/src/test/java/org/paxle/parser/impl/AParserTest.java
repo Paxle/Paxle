@@ -169,13 +169,14 @@ public abstract class AParserTest extends MockObjectTestCase {
 	}
 	
 	/**
-	 * A dummy temp-file-manager
+	 * A dummy temp-file-manager which deletes all his files on VM exit
 	 */	
 	private static class TestTempFileManager implements ITempFileManager {
 		public List<File> tempFiles = new ArrayList<File>();
 		
 		public File createTempFile() throws IOException {
 			File tmp = File.createTempFile("test", ".tmp");
+			tmp.deleteOnExit();
 			tempFiles.add(tmp);
 			return tmp;
 		}

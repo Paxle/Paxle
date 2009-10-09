@@ -324,7 +324,7 @@ public interface IParserDocument extends Closeable, Appendable {
 
 	/**
 	 * Returns the content of this document as UTF-8 encoded File.
-	 * @return File if addText() has been used with this document, <code>null</code> otherwise (e.g. archives)
+	 * @return File if addText() has been used with this document, <code>null</code> otherwise (e.g. archives or no content)
 	 * @throws IOException
 	 */
 	@CheckForNull
