@@ -17,8 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.commons.io.FileUtils;
@@ -27,7 +27,6 @@ import org.jmock.Expectations;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.jmock.integration.junit3.MockObjectTestCase;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandTracker;
@@ -76,16 +75,12 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		}};		
 		
 		// init lucene manager
-		final Dictionary<String, Object> props = new Hashtable<String, Object>();
+		final Map<String, Object> props = new HashMap<String, Object>();
 		props.put("dataPath", "lucene-db");
-		final ComponentContext compContext = mock(ComponentContext.class);
-		checking(new Expectations(){{
-			allowing(compContext).getProperties(); will(returnValue(props));
-		}});
 		this.lmanager = new AFlushableLuceneManager() {{
 			this.docFactory = LuceneWriterTest.this.docFactory;
 			this.stopWordsManager = LuceneWriterTest.this.stopwordsManager;
-			this.activate(compContext);
+			this.activate(props);
 		}};
 		assertEquals(0, this.lmanager.getDocCount());
 		
@@ -103,8 +98,8 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		super.tearDown();
 		
 		// stopping lucene-writer and -manager
-		this.lmanager.deactivate(null);
-		this.writer.deactivate(null);
+		this.lmanager.deactivate();
+		this.writer.deactivate();
 		
 		// delete files
 		FileUtils.deleteDirectory(new File(this.dbPath));

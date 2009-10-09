@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -35,7 +36,6 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.mimetype.IDetectionHelper;
 
@@ -61,9 +61,12 @@ public class MimeTypeDetector implements IMimeTypeDetector {
 	private List<MagicMatcher> matcherList = null;
 	
 	@SuppressWarnings("unchecked")
-	protected void activate(ComponentContext context) throws Exception {
+	protected void activate(Map<String, Object> props) throws Exception {
 		// configure jMimeMagic to use our custom magic file
-		String jMimeMagicFileName = (String) context.getProperties().get("magicFile");
+		
+		String jMimeMagicFileName = null;
+		if (props != null)
+			jMimeMagicFileName = (String) props.get("magicFile");
 		if (jMimeMagicFileName != null) {		
 			// load the class
 			Class<?> magicClass = this.getClass().getClassLoader().loadClass("net.sf.jmimemagic.MagicParser");

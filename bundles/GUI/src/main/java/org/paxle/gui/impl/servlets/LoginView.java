@@ -14,6 +14,7 @@
 package org.paxle.gui.impl.servlets;
 
 import java.util.Dictionary;
+import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +29,6 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.view.CookieTool;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
@@ -59,9 +59,9 @@ public class LoginView extends ALayoutServlet {
 	 * This function is called the OSGI DS during component activation 
 	 * @param context
 	 */	
-	protected void activate(ComponentContext context) {
+	protected void activate(Map<String, Object> props) {
 		// check if an Administrator group is already available
-		Group admins = (Group) userAdmin.getRole("Administrators")
+		Group admins = (Group) userAdmin.getRole("Administrators");
 		if (admins == null) {
 			admins = (Group) userAdmin.createRole("Administrators",Role.GROUP);
 		}
@@ -74,8 +74,8 @@ public class LoginView extends ALayoutServlet {
 
 			// configure http-login data
 			@SuppressWarnings("unchecked")
-			Dictionary<String, Object> props = admin.getProperties();
-			props.put(HttpAuthManager.USER_HTTP_LOGIN, "admin");
+			Dictionary<String, Object> authprops = admin.getProperties();
+			authprops.put(HttpAuthManager.USER_HTTP_LOGIN, "admin");
 
 			@SuppressWarnings("unchecked")
 			Dictionary<String, Object> credentials = admin.getCredentials();
@@ -84,7 +84,7 @@ public class LoginView extends ALayoutServlet {
 	}
 		
 	@Override
-	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
+	public Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
         Template template = null;
 
         try {

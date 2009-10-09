@@ -14,11 +14,8 @@
 package org.paxle.mimetype.impl;
 
 import java.io.File;
-import java.util.Hashtable;
 
-import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
-import org.osgi.service.component.ComponentContext;
 
 public class MimeTypeDetectorTest extends MockObjectTestCase {
 	private static final int TESTFILE_NAME = 0;
@@ -48,16 +45,9 @@ public class MimeTypeDetectorTest extends MockObjectTestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp();
-		
-		final ComponentContext context = mock(ComponentContext.class);
-		checking(new Expectations(){{
-			allowing(context).getProperties();
-			will(returnValue(new Hashtable<String, String>()));
-		}});
-		
+		super.setUp();		
 		this.detector = new MimeTypeDetector();
-		this.detector.activate(context);
+		this.detector.activate(null);
 	}
 	
 	public void testDetectHtml() throws Exception {

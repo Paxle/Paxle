@@ -36,7 +36,7 @@ public class DNSFilterOnlineTest extends MockObjectTestCase {
 
 		// init dns-tool
 		final IAddressTool dnsTool = new AddressTool() {{
-			this.activate(mock(ComponentContext.class, "dnsToolContext"));
+			this.activate(null);
 		}};
 		
 		// init dns-filter

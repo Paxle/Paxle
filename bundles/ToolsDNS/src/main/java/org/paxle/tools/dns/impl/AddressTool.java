@@ -16,6 +16,7 @@ package org.paxle.tools.dns.impl;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.felix.scr.annotations.Component;
@@ -23,7 +24,6 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Services;
 import org.osgi.framework.Constants;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.tools.dns.IAddressTool;
@@ -73,7 +73,7 @@ public class AddressTool implements IAddressTool, Monitorable {
 	 */
 	private ResolverConfig config;
 	
-	protected void activate(ComponentContext context) {
+	protected void activate(Map<String, Object> props) {
 		this.config = ResolverConfig.getCurrentConfig();
 	}
 	

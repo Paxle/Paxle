@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>IconTools</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>Paxle - Tools: Icon</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -42,7 +42,6 @@
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4", 
-							org.osgi.service.component;version="1.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							org.apache.log4j,

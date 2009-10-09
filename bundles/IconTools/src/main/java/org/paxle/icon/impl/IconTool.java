@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.Nonnull;
@@ -30,7 +31,6 @@ import javax.swing.text.html.parser.ParserDelegator;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -40,7 +40,6 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.io.IIOTools;
 import org.paxle.icon.IIconData;
 import org.paxle.icon.IIconTool;
@@ -89,7 +88,7 @@ public class IconTool implements IIconTool {
 	 */
 	IconData defaultHtmlIcon = null;
 
-	protected void activate(ComponentContext context) {		
+	protected void activate(Map<String, Object> props) {		
 		/*
 		 * Initialize the icon-map and load the default icons
 		 */
@@ -122,7 +121,7 @@ public class IconTool implements IIconTool {
 		}
 	}
 	
-	protected void deactivate(ComponentContext context ){
+	protected void deactivate(){
 		this.cachemanager.shutdown(); 
 	}
 

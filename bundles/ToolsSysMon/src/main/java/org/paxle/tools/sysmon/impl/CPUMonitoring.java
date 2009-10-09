@@ -14,6 +14,7 @@
 package org.paxle.tools.sysmon.impl;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import jsysmon.CPUMonitoringData;
@@ -26,7 +27,6 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Constants;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 
@@ -127,14 +127,14 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
-	protected void activate(ComponentContext context) {
+	protected void activate(Map<String, Object> props) {
 		// starting jsysmon daemon
 		JSysmon.setUpdateDelay(60000);
 		JSysmon.startMonitoring();
 		JSysmon.addCPUMonitoringListener(this);
 	}
 
-	protected void deactivate(ComponentContext context) throws Exception {
+	protected void deactivate() throws Exception {
 		// stopping jsysmon daemon
 		JSysmon.stopMonitoring();
 	}

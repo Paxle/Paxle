@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
@@ -33,7 +34,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
 import org.osgi.framework.Constants;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.doc.IIndexerDocument;
@@ -102,7 +102,7 @@ public class LuceneSearcher implements IIndexSearcher, ISearchProvider, Monitora
 	
 	private final LuceneQueryFactory ltf = new LuceneQueryFactory(IIndexerDocument.TEXT, IIndexerDocument.TITLE);	
 	
-	protected void activate(ComponentContext context) {
+	protected void activate(Map<String, Object> props) {
 		this.logger.debug(this.getClass().getSimpleName() + " started");
 	}
 	

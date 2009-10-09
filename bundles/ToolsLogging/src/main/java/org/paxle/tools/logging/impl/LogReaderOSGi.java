@@ -13,6 +13,8 @@
  */
 package org.paxle.tools.logging.impl;
 
+import java.util.Map;
+
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.BufferUtils;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
@@ -24,7 +26,6 @@ import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogEntry;
 import org.osgi.service.log.LogListener;
 import org.osgi.service.log.LogReaderService;
@@ -45,12 +46,12 @@ public class LogReaderOSGi implements LogListener, ILogReader {
 	 */
 	final Buffer fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(200));
 
-	protected void activate(ComponentContext context) {		
+	protected void activate(Map<String, Object> props) {		
 		// adding this class as log-listener
 		this.osgiLogReader.addLogListener(this);
 	}	
 	
-	protected void deactivate(ComponentContext context) {
+	protected void deactivate() {
 		// removing this class from the log-listeners
 		this.osgiLogReader.removeLogListener(this);
 		

@@ -13,6 +13,8 @@
  */
 package org.paxle.tools.logging.impl;
 
+import java.util.Map;
+
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.BufferUtils;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
@@ -29,7 +31,6 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.spi.ThrowableInformation;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogService;
 import org.paxle.tools.logging.ILogData;
 import org.paxle.tools.logging.ILogDataEntry;
@@ -56,7 +57,7 @@ public class LogReaderLog4j implements ILogReader {
 	 */
 	protected Log4jAppender appender;
 	
-	protected void activate(ComponentContext context) {
+	protected void activate(Map<String, Object> props) {
 		// getting the Log4j root logger
 		Logger rootLogger = Logger.getRootLogger();
 		
@@ -65,7 +66,7 @@ public class LogReaderLog4j implements ILogReader {
 		rootLogger.addAppender(this.appender);		
 	}
 	
-	protected void deactivate(ComponentContext context) {
+	protected void deactivate() {
 		// getting the Log4j root logger
 		Logger rootLogger = Logger.getRootLogger();
 		

@@ -16,6 +16,7 @@ package org.paxle.se.index.lucene.impl;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,7 +29,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.doc.Field;
@@ -67,7 +67,7 @@ public class LuceneWriter extends Thread implements IIndexWriter, IDataConsumer<
 	
 	protected Converter defaultCv;
 	
-	protected void activate(ComponentContext context) {
+	protected void activate(Map<String, Object> props) {
 		this.defaultCv = new Converter(this.stopwordsManager.getDefaultAnalyzer());
 	
 		this.setPriority(3);
@@ -77,7 +77,7 @@ public class LuceneWriter extends Thread implements IIndexWriter, IDataConsumer<
 		this.logger.info("Lucene writer has been started");
 	}
 	
-	protected void deactivate(ComponentContext context) throws IOException {
+	protected void deactivate() throws IOException {
 		this.interrupt();
 		try { this.join(); } catch (InterruptedException e) { /* ignore this */ }
 	}

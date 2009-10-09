@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -33,7 +34,6 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Services;
 import org.osgi.service.cm.ManagedService;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeProvider;
@@ -58,13 +58,13 @@ public class StyleManager implements IStyleManager, MetaTypeProvider {
 
 	@Reference
 	private IResourceBundleTool resourceBundleTool;
-	
+
 	/**
 	 * A manager to manage http servlets and resources.
 	 */
 	@Reference
 	private IServletManager servletManager;
-	
+
 	/**
 	 * Path where all downloaded or installed styles are located
 	 */
@@ -75,14 +75,14 @@ public class StyleManager implements IStyleManager, MetaTypeProvider {
 	 * @see MetaTypeProvider#getLocales()
 	 */
 	private String[] locales;	
-	
+
 	/** HashMap containing available styles */
 	private final HashMap<String, File> styles = new HashMap<String, File>();	
-	
-	protected void activate(ComponentContext context) {
+
+	protected void activate(Map<String, Object> props) {
 		// the supported locales
 		this.locales = this.resourceBundleTool.getLocaleArray(IStyleManager.class.getSimpleName(), Locale.ENGLISH);
-		
+
 		// the data-path to use
 		final String dataPathName = System.getProperty("paxle.data") + File.separatorChar + "styles";
 		this.dataPath = new File(dataPathName);	
@@ -91,21 +91,23 @@ public class StyleManager implements IStyleManager, MetaTypeProvider {
 				this.logger.error("Unable to create stylesheet-manager directory: " + dataPath);
 			}
 		}
-		
+
 		// search for available styles
 		this.searchForStyles();
-		
+
 		// getting the style to use
-		String style = (String) context.getProperties().get(PROP_STYLE);
-		
+		String style = null;
+		if (props != null) 
+			style = (String) props.get(PROP_STYLE);
+
 		// load the current style for now
 		this.setStyle(style==null?"default":style);
 	}
-	
-	protected void deactivate(ComponentContext context) {
+
+	protected void deactivate() {
 		this.styles.clear();
 	}
-	
+
 	public File getDataPath() {
 		return this.dataPath;
 	}
@@ -141,11 +143,11 @@ public class StyleManager implements IStyleManager, MetaTypeProvider {
 
 			return;
 		}
-		
+
 		try {
 			File styleFile = new File(this.dataPath,name);
 			HttpContext httpContextStyle = new HttpContextStyle(styleFile);
-			
+
 			JarFile styleJarFile = new JarFile(styleFile);
 			Enumeration<?> jarEntryEnum = styleJarFile.entries();
 
@@ -180,10 +182,10 @@ public class StyleManager implements IStyleManager, MetaTypeProvider {
 	public ObjectClassDefinition getObjectClassDefinition(String id, String localeStr) {
 		// refresh the style list
 		this.searchForStyles();
-		
+
 		Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
 		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + IStyleManager.class.getSimpleName(), locale);
-		
+
 		// create metadata
 		ObjectClassDefinition ocd = new ObjectClassDefinition() {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {
@@ -244,8 +246,8 @@ public class StyleManager implements IStyleManager, MetaTypeProvider {
 
 			public InputStream getIcon(int size) throws IOException {
 				return (size == 16) 
-					? this.getClass().getResourceAsStream("/OSGI-INF/images/palette.png")
-					: null;
+				? this.getClass().getResourceAsStream("/OSGI-INF/images/palette.png")
+						: null;
 			}
 
 			public String getName() {

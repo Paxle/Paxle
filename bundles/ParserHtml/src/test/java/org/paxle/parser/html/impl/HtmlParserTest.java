@@ -62,7 +62,7 @@ public class HtmlParserTest extends AParserTest {
 	
 	@Override
 	protected void tearDown() throws Exception {
-		this.parser.deactivate(null);
+		this.parser.deactivate();
 		super.tearDown();
 	}
 	

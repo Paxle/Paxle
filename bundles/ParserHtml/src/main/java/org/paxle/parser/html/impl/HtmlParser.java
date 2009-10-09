@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,7 +47,6 @@ import org.htmlparser.util.NodeIterator;
 import org.htmlparser.visitors.NodeVisitor;
 import org.microformats.hCard.HCard;
 import org.microformats.hCard.HCardParser.HCardVisitor;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
@@ -106,12 +106,12 @@ public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactor
 	 */
 	private ObjectPool pool = null;
 	
-	protected void activate(@SuppressWarnings("unused") ComponentContext context) {
+	protected void activate(Map<String, Object> props) {
 		this.pool = new GenericObjectPool(this);
 		ScriptScanner.STRICT = false;
 	}
 
-	protected void deactivate(@SuppressWarnings("unused") ComponentContext context) throws Exception {
+	protected void deactivate() throws Exception {
 		this.pool.close();
 		this.pool = null;
 	}

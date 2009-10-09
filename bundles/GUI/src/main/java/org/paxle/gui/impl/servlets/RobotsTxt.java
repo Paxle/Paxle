@@ -13,7 +13,7 @@
  */
 package org.paxle.gui.impl.servlets;
 
-import java.util.Dictionary;
+import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +25,6 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.gui.ALayoutServlet;
 
 @Component(metatype=false, immediate=true)
@@ -39,16 +38,15 @@ public class RobotsTxt extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
 	/** The configuration data for this class */
-	private Dictionary<String, Object> config = null;
+	private Map<String, Object> config = null;
 	
 	private static final String PID = RobotsTxt.class.getName();
 	
 	/** The text of the robots.txt file */
 	public static final String ROBOTSTXT = PID + '.' + "robotstxt-txt";
 	
-	@SuppressWarnings("unchecked")
-	protected void activate(ComponentContext context) {
-		this.config = context.getProperties();
+	protected void activate(Map<String, Object> props) {
+		this.config = props;
 	}
 	
 	@Override

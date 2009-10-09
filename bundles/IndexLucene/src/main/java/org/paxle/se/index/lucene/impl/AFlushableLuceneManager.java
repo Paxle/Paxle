@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,7 +45,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
@@ -110,7 +110,7 @@ public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager
 	 */
 	private Timer flushTimer;
 
-	protected void activate(ComponentContext context) throws IOException, InterruptedException {
+	protected void activate(Map<String, Object> props) throws IOException, InterruptedException {
 		// the default analyzer to use
 		this.analyzer = this.stopWordsManager.getDefaultAnalyzer();
 		
@@ -119,7 +119,8 @@ public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager
 		Converter.fieldManager = this.fieldManager;
 		
 		// the path were the data should be stored
-		this.fullPath = System.getProperty("paxle.data") + File.separatorChar + context.getProperties().get("dataPath");
+		//TO-DO: check props for null
+		this.fullPath = System.getProperty("paxle.data") + File.separatorChar + props.get("dataPath");
 		final File writeLock = new File(this.fullPath, "write.lock");
 		if (writeLock.exists()) {
 			logger.warn(
@@ -150,7 +151,7 @@ public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager
 		this.writer.setMergePolicy(policy);
 	}
 	
-	protected void deactivate(ComponentContext context) throws IOException {
+	protected void deactivate() throws IOException {
 		// canceling the flush timer
 		this.flushTimer.cancel();		
 		// XXX should we wait for a while here?

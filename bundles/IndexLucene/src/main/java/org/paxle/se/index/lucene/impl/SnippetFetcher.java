@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URI;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,7 +36,6 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IDocumentFactory;
@@ -87,12 +87,12 @@ public class SnippetFetcher implements ISnippetFetcher {
 	 */
 	protected PaxleAnalyzer analyzer;
 	
-	protected void activate(ComponentContext context) {
+	protected void activate(Map<String, Object> props) {
 		this.analyzer = this.stopwordsManager.getDefaultAnalyzer();
 		this.execService = Executors.newCachedThreadPool();
 	}
 		
-	protected void deactivate(ComponentContext context) {
+	protected void deactivate() {
 		// shutdown thread-pool
 		this.execService.shutdown();
 	}

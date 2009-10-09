@@ -5,7 +5,7 @@
 	<groupId>org.paxle.tools</groupId>
 	<artifactId>ToolsSysMon</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.8-SNAPSHOT</version>
+	<version>0.1.9-SNAPSHOT</version>
 	<name>Paxle - Tools: System Monitoring</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 	
@@ -80,7 +80,6 @@
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
-							org.osgi.service.component;version="1.0",
 							org.osgi.service.monitor;version="0.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
