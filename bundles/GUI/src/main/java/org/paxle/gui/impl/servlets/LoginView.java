@@ -61,7 +61,7 @@ public class LoginView extends ALayoutServlet {
 	 */	
 	protected void activate(ComponentContext context) {
 		// check if an Administrator group is already available
-		Group admins = (Group) userAdmin.getRole("Administrators");
+		Group admins = (Group) userAdmin.getRole("Administrators")
 		if (admins == null) {
 			admins = (Group) userAdmin.createRole("Administrators",Role.GROUP);
 		}
