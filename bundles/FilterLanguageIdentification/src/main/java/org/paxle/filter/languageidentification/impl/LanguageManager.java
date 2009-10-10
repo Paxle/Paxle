@@ -87,8 +87,8 @@ public class LanguageManager implements IFilter<ICommand> {
 			logger.warn("Exception while trying to determine language of document '" +  parserDoc.getOID() + "'", e);
 		} finally {
 			try {
-				pdr.close();
-			} catch (Exception e) {/* ignore */}
+				if (pdr != null) pdr.close();
+			} catch (IOException e) { logger.error("Unable to close ParserDocReader");}
 		}
 
 		double end = System.currentTimeMillis();
@@ -129,20 +129,20 @@ public class LanguageManager implements IFilter<ICommand> {
 		if (pdoc == null) {
 			this.logger.debug(String.format(
 					"No language detection possible for command '%s'. pdoc was null.",
-					command.getLocation().toASCIIString()
+					command.getLocation().toString()
 			));
 			return;
 		} else if (pdoc.getStatus() != IParserDocument.Status.OK) {
 			logger.debug(String.format(
 					"Language of pDoc '%d' can't be determined. pDoc status was '%s': %s",
-					new Integer(pdoc.getOID()),
+					Integer.valueOf(pdoc.getOID()),
 					pdoc.getStatus().toString(),
 					pdoc.getStatusText()
 			));
 			return;
 		}
 
-		getLanguage(command.getParserDocument());
+		getLanguage(pdoc);
 
 	}
 
