@@ -214,7 +214,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>buildnumber-maven-plugin</artifactId>
-					<version>1.0-beta-2</version>
+					<version>1.0-beta-3</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -358,6 +358,7 @@
 					<doUpdate>false</doUpdate>
 					<revisionOnScmFailure>0</revisionOnScmFailure>
 					<!-- <useLastCommittedRevision>true</useLastCommittedRevision>-->
+					<!-- <getRevisionOnlyOnce>true</getRevisionOnlyOnce>-->
 				</configuration>
 			</plugin>
 			
