@@ -116,45 +116,6 @@
 		<developerConnection>scm:svn:svn+ssh://svn@svn.xenim.de/p2psearch/trunk/bundles/</developerConnection>
 	</scm>	
 	
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-<!--					<aggregate>true</aggregate>-->
-					<debug>true</debug>
-					<links>
-						<link>
-							http://java.sun.com/j2se/1.5.0/docs/api
-						</link>
-						<link>http://www2.osgi.org/javadoc/r4/</link>
-					</links>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>taglist-maven-plugin</artifactId>
-				<configuration>
-<!--					<aggregate>true</aggregate>-->
-					<tags>
-                        <tag>TODO</tag>
-                        <tag>TO-DO</tag>
-                        <tag>TODO:</tag>
-                        <tag>TO-DO:</tag>
-                        <tag>FIXME</tag>
-                        <tag>FIX-ME</tag>
-                        <tag>FIXME:</tag>
-                        <tag>FIX-ME:</tag>
-                        <tag>XXX</tag>
-                        <tag>XXX:</tag>
-                        <tag>@deprecated</tag>						
-					</tags>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>	
-
 	<build>
 		<!-- Output File Name:
 			The jar names should not include the version number. This is

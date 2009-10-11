@@ -130,7 +130,38 @@
 	<scm>
 		<url>http://svn.paxle.net/wsvn/paxle/trunk/bundles/Paxle</url>
 		<developerConnection>scm:svn:svn+ssh://svn@svn.xenim.de/p2psearch/trunk/bundles/Paxle</developerConnection>
-	</scm>	
+	</scm>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<aggregate>true</aggregate>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>taglist-maven-plugin</artifactId>
+				<configuration>
+					<tags>
+                        <tag>TODO</tag>
+                        <tag>TO-DO</tag>
+                        <tag>TODO:</tag>
+                        <tag>TO-DO:</tag>
+                        <tag>FIXME</tag>
+                        <tag>FIX-ME</tag>
+                        <tag>FIXME:</tag>
+                        <tag>FIX-ME:</tag>
+                        <tag>XXX</tag>
+                        <tag>XXX:</tag>
+                        <tag>@deprecated</tag>						
+					</tags>
+				</configuration>
+			</plugin>			
+		</plugins>
+	</reporting>
 
 	<!-- plugin settings -->
 	<build>
