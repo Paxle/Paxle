@@ -125,6 +125,11 @@
 			<id>paxle-release-repository</id>
 			<url>${mvn-deploy-url}</url>
 		</repository>
+		
+		<site>
+			<id>paxle-site</id>
+			<url>${mvn-site-deploy-url}</url>
+		</site>
 	</distributionManagement>
 
 	<scm>

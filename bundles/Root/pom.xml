@@ -86,7 +86,7 @@
 	</properties>
 
 	<issueManagement>
-		<system>mantis</system>
+		<system>Mantis</system>
 		<url>https://bugs.pxl.li/</url>
 	</issueManagement>
 
@@ -100,6 +100,11 @@
 			<id>paxle-release-repository</id>
 			<url>${mvn-deploy-url}</url>
 		</repository>
+		
+		<site>
+			<id>paxle-site</id>
+			<url>${mvn-site-deploy-url}</url>
+		</site>
 	</distributionManagement>
 
 	<licenses>
