@@ -14,6 +14,7 @@
 package org.paxle.crawler.ftp.impl;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -31,7 +32,11 @@ import org.osgi.service.url.URLStreamHandlerService;
 public class FtpStreamHandlerService extends AbstractURLStreamHandlerService implements URLStreamHandlerService {
 	@Override
 	public URLConnection openConnection(URL url) throws IOException {
-		return new FtpUrlConnection(url);
+		try {
+			return new FtpUrlConnection(url);
+		} catch (URISyntaxException e) {
+			throw new IOException("URISyntaxException: " + e.getMessage());
+		}
 	}
 
 	@Override

@@ -18,6 +18,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Calendar;
@@ -39,9 +41,11 @@ public class FtpUrlConnection extends URLConnection {
 	private int reply;
 	private boolean isDirectory = false;
 	private String file = "", path = null;
+	private final URI uri;
 
-	protected FtpUrlConnection(URL url) {
+	protected FtpUrlConnection(URL url) throws URISyntaxException {
 		super(url);
+		this.uri = url.toURI();
 		this.client = new FTPClient();
 		this.setConnectTimeout(15000);
 		this.setReadTimeout(15000);
@@ -89,7 +93,7 @@ public class FtpUrlConnection extends URLConnection {
 		/* =======================================================================
 		 * Change directory
 		 * ======================================================================= */			
-		String longpath = url.getPath();
+		String longpath = uri.getPath();
 
 		if (longpath.endsWith("/")) {
 			file = "";
@@ -232,7 +236,8 @@ drwxr-xr-x   2      1176      1176          4096  2009-02-07 00:33  tools
 			reply = client.getReplyCode();
 			if (!FTPReply.isPositivePreliminary(reply) || fileInputStream == null) {
 				client.disconnect();
-				String msg = String.format("FTP server '%s' file transfer failed. ReplyCode: %s",url.getHost(),client.getReplyString());
+				final String msg = String.format("FTP server '%s' file transfer failed. ReplyCode: %s (%d)",
+						url.getHost(), client.getReplyString(), Integer.valueOf(reply));
 				this.logger.warn(msg);
 				throw new FtpConnectionException(msg);
 			}

@@ -23,6 +23,11 @@ import org.paxle.crawler.impl.ACrawlerTest;
 
 public class FtpCrawlerOnlineTest extends ACrawlerTest {
 	
+	static final String[] TEST_URIS = {
+		"ftp://ftp.debian.org/debian/README",
+		"ftp://download.uni-hd.de/pub/div-sources/tex/cod8859%231.tex",		// testing '#' contained in path of URI
+	};
+	
 	private FtpCrawler crawler;
 	
 	@Override
@@ -48,14 +53,16 @@ public class FtpCrawlerOnlineTest extends ACrawlerTest {
 	}
 	
 	public void testReadDocument() {
-		URI testUri = URI.create("ftp://ftp.debian.org/debian/README");
-		this.crawlerDoc = this.crawler.request(testUri);
-		assertNotNull(crawlerDoc);		
-		assertEquals(testUri, crawlerDoc.getLocation());
-		assertEquals(ICrawlerDocument.Status.OK, crawlerDoc.getStatus());
-		assertNotNull(crawlerDoc.getContent());
-		assertTrue(crawlerDoc.getContent().exists());
-		assertTrue(crawlerDoc.getContent().length() > 0);
+		for (final String testUriString : TEST_URIS) {
+			URI testUri = URI.create(testUriString);
+			this.crawlerDoc = this.crawler.request(testUri);
+			assertNotNull(crawlerDoc);		
+			assertEquals(testUri, crawlerDoc.getLocation());
+			assertEquals(ICrawlerDocument.Status.OK, crawlerDoc.getStatus());
+			assertNotNull(crawlerDoc.getContent());
+			assertTrue(crawlerDoc.getContent().exists());
+			assertTrue(crawlerDoc.getContent().length() > 0);
+		}
 	}
 	
 	public void testReadDocumentMaxDownloadSizeLimit() throws ConfigurationException {

@@ -16,6 +16,7 @@ package org.paxle.crawler.ftp.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
@@ -163,7 +164,9 @@ public class FtpCrawler implements IFtpCrawler {
 					e.getClass().getName(),
 					requestUri
 			),e);
-		} 		
+		} catch (URISyntaxException e) {
+			this.logger.warn(String.format("Unexpected URI syntax exception while converting URL->URI: %s", e.getMessage()));
+		}
 
 		return crawlerDoc;
 	}
