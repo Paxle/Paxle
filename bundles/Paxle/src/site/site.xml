@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Paxle">
+    <bannerLeft>
+        <name>Paxle</name>
+        <src>images/logo.png</src>
+        <href>http://www.paxle.net/en/start</href>
+    </bannerLeft>
+    <body>
+        <links>
+            <item name="${project.name}" href="${project.url}"/>
+        </links>
+
+        <menu ref="parent"/>
+        <menu ref="modules"/>
+        <menu ref="reports"/>
+        
+        <menu name="Links">
+            <item name="Wiki page" href="http://wiki.paxle.net"/>
+        </menu>
+    </body>
+</project>
