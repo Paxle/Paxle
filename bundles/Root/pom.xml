@@ -509,7 +509,7 @@
 				<!-- Equinox framework bundle: needed by new console-command-handlers -->
 				<groupId>org.eclipse.osgi</groupId>
 				<artifactId>osgi</artifactId>
-				<version>3.5.0.v20090520</version>
+				<version>3.5.1.R35x_v20090827</version>
 			</dependency>
 
 			<!--

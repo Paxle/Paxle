@@ -102,7 +102,7 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		this.writer.deactivate();
 		
 		// delete files
-		FileUtils.deleteDirectory(new File(this.dbPath));
+		FileUtils.deleteDirectory(new File(LuceneWriterTest.dbPath));
 	}	
 	
 	/**

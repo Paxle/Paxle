@@ -89,7 +89,7 @@
 	<properties>
 		<!-- Eclipse Equinox related Properties -->
 		<equinox.dependencies>target/dependency/equinox</equinox.dependencies>
-		<equinox.runtime.jar>org.eclipse.osgi_3.5.0.v20090520.jar</equinox.runtime.jar>
+		<equinox.runtime.jar>org.eclipse.osgi_3.5.1.R35x_v20090827.jar</equinox.runtime.jar>
 		<equinox.bundledir>bundles</equinox.bundledir>
 		
 		<!-- properties that will be overwritten by the installer -->
@@ -237,7 +237,7 @@
 								<artifactItem>
 									<groupId>org.eclipse.osgi</groupId>
 									<artifactId>osgi</artifactId>
-									<version>3.5.0.v20090520</version>
+									<version>3.5.1.R35x_v20090827</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>${equinox.runtime.jar}</destFileName>
 								</artifactItem>
@@ -253,9 +253,9 @@
 								<artifactItem>
 									<groupId>org.eclipse.equinox</groupId>
 									<artifactId>common</artifactId>
-									<version>3.5.0.v20090520-1800</version>
+									<version>3.5.1.R35x_v20090807-1100</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.equinox.common_3.5.0.v20090520-1800.jar</destFileName>
+									<destFileName>org.eclipse.equinox.common_3.5.1.R35x_v20090807-1100.jar</destFileName>
 								</artifactItem>
 								
 								<!--
@@ -312,9 +312,9 @@
 								<artifactItem>
 									<groupId>org.eclipse.equinox</groupId>
 									<artifactId>ds</artifactId>
-									<version>1.1.0.v20090601</version>
+									<version>1.1.1.R35x_v20090806</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.equinox.ds_1.1.0.v20090601.jar</destFileName>
+									<destFileName>org.eclipse.equinox.ds_1.1.1.R35x_v20090806.jar</destFileName>
 								</artifactItem>	
 								
 								<artifactItem>
