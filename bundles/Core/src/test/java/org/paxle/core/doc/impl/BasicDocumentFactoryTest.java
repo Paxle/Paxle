@@ -13,7 +13,9 @@
  */
 package org.paxle.core.doc.impl;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -23,6 +25,7 @@ import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.io.temp.impl.TempFileManager;
 
@@ -37,6 +40,19 @@ public class BasicDocumentFactoryTest extends TestCase {
 		this.docFactory = new BasicDocumentFactory() {{
 			this.tempFileManager = tmpFileManager;
 		}};
+	}
+	
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		
+		// cleanup temp files
+		final Map<File,ITempDir> tempFiles = ((TempFileManager)this.tmpFileManager).getFileMap();
+		if (tempFiles != null) {
+			for (File file : tempFiles.keySet()) {
+				assertTrue(file.delete());
+			}
+		}
 	}
 	
 	public void testCreateCommand() throws IOException {
