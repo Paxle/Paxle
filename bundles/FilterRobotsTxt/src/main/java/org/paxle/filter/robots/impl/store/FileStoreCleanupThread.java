@@ -130,14 +130,17 @@ public class FileStoreCleanupThread extends Thread implements ManagedService
 				}
 			}
 
-			logger.debug("Finished cleaning cache.\n" +
-					"Total Runtime: " + ((System.currentTimeMillis() - tstart)/1000) + "s\n" +
-					"I/O-delay is configured to " + config.get(PROP_IODELAY) + "ms\n" + 
-					"I/O-delay accounted for " + (ctr * (Integer)config.get(PROP_IODELAY) / 1000) + "s of total time\n" +
-					"Processing time: " + (((System.currentTimeMillis() - tstart)/1000) - (ctr * (Integer)config.get(PROP_IODELAY) / 1000)) + "\n" +
-					"Files before: " + ctr + "\n" +
-					"Files deleted: " + delctr + "\n" +
-					"Files now: " + (ctr - delctr));
+			if (logger.isDebugEnabled()) {
+				final int ioDelay = ((Integer)config.get(PROP_IODELAY)).intValue();
+				logger.debug("Finished cleaning cache.\n" +
+						"Total Runtime: " + ((System.currentTimeMillis() - tstart)/1000) + "s\n" +
+						"I/O-delay is configured to " + ioDelay + "ms\n" + 
+						"I/O-delay accounted for " + (ctr * ioDelay / 1000) + "s of total time\n" +
+						"Processing time: " + (((System.currentTimeMillis() - tstart)/1000) - (ctr * ioDelay / 1000)) + "\n" +
+						"Files before: " + ctr + "\n" +
+						"Files deleted: " + delctr + "\n" +
+						"Files now: " + (ctr - delctr));
+			}
 
 			if (go_on) {
 				checkConfig();

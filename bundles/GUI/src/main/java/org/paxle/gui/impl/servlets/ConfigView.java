@@ -621,7 +621,7 @@ public class ConfigView extends ALayoutServlet {
 				int counter = 0;
 				for (String attributeValueString : attributeValueStrings) {
 					if (cardinality != 0 && (counter + 1 > Math.abs(cardinality))) {
-						context.put(ERROR_MSG, String.format("Too many values found for parameter '%s': %d",attributeID,counter+1));
+						context.put(ERROR_MSG, String.format("Too many values found for parameter '%s': %d", attributeID, Integer.valueOf(counter+1)));
 						return null;
 					}
 
@@ -675,7 +675,7 @@ public class ConfigView extends ALayoutServlet {
 							break; 
 						case AttributeDefinition.STRING:
 							finalAttributeValue = attributeValueString;
-							if (cardinality >= 1) ((String[])finalAttributeValues)[counter] = (String) attributeValueString;
+							if (cardinality >= 1) ((String[])finalAttributeValues)[counter] = attributeValueString;
 							else if (cardinality <= -1) ((Vector<String>)finalAttributeValues).add((String)finalAttributeValue);								
 							break; 
 						default:

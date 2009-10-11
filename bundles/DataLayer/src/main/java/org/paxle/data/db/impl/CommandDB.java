@@ -371,7 +371,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		} else {
 			logger.info(String.format(
 					"Serialized double URL set found, reading %d bytes ...",
-					serializedFile.length()
+					Long.valueOf(serializedFile.length())
 					));
 			final InputStream fileIs = new FileInputStream(serializedFile);
 			try {
@@ -1055,7 +1055,7 @@ public class CommandDB implements IDataProvider<ICommand>, IDataSink<URIQueueEnt
 		if (this.logger.isTraceEnabled() && known > 0) {
 			logger.trace(String.format(
 					"%d false-positive URI added to DB: %s",
-					known,
+					Integer.valueOf(known),
 					buf.toString()
 			));
 		}

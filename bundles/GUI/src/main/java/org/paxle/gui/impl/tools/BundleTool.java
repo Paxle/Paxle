@@ -26,6 +26,7 @@ import org.osgi.framework.ServiceReference;
 @ValidScope(Scope.REQUEST)
 public class BundleTool extends PaxleLocaleConfig {
 	
+	@Override
 	public void configure(@SuppressWarnings("unchecked") Map props) {
 		super.configure(props);
 	}

@@ -571,7 +571,7 @@ public class MWComponent<Data> implements IMWComponent<Data>, ManagedService, Me
 			if (deltaDelay != null) {
 				int delay = this.getMaster().getDelay();
 				if (delay < 0) delay = 0;
-				delay += deltaDelay;
+				delay += deltaDelay.intValue();
 				this.master.setDelay(delay);
 			}
 		}

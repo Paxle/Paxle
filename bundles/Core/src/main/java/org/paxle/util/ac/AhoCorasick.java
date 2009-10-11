@@ -13,13 +13,9 @@
  */
 package org.paxle.util.ac;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-
-import org.paxle.util.buffer.ArrayByteBuffer;
 
 public class AhoCorasick<E> {
 

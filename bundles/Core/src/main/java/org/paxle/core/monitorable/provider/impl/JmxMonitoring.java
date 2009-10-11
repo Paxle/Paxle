@@ -154,7 +154,7 @@ public class JmxMonitoring implements Monitorable {
 				var = new StatusVariable(name,StatusVariable.CM_GAUGE,((Double)value).floatValue());
 			} else if (name.equals(VAR_NAME_STARTTIME)) {
 		        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-				var = new StatusVariable(name,StatusVariable.CM_SI, sdf.format(new Date((Long)value)));
+				var = new StatusVariable(name,StatusVariable.CM_SI, sdf.format(new Date(((Long)value).longValue())));
 			} else if (name.equals(VAR_NAME_UPTIME)) {
 				int uptime = (int) (((Long)value).longValue() / 1000); // convert value into seconds
 				var = new StatusVariable(name,StatusVariable.CM_CC, uptime);

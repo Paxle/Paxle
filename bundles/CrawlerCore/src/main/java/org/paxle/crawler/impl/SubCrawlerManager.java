@@ -202,7 +202,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 			msg.append(String.format(
 					"Crawler '%s' installed. %d supported protocol(s):",
 					crawlerPid,
-					protocols.length
+					Integer.valueOf(protocols.length)
 			));
 			for (String protocol : protocols) {
 				msg.append("\r\n\t")
@@ -241,7 +241,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 			msg.append(String.format(
 					"Crawler '%s' uninstalled. %d supported protocols: ",
 					crawlerPid,
-					protocols.length
+					Integer.valueOf(protocols.length)
 			));
 			for (String protocol : protocols) {
 				msg.append("\r\n\t").

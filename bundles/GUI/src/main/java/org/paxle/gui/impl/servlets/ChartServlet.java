@@ -440,10 +440,10 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 			if ((display == null || display.equals("plain")) && (chartType != null)) {
 				// getting requested graph size 
 				String wStrg = request.getParameter("w");
-				int width = Integer.valueOf(wStrg == null ? "385": wStrg);
+				int width = Integer.parseInt(wStrg == null ? "385": wStrg);
 	
 				String hStrg = request.getParameter("h");
-				int height = Integer.valueOf(hStrg == null ? "200": hStrg);
+				int height = Integer.parseInt(hStrg == null ? "200": hStrg);
 	
 				// getting the reuested chart
 				JFreeChart chart = this.chartMap.get(chartType);

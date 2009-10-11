@@ -127,7 +127,7 @@ public class BundleView extends ALayoutServlet {
 				if (bundle == null) {
 					String errorMsg = String.format(
 							"Bundle with ID '%s' not found.", 
-							bundleID
+							Long.valueOf(bundleID)
 					);
 					this.logger.warn(errorMsg);
 					context.put("errorMsg",errorMsg);
@@ -172,7 +172,7 @@ public class BundleView extends ALayoutServlet {
 						String errorMsg = String.format(
 								"Unexpected exception while doing action '%s' on bundle with ID '%s", 
 								action,
-								bundleID
+								Long.valueOf(bundleID)
 						);
 						this.logger.warn(errorMsg, e);
 						context.put("errorMsg",e.getMessage());

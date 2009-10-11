@@ -199,7 +199,7 @@ public class SearchProviderManager implements ISearchProviderManager {
 				this.logger.debug(String.format(
 						"SEProvider '%s' is skipped for search request '%d'.",
 						providerPID,
-						request.getRequestID()
+						Integer.valueOf(request.getRequestID())
 				));
 				continue;
 			}
@@ -229,8 +229,8 @@ public class SearchProviderManager implements ISearchProviderManager {
 					this.logger.debug(String.format(
 							"SEProvider '%s' returned '%d' results for search-request '%d'.",
 							providerPID,
-							size,
-							request.getRequestID()
+							Integer.valueOf(size),
+							Integer.valueOf(request.getRequestID())
 					));					
 					
 					results.collect(r);

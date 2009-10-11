@@ -73,7 +73,6 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Services;
 import org.osgi.framework.Constants;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
 import org.paxle.filter.robots.IRobotsTxtManager;
@@ -311,7 +310,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 		this.logger.info(String.format(
 				"Robots.txt manager initialized. Using '%s' rule-store with %d stored entries.",
 				loader.getClass().getSimpleName(),
-				loader.size()
+				Integer.valueOf(loader.size())
 		));
 	}
 

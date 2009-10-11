@@ -54,6 +54,7 @@ public class ConfigTool extends PaxleLocaleConfig {
 	 */
 	private ConfigurationAdmin configAdmin = null;
 	
+	@Override
 	public void configure(@SuppressWarnings("unchecked") Map props) {
 		super.configure(props);
 		
