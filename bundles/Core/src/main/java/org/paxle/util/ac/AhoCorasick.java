@@ -125,7 +125,7 @@ public class AhoCorasick<E> {
         "\u00FE","&thorn;",
         "\u00FF","&yuml;"
     };
-	
+	/*
 	public static void main(String[] args) throws Exception {
 		switch (0) {
 			case 0: {
@@ -206,11 +206,11 @@ public class AhoCorasick<E> {
 				int last = 0;
 				for (final SearchResult<String> r : ac.search(data)) {
 					abb.append(data, last, r.getMatchBegin() - last).append(r.getValue().getBytes());
-					/*
+					
 					System.out.println(
 							"replacing '" + new String(data, r.getMatchBegin(), r.getMatchEnd() - r.getMatchBegin()) +
 							"' with '" + r.getValue() + "' @" + r.getMatchBegin());
-							*/
+							
 					last = r.getMatchEnd() + 1;
 					c++;
 				}
@@ -256,6 +256,7 @@ public class AhoCorasick<E> {
 			} break;
 		}
 	}
+	*/
 	
 	// package private for Map-implementation and Searcher
 	class SearchNodeResult {

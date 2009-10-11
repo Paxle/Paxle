@@ -101,8 +101,8 @@ public class PlaintextDumperFilter implements IFilter<ICommand> {
 			// copy files
 			this.ioTools.copy(br, bw);
 		} finally {
-			if (br != null) try { br.close(); } catch (Exception e) {/* ignore this */}
-			if (bw != null) try { bw.close(); } catch (Exception e) {/* ignore this */}	
+			if (br != null) try { br.close(); } catch (Exception e) { this.logger.error("Can't close br", e); }
+			if (bw != null) try { bw.close(); } catch (Exception e) { this.logger.error("Can't close bw", e); }	
 		}
 		return targetFile;
 	}
@@ -110,10 +110,11 @@ public class PlaintextDumperFilter implements IFilter<ICommand> {
 	public void filter(ICommand command, IFilterContext context) {
 		if (command == null) throw new NullPointerException("The command object is null.");
 		if (command.getResult() != ICommand.Result.Passed) return;
-		if (command.getParserDocument() == null) return;
+		IParserDocument pdoc = command.getParserDocument();
+		if (pdoc == null) return;
 
 		try {
-			this.store(command.getParserDocument());
+			this.store(pdoc);
 		} catch (Throwable e) {
 			this.logger.error(String.format(
 					"Unexpected %s while dumping plain-text of URI '%s' into file.",
