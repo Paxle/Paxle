@@ -45,8 +45,6 @@ import org.paxle.parser.ParserContext;
 
 
 public abstract class AParserTest extends MockObjectTestCase {
-	protected List<File> tempFiles = new ArrayList<File>();
-	
 	protected HashMap<String,String> fileNameToMimeTypeMap = null;
 	protected HashMap<String, ISubParser> mimeTypeToParserMap = null;
 	
@@ -163,9 +161,11 @@ public abstract class AParserTest extends MockObjectTestCase {
 		super.tearDown();
 		
 		// deleting all previously created temp-file
-		for (File tempFile : tempFiles) {
-			if (tempFile.exists() && !tempFile.delete()) throw new IOException("Unable to delte file: " + tempFile);
-		}		
+		// cleanup temp-file
+		for (File tempFile : ((TestTempFileManager)aTempFileManager).tempFiles)	{
+			if (tempFile.exists() && !tempFile.delete()) 
+				throw new IOException("Unable to delte file: " + tempFile);
+		}	
 	}
 	
 	/**
