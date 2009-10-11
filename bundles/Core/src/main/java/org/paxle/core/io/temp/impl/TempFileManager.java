@@ -180,7 +180,7 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	 * Method just used for testing
 	 * @return
 	 */
-	Map<File,ITempDir> getFileMap() {
+	public Map<File,ITempDir> getFileMap() {
 		return Collections.unmodifiableMap(fileMap);
 	}
 }

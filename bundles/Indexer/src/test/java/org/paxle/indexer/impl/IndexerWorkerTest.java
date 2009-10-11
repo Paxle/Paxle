@@ -16,6 +16,7 @@ package org.paxle.indexer.impl;
 import java.io.File;
 import java.net.URI;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.doc.ICommand;
@@ -25,18 +26,37 @@ import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.impl.BasicCommand;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
+import org.paxle.core.io.temp.ITempDir;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.io.temp.impl.TempFileManager;
 
 public class IndexerWorkerTest extends MockObjectTestCase {
 	private static final File TESTFILE = new File("src/test/resources/paxle.txt");
+	
+	private ITempFileManager aTempFileManager;
 	private IDocumentFactory docFactory;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		
+		this.aTempFileManager = new TempFileManager();
 		this.docFactory = new BasicDocumentFactory(){{
-			this.tempFileManager = new TempFileManager();
+			this.tempFileManager = aTempFileManager;
 		}};
+	}
+	
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		
+		// cleanup temp files
+		final Map<File,ITempDir> tempFiles = ((TempFileManager)this.aTempFileManager).getFileMap();
+		if (tempFiles != null) {
+			for (File file : tempFiles.keySet()) {
+				assertTrue(file.delete());
+			}
+		}		
 	}
 	
 	public void testDeepConversion() throws Exception {
