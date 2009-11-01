@@ -261,16 +261,20 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	}
 	
 	public Collection<ISubParser> getSubParsers(String mimeType) {
-		if (mimeType == null)
-			return null;
+		if (mimeType == null) return null;
+		
 		mimeType = mimeType.trim();
 		final TreeSet<ServiceReference> refs = this.subParserList.get(mimeType);
-		if (refs == null)
-			return null;
+		if (refs == null) return null;
+		
 		final ArrayList<ISubParser> list = new ArrayList<ISubParser>(refs.size());
-		for (final ServiceReference ref : refs)
-			if (isEnabled(mimeType, ref))
-				list.add((ISubParser)context.getService(ref));
+		for (final ServiceReference ref : refs) {
+			if (isEnabled(mimeType, ref)) {
+				final ISubParser parser = (ISubParser)context.getService(ref);
+				if (parser != null) list.add(parser);
+			}
+		}
+		
 		return list;
 	}
 	
@@ -281,15 +285,17 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	 * @return <code>true</code> if the given mime-tpye is supported or <code>false</code> otherwise
 	 */
 	public boolean isSupported(String mimeType) {
-		if (mimeType == null)
-			return false;
+		if (mimeType == null) return false;
+		
 		mimeType = mimeType.trim();
 		final TreeSet<ServiceReference> refs = this.subParserList.get(mimeType);
-		if (refs == null)
-			return false;
-		for (final ServiceReference ref : refs)
-			if (isEnabled(mimeType, ref))
+		if (refs == null) return false;
+		
+		for (final ServiceReference ref : refs) {
+			if (isEnabled(mimeType, ref)) {
 				return true;
+			}
+		}
 		return false;
 	}
 	
