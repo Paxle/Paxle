@@ -192,8 +192,8 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	@SuppressWarnings("unchecked")
 	public void addSubParser(final ServiceReference ref) {
 		final String[] mimeTypes = getMimeTypes(ref);
-		if (mimeTypes == null)
-			return;
+		if (mimeTypes == null) return;
+		
 		for (String mimeType : mimeTypes) {
 			mimeType = mimeType.trim();
 			TreeSet<ServiceReference> refs = this.subParserList.get(mimeType);

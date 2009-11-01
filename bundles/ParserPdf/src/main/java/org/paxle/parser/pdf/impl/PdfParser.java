@@ -25,6 +25,8 @@ import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.Calendar;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
@@ -35,6 +37,7 @@ import org.paxle.parser.ParserException;
 import org.pdfbox.pdfparser.PDFParser;
 import org.pdfbox.pdmodel.PDDocument;
 import org.pdfbox.pdmodel.PDDocumentInformation;
+import org.pdfbox.pdmodel.encryption.AccessPermission;
 import org.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
 import org.pdfbox.util.PDFTextStripper;
 
@@ -42,6 +45,10 @@ import org.pdfbox.util.PDFTextStripper;
 @Service(ISubParser.class)
 @Property(name=ISubParser.PROP_MIMETYPES, value={"application/pdf"})
 public class PdfParser implements ISubParser {
+	/**
+	 * For logging
+	 */
+	private final Log logger = LogFactory.getLog(this.getClass());	
 
 	public IParserDocument parse(URI location, String charset, InputStream fileIn) throws ParserException, UnsupportedEncodingException, IOException {
 		IParserDocument parserDoc = null;
@@ -52,43 +59,58 @@ public class PdfParser implements ISubParser {
 			parserDoc = ParserContext.getCurrentContext().createDocument();
 			
 			// parse it
-			PDFParser parser = new PDFParser(fileIn);
+			final PDFParser parser = new PDFParser(fileIn);
 			parser.parse();
 			pddDoc = parser.getPDDocument();
 			
 			// check document encryption
 			if (pddDoc.isEncrypted()) {
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(String.format(
+						"Document '%s' is encrypted."
+					));
+				}
+				
 				// try to open document with standard pwd
-				StandardDecryptionMaterial dm = new StandardDecryptionMaterial("");
+				// TODO: it should be possible to pass in a password via the command profile here
+				final StandardDecryptionMaterial dm = new StandardDecryptionMaterial("");
 				try {
 					pddDoc.openProtection(dm);
-					if (!pddDoc.getCurrentAccessPermission().canExtractContent()) {
+					final AccessPermission accessPermission = pddDoc.getCurrentAccessPermission();
+					
+					if (accessPermission == null || !accessPermission.canExtractContent()) {
+						if (this.logger.isInfoEnabled()) {
+							this.logger.debug(String.format(
+								"No permission to extract content of document '%s'."
+							));						
+						}
 						parserDoc.setStatus(IParserDocument.Status.FAILURE,"PDF Document is encrypted.");
 						return parserDoc;
 					}
 				} catch (Throwable e) {
-					parserDoc.setStatus(IParserDocument.Status.FAILURE,"Unable to decrypt document. " + e.getMessage());
+					this.logger.error(String.format("Unable to decrypt document '%s'.",location),e);
+					parserDoc.setStatus(IParserDocument.Status.FAILURE,String.format("Unable to decrypt document. %s: %s", e.getClass().getName(),e.getMessage()));
 					return parserDoc;
 				}
 			}
 			
 			// extract metadata
-			PDDocumentInformation metadata = pddDoc.getDocumentInformation();
+			final PDDocumentInformation metadata = pddDoc.getDocumentInformation();
 			if (metadata != null) {
 				// document title
-				String title = metadata.getTitle();
+				final String title = metadata.getTitle();
 				if (title != null && title.length() > 0) parserDoc.setTitle(title);
 				
 				// document author(s)
-				String author = metadata.getAuthor();
+				final String author = metadata.getAuthor();
 				if (author != null && author.length() > 0) parserDoc.setAuthor(author);;
 				
 				// subject
-				String summary = metadata.getSubject();
+				final String summary = metadata.getSubject();
 				if (summary != null && summary.length() > 0) parserDoc.setSummary(summary);
 				
 				// keywords
-				String keywords = metadata.getKeywords();
+				final String keywords = metadata.getKeywords();
 				if (keywords != null && keywords.length() > 0) {
 					String[] keywordArray = keywords.split("[,;\\s]");
 					if (keywordArray != null && keywordArray.length > 0) {
@@ -97,14 +119,14 @@ public class PdfParser implements ISubParser {
 				}
 				
 				// last modification date
-				Calendar lastMod = metadata.getModificationDate();
+				final Calendar lastMod = metadata.getModificationDate();
 				if (lastMod != null) {
 					parserDoc.setLastChanged(lastMod.getTime());
 				}
 			}
 			
 			// init text stripper
-			PDFTextStripper stripper = new PDFTextStripper();
+			final PDFTextStripper stripper = new PDFTextStripper();
 			final AppenderWriter pdocWrapper = new AppenderWriter(parserDoc);
 			stripper.writeText(pddDoc, pdocWrapper);
 			

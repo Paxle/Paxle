@@ -42,11 +42,20 @@
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
+							<!-- Logging framework -->
+							org.apache.commons.logging, 
 							<!-- Paxle Core -->
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
 							org.paxle.core.io.temp;version="[0.1.0,0.2.0)",
 							<!-- Paxle Parser Core -->
 							org.paxle.parser;version="[0.1.0,0.2.0)",
+							<!-- for encryption -->
+							org.bouncycastle.asn1;version="[1.39.0, 2.0.0)";resolution:=optional,
+							org.bouncycastle.asn1.cms;version="[1.39.0, 2.0.0)";resolution:=optional,
+							org.bouncycastle.asn1.pkcs;version="[1.39.0, 2.0.0)";resolution:=optional,
+							org.bouncycastle.asn1.x509;version="[1.39.0, 2.0.0)";resolution:=optional,
+							org.bouncycastle.cms;version="[1.39.0, 2.0.0)";resolution:=optional,
+							org.bouncycastle.jce.provider;version="[1.39.0, 2.0.0)";resolution:=optional,
 							<!-- ignoring other classes -->
 							!*
 						</Import-Package>
