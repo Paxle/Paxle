@@ -30,7 +30,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
+import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -55,8 +57,11 @@ public class PdfParser implements ISubParser {
 		PDDocument pddDoc = null;
 		
 		try {
-			// create an empty document
-			parserDoc = ParserContext.getCurrentContext().createDocument();
+			final IParserContext pc = ParserContext.getCurrentContext();
+			final ICommandProfile cmdProfile = pc.getCommandProfile();
+			
+			// create an empty document			
+			parserDoc = pc.createDocument();
 			
 			// parse it
 			final PDFParser parser = new PDFParser(fileIn);
@@ -71,10 +76,16 @@ public class PdfParser implements ISubParser {
 					));
 				}
 				
-				// try to open document with standard pwd
-				// TODO: it should be possible to pass in a password via the command profile here
-				final StandardDecryptionMaterial dm = new StandardDecryptionMaterial("");
+				// determine the decryption password
+				String pwd = "";
+				if (cmdProfile != null) {
+					String tmp = (String) cmdProfile.getProperty("org.paxle.parser.pdf.impl.decryptionPassword");
+					if (tmp != null) pwd = tmp;
+				}				
+				
+				// try to open document with the given password
 				try {
+					final StandardDecryptionMaterial dm = new StandardDecryptionMaterial(pwd);
 					pddDoc.openProtection(dm);
 					final AccessPermission accessPermission = pddDoc.getCurrentAccessPermission();
 					
