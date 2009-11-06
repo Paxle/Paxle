@@ -67,7 +67,7 @@ public abstract class ACrawlerTest extends MockObjectTestCase {
 		// cleanup temp-file
 		for (File tempFile : ((TestTempFileManager)theTempFileManager).tempFiles)	{
 			if (tempFile.exists() && !tempFile.delete()) 
-				throw new IOException("Unable to delte file: " + tempFile);
+				throw new IOException("Unable to delete file: " + tempFile);
 		}
 	}
 	

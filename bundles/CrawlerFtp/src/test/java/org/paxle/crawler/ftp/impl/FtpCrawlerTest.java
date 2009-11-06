@@ -17,31 +17,64 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mockftpserver.fake.FakeFtpServer;
+import org.mockftpserver.fake.UserAccount;
+import org.mockftpserver.fake.filesystem.FileEntry;
+import org.mockftpserver.fake.filesystem.FileSystem;
+import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 import org.osgi.service.cm.ConfigurationException;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.crawler.impl.ACrawlerTest;
 
-public class FtpCrawlerOnlineTest extends ACrawlerTest {
+public class FtpCrawlerTest extends ACrawlerTest {
+
+	/**
+	 * The port number for our test FTP server. Non-superusers can't bind low ports.
+	 */
+	private static int localServerPort = 49997;
 	
+	/**
+	 * The complete local address of the test FTP server, without trailing slash, e.g. "ftp://127.0.0.1:49997"
+	 */
+	private static String localServerAddress = "ftp://127.0.0.1:" + localServerPort;
+
 	static final String[] TEST_URIS = {
-		"ftp://ftp.debian.org/debian/README",
-		"ftp://download.uni-hd.de/pub/div-sources/tex/cod8859%231.tex",		// testing '#' contained in path of URI
+		localServerAddress + "/debian/README",
+		localServerAddress + "/pub/div-sources/tex/code8859%231.tex",		// testing '#' contained in path of URI
 	};
-	
+
 	private FtpCrawler crawler;
-	
+	/**
+	 * The fake local FTP server for this test
+	 */
+	private FakeFtpServer ftpsrv;
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		
+
 		// create crawler
 		this.crawler = new FtpCrawler(){{
 			this.contextLocal = crawlerContextLocal;
 		}};
+
+		//create a fake FTP server
+		this.ftpsrv = new FakeFtpServer();
+
+		this.ftpsrv.addUserAccount(new UserAccount("anonymous", "anonymous", "/")); //FTP crawler default
+
+		FileSystem fileSystem = new UnixFakeFileSystem();
+		fileSystem.add(new FileEntry("/debian/README", "FTP crawler testcase content - 38 byte"));
+		fileSystem.add(new FileEntry("/pub/div-sources/tex/code8859#1.tex", "FTP crawler testcase content - 38 byte"));
+		this.ftpsrv.setFileSystem(fileSystem);
+
+		this.ftpsrv.setServerControlPort(localServerPort);
+
+		this.ftpsrv.start();
 	}
-	
+
 	public void testReadDirectory() {
-		URI testUri = URI.create("ftp://ftp.debian.org/");
+		URI testUri = URI.create(localServerAddress);
 		this.crawlerDoc = this.crawler.request(testUri);		
 		assertNotNull(crawlerDoc);		
 		assertEquals(testUri, crawlerDoc.getLocation());
@@ -51,7 +84,7 @@ public class FtpCrawlerOnlineTest extends ACrawlerTest {
 		assertTrue(crawlerDoc.getContent().exists());
 		assertTrue(crawlerDoc.getContent().length() > 0);
 	}
-	
+
 	public void testReadDocument() {
 		for (final String testUriString : TEST_URIS) {
 			URI testUri = URI.create(testUriString);
@@ -64,20 +97,27 @@ public class FtpCrawlerOnlineTest extends ACrawlerTest {
 			assertTrue(crawlerDoc.getContent().length() > 0);
 		}
 	}
-	
+
 	public void testReadDocumentMaxDownloadSizeLimit() throws ConfigurationException {
-		URI testUri = URI.create("ftp://ftp.debian.org/debian/README");
+		URI testUri = URI.create(localServerAddress + "/debian/README");
 
 		// change crawler settings
 		final Map<String, Object> props = new HashMap<String, Object>();
-		props.put(FtpCrawler.PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(500));
+		props.put(FtpCrawler.PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(37)); //smaller than the 38 byte testcase content
 		this.crawler.activate(props);
-		
+
 		// download document
 		this.crawlerDoc = this.crawler.request(testUri);
 		assertNotNull(crawlerDoc);		
 		assertEquals(testUri, crawlerDoc.getLocation());
 		assertEquals(ICrawlerDocument.Status.UNKNOWN_FAILURE, crawlerDoc.getStatus());
 		assertNull(crawlerDoc.getContent());
+	}
+
+	@Override
+	public void tearDown() throws Exception {
+		super.tearDown();
+		//stop the test FTP server and unbind from port
+		this.ftpsrv.stop();
 	}
 }
