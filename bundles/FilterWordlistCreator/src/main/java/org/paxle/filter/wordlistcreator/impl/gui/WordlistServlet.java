@@ -13,15 +13,7 @@
  */
 package org.paxle.filter.wordlistcreator.impl.gui;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.Collection;
-
 import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,6 +24,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.paxle.filter.wordlistcreator.ITokenManager;
 import org.paxle.gui.ALayoutServlet;
 
 @Component(metatype=false, immediate=true,
@@ -49,6 +42,9 @@ public class WordlistServlet extends ALayoutServlet implements Servlet {
 
 	private static final long serialVersionUID = 1L;
 
+	@Reference
+	protected ITokenManager tokenManager = null;
+	
 	public Template handleRequest( HttpServletRequest request,
 			HttpServletResponse response,
 			Context context ) {
@@ -58,6 +54,7 @@ public class WordlistServlet extends ALayoutServlet implements Servlet {
 		} catch( Exception e ) {
 			//logger.warn("Unexpected Error:", e);
 		}
+		context.put("tokenManager", tokenManager);
 		return template;
 	}
 }

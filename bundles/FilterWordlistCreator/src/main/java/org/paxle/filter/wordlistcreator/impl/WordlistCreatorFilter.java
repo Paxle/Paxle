@@ -13,25 +13,23 @@
  */
 package org.paxle.filter.wordlistcreator.impl;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Scanner;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.filter.FilterQueuePosition;
 import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
+import org.paxle.filter.wordlistcreator.ITokenManager;
 
 @Component(immediate=true, metatype=true, label="FilterWordlistCreator")
 @Service(IFilter.class)
-@Property(name="dataPath", value="wordlistCreator")
 @FilterTarget(@FilterQueuePosition(
 		queue = "org.paxle.parser.out", 
 		position = 200,
@@ -39,45 +37,29 @@ import org.paxle.core.filter.IFilterContext;
 ))
 public class WordlistCreatorFilter implements IFilter<ICommand> {
 
-	/**
-	 * For logging
-	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 
-	private TokenManager tm = null;
+	@Reference
+	protected ITokenManager tm = null;
 
 	/**
 	 * This function is called by the OSGi framework if this component is activated
 	 */
-	protected void activate(ComponentContext context)  {
-		String dataPath = (String) context.getProperties().get("dataPath");
-
-		// getting the data directory to use
-		try {
-			this.tm = new TokenManager(new File(System.getProperty("paxle.data") + File.separatorChar + dataPath));
-		} catch (IOException e) {
-			this.tm = null;
-			logger.error("The token manager couldn't be initialized, is the data directory writeable?", e);
-		}
+	protected void activate(Map<String, Object> props)  {
 	}
 
-	protected void deactivate(ComponentContext context ){
-		if (this.tm != null)
-			this.tm.close();
+	protected void deactivate(){
 	}
 
 	synchronized public void filter(ICommand command, IFilterContext context) {
 		if (command == null) throw new NullPointerException("The command object is null.");
 		if (command.getResult() != ICommand.Result.Passed) return;
-		if (command.getParserDocument() == null) return;
-		if (this.tm == null) return;
 
 		try {
-			Scanner scanner = new Scanner(command.getParserDocument().getTextAsReader()).useDelimiter("[^aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZöäüÖÄÜß]");
-			while (scanner.hasNext()) {
-				String token = scanner.next();
-				this.tm.registerToken(token, command);
-			} 
+			long start = System.currentTimeMillis();
+			this.tm.registerContent(command);
+			long stop = System.currentTimeMillis();
+			logger.warn("Filtering in Wordlist took " + (stop - start) +"ms");
 		} catch (IOException e) {
 			logger.warn("Exception", e);
 		}

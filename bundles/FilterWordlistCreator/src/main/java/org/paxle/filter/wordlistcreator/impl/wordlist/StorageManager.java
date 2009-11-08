@@ -18,8 +18,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,13 +31,14 @@ import org.h2.tools.Server;
 public class StorageManager {
 
 	/** The H2 webfrontend */
+	@SuppressWarnings("unused")
 	private Server ws = null;
 
 	private Connection dbConn = null;
 
 	private Log logger = LogFactory.getLog(this.getClass());; 
 
-	public StorageManager (File dataDir) throws IOException {
+	public StorageManager(File dataDir) throws IOException {
 		/* setup data dir */
 		if (!dataDir.exists()) 
 			if (!dataDir.mkdirs())
@@ -48,36 +52,69 @@ public class StorageManager {
 			Statement stmt = this.dbConn.createStatement(); 
 			stmt.executeUpdate("CREATE TABLE `tokens` (`token` VARCHAR( 255 ) NOT NULL , `count` BIGINT DEFAULT 1 NOT NULL , PRIMARY KEY ( `token` ));");
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Unexpected SQLException while creating database scheme", e);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			logger.error("Unexpected ClassNotFoundException while searching for database class", e);
 		}
 	}
 
-	public void store(TokenCollection tokens) {
-		logger.warn("Dumping cache");
-
+	public void storeToken(String token, int count) {
 		PreparedStatement stmt = null;
 		try {
-			stmt = this.dbConn.prepareStatement("UPDATE `tokens` SET `count`=`count`+1 WHERE `token`=?;");
-			int i = 0;
+			stmt = this.dbConn.prepareStatement("UPDATE `tokens` SET `count`=`count`+? WHERE `token`=?;");
 			int ar = 0;
-			while (i < tokens.getTokens().length) {
-				stmt.setString(1, tokens.getTokens()[i].getToken());
-				ar = stmt.executeUpdate();
-				if (ar == 0) {
-					Statement st = this.dbConn.createStatement(); 
-					st.executeUpdate("INSERT INTO `tokens`(`token`) VALUES('" + tokens.getTokens()[i].getToken() + "');");
-					st.close();
-				}
-				i++;
+			stmt.setInt(1, count);
+			stmt.setString(2, token);
+			ar = stmt.executeUpdate();
+			if (ar == 0) {
+				Statement st = this.dbConn.createStatement(); 
+				st.executeUpdate("INSERT INTO `tokens`(`token`,`count`) VALUES('" + token + "','" + count + "');");
+				st.close();
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Unexpected SQLException while storing token", e);
 		} finally {
 			if (stmt != null)
 				try {stmt.close();} catch (SQLException e) {}
 		}
+	}
+
+	public void storeToken(HashMap<String, Integer> tokens) {
+		Iterator<String> it = tokens.keySet().iterator();
+		while (it.hasNext()) {
+			String token = it.next();
+			storeToken(token, tokens.get(token).intValue());
+		}
+	}
+	
+	private int getNumberOfTokens() {
+		int retval = 0;
+		Statement st;
+		try {
+			st = this.dbConn.createStatement();
+			ResultSet rs = st.executeQuery("SELECT COUNT(`token`) FROM `tokens`");
+			if (rs.next()) {
+				retval = rs.getInt(1);
+			}
+			st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return retval;
+	}
+
+	public String[] getTokenList() throws SQLException {
+		Statement st = this.dbConn.createStatement(); 
+		ResultSet rs = st.executeQuery("SELECT `token` FROM `tokens`");
+		String[] tkns = new String[getNumberOfTokens()];
+		System.out.println("tkns " + tkns.length);
+		int i = 0;
+		while (rs.next()) {
+			tkns[i] = rs.getString(1);
+			i++;
+		}
+		st.close();
+		return tkns;
 	}
 
 	public void close() {

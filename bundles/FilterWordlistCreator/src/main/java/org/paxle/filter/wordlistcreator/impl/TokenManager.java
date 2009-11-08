@@ -15,59 +15,71 @@ package org.paxle.filter.wordlistcreator.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.ICommand;
+import org.paxle.filter.wordlistcreator.ITokenManager;
+import org.paxle.filter.wordlistcreator.ITokenizer;
+import org.paxle.filter.wordlistcreator.impl.tokenizer.RegExpTokenizer;
 import org.paxle.filter.wordlistcreator.impl.wordlist.StorageManager;
-import org.paxle.filter.wordlistcreator.impl.wordlist.Token;
-import org.paxle.filter.wordlistcreator.impl.wordlist.TokenCollection;
 
-public class TokenManager {
-
-	/**
-	 * The number of tokens cached until they are flushed to HDD
-	 */
-	private int cachesize = 10;
-
-	private int mintokensize = 2;
-
-	/**
-	 * If set to true, the originating URI for every token is recorded
-	 */
-	private boolean recordUris = true;
-
-	private TokenCollection tokencache = null;
+@Component(immediate=true, metatype=true, label="TokenManager")
+@Property(name="dataDir", value="wordlistCreator")
+@Service(ITokenManager.class)
+public class TokenManager implements ITokenManager {
 
 	private StorageManager storage = null;
+	private ITokenizer tokenizer = new RegExpTokenizer();
 
-	public TokenManager(File dataDir) throws IOException {
+	protected void activate(Map<String, Object> props) throws IOException {
+		File dataDir = new File(System.getProperty("paxle.data"));
+		if (props != null) {
+			if (props.get("dataDir") != null)
+				dataDir = new File(System.getProperty("paxle.data") + File.separatorChar + props.get("dataDir"));
+		}
 		this.storage = new StorageManager(dataDir);
-		reInitTokencache();
 	}
 
-	synchronized public void registerToken(@Nonnull String stoken, @CheckForNull ICommand tokencommand) {
-		if (stoken.length() < mintokensize) return;
-		Token token = new Token(stoken);
-		if (tokencommand != null) {
-			if (recordUris) {
-				token.setUri(tokencommand.getLocation());
+	public File exportAllTokens() {
+		try {
+			this.storage.getTokenList();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	synchronized public void registerContent(ICommand command) throws IOException {
+		if (command.getParserDocument() == null) return;
+
+		//Token cache
+		HashMap<String, Integer> tc = getNewTokenCache();
+
+		this.tokenizer.setContent(command.getParserDocument().getTextAsReader());
+
+		while (this.tokenizer.hasNext()) {
+			String token = this.tokenizer.next();
+			if (tc.get(token) != null) {
+				tc.put(token, tc.get(token)+1);
+			} else {
+				tc.put(token, 1);
+			}
+			if (tc.size() > 500) {
+				this.storage.storeToken(tc);
+				tc = getNewTokenCache();
 			}
 		}
-		this.tokencache.addToken(token);
-		if (this.tokencache.isFull()) {
-			this.storage.store(this.tokencache);
-			reInitTokencache();
-		}
-	}
-
-	public void close() {
-		this.storage.store(this.tokencache);
+		//This command is finished, dump cache
+		this.storage.storeToken(tc);
 	}
 	
-	private void reInitTokencache() {
-		this.tokencache = new TokenCollection(cachesize);
+	private HashMap<String, Integer> getNewTokenCache() {
+		return new HashMap<String, Integer>(200);
 	}
 
 }
