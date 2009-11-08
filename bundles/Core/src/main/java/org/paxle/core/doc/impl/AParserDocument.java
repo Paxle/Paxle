@@ -411,9 +411,13 @@ abstract class AParserDocument implements IParserDocument {
 	
 	private static void print(StringBuilder sb, Collection<String> col, String name) {
 		sb.append(name).append(": ").append('\n');
-		Iterator<String> it = col.iterator();
-		while (it.hasNext())
-			sb.append(" * ").append(it.next().trim()).append('\n');
+		if (col != null) {
+			final Iterator<String> it = col.iterator();
+			while (it.hasNext()) {
+				final String item = it.next();
+				sb.append(" * ").append(item==null?"null":item.trim()).append('\n');
+			}
+		}
 	}
 	
 	/**
