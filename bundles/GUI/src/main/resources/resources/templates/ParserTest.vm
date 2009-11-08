@@ -1,0 +1,106 @@
+#*
+ * This file is part of the Paxle project.
+ * Visit http://www.paxle.net for more information.
+ * Copyright 2007-2009 the original author or authors.
+ *
+ * Licensed under the terms of the Common Public License 1.0 ("CPL 1.0").
+ * Any use, reproduction or distribution of this program constitutes the recipient's acceptance of this agreement.
+ * The full license text is available under http://www.opensource.org/licenses/cpl1.0.txt
+ * or in the file LICENSE.txt in the root directory of the Paxle distribution.
+ *
+ * Unless required by applicable law or agreed to in writing, this software is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *#
+## getting resourcebundle to translate site
+#set($text = $resourceTool.bundle('OSGI-INF/l10n/parserTest'))
+
+#macro(formatValue $propertyType, $propertyValue)
+	#if($propertyType == "Integer")
+		$numberTool.format($propertyValue)
+	#elseif($propertyType == "Date")
+		$dateTool.format('medium',$dateTool.getDate())
+	#elseif($propertyType == "Map")
+		#if($propertyValue && $propertyValue.size() > 0)
+    		<table>
+    		#foreach($entry in ${propertyValue.entrySet()})
+    			<tr>
+    				<td>${entry.key}</td>
+    				<td>#formatValue(${entry.value.class.simpleName},${entry.value})</td>
+    			</tr>
+    		#end
+    		</table>
+		#end
+	#elseif($propertyType == "Collection" || $propertyType == "List" || $propertyType == "Set")
+		#if($propertyValue && $propertyValue.size() > 0)
+    		<table>
+    		#foreach($entry in ${propertyValue})
+    			<tr><td>#formatValue(${entry.class.simpleName},${entry})</td></tr>
+    		#end
+    		</table>
+		#end
+	#else 
+		$propertyValue
+	#end
+#end
+
+#if($errorMsg)
+	<p class="error">$errorMsg</p>
+#end
+
+<h3>Parse Document</h3>
+<form enctype="multipart/form-data" method="post" action="">
+	<table>
+		<tr>
+			<td><label for="commandLocation">Command Location</label></td>
+			<td><input type="text" name="commandLocation" value="$!commandLocation" size="40"/></td>
+		</tr>
+		<tr>
+			<td><label for="crawlerDocumentName">Crawler Document</label></td>
+			<td><input type="file" name="crawlerDocumentName" value="$!crawlerDocumentName" size="40" /></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td><input type="submit" name="doParseDocument" value="Parse document" /></td>
+		</tr>
+	</table>
+</form>
+
+#if($cmd)
+	<hr/>
+	## skipping the following links
+	#set($ignoreProps = ["textAsReader","textFile","subDocs"])
+	#set($pDoc = ${cmd.parserDocument})
+	<h3>The parsed Document</h3>
+		
+	<fieldset>
+		<legend>Document Properties</legend>
+    	<table>
+    		<tr>
+    			<th>Property Name</th>
+    			<th>Property Type</th>
+    			<th>Property Value</th>
+    		</tr>
+    		
+    		## loop throug all properties
+    		#foreach($propertyDescr in ${propertyUtil.getPropertyDescriptors($pDoc)})
+    			#if(!$servlet.isEmptyOrNull(${propertyUtil.getProperty($pDoc,$propertyDescr.name)}) && !$ignoreProps.contains($propertyDescr.name))
+        			<tr>
+        				<td>${propertyDescr.name}</td>
+        				<td>${propertyDescr.propertyType.simpleName}</td>
+        				<td>#formatValue(${propertyDescr.propertyType.simpleName}, ${propertyUtil.getProperty($pDoc,$propertyDescr.name)})</td>
+        			</tr>
+    			#end
+    		#end
+    	</table>
+	</fieldset>
+	
+	<fieldset>
+		<legend>Document Content</legend>
+
+    	<ol>
+    	#foreach($line in $servlet.readLines($request,$pDoc))
+			<li>&nbsp;<tt>$line</tt></li>
+    	#end
+    	</ol>
+	</fieldset>
+#end

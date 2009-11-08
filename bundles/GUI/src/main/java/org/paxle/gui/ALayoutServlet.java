@@ -92,6 +92,7 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
         // this implementation does nothing
     }
 	
+	@Override
 	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
 		return super.getTemplate(request, response);
 	}
