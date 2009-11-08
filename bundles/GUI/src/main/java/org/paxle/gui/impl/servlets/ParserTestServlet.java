@@ -38,10 +38,12 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.core.IMWComponent;
+import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
@@ -49,6 +51,7 @@ import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.ICommand.Result;
 import org.paxle.core.doc.IParserDocument.Status;
 import org.paxle.core.io.temp.ITempFileManager;
+import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.gui.ALayoutServlet;
 
 @Component(metatype=false, immediate=true)
@@ -63,13 +66,15 @@ public class ParserTestServlet extends ALayoutServlet {
 	public static final String PARAM_PARSE_DOC = "doParseDocument";
 	public static final String PARAM_COMMAND_URI = "commandLocation"; 
 	public static final String PARAM_CRAWLERDOC_NAME = "crawlerDocumentName";
+	public static final String PARAM_ENABLE_MIMETYPE_DETECTION = "mimeTypeDetection";
+	public static final String PARAM_ENABLE_CHARSET_DETECTION = "charsetDetection";
 		
 	private static final String CONTEXT_CMD = "cmd";
 	private static final String CONTEXT_PROP_UTIL = "propertyUtil";
 	private static final String CONTEXT_ERROR_MSG = "errorMsg";
 	private static final String CONTEXT_SERVLET = "servlet";
-	private static final String CONTEXT_COMMAND_URI = PARAM_COMMAND_URI;
-	private static final String CONTEXT_CRAWLERDOC_NAME = PARAM_CRAWLERDOC_NAME;
+	private static final String CONTEXT_MIMETYPE_DETECTOR = "mimeTypeDetector";
+	private static final String CONTEXT_CHARSET_DETECTOR = "charsetDetector";
 	
 	private static final String REQ_ATTR_CMD = "cmd";
 	private static final String REQ_ATTR_LINEITERS = "pDocReaders";
@@ -100,6 +105,18 @@ public class ParserTestServlet extends ALayoutServlet {
 	protected ITempFileManager tfm;		
 	
 	/**
+	 * A component to detecte the mime-type of the uploaded file
+	 */
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL_UNARY)
+	protected IMimeTypeDetector mimeTypeDetector;
+	
+	/**
+	 * A component to detect the charset of the uploaded file
+	 */
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL_UNARY)
+	protected ICharsetDetector charsetDetector;
+	
+	/**
 	 * Choosing the template to use 
 	 */
 	@Override
@@ -108,11 +125,17 @@ public class ParserTestServlet extends ALayoutServlet {
 	}
 	
     protected void fillContext(Context context, HttpServletRequest request) {
-		String cmdLocation = null;    	
+		String cmdLocation = null;
+		String cDocCharset = "UTF-8";
 		File cDocContentFile = null;
-		String cDocContentType = null;
-    	
+		String cDocContentType = null; 
+		boolean mimeTypeDetection = false;
+		boolean charsetDetection = false;
+    			
     	try {
+    		context.put(CONTEXT_MIMETYPE_DETECTOR, this.mimeTypeDetector);
+    		context.put(CONTEXT_CHARSET_DETECTOR, this.charsetDetector);
+    		
 	    	if (ServletFileUpload.isMultipartContent(request)) {
 	    		// Create a factory for disk-based file items
 	    		final FileItemFactory factory = new DiskFileItemFactory();
@@ -133,8 +156,12 @@ public class ParserTestServlet extends ALayoutServlet {
 	    			if (item.isFormField()) {
 	    				if (fieldName.equals(PARAM_COMMAND_URI)) {
 	    					cmdLocation = item.getString();
-	    					context.put(CONTEXT_COMMAND_URI, cmdLocation);
-	    				}	    				
+	    					context.put(PARAM_COMMAND_URI, cmdLocation);
+	    				} else if (fieldName.equals(PARAM_ENABLE_MIMETYPE_DETECTION)) {
+	    					mimeTypeDetection = true;
+	    				} else if (fieldName.equals(PARAM_ENABLE_CHARSET_DETECTION)) {
+	    					charsetDetection = true;
+	    				}
 	    			} else {	    			
 		    			try {
 			    			// ignore unknown items
@@ -146,7 +173,7 @@ public class ParserTestServlet extends ALayoutServlet {
 			    			// getting the file-Name
 							String fileName = item.getName();
 							if (fileName != null) {
-								context.put(CONTEXT_CRAWLERDOC_NAME, fileName);
+								context.put(PARAM_CRAWLERDOC_NAME, fileName);
 								fileName = FilenameUtils.getName(fileName);
 							} else {
 								String errorMsg = String.format("Fileupload field '%s' has no valid filename '%s'.", PARAM_CRAWLERDOC_NAME, item.getFieldName());
@@ -167,12 +194,24 @@ public class ParserTestServlet extends ALayoutServlet {
 	    			}
 	    		}
 	    		
+	    		// detect the mime-type of the uploaded file
+	    		if (this.mimeTypeDetector != null && mimeTypeDetection) {
+	    			final String tempMimeType = this.mimeTypeDetector.getMimeType(cDocContentFile);
+	    			if (tempMimeType != null) cDocContentType = tempMimeType;
+	    		}
+	    		
+	    		// determine the charset of the uploaded file
+	    		if (this.charsetDetector != null && charsetDetection) {
+	    			final String tempCharset = this.charsetDetector.detectCharset(cDocContentFile);
+	    			if (tempCharset != null) cDocCharset = tempCharset;
+	    		}
 				
 				// creating a crawler-document
 				final ICrawlerDocument cDoc = this.cDocFactory.createDocument(ICrawlerDocument.class);
 				cDoc.setStatus(ICrawlerDocument.Status.OK);
 				cDoc.setContent(cDocContentFile);
 				cDoc.setMimeType(cDocContentType);
+				cDoc.setCharset(cDocCharset);
 										
 				// creating a dummy command
 				final ICommand cmd = this.cmdFactory.createDocument(ICommand.class);
@@ -202,12 +241,25 @@ public class ParserTestServlet extends ALayoutServlet {
 					return;
 				} 
 				
+				/*
+				 * Remembering some object in the request-context
+				 * This is required for cleanup. See #requestCleanup(...)
+				 */
 				request.setAttribute(CONTEXT_CMD, cmd);
 				request.setAttribute(REQ_ATTR_LINEITERS, new ArrayList<Reader>());
 				
+				/*
+				 * Passing some properties to the servlet
+				 */
 				context.put(CONTEXT_CMD, cmd);
 				context.put(CONTEXT_PROP_UTIL, new PropertyUtils());
 				context.put(CONTEXT_SERVLET, this);
+				if (mimeTypeDetection && this.mimeTypeDetector != null) {
+					context.put(PARAM_ENABLE_MIMETYPE_DETECTION, Boolean.TRUE);
+				}
+				if (charsetDetection && this.charsetDetector != null) {
+					context.put(PARAM_ENABLE_CHARSET_DETECTION, Boolean.TRUE);
+				}				
 	    	}
     	} catch (Throwable e) {
     		this.logger.error(e);
