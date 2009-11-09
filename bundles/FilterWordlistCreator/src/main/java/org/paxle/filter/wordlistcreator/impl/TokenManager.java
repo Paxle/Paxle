@@ -15,7 +15,7 @@ package org.paxle.filter.wordlistcreator.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,22 +45,14 @@ public class TokenManager implements ITokenManager {
 		this.storage = new StorageManager(dataDir);
 	}
 
-	public File exportAllTokens() {
-		try {
-			this.storage.getTokenList();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 	synchronized public void registerContent(ICommand command) throws IOException {
 		if (command.getParserDocument() == null) return;
 
 		//Token cache
 		HashMap<String, Integer> tc = getNewTokenCache();
-
-		this.tokenizer.setContent(command.getParserDocument().getTextAsReader());
+		
+		Reader content = command.getParserDocument().getTextAsReader();
+		this.tokenizer.setContent(content);
 
 		while (this.tokenizer.hasNext()) {
 			String token = this.tokenizer.next();
@@ -76,6 +68,8 @@ public class TokenManager implements ITokenManager {
 		}
 		//This command is finished, dump cache
 		this.storage.storeToken(tc);
+		
+		content.close();
 	}
 	
 	private HashMap<String, Integer> getNewTokenCache() {

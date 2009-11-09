@@ -59,7 +59,7 @@ public class WordlistCreatorFilter implements IFilter<ICommand> {
 			long start = System.currentTimeMillis();
 			this.tm.registerContent(command);
 			long stop = System.currentTimeMillis();
-			logger.warn("Filtering in Wordlist took " + (stop - start) +"ms");
+			logger.debug("Filtering in WordlistFilter took " + (stop - start) +"ms");
 		} catch (IOException e) {
 			logger.warn("Exception", e);
 		}
