@@ -13,6 +13,9 @@
  */
 package org.paxle.core.threading;
 
+import org.paxle.core.queue.IInputQueue;
+import org.paxle.core.queue.IOutputQueue;
+
 
 public interface IMaster<Data> {
 	/**
@@ -64,4 +67,17 @@ public interface IMaster<Data> {
 	 * @throws Exception
 	 */
 	public void process(Data cmd) throws Exception;
+
+	/**
+	 * Calling this function forces the {@link IMaster} to trigger a worker to fetch a job from the 
+	 * specified input-queue. The processed job will then be enqueued into the output-queue.
+	 * This function does not wait until the job processing is finished. 
+	 * 
+	 * @param inputQueue the input-queue where the worker should fetch the next job from
+	 * @param outputQueue the output-queue where the worker should enqueue the processed job 
+	 * @param workerFromPool specifies if the worker should be borrowed from the worker-pool
+	 * @throws Exception
+	 * @since 0.1.38-SNAPSHOT
+	 */
+	public void process(final IInputQueue<Data> inputQueue, IOutputQueue<Data> outputQueue, boolean workerFromPool) throws Exception;
 }

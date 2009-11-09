@@ -17,6 +17,7 @@ import java.util.concurrent.Semaphore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.queue.IInputQueue;
 import org.paxle.core.queue.IOutputQueue;
 import org.paxle.core.threading.IMaster;
@@ -166,23 +167,42 @@ public class Master<Data> extends Thread implements IMaster<Data> {
 	}
 	
 	public void process(final Data cmd) throws Exception {
-        // creating a new worker (we do not borrow it from pool here!)
-        IWorker<Data> worker = this.pool.getWorker(false);
-        
         // creating and assigning a dummy output queues
         final Semaphore s = new Semaphore(0);
-        worker.setInQueue(null);
-        worker.setOutQueue(new IOutputQueue<Data>() {
+        final IInputQueue<Data> inputQueue = new IInputQueue<Data>() {
+        	private int counter = 0; 
+        	
+			public Data dequeue() throws InterruptedException {
+				if (counter > 0) throw new IllegalStateException("Method executed multiple times");
+				this.counter++;
+				return cmd;
+			}
+
+			public void waitForNext() throws InterruptedException {
+				throw new IllegalStateException("You are not allowed to call this method");
+			}        	
+        };
+        final IOutputQueue<Data> outputQueue = new IOutputQueue<Data>() {
 			public void enqueue(Data command) throws InterruptedException {
 				s.release();
 			}        	
-        });        
-        
-        // assign the data to the worker
-        worker.assign(cmd);
+        };        
+
+        // process the command
+        this.process(inputQueue,outputQueue, false);
         
         // waiting for the worker to finish execution
         s.acquire();
+	}
+	
+	public void process(final IInputQueue<Data> inputQueue, IOutputQueue<Data> outputQueue, boolean workerFromPool) throws Exception {
+        // creating a new worker
+        IWorker<Data> worker = this.pool.getWorker(workerFromPool);
+        worker.setInQueue(inputQueue);
+        worker.setOutQueue(outputQueue);
+        
+        // signal the worker that a new command is available
+        worker.trigger();
 	}
 	
 	/**
