@@ -40,8 +40,8 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IServiceManager;
 import org.paxle.gui.impl.HttpAuthManager;
-import org.paxle.gui.impl.ServiceManager;
 
 @Component(metatype=false, immediate=true)
 @Service(Servlet.class)
@@ -69,7 +69,7 @@ public class UserView extends ALayoutServlet {
 		Template template = null;
 		try {
 			// getting the servicemanager
-			final ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+			final IServiceManager manager = (IServiceManager) context.get(IServiceManager.SERVICE_MANAGER);
 			final UserAdmin userAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
 			
 			// getting the resource-tool for error-message translation

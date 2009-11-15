@@ -55,7 +55,7 @@ public class SearchView extends ALayoutServlet {
 
 		String format = request.getParameter(PARAM_FORMAT);
 		try {
-			IServiceManager manager = (IServiceManager) context.get(SERVICE_MANAGER);
+			IServiceManager manager = (IServiceManager) context.get(IServiceManager.SERVICE_MANAGER);
 			
 			if (request.getParameter(PARAM_QUERY) != null && !request.getParameter(PARAM_QUERY).equals("")) {
 				final String query = request.getParameter(PARAM_QUERY);

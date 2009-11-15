@@ -20,6 +20,11 @@ import org.osgi.framework.ServiceReference;
 
 public interface IServiceManager {
 
+	/**
+	 * A constant to fetch the service-manager from the velocity context.
+	 */
+	public static final String SERVICE_MANAGER = "manager";
+
 	public String getProperty(final String name);
 
 	public void shutdownFramework() throws BundleException;
@@ -50,5 +55,9 @@ public interface IServiceManager {
 	public Bundle[] getBundles();
 
 	public Bundle getBundle(long bundleID);
+	public Bundle getBundle(String bundleSymbolicName);
+	public Bundle[] getBundles(String filterString) throws InvalidSyntaxException;
+	
+	public Bundle installBundle(String arg0) throws BundleException;
 
 }

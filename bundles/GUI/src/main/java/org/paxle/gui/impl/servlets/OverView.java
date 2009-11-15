@@ -30,8 +30,8 @@ import org.apache.velocity.context.Context;
 import org.osgi.framework.Constants;
 import org.paxle.core.IMWComponent;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IServiceManager;
 import org.paxle.gui.IServletManager;
-import org.paxle.gui.impl.ServiceManager;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
@@ -62,7 +62,7 @@ public class OverView extends ALayoutServlet {
 		Template template = null;
 		
 		try {
-			final ServiceManager manager = (ServiceManager)context.get(SERVICE_MANAGER);
+			final IServiceManager manager = (IServiceManager)context.get(IServiceManager.SERVICE_MANAGER);
 			
 			if (request.getParameter("gc") != null) {
 				System.gc();

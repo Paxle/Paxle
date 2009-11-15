@@ -35,9 +35,9 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IServiceManager;
 import org.paxle.gui.impl.HttpAuthManager;
 import org.paxle.gui.impl.IHttpAuthManager;
-import org.paxle.gui.impl.ServiceManager;
 
 @Component(metatype=false, immediate=true)
 @Service(Servlet.class)
@@ -99,7 +99,7 @@ public class LoginView extends ALayoutServlet {
         		if (password == null) password = "";
         		
         		// getting the userAdmin service
-        		ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+        		IServiceManager manager = (IServiceManager) context.get(IServiceManager.SERVICE_MANAGER);
         		UserAdmin uAdmin = (UserAdmin) manager.getService(UserAdmin.class.getName());
         		
         		// auth user

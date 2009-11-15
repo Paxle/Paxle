@@ -27,7 +27,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.paxle.core.IMWComponent;
 import org.paxle.gui.ALayoutServlet;
-import org.paxle.gui.impl.ServiceManager;
+import org.paxle.gui.IServiceManager;
 
 @Component(metatype=false, immediate=true)
 @Service(Servlet.class)
@@ -44,7 +44,7 @@ public class QueueView extends ALayoutServlet {
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {
 		try {
-			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+			IServiceManager manager = (IServiceManager) context.get(IServiceManager.SERVICE_MANAGER);
 
 			String queue = request.getParameter("queue");
 			if (queue != null && queue.length() > 0) {

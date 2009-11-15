@@ -50,6 +50,7 @@ import org.osgi.framework.ServiceReference;
 import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IServiceManager;
 import org.paxle.gui.impl.ServiceManager;
 import org.paxle.util.StringTools;
 
@@ -109,7 +110,7 @@ public class BundleView extends ALayoutServlet {
 		try {
 			template = this.getTemplate("/resources/templates/BundleView.vm");
 			
-			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+			IServiceManager manager = (IServiceManager) context.get(IServiceManager.SERVICE_MANAGER);
 			if (request.getParameter(PARAM_BUNDLE_ID) != null || request.getParameter(PARAM_BUNDLE_SYMNAME) != null) {
 				context.put("stringTools", new StringTools());
 				
@@ -212,7 +213,7 @@ public class BundleView extends ALayoutServlet {
 	}
 	
 	private void handleFileUpload(final HttpServletRequest request, final Context context) throws Exception {
-		ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+		final IServiceManager manager = (IServiceManager) context.get(IServiceManager.SERVICE_MANAGER);
 		
 		// Create a factory for disk-based file items
 		FileItemFactory factory = new DiskFileItemFactory();
@@ -392,7 +393,7 @@ public class BundleView extends ALayoutServlet {
 		}
 		
 		private void initMaps() {
-			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+			final IServiceManager manager = (IServiceManager) context.get(IServiceManager.SERVICE_MANAGER);
 			
 			// initialize the map of location->bundle and symbolic-name->bundle
 			bundleLocations = new HashMap<String,Bundle>();

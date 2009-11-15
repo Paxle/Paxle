@@ -34,11 +34,6 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
     private static final long serialVersionUID = 1L;
     
     /**
-     * A constant to fetch the service-manager from the velocity context
-     */
-    public static final String SERVICE_MANAGER = "manager";
-	
-    /**
      * Logger
      */
     protected Log logger = LogFactory.getLog(this.getClass());
@@ -108,7 +103,7 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 				
 				// redirecting the browser
 				final Context velocityContext = getVelocityView().createContext(request, response);
-				final IServiceManager manager = (IServiceManager) velocityContext.get(SERVICE_MANAGER);				
+				final IServiceManager manager = (IServiceManager) velocityContext.get(IServiceManager.SERVICE_MANAGER);				
 				final IServletManager servletManager = (IServletManager) manager.getService(IServletManager.class.getName());				    			
 				response.sendRedirect(servletManager.getFullServletPath("org.paxle.gui.impl.servlets.LoginView"));				
 			}

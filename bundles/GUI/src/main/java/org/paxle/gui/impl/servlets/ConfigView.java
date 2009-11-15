@@ -65,9 +65,9 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.core.metadata.Attribute;
 import org.paxle.core.metadata.Metadata;
 import org.paxle.gui.ALayoutServlet;
+import org.paxle.gui.IServiceManager;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.IStyleManager;
-import org.paxle.gui.impl.ServiceManager;
 import org.paxle.gui.impl.tools.ConfigTool;
 import org.paxle.gui.impl.tools.ConfigTool.Configurable;
 import org.paxle.tools.ieporter.cm.IConfigurationIEPorter;
@@ -169,7 +169,7 @@ public class ConfigView extends ALayoutServlet {
 				Context context = this.createContext(request, response);
 
 				// getting the config-exporter
-				ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+				IServiceManager manager = (IServiceManager) context.get(IServiceManager.SERVICE_MANAGER);
 				IConfigurationIEPorter exporter = (IConfigurationIEPorter) manager.getService(IConfigurationIEPorter.class.getName());
 
 				// export configuration
@@ -200,7 +200,7 @@ public class ConfigView extends ALayoutServlet {
 		Template template = null;
 		try {
 			// getting the servicemanager
-			ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+			IServiceManager manager = (IServiceManager) context.get(IServiceManager.SERVICE_MANAGER);
 			IServletManager sManager = (IServletManager) manager.getService(IServletManager.class.getName());
 
 			/* ====================================================================================
@@ -323,7 +323,7 @@ public class ConfigView extends ALayoutServlet {
 				item.delete();
 				
 				// read Settings
-				ServiceManager manager = (ServiceManager) context.get(SERVICE_MANAGER);
+				IServiceManager manager = (IServiceManager) context.get(IServiceManager.SERVICE_MANAGER);
 				IConfigurationIEPorter importer = (IConfigurationIEPorter) manager.getService(IConfigurationIEPorter.class.getName());
 				Map<String, Dictionary<String, Object>> propsMap = importer.importConfigurations(targetFile);
 				return propsMap;

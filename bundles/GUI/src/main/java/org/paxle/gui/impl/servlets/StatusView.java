@@ -46,7 +46,7 @@ public class StatusView extends ALayoutServlet {
 	protected void doRequest(HttpServletRequest request, HttpServletResponse response) {
 		try {
 			final Context context = this.getVelocityView().createContext(request, response);
-			final IServiceManager manager = (IServiceManager) context.get(SERVICE_MANAGER);
+			final IServiceManager manager = (IServiceManager) context.get(IServiceManager.SERVICE_MANAGER);
 			
 			if (request.getParameter("pauseCrawl") != null) {
 				// check user authentication

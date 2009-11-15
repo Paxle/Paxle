@@ -40,7 +40,7 @@ import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.ICommandProfile.LinkFilterMode;
 import org.paxle.gui.ALayoutServlet;
-import org.paxle.gui.impl.ServiceManager;
+import org.paxle.gui.IServiceManager;
 
 @Component(metatype=false, immediate=true)
 @Service(Servlet.class)
@@ -102,7 +102,7 @@ public class CrawlerView extends ALayoutServlet {
 		
 		private HashMap<String,String> errorUrls = null;
 		
-		public UrlTank(final ServiceManager manager, final ICommandProfile profile) throws Exception {
+		public UrlTank(final IServiceManager manager, final ICommandProfile profile) throws Exception {
 			if (profile == null) throw new NullPointerException("The command-profile is null");
 			this.profile = profile;
 			
@@ -174,7 +174,7 @@ public class CrawlerView extends ALayoutServlet {
 				
 				// startURL denotes a single URL to crawl entered in an input-field
 				final UrlTank tank = new UrlTank(
-						(ServiceManager)context.get(SERVICE_MANAGER),
+						(IServiceManager)context.get(IServiceManager.SERVICE_MANAGER),
 						this.createProfile(request, context)
 				);
 				tank.putUrl2Crawl(url);
@@ -185,7 +185,7 @@ public class CrawlerView extends ALayoutServlet {
 				
 				// startURL2 contains a whole bunch of URLs to crawl entered in a textarea
 				final UrlTank tank = new UrlTank(
-						(ServiceManager)context.get(SERVICE_MANAGER),
+						(IServiceManager)context.get(IServiceManager.SERVICE_MANAGER),
 						this.createProfile(request, context)
 				);
 				final BufferedReader startURLs = new BufferedReader(new StringReader(url));
@@ -199,7 +199,7 @@ public class CrawlerView extends ALayoutServlet {
 				
 				// startURL denotes a single URL to crawl entered in an input-field
 				final UrlTank tank = new UrlTank(
-						(ServiceManager)context.get(SERVICE_MANAGER),
+						(IServiceManager)context.get(IServiceManager.SERVICE_MANAGER),
 						this.createProfile(request, context)
 				);
 				tank.putUrl2Crawl(url);
@@ -266,7 +266,7 @@ public class CrawlerView extends ALayoutServlet {
 	
 	private ICommandProfile createProfile(HttpServletRequest request, Context context) throws IOException {
 		// getting the service manager
-		final ServiceManager sm = (ServiceManager)context.get(SERVICE_MANAGER);
+		final IServiceManager sm = (IServiceManager)context.get(IServiceManager.SERVICE_MANAGER);
 		if (sm == null) throw new NullPointerException("No service-manager found.");
 		
 		// getting the profile-manager
