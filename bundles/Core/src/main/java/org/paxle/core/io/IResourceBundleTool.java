@@ -16,8 +16,10 @@ package org.paxle.core.io;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -40,6 +42,7 @@ import javax.annotation.Nullable;
  * </code></pre>
  */
 public interface IResourceBundleTool {
+	public static final String LOCALIZATION_LOCATION_DEFAULT = "OSGI-INF/l10n";
 	
 	/**
 	 * Returns a list of {@link URL URLs} to all {@link ResourceBundle} property-files found for the given base-name, e.g.
@@ -74,4 +77,14 @@ public interface IResourceBundleTool {
 	 * @see #getLocaleList(String, Locale)
 	 */
 	public @Nullable String[] getLocaleArray(String resourceBundleBase, Locale defaultLocale);
+	
+	/**
+	 * @since 0.1.39-SNAPSHOT
+	 */
+	public @Nonnull ResourceBundle getLocalization(String resourceBundleBase, String locale) throws MissingResourceException;
+	
+	/**
+	 * @since 0.1.39-SNAPSHOT
+	 */
+	public @Nonnull ResourceBundle getLocalization(String resourceBundleBase, Locale locale) throws MissingResourceException;
 }

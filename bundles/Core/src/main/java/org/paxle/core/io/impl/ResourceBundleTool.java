@@ -13,12 +13,18 @@
  */
 package org.paxle.core.io.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,7 +46,7 @@ public class ResourceBundleTool implements IResourceBundleTool {
 	@SuppressWarnings("unchecked")
 	public List<URL> getLocaleURL(String resourceBundleBase) {
 		// find all resource-bundle files for the given base-name
-		Enumeration<URL> e = this.b.findEntries("OSGI-INF/l10n", resourceBundleBase + "*.properties",false);
+		Enumeration<URL> e = this.b.findEntries(LOCALIZATION_LOCATION_DEFAULT, resourceBundleBase + "*.properties",false);
 		List<URL> resourceBundleURLs = (e==null)?Collections.EMPTY_LIST:Collections.list(e);
 		return resourceBundleURLs;
 	}
@@ -87,4 +93,63 @@ public class ResourceBundleTool implements IResourceBundleTool {
 		
 		return locales;
 	}
+	
+	public ResourceBundle getLocalization(String resourceBundleBase, String localeStr) throws MissingResourceException {
+		final Locale locale = (localeStr==null) ? this.getDefaultLocale() : new Locale(localeStr);
+		return this.getLocalization(resourceBundleBase, locale);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public ResourceBundle getLocalization(String resourceBundleBase, Locale locale) throws MissingResourceException {
+		if (locale == null) locale = this.getDefaultLocale();
+
+		String localizationLocation = LOCALIZATION_LOCATION_DEFAULT;
+		
+		ResourceBundle bundle = null;		
+		try {
+			final Iterator<String> variants = this.getLocaleVariants(locale.toString());
+			while(variants.hasNext()) {
+				final String variant = variants.next();
+				final String propFile = resourceBundleBase + (variant.equals("") ? variant : "_" + variant) + ".properties";
+				final Enumeration<URL> e = this.b.findEntries(localizationLocation, propFile,false);
+				if (e != null && e.hasMoreElements()) {
+					InputStream in = e.nextElement().openStream();
+					try {
+						bundle = new PropertyResourceBundle(in);
+					} finally {
+						in.close();
+					}
+				}
+				
+				// TODO: should we append parents next?
+				if (bundle != null) break;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return bundle;
+	}
+	
+	private Locale getDefaultLocale() {
+		return Locale.ENGLISH;
+	}
+	
+	Iterator<String> getLocaleVariants(String localeString) {
+		final LinkedList<String> localeStrings = new LinkedList<String>();
+		localeStrings.add(0, "");
+		
+		final String[] parts = localeString.split("_");
+		final StringBuilder buf = new StringBuilder();
+		
+		for(String part : parts) {
+			if (buf.length() > 0) buf.append("_");
+			buf.append(part);
+			localeStrings.add(0,buf.toString());
+		}
+		
+		localeStrings.add("");		
+		return localeStrings.iterator();
+	}
+
 }

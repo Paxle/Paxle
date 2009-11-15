@@ -22,6 +22,7 @@ import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -30,7 +31,6 @@ import junitx.framework.ArrayAssert;
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.framework.Bundle;
-import org.paxle.core.io.IResourceBundleTool;
 
 public class ResourceBundleToolTest extends MockObjectTestCase {
 	private static final String RESOURCEBUNDLE_BASE = "IFilterManager";
@@ -48,7 +48,7 @@ public class ResourceBundleToolTest extends MockObjectTestCase {
 	};
 
 	private Bundle bundle = null;
-	private IResourceBundleTool rbTool = null;
+	private ResourceBundleTool rbTool = null;
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -76,6 +76,23 @@ public class ResourceBundleToolTest extends MockObjectTestCase {
 		assertNotNull(localeArray);
 		assertEquals("en", localeArray[0]);
 		assertEquals("de", localeArray[1]);
+	}
+	
+	public void testGetLocaleVariants() {
+		Iterator<String> variants = this.rbTool.getLocaleVariants("en_GB");
+		assertNotNull(variants);
+		assertEquals("en_GB", variants.next());
+		assertEquals("en", variants.next());
+		assertEquals("", variants.next());
+		
+		variants = this.rbTool.getLocaleVariants("en");
+		assertNotNull(variants);
+		assertEquals("en", variants.next());
+		assertEquals("", variants.next());
+		
+		variants = this.rbTool.getLocaleVariants("");
+		assertNotNull(variants);
+		assertEquals("", variants.next());
 	}
 }
 
