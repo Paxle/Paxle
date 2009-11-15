@@ -16,10 +16,62 @@ package org.paxle.core.io;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
+import javax.annotation.Nullable;
+
+/**
+ * This service can be used to determine the {@link Locale#getDisplayName() names} of all {@link Locale}, 
+ * for which a <code>*.properties</code> file is available in the bundle directory <code>OSGI-INF/l10n</code>.
+ * <br/>
+ * <i>Usage example (for OSGi DS):</i>
+ * <pre><code>
+ * &#064;Component
+ * public class MyService {
+ *    &#064;Reference
+ *    protected IResourceBundleTool resourceBundleTool;
+ *    private String[] locales;
+ *  
+ *    protected void activate(ComponentContext context) {
+ *       // the supported locales
+ *       this.locales = this.resourceBundleTool.getLocaleArray(this.getClass().getSimpleName(), Locale.ENGLISH);
+ *    }
+ * }
+ * </code></pre>
+ */
 public interface IResourceBundleTool {
 	
-	public List<URL> getLocaleURL(String resourceBundleBase);
-	public List<String> getLocaleList(String resourceBundleBase, Locale defaultLocale);
-	public String[] getLocaleArray(String resourceBundleBase, Locale defaultLocale);
+	/**
+	 * Returns a list of {@link URL URLs} to all {@link ResourceBundle} property-files found for the given base-name, e.g.
+	 * for the base-name 'MyService' the following URLs may be returned:
+	 * <pre><code> [
+	 *    bundleentry://43.fwk24387997/OSGI-INF/l10n/MyService.properties,
+	 *    bundleentry://43.fwk24387997/OSGI-INF/l10n/MyService_de.properties
+	 * ]</code><pre>
+	 * 
+	 * @param resourceBundleBase the base-name that is used to file the property files.
+	 * @return
+	 */
+	public @Nullable List<URL> getLocaleURL(String resourceBundleBase);
+	
+	/**
+	 * Returns the {@link Locale#getDisplayName() names} of all {@link Locale}, for which a properties-file
+	 * was found in the OSGi-bundle directory <code>OSGI-INF/l10n</code>.
+	 * 
+	 * @param resourceBundleBase the {@link ResourceBundle} base-name.
+	 * @param defaultLocale the default {@link Locale} returned for files-names without a language-code, e.g.  <code>MyService.properties</code>.
+	 * @return the names of all {@link Locale} found, e.g. <code>["en","de"]</code>
+	 */
+	public @Nullable List<String> getLocaleList(String resourceBundleBase, Locale defaultLocale);
+	
+	/**
+	 * Returns the {@link Locale#getDisplayName() names} of all {@link Locale}, for which a properties-file
+	 * was found in the OSGi-bundle directory <code>OSGI-INF/l10n</code>.
+	 * 
+	 * @param resourceBundleBase the {@link ResourceBundle} base-name.
+	 * @param defaultLocale the default {@link Locale} returned for files-names without a language-code, e.g.  <code>MyService.properties</code>.
+	 * @return the names of all {@link Locale} found, e.g. <code>["en","de"]</code>
+	 * @see #getLocaleList(String, Locale)
+	 */
+	public @Nullable String[] getLocaleArray(String resourceBundleBase, Locale defaultLocale);
 }

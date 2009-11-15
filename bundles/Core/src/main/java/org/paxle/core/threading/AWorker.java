@@ -146,7 +146,7 @@ public abstract class AWorker<Data> extends Thread implements IWorker<Data> {
                     	}
                     	
                     	// executing the new Command
-                        execute(this.command);                        
+                        this.execute(this.command);                        
                     } finally {
                         // write the modified command object to the out-queue
                         if (this.command != null) this.outQueue.enqueue(this.command);                    	
