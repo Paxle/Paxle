@@ -24,9 +24,11 @@ import org.paxle.core.metadata.IMetaData;
 import org.paxle.core.metadata.IMetaDataProvider;
 import org.paxle.core.metadata.IMetaDataService;
 
-@DefaultKey("metaData")
+@DefaultKey(MetaDataTool.TOOL_NAME)
 @ValidScope(Scope.REQUEST)
 public class MetaDataTool extends PaxleLocaleConfig {
+	public static final String TOOL_NAME = "metaDataTool";
+	
 	private IMetaDataService metaService = null;
 
 	public void configure(@SuppressWarnings("unchecked") Map props) {

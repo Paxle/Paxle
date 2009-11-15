@@ -53,6 +53,7 @@ import org.paxle.gui.impl.ServiceManager;
 })
 public class UserView extends ALayoutServlet {
 	private static final long serialVersionUID = 1L;
+	public static final String USER_LANGUAGE = "user.language";
 	
 	private static final String ERROR_MSG = "errorMsg";
 	
@@ -212,9 +213,9 @@ public class UserView extends ALayoutServlet {
 		/* ===========================================================
 		 * LANGUAGE
 		 * =========================================================== */
-		if (request.getParameter("user.language") != null) {
-			String lang = request.getParameter("user.language");
-			props.put("user.language",lang);
+		if (request.getParameter(USER_LANGUAGE) != null) {
+			String lang = request.getParameter(USER_LANGUAGE);
+			props.put(USER_LANGUAGE,lang);
 			CookieTool cookies = (CookieTool) context.get("cookieTool");
 			cookies.add("l10n", lang);
 		}

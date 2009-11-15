@@ -22,9 +22,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
-@DefaultKey("bundleTool")
+@DefaultKey(BundleTool.TOOL_NAME)
 @ValidScope(Scope.REQUEST)
 public class BundleTool extends PaxleLocaleConfig {
+	public static final String TOOL_NAME = "bundleTool";
 	
 	@Override
 	public void configure(@SuppressWarnings("unchecked") Map props) {

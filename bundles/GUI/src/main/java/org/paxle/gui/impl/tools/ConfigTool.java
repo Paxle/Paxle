@@ -41,9 +41,11 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.core.metadata.Attribute;
 import org.paxle.core.metadata.Metadata;
 
-@DefaultKey("configTool")
+@DefaultKey(ConfigTool.TOOL_NAME)
 @ValidScope(Scope.REQUEST)
 public class ConfigTool extends PaxleLocaleConfig {
+	public static final String TOOL_NAME = "configTool";
+	
 	/**
 	 * The OSGI meta-type service
 	 */

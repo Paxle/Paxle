@@ -25,19 +25,26 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.tools.Scope;
+import org.apache.velocity.tools.config.DefaultKey;
 import org.apache.velocity.tools.config.ValidScope;
 import org.apache.velocity.tools.generic.LocaleConfig;
 import org.apache.velocity.tools.view.CookieTool;
+import org.apache.velocity.tools.view.ViewContext;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.User;
+import org.paxle.gui.IVelocityViewFactory;
 import org.paxle.gui.impl.ServletManager;
+import org.paxle.gui.impl.servlets.UserView;
 
+@DefaultKey(MonitorableTool.TOOL_NAME)
 @ValidScope(Scope.REQUEST)
 public class PaxleLocaleConfig extends LocaleConfig {
+	public static final String TOOL_NAME = "localeConfig";
+	
 	protected BundleContext context;
 
 	/**
@@ -46,7 +53,7 @@ public class PaxleLocaleConfig extends LocaleConfig {
 	protected Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
-	 * Currently logged in user
+	 * Currently logged in {@link User}
 	 */
 	protected User user;
 	
@@ -67,19 +74,19 @@ public class PaxleLocaleConfig extends LocaleConfig {
 	public void configure(@SuppressWarnings("unchecked") Map props) {
 		super.configure(props);
 		if (props != null) {
-			final HttpSession session = (HttpSession) props.get("session");
-			final HttpServletRequest request = (HttpServletRequest) props.get("request");
-			final HttpServletResponse response = (HttpServletResponse) props.get("response");
+			final HttpSession session = (HttpSession) props.get(ViewContext.SESSION);
+			final HttpServletRequest request = (HttpServletRequest) props.get(ViewContext.REQUEST);
+			final HttpServletResponse response = (HttpServletResponse) props.get(ViewContext.RESPONSE);
 			
 			// getting the bundle context
-			final ServletContext servletContext = (ServletContext) props.get("servletContext");			
-			this.context = (BundleContext) servletContext.getAttribute("bc");
+			final ServletContext servletContext = (ServletContext) props.get(ViewContext.SERVLET_CONTEXT_KEY);			
+			this.context = (BundleContext) servletContext.getAttribute(IVelocityViewFactory.BUNDLE_CONTEXT);
 			
 			// getting the configured user-language (if specified)			
 			if (session != null) {
 				this.user = (User) session.getAttribute(HttpContext.REMOTE_USER);
 				if (user != null) {
-					this.l10n = (String) user.getProperties().get("user.language");
+					this.l10n = (String) user.getProperties().get(UserView.USER_LANGUAGE);
 				} 
 			}
 			
@@ -111,14 +118,14 @@ public class PaxleLocaleConfig extends LocaleConfig {
 	
 	public String getLocaleStr() {
 		Locale locale = this.getLocale();
-		return (locale == null) ? "en" : locale.toString();
+		return (locale == null) ? Locale.ENGLISH.getLanguage() : locale.toString();
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void setLocaleStr(String locale) {
 		if (this.user != null) {
 			// updating user properties
-			user.getProperties().put("user.language", locale);
+			user.getProperties().put(UserView.USER_LANGUAGE, locale);
 		} 
 		
 		// keep cookies in sync

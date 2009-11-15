@@ -13,10 +13,28 @@
  */
 package org.paxle.gui;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 
 import org.apache.velocity.tools.view.VelocityView;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 public interface IVelocityViewFactory {
+	/**
+	 * The property-key that can be used insite a Velocity-Tool to access the {@link ClassLoader} of the registered {@link Servlet}.
+	 */
+	public static final String SERVLET_CLASSLOADER = "servlet.classloader";
+	
+	/**
+	 * The {@link BundleContext} of the OSGi {@link Bundle}, the registered {@link Servlet} belongs to.
+	 */
+	public static final String BUNDLE_CONTEXT = "bc";
+	
+	/**
+	 * A reference to the {@link IServletManager}
+	 */
+	public static final String SERVLET_MANAGER = "servletManager";
+	
 	public VelocityView createVelocityView(ServletConfig config);
 }

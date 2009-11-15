@@ -249,7 +249,7 @@ public class ParserTestServlet extends ALayoutServlet {
 				request.setAttribute(REQ_ATTR_LINEITERS, new ArrayList<Reader>());
 				
 				/*
-				 * Passing some properties to the servlet
+				 * Passing some properties to the rendering engine
 				 */
 				context.put(CONTEXT_CMD, cmd);
 				context.put(CONTEXT_PROP_UTIL, new PropertyUtils());

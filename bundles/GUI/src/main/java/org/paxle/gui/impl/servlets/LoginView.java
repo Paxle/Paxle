@@ -118,7 +118,7 @@ public class LoginView extends ALayoutServlet {
     				if (cookieTool.get("l10n") != null) {
     					@SuppressWarnings("unchecked")
     					Dictionary<String,Object> userProps = user.getProperties();    					
-    					userProps.put("user.language", cookieTool.get("l10n").getValue());
+    					userProps.put(UserView.USER_LANGUAGE, cookieTool.get("l10n").getValue());
     				}    				
     				
     				doRedirect = true;

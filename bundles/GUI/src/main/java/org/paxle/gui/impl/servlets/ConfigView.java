@@ -116,7 +116,7 @@ public class ConfigView extends ALayoutServlet {
 	 */
 	private Map<String, String> generatePidBundleLocationMap(HttpServletRequest request, Context context) {
 		// getting the config-tool
-		final ConfigTool configTool = (ConfigTool) context.get("configTool");
+		final ConfigTool configTool = (ConfigTool) context.get(ConfigTool.TOOL_NAME);
 		if (configTool == null) throw new IllegalStateException("Config-Tool not found");
 		
 		// getting the bundle-id and service-PID (if available)
@@ -385,25 +385,25 @@ public class ConfigView extends ALayoutServlet {
 	}
 	
 	public void writeImage(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {	
-		String pid = request.getParameter("pid");
+		final String pid = request.getParameter("pid");
 		if (pid == null) {
 			response.sendError(501, "No pid supplied.");
 			return;
 		}
 		
-		String bundleID = request.getParameter("bundleID");
+		final String bundleID = request.getParameter("bundleID");
 		if (bundleID == null) {
 			response.sendError(501, "No bundle-ID supplied.");
 			return;
 		}
 		
-		ConfigTool configTool = (ConfigTool) context.get("configTool");
+		final ConfigTool configTool = (ConfigTool) context.get(ConfigTool.TOOL_NAME);
 		if (configTool == null) {
 			response.sendError(501, "Config-Tool not found.");
 			return;
 		}
 		
-		Configurable configurabel = configTool.getConfigurable(Integer.valueOf(bundleID), pid);
+		final Configurable configurabel = configTool.getConfigurable(Integer.valueOf(bundleID), pid);
 		if (configurabel == null) {
 			response.sendError(501, String.format(
 					"No configurable component found for bundle-ID '%s' and PID '%s'.",
@@ -414,7 +414,7 @@ public class ConfigView extends ALayoutServlet {
 		}
 		
 		// loading metadata
-		ObjectClassDefinition ocd = configurabel.getObjectClassDefinition();
+		final ObjectClassDefinition ocd = configurabel.getObjectClassDefinition();
 		if (ocd == null) {
 			response.sendError(501, String.format("No ObjectClassDefinition found for service with PID '%s'.",pid));
 			return;
@@ -422,7 +422,7 @@ public class ConfigView extends ALayoutServlet {
 		
 		try {
 			// trying to find a proper icon
-			int[] sizes = new int[] {16,32,64,128,256};
+			final int[] sizes = new int[] {16,32,64,128,256};
 
 			BufferedImage img = null;
 			for (int size : sizes) {
@@ -436,7 +436,7 @@ public class ConfigView extends ALayoutServlet {
 				}
 				
 				// loading date
-				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				final ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				IOUtils.copy(in, bout);
 				bout.close();
 				in.close();
@@ -455,7 +455,7 @@ public class ConfigView extends ALayoutServlet {
 				
 				while (readers.hasNext() && img == null) {
 					// trying the next reader
-					ImageReader reader = readers.next();
+					final ImageReader reader = readers.next();
 					
 					InputStream input = null;
 					try {
@@ -485,27 +485,27 @@ public class ConfigView extends ALayoutServlet {
 	}	
 	
 	public void setPropertyValues(HttpServletRequest request, HttpServletResponse response, Context context, final boolean reset) throws Exception {		
-		Dictionary<String, Object> props = new Hashtable<String, Object>();		
+		final Dictionary<String, Object> props = new Hashtable<String, Object>();		
 
-		String pid = request.getParameter("pid");
+		final String pid = request.getParameter("pid");
 		if (pid == null) {
 			context.put(ERROR_MSG, "No pid supplied.");
 			return;
 		}
 		
-		String bundleID = request.getParameter("bundleID");
+		final String bundleID = request.getParameter("bundleID");
 		if (bundleID == null) {
 			context.put(ERROR_MSG, "No bundle-ID supplied.");
 			return;
 		}
 		
-		ConfigTool configTool = (ConfigTool) context.get("configTool");
+		final ConfigTool configTool = (ConfigTool) context.get(ConfigTool.TOOL_NAME);
 		if (configTool == null) {
 			context.put(ERROR_MSG, "Config-Tool not found.");
 			return;
 		}
 		
-		Configurable configurabel = configTool.getConfigurable(Integer.valueOf(bundleID), pid);
+		final Configurable configurabel = configTool.getConfigurable(Integer.valueOf(bundleID), pid);
 		if (configurabel == null) {
 			context.put(ERROR_MSG, String.format(
 					"No configurable component found for bundle-ID '%s' and PID '%s'.",
@@ -515,19 +515,19 @@ public class ConfigView extends ALayoutServlet {
 			return;
 		}
 		
-		Configuration config = configurabel.getConfiguration();
+		final Configuration config = configurabel.getConfiguration();
 		if (config == null) {
 			context.put(ERROR_MSG, "Configuration object not found.");
 			return;
 		}
 		
-		ObjectClassDefinition ocd = configurabel.getObjectClassDefinition();
+		final ObjectClassDefinition ocd = configurabel.getObjectClassDefinition();
 		if (ocd == null) {
 			context.put(ERROR_MSG, String.format("No ObjectClassDefinition found for service with PID '%s'.",pid));
 			return;
 		}
 		
-		AttributeDefinition[] attributes = ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
+		final AttributeDefinition[] attributes = ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
 		if (attributes == null) {
 			context.put(ERROR_MSG, String.format("No AttributeDefinitions found for service with PID '%s'.",pid));
 			return;

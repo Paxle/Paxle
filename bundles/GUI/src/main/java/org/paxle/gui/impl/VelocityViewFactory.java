@@ -47,12 +47,12 @@ public class VelocityViewFactory implements IVelocityViewFactory {
 		
 		// put the bundle-context into the servlet-context to allow
 		// custom tools to access it
-		config.getServletContext().setAttribute("bc", this.bc);
-		config.getServletContext().setAttribute("servletManager", this.sm);
+		config.getServletContext().setAttribute(BUNDLE_CONTEXT, this.bc);
+		config.getServletContext().setAttribute(SERVLET_MANAGER, this.sm);
 		
 		// add the servlet-classloader to the engine (required by some tools)
-		VelocityEngine engine = view.getVelocityEngine();
-		engine.setApplicationAttribute("servlet.classloader", this.cl);
+		final VelocityEngine engine = view.getVelocityEngine();
+		engine.setApplicationAttribute(SERVLET_CLASSLOADER, this.cl);
 		
 		return view;
 	}

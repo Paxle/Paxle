@@ -62,7 +62,7 @@ public class StatusView extends ALayoutServlet {
 			
 			if (request.getParameter("metaDataIcon") != null) {
 				// getting the metaDataTool
-				MetaDataTool tool = (MetaDataTool) context.get("metaDataTool");
+				MetaDataTool tool = (MetaDataTool) context.get(MetaDataTool.TOOL_NAME);
 				if (tool == null) return;
 				
 				IMetaData metaData = tool.getMetaData(request.getParameter("metaDataIcon"));

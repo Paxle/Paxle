@@ -21,11 +21,17 @@ import java.util.ResourceBundle;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.tools.ConversionUtils;
 import org.apache.velocity.tools.Scope;
+import org.apache.velocity.tools.ToolContext;
+import org.apache.velocity.tools.config.DefaultKey;
 import org.apache.velocity.tools.config.ValidScope;
 import org.apache.velocity.tools.generic.ResourceTool;
+import org.paxle.gui.IVelocityViewFactory;
 
+@DefaultKey(MonitorableTool.TOOL_NAME)
 @ValidScope(Scope.REQUEST)
 public class ResourceBundleTool extends ResourceTool {
+	public static final String TOOL_NAME = "resourceTool";
+	
 	private PaxleLocaleConfig localeConfig;
 	private ClassLoader cl;
 	
@@ -37,8 +43,8 @@ public class ResourceBundleTool extends ResourceTool {
 			this.localeConfig.configure(props);
 			
 			// the classoader-the current servlet was loaded with
-			VelocityEngine engine = (VelocityEngine) props.get("velocityEngine");
-			this.cl = (ClassLoader) engine.getApplicationAttribute("servlet.classloader");
+			final VelocityEngine engine = (VelocityEngine) props.get(ToolContext.ENGINE_KEY);
+			this.cl = (ClassLoader) engine.getApplicationAttribute(IVelocityViewFactory.SERVLET_CLASSLOADER);
 		}
 	}	
 	
