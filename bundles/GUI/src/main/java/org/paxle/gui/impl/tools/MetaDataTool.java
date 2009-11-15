@@ -36,7 +36,7 @@ public class MetaDataTool extends PaxleLocaleConfig {
 		
 		// getting the meta-data service
 		if (this.context != null) {
-			ServiceReference ref = this.context.getServiceReference(IMetaDataService.class.getName());
+			final ServiceReference ref = this.context.getServiceReference(IMetaDataService.class.getName());
 			if (ref != null) {
 				this.metaService = (IMetaDataService) this.context.getService(ref);
 			}

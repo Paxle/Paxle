@@ -30,7 +30,7 @@
 	#set($bundle = $bundleTool.getByPID($serviceID))	
 	#if($metaDataTool.getMetaData($serviceID))
 		<!-- Bundle: $bundle.getBundleId() -->
-		<img class="metaDataIcon" src="${context.request.servletPath}?metaDataIcon=${escTool.url($serviceID)}" width="16" height="16" alt=""/>
+		<img class="metaDataIcon" src="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.MetaDataIconServlet')}?servicePID=${escTool.url($serviceID)}" width="16" height="16" alt=""/>
 		<div class="serviceName">$metaDataTool.getMetaData($serviceID).name</div>
 		<div class="serviceActions">			
 			#if($configTool.isConfigurable($bundle,$serviceID))
