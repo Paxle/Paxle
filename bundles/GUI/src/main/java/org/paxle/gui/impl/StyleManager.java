@@ -184,7 +184,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider {
 		this.searchForStyles();
 
 		Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
-		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + IStyleManager.class.getSimpleName(), locale);
+		final ResourceBundle rb = this.resourceBundleTool.getLocalization(IStyleManager.class.getSimpleName(), locale);
 
 		// create metadata
 		ObjectClassDefinition ocd = new ObjectClassDefinition() {

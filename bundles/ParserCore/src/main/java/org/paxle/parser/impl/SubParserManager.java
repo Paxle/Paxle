@@ -42,6 +42,7 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.metatype.ObjectClassDefinition;
+import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.metadata.IMetaData;
 import org.paxle.core.metadata.IMetaDataProvider;
 import org.paxle.core.metadata.IMetaDataService;
@@ -97,6 +98,8 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	 */
 	private final String[] locales;
 	
+	private IResourceBundleTool resourceBundleTool;
+	
 	private boolean enableDefault = true;	
 	
 	private IMetaDataService metaDataService = null;	
@@ -109,12 +112,12 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 	 * @throws IOException
 	 * @throws ConfigurationException
 	 */	
-	public SubParserManager(Configuration config, String[] locales, final BundleContext context, final Properties props) throws IOException, ConfigurationException {
+	public SubParserManager(Configuration config, IResourceBundleTool resourceBundleTool, final BundleContext context, final Properties props) throws IOException, ConfigurationException {
 		if (config == null) throw new NullPointerException("The CM configuration is null");
-		if (locales == null) throw new NullPointerException("The locale array is null");
 		
 		this.config = config;
-		this.locales = locales.clone();
+		this.resourceBundleTool = resourceBundleTool;
+		this.locales = this.resourceBundleTool.getLocaleArray(SubParserManager.PID, Locale.ENGLISH);
 		this.context = context;
 		this.props = props;
 		if (props.get(PROPS_KNOWN_PARSER_PIDS) != null) {
@@ -458,7 +461,7 @@ public class SubParserManager implements ISubParserManager, MetaTypeProvider, Ma
 		public OCD(final String localeStr) {
 			this.localeStr = localeStr;
 			Locale locale = (localeStr == null) ? Locale.ENGLISH : new Locale(localeStr);
-			this.rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + ISubParserManager.class.getSimpleName(), locale);
+			this.rb = resourceBundleTool.getLocalization(ISubParserManager.class.getSimpleName(), locale);
 		}
 		
 		public AttributeDefinition[] getAttributeDefinitions(int filter) {

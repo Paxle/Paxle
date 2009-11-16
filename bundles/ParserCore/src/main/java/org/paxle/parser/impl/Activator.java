@@ -15,8 +15,6 @@ package org.paxle.parser.impl;
 
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.Locale;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -72,16 +70,13 @@ public class Activator implements BundleActivator {
 		final ServiceReference btRef = bc.getServiceReference(IResourceBundleTool.class.getName());
 		final IResourceBundleTool bt = (IResourceBundleTool) bc.getService(btRef); 
 		
-		// find available locales for metatye-translation
-		List<String> supportedLocale = bt.getLocaleList(ISubParserManager.class.getSimpleName(), Locale.ENGLISH);		
-		
 		final ServiceReference propertiesRef = bc.getServiceReference(IPropertiesStore.class.getName());
 		final IPropertiesStore propsStore = (IPropertiesStore)bc.getService(propertiesRef);
 		
 		// creating class
 		SubParserManager subParserManager = new SubParserManager(
 				cm.getConfiguration(SubParserManager.PID),
-				supportedLocale.toArray(new String[supportedLocale.size()]),
+				bt,
 				bc,
 				propsStore.getProperties(bc)
 		);		

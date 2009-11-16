@@ -48,6 +48,7 @@ import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 import org.paxle.core.filter.IFilterManager;
 import org.paxle.core.filter.IFilterQueue;
+import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.metadata.IMetaData;
 import org.paxle.core.metadata.IMetaDataService;
 
@@ -100,6 +101,8 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 	 */
 	private String[] locales;	
 	
+	private IResourceBundleTool resourceBundleTool;
+	
 	/**
 	 * Object to store component properties
 	 */
@@ -124,12 +127,12 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 	 * @throws ConfigurationException 
 	 * @throws ConfigurationException
 	 */
-	public FilterManager(String[] locales, Configuration config, final BundleContext context, Properties props) throws IOException, ConfigurationException {
-		if (locales == null) throw new NullPointerException("The locale array is null");
+	public FilterManager(IResourceBundleTool resourceBundleTool, Configuration config, final BundleContext context, Properties props) throws IOException, ConfigurationException {
 		if (config == null) throw new NullPointerException("The configuration object is null");
 		if (props == null) throw new NullPointerException("The property object is null");
 		
-		this.locales = locales.clone();
+		this.resourceBundleTool = resourceBundleTool;
+		this.locales = this.resourceBundleTool.getLocaleArray(IFilterManager.class.getSimpleName(),Locale.ENGLISH);
 		this.config = config;
 		this.props = props;
 		
@@ -503,7 +506,7 @@ public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedS
 	 */
 	public ObjectClassDefinition getObjectClassDefinition(final String id, final String localeStr) {
 		final Locale locale = (localeStr==null) ? Locale.ENGLISH : new Locale(localeStr);
-		final ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + IFilterManager.class.getSimpleName(), locale);			
+		final ResourceBundle rb = resourceBundleTool.getLocalization(IFilterManager.class.getSimpleName(), locale);			
 		
 		return new ObjectClassDefinition() {
 			public AttributeDefinition[] getAttributeDefinitions(int filter) {

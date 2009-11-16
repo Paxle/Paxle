@@ -17,8 +17,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -79,12 +81,16 @@ public interface IResourceBundleTool {
 	public @Nullable String[] getLocaleArray(String resourceBundleBase, Locale defaultLocale);
 	
 	/**
+	 * A function to return the {@link ResourceBundle} for the given base-name and locale. The data is loaded via a {@link PropertyResourceBundle}
+	 * from the directory {@link #LOCALIZATION_LOCATION_DEFAULT}
 	 * @since 0.1.39-SNAPSHOT
 	 */
-	public @Nonnull ResourceBundle getLocalization(String resourceBundleBase, String locale) throws MissingResourceException;
+	public @CheckForNull ResourceBundle getLocalization(@Nonnull String resourceBundleBase, @Nullable String locale) throws MissingResourceException;
 	
 	/**
+	 * A function to return the {@link ResourceBundle} for the given base-name and {@link Locale}. The data is loaded via a {@link PropertyResourceBundle}
+	 * from the directory {@link #LOCALIZATION_LOCATION_DEFAULT}
 	 * @since 0.1.39-SNAPSHOT
 	 */
-	public @Nonnull ResourceBundle getLocalization(String resourceBundleBase, Locale locale) throws MissingResourceException;
+	public @CheckForNull ResourceBundle getLocalization(@Nonnull String resourceBundleBase, @Nullable Locale locale) throws MissingResourceException;
 }

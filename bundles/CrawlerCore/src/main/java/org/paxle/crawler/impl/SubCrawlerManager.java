@@ -368,7 +368,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 		public OCD(final String localeStr) {
 			this.localeStr = localeStr;
 			Locale locale = (localeStr==null)? Locale.ENGLISH : new Locale(localeStr);
-			this.rb = ResourceBundle.getBundle("OSGI-INF/l10n/" + ISubCrawlerManager.class.getSimpleName(), locale);
+			this.rb = resourceBundleTool.getLocalization(ISubCrawlerManager.class.getSimpleName(), locale);
 		}
 		
 		public AttributeDefinition[] getAttributeDefinitions(int filter) {

@@ -287,16 +287,13 @@ public class Activator implements BundleActivator, InvocationHandler {
 		// getting the CM service
 		final ServiceReference cmRef = bc.getServiceReference(ConfigurationAdmin.class.getName());
 		final ConfigurationAdmin cm = (ConfigurationAdmin) bc.getService(cmRef);		
-		
-		// getting all locale for the manager
-		String[] localeArray = rbTool.getLocaleArray(IFilterManager.class.getSimpleName(),Locale.ENGLISH);
-		
+
 		// getting the core-bundle properties
 		Properties props = propStore.getProperties(bc);
 		
 		// creating filter-manager
 		FilterManager fManager = new FilterManager(
-				localeArray, 
+				rbTool, 
 				cm.getConfiguration(FilterManager.PID),
 				bc,
 				props

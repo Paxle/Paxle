@@ -29,10 +29,19 @@ import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.paxle.core.io.IResourceBundleTool;
 
 public class ResourceBundleTool implements IResourceBundleTool {
+	/**
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
+	
 	private final Bundle b;
 	
 	public ResourceBundleTool(Bundle b) {
@@ -101,21 +110,23 @@ public class ResourceBundleTool implements IResourceBundleTool {
 	
 	@SuppressWarnings("unchecked")
 	public ResourceBundle getLocalization(String resourceBundleBase, Locale locale) throws MissingResourceException {
+		if (resourceBundleBase == null) throw new NullPointerException("The resourcebundle base name is null");
 		if (locale == null) locale = this.getDefaultLocale();
 
-		String localizationLocation = LOCALIZATION_LOCATION_DEFAULT;
-		
+		final String localizationLocation = LOCALIZATION_LOCATION_DEFAULT;		
 		ResourceBundle bundle = null;		
 		try {
+			// loop through all variants to find a matching resourcebundle 
 			final Iterator<String> variants = this.getLocaleVariants(locale.toString());
 			while(variants.hasNext()) {
 				final String variant = variants.next();
 				final String propFile = resourceBundleBase + (variant.equals("") ? variant : "_" + variant) + ".properties";
+				
 				final Enumeration<URL> e = this.b.findEntries(localizationLocation, propFile,false);
 				if (e != null && e.hasMoreElements()) {
-					InputStream in = e.nextElement().openStream();
+					final InputStream in = e.nextElement().openStream();
 					try {
-						bundle = new PropertyResourceBundle(in);
+						bundle = new OsgiResourceBundle(in, variant);
 					} finally {
 						in.close();
 					}
@@ -125,7 +136,12 @@ public class ResourceBundleTool implements IResourceBundleTool {
 				if (bundle != null) break;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			this.logger.error(String.format(
+					"Unexpected '%s' while loading the resource-bundle for '%s' and locale '%s'.",
+					e.getClass().getName(),
+					resourceBundleBase,
+					locale
+			),e);
 		}
 		
 		return bundle;
@@ -135,7 +151,7 @@ public class ResourceBundleTool implements IResourceBundleTool {
 		return Locale.ENGLISH;
 	}
 	
-	Iterator<String> getLocaleVariants(String localeString) {
+	@Nonnull Iterator<String> getLocaleVariants(String localeString) {
 		final LinkedList<String> localeStrings = new LinkedList<String>();
 		localeStrings.add(0, "");
 		
@@ -148,8 +164,20 @@ public class ResourceBundleTool implements IResourceBundleTool {
 			localeStrings.add(0,buf.toString());
 		}
 		
-		localeStrings.add("");		
 		return localeStrings.iterator();
 	}
 
+	private class OsgiResourceBundle extends PropertyResourceBundle {
+		private String variant;
+		
+		public OsgiResourceBundle(InputStream stream,String variant) throws IOException {
+			super(stream);
+			this.variant = variant;
+		}
+		
+		@Override
+		public Locale getLocale() {
+			return new Locale(this.variant);
+		}
+	}
 }

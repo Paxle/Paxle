@@ -14,6 +14,7 @@
 
 package org.paxle.core.io.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,22 +26,23 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 import junitx.framework.ArrayAssert;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
 import org.osgi.framework.Bundle;
+import org.paxle.core.io.IResourceBundleTool;
 
 public class ResourceBundleToolTest extends MockObjectTestCase {
 	private static final String RESOURCEBUNDLE_BASE = "IFilterManager";
 	
 	private static final URL[] RESOURCEBUNDLE_FILES = new URL[2];
 	static {
-		URL.setURLStreamHandlerFactory(new BundleURLStreamHandlerFactory());
 		try {
-			RESOURCEBUNDLE_FILES[0] = new URL("bundleentry://43.fwk24387997/OSGI-INF/l10n/IFilterManager.properties");
-			RESOURCEBUNDLE_FILES[1] = new URL("bundleentry://43.fwk24387997/OSGI-INF/l10n/IFilterManager_de.properties");
+			RESOURCEBUNDLE_FILES[0] = new File("src/main/resources/OSGI-INF/l10n/IFilterManager.properties").toURI().toURL();
+			RESOURCEBUNDLE_FILES[1] = new File("src/main/resources/OSGI-INF/l10n/IFilterManager_de.properties").toURI().toURL();
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -57,8 +59,16 @@ public class ResourceBundleToolTest extends MockObjectTestCase {
 		// a dummy bundle
 		this.bundle = mock(Bundle.class);
 		checking(new Expectations(){{
-			allowing(bundle).findEntries("OSGI-INF/l10n",RESOURCEBUNDLE_BASE + "*.properties",false);
+			allowing(bundle).findEntries(IResourceBundleTool.LOCALIZATION_LOCATION_DEFAULT, RESOURCEBUNDLE_BASE + "*.properties",false);
 			will(returnValue(Collections.enumeration(Arrays.asList(RESOURCEBUNDLE_FILES))));
+			
+			allowing(bundle).findEntries(IResourceBundleTool.LOCALIZATION_LOCATION_DEFAULT, RESOURCEBUNDLE_BASE + ".properties", false);
+			will(returnValue(Collections.enumeration(Arrays.asList(new URL[]{RESOURCEBUNDLE_FILES[0]}))));				
+			
+			allowing(bundle).findEntries(IResourceBundleTool.LOCALIZATION_LOCATION_DEFAULT, RESOURCEBUNDLE_BASE + "_de.properties", false);
+			will(returnValue(Collections.enumeration(Arrays.asList(new URL[]{RESOURCEBUNDLE_FILES[1]}))));
+			
+			ignoring(bundle);
 		}});
 		
 		// the rb-tool
@@ -93,6 +103,13 @@ public class ResourceBundleToolTest extends MockObjectTestCase {
 		variants = this.rbTool.getLocaleVariants("");
 		assertNotNull(variants);
 		assertEquals("", variants.next());
+	}
+	
+	public void testGetLocalization() {
+		final ResourceBundle rbundle = this.rbTool.getLocalization(RESOURCEBUNDLE_BASE, "de_de");
+		assertNotNull(rbundle);
+		assertEquals(new Locale("de"), rbundle.getLocale());
+		assertFalse(rbundle.getString("filterManager.name") == null);
 	}
 }
 
