@@ -16,7 +16,6 @@ package org.paxle.gui.impl;
 import javax.annotation.Nonnull;
 import javax.servlet.ServletConfig;
 
-import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.tools.view.JeeServletConfig;
 import org.apache.velocity.tools.view.VelocityView;
 import org.osgi.framework.BundleContext;
@@ -26,12 +25,10 @@ import org.paxle.gui.IVelocityViewFactory;
 public class VelocityViewFactory implements IVelocityViewFactory {
 	private BundleContext bc;
 	private IServletManager sm;
-	private ClassLoader cl;
 	
-	public VelocityViewFactory(@Nonnull BundleContext bc, @Nonnull IServletManager sm, @Nonnull ClassLoader servletClassLoader) {
+	public VelocityViewFactory(@Nonnull BundleContext bc, @Nonnull IServletManager sm) {
 		this.bc = bc;
 		this.sm = sm;
-		this.cl = servletClassLoader;
 	}
 
 	public VelocityView createVelocityView(ServletConfig config) {
@@ -49,10 +46,6 @@ public class VelocityViewFactory implements IVelocityViewFactory {
 		// custom tools to access it
 		config.getServletContext().setAttribute(BUNDLE_CONTEXT, this.bc);
 		config.getServletContext().setAttribute(SERVLET_MANAGER, this.sm);
-		
-		// add the servlet-classloader to the engine (required by some tools)
-		final VelocityEngine engine = view.getVelocityEngine();
-		engine.setApplicationAttribute(SERVLET_CLASSLOADER, this.cl);
 		
 		return view;
 	}

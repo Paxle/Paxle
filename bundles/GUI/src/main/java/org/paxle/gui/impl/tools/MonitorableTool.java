@@ -33,6 +33,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.monitor.MonitorAdmin;
 import org.osgi.service.monitor.StatusVariable;
+import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.gui.impl.ServletManager;
 import org.paxle.gui.impl.tools.MonitorableTool.Monitorable.Variable;
 
@@ -45,6 +46,11 @@ public class MonitorableTool extends PaxleLocaleConfig {
 	 * The OSGi {@link MonitorAdmin} service.
 	 */
 	private MonitorAdmin ma;
+	
+	/**
+	 * A tool to load {@link ResourceBundle resource-bundles} from {@link Bundle OSGi-bundles} 
+	 */
+	private IResourceBundleTool rbTool;
 	
 	/**
 	 * This method is called by velocity during tool(box) initialization
@@ -64,6 +70,11 @@ public class MonitorableTool extends PaxleLocaleConfig {
 			if (ref != null) {
 				this.ma = (MonitorAdmin) this.context.getService(ref);
 			}
+			
+			ref = this.context.getServiceReference(IResourceBundleTool.class.getName());
+			if (ref != null) {
+				this.rbTool = (IResourceBundleTool) this.context.getService(ref);
+			}
 		}
 	}
 	
@@ -75,7 +86,7 @@ public class MonitorableTool extends PaxleLocaleConfig {
     	if (monitorableID == null) return false;
     	else if (this.ma == null) return false;
     	
-    	String[] monitorableNames = this.ma.getMonitorableNames();
+    	final String[] monitorableNames = this.ma.getMonitorableNames();
     	if (monitorableNames == null || monitorableNames.length == 0) return false;
     	
     	for (String monitorableName : monitorableNames) {
@@ -220,8 +231,8 @@ public class MonitorableTool extends PaxleLocaleConfig {
     	}
     	
     	public ResourceBundle getResourceBundle(Locale locale) {
-    		ClassLoader cl = null;
     		String bundleBase = null;
+    		Bundle osgiBundle = null;
     		
     		ServiceReference[] refs = null;
     		try {
@@ -232,27 +243,22 @@ public class MonitorableTool extends PaxleLocaleConfig {
     			if (refs != null && refs.length > 0) {
     				ServiceReference serviceRef = refs[0];
     				
-    				// getting the classloader
-    				try {
-    					cl = context.getService(serviceRef).getClass().getClassLoader();
-    				} finally {
-    					context.ungetService(serviceRef);
-    				}
-    				
     				// getting the bundle-name to use
     				bundleBase = (String) serviceRef.getProperty(MONITORABLE_LOCALIZATION);
     				if (bundleBase == null) {
     					// fallback to bundle localization header
     					bundleBase = (String) serviceRef.getBundle().getHeaders().get(Constants.BUNDLE_LOCALIZATION);
     				}
+    				
+    				// getting the osgi-bundle to use
+    				osgiBundle = serviceRef.getBundle();
     			}
     			
     			if (bundleBase == null) return null;
+    			else if (osgiBundle == null) return null;
     			
     			// loading the resource-bundle
-				return (cl == null)
-				   ? ResourceBundle.getBundle(bundleBase, locale)
-				   : ResourceBundle.getBundle(bundleBase, locale, cl);
+				return rbTool.getLocalization(osgiBundle,bundleBase, locale);
     		} catch (Exception e) {
     			return null;
     		} finally {
@@ -368,7 +374,7 @@ public class MonitorableTool extends PaxleLocaleConfig {
         	public String getDescription(Locale locale) {
         		if (locale == null) locale = Locale.ENGLISH;
 
-        		ResourceBundle rb = getResourceBundle(locale);
+        		final ResourceBundle rb = getResourceBundle(locale);
         		if (rb != null) {
 	        		// trying to use the key "<monitorableID>/<variableID>
 	        		try {

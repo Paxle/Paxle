@@ -295,8 +295,7 @@ public class ServletManager implements IServletManager {
 				// injecting the velocity-view factory
 				((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory(
 						bundleContext, 
-						this, 
-						servlet.getClass().getClassLoader()
+						this
 				));
 			}
 			

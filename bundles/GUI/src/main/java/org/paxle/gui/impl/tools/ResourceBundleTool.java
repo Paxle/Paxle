@@ -15,16 +15,20 @@ package org.paxle.gui.impl.tools;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import org.apache.velocity.app.VelocityEngine;
+import javax.servlet.ServletContext;
+
 import org.apache.velocity.tools.ConversionUtils;
 import org.apache.velocity.tools.Scope;
-import org.apache.velocity.tools.ToolContext;
 import org.apache.velocity.tools.config.DefaultKey;
 import org.apache.velocity.tools.config.ValidScope;
 import org.apache.velocity.tools.generic.ResourceTool;
+import org.apache.velocity.tools.view.ViewContext;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.gui.IVelocityViewFactory;
 
 @DefaultKey(MonitorableTool.TOOL_NAME)
@@ -33,7 +37,27 @@ public class ResourceBundleTool extends ResourceTool {
 	public static final String TOOL_NAME = "resourceTool";
 	
 	private PaxleLocaleConfig localeConfig;
-	private ClassLoader cl;
+	
+	/**
+	 * A tool to load {@link ResourceBundle resource-bundles} from {@link Bundle OSGi-bundles}
+	 */
+	private IResourceBundleTool resourceBundleTool;
+	
+	/**
+	 * The OSGi-Bundle the currently invoked servlet belongs to
+	 */
+	private Bundle servletBundle;
+	
+	/**
+	 * The OSGi-Bundle the GUI belongs to.
+	 * We require this bundle as a fallback for resource-bundle loading
+	 */
+	private Bundle guiBundle;
+	
+	/**
+	 * The context of the {@link #servletBundle OSGi-bundle}
+	 */
+	private BundleContext context;
 	
 	public void configure(@SuppressWarnings("unchecked") Map props) {
 		super.configure(props);		
@@ -42,9 +66,25 @@ public class ResourceBundleTool extends ResourceTool {
 			this.localeConfig = new PaxleLocaleConfig();
 			this.localeConfig.configure(props);
 			
-			// the classoader-the current servlet was loaded with
-			final VelocityEngine engine = (VelocityEngine) props.get(ToolContext.ENGINE_KEY);
-			this.cl = (ClassLoader) engine.getApplicationAttribute(IVelocityViewFactory.SERVLET_CLASSLOADER);
+			// getting the current osgi-bundle and -context
+			final ServletContext servletContext = (ServletContext) props.get(ViewContext.SERVLET_CONTEXT_KEY);
+			this.context = (BundleContext) servletContext.getAttribute(IVelocityViewFactory.BUNDLE_CONTEXT);
+			this.servletBundle = this.context.getBundle();
+			
+			// getting the GUI bundle
+			final Bundle[] bundles = this.context.getBundles();
+			for (Bundle bundle : bundles) {
+				if (bundle.getSymbolicName().equalsIgnoreCase("org.paxle.gui")) {
+					this.guiBundle = bundle;
+					break;
+				}
+			}
+			
+			// getting the resource-bundle-tool
+			final ServiceReference ref = this.context.getServiceReference(IResourceBundleTool.class.getName());
+			if (ref != null) {
+				this.resourceBundleTool = (IResourceBundleTool) this.context.getService(ref);
+			}
 		}
 	}	
 	
@@ -55,18 +95,18 @@ public class ResourceBundleTool extends ResourceTool {
 	
 	@Override
 	protected ResourceBundle getBundle(String baseName, Object loc) {
-        Locale locale = (loc == null) ? getLocale() : toLocale(loc);
+        final Locale locale = (loc == null) ? getLocale() : toLocale(loc);
         if (baseName == null || locale == null) {
             return null;
         }
 		
-		try {
-			// trying to load the resource using the servlet classloader
-			return ResourceBundle.getBundle(baseName, locale, this.cl);
-		} catch (MissingResourceException e) {
-			// trying to fallback to the classloader of this tool class
-			return ResourceBundle.getBundle(baseName, locale, this.getClass().getClassLoader());
-		}
+        // trying to load the resource-bundle from the servlet OSGi-bundle
+        ResourceBundle rb = this.resourceBundleTool.getLocalization(this.servletBundle, baseName, locale);
+        if (rb == null ) {
+        	// trying to load the resource-bundle from the GUI OSGi-bundle
+        	rb = this.resourceBundleTool.getLocalization(this.guiBundle, baseName, locale);
+        }
+        return rb;
 	}
 	
 	/**
