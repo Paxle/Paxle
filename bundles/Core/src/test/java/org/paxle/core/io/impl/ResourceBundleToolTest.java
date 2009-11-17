@@ -76,10 +76,16 @@ public class ResourceBundleToolTest extends MockObjectTestCase {
 	}
 	
 	public void testGetLocaleURL() {
-		final List<URL> localeURL = this.rbTool.getLocaleURL(RESOURCEBUNDLE_BASE);
+		final List<URL> localeURL = this.rbTool.getLocaleURL(IResourceBundleTool.LOCALIZATION_LOCATION_DEFAULT + '/' + RESOURCEBUNDLE_BASE);
 		assertNotNull(localeURL);
 		ArrayAssert.assertEquals(RESOURCEBUNDLE_FILES, localeURL.toArray());
 	}
+	
+	public void testGetLocaleURL2() {
+		final List<URL> localeURL = this.rbTool.getLocaleURL(RESOURCEBUNDLE_BASE);
+		assertNotNull(localeURL);
+		ArrayAssert.assertEquals(RESOURCEBUNDLE_FILES, localeURL.toArray());
+	}	
 	
 	public void testGetLocaleArray() {
 		final String[] localeArray = this.rbTool.getLocaleArray(RESOURCEBUNDLE_BASE, Locale.ENGLISH);
@@ -106,11 +112,18 @@ public class ResourceBundleToolTest extends MockObjectTestCase {
 	}
 	
 	public void testGetLocalization() {
-		final ResourceBundle rbundle = this.rbTool.getLocalization(RESOURCEBUNDLE_BASE, "de_de");
+		final ResourceBundle rbundle = this.rbTool.getLocalization(IResourceBundleTool.LOCALIZATION_LOCATION_DEFAULT + '/' + RESOURCEBUNDLE_BASE, "de_de");
 		assertNotNull(rbundle);
 		assertEquals(new Locale("de"), rbundle.getLocale());
 		assertFalse(rbundle.getString("filterManager.name") == null);
 	}
+	
+	public void testGetLocalization2() {
+		final ResourceBundle rbundle = this.rbTool.getLocalization(RESOURCEBUNDLE_BASE, "de_de");
+		assertNotNull(rbundle);
+		assertEquals(new Locale("de"), rbundle.getLocale());
+		assertFalse(rbundle.getString("filterManager.name") == null);
+	}	
 }
 
 class BundleURLStreamHandlerFactory implements URLStreamHandlerFactory {

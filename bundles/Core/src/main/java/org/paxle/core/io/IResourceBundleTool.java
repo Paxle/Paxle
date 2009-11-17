@@ -16,13 +16,14 @@ package org.paxle.core.io;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import org.osgi.framework.Bundle;
 
 /**
  * This service can be used to determine the {@link Locale#getDisplayName() names} of all {@link Locale}, 
@@ -57,7 +58,9 @@ public interface IResourceBundleTool {
 	 * @param resourceBundleBase the base-name that is used to file the property files.
 	 * @return
 	 */
-	public @Nullable List<URL> getLocaleURL(String resourceBundleBase);
+	public @Nonnull List<URL> getLocaleURL(@Nonnull String resourceBundleBase);
+	
+	public @Nonnull List<URL> getLocaleURL(@Nonnull Bundle osgiBundle, @Nonnull String resourceBundleBase);
 	
 	/**
 	 * Returns the {@link Locale#getDisplayName() names} of all {@link Locale}, for which a properties-file
@@ -67,7 +70,9 @@ public interface IResourceBundleTool {
 	 * @param defaultLocale the default {@link Locale} returned for files-names without a language-code, e.g.  <code>MyService.properties</code>.
 	 * @return the names of all {@link Locale} found, e.g. <code>["en","de"]</code>
 	 */
-	public @Nullable List<String> getLocaleList(String resourceBundleBase, Locale defaultLocale);
+	public @Nonnull List<String> getLocaleList(@Nonnull String resourceBundleBase, @Nullable Locale defaultLocale);
+	
+	public @Nonnull List<String> getLocaleList(@Nonnull Bundle osgiBundle, @Nonnull String resourceBundleBase, @Nullable Locale defaultLocale);
 	
 	/**
 	 * Returns the {@link Locale#getDisplayName() names} of all {@link Locale}, for which a properties-file
@@ -78,19 +83,25 @@ public interface IResourceBundleTool {
 	 * @return the names of all {@link Locale} found, e.g. <code>["en","de"]</code>
 	 * @see #getLocaleList(String, Locale)
 	 */
-	public @Nullable String[] getLocaleArray(String resourceBundleBase, Locale defaultLocale);
+	public @Nonnull String[] getLocaleArray(@Nonnull String resourceBundleBase, @Nullable Locale defaultLocale);
+	
+	public @Nonnull String[] getLocaleArray(@Nonnull Bundle osgiBundle, @Nonnull String resourceBundleBase, @Nullable Locale defaultLocale);
 	
 	/**
 	 * A function to return the {@link ResourceBundle} for the given base-name and locale. The data is loaded via a {@link PropertyResourceBundle}
 	 * from the directory {@link #LOCALIZATION_LOCATION_DEFAULT}
 	 * @since 0.1.39-SNAPSHOT
 	 */
-	public @CheckForNull ResourceBundle getLocalization(@Nonnull String resourceBundleBase, @Nullable String locale) throws MissingResourceException;
+	public @CheckForNull ResourceBundle getLocalization(@Nonnull String resourceBundleBase, @Nullable String locale);
+	
+	public @CheckForNull ResourceBundle getLocalization(@Nonnull Bundle osgiBundle, @Nonnull String resourceBundleBase, @Nullable String localeStr);
 	
 	/**
 	 * A function to return the {@link ResourceBundle} for the given base-name and {@link Locale}. The data is loaded via a {@link PropertyResourceBundle}
 	 * from the directory {@link #LOCALIZATION_LOCATION_DEFAULT}
 	 * @since 0.1.39-SNAPSHOT
 	 */
-	public @CheckForNull ResourceBundle getLocalization(@Nonnull String resourceBundleBase, @Nullable Locale locale) throws MissingResourceException;
+	public @CheckForNull ResourceBundle getLocalization(@Nonnull String resourceBundleBase, @Nullable Locale locale);
+	
+	public @CheckForNull ResourceBundle getLocalization(@Nonnull Bundle osgiBundle, @Nonnull String resourceBundleBase, @Nullable Locale locale);
 }

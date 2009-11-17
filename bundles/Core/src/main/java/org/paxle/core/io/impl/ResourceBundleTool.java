@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
@@ -52,16 +51,40 @@ public class ResourceBundleTool implements IResourceBundleTool {
 	 * @param resourceBundleBase
 	 * @return a list of {@link URL} pointing to {@link ResourceBundle resource-bundles} available for the given base-name
 	 */
-	@SuppressWarnings("unchecked")
+	
 	public List<URL> getLocaleURL(String resourceBundleBase) {
+		return this.getLocaleURL(this.b, resourceBundleBase);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<URL> getLocaleURL(Bundle osgiBundle, String resourceBundleBase) {
+		if (osgiBundle == null) throw new NullPointerException("The osgi-bundle was null");
+		else if (resourceBundleBase == null) throw new NullPointerException("The resource-bundle base-name was null");
+			
+		// calculating the resource-bundle location
+		String localizationLocation = IResourceBundleTool.LOCALIZATION_LOCATION_DEFAULT;
+		if (resourceBundleBase.contains("/")) {
+			localizationLocation = resourceBundleBase.substring(0,resourceBundleBase.lastIndexOf('/'));
+			resourceBundleBase = resourceBundleBase.substring(resourceBundleBase.lastIndexOf('/') + 1);
+		}
+		
 		// find all resource-bundle files for the given base-name
-		Enumeration<URL> e = this.b.findEntries(LOCALIZATION_LOCATION_DEFAULT, resourceBundleBase + "*.properties",false);
-		List<URL> resourceBundleURLs = (e==null)?Collections.EMPTY_LIST:Collections.list(e);
+		final Enumeration<URL> e = osgiBundle.findEntries(localizationLocation, resourceBundleBase + "*.properties",false);
+		final List<URL> resourceBundleURLs = (e==null)?Collections.EMPTY_LIST:Collections.list(e);
 		return resourceBundleURLs;
 	}
 	
 	public String[] getLocaleArray(String resourceBundleBase, Locale defaultLocale) {
-		List<String> localeList = this.getLocaleList(resourceBundleBase, defaultLocale);
+		if (resourceBundleBase == null) throw new NullPointerException("The resource-bundle base-name was null");
+		
+		return this.getLocaleArray(this.b, resourceBundleBase, defaultLocale);
+	}
+	
+	public String[] getLocaleArray(Bundle osgiBundle, String resourceBundleBase, Locale defaultLocale) {
+		if (osgiBundle == null) throw new NullPointerException("The osgi-bundle was null");
+		else if (resourceBundleBase == null) throw new NullPointerException("The resource-bundle base-name was null");		
+		
+		final List<String> localeList = this.getLocaleList(osgiBundle, resourceBundleBase, defaultLocale);
 		return localeList.toArray(new String[localeList.size()]);
 	}
 	
@@ -70,24 +93,31 @@ public class ResourceBundleTool implements IResourceBundleTool {
 	 * @return a list of locale strings available for the given base-name
 	 */
 	public List<String> getLocaleList(String resourceBundleBase, Locale defaultLocale) {
-		if (resourceBundleBase == null) return Collections.emptyList();
+		if (resourceBundleBase == null) throw new NullPointerException("The resource-bundle base-name was null");		
+		
+		return this.getLocaleList(this.b, resourceBundleBase, defaultLocale);
+	}	
+	
+	public List<String> getLocaleList(Bundle osgiBundle, String resourceBundleBase, Locale defaultLocale) {
+		if (osgiBundle == null) throw new NullPointerException("The osgi-bundle was null");
+		else if (resourceBundleBase == null) throw new NullPointerException("The resource-bundle base-name was null");
 		
 		// reg.exp to extract the locale-string
-		Pattern pattern = Pattern.compile("[^_]+(_\\w+)*\\.properties");
+		final Pattern pattern = Pattern.compile("[^_]+(_\\w+)*\\.properties");
 		
 		// loop through all files and determine the locale-strings
 		ArrayList<String> locales = new ArrayList<String>();
-		for (URL resourceBundle : this.getLocaleURL(resourceBundleBase)) {
+		for (URL resourceBundle : this.getLocaleURL(osgiBundle, resourceBundleBase)) {
 			String file = resourceBundle.getFile();
 			if (file.lastIndexOf('/') != -1) {
 				file = file.substring(file.lastIndexOf('/'));
 			}
 			
-			Matcher matcher = pattern.matcher(file);
+			final Matcher matcher = pattern.matcher(file);
 			while (matcher.find()) {
 				String localeString = matcher.group(1);
 				if (localeString == null && defaultLocale != null) {
-					// language of the default resourcebundle file
+					// language of the default resource-bundle file
 					localeString = defaultLocale.toString();
 				} else if (localeString != null) {
 					// trim first "_"
@@ -103,17 +133,41 @@ public class ResourceBundleTool implements IResourceBundleTool {
 		return locales;
 	}
 	
-	public ResourceBundle getLocalization(String resourceBundleBase, String localeStr) throws MissingResourceException {
-		final Locale locale = (localeStr==null) ? this.getDefaultLocale() : new Locale(localeStr);
-		return this.getLocalization(resourceBundleBase, locale);
+	public ResourceBundle getLocalization(String resourceBundleBase, String localeStr) {
+		if (resourceBundleBase == null) throw new NullPointerException("The resource-bundle base-name was null");
+		
+		return this.getLocalization(this.b, resourceBundleBase, localeStr);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public ResourceBundle getLocalization(String resourceBundleBase, Locale locale) throws MissingResourceException {
-		if (resourceBundleBase == null) throw new NullPointerException("The resourcebundle base name is null");
+	public ResourceBundle getLocalization(Bundle osgiBundle, String resourceBundleBase, String localeStr) {
+		if (osgiBundle == null) throw new NullPointerException("The osgi-bundle was null");
+		else if (resourceBundleBase == null) throw new NullPointerException("The resource-bundle base-name was null");		
+		
+		final Locale locale = (localeStr==null) ? this.getDefaultLocale() : new Locale(localeStr);
+		return this.getLocalization(osgiBundle, resourceBundleBase, locale);
+	}
+	
+	public ResourceBundle getLocalization(String resourceBundleBase, Locale locale) {
+		if (resourceBundleBase == null) throw new NullPointerException("The resource-bundle base-name was null");		
+		
+		return this.getLocalization(this.b, resourceBundleBase, locale);
+	}
+	
+	public ResourceBundle getLocalization(Bundle osgiBundle, String resourceBundleBase, Locale locale)  {
+		if (osgiBundle == null) throw new NullPointerException("The osgi-bundle was null");
+		else if (resourceBundleBase == null) throw new NullPointerException("The resource-bundle base-name was null");
+		
+		// if locale is null we are using the default locale
 		if (locale == null) locale = this.getDefaultLocale();
 
-		final String localizationLocation = LOCALIZATION_LOCATION_DEFAULT;		
+		// calculating the directory to use
+		// calculating the resource-bundle location
+		String localizationLocation = IResourceBundleTool.LOCALIZATION_LOCATION_DEFAULT;
+		if (resourceBundleBase.contains("/")) {
+			localizationLocation = resourceBundleBase.substring(0,resourceBundleBase.lastIndexOf('/'));
+			resourceBundleBase = resourceBundleBase.substring(resourceBundleBase.lastIndexOf('/') + 1);
+		}
+		
 		ResourceBundle bundle = null;		
 		try {
 			// loop through all variants to find a matching resourcebundle 
@@ -122,7 +176,8 @@ public class ResourceBundleTool implements IResourceBundleTool {
 				final String variant = variants.next();
 				final String propFile = resourceBundleBase + (variant.equals("") ? variant : "_" + variant) + ".properties";
 				
-				final Enumeration<URL> e = this.b.findEntries(localizationLocation, propFile,false);
+				@SuppressWarnings("unchecked")
+				final Enumeration<URL> e = osgiBundle.findEntries(localizationLocation, propFile,false);
 				if (e != null && e.hasMoreElements()) {
 					final InputStream in = e.nextElement().openStream();
 					try {
