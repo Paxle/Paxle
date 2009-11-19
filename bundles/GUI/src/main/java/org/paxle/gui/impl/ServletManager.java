@@ -198,11 +198,13 @@ public class ServletManager implements IServletManager {
 		}
 		
 		// convert it into a full alias (pathprefix + alias)
-		String fullAlias = this.getFullAlias(path);		
+		final String fullAlias = this.getFullAlias(path);		
 		
+		// the osgi-bundle that should be used
+		final Bundle osgiBundle = servletRef.getBundle();
+		
+		// the resource-bundle base-name that should be used
 		String resourceBundleBase = null;
-		ClassLoader resourceBundleLoader = null;
-		
 		if (menuName.startsWith("%") || menuName.contains("/%")) {
 			/* 
 			 * The menu-name needs to be localized.
@@ -215,11 +217,8 @@ public class ServletManager implements IServletManager {
 				resourceBundleBase = (String) servletRef.getBundle().getHeaders().get(Constants.BUNDLE_LOCALIZATION);
 			if (resourceBundleBase == null)
 				resourceBundleBase = Constants.BUNDLE_LOCALIZATION_DEFAULT_BASENAME;
-			
-			// the classloader to use
-			resourceBundleLoader = servletRef.getBundle().getBundleContext().getService(servletRef).getClass().getClassLoader();
 		}
-		this.menuManager.addItem(fullAlias, menuName, resourceBundleBase, resourceBundleLoader, menuPos.intValue(), iconURL);
+		this.menuManager.addItem(fullAlias, menuName, resourceBundleBase, osgiBundle, menuPos.intValue(), iconURL);
 	}
 	
 	private void unregisterMenuItem(ServiceReference servletRef) {
