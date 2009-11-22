@@ -527,24 +527,27 @@
 
 	<!-- define global dependendies -->
 	<dependencies>
-		<!-- OSGi API -->
+		<!-- OSGi API
+		
+			 We just use this dependency at compile time. At runtime the corresponding 
+			 library of the used OSGi runtime is used.
+		-->
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.osgi.core</artifactId>
-			<version>1.2.0</version>
+			<version>1.4.0</version>
 		</dependency>
 
 		<!-- 
 			OSGI Compendium Classes/Interfaces
 			
-			we use the artifact from apache-felix because the
-			artifact from org.osgi does not provide all required
-			interfaces.
+			We just use this dependency at compile time. At runtime the corresponding 
+			library of the used OSGi runtime is used.
 		 -->
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.osgi.compendium</artifactId>
-			<version>1.2.0</version>
+			<version>1.4.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.felix</groupId>
