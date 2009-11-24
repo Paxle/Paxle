@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserPdf</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<name>Paxle - Parser: PDF</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -90,14 +90,19 @@
 		</dependency>
 
 		<dependency>
-			<groupId>pdfbox</groupId>
+			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
-			<version>0.7.3</version>
+			<version>0.8.0-incubating</version>
 		</dependency>
 		<dependency>
-			<groupId>org.fontbox</groupId>
+			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>fontbox</artifactId>
-			<version>0.1.0</version>
+			<version>0.8.0-incubator</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>jempbox</artifactId>
+			<version>0.8.0-incubator</version>
 		</dependency>
 		
 		<!-- Additional dependencies for testing -->

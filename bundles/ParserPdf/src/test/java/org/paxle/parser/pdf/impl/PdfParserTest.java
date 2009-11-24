@@ -14,9 +14,14 @@
 package org.paxle.parser.pdf.impl;
 
 import java.io.File;
+import java.io.Reader;
 import java.net.URI;
 
+import junitx.framework.StringAssert;
+
+import org.apache.commons.io.IOUtils;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.io.impl.IOTools;
 import org.paxle.parser.impl.AParserTest;
 
 public class PdfParserTest extends AParserTest {
@@ -49,8 +54,16 @@ public class PdfParserTest extends AParserTest {
 		assertEquals(IParserDocument.Status.OK, pdoc.getStatus());
 		assertEquals("Paxle PDF Parser", pdoc.getTitle());
 		assertEquals("Testdocument", pdoc.getSummary());		
-		
+				
 		assertNotNull(pdoc.getSubDocs());
 		assertEquals(0, pdoc.getSubDocs().size());
+		
+		final Reader text = pdoc.getTextAsReader();
+		assertNotNull(text);
+		
+		final String content = IOUtils.toString(text);
+		assertNotNull(content);
+		StringAssert.assertContains("Test­Document for Paxle Parsers", content);
+		text.close();
 	}
 }
