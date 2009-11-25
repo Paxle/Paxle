@@ -15,13 +15,14 @@ package org.paxle.se.index.lucene.impl;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
-import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.analysis.standard.StandardFilter;
+import org.apache.lucene.util.Version;
 /**
  * Filters a tokenizer, e.g. for stopwords
  * 
@@ -29,66 +30,61 @@ import org.apache.lucene.analysis.standard.StandardFilter;
  */
 public class PaxleAnalyzer extends StandardAnalyzer {
 	
-	private final String[] stopWords;
+	private ThreadLocal<Map<String, TokenCounter>> counters = new ThreadLocal<Map<String,TokenCounter>>() {
+		@Override
+		protected Map<String, TokenCounter> initialValue() {
+			return new HashMap<String, TokenCounter>();
+		}
+	};
 	
-	public PaxleAnalyzer(Set<?> stopWords) {
-		this.stopWords = stopWords.toArray(new String[stopWords.size()]);
-	}
+	public PaxleAnalyzer(Set<String> stopWords) {
+		super(Version.LUCENE_29,stopWords);
+	}	
 	
 	public PaxleAnalyzer(String[] stopWords) {
-		this.stopWords = stopWords;
+		super(Version.LUCENE_29,StopFilter.makeStopSet(stopWords));
 	}
 	
-	public PaxleTokenizer createTokenizer(final Reader reader, final boolean replaceInvalidAcronym) {
-		return new PaxleTokenizer(reader, replaceInvalidAcronym);
-	}
-	
-	public PaxleTokenizer createTokenizer(final Reader reader) {
-		return new PaxleTokenizer(reader);
-	}
-	
-	public TokenStream wrapDefaultFilters(final TokenStream tokenStream, final boolean standardFilter) {
-	    TokenStream result = new StandardFilter(tokenStream);
-	    if (standardFilter)
-	    	result = new StandardFilter(result);
-	    result = new LowerCaseFilter(result);
-	    result = new StopFilter(result, stopWords);
-	    return result; 
-	}
-	
-	/* the code below is partly copied from StandardTokenizer, which unfortunately does not
-	 * simply use an extra factory method to obtain a new instance of the StandardTokenizer
-	 * it returns */
-	
-	@Override
-	@SuppressWarnings("deprecation")	// needed until isReplaceInvalidAcronym becomes hardwired to "true" in lucene 3.0
-	public TokenStream tokenStream(String fieldName, Reader reader) {
-	    PaxleTokenizer tokenStream = createTokenizer(reader, super.isReplaceInvalidAcronym());
-	    tokenStream.setMaxTokenLength(super.getMaxTokenLength());
-	    return wrapDefaultFilters(tokenStream, false);
-	}
-	
-	protected static class SavedStreams {
-		PaxleTokenizer tokenStream;
-		TokenStream filteredTokenStream;
-	}
-	
-	@Override
-	@SuppressWarnings("deprecation")
-	public TokenStream reusableTokenStream(String fieldName, Reader reader) throws IOException {
-		SavedStreams streams = (SavedStreams)getPreviousTokenStream();
-		if (streams == null) {
-			streams = new SavedStreams();
-			setPreviousTokenStream(streams);
-			streams.tokenStream = createTokenizer(reader);
-			streams.filteredTokenStream = wrapDefaultFilters(streams.tokenStream, true);
-		} else {
-			streams.tokenStream.reset(reader);
+	public void addTokenCounter(String fieldName, TokenCounter counter) {
+		Map<String, TokenCounter> counterMap = this.counters.get();
+		if (counterMap != null) {
+			counterMap.put(fieldName, counter);
 		}
-		streams.tokenStream.setMaxTokenLength(super.getMaxTokenLength());
+	}
+	
+	public TokenCounter getTokenCounter(String fieldName) {
+		final Map<String, TokenCounter> counterMap = this.counters.get();
+		if (counterMap == null) return null;		
+		return counterMap.get(fieldName);
+	}
+	
+	public Map<String, TokenCounter> getTokenCounters() {
+		return counters.get();
+	}
+	
+	public void resetTokenCounters() {
+		this.counters.remove();
+	}
+
+	public TokenStream wrapDefaultFilters(String fieldName, TokenStream tokenStream) {
+		// create a token Counter
+		final TokenCounter counter = new TokenCounter();
+		this.addTokenCounter(fieldName, counter);
 		
-		streams.tokenStream.setReplaceInvalidAcronym(super.isReplaceInvalidAcronym());
+		// creating a token-counting filter
+		final TokenCountingFilter tokenCountingStream = new TokenCountingFilter(tokenStream);
+		tokenCountingStream.setTokenCounter(counter);
 		
-		return streams.filteredTokenStream;
+	    return tokenCountingStream; 
+	}
+	
+	@Override
+	public TokenStream tokenStream(String fieldName, Reader reader) {
+		// creating the default token stream
+		TokenStream tokenStream = super.tokenStream(fieldName, reader);
+		
+		// wrapping the default token stream with a new filter
+		tokenStream = wrapDefaultFilters(fieldName, tokenStream);
+		return tokenStream;
 	}
 }

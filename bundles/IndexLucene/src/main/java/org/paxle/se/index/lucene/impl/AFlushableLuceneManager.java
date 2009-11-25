@@ -146,7 +146,7 @@ public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager
 		this.flushTimer.scheduleAtFixedRate(new FlushTimerTask(), 60*60*1000, 60*60*1000);
 		
 		// set merge policy
-		LogByteSizeMergePolicy policy = new LogByteSizeMergePolicy();
+		LogByteSizeMergePolicy policy = new LogByteSizeMergePolicy(this.writer);
 		policy.setMaxMergeMB(2048);
 		this.writer.setMergePolicy(policy);
 	}
@@ -185,7 +185,7 @@ public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager
 	 * 
 	 * @throws IOException
 	 */
-	private void flush() throws IOException {
+	void flush() throws IOException {
 		this.logger.debug("Flushing index writer and reopening index reader");
 		this.writer.commit();
 		IndexReader newReader = this.reader.reopen();

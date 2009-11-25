@@ -16,7 +16,7 @@ package org.paxle.se.index.lucene.impl;
 import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenStream;
 
-public class ArrayTokenStream extends TokenStream implements Counting {
+public class ArrayTokenStream extends TokenStream {
 	
 	private final Object[] data;
 	private int pos = 0;
@@ -28,13 +28,6 @@ public class ArrayTokenStream extends TokenStream implements Counting {
 	
 	public int getTokenCount() {
 		return data.length;
-	}
-	
-	public void resetCounts() {
-	}
-	
-	public int getRejectedCount() {
-		return 0;
 	}
 	
 	@Override

@@ -224,7 +224,8 @@ public class LuceneWriter extends Thread implements IIndexWriter, IDataConsumer<
 						document.get(IIndexerDocument.LOCATION), Long.valueOf(System.currentTimeMillis() - time),
 						document.get(IIndexerDocument.TITLE),
 						(internalName == null || internalName.length() == 0) ? "" : " (internal: " + internalName + ")",
-						document.get(IIndexerDocument.SIZE), Integer.valueOf(wc), lang, document.get(IIndexerDocument.MIME_TYPE)));
+						document.get(IIndexerDocument.SIZE), Integer.valueOf(wc), lang, document.get(IIndexerDocument.MIME_TYPE))
+				);
 			}
 		} catch (CorruptIndexException e) {
 			throw new IndexException("error adding lucene document for " + document.get(IIndexerDocument.LOCATION) + " to index", e);
@@ -233,12 +234,15 @@ public class LuceneWriter extends Thread implements IIndexWriter, IDataConsumer<
 			// close everything now
 			Iterator<Field<?>> iter = document.fieldIterator();
 			while (iter.hasNext()) {
-				Field<?> key = iter.next();
-				Object value = document.get(key);
-				if (Closeable.class.isAssignableFrom(key.getType())) try {
-					((Closeable)value).close();
-				} catch (IOException e) {
-					logger.error("I/O exception while closing value of field '" + key + "': " + value, e);
+				final Field<?> key = iter.next();
+				final Object value = document.get(key);
+				
+				if (Closeable.class.isAssignableFrom(key.getType())) {
+					try {
+						((Closeable)value).close();
+					} catch (IOException e) {
+						logger.error("I/O exception while closing value of field '" + key + "': " + value, e);
+					}
 				}
 			}
 		}

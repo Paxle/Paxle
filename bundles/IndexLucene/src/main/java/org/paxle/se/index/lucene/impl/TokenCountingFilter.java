@@ -14,35 +14,26 @@
 package org.paxle.se.index.lucene.impl;
 
 import java.io.IOException;
-import java.io.Reader;
 
-import org.apache.lucene.analysis.Token;
-import org.apache.lucene.analysis.standard.StandardTokenizer;
+import org.apache.lucene.analysis.TokenFilter;
+import org.apache.lucene.analysis.TokenStream;
 
-public class PaxleTokenizer extends StandardTokenizer implements Counting {
+public class TokenCountingFilter extends TokenFilter {
 	
-	private int tokenCount;
+	private TokenCounter tokenCounter;	
 	
-	public PaxleTokenizer(Reader reader) {
-		super(reader);
+	protected TokenCountingFilter(TokenStream input) {
+		super(input);
 	}
-	
-	public PaxleTokenizer(Reader reader, boolean replaceInvalidAcronym) {
-		super(reader, replaceInvalidAcronym);
-	}
-	
+
 	@Override
-	public Token next(Token result) throws IOException {
-		final Token token = super.next(result);
-		tokenCount++;
-		return token;
+	public final boolean incrementToken() throws IOException {
+		final boolean incr = this.input.incrementToken();
+		if (incr) tokenCounter.tokenCount++;
+		return incr;
 	}
 	
-	public int getTokenCount() {
-		return tokenCount;
-	}
-	
-	public void resetCounts() {
-		tokenCount = 0;
+	public void setTokenCounter(TokenCounter counter) {
+		this.tokenCounter = counter;
 	}
 }

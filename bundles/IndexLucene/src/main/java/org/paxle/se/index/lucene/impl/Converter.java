@@ -20,11 +20,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Serializable;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -46,7 +44,6 @@ public class Converter {
 	static IFieldManager fieldManager = null;
 	
 	private final PaxleAnalyzer pa;
-	private final List<Counting> counters = new ArrayList<Counting>();
 	
 	public Converter(final PaxleAnalyzer pa) {
 		this.pa = pa;
@@ -57,14 +54,20 @@ public class Converter {
 	}
 	
 	public int getCountersAccumulated() {
-		int r = 0;
-		for (final Counting c : counters)
-			r += c.getTokenCount();
-		return r;
+		int total = 0;
+		
+		final Map<String, TokenCounter> counters = this.pa.getTokenCounters();
+		if (counters != null) {
+			for (TokenCounter counter : counters.values()) {
+				total += counter.tokenCount;
+			}
+		}
+		
+		return total;
 	}
 	
 	public void resetCounters() {
-		counters.clear();
+		this.pa.resetTokenCounters();
 	}
 	
 	public Document iindexerDoc2LuceneDoc(IIndexerDocument document) {
@@ -148,8 +151,7 @@ public class Converter {
 		 * - no term vectors
 		 * =========================================================== */
 		final ArrayTokenStream ats = new ArrayTokenStream(data);
-		counters.add(ats);
-		return new Field(field.getName(), pa.wrapDefaultFilters(ats, false));
+		return new Field(field.getName(), pa.wrapDefaultFilters(field.getName(), ats));
 	}
 	
 	private static Fieldable number2field(org.paxle.core.doc.Field<?> field, Number data) {
@@ -203,12 +205,11 @@ public class Converter {
 		 * - indexed (for tokenization see LuceneWriter.write(IIndexerDocument))
 		 * - position term vectors
 		 * =========================================================== */
-		final PaxleTokenizer pt = pa.createTokenizer(data);
-		counters.add(pt);
-		return new Field(
+		final Field luceneField = new Field(
 				field.getName(),
-				pa.wrapDefaultFilters(pt, true),
-				termVector(field, TV_POSITIONS));
+				data,
+				termVector(field, TV_POSITIONS));		
+		return luceneField; 
 	}
 	
 	private Fieldable file2field(org.paxle.core.doc.Field<?> field, File data) throws IOException {

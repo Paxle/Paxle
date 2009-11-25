@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -122,7 +123,7 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		private boolean returned = false;
 
 		public synchronized void waitForIndexer() throws InterruptedException {
-			if (!returned) this.wait(1000);
+			if (!returned) this.wait(5000);
 			if (!returned) throw new IllegalStateException("Indexer never returned!");
 		}
 		
@@ -182,8 +183,17 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		this.queue.add(testCmd);
 		
 		// waitforReturnToPool until indexer has finisehd
-		waitforIndexer.waitForIndexer();
+		waitforIndexer.waitForIndexer();		
 		
+		// testing document count
 		assertEquals(1,this.lmanager.getDocCount());
+		
+		// testing indexed words
+		this.lmanager.flush();
+		final Iterator<String> words = this.lmanager.wordIterator();
+		assertNotNull(words);
+		while (words.hasNext()) {
+			System.out.println("* " + words.next());
+		}
 	}
 }
