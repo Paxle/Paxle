@@ -43,11 +43,14 @@
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
 							org.osgi.service.component;version="1.0",
+							<!-- Logging framework -->
+							org.apache.commons.logging,							
 							<!-- Paxle Core -->
 							org.paxle.core.doc;version="[0.1.0,0.2.0)", 
 							org.paxle.core.charset;version="[0.1.0,0.2.0)",
 							org.paxle.core.io;version="[0.1.0,0.2.0)", 
 							org.paxle.core.io.temp;version="[0.1.0,0.2.0)",
+							org.paxle.core.norm;version="[0.1.0,0.2.0)",
 							<!-- Paxle Parser Core -->
 							org.paxle.parser;version="[0.1.0,0.2.0)", 
 							org.paxle.parser.iotools;version="[0.1.0,0.2.0)",
@@ -68,7 +71,7 @@
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
-							tika;scope=compile|runtime
+							tika-app;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
@@ -91,7 +94,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.27-SNAPSHOT,0.2.0)</version>			
+			<version>[0.1.40-SNAPSHOT,0.2.0)</version>			
 		</dependency>
 		
 		<dependency>
@@ -102,9 +105,8 @@
 		
 		<dependency>
 		    <groupId>org.apache.tika</groupId>
-		    <artifactId>tika</artifactId>
-		    <version>0.4-SNAPSHOT</version>
-		    <classifier>standalone</classifier>
+		    <artifactId>tika-app</artifactId>
+		    <version>0.5</version>
 		</dependency>
 		
 		<!-- Additional dependencies for testing -->

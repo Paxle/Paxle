@@ -13,10 +13,6 @@
  */
 package org.paxle.parser.tika.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -26,32 +22,28 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.Parser;
-import org.apache.tika.sax.BodyContentHandler;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
-import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.doc.IParserDocument.Status;
-import org.paxle.parser.ASubParser;
-import org.paxle.parser.IParserContext;
 import org.paxle.parser.ISubParser;
-import org.paxle.parser.ParserContext;
-import org.paxle.parser.ParserException;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 @Component(immediate=true)
-public class TikaParserManager {
+@Service(Object.class)
+public class ParserManager {
 	/**
 	 * For logging
 	 */
 	protected final Log logger = LogFactory.getLog(this.getClass());	
+	
+	/**
+	 * The apache tika configuration
+	 */
+	protected TikaConfig tikaConfig;
 	
 	/**
 	 * All registered parsers
@@ -62,25 +54,53 @@ public class TikaParserManager {
 		BundleContext bc = context.getBundleContext();
 		
 		// determining all available tika parsers
-		TikaConfig config = TikaConfig.getDefaultConfig();
+		this.tikaConfig = TikaConfig.getDefaultConfig();
 		
 		// loop through all parsers and register them as paxle-parsers
-		Map<String, Parser> parserMap = config.getParsers();
+		final Map<String, Parser> parserMap = this.tikaConfig.getParsers();
 		if (parserMap != null) {
 			for (Entry<String, Parser> parser : parserMap.entrySet()) {
 				final String mimeType = parser.getKey();
 				final Parser tikaParser = parser.getValue();
 				
-				final ISubParser paxleParser = new ParserWrapper(mimeType, tikaParser);
+				// create a paxle parser
+				final ParserWrapper paxleParser = this.createPaxleParser(mimeType, tikaParser);
+				
+				// specify the service properties
 				final Hashtable<String, Object> paxleParserProps = new Hashtable<String, Object>();
 				paxleParserProps.put(ISubParser.PROP_MIMETYPES, new String[]{mimeType});
 				paxleParserProps.put(Constants.SERVICE_PID, tikaParser.getClass().getName()+"_"+mimeType.hashCode());
+				
 				final ServiceRegistration reg = bc.registerService(ISubParser.class.getName(), paxleParser, paxleParserProps);
 				this.services.add(reg);
 			}
 		}
 		
 		this.logger.info("Apache Tika framework started");		
+	}
+	
+	void setTikaConfig(TikaConfig tikaConfig) {
+		this.tikaConfig = tikaConfig;
+	}
+	
+	Parser getTikaParser(String mimeType) {
+		if (this.tikaConfig == null) return null;
+		
+		// getting all supported parsers
+		final Map<String, Parser> parserMap = this.tikaConfig.getParsers();
+		return parserMap.get(mimeType);
+	}
+	
+	ParserWrapper createPaxleParser(String mimeType) {
+		final Parser tikaParser = this.getTikaParser(mimeType);
+		if (tikaParser == null) return null;
+		return this.createPaxleParser(mimeType, tikaParser);
+	}	
+	
+	ParserWrapper createPaxleParser(String mimeType, Parser tikaParser) {
+		// creating a dummy parser
+		final ParserWrapper paxleParser = new ParserWrapper(mimeType, tikaParser);
+		return paxleParser;
 	}
 	
 	protected void deactivate(ComponentContext context) {
@@ -90,47 +110,5 @@ public class TikaParserManager {
 		this.services.clear();
 		
 		this.logger.info("Apache Tika framework stopped");
-	}
-	
-	private static class ParserWrapper extends ASubParser {
-		private final String mimeType;
-		private final Parser tikaParser;
-		
-		public ParserWrapper(String mimeType, Parser tikaParser) {
-			this.mimeType = mimeType;
-			this.tikaParser = tikaParser;
-		}
-		
-		@Override
-		public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException {
-			try {
-				IParserContext context = ParserContext.getCurrentContext();
-				
-				// creating an empty document
-				IParserDocument pDoc = context.createDocument();
-				pDoc.setMimeType(this.mimeType);
-				
-				// parsing the content
-				ContentHandler textHandler = new BodyContentHandler() {
-					@Override
-					public void startElement(String uri, String localName, String name, Attributes atts) throws SAXException {
-						super.startElement(uri, localName, name, atts);
-					}
-				};
-				Metadata metadata = new Metadata();
-				this.tikaParser.parse(is, textHandler, metadata);
-
-				// TODO: accessing the values
-		
-				
-				// parsing finished
-				pDoc.setStatus(Status.OK);
-				return pDoc;
-			} catch (Throwable e) {
-				throw new ParserException(e.getMessage());
-			} finally {
-				is.close();
-			}
-		}
 	}
 }
