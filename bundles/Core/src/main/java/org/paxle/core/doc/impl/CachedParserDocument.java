@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.Charset;
 
 import org.apache.commons.io.output.DeferredFileOutputStream;
@@ -33,49 +34,17 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 	
 	private static final int DEFAULT_MAX_TEXT_SIZE_RAM = 1 * 1024 * 1024; // 1 mio. characters == 2 MB
 	
-	protected ITempFileManager tfm;
-	protected File content;
-	protected OutputStreamWriter text;
-	protected OutputStream os;
+	protected OutputStream contentStream;
+	protected int inMemoryThreshold;
 	
-	public CachedParserDocument(ITempFileManager tfm) throws IOException {
-		this(tfm, DEFAULT_MAX_TEXT_SIZE_RAM);
+	public CachedParserDocument(ITempFileManager tempFileManager) throws IOException {
+		this(tempFileManager, DEFAULT_MAX_TEXT_SIZE_RAM);
 	}
 	
-	public CachedParserDocument(ITempFileManager tfm, int threshold) throws IOException {
-		this.tfm = tfm;
-		this.content = this.tfm.createTempFile();
-		this.os = new InMemoryOutputStream(threshold, this.content);
-		this.text = new OutputStreamWriter(this.os,"UTF-8");
+	public CachedParserDocument(ITempFileManager tempFileManager, int threshold) throws IOException {
+		super(tempFileManager);
+		this.inMemoryThreshold = threshold;
 	}	
-	
-	@Override
-	@Deprecated
-	public void addText(CharSequence text) throws IOException {
-		if (text == null) return;
-		this.append(text);
-	}
-	
-	@Override
-	public Appendable append(char c) throws IOException {
-		if (this.text == null) throw new IOException("Document already closed.");
-		this.text.append(c);
-		return this;
-	}
-	
-	@Override
-	public Appendable append(CharSequence csq) throws IOException {
-		if (this.text == null) throw new IOException("Document already closed.");
-		this.text.append(csq);
-		return this;
-	}
-	
-	@Override
-	public Appendable append(CharSequence csq, int start, int end) throws IOException {
-		if (this.text == null) throw new IOException("Document already closed.");
-		this.text.append(csq, start, end);
-		return this;
-	}
 		
 	@Override
 	public void setTextFile(File file) throws IOException {
@@ -83,66 +52,103 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 		this.close();
 		
 		// releasing old temp-file
-		if (!file.equals(this.content)) {
-			if (this.tfm.isKnown(this.content)) this.tfm.releaseTempFile(this.content);
+		if (file != null && !file.equals(this.contentFile)) {
+			if (this.tempFileManager != null && this.tempFileManager.isKnown(this.contentFile)) {
+				this.tempFileManager.releaseTempFile(this.contentFile);
+			}
 		}
 		
-		// opening a new writer
-		this.content = file;
-		this.os = new BufferedOutputStream(new FileOutputStream(this.content,true));
-		this.text = new OutputStreamWriter(this.os,"UTF-8");
+		// initiialize internal structure
+		this.contentWriter = null;
+		this.contentStream = null;		
+		this.contentFile = file;
+		
+		if (file != null && file.exists() && file.length() > 0) {
+			/* 
+			 * If the file already contains data, we must not create an in-memory-writer.
+			 * Therefore we create a simple FileOutputStream here 
+			 */
+			this.contentStream = new BufferedOutputStream(new FileOutputStream(this.contentFile,true));
+		}
 	}
 		
 	@Override
 	public File getTextFile() throws IOException {
 		this.close();
-		if (this.inMemory()) {
-			final InMemoryOutputStream dos = (InMemoryOutputStream)os;
+		if (this.inMemory() && this.contentStream != null) {
+			final InMemoryOutputStream dos = (InMemoryOutputStream)this.contentStream;
 			if (dos.getByteCount() == 0) return null;
 				
 			// writing data into a file
 			OutputStream fout = null;
 			try {
-				fout = new BufferedOutputStream(new FileOutputStream(this.content));
+				fout = new BufferedOutputStream(new FileOutputStream(this.contentFile));
 				dos.writeTo(fout);
 			} finally {
 				if (fout != null) fout.close();
 			}
 
-			this.text = null;
-			this.os = null;
+			this.contentWriter = null;
+			this.contentStream = null;
 		}
 		
-		if (!this.content.exists() || this.content.length() == 0) return null;
-		return this.content;
+		if (this.contentFile == null || !this.contentFile.exists() || this.contentFile.length() == 0) return null;
+		return this.contentFile;
 	}	
 			
 	@Override
 	public Reader getTextAsReader() throws IOException {
 		this.close();
-		if (this.inMemory()) {
-			final InMemoryOutputStream dos = (InMemoryOutputStream)os;
+		if (this.inMemory() && this.contentStream != null) {
+			final InMemoryOutputStream dos = (InMemoryOutputStream)this.contentStream;
 			if (dos.getByteCount() == 0) return null;
 			return new InputStreamReader(new ByteArrayInputStream(dos.getData()),Charset.forName("UTF-8"));
 		} 
 		
-		if (!this.content.exists() || this.content.length() == 0) return null;
-		return new InputStreamReader(new FileInputStream(this.content),Charset.forName("UTF-8"));
+		if (this.contentFile == null || !this.contentFile.exists() || this.contentFile.length() == 0) return null;
+		return new InputStreamReader(new FileInputStream(this.contentFile),Charset.forName("UTF-8"));
 	}
 
-	@Override
-	public void close() throws IOException {
-		if (this.text != null) {
-			this.text.close();
+	public Writer getTextWriter() throws IOException {
+		if (this.contentFile == null) {
+			this.contentFile = this.tempFileManager.createTempFile();
 		}
+		if (this.contentFile != null && this.contentStream == null) {
+			this.contentStream = new InMemoryOutputStream(this.inMemoryThreshold, this.contentFile);
+		}
+		if (this.contentFile != null && this.contentStream != null && this.contentWriter == null) {
+			this.contentWriter = new DocumentWriter(new OutputStreamWriter(this.contentStream,"UTF-8"));
+		}
+		return this.contentWriter;
+	}
+	
+	public long length() throws IOException {
+		// flush data
+		if (!this.closed && this.contentWriter != null) {
+			this.contentWriter.flush();
+		}
+		
+		// check for an in-memory-stream
+		if (this.inMemory() && this.contentStream != null) {
+			final InMemoryOutputStream dos = (InMemoryOutputStream)this.contentStream;
+			return dos.getByteCount();
+		}
+		
+		if (this.contentFile == null || !this.contentFile.exists()) return 0;
+		return this.contentFile.length();		
 	}
 	
 	/**
 	 * Checks if this ParserDocument is held in memory or on disk
 	 */
-	boolean inMemory() {
-		if (this.os != null && this.os instanceof InMemoryOutputStream) {
-			return ((InMemoryOutputStream)this.os).isInMemory();
+	@Override
+	public boolean inMemory() {
+		// no data was written yet.
+		if (this.contentFile == null) return true;
+			
+		// check for an in-memory-stream
+		if (this.contentStream != null && this.contentStream instanceof InMemoryOutputStream) {
+			return ((InMemoryOutputStream)this.contentStream).isInMemory();
 		}
 		return false;
 	}

@@ -15,8 +15,10 @@ package org.paxle.core.doc;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.Flushable;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -25,8 +27,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
-public interface IParserDocument extends Closeable, Appendable {
+public interface IParserDocument extends Closeable, Appendable, Flushable {
 
 	public static enum Status {
 		/** Parsing finished without major errors so that the resulting document is usable. */
@@ -129,19 +132,6 @@ public interface IParserDocument extends Closeable, Appendable {
 	 *         within the container
 	 */
 	public abstract void addSubDocument(String location, IParserDocument pdoc);
-
-	/**
-	 * Append (parts of) the extracted text. The single words can be found after indexing.
-	 * The parsers have to take care for the single words to be separated by whitespaces correctly
-	 * when calling this method several times, as the input is simply appended.
-	 * @param text the text of the document as {@link String} in Java's default character encoding,
-	 *        Unicode
-	 * @deprecated Deprecated as of Paxle-0.1.1. Please use the
-	 *             {@link Appendable#append(CharSequence) append()}-methods of the interface
-	 *             {@link Appendable} instead, which this {@link IParserDocument} contains.
-	 */
-	@Deprecated
-	public abstract void addText(CharSequence text) throws IOException;
 
 	/**
 	 * The author(s) of the document respectively it's content. Multiple authors have to be
@@ -316,6 +306,17 @@ public interface IParserDocument extends Closeable, Appendable {
 	public abstract String getSummary();
 
 	/**
+	 * Function to determine if the whole textual-data of this {@link IParserDocument} is kept in memory.
+	 * If this function returns <code>true</code>, it is recommended to read the text via function {@link #getTextAsReader()}
+	 * @return <code>true</code> if the whole textual-data is kept in memory
+	 * @since 0.1.40-SNAPSHOT
+	 */
+	public boolean inMemory();
+	
+	/**
+	 * Returns the content of this document via a {@link Reader}.
+	 * Calling this function will cause the this {@link IParserDocument} to be closed.
+	 * 
 	 * @see #addText(CharSequence)
 	 * @return the whole (readable) text of this document as Unicode-sequence or <code>null</code> if no content is available.
 	 */
@@ -324,12 +325,31 @@ public interface IParserDocument extends Closeable, Appendable {
 
 	/**
 	 * Returns the content of this document as UTF-8 encoded File.
-	 * @return File if addText() has been used with this document, <code>null</code> otherwise (e.g. archives or no content)
+	 * Calling this function will cause the this {@link IParserDocument} to be closed. 
+	 * 
+	 * @return {@link File} if {@link #addText(CharSequence)} has been used with this document, <code>null</code> otherwise (e.g. archives or no content)
 	 * @throws IOException
 	 */
 	@CheckForNull
 	public abstract File getTextFile() throws IOException;
 
+	/**
+	 * Returns a {@link Writer} that can be used to append text to this parser-document.
+	 * @return a {@link Writer}
+	 * @throws IOException
+	 * @since 0.1.40-SNAPSHOT
+	 */
+	@Nonnull
+	public abstract Writer getTextWriter() throws IOException;
+	
+    /**
+     * Returns the length of the written character sequence
+     * @return  the number of <code>char</code>s written
+     * @throws IOException
+     * @since 0.1.40-SNAPSHOT
+     */
+    public long length() throws IOException;	
+	
 	/**
 	 * @see #setTitle(String)
 	 * @return the title of this document or <code>null</code> if not available

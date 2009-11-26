@@ -19,28 +19,55 @@ import java.io.Reader;
 
 public class BasicParserDocumentTest extends AParserDocumentTest {	
 	
-	public void testParserDocInFile() throws IOException {
-		// creating an in-memory parser-doc
-		BasicParserDocument pdoc = new BasicParserDocument(this.tempFilemanager);
-		
-		// copying data
+	public void testAppendData() throws IOException {
+		// creating a basic parser-doc
+		final BasicParserDocument pdoc = new BasicParserDocument(this.tempFilemanager);
+		assertFalse(pdoc.inMemory());
+		assertEquals(0, pdoc.length());
 		assertFalse(this.outputFile.exists());
-		this.copyData(TESTFILE, pdoc);
+		
+		// copying data		
+		this.appendData(TESTFILE, pdoc);
+		
+		// some testing
+		assertFalse(pdoc.inMemory());
 		assertTrue(this.outputFile.exists());
 		assertEquals(TESTFILE, pdoc.getTextAsReader());
 		assertEquals(TESTFILE, pdoc.getTextFile());
+		assertEquals(this.fileSize, pdoc.length());
 	}	
+	
+	public void testWriteData() throws IOException {
+		// creating a basic parser-doc
+		final BasicParserDocument pdoc = new BasicParserDocument(this.tempFilemanager);
+		assertFalse(pdoc.inMemory());
+		assertEquals(0, pdoc.length());
+		assertFalse(this.outputFile.exists());
+		
+		// write data
+		this.writeData(TESTFILE, pdoc);
+		
+		// some testing
+		assertFalse(pdoc.inMemory());
+		assertTrue(this.outputFile.exists());
+		assertEquals(TESTFILE, pdoc.getTextAsReader());
+		assertEquals(TESTFILE, pdoc.getTextFile());
+		assertEquals(this.fileSize, pdoc.length());
+	}
 	
 	public void testEmptyContent() throws IOException {
 		// creating an in-memory parser-doc
-		BasicParserDocument pdoc = new BasicParserDocument(this.tempFilemanager);
+		final BasicParserDocument pdoc = new BasicParserDocument(this.tempFilemanager);
+		assertFalse(pdoc.inMemory());
+		assertEquals(0, pdoc.length());
+		assertFalse(this.outputFile.exists());		
 		
 		// if no content is available the reader should be null
-		Reader reader = pdoc.getTextAsReader();
+		final Reader reader = pdoc.getTextAsReader();
 		assertNull(reader);
 		
 		// if no content is available the file should be null
-		File file = pdoc.getTextFile();
+		final File file = pdoc.getTextFile();
 		assertNull(file);
 		assertFalse(this.outputFile.exists());
 	}	

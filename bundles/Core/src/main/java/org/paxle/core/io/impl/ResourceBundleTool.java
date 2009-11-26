@@ -222,7 +222,7 @@ public class ResourceBundleTool implements IResourceBundleTool {
 		return localeStrings.iterator();
 	}
 
-	private class OsgiResourceBundle extends PropertyResourceBundle {
+	private static class OsgiResourceBundle extends PropertyResourceBundle {
 		private String variant;
 		
 		public OsgiResourceBundle(InputStream stream,String variant) throws IOException {

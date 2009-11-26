@@ -160,7 +160,7 @@ public class MonitorableObserverTest extends MockObjectTestCase {
         ); 
 		
 		// creating a dummy event
-		Event event = new Event("test", new Hashtable<String, Object>(){{
+		Event event = new Event("test", (Dictionary<String, Object>) new Hashtable<String, Object>(){{
 			put("mon.monitorable.pid",MONITORABLE_PID);
 			put("mon.statusvariable.name",VAR_NAME);
 			put("mon.statusvariable.value",Integer.toString(varValue));

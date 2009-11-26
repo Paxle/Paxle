@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
@@ -27,92 +28,61 @@ import javax.annotation.Nonnull;
 import org.paxle.core.io.temp.ITempFileManager;
 
 public class BasicParserDocument extends AParserDocument {
-
-	protected File content;
-	protected OutputStreamWriter contentOut = null;
-	protected final ITempFileManager tempFileManager;
-
-	public BasicParserDocument(@Nonnull ITempFileManager tempFileManager) {
-		this.tempFileManager = tempFileManager;
-	}
 	
-	/**
-	 * Ensures proper setup of content output writer 
-	 * @throws IOException
-	 */
-	protected void checkContentOut() throws IOException {
-		if (this.content == null) {
-			this.content = this.tempFileManager.createTempFile();
-		}
-		if (this.contentOut == null) {
-			this.contentOut = new OutputStreamWriter(new FileOutputStream(this.content,true),"UTF-8");
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#addText(java.lang.CharSequence)
-	 * @deprecated
-	 */
-	@Deprecated
-	@Override
-	public void addText(CharSequence text) throws IOException {
-		checkContentOut();
-		this.contentOut.write(text.toString());
-	}
-	
-	@Override
-	public Appendable append(char c) throws IOException {
-		checkContentOut();
-		this.contentOut.append(c);
-		return this;
-	}
-	
-	@Override
-	public Appendable append(CharSequence csq) throws IOException {
-		checkContentOut();
-		this.contentOut.append(csq);
-		return this;
-	}
-	
-	@Override
-	public Appendable append(CharSequence csq, int start, int end) throws IOException {
-		checkContentOut();
-		this.contentOut.append(csq, start, end);
-		return this;
+	public BasicParserDocument(ITempFileManager tempFileManager) {
+		super(tempFileManager);
 	}
 	
 	@Override
 	public void setTextFile(File file) throws IOException {
 		// closing old streams
 		this.close();
-		this.contentOut = null;
 		
 		// releasing old temp-file
-		if (!file.equals(this.content)) {
-			if (this.tempFileManager.isKnown(this.content)) 
-				this.tempFileManager.releaseTempFile(this.content);
+		if (file != null && !file.equals(this.contentFile)) {
+			if (this.tempFileManager != null && this.tempFileManager.isKnown(this.contentFile)) {
+				this.tempFileManager.releaseTempFile(this.contentFile);
+			}
 		}
 		
-		this.content = file;
+		// init internal structure
+		this.contentWriter = null;		
+		this.contentFile = file;
 	}
 		
 	@Override
 	public File getTextFile() throws IOException {
-		close();
-		return this.content;
+		this.close();
+		
+		if (this.contentFile == null || this.contentFile == null || !this.contentFile.exists() || this.contentFile.length() == 0) return null;
+		return this.contentFile;
 	}	
 	
 	@Override
 	public Reader getTextAsReader() throws IOException {
-		close();
-		return (this.content == null) ? null : new InputStreamReader(new FileInputStream(this.content),Charset.forName("UTF-8"));
+		this.close();
+		
+		if (this.contentFile == null || !this.contentFile.exists() || this.contentFile.length() == 0) return null;
+		return new InputStreamReader(new FileInputStream(this.contentFile),Charset.forName("UTF-8"));
 	}
 	
-	@Override
-	public void close() throws IOException {
-		if (this.contentOut != null) {
-			this.contentOut.close();
+	public @Nonnull Writer getTextWriter() throws IOException {
+		if (this.contentFile == null) {
+			this.contentFile = this.tempFileManager.createTempFile();
 		}
-	}	
+		if (this.contentFile != null && this.contentWriter == null) {
+			this.contentWriter = new DocumentWriter(new OutputStreamWriter(new FileOutputStream(this.contentFile,true),"UTF-8"));
+		}
+		return this.contentWriter;
+	}
+	
+	public long length() throws IOException {
+		// flush data
+		if (!this.closed && this.contentWriter != null) {
+			this.contentWriter.flush();
+		}
+		
+		if (this.contentFile == null || !this.contentFile.exists()) return 0;
+		return this.contentFile.length();
+	}
 }

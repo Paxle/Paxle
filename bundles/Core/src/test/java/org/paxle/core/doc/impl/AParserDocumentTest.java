@@ -15,9 +15,11 @@ package org.paxle.core.doc.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
@@ -43,9 +45,17 @@ public abstract class AParserDocumentTest extends MockObjectTestCase {
 	 */
 	protected File outputFile = new File("target/test.txt");
 	
+	/**
+	 * The length of the test-file
+	 */
+	protected long fileSize;
+	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		
+		assertTrue(TESTFILE.exists());
+		this.fileSize = TESTFILE.length();
 		
 		// deleting files from a previous run
 		if (this.outputFile.exists()) 
@@ -68,12 +78,12 @@ public abstract class AParserDocumentTest extends MockObjectTestCase {
 	
 	protected static void assertEquals(File expected, Reader actual) throws IOException {
 		// reading source-string
-		InputStreamReader sourceReader = new InputStreamReader(new FileInputStream(expected),Charset.forName("UTF-8"));
+		final InputStreamReader sourceReader = new InputStreamReader(new FileInputStream(expected),Charset.forName("UTF-8"));
 		final String sourceText = IOUtils.toString(sourceReader);
 		sourceReader.close();
 		
 		// reading target string
-		String targetText = IOUtils.toString(actual);
+		final String targetText = IOUtils.toString(actual);
 		actual.close();
 		
 		assertEquals(sourceText, targetText);
@@ -83,19 +93,37 @@ public abstract class AParserDocumentTest extends MockObjectTestCase {
 		FileAssert.assertBinaryEquals(expected, actual);
 	}
 	
-	protected void copyData(File source, IParserDocument target) throws IOException {
-		StringBuilder sourceText = new StringBuilder();
+	protected Reader getTestFileReader() throws FileNotFoundException {
+		return new InputStreamReader(new FileInputStream(TESTFILE),Charset.forName("UTF-8"));
+	}
+	
+	protected void appendData(File source, IParserDocument target) throws IOException {
+		final StringBuilder sourceText = new StringBuilder();
 		
 		// writing Data
-		CharBuffer buffer = CharBuffer.allocate(50);
-		InputStreamReader sourceReader = new InputStreamReader(new FileInputStream(source),Charset.forName("UTF-8"));
+		final CharBuffer buffer = CharBuffer.allocate(50);
+		final InputStreamReader sourceReader = new InputStreamReader(new FileInputStream(source),Charset.forName("UTF-8"));
 		while (sourceReader.read(buffer) != -1) {
 			buffer.flip();
 			sourceText.append(buffer);
 			target.append(buffer.toString());
 			buffer.clear();
 		}
+		
 		sourceReader.close();
-		target.close();
+		target.flush();
+	}
+	
+	protected void writeData(File source, IParserDocument target) throws IOException {
+		final Writer targetWriter = target.getTextWriter();
+		assertNotNull(targetWriter);
+		
+		final Reader sourceReader = this.getTestFileReader();
+		assertNotNull(sourceReader);
+
+		// copy data
+		IOUtils.copy(sourceReader, targetWriter);
+		sourceReader.close();
+		targetWriter.flush();
 	}
 }

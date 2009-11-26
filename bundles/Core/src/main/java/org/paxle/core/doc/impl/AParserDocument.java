@@ -17,6 +17,7 @@ package org.paxle.core.doc.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -29,8 +30,10 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.output.ProxyWriter;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
+import org.paxle.core.io.temp.ITempFileManager;
 
 abstract class AParserDocument implements IParserDocument {
 
@@ -38,6 +41,14 @@ abstract class AParserDocument implements IParserDocument {
 	 * Primary key required by Object-EER mapping 
 	 */
 	protected int _oid;	
+
+	protected boolean closed = false;
+	
+	protected File contentFile = null;
+	
+	protected Writer contentWriter = null;
+	
+	protected ITempFileManager tempFileManager;
 	
 	protected Map<String,IParserDocument> subDocs = new HashMap<String,IParserDocument>();
 	protected Collection<String> headlines = new LinkedList<String>();
@@ -54,6 +65,10 @@ abstract class AParserDocument implements IParserDocument {
 	protected String mimeType;
 	protected Charset charset = null;
 	protected int flags = 0;	
+	
+	public AParserDocument(ITempFileManager tempFileManager) {
+		this.tempFileManager = tempFileManager;
+	}
 	
     public int getOID(){ 
     	return _oid; 
@@ -432,27 +447,60 @@ abstract class AParserDocument implements IParserDocument {
 	
 	/* =========================================================================
 	 * Functions related to the parsed text-file
-	 * ========================================================================= */
+	 * ========================================================================= */	
+	public boolean inMemory() {
+		return false;
+	}
+		
+	public void close() throws IOException {
+		this.closed = true;
+		if (this.contentWriter != null) {
+			this.contentWriter.close();
+		}
+	}
 	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#addText(java.lang.CharSequence)
-	 * @deprecated
-	 */
-	@Deprecated
-	public abstract void addText(CharSequence text) throws IOException;
+	public void flush() throws IOException {
+		if (this.contentWriter != null) {
+			this.contentWriter.flush();
+		}
+	}	
 	
-	public abstract Appendable append(char c) throws IOException;
+	public Appendable append(char c) throws IOException {
+		this.getTextWriter().append(c);
+		return this;
+	}
 	
-	public abstract Appendable append(CharSequence csq) throws IOException;
+	public Appendable append(CharSequence csq) throws IOException {
+		this.getTextWriter().append(csq);
+		return this;
+	}
 	
-	public abstract Appendable append(CharSequence csq, int start, int end) throws IOException;		
-
+	public Appendable append(CharSequence csq, int start, int end) throws IOException {
+		this.getTextWriter().append(csq, start, end);
+		return this;
+	}	
+	
+	
 	public abstract void setTextFile(File file) throws IOException;		
 
 	public abstract File getTextFile() throws IOException;		
 
 	public abstract Reader getTextAsReader() throws IOException;
 	
-	public abstract void close() throws IOException;
+	/**
+	 * A simple wrapper class around the {@link Writer} of this {@link IParserDocument}.
+	 * This is required to determine if the user has called {@link #close()} directly
+	 * on the writer.
+	 */
+	protected class DocumentWriter extends ProxyWriter {
+		public DocumentWriter(Writer proxy) {
+			super(proxy);
+		}
+		
+		@Override
+		public void close() throws IOException {
+			super.close();
+			closed = true;
+		}
+	}	
 }
