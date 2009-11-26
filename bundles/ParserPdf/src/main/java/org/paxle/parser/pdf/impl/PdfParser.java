@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URI;
-import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.Calendar;
 
@@ -30,18 +29,18 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
-import org.paxle.core.doc.ICommandProfile;
-import org.paxle.core.doc.IParserDocument;
-import org.paxle.parser.IParserContext;
-import org.paxle.parser.ISubParser;
-import org.paxle.parser.ParserContext;
-import org.paxle.parser.ParserException;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
 import org.apache.pdfbox.util.PDFTextStripper;
+import org.paxle.core.doc.ICommandProfile;
+import org.paxle.core.doc.IParserDocument;
+import org.paxle.parser.IParserContext;
+import org.paxle.parser.ISubParser;
+import org.paxle.parser.ParserContext;
+import org.paxle.parser.ParserException;
 
 @Component(metatype=false)
 @Service(ISubParser.class)
@@ -138,8 +137,9 @@ public class PdfParser implements ISubParser {
 			
 			// init text stripper
 			final PDFTextStripper stripper = new PDFTextStripper();
-			final AppenderWriter pdocWrapper = new AppenderWriter(parserDoc);
-			stripper.writeText(pddDoc, pdocWrapper);
+			final Writer pdocWriter = parserDoc.getTextWriter();
+			stripper.writeText(pddDoc, pdocWriter);
+			pdocWriter.flush();
 			
 			parserDoc.setStatus(IParserDocument.Status.OK);
 			return parserDoc;
@@ -147,58 +147,6 @@ public class PdfParser implements ISubParser {
 			throw new ParserException("Error parsing pdf document. " + e.getMessage(), e);
 		} finally {
 			if (pddDoc != null) try { pddDoc.close(); } catch (Exception e) {/* ignore this */}
-		}
-	}
-	
-	private static class AppenderWriter extends Writer {
-		
-		private final IParserDocument pdoc;
-		
-		public AppenderWriter(final IParserDocument pdoc) {
-			this.pdoc = pdoc;
-		}
-		
-		@Override
-		public void write(int c) throws IOException {
-			pdoc.append((char)(c & 0xFFFF));
-		}
-		
-		@Override
-		public void write(char[] cbuf, int off, int len) throws IOException {
-			pdoc.append(CharBuffer.wrap(cbuf, off, len));
-		}
-		
-		@Override
-		public Writer append(char c) throws IOException {
-			pdoc.append(c);
-			return this;
-		}
-		
-		@Override
-		public Writer append(CharSequence csq) throws IOException {
-			pdoc.append(csq);
-			return this;
-		}
-		
-		@Override
-		public Writer append(CharSequence csq, int start, int end) throws IOException {
-			pdoc.append(csq, start, end);
-			return this;
-		}
-		
-		@Override
-		public void write(String str, int off, int len) throws IOException {
-			pdoc.append(str, off, off + len);
-		}
-		
-		@Override
-		public void close() throws IOException {
-			// ignore
-		}
-		
-		@Override
-		public void flush() throws IOException {
-			// ignore
 		}
 	}
 	

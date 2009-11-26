@@ -21,7 +21,6 @@ import junitx.framework.StringAssert;
 
 import org.apache.commons.io.IOUtils;
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.core.io.impl.IOTools;
 import org.paxle.parser.impl.AParserTest;
 
 public class PdfParserTest extends AParserTest {
