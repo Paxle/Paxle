@@ -98,6 +98,7 @@ public class SnippetFetcher implements ISnippetFetcher {
 	}
 	
 	public String getSnippet(Query query, String locationStr) {
+		Reader textReader = null;
 		try {
 			// creating a dummy command
 			URI locationURI = URI.create(locationStr);
@@ -118,12 +119,12 @@ public class SnippetFetcher implements ISnippetFetcher {
 			else if (pdoc.getStatus() != Status.OK) return null;
 			
 			// getting the document content
-			Reader content = pdoc.getTextAsReader();
-			if (content == null) return null;			
+			textReader = pdoc.getTextAsReader();
+			if (textReader == null) return null;			
 			
 			// reading some text
 			StringBuilder text = new StringBuilder();
-			this.ioTools.copy(content, text, 10240);
+			this.ioTools.copy(textReader, text, 10240);
 			
 	        final Highlighter highlighter = new Highlighter(new QueryScorer(query));
 			final TokenStream tokenStream = this.analyzer.tokenStream("content", new StringReader(text.toString()));
@@ -132,6 +133,15 @@ public class SnippetFetcher implements ISnippetFetcher {
 			return result;
 		} catch (Throwable e) {
 			this.logger.error(e.getMessage(), e);
+		} finally {
+			// closing reader
+			if (textReader != null) {
+				try {
+					textReader.close();
+				} catch (Exception e) {
+					this.logger.error(e.getMessage(),e);
+				}
+			}
 		}
 		
 		return null;
