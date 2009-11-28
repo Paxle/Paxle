@@ -16,6 +16,7 @@ package org.paxle.parser.swf.impl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -87,8 +88,16 @@ public class SWFParser extends ASubParser implements ISubParser {
 					if (htmlParserDoc.getStatus() != IParserDocument.Status.OK) {
 						logger.warn("Failed parsing HTML-content of SWF-file from '" + location + "': " + htmlParserDoc.getStatusText());
 					} else {
-						iotools.copy(htmlParserDoc.getTextAsReader(), pdoc);
-						pdoc.append(' ');
+						Reader reader = null;
+						try {
+							reader = htmlParserDoc.getTextAsReader();
+							if (reader != null) {
+								iotools.copy(reader, pdoc);
+								pdoc.append(' ');
+							}
+						} finally {
+							if (reader != null) reader.close();
+						}
 					}
 				} catch (Exception e) { ex = e; }
 			}
