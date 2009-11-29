@@ -42,6 +42,12 @@
 				default="true"
 				description="%httpCrawler.useAcceptEncoding.desc" />
 		
+		<AD name="%httpCrawler.skipUnsupportedMimeTypes.name"
+				type="Boolean"
+				id="org.paxle.crawler.http.IHttpCrawler.skipUnsupportedMimeTypes"
+				default="true"
+				description="%httpCrawler.skipUnsupportedMimeTypes.desc" />		
+		
 		<AD name="%httpCrawler.cookiePolicy.name"
 				type="String"
 				id="org.paxle.crawler.http.IHttpCrawler.cookiePolicy"

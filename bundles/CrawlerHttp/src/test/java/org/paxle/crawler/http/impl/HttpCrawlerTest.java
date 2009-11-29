@@ -83,7 +83,7 @@ public class HttpCrawlerTest extends ACrawlerTest {
 		assertEquals(ICrawlerDocument.Status.UNKNOWN_FAILURE, this.crawlerDoc.getStatus());
 	}	
 	
-	public void testDownloadUnkownMimeType() {
+	public void testDownloadUnkownMimeTypeDisallowed() {
 		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, "xyz/unknown");
 		
 		// do some crawling
@@ -91,6 +91,21 @@ public class HttpCrawlerTest extends ACrawlerTest {
 		assertNotNull(this.crawlerDoc);
 		assertEquals(ICrawlerDocument.Status.UNKNOWN_FAILURE, this.crawlerDoc.getStatus());
 	}
+	
+	public void testDownloadUnkownMimeTypeAllowed() {
+		this.tester.setAttribute(DummyServlet.ATTR_FILE_NAME, TESTFILE_NAME);
+		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, "xyz/unknown");
+		
+		// change crawler settings
+		Dictionary<String, Object> props = this.crawler.getDefaults();
+		props.put(HttpCrawler.PROP_SKIP_UNSUPPORTED_MIMETYPES, Boolean.FALSE);
+		this.crawler.updated(props);		
+		
+		// do some crawling
+		this.crawlerDoc = this.crawler.request(URI.create(this.servletURL));
+		assertNotNull(this.crawlerDoc);
+		assertEquals(ICrawlerDocument.Status.OK, this.crawlerDoc.getStatus());
+	}	
 	
 	public void testMaxDownloadSizeExceeded() {
 		this.tester.setAttribute(DummyServlet.ATTR_FILE_SIZE, Integer.valueOf(1200));

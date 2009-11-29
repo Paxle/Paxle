@@ -66,7 +66,6 @@ import org.paxle.crawler.ICrawlerContextLocal;
 import org.paxle.crawler.ICrawlerTools;
 import org.paxle.crawler.ICrawlerTools.ILimitedRateCopier;
 import org.paxle.crawler.http.IHttpCrawler;
-import org.paxle.crawler.impl.CrawlerTools;
 
 /**
  * TODO: javadoc
@@ -82,6 +81,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 	static final String PROP_MAXCONNECTIONS_PER_HOST 	= PID + '.' + "maxConnectionsPerHost";
 	static final String PROP_MAXDOWNLOAD_SIZE 			= PID + '.' + "maxDownloadSize";
 	static final String PROP_ACCEPT_ENCODING 			= PID + '.' + "acceptEncodings";
+	static final String PROP_SKIP_UNSUPPORTED_MIMETYPES = PID + '.' + "skipUnsupportedMimeTypes";
 	static final String PROP_TRANSFER_LIMIT 			= PID + '.' + "transferLimit";			// in KB/s
 	static final String PROP_COOKIE_POLICY 			    = PID + '.' + "cookiePolicy";
 	static final String PROP_USER_AGENT 			    = PID + '.' + "userAgent";
@@ -148,6 +148,9 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 	private int maxDownloadSize = -1;
 	
 	private boolean acceptEncoding = true;
+	
+	private boolean skipUnsupportedMimeTypes = true;
+	
 	private ILimitedRateCopier lrc = null;
 	
 	/**
@@ -227,6 +230,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 		defaults.put(PROP_MAXCONNECTIONS_PER_HOST, Integer.valueOf(10));
 		defaults.put(PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(10485760));
 		defaults.put(PROP_ACCEPT_ENCODING, Boolean.TRUE);
+		defaults.put(HttpCrawler.PROP_SKIP_UNSUPPORTED_MIMETYPES, Boolean.TRUE);
 		defaults.put(PROP_COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
 		defaults.put(PROP_USER_AGENT, "Mozilla/5.0 (compatible; ${paxle.userAgent}/${paxle.version}; +http://www.paxle.net/en/bot)");
 		defaults.put(PROP_TRANSFER_LIMIT, Integer.valueOf(-1));
@@ -291,6 +295,12 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 			final Boolean acceptEncoding = (Boolean)configuration.get(PROP_ACCEPT_ENCODING);
 			if (acceptEncoding != null)
 				this.acceptEncoding = acceptEncoding.booleanValue();
+			
+			// specifies if the crawler should skipp unsupported-mime-types
+			final Boolean skipUnsupportedMimeTypes = (Boolean)configuration.get(PROP_SKIP_UNSUPPORTED_MIMETYPES);
+			if (skipUnsupportedMimeTypes != null) {
+				this.skipUnsupportedMimeTypes = skipUnsupportedMimeTypes.booleanValue();
+			}
 			
 			// the cookie policy to use for crawling
 			final String propCookiePolicy = (String)configuration.get(PROP_COOKIE_POLICY);
@@ -453,21 +463,24 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 		if (!ERRONEOUS_MIME_TYPES.contains(contentMimeType)) {
 			doc.setMimeType(contentMimeType);
 			
-			// check if we support the mimetype
+			// getting the crawler-context
 			final ICrawlerContext context = this.contextLocal.getCurrentContext();
-			if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");
+			if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");			
 			
-			if (!context.getSupportedMimeTypes().contains(contentMimeType)) {
-				// abort
-				String msg = String.format(
-						"Mimetype '%s' of resource '%s' not supported by any parser installed on the system.",
-						contentMimeType,
-						doc.getLocation()
-				);
-				
-				this.logger.warn(msg);
-				doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
-				return false;
+			// check if there is any parser installed, supporting this mime-type
+			if (this.skipUnsupportedMimeTypes) {				
+				if (!context.getSupportedMimeTypes().contains(contentMimeType)) {
+					// abort
+					String msg = String.format(
+							"Mimetype '%s' of resource '%s' not supported by any parser installed on the system.",
+							contentMimeType,
+							doc.getLocation()
+					);
+					
+					this.logger.warn(msg);
+					doc.setStatus(ICrawlerDocument.Status.UNKNOWN_FAILURE, msg);
+					return false;
+				}
 			}
 		}
 		
