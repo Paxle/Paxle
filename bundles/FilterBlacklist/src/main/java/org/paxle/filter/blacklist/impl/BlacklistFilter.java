@@ -27,7 +27,6 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandProfile;
-import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
@@ -55,7 +54,8 @@ import org.paxle.filter.blacklist.IRegexpBlacklistFilter;
 	@FilterQueuePosition(queue="org.paxle.parser.out",position=66)
 })
 public class BlacklistFilter implements IRegexpBlacklistFilter {
-
+	private static final String PROP_ADDITIONAL_BLACKLISTS = BlacklistFilter.class.getName() + ".additionalBlacklistNames";	
+	
 	/**
 	 * For logging
 	 */
@@ -86,19 +86,8 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 			return;
 		}		
 
-    String[] enabledBlacklistNames = null;
-		// checking if the command-profile has additional restrictions
-		int profileID = command.getProfileOID();
-		if (profileID >= 0) {
-			ICommandProfileManager profileManager = filterContext.getCommandProfileManager();
-			if (profileManager != null) {
-				ICommandProfile profile = profileManager.getProfileByID(profileID);
-				if (profile != null) {
-					// TODO: read blacklist-filter-specific properties
-					enabledBlacklistNames = (String[]) profile.getProperty(this.getClass().getSimpleName() + ".additionalBlacklistNames");
-				}
-			}
-		}	
+		// get additional blacklists to check
+		final String[] enabledBlacklistNames = this.getAdditionalBlacklistNames(command, filterContext);
 		
 		// checking command location
 		IFilterResult result = this.manager.isListed(command.getLocation().toString(), enabledBlacklistNames);		// XXX should this be .toASCIIString()?
@@ -129,6 +118,21 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 		}
 	}
 
+	private String[] getAdditionalBlacklistNames(ICommand command, IFilterContext filterContext) {
+		if (filterContext == null) return null;
+		String[] enabledBlacklistNames = null;
+		
+		final ICommandProfile profile = filterContext.getCommandProfile(command.getProfileOID());
+		Object propObj = profile.getProperty(PROP_ADDITIONAL_BLACKLISTS);
+		if (propObj instanceof String[]) {
+			enabledBlacklistNames = (String[]) propObj;
+		} else if (propObj instanceof String) {
+			enabledBlacklistNames = ((String)propObj).split(",");
+		}
+		
+		return enabledBlacklistNames;
+	}
+	
 	/**
 	 * @return the number of blocked {@link URI}
 	 */

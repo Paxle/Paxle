@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.util.tracker.ServiceTracker;
+import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
@@ -231,6 +232,19 @@ public class FilterContext implements Comparable<FilterContext>, IFilterContext 
 	
 	public void setCommandProfileManagerTracker(ServiceTracker cmdProfileManagerTracker) {
 		this.cmdProfileTracker = cmdProfileManagerTracker;
+	}
+	
+	public ICommandProfile getCommandProfile(int profileID) {
+		if (profileID <= -1) return null;
+
+		ICommandProfile profile = null;
+		
+		final ICommandProfileManager profileManager = this.getCommandProfileManager();
+		if (profileManager != null) {
+			profile = profileManager.getProfileByID(profileID);
+		}
+		
+		return profile;
 	}
 	
 	/**

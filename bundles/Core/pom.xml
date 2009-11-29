@@ -5,7 +5,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.40-SNAPSHOT</version>
+	<version>0.1.41-SNAPSHOT</version>
 	<name>Paxle - Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 

@@ -32,7 +32,6 @@ import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandProfile;
-import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
@@ -151,25 +150,19 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 	}
 	
 	private boolean skipExtraction(ICommand command, IFilterContext context) {
-		boolean skip = false;
-		
-		int profileID = command.getProfileOID();
-		if (profileID >= 0) {
-			final ICommandProfileManager profileManager = context.getCommandProfileManager();
-			if (profileManager != null) {
-				ICommandProfile profile = profileManager.getProfileByID(profileID);
-				if (profile != null) {
-					Object skipProp = profile.getProperty(PROP_SKIP_URI_EXTRACTION);
-					if (skipProp != null) {
-						if (skipProp instanceof Boolean) {
-							skip = ((Boolean)skipProp).booleanValue();
-						} else if (skipProp instanceof String) {
-							skip = Boolean.valueOf((String)skipProp);
-						}
-					}
+		boolean skip = false;		
+
+		ICommandProfile profile = context.getCommandProfile(command.getProfileOID());
+		if (profile != null) {
+			Object skipProp = profile.getProperty(PROP_SKIP_URI_EXTRACTION);
+			if (skipProp != null) {
+				if (skipProp instanceof Boolean) {
+					skip = ((Boolean)skipProp).booleanValue();
+				} else if (skipProp instanceof String) {
+					skip = Boolean.valueOf((String)skipProp);
 				}
 			}
-		}	
+		}
 		
 		return skip;
 	}

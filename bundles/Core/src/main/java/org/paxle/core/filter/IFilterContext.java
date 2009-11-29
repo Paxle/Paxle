@@ -16,8 +16,10 @@ package org.paxle.core.filter;
 import java.net.URI;
 import java.util.Properties;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
+import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.filter.impl.FilterContext;
 import org.paxle.core.io.temp.ITempFileManager;
@@ -66,16 +68,24 @@ public interface IFilterContext {
 	 * @return the {@link ITempFileManager temp-file-manager} that should be used by the filter
 	 * to handle temp-files.
 	 */
-	public ITempFileManager getTempFileManager();
+	public @CheckForNull ITempFileManager getTempFileManager();
 	
 	/**
 	 * @return a component to normalize {@link URI URIs}.
 	 * @see IReferenceNormalizer#normalizeReference(String)
 	 */
-	public IReferenceNormalizer getReferenceNormalizer();
+	public @CheckForNull IReferenceNormalizer getReferenceNormalizer();
 	
 	/**
 	 * @return a reference to the {@link ICommandProfileManager}
 	 */
-	public ICommandProfileManager getCommandProfileManager();
+	public @CheckForNull ICommandProfileManager getCommandProfileManager();
+	
+	/**
+	 * TODO: currently this is an read-only {@link ICommandProfile}. We should wrap it with a transparent proxy
+	 * and should flush it back to db if one of the command-profile-properties were changed.
+	 * 
+	 * @since 0.1.41-SNAPSHOT
+	 */
+	public @CheckForNull ICommandProfile getCommandProfile(int profileID);
 }
