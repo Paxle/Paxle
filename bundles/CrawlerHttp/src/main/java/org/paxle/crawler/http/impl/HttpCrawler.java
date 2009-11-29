@@ -465,8 +465,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 			
 			// getting the crawler-context
 			final ICrawlerContext context = this.contextLocal.getCurrentContext();
-			if (context == null) throw new RuntimeException("Unexpected error. The crawler-context was null.");			
-			
+
 			// check if there is any parser installed, supporting this mime-type
 			if (this.skipUnsupportedMimeTypes) {				
 				if (!context.getSupportedMimeTypes().contains(contentMimeType)) {
@@ -545,7 +544,6 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 		HttpMethod method = null;
 		try {
 			final ICrawlerContext ctx = this.contextLocal.getCurrentContext();
-			if (ctx == null) throw new IllegalStateException("Cannot access CrawlerContext from " + Thread.currentThread().getName());
 			
 			// creating an empty crawler-document
 			doc = ctx.createDocument();				
