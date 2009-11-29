@@ -31,6 +31,8 @@ import org.osgi.service.monitor.StatusVariable;
 import org.paxle.core.data.IDataProvider;
 import org.paxle.core.data.IDataSink;
 import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
+import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.doc.LinkInfo.Status;
@@ -44,6 +46,8 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 	 */
 	public static final String PID = "org.paxle.data.UrlExtractor";
 
+	public static final String PROP_SKIP_URI_EXTRACTION = PID + ".skipUriExtraction";
+	
 	/**
 	 * Number of URI-packages enqueued for storage to DB.
 	 */
@@ -120,8 +124,20 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 	 */
 	public void filter(ICommand command, IFilterContext context) {
 		// getting the parser-doc
-		IParserDocument parserDoc = command.getParserDocument();
+		final IParserDocument parserDoc = command.getParserDocument();
 		if (parserDoc == null) return;
+				
+		// determines if the command-extraction should be skipped
+		final boolean skipExtraction = this.skipExtraction(command, context);
+		if (skipExtraction) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(String.format(
+					"URI extraction for command '%s' skipped due to command-profile configuration.",
+					command.getLocation()
+				));
+			}
+			return;
+		}
 		
 		// getting the link map
 		final Counter c = new Counter();
@@ -132,6 +148,30 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 				Integer.valueOf(c.total), 
 				command.getLocation()
 		));
+	}
+	
+	private boolean skipExtraction(ICommand command, IFilterContext context) {
+		boolean skip = false;
+		
+		int profileID = command.getProfileOID();
+		if (profileID >= 0) {
+			final ICommandProfileManager profileManager = context.getCommandProfileManager();
+			if (profileManager != null) {
+				ICommandProfile profile = profileManager.getProfileByID(profileID);
+				if (profile != null) {
+					Object skipProp = profile.getProperty(PROP_SKIP_URI_EXTRACTION);
+					if (skipProp != null) {
+						if (skipProp instanceof Boolean) {
+							skip = ((Boolean)skipProp).booleanValue();
+						} else if (skipProp instanceof String) {
+							skip = Boolean.valueOf((String)skipProp);
+						}
+					}
+				}
+			}
+		}	
+		
+		return skip;
 	}
 	
 	private void extractLinks(final ICommand command, String internalName, IParserDocument parserDoc, final Counter c) {
