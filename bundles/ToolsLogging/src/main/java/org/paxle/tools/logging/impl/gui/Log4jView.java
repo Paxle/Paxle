@@ -110,7 +110,7 @@ public class Log4jView extends ALayoutServlet implements Servlet {
 					}
 				} else if (action.equals(ACTION_DELETE)) {
 					// deleting the logfile
-					file.delete();					
+					boolean delted = file.delete();
 					response.sendRedirect(request.getServletPath());
 				} else if (action.equals(ACTION_SET_LEVEL)) {
 					final String loggerName = request.getParameter(PARAM_LOGGER);

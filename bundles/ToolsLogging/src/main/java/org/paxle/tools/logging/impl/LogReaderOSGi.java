@@ -33,20 +33,30 @@ import org.paxle.tools.logging.ILogData;
 import org.paxle.tools.logging.ILogDataEntry;
 import org.paxle.tools.logging.ILogReader;
 
-@Component(immediate=true, metatype=false)
+@Component(immediate=true)
 @Service(ILogReader.class)
-@Property(name=ILogReader.TYPE, value="osgi")
+@Property(name=ILogReader.TYPE, value="osgi", propertyPrivate=true)
 public class LogReaderOSGi implements LogListener, ILogReader {	
-
+	
+	@Property(intValue = 200)
+	public static final String BUFFER_SIZE = "bufferSize";	
+	
 	@Reference(cardinality=ReferenceCardinality.OPTIONAL_UNARY)
 	private LogReaderService osgiLogReader;	
 	
 	/**
 	 * A internal buffer for logging-messages
 	 */
-	final Buffer fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(200));
+	Buffer fifo = null;
 
-	protected void activate(Map<String, Object> props) {		
+	protected void activate(Map<String, Object> props) {
+		// configuring the buffer
+		Integer bufferSize = Integer.valueOf(200);
+		if (props.containsKey(BUFFER_SIZE)) {
+			bufferSize = (Integer) props.get(BUFFER_SIZE);
+		}
+		this.fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(bufferSize));			
+		
 		// adding this class as log-listener
 		this.osgiLogReader.addLogListener(this);
 	}	

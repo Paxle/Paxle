@@ -14,6 +14,10 @@
 package org.paxle.tools.logging.impl;
 
 import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.BufferUtils;
@@ -22,11 +26,6 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
-import org.apache.log4j.spi.ThrowableInformation;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
@@ -34,15 +33,14 @@ import org.paxle.tools.logging.ILogData;
 import org.paxle.tools.logging.ILogDataEntry;
 import org.paxle.tools.logging.ILogReader;
 
-@Component(immediate=true)
+@Component(immediate=true, metatype=true)
 @Service(ILogReader.class)
 @Properties({
-	@Property(name=ILogReader.TYPE, value="log4j", propertyPrivate=true),
-	@Property(name=ILogReader.SERVLET_PID, value="org.paxle.tools.logging.impl.gui.Log4jView", propertyPrivate=true)
+	@Property(name=ILogReader.TYPE, value="java.util.logging", propertyPrivate = true)
 })
-public class LogReaderLog4j implements ILogReader {
+public class LogReaderJul implements ILogReader {
 	private static final long serialVersionUID = 1L;
-	
+
 	@Property(intValue = 200)
 	public static final String BUFFER_SIZE = "bufferSize";
 	
@@ -52,9 +50,9 @@ public class LogReaderLog4j implements ILogReader {
 	Buffer fifo = null;
 
 	/**
-	 * A in-memory log4j appender
+	 * A in-memory java.logging handler
 	 */
-	protected Log4jAppender appender;
+	protected JulHandler handler;
 	
 	protected void activate(Map<String, Object> props) {
 		// configuring the buffer
@@ -62,26 +60,27 @@ public class LogReaderLog4j implements ILogReader {
 		if (props.containsKey(BUFFER_SIZE)) {
 			bufferSize = (Integer) props.get(BUFFER_SIZE);
 		}
-		this.fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(bufferSize));		
+		this.fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(bufferSize));
 		
-		// getting the Log4j root logger
-		Logger rootLogger = Logger.getRootLogger();
+		// getting the root logger
+		Logger rootLogger = Logger.getLogger("");
 		
 		// configuring this class as memory appender
-		this.appender = new Log4jAppender();
-		rootLogger.addAppender(this.appender);		
+		this.handler = new JulHandler();
+		rootLogger.addHandler(this.handler);		
 	}
 	
 	protected void deactivate() {
 		// getting the Log4j root logger
-		Logger rootLogger = Logger.getRootLogger();
+		Logger rootLogger = Logger.getLogger("");
 		
 		// removing this class from the appenders
-		rootLogger.removeAppender(this.appender);
-		this.appender = null;
+		rootLogger.removeHandler(this.handler);
+		this.handler = null;
 		
 		// clear messages
 		this.fifo.clear();
+		this.fifo = null;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -89,30 +88,26 @@ public class LogReaderLog4j implements ILogReader {
 		return new LogData(this.fifo);
 	}	
 	
-	private class Log4jAppender extends AppenderSkeleton {
+	private class JulHandler extends Handler {
+		@Override
+		public void close() throws SecurityException {}
+
+		@Override
+		public void flush() {}
+
 		@SuppressWarnings("unchecked")
 		@Override
-		protected void append(LoggingEvent event) {
-			fifo.add(new Entry(event));
+		public void publish(LogRecord record) {
+			fifo.add(new Entry(record));
 		}
-	
-		@Override
-		public void close() {
-			// cleanup buffer
-			fifo.clear();
-		}
-	
-		@Override
-		public boolean requiresLayout() {
-			return false;
-		}
+
 	}	
 	
 	private static class Entry implements ILogDataEntry {
-		private final LoggingEvent log4jevent;
+		private final LogRecord logRecord;
 
-		public Entry(LoggingEvent log4jevent) {
-			this.log4jevent = log4jevent;
+		public Entry(LogRecord logRecord) {
+			this.logRecord = logRecord;
 		}
 
 		public Bundle getBundle() {
@@ -120,34 +115,30 @@ public class LogReaderLog4j implements ILogReader {
 		}
 
 		public Throwable getException() {
-			ThrowableInformation ti = log4jevent.getThrowableInformation();
-			return (ti == null)?null:ti.getThrowable();
+			return this.logRecord.getThrown();
 		}
 
 		public int getLevel() {
-			Level level = this.log4jevent.getLevel();
-			switch (level.toInt()) {
-				case Level.FATAL_INT:
-				case Level.ERROR_INT:
-					return LogService.LOG_ERROR;
-	
-				case Level.WARN_INT:
-					return LogService.LOG_WARNING;
-					
-				case Level.INFO_INT:
-					return LogService.LOG_INFO;
-					
-				case Level.DEBUG_INT:
-				case Level.TRACE_INT:
-					return LogService.LOG_DEBUG;
-				
-				default:
-					return LogService.LOG_DEBUG;
+			final Level level = this.logRecord.getLevel();
+			if (level.equals(Level.SEVERE)) {
+				return LogService.LOG_ERROR;
+			} else if (level.equals(Level.WARNING)) {
+				return LogService.LOG_WARNING;
+			} else if (level.equals(Level.INFO)) {
+				return LogService.LOG_INFO;
+			} else if (
+				level.equals(Level.FINE) || 
+				level.equals(Level.FINER) || 
+				level.equals(Level.FINEST)
+			) { 
+				return LogService.LOG_DEBUG;
+			} else {
+				return LogService.LOG_DEBUG;
 			}
 		}
 
 		public String getMessage() {
-			return this.log4jevent.getMessage().toString();
+			return this.logRecord.getMessage();
 		}
 
 		public ServiceReference getServiceReference() {
@@ -155,11 +146,11 @@ public class LogReaderLog4j implements ILogReader {
 		}
 
 		public long getTime() {
-			return this.log4jevent.timeStamp;
+			return this.logRecord.getMillis();
 		}
 
 		public String getLoggerName() {
-			return this.log4jevent.getLoggerName();
+			return this.logRecord.getLoggerName();
 		}
 
 	}

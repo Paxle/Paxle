@@ -5,7 +5,7 @@
 	<groupId>org.paxle.tools</groupId>
 	<artifactId>ToolsLogging</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Tools: Logging</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 	<!-- Parent Project -->
