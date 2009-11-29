@@ -15,7 +15,7 @@ package org.paxle.core.doc.impl;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -57,7 +57,7 @@ public class BasicCommandProfile implements ICommandProfile {
 	/**
 	 * Other properties, e.g. special properties for command-filters
 	 */
-	protected Map<String, Serializable> properties = Collections.emptyMap();
+	protected Map<String, Serializable> properties = new HashMap<String, Serializable>();
 	
     public int getOID(){ 
     	return _oid; 
@@ -106,7 +106,7 @@ public class BasicCommandProfile implements ICommandProfile {
 	}
 
 	public void setProperties(Map<String, Serializable> props) {
-		if (props == null) props = Collections.emptyMap();
+		if (props == null) props = new HashMap<String, Serializable>();
 		this.properties = props;
 	}		
 	
