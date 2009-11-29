@@ -41,14 +41,21 @@ import org.paxle.core.filter.IFilterContext;
 )
 public class AscendingPathUrlExtractionFilter implements IFilter<ICommand> {
 
+	/**
+	 * For logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
 	public void filter(ICommand command, IFilterContext filterContext) {
 		
-		String url = command.getLocation().toASCIIString();
-		IParserDocument doc = command.getParserDocument();
+		final String url = command.getLocation().toASCIIString();
+		
+		final IParserDocument doc = command.getParserDocument();		
 		if (doc == null) {
-			logger.warn("ParserDocument is null");
+			logger.warn(String.format(
+				"Unable to process command '%s'. ParserDocument is null",
+				command.getLocation()
+			));
 			return;
 		}
 		
@@ -82,7 +89,10 @@ public class AscendingPathUrlExtractionFilter implements IFilter<ICommand> {
 				append_fields++;
 			}
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
+			logger.error(String.format(
+				"Error while processing command '%s'.", 
+				command.getLocation()
+			),e);
 		}
 	}
 }
