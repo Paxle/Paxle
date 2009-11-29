@@ -125,6 +125,13 @@
 		</td>
 		<td class="descriptionText">${text.cmdprofile.filterMime.desc}</td>
 	</tr>
+	
+	<!-- Other properties -->	
+	<tr>
+		<td>${text.cmdprofile.miscProps.name}</td>
+		<td><textarea name="miscProperties" cols="50"></textarea></td>
+		<td>${text.cmdprofile.miscProps.desc}</td>
+	</tr>
 	</table>
 </fieldset>
 #else

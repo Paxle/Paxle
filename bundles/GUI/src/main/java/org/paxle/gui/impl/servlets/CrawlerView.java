@@ -264,6 +264,23 @@ public class CrawlerView extends ALayoutServlet {
 		profile.setLinkFilterExpression(filterExpression);
 	}
 	
+	private void setMiscProperties(HttpServletRequest request, final ICommandProfile profile) {
+		final String miscProperties = request.getParameter("miscProperties");
+		if (miscProperties != null) {
+			String[] lines = miscProperties.split("(\r)\n");
+			if (lines != null && lines.length > 0) {
+				for (String line : lines) {
+					String[] parts = line.split("=");
+					if (parts != null && parts.length == 2) {
+						final String propertyName = parts[0].trim();
+						final String propertyValue = parts[1].trim();
+						profile.setProperty(propertyName, propertyValue);
+					}
+				}
+			}
+		}
+	}
+	
 	private ICommandProfile createProfile(HttpServletRequest request, Context context) throws IOException {
 		// getting the service manager
 		final IServiceManager sm = (IServiceManager)context.get(IServiceManager.SERVICE_MANAGER);
@@ -278,6 +295,7 @@ public class CrawlerView extends ALayoutServlet {
 		this.setProfileDepth(request, profile);
 		this.setProfileName(request, profile);
 		this.setProfileLinkFilterMode(request, profile);
+		this.setMiscProperties(request, profile);
 		
 		// store it into the profile-db
 		pm.storeProfile(profile);

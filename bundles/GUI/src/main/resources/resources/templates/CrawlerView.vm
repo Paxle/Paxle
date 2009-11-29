@@ -72,7 +72,7 @@
 <fieldset id="dsinglecrawl">
 	<legend>${text.dsinglecrawl.legend}</legend>	
 		<p>
-			<input type="text" id="startURL" name="startURL" value="http://" />
+			<input type="text" id="startURL" name="startURL" size="50" value="http:&#47;&#47;" />
 			<input type="submit" name="crawlSingle" value="${text.dsinglecrawl.btn.startCrawl}" />
 		</p>
 </fieldset>
