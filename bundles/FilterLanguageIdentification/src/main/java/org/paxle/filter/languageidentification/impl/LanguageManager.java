@@ -118,8 +118,6 @@ public class LanguageManager implements IFilter<ICommand> {
 	 * Inserts the ISO 639-1 code of the primary document language into the parser- and recursively all subparser docs
 	 */
 	public void filter(ICommand command, IFilterContext context) {
-		if (command == null) throw new NullPointerException("The command object is null.");
-
 		if (command.getResult() != ICommand.Result.Passed) {
 			logger.debug("Command didn't pass, aborting language detection.");
 			return;

@@ -59,8 +59,7 @@ public class GraphFilter implements IFilter<ICommand> {
 	private LRUMap domainRelations=new LRUMap(5000);
 	
 	public void filter(ICommand command, IFilterContext context) {
-		if (command == null) throw new NullPointerException("The command object is null.");
-		else if (command.getResult() != ICommand.Result.Passed) return;
+		if (command.getResult() != ICommand.Result.Passed) return;
 		
 		try {
 			// getting the domain name of the location

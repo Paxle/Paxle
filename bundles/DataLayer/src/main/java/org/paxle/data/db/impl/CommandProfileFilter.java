@@ -93,8 +93,6 @@ public class CommandProfileFilter implements IFilter<ICommand> {
 	}
 
 	public void filter(ICommand command, IFilterContext context) {
-		if (command == null) throw new NullPointerException("The command object is null.");
-
 		try {
 			// getting the command profile id
 			int profileID = command.getProfileOID();

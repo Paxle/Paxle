@@ -108,8 +108,7 @@ public class PlaintextDumperFilter implements IFilter<ICommand> {
 	}
 
 	public void filter(ICommand command, IFilterContext context) {
-		if (command == null) throw new NullPointerException("The command object is null.");
-		if (command.getResult() != ICommand.Result.Passed) return;
+		if (command.getResult() != ICommand.Result.Passed) return;		
 		IParserDocument pdoc = command.getParserDocument();
 		if (pdoc == null) return;
 

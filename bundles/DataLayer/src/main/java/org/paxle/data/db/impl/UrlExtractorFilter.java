@@ -119,8 +119,6 @@ public class UrlExtractorFilter implements IFilter<ICommand>, IDataProvider<URIQ
 	 * @see IFilter#filter(Object, IFilterContext)
 	 */
 	public void filter(ICommand command, IFilterContext context) {
-		if (command == null) return;
-		
 		// getting the parser-doc
 		IParserDocument parserDoc = command.getParserDocument();
 		if (parserDoc == null) return;
