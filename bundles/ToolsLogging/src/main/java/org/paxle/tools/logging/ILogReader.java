@@ -19,4 +19,5 @@ public interface ILogReader {
 	public static final String SERVLET_PID = "servlet.pid";
 	
 	public ILogData getLogData();
+	public void clear();
 }

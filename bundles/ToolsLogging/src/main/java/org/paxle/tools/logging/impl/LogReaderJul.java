@@ -19,9 +19,6 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.apache.commons.collections.Buffer;
-import org.apache.commons.collections.BufferUtils;
-import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -29,7 +26,6 @@ import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
-import org.paxle.tools.logging.ILogData;
 import org.paxle.tools.logging.ILogDataEntry;
 import org.paxle.tools.logging.ILogReader;
 
@@ -38,16 +34,8 @@ import org.paxle.tools.logging.ILogReader;
 @Properties({
 	@Property(name=ILogReader.TYPE, value="java.util.logging", propertyPrivate = true)
 })
-public class LogReaderJul implements ILogReader {
+public class LogReaderJul extends ALogReader implements ILogReader {
 	private static final long serialVersionUID = 1L;
-
-	@Property(intValue = 200)
-	public static final String BUFFER_SIZE = "bufferSize";
-	
-	/**
-	 * A internal buffer for logging-messages
-	 */
-	Buffer fifo = null;
 
 	/**
 	 * A in-memory java.logging handler
@@ -55,12 +43,7 @@ public class LogReaderJul implements ILogReader {
 	protected JulHandler handler;
 	
 	protected void activate(Map<String, Object> props) {
-		// configuring the buffer
-		Integer bufferSize = Integer.valueOf(200);
-		if (props.containsKey(BUFFER_SIZE)) {
-			bufferSize = (Integer) props.get(BUFFER_SIZE);
-		}
-		this.fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(bufferSize));
+		super.activate(props);
 		
 		// getting the root logger
 		Logger rootLogger = Logger.getLogger("");
@@ -78,15 +61,9 @@ public class LogReaderJul implements ILogReader {
 		rootLogger.removeHandler(this.handler);
 		this.handler = null;
 		
-		// clear messages
-		this.fifo.clear();
-		this.fifo = null;
+		// cleanup
+		super.deactivate();
 	}
-	
-	@SuppressWarnings("unchecked")
-	public ILogData getLogData() {
-		return new LogData(this.fifo);
-	}	
 	
 	private class JulHandler extends Handler {
 		@Override

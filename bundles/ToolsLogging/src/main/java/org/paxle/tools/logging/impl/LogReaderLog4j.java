@@ -15,9 +15,6 @@ package org.paxle.tools.logging.impl;
 
 import java.util.Map;
 
-import org.apache.commons.collections.Buffer;
-import org.apache.commons.collections.BufferUtils;
-import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -30,7 +27,6 @@ import org.apache.log4j.spi.ThrowableInformation;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
-import org.paxle.tools.logging.ILogData;
 import org.paxle.tools.logging.ILogDataEntry;
 import org.paxle.tools.logging.ILogReader;
 
@@ -40,16 +36,8 @@ import org.paxle.tools.logging.ILogReader;
 	@Property(name=ILogReader.TYPE, value="log4j", propertyPrivate=true),
 	@Property(name=ILogReader.SERVLET_PID, value="org.paxle.tools.logging.impl.gui.Log4jView", propertyPrivate=true)
 })
-public class LogReaderLog4j implements ILogReader {
+public class LogReaderLog4j extends ALogReader implements ILogReader {
 	private static final long serialVersionUID = 1L;
-	
-	@Property(intValue = 200)
-	public static final String BUFFER_SIZE = "bufferSize";
-	
-	/**
-	 * A internal buffer for logging-messages
-	 */
-	Buffer fifo = null;
 
 	/**
 	 * A in-memory log4j appender
@@ -57,12 +45,7 @@ public class LogReaderLog4j implements ILogReader {
 	protected Log4jAppender appender;
 	
 	protected void activate(Map<String, Object> props) {
-		// configuring the buffer
-		Integer bufferSize = Integer.valueOf(200);
-		if (props.containsKey(BUFFER_SIZE)) {
-			bufferSize = (Integer) props.get(BUFFER_SIZE);
-		}
-		this.fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(bufferSize));		
+		super.activate(props);
 		
 		// getting the Log4j root logger
 		Logger rootLogger = Logger.getRootLogger();
@@ -80,14 +63,9 @@ public class LogReaderLog4j implements ILogReader {
 		rootLogger.removeAppender(this.appender);
 		this.appender = null;
 		
-		// clear messages
-		this.fifo.clear();
+		// cleanup
+		super.deactivate();
 	}
-	
-	@SuppressWarnings("unchecked")
-	public ILogData getLogData() {
-		return new LogData(this.fifo);
-	}	
 	
 	private class Log4jAppender extends AppenderSkeleton {
 		@SuppressWarnings("unchecked")
