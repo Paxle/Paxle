@@ -290,9 +290,11 @@ public class ParserTestServlet extends ALayoutServlet {
 	    		
 	    		// cleanup the parser-doc temp-file
 	    		final IParserDocument pDoc = cmd.getParserDocument();
-	    		final File pDocContentFile = pDoc.getTextFile();
-	    		if (pDocContentFile != null) {
-	    			this.tfm.releaseTempFile(pDocContentFile);
+	    		if (pDoc != null) {
+		    		final File pDocContentFile = pDoc.getTextFile();
+		    		if (pDocContentFile != null) {
+		    			this.tfm.releaseTempFile(pDocContentFile);
+		    		}
 	    		}
 	    	}
     	} catch (Throwable e) {
@@ -322,17 +324,19 @@ public class ParserTestServlet extends ALayoutServlet {
     	
     	// getting the pdoc Reader
     	final Reader pDocReader = pDoc.getTextAsReader();
-    	
-    	// creating a line iterator
-    	LineIterator lineIter = new ParserTestLineIterator(pDocReader);
-    	
-    	// remembering itarators (required for cleanup)
-    	@SuppressWarnings("unchecked")
-    	final List<LineIterator> iterators = (List<LineIterator>) request.getAttribute(REQ_ATTR_LINEITERS);
-    	iterators.add(lineIter);
-    	
-    	// creating a line iterator
-    	return lineIter;
+    	if (pDocReader == null) {	    	
+	    	// creating a line iterator
+	    	final LineIterator lineIter = new ParserTestLineIterator(pDocReader);
+	    
+	    	// remembering itarators (required for cleanup)
+	    	@SuppressWarnings("unchecked")
+	    	final List<LineIterator> iterators = (List<LineIterator>) request.getAttribute(REQ_ATTR_LINEITERS);
+	    	iterators.add(lineIter);
+	    	
+	    	// creating a line iterator
+	    	return lineIter;
+    	}
+    	return null;
     }
 	
 	class ParserTestLineIterator extends LineIterator {

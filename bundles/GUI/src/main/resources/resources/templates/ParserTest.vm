@@ -105,10 +105,13 @@
 	<fieldset>
 		<legend>Document Content</legend>
 
-    	<ol>
-    	#foreach($line in $servlet.readLines($request,$pDoc))
-			<li>&nbsp;<tt>$line</tt></li>
+    	#set($lines = $servlet.readLines($request,$pDoc))
+    	#if($lines)
+	    	<ol>
+	    	#foreach($line in $lines)
+				<li>&nbsp;<tt>$line</tt></li>
+	    	#end
+	    	</ol>
     	#end
-    	</ol>
 	</fieldset>
 #end
