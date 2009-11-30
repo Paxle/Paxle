@@ -229,7 +229,7 @@
 				<plugin>
 					<groupId>org.bluestemsoftware.open.maven.plugin</groupId>
 					<artifactId>launch4j-plugin</artifactId>
-					<version>1.0.0.2</version>
+					<version>1.0.0.3</version>
 				</plugin>		
 	    	</plugins>
 	    </pluginManagement>
@@ -1085,7 +1085,8 @@
 								</goals>
 								<configuration>
 									<headerType>gui</headerType>
-									<stayAlive>true</stayAlive>									
+									<stayAlive>true</stayAlive>
+									<dontWrapJar>true</dontWrapJar>
 									<jar>${equinox.dependencies}/${equinox.runtime.jar}</jar>
 									<outfile>${equinox.dependencies}/start.exe</outfile>
 									<cmdLine></cmdLine>
