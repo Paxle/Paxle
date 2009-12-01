@@ -13,7 +13,6 @@
  */
 package org.paxle.se.index.lucene.impl;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +22,7 @@ import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.util.Version;
+
 /**
  * Filters a tokenizer, e.g. for stopwords
  * 
@@ -36,6 +36,10 @@ public class PaxleAnalyzer extends StandardAnalyzer {
 			return new HashMap<String, TokenCounter>();
 		}
 	};
+	
+	public PaxleAnalyzer() {
+		super(Version.LUCENE_29);
+	}
 	
 	public PaxleAnalyzer(Set<String> stopWords) {
 		super(Version.LUCENE_29,stopWords);

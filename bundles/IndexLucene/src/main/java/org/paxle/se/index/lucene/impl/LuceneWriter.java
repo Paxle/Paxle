@@ -14,6 +14,7 @@
 package org.paxle.se.index.lucene.impl;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,6 +30,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.doc.Field;
@@ -261,14 +264,13 @@ public class LuceneWriter extends Thread implements IIndexWriter, IDataConsumer<
 	public void mergeIndex(String pathToIndex) {
 		IndexReader [] readers = new IndexReader[1];
 		try {
-			readers[0] = IndexReader.open(pathToIndex);
+			final Directory dir = FSDirectory.open(new File(pathToIndex));
+			readers[0] = IndexReader.open(dir, true);
 			this.manager.addIndexes(readers);
 		} catch (CorruptIndexException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			this.logger.error(e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			this.logger.error(e);
 		}
 	}
 }

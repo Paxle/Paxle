@@ -94,6 +94,8 @@ public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager
 	
 	protected String fullPath;
 	
+	protected File dataPath;
+	
 	protected IndexWriter writer;
 
 	protected IndexReader reader;
@@ -121,6 +123,8 @@ public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager
 		// the path were the data should be stored
 		//TO-DO: check props for null
 		this.fullPath = System.getProperty("paxle.data") + File.separatorChar + props.get("dataPath");
+		this.dataPath = new File(this.fullPath);
+		
 		final File writeLock = new File(this.fullPath, "write.lock");
 		if (writeLock.exists()) {
 			logger.warn(
@@ -134,7 +138,7 @@ public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager
 		writeLock.deleteOnExit();
 		
 		// opening index-reader and -writer
-		final Directory dir = FSDirectory.getDirectory(fullPath);
+		final Directory dir = FSDirectory.open(this.dataPath);
 		this.writer = new IndexWriter(dir, analyzer, MaxFieldLength.UNLIMITED);
 		this.reader = IndexReader.open(dir, true);		// open a read-only index, deletions are performed by the writer
 				

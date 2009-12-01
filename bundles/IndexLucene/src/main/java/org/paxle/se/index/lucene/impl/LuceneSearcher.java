@@ -29,10 +29,11 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Services;
 import org.apache.lucene.LucenePackage;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.util.Version;
 import org.osgi.framework.Constants;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.StatusVariable;
@@ -100,6 +101,9 @@ public class LuceneSearcher implements IIndexSearcher, ISearchProvider, Monitora
 	@Reference
 	protected ISnippetFetcher snippetFetcher;
 	
+	@Reference
+	protected IStopwordsManager stopWordsManager;
+	
 	private final LuceneQueryFactory ltf = new LuceneQueryFactory(IIndexerDocument.TEXT, IIndexerDocument.TITLE);	
 	
 	protected void activate(Map<String, Object> props) {
@@ -116,7 +120,8 @@ public class LuceneSearcher implements IIndexSearcher, ISearchProvider, Monitora
 		final long timeout = searchRequest.getTimeout();        // the search timeout
 		final int maxCount = searchRequest.getMaxResultCount(); // max amount of items to return 
 		
-		final QueryParser queryParser = new QueryParser(null, new StandardAnalyzer());
+		final Analyzer analyzer = this.stopWordsManager.getDefaultAnalyzer();
+		final QueryParser queryParser = new QueryParser(Version.LUCENE_29, null, analyzer);
 		final Query query;
 		final String queryString = ltf.transformToken(request);
 		logger.debug("transformed query string: " + queryString);

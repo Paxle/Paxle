@@ -17,9 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.commons.io.FileUtils;
@@ -27,64 +25,33 @@ import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
-import org.jmock.integration.junit3.MockObjectTestCase;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.ICommandTracker;
-import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.impl.BasicCommand;
-import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.se.index.IIndexWriter;
 
-public class LuceneWriterTest extends MockObjectTestCase {
-	/**
-	 * Path were the test-db should be stored
-	 */
-	private static final String dbPath = "target/lucene-db";
+public class LuceneWriterTest extends ALuceneTest {
 	
 	private ICommandTracker cmdTracker;	
 	private ArrayBlockingQueue<ICommand> queue = null;
 	private IDataSource<ICommand> dataSource = null;
 	
-	private IDocumentFactory docFactory = null;
-	private StopwordsManager stopwordsManager = null;
-	private AFlushableLuceneManager lmanager = null;
 	private LuceneWriter writer = null;
-	
-
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
+		// a dummy indexer-input-queue
 		this.queue = new ArrayBlockingQueue<ICommand>(5);
 		this.dataSource = new DummySource();
-
-		// some required system-properties
-		System.setProperty("paxle.data", dbPath);
 		
 		// create a dummy command tracker
 		this.cmdTracker = mock(ICommandTracker.class);		
 		
-		// init the doc-factory
-		this.docFactory = new BasicDocumentFactory();
-		
-		// init stopwordsmanager
-		this.stopwordsManager = new StopwordsManager(){{
-			initStopWords(StopwordsManagerTest.getStopwordsFiles());
-		}};		
-		
-		// init lucene manager
-		final Map<String, Object> props = new HashMap<String, Object>();
-		props.put("dataPath", "lucene-db");
-		this.lmanager = new AFlushableLuceneManager() {{
-			this.docFactory = LuceneWriterTest.this.docFactory;
-			this.stopWordsManager = LuceneWriterTest.this.stopwordsManager;
-			this.activate(props);
-		}};
-		assertEquals(0, this.lmanager.getDocCount());
-		
+		// create an index writer
 		this.writer = new LuceneWriter() {{
 			this.manager = lmanager;
 			this.stopwordsManager = LuceneWriterTest.this.stopwordsManager;
@@ -103,7 +70,7 @@ public class LuceneWriterTest extends MockObjectTestCase {
 		this.writer.deactivate();
 		
 		// delete files
-		FileUtils.deleteDirectory(new File(LuceneWriterTest.dbPath));
+		FileUtils.deleteDirectory(new File(LuceneWriterTest.DATA_PATH));
 	}	
 	
 	/**
@@ -169,6 +136,8 @@ public class LuceneWriterTest extends MockObjectTestCase {
 	}
 	
 	public void testIndexDocument() throws InterruptedException, IOException {
+		assertEquals(0, this.lmanager.getDocCount());
+		
 		// creating a test command
 		final ICommand testCmd = this.createTestCommand();
 		
