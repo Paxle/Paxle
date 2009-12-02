@@ -13,6 +13,8 @@
  */
 package org.paxle.se.search;
 
+import javax.annotation.Nonnull;
+
 import org.paxle.se.search.impl.SearchProviderContextLocal;
 
 /**
@@ -25,7 +27,7 @@ public class SearchProviderContext {
 		context = threadLocal;
 	}
 	
-	public static ISearchProviderContext getCurrentContext() {
+	public static @Nonnull ISearchProviderContext getCurrentContext() {
 		return context.get();		
 	}	
 	

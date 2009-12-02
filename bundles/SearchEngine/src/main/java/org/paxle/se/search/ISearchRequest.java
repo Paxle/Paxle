@@ -15,6 +15,9 @@ package org.paxle.se.search;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.osgi.framework.Constants;
 import org.paxle.se.query.tokens.AToken;
 
@@ -33,7 +36,7 @@ public interface ISearchRequest {
 	/**
 	 * @return the {@link Constants#SERVICE_PID IDs} of all {@link ISearchProvider providers} that have processed the search request
 	 */
-	public List<String> getProviderIDs();
+	public @Nonnull List<String> getProviderIDs();
 	
 	/**
 	 * This function can be used to restrict the {@link ISearchProvider providers} that should be used to
@@ -42,5 +45,5 @@ public interface ISearchRequest {
 	 * @param providerIDs the {@link Constants#SERVICE_PID IDs} of all providers that should be used to process the search request.
 	 * If the list is empty or <code>null</code> all providers registered to the system are used.
 	 */
-	public void setProviderIDs(List<String> providerIDs);	
+	public void setProviderIDs(@Nullable List<String> providerIDs);	
 }

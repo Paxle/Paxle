@@ -16,6 +16,8 @@ package org.paxle.se.search;
 import java.io.IOException;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import org.paxle.core.doc.IIndexerDocument;
 
 public interface ISearchProvider {
@@ -26,5 +28,5 @@ public interface ISearchProvider {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public void search(ISearchRequest request, List<IIndexerDocument> results) throws IOException, InterruptedException;
+	public void search(@Nonnull ISearchRequest request, @Nonnull List<IIndexerDocument> results) throws IOException, InterruptedException;
 }
