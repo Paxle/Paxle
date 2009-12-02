@@ -115,9 +115,10 @@ public class StopwordsManager implements IStopwordsManager {
 	 * Returns a very simple analyzer for English stopwords.
 	 * The stopwords are builtin!
 	 */
+	@SuppressWarnings("unchecked")
 	public PaxleAnalyzer getDefaultAnalyzer() {
 		if (defaultAnalyzer == null)
-			defaultAnalyzer = new PaxleAnalyzer(StopAnalyzer.ENGLISH_STOP_WORDS);
+			defaultAnalyzer = new PaxleAnalyzer(StopAnalyzer.ENGLISH_STOP_WORDS_SET);
 		return defaultAnalyzer;
 	}
 
