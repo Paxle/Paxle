@@ -50,7 +50,9 @@
 							<!-- Logging framework -->
 							org.apache.commons.logging,
 							<!-- Paxle Core Bundle -->
-							org.paxle.core.doc;version="[0.1.0,0.2.0)"
+							org.paxle.core.doc;version="[0.1.0,0.2.0)",
+							<!-- ignoring compile time annotations -->
+							!javax.annotation
 						</Import-Package>
 						<Private-Package>
 							org.paxle.se.index.impl, 
