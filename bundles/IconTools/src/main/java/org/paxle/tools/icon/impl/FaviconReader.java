@@ -12,7 +12,7 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-package org.paxle.icon.impl;
+package org.paxle.tools.icon.impl;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;

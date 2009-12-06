@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.icon.impl;
+package org.paxle.tools.icon.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,8 +29,8 @@ import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.paxle.icon.IIconData;
-import org.paxle.icon.IIconTool;
+import org.paxle.tools.icon.IIconData;
+import org.paxle.tools.icon.IIconTool;
 
 @Component(metatype=false, immediate=true)
 @Service(Servlet.class)

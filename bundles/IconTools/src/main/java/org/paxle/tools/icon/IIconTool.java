@@ -11,28 +11,19 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.icon.impl;
+package org.paxle.tools.icon;
 
-import org.paxle.icon.IIconData;
+import java.net.URL;
 
-public class IconData implements IIconData {
-	private String mimeType = "image/png";
-	private byte[] data = null;
-	
-	public IconData(byte[] data) {
-		this.data = data;
-	}
-	
-	public IconData(String mimeType, byte[] data) {
-		this.mimeType = mimeType;
-		this.data = data;
-	}
-	
-	public byte[] getData() {
-		return this.data;
-	}
-	
-	public String getMimeType() {
-		return this.mimeType;
-	}
+import javax.annotation.Nullable;
+
+public interface IIconTool {
+	/**
+	 * Loads the favicon for the given http-resource. If no favicon can be found,
+	 * an icon is loaded using the icon-map
+	 * 
+	 * @param url the location of the resource, for which the favicon should be loaded
+	 * @return the loaded image data.
+	 */
+	public @Nullable IIconData getIcon(@Nullable URL url);
 }
