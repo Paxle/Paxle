@@ -3,11 +3,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.paxle</groupId>
-	<artifactId>IPLocatorTools</artifactId>
+	<groupId>org.paxle.tools</groupId>
+	<artifactId>ToolsIPLocator</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.3-SNAPSHOT</version>
-	<name>Paxle - IPLocatorTool</name>
+	<name>Paxle - Tools: IPLocator</name>
 	<url>http://wiki.paxle.net/dev/bundles/IPLocatorTool</url>
 
 	<!-- Parent Project -->
@@ -34,7 +34,7 @@
 				<configuration>
 					<instructions>
 						<Export-Package>
-							org.paxle.iplocator;version="${pom.version}"
+							org.paxle.tools.iplocator;version="${pom.version}"
 						</Export-Package>
 						<Import-Package>
 							<!-- OSGi framework -->
@@ -51,7 +51,7 @@
 							javax.swing
 						</DynamicImport-Package>
 						<Private-Package>
-							org.paxle.iplocator.impl
+							org.paxle.tools.iplocator.impl
 						</Private-Package>
 
 						<!-- embedding libs -->

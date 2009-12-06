@@ -21,7 +21,7 @@ import net.sf.javainetlocator.InetAddressLocatorException;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
-import org.paxle.iplocator.ILocatorTool;
+import org.paxle.tools.iplocator.ILocatorTool;
 
 @Component(immediate=true, metatype=false)
 @Service(ILocatorTool.class)

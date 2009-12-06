@@ -171,7 +171,13 @@
                         <tag>@deprecated</tag>						
 					</tags>
 				</configuration>
-			</plugin>			
+			</plugin>
+			<!--
+			<plugin>
+				<groupId>com.googlecode.maven-overview-plugin</groupId>
+				<artifactId>maven-overview-plugin</artifactId>
+			</plugin>
+			-->
 		</plugins>
 	</reporting>
 
@@ -913,7 +919,7 @@
 				<!-- GUI Addons -->
 				<module>../GuiOpenID</module>
 				<module>../IconTools</module>
-				<module>../IPLocatorTools</module>
+				<module>../ToolsIPLocator</module>
 
 				<!-- Optional SE bundles -->				
 

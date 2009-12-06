@@ -16,7 +16,7 @@ package org.paxle.iplocator.impl;
 import java.io.InputStream;
 import java.util.Locale;
 
-import org.paxle.iplocator.ILocatorTool;
+import org.paxle.tools.iplocator.ILocatorTool;
 
 import junit.framework.TestCase;
 
