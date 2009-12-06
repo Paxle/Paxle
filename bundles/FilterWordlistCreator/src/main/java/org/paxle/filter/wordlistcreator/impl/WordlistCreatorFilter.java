@@ -31,7 +31,7 @@ import org.paxle.filter.wordlistcreator.ITokenManager;
 @Component(immediate=true, metatype=true, label="FilterWordlistCreator")
 @Service(IFilter.class)
 @FilterTarget(@FilterQueuePosition(
-		queue = "org.paxle.parser.out", 
+		queueId = FilterQueuePosition.PARSER_OUT, 
 		position = 200,
 		enabled = true
 ))
