@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>GUI</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.22-SNAPSHOT</version>
+	<version>0.1.23-SNAPSHOT</version>
 	<name>Paxle - UI: Browser</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -107,26 +107,14 @@
 							org.paxle.se.query;version="[0.1.0,0.2.0)";resolution:=optional,
 							<!-- Paxle DataLayer Bundle -->
 							org.paxle.data.db;version="[0.1.0,0.2.0)";resolution:=optional,
-							<!-- JFreeCharts -->
-							org.jfree.ui;resolution:=optional,
-							org.jfree.chart;resolution:=optional,
-							org.jfree.chart.renderer;resolution:=optional,
-							org.jfree.chart.renderer.xy;resolution:=optional,
-							org.jfree.chart.plot;resolution:=optional,
-							org.jfree.chart.servlet;resolution:=optional,
-							org.jfree.chart.axis;resolution:=optional,
-							org.jfree.data.xy;resolution:=optional,
-							org.jfree.data.time;resolution:=optional,
 							<!-- Other Java classes -->
 							javax.xml,
 							javax.xml.*,
+							javax.imageio,
+							javax.imageio.*,
 							org.xml.sax,
 							org.xml.sax.*,
 							org.apache.velocity.*,
-							org.paxle.gui;
-							org.paxle.gui.*;
-							javax.imageio,
-							javax.imageio.*,
 							<!-- ignore others -->
 							!*
 						</Import-Package>
@@ -317,20 +305,6 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
-		</dependency>
-		
-		<!-- JFreeChart dependencies -->
-		<dependency>
-			<groupId>org.jfree.chart</groupId>
-			<artifactId>com.springsource.org.jfree.chart</artifactId>
-			<version>1.0.9</version>
-			<optional>true</optional>
-		</dependency>		
-		<dependency>
-			<groupId>org.jfree</groupId>
-			<artifactId>com.springsource.org.jfree</artifactId>
-			<version>1.0.12</version>
-			<optional>true</optional>
 		</dependency>
 
 		<!-- 

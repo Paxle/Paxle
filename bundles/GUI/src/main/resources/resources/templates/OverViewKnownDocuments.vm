@@ -22,8 +22,8 @@
 <fieldset class="infobox">
 	<legend class="ovDatabase">${text.legend.ovDatabase}</legend>
 	#if($servletManager.hasServlet('/chart'))
-		<a href="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.ChartServlet')}?display=embedded&amp;t=index">
-			<img class="chart" id="ovDatabaseChart" src="${servletManager.getFullServletPath('org.paxle.gui.impl.servlets.ChartServlet')}?t=index&amp;w=385&amp;h=200&amp;d=${dateTool.get('yyyy-M-dH:m')}" height="200" width="385" alt="${text.chart.ovDatabase.alt}"/>
+		<a href="${servletManager.getFullServletPath('org.paxle.tools.charts.impl.gui.ChartServlet')}?display=embedded&amp;t=index">
+			<img class="chart" id="ovDatabaseChart" src="${servletManager.getFullServletPath('org.paxle.tools.charts.impl.gui.ChartServlet')}?t=index&amp;w=385&amp;h=200&amp;d=${dateTool.get('yyyy-M-dH:m')}" height="200" width="385" alt="${text.chart.ovDatabase.alt}"/>
 		</a>
 	#end
 	<table>
