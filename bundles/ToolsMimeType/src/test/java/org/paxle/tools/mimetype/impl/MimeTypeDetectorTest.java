@@ -11,11 +11,12 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.mimetype.impl;
+package org.paxle.tools.mimetype.impl;
 
 import java.io.File;
 
 import org.jmock.integration.junit3.MockObjectTestCase;
+import org.paxle.tools.mimetype.impl.MimeTypeDetector;
 
 public class MimeTypeDetectorTest extends MockObjectTestCase {
 	private static final int TESTFILE_NAME = 0;

@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.mimetype.impl;
+package org.paxle.tools.mimetype.impl;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -37,7 +37,7 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.ServiceReference;
 import org.paxle.core.mimetype.IMimeTypeDetector;
-import org.paxle.mimetype.IDetectionHelper;
+import org.paxle.tools.mimetype.IDetectionHelper;
 
 @Component
 @Service(IMimeTypeDetector.class)

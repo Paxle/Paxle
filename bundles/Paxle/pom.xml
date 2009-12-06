@@ -1322,8 +1322,8 @@
 		<module>../IndexLucene</module>
 
 		<!-- some tools -->
-		<module>../CharsetDetector</module>
-		<module>../MimeType</module>
+		<module>../ToolsCharsetDetector</module>
+		<module>../ToolsMimeType</module>
 		<module>../ToolsIExport</module>
 		<module>../ToolsSysMon</module>
 		<module>../ToolsLogging</module>

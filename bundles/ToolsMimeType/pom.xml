@@ -3,10 +3,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.paxle</groupId>
-	<artifactId>MimeType</artifactId>
+	<groupId>org.paxle.tools</groupId>
+	<artifactId>ToolsMimeType</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.3-SNAPSHOT</version>
+	<version>0.1.4-SNAPSHOT</version>
 	<name>Paxle - Tools: MimeType</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -36,9 +36,6 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						
-						<Export-Package>
-							org.paxle.mimetype;version="${pom.version}"
-						</Export-Package>
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4", 
@@ -53,7 +50,7 @@
 						</Import-Package>
 
 						<Private-Package>
-							org.paxle.mimetype.impl
+							org.paxle.tools.mimetype.impl
 						</Private-Package>
 
 						<!-- embedding libs -->

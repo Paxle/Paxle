@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.mimetype.impl;
+package org.paxle.tools.mimetype.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import net.sf.jmimemagic.MagicMatch;
 import net.sf.jmimemagic.MagicMatcher;
 import net.sf.jmimemagic.UnsupportedTypeException;
 
-import org.paxle.mimetype.IDetectionHelper;
+import org.paxle.tools.mimetype.IDetectionHelper;
 
 public class Matcher extends MagicMatcher {
 	private IDetectionHelper helper = null;

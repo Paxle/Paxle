@@ -11,101 +11,102 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.charset.impl;
+package org.paxle.tools.charset.impl;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 
 import org.mozilla.intl.chardet.nsDetector;
 import org.mozilla.intl.chardet.nsICharsetDetectionObserver;
 import org.mozilla.intl.chardet.nsPSMDetector;
-import org.paxle.core.charset.ACharsetDetectorOutputStream;
+import org.paxle.core.charset.ACharsetDetectorInputStream;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
-public class CharsetDetectorOutputStream extends ACharsetDetectorOutputStream implements nsICharsetDetectionObserver {
+public class CharsetDetectorInputStream extends ACharsetDetectorInputStream implements nsICharsetDetectionObserver {
 	
 	private final byte[] buffer = new byte[1];
 	private String charset = null;
 	private nsDetector det = null;
-	private boolean done = false;
-
-	public CharsetDetectorOutputStream(OutputStream out) {
-		super(out);
+	private boolean done = false;	
+	
+	public CharsetDetectorInputStream(InputStream in) {
+		super(in);
 		this.det = new nsDetector(nsPSMDetector.ALL);
-		this.det.Init(this);
+		this.det.Init(this);		
 	}
 	
-	@Override
-	public void write(byte[] b, int off, int len) throws IOException {
-		if (!done) {
-			final byte[] buf;
-			if (off == 0) {
-				buf = b;
-			} else {
-				buf = new byte[len];
-				System.arraycopy(b, off, buf, 0, len);
-			}
-			this.det.DoIt(buf, len, false);
-		}
-		super.write(b, off, len);
-	}
-	
-	@Override
-	public void write(byte[] b) throws IOException {
-		if (!done)
-			this.det.DoIt(b, b.length, false);
-		super.write(b);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see java.io.FilterOutputStream#write(int)
+	/**
+	 * @see FilterInputStream
 	 */
 	@Override
-	public void write(int b) throws IOException {
-		if (!done) {
+	public int read() throws IOException {
+		int b = super.read();
+		if (b != -1 && !done) {
 			buffer[0] = (byte)b;
 			this.det.DoIt(buffer, 1, false);
 		}
-		super.write(b);
-	}	
+		return b;
+	}
+	
+	/**
+	 * @see FilterInputStream
+	 */	
+	@Override
+	public int read(byte b[]) throws IOException {
+		return this.read(b, 0, b.length);
+	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.io.FilterOutputStream#close()
-	 */
+	/**
+	 * @see FilterInputStream
+	 */	
+	@Override
+	public int read(byte[] b, int off, int len) throws IOException {
+		int read = super.read(b, off, len);
+		if (read != -1 && !done) {
+			if (off != 0) {
+				byte[] write = new byte[read];
+				System.arraycopy(b, off, write, 0, read);
+				this.det.DoIt(write, read, false);
+			} else {
+				this.det.DoIt(b, read, false);
+			}
+		}
+		return read;
+	}
+
+	/**
+	 * @see FilterInputStream
+	 */	
 	@Override
 	public void close() throws IOException {	
 		super.close();
 		det.DataEnd();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.mozilla.intl.chardet.nsICharsetDetectionObserver#Notify(java.lang.String)
+	/**
+	 * @see nsICharsetDetectionObserver
 	 */
 	@SuppressWarnings("NM_METHOD_NAMING_CONVENTION")
 	public void Notify(String charset) {
 		this.charset = charset;
 		this.done = true;
 	}
-
-	/*
-	 * 	(non-Javadoc)
-	 * @see org.paxle.core.charset.ACharsetDetectorOutputStream#getCharset()
-	 */
+	
+	/**
+	 * @see nsICharsetDetectionObserver
+	 */	
 	@Override
 	public String getCharset() {
 		return charset;
 	}
-
-	/*
-	 * 	(non-Javadoc)
-	 * @see org.paxle.core.charset.ACharsetDetectorOutputStream#charsetDetected()
-	 */
+	
+	/**
+	 * @see nsICharsetDetectionObserver
+	 */	
 	@Override
 	public boolean charsetDetected() {
 		return this.done;
-	}
+	}	
 }

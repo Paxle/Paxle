@@ -37,8 +37,8 @@
 				<include>org.paxle:Indexer</include>	
 				<include>org.paxle:IndexLucene</include>			
 												
-				<include>org.paxle:CharsetDetector</include>
-				<include>org.paxle:MimeType</include>
+				<include>org.paxle.tools:ToolsCharsetDetector</include>
+				<include>org.paxle.tools:ToolsMimeType</include>
 				<include>org.paxle.tools:ToolsIExport</include>
 				<include>org.paxle.tools:ToolsSysMon</include>
 				<include>org.paxle.tools:ToolsLogging</include>

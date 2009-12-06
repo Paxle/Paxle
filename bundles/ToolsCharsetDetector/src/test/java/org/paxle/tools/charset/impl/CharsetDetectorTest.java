@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.charset.impl;
+package org.paxle.tools.charset.impl;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -20,6 +20,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
+
+import org.paxle.tools.charset.impl.CharsetDetector;
+import org.paxle.tools.charset.impl.CharsetDetectorOutputStream;
 
 import junit.framework.TestCase;
 

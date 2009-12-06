@@ -3,10 +3,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.paxle</groupId>
-	<artifactId>CharsetDetector</artifactId>
+	<groupId>org.paxle.tools</groupId>
+	<artifactId>ToolsCharsetDetector</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<name>Paxle - Tools: CharsetDetector</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -46,7 +46,7 @@
 							org.paxle.core.charset;version="[0.1.0,0.2.0)"
 						</Import-Package>
 						<Private-Package>
-							org.paxle.charset.impl
+							org.paxle.tools.charset.impl
 						</Private-Package>
 
 						<!-- embedding libs -->
