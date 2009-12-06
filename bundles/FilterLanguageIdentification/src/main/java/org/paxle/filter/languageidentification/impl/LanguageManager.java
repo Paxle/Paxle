@@ -38,7 +38,7 @@ import de.spieleck.app.cngram.NGramProfiles;
 @Component(immediate=true, metatype=true, label="FilterLanguageManager", description="A filter which determines the language of a given document")
 @Service(IFilter.class)
 @FilterTarget(@FilterQueuePosition(
-		queue = "org.paxle.parser.out", 
+		queueId = FilterQueuePosition.PARSER_OUT, 
 		position = Integer.MAX_VALUE-1000)
 )
 public class LanguageManager implements IFilter<ICommand> {

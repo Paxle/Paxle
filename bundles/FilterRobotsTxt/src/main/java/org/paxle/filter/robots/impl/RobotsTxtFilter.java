@@ -44,8 +44,8 @@ import org.paxle.filter.robots.IRobotsTxtManager;
 	@Property(name="org.paxle.metadata.localization",value="/OSGI-INF/l10n/RobotsTxtFilter")
 })
 @FilterTarget({
-	@FilterQueuePosition(queue="org.paxle.crawler.in"),
-	@FilterQueuePosition(queue="org.paxle.parser.out",position=70)
+	@FilterQueuePosition(queueId=FilterQueuePosition.CRAWLER_IN),
+	@FilterQueuePosition(queueId=FilterQueuePosition.PARSER_OUT,position=70)
 })
 public class RobotsTxtFilter implements IFilter<ICommand> {
 	

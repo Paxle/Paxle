@@ -47,8 +47,8 @@ import org.paxle.crawler.ISubCrawlerManager;
 	@Property(name="org.paxle.metadata.localization", value="/OSGI-INF/l10n/ProtocolFilter")
 })
 @FilterTarget({
-	@FilterQueuePosition(queue="org.paxle.crawler.in"),
-	@FilterQueuePosition(queue="org.paxle.parser.out")
+	@FilterQueuePosition(queueId=FilterQueuePosition.CRAWLER_IN),
+	@FilterQueuePosition(queueId=FilterQueuePosition.PARSER_OUT)
 })
 public class ProtocolFilter implements IFilter<ICommand> {
 

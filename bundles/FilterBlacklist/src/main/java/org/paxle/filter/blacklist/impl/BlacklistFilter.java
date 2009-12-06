@@ -50,8 +50,8 @@ import org.paxle.filter.blacklist.IRegexpBlacklistFilter;
 	@Property(name="org.paxle.metadata.localization", value="/OSGI-INF/l10n/BlacklistFilter")
 })
 @FilterTarget({
-	@FilterQueuePosition(queue="org.paxle.crawler.in",position=0-1),
-	@FilterQueuePosition(queue="org.paxle.parser.out",position=66)
+	@FilterQueuePosition(queueId=FilterQueuePosition.CRAWLER_IN,position=0-1),
+	@FilterQueuePosition(queueId=FilterQueuePosition.PARSER_OUT,position=66)
 })
 public class BlacklistFilter implements IRegexpBlacklistFilter {
 	private static final String PROP_ADDITIONAL_BLACKLISTS = BlacklistFilter.class.getName() + ".additionalBlacklistNames";	

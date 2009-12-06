@@ -41,7 +41,7 @@ import org.paxle.core.io.IIOTools;
 @Service(IFilter.class)
 @Property(name="dataPath", value="plaintextDumper")
 @FilterTarget(@FilterQueuePosition(
-		queue = "org.paxle.parser.out", 
+		queueId = FilterQueuePosition.PARSER_OUT, 
 		position = Integer.MAX_VALUE,
 		enabled = false
 ))

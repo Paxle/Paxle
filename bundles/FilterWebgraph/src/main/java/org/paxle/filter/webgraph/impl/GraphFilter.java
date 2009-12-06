@@ -47,7 +47,7 @@ import org.paxle.core.filter.IFilterContext;
 	@Property(name="org.paxle.metadata.localization", value="/OSGI-INF/l10n/GraphFilter")
 })
 @FilterTarget(@FilterQueuePosition(
-		queue = "org.paxle.parser.out", 
+		queueId = FilterQueuePosition.PARSER_OUT, 
 		position = 0,
 		enabled = false
 ))

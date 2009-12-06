@@ -28,7 +28,7 @@ import org.paxle.filter.forum.impl.wbb.WBBForum;
 @Component(immediate=true, metatype=false)
 @Service(IFilter.class)
 @FilterTarget(@FilterQueuePosition(
-		queue = "org.paxle.parser.out")
+		queueId = FilterQueuePosition.PARSER_OUT)
 )
 public class ForumFilter implements IFilter<ICommand> {
 	private static final Pattern PHPBB_PATTERN = Pattern.compile("Powered\\s+by\\s+<a\\s+href\\s*=\\s*[\"']http://www.phpbb.com[^>]+>.*phpBB");

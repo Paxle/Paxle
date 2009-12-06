@@ -36,7 +36,7 @@ import org.paxle.core.filter.IFilterContext;
 	@Property(name="org.paxle.metadata.localization", value="/OSGI-INF/l10n/AscendingPathUrlExtractionFilter")
 })
 @FilterTarget(@FilterQueuePosition(
-		queue = "org.paxle.parser.out", 
+		queueId = FilterQueuePosition.PARSER_OUT, 
 		position = 60)
 )
 public class AscendingPathUrlExtractionFilter implements IFilter<ICommand> {

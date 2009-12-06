@@ -40,7 +40,7 @@ import org.paxle.parser.ISubParserManager;
 	@Property(name="org.paxle.metadata.localization", value="/OSGI-INF/l10n/MimeTypeFilter")
 })
 @FilterTarget({
-	@FilterQueuePosition(queue="org.paxle.parser.in")
+	@FilterQueuePosition(queueId=FilterQueuePosition.PARSER_IN)
 })
 public class MimeTypeFilter implements IFilter<ICommand> {
 	/**

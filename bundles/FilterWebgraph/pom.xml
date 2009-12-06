@@ -5,7 +5,7 @@
 	
 	<groupId>org.paxle.filter.webgraph</groupId>
 	<artifactId>FilterWebgraph</artifactId>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>Paxle - Filter: Webgraph</name>
 	<packaging>bundle</packaging>
 
@@ -89,7 +89,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.32-SNAPSHOT,0.2.0)</version>				
+			<version>[0.1.42-SNAPSHOT,0.2.0)</version>				
 		</dependency>
 		<dependency>
 			<groupId>org.paxle</groupId>

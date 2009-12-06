@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>FilterPlaintextDumper</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.6-SNAPSHOT</version>
+	<version>0.1.7-SNAPSHOT</version>
 	<name>Paxle - Filter: PlaintextDumper</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -64,7 +64,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.32-SNAPSHOT,0.2.0)</version>			
+			<version>[0.1.42-SNAPSHOT,0.2.0)</version>			
 		</dependency>
 
 		<dependency>

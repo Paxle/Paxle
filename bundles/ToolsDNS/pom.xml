@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ToolsDNS</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.7-SNAPSHOT</version>
+	<version>0.1.8-SNAPSHOT</version>
 	<name>Paxle - Tools: DNS</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -74,7 +74,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.33-SNAPSHOT,0.2.0)</version>			
+			<version>[0.1.42-SNAPSHOT,0.2.0)</version>			
 		</dependency>
 		
 		<dependency>

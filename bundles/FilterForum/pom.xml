@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>FilterForum</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.3-SNAPSHOT</version>
 	<name>Paxle - Filter: Forum</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -59,7 +59,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
-			<version>[0.1.32-SNAPSHOT,0.2.0)</version>				
+			<version>[0.1.42-SNAPSHOT,0.2.0)</version>				
 		</dependency>	
 	</dependencies>
 </project>

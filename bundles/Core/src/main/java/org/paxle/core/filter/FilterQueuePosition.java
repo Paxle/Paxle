@@ -21,8 +21,51 @@ import java.lang.annotation.Target;
 @Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FilterQueuePosition {
+	/**
+	 * The {@link IFilterQueue input-queue} of the <code>CrawlerCore</code> {@link org.paxle.core.IMWComponent}
+	 */
+	public static final String CRAWLER_IN = "org.paxle.crawler.in";
 	
-	public String queue();
+	/**
+	 * The {@link IFilterQueue output-queue} of the <code>CrawlerCore</code> {@link org.paxle.core.IMWComponent}
+	 */	
+	public static final String CRAWLER_OUT = "org.paxle.crawler.out";
+	
+	/**
+	 * The {@link IFilterQueue input-queue} of the <code>ParserCore</code> {@link org.paxle.core.IMWComponent}
+	 */	
+	public static final String PARSER_IN = "org.paxle.parser.in";
+	
+	/**
+	 * The {@link IFilterQueue output-queue} of the <code>ParserCore</code> {@link org.paxle.core.IMWComponent}
+	 */		
+	public static final String PARSER_OUT = "org.paxle.parser.out";
+	
+	/**
+	 * The {@link IFilterQueue input-queue} of the <code>Indexer</code> {@link org.paxle.core.IMWComponent}
+	 */		
+	public static final String INDEXER_IN = "org.paxle.indexer.in";
+	
+	/**
+	 * The {@link IFilterQueue output-queue} of the <code>Indexer</code> {@link org.paxle.core.IMWComponent}
+	 */	
+	public static final String INDEXER_OUT = "org.paxle.indexer.out";
+	
+	/**
+	 * The {@link org.osgi.framework.Constants#SERVICE_PID servicePID} of the {@link IFilterQueue}
+	 * the {@link IFilter} should be applied to.
+	 * 
+	 * The default Paxle queues are:
+	 * <ul>
+	 * 	<li>{@link #CRAWLER_IN}</li>
+	 *  <li>{@link #CRAWLER_OUT}</li>
+	 *  <li>{@link #PARSER_IN}</li>
+	 *  <li>{@link #PARSER_OUT}</li>
+	 *  <li>{@link #INDEXER_IN}</li>
+	 *  <li>{@link #INDEXER_OUT}</li>
+	 * </ul>
+	 */
+	public String queueId();
 	public int position() default 0;
 	public boolean enabled() default true;
 }

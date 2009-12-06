@@ -39,11 +39,11 @@ import org.paxle.tools.dns.IAddressTool;
 @Service(IFilter.class)
 @FilterTarget({
 	@FilterQueuePosition(
-		queue = "org.paxle.crawler.in", 
+		queueId = FilterQueuePosition.CRAWLER_IN, 
 		enabled = false
 	),
 	@FilterQueuePosition(
-		queue = "org.paxle.parser.out", 
+		queueId = FilterQueuePosition.PARSER_OUT, 
 		enabled = false
 	)		
 })
