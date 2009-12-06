@@ -1,0 +1,114 @@
+#*
+ * This file is part of the Paxle project.
+ * Visit http://www.paxle.net for more information.
+ * Copyright 2007-2009 the original author or authors.
+ *
+ * Licensed under the terms of the Common Public License 1.0 ("CPL 1.0").
+ * Any use, reproduction or distribution of this program constitutes the recipient's acceptance of this agreement.
+ * The full license text is available under http://www.opensource.org/licenses/cpl1.0.txt
+ * or in the file LICENSE.txt in the root directory of the Paxle distribution.
+ *
+ * Unless required by applicable law or agreed to in writing, this software is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *#
+
+## getting resourcebundle to translate site
+#set($text = $resourceTool.bundle('OSGI-INF/l10n/chartservlet'))
+
+## Set the page title
+#set($page_title = ${text.browser.title})
+    
+## the regular content
+<h2>${text.page.title}</h2>
+
+#set($activeTab = $paramParser.getString("t",""))
+#set($displayType = $paramParser.getString("display",""))
+
+## tabs
+<ul class="tabs">
+	<li><a href="?display=all" #if($displayType!="embedded")class="active"#end>${text.tab.overview}</a></li>	
+	#foreach($chartType in $sortTool.sort($chartTypeMap))
+		<li><a href="?display=embedded&amp;t=$chartType" #if($activeTab==$chartType)class="active"#end>
+		#if($text.get("chart.title.$chartType"))
+			$text.tab.chart.insert($text.get("chart.title.$chartType"))
+		#else
+			$text.tab.chart.insert($chartType)
+		#end
+		</a></li>
+	#end
+</ul>
+
+#if($displayType == "embedded" || $displayType == "values")
+	<ul class="tabs" style="margin-top:10px; margin-left: 10px;">
+		<li><a href="?display=embedded&amp;t=$activeTab" #if($displayType=="embedded")class="active"#end>${text.subtab.chart}</a></li>
+		<li><a href="?display=values&amp;t=$activeTab" #if($displayType=="values")class="active"#end>${text.subtab.values}</a></li>
+	</ul>
+
+	<h3>#if($text.get("chart.title.$activeTab"))
+		$text.tab.chart.insert($text.get("chart.title.$activeTab"))
+	    #else
+		$text.tab.chart.insert($activeTab)
+	    #end
+	</h3>
+	
+	#if($displayType == "embedded")
+		#set($chartHeight = ${paramParser.getString('h','400')})
+		#set($chartWidth = ${paramParser.getString('h','800')})
+		<img class="chart" src="?t=$activeTab&amp;h=$chartHeight&amp;w=$chartWidth" height="$chartHeight" width="$chartWidth" />
+	#elseif($displayType == "values")
+		#set($chart = $chartMap.get($activeTab))
+		#set($plot = $chart.getPlot())
+		
+		## currently we just support XYPlots
+		#if($classTool.inspect($plot).getName() == "XYPlot")
+			#set($dataSetCount = $plot.getDatasetCount())
+
+			## loop through all datasets
+			#foreach($dataSetNr in [1..$dataSetCount])
+				#set($dataSetIdx = ${conversionTool.toInteger($dataSetNr)} - 1)
+				#set($dataSet = $plot.getDataset($dataSetIdx))
+			
+				## currently we just support TimeSeriesCollections
+				#if($classTool.inspect($dataSet).getName() == "TimeSeriesCollection")
+					#set($seriesCount = $dataSet.getSeriesCount())
+					#if($seriesCount > 0)
+					<table>
+					<tr>
+						<th>$dataSet.getSeries(0).getDomainDescription()</th>
+						#foreach ($series in $dataSet.getSeries())
+						<th>$series.getKey()</th>
+						#end
+					</tr>
+				
+					#set($periods = $chartServlet.getMergedPeriods($dataSet.getSeries()))
+					#foreach($period in $periods)
+						<tr>
+						<td>$period</td>
+						#foreach ($series in $dataSet.getSeries())
+							<td>$!series.getValue($period)</td>
+						#end
+						</tr>
+					#end
+					</table>
+					<br/>
+					#end
+				#end
+			#end
+		#end
+	#end
+#else
+	<div class="descriptionText">${text.page.desc}</div>
+	<table>
+		#foreach($chartType in $sortTool.sort($chartTypeMap))
+		<tr>
+			<td><a href="?display=embedded&amp;t=$chartType">
+				#if($text.get("chart.title.$chartType"))
+					$text.get("chart.title.$chartType")
+				#else
+					$chartType
+				#end
+			</a></td>
+		</tr>
+		#end
+	</table>
+#end

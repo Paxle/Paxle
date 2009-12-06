@@ -1321,6 +1321,7 @@
 		<module>../ToolsIExport</module>
 		<module>../ToolsSysMon</module>
 		<module>../ToolsLogging</module>
+		<module>../ToolsCharts</module>
 		
 		<!-- datalayer bundles -->
 		<module>../DataLayer</module>

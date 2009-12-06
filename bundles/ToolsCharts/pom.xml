@@ -1,0 +1,103 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.paxle.tools</groupId>
+	<artifactId>ToolsCharts</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>Paxle - Tools: Charts</name>
+	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
+	<!-- Parent Project -->
+	<parent>
+		<groupId>org.paxle</groupId>
+		<artifactId>Root</artifactId>
+		<version>0.1.1-SNAPSHOT</version>
+		<relativePath>../Root/pom.xml</relativePath>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<!-- localized bundle headers -->
+						<Bundle-Localization>OSGI-INF/l10n/bundle</Bundle-Localization>
+						<Bundle-Name>%bundleName</Bundle-Name>
+						<Bundle-Description>%bundleDesc</Bundle-Description>
+						
+						<Bundle-Category>tools</Bundle-Category>
+						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
+						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
+						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>					
+						
+						<Export-Package>
+							org.paxle.tools.charts;version="${pom.version}"
+						</Export-Package>
+						<Import-Package>
+							<!-- OSGi framework -->
+							org.osgi.framework;version="1.4",
+							org.osgi.service.component;version="1.0",
+							org.osgi.service.monitor;version="0.0",
+							org.osgi.service.event;version="1.1",
+							<!-- Logging framework(s) -->
+							org.apache.commons.logging,
+							<!-- Servlet API -->
+							javax.servlet;resolution:=optional,
+							javax.servlet.http;resolution:=optional,
+							<!-- Apache Velocity (used by Paxle GUI bundle) -->
+							org.apache.velocity;resolution:=optional, 
+							org.apache.velocity.context;resolution:=optional,
+							<!-- Paxle GUI Bundle -->
+							org.paxle.gui;version="[0.1.0,0.2.0)";resolution:=optional,
+							<!-- JFreeCharts -->
+							org.jfree.ui,
+							org.jfree.chart,
+							org.jfree.chart.renderer,
+							org.jfree.chart.renderer.xy,
+							org.jfree.chart.plot,
+							org.jfree.chart.servlet,
+							org.jfree.chart.axis,
+							org.jfree.data.xy,
+							org.jfree.data.time,
+							<!-- Other Java classes -->	
+							javax.imageio,
+							javax.imageio.*				
+						</Import-Package>
+						<Private-Package>
+							org.paxle.tools.charts.impl,
+							org.paxle.tools.charts.impl.gui
+						</Private-Package>						
+					</instructions>
+				</configuration>
+			</plugin>	
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>GUI</artifactId>
+			<version>[0.1.11,0.2.0)</version>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- JFreeChart dependencies -->
+		<dependency>
+			<groupId>org.jfree.chart</groupId>
+			<artifactId>com.springsource.org.jfree.chart</artifactId>
+			<version>1.0.9</version>
+			<optional>true</optional>
+		</dependency>		
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>com.springsource.org.jfree</artifactId>
+			<version>1.0.12</version>
+			<optional>true</optional>
+		</dependency>		
+	</dependencies>
+
+</project>
