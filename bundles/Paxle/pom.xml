@@ -918,7 +918,7 @@
 
 				<!-- GUI Addons -->
 				<module>../GuiOpenID</module>
-				<module>../IconTools</module>
+				<module>../ToolsIcon</module>
 				<module>../ToolsIPLocator</module>
 
 				<!-- Optional SE bundles -->				
