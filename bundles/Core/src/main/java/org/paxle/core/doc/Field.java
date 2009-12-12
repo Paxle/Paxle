@@ -14,6 +14,7 @@
 package org.paxle.core.doc;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -116,12 +117,21 @@ public final class Field<Type extends Serializable> implements Comparable<Field<
 		boolean tokenize = m.group(5) != null;
 		
 		try {
+			Class<?> clazz = null;
+			if (clazzName.startsWith("[L")) {
+				clazzName = clazzName.substring(2, clazzName.length()-1);
+				clazz = Thread.currentThread().getContextClassLoader().loadClass(clazzName);
+				clazz = Array.newInstance(clazz,0).getClass();
+			} else {
+				clazz = Thread.currentThread().getContextClassLoader().loadClass(clazzName);
+			}
+			
 			return new Field(
 					index,
 					savePlain,
 					tokenize,
 					name,
-					Thread.currentThread().getContextClassLoader().loadClass(clazzName)
+					clazz
 			);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
