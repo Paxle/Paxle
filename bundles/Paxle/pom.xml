@@ -146,6 +146,10 @@
 					<reportSet>
 						<id>aggregate</id>
 						<configuration>
+							<links>
+								<!-- Link to the OSGi API -->
+								<link>http://www.osgi.org/javadoc/r4v42/</link>
+							</links>
 						</configuration>
 						<reports>
 							<report>aggregate</report>
