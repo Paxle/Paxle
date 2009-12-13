@@ -11,12 +11,13 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-package org.paxle.iplocator.impl;
+package org.paxle.tools.iplocator.impl;
 
 import java.io.InputStream;
 import java.util.Locale;
 
 import org.paxle.tools.iplocator.ILocatorTool;
+import org.paxle.tools.iplocator.impl.LocatorTool;
 
 import junit.framework.TestCase;
 
