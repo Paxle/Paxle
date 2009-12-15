@@ -18,8 +18,20 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 
-import org.paxle.core.doc.ICrawlerDocument;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.doc.impl.jaxb.JaxbFactory;
+import org.paxle.core.doc.impl.jaxb.JaxbFileAdapter;
+
+@XmlRootElement(name="crawlerDocument")
+@XmlType(factoryClass=JaxbFactory.class, factoryMethod="createBasicCrawlerDocument")
 public class BasicCrawlerDocument implements ICrawlerDocument {
 	/**
 	 * Primary key required by Object-EER mapping 
@@ -39,6 +51,7 @@ public class BasicCrawlerDocument implements ICrawlerDocument {
 	protected String etag;
 	protected byte[] md5Sum = null;
 
+	@XmlAttribute(name="id")
     public int getOID(){ 
     	return _oid; 
     }
@@ -51,6 +64,7 @@ public class BasicCrawlerDocument implements ICrawlerDocument {
 		this.location = location;
 	}
 
+	@XmlElement
 	public URI getLocation() {
 		return this.location;
 	}
@@ -59,10 +73,12 @@ public class BasicCrawlerDocument implements ICrawlerDocument {
 		this.charset = charset;
 	}
 	
+	@XmlElement
 	public String getCharset() {
 		return this.charset;
 	}
 
+	@XmlTransient
 	public long getSize() {
 		return (this.content == null) ? 0 : this.content.length();
 	}
@@ -71,14 +87,27 @@ public class BasicCrawlerDocument implements ICrawlerDocument {
 		this.content = content;
 	}
 
+	@XmlElement
+	@XmlJavaTypeAdapter(JaxbFileAdapter.class)
+//	@XmlTransient
 	public File getContent() {
 		return this.content;
 	}
 	
+//	@XmlAttachmentRef
+//	public DataHandler getContentHandler() {
+//		return new DataHandler(new FileDataSource(this.content));
+//	}
+//	
+//	public void setContentHandler(DataHandler content) {
+//		System.out.println("HIER");
+//	}	
+		
 	public void setFileURI(String fileRef) {
 		if (fileRef != null) this.content = new File(fileRef);
 	}
 	
+	@XmlTransient
 	public String getFileURI() {
 		return (this.content == null)?null:this.content.toURI().toString();
 	}
@@ -87,10 +116,12 @@ public class BasicCrawlerDocument implements ICrawlerDocument {
 		this.mimeType = mimeType;
 	}
 	
+	@XmlElement
 	public String getMimeType() {
 		return this.mimeType;
 	}
 	
+	@XmlElement
 	public ICrawlerDocument.Status getStatus() {
 		return this.status;
 	}
@@ -99,6 +130,7 @@ public class BasicCrawlerDocument implements ICrawlerDocument {
 		this.status = status;
 	}
 	
+	@XmlElement
 	public String getStatusText() {
 		return this.statusText;
 	}
@@ -116,6 +148,8 @@ public class BasicCrawlerDocument implements ICrawlerDocument {
 		this.languages = languages;
 	}
 	
+	@XmlElement(name="language")
+	@XmlElementWrapper(name="languages")	
 	public String[] getLanguages() {
 		return this.languages;
 	}
@@ -124,6 +158,7 @@ public class BasicCrawlerDocument implements ICrawlerDocument {
 		this.crawlerDate = crawlerDate;
 	}
 	
+	@XmlElement
 	public Date getCrawlerDate() {
 		return this.crawlerDate;
 	}
@@ -132,6 +167,7 @@ public class BasicCrawlerDocument implements ICrawlerDocument {
 		this.lastModDate = lastModDate;
 	}
 	
+	@XmlElement
 	public Date getLastModDate() {
 		return this.lastModDate;
 	}
@@ -140,10 +176,12 @@ public class BasicCrawlerDocument implements ICrawlerDocument {
 		this.etag = etag;
 	}
 	
+	@XmlElement
 	public String getEtag() {
 		return this.etag;
 	}
 	
+	@XmlElement
 	public byte[] getMD5Sum() {
 		return this.md5Sum;
 	}

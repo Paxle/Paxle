@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.monitor.Monitorable;
@@ -180,7 +182,7 @@ public class TempFileManager implements ITempFileManager, Monitorable {
 	 * Method just used for testing
 	 * @return
 	 */
-	public Map<File,ITempDir> getFileMap() {
+	public @Nonnull Map<File,ITempDir> getFileMap() {
 		return Collections.unmodifiableMap(fileMap);
 	}
 }

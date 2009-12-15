@@ -19,12 +19,23 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.paxle.core.doc.ICommand;
+import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.impl.jaxb.JaxbDocAdapter;
+import org.paxle.core.doc.impl.jaxb.JaxbFactory;
+import org.paxle.core.doc.impl.jaxb.JaxbIndexerDocumentAdapter;
 
-
+@XmlRootElement(name="command")
+@XmlType(factoryClass=JaxbFactory.class, factoryMethod="createBasicCommand")
 public class BasicCommand implements ICommand {
 	
 	/**
@@ -63,7 +74,7 @@ public class BasicCommand implements ICommand {
 	
 	/**
 	 * The crawled {@link ICrawlerDocument document}
-	 */
+	 */	
 	protected ICrawlerDocument crawlerDoc = null;
 	
 	/**
@@ -78,6 +89,7 @@ public class BasicCommand implements ICommand {
 	 */
 	protected List<IIndexerDocument> indexerDocs = new LinkedList<IIndexerDocument>();
 
+	@XmlAttribute(name="id")
     public int getOID(){ 
     	return _oid; 
     }
@@ -86,6 +98,7 @@ public class BasicCommand implements ICommand {
     	this._oid = OID; 
     }	
 	
+    @XmlAttribute(name="profileId")
     public int getProfileOID() {
     	return this.profileID;
     }
@@ -94,6 +107,7 @@ public class BasicCommand implements ICommand {
     	this.profileID = profileOID;
     }
     
+    @XmlElement
     public int getDepth() {
     	return this.depth;
     }
@@ -103,6 +117,8 @@ public class BasicCommand implements ICommand {
     	this.depth = depth;
     }
     
+    @XmlElement
+    @XmlJavaTypeAdapter(JaxbDocAdapter.class)    
 	public ICrawlerDocument getCrawlerDocument() {
 		return this.crawlerDoc;
 	}
@@ -111,6 +127,8 @@ public class BasicCommand implements ICommand {
 		this.crawlerDoc = crawlerDoc;
 	}	
 
+    @XmlElement
+    @XmlJavaTypeAdapter(JaxbDocAdapter.class) 
 	public IParserDocument getParserDocument() {
 		return this.parserDoc;
 	}
@@ -120,6 +138,7 @@ public class BasicCommand implements ICommand {
 		this.parserDoc = parserDoc;
 	}
 
+	@XmlJavaTypeAdapter(JaxbIndexerDocumentAdapter.class) 
 	public IIndexerDocument[] getIndexerDocuments() {
 		return this.indexerDocs.toArray(new IIndexerDocument[this.indexerDocs.size()]);
 	}
@@ -133,6 +152,7 @@ public class BasicCommand implements ICommand {
 		this.indexerDocs.add(indexerDoc);
 	}	
 
+	@XmlElement
 	public Result getResult() {
 		return this.result;
 	}	
@@ -143,6 +163,7 @@ public class BasicCommand implements ICommand {
 			: this.result.equals(result);
 	}
 	
+	@XmlElement
 	public String getResultText() {
 		return this.resultText;
 	}
@@ -160,6 +181,7 @@ public class BasicCommand implements ICommand {
 		this.setResultText(description);
 	}
 
+	@XmlElement
 	public URI getLocation() {
 		return this.location;
 	}
@@ -175,10 +197,8 @@ public class BasicCommand implements ICommand {
 	
 	@Override
 	public String toString() {
-		StringBuilder str = new StringBuilder();
-		
-		str.append(this.location);
-		
+		StringBuilder str = new StringBuilder();		
+		str.append(this.location);		
 		return str.toString();
 	}
 }

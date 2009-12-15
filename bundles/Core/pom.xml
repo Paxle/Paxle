@@ -5,7 +5,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.42-SNAPSHOT</version>
+	<version>0.1.43-SNAPSHOT</version>
 	<name>Paxle - Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -73,7 +73,15 @@
 							org.apache.commons.pool;version="1.5.3",
 							org.apache.commons.pool.impl;version="1.5.3",
 							<!-- Apache Commons IO -->
+							org.apache.commons.io;version="1.4",
 							org.apache.commons.io.output;version="1.4",
+							<!-- Dependencies for JAXB -->
+							javax.activation, 
+							javax.xml.bind, 
+							javax.xml.bind.annotation, 
+							javax.xml.bind.annotation.adapters,
+							javax.xml.bind.attachment,
+							com.sun.xml.bind.v2,			
 							<!-- ignoring compile time annotations -->
 							!javax.annotation
 						</Import-Package>
@@ -85,6 +93,7 @@
 							org.paxle.core.crypt.impl,
 							org.paxle.core.data.impl,
 							org.paxle.core.doc.impl,
+							org.paxle.core.doc.impl.jaxb,
 							org.paxle.core.filter.impl,
 							org.paxle.core.io.impl,
 							org.paxle.core.io.temp.impl,
@@ -122,6 +131,38 @@
 			<artifactId>osgi</artifactId>
 			<optional>true</optional>
 		</dependency>		
+		
+		<!-- dependencies required for jaxb -->
+		<dependency>
+			<groupId>com.sun.xml</groupId>
+			<artifactId>com.springsource.com.sun.xml.bind</artifactId>
+			<version>2.1.7</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml</groupId>
+			<artifactId>com.springsource.com.sun.xml.fastinfoset</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.xml.stream</groupId>
+			<artifactId>com.springsource.javax.xml.stream</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>com.springsource.javax.activation</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>com.springsource.javax.xml.bind</artifactId>
+			<version>2.1.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jvnet.staxex</groupId>
+			<artifactId>com.springsource.org.jvnet.staxex</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 		
 		<!-- test dependencies -->
 		<dependency>

@@ -20,8 +20,11 @@ import java.net.URI;
 import java.util.Date;
 
 import javax.annotation.Nullable;
+import javax.xml.bind.annotation.XmlType;
 
 public interface ICrawlerDocument extends Closeable {
+	
+	@XmlType(namespace="http://paxle.net/org/paxle/core/doc/ICrawlerDocument/Status")
 	public static enum Status {
 		OK,
 		NOT_FOUND,

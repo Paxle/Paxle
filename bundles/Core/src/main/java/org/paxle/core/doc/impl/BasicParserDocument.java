@@ -24,9 +24,17 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.paxle.core.doc.impl.jaxb.JaxbFactory;
+import org.paxle.core.doc.impl.jaxb.JaxbFileAdapter;
 import org.paxle.core.io.temp.ITempFileManager;
 
+@XmlRootElement(name="parserDocument")
+@XmlType(factoryClass=JaxbFactory.class, factoryMethod="createBasicParserDocument")
 public class BasicParserDocument extends AParserDocument {
 	
 	public BasicParserDocument(ITempFileManager tempFileManager) {
@@ -49,7 +57,9 @@ public class BasicParserDocument extends AParserDocument {
 		this.contentWriter = null;		
 		this.contentFile = file;
 	}
-		
+			
+	@XmlElement(name="text")
+	@XmlJavaTypeAdapter(JaxbFileAdapter.class)
 	@Override
 	public File getTextFile() throws IOException {
 		this.close();

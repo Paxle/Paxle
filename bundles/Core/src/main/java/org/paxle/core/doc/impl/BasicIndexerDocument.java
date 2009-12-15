@@ -18,9 +18,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.IIndexerDocument;
+import org.paxle.core.doc.impl.jaxb.JaxbFactory;
+import org.paxle.core.doc.impl.jaxb.JaxbFieldMapAdapter;
 
+@XmlRootElement(name="indexerDocument")
+@XmlType(factoryClass=JaxbFactory.class, factoryMethod="createBasicIndexerDocument")
 public class BasicIndexerDocument extends HashMap<Field<?>,Object> implements IIndexerDocument {	
 	private static final long serialVersionUID = 1L;
 	
@@ -33,6 +42,7 @@ public class BasicIndexerDocument extends HashMap<Field<?>,Object> implements II
 	
 	protected String statusText = null;
 	
+	@XmlAttribute(name="id")
     public int getOID(){ 
     	return _oid; 
     }
@@ -85,6 +95,7 @@ public class BasicIndexerDocument extends HashMap<Field<?>,Object> implements II
 	}
 	
 	@SuppressWarnings("unchecked")
+	@XmlJavaTypeAdapter(JaxbFieldMapAdapter.class)
 	public Map<Field<?>, ?> getFields() {
 		return (Map<Field<?>, ?>) this.clone();
 	}

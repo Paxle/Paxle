@@ -16,6 +16,9 @@ package org.paxle.core.doc;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.paxle.core.filter.IFilter;
 
 
@@ -67,6 +70,7 @@ public class LinkInfo {
 	 */
 	public static final String DESCRIPTION = "descr";
 
+	@XmlType(namespace="http://paxle.net/org/paxle/core/doc/LinkInfo/Status")
 	public static enum Status {
 		/** Link is allowed to be processed */
 		OK,
@@ -108,6 +112,7 @@ public class LinkInfo {
 		this.setLinkOrigin(linkOrigin);
 	}
 
+	@XmlElement
 	public String getTitle() {
 		return (String) this.props.get(TITLE);
 	}
@@ -120,10 +125,16 @@ public class LinkInfo {
 		}
 	}
 
+	@XmlElement
 	public String getDescription() {
 		return (String) this.props.get(DESCRIPTION);
 	}
+	
+	public void setDescription(String description) {
+		this.props.put(DESCRIPTION, description);
+	}
 
+	@XmlElement
 	public Status getStatus() {
 		String status = (String)this.props.get(STATUS);
 		if (status == null) return Status.OK;
@@ -135,16 +146,26 @@ public class LinkInfo {
 		return current.equals(status);
 	}
 
+	public void setStatus(Status status) {
+		this.setStatus(status,null);
+	}	
+	
+	@XmlElement
 	public String getStatusText() {
 		return (String) this.props.get(STATUS_TEXT);
 	}
+	
+	public void setStatusText(String statusText) {
+		this.props.put(STATUS_TEXT, statusText);
+	}
 
+	@XmlElement
 	public String getStatusCode() {
 		return (String) this.props.get(STATUS_CODE);
 	}
-
-	public void setStatus(Status status) {
-		this.setStatus(status,null);
+	
+	public void setStatusCode(String statusCode) {
+		this.props.put(STATUS_CODE, statusCode);
 	}
 
 	public void setStatus(Status status, String statusText) {
@@ -171,6 +192,7 @@ public class LinkInfo {
 	/**
 	 * @see #ORIGIN
 	 */
+	@XmlElement
 	public String getLinkOrigin() {
 		return (String) this.props.get(ORIGIN);
 	}

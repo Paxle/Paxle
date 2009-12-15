@@ -14,8 +14,16 @@
 package org.paxle.core.doc.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Map;
+
+import javax.activation.DataHandler;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,6 +37,12 @@ import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.IIndexerDocument;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.impl.jaxb.JaxbAttachmentMarshaller;
+import org.paxle.core.doc.impl.jaxb.JaxbAttachmentUnmarshaller;
+import org.paxle.core.doc.impl.jaxb.JaxbDocAdapter;
+import org.paxle.core.doc.impl.jaxb.JaxbFactory;
+import org.paxle.core.doc.impl.jaxb.JaxbFieldMapAdapter;
+import org.paxle.core.doc.impl.jaxb.JaxbFileAdapter;
 import org.paxle.core.io.temp.ITempFileManager;
 
 @Component(immediate=true, metatype=false)
@@ -48,12 +62,21 @@ public class BasicDocumentFactory implements IDocumentFactory {
 	 * A list of documents that this {@link IDocumentFactory} is capable to create.
 	 */
 	@SuppressWarnings("serial")
-	private static final HashSet<Class<?>> SUPPORTED_CLASSES =  new HashSet<Class<?>>() {{
+	protected static final HashSet<Class<?>> SUPPORTED_CLASSES =  new HashSet<Class<?>>() {{
+		// all supported interfaces
 		add(ICrawlerDocument.class);
 		add(IParserDocument.class);
 		add(IIndexerDocument.class);
 		add(ICommand.class);
 		add(ICommandProfile.class);
+		
+		// all supported classes
+		add(BasicCommand.class);
+		add(BasicCrawlerDocument.class);
+		add(CachedParserDocument.class);
+		add(BasicParserDocument.class);
+		add(BasicIndexerDocument.class);
+		add(BasicCommandProfile.class);
 	}};
 	
 	/**
@@ -65,6 +88,7 @@ public class BasicDocumentFactory implements IDocumentFactory {
 	protected ITempFileManager tempFileManager;
 
 	protected void activate(Map<String, Object> props) {
+		JaxbFactory.setDocumentFactory(this);
 		this.logger.info(this.getClass().getSimpleName() + " registered.");
 	}
 	
@@ -72,26 +96,100 @@ public class BasicDocumentFactory implements IDocumentFactory {
 	public <Doc> Doc createDocument(Class<Doc> docInterface) throws IOException {
 		if (docInterface == null) throw new NullPointerException("The document-interface must not be null.");
 		else if (!SUPPORTED_CLASSES.contains(docInterface)) throw new IllegalArgumentException("Unsupported doc-type");
-		
-		if (docInterface.equals(ICrawlerDocument.class)) {		
-			// currently we can simply create a new class here
-			return (Doc) new BasicCrawlerDocument();
+
+		// determine the implementation class to use
+		// TODO: we could make this configurable
+		Class<?> implClass = null;
+		if (docInterface.equals(ICrawlerDocument.class)) {
+			implClass = BasicCrawlerDocument.class;
 		} else if (docInterface.equals(IParserDocument.class)) {
-			// return (Doc) new BasicParserDocument(this.tempFileManager);
-			return (Doc) new CachedParserDocument(this.tempFileManager);
+			implClass = CachedParserDocument.class;
 		} else if (docInterface.equals(IIndexerDocument.class)) {
-			return (Doc) new BasicIndexerDocument();
+			implClass = BasicIndexerDocument.class;
 		} else if (docInterface.equals(ICommand.class)) {
-			return (Doc) new BasicCommand();
+			implClass = BasicCommand.class;
 		} else if (docInterface.equals(ICommandProfile.class)) {
-			return (Doc) new BasicCommandProfile();
+			implClass = BasicCommandProfile.class;
+		} else {
+			implClass = docInterface;
 		}
 		
-		throw new IllegalArgumentException("Unexpected doc-type");
+		// instantiate the class
+		if (implClass.equals(BasicCrawlerDocument.class)) {		
+			return (Doc) new BasicCrawlerDocument();
+		} else if (implClass.equals(BasicParserDocument.class)) {
+			return (Doc) new BasicParserDocument(this.tempFileManager);
+		} else if (implClass.equals(CachedParserDocument.class)) {
+			return (Doc) new CachedParserDocument(this.tempFileManager);
+		} else if (implClass.equals(BasicIndexerDocument.class)) {
+			return (Doc) new BasicIndexerDocument();
+		} else if (implClass.equals(BasicCommand.class)) {
+			return (Doc) new BasicCommand();
+		} else if (implClass.equals(BasicCommandProfile.class)) {
+			return (Doc) new BasicCommandProfile();
+		}		
+		throw new IllegalArgumentException("Unexpected doc-type");		
 	}
 
 	public boolean isSupported(Class<?> docInterface) {
 		if (docInterface == null) return false;
 		return SUPPORTED_CLASSES.contains(docInterface);
 	}
+
+	public <Doc> Map<String, DataHandler> marshal(Doc document, OutputStream output) throws IOException {
+		try {
+			final ClassLoader loader = this.getClass().getClassLoader();
+			final JAXBContext context = JAXBContext.newInstance(
+					"org.paxle.core.doc.impl",
+					loader
+			);
+			final JaxbAttachmentMarshaller am = new JaxbAttachmentMarshaller();
+			final Marshaller m = context.createMarshaller();
+			
+			m.setAdapter(JaxbDocAdapter.class,new JaxbDocAdapter());
+			m.setAdapter(JaxbFileAdapter.class, new JaxbFileAdapter(this.tempFileManager));
+			m.setAdapter(JaxbFieldMapAdapter.class, new JaxbFieldMapAdapter(this.tempFileManager));
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			m.setAttachmentMarshaller(am);
+			
+			m.marshal(document, output);			
+			output.flush();
+			
+			return am.getAttachmentsMap();
+		} catch (JAXBException e) {
+			final IOException ioe = new IOException(String.format(
+					"Unable to marshal the document '%s'.",
+					document.getClass().getName()
+			));
+			ioe.initCause(e);
+			throw ioe;
+		}
+	}
+
+	
+	public <Doc> Doc unmarshal(InputStream input, Map<String, DataHandler> attachments) throws IOException  {
+		try {
+			final ClassLoader loader = this.getClass().getClassLoader();
+			final JAXBContext context = JAXBContext.newInstance(
+					"org.paxle.core.doc.impl",
+					loader
+			);
+			final Unmarshaller u = context.createUnmarshaller();
+			u.setAdapter(JaxbFileAdapter.class, new JaxbFileAdapter(this.tempFileManager));
+			u.setAdapter(JaxbFieldMapAdapter.class, new JaxbFieldMapAdapter(this.tempFileManager));
+			u.setAttachmentUnmarshaller(new JaxbAttachmentUnmarshaller(attachments));
+			
+			@SuppressWarnings("unchecked")
+			final Doc document = (Doc) u.unmarshal(input);
+			return document;
+		} catch (JAXBException e) {
+			final IOException ioe = new IOException(String.format(
+					"Unable to unmarshal the document from the stream."
+			));
+			ioe.initCause(e);
+			throw ioe;
+		}
+	}
+	
+	
 }

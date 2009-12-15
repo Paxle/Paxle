@@ -46,13 +46,13 @@ public class PlainParserTest extends AParserTest {
 		assertNull(pdoc.getLastChanged());
 		assertNull(pdoc.getMimeType());
 		assertNull(pdoc.getSummary());
-		assertTrue(pdoc.getHeadlines().size() == 0);
-		assertTrue(pdoc.getImages().size() == 0);
-		assertTrue(pdoc.getKeywords().size() == 0);
-		assertNull(pdoc.getLanguages());
-		assertTrue(pdoc.getSubDocs().size() == 0);
+		assertEquals(0,pdoc.getHeadlines().size());
+		assertEquals(0,pdoc.getImages().size());
+		assertEquals(0,pdoc.getKeywords().size());
+		assertEquals(0,pdoc.getLanguages().size());
+		assertEquals(0,pdoc.getSubDocs().size());
 		
-		assertTrue(pdoc.getLinks().size() == 2);		
+		assertEquals(2,pdoc.getLinks().size());		
 		final Map<URI,LinkInfo> links = pdoc.getLinks();
 		assertTrue(links.containsKey(URI.create("http://localhost:8080")));
 		assertTrue(links.containsKey(URI.create("http://www.paxle.net/en/start#what_is_paxle")));		

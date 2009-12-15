@@ -28,9 +28,11 @@ import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.xml.bind.annotation.XmlType;
 
 public interface IParserDocument extends Closeable, Appendable, Flushable {
 
+	@XmlType(namespace="http://paxle.net/org/paxle/core/doc/IParserDocument/Status")
 	public static enum Status {
 		/** Parsing finished without major errors so that the resulting document is usable. */
 		OK,

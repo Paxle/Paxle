@@ -30,11 +30,22 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.commons.io.output.ProxyWriter;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
+import org.paxle.core.doc.impl.jaxb.JaxbCharsetAdapter;
+import org.paxle.core.doc.impl.jaxb.JaxbFactory;
 import org.paxle.core.io.temp.ITempFileManager;
 
+@XmlType(factoryClass=JaxbFactory.class, factoryMethod="createAParserDocument", name="parserDocument")
+public
 abstract class AParserDocument implements IParserDocument {
 
 	/**
@@ -53,9 +64,9 @@ abstract class AParserDocument implements IParserDocument {
 	protected Map<String,IParserDocument> subDocs = new HashMap<String,IParserDocument>();
 	protected Collection<String> headlines = new LinkedList<String>();
 	protected Collection<String> keywords = new LinkedList<String>();
-	protected Map<URI,LinkInfo> links = new HashMap<URI,LinkInfo>();
+	protected HashMap<URI,LinkInfo> links = new HashMap<URI,LinkInfo>();
 	protected Map<URI,String> images = new HashMap<URI,String>();
-	protected Set<String> languages;	
+	protected Set<String> languages = new HashSet<String>();	
 	protected String author;
 	protected Date lastChanged;
 	protected String summary;
@@ -70,6 +81,7 @@ abstract class AParserDocument implements IParserDocument {
 		this.tempFileManager = tempFileManager;
 	}
 	
+	@XmlAttribute(name="id")
     public int getOID(){ 
     	return _oid; 
     }
@@ -78,6 +90,39 @@ abstract class AParserDocument implements IParserDocument {
     	this._oid = OID; 
     }
     
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.core.doc.IParserDocument#getStatus()
+	 */
+    @XmlElement
+	public IParserDocument.Status getStatus() {
+		return this.status;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.core.doc.IParserDocument#setStatus(org.paxle.core.doc.IParserDocument.Status)
+	 */
+	public void setStatus(IParserDocument.Status status) {
+		this.status = status;
+	}
+	
+	@XmlElement
+	public String getStatusText() {
+		return this.statusText;
+	}
+	
+	public void setStatusText(String statusText) {
+		this.statusText = statusText;
+	}
+	
+	public void setStatus(IParserDocument.Status status, String statusText) {
+		this.setStatus(status);
+		this.setStatusText(statusText);
+	}    
+    
+	@XmlElement
+    @XmlJavaTypeAdapter(JaxbCharsetAdapter.class)
     public Charset getCharset() {
     	return this.charset;
     }
@@ -90,12 +135,10 @@ abstract class AParserDocument implements IParserDocument {
 	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getHeadlines()
 	 */
+    @XmlElement(name="headline")
+    @XmlElementWrapper(name="headlines")
 	public Collection<String> getHeadlines() {
 		return this.headlines;
-	}
-	
-	public void addImage(URI location, String description) {
-		images.put(location, whitespaces2Space(description));
 	}
     
 	/**
@@ -108,7 +151,17 @@ abstract class AParserDocument implements IParserDocument {
 	
 	public void setHeadlines(Collection<String> headlines) {
 		this.headlines = headlines;
-	}
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.parser.IParserDocument#getKeywords()
+	 */
+	@XmlElement(name="keyword")
+	@XmlElementWrapper(name="keywords")
+	public Collection<String> getKeywords() {
+		return this.keywords;
+	}		
 	
 	/**
 	 * {@inheritDoc}
@@ -118,10 +171,69 @@ abstract class AParserDocument implements IParserDocument {
 		this.keywords.add(whitespaces2Space(keyword));
 	}
 	
+	/**
+	 * @see IParserDocument#setKeywords(Collection)
+	 */
+	public void setKeywords(Collection<String> keywords) {
+		ArrayList<String> keywordsList = new ArrayList<String>(keywords==null?0:keywords.size());
+		if (keywords != null) {
+			// loop through the keywords and trim
+			for (String keyword : keywords) {
+				keywordsList.add(keyword.trim());
+			}
+		}
+		this.keywords = keywordsList;
+	}		
+	
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.parser.IParserDocument#getLanguages()
+	 */
+	@XmlElement(name="language")
+	@XmlElementWrapper(name="languages")
+	public Set<String> getLanguages() {
+		return this.languages;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see IParserDocument#setLanguages(Set)
+	 */
+	public void setLanguages(Set<String> languages) {
+		HashSet<String> languageSet = new HashSet<String>(languages==null?0:languages.size());
+		if (languages != null) {
+			// loop through the languages and trim
+			for(String language: languages) {
+				languageSet.add(language.trim());
+			}
+		}
+		this.languages = languageSet;
+	}	
+	
 	public void addLanguage(String lang) {
-		if (this.getLanguages() == null) this.languages = new HashSet<String>(8);
+		if (this.languages == null) this.languages = new HashSet<String>(8);
 		this.languages.add(lang);
 	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.parser.IParserDocument#getLinks()
+	 */	
+	public Map<URI,LinkInfo> getLinks() {
+		return this.links;
+	}
+	
+	/**
+	 * @see IParserDocument#setLinks(Map)
+	 * TODO: maybe we should loop through the list and trim all strings
+	 */
+	public void setLinks(Map<URI,LinkInfo> links) {
+		this.links.clear();
+		if (links != null) {
+			this.links.putAll(links);
+		}
+	}	
 	
 	public void addReference(URI ref, String name) {
 		addReference(ref, name, null);
@@ -148,59 +260,7 @@ abstract class AParserDocument implements IParserDocument {
 		if (ref != null)  {
 			this.images.put(ref, whitespaces2Space(name));
 		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#addSubDocument(java.lang.String)
-	 */
-	public void addSubDocument(String location, IParserDocument pdoc) {
-		this.subDocs.put(whitespaces2Space(location), pdoc);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#setAuthor(java.lang.String)
-	 */
-	public void setAuthor(String author) {
-		this.author = whitespaces2Space(author);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#setLastChanged(java.util.Date)
-	 */
-	public void setLastChanged(Date date) {
-		this.lastChanged = date;
-	}
-	
-	public void setMimeType(String mimeType) {
-		this.mimeType = mimeType;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#setSummary(java.lang.String)
-	 */
-	public void setSummary(String summary) {
-		this.summary = whitespaces2Space(summary);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#setTitle(java.lang.String)
-	 */
-	public void setTitle(String title) {
-		this.title = whitespaces2Space(title);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#getAuthor()
-	 */
-	public String getAuthor() {
-		return author;
-	}
+	}	
 	
 	/**
 	 * {@inheritDoc}
@@ -216,94 +276,18 @@ abstract class AParserDocument implements IParserDocument {
 	 */
 	public void setImages(Map<URI,String> images) {
 		this.images = images;
-	}
+	}	
 	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#getKeywords()
-	 */
-	public Collection<String> getKeywords() {
-		return this.keywords;
-	}
-	
-	/**
-	 * @see IParserDocument#setKeywords(Collection)
-	 */
-	public void setKeywords(Collection<String> keywords) {
-		ArrayList<String> keywordsList = new ArrayList<String>(keywords==null?0:keywords.size());
-		if (keywords != null) {
-			// loop through the keywords and trim
-			for (String keyword : keywords) {
-				keywordsList.add(keyword.trim());
-			}
-		}
-		this.keywords = keywordsList;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#getLanguages()
-	 */
-	public Set<String> getLanguages() {
-		return this.languages;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see IParserDocument#setLanguages(Set)
-	 */
-	public void setLanguages(Set<String> languages) {
-		HashSet<String> languageSet = new HashSet<String>(languages==null?0:languages.size());
-		if (languages != null) {
-			// loop through the languages and trim
-			for(String language: languages) {
-				languageSet.add(language.trim());
-			}
-		}
-		this.languages = languageSet;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#getLastChanged()
-	 */
-	public Date getLastChanged() {
-		return this.lastChanged;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.parser.IParserDocument#getLinks()
-	 */
-	public Map<URI,LinkInfo> getLinks() {
-		return this.links;
-	}
-	
-	/**
-	 * @see IParserDocument#setLinks(Map)
-	 * TODO: maybe we should loop through the list and trim all strings
-	 */
-	public void setLinks(Map<URI,LinkInfo> links) {
-		this.links = links;
-	}
-	
-	public int getFlags() {
-		return this.flags;
-	}
-	
-	public void setFlags(int flags) {
-		this.flags = flags;
-	}
-	
-	public void toggleFlags(int flags) {
-		this.flags ^= flags;
-	}
+	public void addImage(URI location, String description) {
+		images.put(location, whitespaces2Space(description));
+	}		
 	
 	// don't manipulate the sub-docs
 	/**
 	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getSubDocs()
 	 */
+	@XmlTransient
 	public Map<String,IParserDocument> getSubDocs() {
 		return this.subDocs;
 	}
@@ -314,59 +298,108 @@ abstract class AParserDocument implements IParserDocument {
 	 */
 	public void setSubDocs(Map<String,IParserDocument> subDocs) {
 		this.subDocs = subDocs;
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.parser.IParserDocument#addSubDocument(java.lang.String)
+	 */
+	public void addSubDocument(String location, IParserDocument pdoc) {
+		this.subDocs.put(whitespaces2Space(location), pdoc);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.parser.IParserDocument#getAuthor()
+	 */
+	@XmlElement
+	public String getAuthor() {
+		return author;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.parser.IParserDocument#setAuthor(java.lang.String)
+	 */
+	public void setAuthor(String author) {
+		this.author = whitespaces2Space(author);
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.parser.IParserDocument#getLastChanged()
+	 */
+	@XmlElement
+	public Date getLastChanged() {
+		return this.lastChanged;
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.parser.IParserDocument#setLastChanged(java.util.Date)
+	 */
+	public void setLastChanged(Date date) {
+		this.lastChanged = date;
+	}	
 	
 	/**
 	 * @see IParserDocument#getMimeType()
 	 */
+	@XmlElement
 	public String getMimeType() {
 		return this.mimeType;
+	}	
+	
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getSummary()
 	 */
+	@XmlElement
 	public String getSummary() {
 		return this.summary;
-	}
+	}	
 	
+	/**
+	 * {@inheritDoc}
+	 * @see org.paxle.parser.IParserDocument#setSummary(java.lang.String)
+	 */
+	public void setSummary(String summary) {
+		this.summary = whitespaces2Space(summary);
+	}
+		
 	/**
 	 * {@inheritDoc}
 	 * @see org.paxle.parser.IParserDocument#getTitle()
 	 */
+	@XmlElement
 	public String getTitle() {
 		return this.title;
-	}
+	}	
 	
 	/**
 	 * {@inheritDoc}
-	 * @see org.paxle.core.doc.IParserDocument#getStatus()
+	 * @see org.paxle.parser.IParserDocument#setTitle(java.lang.String)
 	 */
-	public IParserDocument.Status getStatus() {
-		return this.status;
+	public void setTitle(String title) {
+		this.title = whitespaces2Space(title);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 * @see org.paxle.core.doc.IParserDocument#setStatus(org.paxle.core.doc.IParserDocument.Status)
-	 */
-	public void setStatus(IParserDocument.Status status) {
-		this.status = status;
+	@XmlElement
+	public int getFlags() {
+		return this.flags;
 	}
 	
-	public String getStatusText() {
-		return this.statusText;
+	public void setFlags(int flags) {
+		this.flags = flags;
 	}
 	
-	public void setStatusText(String statusText) {
-		this.statusText = statusText;
-	}
-	
-	public void setStatus(IParserDocument.Status status, String statusText) {
-		this.setStatus(status);
-		this.setStatusText(statusText);
-	}
+	public void toggleFlags(int flags) {
+		this.flags ^= flags;
+	}	
 	
 	/**
 	 * Lists the contents of this document in the following format using line-feeds (ASCII 10 or
@@ -479,12 +512,15 @@ abstract class AParserDocument implements IParserDocument {
 		this.getTextWriter().append(csq, start, end);
 		return this;
 	}	
+
+	public abstract long length() throws IOException;
 	
+	@XmlTransient
+	public abstract File getTextFile() throws IOException;
 	
 	public abstract void setTextFile(File file) throws IOException;		
 
-	public abstract File getTextFile() throws IOException;		
-
+	@XmlTransient
 	public abstract Reader getTextAsReader() throws IOException;
 	
 	/**
