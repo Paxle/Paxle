@@ -23,6 +23,7 @@ import javax.xml.bind.attachment.AttachmentMarshaller;
 
 public class JaxbAttachmentMarshaller extends AttachmentMarshaller {
 
+	private HashMap<String, String> cidNameMap = new HashMap<String, String>();
 	private HashMap<String, DataHandler> attachments = new HashMap<String, DataHandler>();
 	
 	@Override
@@ -32,8 +33,16 @@ public class JaxbAttachmentMarshaller extends AttachmentMarshaller {
 	
 	@Override
 	public String addMtomAttachment(DataHandler data, String elementNamespace, String elementLocalName) {
+		final String dataSourceName = data.getName();
+		
+		// avoid serializing the same attachment twice
+		if (dataSourceName != null && cidNameMap.containsKey(dataSourceName)) {
+			return cidNameMap.get(dataSourceName);
+		} 
+
 		final String uuid = UUID.randomUUID().toString();
 		this.attachments.put(uuid, data);
+		this.cidNameMap.put(dataSourceName, uuid);
 		return uuid;
 	}
 

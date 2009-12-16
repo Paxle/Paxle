@@ -27,9 +27,11 @@ import javax.activation.DataSource;
  * A helper class to stream a {@link Serializable} object via a {@link DataSource}
  */
 class JaxbSerializableDataSource implements DataSource {
+	private final String name;
 	private final Serializable value;
 	
-	public JaxbSerializableDataSource(Serializable value) {
+	public JaxbSerializableDataSource(String name, Serializable value) {
+		this.name = name;
 		this.value = value;
 	}
 	
@@ -52,7 +54,7 @@ class JaxbSerializableDataSource implements DataSource {
     }
 
     public String getName() {
-        return null;
+        return "IDOC: " + this.name;
     }
 
     public OutputStream getOutputStream() {

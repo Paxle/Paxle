@@ -17,8 +17,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -26,19 +28,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import javax.activation.DataHandler;
+import javax.activation.DataSource;
 
 import junit.framework.TestCase;
 import junitx.framework.ArrayAssert;
 import junitx.framework.FileAssert;
 import junitx.framework.ListAssert;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.TeeInputStream;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.paxle.core.doc.Field;
 import org.paxle.core.doc.ICommand;
@@ -56,7 +64,6 @@ public class BasicDocumentFactoryTest extends TestCase {
 	private static final File CRAWLER_FILE = new File("src/test/resources/paxle.html");
 	private static final File PARSER_FILE = new File("src/test/resources/paxle.txt");
 	
-	private final Random rand = new Random();	
 	private ITempFileManager tmpFileManager;
 	private IDocumentFactory docFactory;
 		
@@ -87,7 +94,7 @@ public class BasicDocumentFactoryTest extends TestCase {
 	protected ICrawlerDocument createTestCDoc(Class<?> crawlerDocClass, URI location) throws IOException {
 		// creating a dummy crawler-document
 		final ICrawlerDocument cDoc = (ICrawlerDocument) this.docFactory.createDocument(crawlerDocClass);
-		cDoc.setOID(Math.abs(rand.nextInt()));
+		cDoc.setOID(1441654849);
 		cDoc.setStatus(ICrawlerDocument.Status.OK,"CrawlerDocument is OK");
 		cDoc.setLocation(location);
 		cDoc.setCharset("ISO-8859-1");
@@ -102,7 +109,7 @@ public class BasicDocumentFactoryTest extends TestCase {
 	@SuppressWarnings("serial")
 	protected IParserDocument createTestPDoc (Class<?> parserDocClass) throws IOException {
 		final IParserDocument pDoc = (IParserDocument) this.docFactory.createDocument(parserDocClass);
-		pDoc.setOID(Math.abs(rand.nextInt()));
+		pDoc.setOID(266560296);
 		pDoc.setStatus(IParserDocument.Status.OK,"ParserDocument is OK");
 		pDoc.setTextFile(PARSER_FILE);
 		pDoc.setLastChanged(new Date(PARSER_FILE.lastModified()));
@@ -129,6 +136,7 @@ public class BasicDocumentFactoryTest extends TestCase {
 	
 	protected IIndexerDocument createTestIDoc (Class<?> indexerDocClass) throws IOException {
 		final IIndexerDocument iDoc = (IIndexerDocument) this.docFactory.createDocument(indexerDocClass);
+		iDoc.setOID(0);
 		iDoc.setStatus(IIndexerDocument.Status.OK, "IndexerDocument is OK");
 		iDoc.set(IIndexerDocument.AUTHOR, "Paxle");
 		iDoc.set(IIndexerDocument.KEYWORDS,new String[]{"en","start"});
@@ -158,8 +166,8 @@ public class BasicDocumentFactoryTest extends TestCase {
 		
 		// creating a dummy command
 		final BasicCommand cmd = this.docFactory.createDocument(BasicCommand.class);
-		cmd.setOID(Math.abs(rand.nextInt()));
-		cmd.setProfileOID(Math.abs(rand.nextInt()));
+		cmd.setOID(412550205);
+		cmd.setProfileOID(372627797);
 		cmd.setLocation(location);
 		cmd.setCrawlerDocument(cDoc);
 		cmd.setParserDocument(pDoc);
@@ -364,7 +372,6 @@ public class BasicDocumentFactoryTest extends TestCase {
 		assertEquals(cmd1, cmd2);
 	}
 	
-	
 	public void testMarshalUnmarshalBasicCrawlerDocument() throws IOException {
 		final ICrawlerDocument expected = this.createTestCDoc(BasicCrawlerDocument.class, URI.create("http://www.paxle.net"));
 		assertNotNull(expected);
@@ -415,4 +422,97 @@ public class BasicDocumentFactoryTest extends TestCase {
 		
 		assertEquals(expected, actual);
 	}	
+	
+	public void testStoreMarshalledCommand() throws IOException {
+        // Create the ZIP file
+        final File outFile = File.createTempFile("command", ".zip");
+        outFile.deleteOnExit();
+        ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(outFile));
+		
+		// creating a test command
+		final ICommand cmd = this.createTestCommand();
+		
+		// marshal command
+		final ZipEntry commandEntry = new ZipEntry("command.xml");
+		commandEntry.setComment("command.xml");
+		zipOut.putNextEntry(commandEntry);
+		
+		final TeeOutputStream out = new TeeOutputStream(System.out, zipOut);
+		final Map<String, DataHandler> attachments = this.docFactory.marshal(cmd, out);
+		zipOut.closeEntry();
+		
+		// write attachments
+		if (attachments != null) {
+			for (Entry<String, DataHandler> attachment : attachments.entrySet()) {
+				final String cid = attachment.getKey();
+				final DataHandler data = attachment.getValue();
+				
+				final ZipEntry zipEntry = new ZipEntry(cid);
+				zipEntry.setComment(data.getName());
+				zipOut.putNextEntry(zipEntry);
+				
+				IOUtils.copy(data.getInputStream(), zipOut);
+				zipOut.closeEntry();
+			}
+		}
+		zipOut.close();
+		System.out.println("Command written into file: " + outFile.toString());
+		
+		// print content
+		final ZipFile zf = new ZipFile(outFile);
+        for (Enumeration<? extends ZipEntry> entries = zf.entries(); entries.hasMoreElements();) {
+        	ZipEntry entry = entries.nextElement();
+        	System.out.println(entry.getName() + ": " + entry.getComment());
+        }
+        zf.close();
+	}
+	
+	public void testLoadUnmarshalledCommand() throws IOException {
+		final ZipFile zf = new ZipFile(new File("src/test/resources/command.zip"));
+		
+		// process attachments
+		final Map<String, DataHandler> attachments = new HashMap<String, DataHandler>();
+        for (Enumeration<? extends ZipEntry> entries = zf.entries(); entries.hasMoreElements();) {
+        	final ZipEntry entry = entries.nextElement();
+        	final String name = entry.getName();
+        	if (name.equals("command.xml")) continue;
+        	
+        	// create a data-source to load the attachment
+        	final DataSource source = new DataSource() {
+        		private ZipFile zip = zf;
+        		private ZipEntry zipEntry = entry;
+        		
+				public String getContentType() {
+					return "application/x-java-serialized-object";
+				}
+
+				public InputStream getInputStream() throws IOException {
+					return this.zip.getInputStream(this.zipEntry);
+				}
+
+				public String getName() {
+					return this.zipEntry.getName();
+				}
+
+				public OutputStream getOutputStream() throws IOException {
+					throw new UnsupportedOperationException();
+				}
+        	};
+        	final DataHandler handler = new DataHandler(source);
+        	attachments.put(name, handler);
+        }
+        
+        // process command
+        final ZipEntry commandEntry = zf.getEntry("command.xml");
+        final InputStream commandInput = zf.getInputStream(commandEntry);
+        
+        // marshal command
+        TeeInputStream input = new TeeInputStream(commandInput, System.out);
+        final ICommand cmd1 = this.docFactory.unmarshal(input, attachments);
+        assertNotNull(cmd1);
+        zf.close();
+        
+        final ICommand cmd2 = this.createTestCommand();
+        assertEquals(cmd2, cmd1);
+	}
 }

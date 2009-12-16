@@ -85,7 +85,7 @@ public class JaxbFieldMapAdapter extends XmlAdapter<FieldMap, Map<Field<?>, Seri
 		if (key.getType().isAssignableFrom(File.class)) {
 			source = new FileDataSource((File)value);
 		} else {			
-			source = new JaxbSerializableDataSource(value);
+			source = new JaxbSerializableDataSource(key.getName(), value);
 		}
 		return new DataHandler(source);
 	}

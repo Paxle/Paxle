@@ -19,6 +19,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -49,8 +52,17 @@ public class JaxbFileAdapter extends XmlAdapter<DataHandler, File> {
 	 */
 	private ITempFileManager tempFileManager;
 	
+	private final Map<String, DataHandler> attachments;
+	
+	private final Map<String, File> cidFileMap = new HashMap<String, File>();
+	
 	public JaxbFileAdapter(ITempFileManager tempFileManager) {
+		this(tempFileManager, null);
+	}
+
+	public JaxbFileAdapter(ITempFileManager tempFileManager, Map<String, DataHandler> attachments) {
 		this.tempFileManager = tempFileManager;
+		this.attachments = attachments;
 	}
 
 	/**
@@ -72,6 +84,20 @@ public class JaxbFileAdapter extends XmlAdapter<DataHandler, File> {
 		
 		final DataSource dataSource = dataHandler.getDataSource();
 		if (dataSource != null) {
+			String cid = null;
+			
+			// avoid deserializing a file twice
+			for (Entry<String,DataHandler> attachment : attachments.entrySet()) {
+				if (attachment.getValue().equals(dataHandler)) {
+					cid = attachment.getKey();
+					break;
+				}
+			}
+			
+			if (cid != null && this.cidFileMap.containsKey(cid)) {
+				return this.cidFileMap.get(cid);
+			}
+			
 			File tempFile = null;
 			InputStream input = null;
 			OutputStream output = null;
@@ -93,8 +119,17 @@ public class JaxbFileAdapter extends XmlAdapter<DataHandler, File> {
 						tempFile.getName()
 					));
 				}
+				
+				if (cid != null) {
+					this.cidFileMap.put(cid, tempFile);
+				}
 				return tempFile;
 			} catch (IOException e) {
+				this.logger.error(String.format(
+					"Unexpected '%s' while loading datasource '%s' (CID=%s).",
+					e.getClass().getName(), dataSource.getName(), cid
+				),e);
+				
 				// delete the temp file on errors
 				if (tempFile != null && this.tempFileManager.isKnown(tempFile)) {
 					this.tempFileManager.releaseTempFile(tempFile);

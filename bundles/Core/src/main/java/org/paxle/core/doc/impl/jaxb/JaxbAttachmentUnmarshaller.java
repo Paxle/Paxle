@@ -18,8 +18,13 @@ import java.util.Map;
 import javax.activation.DataHandler;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class JaxbAttachmentUnmarshaller extends AttachmentUnmarshaller {
 	private final Map<String, DataHandler> attachments;
+	
+	private final Log logger = LogFactory.getLog(this.getClass());
 	
 	public JaxbAttachmentUnmarshaller(Map<String, DataHandler> attachments) {
 		this.attachments = attachments;
@@ -38,7 +43,13 @@ public class JaxbAttachmentUnmarshaller extends AttachmentUnmarshaller {
 	@Override
 	public DataHandler getAttachmentAsDataHandler(String cid) {
 		if (this.attachments == null) return null;
-		return attachments.get(cid);
+		final DataHandler handler =  attachments.get(cid);
+		if (handler == null) {
+			this.logger.error(String.format(
+				"Unable to find the attachment with id '%s'.", cid
+			));
+		}
+		return handler;
 	}
 
 }

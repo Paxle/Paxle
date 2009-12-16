@@ -175,7 +175,7 @@ public class BasicDocumentFactory implements IDocumentFactory {
 					loader
 			);
 			final Unmarshaller u = context.createUnmarshaller();
-			u.setAdapter(JaxbFileAdapter.class, new JaxbFileAdapter(this.tempFileManager));
+			u.setAdapter(JaxbFileAdapter.class, new JaxbFileAdapter(this.tempFileManager, attachments));
 			u.setAdapter(JaxbFieldMapAdapter.class, new JaxbFieldMapAdapter(this.tempFileManager));
 			u.setAttachmentUnmarshaller(new JaxbAttachmentUnmarshaller(attachments));
 			
