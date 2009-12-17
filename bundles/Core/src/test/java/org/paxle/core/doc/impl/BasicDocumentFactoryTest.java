@@ -24,11 +24,13 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -63,14 +65,25 @@ import org.paxle.core.io.temp.impl.TempFileManager;
 public class BasicDocumentFactoryTest extends TestCase {
 	private static final File CRAWLER_FILE = new File("src/test/resources/paxle.html");
 	private static final File PARSER_FILE = new File("src/test/resources/paxle.txt");
-	
+
 	private ITempFileManager tmpFileManager;
 	private IDocumentFactory docFactory;
+	GregorianCalendar cal;
 		
 	@SuppressWarnings("unchecked") 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		
+		this.cal = new GregorianCalendar();
+		this.cal.set(GregorianCalendar.YEAR, 2009);
+		this.cal.set(GregorianCalendar.MONTH, 11);
+		this.cal.set(GregorianCalendar.DAY_OF_MONTH, 16);
+		this.cal.set(GregorianCalendar.HOUR_OF_DAY,19);
+		this.cal.set(GregorianCalendar.MINUTE,01);
+		this.cal.set(GregorianCalendar.SECOND,14);
+		this.cal.set(GregorianCalendar.MILLISECOND,728);				
+		
 		this.tmpFileManager = new TempFileManager();
 		this.docFactory = new BasicDocumentFactory() {{
 			this.tempFileManager = tmpFileManager;			
@@ -91,7 +104,7 @@ public class BasicDocumentFactoryTest extends TestCase {
 		}
 	}
 	
-	protected ICrawlerDocument createTestCDoc(Class<?> crawlerDocClass, URI location) throws IOException {
+	protected ICrawlerDocument createTestCDoc(Class<?> crawlerDocClass, URI location) throws IOException, ParseException {
 		// creating a dummy crawler-document
 		final ICrawlerDocument cDoc = (ICrawlerDocument) this.docFactory.createDocument(crawlerDocClass);
 		cDoc.setOID(1441654849);
@@ -99,8 +112,8 @@ public class BasicDocumentFactoryTest extends TestCase {
 		cDoc.setLocation(location);
 		cDoc.setCharset("ISO-8859-1");
 		cDoc.setMimeType("text/html");
-		cDoc.setCrawlerDate(new Date(CRAWLER_FILE.lastModified()));
-		cDoc.setLastModDate(new Date(CRAWLER_FILE.lastModified()));
+		cDoc.setCrawlerDate(cal.getTime());
+		cDoc.setLastModDate(cal.getTime());
 		cDoc.setLanguages(new String[]{"en"});		
 		cDoc.setContent(CRAWLER_FILE);
 		return cDoc;
@@ -112,7 +125,7 @@ public class BasicDocumentFactoryTest extends TestCase {
 		pDoc.setOID(266560296);
 		pDoc.setStatus(IParserDocument.Status.OK,"ParserDocument is OK");
 		pDoc.setTextFile(PARSER_FILE);
-		pDoc.setLastChanged(new Date(PARSER_FILE.lastModified()));
+		pDoc.setLastChanged(cal.getTime());
 		pDoc.setTitle("Paxle    - PAXLE Search Framework");
 		pDoc.setAuthor("Paxle");
 		pDoc.setCharset(Charset.forName("UTF-8"));
@@ -152,7 +165,7 @@ public class BasicDocumentFactoryTest extends TestCase {
 		return iDoc;
 	}
 		
-	protected ICommand createTestCommand() throws IOException {
+	protected ICommand createTestCommand() throws IOException, ParseException {
 		final URI location = URI.create("http://www.paxle.net");		
 		
 		// creating a dummy crawler-document
@@ -197,7 +210,7 @@ public class BasicDocumentFactoryTest extends TestCase {
 	public static void assertEquals(ICrawlerDocument expected, ICrawlerDocument actual) {
 		if (expected == null && actual == null) return;
 		else if (expected != null && actual == null) fail();
-		else if (expected == null && actual != null) fail();		
+		else if (expected == null && actual != null) fail();
 		
 		assertEquals(expected.getOID(), actual.getOID());
 		assertEquals(expected.getLocation(), actual.getLocation());
@@ -337,7 +350,7 @@ public class BasicDocumentFactoryTest extends TestCase {
 		assertNotNull(idoc);		
 	}
 	
-	public void testMarshalCommand() throws IOException {
+	public void testMarshalCommand() throws IOException, ParseException {
 		final ICommand cmd = this.createTestCommand();
 		this.docFactory.marshal(cmd, System.out);
 	}
@@ -353,7 +366,7 @@ public class BasicDocumentFactoryTest extends TestCase {
 		}
 	}
 	
-	public void testMarshalUnmarshalBasicCommand() throws IOException {
+	public void testMarshalUnmarshalBasicCommand() throws IOException, ParseException {
 		// creating a test command
 		final ICommand cmd1 = this.createTestCommand();
 		
@@ -372,7 +385,7 @@ public class BasicDocumentFactoryTest extends TestCase {
 		assertEquals(cmd1, cmd2);
 	}
 	
-	public void testMarshalUnmarshalBasicCrawlerDocument() throws IOException {
+	public void testMarshalUnmarshalBasicCrawlerDocument() throws IOException, ParseException {
 		final ICrawlerDocument expected = this.createTestCDoc(BasicCrawlerDocument.class, URI.create("http://www.paxle.net"));
 		assertNotNull(expected);
 		
@@ -423,7 +436,7 @@ public class BasicDocumentFactoryTest extends TestCase {
 		assertEquals(expected, actual);
 	}	
 	
-	public void testStoreMarshalledCommand() throws IOException {
+	public void testStoreMarshalledCommand() throws IOException, ParseException {
         // Create the ZIP file
         final File outFile = File.createTempFile("command", ".zip");
         outFile.deleteOnExit();
@@ -467,7 +480,7 @@ public class BasicDocumentFactoryTest extends TestCase {
         zf.close();
 	}
 	
-	public void testLoadUnmarshalledCommand() throws IOException {
+	public void testLoadUnmarshalledCommand() throws IOException, ParseException {
 		final ZipFile zf = new ZipFile(new File("src/test/resources/command.zip"));
 		
 		// process attachments
