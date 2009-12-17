@@ -34,6 +34,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -75,7 +76,7 @@ public class BasicDocumentFactoryTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		this.cal = new GregorianCalendar();
+		this.cal = new GregorianCalendar(TimeZone.getTimeZone("Europe/Vienna"));
 		this.cal.set(GregorianCalendar.YEAR, 2009);
 		this.cal.set(GregorianCalendar.MONTH, 11);
 		this.cal.set(GregorianCalendar.DAY_OF_MONTH, 16);
