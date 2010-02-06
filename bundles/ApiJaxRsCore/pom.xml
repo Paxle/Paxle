@@ -89,7 +89,7 @@
 		<repository>
 			<id>Wymiwyg-repository</id>
 			<name>Wymiwyg Repository</name>
-			<url>http://wymiwyg.berlios.de/maven2/</url>
+			<url>http://wymiwyg.berlios.de/maven2/releases/</url>
 		</repository>		
 	</repositories>
 
@@ -117,7 +117,7 @@
 		<dependency>
 			<groupId>org.wymiwyg</groupId>
 			<artifactId>wrhapi</artifactId>
-			<version>0.8-SNAPSHOT</version>
+			<version>0.8.1</version>
 		</dependency>
 
 		<!-- required for base64 encoding/decoding -->

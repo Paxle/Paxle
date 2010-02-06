@@ -651,16 +651,16 @@
 								<artifactItem>
  									<groupId>org.wymiwyg</groupId>  
  									<artifactId>wrhapi</artifactId>  
- 									<version>0.8-SNAPSHOT</version>
+ 									<version>0.8.1</version>
  									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.wymiwyg.wrhapi-0.8-SNAPSHOT.jar</destFileName>										
+									<destFileName>org.wymiwyg.wrhapi-0.8.1.jar</destFileName>										
 								</artifactItem>
 								<artifactItem>
  									<groupId>org.wymiwyg</groupId>  
  									<artifactId>wrhapi-jetty</artifactId>  
- 									<version>0.7</version>
+ 									<version>0.8.1</version>
  									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.wymiwyg.wrhapi-jetty-0.7.jar</destFileName>										
+									<destFileName>org.wymiwyg.wrhapi-jetty-0.8.1.jar</destFileName>										
 								</artifactItem>
 								<artifactItem>
  									<groupId>javax.ws.rs</groupId>  
