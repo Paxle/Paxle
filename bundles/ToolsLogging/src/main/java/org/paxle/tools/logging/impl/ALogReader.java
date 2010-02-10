@@ -31,7 +31,7 @@ import edu.umd.cs.findbugs.annotations.OverrideMustInvoke;
 public abstract class ALogReader implements ILogReader {
 	@Property(intValue = 200)
 	public static final String BUFFER_SIZE = "bufferSize";	
-	
+
 	/**
 	 * A internal buffer for logging-messages
 	 */
@@ -46,20 +46,22 @@ public abstract class ALogReader implements ILogReader {
 		}
 		this.fifo = BufferUtils.synchronizedBuffer(new CircularFifoBuffer(bufferSize));
 	}
-	
+
 	@OverrideMustInvoke
 	protected void deactivate() {
-		// clear messages
-		this.fifo.clear();
-		this.fifo = null;
+		if (this.fifo != null) {
+			// clear messages
+			this.fifo.clear();
+			this.fifo = null;
+		}
 	}	
-	
+
 	public void clear() {
 		if (this.fifo != null) {
 			fifo.clear();
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public ILogData getLogData() {
 		return new LogData(this.fifo);

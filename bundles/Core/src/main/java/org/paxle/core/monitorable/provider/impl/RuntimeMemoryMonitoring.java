@@ -95,7 +95,7 @@ public class RuntimeMemoryMonitoring implements Monitorable {
 		return new StatusVariable(
 				name,
 				StatusVariable.CM_GAUGE,
-				(int)mem
+				mem
 		);
 	}
 
