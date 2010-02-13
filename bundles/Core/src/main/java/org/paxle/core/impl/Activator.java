@@ -11,6 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
+
 package org.paxle.core.impl;
 
 import java.io.File;
@@ -219,9 +220,9 @@ public class Activator implements BundleActivator, InvocationHandler {
 		 * Memory observer
 		 * XXX: should be configurable via CM
 		 */
-        Filter gcFilter = bc.createFilter("(java.lang.runtime/memory.free <= " + 20*1024*1024 + ")");
+        Filter gcFilter = bc.createFilter("(java.lang.runtime/memory.free <= " + 20*1024 + ")");
         //out of memory
-        Filter oomFilter = bc.createFilter("(&(org.paxle.crawler/status.paused=false)(java.lang.runtime/memory.free <= " + 10*1024*1024 + "))");
+        Filter oomFilter = bc.createFilter("(&(org.paxle.crawler/status.paused=false)(java.lang.runtime/memory.free <= " + 10*1024 + "))");
         //out ouf disk space
         Filter oodFilter = bc.createFilter("(&(org.paxle.crawler/status.paused=false)(os.disk/disk.space.free<=1024))");
         //out of resources (to resolve the effects of the filters above)

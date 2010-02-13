@@ -11,6 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
+
 package org.paxle.core.monitorable.provider.impl;
 
 import java.util.HashSet;
@@ -92,10 +93,14 @@ public class RuntimeMemoryMonitoring implements Monitorable {
 		else if (name.equals(MEMORY_FREE)) mem = rt.maxMemory() - rt.totalMemory() + rt.freeMemory();
 		else if (name.equals(MEMORY_USED)) mem = rt.totalMemory() - rt.freeMemory();
 		
+		/* mem is in byte up to now. As an OSGi StatusVariable can only be an int, break it down to kbyte,
+		so we can represent values up to 2TB in mem */
+		mem = mem / 1024;
+		
 		return new StatusVariable(
 				name,
 				StatusVariable.CM_GAUGE,
-				mem
+				(int)mem
 		);
 	}
 

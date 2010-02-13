@@ -11,6 +11,7 @@
  * Unless required by applicable law or agreed to in writing, this software is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *#
+
 ## getting required services
 #set($servletManager = $manager.getService('org.paxle.gui.IServletManager'))
 
@@ -38,17 +39,17 @@
 		#if($monitorableTool.exists('java.lang.runtime'))
 		<tr>
 			<td><b>${text.ovMemory.memUsed}</b></td>
-			#set($memUsed = $monitorableTool.getStatusVariable('java.lang.runtime/memory.used').number / (1024*1024))
+			#set($memUsed = $monitorableTool.getStatusVariable('java.lang.runtime/memory.used').number / 1024)
 			<td>$numberTool.format($memUsed) MB</td>
 		</tr>
 		<tr>
 			<td><b>${text.ovMemory.memFree}</b></td>
-			#set($memFree = $monitorableTool.getStatusVariable('java.lang.runtime/memory.free').number / (1024*1024))
+			#set($memFree = $monitorableTool.getStatusVariable('java.lang.runtime/memory.free').number / 1024)
 			<td>$numberTool.format($memFree) MB</td>
 		</tr>
 		<tr>
 			<td><b>${text.ovMemory.memTotal}</b></td>
-			#set($memTotal = $monitorableTool.getStatusVariable('java.lang.runtime/memory.total').number / (1024*1024))
+			#set($memTotal = $monitorableTool.getStatusVariable('java.lang.runtime/memory.total').number / 1024)
 			<td>$numberTool.format($memTotal) MB</td>
 		</tr>
 		#end
