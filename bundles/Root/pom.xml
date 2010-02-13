@@ -207,9 +207,9 @@
 					<version>2.7</version>
 				</plugin>
 				<plugin>
-		        	<groupId>com.google.code.maven-license-plugin</groupId>
+		        	<groupId>com.mycila.maven-license-plugin</groupId>
 		        	<artifactId>maven-license-plugin</artifactId>
-		        	<version>1.4.0</version>				
+		        	<version>1.5.1</version>				
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
@@ -256,14 +256,14 @@
 				A plugin to check if all files contains the Paxle license header
 			 -->
 			<plugin>
-				<groupId>com.google.code.maven-license-plugin</groupId>
+				<groupId>com.mycila.maven-license-plugin</groupId>
 				<artifactId>maven-license-plugin</artifactId>
 				<configuration>
 					<header>../Paxle/LICENSE-HEADER.txt</header>
 					<properties>
 						<!-- Don't forget to update ../Paxle/pom.xml accordingly -->
 						<inceptionYear>${project.inceptionYear}</inceptionYear>
-						<year>2009</year>
+						<year>2010</year>
 					</properties>
 					<includes>
 						<include>**/*.java</include>
