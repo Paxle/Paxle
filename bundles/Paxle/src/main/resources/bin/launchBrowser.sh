@@ -2,7 +2,7 @@
 #
 # This file is part of the Paxle project.
 # Visit http://www.paxle.net for more information.
-# Copyright 2007-2009 the original author or authors.
+# Copyright 2007-2010 the original author or authors.
 #
 # Licensed under the terms of the Common Public License 1.0 ("CPL 1.0").
 # Any use, reproduction or distribution of this program constitutes the recipient's acceptance of this agreement.
