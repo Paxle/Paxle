@@ -15,8 +15,10 @@
 package org.paxle.parser.lha.impl;
 
 import java.io.File;
+import java.io.Reader;
 import java.net.URI;
 
+import org.apache.commons.io.IOUtils;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.impl.AParserTest;
 import org.paxle.parser.plain.impl.PlainParser;
@@ -56,9 +58,17 @@ public class LhaParserTest extends AParserTest {
 		assertNotNull(pdoc.getSubDocs());
 		assertEquals(1, pdoc.getSubDocs().size());
 
-		IParserDocument subDoc = pdoc.getSubDocs().get("test.txt");
+		final IParserDocument subDoc = pdoc.getSubDocs().get("test.txt");
 		assertNotNull(subDoc);
 		assertEquals(IParserDocument.Status.OK, subDoc.getStatus());
 		assertEquals("text/plain", subDoc.getMimeType());
+		
+		final Reader textReader = subDoc.getTextAsReader();
+		assertNotNull(textReader);		
+		
+		final String text = IOUtils.toString(textReader);
+		textReader.close();
+		assertNotNull(text);
+		assertEquals("Test the paxle lha parser.", text.trim());		
 	}
 }

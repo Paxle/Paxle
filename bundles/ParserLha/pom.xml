@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserLha</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<name>Paxle - Parser: LHA</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -36,9 +36,6 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						
-						<Export-Package>
-							org.paxle.parser.lha;version="${pom.version}"
-						</Export-Package>
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
@@ -57,7 +54,7 @@
 						<Embed-StripGroup>true</Embed-StripGroup>
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
-							lha;scope=compile|runtime
+							lhadecompressor;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
@@ -79,9 +76,9 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>LHADecompressor4J</groupId>
-			<artifactId>lha</artifactId>
-			<version>20080204-211402</version>
+			<groupId>net.sourceforge.lhadecompressor</groupId>
+			<artifactId>lhadecompressor</artifactId>
+			<version>0.9</version>
 		</dependency>
 		
 		<!-- Additional dependencies for testing -->

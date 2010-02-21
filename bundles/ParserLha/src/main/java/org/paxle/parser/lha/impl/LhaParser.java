@@ -19,10 +19,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Enumeration;
+import java.util.Iterator;
 
-import lha.LhaEntry;
-import lha.LhaFile;
+import net.sourceforge.lhadecompressor.LhaEntry;
+import net.sourceforge.lhadecompressor.LhaFile;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
@@ -51,7 +51,7 @@ import org.paxle.parser.iotools.SubParserDocOutputStream;
 		"application/x-lzh-archive"
 })
 public class LhaParser extends ASubParser implements ISubParser {
-	
+		
 	@Override
 	public IParserDocument parse(URI location, String charset, File content) throws ParserException, UnsupportedEncodingException, IOException {
 		// some helper tools required for parsing
@@ -65,9 +65,11 @@ public class LhaParser extends ASubParser implements ISubParser {
 		
 		// open the file and loop through all entries
 		final LhaFile lhaf = new LhaFile(content);
-		final Enumeration<?> eenum = lhaf.entries();
-		while (eenum.hasMoreElements()) {
-			final LhaEntry e = (LhaEntry)eenum.nextElement();
+		
+		@SuppressWarnings("unchecked")
+		final Iterator<LhaEntry> eiter = lhaf.entryIterator();
+		while (eiter.hasNext()) {
+			final LhaEntry e = eiter.next();
 			
 			final File ef = e.getFile();
 			if (ef.isDirectory()) continue;
