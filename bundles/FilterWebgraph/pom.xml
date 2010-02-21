@@ -104,5 +104,11 @@
 			<version>beta-20071021</version>
 			<optional>true</optional>
 		</dependency>
+		
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<!-- Version defined in Root/pom.xml -->
+		</dependency>		
 	</dependencies>
 </project>
