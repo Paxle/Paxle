@@ -62,7 +62,7 @@ public class TokenManager implements ITokenManager {
 			} else {
 				tc.put(token, 1);
 			}
-			if (tc.size() > 500) {
+			if (tc.size() > 200) {
 				this.storage.storeToken(tc);
 				tc = getNewTokenCache();
 			}

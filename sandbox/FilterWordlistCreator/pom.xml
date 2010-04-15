@@ -15,7 +15,7 @@
 		<groupId>org.paxle</groupId>
 		<artifactId>Root</artifactId>
 		<version>0.1.1-SNAPSHOT</version>
-		<relativePath>../Root/pom.xml</relativePath>
+		<relativePath>../bundles/Root/pom.xml</relativePath>
 	</parent>
 
 	<build>

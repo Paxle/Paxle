@@ -39,7 +39,9 @@ import org.paxle.filter.wordlistcreator.ITokenManager;
 public class WordlistCreatorFilter implements IFilter<ICommand> {
 
 	private Log logger = LogFactory.getLog(this.getClass());
-
+	/** Variables to measure the time this filter took */
+	long start, stop;
+	
 	@Reference
 	protected ITokenManager tm = null;
 
@@ -57,10 +59,11 @@ public class WordlistCreatorFilter implements IFilter<ICommand> {
 		if (command.getResult() != ICommand.Result.Passed) return;
 
 		try {
-			long start = System.currentTimeMillis();
+			start = System.currentTimeMillis();
 			this.tm.registerContent(command);
-			long stop = System.currentTimeMillis();
-			logger.debug("Filtering in WordlistFilter took " + (stop - start) +"ms");
+			stop = System.currentTimeMillis();
+			//!!!!! Change to debug prior to release !!!!!
+			logger.info("Filtering in WordlistFilter took " + (stop - start) +"ms");
 		} catch (IOException e) {
 			logger.warn("Exception", e);
 		}
