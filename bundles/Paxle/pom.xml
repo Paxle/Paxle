@@ -954,7 +954,6 @@
 				<module>../FilterPlaintextDumper</module>
 				<module>../FilterForum</module>
 				<module>../FilterWebgraph</module>
-				<module>../FilterWordlistCreator</module>
 				<module>../ToolsDNS</module>
 
 				<!-- Optional DI addons -->
