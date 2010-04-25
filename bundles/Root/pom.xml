@@ -83,6 +83,9 @@
 		
 		<!-- our source files are stored using UTF-8 -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
+		<!-- Report encoding -->
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
 	<issueManagement>
@@ -118,7 +121,7 @@
 	
 	<scm>
 		<url>http://svn.paxle.net/wsvn/paxle/trunk/bundles/</url>
-		<developerConnection>scm:svn:svn+ssh://svn@svn.xenim.de/p2psearch/trunk/bundles/</developerConnection>
+		<developerConnection>scm:svn:svn+ssh://svn@svn.paxle.net:2066/p2psearch/trunk/bundles/</developerConnection>
 	</scm>
 	
 	<prerequisites>
@@ -246,13 +249,11 @@
     				<artifactId>maven-install-plugin</artifactId>
 					<version>2.3</version>
 				</plugin>
-				<!-- required maven 2.0.9 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>			
-					<version>2.5</version>
+					<version>2.6.1</version>
 				</plugin>
-				 -->
 			</plugins>
 		</pluginManagement>
 
