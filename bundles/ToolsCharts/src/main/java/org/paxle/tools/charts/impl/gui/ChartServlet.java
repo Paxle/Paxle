@@ -201,7 +201,7 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 	private HashMap<String,TimeSeries> seriesMap = new HashMap<String,TimeSeries>();
 
 	/**
-	 * A map containing all available {@link JFreeChart charts} as their naomes 
+	 * A map containing all available {@link JFreeChart charts} as their names 
 	 */
 	private HashMap<String, JFreeChart> chartMap = new HashMap<String, JFreeChart>();
 	
@@ -569,7 +569,12 @@ public class ChartServlet extends ALayoutServlet implements EventHandler, Servic
 			
 			if (num != null) {
 				if (fullPath.equalsIgnoreCase(TSERIES_MEMORY_USAGE)) {
-					num = Integer.valueOf(num.intValue() / ( 1024 * 1024));
+					/* 
+					 * the memory-usage value is in KB.
+					 * See org.paxle.core.monitorable.provider.impl.RuntimeMemoryMonitoring for details
+					 */
+					
+					num = Integer.valueOf(num.intValue() / 1024);
 				} else if (fullPath.startsWith(CPU_MONITORABLE_ID)) {
 					num = new Double(num.doubleValue() * 100f);
 				}				
