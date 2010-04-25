@@ -30,7 +30,7 @@ import org.osgi.service.log.LogReaderService;
 import org.paxle.tools.logging.ILogDataEntry;
 import org.paxle.tools.logging.ILogReader;
 
-@Component(immediate=true, metatype=true)
+@Component(immediate=true, metatype=false)
 @Service(ILogReader.class)
 @Property(name=ILogReader.TYPE, value="osgi", propertyPrivate=true)
 public class LogReaderOSGi extends ALogReader implements LogListener, ILogReader {	
