@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>GUI</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.23-SNAPSHOT</version>
+	<version>0.1.24-SNAPSHOT</version>
 	<name>Paxle - UI: Browser</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -172,7 +172,7 @@
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
-			<version>1.6.2</version>
+			<version>1.6.3</version>
 			<exclusions>
 				<!-- Must be present if you have Velocity configured to automatically escape references . Otherwise, it is not needed. -->
 				<exclusion>
