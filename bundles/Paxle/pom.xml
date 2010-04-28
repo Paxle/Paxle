@@ -125,6 +125,11 @@
 		<developerConnection>scm:svn:svn+ssh://svn@svn.paxle.net:2066/p2psearch/trunk/bundles/Paxle</developerConnection>
 	</scm>
 
+	<prerequisites>
+		<!-- at least maven version 2.1.0 is required -->
+		<maven>2.1.0</maven>
+	</prerequisites>
+
 	<reporting>
 		<plugins>
 			<plugin>
