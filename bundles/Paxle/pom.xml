@@ -477,27 +477,27 @@
 								<artifactItem>
 									<groupId>org.slf4j</groupId>
 									<artifactId>jcl-over-slf4j</artifactId>
-									<version>1.5.8</version>
+									<version>1.5.11</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>jcl-over-slf4j-1.5.8.jar</destFileName>
+									<destFileName>jcl-over-slf4j-1.5.11.jar</destFileName>
 								</artifactItem>
 
 								<!-- pass slf4j logging to log4j -->
 								<artifactItem>
 									<groupId>org.slf4j</groupId>
 									<artifactId>slf4j-log4j12</artifactId>
-									<version>1.5.8</version>
+									<version>1.5.11</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>slf4j-log4j12-1.5.8.jar</destFileName>
+									<destFileName>slf4j-log4j12-1.5.11.jar</destFileName>
 								</artifactItem>
 								
 								<!--  slf4j api -->
 								<artifactItem>
 									<groupId>org.slf4j</groupId>
 									<artifactId>slf4j-api</artifactId>
-									<version>1.5.8</version>
+									<version>1.5.11</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>slf4j-api-1.5.8.jar</destFileName>
+									<destFileName>slf4j-api-1.5.11.jar</destFileName>
 								</artifactItem>		
 								
 								<!-- log4j dependency -->

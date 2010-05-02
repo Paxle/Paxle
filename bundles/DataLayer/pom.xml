@@ -45,8 +45,8 @@
 							org.osgi.service.monitor;version="0.0",
 							<!-- Logging framework -->
 							org.apache.commons.logging,
-							org.slf4j;version="1.5.6",
-							org.slf4j.impl;version="1.5.6",
+							org.slf4j",
+							org.slf4j.impl",
 							<!-- Apache Commons Collection -->
 							org.apache.commons.collections;version="3.2.1",
 							org.apache.commons.collections.*;version="3.2.1",
@@ -151,12 +151,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.5.8</version>
+			<version>1.5.11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.5.8</version>
+			<version>1.5.11</version>
 		</dependency>
 
 		<!-- for testing -->
