@@ -74,7 +74,7 @@
 	<properties>
 		<!-- Eclipse Equinox related Properties -->
 		<equinox.dependencies>target/dependency/equinox</equinox.dependencies>
-		<equinox.runtime.jar>org.eclipse.osgi_3.5.1.R35x_v20090827.jar</equinox.runtime.jar>
+		<equinox.runtime.jar>org.eclipse.osgi_3.5.2.R35x_v20100126.jar</equinox.runtime.jar>
 		<equinox.bundledir>bundles</equinox.bundledir>
 		
 		<!-- properties that will be overwritten by the installer -->
@@ -330,7 +330,7 @@
 								<artifactItem>
 									<groupId>org.eclipse.osgi</groupId>
 									<artifactId>osgi</artifactId>
-									<version>3.5.1.R35x_v20090827</version>
+									<version>3.5.2.R35x_v20100126</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>${equinox.runtime.jar}</destFileName>
 								</artifactItem>
@@ -365,9 +365,9 @@
 								<artifactItem>
 									<groupId>org.eclipse.equinox</groupId>
 									<artifactId>preferences</artifactId>
-									<version>3.2.300.v20090520-1800</version>
+									<version>3.2.301.R35x_v20091117</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.equinox.preferences_3.2.300.v20090520-1800.jar</destFileName>
+									<destFileName>org.eclipse.equinox.preferences_3.2.301.R35x_v20091117.jar</destFileName>
 								</artifactItem>
 
 								<artifactItem>
@@ -381,9 +381,9 @@
 								<artifactItem>
 									<groupId>org.eclipse.equinox</groupId>
 									<artifactId>event</artifactId>
-									<version>1.1.100.v20090520-1800</version>
+									<version>1.1.101.R35x_v20100209</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.eclipse.equinox.event_1.1.100.v20090520-1800.jar</destFileName>
+									<destFileName>org.eclipse.equinox.event_1.1.101.R35x_v20100209.jar</destFileName>
 								</artifactItem>								
 																					
 								<artifactItem>
@@ -513,9 +513,9 @@
 								<artifactItem>
 									<groupId>commons-pool</groupId>
 									<artifactId>commons-pool</artifactId>
-									<version>1.5.3</version>
+									<version>1.5.4</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.pool_1.5.3.jar</destFileName>
+									<destFileName>org.apache.commons.pool_1.5.4.jar</destFileName>
 								</artifactItem>								
 
 								<!-- Apache commons collection dependencies -->
@@ -830,9 +830,9 @@
 								<artifactItem>
 									<groupId>commons-pool</groupId>
 									<artifactId>commons-pool</artifactId>
-									<version>1.4</version>
+									<version>1.5.4</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.pool_1.4.jar</destFileName>
+									<destFileName>org.apache.commons.pool_1.5.4.jar</destFileName>
 								</artifactItem>								
 
 								<artifactItem>

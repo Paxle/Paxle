@@ -486,7 +486,7 @@
 			<dependency>
 				<groupId>commons-pool</groupId>
 				<artifactId>commons-pool</artifactId>
-				<version>1.5.3</version>
+				<version>1.5.4</version>
 			</dependency>
 			
 			<!-- Commons IO -->
@@ -525,7 +525,7 @@
 				<!-- Equinox framework bundle: needed by new console-command-handlers -->
 				<groupId>org.eclipse.osgi</groupId>
 				<artifactId>osgi</artifactId>
-				<version>3.5.1.R35x_v20090827</version>
+				<version>3.5.2.R35x_v20100126</version>
 			</dependency>
 
 			<!--
