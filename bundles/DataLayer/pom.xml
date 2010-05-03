@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>DataLayer</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.13-SNAPSHOT</version>
+	<version>0.1.14-SNAPSHOT</version>
 	<name>Paxle - DataLayer</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -101,6 +101,13 @@
 		</plugins>
 	</build>
 
+	<repositories>
+		<repository>
+			<id>jboss-repository</id>
+			<url>http://repository.jboss.com/maven2/</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<!-- Paxle Core Bundle -->
 		<dependency>
@@ -126,7 +133,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>3.3.2.GA</version>
+			<version>3.5.1-Final</version>
 		</dependency>
 		<dependency>
 			<groupId>antlr</groupId>
