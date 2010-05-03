@@ -68,10 +68,11 @@ import org.paxle.parser.html.IHtmlParser;
  * @see org.htmlparser.Parser#visitAllNodesWith(org.htmlparser.visitors.NodeVisitor) for the iterator
  * @see org.paxle.parser.html.impl.NodeCollector for the callback
  */
-@Component(metatype=false)
+@Component(name=HtmlParser.PID, metatype=false)
 @Service(ISubParser.class)
 @Property(name=ISubParser.PROP_MIMETYPES, value={"text/html","application/xhtml+xml"})
 public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactory {
+	static final String PID = "org.paxle.parser.html.impl.HtmlParser";
 	
 	private final Log logger = LogFactory.getLog(HtmlParser.class);
 	

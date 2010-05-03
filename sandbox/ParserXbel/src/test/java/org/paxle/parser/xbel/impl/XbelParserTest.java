@@ -19,9 +19,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-
-import junitx.framework.ListAssert;
 
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ParserException;

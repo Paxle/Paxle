@@ -76,8 +76,13 @@
 
 #if($cmd)
 	<hr/>
-	## skipping the following links
-	#set($ignoreProps = ["textAsReader","textFile","subDocs"])
+	## the properties to display
+	#set($pDocProps = [
+		"flags","mimeType","charset","languages",
+		"status","statusText",
+		"title","summary","author","headlines","keywords","links",
+		"lastChanged"
+	])
 	#set($pDoc = ${cmd.parserDocument})
 	<h3>The parsed Document</h3>
 		
@@ -91,8 +96,9 @@
     		</tr>
     		
     		## loop throug all properties
-    		#foreach($propertyDescr in ${propertyUtil.getPropertyDescriptors($pDoc)})
-    			#if(!$servlet.isEmptyOrNull(${propertyUtil.getProperty($pDoc,$propertyDescr.name)}) && !$ignoreProps.contains($propertyDescr.name))
+    		#foreach($pDocProp in $pDocProps)
+				#set($propertyDescr = ${propertyUtil.getPropertyDescriptor($pDoc,$pDocProp)})
+    			#if(!$servlet.isEmptyOrNull(${propertyUtil.getProperty($pDoc,$propertyDescr.name)}))
         			<tr>
         				<td>${propertyDescr.name}</td>
         				<td>${propertyDescr.propertyType.simpleName}</td>

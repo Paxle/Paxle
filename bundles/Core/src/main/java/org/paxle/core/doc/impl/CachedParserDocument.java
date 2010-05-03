@@ -178,5 +178,10 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 		public boolean isThresholdExceeded() {
 			return super.isThresholdExceeded();
 		}
+		
+		@Override
+		public void close() throws IOException {
+			super.close();
+		}
 	}
 }

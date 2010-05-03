@@ -503,6 +503,21 @@
 				<version>3.2.1</version>
 			</dependency>	
 
+			<!-- Commons Beanutils -->
+			<dependency>
+				<groupId>commons-beanutils</groupId>
+				<artifactId>commons-beanutils</artifactId>
+				<version>1.8.3</version>
+			</dependency>
+
+			<!-- Commons Lang -->
+			<dependency>
+				<groupId>commons-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>2.5</version>
+				<optional>true</optional>
+			</dependency>
+
 			<!-- 
 				Eclipse Equinox dependencies needed for compiling
 			 -->

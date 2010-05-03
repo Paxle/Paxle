@@ -14,6 +14,7 @@
 
 package org.paxle.parser.pdf.impl;
 
+import java.awt.geom.Rectangle2D;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +25,9 @@ import java.io.Writer;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,10 +36,23 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.pdmodel.PDDocumentNameDictionary;
+import org.apache.pdfbox.pdmodel.PDEmbeddedFilesNameTreeNode;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecification;
+import org.apache.pdfbox.pdmodel.common.filespecification.PDEmbeddedFile;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
+import org.apache.pdfbox.pdmodel.interactive.action.type.PDAction;
+import org.apache.pdfbox.pdmodel.interactive.action.type.PDActionURI;
+import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
+import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationLink;
 import org.apache.pdfbox.util.PDFTextStripper;
+import org.apache.pdfbox.util.PDFTextStripperByArea;
+import org.osgi.framework.Constants;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.IParserContext;
@@ -43,10 +60,12 @@ import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 
-@Component(metatype=false)
+@Component(name=PdfParser.PID,metatype=false)
 @Service(ISubParser.class)
 @Property(name=ISubParser.PROP_MIMETYPES, value={"application/pdf"})
 public class PdfParser implements ISubParser {
+	static final String PID = "org.paxle.parser.pdf.impl.PdfParser";
+	
 	/**
 	 * For logging
 	 */
@@ -106,41 +125,24 @@ public class PdfParser implements ISubParser {
 			}
 			
 			// extract metadata
-			final PDDocumentInformation metadata = pddDoc.getDocumentInformation();
-			if (metadata != null) {
-				// document title
-				final String title = metadata.getTitle();
-				if (title != null && title.length() > 0) parserDoc.setTitle(title);
-				
-				// document author(s)
-				final String author = metadata.getAuthor();
-				if (author != null && author.length() > 0) parserDoc.setAuthor(author);;
-				
-				// subject
-				final String summary = metadata.getSubject();
-				if (summary != null && summary.length() > 0) parserDoc.setSummary(summary);
-				
-				// keywords
-				final String keywords = metadata.getKeywords();
-				if (keywords != null && keywords.length() > 0) {
-					String[] keywordArray = keywords.split("[,;\\s]");
-					if (keywordArray != null && keywordArray.length > 0) {
-						parserDoc.setKeywords(Arrays.asList(keywordArray));
-					}
-				}
-				
-				// last modification date
-				final Calendar lastMod = metadata.getModificationDate();
-				if (lastMod != null) {
-					parserDoc.setLastChanged(lastMod.getTime());
-				}
-			}
+			this.extractMetaData(parserDoc, pddDoc);
 			
-			// init text stripper
+			// extract text
 			final PDFTextStripper stripper = new PDFTextStripper();
+			
+			// XXX: we could limit the amount of parsed pages via crawling-profile properties?
+			// stripper.setStartPage(startPageValue);
+			// stripper.setEndPage(endPageValue);
+			
 			final Writer pdocWriter = parserDoc.getTextWriter();
 			stripper.writeText(pddDoc, pdocWriter);
 			pdocWriter.flush();
+			
+			// extracting URIs
+			this.extractURLs(parserDoc, pddDoc);
+			
+			// extracting embedded files
+			this.extractEmbeddedFiles(location, parserDoc, pddDoc);
 			
 			parserDoc.setStatus(IParserDocument.Status.OK);
 			return parserDoc;
@@ -148,6 +150,178 @@ public class PdfParser implements ISubParser {
 			throw new ParserException("Error parsing pdf document. " + e.getMessage(), e);
 		} finally {
 			if (pddDoc != null) try { pddDoc.close(); } catch (Exception e) {/* ignore this */}
+		}
+	}
+		
+	/**
+	 * A function to extract metadata from the PDF-document.
+	 */
+	protected void extractMetaData(IParserDocument parserDoc, PDDocument pddDoc) throws IOException {
+		// extract metadata
+		final PDDocumentInformation metadata = pddDoc.getDocumentInformation();
+		if (metadata == null) return;
+		
+		// document title
+		final String title = metadata.getTitle();
+		if (title != null && title.length() > 0) parserDoc.setTitle(title);
+		
+		// document author(s)
+		final String author = metadata.getAuthor();
+		if (author != null && author.length() > 0) parserDoc.setAuthor(author);;
+		
+		// subject
+		final String summary = metadata.getSubject();
+		if (summary != null && summary.length() > 0) parserDoc.setSummary(summary);
+		
+		// keywords
+		final String keywords = metadata.getKeywords();
+		if (keywords != null && keywords.length() > 0) {
+			String[] keywordArray = keywords.split("[,;\\s]");
+			if (keywordArray != null && keywordArray.length > 0) {
+				parserDoc.setKeywords(Arrays.asList(keywordArray));
+			}
+		}
+		
+		// last modification date
+		final Calendar lastMod = metadata.getModificationDate();
+		if (lastMod != null) {
+			parserDoc.setLastChanged(lastMod.getTime());
+		}
+	}
+	
+	/**
+	 * A function to extract embedded URIs from the PDF-document.
+	 * 
+	 */
+	protected void extractURLs(IParserDocument parserDoc, PDDocument pddDoc) throws IOException {
+		final PDDocumentCatalog pddDocCatalog = pddDoc.getDocumentCatalog();
+		if (pddDocCatalog == null) return;
+		
+		@SuppressWarnings("unchecked")
+        final List<PDPage> allPages = pddDocCatalog.getAllPages();
+        if (allPages == null || allPages.isEmpty()) return;
+        
+        for( int i=0; i<allPages.size(); i++ ) {
+            final PDFTextStripperByArea stripper = new PDFTextStripperByArea();
+            final PDPage page = (PDPage)allPages.get(i);
+            
+            @SuppressWarnings("unchecked")
+            final List<PDAnnotation> annotations = page.getAnnotations();
+            if (annotations == null || annotations.isEmpty()) return;
+            
+            //first setup text extraction regions
+            for( int j=0; j<annotations.size(); j++ ) {
+                final PDAnnotation annot = (PDAnnotation)annotations.get(j);
+                if( annot instanceof PDAnnotationLink ) {
+                    final PDAnnotationLink link = (PDAnnotationLink)annot;
+                    final PDRectangle rect = link.getRectangle();
+                    
+                    //need to reposition link rectangle to match text space
+                    float x = rect.getLowerLeftX();
+                    float y = rect.getUpperRightY();
+                    float width = rect.getWidth();
+                    float height = rect.getHeight();
+                    int rotation = page.findRotation();
+                    if(rotation == 0) {
+                        PDRectangle pageSize = page.findMediaBox();
+                        y = pageSize.getHeight() - y;
+                    } else if( rotation == 90 ) {
+                        //do nothing
+                    }
+
+                    Rectangle2D.Float awtRect = new Rectangle2D.Float( x,y,width,height );
+                    stripper.addRegion("" + j, awtRect );
+                }
+            }
+
+            stripper.extractRegions( page );
+
+            for( int j=0; j<annotations.size(); j++ ) {
+                final PDAnnotation annot = (PDAnnotation)annotations.get( j );
+                if( annot instanceof PDAnnotationLink ) {
+                    final PDAnnotationLink link = (PDAnnotationLink)annot;
+                    final PDAction action = link.getAction();
+                    final String urlText = stripper.getTextForRegion("" + j);
+                    
+                    if(action instanceof PDActionURI) {
+                        final PDActionURI embeddedUri = (PDActionURI)action; 
+                        final URI temp = URI.create(embeddedUri.getURI());
+                        
+                        parserDoc.addReference(temp, urlText, Constants.SERVICE_PID + ":" + PID);
+                    }
+                }
+            }
+        }		
+	}
+	
+	/**
+	 * A function to extract the content of embedded files from a PDF document.
+	 */
+	protected void extractEmbeddedFiles(URI location, IParserDocument parserDoc, PDDocument pddDoc) throws IOException {
+		final PDDocumentCatalog pddDocCatalog = pddDoc.getDocumentCatalog();
+		if (pddDocCatalog == null) return;
+		
+		final PDDocumentNameDictionary nameDic = pddDocCatalog.getNames();
+		if (nameDic == null) return;
+		
+		final PDEmbeddedFilesNameTreeNode embeddedFiles = nameDic.getEmbeddedFiles();
+		if (embeddedFiles == null) return;
+		
+		@SuppressWarnings("unchecked")
+		final Map<String,Object> names = embeddedFiles.getNames();
+		if (names == null || names.isEmpty()) return;
+		
+		final IParserContext context = ParserContext.getCurrentContext();
+		
+		for (Entry<String,Object> name : names.entrySet()) {
+			// final String fileDesc = name.getKey();
+			final Object fileObj = name.getValue();
+			if (fileObj == null) continue;
+			
+			if (fileObj instanceof PDComplexFileSpecification) {
+				final PDComplexFileSpecification embeddedFileSpec = (PDComplexFileSpecification) fileObj;
+				final PDEmbeddedFile embeddedFile = embeddedFileSpec.getEmbeddedFile();
+				
+				// getting the embedded file name and mime-type
+				final String fileName = embeddedFileSpec.getFile();
+				final String fileMimeType = embeddedFile.getSubtype();
+				if (fileMimeType == null) {
+					this.logger.warn(String.format(
+						"No mime-type specified form embedded file '%s#%s'.",
+						location,fileName
+					));
+					continue;					
+				}
+				
+				// getting a parser to parse the content
+				final ISubParser sp = context.getParser(fileMimeType);
+				if (sp == null) {
+					this.logger.warn(String.format(
+						"No parser found to parse embedded file '%s#%s' with type '%s'.",
+						location, fileName, fileMimeType
+					));
+					continue;
+				}
+				
+				// parsing content
+				InputStream embeddedFileStream = null;
+				try {
+					embeddedFileStream = embeddedFile.createInputStream();
+					final IParserDocument subParserDoc = sp.parse(location, "UTF-8", embeddedFileStream);
+					if (subParserDoc.getMimeType() == null) {
+						subParserDoc.setMimeType(fileMimeType);
+					}
+					
+					parserDoc.addSubDocument(fileName, subParserDoc);
+				} catch (ParserException e) {
+					this.logger.error(String.format(
+						"Unexpected error while parsing parse embedded file '%s#%s' with type '%s': %s",
+						location, fileName, fileMimeType, e.getMessage()
+					));
+				} finally {
+					if (embeddedFileStream != null) try { embeddedFileStream.close(); } catch (Exception e) {/* ignore this */}
+				}
+			}
 		}
 	}
 	

@@ -549,18 +549,18 @@
 								<artifactItem>
 									<groupId>commons-lang</groupId>
 									<artifactId>commons-lang</artifactId>
-									<version>2.4</version>
+									<version>2.5</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.lang_2.4.jar</destFileName>
+									<destFileName>org.apache.commons.lang_2.5.jar</destFileName>
 								</artifactItem>		
 								
 								<!-- Apache commons beanutils dependencies -->
 								<artifactItem>
 									<groupId>commons-beanutils</groupId>
 									<artifactId>commons-beanutils</artifactId>
-									<version>1.8.0</version>
+									<version>1.8.3</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.beanutils_1.8.0.jar</destFileName>
+									<destFileName>org.apache.commons.beanutils_1.8.3.jar</destFileName>
 								</artifactItem>																											
 
 								<!-- HTTP Client dependencies -->
@@ -862,9 +862,9 @@
 								<artifactItem>
 									<groupId>commons-lang</groupId>
 									<artifactId>commons-lang</artifactId>
-									<version>2.4</version>
+									<version>2.5</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.lang_2.4.jar</destFileName>
+									<destFileName>org.apache.commons.lang_2.5.jar</destFileName>
 								</artifactItem>															
 
 								<artifactItem>

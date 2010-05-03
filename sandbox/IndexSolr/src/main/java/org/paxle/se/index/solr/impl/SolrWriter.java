@@ -15,8 +15,8 @@ import org.apache.solr.common.SolrInputDocument;
 import org.paxle.core.data.IDataConsumer;
 import org.paxle.core.data.IDataSource;
 import org.paxle.core.doc.Field;
+import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IIndexerDocument;
-import org.paxle.core.queue.ICommand;
 import org.paxle.se.index.IFieldManager;
 import org.paxle.se.index.IIndexWriter;
 import org.paxle.se.index.IndexException;
@@ -87,7 +87,7 @@ public class SolrWriter extends Thread implements IDataConsumer<ICommand>, IInde
 
 			while (!Thread.interrupted()) {
 				// fetch the next command from the data-source
-				ICommand command = this.source.getData();
+				final ICommand command = this.source.getData();
 				
 				// check status
 				if (command.getResult() != ICommand.Result.Passed) {

@@ -43,6 +43,7 @@ import org.htmlparser.tags.TitleTag;
 import org.htmlparser.util.ParserException;
 import org.htmlparser.visitors.NodeVisitor;
 
+import org.osgi.framework.Constants;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.core.norm.IReferenceNormalizer;
@@ -218,7 +219,7 @@ public class NodeCollector extends NodeVisitor {
 					continue;
 				final URI uri = refNorm.normalizeReference(absUrl);
 				if (uri != null)
-					this.doc.addReference(uri, unescaped, "ParserHtml");
+					this.doc.addReference(uri, unescaped, Constants.SERVICE_PID + ":" + HtmlParser.PID);
 			}
 		
 		// robots meta-tag: noindex / nofollow

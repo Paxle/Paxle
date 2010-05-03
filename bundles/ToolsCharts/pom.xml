@@ -34,9 +34,6 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>					
 						
-						<Export-Package>
-							org.paxle.tools.charts;version="${pom.version}"
-						</Export-Package>
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
@@ -68,7 +65,6 @@
 							javax.imageio.*				
 						</Import-Package>
 						<Private-Package>
-							org.paxle.tools.charts.impl,
 							org.paxle.tools.charts.impl.gui
 						</Private-Package>						
 					</instructions>

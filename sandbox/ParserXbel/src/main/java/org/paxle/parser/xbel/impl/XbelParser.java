@@ -27,6 +27,7 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
+import org.osgi.framework.Constants;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.ISubParser;
@@ -36,11 +37,12 @@ import org.paxle.parser.xbel.api.Bookmark;
 import org.paxle.parser.xbel.api.Folder;
 import org.paxle.parser.xbel.api.Xbel;
 
-@Component(metatype=false)
+@Component(name=XbelParser.PID,metatype=false)
 @Service(ISubParser.class)
 @Property(name=ISubParser.PROP_MIMETYPES, value={"application/xbel+xml","application/x-xbel"})
 public class XbelParser extends ASubParser implements ISubParser {
-
+		private static final String PID = "org.paxle.parser.xbel.impl.XbelParser";
+	
 	private final JAXBContext jaxbContext;
 	
 	public XbelParser() throws JAXBException {
@@ -94,7 +96,7 @@ public class XbelParser extends ASubParser implements ISubParser {
 		String title = bm.getTitle();
 		String url = bm.getHref();
 		if (url != null) {
-			pdoc.addReference(URI.create(url), title==null?url:title, "ParserXbel");
+			pdoc.addReference(URI.create(url), title==null?url:title, Constants.SERVICE_PID + ":" + PID);
 		}
 		
 		String desc = bm.getDesc();

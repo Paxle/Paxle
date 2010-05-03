@@ -23,6 +23,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
+import org.osgi.framework.Constants;
 import org.paxle.core.doc.ICommand;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.filter.FilterQueuePosition;
@@ -30,7 +31,7 @@ import org.paxle.core.filter.FilterTarget;
 import org.paxle.core.filter.IFilter;
 import org.paxle.core.filter.IFilterContext;
 
-@Component(immediate=true, metatype=false)
+@Component(name=AscendingPathUrlExtractionFilter.PID, immediate=true, metatype=false)
 @Service(IFilter.class)
 @Properties({
 	@Property(name="org.paxle.metadata", boolValue=true),
@@ -41,7 +42,8 @@ import org.paxle.core.filter.IFilterContext;
 		position = 60)
 )
 public class AscendingPathUrlExtractionFilter implements IFilter<ICommand> {
-
+	static final String PID = "org.paxle.core.filter.impl.AscendingPathUrlExtractionFilter";
+	
 	/**
 	 * For logging
 	 */
@@ -84,7 +86,7 @@ public class AscendingPathUrlExtractionFilter implements IFilter<ICommand> {
 					temp++;
 				}
 				
-				doc.addReference(new URI(result.toString()), null, "AscendingPathUrlExtractionFilter");
+				doc.addReference(new URI(result.toString()), null, Constants.SERVICE_PID + ":" + PID);
 				logger.debug("Extracted URL " + result +" out of URL " + command.getLocation());
 				
 				append_fields++;

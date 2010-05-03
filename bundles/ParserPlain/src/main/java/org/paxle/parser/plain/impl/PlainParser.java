@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
+import org.osgi.framework.Constants;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.IParserContext;
@@ -36,10 +37,11 @@ import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 
-@Component(metatype=false)
+@Component(name=PlainParser.PID, metatype=false)
 @Service(ISubParser.class)
 @Property(name=ISubParser.PROP_MIMETYPES, value={"text/plain"})
 public class PlainParser implements ISubParser {
+	static final String PID = "org.paxle.parser.plain.impl.PlainParser";
 	
 	private static final int MAX_HEADLINE_LENTGH = 256;
 	
@@ -96,7 +98,7 @@ public class PlainParser implements ISubParser {
 				final URI uri = refNorm.normalizeReference(plainUri);
 				if (uri == null)
 					break;
-				pdoc.addReference(uri, token, "ParserPlain");
+				pdoc.addReference(uri, token, Constants.SERVICE_PID + ":" + PID);
 				hasReference = true;
 			} while (false);
 			

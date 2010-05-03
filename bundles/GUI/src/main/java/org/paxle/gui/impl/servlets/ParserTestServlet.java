@@ -325,7 +325,7 @@ public class ParserTestServlet extends ALayoutServlet {
     	
     	// getting the pdoc Reader
     	final Reader pDocReader = pDoc.getTextAsReader();
-    	if (pDocReader == null) {	    	
+    	if (pDocReader != null) {	    	
 	    	// creating a line iterator
 	    	final LineIterator lineIter = new ParserTestLineIterator(pDocReader);
 	    

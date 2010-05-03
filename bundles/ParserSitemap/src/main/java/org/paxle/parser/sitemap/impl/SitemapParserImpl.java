@@ -29,6 +29,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.osgi.framework.Constants;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.ISubParser;
@@ -39,6 +40,8 @@ import org.paxle.parser.sitemap.api.Url;
 import org.paxle.parser.sitemap.api.Urlset;
 
 public class SitemapParserImpl extends ASubParser implements SitemapParser {
+	static final String PID = "org.paxle.parser.sitemap.impl.SitemapParserImpl";
+	
 	private static final List<String> MIME_TYPES = Arrays.asList(
 			// this is no official mimetype but we need one to register this parser to the manager
 			"application/sitemap+xml"
@@ -103,7 +106,7 @@ public class SitemapParserImpl extends ASubParser implements SitemapParser {
 				for (Url url : urls) {
 					if (url == null) break;
 					// TODO: we could extract more metadata for each url here
-					pdoc.addReference(url.getLocation(), url.getLocation().toASCIIString(), "ParserSitemap");
+					pdoc.addReference(url.getLocation(), url.getLocation().toASCIIString(), Constants.SERVICE_PID + ":" + PID);
 				}				
 			}
 			

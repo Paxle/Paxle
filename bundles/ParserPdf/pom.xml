@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserPdf</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>Paxle - Parser: PDF</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -56,6 +56,10 @@
 							org.bouncycastle.asn1.x509;version="[1.39.0, 2.0.0)";resolution:=optional,
 							org.bouncycastle.cms;version="[1.39.0, 2.0.0)";resolution:=optional,
 							org.bouncycastle.jce.provider;version="[1.39.0, 2.0.0)";resolution:=optional,
+							<!-- ICU4J (optional; used for right to left texts) -->
+							com.ibm.icu.text;resolution:=optional,
+							<!-- other classes -->
+							javax.imageio,
 							<!-- ignoring other classes -->
 							!*
 						</Import-Package>
@@ -68,7 +72,8 @@
 						<Embed-Directory>dependencies</Embed-Directory>
 						<Embed-Dependency>
 							pdfbox;scope=compile|runtime,
-							fontbox;scope=compile|runtime
+							fontbox;scope=compile|runtime,
+							jempbox;scope=compile|runtime
 						</Embed-Dependency>
 					</instructions>
 				</configuration>
@@ -92,17 +97,17 @@
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
-			<version>0.8.0-incubating</version>
+			<version>1.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>fontbox</artifactId>
-			<version>0.8.0-incubator</version>
+			<version>1.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>jempbox</artifactId>
-			<version>0.8.0-incubator</version>
+			<version>1.1.0</version>
 		</dependency>
 		
 		<!-- Additional dependencies for testing -->
@@ -112,11 +117,16 @@
 			<version>[,0.2.0)</version>
 			<classifier>tests</classifier>
 			<scope>test</scope>
-		</dependency>		
+		</dependency>
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>ParserPlain</artifactId>
+			<version>[,0.2.0)</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>1.4</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

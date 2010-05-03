@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
+import org.osgi.framework.Constants;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.ASubParser;
@@ -45,10 +46,12 @@ import de.nava.informa.core.ImageIF;
 import de.nava.informa.core.ItemIF;
 import de.nava.informa.impl.basic.ChannelBuilder;
 
-@Component(metatype=false)
+@Component(name=FeedParser.PID, metatype=false)
 @Service(ISubParser.class)
 @Property(name=ISubParser.PROP_MIMETYPES, value={"application/rdf+xml","application/rss+xml","application/atom+xml","text/rss"})
 public class FeedParser extends ASubParser implements ISubParser {
+	static final String PID = "org.paxle.parser.feed.impl.FeedParser";
+	
 	private static final String MIMETYPE_RDF = "application/rdf+xml";
 	private static final String MIMETYPE_RSS = "application/rss+xml";
 	private static final String MIMETYPE_ATOM = "application/atom+xml";
@@ -174,7 +177,7 @@ public class FeedParser extends ASubParser implements ISubParser {
 					
 					// the item URL
 					if (itemURL != null) {
-						idoc.addReference(itemURL, itemTitle, "ParserFeed");
+						idoc.addReference(itemURL, itemTitle, Constants.SERVICE_PID + ":" + PID);
 					}
 					
 					// the item description
