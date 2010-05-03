@@ -27,10 +27,19 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.commons.io.output.DeferredFileOutputStream;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.core.doc.impl.jaxb.JaxbFactory;
+import org.paxle.core.doc.impl.jaxb.JaxbFileAdapter;
 import org.paxle.core.io.temp.ITempFileManager;
 
+@XmlRootElement(namespace="cached",name="parserDocument")
+@XmlType(factoryClass=JaxbFactory.class, factoryMethod="createCachedParserDocument")
 public final class CachedParserDocument extends AParserDocument implements IParserDocument {
 	
 	private static final int DEFAULT_MAX_TEXT_SIZE_RAM = 1 * 1024 * 1024; // 1 mio. characters == 2 MB
@@ -73,6 +82,8 @@ public final class CachedParserDocument extends AParserDocument implements IPars
 		}
 	}
 		
+	@XmlElement(name="text")
+	@XmlJavaTypeAdapter(JaxbFileAdapter.class)	
 	@Override
 	public File getTextFile() throws IOException {
 		this.close();

@@ -22,6 +22,7 @@ import org.paxle.core.doc.impl.BasicCrawlerDocument;
 import org.paxle.core.doc.impl.BasicDocumentFactory;
 import org.paxle.core.doc.impl.BasicIndexerDocument;
 import org.paxle.core.doc.impl.BasicParserDocument;
+import org.paxle.core.doc.impl.CachedParserDocument;
 
 
 public class JaxbFactory {
@@ -45,6 +46,10 @@ public class JaxbFactory {
 	
 	public static BasicParserDocument createBasicParserDocument()  throws IOException {
 		return docFactory.createDocument(BasicParserDocument.class);
+	}
+	
+	public static CachedParserDocument createCachedParserDocument() throws IOException {
+		return docFactory.createDocument(CachedParserDocument.class);
 	}
 	
 	public static BasicIndexerDocument createBasicIndexerDocument()  throws IOException {

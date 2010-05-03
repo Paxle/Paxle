@@ -421,6 +421,23 @@ public class BasicDocumentFactoryTest extends TestCase {
 		assertEquals(expected, actual);
 	}	
 	
+	public void testMarshalUnmarshalCachedParserDocument() throws IOException {
+		final IParserDocument expected = this.createTestPDoc(CachedParserDocument.class);
+		assertNotNull(expected);
+		
+		// marshal parser-document
+		final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		final TeeOutputStream out = new TeeOutputStream(System.out, bout);
+		final Map<String, DataHandler> attachments = this.docFactory.marshal(expected, out);
+		out.close();
+		
+		// unmarshal crawler-document
+		final ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
+		final IParserDocument actual = this.docFactory.unmarshal(bin, attachments);
+		
+		assertEquals(expected, actual);
+	}	
+	
 	public void testMarshalUnmarshalBasicIndexerDocument() throws IOException {
 		final IIndexerDocument expected = this.createTestIDoc(BasicIndexerDocument.class);
 		assertNotNull(expected);

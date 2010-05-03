@@ -1,4 +1,5 @@
 BasicCommand
 BasicCrawlerDocument
 BasicParserDocument
+CachedParserDocument
 BasicIndexerDocument

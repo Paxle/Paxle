@@ -34,7 +34,7 @@ import org.paxle.core.doc.impl.jaxb.JaxbFactory;
 import org.paxle.core.doc.impl.jaxb.JaxbFileAdapter;
 import org.paxle.core.io.temp.ITempFileManager;
 
-@XmlRootElement(name="parserDocument")
+@XmlRootElement(namespace="basic",name="parserDocument")
 @XmlType(factoryClass=JaxbFactory.class, factoryMethod="createBasicParserDocument")
 public class BasicParserDocument extends AParserDocument {
 	
