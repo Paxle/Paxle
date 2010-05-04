@@ -124,13 +124,14 @@ public class BlacklistFilter implements IRegexpBlacklistFilter {
 		String[] enabledBlacklistNames = null;
 		
 		final ICommandProfile profile = filterContext.getCommandProfile(command.getProfileOID());
-		Object propObj = profile.getProperty(PROP_ADDITIONAL_BLACKLISTS);
-		if (propObj instanceof String[]) {
-			enabledBlacklistNames = (String[]) propObj;
-		} else if (propObj instanceof String) {
-			enabledBlacklistNames = ((String)propObj).split(",");
+		if (profile != null) {
+			Object propObj = profile.getProperty(PROP_ADDITIONAL_BLACKLISTS);
+			if (propObj instanceof String[]) {
+				enabledBlacklistNames = (String[]) propObj;
+			} else if (propObj instanceof String) {
+				enabledBlacklistNames = ((String)propObj).split(",");
+			}
 		}
-		
 		return enabledBlacklistNames;
 	}
 	
