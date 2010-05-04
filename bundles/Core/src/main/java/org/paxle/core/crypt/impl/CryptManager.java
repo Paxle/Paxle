@@ -14,10 +14,10 @@
 
 package org.paxle.core.crypt.impl;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,8 +27,6 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.crypt.ICrypt;
 import org.paxle.core.crypt.ICryptManager;
 
@@ -46,62 +44,47 @@ import org.paxle.core.crypt.ICryptManager;
 public class CryptManager implements ICryptManager {
 	static final String REFERENCE_CRYPT_PROVIDERS = "cryptProviders";
 	
-	private final Hashtable<String,ServiceReference> crypts = new Hashtable<String,ServiceReference>();
-	
 	/**
-	 * The context of this component
+	 * A map of all known {@link ICrypt crypt-providers}
 	 */
-	protected ComponentContext ctx;		
+	private final Hashtable<String,ICrypt> crypts = new Hashtable<String,ICrypt>();	
 	
 	/**
 	 * for logging
 	 */
 	private final Log logger = LogFactory.getLog(this.getClass());
 
-	protected void activate(ComponentContext context) {
-		this.ctx = context;
-	}
-	
 	public ICrypt getCrypt(String name) {
 		if (name == null) return null;
-		
-		final ServiceReference ref = this.crypts.get(name);
-		if (ref == null) return null;
-		return (ICrypt) this.ctx.locateService(REFERENCE_CRYPT_PROVIDERS, ref);
+		return this.crypts.get(name);
 	}
 	
-	protected void addCryptProvider(ServiceReference providerRef) {
-		final String name = (String) providerRef.getProperty(ICrypt.CRYPT_NAME_PROP);
+	protected void addCryptProvider(ICrypt cryptProvider,Map<String,Object> props) {
+		final String name = (String) props.get(ICrypt.CRYPT_NAME_PROP);
 		if (name == null) return;
 		
-		this.crypts.put(name, providerRef);
+		this.crypts.put(name, cryptProvider);
 		this.logger.info(String.format(
-				"Crypt provider with PID '%s' from bundle '%s' registered.",
-				providerRef.getProperty(Constants.SERVICE_PID),
-				providerRef.getBundle().getSymbolicName()
+				"Crypt provider '%s' with PID '%s' registered.",
+				cryptProvider.getClass().getName(),
+				props.get(Constants.SERVICE_PID)				
 		));		
 	}
 	
-	protected void removeCryptManagerProvider(ServiceReference providerRef) {
-		final String name = (String) providerRef.getProperty(ICrypt.CRYPT_NAME_PROP);
+	protected void removeCryptManagerProvider(ICrypt cryptProvider,Map<String,Object> props) {
+		final String name = (String) props.get(ICrypt.CRYPT_NAME_PROP);
 		if (name == null) return;		
 		
 		this.crypts.remove(name);
 		this.logger.info(String.format(
-				"Crypt provider with PID '%s' from bundle '%s' unregistered.",
-				providerRef.getProperty(Constants.SERVICE_PID),
-				providerRef.getBundle().getSymbolicName()
+				"Crypt provider '%s' with PID '%s' unregistered.",
+				cryptProvider.getClass().getName(),
+				props.get(Constants.SERVICE_PID)
 		));		
 	}
 	
 	public Collection<ICrypt> getCrypts() {
-		final ArrayList<ICrypt> providers = new ArrayList<ICrypt>();
-		
-		for (String name : this.crypts.keySet()) {
-			providers.add(this.getCrypt(name));
-		}
-		
-		return providers;
+		return this.crypts.values();
 	}
 	
 	public Collection<String> getNames() {
