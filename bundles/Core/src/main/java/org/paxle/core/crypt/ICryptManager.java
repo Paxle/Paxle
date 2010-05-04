@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 
 
 /**
- * A component providing cypt-functions, e.g. to genererate MD5 checksums, etc.
+ * A component providing cryptographic functions, e.g. to generate MD5 checksums
  */
 public interface ICryptManager {
 	

@@ -121,13 +121,13 @@
 	
 	<scm>
 		<url>http://svn.paxle.net/wsvn/paxle/trunk/bundles/</url>
-		<developerConnection>scm:svn:svn+ssh://svn@svn.paxle.net:2066/p2psearch/trunk/bundles/</developerConnection>
+		<developerConnection>scm:svn:svn+ssh://svn@svn.paxle.net:2066/paxle/trunk/bundles/</developerConnection>
 	</scm>
 	
 	<prerequisites>
 		<!-- at least maven version 2.1.0 is required -->
 		<maven>2.1.0</maven>
-	</prerequisites>	
+	</prerequisites>
 	
 	<build>
 		<!-- Output File Name:
@@ -269,7 +269,7 @@
 
 		<plugins>
 			<!-- 
-				A plugin to check if all files contains the Paxle license header
+				A plugin to check if all files contain the Paxle license header
 			 -->
 			<plugin>
 				<groupId>com.mycila.maven-license-plugin</groupId>
@@ -556,7 +556,7 @@
 				<groupId>com.h2database</groupId>
 				<artifactId>h2</artifactId>
 				<version>1.1.118</version>
-			</dependency>	
+			</dependency>
 			
 			<!-- derby database -->
 			<dependency>
@@ -790,7 +790,7 @@
 								</goals>
 								
 								<configuration>
-									<!-- try to find an asselby descriptor but don't fail if missing -->
+									<!-- try to find an assembly descriptor but don't fail if missing -->
 									<ignoreMissingDescriptor>true</ignoreMissingDescriptor>
 									<descriptors>
 										<descriptor>src/main/assembly/webinstaller.xml</descriptor>
@@ -802,7 +802,7 @@
 									<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>	
 									<appendAssemblyId>false</appendAssemblyId>							
 		
-									<!-- temp woring dir -->
+									<!-- temp working dir -->
 									<workDirectory>target/assembly/webinstaller</workDirectory>					
 								</configuration>								
 							</execution>
