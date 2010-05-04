@@ -19,7 +19,6 @@ import org.jmock.Expectations;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.jmock.integration.junit3.MockObjectTestCase;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceEvent;
@@ -45,7 +44,7 @@ public class FilterListenerTest extends MockObjectTestCase {
 	/**
 	 * A mock of a {@link FilterManager}
 	 */
-	private FilterManager fm;
+	private IFilterManagerInternal fm;
 	
 	/**
 	 * The {@link FilterListener} to test
@@ -54,14 +53,11 @@ public class FilterListenerTest extends MockObjectTestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp();
-		
-		// we need to mock classes
-		setImposteriser(ClassImposteriser.INSTANCE);	
+		super.setUp();	
 		
 		// creating classes required by the filter-listener
 		this.bc = mock(BundleContext.class);		
-		this.fm = mock(FilterManager.class); 		
+		this.fm = mock(IFilterManagerInternal.class); 		
 		final ITempFileManager tempManager = mock(ITempFileManager.class);
 		final IReferenceNormalizer refNormalizer = mock (IReferenceNormalizer.class);
 		

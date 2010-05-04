@@ -53,7 +53,7 @@ import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.core.metadata.IMetaData;
 import org.paxle.core.metadata.IMetaDataService;
 
-public class FilterManager implements IFilterManager, MetaTypeProvider, ManagedService {
+public class FilterManager implements IFilterManager, IFilterManagerInternal, MetaTypeProvider, ManagedService {
 	public static final String PID = IFilterManager.class.getName();
 	
 	/* =======================================================================

@@ -466,21 +466,6 @@
 				<artifactId>jmock-junit3</artifactId>
 				<version>2.5.1</version>
 			</dependency>
-			<dependency>
-				<groupId>org.jmock</groupId>
-				<artifactId>jmock-legacy</artifactId>
-				<version>2.5.1</version>
-			</dependency>
-			<dependency>
-				<groupId>cglib</groupId>
-				<artifactId>cglib-nodep</artifactId>
-				<version>2.1_3</version>
-			</dependency>
-			<dependency>
-				<groupId>org.objenesis</groupId>
-				<artifactId>objenesis</artifactId>
-				<version>1.0</version>
-			</dependency>
 
 			<!-- Commons Pool API -->
 			<dependency>
@@ -634,6 +619,18 @@
 			<artifactId>junit-addons</artifactId>
 			<version>1.4</version>
 			<scope>test</scope>
+			
+			<!-- dependencies only required for old java versions -->
+			<exclusions>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xercesImpl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xmlParserAPIs</artifactId>
+				</exclusion>
+			</exclusions>			
 		</dependency>		
 		
 		<!-- jmock dependencies -->	

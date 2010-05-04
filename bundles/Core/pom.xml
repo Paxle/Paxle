@@ -162,23 +162,6 @@
 			<groupId>org.jvnet.staxex</groupId>
 			<artifactId>com.springsource.org.jvnet.staxex</artifactId>
 			<version>1.0.0</version>
-		</dependency>
-		
-		<!-- test dependencies -->
-		<dependency>
-			<groupId>org.jmock</groupId>
-			<artifactId>jmock-legacy</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib-nodep</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.objenesis</groupId>
-			<artifactId>objenesis</artifactId>
-			<scope>test</scope>
-		</dependency>			
+		</dependency>		
 	</dependencies>
 </project>

@@ -88,9 +88,19 @@ public class BasicDocumentFactory implements IDocumentFactory {
 	@Reference
 	protected ITempFileManager tempFileManager;
 
-	protected void activate(Map<String, Object> props) {
+	protected JAXBContext context;
+	
+	protected void activate(Map<String, Object> props) throws JAXBException {
+		// init the jaxb factory
 		JaxbFactory.setDocumentFactory(this);
 		this.logger.info(this.getClass().getSimpleName() + " registered.");
+				
+		// init the jaxb context
+		final ClassLoader loader = this.getClass().getClassLoader();
+		context = JAXBContext.newInstance(
+			"org.paxle.core.doc.impl",
+			loader
+		);		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -139,11 +149,7 @@ public class BasicDocumentFactory implements IDocumentFactory {
 
 	public <Doc> Map<String, DataHandler> marshal(Doc document, OutputStream output) throws IOException {
 		try {
-			final ClassLoader loader = this.getClass().getClassLoader();
-			final JAXBContext context = JAXBContext.newInstance(
-					"org.paxle.core.doc.impl",
-					loader
-			);
+
 			final JaxbAttachmentMarshaller am = new JaxbAttachmentMarshaller();
 			final Marshaller m = context.createMarshaller();
 			
@@ -151,6 +157,7 @@ public class BasicDocumentFactory implements IDocumentFactory {
 			m.setAdapter(JaxbFileAdapter.class, new JaxbFileAdapter(this.tempFileManager));
 			m.setAdapter(JaxbFieldMapAdapter.class, new JaxbFieldMapAdapter(this.tempFileManager));
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+//			m.setProperty("com.sun.xml.bind.ObjectFactory", new BasicJaxbFactory());
 			m.setAttachmentMarshaller(am);
 			
 			m.marshal(document, output);			
@@ -170,15 +177,11 @@ public class BasicDocumentFactory implements IDocumentFactory {
 	
 	public <Doc> Doc unmarshal(InputStream input, Map<String, DataHandler> attachments) throws IOException  {
 		try {
-			final ClassLoader loader = this.getClass().getClassLoader();
-			final JAXBContext context = JAXBContext.newInstance(
-					"org.paxle.core.doc.impl",
-					loader
-			);
 			final Unmarshaller u = context.createUnmarshaller();
 			u.setAdapter(JaxbFileAdapter.class, new JaxbFileAdapter(this.tempFileManager, attachments));
 			u.setAdapter(JaxbFieldMapAdapter.class, new JaxbFieldMapAdapter(this.tempFileManager));
 			u.setAttachmentUnmarshaller(new JaxbAttachmentUnmarshaller(attachments));
+//			u.setProperty("com.sun.xml.bind.ObjectFactory", new BasicJaxbFactory());
 			
 			@SuppressWarnings("unchecked")
 			final Doc document = (Doc) u.unmarshal(input);
@@ -192,5 +195,25 @@ public class BasicDocumentFactory implements IDocumentFactory {
 		}
 	}
 	
-	
+//	public class BasicJaxbFactory {
+//		public BasicCommand createBasicCommand() throws IOException {
+//			return createDocument(BasicCommand.class);
+//		}
+//		
+//		public BasicCrawlerDocument createBasicCrawlerDocument() throws IOException {
+//			return createDocument(BasicCrawlerDocument.class);
+//		}
+//		
+//		public BasicParserDocument createBasicParserDocument()  throws IOException {
+//			return createDocument(BasicParserDocument.class);
+//		}
+//		
+//		public CachedParserDocument createCachedParserDocument() throws IOException {
+//			return createDocument(CachedParserDocument.class);
+//		}
+//		
+//		public BasicIndexerDocument createBasicIndexerDocument()  throws IOException {
+//			return createDocument(BasicIndexerDocument.class);
+//		}			
+//	}
 }

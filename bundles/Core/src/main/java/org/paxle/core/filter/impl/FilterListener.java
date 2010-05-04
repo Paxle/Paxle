@@ -64,7 +64,7 @@ public class FilterListener implements ServiceListener {
 	 * A class to manage {@link IFilter filters} and
 	 * {@link IFilterQueue filter-queues}.
 	 */
-	private FilterManager filterManager = null;
+	private IFilterManagerInternal filterManager = null;
 
 	/**
 	 * The {@link BundleContext osgi-bundle-context} of this bundle
@@ -93,7 +93,7 @@ public class FilterListener implements ServiceListener {
 	private final ServiceTracker cmdProfileManagerTracker;
 	
 	public FilterListener(
-			FilterManager filterManager, 
+			IFilterManagerInternal filterManager, 
 			ITempFileManager tempFileManager,
 			IReferenceNormalizer referenceNormalizer,
 			BundleContext context

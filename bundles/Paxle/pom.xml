@@ -951,7 +951,9 @@
 	</build>
 
 	<profiles>
-		<!-- JRE 6.0 modules -->
+		<!-- ==================================================================-->
+		<!-- JRE 6.0 modules                                                   -->
+		<!-- ==================================================================-->
 		<profile>
 			<id>jdk1.6-profile</id>
 			<activation>
@@ -964,7 +966,9 @@
 			</modules>
 		</profile>
 
-		<!-- Profile to build optional Parsers -->
+		<!-- ==================================================================-->
+		<!-- optional PARSERS                                                  -->
+		<!-- ==================================================================-->
 		<profile>
 			<id>all-parsers-profile</id>
 			<activation>
@@ -990,7 +994,9 @@
 			</modules>			
 		</profile>
 		
-		<!-- Profile to build optional crawlers -->
+		<!-- ==================================================================-->
+		<!-- optional CRAWLERS                                                 -->
+		<!-- ==================================================================-->
 		<profile>
 			<id>all-crawlers-profile</id>
 			<activation>
@@ -1010,7 +1016,9 @@
 			</modules>			
 		</profile>
 
-		<!-- Profile to build other optional bundles -->
+		<!-- ==================================================================-->
+		<!-- OTHER optional bundles                                            -->
+		<!-- ==================================================================-->
 		<profile>
 			<id>all-others-profile</id>
 			<activation>
@@ -1054,7 +1062,9 @@
 			</modules>			
 		</profile>
 
-		<!--  debug profile -->
+		<!-- ==================================================================-->
+		<!-- DEBUG profile                                                     -->
+		<!-- ==================================================================-->
 		<profile>
 			<id>debug-profile</id>
 			<activation>
@@ -1093,7 +1103,9 @@
 			</build>
 		</profile>
 
-		<!--  release profile [DEFAULT] -->
+		<!-- ==================================================================-->
+		<!-- INSTALLER profile [default]                                       -->
+		<!-- ==================================================================-->
 		<profile>
 			<id>installer-profile</id>
 			<activation>
