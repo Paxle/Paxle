@@ -5,7 +5,7 @@
 	<groupId>org.paxle.tools</groupId>
 	<artifactId>ToolsLogging</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.3-SNAPSHOT</version>
 	<name>Paxle - Tools: Logging</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 	<!-- Parent Project -->
@@ -40,7 +40,6 @@
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
-							org.osgi.service.component;version="1.0",
 							org.osgi.service.log;version="1.3",
 							<!-- Logging framework(s) -->
 							org.apache.commons.logging,
