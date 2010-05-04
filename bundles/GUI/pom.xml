@@ -97,7 +97,7 @@
 							<!-- Paxle Parser Core Bundle -->
 							org.paxle.parser;version="[0.1.0,0.2.0)";resolution:=optional,
 							<!-- Paxle Importer/Exporter Bundle -->
-							org.paxle.tools.ieporter.cm;version="[0.1.0,0.2.0)",
+							org.paxle.tools.ieporter.cm;version="[0.1.0,0.2.0)";resolution:=optional,
 							<!-- Paxle P2P Bundle -->		
 							org.paxle.p2p;version="[0.1.0,0.2.0)";resolution:=optional,
 							org.paxle.p2p.services;version="[0.1.0,0.2.0)";resolution:=optional,

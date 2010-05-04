@@ -110,7 +110,10 @@ public class ServletManager implements IServletManager {
 		this.context = context;
 		
 		// the default location to use for template-loading
-		String defaultBundleLocation = context.getBundleContext().getBundle().getEntry("").toString();		
+		URL defaultBundleURL = context.getBundleContext().getBundle().getEntry("");
+		if (defaultBundleURL == null) defaultBundleURL = context.getBundleContext().getBundle().getEntry("/");
+		String defaultBundleLocation = defaultBundleURL.toString();	
+		
 		if (defaultBundleLocation != null && defaultBundleLocation.endsWith("/")) {
 			defaultBundleLocation = defaultBundleLocation.substring(0,defaultBundleLocation.length()-1);
 		}
@@ -288,8 +291,10 @@ public class ServletManager implements IServletManager {
 				Bundle bundle = servletRef.getBundle();
 				BundleContext bundleContext = bundle.getBundleContext();
 				
-				// configuring the bundle location to use				
-				final String bundleLocation = servletRef.getBundle().getEntry("").toString();
+				// configuring the bundle location to use
+				URL bundleLocationURL = servletRef.getBundle().getEntry("");
+				if (bundleLocationURL == null) bundleLocationURL = servletRef.getBundle().getEntry("/");
+				final String bundleLocation = bundleLocationURL.toString();
 				props.put("bundle.location", bundleLocation);
 				
 				// injecting the velocity-view factory

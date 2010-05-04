@@ -117,9 +117,9 @@ public class HttpAuthManager implements IHttpAuthManager {
 			return null;
 		}
 		
-		if (!authorization.hasRole("Administrators")) {
+//		if (!authorization.hasRole("Administrators")) {
 //			this.logger.warn(String.format(""))
-		}
+//		}
 
 		return user;		
 	}	
