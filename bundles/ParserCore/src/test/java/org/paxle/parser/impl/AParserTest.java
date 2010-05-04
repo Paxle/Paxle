@@ -55,6 +55,7 @@ public abstract class AParserTest extends MockObjectTestCase {
 	protected ISubParserManager aSubParserManager = null;
 	protected IDocumentFactory docFactory;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -151,6 +152,7 @@ public abstract class AParserTest extends MockObjectTestCase {
 		
 		this.docFactory = new BasicDocumentFactory() {{
 			this.tempFileManager = aTempFileManager;
+			activate(Collections.EMPTY_MAP);
 		}};
 		
 		// create a parser context with a dummy temp-file-manager		
