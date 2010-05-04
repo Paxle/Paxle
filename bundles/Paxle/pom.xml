@@ -535,7 +535,7 @@
 								<artifactItem>
 									<groupId>org.slf4j</groupId>
 									<artifactId>slf4j-log4j12</artifactId>
-									<version>1.5.11</version>
+									<version>${version.org.slf4j}</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>slf4j-log4j12-${version.org.slf4j}.jar</destFileName>
 								</artifactItem>
@@ -544,7 +544,7 @@
 								<artifactItem>
 									<groupId>org.slf4j</groupId>
 									<artifactId>slf4j-api</artifactId>
-									<version>1.5.11</version>
+									<version>${version.org.slf4j}</version>
 									<outputDirectory>${equinox.dependencies}</outputDirectory>
 									<destFileName>slf4j-api-${version.org.slf4j}.jar</destFileName>
 								</artifactItem>		
@@ -882,86 +882,64 @@
 								<artifactItem>
 									<groupId>commons-pool</groupId>
 									<artifactId>commons-pool</artifactId>
-									<version>1.5.4</version>
+									<version>${version.org.apache.commons.pool}</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.pool_1.5.4.jar</destFileName>
+									<destFileName>org.apache.commons.pool_${version.org.apache.commons.pool}.jar</destFileName>
 								</artifactItem>								
 
 								<artifactItem>
 									<groupId>commons-collections</groupId>
 									<artifactId>commons-collections</artifactId>
-									<version>3.2.1</version>
+									<version>${version.org.apache.commons.collections}</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.collections_3.2.1.jar</destFileName>
+									<destFileName>org.apache.commons.collections_${version.org.apache.commons.collections}.jar</destFileName>
 								</artifactItem>
 								
 								<artifactItem>
 									<groupId>commons-io</groupId>
 									<artifactId>commons-io</artifactId>
-									<version>1.4</version>
+									<version>${version.org.apache.commons.io}</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.io_1.4.jar</destFileName>
+									<destFileName>org.apache.commons.io_${version.org.apache.commons.io}.jar</destFileName>
 								</artifactItem>
 								
 								<artifactItem>
 									<groupId>commons-fileupload</groupId>
 									<artifactId>commons-fileupload</artifactId>
-									<version>1.2.1</version>
+									<version>${version.org.apache.commons.fileupload}</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.fileupload_1.2.1.jar</destFileName>
+									<destFileName>org.apache.commons.fileupload_${version.org.apache.commons.fileupload}.jar</destFileName>
 								</artifactItem>
 								
 								<artifactItem>
 									<groupId>commons-lang</groupId>
 									<artifactId>commons-lang</artifactId>
-									<version>2.5</version>
+									<version>${version.org.apache.commons.lang}</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.lang_2.5.jar</destFileName>
+									<destFileName>org.apache.commons.lang_${version.org.apache.commons.lang}.jar</destFileName>
 								</artifactItem>															
 
 								<artifactItem>
 									<groupId>commons-httpclient</groupId>
 									<artifactId>commons-httpclient-osgi</artifactId>
-									<version>3.1.0.v200712051435</version>
+									<version>${version.org.apache.commons.httpclient}</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.httpclient_3.1.0.v200712051435.jar</destFileName>
+									<destFileName>org.apache.commons.httpclient_${version.org.apache.commons.httpclient}.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>commons-codec</groupId>
 									<artifactId>commons-codec</artifactId>
-									<version>1.4</version>
+									<version>${version.org.apache.commons.codec}</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>org.apache.commons.codec_1.4.jar</destFileName>
+									<destFileName>org.apache.commons.codec_${version.org.apache.commons.codec}.jar</destFileName>
 								</artifactItem>
-								
-								<artifactItem>
-									<groupId>com.db4o</groupId>
-									<artifactId>db4o-osgi</artifactId>
-									<version>7.4.58.11547</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>db4o-osgi-7.4.58.11547.jar</destFileName>
-								</artifactItem>										
 								
 								<artifactItem>
 									<groupId>net.sourceforge.ehcache</groupId>
 									<artifactId>com.springsource.net.sf.ehcache</artifactId>
-									<version>1.5.0</version>
+									<version>${version.com.springsource.net.sf.ehcache}</version>
 									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>com.springsource.net.sf.ehcache-1.5.0.jar</destFileName>									
-								</artifactItem>
-								<artifactItem>
-									<groupId>net.sourceforge.jsr107cache</groupId>
-									<artifactId>com.springsource.net.sf.jsr107cache</artifactId>
-									<version>1.0.0</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>com.springsource.net.sf.jsr107cache-1.0.0.jar</destFileName>										
-								</artifactItem>
-								<artifactItem>
-									<groupId>edu.emory.mathcs.backport</groupId>
-									<artifactId>com.springsource.edu.emory.mathcs.backport</artifactId>
-									<version>3.1.0</version>
-									<outputDirectory>${felix.dependencies}</outputDirectory>
-									<destFileName>com.springsource.edu.emory.mathcs.backport-3.1.0.jar</destFileName>										
+									<destFileName>com.springsource.net.sf.ehcache-${version.com.springsource.net.sf.ehcache}.jar</destFileName>									
 								</artifactItem>
 								-->
 							</artifactItems>
