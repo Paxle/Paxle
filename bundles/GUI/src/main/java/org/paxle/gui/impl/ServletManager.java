@@ -106,17 +106,22 @@ public class ServletManager implements IServletManager {
 	
 	private ComponentContext context;
 	
+	protected String getBundleLocation(Bundle bundle) {
+		if (bundle == null) return null;
+		
+		URL bundleURL = bundle.getEntry("");                     // for equinox
+		if (bundleURL == null) bundleURL = bundle.getEntry("/"); // for apache felix
+		
+		String bundleLocation = bundleURL.toString();
+		if (bundleLocation != null && bundleLocation.endsWith("/")) {
+			bundleLocation = bundleLocation.substring(0,bundleLocation.length()-1);
+		}
+		
+		return bundleLocation;
+	}
+	
 	protected void activate(ComponentContext context) {
 		this.context = context;
-		
-		// the default location to use for template-loading
-		URL defaultBundleURL = context.getBundleContext().getBundle().getEntry("");
-		if (defaultBundleURL == null) defaultBundleURL = context.getBundleContext().getBundle().getEntry("/");
-		String defaultBundleLocation = defaultBundleURL.toString();	
-		
-		if (defaultBundleLocation != null && defaultBundleLocation.endsWith("/")) {
-			defaultBundleLocation = defaultBundleLocation.substring(0,defaultBundleLocation.length()-1);
-		}
 		
 		// add some properties to the servlet props
 		this.defaultProps = new Hashtable<String, String>();
@@ -125,6 +130,8 @@ public class ServletManager implements IServletManager {
 		this.defaultProps.put(VelocityView.TOOLS_KEY, "/resources/config/velocity-toolbox.properties");
 		this.defaultProps.put(VelocityView.LOAD_DEFAULTS_KEY, "false");
 		
+		// the default location to use for template-loading
+		final String defaultBundleLocation = this.getBundleLocation(context.getBundleContext().getBundle());
 		this.defaultProps.put("bundle.location.default",defaultBundleLocation);
 		
 		// getting the path prefix to use
@@ -291,10 +298,8 @@ public class ServletManager implements IServletManager {
 				Bundle bundle = servletRef.getBundle();
 				BundleContext bundleContext = bundle.getBundleContext();
 				
-				// configuring the bundle location to use
-				URL bundleLocationURL = servletRef.getBundle().getEntry("");
-				if (bundleLocationURL == null) bundleLocationURL = servletRef.getBundle().getEntry("/");
-				final String bundleLocation = bundleLocationURL.toString();
+				// configuring the bundle location to use for template loading
+				final String bundleLocation = this.getBundleLocation(servletRef.getBundle());	
 				props.put("bundle.location", bundleLocation);
 				
 				// injecting the velocity-view factory
