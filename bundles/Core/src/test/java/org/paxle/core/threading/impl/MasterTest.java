@@ -140,7 +140,10 @@ public class MasterTest extends MockObjectTestCase {
 		final Master<ICommand> master = new Master<ICommand>(pool, new CommandFilterInputQueue<ICommand>(1), true);
 		inputQueue.putData(command);
 		master.process(inputQueue, outputQueue, false);
-			
+
+		// wait until the worker was triggered
+		assertTrue(worker.triggerSync.tryAcquire(5000, TimeUnit.SECONDS));		
+		
 		// terminate master
 		master.terminate();
 		assertEquals(DummyTriggeredWorker.PROCESSING_DONE, command.getResultText());
