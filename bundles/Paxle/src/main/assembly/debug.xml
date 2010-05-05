@@ -9,6 +9,5 @@
 	<componentDescriptors>
 		<componentDescriptor>src/main/assembly/components/equinox-all-comp.xml</componentDescriptor>
 		<componentDescriptor>src/main/assembly/components/equinox-linux-comp.xml</componentDescriptor>
-		<componentDescriptor>src/main/assembly/components/equinox-win-comp.xml</componentDescriptor>
 	</componentDescriptors>	
 </assembly>
