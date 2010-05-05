@@ -69,7 +69,7 @@ public class Matcher extends MagicMatcher {
 		return currentMatch;
 	}
 	
-	class Match extends MagicMatch {
+	static class Match extends MagicMatch {
 		@Override
 		public MagicMatch clone() {
 			try {

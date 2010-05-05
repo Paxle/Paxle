@@ -65,7 +65,7 @@ public class BasicParserDocument extends AParserDocument {
 	public File getTextFile() throws IOException {
 		this.close();
 		
-		if (this.contentFile == null || this.contentFile == null || !this.contentFile.exists() || this.contentFile.length() == 0) return null;
+		if (this.contentFile == null || !this.contentFile.exists() || this.contentFile.length() == 0) return null;
 		return this.contentFile;
 	}	
 	

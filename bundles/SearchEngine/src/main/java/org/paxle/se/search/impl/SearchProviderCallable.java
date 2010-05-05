@@ -91,7 +91,7 @@ public class SearchProviderCallable implements Callable<ISearchResult> {
 			/* just fall through */ 
 		} catch (Exception e) {
 			this.logger.error(String.format(
-					"Unexpected '%s' while performing a search for '%s' using provider '%d'.",
+					"Unexpected '%s' while performing a search for '%s' using provider '%s'.",
 					e.getClass().getName(),
 					query,
 					providerID

@@ -590,8 +590,8 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 				if (!handleContentLengthHeader(contentLengthHeader, doc))
 					return doc;
 				
-				if (!requestUri.equals(method.getURI()))
-					; // FIXME: we've been redirected, re-enqueue the new URL and abort processing
+				// FIXME: we've been redirected, re-enqueue the new URL and abort processing
+				//if (!requestUri.equals(method.getURI())) ;				
 			}
 			
 			/* ==============================================================================
@@ -622,7 +622,7 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 			}
 			
 			// FIXME: we've been redirected, re-enqueue the new URL and abort processing
-			if (!requestUri.equals(method.getURI())) ; 
+			// if (!requestUri.equals(method.getURI())) ; 
 			
 			/*
 			 * HTTP Content-Type

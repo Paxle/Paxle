@@ -340,7 +340,7 @@ public class ParserTestServlet extends ALayoutServlet {
     	return null;
     }
 	
-	class ParserTestLineIterator extends LineIterator {
+	static class ParserTestLineIterator extends LineIterator {
 
 		public ParserTestLineIterator(Reader reader) throws IllegalArgumentException {
 			super(reader);

@@ -53,7 +53,7 @@ public abstract class AMsOfficeParser implements ISubParser {
 			fileIn = new BufferedInputStream(new FileInputStream(content));			
 			return parse(location, charset, fileIn);
 		} finally {
-			if (fileIn != null) try { fileIn.close(); } catch (Exception e) {/* ignore this */}
+			if (fileIn != null) try { fileIn.close(); } catch (Exception e) {this.logger.error(e);}
 		}
 	}
 	

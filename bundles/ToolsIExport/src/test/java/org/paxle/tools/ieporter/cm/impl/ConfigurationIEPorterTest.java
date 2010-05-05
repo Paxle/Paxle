@@ -84,7 +84,7 @@ public class ConfigurationIEPorterTest extends MockObjectTestCase {
 	
 	public void testExportConfiguration() throws ParserConfigurationException {
 		final Dictionary<String, Object> props = new Hashtable<String, Object>();
-		props.put("myProperty.Integer", new Integer(1));
+		props.put("myProperty.Integer", Integer.valueOf(1));
 		props.put("myProperty.intArray", new int[]{1,2,3,4});
 		props.put("myProperty.String", "test");
 		props.put("myProperty.StringArray", new String[]{"test1","test2","test3"});

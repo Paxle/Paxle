@@ -119,7 +119,7 @@ public class MetaDataIconServlet extends ALayoutServlet {
 				response.sendError(500, "Invalid usage");
 			}
 		} catch (Throwable e) {
-			this.log(String.format("Unexpected '%s'.",e.getClass().getName(),e));
+			this.log(String.format("Unexpected '%s'.",e.getClass().getName()),e);
 		}	
 	}
 }

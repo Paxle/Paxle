@@ -93,6 +93,7 @@ public class PdfParserTest extends AParserTest {
 		assertTrue(testFile.exists());
 				
 		final IParserDocument pdoc = this.parser.parse(location, charset, testFile);
-		assertNotNull(pdoc);		
+		assertNotNull(pdoc);
+		this.docFactory.marshal(pdoc, System.out);
 	}
 }

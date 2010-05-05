@@ -54,7 +54,7 @@ public class CommandTrackerTest extends MockObjectTestCase {
 		String componentID = "component" + System.currentTimeMillis();
 		
 		// create a dummy command
-		final int commandOID = Math.abs(this.rand.nextInt());
+		final int commandOID = 1234;
 		final URI commandURI = URI.create("http://xxx.yyy");
 		
 		final ICommand command = new BasicCommand();
@@ -85,7 +85,7 @@ public class CommandTrackerTest extends MockObjectTestCase {
 		String componentID = "component" + System.currentTimeMillis();
 		
 		// create a dummy command but without configuring the OID
-		final int commandOID = Math.abs(this.rand.nextInt());
+		final int commandOID = 1234;
 		final URI commandURI = URI.create("http://xxx.yyy");
 		
 		final ICommand command = new BasicCommand();
@@ -141,7 +141,7 @@ public class CommandTrackerTest extends MockObjectTestCase {
 		String componentID = "component" + System.currentTimeMillis();
 		
 		// create a dummy command but without configuring the OID
-		final int commandOID = Math.abs(this.rand.nextInt());
+		final int commandOID = 1234;
 		final URI commandURI = URI.create("http://xxx.yyy");		
 		final ICommand command = new BasicCommand();
 		command.setLocation(commandURI);

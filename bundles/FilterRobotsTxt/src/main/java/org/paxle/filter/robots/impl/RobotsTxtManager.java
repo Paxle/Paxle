@@ -520,7 +520,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 			return new RobotsTxt(hostPort, RobotsTxt.RELOAD_INTERVAL_DEFAULT, "Redirected to illegal URI");
 
 		} finally {
-			if (inputStream != null) try { inputStream.close(); } catch (Exception e) {/* ignore this */}
+			if (inputStream != null) try { inputStream.close(); } catch (Exception e) {this.logger.error(e);}
 			if (getMethod != null) getMethod.releaseConnection();
 		}
 	}

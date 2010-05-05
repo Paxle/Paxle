@@ -91,7 +91,8 @@ public class PdfParser implements ISubParser {
 			if (pddDoc.isEncrypted()) {
 				if (this.logger.isDebugEnabled()) {
 					this.logger.debug(String.format(
-						"Document '%s' is encrypted."
+						"Document '%s' is encrypted.",
+						location
 					));
 				}
 				
@@ -111,7 +112,8 @@ public class PdfParser implements ISubParser {
 					if (accessPermission == null || !accessPermission.canExtractContent()) {
 						if (this.logger.isInfoEnabled()) {
 							this.logger.debug(String.format(
-								"No permission to extract content of document '%s'."
+								"No permission to extract content of document '%s'.",
+								location
 							));						
 						}
 						parserDoc.setStatus(IParserDocument.Status.FAILURE,"PDF Document is encrypted.");
@@ -149,7 +151,7 @@ public class PdfParser implements ISubParser {
 		} catch (Throwable e) {
 			throw new ParserException("Error parsing pdf document. " + e.getMessage(), e);
 		} finally {
-			if (pddDoc != null) try { pddDoc.close(); } catch (Exception e) {/* ignore this */}
+			if (pddDoc != null) try { pddDoc.close(); } catch (Exception e) {this.logger.error(e);}
 		}
 	}
 		
@@ -319,7 +321,7 @@ public class PdfParser implements ISubParser {
 						location, fileName, fileMimeType, e.getMessage()
 					));
 				} finally {
-					if (embeddedFileStream != null) try { embeddedFileStream.close(); } catch (Exception e) {/* ignore this */}
+					if (embeddedFileStream != null) try { embeddedFileStream.close(); } catch (Exception e) {this.logger.error(e);}
 				}
 			}
 		}
@@ -332,7 +334,7 @@ public class PdfParser implements ISubParser {
 			fileIn = new BufferedInputStream(new FileInputStream(content));
 			return parse(location, charset, fileIn);
 		} finally {
-			if (fileIn != null) try { fileIn.close(); } catch (Exception e) {/* ignore this */}
+			if (fileIn != null) try { fileIn.close(); } catch (Exception e) {this.logger.error(e);}
 		}
 	}
 	

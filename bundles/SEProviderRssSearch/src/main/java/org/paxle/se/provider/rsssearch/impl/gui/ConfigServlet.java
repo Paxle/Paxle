@@ -149,13 +149,13 @@ public class ConfigServlet extends ALayoutServlet {
 							    ? null
 							    : typeNode.getNodeValue().toLowerCase();
 					
-					if (type.equals("application/rss+xml")) {
-						Node templateNode = elements.item(i).getAttributes().getNamedItem("template");
+					if (type != null && type.equals("application/rss+xml")) {
+						final Node templateNode = elements.item(i).getAttributes().getNamedItem("template");
 						String urltemplate = templateNode.getNodeValue();
 						urltemplate = urltemplate.replaceAll("\\{startPage\\?\\}", "1");
 						urltemplate = urltemplate.replaceAll("\\{searchTerms\\}", "%s");
 						
-						ArrayList<String> urls = this.pManager.getUrls();
+						final ArrayList<String> urls = this.pManager.getUrls();
 						urls.add(urltemplate);
 						this.pManager.setUrls(urls);
 						break;
