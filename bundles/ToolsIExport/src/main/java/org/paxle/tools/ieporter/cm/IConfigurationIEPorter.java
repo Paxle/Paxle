@@ -25,11 +25,11 @@ public interface IConfigurationIEPorter {
 	public Map<String, Dictionary<String, Object>> importConfigurations(File xmlFile) throws Exception;
 	
 	/**
-	 * @param a map containing the {@link org.osgi.framework.Constants#SERVICE_PID pid} of all registered {@link org.osgi.service.cm.ManagedService services} 
+	 * @param pidBundleLocationTupel A map containing the {@link org.osgi.framework.Constants#SERVICE_PID pid} of all registered {@link org.osgi.service.cm.ManagedService services} 
 	 * 	 	  whose configuration should be exported as {@link Map.Entry#getKey() key}. 
 	 * 		  The {@link Bundle#getLocation()} must be passed in as {@link Map.Entry#getValue() value}
-	 * @return a {@link ZipFile} containing an XML-file for each {@link org.osgi.service.cm.ManagedService service} 
+	 * @param zipFile The file in which the configs should be stored. See bug #414 for a justification of this parameter.
 	 * @throws Exception
 	 */
-	public File exportConfigsAsZip(Map<String, String> pidBundleLocationTupel) throws Exception;
+	public void exportConfigsAsZip(Map<String, String> pidBundleLocationTupel, File zipFile) throws Exception;
 }

@@ -250,17 +250,13 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 		return propsMap;
 	}
 	
-	public File exportConfigsAsZip(Map<String, String> pidBundleLocationTupel) throws Exception {
+	public void exportConfigsAsZip(Map<String, String> pidBundleLocationTupel, File zipFile) throws Exception {
 		// convert configs to doc
 		Map<String, Document> docs = this.exportConfigsAsDoc(pidBundleLocationTupel);
 		
 		// write them into a zip file
-		File tempFile = null;
 		if (docs != null) {
-			tempFile = File.createTempFile("configExport", ".zip");
-			tempFile.deleteOnExit();
-			
-			FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+			FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
 			ZipOutputStream zos = new ZipOutputStream(fileOutputStream);
 			
 			for (Entry<String, Document> doc : docs.entrySet()) {
@@ -272,8 +268,6 @@ public class ConfigurationIEPorter implements IConfigurationIEPorter {
 			
 			zos.close();
 		}
-		
-		return tempFile;
 	}
 	
 	public Map<String, Document> exportConfigsAsDoc(Map<String, String> pidBundleLocationTupel) throws Exception {

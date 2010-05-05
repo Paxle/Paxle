@@ -15,7 +15,6 @@
 package org.paxle.gui.impl.servlets;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -53,6 +52,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
@@ -63,6 +63,7 @@ import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
+import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.metadata.Attribute;
 import org.paxle.core.metadata.Metadata;
 import org.paxle.gui.ALayoutServlet;
@@ -107,6 +108,12 @@ public class ConfigView extends ALayoutServlet {
      */
 	private Log logger = LogFactory.getLog( this.getClass());
 
+	/**
+	 * Paxle internal temp file manager
+	 */
+	@Reference
+	protected ITempFileManager tfm;	
+	
 	/**
 	 * This function generates a map required by the {@link IConfigurationIEPorter} to export 
 	 * {@link Configuration#getProperties() configuration-properties}
@@ -164,7 +171,7 @@ public class ConfigView extends ALayoutServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (request.getParameter("doExportConfig") != null) {
 			InputStream fileIn = null;
-			File tempFile = null;
+			File zipFile = this.tfm.createTempFile(); //zip file where the config is stored
 			try {
 				// create context
 				Context context = this.createContext(request, response);
@@ -177,18 +184,18 @@ public class ConfigView extends ALayoutServlet {
 				response.setContentType("application/zip");
 				response.setHeader("Content-Disposition", "attachment; filename=paxleConfig" + new SimpleDateFormat("yyyyMMdd").format(new Date()) + ".zip");
 				
-				tempFile = exporter.exportConfigsAsZip(this.generatePidBundleLocationMap(request, context));
-				fileIn = new BufferedInputStream(new FileInputStream(tempFile));
+				exporter.exportConfigsAsZip(this.generatePidBundleLocationMap(request, context), zipFile);
+				fileIn = new FileInputStream(zipFile);
 
 				IOUtils.copy(fileIn, response.getOutputStream());
 
 				fileIn.close();
-				if (!tempFile.delete()) throw new IOException("Unable to delete tempfile:" + tempFile);
+				this.tfm.releaseTempFile(zipFile);
 			} catch (Exception e) {
 				throw new IOException(e.getMessage());
 			} finally {
 				if (fileIn != null) try { fileIn.close(); } catch (Exception e) {/* ignore this */}
-				if (tempFile != null) try { tempFile.delete(); } catch (Exception e) {/* ignore this */}
+				if (this.tfm.isKnown(zipFile)) try { this.tfm.releaseTempFile(zipFile); } catch (Exception e) {/* ignore this */}
 			}
 		} else {
 			super.doPost(request, response);
