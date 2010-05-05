@@ -142,7 +142,7 @@ public class MasterTest extends MockObjectTestCase {
 		master.process(inputQueue, outputQueue, false);
 
 		// wait until the worker was triggered
-		assertTrue(worker.triggerSync.tryAcquire(5000, TimeUnit.SECONDS));		
+		assertTrue(worker.executeSync.tryAcquire(5000, TimeUnit.SECONDS));		
 		
 		// terminate master
 		master.terminate();
@@ -154,6 +154,7 @@ public class MasterTest extends MockObjectTestCase {
 class DummyTriggeredWorker extends AWorker<ICommand> {
 	public static final String PROCESSING_DONE = "processing done";
 	public Semaphore triggerSync = new Semaphore(0);
+	public Semaphore executeSync = new Semaphore(0);
 		
 	@Override
 	public void assign(ICommand cmd) {
@@ -169,5 +170,6 @@ class DummyTriggeredWorker extends AWorker<ICommand> {
 	@Override
 	protected void execute(ICommand cmd) {
 		cmd.setResultText(PROCESSING_DONE);
+		this.executeSync.release();
 	}	
 }
