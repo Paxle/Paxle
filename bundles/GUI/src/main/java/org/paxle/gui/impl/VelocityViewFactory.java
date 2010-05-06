@@ -19,8 +19,8 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
 import org.apache.velocity.tools.view.JeeServletConfig;
-import org.apache.velocity.tools.view.ServletUtils;
 import org.apache.velocity.tools.view.VelocityView;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.IVelocityViewFactory;
@@ -29,17 +29,24 @@ public class VelocityViewFactory implements IVelocityViewFactory {
 	private BundleContext bc;
 	private IServletManager sm;
 	
+	/**
+	 * We need to cache on {@link VelocityView} object per {@link Bundle}.
+	 * 
+	 * We can not store it into the {@link ServletContext}, because equinox seems to create
+	 * one {@link ServletContext} per registered servlet.
+	 */
+	private VelocityView view = null;
+	
 	public VelocityViewFactory(@Nonnull BundleContext bc, @Nonnull IServletManager sm) {
 		this.bc = bc;
 		this.sm = sm;
 	}
 
-	public VelocityView createVelocityView(ServletConfig config) {
+	public synchronized VelocityView createVelocityView(ServletConfig config) {
 		final ServletContext application = config.getServletContext();
 		
 		// checking if the velocity view was already created
-        VelocityView view = (VelocityView)application.getAttribute(ServletUtils.VELOCITY_VIEW_KEY);
-        if (view == null) {		
+        if (this.view == null) {		
 			// remember old classloader
 			ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
 			
@@ -53,10 +60,9 @@ public class VelocityViewFactory implements IVelocityViewFactory {
 			// put the bundle-context into the servlet-context to allow custom tools to access it
 			application.setAttribute(BUNDLE_CONTEXT, this.bc);
 			application.setAttribute(SERVLET_MANAGER, this.sm);
-			application.setAttribute(ServletUtils.VELOCITY_VIEW_KEY, view);
         }
 		
-		return view;
+		return this.view;
 	}
 
 }

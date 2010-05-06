@@ -130,7 +130,7 @@ public class ServletManager implements IServletManager, BundleListener {
 		return bundleLocation;
 	}
 	
-	protected void activate(ComponentContext context) {
+	protected synchronized void activate(ComponentContext context) {
 		this.context = context;
 		
 		// add class as bundle listener
@@ -155,7 +155,7 @@ public class ServletManager implements IServletManager, BundleListener {
 		this.registerAll();
 	}
 	
-	protected void deactivate(ComponentContext context) {
+	protected synchronized void deactivate(ComponentContext context) {
 		// unregister all servlets/resources
 		this.unregisterAll();
 		
@@ -499,7 +499,7 @@ public class ServletManager implements IServletManager, BundleListener {
 	/**
 	 * Function to unregister all servlets
 	 */
-	private synchronized void unregisterAllServlets() {
+	private void unregisterAllServlets() {
 		for (ServiceReference servletRef : this.servlets.values()) {
 			// unregister servlet from the menu-manager
 			this.unregisterMenuItem(servletRef);
@@ -513,7 +513,7 @@ public class ServletManager implements IServletManager, BundleListener {
 	 * Function to unregister resources that were added
 	 * to {@link #resources}
 	 */
-	public synchronized void unregisterAllResources() {
+	public void unregisterAllResources() {
 		for (Map.Entry<String, ResourceReference> entry : this.resources.entrySet()) {
 			String alias = entry.getKey();
 			this.unregisterResource(alias);
