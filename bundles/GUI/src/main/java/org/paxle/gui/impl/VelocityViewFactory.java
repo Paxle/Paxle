@@ -56,11 +56,11 @@ public class VelocityViewFactory implements IVelocityViewFactory {
 			
 			// re-set old classloader
 			if (oldCl != null) Thread.currentThread().setContextClassLoader(oldCl);
-			        
-			// put the bundle-context into the servlet-context to allow custom tools to access it
-			application.setAttribute(BUNDLE_CONTEXT, this.bc);
-			application.setAttribute(SERVLET_MANAGER, this.sm);
-        }
+        }        
+        
+		// put the bundle-context into the servlet-context to allow custom tools to access it
+		application.setAttribute(BUNDLE_CONTEXT, this.bc);
+		application.setAttribute(SERVLET_MANAGER, this.sm);
 		
 		return this.view;
 	}
