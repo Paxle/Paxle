@@ -30,9 +30,12 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.Services;
 import org.apache.velocity.tools.view.VelocityView;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
@@ -43,7 +46,9 @@ import org.paxle.gui.IMenuManager;
 import org.paxle.gui.IServletManager;
 
 @Component(immediate=true, metatype=false, name="org.paxle.gui.IServletManager")
-@Service(IServletManager.class)
+@Services({
+	@Service(IServletManager.class)
+})
 @Property(name="org.paxle.gui.IServletManager.pathPrefix", value="")
 @Reference(
 	name="servlets",
@@ -54,7 +59,7 @@ import org.paxle.gui.IServletManager;
 	unbind="removeServlet",
 	target="(org.paxle.servlet.path=*)"
 )
-public class ServletManager implements IServletManager {
+public class ServletManager implements IServletManager, BundleListener {
 	
 	private static final String SERVLET_DO_USER_AUTH = "org.paxle.servlet.doUserAuth";
 	private static final String SERVLET_MENU_ICON = "org.paxle.servlet.menu.icon";
@@ -128,6 +133,9 @@ public class ServletManager implements IServletManager {
 	protected void activate(ComponentContext context) {
 		this.context = context;
 		
+		// add class as bundle listener
+		this.context.getBundleContext().addBundleListener(this);
+		
 		// add some properties to the servlet props
 		this.defaultProps = new Hashtable<String, String>();
 		
@@ -153,9 +161,15 @@ public class ServletManager implements IServletManager {
 		
 		// clear properties
 		this.defaultProps.clear();
+		
+		// clear cache
+		this.factories.clear();
+		
+		// remove class as bundle listener
+		context.getBundleContext().removeBundleListener(this);
 	}
 	
-	protected void addServlet(ServiceReference servletRef) {
+	protected synchronized void addServlet(ServiceReference servletRef) {
 		// remember the servlet in our internal servlet-list
 		final String path = (String)servletRef.getProperty(SERVLET_PATH);
 		this.servlets.put(path, servletRef);
@@ -167,7 +181,7 @@ public class ServletManager implements IServletManager {
 		this.registerMenuItem(servletRef);
 	}
 	
-	protected void removeServlet(ServiceReference servletRef) {
+	protected synchronized void removeServlet(ServiceReference servletRef) {
 		// unregistering the servlet menu item
 		this.unregisterMenuItem(servletRef);
 		
@@ -300,12 +314,13 @@ public class ServletManager implements IServletManager {
 			@SuppressWarnings("unchecked")
 			Hashtable<String, String> props = (Hashtable<String, String>) this.defaultProps.clone();
 			if (servlet instanceof ALayoutServlet) {
-				Bundle bundle = servletRef.getBundle();
-				VelocityViewFactory factory = factories.get(bundle.getBundleId());
+				final Bundle bundle = servletRef.getBundle();
+				
+				VelocityViewFactory factory = this.factories.get(Long.valueOf(bundle.getBundleId()));
 				if (factory == null) {
-					BundleContext bundleContext = bundle.getBundleContext();
+					final BundleContext bundleContext = bundle.getBundleContext();
 					factory = new VelocityViewFactory(bundleContext, this);
-					factories.put(bundle.getBundleId(), factory);
+					this.factories.put(bundle.getBundleId(), factory);
 				}
 				
 				// configuring the bundle location to use for template loading
@@ -569,5 +584,15 @@ public class ServletManager implements IServletManager {
 			this.name = name;
 			this.context = context;
 		}
+	}
+
+	public synchronized void bundleChanged(BundleEvent event) {
+		if (event.getType() == BundleEvent.STOPPED) {
+			final Long bundleId = Long.valueOf(event.getBundle().getBundleId());
+			if (this.factories.containsKey(bundleId)) {
+				this.factories.remove(bundleId);
+			}
+		}
+		
 	}
 }

@@ -16,8 +16,10 @@ package org.paxle.gui.impl;
 
 import javax.annotation.Nonnull;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 
 import org.apache.velocity.tools.view.JeeServletConfig;
+import org.apache.velocity.tools.view.ServletUtils;
 import org.apache.velocity.tools.view.VelocityView;
 import org.osgi.framework.BundleContext;
 import org.paxle.gui.IServletManager;
@@ -33,20 +35,26 @@ public class VelocityViewFactory implements IVelocityViewFactory {
 	}
 
 	public VelocityView createVelocityView(ServletConfig config) {
-		// remember old classloader
-		ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+		final ServletContext application = config.getServletContext();
 		
-		// create and init a new velocity view
-		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-		VelocityView view = new PaxleVelocityView(new JeeServletConfig(config));
-		
-		// re-set old classloader
-		if (oldCl != null) Thread.currentThread().setContextClassLoader(oldCl);
-		
-		// put the bundle-context into the servlet-context to allow
-		// custom tools to access it
-		config.getServletContext().setAttribute(BUNDLE_CONTEXT, this.bc);
-		config.getServletContext().setAttribute(SERVLET_MANAGER, this.sm);
+		// checking if the velocity view was already created
+        VelocityView view = (VelocityView)application.getAttribute(ServletUtils.VELOCITY_VIEW_KEY);
+        if (view == null) {		
+			// remember old classloader
+			ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+			
+			// create and init a new velocity view
+			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+			view = new PaxleVelocityView(new JeeServletConfig(config));
+			
+			// re-set old classloader
+			if (oldCl != null) Thread.currentThread().setContextClassLoader(oldCl);
+			        
+			// put the bundle-context into the servlet-context to allow custom tools to access it
+			application.setAttribute(BUNDLE_CONTEXT, this.bc);
+			application.setAttribute(SERVLET_MANAGER, this.sm);
+			application.setAttribute(ServletUtils.VELOCITY_VIEW_KEY, view);
+        }
 		
 		return view;
 	}

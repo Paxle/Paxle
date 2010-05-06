@@ -55,7 +55,7 @@ public abstract class ALayoutServlet extends VelocityLayoutServlet {
 	@Override
 	@OverrideMustInvoke
 	public void init(ServletConfig config) throws javax.servlet.ServletException {	
-		this.view = this.viewFactory.createVelocityView(config);	
+		 this.view = this.viewFactory.createVelocityView(config);	
 		super.init(config);
 	};
 	
