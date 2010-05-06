@@ -72,6 +72,11 @@ public class ServletManager implements IServletManager {
 	 * All registered resources
 	 */
 	private HashMap<String, ResourceReference> resources = new HashMap<String, ResourceReference>();
+
+	/**
+	 * All VelocityViewFactories
+	 */
+	private HashMap<Long, VelocityViewFactory> factories = new HashMap<Long, VelocityViewFactory>();
 	
 	/**
 	 * The OSGI {@link HttpService Http-Service}
@@ -296,17 +301,19 @@ public class ServletManager implements IServletManager {
 			Hashtable<String, String> props = (Hashtable<String, String>) this.defaultProps.clone();
 			if (servlet instanceof ALayoutServlet) {
 				Bundle bundle = servletRef.getBundle();
-				BundleContext bundleContext = bundle.getBundleContext();
+				VelocityViewFactory factory = factories.get(bundle.getBundleId());
+				if (factory == null) {
+					BundleContext bundleContext = bundle.getBundleContext();
+					factory = new VelocityViewFactory(bundleContext, this);
+					factories.put(bundle.getBundleId(), factory);
+				}
 				
 				// configuring the bundle location to use for template loading
 				final String bundleLocation = this.getBundleLocation(servletRef.getBundle());	
 				props.put("bundle.location", bundleLocation);
 				
 				// injecting the velocity-view factory
-				((ALayoutServlet)servlet).setVelocityViewFactory(new VelocityViewFactory(
-						bundleContext, 
-						this
-				));
+				((ALayoutServlet)servlet).setVelocityViewFactory(factory);
 			}
 			
 			
