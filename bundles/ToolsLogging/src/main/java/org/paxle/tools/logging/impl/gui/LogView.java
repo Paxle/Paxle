@@ -17,14 +17,11 @@ package org.paxle.tools.logging.impl.gui;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -34,7 +31,8 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogService;
 import org.paxle.gui.ALayoutServlet;
 import org.paxle.tools.logging.ILogReader;
@@ -70,35 +68,25 @@ public class LogView extends ALayoutServlet {
 	/**
 	 * All currently known {@link ILogReader}s
 	 */
-	private HashMap<String, ILogReader> logReaders = new HashMap<String, ILogReader>();
+	private HashMap<String, ServiceReference> logReaders = new HashMap<String, ServiceReference>();
 	
 	/**
-	 * for logging
+	 * The context of this component
 	 */
-	private final Log logger = LogFactory.getLog(this.getClass());	
+	protected ComponentContext ctx;		
 	
-	protected void addReader(ILogReader logReader, Map<String,Object> props) {
-		final String type = (String) props.get(ILogReader.TYPE);
-		if (type == null) return;		
-		this.logReaders.put(type, logReader);
-		this.logger.info(String.format(
-				"Log-Reader '%s' (%s) with PID '%s' registered.",
-				logReader.getClass().getName(),
-				type,
-				props.get(Constants.SERVICE_PID)				
-		));		
+	protected void activate(ComponentContext context) {
+		this.ctx = context;
 	}
 	
-	protected void removeReader(ILogReader logReader, Map<String,Object> props) {
-		final String type = (String) props.get(ILogReader.TYPE);
-		if (type == null) return;
+	protected void addReader(ServiceReference ref) {
+		final String type = (String) ref.getProperty(ILogReader.TYPE);
+		this.logReaders.put(type, ref);
+	}
+	
+	protected void removeReader(ServiceReference ref) {
+		final String type = (String) ref.getProperty(ILogReader.TYPE);
 		this.logReaders.remove(type);
-		this.logger.info(String.format(
-				"Log-Reader '%s' (%s) with PID '%s' unregistered.",
-				logReader.getClass().getName(),
-				type,
-				props.get(Constants.SERVICE_PID)				
-		));		
 	}
 	
 	@Override
@@ -115,7 +103,8 @@ public class LogView extends ALayoutServlet {
 			context.put("logType",readerType);
 			
 			// adding the requested reader into the context
-			final ILogReader logReader = this.logReaders.get(readerType);
+			ServiceReference ref = this.logReaders.get(readerType);
+			ILogReader logReader = (ref==null)?null:(ILogReader)this.ctx.locateService("logReaders", ref);
 			context.put("logReader",logReader);			
 			
 			// adding available readers and log-levels
