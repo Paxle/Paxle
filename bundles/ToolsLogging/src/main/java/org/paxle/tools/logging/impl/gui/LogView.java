@@ -22,6 +22,8 @@ import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -31,10 +33,10 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogService;
-import org.paxle.gui.ALayoutServlet;
 import org.paxle.tools.logging.ILogReader;
 
 @Component(immediate=true, metatype=false)
@@ -54,7 +56,7 @@ import org.paxle.tools.logging.ILogReader;
 	unbind="removeReader",
 	target="(org.paxle.tools.logging.ILogReader.type=*)"
 )
-public class LogView extends ALayoutServlet {	
+public class LogView extends VelocityLayoutServlet {	
 	private static final long serialVersionUID = 1L;
 	
 	@SuppressWarnings("serial")
@@ -74,6 +76,11 @@ public class LogView extends ALayoutServlet {
 	 * The context of this component
 	 */
 	protected ComponentContext ctx;		
+	
+    /**
+     * Logger
+     */
+    protected Log logger = LogFactory.getLog(this.getClass());	
 	
 	protected void activate(ComponentContext context) {
 		this.ctx = context;

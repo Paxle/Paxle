@@ -29,6 +29,8 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -36,7 +38,11 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.paxle.gui.ALayoutServlet;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
+import org.htmlparser.Parser;
+import org.htmlparser.PrototypicalNodeFactory;
+import org.htmlparser.lexer.Lexer;
+import org.htmlparser.lexer.Page;
 import org.paxle.se.provider.rsssearch.IRssSearchProviderManager;
 import org.paxle.se.provider.rsssearch.impl.RssSearchProvider;
 import org.w3c.dom.Document;
@@ -44,10 +50,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import org.htmlparser.Parser;
-import org.htmlparser.PrototypicalNodeFactory;
-import org.htmlparser.lexer.Lexer;
-import org.htmlparser.lexer.Page;
 
 @Component(metatype=false, immediate=true,
 		label="RSS Search Servlet",
@@ -60,8 +62,13 @@ import org.htmlparser.lexer.Page;
 	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.bundles/%configServlet.menu"), 
 	@Property(name="org.paxle.servlet.menu.icon", value="/resources/icons/folder_feed.png")
 })
-public class ConfigServlet extends ALayoutServlet {
+public class ConfigServlet extends VelocityLayoutServlet {
 	private static final long serialVersionUID = 1L;
+	
+    /**
+     * Logger
+     */
+    protected Log logger = LogFactory.getLog(this.getClass());	
 	
 	@Reference
 	protected IRssSearchProviderManager pManager;

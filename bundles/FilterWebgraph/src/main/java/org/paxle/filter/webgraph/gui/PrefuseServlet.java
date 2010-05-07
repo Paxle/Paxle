@@ -30,9 +30,9 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.paxle.core.filter.IFilter;
 import org.paxle.filter.webgraph.impl.GraphFilter;
-import org.paxle.gui.ALayoutServlet;
 
 import prefuse.Constants;
 import prefuse.Display;
@@ -65,7 +65,7 @@ import prefuse.visual.expression.InGroupPredicate;
 	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.bundles/Webgraph"), 
 	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/chart_organisation.png")
 })
-public class PrefuseServlet extends ALayoutServlet {
+public class PrefuseServlet extends VelocityLayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
 	@Reference(target="(service.pid=org.paxle.filter.webgraph.impl.GraphFilter)")

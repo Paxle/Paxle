@@ -29,13 +29,13 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.monitor.MonitorAdmin;
 import org.osgi.service.monitor.MonitoringJob;
-import org.paxle.gui.ALayoutServlet;
 
 @Component(metatype=false, immediate=true)
 @Service(Servlet.class)
@@ -43,7 +43,7 @@ import org.paxle.gui.ALayoutServlet;
 	@Property(name="org.paxle.servlet.path", value="/monitorable"),
 	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
 })
-public class MonitorableView extends ALayoutServlet {	
+public class MonitorableView extends VelocityLayoutServlet {	
 	private static final long serialVersionUID = 1L;
 
 	@Override

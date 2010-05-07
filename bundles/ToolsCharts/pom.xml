@@ -5,7 +5,7 @@
 	<groupId>org.paxle.tools</groupId>
 	<artifactId>ToolsCharts</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>Paxle - Tools: Charts</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 	<!-- Parent Project -->
@@ -48,8 +48,7 @@
 							<!-- Apache Velocity (used by Paxle GUI bundle) -->
 							org.apache.velocity;resolution:=optional, 
 							org.apache.velocity.context;resolution:=optional,
-							<!-- Paxle GUI Bundle -->
-							org.paxle.gui;version="[0.1.0,0.2.0)";resolution:=optional,
+							org.apache.velocity.tools.view;resolution:=optional,
 							<!-- JFreeCharts -->
 							org.jfree.ui,
 							org.jfree.chart,

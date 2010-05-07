@@ -21,6 +21,8 @@ import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -28,10 +30,10 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.paxle.filter.blacklist.IBlacklist;
 import org.paxle.filter.blacklist.IBlacklistManager;
 import org.paxle.filter.blacklist.InvalidBlacklistnameException;
-import org.paxle.gui.ALayoutServlet;
 
 @Component(metatype=false, immediate=true,
 		label="Blacklist Servlet",
@@ -44,9 +46,14 @@ import org.paxle.gui.ALayoutServlet;
 	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.bundles/%blacklistServlet.menu"), 
 	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/book_link.png")
 })
-public class BlacklistServlet extends ALayoutServlet implements Servlet {
+public class BlacklistServlet extends VelocityLayoutServlet implements Servlet {
 
 	private static final long serialVersionUID = 1L;
+	
+    /**
+     * Logger
+     */
+    protected Log logger = LogFactory.getLog(this.getClass());		
 	
 	@Reference
 	protected IBlacklistManager blacklistManager = null;

@@ -22,6 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -30,12 +32,12 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.view.CookieTool;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
-import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 import org.paxle.gui.impl.HttpAuthManager;
 import org.paxle.gui.impl.IHttpAuthManager;
@@ -46,7 +48,7 @@ import org.paxle.gui.impl.IHttpAuthManager;
 	@Property(name="org.paxle.servlet.path", value="/login"),
 	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
 })
-public class LoginView extends ALayoutServlet {
+public class LoginView extends VelocityLayoutServlet {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -55,6 +57,11 @@ public class LoginView extends ALayoutServlet {
 	
 	@Reference
 	private IHttpAuthManager guiAuthManager;
+	
+    /**
+     * Logger
+     */
+    protected Log logger = LogFactory.getLog(this.getClass());
 	
 	/**
 	 * This function is called the OSGI DS during component activation 

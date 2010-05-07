@@ -14,6 +14,7 @@
 
 package org.paxle.gui.impl;
 
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -32,6 +33,7 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Services;
 import org.apache.velocity.tools.view.VelocityView;
+import org.apache.velocity.tools.view.VelocityViewServlet;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -41,7 +43,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
-import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IMenuManager;
 import org.paxle.gui.IServletManager;
 
@@ -313,12 +314,13 @@ public class ServletManager implements IServletManager, BundleListener {
 			// init servlet properties
 			@SuppressWarnings("unchecked")
 			Hashtable<String, String> props = (Hashtable<String, String>) this.defaultProps.clone();
-			if (servlet instanceof ALayoutServlet) {
+			if (servlet instanceof VelocityViewServlet) {
 				final Bundle bundle = servletRef.getBundle();
+				final BundleContext bundleContext = bundle.getBundleContext();
 				
+				// get or create a new velocity factory
 				VelocityViewFactory factory = this.factories.get(Long.valueOf(bundle.getBundleId()));
-				if (factory == null) {
-					final BundleContext bundleContext = bundle.getBundleContext();
+				if (factory == null) {					
 					factory = new VelocityViewFactory(bundleContext, this);
 					this.factories.put(bundle.getBundleId(), factory);
 				}
@@ -327,8 +329,12 @@ public class ServletManager implements IServletManager, BundleListener {
 				final String bundleLocation = this.getBundleLocation(servletRef.getBundle());	
 				props.put("bundle.location", bundleLocation);
 				
-				// injecting the velocity-view factory
-				((ALayoutServlet)servlet).setVelocityViewFactory(factory);
+				// wrapping the servlet into a wrapper
+				servlet = (Servlet) Proxy.newProxyInstance(
+						servlet.getClass().getClassLoader(), 
+						new Class[] {Servlet.class}, 
+						new VelocityViewServletWrapper((VelocityViewServlet)servlet,factory)
+				);
 			}
 			
 			
@@ -349,6 +355,8 @@ public class ServletManager implements IServletManager, BundleListener {
 			),e);
 		}
 	}
+	
+
 	
 	private void unregisterServlet(ServiceReference servletRef) {
 		if (this.http == null) return;

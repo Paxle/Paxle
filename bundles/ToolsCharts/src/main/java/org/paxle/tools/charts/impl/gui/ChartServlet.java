@@ -44,6 +44,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -69,7 +70,6 @@ import org.osgi.service.monitor.MonitorAdmin;
 import org.osgi.service.monitor.Monitorable;
 import org.osgi.service.monitor.MonitoringJob;
 import org.osgi.service.monitor.StatusVariable;
-import org.paxle.gui.ALayoutServlet;
 
 @Component(metatype=false, immediate=true)
 @Service(Servlet.class)
@@ -77,7 +77,7 @@ import org.paxle.gui.ALayoutServlet;
 	@Property(name="org.paxle.servlet.path", value="/chart"),
 	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
 })
-public class ChartServlet extends ALayoutServlet implements EventHandler, ServiceListener {
+public class ChartServlet extends VelocityLayoutServlet implements EventHandler, ServiceListener {
 	private static final long serialVersionUID = 1L;	
 	
 	/**

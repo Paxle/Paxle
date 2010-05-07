@@ -33,8 +33,8 @@ import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.paxle.core.metadata.IMetaData;
-import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.impl.tools.MetaDataTool;
 
 @Component(metatype=false, immediate=true)
@@ -43,7 +43,7 @@ import org.paxle.gui.impl.tools.MetaDataTool;
 	@Property(name="org.paxle.servlet.path", value="/metaDataIcon"),
 	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
 })
-public class MetaDataIconServlet extends ALayoutServlet {
+public class MetaDataIconServlet extends VelocityLayoutServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String REQ_PARAM_SERVICEPID = "servicePID";
 	

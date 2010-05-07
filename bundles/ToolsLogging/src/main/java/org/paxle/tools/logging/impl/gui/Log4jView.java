@@ -33,6 +33,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -43,7 +45,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.paxle.gui.ALayoutServlet;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 
 @Component(metatype=false, immediate=true,
 		label="Logging Servlet",
@@ -54,7 +56,7 @@ import org.paxle.gui.ALayoutServlet;
 	@Property(name="org.paxle.servlet.path", value="/log/log4j"),
 	@Property(name="org.paxle.servlet.doUserAuth", boolValue=true)
 })
-public class Log4jView extends ALayoutServlet implements Servlet {
+public class Log4jView extends VelocityLayoutServlet implements Servlet {
 	private static final long serialVersionUID = 1L;	
 	
 	private static final String ACTION_GET_LEVEL = "getLevel";
@@ -68,6 +70,11 @@ public class Log4jView extends ALayoutServlet implements Servlet {
 	private static final String PARAM_FORMAT = "format";
 	private static final String PARAM_FILE = "file";
 
+    /**
+     * Logger
+     */
+    protected Log logger = LogFactory.getLog(this.getClass());		
+	
 	@Override
 	protected void doRequest(HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -111,7 +118,7 @@ public class Log4jView extends ALayoutServlet implements Servlet {
 					}
 				} else if (action.equals(ACTION_DELETE)) {
 					// deleting the logfile
-					boolean delted = file.delete();
+					file.delete();
 					response.sendRedirect(request.getServletPath());
 				} else if (action.equals(ACTION_SET_LEVEL)) {
 					final String loggerName = request.getParameter(PARAM_LOGGER);

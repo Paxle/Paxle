@@ -24,7 +24,7 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.paxle.gui.ALayoutServlet;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 
 @Component(metatype=false, immediate=true)
 @Service(Servlet.class)
@@ -32,7 +32,7 @@ import org.paxle.gui.ALayoutServlet;
 	@Property(name="org.paxle.servlet.path", value="/opensearch/osd.xml"),
 	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
 })
-public class OpenSearchDescription extends ALayoutServlet {
+public class OpenSearchDescription extends VelocityLayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
 	@Override

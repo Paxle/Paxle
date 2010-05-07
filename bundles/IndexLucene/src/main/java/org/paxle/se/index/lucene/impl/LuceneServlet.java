@@ -25,7 +25,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.paxle.gui.ALayoutServlet;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 
 @Component(metatype=false, immediate=true)
 @Service(Servlet.class)
@@ -33,7 +33,7 @@ import org.paxle.gui.ALayoutServlet;
 	@Property(name="org.paxle.servlet.path", value="/lucene"),
 	@Property(name="org.paxle.servlet.doUserAuth", boolValue=true)
 })
-public class LuceneServlet extends ALayoutServlet {
+public class LuceneServlet extends VelocityLayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
 	@Reference

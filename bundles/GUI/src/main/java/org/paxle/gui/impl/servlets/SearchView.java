@@ -22,13 +22,15 @@ import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.paxle.gui.ALayoutServlet;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.paxle.gui.IServiceManager;
 import org.paxle.gui.IServletManager;
 import org.paxle.se.search.ISearchProviderManager;
@@ -43,13 +45,18 @@ import org.paxle.se.search.ISearchResult;
 	@Property(name="org.paxle.servlet.menu", value="%menu.search"), 
 	@Property(name="org.paxle.servlet.menu.pos", intValue=0)
 })
-public class SearchView extends ALayoutServlet {
+public class SearchView extends VelocityLayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private static final String SEPROVIDER_MANAGER = "org.paxle.se.search.ISearchProviderManager";
 	public static final String PARAM_FORMAT = "format";
 	public static final String PARAM_QUERY = "query";
 	public static final String PARAM_SE_PROVIDERS = "seProviders";	
+	
+    /**
+     * Logger
+     */
+    protected Log logger = LogFactory.getLog(this.getClass());	
 	
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {

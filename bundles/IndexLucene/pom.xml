@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>IndexLucene</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.17-SNAPSHOT</version>
+	<version>0.1.18-SNAPSHOT</version>
 	<name>Paxle - Indexer: Lucene</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -59,7 +59,7 @@
 							javax.servlet.http;resultion:=optional,
 							org.apache.velocity;resolution:=optional, 
 							org.apache.velocity.context;resolution:=optional,
-							org.paxle.gui;version="[0.1.0,0.2.0)";resolution:=optional
+							org.apache.velocity.tools.view;resolution:=optional
 						</Import-Package>
 						<Private-Package>
 							org.paxle.se.index.lucene.impl

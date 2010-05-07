@@ -18,9 +18,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
-import org.paxle.gui.ALayoutServlet;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 
-public class P2PView extends ALayoutServlet {
+public class P2PView extends VelocityLayoutServlet {
 
 	private static final long serialVersionUID = 1L;	
 	

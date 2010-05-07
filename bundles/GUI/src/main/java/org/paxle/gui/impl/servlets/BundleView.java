@@ -50,9 +50,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.temp.ITempFileManager;
-import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
-import org.paxle.gui.impl.ServiceManager;
 import org.paxle.util.StringTools;
 
 @Component(metatype=false, immediate=true,

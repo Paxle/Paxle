@@ -30,7 +30,6 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.osgi.framework.Constants;
 import org.paxle.core.IMWComponent;
-import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 import org.paxle.gui.IServletManager;
 

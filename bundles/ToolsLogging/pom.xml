@@ -58,8 +58,7 @@
 							<!-- Apache Velocity (used by Paxle GUI bundle) -->
 							org.apache.velocity;resolution:=optional, 
 							org.apache.velocity.context;resolution:=optional,
-							<!-- Paxle GUI Bundle -->
-							org.paxle.gui;version="[0.1.0,0.2.0)";resolution:=optional,
+							org.apache.velocity.tools.view;resolution:=optional,
 							<!-- Paxle Desktop-Integration Bundle -->
 							org.paxle.desktop;version="[0.1.0,0.2.0)";resolution:=optional
 						</Import-Package>

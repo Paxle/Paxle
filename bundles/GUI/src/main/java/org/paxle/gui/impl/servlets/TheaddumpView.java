@@ -20,13 +20,15 @@ import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.paxle.gui.ALayoutServlet;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 
 @Component(metatype=false, immediate=true)
 @Service(Servlet.class)
@@ -34,9 +36,13 @@ import org.paxle.gui.ALayoutServlet;
 	@Property(name="org.paxle.servlet.path", value="/threads"),
 	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
 })
-public class TheaddumpView extends ALayoutServlet {
-	
+public class TheaddumpView extends VelocityLayoutServlet {	
 	private static final long serialVersionUID = 1L;
+	
+    /**
+     * Logger
+     */
+    protected Log logger = LogFactory.getLog(this.getClass());
 	
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {

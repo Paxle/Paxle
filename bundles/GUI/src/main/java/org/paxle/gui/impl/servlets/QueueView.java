@@ -20,14 +20,16 @@ import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.paxle.core.IMWComponent;
-import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 
 @Component(metatype=false, immediate=true)
@@ -38,10 +40,14 @@ import org.paxle.gui.IServiceManager;
 	@Property(name="org.paxle.servlet.menu", value="%menu.info/%menu.info.queues"), 
 	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/table_link.png")
 })
-public class QueueView extends ALayoutServlet {
-	
+public class QueueView extends VelocityLayoutServlet {	
 	private static final long serialVersionUID = 1L;
     
+    /**
+     * Logger
+     */
+    protected Log logger = LogFactory.getLog(this.getClass());	
+	
 	@Override
 	protected void fillContext(Context context, HttpServletRequest request) {
 		try {

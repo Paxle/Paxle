@@ -12,86 +12,36 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-package org.paxle.gui;
+package org.paxle.gui.impl.servlets;
 
 import java.io.IOException;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.view.VelocityLayoutServlet;
-import org.apache.velocity.tools.view.VelocityView;
+import org.paxle.gui.IServiceManager;
+import org.paxle.gui.IServletManager;
 
-import edu.umd.cs.findbugs.annotations.OverrideMustInvoke;
-
+/**
+ * @deprecated to not inherit from this class anymore. Use {@link VelocityLayoutServlet} instead
+ */
 public abstract class ALayoutServlet extends VelocityLayoutServlet {
     private static final long serialVersionUID = 1L;
     
     /**
      * Logger
      */
-    protected Log logger = LogFactory.getLog(this.getClass());
-
-	private VelocityView view;
-	
-	private IVelocityViewFactory viewFactory;
-	
-	@Override
-	protected VelocityView getVelocityView() {
-		return this.view;
-	}
-	
-	public void setVelocityViewFactory(IVelocityViewFactory viewFactory) {
-		this.viewFactory = viewFactory;
-	}
-
-	@Override
-	@OverrideMustInvoke
-	public void init(ServletConfig config) throws javax.servlet.ServletException {	
-		 this.view = this.viewFactory.createVelocityView(config);	
-		super.init(config);
-	};
-	
-	@Override
-	public void destroy() {
-		super.destroy();
-		this.view = null;
-		this.viewFactory = null;
-	}
-	
-	@Override
-	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		this.setDefaultResponseHeaders(resp);
-		super.service(req, resp);
-	}
-	
-	protected void setDefaultResponseHeaders(HttpServletResponse resp) {
-		resp.setHeader("Server","Paxle");
-		resp.setHeader("Pragma","no-cache");
-		resp.setHeader("Cache-Control","no-cache, no-store, must-revalidate");
-	}
-	
-	@Override
-	public Template handleRequest( HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
-		return super.handleRequest(request, response, context);
-	}
+    protected Log logger = LogFactory.getLog(this.getClass());	
 	
 	@Override
     protected void fillContext(Context context, HttpServletRequest request) {
         // this implementation does nothing
     }
-	
-	@Override
-	protected Template getTemplate(HttpServletRequest request, HttpServletResponse response) {
-		return super.getTemplate(request, response);
-	}
 	
 	
 	protected boolean isUserAuthenticated(final HttpServletRequest request, final HttpServletResponse response, boolean redirectToLogin) throws IOException {

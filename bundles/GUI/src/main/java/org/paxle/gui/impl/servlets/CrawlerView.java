@@ -29,6 +29,8 @@ import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -36,11 +38,11 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.ICommandProfileManager;
 import org.paxle.core.doc.IDocumentFactory;
 import org.paxle.core.doc.ICommandProfile.LinkFilterMode;
-import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 
 @Component(metatype=false, immediate=true)
@@ -51,14 +53,22 @@ import org.paxle.gui.IServiceManager;
 	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.bundles/%menu.bundles.crawler"), 
 	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/link_go.png")
 })
-public class CrawlerView extends ALayoutServlet {
+public class CrawlerView extends VelocityLayoutServlet {
 	
 	private static final long serialVersionUID = 1L;
 	
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 	
+	/**
+	 * A factory to create {@link ICommandProfile}s
+	 */
 	@Reference(target="(docType=org.paxle.core.doc.ICommandProfile)")
 	protected IDocumentFactory profileFactory;
+	
+    /**
+     * Logger
+     */
+    protected Log logger = LogFactory.getLog(this.getClass());		
 	
 	private class UrlTank {
 		/**

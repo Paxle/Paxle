@@ -24,7 +24,6 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 
 @Component(metatype=false, immediate=true)

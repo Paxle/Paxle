@@ -20,11 +20,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
-import org.paxle.gui.ALayoutServlet;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.paxle.gui.IServletManager;
 
 @Component(metatype=false, immediate=true)
@@ -33,11 +35,19 @@ import org.paxle.gui.IServletManager;
 	@Property(name="org.paxle.servlet.path", value="/"),
 	@Property(name="org.paxle.servlet.doUserAuth", boolValue=false)
 })
-public class RootView extends ALayoutServlet {
+public class RootView extends VelocityLayoutServlet {
 	
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * A class to manage servlets and resources
+	 */
 	private IServletManager smanager = null;
+	
+    /**
+     * Logger
+     */
+    protected Log logger = LogFactory.getLog(this.getClass());	
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {

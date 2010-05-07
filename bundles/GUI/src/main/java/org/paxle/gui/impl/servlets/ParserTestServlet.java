@@ -35,6 +35,8 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.LineIterator;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -43,6 +45,7 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.charset.ICharsetDetector;
 import org.paxle.core.doc.ICommand;
@@ -53,7 +56,6 @@ import org.paxle.core.doc.ICommand.Result;
 import org.paxle.core.doc.IParserDocument.Status;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
-import org.paxle.gui.ALayoutServlet;
 
 @Component(metatype=false, immediate=true)
 @Service(Servlet.class)
@@ -61,7 +63,7 @@ import org.paxle.gui.ALayoutServlet;
 	@Property(name="org.paxle.servlet.path", value="/testing/parserTest"),
 	@Property(name="org.paxle.servlet.doUserAuth", boolValue=true)
 })
-public class ParserTestServlet extends ALayoutServlet {
+public class ParserTestServlet extends VelocityLayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
 	public static final String PARAM_PARSE_DOC = "doParseDocument";
@@ -79,6 +81,11 @@ public class ParserTestServlet extends ALayoutServlet {
 	
 	private static final String REQ_ATTR_CMD = "cmd";
 	private static final String REQ_ATTR_LINEITERS = "pDocReaders";
+	
+    /**
+     * Logger
+     */
+    protected Log logger = LogFactory.getLog(this.getClass());	
 	
 	/**
 	 * The parser component.<br/>

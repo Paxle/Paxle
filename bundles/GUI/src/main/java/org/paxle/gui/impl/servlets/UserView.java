@@ -23,6 +23,8 @@ import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -34,13 +36,13 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.tools.generic.ResourceTool;
 import org.apache.velocity.tools.generic.ResourceTool.Key;
 import org.apache.velocity.tools.view.CookieTool;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
-import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 import org.paxle.gui.impl.HttpAuthManager;
 
@@ -52,7 +54,7 @@ import org.paxle.gui.impl.HttpAuthManager;
 	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.system/%menu.bundles.userAdmin"), 
 	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/user.png")
 })
-public class UserView extends ALayoutServlet {
+public class UserView extends VelocityLayoutServlet {
 	private static final long serialVersionUID = 1L;
 	public static final String USER_LANGUAGE = "user.language";
 	
@@ -64,6 +66,11 @@ public class UserView extends ALayoutServlet {
 	private static final String MODE_USER = "user";
 	private static final String MODE_GROUP = "group";
 
+    /**
+     * Logger
+     */
+    protected Log logger = LogFactory.getLog(this.getClass());	
+	
 	@Override
 	public Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context context) throws Exception {
 		

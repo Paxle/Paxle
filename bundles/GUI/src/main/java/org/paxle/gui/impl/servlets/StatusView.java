@@ -27,7 +27,6 @@ import org.apache.velocity.context.Context;
 import org.osgi.framework.InvalidSyntaxException;
 import org.paxle.core.IMWComponent;
 import org.paxle.crawler.ISubCrawlerManager;
-import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 import org.paxle.parser.ISubParserManager;
 import org.paxle.se.search.ISearchProviderManager;

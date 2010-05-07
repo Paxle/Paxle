@@ -58,6 +58,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
+import org.apache.velocity.tools.view.VelocityLayoutServlet;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
@@ -66,7 +67,6 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.metadata.Attribute;
 import org.paxle.core.metadata.Metadata;
-import org.paxle.gui.ALayoutServlet;
 import org.paxle.gui.IServiceManager;
 import org.paxle.gui.IServletManager;
 import org.paxle.gui.IStyleManager;
@@ -82,7 +82,7 @@ import org.paxle.tools.ieporter.cm.IConfigurationIEPorter;
 	@Property(name="org.paxle.servlet.menu", value="%menu.administration/%menu.bundles/%menu.system.configManagement"), 
 	@Property(name="org.paxle.servlet.menu.icon", value="/resources/images/bullet_wrench.png")
 })
-public class ConfigView extends ALayoutServlet {
+public class ConfigView extends VelocityLayoutServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private static final String ERROR_MSG = "errorMsg";
