@@ -127,11 +127,9 @@
 		<equinox.bundledir>bundles</equinox.bundledir>
 		
 		<!-- properties that will be overwritten by the installer -->
-		<org.osgi.service.http.port>8080</org.osgi.service.http.port>
-		<paxle.data>.</paxle.data>
-		<equinox.data>configuration</equinox.data>
-		<log4j.config.file>file:${equinox.data}/log4j.properties</log4j.config.file>
-		<runtime.xmx.mb>128</runtime.xmx.mb>
+<!--		<equinox.data>configuration</equinox.data>-->
+<!--		<log4j.config.file>file:${equinox.data}/log4j.properties</log4j.config.file>-->
+<!--		<runtime.xmx.mb>128</runtime.xmx.mb>-->
 		
 		<!-- Report encoding -->
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>		
@@ -1080,6 +1078,9 @@
 						<artifactId>maven-assembly-plugin</artifactId>
 						<inherited>false</inherited>
 						<configuration>
+							<filters>
+								<filter>src/main/assembly/debug.properties</filter>
+							</filters>
 							<descriptors>
 								<descriptor>src/main/assembly/debug.xml</descriptor>
 							</descriptors>
