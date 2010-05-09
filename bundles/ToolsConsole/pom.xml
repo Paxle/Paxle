@@ -4,10 +4,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.paxle</groupId>
-	<artifactId>Console</artifactId>
+	<artifactId>ToolsConsole</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.1.3-SNAPSHOT</version>
-	<name>Paxle - UI: Console</name>
+	<name>Paxle - Tools: Console</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
 	<!-- Parent Project -->
@@ -26,6 +26,8 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+						<Bundle-Category>tools</Bundle-Category>
+					
 						<Bundle-DocURL>${paxle.bundleDocUrl}/${pom.artifactId}</Bundle-DocURL>
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>					
@@ -64,9 +66,9 @@
 							sun.awt.motif.*
 						</DynamicImport-Package>
 						<Private-Package>
-							org.paxle.console.impl,
-							org.paxle.console.impl.gui,
-							org.paxle.console.impl.desktop
+							org.paxle.tools.console.impl,
+							org.paxle.tools.console.impl.gui,
+							org.paxle.tools.console.impl.desktop
 						</Private-Package>
 					</instructions>
 				</configuration>

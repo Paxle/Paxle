@@ -12,7 +12,7 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-package org.paxle.console.impl.desktop;
+package org.paxle.tools.console.impl.desktop;
 
 import java.awt.Font;
 import java.awt.event.KeyEvent;

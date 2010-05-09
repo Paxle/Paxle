@@ -12,7 +12,7 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-package org.paxle.console.impl.gui;
+package org.paxle.tools.console.impl.gui;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -15,7 +15,7 @@
 /**
  * 
  */
-package org.paxle.console.impl.desktop;
+package org.paxle.tools.console.impl.desktop;
 
 import java.io.IOException;
 import java.io.InputStream;

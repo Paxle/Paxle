@@ -1051,7 +1051,7 @@
 				<module>../DIAddonLuke</module>
 
 				<!-- Misc -->
-				<module>../Console</module>
+				<module>../ToolsConsole</module>
 				
 				<!-- Paxle APIs -->
 				<module>../Dbus</module>
