@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.JFrame;
 
@@ -149,8 +150,9 @@ public class DialogueServices implements ServiceListener, IDialogueServices {
 	}
 	
 	private void serviceChanged(final ServiceReference ref, final int type) {
-		final Long id = (Long)ref.getProperty(Constants.SERVICE_ID);
 		logger.debug("received service changed event for " + ref + ", type: " + type);
+		
+		final Long id = (Long)ref.getProperty(Constants.SERVICE_ID);		
 		if (id == null) {
 			logger.error("(un)registered DIComponent has no valid service-id: " + ref);
 			return;
@@ -166,27 +168,32 @@ public class DialogueServices implements ServiceListener, IDialogueServices {
 					break;
 				}
 				servicePanels.put(id, panel);
+				
 				final DIServiceEvent event = new DIServiceEvent(id, panel);
 				synchronized (this) {
 					for (final IDIEventListener l : listeners)
 						l.serviceRegistered(event);
 				}
+				
 				logger.info("registered DIComponent '" + panel.getTitle() + "' with service-ID " + id);
 			} break;
 			
 			case ServiceEvent.UNREGISTERING: {
 				// close possibly open dialogue and remove it from the servicePanels-map
 				close(id);
+				
 				DIComponent panel = servicePanels.get(id);
 				if (panel == null) {
 					logger.warn("unregistering DIComponent which is unknown to DesktopServices: " + ref);
 					break;
 				}
+				
 				final DIServiceEvent event = new DIServiceEvent(id, panel);
 				synchronized (this) {
 					for (final IDIEventListener l : listeners)
 						l.serviceUnregistering(event);
 				}
+				
 				servicePanels.remove(id);
 				logger.info("unregistered DIComponent '" + panel.getTitle() + "' with service-ID " + id);
 				panel = null;
@@ -199,11 +206,21 @@ public class DialogueServices implements ServiceListener, IDialogueServices {
 	}
 	
 	public synchronized void addDIEventListener(IDIEventListener listener) {
-		listeners.add(listener);
+		this.listeners.add(listener);
+		
+		for(Entry<Long,DIComponent> servicePanel : this.servicePanels.entrySet()) {
+			final DIServiceEvent event = new DIServiceEvent(servicePanel.getKey(), servicePanel.getValue());
+			listener.serviceRegistered(event);
+		}		
 	}
 	
 	public synchronized void removeDIEventListener(IDIEventListener listener) {
-		listeners.remove(listener);
+		this.listeners.remove(listener);
+		
+		for(Entry<Long,DIComponent> servicePanel : this.servicePanels.entrySet()) {
+			final DIServiceEvent event = new DIServiceEvent(servicePanel.getKey(), servicePanel.getValue());
+			listener.serviceUnregistering(event);
+		}		
 	}
 	
 	public Map<Long,DIComponent> getAdditionalComponents() {

@@ -34,9 +34,10 @@ then
 fi
 
 # startup java
+JAR_NAME=${equinox.runtime.jar}
 if [ "$1" = "-rdebug" ]; then
-	nice -n 15 $JAVA $JAVA_ARGS -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -jar ${equinox.runtime.jar} $@
+	nice -n 15 $JAVA $JAVA_ARGS -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -jar $JAR_NAME $@
 else
-	nice -n 15 $JAVA $JAVA_ARGS -jar ${equinox.runtime.jar} $@
+	nice -n 15 $JAVA $JAVA_ARGS -jar $JAR_NAME $@
 fi
 echo "Shutdown finished"

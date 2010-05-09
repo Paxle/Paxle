@@ -37,11 +37,36 @@
 							org.apache.commons.logging, 
 							<!-- Eclipse Equinox Console -->
 							org.eclipse.osgi.framework.console,
+							<!-- Servlet API -->
+							javax.servlet;resolution:=optional,
+							javax.servlet.http;resolution:=optional,
+							<!-- Apache Velocity (used by Paxle GUI bundle) -->
+							org.apache.velocity;resolution:=optional, 
+							org.apache.velocity.tools.view;resolution:=optional, 
+							org.apache.velocity.context;resolution:=optional,
 							<!-- Paxle Core Bundle -->
-							org.paxle.core;version="[0.1.0,0.2.0)"
+							org.paxle.core;version="[0.1.0,0.2.0)",
+							<!-- Paxle Desktop-Integration Bundle -->
+							org.paxle.desktop;version="[0.1.0,0.2.0)";resolution:=optional
 						</Import-Package>
+						<DynamicImport-Package>							
+							javax.swing, 
+							javax.swing.*,
+							javax.swing.plaf,
+							javax.swing.plaf.*,
+							javax.swing.plaf.basic,
+							javax.swing.plaf.basic.*,
+							javax.accessibility,
+							javax.accessibility.*,
+							sun.awt,
+							sun.awt.X11,
+							sun.awt.*,
+							sun.awt.motif.*
+						</DynamicImport-Package>
 						<Private-Package>
-							org.paxle.console.impl
+							org.paxle.console.impl,
+							org.paxle.console.impl.gui,
+							org.paxle.console.impl.desktop
 						</Private-Package>
 					</instructions>
 				</configuration>
@@ -55,6 +80,21 @@
 			<groupId>org.paxle</groupId>
 			<artifactId>Core</artifactId>
 			<version>[0.1.29-SNAPSHOT,0.2.0)</version>			
+		</dependency>	
+	
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>GUI</artifactId>
+			<version>[0.1.11,0.2.0)</version>
+			<optional>true</optional>
+		</dependency>
+	
+		
+		<dependency>
+			<groupId>org.paxle</groupId>
+			<artifactId>DesktopIntegration</artifactId>
+			<version>[0.1.6-SNAPSHOT,0.2.0)</version>
+			<optional>true</optional>
 		</dependency>	
 	
 		<dependency>
