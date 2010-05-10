@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -51,46 +50,76 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.HeadMethod;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.framework.Constants;
-import org.osgi.service.cm.ManagedService;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.Services;
+import org.osgi.framework.BundleContext;
 import org.paxle.core.doc.ICrawlerDocument;
+import org.paxle.core.prefs.IPropertiesStore;
 import org.paxle.core.prefs.Properties;
 import org.paxle.crawler.ContentLengthLimitExceededException;
 import org.paxle.crawler.ICrawlerContext;
 import org.paxle.crawler.ICrawlerContextAware;
 import org.paxle.crawler.ICrawlerContextLocal;
 import org.paxle.crawler.ICrawlerTools;
+import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.ICrawlerTools.ILimitedRateCopier;
-import org.paxle.crawler.http.IHttpCrawler;
 
-/**
- * TODO: javadoc
- */
-public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContextAware {
+@Component(
+	name=HttpCrawler.PID,
+	immediate=true,
+	metatype=false	
+)
+@Services({
+	@Service(ISubCrawler.class),
+	@Service(ICrawlerContextAware.class)
+})
+@Property(name=ISubCrawler.PROP_PROTOCOL, value={"http","https"})
+public class HttpCrawler implements ISubCrawler, ICrawlerContextAware {
 	/* =========================================================
 	 * Config Properties
 	 * ========================================================= */
-	static final String PID = IHttpCrawler.class.getName();
+	static final String PID = "org.paxle.crawler.http.IHttpCrawler";
 	
+	@Property(intValue=15000)
 	static final String PROP_CONNECTION_TIMEOUT 		= PID + '.' + "connectionTimeout";
+	@Property(intValue=15000)
 	static final String PROP_SOCKET_TIMEOUT 			= PID + '.' + "socketTimeout";
+	@Property(intValue=15)
 	static final String PROP_MAXCONNECTIONS_PER_HOST 	= PID + '.' + "maxConnectionsPerHost";
+	@Property(intValue=10485760)
 	static final String PROP_MAXDOWNLOAD_SIZE 			= PID + '.' + "maxDownloadSize";
+	@Property(boolValue=true)
 	static final String PROP_ACCEPT_ENCODING 			= PID + '.' + "acceptEncodings";
+	@Property(boolValue=true)
 	static final String PROP_SKIP_UNSUPPORTED_MIMETYPES = PID + '.' + "skipUnsupportedMimeTypes";
+	@Property(intValue=-1)
 	static final String PROP_TRANSFER_LIMIT 			= PID + '.' + "transferLimit";			// in KB/s
+	@Property(value=CookiePolicy.BROWSER_COMPATIBILITY)
 	static final String PROP_COOKIE_POLICY 			    = PID + '.' + "cookiePolicy";
+	@Property(value="Mozilla/5.0 (compatible; ${paxle.userAgent}/${paxle.version}; +http://www.paxle.net/en/bot)")
 	static final String PROP_USER_AGENT 			    = PID + '.' + "userAgent";
 	
+	@Property(boolValue=false)
 	static final String PROP_PROXY_USE 					= PID + '.' + "useProxy";
+	@Property(value="")
 	static final String PROP_PROXY_HOST 				= PID + '.' + "proxyHost";
+	@Property(intValue=3128)
 	static final String PROP_PROXY_PORT 				= PID + '.' + "proxyPort";
+	@Property(value="")
 	static final String PROP_PROXY_USER 				= PID + '.' + "proxyUser";
+	@Property(value="")
 	static final String PROP_PROXY_PASSWORD 			= PID + '.' + "proxyPassword";
 	
 	/* =========================================================
@@ -116,16 +145,14 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 	 * this shall suffice for now.
 	 */
 	private static final HashSet<String> ERRONEOUS_MIME_TYPES = new HashSet<String>(Arrays.asList(
-			"text/plain",
-			"application/x-tar"
+		"text/plain",
+		"application/x-tar"
 	));
 	
-	/**
-	 * The protocol(s) supported by this crawler
-	 */
-	static final String[] PROTOCOLS = new String[]{"http","https"};
-	
 	protected ICrawlerContextLocal contextLocal;
+	
+	@Reference
+	protected IPropertiesStore propstore;
 	
 	/**
 	 * Connection manager used for http connection pooling
@@ -166,23 +193,39 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 	private String userAgent = null;
 	
 	private Properties props = null;
-	private final ConcurrentHashMap<String,Integer> hostSettings;
 	
-	public HttpCrawler(final Properties props) {
-		// init with default configuration
-		this.updated(this.getDefaults());
+	private ConcurrentHashMap<String,Integer> hostSettings;
+	
+	@Activate
+	public void activate(BundleContext context, Map<String,Object> config) {
+		// reading the configuration
+		this.modified(config);
 		
-		this.props = props;
-		if (props != null) {
-			final Set<Object> keySet = props.keySet();
-			hostSettings = new ConcurrentHashMap<String,Integer>(keySet.size(), 0.75f, 10);
-			for (final Object o : keySet) {
-				final String key = (String)o;
-				hostSettings.put(key, Integer.valueOf(props.getProperty(key)));
+		// registering the protocol handler for https 
+	    Protocol.registerProtocol("https", new Protocol("https", new AllSSLProtocolSocketFactory(), 443));
+		
+		// getting the component preferences	
+		if (this.propstore != null) {
+			this.props = this.propstore.getProperties(context);
+			if (props != null) {
+				final Set<Object> keySet = props.keySet();
+				this.hostSettings = new ConcurrentHashMap<String,Integer>(keySet.size(), 0.75f, 10);
+				for (final Object o : keySet) {
+					final String key = (String)o;
+					this.hostSettings.put(key, Integer.valueOf(props.getProperty(key)));
+				}
 			}
-		} else {
-			hostSettings = new ConcurrentHashMap<String,Integer>(10, 0.75f, 10);
 		}
+		
+		if(this.hostSettings == null) {
+			this.hostSettings = new ConcurrentHashMap<String,Integer>(10, 0.75f, 10);
+		}
+	}
+	
+	@Deactivate
+	public void deactivate() {
+		this.cleanup();
+		this.saveProperties();
 	}
 	
 	public void setCrawlerContextLocal(ICrawlerContextLocal contextLocal) {
@@ -198,183 +241,144 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 	
 	private boolean isHostSettingSet(final String host, final int pref) {
 		final Integer i = hostSettings.get(host);
-		if (i == null)
-			return false;
+		if (i == null) return false;
 		return (i.intValue() & pref) != 0;
 	}
 	
 	private void setHostSetting(final String host, final int pref) {
 		final Integer i = hostSettings.get(host);
 		final int val = (i == null) ? pref : (i.intValue() | pref);
-		hostSettings.put(host, Integer.valueOf(val));
+		this.hostSettings.put(host, Integer.valueOf(val));
 	}
 	
 	/**
 	 * cleanup old settings
 	 */
-	public void cleanup() {
+	private void cleanup() {
 		if (this.connectionManager != null) {
 			this.connectionManager.shutdown();
 			this.connectionManager = null;
+		}
+		if (this.httpClient != null) {
 			this.httpClient = null;
 		}
 	}
 	
-	/**
-	 * @return the default configuration of this service
-	 */
-	public Hashtable<String,Object> getDefaults() {
-		Hashtable<String,Object> defaults = new Hashtable<String,Object>();
+	@Modified
+	public synchronized void modified(Map<String,Object> configuration) {
+		/*
+		 * Cleanup old config
+		 */
+		this.cleanup();
 		
-		defaults.put(PROP_CONNECTION_TIMEOUT, Integer.valueOf(15000));
-		defaults.put(PROP_SOCKET_TIMEOUT, Integer.valueOf(15000));
-		defaults.put(PROP_MAXCONNECTIONS_PER_HOST, Integer.valueOf(10));
-		defaults.put(PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(10485760));
-		defaults.put(PROP_ACCEPT_ENCODING, Boolean.TRUE);
-		defaults.put(HttpCrawler.PROP_SKIP_UNSUPPORTED_MIMETYPES, Boolean.TRUE);
-		defaults.put(PROP_COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
-		defaults.put(PROP_USER_AGENT, "Mozilla/5.0 (compatible; ${paxle.userAgent}/${paxle.version}; +http://www.paxle.net/en/bot)");
-		defaults.put(PROP_TRANSFER_LIMIT, Integer.valueOf(-1));
+		/*
+		 * Init with changed configuration
+		 */
+		this.connectionManager = new MultiThreadedHttpConnectionManager();
+		final HttpConnectionManagerParams connectionManagerParams = connectionManager.getParams();
 		
-		defaults.put(PROP_PROXY_USE, Boolean.FALSE);
-		defaults.put(PROP_PROXY_HOST, "");
-		defaults.put(PROP_PROXY_PORT, Integer.valueOf(3128));		// default squid port
-		defaults.put(PROP_PROXY_USER, "");
-		defaults.put(PROP_PROXY_PASSWORD, "");
+		// configure connections per host
+		final Integer maxConnections = (Integer) configuration.get(PROP_MAXCONNECTIONS_PER_HOST);
+		if (maxConnections != null) {
+			connectionManagerParams.setDefaultMaxConnectionsPerHost(maxConnections.intValue());
+		}
 		
-		defaults.put(Constants.SERVICE_PID, IHttpCrawler.class.getName());
+		// configuring timeouts
+		final Integer connectionTimeout = (Integer) configuration.get(PROP_CONNECTION_TIMEOUT);
+		if (connectionTimeout != null) {
+			connectionManagerParams.setConnectionTimeout(connectionTimeout.intValue());
+		}
+		final Integer socketTimeout = (Integer) configuration.get(PROP_SOCKET_TIMEOUT);
+		if (socketTimeout != null) {
+			connectionManagerParams.setSoTimeout(socketTimeout.intValue());
+		}
 		
-		return defaults;
-	}
-	
-	/**
-	 * @see ManagedService#updated(Dictionary)
-	 */
-	@SuppressWarnings("unchecked")		// we're only implementing an interface
-	public synchronized void updated(Dictionary configuration) {
-		// our caller catches all runtime-exceptions and silently ignores them, leaving us confused behind,
-		// so this try/catch-block exists for debugging purposes
-		try {
-			if ( configuration == null ) {
-				logger.debug("Configuration is null. Using default configuration ...");
-				/*
-				 * Generate default configuration
-				 */
-				configuration = this.getDefaults();
+		// set new http client
+		this.httpClient = new HttpClient(connectionManager);		
+		
+		// the crawler should request and accept content-encoded data
+		final Boolean acceptEncoding = (Boolean)configuration.get(PROP_ACCEPT_ENCODING);
+		if (acceptEncoding != null) {
+			this.acceptEncoding = acceptEncoding.booleanValue();
+		}
+		
+		// specifies if the crawler should skipp unsupported-mime-types
+		final Boolean skipUnsupportedMimeTypes = (Boolean)configuration.get(PROP_SKIP_UNSUPPORTED_MIMETYPES);
+		if (skipUnsupportedMimeTypes != null) {
+			this.skipUnsupportedMimeTypes = skipUnsupportedMimeTypes.booleanValue();
+		}
+		
+		// the cookie policy to use for crawling
+		final String propCookiePolicy = (String)configuration.get(PROP_COOKIE_POLICY);
+		this.cookiePolicy = (propCookiePolicy == null || propCookiePolicy.length()==0) ? CookiePolicy.BROWSER_COMPATIBILITY : propCookiePolicy;
+		
+		// the http-user-agent string that should be used
+		final String userAgent = (String)configuration.get(PROP_USER_AGENT);
+		if (userAgent != null) {
+			StringBuffer buf = new StringBuffer();
+			Pattern pattern = Pattern.compile("\\$\\{[^\\}]*}");
+			Matcher matcher = pattern.matcher(userAgent);
+
+			// replacing property placeholders with system-properties
+			while (matcher.find()) {
+				String placeHolder = matcher.group();
+				String propName = placeHolder.substring(2,placeHolder.length()-1);					
+				String propValue = System.getProperty(propName);
+				if (propValue != null) matcher.appendReplacement(buf, propValue);
 			}
+			matcher.appendTail(buf);
 			
-			/*
-			 * Cleanup old config
-			 */
-			this.cleanup();
+			this.userAgent = buf.toString();
+		} else {
+			// Fallback
+			this.userAgent = "PaxleFramework";
+		}
+		
+		// download limit in bytes
+		final Integer maxDownloadSize = (Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE);
+		if (maxDownloadSize != null) {
+			this.maxDownloadSize = maxDownloadSize.intValue();
+		}
+		
+		// limit data transfer rate
+		final Integer transferLimit = (Integer)configuration.get(PROP_TRANSFER_LIMIT);
+		int limitKBps = 0;
+		if (transferLimit != null)
+			limitKBps = transferLimit.intValue();
+		this.logger.debug("transfer rate limit: " + limitKBps + " kb/s");
+		// TODO: lrc = (limitKBps > 0) ? new CrawlerTools.LimitedRateCopier(limitKBps) : null;
+		
+		// proxy configuration
+		final Boolean useProxyVal = (Boolean)configuration.get(PROP_PROXY_USE);
+		final String host = (String)configuration.get(PROP_PROXY_HOST);
+		final Integer portVal = (Integer)configuration.get(PROP_PROXY_PORT);
+		
+		if (useProxyVal != null && useProxyVal.booleanValue() && host != null && host.length() > 0 && portVal != null) {
+			this.logger.info(String.format(
+				"Proxy is enabled: %s:%d",
+				host, portVal
+			));
 			
-			/*
-			 * Init with changed configuration
-			 */
-			this.connectionManager = new MultiThreadedHttpConnectionManager();
+			final int port = portVal.intValue();
+			final ProxyHost proxyHost = new ProxyHost(host, port);
+			this.httpClient.getHostConfiguration().setProxyHost(proxyHost);
 			
-			// configure connections per host
-			final Integer maxConnections = (Integer) configuration.get(PROP_MAXCONNECTIONS_PER_HOST);
-			if (maxConnections != null)
-				this.connectionManager.getParams().setDefaultMaxConnectionsPerHost(maxConnections.intValue());
+			final String user = (String)configuration.get(PROP_PROXY_HOST);
+			final String pwd = (String)configuration.get(PROP_PROXY_PASSWORD);
+			if (user != null && user.length() > 0 && pwd != null && pwd.length() > 0)
+				this.httpClient.getState().setProxyCredentials(
+						new AuthScope(host, port),
+						new UsernamePasswordCredentials(user, pwd));
+		} else {
+			this.logger.info("Proxy is disabled");
 			
-			// configuring timeouts
-			final Integer connectionTimeout = (Integer) configuration.get(PROP_CONNECTION_TIMEOUT);
-			if (connectionTimeout != null)
-				this.connectionManager.getParams().setConnectionTimeout(connectionTimeout.intValue());
-			final Integer socketTimeout = (Integer) configuration.get(PROP_SOCKET_TIMEOUT);
-			if (socketTimeout != null)
-				this.connectionManager.getParams().setSoTimeout(socketTimeout.intValue());
-			
-			// init the protocol factory for https
-		    Protocol.registerProtocol("https", new Protocol("https", new AllSSLProtocolSocketFactory(), 443));
-			
-			// set new http client
-			this.httpClient = new HttpClient(connectionManager);		
-			
-			// the crawler should request and accept content-encoded data
-			final Boolean acceptEncoding = (Boolean)configuration.get(PROP_ACCEPT_ENCODING);
-			if (acceptEncoding != null)
-				this.acceptEncoding = acceptEncoding.booleanValue();
-			
-			// specifies if the crawler should skipp unsupported-mime-types
-			final Boolean skipUnsupportedMimeTypes = (Boolean)configuration.get(PROP_SKIP_UNSUPPORTED_MIMETYPES);
-			if (skipUnsupportedMimeTypes != null) {
-				this.skipUnsupportedMimeTypes = skipUnsupportedMimeTypes.booleanValue();
-			}
-			
-			// the cookie policy to use for crawling
-			final String propCookiePolicy = (String)configuration.get(PROP_COOKIE_POLICY);
-			this.cookiePolicy = (propCookiePolicy == null || propCookiePolicy.length()==0) ? CookiePolicy.BROWSER_COMPATIBILITY : propCookiePolicy;
-			
-			// the http-user-agent string that should be used
-			final String userAgent = (String)configuration.get(PROP_USER_AGENT);
-			if (userAgent != null) {
-				StringBuffer buf = new StringBuffer();
-				Pattern pattern = Pattern.compile("\\$\\{[^\\}]*}");
-				Matcher matcher = pattern.matcher(userAgent);
-	
-				// replacing property placeholders with system-properties
-				while (matcher.find()) {
-					String placeHolder = matcher.group();
-					String propName = placeHolder.substring(2,placeHolder.length()-1);					
-					String propValue = System.getProperty(propName);
-					if (propValue != null) matcher.appendReplacement(buf, propValue);
-				}
-				matcher.appendTail(buf);
-				
-				this.userAgent = buf.toString();
-			} else {
-				// Fallback
-				this.userAgent = "PaxleFramework";
-			}
-			
-			// download limit in bytes
-			final Integer maxDownloadSize = (Integer)configuration.get(PROP_MAXDOWNLOAD_SIZE);
-			if (maxDownloadSize != null)
-				this.maxDownloadSize = maxDownloadSize.intValue();
-			
-			// limit data transfer rate
-			final Integer transferLimit = (Integer)configuration.get(PROP_TRANSFER_LIMIT);
-			int limitKBps = 0;
-			if (transferLimit != null)
-				limitKBps = transferLimit.intValue();
-			logger.debug("transfer rate limit: " + limitKBps + " kb/s");
-			// TODO: lrc = (limitKBps > 0) ? new CrawlerTools.LimitedRateCopier(limitKBps) : null;
-			
-			// proxy configuration
-			final Boolean useProxyVal = (Boolean)configuration.get(PROP_PROXY_USE);
-			final boolean useProxy = (useProxyVal == null) ? false : useProxyVal.booleanValue();
-			final String host = (String)configuration.get(PROP_PROXY_HOST);
-			final Integer portVal = (Integer)configuration.get(PROP_PROXY_PORT);
-			if (useProxy && host != null && host.length() > 0 && portVal != null) {
-				logger.info("Proxy is enabled");
-				final int port = portVal.intValue();
-				final ProxyHost proxyHost = new ProxyHost(host, port);
-				httpClient.getHostConfiguration().setProxyHost(proxyHost);
-				
-				final String user = (String)configuration.get(PROP_PROXY_HOST);
-				final String pwd = (String)configuration.get(PROP_PROXY_PASSWORD);
-				if (user != null && user.length() > 0 && pwd != null && pwd.length() > 0)
-					httpClient.getState().setProxyCredentials(
-							new AuthScope(host, port),
-							new UsernamePasswordCredentials(user, pwd));
-			} else {
-				logger.info("Proxy is disabled");
-				httpClient.getHostConfiguration().setProxyHost(null);
-				httpClient.getState().clearCredentials();
-				if (useProxy) {
-					configuration.put(PROP_PROXY_USE, Boolean.FALSE);
-					// TODO: Configuration.update(configuration)
-				}
-			}
-		} catch (Throwable e) {
-			logger.error("Internal exception during configuring", e);
+			this.httpClient.getHostConfiguration().setProxyHost(null);
+			this.httpClient.getState().clearCredentials();
 		}
 	}
 	
 	/**
-	 * This method is synchronized with {@link #updated(Dictionary)} to avoid
+	 * This method is synchronized with {@link #modified(Dictionary)} to avoid
 	 * problems during configuration update.
 	 * 
 	 * @return the {@link HttpClient} to use
@@ -427,9 +431,10 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 	 *         it shall be aborted due to an unsupported MIME-type of the requested document
 	 */
 	boolean handleContentTypeHeader(final Header contentTypeHeader, final ICrawlerDocument doc) {
-		if (contentTypeHeader == null)
+		if (contentTypeHeader == null) {
 			// might be ok, might be not, we don't know yet
 			return true;
+		}
 		
 		// separate MIME-type and charset from the content-type specification
 		String contentMimeType = null;
@@ -505,14 +510,16 @@ public class HttpCrawler implements IHttpCrawler, ManagedService, ICrawlerContex
 	 *         it shall be aborted due to an exceeded maximum file-size of the document
 	 */
 	private boolean handleContentLengthHeader(final Header contentTypeLength, final ICrawlerDocument doc) {
-		if (contentTypeLength == null)
+		if (contentTypeLength == null) {
 			// no Content-Length given, continue
 			return true;
+		}
 		
 		final int maxDownloadSize = this.maxDownloadSize;
-		if (maxDownloadSize < 0)
+		if (maxDownloadSize < 0) {
 			// no maximum specified, continue
 			return true;
+		}
 		
 		// extract the content length in bytes
 		final String lengthString = contentTypeLength.getValue();

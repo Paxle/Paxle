@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>CrawlerHttp</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.6-SNAPSHOT</version>
+	<version>0.1.7-SNAPSHOT</version>
 	<name>Paxle - Crawler: HTTP</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -36,9 +36,6 @@
 						<!--<Bundle-UpdateLocation>${paxle.bundleUpdateUrl}/${pom.artifactId}</Bundle-UpdateLocation>-->
 						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						
-						<Export-Package>
-							org.paxle.crawler.http;version="${pom.version}"
-						</Export-Package>
 						<Import-Package>
 							<!-- OSGi framework -->
 							org.osgi.framework;version="1.4",
@@ -59,9 +56,6 @@
 						<Private-Package>
 							org.paxle.crawler.http.impl
 						</Private-Package>
-						<Bundle-Activator>
-							org.paxle.crawler.http.impl.Activator
-						</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>

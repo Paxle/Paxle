@@ -16,9 +16,11 @@ package org.paxle.crawler.http.impl;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.mortbay.jetty.testing.ServletTester;
 import org.paxle.core.doc.ICrawlerDocument;
 import org.paxle.crawler.impl.ACrawlerTest;
@@ -36,7 +38,8 @@ public class HttpCrawlerTest extends ACrawlerTest {
 		super.setUp();		
 		
 		// create the crawler
-		this.crawler = new HttpCrawler(null);
+		this.crawler = new HttpCrawler();
+		this.crawler.activate(null, this.getProperties());
 		this.crawler.setCrawlerContextLocal(this.crawlerContextLocal);
 
 		// create a dummy server
@@ -45,6 +48,28 @@ public class HttpCrawlerTest extends ACrawlerTest {
 		this.tester.addServlet(DummyServlet.class, "/");		
 		this.tester.start();				
 		this.servletURL = tester.createSocketConnector(true);
+	}
+	
+	protected Map<String,Object> getProperties() {
+		final Map<String,Object> defaults = new HashMap<String,Object>();
+		
+		defaults.put(HttpCrawler.PROP_CONNECTION_TIMEOUT, Integer.valueOf(15000));
+		defaults.put(HttpCrawler.PROP_SOCKET_TIMEOUT, Integer.valueOf(15000));
+		defaults.put(HttpCrawler.PROP_MAXCONNECTIONS_PER_HOST, Integer.valueOf(10));
+		defaults.put(HttpCrawler.PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(10485760));
+		defaults.put(HttpCrawler.PROP_ACCEPT_ENCODING, Boolean.TRUE);
+		defaults.put(HttpCrawler.PROP_SKIP_UNSUPPORTED_MIMETYPES, Boolean.TRUE);
+		defaults.put(HttpCrawler.PROP_COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+		defaults.put(HttpCrawler.PROP_USER_AGENT, "Mozilla/5.0 (compatible; ${paxle.userAgent}/${paxle.version}; +http://www.paxle.net/en/bot)");
+		defaults.put(HttpCrawler.PROP_TRANSFER_LIMIT, Integer.valueOf(-1));
+		
+		defaults.put(HttpCrawler.PROP_PROXY_USE, Boolean.FALSE);
+		defaults.put(HttpCrawler.PROP_PROXY_HOST, "");
+		defaults.put(HttpCrawler.PROP_PROXY_PORT, Integer.valueOf(3128));		// default squid port
+		defaults.put(HttpCrawler.PROP_PROXY_USER, "");
+		defaults.put(HttpCrawler.PROP_PROXY_PASSWORD, "");
+		
+		return defaults;
 	}
 	
 	@Override
@@ -98,9 +123,9 @@ public class HttpCrawlerTest extends ACrawlerTest {
 		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, "xyz/unknown");
 		
 		// change crawler settings
-		Dictionary<String, Object> props = this.crawler.getDefaults();
+		final Map<String, Object> props = this.getProperties();
 		props.put(HttpCrawler.PROP_SKIP_UNSUPPORTED_MIMETYPES, Boolean.FALSE);
-		this.crawler.updated(props);		
+		this.crawler.modified(props);		
 		
 		// do some crawling
 		this.crawlerDoc = this.crawler.request(URI.create(this.servletURL));
@@ -113,9 +138,9 @@ public class HttpCrawlerTest extends ACrawlerTest {
 		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, TESTFILE_MIMETYPE);
 		
 		// change crawler settings
-		Dictionary<String, Object> props = this.crawler.getDefaults();
+		final Map<String, Object> props = this.getProperties();
 		props.put(HttpCrawler.PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(1000));
-		this.crawler.updated(props);
+		this.crawler.modified(props);
 		
 		// do some crawling
 		ICrawlerDocument doc = this.crawler.request(URI.create(this.servletURL));
@@ -128,9 +153,9 @@ public class HttpCrawlerTest extends ACrawlerTest {
 		this.tester.setAttribute(DummyServlet.ATTR_FILE_MIMETYPE, TESTFILE_MIMETYPE);
 		
 		// change crawler settings
-		Dictionary<String, Object> props = this.crawler.getDefaults();
+		final Map<String, Object> props = this.getProperties();
 		props.put(HttpCrawler.PROP_MAXDOWNLOAD_SIZE, Integer.valueOf(1000));
-		this.crawler.updated(props);
+		this.crawler.modified(props);
 		
 		// do some crawling
 		this.crawlerDoc = this.crawler.request(URI.create(this.servletURL));
