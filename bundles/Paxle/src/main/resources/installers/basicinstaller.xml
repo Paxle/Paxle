@@ -92,7 +92,7 @@
 			<description>Core package</description>
 
 			<!-- core OSGi bundles -->
-			<fileset dir="${basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">
+			<fileset dir="${basedir}/target/BasicInstaller/" targetdir="$INSTALL_PATH">
 				<include name="**" />
 
 				<!-- excluding DI jars -->
@@ -109,15 +109,15 @@
 			</fileset>
 			
 			<!-- parsing and including the equinox config file -->
-			<file targetdir="$equinox.data.path" src="${basedir}/target/izpack/${pom.artifactId}-${pom.version}/configuration/config.ini"/>
+			<file targetdir="$equinox.data.path" src="${basedir}/target/BasicInstaller/configuration/config.ini"/>
 			<parsable targetfile="$equinox.data.path/config.ini" type="javaprop"/>
 			
 			<!-- parsing and including the runtime-property file -->
-			<file targetdir="$INSTALL_PATH" src="${basedir}/target/izpack/${pom.artifactId}-${pom.version}/start.ini"/>
+			<file targetdir="$INSTALL_PATH" src="${basedir}/target/BasicInstaller/start.ini"/>
 			<parsable targetfile="$INSTALL_PATH/start.ini"/>
 			
 			<!-- parsing and including the log4j config file -->
-			<file targetdir="$equinox.data.path" src="${basedir}/target/izpack/${pom.artifactId}-${pom.version}/configuration/log4j.properties"/>
+			<file targetdir="$equinox.data.path" src="${basedir}/target/BasicInstaller/configuration/log4j.properties"/>
 
 			<!-- uninstaller shell script -->
 			<fileset dir="${basedir}/src/main/resources/installers/" includes="uninstall.sh" targetdir="$INSTALL_PATH/Uninstaller" />
@@ -143,7 +143,7 @@
 		<pack id="DI" name="Desktop" parent="GUIs" required="no" preselected="yes">
 			<description>Desktop Integration</description>
 
-			<fileset dir="${basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">
+			<fileset dir="${basedir}/target/BasicInstaller/" targetdir="$INSTALL_PATH">
 				<include name="DesktopIntegration*.jar" />
 				<include name="DI*Backend*.jar" />
 			</fileset>
@@ -153,7 +153,7 @@
 		<pack id="GUI" name="GUI" parent="GUIs" required="no" preselected="yes">
 			<description>Http GUI</description>
 
-			<fileset dir="${basedir}/target/izpack/${pom.artifactId}-${pom.version}/" targetdir="$INSTALL_PATH">
+			<fileset dir="${basedir}/target/BasicInstaller/" targetdir="$INSTALL_PATH">
 				<include name="GUI*.jar" />
 			</fileset>
 		</pack>

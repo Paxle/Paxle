@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
 <assembly>
-	<id>installer</id>
+	<id>equinox</id>
 	<formats>
-		<format>dir</format>
+		<format>tar.gz</format>
 	</formats>
-	<includeBaseDirectory>false</includeBaseDirectory>
+	<includeBaseDirectory>true</includeBaseDirectory>
+	<baseDirectory>${project.build.finalName}</baseDirectory>
 
 	<componentDescriptors>
 		<!-- Eclipse equinox related bundles and files -->
