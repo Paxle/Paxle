@@ -29,11 +29,12 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.felix.scr.annotations.Reference;
 import org.osgi.framework.Constants;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.ASubParser;
+import org.paxle.parser.IParserContextLocal;
 import org.paxle.parser.ISubParser;
-import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.sitemap.SitemapParser;
 import org.paxle.parser.sitemap.api.Url;
@@ -46,6 +47,9 @@ public class SitemapParserImpl extends ASubParser implements SitemapParser {
 			// this is no official mimetype but we need one to register this parser to the manager
 			"application/sitemap+xml"
 	);
+	
+	@Reference
+	protected IParserContextLocal contextLocal;	
 	
 	/**
 	 * @see SitemapParser#getUrlSet(File)
@@ -98,7 +102,7 @@ public class SitemapParserImpl extends ASubParser implements SitemapParser {
 	public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException {
 		try {
 			// creating an empty parser document 
-			final IParserDocument pdoc = ParserContext.getCurrentContext().createDocument();
+			final IParserDocument pdoc = this.contextLocal.getCurrentContext().createDocument();
 			// TODO: we need a way to mark the document as "parsing-only" and to disallow indexing
 			
 			Urlset urls = this.getUrlSet(is);

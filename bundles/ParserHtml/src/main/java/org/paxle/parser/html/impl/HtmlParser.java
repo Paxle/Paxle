@@ -39,6 +39,7 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
@@ -54,6 +55,7 @@ import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.IParserContext;
+import org.paxle.parser.IParserContextLocal;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
@@ -76,7 +78,13 @@ import org.paxle.parser.html.IHtmlParser;
 public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactory {
 	static final String PID = "org.paxle.parser.html.impl.HtmlParser";
 	
+	/**
+	 * For logging
+	 */
 	private final Log logger = LogFactory.getLog(HtmlParser.class);
+	
+	@Reference
+	protected IParserContextLocal contextLocal;
 	
 	/*
 	public static void main(String[] args) {
@@ -111,7 +119,7 @@ public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactor
 	private ObjectPool pool = null;
 	
 	@Activate
-	protected void activate(Map<String, Object> props) {
+	protected void activate() {
 		this.pool = new GenericObjectPool(this);
 		ScriptScanner.STRICT = false;
 	}
@@ -189,7 +197,7 @@ public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactor
 			req = (HtmlParserRequisites) this.pool.borrowObject();
 			
 			// parsing content
-			final IParserContext context = ParserContext.getCurrentContext();
+			final IParserContext context = this.contextLocal.getCurrentContext();
 			
 			boolean obeyRobotsNoindex = true, obeyRobotsNofollow = true;
 			boolean useHcards = true;

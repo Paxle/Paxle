@@ -25,12 +25,13 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.IIOTools;
 import org.paxle.parser.IParserContext;
+import org.paxle.parser.IParserContextLocal;
 import org.paxle.parser.ISubParser;
-import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.iotools.SubParserDocOutputStream;
 
@@ -44,11 +45,14 @@ import org.paxle.parser.iotools.SubParserDocOutputStream;
 })
 public class ZipParser implements ISubParser {
 
-	public IParserDocument parse(URI location, String charset, InputStream is)
-			throws ParserException, UnsupportedEncodingException, IOException 
+	@Reference
+	protected IParserContextLocal contextLocal;
+	
+	public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException 
 	{
-		final IParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = this.contextLocal.getCurrentContext();		
 		final IIOTools iotools = context.getIoTools();
+		
 		final IParserDocument pdoc = context.createDocument();
 		final ZipInputStream zis = new ZipInputStream(is);
 		ZipEntry ze;

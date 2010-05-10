@@ -47,16 +47,45 @@ import org.paxle.parser.ParserContext;
 
 
 public abstract class AParserTest extends MockObjectTestCase {
-	protected HashMap<String,String> fileNameToMimeTypeMap = null;
-	protected HashMap<String, ISubParser> mimeTypeToParserMap = null;
+	private HashMap<String,String> fileNameToMimeTypeMap = null;
+	private HashMap<String, ISubParser> mimeTypeToParserMap = null;
 	
-	protected ITempFileManager aTempFileManager = null;
-	protected IReferenceNormalizer aRefNormalizer = null;
-	protected IMimeTypeDetector aMimetypeDetector = null;
-	protected ISubParserManager aSubParserManager = null;
-	protected IDocumentFactory docFactory;
+	/**
+	 * A dummy {@link ITempFileManager}
+	 */
+	private ITempFileManager aTempFileManager = null;
 	
-	protected IParserContextLocal parserContextLocal = null;
+	/**
+	 * A dummy {@link IReferenceNormalizer}
+	 */
+	private IReferenceNormalizer aRefNormalizer = null;
+	
+	/**
+	 * A dummy {@link IMimeTypeDetector}.
+	 * 
+	 * User {@link #registerMimeTypeForFile(String, String)} to register the
+	 * mime-type that should be returned for a given file-name. 
+	 */
+	private IMimeTypeDetector aMimetypeDetector = null;
+	
+	/**
+	 * A dummy {@link ISubParserManager}.
+	 * 
+	 * User {@link #registerParserForMimeType(String, ISubParser)} to register
+	 * the {@link ISubParser} that should be returned for a given mime-type
+	 */
+	private ISubParserManager aSubParserManager = null;
+	
+	/**
+	 * A {@link IDocumentFactory document-factory}.
+	 * This just returns an instance of {@link BasicDocumentFactory}.
+	 */
+	private IDocumentFactory docFactory;
+	
+	/**
+	 * A dummy {@link IParserContextLocal}
+	 */
+	private IParserContextLocal parserContextLocal = null;
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -78,11 +107,12 @@ public abstract class AParserTest extends MockObjectTestCase {
 					throw new IllegalArgumentException(e.getMessage() + " for '" + reference + "'", e);
 				}
 			}
+			
 			public URI normalizeReference(String reference, Charset charset) {
 				return normalizeReference(reference);
 			}
+			
 			public int getDefaultPort(String protocol) {
-				// TODO Auto-generated method stub
 				return 0;
 			}
 		};
@@ -99,11 +129,15 @@ public abstract class AParserTest extends MockObjectTestCase {
 		};
 		
 		this.aSubParserManager = new ISubParserManager() {			
-			public void disableMimeType(String arg0) {}			
-			public void enableMimeType(String arg0) {}
+			public void disableMimeType(String arg0) {
+				throw new UnsupportedOperationException("Method not implemented");
+			}			
+			public void enableMimeType(String arg0) {
+				throw new UnsupportedOperationException("Method not implemented");
+			}
 			
 			public Set<String> disabledMimeTypes() {
-				return Collections.emptySet();
+				throw new UnsupportedOperationException("Method not implemented");
 			}
 			
 			public Collection<String> getMimeTypes() {
@@ -115,7 +149,7 @@ public abstract class AParserTest extends MockObjectTestCase {
 			}
 			
 			public Map<String, ISubParser> getSubParsers() {
-				throw new RuntimeException("Not implemented");
+				throw new UnsupportedOperationException("Method not implemented");
 			}
 
 			public Collection<ISubParser> getSubParsers(String mimeType) {
@@ -129,38 +163,84 @@ public abstract class AParserTest extends MockObjectTestCase {
 			}
 			
 			public void disableParser(String service) {
-				// TODO Auto-generated method stub
-				
+				throw new UnsupportedOperationException("Method not implemented");
 			}
 			
 			public void enableParser(String service) {
-				// TODO Auto-generated method stub
-				
+				throw new UnsupportedOperationException("Method not implemented");				
 			}
 			
 			public Set<String> enabledParsers() {
-				// TODO Auto-generated method stub
-				return null;
+				throw new UnsupportedOperationException("Method not implemented");
 			}
 			
 			public Map<String,Set<String>> getParsers() {
-				// TODO Auto-generated method stub
-				return null;
+				throw new UnsupportedOperationException("Method not implemented");
 			}
 			public void close() {
-				// TODO Auto-generated method stub
-				
+				throw new UnsupportedOperationException("Method not implemented");
 			}
 		};
 		
+		// a document factory
 		this.docFactory = new BasicDocumentFactory() {{
-			this.tempFileManager = aTempFileManager;
+			this.tempFileManager = getTempFileManager();
 			activate(Collections.EMPTY_MAP);
 		}};
 		
 		// create a parser context with a dummy temp-file-manager	
 		this.parserContextLocal = new TestParserContextLocale();
 		ParserContext.setThreadLocal((TestParserContextLocale)this.parserContextLocal);
+	}
+	
+	/**
+	 * Returns a dummy {@link ITempFileManager}
+	 */
+	protected ITempFileManager getTempFileManager() {
+		return this.aTempFileManager;
+	}
+	
+	/**
+	 * Returns a dummy {@link IReferenceNormalizer}
+	 */
+	protected IReferenceNormalizer getReferenceNormalizer() {
+		return this.aRefNormalizer;
+	}
+	
+	/**
+	 * Returns a dummy {@link IMimeTypeDetector}.
+	 * 
+	 * User {@link #registerMimeTypeForFile(String, String)} to register the
+	 * mime-type that should be returned for a given file-name. 
+	 */
+	protected IMimeTypeDetector getMimeTypeDetector() {
+		return this.aMimetypeDetector;
+	}
+	
+	/**
+	 * Returns a dummy {@link ISubParserManager}.
+	 * 
+	 * User {@link #registerParserForMimeType(String, ISubParser)} to register
+	 * the {@link ISubParser} that should be returned for a given mime-type
+	 */
+	protected ISubParserManager getSubParserManager() {
+		return this.aSubParserManager;
+	}
+	
+	protected IDocumentFactory getDocumentFactory() {
+		return this.docFactory;
+	}
+	
+	protected IParserContextLocal getParserContextLocal() {
+		return this.parserContextLocal;
+	}
+	
+	protected void registerParserForMimeType(String mimeType, ISubParser parser) {
+		this.mimeTypeToParserMap.put(mimeType,parser);
+	}
+	
+	protected void registerMimeTypeForFile(String fileName, String mimeType) {
+		this.fileNameToMimeTypeMap.put(fileName, mimeType);
 	}
 	
 	@Override
@@ -184,28 +264,31 @@ public abstract class AParserTest extends MockObjectTestCase {
 		public File createTempFile() throws IOException {
 			File tmp = File.createTempFile("test", ".tmp");
 			tmp.deleteOnExit();
-			tempFiles.add(tmp);
+			this.tempFiles.add(tmp);
 			return tmp;
 		}
 		public void releaseTempFile(File file) throws FileNotFoundException, IOException {
-			tempFiles.remove(file);
+			this.tempFiles.remove(file);
 			if (file.exists() && !file.delete()) throw new IOException("Unable to delete file: " + file);				
 		}
 		public boolean isKnown(File file) { 
-			return tempFiles.contains(file); 
+			return this.tempFiles.contains(file); 
 		}			
 		public void removeTempDirFor(String... arg0) { }
 		public void setTempDirFor(ITempDir arg0, String... arg1) { }	
 	}	
 	
+	/**
+	 * A dummy {@link ParserContextLocal}
+	 */
 	private class TestParserContextLocale extends ParserContextLocal {
 		public TestParserContextLocale() {
-			this.subParserManager = aSubParserManager;
-			this.mimeTypeDetector = aMimetypeDetector;
+			this.subParserManager = getSubParserManager();
+			this.mimeTypeDetector = getMimeTypeDetector();
 			this.charsetDetector = null;
-			this.tempFileManager = aTempFileManager;
+			this.tempFileManager = getTempFileManager();
 			this.ioTools = new org.paxle.core.io.impl.IOTools();
-			this.referenceNormalizer = aRefNormalizer;
+			this.referenceNormalizer = getReferenceNormalizer();
 		}
 		
 		@SuppressWarnings("unchecked")

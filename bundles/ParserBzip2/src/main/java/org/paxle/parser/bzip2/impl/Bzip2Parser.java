@@ -23,13 +23,14 @@ import java.net.URI;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.tools.bzip2.CBZip2InputStream;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.IIOTools;
 import org.paxle.parser.IParserContext;
+import org.paxle.parser.IParserContextLocal;
 import org.paxle.parser.ISubParser;
-import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.paxle.parser.iotools.ParserDocOutputStream;
 
@@ -37,6 +38,9 @@ import org.paxle.parser.iotools.ParserDocOutputStream;
 @Service(ISubParser.class)
 @Property(name=ISubParser.PROP_MIMETYPES, value={"application/x-bzip2","application/bzip2","application/x-bz2"})
 public class Bzip2Parser implements ISubParser {
+	
+	@Reference
+	protected IParserContextLocal contextLocal;
 	
 	public IParserDocument parse(URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException {
@@ -48,7 +52,7 @@ public class Bzip2Parser implements ISubParser {
 			throw new ParserException("input-stream for '" + location + "' is no valid BZip2-stream");
 		
 		final CBZip2InputStream bis = new CBZip2InputStream(is);
-		final IParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = this.contextLocal.getCurrentContext();
 		final IIOTools iotools = context.getIoTools();
 		final ParserDocOutputStream pdos = new ParserDocOutputStream(context.getTempFileManager(), context.getCharsetDetector());
 		

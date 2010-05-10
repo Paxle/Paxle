@@ -37,8 +37,8 @@ public class MsPowerpointParser extends AMsOfficeParser implements ISubParser {
 	@Override
 	protected void extractText(POIFSFileSystem fs, IParserDocument parserDoc) throws ParserException, IOException {
 		// extract plain text
-		PowerPointExtractor parser = new PowerPointExtractor(fs);
-		String text = parser.getText(true,true);
+		final PowerPointExtractor parser = new PowerPointExtractor(fs);
+		final String text = parser.getText(true,true);
 		if (text != null && text.length() > 0) {
 			parserDoc.append(text);
 		}

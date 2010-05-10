@@ -18,18 +18,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.IParserContext;
+import org.paxle.parser.IParserContextLocal;
 import org.paxle.parser.ISubParser;
-import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 
 import SevenZip.Archive.SevenZip.Handler;
@@ -39,15 +38,15 @@ import SevenZip.Archive.SevenZip.Handler;
 @Property(name=ISubParser.PROP_MIMETYPES, value={"application/x-7z-compressed"})
 public class P7zipParser extends ASubParser implements ISubParser {
 	
-	public static final List<String> MIME_TYPES = Arrays.asList("application/x-7z-compressed");
+	@Reference
+	protected IParserContextLocal contextLocal;
 	
 	@Override
-	public IParserDocument parse(URI location, String charset, File content) throws
-			ParserException, UnsupportedEncodingException, IOException {
+	public IParserDocument parse(URI location, String charset, File content) throws ParserException, UnsupportedEncodingException, IOException {
 		final Handler archive = new Handler();
 		archive.Open(new RAFInStream(content));
 		
-		final IParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = this.contextLocal.getCurrentContext();
 		final ITempFileManager tfm = context.getTempFileManager();
 		final IParserDocument doc = context.createDocument();
 		final SZParserExtractCallback aec = new SZParserExtractCallback(location, doc, archive, tfm, context.getCharsetDetector());

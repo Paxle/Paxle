@@ -28,13 +28,14 @@ import java.util.regex.Pattern;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Constants;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.IParserContext;
+import org.paxle.parser.IParserContextLocal;
 import org.paxle.parser.ISubParser;
-import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 
 @Component(name=PlainParser.PID, metatype=false)
@@ -50,6 +51,9 @@ public class PlainParser implements ISubParser {
 	private static final String PRE_FIXES = "<([{\"'_";
 	private static final String POST_FIXES = ">)]}\"'_:.,;";
 	
+	@Reference
+	protected IParserContextLocal contextLocal;
+	
 	static String removePrePostFixes(final String ref) {
 		int l = 0, r = ref.length() - 1;
 		
@@ -64,15 +68,14 @@ public class PlainParser implements ISubParser {
 	static boolean parseTitle(final IParserDocument pdoc, final BufferedReader br, final IReferenceNormalizer refNorm) throws IOException {
 		while (true) {
 			final String headline = br.readLine();
-			if (headline == null)
-				return false;
+			if (headline == null) return false;
 			
 			final String l = extractRefs(headline.trim(), refNorm, pdoc);
 			if (l.length() > 0) {
 				if (l.length() > MAX_HEADLINE_LENTGH) {
 					int ws = l.lastIndexOf(' ', MAX_HEADLINE_LENTGH);
-					if (ws == -1)
-						ws = MAX_HEADLINE_LENTGH;
+					if (ws == -1) ws = MAX_HEADLINE_LENTGH;
+					
 					pdoc.setTitle(l.substring(0, ws));
 					pdoc.append(l.substring(ws)).append(' ');
 				} else {
@@ -92,12 +95,12 @@ public class PlainParser implements ISubParser {
 			boolean hasReference = false;
 			if (token.indexOf("://") > 0) do {
 				final Matcher m = URI_PATTERN.matcher(token);
-				if (!m.find())
-					break;
+				if (!m.find()) break;
+				
 				final String plainUri = removePrePostFixes(m.group(0));
 				final URI uri = refNorm.normalizeReference(plainUri);
-				if (uri == null)
-					break;
+				if (uri == null) break;
+				
 				pdoc.addReference(uri, token, Constants.SERVICE_PID + ":" + PID);
 				hasReference = true;
 			} while (false);
@@ -122,14 +125,14 @@ public class PlainParser implements ISubParser {
 	}
 	
 	public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException {
-		final IParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = this.contextLocal.getCurrentContext();
 		final IParserDocument pdoc = context.createDocument();
 		return parse(location, charset, is, pdoc);
 	}
 	
 	private IParserDocument parse(URI location, String charset, InputStream is, final IParserDocument pdoc)
 			throws ParserException, UnsupportedEncodingException, IOException {
-		final IReferenceNormalizer refNorm = ParserContext.getCurrentContext().getReferenceNormalizer();
+		final IReferenceNormalizer refNorm = this.contextLocal.getCurrentContext().getReferenceNormalizer();
 		
 		final BufferedReader br = new BufferedReader((charset == null)
 				? new InputStreamReader(is)
@@ -149,7 +152,7 @@ public class PlainParser implements ISubParser {
 	public IParserDocument parse(URI location, String charset, File content)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		
-		final IParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = this.contextLocal.getCurrentContext();
 		final IParserDocument pdoc = context.createDocument();
 		final FileInputStream fis = new FileInputStream(content);
 		try {

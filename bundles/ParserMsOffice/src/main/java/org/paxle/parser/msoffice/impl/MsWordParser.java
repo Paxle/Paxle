@@ -39,12 +39,12 @@ public class MsWordParser extends AMsOfficeParser implements ISubParser {
 	@Override
 	protected void extractText(POIFSFileSystem fs, IParserDocument parserDoc) throws ParserException, IOException {
 		// extract plain text
-		HWPFDocument doc = new HWPFDocument(fs);
+		final HWPFDocument doc = new HWPFDocument(fs);
 		
-		Range r = doc.getRange();
+		final Range r = doc.getRange();
 		for(int i=0; i<r.numParagraphs(); i++) {
 			// get next paragraph 
-			Paragraph p = r.getParagraph(i);
+			final Paragraph p = r.getParagraph(i);
 			
 			// append paragraph text
 			parserDoc.append(p.text());

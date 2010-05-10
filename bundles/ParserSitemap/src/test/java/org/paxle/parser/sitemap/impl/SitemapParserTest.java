@@ -21,20 +21,20 @@ import java.util.ArrayList;
 
 import javax.xml.stream.XMLStreamException;
 
-import junit.framework.TestCase;
 import junitx.framework.ListAssert;
 
-import org.paxle.parser.sitemap.SitemapParser;
+import org.paxle.parser.impl.AParserTest;
 import org.paxle.parser.sitemap.api.Url;
 import org.paxle.parser.sitemap.api.Urlset;
 
-public class SitemapParserTest extends TestCase {
-	private SitemapParser parser = null;
+public class SitemapParserTest extends AParserTest {
+	private SitemapParserImpl parser = null;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.parser = new SitemapParserImpl();
+		this.parser.contextLocal = getParserContextLocal();
 	}
 	
 	public void testParseSitemapXml() throws XMLStreamException, IOException {

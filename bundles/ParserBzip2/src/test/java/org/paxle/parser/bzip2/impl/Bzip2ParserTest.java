@@ -18,7 +18,6 @@ import java.io.File;
 import java.net.URI;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.parser.ISubParser;
 import org.paxle.parser.impl.AParserTest;
 import org.paxle.parser.plain.impl.PlainParser;
 
@@ -33,18 +32,21 @@ public class Bzip2ParserTest extends AParserTest {
 	/**
 	 * The parser
 	 */
-	private ISubParser parser = null;
+	private Bzip2Parser parser = null;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
 		// the archive contains a simple text-file
-		this.fileNameToMimeTypeMap.put(TEST_LOCATION, "text/plain");
-		this.mimeTypeToParserMap.put("text/plain",new PlainParser());
+		this.registerMimeTypeForFile(TEST_LOCATION, "text/plain");
+		this.registerParserForMimeType("text/plain",new PlainParser(){{
+			this.contextLocal = getParserContextLocal();
+		}});
 		
 		// create the parser(s)
-		this.parser = new Bzip2Parser();		
+		this.parser = new Bzip2Parser();
+		this.parser.contextLocal = this.getParserContextLocal();
 	}
 	
 	public void testParseFile() throws Exception {

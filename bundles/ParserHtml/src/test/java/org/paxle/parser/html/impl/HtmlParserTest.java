@@ -58,7 +58,8 @@ public class HtmlParserTest extends AParserTest {
 		
 		// creating the parser
 		this.parser = new HtmlParser();
-		this.parser.activate(null);
+		this.parser.contextLocal = this.getParserContextLocal();
+		this.parser.activate();
 	}
 	
 	@Override

@@ -38,6 +38,7 @@ public class MsWordParserTest extends AParserTest {
 
 		// create parser
 		this.parser = new MsWordParser();
+		this.parser.contextLocal = this.getParserContextLocal();
 	}
 
 	public void testParseMsWord() throws UnsupportedEncodingException, ParserException, IOException, URISyntaxException {

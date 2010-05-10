@@ -18,7 +18,6 @@ import java.io.File;
 import java.net.URI;
 
 import org.paxle.core.doc.IParserDocument;
-import org.paxle.parser.ISubParser;
 import org.paxle.parser.impl.AParserTest;
 
 public class SwfParserTest extends AParserTest {
@@ -30,14 +29,15 @@ public class SwfParserTest extends AParserTest {
 	/**
 	 * The parser
 	 */
-	private ISubParser parser = null;
+	private SWFParser parser = null;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
 		// create the parser(s)
-		this.parser = new SWFParser();		
+		this.parser = new SWFParser();
+		this.parser.contextLocal = this.getParserContextLocal();
 	}
 	
 	public void testParseFile() throws Exception {

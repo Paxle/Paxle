@@ -43,15 +43,16 @@ public class FeedParserTest extends AParserTest {
 		
 		// init the html-parser
 		this.htmlParser = new HtmlParser(){{
-			this.activate(null);
+			this.contextLocal = getParserContextLocal();
+			this.activate();
 		}};
 		
 		// the feed contains html code
-		this.mimeTypeToParserMap.put("text/html",this.htmlParser);
+		this.registerParserForMimeType("text/html",this.htmlParser);
 		
 		// create the parser(s)
 		this.parser = new FeedParser();
-		this.parser.setParserContextLocal(this.parserContextLocal);
+		this.parser.setParserContextLocal(this.getParserContextLocal());
 	}
 	
 	public void testParseRss() throws Exception {

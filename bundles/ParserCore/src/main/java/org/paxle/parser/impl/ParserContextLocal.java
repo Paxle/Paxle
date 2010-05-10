@@ -29,6 +29,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.References;
+import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -51,6 +52,7 @@ import org.paxle.parser.ISubParserManager;
 import org.paxle.parser.ParserContext;
 
 @Component(immediate=true)
+@Service(IParserContextLocal.class)
 @References({
 	@Reference(
 		name="docFactory", 

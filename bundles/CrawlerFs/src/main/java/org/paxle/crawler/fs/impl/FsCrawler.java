@@ -43,7 +43,6 @@ import org.paxle.crawler.ICrawlerTools;
 import org.paxle.crawler.ISubCrawler;
 import org.paxle.crawler.ICrawlerTools.DirlistEntry;
 import org.paxle.crawler.fs.IFsCrawler;
-import org.paxle.crawler.impl.CrawlerTools;
 
 @Component
 @Service(ISubCrawler.class)

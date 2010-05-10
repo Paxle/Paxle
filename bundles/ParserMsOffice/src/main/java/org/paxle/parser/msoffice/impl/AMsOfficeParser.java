@@ -26,6 +26,8 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.poi.hpsf.PropertySet;
 import org.apache.poi.hpsf.SummaryInformation;
 import org.apache.poi.poifs.filesystem.DirectoryEntry;
@@ -33,13 +35,24 @@ import org.apache.poi.poifs.filesystem.DocumentEntry;
 import org.apache.poi.poifs.filesystem.DocumentInputStream;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.paxle.core.doc.IParserDocument;
+import org.paxle.parser.IParserContextLocal;
 import org.paxle.parser.ISubParser;
-import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 
+@Component(componentAbstract=true)
 public abstract class AMsOfficeParser implements ISubParser {
 	
+	/**
+	 * For logging
+	 */
 	private Log logger = LogFactory.getLog(this.getClass());
+	
+	@Reference
+	protected IParserContextLocal contextLocal;
+	
+	/**
+	 * The type of the parser, e.g. "excel"
+	 */
 	private final String docType;
 	
 	protected AMsOfficeParser(final String docType) {
@@ -62,16 +75,16 @@ public abstract class AMsOfficeParser implements ISubParser {
 		IParserDocument parserDoc = null;
 		try {
 			// create an empty document
-			parserDoc = ParserContext.getCurrentContext().createDocument();
+			parserDoc = this.contextLocal.getCurrentContext().createDocument();
 			
 			// open the POI filesystem
-			POIFSFileSystem fs = new POIFSFileSystem(is);
+			final POIFSFileSystem fs = new POIFSFileSystem(is);
 			
 			// extract metadata
 			this.extractMetadata(fs, parserDoc);
 			
 			// extract plain text
-			extractText(fs, parserDoc);
+			this.extractText(fs, parserDoc);
 			
 			parserDoc.setStatus(IParserDocument.Status.OK);
 			return parserDoc;

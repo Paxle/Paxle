@@ -37,8 +37,8 @@ public class MsVisioParser extends AMsOfficeParser {
 	@Override
 	protected void extractText(POIFSFileSystem fs, IParserDocument parserDoc) throws ParserException, IOException {
 		// extract plain text
-		VisioTextExtractor parser = new VisioTextExtractor(fs);
-		String text = parser.getText();
+		final VisioTextExtractor parser = new VisioTextExtractor(fs);
+		final String text = parser.getText();
 		if (text != null && text.length() > 0) {
 			parserDoc.append(text);
 		}			

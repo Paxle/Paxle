@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -56,8 +57,8 @@ import org.osgi.framework.Constants;
 import org.paxle.core.doc.ICommandProfile;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.parser.IParserContext;
+import org.paxle.parser.IParserContextLocal;
 import org.paxle.parser.ISubParser;
-import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 
 @Component(name=PdfParser.PID,metatype=false)
@@ -71,12 +72,15 @@ public class PdfParser implements ISubParser {
 	 */
 	private final Log logger = LogFactory.getLog(this.getClass());	
 
+	@Reference
+	protected IParserContextLocal contextLocal;
+	
 	public IParserDocument parse(URI location, String charset, InputStream fileIn) throws ParserException, UnsupportedEncodingException, IOException {
 		IParserDocument parserDoc = null;
 		PDDocument pddDoc = null;
 		
 		try {
-			final IParserContext pc = ParserContext.getCurrentContext();
+			final IParserContext pc = this.contextLocal.getCurrentContext();
 			final ICommandProfile cmdProfile = pc.getCommandProfile();
 			
 			// create an empty document			
@@ -273,7 +277,7 @@ public class PdfParser implements ISubParser {
 		final Map<String,Object> names = embeddedFiles.getNames();
 		if (names == null || names.isEmpty()) return;
 		
-		final IParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = this.contextLocal.getCurrentContext();
 		
 		for (Entry<String,Object> name : names.entrySet()) {
 			// final String fileDesc = name.getKey();

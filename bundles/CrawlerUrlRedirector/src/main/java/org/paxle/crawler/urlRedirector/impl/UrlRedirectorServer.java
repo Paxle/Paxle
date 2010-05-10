@@ -53,7 +53,7 @@ public class UrlRedirectorServer {
 	/**
 	 * The port to bind the server to
 	 */
-	@Property(name="Port", intValue=8090)
+	@Property(intValue=8090)
 	static final String PORT = "org.paxle.crawler.urlRedirector.UrlRedirectorServer.port";
 	
 	/**

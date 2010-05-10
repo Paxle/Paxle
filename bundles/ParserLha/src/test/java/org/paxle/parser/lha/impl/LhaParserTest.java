@@ -39,11 +39,14 @@ public class LhaParserTest extends AParserTest {
 		super.setUp();
 		
 		// the lha contains a simple text-file
-		this.fileNameToMimeTypeMap.put("test.txt", "text/plain");
-		this.mimeTypeToParserMap.put("text/plain",new PlainParser());
+		this.registerMimeTypeForFile("test.txt", "text/plain");
+		this.registerParserForMimeType("text/plain",new PlainParser(){{
+			this.contextLocal = getParserContextLocal();
+		}});
 		
 		// create the parser(s)
-		this.parser = new LhaParser();		
+		this.parser = new LhaParser();
+		this.parser.contextLocal = this.getParserContextLocal();
 	}
 	
 	public void testParseFiles() throws Exception {

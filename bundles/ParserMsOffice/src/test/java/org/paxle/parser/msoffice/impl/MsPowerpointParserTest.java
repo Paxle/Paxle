@@ -38,6 +38,7 @@ public class MsPowerpointParserTest extends AParserTest {
 
 		// create parser
 		this.parser = new MsPowerpointParser();
+		this.parser.contextLocal = this.getParserContextLocal();
 	}
 	
 	public void testParseMsPowerpoint() throws UnsupportedEncodingException, ParserException, IOException, URISyntaxException {

@@ -22,25 +22,48 @@ import java.util.Map;
 import junitx.framework.StringAssert;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.doc.LinkInfo;
 import org.paxle.parser.impl.AParserTest;
 
 public class PlainParserTest extends AParserTest {
-
+	/**
+	 * For logging
+	 */
+	private Log logger = LogFactory.getLog(this.getClass());
 	
-	public void _testPlainParser2() throws Exception {
-		final PlainParser pp = new PlainParser();
-		final IParserDocument pdoc = pp.parse(URI.create("http://www.w3.org/Protocols/HTTP/1.1/rfc2616bis/draft-lafon-rfc2616bis-latest.txt"),
-				null, new File("src/test/resources/draft-lafon-rfc2616bis-latest.txt"));
-		System.out.println(pdoc.getTitle());
-		// System.out.println(pdoc.getLinks().toString().replace(", ", "\n\t"));
+	private PlainParser parser;
+	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		this.parser = new PlainParser();
+		this.parser.contextLocal = this.getParserContextLocal();
+	}
+	
+	public void _testPlainParser2() throws Exception {		
+		final IParserDocument pdoc = this.parser.parse(
+				URI.create("http://www.w3.org/Protocols/HTTP/1.1/rfc2616bis/draft-lafon-rfc2616bis-latest.txt"),
+				null, 
+				new File("src/test/resources/draft-lafon-rfc2616bis-latest.txt")
+		);
+		assertNotNull(pdoc);
+		assertNotNull(pdoc.getLinks());
+		
+		this.logger.info(pdoc.getTitle());
 		assertEquals("grep '://' finds 146 occurrences (are these correct URIs?)", 146, pdoc.getLinks().size());
 	}
 	
 	public void testPlainParser1() throws Exception {
-		final PlainParser pp = new PlainParser();
-		final IParserDocument pdoc = pp.parse(new URI("http://www.paxle.net/en/start"), "UTF-8", new File("src/test/resources/paxle.txt"));
+		final IParserDocument pdoc = this.parser.parse(
+			new URI("http://www.paxle.net/en/start"), 
+			"UTF-8", 
+			new File("src/test/resources/paxle.txt"
+		));
+		assertNotNull(pdoc);
 		assertNotNull(pdoc.getTitle());
 		assertEquals("What is Paxle?", pdoc.getTitle());
 		assertNull(pdoc.getAuthor());

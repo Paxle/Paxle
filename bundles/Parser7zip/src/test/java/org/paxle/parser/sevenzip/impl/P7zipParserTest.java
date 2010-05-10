@@ -33,18 +33,21 @@ public class P7zipParserTest extends AParserTest {
 	/**
 	 * The parser
 	 */
-	private ISubParser parser = null;
+	private P7zipParser parser = null;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
 		// the archive contains a simple text-file
-		this.fileNameToMimeTypeMap.put("test.txt", "text/plain");
-		this.mimeTypeToParserMap.put("text/plain",new PlainParser());
+		this.registerMimeTypeForFile("test.txt", "text/plain");
+		this.registerParserForMimeType("text/plain",new PlainParser(){{
+			this.contextLocal = getParserContextLocal();
+		}});
 		
 		// create the parser(s)
-		this.parser = new P7zipParser();		
+		this.parser = new P7zipParser();
+		this.parser.contextLocal = this.getParserContextLocal();
 	}
 	
 	public void testParseFile() throws Exception {

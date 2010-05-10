@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>Parser7zip</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>Paxle - Parser: 7Zip</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -76,7 +76,7 @@
 		<dependency>
 			<groupId>org.paxle</groupId>
 			<artifactId>ParserCore</artifactId>
-			<version>[0.1.9-SNAPSHOT,0.2.0)</version>
+			<version>[0.1.14-SNAPSHOT,0.2.0)</version>
 		</dependency>
 
 		<dependency>

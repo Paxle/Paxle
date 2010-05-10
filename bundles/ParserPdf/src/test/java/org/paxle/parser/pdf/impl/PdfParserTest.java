@@ -47,7 +47,10 @@ public class PdfParserTest extends AParserTest {
 		
 		// create the parser(s)
 		this.parser = new PdfParser();
-		this.mimeTypeToParserMap.put("text/plain", new PlainParser());
+		this.parser.contextLocal = this.getParserContextLocal();
+		this.registerParserForMimeType("text/plain", new PlainParser(){{
+			this.contextLocal = getParserContextLocal();
+		}});
 	}
 	
 	public void testParsePdf() throws Exception {
@@ -94,6 +97,6 @@ public class PdfParserTest extends AParserTest {
 				
 		final IParserDocument pdoc = this.parser.parse(location, charset, testFile);
 		assertNotNull(pdoc);
-		this.docFactory.marshal(pdoc, System.out);
+		this.getDocumentFactory().marshal(pdoc, System.out);
 	}
 }

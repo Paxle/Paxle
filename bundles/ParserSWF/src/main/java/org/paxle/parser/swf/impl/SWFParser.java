@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.karlchenofhell.swf.TextExtractorTagFactory;
 import org.karlchenofhell.swf.TextSink;
@@ -35,8 +36,8 @@ import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.io.IIOTools;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.IParserContext;
+import org.paxle.parser.IParserContextLocal;
 import org.paxle.parser.ISubParser;
-import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 
 @Component(metatype=false)
@@ -47,11 +48,14 @@ public class SWFParser extends ASubParser implements ISubParser {
 	
 	private final Log logger = LogFactory.getLog(SWFParser.class);
 	
+	@Reference
+	protected IParserContextLocal contextLocal;	
+	
 	@Override
 	public IParserDocument parse(final URI location, String charset, InputStream is)
 			throws ParserException, UnsupportedEncodingException, IOException {
 		
-		final IParserContext context = ParserContext.getCurrentContext();
+		final IParserContext context = this.contextLocal.getCurrentContext();
 		
 		final IIOTools iotools = context.getIoTools();
 

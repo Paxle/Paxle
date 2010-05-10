@@ -15,7 +15,6 @@
 package org.paxle.tools.sysmon.impl;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import jsysmon.CPUMonitoringData;
