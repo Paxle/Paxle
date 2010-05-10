@@ -28,7 +28,7 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.framework.BundleContext;
 import org.paxle.filter.robots.impl.rules.RobotsTxt;
 
 @Component(immediate=true, metatype=false)
@@ -47,14 +47,14 @@ public class EhCacheDiskStore implements IRuleStore {
 	private Cache store;
 	
 	@Activate
-	protected void activate(ComponentContext context) {
+	protected void activate(BundleContext context) {
 		// getting data path
 		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + DB_PATH;
 
 		// getting config files
 		@SuppressWarnings("unchecked")
-		Enumeration<URL> configFileEnum = context.getBundleContext().getBundle().findEntries("/resources/", "ehCache.xml", true);
-		URL configFile = (configFileEnum.hasMoreElements()) ? configFileEnum.nextElement() : null;		
+		final Enumeration<URL> configFileEnum = context.getBundle().findEntries("/resources/", "ehCache.xml", true);
+		final URL configFile = (configFileEnum.hasMoreElements()) ? configFileEnum.nextElement() : null;		
 		
 		// init
 		this.init(dataPath, configFile);

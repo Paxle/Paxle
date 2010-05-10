@@ -29,13 +29,12 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.felix.scr.annotations.Component;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.se.provider.rsssearch.IRssSearchProviderManager;
 import org.paxle.se.search.ISearchProvider;
 
@@ -63,7 +62,7 @@ public class RssSearchProviderManager implements IRssSearchProviderManager {
 	private File providerFile;
 	
 	@Activate
-	protected void activate(ComponentContext context) throws IOException {
+	protected void activate(BundleContext context) throws IOException {
 		// getting the data directory to use
 		File providerDir = new File(System.getProperty("paxle.data") + File.separatorChar + "rssSearch");
 		if (!providerDir.exists()) providerDir.mkdirs();
@@ -72,7 +71,7 @@ public class RssSearchProviderManager implements IRssSearchProviderManager {
 		this.providerFile = new File(providerDir, "rssProviders.txt");
 		
 		// getting the bundle context
-		this.bc = context.getBundleContext();
+		this.bc = context;
 		
 		// registering all currently known searchers to the framework
 		ArrayList<String> urls = this.getUrls();
@@ -80,7 +79,7 @@ public class RssSearchProviderManager implements IRssSearchProviderManager {
 	}		
 	
 	@Deactivate
-	protected void deactivate(ComponentContext context) throws Exception {
+	protected void deactivate() throws Exception {
 		this.unregisterSearchers();
 	}	
 	
@@ -159,7 +158,7 @@ public class RssSearchProviderManager implements IRssSearchProviderManager {
 			final String providerID = "org.paxle.se.provider.rsssearch." + provider.feedURL; //Using the host makes using two different feeds on the same site impossible!
 			
 			// register as a service to the framework
-			ServiceRegistration registration = this.bc.registerService(
+			final ServiceRegistration registration = this.bc.registerService(
 					ISearchProvider.class.getName(),
 					provider,
 					new Hashtable<String,String>() {{

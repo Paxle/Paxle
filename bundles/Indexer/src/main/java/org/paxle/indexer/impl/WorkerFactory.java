@@ -20,10 +20,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.core.IMWComponent;
 import org.paxle.core.IMWComponentFactory;
 import org.paxle.core.doc.ICommand;
@@ -54,15 +54,15 @@ public class WorkerFactory implements IWorkerFactory<IndexerWorker> {
 	private final Log logger = LogFactory.getLog(this.getClass());	
 	
 	@Activate
-	protected void activate(ComponentContext context) throws IOException {
-		final BundleContext bc = context.getBundleContext();
+	protected void activate(BundleContext bc) throws IOException {
 		this.logger.info("Initializing mwcomponent for bundle: " + bc.getBundle().getSymbolicName());
 		
 		this.mwComponent = componentFactory.createCommandComponent(this, 5, ICommand.class);
 		this.componentFactory.registerComponentServices(this.mwComponent, bc);
 	}
 	
-	protected void deactivate(ComponentContext context ){
+	@Deactivate
+	protected void deactivate(){
 		if (this.mwComponent != null) {
 			// shutdown threads
 			IMaster<?> master = this.mwComponent.getMaster();

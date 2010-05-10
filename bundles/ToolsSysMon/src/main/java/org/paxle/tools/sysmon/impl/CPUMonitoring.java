@@ -131,7 +131,7 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 	private Log logger = LogFactory.getLog(this.getClass());
 	
 	@Activate
-	protected void activate(Map<String, Object> props) {
+	protected void activate() {
 		// starting jsysmon daemon
 		JSysmon.setUpdateDelay(60000);
 		JSysmon.startMonitoring();

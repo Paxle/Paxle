@@ -49,6 +49,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Services;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.paxle.core.io.IResourceBundleTool;
 import org.paxle.gui.IMenuItem;
@@ -88,8 +89,8 @@ public class MenuManager extends HttpServlet implements IMenuManager, Servlet {
 	private MenuItem rootItem;
 	
 	@Activate
-	protected void activate(ComponentContext context) {
-		this.guiOsgiBundle = context.getBundleContext().getBundle();
+	protected void activate(BundleContext context) {
+		this.guiOsgiBundle = context.getBundle();
 		this.rootItem = new MenuItem(null, null);
 	}
 	

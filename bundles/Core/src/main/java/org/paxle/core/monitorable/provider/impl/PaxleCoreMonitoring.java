@@ -96,7 +96,7 @@ public class PaxleCoreMonitoring implements Monitorable {
 	/**
 	 * An OSGi BundleContext required to get OSGi-Framework properties
 	 */
-	private BundleContext bc;	
+	private BundleContext context;	
 	
 	/**
 	 * For logging
@@ -104,8 +104,8 @@ public class PaxleCoreMonitoring implements Monitorable {
 	private Log logger = LogFactory.getLog(this.getClass());
 	
 	@Activate
-	protected void activate(ComponentContext context) {
-		this.bc = context.getBundleContext();
+	protected void activate(BundleContext context) {
+		this.context = context;
 	}
 
 	public String getDescription(String name) throws IllegalArgumentException {
@@ -121,7 +121,8 @@ public class PaxleCoreMonitoring implements Monitorable {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 				
-		Bundle core = this.bc.getBundle();		
+		final Bundle core = this.context.getBundle();
+		
 		String value= null;
 		if (name.equalsIgnoreCase(VARNAME_RELEASE_VERSION)) {
 			value = (String) core.getHeaders().get("Paxle-Release");

@@ -45,7 +45,7 @@ public class MetaDataServiceImpl implements IMetaDataService {
 	/**
 	 * The context of this component
 	 */
-	protected ComponentContext ctx;	
+	protected BundleContext context;	
 	/**
 	 * for logging
 	 */
@@ -55,8 +55,8 @@ public class MetaDataServiceImpl implements IMetaDataService {
 	protected MetaTypeService metaTypeService;
 	
 	@Activate
-	protected void activate(ComponentContext context) {
-		this.ctx = context;
+	protected void activate(BundleContext context) {
+		this.context = context;
 	}	
 
 	public IMetaData getMetadata(String servicePID, String localeStr) {
@@ -77,10 +77,8 @@ public class MetaDataServiceImpl implements IMetaDataService {
 
 	private IMetaData getMetaDataFromMetaType(String servicePID, Locale locale) {
 		try {
-			final BundleContext context = this.ctx.getBundleContext();
-			
 			// getting a reference to the service with the given ID
-			ServiceReference[] refs = context.getServiceReferences(
+			final ServiceReference[] refs = context.getServiceReferences(
 					null, 
 					String.format("(%s=%s)",
 							Constants.SERVICE_PID,
@@ -104,10 +102,8 @@ public class MetaDataServiceImpl implements IMetaDataService {
 	
 	private IMetaData getMetaData(String servicePID, Locale locale) {
 		try {
-			final BundleContext context = this.ctx.getBundleContext();
-			
 			// getting a reference to the service with the given ID
-			ServiceReference[] refs = context.getServiceReferences(
+			final ServiceReference[] refs = context.getServiceReferences(
 					null, 
 					String.format("(%s=%s)",
 							Constants.SERVICE_PID,

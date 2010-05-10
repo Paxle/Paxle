@@ -65,11 +65,11 @@ public class OsgiFrameworkMonitoring implements Monitorable {
 	/**
 	 * An OSGi BundleContext required to get OSGi-Framework properties
 	 */
-	private BundleContext bc;
+	private BundleContext context;
 	
 	@Activate
-	protected void activate(ComponentContext context) {
-		this.bc = context.getBundleContext();
+	protected void activate(BundleContext context) {
+		this.context = context;
 	}
 	
 	public String getDescription(String name) throws IllegalArgumentException {
@@ -85,7 +85,7 @@ public class OsgiFrameworkMonitoring implements Monitorable {
 			throw new IllegalArgumentException("Invalid Status Variable name " + name);
 		}
 		
-		String propValue = this.bc.getProperty(FRAMEWORK_PROP_PREFIX + name);
+		String propValue = this.context.getProperty(FRAMEWORK_PROP_PREFIX + name);
 		return new StatusVariable(name,StatusVariable.CM_SI,propValue==null?"":propValue);
 	}
 

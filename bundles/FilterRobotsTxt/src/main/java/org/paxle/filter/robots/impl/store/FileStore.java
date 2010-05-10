@@ -27,7 +27,6 @@ import java.io.ObjectOutputStream;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.component.ComponentContext;
 import org.paxle.filter.robots.impl.rules.RobotsTxt;
 
 @Component(immediate=true, metatype=false, enabled=false)
@@ -43,7 +42,7 @@ public class FileStore implements IRuleStore {
 	private FileStoreCleanupThread robotsTxtCleanupThread = null;
 	
 	@Activate
-	protected void activate(ComponentContext context) {
+	protected void activate() {
 		// getting data path
 		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + DB_PATH + File.separatorChar + "files";
 		this.path = new File(dataPath);
