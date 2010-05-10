@@ -42,6 +42,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.paxle.core.io.IIOTools;
+import org.paxle.tools.icon.IFaviconReader;
 import org.paxle.tools.icon.IIconData;
 import org.paxle.tools.icon.IIconTool;
 
@@ -69,6 +70,12 @@ public class IconTool implements IIconTool {
 	 */
 	@Reference
 	protected IIOTools ioTool;
+	
+	/**
+	 * A tool to read favicons from stream or byte-array
+	 */
+	@Reference
+	protected IFaviconReader faviconReader;
 	
 	/**
 	 * A map containing a mapping between <code>mime-types</code> and
@@ -224,7 +231,7 @@ public class IconTool implements IIconTool {
 			} else if (contentMimeType.equals("image/x-icon") || 
 					contentMimeType.equals("image/vnd.microsoft.icon")) {
 				byte[] data = method.getResponseBody();
-				Image icon = FaviconReader.readIcoImage(data);
+				Image icon = this.faviconReader.readIcoImage(data);
 				if (icon != null) body = IconTool.toBytes(icon);
 			} else if (contentMimeType.startsWith("image/")) {
 				body = method.getResponseBody();
@@ -243,7 +250,7 @@ public class IconTool implements IIconTool {
 						byte[] data = bout.toByteArray();
 
 						// trying to read icon
-						Image icon = FaviconReader.readIcoImage(data);					
+						Image icon = this.faviconReader.readIcoImage(data);					
 						if (icon != null) body = IconTool.toBytes(icon);
 					} else {
 						body = readFileIconPng(contentMimeType);

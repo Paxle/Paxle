@@ -6,7 +6,7 @@
 	<groupId>org.paxle.tools</groupId>
 	<artifactId>ToolsIcon</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.7-SNAPSHOT</version>
+	<version>0.1.8-SNAPSHOT</version>
 	<name>Paxle - Tools: Icon</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 

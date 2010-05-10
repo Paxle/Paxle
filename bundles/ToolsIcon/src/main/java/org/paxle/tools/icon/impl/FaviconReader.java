@@ -19,9 +19,15 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 
 import javax.imageio.spi.IIORegistry;
+import javax.imageio.spi.ImageReaderSpi;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Service;
+import org.paxle.tools.icon.IFaviconReader;
 
 import com.ctreber.aclib.image.ico.ICOFile;
 import com.ctreber.aclib.image.ico.spi.ICOImageReaderSPI;
@@ -31,43 +37,56 @@ import com.ctreber.aclib.image.ico.spi.ICOImageReaderSPI;
  * 
  * @author theli
  */
-public class FaviconReader {
-	private static Log logger = LogFactory.getLog(FaviconReader.class);
-
-	static {
+@Component
+@Service(IFaviconReader.class)
+public class FaviconReader implements IFaviconReader {
+	private Log logger = LogFactory.getLog(FaviconReader.class);
+	
+	protected ImageReaderSpi serviceProvider = null;
+	
+	@Activate
+	void activate() {
+		this.serviceProvider = new ICOImageReaderSPI();
+		
 		// registering the ICO lib as new provider
-		IIORegistry.getDefaultInstance().registerServiceProvider(new ICOImageReaderSPI());		
+		IIORegistry.getDefaultInstance().registerServiceProvider(this.serviceProvider);		
+	}
+	
+	@Deactivate
+	void deactivate() {
+		// unregister service provider
+		IIORegistry.getDefaultInstance().deregisterServiceProvider(this.serviceProvider);
 	}
 
-	public static Image readIcoImage(URL theIconURL) {
+	public Image readIcoImage(URL theIconURL) {
 		BufferedImage image = null;
 		try {
 			ICOFile lICOFile = new ICOFile(theIconURL);
 			Image[] images = lICOFile.getImages();
 			if (images != null && images.length > 0) {
-				return selectBest(images);
+				return this.selectBest(images);
 			} 
 		}  catch (Exception e)  {
-			logger.warn(String.format("Unable to load favicon from URL '%s'. %s", theIconURL, e.getMessage()));
+			this.logger.warn(String.format("Unable to load favicon from URL '%s'. %s", theIconURL, e.getMessage()));
 		}		
 		return image;
 	}
 	
-	public static Image readIcoImage(byte[] content) {
+	public Image readIcoImage(byte[] content) {
 		BufferedImage image = null;
 		try {
 			ICOFile lICOFile = new ICOFile(content);
 			Image[] images = lICOFile.getImages();
 			if (images != null && images.length > 0) {
-				return selectBest(images);
+				return this.selectBest(images);
 			} 
 		}  catch (Exception e)  {
-			logger.warn(String.format("Unable to load favicon from byte array. %s", e.getMessage()));
+			this.logger.warn(String.format("Unable to load favicon from byte array. %s", e.getMessage()));
 		}		
 		return image;
 	}
 	
-	private static Image selectBest(Image[] images) {
+	private Image selectBest(Image[] images) {
 		if (images == null) return null;
 		// TODO: select image that fits best in size and quality
 		return images[0];

@@ -25,6 +25,7 @@ import junitx.framework.ArrayAssert;
 
 import org.paxle.core.io.IIOTools;
 import org.paxle.core.io.impl.IOTools;
+import org.paxle.tools.icon.IFaviconReader;
 import org.paxle.tools.icon.IIconData;
 import org.paxle.tools.icon.impl.IconTool;
 
@@ -34,7 +35,8 @@ public class IconToolTest extends TestCase {
 	private static final int TESTCASE_MIMETYPE = 1;
 	
 	private IconTool iconTool;
-	private IIOTools iotools = new IOTools();
+	private IIOTools theIoTools = new IOTools();
+	private IFaviconReader theFaviconReader = new FaviconReader();
 	
 	/**
 	 * Testfiles to test
@@ -51,7 +53,8 @@ public class IconToolTest extends TestCase {
 		
 		// init icon tool
 		this.iconTool = new IconTool(){{
-			this.ioTool = iotools;
+			this.ioTool = theIoTools;
+			this.faviconReader = theFaviconReader;
 			this.activate(null);
 		}};		
 	}
@@ -74,7 +77,7 @@ public class IconToolTest extends TestCase {
 		assertNotNull(iconInput);
 		
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		iotools.copy(iconInput, bout);
+		theIoTools.copy(iconInput, bout);
 		iconInput.close();
 		bout.close();
 		
