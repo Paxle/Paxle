@@ -25,12 +25,12 @@ package org.paxle.crawler;
  *	private ICrawlerContextLocal contextLocal;
  *  
  *	public void setCrawlerContextLocal(ICrawlerContextLocal contextLocal) {
- *		this.context = context;
+ *		this.contextLocal = contextLocal;
  *	}
  *   
  *	public ICrawlerDocument request(URI requestUri) {
  *		// getting the crawler-context
- *		ICrawlerContext context = this.contextLocal.get();
+ *		ICrawlerContext context = this.contextLocal.getCurrentContext();
  *
  *		// using the context e.g. to create a new crawler-document
  *		ICrawlerDocument doc = context.createDocument();

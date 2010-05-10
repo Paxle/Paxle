@@ -24,7 +24,9 @@ import jsysmon.JSysmon;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Constants;
@@ -128,6 +130,7 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		// starting jsysmon daemon
 		JSysmon.setUpdateDelay(60000);
@@ -135,6 +138,7 @@ public class CPUMonitoring implements CPUMonitoringListener, Monitorable {
 		JSysmon.addCPUMonitoringListener(this);
 	}
 
+	@Deactivate
 	protected void deactivate() throws Exception {
 		// stopping jsysmon daemon
 		JSysmon.stopMonitoring();

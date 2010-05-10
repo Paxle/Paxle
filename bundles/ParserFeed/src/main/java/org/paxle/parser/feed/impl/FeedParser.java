@@ -35,8 +35,9 @@ import org.paxle.core.doc.IParserDocument;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.ASubParser;
 import org.paxle.parser.IParserContext;
+import org.paxle.parser.IParserContextAware;
+import org.paxle.parser.IParserContextLocal;
 import org.paxle.parser.ISubParser;
-import org.paxle.parser.ParserContext;
 import org.paxle.parser.ParserException;
 import org.xml.sax.InputSource;
 
@@ -49,7 +50,7 @@ import de.nava.informa.impl.basic.ChannelBuilder;
 @Component(name=FeedParser.PID, metatype=false)
 @Service(ISubParser.class)
 @Property(name=ISubParser.PROP_MIMETYPES, value={"application/rdf+xml","application/rss+xml","application/atom+xml","text/rss"})
-public class FeedParser extends ASubParser implements ISubParser {
+public class FeedParser extends ASubParser implements ISubParser, IParserContextAware {
 	static final String PID = "org.paxle.parser.feed.impl.FeedParser";
 	
 	private static final String MIMETYPE_RDF = "application/rdf+xml";
@@ -61,6 +62,12 @@ public class FeedParser extends ASubParser implements ISubParser {
 	 */
 	private final Log logger = LogFactory.getLog(FeedParser.class);
 	
+	private IParserContextLocal contextLocal;
+
+	public void setParserContextLocal(IParserContextLocal contextLocal) {
+		this.contextLocal = contextLocal;
+	}	
+	
 	@Override
 	public IParserDocument parse(URI location, String charset, InputStream is) throws ParserException, UnsupportedEncodingException, IOException {				
 		
@@ -68,7 +75,7 @@ public class FeedParser extends ASubParser implements ISubParser {
 		IParserDocument pdoc = null;		
 		try {
 			// getting required tools
-			final IParserContext context = ParserContext.getCurrentContext();
+			final IParserContext context = this.contextLocal.getCurrentContext();
 			final IReferenceNormalizer refNorm = context.getReferenceNormalizer();
 
 			// creating an empty document

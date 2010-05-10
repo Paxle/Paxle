@@ -29,7 +29,9 @@ import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.mozilla.intl.chardet.nsDetector;
@@ -56,6 +58,7 @@ public class CharsetDetector implements ICharsetDetector {
 
 	protected ComponentContext context;
 	
+	@Activate
 	protected void activate(ComponentContext context) throws MalformedURLException {
 		this.context = context;
 		
@@ -82,6 +85,7 @@ public class CharsetDetector implements ICharsetDetector {
 		this.inspectableMimeTypes = this.readMimeTypeSet(mimeTypes);
 	}
 
+	@Deactivate
 	protected void deactivate(ComponentContext context) {
 		this.inspectableMimeTypes.clear();
 	}

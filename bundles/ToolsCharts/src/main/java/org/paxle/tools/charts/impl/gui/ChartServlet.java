@@ -37,7 +37,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
@@ -205,6 +207,7 @@ public class ChartServlet extends VelocityLayoutServlet implements EventHandler,
 	 */
 	private HashMap<String, JFreeChart> chartMap = new HashMap<String, JFreeChart>();
 	
+	@Activate
 	protected void activate(ComponentContext context) {
 		this.context = context.getBundleContext();
 		
@@ -244,6 +247,7 @@ public class ChartServlet extends VelocityLayoutServlet implements EventHandler,
 		}
 	}
 		
+	@Deactivate
 	protected void deactivate(ComponentContext context) {
 		this.typeList.clear();
 		this.variableTree.clear();

@@ -18,7 +18,9 @@ import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
 import org.paxle.filter.blacklist.IBlacklist;
 import org.paxle.filter.blacklist.IBlacklistStore;
@@ -43,6 +45,7 @@ public class BlacklistManager implements IBlacklistManager {
 	/**
 	 * This function is called by the OSGi framework if this component is activated
 	 */
+	@Activate
 	protected void activate(Map<String, Object> props) throws InvalidBlacklistnameException {
 		this.blacklistStore = new BlacklistFileStore();
 		if (props != null)
@@ -51,6 +54,7 @@ public class BlacklistManager implements IBlacklistManager {
 			this.enabledBlacklistNames = null;
 	}
 
+	@Deactivate
 	protected void deactivate() throws Exception {
 		// clear blacklist map
 		this.blacklistStore = null;

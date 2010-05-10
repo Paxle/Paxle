@@ -20,7 +20,9 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
@@ -43,6 +45,7 @@ public class LogReaderJul extends ALogReader implements ILogReader {
 	 */
 	protected JulHandler handler;
 	
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		super.activate(props);
 		
@@ -54,6 +57,7 @@ public class LogReaderJul extends ALogReader implements ILogReader {
 		rootLogger.addHandler(this.handler);		
 	}
 	
+	@Deactivate
 	protected void deactivate() {
 		// getting the Log4j root logger
 		Logger rootLogger = Logger.getLogger("");

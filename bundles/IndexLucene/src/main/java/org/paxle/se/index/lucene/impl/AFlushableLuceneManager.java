@@ -27,7 +27,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
@@ -113,6 +115,7 @@ public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager
 	 */
 	private Timer flushTimer;
 
+	@Activate
 	protected void activate(Map<String, Object> props) throws IOException, InterruptedException {
 		// the default analyzer to use
 		this.analyzer = this.stopWordsManager.getDefaultAnalyzer();
@@ -156,6 +159,7 @@ public class AFlushableLuceneManager implements IIndexIteratable, ILuceneManager
 		this.writer.setMergePolicy(policy);
 	}
 	
+	@Deactivate
 	protected void deactivate() throws IOException {
 		// canceling the flush timer
 		this.flushTimer.cancel();		

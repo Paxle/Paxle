@@ -16,7 +16,9 @@ package org.paxle.tools.logging.impl;
 
 import java.util.Map;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
@@ -38,6 +40,7 @@ public class LogReaderOSGi extends ALogReader implements LogListener, ILogReader
 	@Reference(cardinality=ReferenceCardinality.OPTIONAL_UNARY)
 	private LogReaderService osgiLogReader;	
 	
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		super.activate(props);
 		
@@ -45,6 +48,7 @@ public class LogReaderOSGi extends ALogReader implements LogListener, ILogReader
 		this.osgiLogReader.addLogListener(this);
 	}	
 	
+	@Deactivate
 	protected void deactivate() {
 		// removing this class from the log-listeners
 		this.osgiLogReader.removeLogListener(this);

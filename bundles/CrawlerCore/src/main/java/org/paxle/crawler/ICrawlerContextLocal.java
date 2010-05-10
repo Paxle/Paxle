@@ -17,8 +17,6 @@ package org.paxle.crawler;
 import javax.annotation.Nonnull;
 
 
-
-
 /**
  * An interface allowing {@link ISubCrawler sub-crawlers} to access the {@link ICrawlerContext}.
  * <p/>

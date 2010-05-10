@@ -16,6 +16,9 @@ package org.paxle.parser;
 
 import org.paxle.parser.impl.ParserContextLocal;
 
+/**
+ * @deprecated use {@link IParserContextAware#setParserContextLocal(IParserContextLocal)} instead
+ */
 public class ParserContext {	
 	private static ParserContextLocal context = null;
 	    

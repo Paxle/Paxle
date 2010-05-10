@@ -31,7 +31,7 @@ public interface IParserContext {
 
 	/**
 	 * @param mimeType the mime-type
-	 * @return a {@link ISubParser parser} that is capable to parse a resource with the given mimetype
+	 * @return a {@link ISubParser parser} that is capable to parse a resource with the given mimeType
 	 */
 	public ISubParser getParser(String mimeType);
 	

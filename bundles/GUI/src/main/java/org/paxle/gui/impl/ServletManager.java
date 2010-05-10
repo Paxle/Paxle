@@ -25,7 +25,9 @@ import javax.servlet.Servlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
@@ -131,6 +133,7 @@ public class ServletManager implements IServletManager, BundleListener {
 		return bundleLocation;
 	}
 	
+	@Activate
 	protected synchronized void activate(ComponentContext context) {
 		this.context = context;
 		
@@ -156,6 +159,7 @@ public class ServletManager implements IServletManager, BundleListener {
 		this.registerAll();
 	}
 	
+	@Deactivate
 	protected synchronized void deactivate(ComponentContext context) {
 		// unregister all servlets/resources
 		this.unregisterAll();

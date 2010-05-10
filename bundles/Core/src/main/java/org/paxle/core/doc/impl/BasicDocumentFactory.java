@@ -28,6 +28,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
@@ -90,6 +91,7 @@ public class BasicDocumentFactory implements IDocumentFactory {
 
 	protected JAXBContext context;
 	
+	@Activate
 	protected void activate(Map<String, Object> props) throws JAXBException {
 		// init the jaxb factory
 		JaxbFactory.setDocumentFactory(this);
@@ -100,7 +102,9 @@ public class BasicDocumentFactory implements IDocumentFactory {
 		context = JAXBContext.newInstance(
 			"org.paxle.core.doc.impl",
 			loader
-		);		
+		);
+		
+		this.logger.info(this.getClass().getSimpleName() + " activated.");
 	}
 	
 	@SuppressWarnings("unchecked")

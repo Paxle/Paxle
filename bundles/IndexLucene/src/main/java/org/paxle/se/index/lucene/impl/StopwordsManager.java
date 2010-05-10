@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.lucene.analysis.StopAnalyzer;
@@ -52,6 +53,7 @@ public class StopwordsManager implements IStopwordsManager {
 	 */
 	PaxleAnalyzer defaultAnalyzer = null;
 	
+	@Activate
 	protected void activate(ComponentContext context) {
 		@SuppressWarnings("unchecked")
 		final Enumeration<URL> stopwords = context.getBundleContext().getBundle().findEntries("/stopwords/snowball/", "*" + StopwordsManager.STOPWORDS_FILE_EXT, true);

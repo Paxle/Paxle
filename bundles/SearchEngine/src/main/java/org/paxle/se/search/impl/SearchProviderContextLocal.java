@@ -22,6 +22,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
@@ -71,6 +72,7 @@ public class SearchProviderContextLocal extends ThreadLocal<ISearchProviderConte
 		SearchProviderContext.setThreadLocal(this);
 	}    
 		
+	@Activate
 	protected void activate(ComponentContext context) {
 		this.ctx = context;
 	}	

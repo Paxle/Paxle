@@ -26,6 +26,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
@@ -70,8 +71,8 @@ import org.paxle.parser.ISubParser;
 		referenceInterface = ICrawlerContextAware.class,
 		cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
 		policy=ReferencePolicy.DYNAMIC,
-		bind="addCrawlerContextAware",
-		unbind="removeCrawlerContextAware"
+		bind="addContextAwareCrawler",
+		unbind="removeContextAwareCrawler"
 	),
 	@Reference(
 		name=CrawlerContextLocal.REFERENCE_DOCFACTORY, 
@@ -148,6 +149,7 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> implements
 		this.remove();
 	}
 	
+	@Activate
 	protected void activate(ComponentContext context) {
 		this.ctx = context;
 	}
@@ -170,12 +172,12 @@ public class CrawlerContextLocal extends ThreadLocal<ICrawlerContext> implements
 		}
 	}
 
-	protected void addCrawlerContextAware(ICrawlerContextAware crawlerContextAware) {
-		crawlerContextAware.setCrawlerContextLocal(this);
+	protected void addContextAwareCrawler(ICrawlerContextAware contextAwareCrawler) {
+		contextAwareCrawler.setCrawlerContextLocal(this);
 	}
 	
-	protected void removeCrawlerContextAware(ICrawlerContextAware crawlerContextAware) {
-		crawlerContextAware.setCrawlerContextLocal(null);
+	protected void removeContextAwareCrawler(ICrawlerContextAware contextAwareCrawler) {
+		contextAwareCrawler.setCrawlerContextLocal(null);
 	}
 	
 	protected void addSubParser(ServiceReference subParser) {

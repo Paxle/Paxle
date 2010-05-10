@@ -25,6 +25,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.component.ComponentContext;
@@ -45,6 +46,7 @@ public class EhCacheDiskStore implements IRuleStore {
 	 */
 	private Cache store;
 	
+	@Activate
 	protected void activate(ComponentContext context) {
 		// getting data path
 		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + DB_PATH;

@@ -30,7 +30,9 @@ import java.util.jar.JarFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Services;
@@ -80,6 +82,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider {
 	/** HashMap containing available styles */
 	private final HashMap<String, File> styles = new HashMap<String, File>();	
 
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		// the supported locales
 		this.locales = this.resourceBundleTool.getLocaleArray(IStyleManager.class.getSimpleName(), Locale.ENGLISH);
@@ -105,6 +108,7 @@ public class StyleManager implements IStyleManager, MetaTypeProvider {
 		this.setStyle(style==null?"default":style);
 	}
 
+	@Deactivate
 	protected void deactivate() {
 		this.styles.clear();
 	}

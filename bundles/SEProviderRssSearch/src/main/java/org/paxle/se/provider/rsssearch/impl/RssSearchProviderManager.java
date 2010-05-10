@@ -28,6 +28,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Component;
 import org.osgi.framework.BundleContext;
@@ -60,6 +62,7 @@ public class RssSearchProviderManager implements IRssSearchProviderManager {
 	 */
 	private File providerFile;
 	
+	@Activate
 	protected void activate(ComponentContext context) throws IOException {
 		// getting the data directory to use
 		File providerDir = new File(System.getProperty("paxle.data") + File.separatorChar + "rssSearch");
@@ -76,6 +79,7 @@ public class RssSearchProviderManager implements IRssSearchProviderManager {
 		this.registerSearchers(urls);
 	}		
 	
+	@Deactivate
 	protected void deactivate(ComponentContext context) throws Exception {
 		this.unregisterSearchers();
 	}	

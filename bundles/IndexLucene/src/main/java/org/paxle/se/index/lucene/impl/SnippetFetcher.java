@@ -29,7 +29,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.lucene.analysis.Analyzer;
@@ -88,11 +90,13 @@ public class SnippetFetcher implements ISnippetFetcher {
 	 */
 	protected PaxleAnalyzer analyzer;
 	
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		this.analyzer = this.stopwordsManager.getDefaultAnalyzer();
 		this.execService = Executors.newCachedThreadPool();
 	}
-		
+	
+	@Deactivate
 	protected void deactivate() {
 		// shutdown thread-pool
 		this.execService.shutdown();

@@ -50,7 +50,8 @@ public class FeedParserTest extends AParserTest {
 		this.mimeTypeToParserMap.put("text/html",this.htmlParser);
 		
 		// create the parser(s)
-		this.parser = new FeedParser();	
+		this.parser = new FeedParser();
+		this.parser.setParserContextLocal(this.parserContextLocal);
 	}
 	
 	public void testParseRss() throws Exception {

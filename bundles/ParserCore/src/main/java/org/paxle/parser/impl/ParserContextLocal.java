@@ -23,10 +23,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.References;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -42,21 +44,33 @@ import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.norm.IReferenceNormalizer;
 import org.paxle.parser.IParserContext;
+import org.paxle.parser.IParserContextAware;
+import org.paxle.parser.IParserContextLocal;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ISubParserManager;
 import org.paxle.parser.ParserContext;
 
 @Component(immediate=true)
-@Reference(
-	name="docFactory", 
-	referenceInterface = IDocumentFactory.class,
-	cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
-	policy=ReferencePolicy.DYNAMIC,
-	bind="addDocFactory",
-	unbind="removeDocFactory",
-	target="(docType=*)"
-)
-public class ParserContextLocal extends ThreadLocal<IParserContext> {	
+@References({
+	@Reference(
+		name="docFactory", 
+		referenceInterface = IDocumentFactory.class,
+		cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
+		policy=ReferencePolicy.DYNAMIC,
+		bind="addDocFactory",
+		unbind="removeDocFactory",
+		target="(docType=*)"
+	),
+	@Reference(
+		name="parserContextAware", 
+		referenceInterface = IParserContextAware.class,
+		cardinality=ReferenceCardinality.OPTIONAL_MULTIPLE,
+		policy=ReferencePolicy.DYNAMIC,
+		bind="addContextAwareParser",
+		unbind="removeContextAwareParser"
+	)
+})
+public class ParserContextLocal extends ThreadLocal<IParserContext> implements IParserContextLocal {	
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();		
@@ -103,6 +117,7 @@ public class ParserContextLocal extends ThreadLocal<IParserContext> {
 		ParserContext.setThreadLocal(this);
 	}    
 		
+	@Activate
 	protected void activate(ComponentContext context) {
 		this.ctx = context;
 	}	
@@ -123,11 +138,25 @@ public class ParserContextLocal extends ThreadLocal<IParserContext> {
 		} finally {
 			w.unlock();
 		}
-	}	
+	}
+	
+	public IParserContext getCurrentContext() {
+		return this.get();
+	}
 	
 	@Override
 	protected IParserContext initialValue() {
 		return new Context();
+	}
+	
+	public void addContextAwareParser(IParserContextAware contextAwareParser) {
+		if (contextAwareParser == null) return;
+		contextAwareParser.setParserContextLocal(this);
+	}
+	
+	public void removeContextAwareParser(IParserContextAware contextAwareParser) {
+		if (contextAwareParser == null) return;
+		contextAwareParser.setParserContextLocal(null);
 	}
 	
 	protected <DOC> DOC createDocumentForInterface(Class<DOC> docInterface, String filter) throws InvalidSyntaxException, IOException {

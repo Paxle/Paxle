@@ -44,6 +44,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
@@ -95,6 +96,7 @@ public class BlacklistDialogue extends JPanel implements DIComponent, ActionList
 	
 	private ItemListModel ilm = null;
 	
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		this.flm = new FilterListsComboBoxModel(blacklistFilter);
 		this.listSelCBox = new JComboBox(flm);

@@ -18,7 +18,9 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
@@ -58,6 +60,7 @@ public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 	 */
 	private final Log logger = LogFactory.getLog(this.getClass());
 
+	@Activate
 	protected void activate(ComponentContext context) throws IOException {
 		final BundleContext bc = context.getBundleContext();
 		this.logger.info("Initializing mwcomponent for bundle: " + bc.getBundle().getSymbolicName());
@@ -66,6 +69,7 @@ public class WorkerFactory implements IWorkerFactory<CrawlerWorker> {
 		this.componentFactory.registerComponentServices(this.mwComponent, bc);
 	}
 	
+	@Deactivate
 	protected void deactivate(ComponentContext context ){
 		if (this.mwComponent != null) {
 			// shutdown threads

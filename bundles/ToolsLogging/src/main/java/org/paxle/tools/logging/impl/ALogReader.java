@@ -19,7 +19,9 @@ import java.util.Map;
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.BufferUtils;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.paxle.tools.logging.ILogData;
@@ -40,6 +42,7 @@ public abstract class ALogReader implements ILogReader {
 	protected Buffer fifo = null;			
 
 	@OverrideMustInvoke
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		// configuring the buffer
 		Integer bufferSize = Integer.valueOf(200);
@@ -50,6 +53,7 @@ public abstract class ALogReader implements ILogReader {
 	}
 
 	@OverrideMustInvoke(When.LAST)
+	@Deactivate
 	protected void deactivate() {
 		if (this.fifo != null) {
 			// clear messages

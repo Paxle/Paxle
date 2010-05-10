@@ -34,7 +34,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
@@ -85,11 +87,13 @@ public class SearchProviderManager implements ISearchProviderManager {
 	 */
 	private final Log logger = LogFactory.getLog(SearchProviderManager.class);
 
+	@Activate
 	protected void activate(ComponentContext context) {
 		this.ctx = context;
 		this.execService = Executors.newCachedThreadPool();
 	}
 	
+	@Deactivate
 	protected void deactivate(ComponentContext context ){
 		this.logger.info("Search provider manager going to be deactivated now ...");
 		this.logger.debug("Waiting for searches to finish");

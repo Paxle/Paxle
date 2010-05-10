@@ -24,6 +24,7 @@ import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.component.ComponentContext;
@@ -41,6 +42,7 @@ public class FileStore implements IRuleStore {
 	
 	private FileStoreCleanupThread robotsTxtCleanupThread = null;
 	
+	@Activate
 	protected void activate(ComponentContext context) {
 		// getting data path
 		final String dataPath = System.getProperty("paxle.data") + File.separatorChar + DB_PATH + File.separatorChar + "files";

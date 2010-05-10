@@ -20,6 +20,7 @@ import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -46,6 +47,7 @@ public class RobotsTxt extends VelocityLayoutServlet {
 	/** The text of the robots.txt file */
 	public static final String ROBOTSTXT = PID + '.' + "robotstxt-txt";
 	
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		this.config = props;
 	}

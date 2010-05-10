@@ -21,6 +21,7 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
@@ -102,6 +103,7 @@ public class PaxleCoreMonitoring implements Monitorable {
 	 */
 	private Log logger = LogFactory.getLog(this.getClass());
 	
+	@Activate
 	protected void activate(ComponentContext context) {
 		this.bc = context.getBundleContext();
 	}

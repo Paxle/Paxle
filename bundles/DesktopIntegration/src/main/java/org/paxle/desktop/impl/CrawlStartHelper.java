@@ -21,7 +21,9 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
@@ -63,10 +65,12 @@ public class CrawlStartHelper implements ICrawlStartHelper {
 	
 	private final HashMap<Integer,Integer> profileDepthMap = new HashMap<Integer,Integer>();
 	
+	@Activate
 	protected void activate(ComponentContext ctx) {
 		commandDB = ctx.locateService("commandDB");
 	}
 	
+	@Deactivate
 	protected void deactivate(@SuppressWarnings("unused") ComponentContext ctx) {
 		profileDepthMap.clear();
 	}

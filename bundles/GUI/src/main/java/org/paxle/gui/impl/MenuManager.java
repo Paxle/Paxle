@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -86,6 +87,7 @@ public class MenuManager extends HttpServlet implements IMenuManager, Servlet {
 	 */
 	private MenuItem rootItem;
 	
+	@Activate
 	protected void activate(ComponentContext context) {
 		this.guiOsgiBundle = context.getBundleContext().getBundle();
 		this.rootItem = new MenuItem(null, null);

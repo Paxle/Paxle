@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -82,6 +83,7 @@ public class LogView extends VelocityLayoutServlet {
      */
     protected Log logger = LogFactory.getLog(this.getClass());	
 	
+    @Activate
 	protected void activate(ComponentContext context) {
 		this.ctx = context;
 	}

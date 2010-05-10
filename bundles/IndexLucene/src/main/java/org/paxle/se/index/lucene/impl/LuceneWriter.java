@@ -22,7 +22,9 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
@@ -71,6 +73,7 @@ public class LuceneWriter extends Thread implements IIndexWriter, IDataConsumer<
 	
 	protected Converter defaultCv;
 	
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		this.defaultCv = new Converter(this.stopwordsManager.getDefaultAnalyzer());
 	
@@ -81,6 +84,7 @@ public class LuceneWriter extends Thread implements IIndexWriter, IDataConsumer<
 		this.logger.info("Lucene writer has been started");
 	}
 	
+	@Deactivate
 	protected void deactivate() throws IOException {
 		this.interrupt();
 		try { this.join(); } catch (InterruptedException e) { /* ignore this */ }

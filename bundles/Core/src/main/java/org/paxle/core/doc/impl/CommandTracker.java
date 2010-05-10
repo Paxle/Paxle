@@ -28,7 +28,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Services;
@@ -127,6 +129,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();	
 
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		this.refQueue = new ReferenceQueue<ICommand>();
 
@@ -248,6 +251,7 @@ public class CommandTracker extends Thread implements ICommandTracker, EventHand
 	 * Terminates the {@link #run() cleanup-thread}
 	 * @throws InterruptedException
 	 */
+	@Deactivate
 	protected void deactivate() throws InterruptedException {
 		this.interrupt();
 		this.join(2000);

@@ -16,7 +16,9 @@ package org.paxle.tools.logging.impl;
 
 import java.util.Map;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
@@ -45,6 +47,7 @@ public class LogReaderLog4j extends ALogReader implements ILogReader {
 	 */
 	protected Log4jAppender appender;
 	
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		super.activate(props);
 		
@@ -56,6 +59,7 @@ public class LogReaderLog4j extends ALogReader implements ILogReader {
 		rootLogger.addAppender(this.appender);		
 	}
 	
+	@Deactivate
 	protected void deactivate() {
 		// getting the Log4j root logger
 		Logger rootLogger = Logger.getRootLogger();

@@ -67,7 +67,9 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
@@ -208,6 +210,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 	/**
 	 * @param path the path where the {@link RobotsTxt} objects should be stored
 	 */
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		if (props != null) {
 			this.init(props);
@@ -315,6 +318,7 @@ public class RobotsTxtManager implements IRobotsTxtManager, Monitorable {
 		));
 	}
 
+	@Deactivate
 	protected void deactivate(){
 		final Status status = this.manager.getStatus();
 		if (status.equals(Status.STATUS_ALIVE)) {

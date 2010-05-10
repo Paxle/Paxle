@@ -40,6 +40,7 @@ import org.paxle.core.io.temp.ITempDir;
 import org.paxle.core.io.temp.ITempFileManager;
 import org.paxle.core.mimetype.IMimeTypeDetector;
 import org.paxle.core.norm.IReferenceNormalizer;
+import org.paxle.parser.IParserContextLocal;
 import org.paxle.parser.ISubParser;
 import org.paxle.parser.ISubParserManager;
 import org.paxle.parser.ParserContext;
@@ -54,6 +55,8 @@ public abstract class AParserTest extends MockObjectTestCase {
 	protected IMimeTypeDetector aMimetypeDetector = null;
 	protected ISubParserManager aSubParserManager = null;
 	protected IDocumentFactory docFactory;
+	
+	protected IParserContextLocal parserContextLocal = null;
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -155,8 +158,9 @@ public abstract class AParserTest extends MockObjectTestCase {
 			activate(Collections.EMPTY_MAP);
 		}};
 		
-		// create a parser context with a dummy temp-file-manager		
-		ParserContext.setThreadLocal(new TestParserContextLocale());
+		// create a parser context with a dummy temp-file-manager	
+		this.parserContextLocal = new TestParserContextLocale();
+		ParserContext.setThreadLocal((TestParserContextLocale)this.parserContextLocal);
 	}
 	
 	@Override

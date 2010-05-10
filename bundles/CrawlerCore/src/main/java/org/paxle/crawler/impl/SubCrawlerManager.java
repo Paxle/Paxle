@@ -33,7 +33,10 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
@@ -117,6 +120,7 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 	 */
 	private ComponentContext context;
 		
+	@Activate
 	protected void activate(ComponentContext context) {
 		this.context = context;
 		
@@ -132,11 +136,19 @@ public class SubCrawlerManager implements ISubCrawlerManager, MetaTypeProvider, 
 		if (disabledProtocols != null) {
 			this.disabledCrawlerProtocols.clear();
 			this.disabledCrawlerProtocols.addAll(Arrays.asList(disabledProtocols));
-		}		
+		}
+		
+		this.logger.info(this.getClass().getSimpleName() + " activated.");
 	}
 	
+	@Deactivate
 	protected void deactivate(ComponentContext context) {
-		// Nothing special to do here
+		this.logger.info(this.getClass().getSimpleName() + " deactivated.");
+	}
+	
+	@Modified
+	protected void modified(ComponentContext context) {
+		this.logger.info(this.getClass().getSimpleName() + " modified.");
 	}
 	
 	/**

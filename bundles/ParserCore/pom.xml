@@ -6,7 +6,7 @@
 	<groupId>org.paxle</groupId>
 	<artifactId>ParserCore</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.1.13-SNAPSHOT</version>
+	<version>0.1.14-SNAPSHOT</version>
 	<name>Paxle - Parser: Core</name>
 	<url>${paxle.bundleDocUrl}/${pom.artifactId}</url>
 
@@ -63,7 +63,9 @@
 							org.paxle.core.metadata;version="[0.1.0,0.2.0)",
 							org.paxle.core.mimetype;version="[0.1.0,0.2.0)", 
 							org.paxle.core.norm;version="[0.1.0,0.2.0)",
-							org.paxle.core.prefs;version="[0.1.0,0.2.0)"							
+							org.paxle.core.prefs;version="[0.1.0,0.2.0)",
+							<!-- ignoring compile time annotations -->
+							!javax.annotation				
 						</Import-Package>
 						<Private-Package>
 							org.paxle.parser.impl

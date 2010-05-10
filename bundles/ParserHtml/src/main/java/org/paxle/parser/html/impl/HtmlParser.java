@@ -35,7 +35,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.htmlparser.Node;
@@ -108,11 +110,13 @@ public class HtmlParser implements IHtmlParser, ISubParser, PoolableObjectFactor
 	 */
 	private ObjectPool pool = null;
 	
+	@Activate
 	protected void activate(Map<String, Object> props) {
 		this.pool = new GenericObjectPool(this);
 		ScriptScanner.STRICT = false;
 	}
 
+	@Deactivate
 	protected void deactivate() throws Exception {
 		this.pool.close();
 		this.pool = null;
