@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.paxle.tools.charset.impl.CharsetDetector;
 import org.paxle.tools.charset.impl.CharsetDetectorOutputStream;
@@ -51,12 +52,12 @@ public class CharsetDetectorTest  extends TestCase {
 
 		// set detector properties
 		final File mimeTypesFile = new File("src/main/resources/mimeTypes");
-		final Dictionary<String, Object> props = new Hashtable<String, Object>();
+		final Map<String, Object> props = new Hashtable<String, Object>();
 		props.put(CharsetDetector.MIMETYPE_FILE, mimeTypesFile.toURI().toURL().toExternalForm());
 		
 		// create and activate component
 		this.detector = new CharsetDetector();
-		this.detector.activate(props);
+		this.detector.activate(null, props);
 	}
 	
 	@Override
@@ -64,7 +65,7 @@ public class CharsetDetectorTest  extends TestCase {
 		super.tearDown();
 		
 		// deactivate detector
-		this.detector.deactivate(null);
+		this.detector.deactivate();
 	}
 
 	public void testDetectCharsetsFromStream() throws Exception {

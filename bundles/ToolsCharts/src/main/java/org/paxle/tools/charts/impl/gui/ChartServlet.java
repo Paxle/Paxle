@@ -208,8 +208,8 @@ public class ChartServlet extends VelocityLayoutServlet implements EventHandler,
 	private HashMap<String, JFreeChart> chartMap = new HashMap<String, JFreeChart>();
 	
 	@Activate
-	protected void activate(ComponentContext context) {
-		this.context = context.getBundleContext();
+	protected void activate(BundleContext context) {
+		this.context = context;
 		
 		this.typeList = new HashMap<String, Integer>();
 		this.variableTree = new HashMap<String, HashSet<String>>();
@@ -248,7 +248,7 @@ public class ChartServlet extends VelocityLayoutServlet implements EventHandler,
 	}
 		
 	@Deactivate
-	protected void deactivate(ComponentContext context) {
+	protected void deactivate() {
 		this.typeList.clear();
 		this.variableTree.clear();
 		this.chartMap.clear();

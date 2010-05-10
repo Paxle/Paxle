@@ -24,8 +24,8 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Dictionary;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,7 +36,7 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.mozilla.intl.chardet.nsDetector;
 import org.mozilla.intl.chardet.nsPSMDetector;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.framework.BundleContext;
 import org.paxle.core.charset.ICharsetDetector;
 
 @Component(immediate=true, metatype=true, label="Charset-Detector", description="A component to detect the charset of text files")
@@ -56,28 +56,19 @@ public class CharsetDetector implements ICharsetDetector {
 	 */
 	protected HashSet<String> inspectableMimeTypes = null;
 
-	protected ComponentContext context;
+	protected BundleContext context;
 	
 	@Activate
-	protected void activate(ComponentContext context) throws MalformedURLException {
+	protected void activate(BundleContext context, Map<String,Object> props) throws MalformedURLException {
 		this.context = context;
 		
-		// getting the service properties
-		@SuppressWarnings("unchecked")
-		Dictionary<String, Object> props = context.getProperties();
-		
-		// init this component
-		this.activate(props);
-	}
-		
-	protected void activate(Dictionary<String, Object> props) throws MalformedURLException {
 		// getting the location of the mime-type file
 		String mimeTypeFile = (String) props.get(MIMETYPE_FILE);
 		if (mimeTypeFile == null) mimeTypeFile = "/mimeTypes";
 		
 		URL mimeTypes = null;
 		if (mimeTypeFile.startsWith("/")) {			
-			mimeTypes = this.context.getBundleContext().getBundle().getEntry("/mimeTypes");
+			mimeTypes = this.context.getBundle().getEntry("/mimeTypes");
 		} else {
 			mimeTypes = new URL(mimeTypeFile);
 		}
@@ -86,7 +77,7 @@ public class CharsetDetector implements ICharsetDetector {
 	}
 
 	@Deactivate
-	protected void deactivate(ComponentContext context) {
+	protected void deactivate() {
 		this.inspectableMimeTypes.clear();
 	}
 	
