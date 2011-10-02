@@ -87,11 +87,11 @@
 							<goal>test-jar</goal>
 						</goals>
 					</execution>
-					<configuration>
-						<!-- Always create the test jar, even with maven.test.skip=true -->
-						<skip>false</skip>
-					</configuration>
 				</executions>
+				<configuration>
+					<!-- Always create the test jar, even with maven.test.skip=true -->
+					<skip>false</skip>
+				</configuration>
 			</plugin>					
 		</plugins>
 	</build>
